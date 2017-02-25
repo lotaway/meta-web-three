@@ -5,6 +5,7 @@
 
 var express = require('express'),
     path = require('path'),
+    fs = require('fs'),
 //mongoose = require('mongoose'),
     mongoose = require('./mongoose'),    //  设置好的连接
     bodyParser = require('body-parser'),    //  用于解析post值数据

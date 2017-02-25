@@ -1,7 +1,7 @@
 function start(req, res) {
     res.render('/testIndex',{
         page: {
-            title: title
+            // title: title
         },
         template: {
             Floder: './public'
