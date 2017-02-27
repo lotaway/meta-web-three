@@ -6,6 +6,7 @@
 var express = require('express'),
     path = require('path'),
     fs = require('fs'),
+    jade = require('jade'),
 //mongoose = require('mongoose'),
     mongoose = require('./mongoose'),    //  设置好的连接
     bodyParser = require('body-parser'),    //  用于解析post值数据
@@ -23,7 +24,7 @@ var MongoStore = require('connect-mongo')(session),
 // 模板路径
 app.set('views', path.join(__dirname, '../views'));
 //  模板引擎
-app.set('view engine', 'html');
+app.set('view engine', 'jade');
 app.engine('.html', ejs.__express);
 
 app.use(logger('dev'));

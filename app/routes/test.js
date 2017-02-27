@@ -1,5 +1,5 @@
 function start(req, res) {
-    res.render('/testIndex',{
+    res.render('testIndex',{
         page: {
             // title: title
         },
@@ -25,4 +25,10 @@ function start(req, res) {
         ]
     })
 }
+
+function getui(req, res) {
+    res.render('getui');
+}
+
 exports.start = start;
+exports.getui = getui;

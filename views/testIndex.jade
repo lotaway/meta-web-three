@@ -1,16 +1,17 @@
-html(xmlns='http://www.w3.org/1999/xhtml')
+html
     head
         extends ./head
         block title
-            title 修改为这个标题
+            title 测试页面入口
         block append styleSheets
             link(type='text/css',rel='styleSheet',href='#{template.Floder}css/index.css')
         block append scripts
             script.
-                $(function () {
-                    $("img.lazy").lazyload({effect: "fadeIn", threshold: 200});
-                });
+                window.onload = function () {
+                    //  document.querySelectorAll(".lazy").lazyload({effect: "fadeIn", threshold: 200});
+                };
     body
+        a(href="getui") 测试个推接口
         mixin goods_tab(goods)
             .YourLoveSon
                 case goods.length
@@ -30,7 +31,7 @@ html(xmlns='http://www.w3.org/1999/xhtml')
                                             .YLProSPrice.clearFix
                                                 span ￥
                                                 - if (site.isShowVisitorPrice == 1 || user != null)
-                                                    i= good.salePrice
+                                                i= good.salePrice
                                                 span.YLZhe 限购#{good.limit}
                                                 .YLProMPrice ￥#{good.marketPrice}
 
@@ -42,16 +43,16 @@ html(xmlns='http://www.w3.org/1999/xhtml')
         main
             //- 轮播海报区块
             - if(home){
-                .banner
-                    ul#slider
-                        - for (var ad in home.slides)
-                        li
-                            a(href='$ad.url')
-                                img.lazy(data-original='$ad.src',src='$ad.src')
-                        | $end
-                    #pagenavi
-                        - for(var i=0;i< home.slides.length;i++)
-                        a(href='javascript:void(0)',class= i == 1 ? 'active' : '')
+            .banner
+                ul#slider
+                    - for (var ad in home.slides)
+                    li
+                        a(href='ad.url')
+                            img.lazy(data-original='ad.src',src='ad.src')
+                    | end
+                #pagenavi
+                    - for(var i=0;i< home.slides.length;i++)
+                    a(href='javascript:void(0)',class= i == 1 ? 'active' : '')
             - }
             ul
                 each cat in categories

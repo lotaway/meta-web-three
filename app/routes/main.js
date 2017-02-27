@@ -14,7 +14,8 @@ var express = require('express'),
     handler = {
         GET: {
             '/': index.start,           //  首页
-            '/testIndex': test.start,   //  任意测试
+            '/test/index': test.start,   //  任意测试
+            '/test/getui': test.getui,   //  个推
             '/list': list.start,        //  商品列表
             //'/list/:id': list.start,  //  商品详情
             '/reg': user.signIn,     //  用户注册
