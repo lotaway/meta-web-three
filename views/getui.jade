@@ -1,0 +1,14 @@
+html
+    head
+        extends ./head
+        block title
+            title 个推测试
+        block append styleSheets
+            link(type='text/css',rel='styleSheet',href='public/css/global.css')
+        block append scripts
+            script.
+                window.onload = function () {
+                    //  document.querySelectorAll(".lazy").lazyload({effect: "fadeIn", threshold: 200});
+                };
+    body
+        a(href="getui") 测试个推接口
