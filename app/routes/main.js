@@ -27,6 +27,7 @@ var express = require('express'),
             '/out': out.start           //  登出
         },
         POST: {
+            '/api/getui': test.api,   //  个推接口
             '/user/signUp': user.signUp,
             '/post/search': search.post
         }

@@ -1,14 +1,10 @@
 html
     head
-        extends ./head
-        block title
-            title 个推测试
-        block append styleSheets
-            link(type='text/css',rel='styleSheet',href='public/css/global.css')
-        block append scripts
-            script.
-                window.onload = function () {
-                    //  document.querySelectorAll(".lazy").lazyload({effect: "fadeIn", threshold: 200});
-                };
+        meta(charset="utf-8")
+        title= pageTitle
+        link(rel="styleSheet",href="../css/global.css")
     body
-        a(href="getui") 测试个推接口
+        input#title(type="text",placeholder="标题")
+        input#content(type="text",placeholder="内容")
+        a#btn_submit 推送
+        script(src="../js/getui.js",type="text/javascript")

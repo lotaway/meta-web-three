@@ -2,21 +2,14 @@ html(manifest='/chache.appchache')
     head
         meta(charset="utf-8")
         title= pageTitle
-        link(rel="styleSheet",href="./css/global.css")
+        link(rel="styleSheet",href="../css/global.css")
     body
-        <% include header.html %>
+        extends ./header
         main.container
             h1= pageTitle
             p 这是首页
             p
                 a.btn.btn-primary.btn-lg(href="#",role="button") 学习更多
         nav
-            ul
-                li
-                    a(href='_doc/index.html') 本地首页
-                li
-                    a(href='_doc/list.html') 本地列表
-                li
-                    a(href='/index.html') 远程朋友圈
-        <% include footer.html %>
-        script(src="../js/jquery.min.js")
+        //extends ./footer.html
+        script(src="../js/jQuery.js")
