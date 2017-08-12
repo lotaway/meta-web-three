@@ -11,15 +11,16 @@ var express = require('express'),
     mongoose = require('./mongoose'),    //  设置好的连接
     bodyParser = require('body-parser'),    //  用于解析post值数据
     cookieParser = require('cookie-parser'),
-    session = require('express-session'),
+    session = require('express-session'),   //  会话（session）支持中间件
     logger = require('morgan'),
     config = require('./config.js'),
     main_router = require('../app/routes/main'),
     ejs = require('ejs');
 
-var MongoStore = require('connect-mongo')(session),
+var MongoStore = require('connect-mongo')(session), //  将 session 存储于 mongodb，需结合 express-session 使用，我们也可以将 session 存储于 redis，如 connect-redis
     db = mongoose(),
     app = express();
+// connect-flash: 基于 session 实现的用于通知功能的中间件，需结合 express-session 使用
 
 // 模板路径
 app.set('views', path.join(__dirname, '../views'));
