@@ -1,7 +1,7 @@
 /**
  * Created by lotaway on 2016/5/11.
  */
-var express = require('express'),
+let express = require('express'),
     router = express.Router(),
     url = require('url'),
     index = require('./index'),
@@ -35,7 +35,7 @@ var express = require('express'),
 
 //  使用中间件
 router.use(function (req, res, next) {
-    var pathname = url.parse(req.url).pathname;
+    let pathname = url.parse(req.url).pathname;
     console.log(pathname + ' 请求接收于：' + Date.now());
 
 //  把response对象传给handlers模块，直接将结果返回到页面或进行处理。
@@ -46,7 +46,7 @@ router.use(function (req, res, next) {
     //  判断当前映射的action是否为一个函数
     if (typeof handler[req.method][pathname] === 'function') {
         //  直接执行handle
-        var content = handler[req.method][pathname](req, res, next);
+        let content = handler[req.method][pathname](req, res, next);
         console.log("handle content: " + content);  //  处理返回的内容，可以用于？
     }
     else {
