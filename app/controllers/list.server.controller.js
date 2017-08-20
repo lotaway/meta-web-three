@@ -4,8 +4,8 @@
 
 module.exports = {
     start: function (req, res, next) {
-        var list_model = require('mongoose').model('List');
-        var page_size = req.query.size || 10,
+        let list_model = require('mongoose').model('List'),
+            page_size = req.query.size || 10,
             page_start = (req.query.page | 1 - 1) * page_size;
 
         list_model.getPage(page_size, page_start, function (err, doc) {
@@ -28,4 +28,4 @@ module.exports = {
             else next(err);
         });
     }
-}
+};
