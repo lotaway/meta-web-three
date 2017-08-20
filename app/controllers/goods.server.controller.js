@@ -15,11 +15,11 @@ module.exports = {
                     fakerData: [
                         {
                             name: 'hah',
-                            price: 288.00
+                            salePrice: 288.00
                         },
                         {
                             name: 'waters',
-                            price: 100000.00
+                            salePrice: 100000.00
                         }
                     ],
                     data: doc      //  返回的文档doc是对象格式吗？

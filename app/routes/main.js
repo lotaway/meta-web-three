@@ -9,7 +9,7 @@ var express = require('express'),
     download = require('./download'),
     search = require('./search'),
     out = require('./out'),
-    list = require('../controllers/list.server.controller'),
+    list = require('../controllers/goods.server.controller'),
     test = require('./test'),
     handler = {
         /*
