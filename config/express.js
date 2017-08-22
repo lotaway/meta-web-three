@@ -3,7 +3,7 @@
  * https://www.npmjs.com/package/pm2 pm2持续运行、重启
  */
 
-var express = require('express'),
+let express = require('express'),
     path = require('path'),
     fs = require('fs'),
     jade = require('jade'),
@@ -17,7 +17,7 @@ var express = require('express'),
     main_router = require('../app/routes/main'),
     ejs = require('ejs');
 
-var MongoStore = require('connect-mongo')(session), //  将 session 存储于 mongodb，需结合 express-session 使用，我们也可以将 session 存储于 redis，如 connect-redis
+let MongoStore = require('connect-mongo')(session), //  将 session 存储于 mongodb，需结合 express-session 使用，我们也可以将 session 存储于 redis，如 connect-redis
     db = mongoose(),
     app = express();
 // connect-flash: 基于 session 实现的用于通知功能的中间件，需结合 express-session 使用
@@ -73,7 +73,7 @@ app.use("", main_router);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-    var err = new Error('Not Found');
+    let err = new Error('Not Found');
     err.status = 404;
     next(err);
 });
