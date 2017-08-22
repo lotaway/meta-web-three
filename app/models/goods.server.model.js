@@ -1,14 +1,24 @@
 /**
  * 商品列表模型
  */
-var mongoose = require('mongoose');
-var listSchema = new mongoose.Schema({
-    name: String,
-    price: Number,
-    num: Number,
-    images: [
+let mongoose = require('mongoose')
+    , listSchema = new mongoose.Schema({
+    name: String,   //  商品名称
+    salePrice:  {  //  商品价格
+        type: Number,
+        default: 0
+    },
+    num: {    //  库存数量
+        type: Number,
+        default: 0
+    },
+    images: [       //  图片地址
         String
-    ]
+    ],
+    meta: {
+        createTime: Date.now(),
+        updateTime: Date.now()
+    }
 });
 listSchema.methods = {
     /**
