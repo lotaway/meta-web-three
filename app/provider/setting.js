@@ -1,4 +1,4 @@
-import Base from './base/base';
+import Base from './base';
 
 /**
  * 配置文件接口

@@ -1,7 +1,7 @@
 /**
  * 商品列表和商品详情页
  */
-let ServiceGoods = require("../service/goods");
+let ServiceGoods = require("../provider/goods");
 
 module.exports = {
     start: function (req, res, next) {

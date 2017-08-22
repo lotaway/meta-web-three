@@ -1,7 +1,7 @@
 /**
  * 一元购商品相关接口
  */
-import Base from './base/base';
+import Base from './base';
 
 class CrowdFunding extends Base {
 

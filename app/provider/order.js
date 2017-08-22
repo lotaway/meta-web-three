@@ -1,7 +1,7 @@
 /**
  * 订单相关接口
  */
-import Base from './base/base';
+import Base from './base';
 import Payment from '../utils/pay';
 
 class Order extends Base {

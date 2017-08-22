@@ -1,5 +1,5 @@
 // import crypto from '../utils/crypto';
-import Base from './base/base';
+import Base from './base';
 
 class Cart extends Base {
 

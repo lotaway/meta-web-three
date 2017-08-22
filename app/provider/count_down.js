@@ -1,4 +1,4 @@
-﻿import Base from './base/base';
+﻿import Base from './base';
 
 /**
  * 云购用的倒计时，使用接口获取时间

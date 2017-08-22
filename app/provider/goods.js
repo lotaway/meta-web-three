@@ -1,4 +1,4 @@
-import Base from './base/base';
+import Base from './base';
 import 'babel-polyfill';
 
 /**
