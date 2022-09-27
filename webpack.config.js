@@ -1,4 +1,4 @@
-var webpack = require('webpack');
+let webpack = require('webpack');
 //var commonsPlugin = new webpack.optimize.CommonsChunkPlugin('common.js');
 /*var htmlWebpackPlugin = require('html-webpack-plugin'); //使用自动生成html文件的一个插件
 var path = require('path');*/

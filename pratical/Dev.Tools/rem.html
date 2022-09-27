@@ -1,0 +1,25 @@
+<!doctype <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <style>
+        .h1 {
+            font-size: 10rem;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="h1">内容</h1>
+    <script>
+        window.addEventListener("DOMContentLoaded", function () {
+            var wd = 1 / window.devicePixelRatio;
+
+            document.head.innerHTML += '<meta name="viewport" content="width=device-width, initial-scale=' + wd + ', user-scalable=no">';
+        });
+    </script>
+</body>
+
+</html>

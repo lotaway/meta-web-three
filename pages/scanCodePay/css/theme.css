@@ -1,0 +1,5198 @@
+﻿@charset "utf-8";
+@import "./icon.css";
+
+.main-color,
+.important,
+footer .item.active .text,
+footer .item.active .icon:before {
+    color: #760fcc;
+}
+
+.bo-main-color {
+    border-color: #760fcc;
+}
+
+.ba-main-color,
+.shoppingCartAmount .sub-num,
+button.aui_state_highlight {
+    background: #760fcc;
+    color: #fff;
+}
+
+.supplier-register .container-logo .img-con {
+    background: #ccc;
+}
+
+.supplier-register .list .input-button .button.disabled,
+.RgTxtGetIDCode input[type=button].disabled,
+.RgTxtGetIDCode input[type=button].finished {
+    background: #ccc;
+    color: #999;
+}
+
+.OrderNav > a p.OrderNavIco span {
+    background: #760fcc;
+}
+
+.OrderNav > a.cur {
+    color: #760fcc;
+}
+
+.OrderLiBt a.TakeBt {
+    background: #760fcc;
+}
+
+.OrderLiBt a.OrderPayBt {
+    background: #760fcc;
+}
+
+.OrderNo a {
+    color: #760fcc;
+}
+
+.OrderH {
+    border-bottom: 1px solid #760fcc;
+}
+
+.OrderH ul li.OrderNavH label {
+    color: #760fcc;
+}
+
+.OrderExpress dt, .OrderTime dt {
+    color: #760fcc;
+}
+
+.OrderSaleAct dt {
+    color: #760fcc;
+}
+
+.AddressSave input[type=submit] {
+    background: #760fcc;
+}
+
+.AddressSave1 input[type=submit] {
+    background: #760fcc;
+}
+
+.ShopcartN p a {
+    background: #760fcc;
+}
+
+.AddYBuyH span {
+    border-left: 3px solid #760fcc;
+}
+
+.TeamNav {
+    border: 1px solid #760fcc;
+}
+
+.TeamNav a.cur {
+    background: #760fcc;
+}
+
+.Countdown {
+    background: #760fcc;
+}
+
+.Countdown.cur {
+    background: #760fcc;
+}
+
+.hpNav > div a.cur {
+    border-bottom: 2px solid #760fcc;
+    color: #760fcc;
+}
+
+.YGListProBarBg {
+    background: #760fcc;
+}
+
+.Sortl ul li.cur {
+    border-left: 3px solid #760fcc;
+}
+
+.SortHotRecom a.active {
+    border-bottom: 1px solid #760fcc;
+    color: #760fcc;
+}
+
+.PsBanner #Psnav a.active {
+    background: #760fcc;
+}
+
+.PsPackage dt .floatl {
+    border-left: 3px solid #760fcc;
+}
+
+.PsDetTabH > div.cur {
+    border-bottom: 2px solid #760fcc;
+    color: #760fcc;
+}
+
+.HpPeriodList > a.cur {
+    color: #760fcc;
+}
+
+.PsHpIngBox > .floatr > a {
+    background: #760fcc;
+}
+
+.PsHpIngName {
+    color: #760fcc;
+}
+
+.PsYgPeriodList li.cur {
+    color: #760fcc;
+}
+
+.PsYgCountdownBox {
+    border: 1px solid #760fcc;
+}
+
+.PsYgCountdown span.YgCountdownTime {
+    background: #760fcc;
+}
+
+.PsYgCountdown span.YgCountdownColon {
+    color: #760fcc;
+}
+
+.PsYgAnnouncedGeterBox dd .floatl span {
+    color: #760fcc;
+}
+
+.PsYgAnnouncedGeterBox dd .floatr a {
+    background: #760fcc;
+}
+
+.AttrPic.cur {
+    border: 1px solid #760fcc;
+}
+
+.AttrWord.cur {
+    background: #760fcc;
+}
+
+.ChBoxBt a {
+    background: #760fcc;
+}
+
+.OrderInfoCancelBt {
+    background: #760fcc;
+}
+
+.CollectH {
+    color: #760fcc;
+}
+
+.wxPayMoney span {
+    color: #760fcc;
+}
+
+.wxPaySub > div a.wxPaySubmit {
+    background: #760fcc;
+}
+
+.wxPaySub > div a.wxPaySubmit.disabled {
+    background: #eee;
+}
+
+div.flicking_con a.on {
+    background: #760fcc;
+}
+
+.cd-nav-head {
+    background: #760fcc;
+}
+
+.password_find_page .btn-password .btn-submit:first-child {
+    border-color: #760fcc;
+    background: #760fcc;
+}
+
+.password_find_page .container-mobile-code .btnMobileCode {
+    background: #760fcc;
+}
+
+.user_expense_records .active {
+    color: #760fcc;
+}
+
+.user_order_comment .update-tip {
+    color: #760fcc;
+}
+
+.YgSureAddrBt a {
+    background: #760fcc;
+}
+
+.member-msg .radio:checked {
+    border-color: #760fcc;
+}
+
+.user_safety .bo-main-color {
+    border: 1px solid #760fcc;
+}
+
+.user_safety .ba-main-color {
+    background: #760fcc;
+}
+
+.commission-psw-find .small-box {
+    border: 1px solid #760fcc;
+}
+
+.commission-update-psw .small-box {
+    border: 1px solid #760fcc;
+}
+
+.OpBonusNum {
+    color: #760fcc;
+}
+
+.OpBonusRule a:hover {
+    color: #760fcc;
+}
+
+.OpBonusOpenL ul {
+    background: #760fcc;
+}
+
+.OpBonusOpenL ul li {
+    border-bottom: 1px solid #760fcc;
+}
+
+.relaybonus-list .BonusList .BonusHas .money {
+    color: #760fcc;
+}
+
+.commission-set-password .btn-submit, .set-account .btn-submit {
+    background: #760fcc;
+}
+
+.integral-withdrawal .btn-submit {
+    background: #760fcc;
+}
+
+.pay-online .btn-submit {
+    background: #760fcc;
+}
+
+.coupon-pass .activity_info .btn-submit {
+    background: #760fcc;
+}
+
+.pay-success .red-gift-forces .btn-call {
+    background: #760fcc;
+}
+
+.activity-info .SignData .send_input:focus {
+    border-color: #760fcc;
+}
+
+.activity-info .SignData .send_btn {
+    background: #760fcc;
+}
+
+.apply_info_show .title {
+    color: #760fcc;
+}
+
+.apply_info_show .btn {
+    background: #760fcc;
+}
+
+.MenberRatings {
+    background: #760fcc;
+}
+
+.HeadM {
+    color: #fff;
+}
+
+.MainFoot, .foot {
+    background: #fff;
+    color: #666;
+}
+
+.MainFoot a, .foot a {
+    color: #666;
+}
+
+.goTop {
+    background: #fff url(../images/goTop.png) center no-repeat;
+    background-size: auto 100%;
+}
+
+.Foot2r a {
+    background: #760fcc;
+    color: #fff;
+}
+
+.Foot2r input[type=submit] {
+    background: #760fcc;
+    color: #fff;
+}
+
+.Foot2l {
+    color: #666;
+}
+
+.Foot2l span {
+    color: #760fcc;
+}
+
+.PsFoot > div a.FServiceBt {
+    color: #666;
+}
+
+.PsFoot > div a.FAddCartBt, .PsFoot > div a.YgFAddCartBt {
+    background: #b624e0;
+    color: #fff;
+}
+
+.PsFoot > div a.FBuyBt, .PsFoot > div a.FBuyBt2, .PsFoot > div a.FTeamBuyBt, .PsFoot > div a.YgFBuyBt {
+    background: #760fcc;
+    color: #fff;
+}
+
+.PsFoot > div a.FBuyNoBt {
+    background: #666;
+    color: #fff;
+}
+
+.PsFoot > div a.PsHpStartNow {
+    background: #666;
+}
+
+.ProName a {
+    color: #666;
+}
+
+.ProPrice {
+    color: #292929;
+}
+
+.ProPrice del {
+    color: #292929;
+}
+
+.Zhe {
+    background: #760fcc url(../images/zheBg.png) left center no-repeat;
+    color: #fff;
+}
+
+.ProSale {
+    color: #999;
+}
+
+.ProSale .floatr span {
+    color: #b624e0;
+}
+
+.Minus, .Plus {
+    border: 1px solid #ccc;
+}
+
+.NumTxt {
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    color: #333;
+}
+
+.SCMinus, .SCPlus {
+    border: 1px solid #eee;
+    background-color: #fff;
+}
+
+.CartNumXg .SCMinus, .CartNumXg .SCPlus {
+    border: 1px solid #ccc;
+}
+
+.SCNumTxt {
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    color: #333;
+}
+
+.HpMinus, .HpPlus {
+    border: 1px solid #ccc;
+}
+
+.HpNumTxt {
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    color: #333;
+}
+
+.YgMinus, .YgPlus {
+    border: 1px solid #ccc;
+}
+
+.YgNumTxt {
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    color: #333;
+}
+
+.orange {
+    color: #760fcc;
+}
+
+.aui_state_focus.aui_state_lock {
+    color: #fff;
+}
+
+button.aui_state_highlight {
+    color: #FFF;
+}
+
+.aui_content > div {
+    color: #fff;
+}
+
+.aui_content .artDialog_prompt3_input {
+    color: #B9B8B8;
+}
+
+a, a:hover, del {
+    color: #333;
+}
+
+body {
+    background: #efeff4;
+    color: #333;
+}
+
+footer {
+    background: #fff;
+    border-top: 1px solid #eee;
+}
+
+.HeadR2 a {
+    color: #fff;
+}
+
+.supplier-list .tool-bar .list .container-filter .list-filter,
+.MenuList ul {
+    background: #262626;
+}
+
+.supplier-list .tool-bar .list .container-filter .list-filter .item,
+.MenuList ul li {
+    border-bottom: 1px solid #fff;
+}
+
+.supplier-list .tool-bar .list .container-filter .list-filter .item .link,
+.MenuList ul li a {
+    color: #fff;
+}
+
+header.searchH {
+    background: #f8f8f8;
+}
+
+.Hsearchr input[type=submit] {
+    color: #666;
+}
+
+.HSearchTxt {
+    border: 1px solid #dfdede;
+    background: #fff;
+}
+
+.ChNav {
+    background: #fff;
+    border-bottom: 1px solid #eee;
+}
+
+.ChNavmore {
+    border-left: 1px solid #eee;
+}
+
+.ChNavUp span {
+    background: #fff url(../images/Moreup.png) center no-repeat;
+    background-size: 40% auto;
+}
+
+.ChNavCon a {
+    color: #333;
+}
+
+.ChBanner {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+}
+
+.ChListBox {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.ChListH .floatl {
+    color: #666;
+}
+
+.ChListH .floatr a {
+    color: #666;
+}
+
+.ChListH .floatr span {
+    background: #760fcc url(../images/Chmoreico.png) center no-repeat;
+    background-size: 6px 10px;
+}
+
+.ChList > div {
+    border: 1px solid #dfdede;
+}
+
+.VotesList ul li {
+    background: #fff;
+}
+
+.VotesProBox {
+    background: #ccc;
+}
+
+.VotesProBox .VotesProBg {
+    background: #760fcc;
+}
+
+.VotesListBt a {
+    background: #760fcc;
+    color: #fff;
+}
+
+.supplier-register .list,
+.RgTxtBox {
+    border: 1px solid #d5d5d5;
+    background: #fff;
+}
+
+.supplier-register .list .item-selection-single,
+.supplier-register .list .item,
+.RgTxt {
+    border-bottom: 1px solid #d5d5d5;
+}
+
+.supplier-register .list .item-selection-single:last-child {
+    border-bottom: none;
+}
+
+.RgTxt input[type=password],
+.RgTxt input[type=text] {
+    color: #ccc;
+}
+
+select.selectSalesOutlets {
+    color: #ccc;
+}
+
+.RgTxtPw1 a {
+    color: #666;
+}
+
+.supplier-register .list .input-button .input,
+.RgTxtGetIDCode input[type=text] {
+    background: #fff;
+}
+
+.RgTxtSave .floatl {
+    color: #666;
+}
+
+.RgTxtSave .floatl:last-child select {
+    border: 1px solid #d5d5d5;
+    background: #fff url(../images/Moredown.png) right 4px center no-repeat;
+    background-size: 16px 9px;
+    color: #999;
+}
+
+.supplier-register .btn-submit,
+.RgTxtSubBt .btnRegisterSubmit,
+.RgTxtSubBt input[type=submit] {
+    color: #fff;
+}
+
+.LoginOtherH {
+    color: #666;
+}
+
+.LoginOther a p {
+    color: #666;
+}
+
+.LoginOtherIco {
+    border: 1px solid #dfdede;
+}
+
+.container-agreement,
+.RgRule {
+    color: #666;
+}
+
+.container-agreement,
+.RgRule a {
+    color: #666;
+}
+
+.IntegralH {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+    color: #666;
+}
+
+.IntegralH span {
+    color: #760fcc;
+}
+
+.IntegralLists {
+    background: #fff;
+}
+
+.IntegralLists ul {
+    border-top: 1px solid #dfdede;
+}
+
+.IntegralLists ul li {
+    border-bottom: 1px solid #dfdede;
+}
+
+.IProListPic {
+    border: 1px solid #dfdede;
+}
+
+.IProListN a {
+    color: #666;
+}
+
+.IProListPrice .floatl {
+    color: #760fcc;
+}
+
+.IProListPrice .floatr {
+    color: #666;
+}
+
+.IProListBuy .floatl {
+    color: #666;
+}
+
+.user-prize-list .list .btn-positive,
+.IProListBuy .floatr a {
+    color: #fff;
+}
+
+.user-prize-list .list .btn-positive,
+.IProListBuy .floatr a.IntegralYBt {
+    background: #760fcc;
+}
+
+.IProListBuy .floatr a.IntegralNBt {
+    background: #666;
+}
+
+.supplier-list .tool-bar .list,
+.prolistH {
+    border-bottom: 1px solid #eee;
+    background: #fff;
+}
+
+.supplier-list .tool-bar .list .item,
+.prolistH > div {
+    border-right: 1px solid #eee;
+}
+
+.supplier-list .tool-bar .list .item .link,
+.prolistH > div a {
+    color: #666;
+}
+
+.supplier-list .tool-bar .list .item.active .link {
+    color: #760fcc;
+}
+
+.TypeList .item-goods {
+    border-bottom: 1px solid #eee;
+}
+
+.TypeList li.loading {
+    color: #999;
+}
+
+.component-goods-item {
+    background: #fff;
+}
+
+.component-goods-item .msg .name {
+    color: #333;
+}
+
+.component-goods-item .msg .item-tag {
+    border: 1px solid #666;
+    color: #666;
+}
+
+.component-goods-item .msg .item-tag.main-color {
+    border-color: #760fcc;
+    color: #760fcc;
+}
+
+.component-goods-item .msg .item-tag.sec-color {
+    border-color: #b624e0;
+    color: #b624e0;
+}
+
+.component-goods-item .msg .container-sale .item {
+    color: #999;
+}
+
+.component-goods-item .msg .container-sale .salePrice {
+    color: #760fcc;
+}
+
+.component-goods-item .msg .icon {
+    background-color: #760fcc;
+}
+
+.ProBack span.YLZhe {
+    background: #760fcc;
+    color: #fff;
+}
+
+.ProBack span.red {
+    color: #760fcc;
+}
+
+.InfoList {
+    background: #fff;
+}
+
+.InfoList li {
+    border-bottom: 1px solid #eee;
+}
+
+.InfoList li:last-child {
+    border-bottom: none;
+}
+
+.InfoList .InfoCon {
+    color: #666;
+}
+
+.InfoList .InfoName {
+    color: #333;
+}
+
+.InfoList .InfoTime {
+    color: #999;
+}
+
+.EvalCon {
+    color: #333;
+}
+
+.EvalTime {
+    color: #999;
+}
+
+.OrderAll {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.OrderAll a .floatl {
+    color: #333;
+}
+
+.OrderAll a .floatr {
+    color: #ccc;
+}
+
+.OrderNav {
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.OrderNav > a p.OrderNavIco span {
+    color: #fff;
+}
+
+.OrderLi {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.OrderLiPro .floatl {
+    border: 1px solid #e7e7e7;
+}
+
+.OrderLiPro .floatr {
+    color: #666;
+}
+
+.OrderLiPay {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    color: #666;
+}
+
+.OrderLiBt a {
+    border: 1px solid #dfdede;
+    color: #666;
+}
+
+.OrderLiBt a.TakeBt {
+    color: #fff;
+}
+
+.OrderLiBt a.OrderPayBt {
+    color: #fff;
+}
+
+.OrderNo {
+    color: #333;
+}
+
+.OrderH {
+    border-top: 1px solid #dfdede;
+    background: #fff;
+}
+
+.OrderH ul li label {
+    color: #666;
+}
+
+.AddAddressN {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.AddAddrNone a {
+    color: #666;
+}
+
+.AddAddressY {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.AddAddr a {
+    color: #666;
+}
+
+.AddAddrDet {
+    color: #666;
+}
+
+.OrderPro {
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.OrderPro dt {
+    border-top: 1px solid #dfdede;
+}
+
+.OrderPro dt:last-child {
+    border-bottom: 1px solid #dfdede;
+}
+
+.OrderPro dt.child {
+    border-top: none;
+}
+
+.OrderPro dt .floatl {
+    border: 1px solid #e7e7e7;
+}
+
+.OrderPro dt .floatr {
+    color: #666;
+}
+
+.OrderProN a {
+    color: #333;
+}
+
+.OrderProAttr {
+    color: #999;
+}
+
+.OrderPro dd {
+    border-top: 1px solid #dfdede;
+}
+
+.OrderPro dd > div.OrderTotal {
+    color: #760fcc;
+}
+
+.Remark {
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.RemarkH {
+    color: #666;
+}
+
+.RemarkTxt {
+    border: 1px solid #dfdede;
+}
+
+.Invoice {
+    color: #666;
+}
+
+.section-block {
+    border-top: 1px solid #dfdede;
+    background: #fff;
+}
+
+.OrderExpress, .OrderTime {
+    border-top: 1px solid #dfdede;
+    background: #fff;
+}
+
+.OrderExpress dt, .OrderTime dt {
+    border-bottom: 1px solid #dfdede;
+}
+
+.OrderExpress dd, .OrderTime dd {
+    border-bottom: 1px solid #dfdede;
+    color: #666;
+}
+
+.OrderSaleAct {
+    width: 100%;
+    border-top: 1px solid #dfdede;
+    background: #fff;
+}
+
+.OrderSaleAct dt {
+    border-bottom: 1px solid #dfdede;
+}
+
+.OrderSaleAct dd {
+    border-bottom: 1px solid #dfdede;
+    color: #666;
+}
+
+.ticket-coupon {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+    font-size: 16px;
+}
+
+.ticket-coupon .input {
+    border: 1px solid #760fcc;
+}
+
+.ticket-coupon .p-coupon-class {
+    border: 1px solid #760fcc;
+    color: #760fcc;
+}
+
+.ticket-coupon .button {
+    background: #760fcc;
+    color: #fff;
+}
+
+.Pickup {
+    border-top: 1px solid #dfdede;
+    background: #fff;
+}
+
+.Pickup dd {
+    border-bottom: 1px solid #dfdede;
+}
+
+.Pickup dd .floatl {
+    color: #666;
+}
+
+.Pickup dt {
+    border-bottom: 1px solid #dfdede;
+}
+
+.PickupMap a {
+    color: #fff;
+}
+
+.LookMap {
+    background: #b624e0;
+}
+
+.LookAll {
+    background: #760fcc;
+}
+
+.PayType {
+    background: #fff;
+}
+
+.PayType ul {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+}
+
+.PayType ul li {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+}
+
+.PayType ul li.border {
+    border: 1px solid #760fcc;
+}
+
+.OrderPayWayIntegral, .PayTypeYuMoney {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.OrderPayWayIntegral > div input[type=checkbox], .OrderPayYu input[type=checkbox], .PayTypeYuMoney > div input[type=checkbox] {
+    background: #dfdede;
+}
+
+.Address {
+    border-top: 1px solid #dfdede;
+    background: #fff;
+}
+
+.Address dd {
+    border-bottom: 1px solid #dfdede;
+    color: #666;
+}
+
+.Address dd .floatl {
+    color: #666;
+}
+
+.AddressSave input[type=submit] {
+    color: #fff;
+}
+
+.AddressSave1 input[type=submit] {
+    color: #fff;
+}
+
+.AddressSave1 input[type=button] {
+    background: #760fcc;
+    color: #fff;
+}
+
+.NewsAddress {
+    background: #760fcc;
+    color: #fff;
+}
+
+.NewsAddress:hover {
+    color: #fff;
+}
+
+.AddressList {
+    background: #fff;
+}
+
+.AddressList dd {
+    border-bottom: 1px solid #dfdede;
+}
+
+.AddressList dd.DefaultAddr {
+    background: #5e6b85 url(../images/YesBg.png) center right 10px no-repeat;
+    background-size: 20px 14px;
+    color: #fff;
+}
+
+.AddressList dd.DefaultAddr div, .AddressList dd.DefaultAddr div a {
+    color: #fff;
+}
+
+.ShopcartN p {
+    color: #666;
+}
+
+.ShopcartN p a {
+    color: #fff;
+}
+
+.LoveH {
+    color: #999;
+}
+
+.LoveH a {
+    color: #999;
+}
+
+.LoveBox ul li, .RecomPro ul li {
+    background: #fff;
+}
+
+.CartLi {
+    background: #fff;
+}
+
+.CarMiss {
+    background: #E6E6E6;
+}
+
+.CartLi .floatr p.CartOPrice {
+    color: #999;
+}
+
+.CartM .CartMPic {
+    border: 1px solid #f7f7f7;
+}
+
+.CartMAttr {
+    color: #999;
+}
+
+.AddYBuy {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.AddYBuyH {
+    border-bottom: 1px solid #dfdede;
+}
+
+.AddYBuyH span {
+    color: #666;
+}
+
+.AddYBuyList li {
+    border-bottom: 1px solid #dfdede;
+}
+
+.AddYBuyList li > .floatl {
+    border: 1px solid #ccc;
+}
+
+.AddYBuyNprice {
+    color: #760fcc;
+}
+
+.AddYbuyMore a {
+    color: #666;
+}
+
+.TeamNav {
+    background: #fff;
+}
+
+.TeamNav a {
+    color: #666;
+}
+
+.TeamNav a.cur {
+    color: #fff;
+}
+
+.Countdown {
+    color: #fff;
+}
+
+.hpNav {
+    background: #fff;
+}
+
+.hpNav > div a {
+    color: #666;
+}
+
+.hpListName a {
+    color: #666;
+}
+
+.hpListPrice .floatl {
+    color: #760fcc;
+}
+
+.hpListSale {
+    color: #999;
+}
+
+.hpListSale .floatl span {
+    color: #b624e0;
+}
+
+.hpListSale .floatr span {
+    color: #b624e0;
+}
+
+.YGListName a {
+    color: #666;
+}
+
+.YGListPrice span {
+    color: #760fcc;
+}
+
+.YGListPrice del {
+    color: #666;
+}
+
+.YGListProBar {
+    /* border: 1px solid #dadada; */
+    background: #efeff4;
+}
+
+.YGListProInfo > div {
+    color: #666;
+}
+
+.YGListProInfo > div.YGListProInfo1 p:first-child {
+    color: #760fcc;
+}
+
+.YGListProInfo > div.YGListProInfo3 p:first-child {
+    color: #b624e0;
+}
+
+.YGedListGeter, .YGedListTime {
+    color: #666;
+}
+
+.YGedListGeter span {
+    color: #b624e0;
+}
+
+.YGingListTime {
+    background: #760fcc;
+    color: #fff;
+}
+
+.Sortl {
+    background: #fff;
+}
+
+.Sortl ul {
+    border-top: 1px solid #dfdede;
+}
+
+.Sortl ul li {
+    border-bottom: 1px solid #dfdede;
+}
+
+.Sortl ul li a {
+    color: #666;
+}
+
+.Sortl ul li a.active, .Sortl ul li a:active {
+    /*color: #760fcc;*/
+    background: #efeff4;
+}
+
+.Sortl ul li.cur {
+    background: #efeff4;
+}
+
+.Sortr {
+    -webkit-scrollbar-track-color: #fff;
+    scrollbar-track-color: #fff;
+}
+
+.SortH .floatl {
+    color: #666;
+}
+
+.SortHotRecom {
+    background: #fff;
+}
+
+.SortHotRecom a {
+    border-right: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+}
+
+.SortHotRecom.list-child-category {
+    border-top: 1px solid #eee;
+    background: #F9F9F9;
+}
+
+.Sortbrand a {
+    background: #fff;
+    border-right: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+}
+
+.PsBanner #Psnav a {
+    background: #999;
+}
+
+.PsInfo {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.PsName {
+    border-bottom: 1px solid #dfdede;
+    color: #666;
+}
+
+.PsPrice .floatl {
+    color: #666;
+}
+
+.PsPricer del {
+    color: #999;
+}
+
+.PsNPrice {
+    color: #760fcc;
+}
+
+.PsDiscount .floatl {
+    color: #666;
+}
+
+.PsDiscountr > div {
+    color: #666;
+}
+
+.PsDiscountr > div span {
+    background: #61b3f0;
+    color: #fff;
+}
+
+.PsFun {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.PsFun > div a p:first-child {
+    border: 1px solid #dfdede;
+}
+
+.PsFun > div a p.PsFun1H {
+    background-color: #760fcc;
+}
+
+.PsFun > div a p.PsFun4H {
+    background-color: #760fcc;
+}
+
+.PsFun > div a p:last-child {
+    color: #666;
+}
+
+.PsNum {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.PsNum > div p:first-child {
+    color: #333;
+}
+
+.PsNum > div p:last-child {
+    color: #666;
+}
+
+.PsAttr {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.PsAttr a {
+    color: #666;
+}
+
+.PsPackage {
+    border-top: 1px solid #dfdede;
+    background: #fff;
+}
+
+.PsPackage dt {
+    border-bottom: 1px solid #dfdede;
+}
+
+.PsPackage dt .floatl {
+    color: #666;
+}
+
+.PsPackage dt .floatl span {
+    color: #999;
+}
+
+.PsPackage dt .floatr {
+    color: #666;
+}
+
+.PsPackage dt .floatr span {
+    color: #760fcc;
+}
+
+.PsPackage dd {
+    border-bottom: 1px solid #dfdede;
+}
+
+.PsPsPackagePic {
+    border: 1px solid #e7e7e7;
+}
+
+.PsPackageN a {
+    color: #333;
+}
+
+.PsPackageOPr {
+    color: #999;
+}
+
+.PsPackageNPr {
+    color: #760fcc;
+}
+
+.PsDetTip {
+    color: #666;
+}
+
+.PsDetTabH {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.PsDetTabs {
+    background: #fff;
+}
+
+.PsJFInfo {
+    color: #fff;
+}
+
+.PsJFData {
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.PsJFData .floatl span {
+    color: #760fcc;
+}
+
+.PsJFData .floatl i {
+    color: #760fcc;
+}
+
+.PsGoodsInfoList li {
+    border-bottom: 1px solid #dfdede;
+}
+
+.PsGoodsInfoList li .floatl {
+    color: #666;
+}
+
+.PsGoodsInfo {
+    color: #999;
+}
+
+.PsTeamName {
+    border-bottom: 1px solid #eaeaea;
+    color: #333;
+}
+
+.PsTeamPrice {
+    border-bottom: 1px solid #eaeaea;
+    color: #666;
+}
+
+.PsTeamPrice > i {
+    color: #760fcc;
+}
+
+.PsTeamPrice > del {
+    color: #999;
+}
+
+.PsTeamTime {
+    border-bottom: 1px solid #eaeaea;
+    color: #666;
+}
+
+.PsTeamSecurity {
+    border-top: 1px solid #eaeaea;
+    color: #666;
+}
+
+.PsTeamSecurity span {
+    color: #666;
+}
+
+.PsTeamEval {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.EvalBox > span {
+    color: #760fcc;
+}
+
+.PsTeamSellersInfoBox {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.PsTeamSellersInfoBox dt {
+    border-bottom: 1px solid #dfdede;
+    color: #666;
+}
+
+.PsTeamSellersInfoBox dd .floatr {
+    border-left: 1px solid #dfdede;
+}
+
+.PsTeamSellersInfo > span {
+    color: #333;
+}
+
+.PsTeamSellersInfo > p {
+    color: #666;
+}
+
+.HpPeriodList > a {
+    background: #efeff4;
+    color: #666;
+}
+
+.HpPeriodList > a.cur {
+    background: #fff;
+}
+
+.PsHpName {
+    border-bottom: 1px solid #eaeaea;
+    color: #666;
+}
+
+.PsHpPrice {
+    color: #666;
+}
+
+.PsHpPrice span {
+    color: #760fcc;
+}
+
+.PsHpTime > span.PsHpTimeIco {
+    background: #760fcc;
+    color: #fff;
+}
+
+.PsHpTime > span.PsHpTimeBox {
+    background: #e4e4e4;
+    color: #666;
+}
+
+.PsHpTime > span.PsHpTimeBox > i {
+    color: #999;
+}
+
+.RangeBar {
+    border: 1px solid #d5d5d5;
+    background: #e6e6e6;
+}
+
+.PriceRangeList li > div.PriceRangeP {
+    color: #760fcc;
+}
+
+.PriceRangeList li > div.PriceRangeNum {
+    color: #666;
+}
+
+.PsHpAttrList li {
+    border-bottom: 1px dashed #dfdede;
+}
+
+.hpAttrChoice {
+    border-bottom: 1px solid #dfdede;
+}
+
+.shopcart-price-ori {
+    color: #999;
+}
+
+.PsYgPrice {
+    color: #666;
+}
+
+.PsYgPrice > i {
+    color: #760fcc;
+}
+
+.PsYgProTip > dd {
+    color: #999;
+}
+
+.PsYgProTip > dd.PsYgProTip1 span {
+    color: #e81615;
+}
+
+.PsYgProTip > dd.PsYgProTip2 span {
+    color: #666;
+}
+
+.PsYgProTip > dd.PsYgProTip3 span {
+    color: #b624e0;
+}
+
+.PsHpAnnounced {
+    border: 4px solid #760fcc;
+    color: #760fcc;
+}
+
+.PsHpIngBox {
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+    border-top: 1px solid #dfdede;
+}
+
+.PsHpIng > .floatl {
+    border: 1px solid #dfdede;
+}
+
+.PsHpIngBox > .floatr > a {
+    color: #fff;
+}
+
+.PsYgPeriodList li {
+    background: #efeff4;
+}
+
+.PsYgPeriodList li a {
+    color: #666;
+}
+
+.PsYgPeriodList li.cur {
+    background: #fff;
+}
+
+.PsYgDetRecordH {
+    background: #760fcc;
+}
+
+.PsYgDetRecordH p {
+    color: #fff;
+}
+
+.PsYgDetRecordListBox {
+    background: #fffcda;
+}
+
+.PsYgDetRecordList dt {
+    border-bottom: 1px solid #ffeaa8;
+}
+
+.PsYgDetRecordList dt > div {
+    color: #666;
+}
+
+.PsYgDetRecordList dt > div.PsYgDetRecordData {
+    color: #760fcc;
+}
+
+.PsYgDetRecordList dd {
+    border-bottom: 1px solid #ffeaa8;
+}
+
+.PsYgDetRecordList dd > div {
+    color: #666;
+}
+
+.PsYgDetRecordList dd > div.PsYgDetRecordTime > span:first-child {
+    border-right: 1px solid #ffeaa8;
+}
+
+.PsYgDetRecordList dd > div.PsYgDetRecordData {
+    border-right: 1px solid #760fcc;
+    color: #760fcc;
+}
+
+.PsYgDetShowOrderBox li .floatl {
+    border: 1px solid #e6e6e6;
+}
+
+.PsYgDetShowOrder {
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 0 5px #e5e5e5;
+}
+
+.PsYgDetShowOrderEval {
+    color: #666;
+}
+
+.PsYgDetShowOrderEval i {
+    color: #b624e0;
+}
+
+.PsYgDetShowOrderEval span {
+    color: #999;
+}
+
+.PsYgCountdown span.YgCountdownTime {
+    color: #fff;
+}
+
+.PsYgAnnouncedBox {
+    border: 1px solid #dfdede;
+    background: #fff;
+}
+
+.PsYgAnnounced {
+    border-bottom: 1px solid #dfdede;
+}
+
+.PsYgAnnounced dd {
+    border-right: 1px solid #dfdede;
+}
+
+.PsYgAnnounced dt {
+    border-right: 1px solid #dfdede;
+}
+
+.PsYgAnnounced dd > span, .PsYgAnnounced dt > span {
+    color: #333;
+}
+
+.PsYgAnnounced dd > p, .PsYgAnnounced dt > p {
+    color: #666;
+}
+
+.PsYgAnnouncedGeterBox dd .floatl {
+    color: #666;
+}
+
+.PsYgAnnouncedGeterBox dd .floatr a {
+    color: #fff;
+}
+
+.PsFoot > div a.FOverdue {
+    background: #666;
+    color: #fff;
+}
+
+.PsFoot .f-btn {
+    background: #b624e0;
+    color: #fff;
+}
+
+.ChBoxName {
+    background: #fff;
+}
+
+.ChBoxName .floatl {
+    border: 1px solid #dfdede;
+}
+
+.ChBoxN {
+    color: #666;
+}
+
+.ChBoxPr {
+    color: #760fcc;
+}
+
+.ChBoxAttr {
+    background: #f5f5f5;
+}
+
+.ChBoxAttr dl dt {
+    color: #666;
+}
+
+.ChBoxAttr dl dd {
+    border-bottom: 1px solid #eee;
+}
+
+.AttrPic {
+    border: 1px solid #dfdede;
+}
+
+.AttrWord {
+    background: #fff;
+    color: #666;
+}
+
+.AttrWord.cur {
+    color: #fff;
+}
+
+.ChBoxBt {
+    border-top: 1px solid #dfdede;
+    background: #fff;
+}
+
+.ChBoxBt .btn.btn-positive {
+    border: 1px solid #760fcc;
+    color: #760fcc;
+}
+
+.ChBoxBt .btn.btn-active {
+    background: #760fcc;
+    color: #fff;
+}
+
+.ChBoxBt a {
+    color: #fff;
+}
+
+.ChBoxShadow {
+    background: #333;
+}
+
+.PopBox_Code {
+    background: #fff;
+    -webkit-box-shadow: 0 0 10px #333;
+    -moz-box-shadow: 0 0 10px #333;
+    box-shadow: 0 0 10px #333;
+}
+
+.OrderInfoH {
+    color: #000;
+}
+
+.OrderBuyerInfo {
+    border-top: 1px solid #dfdede;
+    background: #fff;
+}
+
+.OrderBuyerInfo dd, .OrderBuyerInfo dt {
+    border-bottom: 1px solid #dfdede;
+    color: #666;
+}
+
+.OrderInfoProBox {
+    background: #FFF;
+}
+
+.OrderInfoProBox .OrderLi, .OrderLiPro {
+    background: #f4f4f4;
+}
+
+.OrderInfoData {
+    color: #666;
+}
+
+.OrderInfoData .OrderInfoMoney {
+    color: #760fcc;
+}
+
+.OrderInfoNo {
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+    color: #666;
+}
+
+.OrderInfoCancelBt, .OrderInfoPayBt {
+    color: #fff;
+}
+
+.OrderInfoPayBt {
+    background: #760fcc;
+}
+
+.OrderInfoPayBt.negative {
+    background: #ddd;
+    color: #999;
+}
+
+a.LookOrderLogisticsBt {
+    color: #666;
+}
+
+.CollectHBox {
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.CollectHBox .floatr a {
+    color: #666;
+}
+
+.CollectList li {
+    border: 1px solid #dfdede;
+    background: #fff;
+}
+
+.CollectCheck {
+    background: rgba(0, 0, 0, 0.11);
+}
+
+.CollectCheck.cur .btn-select {
+    background: #fff url(../images/CollectDelCheck.png) center no-repeat;
+    background-size: 100% auto;
+}
+
+.CollectFoot {
+    background: #303031;
+}
+
+.CollectFoot > div.floatl {
+    color: #fff;
+}
+
+.CollectFoot > div.floatl span {
+    background: #fff;
+}
+
+.CollectFoot > div.floatr a.CollectDelBt {
+    background: #760fcc;
+    color: #fff;
+}
+
+.wxPaymain {
+    background: #eee;
+}
+
+.wxPayProInfo {
+    background: #fff;
+}
+
+.wxPayProInfo .floatl {
+    color: #666;
+}
+
+.wxPayProInfoR {
+    color: #666;
+}
+
+.wxPayMoney {
+    background: #fff;
+    color: #666;
+}
+
+.wxPayCodeBox {
+    background: #fff;
+}
+
+.wxPayCode {
+    border: 1px solid #eee;
+    -webkit-box-shadow: 0 0 15px #f2f2f2;
+    -moz-box-shadow: 0 0 15px #f2f2f2;
+    box-shadow: 0 0 15px #f2f2f2;
+}
+
+.wxPayCodeH {
+    border-bottom: 2px solid #eee;
+    color: #666;
+}
+
+.wxPayCodePic p {
+    color: #666;
+}
+
+.wxPayCodePic p a {
+    color: #666;
+}
+
+.wxPaySub {
+    background: #fff;
+}
+
+.wxPaySub > div a.wxPaySubmit {
+    color: #fff;
+}
+
+.wxPaySub > div a.wxPayBtBack {
+    border: 1px solid #666;
+    color: #666;
+}
+
+.wxPayTip {
+    background: #fff;
+}
+
+.wxPayTip .floatl {
+    color: #666;
+}
+
+.wxPayTipR {
+    color: #666;
+}
+
+.EvalShowImg .EvalShowImgThumb dd {
+    border: 1px solid #dfdede;
+}
+
+div.flicking_con a {
+    background: #666;
+}
+
+.ShowImgClose {
+    background: #760fcc url(../images/CloseIco.png) center no-repeat;
+    background-size: 15px 15px;
+}
+
+.logisticsF ul li {
+    border-bottom: 1px solid #ccc;
+}
+
+.logisticsF ul li.sign {
+    color: #24af5e;
+}
+
+.logisticsF ul li font.contact {
+    color: #b624e0;
+}
+
+.cd-nav-container {
+    background: #fff;
+}
+
+.cd-nav-head {
+    border-bottom: 1px solid #f2f2f2;
+}
+
+.BuyBoxTitle {
+    color: #fff;
+}
+
+.cd-nav-head .floatr a {
+    color: #fff;
+}
+
+.OrderSubmitSucTip {
+    color: #333;
+}
+
+.OrderProPrice {
+    color: #666;
+}
+
+.PaySucTip {
+    color: #333;
+}
+
+.PayOrderTip {
+    color: #666;
+}
+
+.PayBonus {
+    background: #760fcc;
+}
+
+.GoonPay {
+    color: #fff;
+}
+
+.PayBonusLNum {
+    color: #fcef6e;
+}
+
+.PayBonusLShare {
+    color: #fcef6e;
+}
+
+.PayBonusGet, .PayBonusShare {
+    color: #760fcc;
+}
+
+.PayBonusTip {
+    color: #281613;
+}
+
+.gray-333 {
+    color: #333;
+}
+
+.gray-666 {
+    color: #666;
+}
+
+.gray-999 {
+    color: #999;
+}
+
+.gray-ccc {
+    color: #ccc;
+}
+
+.bg-white {
+    background: #fff;
+}
+
+.bo-gray {
+    border-color: #dfdede;
+}
+
+.ba-gray {
+    background: #fafafa;
+}
+
+.box-selected select {
+    border: 1px solid #dfdede;
+    background: #fafafa;
+}
+
+.btn-drop-menu {
+    border: 1px solid #dfdede;
+    background: #fafafa;
+}
+
+.user_msg_send .radio {
+    background-color: #dfdede;
+}
+
+.user_msg_send .radio:checked {
+    background: #dfdede url(../images/CollectDelCheck.png) center no-repeat;
+    background-size: 15px 15px
+}
+
+.user_msg_send .input {
+    border: 1px solid #dfdede;
+}
+
+.formRefund .goods-msg {
+    border: 1px solid #efeff4;
+}
+
+.formRefund .goods-msg {
+    background: #fff;
+}
+
+.formRefund .refund-msg dd {
+    border: 1px solid #ccc;
+    background: #fafafa;
+}
+
+.formRefund .refund-msg dd.method .radio {
+    border: 1px solid #bec2bd;
+}
+
+.formRefund .refund-msg dd.reply-msg .txtaReply {
+    border: 1px solid #ccc;
+    background: #fafafa;
+}
+
+.formRefund .refund-msg .title .red {
+    color: #760fcc;
+}
+
+.formRefund .refund-msg .icon-arrow-down {
+    border-left: 1px solid #dfdede;
+    background: #fafafa url(../images/icon-arrow-down.png) center no-repeat;
+    background-size: 27.906% auto;
+}
+
+.formRefund .voucher-msg .img-upload .img-con {
+    border: 1px solid #ccc;
+    background: #fff;
+}
+
+.out-box .selection .box-category .select,
+.user_inbox .selection .box-category .select {
+    background: #fff;
+}
+
+.user_inbox .selection .box-category .icon-arrow-down {
+    background: #fff url(../images/icon-arrow-down.png) center no-repeat;
+    background-size: auto 21.428%;
+}
+
+.user_inbox .selection .btn-delete {
+    border-left: 1px solid #eee;
+}
+
+.user_inbox .item {
+    border-top: 1px solid #dfdede;
+}
+
+.user_inbox .draft .icon-delete-2 {
+    background-color: #f7f7f7;
+}
+
+.password_find_page .small-box {
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.password_find_page .btn-password .btn-submit {
+    border: 1px solid #ccc;
+    background: #fff;
+}
+
+.password_find_page .btn-password .btn-submit:first-child {
+    color: #fff;
+}
+
+.password_find_page .jumper .window, .password_update_page .jumper .window {
+    background: #fff;
+}
+
+.password_find_page .container-mobile-code .btnMobileCode {
+    color: #fff;
+}
+
+.password_find_page .container-mobile-code .btnMobileCode.disabled {
+    border: 1px solid #dfdede;
+    background: #fff;
+    color: #666;
+}
+
+.user_expense_records .accomplish {
+    color: #71c701;
+}
+
+.user_expense_records .no-accomplish {
+    color: #069dd5;
+}
+
+.user_expense_records .money {
+    color: #760fcc;
+}
+
+.user_order_comment .comment-table {
+    background: #f7f7f7;
+}
+
+.user_order_comment .comment-table .input {
+    border: 1px solid #dfdede;
+    background: #fafafa;
+}
+
+.user_order_comment .comment-table .image-upload em {
+    border: 1px solid #dfdede;
+}
+
+.user_order_comment .tip {
+    color: #b8b7b7;
+}
+
+.user_order_comment .EvalNoGoods {
+    background: #fff;
+}
+
+.user_order_comment .EvalNoGoods p {
+    color: #333;
+}
+
+.user_order_comment .EvalNoGoods a.GoshoppingBt {
+    background: #760fcc;
+    color: #fff;
+}
+
+.shop-rating .result span {
+    color: #760fcc;
+}
+
+.shop-rating .result em {
+    color: #760fcc;
+}
+
+.shop-rating .result strong {
+    color: #666;
+}
+
+.user-distribution-number .tip,
+.TypeList .dropload-down, .TypeList .end, .list .dropload-down, .list .end, .prolist .dropload-down, .prolist .end, .user_expense_records {
+    background: #f2f2f2;
+    color: #c6c4c4;
+}
+
+.YgSureAddrBt a {
+    color: #fff;
+}
+
+.YgSureAddrBt a:last-child {
+    background: #760fcc;
+}
+
+.YgOrderList {
+    background: #fff;
+}
+
+.YgOrderList li {
+    border-bottom: 1px solid #dfdede;
+}
+
+.YgOrderList li .floatl {
+    border: 1px solid #dfdede;
+}
+
+.YgOrderList li .floatr {
+    color: #333;
+}
+
+.YgOrderList li .floatr p a {
+    color: #760fcc;
+}
+
+.YgOrderInfo h1 a {
+    color: #333;
+}
+
+.YgOrderInfo p {
+    color: #666;
+}
+
+.YgOrderInfo p i {
+    color: #42b7ff;
+}
+
+.None {
+    color: #333;
+}
+
+.coupon-use-page .coupon-msg-form, .member-msg .member-msg-form {
+    background: #fff;
+}
+
+.activity-wheel-result .input-box .input,
+.coupon-msg-form .input-box, .member-msg .input-box {
+    border: 1px solid #dfdede;
+    background: #fafafa;
+}
+
+.member-msg .input-container .btn {
+    color: #760fcc;
+}
+
+.member-msg .btn-avatar {
+    background: #760fcc;
+    color: #fff;
+}
+
+.member-msg .btn-reflash {
+    background: #b624e0;
+    color: #fff;
+}
+
+.member-msg .radio {
+    border: 1px solid #9b9b9b;
+    background-color: #fff;
+}
+
+.member-msg .account-link li a {
+    border: 1px solid #ddd;
+    background: #f7f7f7;
+}
+
+.user_safety .bg-gray {
+    background: #fafafa;
+}
+
+.user_safety .ba-main-color {
+    color: #fff;
+}
+
+.user_safety .securityIssueForm .selectIssue {
+    border-color: #dfdede;
+    color: #717070;
+}
+
+.user_face .img-container, .user_face .img-preview {
+    background-color: #f7f7f7;
+}
+
+.user_face .fileUpload {
+    color: #fff;
+}
+
+.user_face .orange {
+    color: #760fcc;
+}
+
+.user_face .fileUpload input.upload {
+    background: #760fcc;
+    color: #fff;
+}
+
+.user_face .MenCenterInfoBt.formUserFace .SubmitBtn {
+    background: #760fcc;
+    color: #fff;
+}
+
+.user_face .MenCenterInfoBt.formUserFace .SubmitBtn.disabled {
+    opacity: 0.5;
+}
+
+.commission_index .forbidden-user {
+    background: #fff;
+}
+
+.commission_index .btn-main {
+    border: 1px solid #ddd;
+    background: #f7f7f7;
+    color: #666;
+}
+
+.commission_index .first-guide {
+    background: #fff;
+}
+
+.commission_index .first-guide .orange {
+    color: #760fcc;
+}
+
+.commission_index .top {
+    background: #fff;
+}
+
+.commission_index .commission-msg {
+    border-bottom: 1px solid #dfdede;
+}
+
+.commission_index .avatar {
+    background: #ccc;
+}
+
+.commission_index h1 .level {
+    color: #760fcc;
+}
+
+.commission_index .top .big .balance {
+    color: #51ae22;
+}
+
+.commission_index .sec {
+    background: #fff;
+}
+
+.commission_index .sec .part {
+    background: #fff;
+}
+
+.commission_index .sec .part li {
+    border-left: 1px solid #dfdede;
+}
+
+.commission_index .orange {
+    color: #ff6604;
+}
+
+.commission_index .blue {
+    color: #b624e0;
+}
+
+.commission_index .list li {
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.commission_index .list li:first-child, .commission_index .list li:nth-child(4), .commission_index .list li:nth-child(7) {
+    border-top: 1px solid #dfdede;
+}
+
+.withdrawal .MenberRConBox {
+    background: #fff;
+}
+
+.withdrawal .MenberRFytx input[type=password], .withdrawal .MenberRFytx input[type=text], .withdrawal .input {
+    border: 1px solid #dfdede;
+    background: #fafafa;
+}
+
+.withdrawal .radio {
+    background-color: #dfdede;
+}
+
+.withdrawal .radio:checked {
+    background: #dfdede url(../images/CollectDelCheck.png) center no-repeat;
+    background-size: 15px 15px
+}
+
+.withdrawal .MenberRFytx input[type=submit] {
+    background: #760fcc;
+    color: #fff;
+}
+
+.ConsumerRecords {
+    background: #fff;
+}
+
+.ConsumerRecords .tab-nav {
+    background: #fff;
+}
+
+.ConsumerRecords .tab-nav a {
+    border-bottom: 1px solid #dfdede;
+}
+
+.ConsumerRecords .tab-nav a.active {
+    border-color: #760fcc;
+    color: #760fcc;
+}
+
+.ConsumerRecords li {
+    border-bottom: 1px solid #dfdede;
+}
+
+.ConsumerRecords li p:first-child {
+    border-bottom: 1px solid #dfdede;
+    background: #f7f7f7;
+}
+
+.ConsumerRecords li .status {
+    color: #760fcc;
+}
+
+.commission-psw-find .formAnswerQuestionCommission {
+    background: #fff;
+}
+
+.commission-psw-find .small-box {
+    background: #fafafa;
+}
+
+.commission-psw-find .btnAnswerQuestion {
+    background: #760fcc;
+}
+
+.commission-psw-find .btnAnswerQuestion {
+    color: #fff;
+}
+
+.commission-update-psw .formUpdateCommissionPwd {
+    background: #fff;
+}
+
+.commission-update-psw .small-box {
+    background: #fafafa;
+}
+
+.commission-update-psw .btnUpdatePassword {
+    color: #fff;
+}
+
+.commission-update-psw .btnUpdatePassword {
+    background: #760fcc;
+}
+
+.commission-update-psw .FindPwNoSet {
+    background: #fff;
+}
+
+.help-center .HelpSearchBox {
+    background: #b624e0;
+}
+
+.help-center .HelpSearch {
+    background: #fff;
+}
+
+.help-center .HelpSearchResulLlsit dt a {
+    border-bottom: 1px solid #aad2e1;
+    color: #feffff;
+}
+
+.help-center .HelpSearchResulLlsit dd a {
+    border-bottom: 1px solid #aad2e1;
+    color: #feffff;
+}
+
+.help-center .HelpFAQBox {
+    border-bottom: 1px solid #dfdede;
+}
+
+.help-center .HelpFAQBox li a {
+    border-right: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+}
+
+.help-center .HelpCenter-list {
+    background: #fff;
+}
+
+.help-center .Cred {
+    background: #f3f3f3;
+}
+
+.help-center .HelpContent {
+    background: #fff;
+}
+
+.BonusListNav {
+    border: 1px solid #760fcc;
+    background: #fff;
+}
+
+.BonusListNav a {
+    color: #666;
+}
+
+.BonusListNav a.cur {
+    background: #760fcc;
+    color: #fff;
+}
+
+.BonusList {
+    background: #fff;
+}
+
+.BonusList li {
+    border-bottom: 1px solid #ccc;
+}
+
+.BonusList li .BonusListl p {
+    color: #999;
+}
+
+.BonusList li .BonusListl p.BonusName {
+    color: #333;
+}
+
+.BonusList li .BonusListl p.BonusName span {
+    color: #760fcc;
+}
+
+.BonusList li .BonusListl p span {
+    color: #333;
+}
+
+.BonusShare a {
+    border-radius: 4px;
+    color: #fff;
+}
+
+.BonusFor {
+    color: #999;
+}
+
+.BonusFor span {
+    color: #333;
+}
+
+.BonusTime {
+    color: #3fb838;
+}
+
+.BonusList li.BonusNo p.BonusTime {
+    color: #760fcc;
+}
+
+.BonusList li.BonusNo p.BonusPr span {
+    color: #333;
+}
+
+.OpBonusTip1 {
+    color: #760fcc;
+}
+
+.OpBonusTip2 {
+    color: #760fcc;
+}
+
+.OpBonusRule a {
+    background: #760fcc;
+    color: #fff;
+}
+
+.OpBonusMoneyNum {
+    color: #fff;
+}
+
+.OpBonusOpenLHCon {
+    color: #760fcc;
+}
+
+.OpBonusOpenL ul li .floatr {
+    color: #fff;
+}
+
+.OpBonusGetFace {
+    border: 1px solid #fff;
+}
+
+.OpBonusGetInfo p {
+    color: #fff;
+}
+
+.OpBonusGetInfo p span {
+    color: #760fcc;
+}
+
+.relaybonus-list .BonusList .BonusHas div .title {
+    color: #333;
+}
+
+.relaybonus-list .BonusList .BonusHas div .time {
+    color: #3fb838;
+}
+
+.relaybonus-list .BonusList .BonusHas div .from {
+    color: #999;
+}
+
+.relaybonus-list .BonusList .BonusHas div .from span {
+    color: #333;
+}
+
+.relaybonus-list .BonusList .BonusHas a {
+    background: #898989;
+    color: #666;
+}
+
+.relaybonus-list .BonusList .BonusHas a.active {
+    background: #ffdf00;
+    color: #6f1f13;
+}
+
+.AllPaging, .IntegralPaging {
+    background: #fff;
+}
+
+.pr_showList_page li {
+    background: #760fcc;
+    color: #4f4f4f;
+}
+
+.pr_showList_page li select {
+    color: #4f4f4f;
+}
+
+.pr_showList_page li a {
+    color: #fff;
+}
+
+.commission-set-password, .set-account {
+    background: #fff;
+}
+
+.commission-set-password .input, .set-account .input {
+    border: 1px solid #dfdede;
+    background: #fafafa;
+}
+
+.commission-set-password .btn-submit, .set-account .btn-submit {
+    color: #fff;
+}
+
+.integral-withdrawal .MenberR {
+    background: #fff;
+}
+
+.integral-withdrawal .btn-submit {
+    color: #fff;
+}
+
+.pay-online .RechargePayTypeList {
+    background: #fff;
+}
+
+.pay-online .RechargePayTypeList li {
+    border-bottom: 1px solid #ddd;
+}
+
+.pay-online .input {
+    border: 1px solid #dfdede;
+    background: #fafafa;
+}
+
+.pay-online .btn-fixed {
+    border-top: 1px solid #ddd;
+    background: #fff;
+}
+
+.pay-online .btn-submit {
+    color: #fff;
+}
+
+.pay-online .radio {
+    border: 1px solid #bec2bd;
+}
+
+.shake-bonus-list .record .item {
+    border-bottom: 1px solid #ccc;
+    background: #fff;
+}
+
+.shake-bonus-list .record .item .msg .title {
+    color: #333;
+}
+
+.shake-bonus-list .record .item .msg .time {
+    color: #3fb838;
+}
+
+.shake-bonus-list .record .item .msg .money {
+    color: #fd4237;
+}
+
+.coupon-list .ConsumerRecords li {
+    border-bottom: 1px dashed #CCC;
+}
+
+.coupon-list .send {
+    background: #760fcc;
+    color: #fff;
+}
+
+.coupon-pass .activity_info {
+    background: #fff;
+}
+
+.coupon-pass .activity_info .btn-submit {
+    color: #fff;
+}
+
+.coupon-pass .can {
+    color: #71c701;
+}
+
+.coupon-pass .cannot {
+    color: #55b3d9;
+}
+
+.pay-success {
+    /* background: #fff; */
+}
+
+.pay-success .main-content .result p {
+    color: #3fb838;
+}
+
+.pay-success .goods-msg .goods-img {
+    border: 1px solid #e7e7e7;
+}
+
+.pay-success .goods-msg .goods-text .goods-name {
+    color: #333;
+}
+
+.pay-success .goods-msg .goods-text .price {
+    color: #999;
+}
+
+.pay-success .goods-msg .goods-text .sum {
+    color: #999;
+}
+
+.pay-success .red-gift p {
+    color: #fff;
+}
+
+.pay-success .keep-shopping {
+    border: 1px solid #760fcc;
+    background: transparent;
+    color: #760fcc;
+}
+
+.pay-success .keep-shopping:nth-child(2) {
+    border-color: #b624e0;
+    color: #b624e0;
+}
+
+.pay-success .red-gift-forces .title {
+    color: #ffcd10;
+}
+
+.pay-success .red-gift-forces .content {
+    color: #fff;
+}
+
+.pay-success .red-gift-forces .date {
+    color: #fff;
+}
+
+.pay-success .red-gift-forces .btn-call {
+    color: #fff;
+}
+
+.integral-order-result .keep-shopping {
+    background: #760fcc;
+    color: #fff;
+}
+
+.integral-order-result .keep-shopping:last-child {
+    background: #b624e0;
+}
+
+.supplier-register-agreement,
+.register-agreement {
+    background: #f7f7f7;
+}
+
+.supplier-register-agreement,
+.register-agreement .container {
+    background: #fff;
+    box-shadow: 0 0 5px #a2a1a6;
+}
+
+.supplier-register-agreement .title,
+.register-agreement .container h1 {
+    border-bottom: 4px solid #760fcc;
+    color: #760fcc;
+}
+
+.supplier-register-agreement .submit,
+.register-agreement #btnAgreeServicet {
+    background: #760fcc;
+    color: #fff;
+}
+
+.cfShowMoreBtn {
+    border: solid 1px #760fcc;
+}
+
+.activity-info {
+    background: #fff;
+}
+
+.activity-info .SignH {
+    background: #e6e6e6;
+}
+
+.activity-info .SignData .send_input {
+    border: 1px solid #dfdede;
+    background: #fafafa;
+}
+
+.activity-info .SignData .send_btn {
+    color: #fff;
+}
+
+.apply_info_show {
+    background: #fff;
+    box-shadow: 0 2px 10px #999;
+}
+
+.apply_info_show .btn {
+    color: #fff;
+}
+
+.MenberFace {
+    border: 3px solid #fff;
+}
+
+.MenberN {
+    color: #666;
+}
+
+.MenberRatings {
+    color: #fff;
+}
+
+.MenberH .floatr a {
+    background: #7cbaf0 url(../images/MenberSet.png) 5px center no-repeat;
+    background-size: auto 50%;
+    color: #fff;
+}
+
+.MenLists {
+    border-top: 1px solid #dfdede;
+    background: #fff;
+}
+
+.MenLists dd {
+    border-bottom: 1px solid #dfdede;
+}
+
+.user-index .btn-exit {
+    background: #760fcc;
+    color: #fff;
+}
+
+.MenList {
+    color: #666;
+}
+
+.MenList .ibCount {
+    color: #760fcc;
+}
+
+.MyNews {
+    background: #760fcc;
+    color: #fff;
+}
+
+.MenIco01 {
+    background: #760fcc url(../images/MenIco1.png) center no-repeat;
+    background-size: 16px 16px
+}
+
+.MenIco1 {
+    background: #4ebbb7 url(../images/MenIco2.png) center no-repeat;
+    background-size: 16px 19px
+}
+
+.MenIco2 {
+    background: #7cbaf0 url(../images/MenberSet.png) center no-repeat;
+    background-size: 16px 16px
+}
+
+.MenIco3 {
+    background: #f29b12 url(../images/MenIco3.png) center no-repeat;
+    background-size: 16px 19px
+}
+
+.MenIco4 {
+    background: #c08dd8 url(../images/MenIco4.png) center no-repeat;
+    background-size: 16px 16px
+}
+
+.MenIco5 {
+    background: #ffad0e url(../images/MenIco5.png) center no-repeat;
+    background-size: 16px 16px
+}
+
+.MenIco7 {
+    background: #760fcc url(../images/MenIco7.png) center no-repeat;
+    background-size: 16px 16px
+}
+
+.MenIco8 {
+    background: #760fcc url(../images/MenIco8.png) center no-repeat;
+    background-size: 16px 15px
+}
+
+.MenIco9 {
+    background: #ffd65a url(../images/MenIco5.png) center no-repeat;
+    background-size: 16px 15px
+}
+
+.MenIco10 {
+    background: #0ae url(../images/MenIco101.png) center no-repeat;
+    background-size: 16px 12px
+}
+
+.MenIco11 {
+    background: #1ec18e url(../images/MenIco8.png) center no-repeat;
+    background-size: 16px 12px
+}
+
+.MenIco17 {
+    background: #1e54b6 url(../images/MenIco17.png) center no-repeat;
+    background-size: 16px 10px
+}
+
+.MenIco18 {
+    background: #2f99e6 url(../images/MenIco11.png) center no-repeat;
+    background-size: 16px 16px
+}
+
+.MenIco27 {
+    background: #1e54b6 url(../images/bargain-activities/MenIco27.png) center no-repeat;
+    background-size: 30px 30px
+}
+
+.MenIco100 {
+    background: #b282c1 url(../images/MenIco100.png) center no-repeat;
+    background-size: 16px 17px
+}
+
+.MenIco102 {
+    background: #ff4200 url(../images/MenIco102.png) center no-repeat;
+    background-size: 16px 20px
+}
+
+.MenIco103 {
+    background: #93ddcb url(../images/MenIco103.png) center no-repeat;
+    background-size: 16px 14px
+}
+
+.MenIco104 {
+    background: #ffca2a url(../images/MenIco104.png) center no-repeat;
+    background-size: 16px 16px
+}
+
+.MenIco106 {
+    background: #760fcc url(../images/MenIco106.png) center no-repeat;
+    background-size: 80% auto;
+}
+
+.MenIco107 {
+    background: #0ae url(../images/MenOIco2.png) center no-repeat;
+    background-size: 16px auto;
+}
+
+.MenIco201 {
+    background: #760fcc url(../images/MenSIco1.png) center no-repeat;
+    background-size: 16px 17px
+}
+
+.MenIco202 {
+    background: #61b3f0 url(../images/MenSIco2.png) center no-repeat;
+    background-size: 16px 20px
+}
+
+.MenIco203 {
+    background: #3ed4a5 url(../images/MenSIco3.png) center no-repeat;
+    background-size: 16px 25px
+}
+
+.MenIco204 {
+    background: #98e863 url(../images/MenSIco4.png) center no-repeat;
+    background-size: 16px 19px
+}
+
+.MenIco271 {
+    background: #1e54b6 url(../images/bargain-activities/MenIco271.png) center no-repeat;
+    background-size: 30px 30px
+}
+
+.MenIco272 {
+    background: #1e54b6 url(../images/bargain-activities/MenIco272.png) center no-repeat;
+    background-size: 30px 30px
+}
+
+.MenIco901 {
+    background: #f0cc21 url(../images/MenNIco1.png) center no-repeat;
+    background-size: 16px 15px
+}
+
+.MenIco902 {
+    background: #57c85a url(../images/MenNIco2.png) center no-repeat;
+    background-size: 16px 13px
+}
+
+.MenIco903 {
+    background: #508bda url(../images/MenNIco3.png) center no-repeat;
+    background-size: 16px 15px
+}
+
+.MenIco904 {
+    background: #fe697b url(../images/MenNIco4.png) center no-repeat;
+    background-size: 16px 15px
+}
+
+.MenLists dt > div a p {
+    color: #666;
+}
+
+.MenSIco1 {
+    background: #760fcc url(../images/MenSIco1.png) center no-repeat;
+    background-size: 16px 17px
+}
+
+.MenSIco2 {
+    background: #61b3f0 url(../images/MenSIco2.png) center no-repeat;
+    background-size: 16px 20px
+}
+
+.MenSIco3 {
+    background: #3ed4a5 url(../images/MenSIco3.png) center no-repeat;
+    background-size: 16px 25px
+}
+
+.MenSIco4 {
+    background: #98e863 url(../images/MenSIco4.png) center no-repeat;
+    background-size: 16px 19px
+}
+
+.MenSIco5 {
+    background: #e673ac url(../images/MenSIco5.png) center no-repeat;
+    background-size: 16px 17px
+}
+
+.MenExitBt a {
+    background: #760fcc;
+    color: #fff;
+}
+
+.MenOIco1 {
+    background: #b282c1 url(../images/MenOIco1.png) center no-repeat;
+    background-size: 16px 17px
+}
+
+.MenOIco3 {
+    background: #ff4200 url(../images/MenOIco3.png) center no-repeat;
+    background-size: 16px 20px
+}
+
+.MenOIco4 {
+    background: #93ddcb url(../images/MenOIco4.png) center no-repeat;
+    background-size: 16px 14px
+}
+
+.MenOIco5 {
+    background: #ffca2a url(../images/MenOIco5.png) center no-repeat;
+    background-size: 16px 16px
+}
+
+.MenNIco1 {
+    background: #f0cc21 url(../images/MenNIco1.png) center no-repeat;
+    background-size: 16px 15px
+}
+
+.MenNIco2 {
+    background: #57c85a url(../images/MenNIco2.png) center no-repeat;
+    background-size: 16px 13px
+}
+
+.MenNIco3 {
+    background: #508bda url(../images/MenNIco3.png) center no-repeat;
+    background-size: 16px 15px
+}
+
+.MenNIco4 {
+    background: #fe697b url(../images/MenNIco4.png) center no-repeat;
+    background-size: 16px 15px;
+}
+
+.NewsNum {
+    color: #760fcc;
+}
+
+.salesoutlets-list {
+    background: #fff;
+}
+
+.Map {
+    background: #fff;
+}
+
+.Mapcity select {
+    background: #fff;
+}
+
+.MapSearch input.MapSearchTxt {
+    border: 1px solid #ccc;
+}
+
+.MapSearch input.MapSearchBt {
+    border: 1px solid #ccc;
+    background: #fff;
+}
+
+.MapList ul li {
+    border-bottom: 1px solid #ccc;
+}
+
+.MapImg {
+    border: 1px solid #ccc;
+}
+
+.MapCon a {
+    color: #666;
+}
+
+.MapPage a {
+    color: #333;
+}
+
+.MapLookDet .MapChoiced span {
+    color: #760fcc;
+}
+
+.MapLookDet .floatR a {
+    background: #760fcc;
+    color: #fff;
+}
+
+.MapInfo > p:first-child {
+    color: #333;
+}
+
+.MapIntroBox {
+    background: #eee;
+}
+
+.MapIntroH ul li {
+    background: #fff;
+}
+
+.MapIntroH ul li.cur {
+    border-bottom: 3px solid #760fcc;
+    color: #760fcc;
+}
+
+.MapIntro {
+    background: #fff;
+}
+
+.MapDetPageInfo {
+    background: #fff;
+}
+
+.MapDetPageInfo p.MapDetStoreName {
+    color: #333;
+}
+
+.MapDetPageEval {
+    border-top: 1px solid #ccc;
+    background: #fff;
+}
+
+.MapDetPageNum ul li {
+    color: #606060;
+}
+
+.MapDetPageNum ul li span {
+    color: #760fcc;
+}
+
+.MapDetPageScore .MapScore .MapScoreL {
+    color: #760fcc;
+}
+
+.MapDetStoreInfoBox {
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    background: #fff;
+}
+
+.MapTel a {
+    background: #760fcc url(../images/MapTel.png) center no-repeat;
+    background-size: 60px 60px
+}
+
+.MapDetStoreInfo ul li {
+    color: #333;
+}
+
+.MapDetStoreInfo ul li span {
+    color: #666;
+}
+
+.MapDetStoreInfo ul li.MapDetStoreInfoH {
+    color: #333;
+}
+
+.MapIntroEvalList ul li {
+    border-bottom: 1px solid #ccc;
+}
+
+.leftAccountLink a {
+    color: #666;
+}
+
+.online-message-page {
+    background: #fff;
+}
+
+.online-message-page .AllMessageH {
+    background: #f5f5f5;
+}
+
+.online-message-page .AllMessageH .floatl {
+    color: #666;
+}
+
+.online-message-page .AllMessageH .floatr a {
+    background: #760fcc;
+    color: #fff;
+}
+
+.online-message-page .AllMessageList {
+    background: #fff;
+}
+
+.online-message-page .AllMessageList dd .AllMessage {
+    border-bottom: 1px solid #ddd;
+}
+
+.online-message-page .AllMessageList dd .AllMessage p {
+    color: #333;
+}
+
+.online-message-page .AllMessageList dd .AllMessage p.AllMessageTime {
+    color: #999;
+}
+
+.online-message-page .AllMessageList dd .AllMessage .AllMessageReply {
+    border: 1px solid #ccc;
+    background: #f4f4f4;
+}
+
+.online-message-page .AllMessageList dd .AllMessage .AllMessageReply p i {
+    color: #b624e0;
+}
+
+.online-message-page .MadeMessageH {
+    border-bottom: 1px solid #ddd;
+    background: #f5f5f5;
+    color: #333;
+}
+
+.online-message-page .MadeMessage .MadeMessageTxt .input-box {
+    border: 1px solid #dfdede;
+    background: #fafafa;
+}
+
+.oauth-login-page .bind-wrap, .oauth-login-page .guide-wrap, .oauth-login-page .reg-wrap {
+    background: #fff;
+}
+
+.oauth-login-page .bind-wrap a, .oauth-login-page .guide-wrap a, .oauth-login-page .reg-wrap a {
+    color: #760fcc;
+}
+
+.oauth-login-page a.btn-submit {
+    background: #760fcc;
+    color: #fff;
+}
+
+.user-sign-page .main-container {
+    background: #760fcc;
+}
+
+.user-sign-page .first-time {
+    border: 1px solid #fff;
+    color: #fff;
+}
+
+.user-sign-page .first-time {
+    border: 1px solid #fff;
+    color: #fff;
+}
+
+.user-sign-page .Highlight {
+    color: #fbd30e;
+}
+
+.user-sign-page .Highlight-2 {
+    color: #760fcc;
+}
+
+.user-sign-page .btn-role {
+    color: #fff;
+}
+
+.user-sign-page .content {
+    color: #fff;
+}
+
+.user-sign-page .window {
+    background: #fff;
+}
+
+.user-sign-page .window .btn-close {
+    background: #760fcc url(../images/icon-close-2.png) center no-repeat;
+    background-size: auto 50%;
+}
+
+.user-sign-page .result-container .window .other-msg {
+    background: #760fcc;
+    color: #fff;
+}
+
+.user-sign-page .result-container .window .detail {
+    border: 3px solid #760fcc;
+}
+
+.user-sign-page .result-container .window .detail .top {
+    background: #760fcc;
+}
+
+.user-sign-page .result-container .window .detail .top .circle {
+    border: 1px solid #fff;
+}
+
+.user-sign-page .bg-bottom {
+    background-color: #760fcc;
+}
+
+.shadow {
+    background: #333;
+}
+
+.wxPayProInfo {
+    background: #fff;
+}
+
+.commission_index .sec .big {
+    border-bottom: 1px solid #dfdede;
+}
+
+.PsHpName {
+    border-bottom: 1px solid #eaeaea;
+}
+
+.JoinerInfo {
+    border-bottom: dashed 1px #ababab;
+}
+
+.HSearchTxt {
+    border: 1px solid #dfdede;
+    background: #fff;
+}
+
+.keywords-list a {
+    background: #e7e7e8;
+}
+
+.btn-msg span {
+    background: #fff;
+    color: #760fcc;
+}
+
+.banner #pagenavi a {
+    background: #999;
+}
+
+.banner #pagenavi a.active {
+    background: #760fcc
+}
+
+.Nav {
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.Nav li a p {
+    color: #999;
+}
+
+.Activity {
+    border-bottom: 1px solid #dfdede;
+    border-top: 1px solid #dfdede;
+    background: #fff;
+}
+
+.supplier-register .container-tab,
+.RecomH {
+    border-bottom: 1px solid #eee;
+    background: #fff;
+}
+
+.supplier-register .container-tab .item .link,
+.RecomH li div {
+    color: #666;
+}
+
+.supplier-register .container-tab .item.active .link,
+.RecomH li.act div {
+    background: #760fcc;
+    color: #fff
+}
+
+.RecomBanner {
+    background: #fff;
+}
+
+.RecomMore a {
+    border: 1px solid #666;
+    color: #666;
+}
+
+.ChNavListH {
+    background: rgba(255, 255, 255, 0.85);
+    border-bottom: 1px solid #eee;
+}
+
+.PsJFInfo {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.main_visual {
+    background: rgba(102, 102, 102, 0.9);
+}
+
+.cd-nav-container.is-visible {
+    box-shadow: -4px 0 30px rgba(0, 0, 0, 0.2);
+}
+
+.cd-overlay {
+    background-color: rgba(0, 0, 0, 0.35);
+}
+
+.formRefund .goods-msg .thumbnail .num {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.password_find_page .jumper .cover, .password_update_page .jumper .cover {
+    background: rgba(0, 0, 0, 0.5)
+}
+
+.pay-success .goods-msg {
+    border-top: 1px solid rgba(223, 222, 222, 0.38);
+    border-bottom: 1px solid rgba(223, 222, 222, 0.38);
+}
+
+/* 第三方分享盒子样式 */
+#shareBox {
+    background: rgba(255, 255, 255, 0.79)
+}
+
+.leftAccountLink a {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.user-sign-page .cover {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.user-sign-page .result-container.hide {
+    background: rgba(0, 0, 0, 0);
+}
+
+.hpCountdown {
+    background: rgba(249, 99, 98, 0.9)
+}
+
+.aui_state_focus.aui_state_lock {
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 5px;
+}
+
+.aui_content > div {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.dropload-load span.last {
+    background-color: Blue;
+    color: White
+}
+
+.CFlimitBuy {
+    background-color: transparent
+}
+
+.PrShowBtn a.CrowdsAddToCartBt {
+    background: #760fcc;
+    color: #fff;
+}
+
+.CrowdsingTimeBg {
+    background: #760fcc
+}
+
+.CrowdsingTime {
+    color: #fff;
+}
+
+a.aShowBtn {
+    border: 2px solid #760fcc;
+    background-color: #760fcc;
+    color: #fff;
+}
+
+.main_visual {
+    background: rgba(102, 102, 102, 0.9);
+}
+
+.main_visualNew {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+div.flicking_con a {
+    background: #666;
+}
+
+div.flicking_con a.on {
+    background: #760fcc
+}
+
+.shopcartN-content {
+    background: #fff;
+}
+
+.shopcartN-content p, .prs-info-tab p {
+    /* background: #eee; */
+    color: #999;
+}
+
+.shopcartN-content p a, .prs-info-tab p a, .shopcartN-content .ShopCartBtn a {
+    color: #fff;
+    background: #e84204;
+}
+
+.crowdfund-goods-detail-comment .g-statistics {
+    background: #f7f7f7;
+    border-bottom: 1px solid #dedede
+}
+
+.g-goods-single .content-msg {
+    border-bottom: 1px solid #dedede;
+    background: #fff
+}
+
+.g-goods-single .content-msg p img {
+    border: 1px solid #e5e5e5
+}
+
+.OrderEval dt {
+    color: #666;
+}
+
+.OrderEval dd textarea {
+    border: 1px solid #dfdede;
+    background: #fafafa;
+}
+
+.OrderEval dd input[type=text] {
+    border: 1px solid #dfdede;
+    background: #fafafa;
+}
+
+.OrderEval dd input[type=submit] {
+    color: #fff;
+    background: #760fcc;
+}
+
+.OrderEvalShowImgBt {
+    border: 1px solid #dfdede;
+    background-color: #fafafa;
+}
+
+.OrderEvalShowImgList span {
+    border: 1px solid #dfdede;
+}
+
+.OEvalShowImgListH {
+    color: #666;
+}
+
+.TeamNavSeckill a.cur {
+    color: #fff;
+}
+
+.TStitle {
+    background: #760fcc;
+    border-bottom: solid #ddd 1px;
+    color: #fff;
+}
+
+.TStitle a {
+    color: #fff;
+}
+
+.LoveBox .del {
+    color: #999;
+}
+
+.YGProBar {
+    background: #ccc;
+}
+
+.YGProBarBg {
+    background: #760fcc;
+}
+
+.YGProBarBox dl dd p {
+    color: #666;
+}
+
+.ProYS {
+    background: #760fcc;
+}
+
+.ProYS a {
+    color: #fff;
+}
+
+.goods_name a {
+    color: #666
+}
+
+.goods_price a {
+    color: #760fcc;
+}
+
+.cd-navigationborder-div {
+    color: #fff;
+}
+
+.AddBtn, .LoginBtn, .SubmitBtn, .order_Btnzhifu, .ShopCartBtn .CollectBtn, .ShopCartBtn .CartBtn {
+    background: #760fcc;
+    color: #fff;
+}
+
+.Shopping_Cart_ico {
+    color: #a2a2a2;
+}
+
+.Cart_prList li {
+    border-bottom: 1px solid #ccc;
+}
+
+.Cart_prList img {
+    border: 1px solid #e1e1e1
+}
+
+.Cart_prList_txt p {
+    color: #a1a1a1;
+}
+
+.Cart_prList_txt p span {
+    color: #760fcc
+}
+
+.Cart_prList_ClearAll {
+    color: #8b8d91;
+    border-top: 1px solid #e9e9e9;
+}
+
+.Cart_prListTxt {
+    color: #666;
+}
+
+.Cart_prListTxt span {
+    color: #760fcc
+}
+
+#pBulkTotal p strong {
+    color: #760fcc;
+}
+
+.MarginTop5 ul li div p span {
+    color: #760fcc;
+}
+
+.Cart_Change ul li del {
+    color: #b2b2b2
+}
+
+.Cart_Change ul li span {
+    color: #760fcc
+}
+
+.Cart_Change ul li img {
+    border: 1px solid #e1e1e1
+}
+
+.Cart_Txt {
+    color: #666;
+}
+
+.Cart_Txt span {
+    color: #760fcc
+}
+
+.success_title {
+    color: #666;
+}
+
+.success_messageLine {
+    border-bottom: 1px solid #d3d3d3
+}
+
+.success_message {
+    color: #666;
+    background-color: #f4f4f4;
+    border-top: 1px solid #fff;
+}
+
+.success_message a:link, .success_message a:visited {
+    color: #760fcc
+}
+
+.btn_zhifu {
+    background: #760fcc;
+    color: #fff
+}
+
+.Settlement_all {
+    color: #666
+}
+
+.OverHid h6 {
+    color: #333
+}
+
+.Settlement_Title1 {
+    border-bottom: 1px solid #d3d3d3;
+    color: #333;
+}
+
+.Settlement_bgMessage {
+    color: #666;
+    background-color: #f4f4f4;
+    border-top: 1px solid #fff
+}
+
+.Settlement_addInforTextBox {
+    color: #666;
+    border: 1px solid #ccc;
+}
+
+.Postscript_TextBox {
+    border: 1px solid #e9e9e9;
+}
+
+.Inventory_Text {
+    color: #760fcc;
+}
+
+.Inventory_Total {
+    color: #666;
+    border-top: 1px solid #e9e9e9
+}
+
+.Inventory_Total span {
+    color: #760fcc
+}
+
+.Check_Text {
+    color: #666;
+}
+
+.Check_Text span {
+    color: #760fcc
+}
+
+.cartbtn a, .zhifu input {
+    background: #760fcc;
+    color: #fff;
+}
+
+.search_Buyer {
+    color: #a9a9a9
+}
+
+.ThechartsBuyDetail {
+    border-left: 1px solid #760fcc;
+    color: #760fcc;
+}
+
+.Collapse {
+    color: #696769;
+}
+
+.ThechartList {
+    background-color: #fff;
+    border-bottom: 2px solid #ccc;
+    border-top: 2px solid #ccc;
+}
+
+.ThechartCircle {
+    color: #fff;
+}
+
+.ThechartCircleName {
+    color: #545454;
+}
+
+.ThechartCircleDetail {
+    color: #545454;
+}
+
+.ThechartContDetail p {
+    color: #545454;
+}
+
+.AllRank {
+    background-color: #222;
+    color: #fff;
+}
+
+.AllRank a {
+    color: #fff
+}
+
+.AllBuyer {
+    background-color: #fff;
+}
+
+.BuySelErTextFont {
+    color: #999;
+}
+
+.BuySelErTextFont a {
+    color: #c2a5a5
+}
+
+.ThechartDetail {
+    background-color: #fff;
+    border-bottom: 1px dashed #ccc;
+    border-top: 2px solid #ccc;
+}
+
+.ResumeDetail {
+    background-color: #e2e2e2
+}
+
+.DetailYdxs {
+    color: #444343;
+}
+
+.DetailYd {
+    color: #760fcc;
+}
+
+.ProfileDetail {
+    background-color: #fff;
+    border-bottom: 1px dashed #ccc;
+}
+
+.DetailAllMain {
+    background-color: #fff;
+}
+
+.RecommendedDetail {
+    border: 2px solid #e9e9e9
+}
+
+.TitleRecommended {
+    color: #525252
+}
+
+.TitleRecommended a {
+    color: #525252
+}
+
+.MarketPrice {
+    color: #8d5601;
+}
+
+.ServicesCustomers {
+    border-bottom: 1px dashed #ccc;
+}
+
+.ServicesErContent {
+    background-color: #e2e2e2;
+}
+
+.ServicesErContentName {
+    color: #666;
+}
+
+.buyerlistNobgNumber {
+    color: #760fcc
+}
+
+#cd-lateral-nav .leftAccountLink a {
+    border: 2px solid #fff;
+    background-color: #fff;
+    color: #666;
+}
+
+.Period {
+    border-bottom: 1px solid #d6d6d6;
+    background: #e4e4e4
+}
+
+.Period li a {
+    color: #666
+}
+
+.Period li.cur {
+    background: #f4f4f4
+}
+
+.Period li.cur a {
+    color: #760fcc
+}
+
+.CrowdsPro {
+    border-bottom: 1px solid #c6c6c6;
+}
+
+.CrowdsProBar {
+    background: #e7e7e7;
+    border: 1px solid #dadada;
+}
+
+.CrowdsProBarBg {
+    background: #760fcc;
+}
+
+.CrowdsProInfo li {
+    color: #999
+}
+
+.CrowdsProInfo li.Info1 p:first-child {
+    color: #e81615
+}
+
+.CrowdsProInfo li.Info2 p:first-child {
+    color: #666
+}
+
+.CrowdsProInfo li.Info3 p:first-child {
+    color: #b624e0
+}
+
+.Winner {
+    border: 1px solid #c9c9c9;
+    background: #fff;
+}
+
+.WinnerImg {
+    border: 1px solid #e1e1e1
+}
+
+.WinnerInfo p:first-child {
+    color: #b624e0
+}
+
+.WinnerInfo p:nth-child(2) span {
+    color: #760fcc
+}
+
+.ThisWinner {
+    border: 1px solid #e1e1e1;
+    background: #fff
+}
+
+.ThisWinner .ThisWinnerCon {
+    border-bottom: 1px solid #e1e1e1
+}
+
+.ThisWinner .ThisWinnerCon li {
+    border-right: 1px solid #e1e1e1;
+}
+
+.ThisWinnerRes .ThisWinnerResNum span {
+    color: #760fcc
+}
+
+.ThisWinnerRes .ThisWinnerResL a {
+    color: #fff;
+    background: #760fcc;
+}
+
+.CrowdsFrame {
+    border: 1px solid #e1e1e1;
+    background: #e4e4e4;
+}
+
+.ThisPeriod span {
+    color: #333
+}
+
+.OtherPeriod .FloatLeft {
+    color: #760fcc;
+}
+
+.OtherPeriod .FloatRight a {
+    color: #fff;
+    background: #760fcc;
+}
+
+.CrowdsRes {
+    color: #fffefe;
+    background: #760fcc
+}
+
+.CrowdsResCon {
+    background: #760fcc;
+}
+
+.CrowdsResCon ul {
+    color: #fff
+}
+
+.CrowdsList {
+    background: #fffcda
+}
+
+.CrowdsList ul li {
+    border-bottom: 1px solid #ffeaa8;
+}
+
+.td {
+    color: #666;
+}
+
+.td1 .td1_01 {
+    border-right: 1px solid #760fcc
+}
+
+.td2 {
+    border-right: 1px solid #760fcc;
+    color: #760fcc
+}
+
+.CrowdsListNav {
+    border-bottom: 1px solid #d6d6d6;
+    background: #fff
+}
+
+.CrowdsListNav ul li {
+    color: #666;
+}
+
+.CrowdsListNav ul li a {
+    color: #666
+}
+
+.CrowdsListNav ul li.cur {
+    border-bottom: 2px solid #760fcc;
+    color: #760fcc
+}
+
+.CrowdsListNav ul li:last-child > div {
+    border-left: 1px solid #d6d6d6
+}
+
+.Crowdsul > li {
+    border-bottom: 1px solid #c6c6c6;
+}
+
+.Crowdsul > li .FloatLeft {
+    border: 1px solid #eee;
+}
+
+.Crowdsul > li .FloatLeft > div {
+    color: #fff;
+    background: rgba(170, 227, 148, 0.5)
+}
+
+.Crowdsul > li .FloatLeft > div.MenberCrowding {
+    background: #760fcc
+}
+
+.Crowdsul > li .FloatLeft > div.MenberCrowded {
+    background: #f9b34f
+}
+
+.MemCrowdsNum i {
+    color: #760fcc
+}
+
+.MemCrowdsBar {
+    border: 1px solid #dadada;
+    background: #e7e7e7
+}
+
+.MemCrowdsBarBg {
+    background: #760fcc;
+}
+
+.MemCrowdsProInfo ul li.CrowdsProYNum p:first-child {
+    color: #e81615
+}
+
+.MemCrowdsProInfo ul li.CrowdsProSNum p:first-child {
+    color: #b624e0
+}
+
+.MenCrowdsMore a {
+    color: #760fcc
+}
+
+.CrowdsWiner span {
+    color: #42b7ff
+}
+
+.CrowdsChip {
+    border: 1px solid #e6e6e6;
+    background: #fff
+}
+
+.CrowdsChipTitle {
+    border-bottom: 1px solid #e6e6e6;
+    color: #525252;
+}
+
+.CrowdsChipTitle span {
+    color: #760fcc
+}
+
+.CrowdsChipCon1 {
+    color: #999
+}
+
+.CrowdsAddr a {
+    color: #760fcc
+}
+
+.CrowdsRecord ul li {
+    border-bottom: 1px solid #ccc;
+}
+
+.JoinerInfoName a {
+    color: #1aa7ff
+}
+
+.JoinerInfoData i {
+    color: #760fcc
+}
+
+.PrShowBtn a.CrowdsBuyBt {
+    background: #760fcc;
+    color: #fff;
+}
+
+.PrShowBtn p a {
+    color: #ffb320;
+}
+
+a.crowdfundAddAddressLink {
+    background: #000;
+    color: #fff !important;
+}
+
+a.confirmReceiveBtnCrowdfund {
+    border: 2px solid #000;
+    background-color: #000;
+    color: #fff;
+}
+
+.WinerName, .JoinGoodsName, .WinerFrom {
+    color: #666;
+}
+
+.WinerName a {
+    color: #760fcc;
+}
+
+.mod .YGhd {
+    background: #fff;
+    border-top: 1px solid #f3f2f2;
+    border-bottom: 1px solid #f3f2f2
+}
+
+.mod .YGhd .floatl {
+    border-left: 2px solid #760fcc;
+    color: #760fcc;
+}
+
+.mod .YGhd .floatr a {
+    color: #999;
+}
+
+.mod .YGbd {
+    background: #fff;
+}
+
+.mod .YGbd ul li {
+    border-bottom: 1px solid #efeff4;
+}
+
+.mod .YGbd ul li:nth-child(odd) {
+    border-right: 1px solid #efeff4;
+}
+
+.mod .YGbd ul li .RevealBg {
+    background: #666;
+    color: #fff;
+}
+
+.mod .YGbd ul li .RevealBg.cur {
+    background: #760fcc;
+}
+
+.YGProBar {
+    background: #ccc;
+}
+
+.YGProBarBg {
+    background: #760fcc;
+}
+
+.YGProBarBox dl dd p {
+    color: #999;
+}
+
+.YGProBarBox dl dd.YGPro1 p:first-child {
+    color: #760fcc;
+}
+
+.YGProBarBox dl dd.YGPro2 p:first-child {
+    color: #666;
+}
+
+.YGProBarBox dl dd.YGPro3 p:first-child {
+    color: #0395f7;
+}
+
+.YGgoods_buyBt a {
+    color: #fff;
+    background: #760fcc;
+}
+
+.goods_price span {
+    color: #760fcc;
+}
+
+.goods_price i {
+    color: #999;
+}
+
+.PrShowName del {
+    color: #8c8c8c;
+}
+
+.PrShowSelect {
+    border-top: 1px solid #c6c6c6;
+    border-bottom: 1px solid #c6c6c6;
+}
+
+.PrShowInfo a {
+    border: 1px solid #bcbcbc;
+}
+
+.PrShowInfo a span {
+    background-color: #fff
+}
+
+.PrShowInfo a:hover, .PrShowInfo a:active, .PrShowInfo a.Active {
+    border: 1px solid #8d5601
+}
+
+.PrShowBtn .BuyBtn {
+    color: #fff;
+}
+
+.PrShowBtn .CartBtn {
+    color: #fff;
+}
+
+.PrShowBtn .CollectBtn {
+    color: #fff;
+}
+
+.PrShowKuangT {
+    border-bottom: 1px solid #c6c6c6;
+    color: #525252
+}
+
+.PrShowComment {
+    border: 1px solid #c9c9c9;
+    background-color: #fff
+}
+
+#weixinCareLinkDiv .welcomelink {
+    color: #fff;
+    background: #6babe7;
+}
+
+#weixinCareLinkDiv .userShowName {
+    color: #fff;
+}
+
+.Shopping_Cart_Btn {
+    color: #8b8d91;
+}
+
+.IdPopBox {
+    box-shadow: 0 0 8px #666;
+    background: #fff;
+}
+
+.IdPopBox h1 {
+    color: #760fcc;
+}
+
+.IdPopBox .IdInfo dd .floatl {
+    background: #760fcc;
+    color: #fff;
+}
+
+.IdPopBox .IdInfo dd .IdInfoR {
+    color: #333;
+}
+
+.IdPopBox .IdInput .floatl {
+    color: #333;
+}
+
+.IdPopBox .IdTxt input[type=text] {
+    border: 1px solid #ccc;
+    background: #fff;
+}
+
+.IdPopBox .IdSubmit input[type=button] {
+    background: #760fcc;
+    color: #fff;
+}
+
+.IdPopBox .IdPopshaw {
+    background: #666;
+}
+
+.home_tx {
+    background: #fff;
+}
+
+.home_tx .close {
+    background: #760fcc;
+    color: #fff;
+}
+
+.user-order-comment .goods-msg .thumbnail .goods-sum {
+    background: rgba(0, 0, 0, 0.4);
+    color: #760fcc;
+}
+
+.user-order-comment .comment-table .input {
+    border: 1px solid #dfdede;
+    background: #fafafa;
+}
+
+.user-order-comment .comment-table .image-upload em {
+    border: 1px solid #dfdede;
+}
+
+.user-order-comment .check-box {
+    background-color: #fff;
+    border: 1px solid #9b9b9b;
+}
+
+.user-order-comment .check-box:checked {
+    border-color: #760fcc;
+}
+
+.user-order-comment footer {
+    border-top: 1px solid #ccc;
+}
+
+.user-order-comment .check-code {
+    background: #fff;
+    border-top: 1px solid #eee;
+}
+
+.user-order-comment .check-code input {
+    border: 1px solid #dfdede;
+    background: #fafafa;
+}
+
+.user-order-comment .saleoutletsCanComment .input {
+    border: 1px solid #dfdede;
+    background: #fafafa;
+}
+
+.user-order-comment .saleoutletsCanComment .RefundH {
+    background: #fff;
+}
+
+.OrderAll a .floatl {
+    color: #760fcc;
+}
+
+.OrderInfoProBox .OrderLi, .OrderLiPro {
+    background: #fff;
+}
+
+.OrderNo {
+    border-bottom: 1px solid #ececec;
+}
+
+.OrderNo p {
+    color: #666;
+}
+
+.data-process {
+    color: #999;
+}
+
+.data-process .process {
+    background: #e7e9ee;
+}
+
+.data-process .floatr {
+    color: #999;
+}
+
+.data-process .process .rate {
+    background: -ms-linear-gradient(top, #760fcc, #fff);
+    background: -moz-linear-gradient(top, #760fcc, #fff);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#760fcc), to(#fff));
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#760fcc), to(#fff));
+    background: -webkit-linear-gradient(top, #760fcc, #fff);
+    background: -o-linear-gradient(top, #760fcc, #fff);
+    background-size: auto 100%;
+}
+
+.data-process .process .board {
+    color: #760fcc;
+}
+
+.OrderLiPro .floatr p.board-title {
+    background: #760fcc;
+    color: #fff;
+}
+
+.GoodsBargain {
+    background: #35c5ba;
+    color: #fff;
+}
+
+.cover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.result-container.hide {
+    background: rgba(0, 0, 0, 0);
+}
+
+.window {
+    background: #760fcc;
+    border: 2px solid #fff;
+}
+
+.window .tip-text {
+    color: #6a491d;
+}
+
+.scan-share .window .img-scan {
+    border: 2vw solid #fff;
+}
+
+.show-pro .thumbImg {
+    border: 1px solid #e7e7e7;
+}
+
+.show-pro .price {
+    color: #333;
+}
+
+.show-pro .period {
+    color: #333;
+}
+
+.show-pro .btns .btn {
+    color: #fff;
+    box-shadow: 2px 4px 0 #760fcc;
+}
+
+.show-pro .btns .btn-normal-3 {
+    box-shadow: 2px 4px 0 #137d5f;
+}
+
+.show-pro .btns .btn-unable-2 {
+    box-shadow: 2px 4px 0 #666;
+}
+
+.component-loading .path {
+    stroke: #999;
+}
+
+.CarMiss .CartMName a {
+    color: #999;
+}
+
+.CartMName .tag {
+    color: #999;
+    background: #fff;
+}
+
+.CartNumXgZi {
+    color: #ff4e0d;
+    background: #fff0e7;
+}
+
+.seckillInfoFrome .meter .meterJDT {
+    color: #fff;
+    background: #fcef02;
+}
+
+.seckillInfoFrome .meterSz {
+    color: #760fcc;
+}
+
+.seckillInfoFrome .Seckilljd .seckillTJ {
+    color: #fcef02;
+}
+
+.seckillInfoFrome .PsName {
+    color: #666;
+}
+
+.seckillInfoFrome .PsNPrice {
+    color: #fff;
+}
+
+.seckillInfoFrome .PsPricer del {
+    color: #fcef02;
+}
+
+.TeamNavSeckill a {
+    color: #760fcc;
+}
+
+.TeamNavSeckill a.cur {
+
+    color: #fff;
+}
+
+.Seckilljd .meter {
+    background: #eee;
+}
+
+.Seckillqg {
+    background: #760fcc;
+    color: #fff;
+}
+
+.TeamNavSeckillFrome .meter {
+    background: #F9F9F9;
+    border: solid #feeaeb 1px;
+}
+
+.meterSz {
+    color: #E2333D;
+}
+
+.TeamNavSeckillFrome .Seckillqg {
+    background: #760fcc;
+    color: #fff;
+}
+
+.TeamListTitle {
+    background: #f1f2f6;
+    border-top: solid #dcdde1 1px;
+    border-bottom: solid #dcdde1 1px;
+    border-left: solid #760fcc 5px;
+}
+
+.TeamListTitle span {
+
+    background: #404040;
+    color: #fff;
+}
+
+.ShopCarBtn ul li a {
+    color: #760fcc;
+}
+
+.ShopCarBtn ul li.act a {
+    color: #fff;
+}
+
+.ShopCarBtn ul li.act {
+    background: #760fcc;
+}
+
+.cfShowMoreBtn {
+    background-color: bisque;
+}
+
+.CarMissZi {
+    background: #C7C7C7;
+}
+
+.TeamNavSeckillFrome {
+    background: #f6f4f4;
+}
+
+.TeamNavSeckilltu ul li {
+    background: #fff;
+}
+
+.seckillInfoFrome .Seckilljd .meter {
+    background: #fff;
+}
+
+.seckillInfoFrome .PsPrice {
+    background: #760fcc;
+}
+
+.ShopCarBtn {
+    border-bottom: solid #760fcc 2px;
+}
+
+.CollectCheck {
+    border-bottom: 1px solid #b7b1a4;
+}
+
+.CollectCheck .btn-select {
+    background: #000;
+}
+
+.ProImg .SalePost {
+    color: #fff;
+    background: #760fcc;
+}
+
+.dealInfo {
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.dealInfo.hover {
+    background: #f5f5f5;
+}
+
+.dealInfo > .d .d_tit {
+    color: #333;
+}
+
+.dealInfo > .d .d_info .tuanNum {
+    color: #27272f;
+}
+
+.dealInfo > .d .d_info .tuanPrice {
+    color: #e60044;
+}
+
+.dealInfo > .d .btn-gotuan {
+    background-color: #e60044;
+    color: #fff;
+}
+
+.dealInfo .org {
+    color: #999;
+}
+
+.dealInfo .mark {
+    color: #760fcc;
+}
+
+.dealInfo .active {
+    border: 1px solid #E60044;
+    color: #E60044;
+}
+
+.dealInfo .lu_ru {
+    color: #ccc;
+}
+
+.hot_products {
+    background: #f6f6f6;
+    border-bottom: 1px solid #dfdede;
+    border-top: 1px solid #dfdede;
+}
+
+.hot_products .hot-list .txt {
+    color: #717171;
+}
+
+.hot_products .hot-list .price-g {
+    color: #760fcc;
+}
+
+.hot_products .hot-list .price-g em {
+    color: #760fcc;
+}
+
+.hot_products .hot-list .mark {
+    border: 1px solid #760fcc;
+    color: #760fcc;
+}
+
+.hot_products .hot-list .people-g {
+    color: #9b9b9b;
+}
+
+.deal .icon_position {
+    color: #5d2f18;
+}
+
+.RecomCon {
+    background: #f7f7f7;
+}
+
+.spellMask {
+    color: #fff;
+}
+
+.stepGuild {
+    color: #9d9d9d;
+    border-top: 1px solid #dfdede;
+    border-bottom: 1px solid #dfdede;
+    background: #fff;
+}
+
+.stepGuild .step_tit i {
+    background-color: #760fcc;
+}
+
+.stepGuild .step_item .step_num {
+    background: #760fcc;
+    border: 1px solid #760fcc;
+    color: #fff;
+}
+
+.stepGuild .steps {
+    color: #9d9d9d;
+}
+
+.stepGuild .step_tit a {
+    color: #2b292a;
+}
+
+.groupUserimg {
+    background: #f6f6f6;
+}
+
+.groupUserimg .userImg {
+    background: #fff;
+}
+
+.gr_me_tle {
+    background: #f6f6f6;
+    color: #333;
+}
+
+.groupMember {
+    background-color: #f6f6f6;
+}
+
+.groupMember .memberItem:nth-child(1) {
+    background-color: #5d2f18;
+    color: #fff;
+}
+
+.groupMember .memberItem {
+    border-bottom: 1px solid #f1f1f1;
+    color: #27272f;
+    background-color: #fff;
+}
+
+.groupMember .memberItem img {
+    border: 1px solid #760fcc;
+}
+
+.centerRemind {
+    background-color: #f6f6f6;
+}
+
+.centerRemind p {
+    color: #27272f;
+}
+
+.centerRemind > p .num {
+    color: #760fcc;
+}
+
+.groupCountdown {
+    background-color: #f6f6f6;
+}
+
+.groupCountdown > p {
+    background-color: #f1f1f1;
+}
+
+.groupCountdown > .counter {
+    color: #27272f;
+}
+
+.groupCountdown > .counter .time {
+    background: #333;
+    color: #fff;
+}
+
+.order_in {
+    color: #595758;
+}
+
+.order_in .row {
+    border: solid 1px #760fcc;
+}
+
+.order_in .row .info .sec {
+    color: #595758;
+}
+
+.order_in .row .rig {
+    background: #760fcc;
+    color: #fff;
+}
+
+.order_in .rig .go_order {
+    color: #fff;
+}
+
+.order_in .row .rig i {
+    border-left: 4px solid #fff;
+}
+
+.order_in .row .tim {
+    background: #fff;
+}
+
+.order_in .row .tim .fir {
+    color: #760fcc;
+}
+
+.order_in .row .tim .sec {
+    color: #595758;
+}
+
+.hot_products .hot-list {
+    background-color: #f6f6f6;
+}
+
+.hot_products .hot-list .l {
+    background-color: #FFF;
+}
+
+.stepGuild .step_tit {
+    color: #27272f;
+}
+
+.GoodsRecomBox {
+    background: #fff;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.GoodsRecomBox .GoodsRecomH .name {
+    color: #666;
+    border-bottom: 2px solid #eee;
+}
+
+.GoodsRecomBox .GoodsRecomH .name.cur {
+    color: #760fcc;
+    border-color: #760fcc;
+}
+
+.GoodsRecomBox .GoodsRecomPro .GoodsRecomProList {
+    border-bottom: 1px solid #eee;
+}
+
+.GoodsRecomBox .GoodsRecomProList .GoodsRecomProPrice {
+    color: #999;
+}
+
+.GoodsRecomBox .GoodsRecomBuy {
+    border-top: 1px solid #eee;
+}
+
+.GoodsRecomBox .GoodsRecomBuy .GoodsRecomPrice .important {
+    color: #760fcc;
+}
+
+.supplier-register .container-login {
+    color: #666;
+}
+
+.salesOutletList {
+    background: #eee;
+}
+
+.salesOutletList .nav {
+    background: #f7f7f7;
+}
+
+.salesOutletList .selection {
+    background: #760fcc;
+    color: #fff;
+}
+
+.salesOutletList .status-end {
+    color: #999;
+}
+
+.salesOutletList .list .select-item {
+    background: #fff;
+}
+
+.salesOutletList .list .select-item .bot {
+    border-top: 1px solid #f7f7f7;
+}
+
+.salesOutletList .list .select-item .title {
+    color: #333;
+}
+
+.salesOutletList .list .select-item .label {
+    background: #760fcc;
+    color: #fff;
+}
+
+.salesOutletList .list .select-item .detail {
+    color: #666;
+}
+
+.salesOutletList .list .select-item .text,
+.salesOutletList .list .select-item .extra {
+    color: #999;
+}
+
+.page-index .container-share-msg {
+    background: #f7f7f7;
+    color: #bbb;
+}
+
+.childOrderBtn .OrderPayBt {
+    background: #760fcc;
+    border: solid #ddd 1px;
+    color: #fff;
+}
+
+.user-distribution-number .control,
+.article-box {
+    background: #fff;
+}
+
+.article-box .title {
+    color: #333;
+}
+
+.user-distribution-number .normal,
+.article-box .normal {
+    color: #b7b7b7;
+}
+
+.article-box .important {
+    color: #576b95;
+}
+
+.user-distribution-number .package-list .item {
+    background: #fff;
+}
+
+.user-distribution-number .goods-list .item {
+    background: #eee;
+}
+
+.draw-wheel .list-reward {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.draw-wheel .header {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.draw-wheel .section .content {
+    background: rgba(5, 73, 95, 0.5);
+    color: #fff;
+}
+
+.draw-wheel .guide-link {
+    color: #fff;
+}
+
+.draw-wheel .control .left,
+.draw-wheel .control .right {
+    background: #760fcc;
+    color: #fff;
+}
+
+.draw-wheel .control .text,
+.draw-wheel .control a {
+    color: #fff;
+}
+
+.draw-wheel .control .left i,
+.draw-wheel .control .right i {
+    color: #ffcf1b;
+}
+
+.draw-wheel .container-game .status-no {
+    background: #fff;
+}
+
+.scan-record .list .item {
+    background: #fff;
+    border-bottom: 1px solid #eee;
+}
+
+.scan-record .list .item .left {
+    color: #999;
+}
+
+.scan-record .list .item .right {
+    color: #666;
+}
+
+.activity-wheel-result .window {
+    background: #f0f0f0;
+}
+
+.activity-wheel-result .window .btns .btn {
+    box-shadow: none;
+}
+
+.activity-wheel-result .window .btns .btn-positive {
+    background: #760fcc;
+}
+
+.activity-wheel-result .window .btns .btn-normal {
+    background: transparent;
+    color: #999;
+}
+
+.scan-code-pay .container .top .output-container {
+    color: #fff;
+}
+
+.scan-code-pay .list-keyboard .button .text {
+    color: #333;
+}
+
+.scan-code-pay .list-keyboard .button:active {
+    background: #ddd;
+}
+
+.scan-code-pay .control .btn.disabled {
+    background: #ddd;
+}

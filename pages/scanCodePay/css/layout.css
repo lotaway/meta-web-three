@@ -1,0 +1,10755 @@
+﻿@charset "utf-8";
+
+.HeadL, .HeadR {
+    width: 90px
+}
+
+.HeadL a, .HeadR a {
+    display: block;
+    float: left;
+    width: 45px;
+    height: 50px
+}
+
+.HeadL a {
+    background: url(../images/back.png) center no-repeat;
+    background-size: 14px 25px
+}
+
+.HeadR {
+    position: relative
+}
+
+.HeadR2 {
+    width: 90px;
+    line-height: 50px;
+    text-align: center
+}
+
+.HeadR2 a {
+    font-size: 14px
+}
+
+.HeadR a.SearchBt {
+    background: url(../images/HSearchBt.png) center no-repeat;
+    background-size: 25px 25px
+}
+
+.HeadR a.btnSupplierRegister {
+    background: url(../images/icon-add-user.png) center no-repeat;
+    background-size: auto 57%;
+}
+
+.HeadR a.menu {
+    background: url(../images/navico.png) center no-repeat;
+    background-size: 27px 25px
+}
+
+.HeadM {
+    margin: 0 90px;
+    font-size: 20px;
+    font-weight: bold;
+    overflow: hidden
+}
+
+.supplier-list .tool-bar .list .container-filter,
+.MenuList {
+    display: none;
+    position: absolute;
+    top: 40px;
+    right: 0;
+    width: 150px;
+    background: url(../images/DropBg.png) top right 15px no-repeat;
+    background-size: 17px 10px;
+}
+
+.MenuList {
+    overflow: hidden;
+}
+
+.supplier-list .tool-bar .list .container-filter {
+    display: block;
+    height: 200px;
+    overflow: auto;
+}
+
+.supplier-list .tool-bar .list .container-filter .list-filter,
+.MenuList ul {
+    opacity: .9;
+    margin-top: 10px
+}
+
+.supplier-list .tool-bar .list .container-filter .list-filter .item,
+.MenuList ul li {
+    width: 100%;
+    height: 50px;
+    padding: 0 10px
+}
+
+.supplier-list .tool-bar .list .container-filter .list-filter .item .link,
+.MenuList ul li a {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    line-height: 50px;
+    font-size: 18px;
+}
+
+.MenuList ul li a {
+    text-indent: 40px;
+}
+
+.supplier-list .tool-bar .list .container-filter .list-filter .item:last-child,
+.MenuList ul li:last-child {
+    border-bottom: 0
+}
+
+.MenuList ul li.MenuList1 {
+    background: url(../images/HomeIco.png) center left 10px no-repeat;
+    background-size: 26px 26px
+}
+
+.MenuList ul li.MenuList2 {
+    background: url(../images/HInfoBt.png) center left 10px no-repeat;
+    background-size: 26px 25px
+}
+
+.MenuList ul li.MenuList3 {
+    background: url(../images/CartIco.png) center left 10px no-repeat;
+    background-size: 26px 24px
+}
+
+.MenuList ul li.MenuList4 {
+    background: url(../images/MenIco.png) center left 10px no-repeat;
+    background-size: 26px 27px
+}
+
+.advanced-search .MainFoot {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    margin: 0;
+}
+
+.Hsearchl {
+    width: 20px;
+    height: 50px
+}
+
+.Hsearchl a {
+    display: block;
+    width: 30px;
+    height: 50px;
+    background: url(../images/back2.png) center no-repeat;
+    background-size: 14px 25px
+}
+
+.Hsearchr {
+    width: 60px;
+    height: 50px
+}
+
+.Hsearchr input[type=submit] {
+    width: 60px;
+    height: 40px;
+    margin: 5px 0;
+    background: 0;
+    border: 0;
+    font-size: 16px;
+    letter-spacing: 4px
+}
+
+.HSearchTxt {
+    width: auto;
+    height: 40px;
+    margin: 5px 60px 5px 30px;
+    overflow: hidden;
+    border-radius: 4px
+}
+
+.HSearchTxt input[type=text] {
+    width: 90%;
+    height: 38px;
+    background: 0;
+    border: 0;
+    border-radius: 0;
+    padding: 0 5%;
+    font-size: 16px;
+}
+
+.HSearchTxt {
+    width: auto;
+    height: 40px;
+    margin: 5px 60px 5px 30px;
+    overflow: hidden;
+    border-radius: 4px
+}
+
+.keywords-list {
+    margin-top: 50px;
+    padding: 0 10px;
+}
+
+.keywords-list a {
+    display: block;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin: 5px;
+}
+
+main.SearchMain {
+    position: relative;
+    padding-top: 0;
+}
+
+main.SearchMain .foot {
+    position: absolute;
+    left: 0;
+    bottom: 50px
+}
+
+.ChNav {
+    width: 100%;
+    position: relative;
+}
+
+.ChNavmore {
+    width: 40px;
+    height: 33px;
+    margin: 5px 0;
+    float: right;
+    background: url(../images/Moredown.png) center no-repeat;
+    background-size: 40% auto;
+}
+
+.ChNavList {
+    margin-right: 40px;
+    width: auto;
+    /* height: 55px; */
+    /* overflow: hidden; */
+}
+
+.ChNavList ul {
+    width: 100%;
+    overflow-x: auto;
+    /* overflow-y: hidden; */
+    white-space: nowrap;
+    font-size: 0;
+}
+
+.ChNavList ul li {
+    display: inline-block;
+}
+
+.ChNavList ul li a {
+    display: block;
+    line-height: 42px;
+    padding: 0 10px;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+
+.ChNavList ul li a.cur {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+}
+
+.ChNavListH {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+}
+
+.ChNavUp {
+    width: 100%;
+    height: 45px;
+    text-align: right
+}
+
+.ChNavUp span {
+    display: inline-block;
+    width: 40px;
+    height: 44px;
+}
+
+.ChNavCon {
+    width: 100%;
+    padding: 10px 0
+}
+
+.ChNavCon a {
+    float: left;
+    width: 25%;
+    padding: 2px 5px;
+    font-size: 14px;
+    white-space: normal;
+    text-align: center;
+}
+
+.ChBanner {
+    width: 100%;
+    overflow: hidden;
+    margin-top: 10px
+}
+
+.ChBanner img {
+    width: 100%
+}
+
+.ChListBox {
+    width: 100%;
+    overflow: hidden;
+    padding: 20px 0 0;
+    margin-top: 10px;
+}
+
+.ChListBox {
+    border-left-width: 3px;
+    border-left-style: solid;
+}
+
+.ChListH {
+    width: 100%;
+    height: 20px;
+    overflow: hidden
+}
+
+.ChListH .floatl {
+    height: 20px;
+    line-height: 20px;
+    font-size: 16px;
+    text-indent: 10px
+}
+
+.ChListH .floatr {
+    height: 20px;
+    line-height: 20px;
+    margin-right: 10px
+}
+
+.ChListH .floatr a {
+    display: block;
+    height: 20px;
+    font-size: 14px
+}
+
+.ChListH .floatr span {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-left: 4px;
+    border-radius: 2px;
+    vertical-align: sub
+}
+
+.ChList {
+    width: 100%;
+    height: 260px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin-top: 10px;
+    white-space: nowrap
+}
+
+.ChList > div {
+    display: inline-block;
+    white-space: normal;
+    width: 150px;
+    height: 238px;
+    overflow: hidden;
+    margin-right: 8px;
+    vertical-align: middle
+}
+
+.ChList .ProImg {
+    width: 150px;
+    height: 150px;
+    overflow: hidden
+}
+
+.VotesBanner {
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    position: relative
+}
+
+.VotesBanner img {
+    width: 100%
+}
+
+.VotesList {
+    width: 100%
+}
+
+.VotesList ul li {
+    width: 100%;
+    height: 100px;
+    margin: 10px 0;
+    overflow: hidden
+}
+
+.VotesList ul li:last-child {
+    margin-bottom: 0
+}
+
+.VotesListName {
+    width: 96.875%;
+    margin: 4px auto;
+    height: 30px;
+    line-height: 30px
+}
+
+.VotesProBox {
+    width: 96.875%;
+    margin: 4px auto;
+    height: 12px;
+    border-radius: 6px
+}
+
+.VotesProBox .VotesProBg {
+    height: 12px;
+    border-radius: 6px;
+    float: left
+}
+
+.VotesListBt {
+    width: 96.875%;
+    height: 30px;
+    margin: 4px auto
+}
+
+.VotesListBt a {
+    display: block;
+    float: left;
+    width: 80px;
+    height: 25px;
+    margin: 10px auto;
+    line-height: 25px;
+    font-size: 14px;
+    border-radius: 6px;
+    text-align: center
+}
+
+.VotesRecom {
+    width: 96.875%;
+    margin: 0 auto
+}
+
+.supplier-register .container-logo {
+    position: relative;
+    height: 40px;
+    padding: 0 10px;
+    margin: 13px auto 0;
+    z-index: 2;
+}
+
+.supplier-register .container-logo .img-con {
+    display: block;
+    margin-right: 5.3%;
+    margin-left: auto;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.supplier-register .container-logo .img-con .img {
+    width: 100%;
+}
+
+.supplier-register .list,
+.RgTxtBox {
+    width: auto;
+    margin: 0 10px;
+    border-radius: 4px;
+}
+
+.supplier-register .list .item,
+.RgTxt {
+    width: 100%;
+    height: 50px;
+}
+
+.supplier-register .list .item-selection .icon {
+    height: 50px;
+}
+
+.supplier-register .list .item:last-child,
+.RgTxt:last-child {
+    border-bottom: 0
+}
+
+.supplier-register .list .input[type=text],
+.supplier-register .list .input[type=password],
+.RgTxt input[type=text],
+.RgTxt input[type=password] {
+    width: 80%;
+    height: 100%;
+    border: 0;
+    font-size: 14px;
+    line-height: 50px;
+    vertical-align: middle;
+    background: transparent;
+}
+
+.RgTxt input[type=password].txtUserPwd {
+    width: 60%
+}
+
+.supplier-register .list .select,
+select.selectSalesOutlets {
+    width: 80%;
+    height: 100%;
+    border: 0;
+    font-size: 14px;
+    line-height: 50px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: url(../images/Moredown.png) 98% center no-repeat;
+    background-size: 15px 9px
+}
+
+.supplier-register .list .item-selection {
+    height: auto;
+}
+
+.supplier-register .list li .icon-shield {
+    width: 17%;
+    height: 100%;
+    background-size: 30px auto;
+}
+
+.icon-time {
+    width: 30px;
+    height: 30px;
+    background: url(../images/vouchers-background.png) center no-repeat;
+    background-size: 100% auto;
+}
+
+.icon-gift {
+    width: 30px;
+    height: 30px;
+    background: url(../images/1.png) center no-repeat;
+    background-size: 100% auto;
+}
+
+.icon-username {
+    display: inline-block;
+    width: 17%;
+    height: 100%;
+    background: url(../images/icon-username.png) center no-repeat;
+    background-size: 30px auto;
+    vertical-align: top
+}
+
+.icon-RgTxtSaleoutlets {
+    display: inline-block;
+    width: 17%;
+    height: 100%;
+    background: url(../images/rgICo_adr.png) center no-repeat;
+    background-size: 30px 31px;
+    vertical-align: top
+}
+
+.icon-rgICo_Men {
+    display: inline-block;
+    width: 17%;
+    height: 100%;
+    background: url(../images/rgICo_Men.png) center no-repeat;
+    background-size: 30px 31px;
+    vertical-align: top
+}
+
+.icon-rgIco_pw {
+    display: inline-block;
+    width: 17%;
+    height: 100%;
+    background: url(../images/rgIco_pw.png) center no-repeat;
+    background-size: 30px 31px;
+    vertical-align: top
+}
+
+.icon-RgTxtEmail {
+    display: inline-block;
+    width: 17%;
+    height: 100%;
+    background: url(../images/rgIco_email.png) center no-repeat;
+    background-size: 30px 31px;
+    vertical-align: top
+}
+
+.icon-reg-mobile {
+    display: inline-block;
+    width: 17%;
+    height: 100%;
+    background: url(../images/reg-mobile.png) center no-repeat;
+    background-size: 30px 31px;
+    vertical-align: top
+}
+
+.icon-reg-recommend {
+    display: inline-block;
+    width: 17%;
+    height: 100%;
+    background: url(../images/reg-recommend.png) center no-repeat;
+    background-size: 30px 31px;
+    vertical-align: top
+}
+
+.icon-reg-vip {
+    display: inline-block;
+    width: 17%;
+    height: 100%;
+    background: url(../images/reg-vip.png) center no-repeat;
+    background-size: 30px 31px;
+    vertical-align: top
+}
+
+.icon-calendar {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    background: url(../images/icon-calendar.png) center no-repeat;
+    background-size: 100% auto;
+}
+
+.RgTxtPw1 a {
+    display: block;
+    width: 70px;
+    height: 50px;
+    text-align: center;
+    line-height: 50px;
+    float: right;
+    font-size: 14px
+}
+
+.supplier-register .list .input-button .input,
+.RgTxtGetIDCode input[type=text] {
+    width: 41%;
+    vertical-align: top
+}
+
+.RgTxtPw1L {
+    width: 60%;
+    float: right;
+    margin-left: -2%;
+    vertical-align: top;
+    height: 49px
+}
+
+.supplier-register .list .input-button .button,
+.RgTxtGetIDCode input[type=button] {
+    width: 40%;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+    font-size: 14px;
+    margin: 0 -1% 0 0;
+    line-height: 50px;
+    text-align: center;
+}
+
+.RgTxtSave {
+    width: 93.75%;
+    height: 40px;
+    margin: 10px auto 0
+}
+
+.RgTxtSave .floatl {
+    height: 40px;
+    line-height: 40px;
+    margin-right: 10px;
+    font-size: 14px
+}
+
+.RgTxtSave .floatl:last-child select {
+    width: 80px;
+    height: 40px;
+    font-size: 14px;
+    text-align: center;
+    border-radius: 0;
+    -webkit-appearance: none;
+    appearance: none
+}
+
+.supplier-register .container-control,
+.RgTxtSubBt {
+    width: auto;
+    height: 50px;
+    margin: 10px 10px 0
+}
+
+.supplier-register .btn-submit,
+.RgTxtSubBt input[type=submit],
+.RgTxtSubBt .btnRegisterSubmit {
+    width: 100%;
+    height: 50px;
+    border: 0;
+    border-radius: 4px;
+    line-height: 50px;
+    text-align: center;
+    font-size: 18px
+}
+
+.supplier-register .list .container-remark {
+    height: auto;
+}
+
+.supplier-register .container-remark .textarea {
+    resize: none;
+    width: 100%;
+    padding: 12px;
+    border: none;
+}
+
+.LoginOtherH {
+    width: 93.75%;
+    margin: 20px auto 0;
+    font-size: 16px;
+}
+
+.LoginOtherBox {
+    width: 93.75%;
+    margin: 20px auto 0
+}
+
+.LoginOther {
+    width: 100%;
+    display: -webkit-box;
+    display: -moz-box;
+    display: box
+}
+
+.LoginOther a {
+    display: block;
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    box-flex: 1;
+    text-align: center
+}
+
+.LoginOtherIco {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0 auto 10px
+}
+
+.LoginOtherIco img {
+    width: 100%;
+    border-radius: 50%
+}
+
+.container-agreement,
+.RgRule {
+    width: 93.75%;
+    margin: 10px auto 0;
+    font-size: 14px;
+}
+
+.container-agreement .input-agreement,
+.RgRule input[type=checkbox] {
+    width: 20px;
+    height: 20px;
+    border: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    vertical-align: middle;
+    margin-right: 10px;
+    background: url(../images/radioBg.png) center no-repeat;
+    background-size: 20px 20px
+}
+
+.container-agreement .input-agreement:checked,
+.RgRule input[type=checkbox]:checked {
+    background: url(../images/radioBgH.png) center no-repeat;
+    background-size: 20px 20px
+}
+
+.MenberH {
+    width: 100%;
+    height: 150px;
+    padding: 0 16px;
+    margin: 0 30px;
+    background: url(../images/MenberBg.jpg) center no-repeat;
+    background-size: 100% 100%;
+    overflow: hidden
+}
+
+.IntegralH {
+    width: 100%;
+    padding: 0 2.34375%;
+    height: 40px;
+    line-height: 40px;
+    font-size: 14px;
+}
+
+.IntegralLists {
+    width: 100%;
+    margin: 10px auto 0
+}
+
+.IntegralLists ul {
+    width: 100%;
+}
+
+.IntegralLists ul li {
+    width: 100%;
+    /*height: 120px;*/
+    overflow: hidden;
+    padding: 10px 2.34375%;
+    clear: both
+}
+
+.IProListPic {
+    width: 102px;
+    height: 102px;
+    overflow: hidden;
+    float: left
+}
+
+.IProListPic img {
+    width: 100%
+}
+
+.IProListInfo {
+    width: auto;
+    margin-left: 115px;
+    /*height: 100px*/
+}
+
+.IProListN {
+    width: 100%;
+    height: 40px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    font-size: 14px;
+    word-break: break-all;
+    word-wrap: break-word
+}
+
+.IProListPrice {
+    width: 100%;
+    /*height: 30px;*/
+    line-height: 30px
+}
+
+.IProListPrice .floatl {
+    height: 30px;
+    font-size: 18px
+}
+
+.IProListPrice .floatr {
+    height: 30px;
+    font-size: 14px
+}
+
+.IProListBuy {
+    width: 100%;
+    height: 20px;
+    line-height: 20px
+}
+
+.user-prize-list .list .btn-positive,
+.IProListBuy .floatr a {
+    display: block;
+    width: 70px;
+    height: 20px;
+    border-radius: 10px;
+    text-align: center;
+    line-height: 20px
+}
+
+.user-prize-list .list .btn-positive {
+    border: none;
+}
+
+.supplier-list .tool-bar .list,
+.prolistH {
+    width: 100%;
+    height: 42px;
+    display: flex;
+}
+
+.supplier-list .tool-bar .list {
+    position: relative;
+}
+
+.supplier-list .tool-bar .list .item,
+.prolistH > div {
+    flex: 1;
+    height: 42px;
+}
+
+.prolistH > div:last-child {
+    border-right: 0;
+}
+
+.supplier-list .tool-bar .list .item .link,
+.prolistH > div a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    line-height: 42px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.supplier-list .tool-bar .list .item .link .img,
+.prolistH > div a img {
+    width: 10px;
+    height: 6px;
+    vertical-align: middle;
+}
+
+.prolistH > div.prolistType a {
+    width: 50%;
+    display: inline-block;
+    height: 42px;
+}
+
+.prolistH > div.prolistType a.prolist_grid {
+    background: url(../images/grid.png) center no-repeat;
+    background-size: auto 56%;
+}
+
+.prolistH > div.prolistType a.prolist_list {
+    background: url(../images/list.png) center no-repeat;
+    background-size: auto 56%;
+}
+
+.prolistH > div.prolistType a.prolist_gridH {
+    background: url(../images/gridH.png) center no-repeat;
+    background-size: auto 56%;
+}
+
+.prolistH > div.prolistType a.prolist_listH {
+    background: url(../images/listH.png) center no-repeat;
+    background-size: auto 56%;
+}
+
+.YGList .TypeList li {
+    overflow: hidden;
+}
+
+.InfoList li {
+    padding: 10px 15px;
+}
+
+.InfoList .InfoPic {
+    width: 70px;
+    height: 70px;
+    overflow: hidden;
+}
+
+.InfoList .InfoPic img {
+    width: 100%;
+    vertical-align: middle
+}
+
+.InfoList .InfoCon {
+    width: auto;
+    height: 100px;
+    overflow: hidden;
+    margin: 5px 80px 0 0;
+}
+
+.InfoList .InfoName {
+    width: 100%;
+    font-size: 13px;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    display: box;
+    display: -moz-box;
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-orient: vertical;
+    -webkit-box-orient: vertical;
+}
+
+.InfoList .InfoTime {
+    margin-top: 9px;
+}
+
+.InfoList .InfoTime .floatr {
+    display: block;
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px
+}
+
+.user-distribution-number .control,
+.article-box {
+    padding: 10px 15px;
+}
+
+.user-distribution-number .control {
+    text-align: center;
+}
+
+.article-box .title {
+    font-size: 18px;
+    margin-top: 19px;
+}
+
+.article-box .info {
+    margin-top: 19px;
+}
+
+.article-box .info span {
+    margin-right: 5px;
+}
+
+.article-box .info span:last-child {
+    margin-right: 0;
+}
+
+.article-box .content {
+    width: 100%;
+    overflow: hidden;
+    margin: 36px auto;
+    word-break: break-all;
+    word-wrap: break-word;
+    font-size: 12px;
+    line-height: 250%;
+}
+
+.article-box .content strong {
+    font-weight: bold;
+}
+
+.article-box .content img {
+    width: 100%;
+}
+
+.article-box .control {
+    padding: 24px 0 0;
+}
+
+.user-distribution-number .control .normal {
+    margin-right: 10px;
+}
+
+.OrderAll {
+    width: 100%;
+    height: 50px;
+    overflow: hidden;
+}
+
+.OrderAll a {
+    display: block;
+    width: 95.3125%;
+    height: 48px;
+    margin: 0 auto;
+    line-height: 48px
+}
+
+.OrderAll a .floatl {
+    height: 48px;
+    font-size: 16px
+}
+
+.OrderAll a .floatl img {
+    width: 20px;
+    vertical-align: middle;
+    margin-right: 5px
+}
+
+.OrderAll a .floatr {
+    height: 48px;
+    padding-right: 15px;
+    background: url(../images/MoreArrow.png) center right no-repeat;
+    background-size: 9px 16px
+}
+
+.OrderNav {
+    width: 100%;
+    height: 70px;
+    overflow: hidden;
+    display: box;
+    display: -webkit-box;
+    display: -moz-box
+}
+
+.OrderNav > a {
+    height: 70px;
+    padding: 9px 0;
+    display: block;
+    box-flew: 1;
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    overflow: hidden;
+    text-align: center
+}
+
+.OrderNav > a p {
+    width: 64px;
+    margin: 0 auto;
+    font-size: 13px
+}
+
+.OrderNav > a p.OrderNavIco {
+    position: relative;
+    margin-bottom: 2px
+}
+
+.OrderNav > a p.OrderNavIco img {
+    height: 30px
+}
+
+.OrderNav > a p.OrderNavIco span {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    line-height: 20px;
+    text-align: center;
+    font-size: 11px;
+    position: absolute;
+    top: -6px;
+    right: 2px
+}
+
+.OrderLi {
+    width: 100%;
+    margin-top: 10px
+}
+
+.OrderLiPro {
+    width: 100%;
+    min-height: 100px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+.OrderLiPro .floatl {
+    width: 80px;
+    height: 80px;
+    overflow: hidden
+}
+
+.OrderLiPro .floatl img {
+    width: 100%;
+    vertical-align: middle
+}
+
+.OrderLiPro .floatr {
+    width: 80px;
+    height: auto;
+}
+
+.OrderLiPro .floatr p {
+    text-align: right
+}
+
+.OrderLiPay {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 10px;
+    height: 40px;
+    line-height: 40px;
+    text-align: right;
+    font-size: 14px;
+}
+
+.OrderLiPay span {
+    margin-left: 10px
+}
+
+.OrderLiBt {
+    width: 95.3125%;
+    margin: 0 auto;
+    height: 50px;
+    padding: 10px 0;
+    text-align: right
+}
+
+.OrderLiBt a {
+    display: inline-block;
+    width: 20%;
+    height: 30px;
+    text-align: center;
+    line-height: 28px;
+    font-size: 14px;
+    margin-left: 10px;
+}
+
+.OrderLiBt a.TakeBt {
+    line-height: 30px;
+    border: 0;
+}
+
+.OrderLiBt a.OrderPayBt {
+    width: 50px;
+    line-height: 30px;
+    border: 0;
+}
+
+.OrderNo {
+    padding: 5px 10px;
+    line-height: 20px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.childOrderNo {
+    width: 100%;
+    height: 25px;
+    margin: 0 auto;
+    line-height: 25px;
+    font-size: 12px;
+    /* border-top: solid #ddd 1px; */
+    background: #F4F4F4;
+    padding: 0 10px;
+}
+
+.OrderH {
+    width: 100%;
+    height: 50px;
+}
+
+.OrderH ul {
+    width: 200px;
+    height: 50px;
+    margin: 0 auto
+}
+
+.OrderH ul li {
+    width: 50%;
+    height: 50px;
+    float: left;
+    line-height: 50px;
+    text-align: center;
+    font-size: 16px;
+    position: relative;
+    overflow: hidden
+}
+
+.OrderH ul li input[type=radio] {
+    position: absolute;
+    top: -200px;
+    left: -200px
+}
+
+.OrderH ul li.OrderNavH {
+    background: url(../images/OrderHBg.jpg) center 41px no-repeat;
+    background-size: 10px 8px
+}
+
+.AddAddressN {
+    width: 100%;
+    margin: 10px auto 0;
+    overflow: hidden;
+}
+
+.AddAddrNone {
+    width: 100%;
+    height: 45px
+}
+
+.AddAddrNone a {
+    display: block;
+    width: 95.3125%;
+    height: 45px;
+    line-height: 45px;
+    margin: 0 auto;
+    font-size: 14px;
+    background: url(../images/MoreArrow.png) center right no-repeat;
+    background-size: 9px 16px
+}
+
+.AddAddrNone a img {
+    width: 15px;
+    vertical-align: middle;
+    margin-right: 6px
+}
+
+.AddAddressY {
+    width: 100%;
+    margin: 10px auto 0;
+    overflow: hidden;
+}
+
+.AddAddr {
+    width: 95.3125%;
+    margin: 0 auto;
+    padding: 10px 0;
+    min-height: 70px;
+    background: url(../images/AddAddressBg.png) center left no-repeat
+}
+
+.AddAddr a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0 20px 0 25px;
+    min-height: 50px;
+    background: url(../images/MoreArrow.png) center right no-repeat;
+    background-size: 9px 16px
+}
+
+.Consignee {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.AddAddrDet {
+    word-break: break-all;
+    word-wrap: break-word;
+}
+
+input.CheckExit {
+    display: none
+}
+
+.OrderPro {
+    width: 100%;
+    margin-top: 40px
+}
+
+.OrderPro dt {
+    width: 100%;
+    min-height: 100px;
+    padding: 10px 2.34375%;
+}
+
+.OrderPro dt .floatl {
+    width: 80px;
+    height: 80px;
+    overflow: hidden
+}
+
+.OrderPro dt .floatl img {
+    width: 100%;
+    vertical-align: middle
+}
+
+.OrderPro dt .floatr {
+    width: 80px;
+    height: auto;
+}
+
+.OrderPro dt .floatr p {
+    text-align: right
+}
+
+.OriginPr {
+    text-decoration: line-through
+}
+
+.OrderProNum {
+    margin-top: 15px
+}
+
+.OrderProInfo {
+    width: auto;
+    margin: 0 85px
+}
+
+.OrderProN {
+    width: 100%;
+    height: 34px;
+    line-height: 17px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.OrderProN a {
+    word-break: break-all;
+    word-wrap: break-word;
+    font-size: 14px;
+}
+
+.HpOrderProNum {
+    width: 100%;
+    margin-top: 5px
+}
+
+.OrderPro dd {
+    width: 100%;
+    height: 50px;
+    padding: 10px 2.34375%;
+}
+
+.OrderPro dd > div {
+    font-size: 14px;
+    height: 30px;
+    line-height: 30px
+}
+
+.Remark {
+    width: 100%;
+    padding: 10px 2.34375%;
+    margin-top: 10px
+}
+
+.RemarkH {
+    font-size: 16px;
+}
+
+.RemarkTxt {
+    width: 96%;
+    margin: 10px auto;
+}
+
+.RemarkTxt textarea {
+    width: 100%;
+    height: 100px;
+    resize: none;
+    border: 0
+}
+
+.Invoice {
+    font-size: 14px
+}
+
+.Invoice input[type=checkbox] {
+    width: 25px;
+    height: 25px;
+    border: 0;
+    vertical-align: sub;
+    appearance: none;
+    -webkit-appearance: none;
+    vertical-align: middle;
+    margin-right: 10px;
+    background: url(../images/radioBg.png) center no-repeat;
+    background-size: 25px 25px
+}
+
+.Invoice input[type=checkbox]:checked {
+    background: url(../images/radioBgH.png) center no-repeat;
+    background-size: 25px 25px
+}
+
+.OrderSendModeBox {
+    width: 100%
+}
+
+.OrderSendMode {
+    width: 100%
+}
+
+.section-block {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px 0;
+}
+
+img.img-url {
+    width: 150px;
+    display: block;
+    margin: 0 auto;
+}
+
+.OrderExpress, .OrderTime {
+    width: 100%;
+    margin-top: 10px
+}
+
+.OrderExpress dt, .OrderTime dt {
+    width: 100%;
+    height: 45px;
+    padding: 10px 2.34375%;
+    line-height: 25px;
+    font-size: 16px;
+}
+
+.OrderExpress dd, .OrderTime dd {
+    width: 100%;
+    height: 45px;
+    padding: 10px 2.34375%;
+    line-height: 25px;
+    font-size: 14px;
+}
+
+.OrderTime dd input[type=text] {
+    border: none;
+}
+
+.OrderExpress dd .floatr input[type=radio] {
+    width: 25px;
+    height: 25px;
+    border: 0;
+    margin-right: 10px;
+    appearance: none;
+    -webkit-appearance: none;
+    vertical-align: middle;
+    background: url(../images/radioBg.png) center no-repeat;
+    background-size: 25px 25px;
+}
+
+.OrderExpress dd .floatr input[type=radio]:checked {
+    background: url(../images/radioBgH.png) center no-repeat;
+    background-size: 25px 25px
+}
+
+.OrderSaleAct {
+    width: 100%;
+    margin-top: 10px
+}
+
+.OrderSaleAct dt {
+    width: 100%;
+    height: 45px;
+    padding: 10px 2.34375%;
+    line-height: 25px;
+    font-size: 16px;
+}
+
+.OrderSaleAct dd {
+    width: 100%;
+    height: 45px;
+    padding: 10px 2.34375%;
+    line-height: 25px;
+    font-size: 14px;
+}
+
+.ticket-coupon {
+    width: 100%;
+    padding: 10px 2.34375%;
+    line-height: 25px;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.ticket-coupon .input {
+    display: inline-block;
+    width: 50%;
+    height: 40px;
+    text-align: center
+}
+
+.ticket-coupon .p-coupon-class {
+    display: inline-block;
+    width: 50%;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    vertical-align: top
+}
+
+.ticket-coupon .button {
+    display: inline-block;
+    width: 50%;
+    height: 40px;
+    border: 0;
+    letter-spacing: .1em;
+    cursor: pointer;
+    margin: 0 0 0 -5px
+}
+
+.Pickup {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.Pickup dd {
+    width: 100%;
+    height: 50px;
+    padding: 0 2.34375%;
+    overflow: hidden
+}
+
+.Pickup dd .floatl {
+    width: 85px;
+    height: 50px;
+    line-height: 50px;
+    font-size: 14px;
+}
+
+.Pickupr {
+    width: auto;
+    margin-left: 85px;
+    height: 50px
+}
+
+.Pickupr.salesOutletSelectedName {
+    background: url("../images/MoreArrow.png") right center no-repeat;
+    background-size: auto 30%;
+    line-height: 50px;
+    font-size: 14px;
+}
+
+.Pickupr select {
+    width: 100%;
+    height: 49px;
+    border: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: url(../images/SelBg.png) center right no-repeat;
+    background-size: 66px 50px
+}
+
+.salesOutletList {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    -webkit-transform: translate3d(100%, 0, 0);
+    -moz-transform: translate3d(100%, 0, 0);
+    -ms-transform: translate3d(100%, 0, 0);
+    -o-transform: translate3d(100%, 0, 0);
+    transform: translate3d(100%, 0, 0);
+    z-index: 112;
+}
+
+.salesOutletList.show {
+    -webkit-transform: translate3d(0, 0, 0);
+    -moz-transform: translate3d(0, 0, 0);
+    -ms-transform: translate3d(0, 0, 0);
+    -o-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+}
+
+.salesOutletList .selection,
+.salesOutletList .nav {
+    position: fixed;
+    left: 0;
+    width: 100%;
+    z-index: 1;
+}
+
+.salesOutletList .nav {
+    top: 0;
+    height: 50px;
+    line-height: 50px;
+}
+
+.salesOutletList .selection {
+    top: 50px;
+    padding: 5px 0;
+    text-align: center;
+    font-size: 12px;
+}
+
+.salesOutletList .nav .left {
+    float: left;
+}
+
+.salesOutletList .nav .btn {
+    display: block;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+}
+
+.salesOutletList .nav .btn .icon {
+    width: 40%;
+    height: 40%;
+}
+
+.salesOutletList .nav .title {
+    margin: 0 50px;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.salesOutletList .container-list {
+    padding: 76px 0 0;
+    height: 100%;
+    overflow: auto;
+}
+
+.salesOutletList .status-end {
+    text-align: center;
+    padding: 15px 0;
+}
+
+.salesOutletList .list .select-item {
+    margin-bottom: 10px;
+    padding: 15px;
+}
+
+.salesOutletList .list .select-item .left {
+    float: left;
+}
+
+.salesOutletList .list .select-item .right {
+    float: right;
+}
+
+.salesOutletList .list .select-item .btn-phone {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    pointer-events: all;
+}
+
+.salesOutletList .list .select-item .btn-phone .icon {
+    width: 60%;
+    height: 60%;
+}
+
+.salesOutletList .list .select-item .bot,
+.salesOutletList .list .select-item .mid {
+    margin-top: 10px;
+}
+
+.salesOutletList .list .select-item .bot {
+    padding: 5px 0 0;
+}
+
+.salesOutletList .list .select-item .title {
+    display: inline-block;
+    font-size: 16px;
+    vertical-align: middle;
+}
+
+.salesOutletList .list .select-item .label {
+    padding: 1px 3px;
+    border-radius: 4px;
+    vertical-align: middle;
+}
+
+.salesOutletList .list .select-item .text {
+    font-size: 12px;
+}
+
+.salesOutletList .list .select-item .detail {
+    font-size: 13px;
+}
+
+.salesOutletList .list .select-item .extra {
+    font-size: 10px;
+    line-height: 30px;
+}
+
+.Pickupr input[type=text] {
+    width: 100%;
+    height: 49px;
+    border: 0;
+    border-radius: 0;
+    line-height: 49px;
+    font-size: 14px
+}
+
+.Pickup dt {
+    width: 100%;
+    padding: 10px 2.34375%;
+}
+
+.PickupMap {
+    width: 300px;
+    height: 40px;
+    margin: 0 auto;
+    overflow: hidden
+}
+
+.PickupMap a {
+    width: 140px;
+    height: 40px;
+    float: left;
+    display: inline-block;
+    border-radius: 5px;
+    line-height: 40px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.PickupMap a.LookMap img {
+    width: 22px;
+    vertical-align: middle;
+    margin-right: 10px
+}
+
+.PickupMap a.LookAll img {
+    width: 18px;
+    vertical-align: middle;
+    margin-right: 10px
+}
+
+.LookMap {
+    margin-right: 20px
+}
+
+.PayType {
+    width: 100%;
+    margin: 10px auto;
+}
+
+.PayType ul {
+    width: 100%;
+}
+
+.PayType ul li {
+    width: 100%;
+    padding: 15px;
+    height: 60px;
+}
+
+.PayType ul li > div {
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px
+}
+
+.PayType ul li > div input[type=radio] {
+    width: 25px;
+    height: 25px;
+    border: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    vertical-align: middle;
+    margin-right: 10px;
+    background: url(../images/radioBg.png) center no-repeat;
+    background-size: 25px 25px
+}
+
+.PayType ul li > div input[type=radio]:checked {
+    background: url(../images/radioBgH.png) center no-repeat;
+    background-size: 25px 25px
+}
+
+/*.PayingIco1 {
+    background: url(../images/PayingIco1.png) left center no-repeat;
+    background-size: 30px 29px
+}
+
+.PayingIco2 {
+    background: url(../images/PayingIco2.png) left center no-repeat;
+    background-size: 30px 32px
+}
+
+.PayingIco3 {
+    background: url(../images/PayingIco3.png) left center no-repeat;
+    background-size: 30px 30px
+}*/
+
+.PayTypeYuMoney, .OrderPayWayIntegral {
+    width: 100%;
+    padding: 15px;
+    height: 60px;
+    line-height: 30px;
+}
+
+.OrderPayWayIntegral .floatl {
+    width: 84%;
+    line-height: 130%;
+}
+
+.PayTypeYuMoney > div input[type=checkbox], .OrderPayWayIntegral > div input[type=checkbox], .OrderPayYu input[type=checkbox] {
+    width: 25px;
+    height: 25px;
+    border: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    vertical-align: middle;
+    margin-right: 10px;
+    background-size: 25px 25px
+}
+
+.PayTypeYuMoney > div input[type=checkbox]:checked,
+.OrderPayYu input[type=checkbox]:checked,
+.OrderPayWayIntegral input[type=checkbox]:checked {
+    background: url(../images/checked.png) center no-repeat;
+    background-size: 25px 25px
+}
+
+.Address {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.Address dd {
+    width: 100%;
+    height: 50px;
+    font-size: 14px;
+    line-height: 50px;
+    padding: 0 2.34375%;
+    overflow: hidden
+}
+
+.Address dd .floatl {
+    width: 92px;
+    height: 50px;
+    line-height: 50px;
+    font-size: 14px;
+}
+
+.Addressr {
+    width: auto;
+    margin-left: 92px;
+    height: 50px
+}
+
+.Addressr select {
+    width: 100%;
+    height: 49px;
+    border: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: url(../images/SelBg.png) center right no-repeat;
+    background-size: 66px 50px
+}
+
+.Addressr input[type=text] {
+    width: 100%;
+    height: 49px;
+    border: 0;
+    border-radius: 0;
+    line-height: 49px;
+    font-size: 14px
+}
+
+.Address dd input[type=checkbox] {
+    width: 25px;
+    height: 25px;
+    border: 0;
+    vertical-align: sub;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    vertical-align: middle;
+    margin-right: 10px;
+    background: url(../images/radioBg.png) center no-repeat;
+    background-size: 25px 25px
+}
+
+.Address dd input[type=checkbox]:checked {
+    background: url(../images/radioBgH.png) center no-repeat;
+    background-size: 25px 25px
+}
+
+.AddressSave, .AddressSave1 {
+    width: 93.75%;
+    height: 40px;
+    margin: 10px auto 0
+}
+
+.AddressSave input[type=submit] {
+    width: 100%;
+    height: 40px;
+    border-radius: 5px;
+    line-height: 40px;
+    text-align: center;
+    font-size: 14px;
+    border: 0
+}
+
+.AddressSave1 input[type=submit] {
+    float: left;
+    margin: 0 1%;
+    width: 48%;
+    height: 40px;
+    border-radius: 5px;
+    line-height: 40px;
+    text-align: center;
+    font-size: 14px;
+    border: 0
+}
+
+.AddressSave1 input[type=button] {
+    float: left;
+    margin: 0 1%;
+    width: 48%;
+    height: 40px;
+    border-radius: 5px;
+    line-height: 40px;
+    text-align: center;
+    font-size: 14px;
+    border: 0
+}
+
+.NewsAddress {
+    display: block;
+    width: 100%;
+    height: 100%;
+    line-height: 50px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.AddressList {
+    width: 100%;
+    margin: 10px auto 0;
+}
+
+.AddressList dd {
+    width: 100%;
+}
+
+.OrderAddressList dd > label {
+    display: block;
+    width: 100%;
+    padding: 10px 40px 10px 2.34375%
+}
+
+.AddressList > dd > a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 10px 3.125%
+}
+
+.ShopcartN {
+    width: 100%;
+    text-align: center;
+    padding: 80px 0 30px 0;
+}
+
+.ShopcartN p {
+    width: 100%;
+    font-size: 14px;
+    margin-bottom: 10px;
+    text-align: center
+}
+
+.ShopcartN p img {
+    width: 120px
+}
+
+.ShopcartN p a {
+    display: block;
+    margin: 0 auto;
+    width: 80px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 4px;
+}
+
+.LoveH {
+    height: 40px;
+    background: url(../images/LoveBg.png) center no-repeat;
+    background-size: 100% 1px;
+    line-height: 40px;
+    text-align: center;
+}
+
+.LoveBox {
+    width: 100%;
+    padding-top: 10px;
+    height: auto;
+}
+
+.LoveBox ul {
+    width: 95.3125%;
+    margin: 0 auto;
+    -webkit-transition: left 800ms ease-in;
+    -moz-transition: left 800ms ease-in;
+    -o-transition: left 800ms ease-in;
+    -ms-transition: left 800ms ease-in;
+    transition: left 800ms ease-in
+}
+
+.RecomPro > ul > .item, .LoveBox ul li {
+    display: inline-block;
+    float: left;
+    width: 48.688525%;
+    margin: 0 2.622951% 10px 0
+}
+
+.RecomPro ul li:nth-child(even), .LoveBox ul li:nth-child(even) {
+    margin: 0 0 10px 0
+}
+
+.CartLi {
+    width: 100%;
+    min-height: 90px;
+    padding: 20px 5px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.CartLi.child {
+    margin-top: 0;
+}
+
+.CarMissZi {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.CartLi .floatl {
+    width: 25px;
+    height: 70px
+}
+
+.CartLi .floatl span {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 0;
+    margin-top: 22px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    vertical-align: middle;
+    margin-right: 10px;
+    background: url(../images/radioBg.png) center no-repeat;
+    background-size: 100% auto;
+}
+
+.CartLi .floatl span.cur {
+    background: url(../images/radioBgH.png) center no-repeat;
+    background-size: 100% auto;
+}
+
+.CartLi .floatr {
+    width: 65px;
+    height: 70px;
+    overflow: hidden
+}
+
+.CartLi .floatr p {
+    width: 100%;
+    text-align: right
+}
+
+.CartLi .floatr p.CartOPrice {
+    font-size: 10px;
+    text-decoration: line-through
+}
+
+.CartLi .floatr p.CartZPrice {
+    font-size: 14px
+}
+
+.CartLi .floatr p.deleteBt {
+    margin-top: 4px;
+}
+
+.CartLi .floatr p.deleteBt img {
+    width: 30px;
+    padding: 5px;
+}
+
+.CartM {
+    width: auto;
+    min-height: 70px;
+    margin: 0 68px 0 30px;
+    overflow: hidden
+}
+
+.CartM .CartMPic {
+    width: 70px;
+    height: 70px;
+    float: left;
+    overflow: hidden;
+}
+
+.CartM .CartMPic img {
+    width: 100%
+}
+
+.CartMPro {
+    width: auto;
+    min-height: 70px;
+    margin-left: 75px
+}
+
+.CartMName, .CartMAttr {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.CartMName {
+    line-height: 16px;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.CartMName .tag {
+    display: inline-block;
+    padding: 3px 5px;
+    font-size: 12px;
+    border-radius: 4px;
+}
+
+.CartNumXgZi {
+    text-align: center;
+    line-height: 25px;
+    float: left;
+    width: 120px;
+}
+
+.CartMAttr {
+    height: 15px;
+}
+
+.AddYBuy {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.AddYBuyH {
+    width: 100%;
+    height: 40px;
+    padding: 10px 0;
+}
+
+.AddYBuyH span {
+    display: block;
+    height: 20px;
+    line-height: 20px;
+    font-size: 16px;
+    text-indent: 15px;
+}
+
+.AddYBuyList {
+    width: 100%
+}
+
+.AddYBuyList li {
+    width: 100%;
+    height: 120px;
+    padding: 20px 2.34375%;
+}
+
+.AddYBuyList li > .floatl {
+    width: 80px;
+    height: 80px;
+    overflow: hidden
+}
+
+.AddYBuyList li > .floatl img {
+    width: 100%;
+    vertical-align: middle
+}
+
+.AddYBuyR {
+    width: auto;
+    margin-left: 85px;
+    min-height: 80px
+}
+
+.AddYBuyName {
+    width: 100%;
+    height: 36px;
+    overflow: hidden
+}
+
+.AddYBuyName a {
+    font-size: 14px
+}
+
+.AddYBuyPrice {
+    width: 100%;
+    height: 30px;
+    margin-top: 10px
+}
+
+.AddYBuyOprice {
+    text-decoration: line-through;
+    font-size: 10px
+}
+
+.AddYBuyNprice {
+    font-size: 14px
+}
+
+.AddYBuyPrice .floatr img {
+    height: 30px
+}
+
+.AddYbuyMore {
+    height: 40px;
+    width: 100%;
+    line-height: 40px;
+    text-align: center;
+    font-size: 14px
+}
+
+.AddYbuyMore img {
+    height: 16px;
+    vertical-align: sub;
+    margin-left: 5px
+}
+
+.TeamNav {
+    width: 94.0625%;
+    height: 40px;
+    margin: 10px auto 0;
+    border-radius: 5px;
+}
+
+.TeamNav a {
+    display: inline-block;
+    float: left;
+    width: 50%;
+    height: 38px;
+    text-align: center;
+    line-height: 38px;
+    font-size: 14px
+}
+
+/*秒杀相关-开始*/
+.TeamNavSeckillFrome.fixed {
+    padding-top: 111px;
+}
+
+.TeamNavSeckillFrome.fixed .TeamNavSeckill {
+    position: fixed;
+    top: 50px;
+    width: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1;
+}
+
+.TeamNavSeckilltu ul {
+    height: 80px;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+.TeamNavSeckilltu ul li {
+    width: 80px;
+    height: 80px;
+    display: inline-block;
+}
+
+.TeamNavSeckilltu img {
+    width: 100%;
+}
+
+.seckillInfoFrome .PsPricer {
+    float: left;
+    line-height: 25px;
+    width: 45%;
+}
+
+.seckillInfoFrome .Seckilljd {
+    width: 50%;
+    float: right;
+    margin-top: 7px;
+}
+
+.seckillInfoFrome .Seckilljd .meter {
+    width: 100%;
+    height: 13px;
+    position: relative;
+    border-radius: 10px;
+    float: left;
+    /*overflow: hidden;*/
+}
+
+.seckillInfoFrome .meter .meterJDT {
+    display: block;
+    height: 13px;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+    line-height: 13px;
+    text-align: center;
+}
+
+.seckillInfoFrome .meterSz {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    z-index: 1;
+    line-height: 13px;
+}
+
+.seckillInfoFrome .Seckilljd .seckillTJ {
+    padding-top: 0;
+    line-height: 20px;
+}
+
+.seckillInfoFrome footer {
+    height: 50px;
+}
+
+.seckillInfoFrome .PsPrice {
+    width: 100%;
+    margin: 0 auto;
+    height: 50px;
+    padding: 5px;
+    overflow: hidden;
+}
+
+.seckillInfoFrome .PsName {
+    border-bottom: 0;
+}
+
+.seckillInfoFrome .PsNPrice i {
+    font-size: 26px;
+    line-height: 40px;
+}
+
+.TeamNavSeckill {
+    background: url(../images/seckill_05.png) repeat-x;
+    width: 100%;
+    height: 61px;
+}
+
+.TeamNavSeckill p {
+    font-weight: bold;
+    font-size: 14px
+}
+
+.TeamNavSeckill a {
+    display: inline-block;
+    float: left;
+    width: 20%;
+    height: 69px;
+    text-align: center;
+    padding: 5px;
+}
+
+.TeamNavSeckill a.cur {
+    background: url(../images/seckill_03.png) no-repeat;
+    background-size: 100% 100%;
+}
+
+.TeamNavSeckillFrome .TypeListPrice {
+    width: 100%;
+    line-height: 20px;
+    overflow: hidden;
+}
+
+.Seckilljd {
+    width: 70%;
+    float: left;
+    margin-top: 5px;
+}
+
+.Seckilljd .meter {
+    width: 100%;
+    height: 13px;
+    position: relative;
+    border-radius: 10px;
+    float: left;
+}
+
+.Seckilljd .meterTJ {
+    padding-top: 0;
+}
+
+.Seckillqg {
+    width: 25%;
+    float: right;
+    border-radius: 5px;
+    line-height: 30px;
+    text-align: center;
+}
+
+.TeamNavSeckillFrome .meter {
+    width: 100%;
+    height: 13px;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.meterSz {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    z-index: 1;
+    line-height: 13px;
+}
+
+.TeamNavSeckillFrome .Seckilljd .meterTJ {
+    padding-top: 0;
+}
+
+.TeamNavSeckillFrome .Seckillqg {
+    width: 25%;
+    float: right;
+    border-radius: 5px;
+    line-height: 30px;
+    text-align: center;
+}
+
+.TeamList .TypeList {
+    margin-top: 10px;
+}
+
+.TeamListTitle {
+    height: 35px;
+    text-align: right;
+    line-height: 35px;
+    font-size: 14px;
+}
+
+.TeamListTitle span {
+    margin: 0 2px;
+    border-radius: 5px;
+    padding: 0 3px
+}
+
+.TeamListTitle img {
+    height: 23px;
+    margin-top: 5px;
+    float: left;
+}
+
+/*秒杀相关-结束*/
+
+.TeamList {
+    width: 100%;
+    margin: 10px auto 0
+}
+
+.Countdown {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.Countdown img {
+    width: 15px;
+    vertical-align: middle;
+    margin-right: 4px
+}
+
+.Countdown span {
+    display: inline
+}
+
+.TypeList .Countdown span.Time_D {
+    display: inline-block;
+    width: 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
+    vertical-align: bottom;
+}
+
+.hpNav {
+    width: 100%;
+    height: 40px;
+    display: box;
+    display: -webkit-box;
+    display: -moz-box
+}
+
+.hpNav > div {
+    box-flex: 1;
+    -moz-box-flex: 1;
+    -webkit-box-flex: 1;
+    text-align: center;
+}
+
+.hpNav > div a {
+    display: block;
+    margin: 0 auto;
+    width: 80px;
+    font-size: 14px;
+    text-align: center;
+    line-height: 38px;
+}
+
+.hpList {
+    width: 100%;
+    margin: 10px auto 0
+}
+
+.hpListName {
+    width: 100%;
+    height: 36px;
+    overflow: hidden;
+    font-size: 14px;
+    margin-bottom: 10px
+}
+
+.hpListPrice {
+    width: 100%;
+    overflow: hidden;
+    height: 20px;
+    line-height: 20px
+}
+
+.hpListPrice .floatl {
+    font-size: 15px
+}
+
+.hpListPrice .floatr {
+    text-decoration: line-through
+}
+
+.hpListSale {
+    width: 100%;
+    height: 20px;
+    line-height: 20px;
+    overflow: hidden
+}
+
+.YGList {
+    width: 100%;
+    margin: 10px auto 0
+}
+
+.YGListName {
+    width: 100%;
+    height: 16px;
+    line-height: 16px;
+    overflow: hidden;
+    font-size: 14px;
+    margin-bottom: 10px
+}
+
+.YGListPrice {
+    width: 100%;
+    height: 20px;
+    line-height: 20px;
+    margin-bottom: 5px
+}
+
+.YGListPrice span {
+    font-size: 16px;
+    margin-right: 4px
+}
+
+.YGListPrice del {
+    text-decoration: line-through;
+}
+
+.YGListPro {
+    width: 100%;
+    overflow: hidden
+}
+
+.YGListProBar {
+    width: 100%;
+    height: 6px;
+    border-radius: 5px;
+    margin: 2px 0;
+}
+
+.YGListProBarBg {
+    height: 100%;
+    border-radius: 5px;
+    float: left;
+}
+
+.YGListProInfo {
+    width: 100%;
+    display: box;
+    display: -webkit-box;
+    display: -moz-box
+}
+
+.YGListProInfo > div {
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    box-flex: 1;
+}
+
+.YGListProInfo > div.YGListProInfo1 {
+    text-align: left
+}
+
+.YGListProInfo > div.YGListProInfo2 {
+    text-align: center
+}
+
+.YGListProInfo > div.YGListProInfo3 {
+    text-align: right
+}
+
+.YGedListGeter, .YGedListTime {
+    width: 100%;
+    height: 15px;
+    line-height: 15px;
+    overflow: hidden;
+}
+
+.YGingListTime {
+    width: 90%;
+    height: 26px;
+    border-radius: 13px;
+    margin: 20px auto 0;
+    line-height: 26px;
+    font-size: 14px;
+    text-align: center
+}
+
+.CrowdsingTimeCon {
+    margin-right: 4px
+}
+
+body.sortbody {
+    overflow: hidden;
+}
+
+.sortmain, .SortBox {
+    width: 100%;
+    height: 100% !important;
+    overflow: hidden
+}
+
+.Sortl {
+    width: 80px;
+    height: 100% !important;
+    overflow-y: auto;
+    overflow-x: hidden;
+    float: left;
+    -webkit-overflow-scrolling: touch
+}
+
+.Sortl ul {
+    width: 80px;
+}
+
+.Sortl ul li {
+    width: 80px;
+    min-height: 20px;
+    line-height: 20px;
+    text-align: center;
+    font-size: 14px
+}
+
+.Sortl ul li a {
+    display: block;
+    padding: 15px 0;
+}
+
+.Sortr {
+    width: auto;
+    padding: 10px;
+    height: 100% !important;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    margin-left: 80px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.SortBanner {
+    width: 100%;
+    overflow: hidden
+}
+
+.SortBanner img {
+    width: 100%
+}
+
+.SortH {
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    margin: 10px auto
+}
+
+.SortH a {
+    display: block;
+    width: 100%;
+    height: 30px;
+    background: url(../images/ArrowType02.png) right center no-repeat;
+    background-size: 20px 20px
+}
+
+.SortH .floatl {
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px;
+}
+
+.SortHotRecom {
+    width: 100%;
+    overflow: hidden;
+}
+
+.SortHotRecom a {
+    width: 33.3333%;
+    height: 36px;
+    padding: 0 10px;
+    float: left;
+    text-align: center;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: box;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-box;
+    display: -o-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -moz-line-clamp: 2;
+    -ms-line-clamp: 2;
+    -o-line-clamp: 2;
+    box-orient: vertical;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -ms-box-orient: vertical;
+    -o-box-orient: vertical;
+    word-break: break-all;
+    box-align: center;
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    -ms-box-align: center;
+    -o-box-align: center;
+    box-pack: center;
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+    -ms-box-pack: center;
+    -o-box-pack: center;
+}
+
+.SortHotRecom a:nth-child(3n) {
+    border-right: none;
+}
+
+.SortHotRecom.list-child-category {
+    margin-top: -1px;
+}
+
+.Sortbrand {
+    width: 100%;
+    overflow: hidden
+}
+
+.Sortbrand a {
+    display: inline-block;
+    float: left;
+    width: 32%;
+    margin: 0 2% 7px 0;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.Sortbrand a:nth-child(3n) {
+    margin-right: 0;
+}
+
+.Sortbrand a img {
+    width: 100%
+}
+
+.Sortl::-webkit-scrollbar, .Sortr::-webkit-scrollbar {
+    width: 0
+}
+
+.PsBanner {
+    width: 100%;
+    overflow: hidden;
+    position: relative
+}
+
+.PsBanner ul {
+    -webkit-transition: left 800ms ease-in 0;
+    -moz-transition: left 800ms ease-in 0;
+    -o-transition: left 800ms ease-in 0;
+    -ms-transition: left 800ms ease-in 0;
+    transition: left 800ms ease-in 0
+}
+
+.PsBanner ul li img {
+    width: 100%
+}
+
+.PsBanner #Psnav {
+    position: absolute;
+    left: 0;
+    bottom: 10px;
+    text-align: center;
+    width: 100%
+}
+
+.PsBanner #Psnav a {
+    width: 8px;
+    height: 8px;
+    margin-right: 6px;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    line-height: 99em;
+    overflow: hidden;
+    cursor: pointer;
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+    position: relative
+}
+
+.PsBanner #Psnav a.active {
+    position: relative;
+}
+
+.PsInfo {
+    width: 100%;
+    position: relative
+}
+
+.PsName {
+    width: 95.3125%;
+    margin: 0 auto;
+    padding: 5px 0;
+    min-height: 20px;
+    line-height: 20px;
+    font-size: 16px;
+}
+
+.PsPrice {
+    width: 95.3125%;
+    margin: 0 auto;
+    line-height: 30px;
+}
+
+.PsPrice .floatl {
+    font-size: 14px;
+}
+
+.PsPricer {
+    float: left;
+    height: 30px;
+    line-height: 30px;
+}
+
+.PsPricer del {
+    text-decoration: line-through;
+}
+
+.PsNPrice {
+    font-size: 18px;
+    font-weight: bold;
+    margin-right: 4px
+}
+
+.PsDiscount {
+    width: 95.3125%;
+    min-height: 30px;
+    margin: 0 auto
+}
+
+.PsDiscount .floatl {
+    width: 96px;
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px;
+}
+
+.PsDisArrow {
+    width: 15px;
+    height: 30px;
+    background: url(../images/Moredown.png) center right no-repeat;
+    background-size: 15px 9px
+}
+
+.PsDisArrowH {
+    background: url(../images/Moreup.png) center right no-repeat;
+    background-size: 15px 9px
+}
+
+.PsDiscountr {
+    width: auto;
+    margin: 0 15px 0 96px;
+    height: 28px;
+    overflow: hidden;
+    padding-top: 5px;
+    padding-right: 10px
+}
+
+.PsDiscountrH {
+    height: auto !important;
+    min-height: 28px;
+    overflow: inherit
+}
+
+.PsDiscountr > div {
+    width: 100%;
+    min-height: 30px;
+    line-height: 20px;
+    font-size: 14px;
+}
+
+.PsDiscountr > div span {
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-right: 4px
+}
+
+.PsFun {
+    width: 100%;
+    height: 80px;
+    padding: 10px 0;
+    display: box;
+    display: -webkit-box;
+    display: -moz-box;
+    margin-top: 10px
+}
+
+.PsFun > div {
+    height: 60px;
+    overflow: hidden;
+    box-flex: 1;
+    -moz-box-flex: 1;
+    -webkit-box-flex: 1;
+    text-align: center
+}
+
+.PsFun > div a {
+    display: block;
+    width: 100%;
+    height: 60px
+}
+
+.PsFun > div a p:first-child {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    margin: 0 auto
+}
+
+.PsFun > div a p.PsFun1 {
+    background: url(../images/CollectIco.png) center no-repeat;
+    background-size: 20px 20px
+}
+
+.PsFun > div a p.PsFun1H {
+    background: url(../images/CollectIcoH.png) center no-repeat;
+    background-size: 20px 20px
+}
+
+.PsFun > div a p.PsFun2 {
+    background: url(../images/CodeIco2.png) center no-repeat;
+    background-size: 20px 20px
+}
+
+.PsFun > div a p.PsFun3 {
+    background: url(../images/ShareIco.png) center no-repeat;
+    background-size: 20px 20px
+}
+
+.PsFun > div a p.PsFun4 {
+    background: url(../images/PraiseIco.png) center no-repeat;
+    background-size: 20px 19px
+}
+
+.PsFun > div a p.PsFun4H {
+    background: url(../images/PraiseIcoH.png) center no-repeat;
+    background-size: 20px 19px
+}
+
+.PsFun > div a p:last-child {
+    width: 100%;
+    height: 20px;
+    line-height: 20px;
+    font-size: 14px;
+}
+
+.PsNum {
+    width: 100%;
+    height: 70px;
+    padding: 10px 0;
+    display: box;
+    display: -webkit-box;
+    display: -moz-box;
+    margin-top: 10px
+}
+
+.PsNum > div {
+    height: 50px;
+    overflow: hidden;
+    box-flex: 1;
+    -moz-box-flex: 1;
+    -webkit-box-flex: 1;
+    text-align: center
+}
+
+.PsNum > div p {
+    width: 100%;
+    height: 25px;
+    line-height: 25px
+}
+
+.PsNum > div p:first-child {
+    font-size: 18px;
+}
+
+.PsNum > div p:last-child {
+    font-size: 14px;
+}
+
+.PsAttr {
+    width: 100%;
+    margin: 10px auto 0;
+}
+
+.PsAttr a {
+    display: block;
+    margin: 0 7px;
+    padding: 10px 0;
+    font-size: 14px;
+    background: url(../images/MoreArrow.png) center right no-repeat;
+    background-size: 9px 16px;
+}
+
+.PsPackage {
+    width: 100%;
+    margin: 10px auto 0;
+}
+
+.PsPackage dt {
+    width: 100%;
+    height: 40px;
+    padding: 10px 10px 10px 0;
+}
+
+.PsPackage dt .floatl {
+    height: 20px;
+    padding-left: 5px;
+    font-size: 14px;
+}
+
+.PsPackage dt .floatl span {
+    font-size: 12px;
+    margin-left: 8px
+}
+
+.PsPackage dt .floatr {
+    font-size: 14px;
+    height: 20px;
+    line-height: 20px;
+}
+
+.PsPackage dt .floatr span {
+    font-size: 16px
+}
+
+.PsPackage dd {
+    width: 100%;
+    height: 110px;
+}
+
+.PsPackage dd > div {
+    width: 100%;
+    height: 110px;
+    padding: 20px 2.34375%
+}
+
+.PsPackage dd > div .floatl {
+    width: 25px;
+    height: 70px
+}
+
+.PsPackage dd > div .floatl input[type=checkbox] {
+    width: 25px;
+    height: 25px;
+    border: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    margin-top: 25px;
+    background: url(../images/radioBg.png) center no-repeat;
+    background-size: 25px 25px
+}
+
+.PsPackage dd > div .floatl input[type=checkbox]:checked {
+    background: url(../images/radioBgH.png) center no-repeat;
+    background-size: 25px 25px
+}
+
+.PsPackage dd > div .PsPackager {
+    width: auto;
+    height: 70px;
+    margin-left: 35px
+}
+
+.PsPsPackagePic {
+    width: 70px;
+    height: 70px;
+    float: left;
+}
+
+.PsPsPackagePic img {
+    width: 100%
+}
+
+.PsPackageInfo {
+    width: auto;
+    margin-left: 80px;
+    min-height: 70px
+}
+
+.PsPackageN {
+    width: 100%;
+    height: 36px;
+    overflow: hidden;
+    font-size: 14px;
+    margin-bottom: 4px
+}
+
+.PsPackageOPr {
+    width: 100%;
+    height: 12px;
+    line-height: 12px;
+    font-size: 12px;
+    text-decoration: line-through
+}
+
+.PsPackageNPr {
+    width: 100%;
+    height: 16px;
+    line-height: 16px;
+    font-size: 14px;
+}
+
+.PsDetTip {
+    width: 100%;
+    height: 30px;
+    font-size: 14px;
+    text-align: center;
+    margin: 10px 0;
+    line-height: 30px;
+    background: url(../images/LineIco2.png) center no-repeat;
+    background-size: 100% 1px
+}
+
+.PsDetTip img {
+    width: 15px;
+    margin-left: 5px;
+    vertical-align: middle
+}
+
+.PsDetTabH {
+    width: 100%;
+    height: 42px;
+    overflow: hidden;
+    padding: 0 2.34375%;
+    display: box;
+    display: -webkit-box;
+    display: -moz-box
+}
+
+.PsDetTabH > div {
+    height: 40px;
+    width: auto;
+    line-height: 40px;
+    text-align: center;
+    font-size: 14px;
+    box-flex: 1;
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+}
+
+#GoodsDetTab.fixed .PsDetTabH {
+    position: fixed;
+    margin-top: 0;
+    z-index: 2
+}
+
+#GoodsDetTab.fixed .PsDetTabs {
+    padding-top: 52px
+}
+
+.PsDetTabs {
+    width: 100%;
+    padding: 0 2.34375%;
+}
+
+.PsDetTab {
+    display: none;
+    width: 100%;
+    overflow: hidden
+}
+
+.PsDetails img {
+    width: 100%
+}
+
+.PsJFBanner {
+    width: 100%;
+    position: relative
+}
+
+.PsJFBanner img {
+    width: 100%
+}
+
+.PsJFInfo {
+    width: 100%;
+    padding: 0 5px;
+    height: 30px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    line-height: 30px;
+    font-size: 14px
+}
+
+.PsJFInfo > div {
+    width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.PsJFInfo > div.floatr {
+    text-align: right
+}
+
+.PsJFData {
+    width: 100%;
+    height: 40px;
+    line-height: 40px;
+    padding: 0 5px;
+}
+
+.PsJFData .floatl span {
+    font-size: 18px;
+    margin-right: 2px
+}
+
+.PsGoodsInfoList {
+    width: 100%;
+    height: auto;
+    overflow: hidden
+}
+
+.PsGoodsInfoList li {
+    width: 100%;
+    line-height: 20px;
+    padding: 10px 0;
+}
+
+.PsGoodsInfoList li .floatl {
+    width: 80px;
+    font-size: 14px;
+    overflow: hidden;
+}
+
+.PsGoodsInfo {
+    margin-left: 90px;
+    font-size: 14px;
+}
+
+.PsTeamName {
+    width: 95.3125%;
+    margin: 0 auto;
+    padding: 5px 0;
+    min-height: 40px;
+    font-size: 14px;
+}
+
+.PsTeamPrice {
+    width: 95.3125%;
+    margin: 0 auto;
+    height: 40px;
+    line-height: 40px;
+    font-size: 14px;
+}
+
+.PsTeamPrice > i {
+    font-size: 20px;
+    margin-right: 5px
+}
+
+.PsTeamPrice > del {
+    font-size: 14px;
+    text-decoration: line-through;
+    margin-right: 5px
+}
+
+.PsTeamPrice > strong {
+    margin-left: 10px
+}
+
+.PsTeamTime {
+    width: 95.3125%;
+    margin: 0 auto;
+    height: 40px;
+    line-height: 40px;
+    font-size: 14px;
+}
+
+.PsTeamTime img {
+    vertical-align: middle;
+    width: 18px;
+    margin-right: 5px
+}
+
+.PsTeamSecurity {
+    width: 95.3125%;
+    margin: 0 auto;
+    height: 40px;
+    line-height: 40px;
+    font-size: 14px;
+}
+
+.PsTeamSecurity span {
+    margin-right: 10px;
+    font-size: 14px;
+}
+
+.PsTeamSecurity span img {
+    vertical-align: middle;
+    margin-right: 5px;
+    width: 18px
+}
+
+.PsTeamDiscount {
+    min-height: 40px
+}
+
+.PsTeamDiscount > .floatl, .PsTeamDiscount .PsDisArrow {
+    height: 40px;
+    line-height: 40px
+}
+
+.PsTeamDiscount .PsDiscountr {
+    height: 38px;
+    padding-top: 8px
+}
+
+.PsTeamDiscount .PsDiscountr > div {
+    min-height: 40px;
+    line-height: 25px
+}
+
+.PsTeamEval {
+    width: 100%;
+    padding: 0 2.3438%;
+    height: 40px;
+    margin-top: 10px;
+    line-height: 40px;
+}
+
+.PsTeamEval > div {
+    height: 40px
+}
+
+.PsTeamEval > div.floatr img {
+    vertical-align: text-top;
+    width: 9px;
+    margin-left: 5px
+}
+
+.EvalBox {
+    width: 200px;
+    height: 40px;
+    overflow: hidden
+}
+
+.Eval {
+    display: inline-block;
+    vertical-align: text-top;
+    width: 100px;
+    height: 15px;
+    background: url(../images/Eval.png) center no-repeat;
+    background-size: 100px 15px;
+    margin-right: 10px
+}
+
+.Eval > i {
+    display: block;
+    float: left;
+    height: 15px;
+    background: url(../images/EvalBg.png) left center no-repeat;
+    background-size: 100px 15px
+}
+
+.EvalBox > span {
+    font-size: 14px
+}
+
+.PsTeamSellersInfoBox {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.PsTeamSellersInfoBox dt {
+    width: 100%;
+    padding: 0 2.3438%;
+    height: 40px;
+    line-height: 40px;
+    font-size: 14px;
+}
+
+.PsTeamSellersInfoBox dd {
+    width: 100%;
+    padding: 10px 2.3438%;
+    min-height: 70px;
+    overflow: hidden
+}
+
+.PsTeamSellersInfoBox dd .floatr {
+    width: 50px;
+    height: 50px;
+    text-align: right;
+}
+
+.PsTeamSellersInfoBox dd .floatr img {
+    vertical-align: middle
+}
+
+.PsTeamSellersInfo {
+    margin-right: 50px;
+    min-height: 50px
+}
+
+.PsTeamSellersInfo > span {
+    display: block;
+    height: 25px;
+    line-height: 25px;
+    font-size: 16px;
+}
+
+.PsTeamSellersInfo > p {
+    font-size: 14px;
+}
+
+.HpPeriodList {
+    width: 100%;
+    overflow: hidden
+}
+
+.HpPeriodList > a {
+    display: block;
+    float: left;
+    width: 25%;
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.PsHpBanner {
+    width: 100%
+}
+
+.PsHpBanner img {
+    width: 100%
+}
+
+.PsHpName {
+    width: 95.3125%;
+    padding: 5px 0;
+    min-height: 30px;
+    max-height: 50px;
+    margin: 0 auto;
+    font-size: 16px;
+    line-height: 20px
+}
+
+.PsHpPrice {
+    width: 95.3125%;
+    height: 40px;
+    line-height: 40px;
+    margin: 0 auto;
+    font-size: 14px;
+}
+
+.PsHpPrice span {
+    font-size: 22px;
+    margin-right: 5px
+}
+
+.PsHpTime {
+    width: 100%;
+    height: 50px;
+    line-height: 30px;
+    padding: 10px 0;
+    text-align: center;
+    background: url(../images/PsHpTimeBg.png) center repeat-x
+}
+
+.PsHpTime > span {
+    display: inline-block;
+    height: 25px;
+    line-height: 25px;
+    border-radius: 15px;
+    vertical-align: middle;
+    margin: 0 5px
+}
+
+.PsHpTime > span.PsHpTimeIco {
+    width: 70px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.PsHpTime > span.PsHpTimeIco img {
+    width: 16px;
+    vertical-align: text-top;
+    margin-right: 5px
+}
+
+.PsHpTime > span.PsHpTimeBox {
+    width: 180px;
+    font-size: 16px
+}
+
+.PsHpTime > span.PsHpTimeBox > i {
+    font-size: 14px;
+    margin: 0 4px
+}
+
+.PsHpTime > span.PsHpTimeBox img {
+    width: 16px;
+    vertical-align: middle
+}
+
+.PriceRange {
+    width: 96.875%;
+    margin: 15px auto;
+    height: 100px;
+    position: relative
+}
+
+.RangeBar {
+    width: 100%;
+    height: 3px;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    margin-top: -2px;
+    z-index: 1
+}
+
+.PriceRangeList {
+    width: 100%;
+    height: 100px;
+    position: relative;
+    z-index: 2;
+    display: -moz-box;
+    display: -webkit-box;
+    display: box
+}
+
+.PriceRangeList li {
+    height: 100%;
+    -moz-box-flex: 1.0;
+    -webkit-box-flex: 1.0;
+    box-flex: 1.0;
+    overflow: hidden;
+}
+
+.PriceRangeList li > div {
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+    word-break: break-all;
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
+.PriceRangeList li > div.PriceRangeP {
+    height: 37px;
+}
+
+.PriceRangeList li > div.PriceRangeBg {
+    width: 19px;
+    margin: 0 auto;
+    height: 26px;
+    background: #fff url(../images/ydTip.png) center no-repeat;
+    background-size: 100% auto;
+}
+
+.PriceRangeList li > div.PriceRangeNum {
+    height: 37px;
+}
+
+.PsHpAttrList {
+    width: 100%
+}
+
+.PsHpAttrList li {
+    width: 100%;
+    height: 50px;
+    padding: 10px 0;
+    line-height: 30px;
+}
+
+.PsHpAttrList li .floatl {
+    height: 30px
+}
+
+.PsHpAttrList li .floatl span.AttrPic {
+    width: 30px;
+    height: 30px;
+    margin: 0
+}
+
+.PsHpAttrList li .floatl span.AttrWord {
+    background: 0
+}
+
+.PsHpAttrList li .floatr {
+    height: 30px
+}
+
+.PsHpAttrList li .floatr > div {
+    height: 30px;
+    vertical-align: middle;
+    display: inline-block;
+    padding: 0
+}
+
+.PsHpAttrList li .floatr > div.PsHpAttrBuyNum {
+    margin-right: 5px
+}
+
+.PsHpAttrList li .floatr > div.NumBox {
+    width: 120px
+}
+
+.hpAttrChoice {
+    display: none;
+    width: 100%;
+    height: 40px;
+    padding: 5px 0;
+    line-height: 30px
+}
+
+.hpAttrChoiceH {
+    display: block
+}
+
+.hpAttrChoice span {
+    margin: 0 10px
+}
+
+.HpCartM {
+    margin: 0 68px 0 0
+}
+
+.ShopCarBtn {
+    width: 100%;
+    float: left;
+}
+
+.ShopCarBtn ul {
+    float: left;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+.ShopCarBtn ul li {
+    width: 50%;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    display: inline-block;
+}
+
+.ShopCarBtn ul li a {
+    font-size: 16px;
+}
+
+.shopcart-price-ori {
+    text-decoration: line-through
+}
+
+.HpCartList .floatr {
+    height: auto
+}
+
+.PsYgBanner {
+    width: 100%;
+    overflow: hidden
+}
+
+.PsYgBanner img {
+    width: 100%
+}
+
+.PsYg {
+    width: 95.3125%;
+    margin: 0 auto;
+    padding: 10px 0
+}
+
+.PsYgPrice {
+    width: 100%;
+    min-height: 30px;
+    line-height: 30px;
+    font-size: 14px
+}
+
+.PsYgPrice > i {
+    font-size: 22px;
+    margin: 0 4px
+}
+
+.PsYgProBox {
+    width: 100%
+}
+
+.PsYgPro {
+    width: 100%;
+    height: 20px;
+    background: url(../images/PsYgProBg.png) center repeat-x;
+    border-radius: 10px;
+    overflow: hidden
+}
+
+.PsYgPro > i {
+    float: left;
+    display: block;
+    height: 20px;
+    background: url(../images/PsYgProHBg.png) center repeat-x
+}
+
+.PsYgProTip {
+    width: 100%
+}
+
+.PsYgProTip > dd {
+    float: left;
+    width: 33.3333%;
+    font-size: 14px;
+    text-align: center
+}
+
+.PsYgProTip > dd.PsYgProTip1 {
+    text-align: left
+}
+
+.PsYgProTip > dd.PsYgProTip3 {
+    text-align: right
+}
+
+.PsYgProTip > dd.PsYgProTip1 span {
+    display: block;
+    width: 100%;
+}
+
+.PsYgProTip > dd.PsYgProTip2 span {
+    display: block;
+    width: 100%;
+}
+
+.PsYgProTip > dd.PsYgProTip3 span {
+    display: block;
+    width: 100%;
+}
+
+.PsHpAnnounced {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 150px;
+    height: 150px;
+    padding: 25px 0;
+    font-size: 40px;
+    font-weight: bold;
+    opacity: .5;
+    text-align: center;
+    line-height: 40px;
+    border-radius: 50%;
+    transform: rotate(-30deg);
+    -webkit-transform: rotate(-30deg);
+    -moz-transform: rotate(-30deg)
+}
+
+.PsHpIngBox {
+    width: 100%;
+    height: 90px;
+    padding: 9px 3.125%;
+    margin-top: 10px;
+}
+
+.PsHpIng {
+    margin-right: 80px;
+    height: 72px;
+    overflow: hidden
+}
+
+.PsHpIng > .floatl {
+    width: 72px;
+    height: 72px;
+    overflow: hidden;
+    text-align: center
+}
+
+.PsHpIngBox > .floatr {
+    width: 80px;
+    height: 72px;
+    padding: 21px 0
+}
+
+.PsHpIngBox > .floatr > a {
+    display: block;
+    width: 80px;
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.PsHpIngName {
+    margin-left: 80px;
+    height: 72px;
+    line-height: 72px;
+    font-size: 14px;
+    overflow: hidden
+}
+
+.PsYgPeriodListBox {
+    width: 100%
+}
+
+.PsYgPeriodList {
+    width: 100%
+}
+
+.PsYgPeriodList li {
+    float: left;
+    width: 25%;
+    height: 25px;
+    line-height: 25px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.PsYgPeriodList li a {
+}
+
+.PsYgPeriodList li.cur {
+}
+
+.PsYgDetTabs {
+    padding: 0
+}
+
+.PsYgDetRecordH {
+    width: 100%;
+    padding: 5px 0;
+}
+
+.PsYgDetRecordH p {
+    width: 100%;
+    text-align: center
+}
+
+.PsYgDetRecordListBox {
+    width: 100%;
+}
+
+.PsYgDetRecordList {
+    width: 100%
+}
+
+.PsYgDetRecordList dt {
+    width: 100%;
+    height: 30px;
+}
+
+.PsYgDetRecordList dt > div {
+    height: 30px;
+    float: left;
+    line-height: 30px;
+}
+
+.PsYgDetRecordList dt > div.PsYgDetRecordTime {
+    width: 45%;
+    padding-left: 5px
+}
+
+.PsYgDetRecordList dt > div.PsYgDetRecordData {
+    width: 20.9375%;
+    text-align: center
+}
+
+.PsYgDetRecordList dt > div.PsYgDetRecordMen {
+    width: 34.0625%;
+    padding-left: 5px
+}
+
+.PsYgDetRecordList dd {
+    width: 100%;
+    height: 30px;
+}
+
+.PsYgDetRecordList dd > div {
+    height: 30px;
+    float: left;
+    line-height: 30px;
+}
+
+.PsYgDetRecordList dd > div.PsYgDetRecordTime {
+    width: 45%;
+    padding-left: 2px;
+    background: url(../images/PsYgDetRecordArrow.png) right center no-repeat;
+    background-size: 5px 30px
+}
+
+.PsYgDetRecordList dd > div.PsYgDetRecordTime > span {
+    display: block;
+    float: left;
+    height: 30px;
+    text-align: center
+}
+
+.PsYgDetRecordList dd > div.PsYgDetRecordTime > span:first-child {
+    width: 45%;
+}
+
+.PsYgDetRecordList dd > div.PsYgDetRecordTime > span:last-child {
+    width: 55%
+}
+
+.PsYgDetRecordList dd > div.PsYgDetRecordData {
+    width: 20.9375%;
+    text-align: center
+}
+
+.PsYgDetRecordList dd > div.PsYgDetRecordMen {
+    width: 34.0625%;
+    padding-left: 5px
+}
+
+.PsYgDetShowOrderBox {
+    width: 100%;
+    padding: 0 1.5625%
+}
+
+.PsYgDetShowOrderBox li {
+    width: 100%;
+    margin-top: 10px
+}
+
+.PsYgDetShowOrderBox li .floatl {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden
+}
+
+.PsYgDetShowOrderBox li .floatl img {
+    width: 100%;
+    vertical-align: middle
+}
+
+.PsYgDetShowOrder {
+    margin-left: 60px;
+    width: auto;
+    min-height: 50px;
+    padding: 5px;
+    position: relative;
+    border-radius: 5px;
+}
+
+.PsYgDetShowOrder > del {
+    display: block;
+    position: absolute;
+    top: 20px;
+    left: -8px;
+    width: 8px;
+    height: 9px;
+    background: url(../images/ArrowType.png) center no-repeat;
+    background-size: 8px 9px
+}
+
+.PsYgDetShowOrderEval {
+    width: 100%;
+}
+
+.PsYgDetShowOrderEval span {
+    margin-left: 10px
+}
+
+.PsYgCountdownBox {
+    width: 95%;
+    height: 100px;
+    padding: 30px 20px;
+    margin: 35px auto 20px;
+    border-radius: 10px;
+    position: relative
+}
+
+.PsYgCountdown {
+    width: 100%;
+    height: 40px;
+    text-align: center
+}
+
+.PsYgCountdown span.YgCountdownTime {
+    display: inline-block;
+    width: 50px;
+    height: 40px;
+    border-radius: 4px;
+    line-height: 40px;
+    font-size: 18px
+}
+
+.PsYgCountdown span.YgCountdownColon {
+    display: inline-block;
+    width: 20px;
+    height: 40px;
+    line-height: 40px;
+    font-size: 16px;
+}
+
+.PsYgAnnouncedBox {
+    width: 302px;
+    margin: 10px auto;
+    position: relative;
+}
+
+.PsYgAnnounced {
+    width: 300px;
+    height: 80px;
+}
+
+.PsYgAnnounced dd {
+    float: left;
+    width: 80px;
+    height: 80px;
+    text-align: center
+}
+
+.PsYgAnnounced dd:last-child {
+    border-right: 0
+}
+
+.PsYgAnnounced dt {
+    float: left;
+    width: 60px;
+    height: 80px;
+    text-align: center
+}
+
+.PsYgAnnounced dd.PsYgAnnouncedImg img {
+    width: 100%
+}
+
+.PsYgAnnounced dd > span, .PsYgAnnounced dt > span {
+    display: block;
+    width: 100%;
+    height: 20px;
+    line-height: 20px;
+    margin-bottom: 5px
+}
+
+.PsYgAnnounced dd > p, .PsYgAnnounced dt > p {
+    width: 100%;
+    height: 15px;
+    line-height: 15px;
+}
+
+.PsYgAnnouncedGeterBox {
+    width: 100%;
+    height: 60px;
+    padding: 10px
+}
+
+.PsYgAnnouncedGeterBox dd {
+    width: 100%;
+    height: 20px;
+    line-height: 20px
+}
+
+.PsYgAnnouncedGeterBox dd .floatr {
+    width: 85px;
+    height: 40px;
+    overflow: hidden
+}
+
+.PsYgAnnouncedGeterBox dd .floatr a {
+    display: block;
+    width: 100%;
+    height: 20px;
+    text-align: center;
+    line-height: 20px;
+}
+
+.mainHidden {
+    width: 100%;
+    height: 100% !important;
+    overflow: hidden
+}
+
+.ChoiceBox {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    overflow: hidden;
+    z-index: 1803
+}
+
+.ChBoxName {
+    width: 100%;
+    padding: 10px 2.34375%;
+}
+
+.ChBoxName .floatl {
+    width: 70px;
+    height: 70px;
+    overflow: hidden;
+}
+
+.ChBoxName .floatl img {
+    width: 100%;
+    vertical-align: middle
+}
+
+.ChoiceBoxClose {
+    width: 30px;
+    height: 70px;
+    background: url(../images/ChoiceBoxClose.png) center top no-repeat;
+    background-size: 25px 25px
+}
+
+.ChBoxNamer {
+    margin: 0 40px 0 80px;
+    /* height: 70px; */
+    overflow: hidden;
+}
+
+.ChBoxN {
+    width: 100%;
+    height: 50px;
+    line-height: 16px;
+    overflow: hidden;
+    font-size: 14px;
+}
+
+.ChBoxPr {
+    width: 100%;
+    /* height: 20px; */
+    font-size: 14px;
+}
+
+.ChBoxAttr {
+    width: 100%;
+    max-height: 200px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.ChBoxAttr dl {
+    width: 100%
+}
+
+.ChBoxAttr dl dt {
+    width: 93.75%;
+    height: 40px;
+    margin: 0 auto;
+    line-height: 40px;
+    font-size: 14px;
+}
+
+.ChBoxAttr dl dd {
+    width: 90.625%;
+    padding: 10px 0;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.ChBoxAttr dl dd:last-child {
+    border-bottom: 0
+}
+
+.AttrPic {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    margin: 0 10px 10px 0;
+    overflow: hidden
+}
+
+.AttrPic img {
+    width: 50px;
+    vertical-align: middle
+}
+
+.AttrWord {
+    display: inline-block;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 5px;
+    font-size: 14px;
+    margin: 0 10px 10px 0;
+    border-radius: 2px;
+}
+
+.LimitBuyNum {
+    height: 30px;
+    line-height: 30px;
+    margin-left: 10px
+}
+
+.ChBoxBt {
+    width: 100%;
+    height: 60px;
+    padding: 10px 0;
+}
+
+.ChBoxBt a {
+    display: none;
+    width: 100px;
+    height: 40px;
+    border-radius: 4px;
+    font-size: 16px;
+    text-align: center;
+    line-height: 40px;
+    margin: 0 auto
+}
+
+.ChBoxBt a.Disblock {
+    display: block
+}
+
+.ChBoxShadow {
+    display: none;
+    width: 100%;
+    height: 100%;
+    opacity: .7;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1800
+}
+
+.Maximum {
+    display: none
+}
+
+.PopBox_Code {
+    display: none;
+    width: 78%;
+    padding: 11.5% 0;
+    position: fixed;
+    margin: 39% auto 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 3333;
+    border-radius: 2px;
+    text-align: center;
+}
+
+.PopBox_Code img {
+    width: 77%
+}
+
+.PopBox_Code .btn-close {
+    display: block;
+    position: absolute;
+    right: 1%;
+    top: 1%;
+    width: 5.6%
+}
+
+.PopBox_Code .btn-close .icon-cross {
+    display: block;
+    width: 100%;
+    padding-top: 100%;
+    background: url("../images/icon-close-scan.png") center no-repeat;
+    background-size: 100% auto
+}
+
+.shadow {
+    display: none;
+    width: 100%;
+    height: 100%;
+    opacity: .7;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 3330
+}
+
+.OrderInfoH {
+    width: 100%;
+    height: 60px;
+    line-height: 40px;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 16px;
+}
+
+.OrderInfoH > span {
+    display: inline-block;
+    width: 37px;
+    height: 40px;
+    vertical-align: middle;
+    position: relative;
+    margin-right: 10px;
+    overflow: hidden
+}
+
+.OrderInfoH > span > img.HandTop {
+    width: 37px;
+    position: absolute;
+    top: -20px;
+    left: 0
+}
+
+.OrderInfoH > span > img.HandDown {
+    width: 37px;
+    position: absolute;
+    bottom: 0;
+    left: 0
+}
+
+.OrderInfoH > span.cur > img.HandTop {
+    top: 0;
+    animation: case1 1.75s 1;
+    -webkit-animation: case1 1.75s 1;
+    -moz-animation: case1 1.75s 1
+}
+
+.OrderInfoH > span.cur > img.HandDown {
+    opacity: 1;
+    animation: case2 1.75s 1;
+    -webkit-animation: case2 1.75s 1;
+    -moz-animation: case2 1.75s 1
+}
+
+.OrderBuyerInfo {
+    width: 100%;
+    overflow: hidden;
+}
+
+.OrderBuyerInfo dd, .OrderBuyerInfo dt {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px 5px 10px 30px;
+    font-size: 14px;
+}
+
+.OrderBuyerInfo dt {
+    background: url(../images/LocationIco.png) 5px center no-repeat
+}
+
+.OrderBuyerInfo dd {
+    background: url(../images/NewIco.png) 5px center no-repeat
+}
+
+.OrderBuyerH {
+    width: 100%;
+    height: 20px;
+    line-height: 20px
+}
+
+.OrderBuyerCon {
+    width: 100%;
+    line-height: 15px;
+    margin-top: 10px
+}
+
+.OrderInfoProBox {
+    width: 100%;
+    padding: 10px 0;
+    margin-top: 10px;
+    overflow: hidden
+}
+
+.OrderInfoProBox .OrderLi, .OrderLiPro {
+    border: 0;
+}
+
+.OrderInfoProBox .OrderLiPro {
+    border: 0
+}
+
+.OrderInfoData {
+    width: 95.3125%;
+    line-height: 20px;
+    font-size: 14px;
+    margin: 10px auto
+}
+
+.OrderInfoData .OrderInfoMoney {
+}
+
+.OrderInfoData .OrderInfoMoney i {
+    font-size: 18px
+}
+
+.OrderInfoNo {
+    width: 100%;
+    padding: 10px 2.34375%;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.OrderInfoNo p {
+    width: 100%;
+    height: 20px;
+    line-height: 20px
+}
+
+.OrderInfoPayBt, .OrderInfoCancelBt {
+    display: block;
+    float: right;
+    width: 100px;
+    height: 40px;
+    margin: 5px 10px 5px 0;
+    line-height: 40px;
+    text-align: center;
+    font-size: 16px;
+    border-radius: 5px
+}
+
+a.LookOrderLogisticsBt {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: url(../images/MoreArrow.png) right center no-repeat;
+    background-size: 12px 20px;
+}
+
+.OrderDetListInfoL {
+    float: left;
+    width: 80px;
+    height: 100%
+}
+
+.OrderDetListInfo {
+    margin-left: 90px;
+    height: 100%
+}
+
+.CollectHBox {
+    width: 100%;
+    height: 60px;
+    padding: 10px 0;
+}
+
+.CollectHBox .floatr {
+    width: 80px;
+    height: 40px;
+    background: url(../images/BorderBg.png) left center no-repeat;
+    overflow: hidden
+}
+
+.CollectHBox .floatr a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    font-size: 18px;
+    line-height: 40px
+}
+
+.CollectHBox .floatr a.CollectOpenDelBt {
+    background: url(../images/DeleteIco2.png) center no-repeat
+}
+
+.CollectHBox .floatr a.cur {
+    display: none
+}
+
+.CollectH {
+    margin-right: 80px;
+    height: 40px;
+    padding-left: 10px;
+    overflow: hidden;
+    font-size: 18px;
+    line-height: 40px
+}
+
+.CollectlistBox {
+    width: 100%;
+    margin-top: 10px
+}
+
+.CollectList {
+    width: 95.3125%;
+    margin: 0 auto;
+    overflow: hidden
+}
+
+.CollectList li {
+    width: 48.688525%;
+    float: left;
+    margin: 0 2.622951% 2.622951% 0
+}
+
+.CollectList li:nth-child(even) {
+    margin-right: 0
+}
+
+.CollectCheck {
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    z-index: 3;
+}
+
+.CollectCheck .btn-select {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    margin-top: 5px;
+    border: 0;
+    border-radius: 50%;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.CollectCheck.del {
+    display: block;
+}
+
+.CollectCheck.del.cur .btn-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none
+}
+
+.CollectFoot {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 112;
+    width: 100%;
+    height: 50px;
+}
+
+.CollectFoot > div {
+    height: 100%
+}
+
+.CollectFoot > div.floatl {
+    padding-left: 10px;
+    line-height: 50px;
+    font-size: 14px
+}
+
+.CollectFoot > div.floatl span {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 4px;
+    width: 20px;
+    height: 20px;
+    border: 0;
+    border-radius: 50%;
+    opacity: .8;
+    cursor: pointer
+}
+
+.CollectFoot > div.floatl span.cur {
+    background: url(../images/CollectDelCheck.png) center no-repeat;
+    background-size: 20px 20px
+}
+
+.CollectFoot > div.floatr {
+    padding-right: 10px
+}
+
+.CollectFoot > div.floatr a.CollectDelBt {
+    width: 80px;
+    height: 40px;
+    margin: 5px 0;
+    font-size: 18px;
+    line-height: 40px;
+    border-radius: 5px;
+    text-align: center;
+    display: block;
+}
+
+@keyframes case1 {
+    0% {
+        top: -15px
+    }
+
+    20% {
+        top: 0
+    }
+
+    30% {
+        top: -10px
+    }
+
+    40% {
+        top: 0
+    }
+
+    50% {
+        top: -7px
+    }
+
+    60% {
+        top: 0
+    }
+
+    70% {
+        top: -5px
+    }
+
+    80% {
+        top: 0
+    }
+
+    90% {
+        top: -2px
+    }
+
+    100% {
+        top: 0
+    }
+}
+
+@-webkit-keyframes case1 {
+    0% {
+        top: -15px
+    }
+
+    20% {
+        top: 0
+    }
+
+    30% {
+        top: -10px
+    }
+
+    40% {
+        top: 0
+    }
+
+    50% {
+        top: -7px
+    }
+
+    60% {
+        top: 0
+    }
+
+    70% {
+        top: -5px
+    }
+
+    80% {
+        top: 0
+    }
+
+    90% {
+        top: -2px
+    }
+
+    100% {
+        top: 0
+    }
+}
+
+@-moz-keyframes case1 {
+    0% {
+        top: -15px
+    }
+
+    20% {
+        top: 0
+    }
+
+    30% {
+        top: -10px
+    }
+
+    40% {
+        top: 0
+    }
+
+    50% {
+        top: -7px
+    }
+
+    60% {
+        top: 0
+    }
+
+    70% {
+        top: -5px
+    }
+
+    80% {
+        top: 0
+    }
+
+    90% {
+        top: -2px
+    }
+
+    100% {
+        top: 0
+    }
+}
+
+@keyframes case2 {
+    0% {
+        opacity: 0
+    }
+
+    20% {
+        opacity: .6
+    }
+
+    30% {
+        opacity: 0
+    }
+
+    40% {
+        opacity: .7
+    }
+
+    50% {
+        opacity: 0
+    }
+
+    60% {
+        opacity: .8
+    }
+
+    70% {
+        opacity: .4
+    }
+
+    80% {
+        opacity: .9
+    }
+
+    90% {
+        opacity: .7
+    }
+
+    100% {
+        opacity: 1
+    }
+}
+
+@-webkit-keyframes case2 {
+    0% {
+        opacity: 0
+    }
+
+    20% {
+        opacity: .6
+    }
+
+    30% {
+        opacity: 0
+    }
+
+    40% {
+        opacity: .7
+    }
+
+    50% {
+        opacity: 0
+    }
+
+    60% {
+        opacity: .8
+    }
+
+    70% {
+        opacity: .4
+    }
+
+    80% {
+        opacity: .9
+    }
+
+    90% {
+        opacity: .7
+    }
+
+    100% {
+        opacity: 1
+    }
+}
+
+@-moz-keyframes case2 {
+    0% {
+        opacity: 0
+    }
+
+    20% {
+        opacity: .6
+    }
+
+    30% {
+        opacity: 0
+    }
+
+    40% {
+        opacity: .7
+    }
+
+    50% {
+        opacity: 0
+    }
+
+    60% {
+        opacity: .8
+    }
+
+    70% {
+        opacity: .4
+    }
+
+    80% {
+        opacity: .9
+    }
+
+    90% {
+        opacity: .7
+    }
+
+    100% {
+        opacity: 1
+    }
+}
+
+.wxPayProInfo {
+    width: 100%;
+    padding: 10px 1.5625%;
+}
+
+.wxPayProInfo .floatl {
+    width: 75px;
+    height: 20px;
+    line-height: 20px;
+}
+
+.wxPayProInfoR {
+    margin-left: 75px;
+    width: auto;
+    min-height: 20px;
+    line-height: 20px
+}
+
+.wxPayMoney {
+    width: 100%;
+    height: 40px;
+    padding: 0 1.5625%;
+    font-size: 14px;
+    line-height: 40px;
+    margin: 10px auto 0
+}
+
+.wxPayCodeBox {
+    width: 100%;
+    padding: 15px 0;
+    margin: 10px auto 0
+}
+
+.wxPayCode {
+    width: 300px;
+    margin: 0 auto;
+    border-radius: 5px;
+}
+
+.wxPayCodeH {
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.wxPayCodePic {
+    width: 100%
+}
+
+.wxPayCodePic p {
+    margin: 10px 0;
+    text-align: center;
+    font-size: 14px
+}
+
+.wxPayCodePic p img {
+    width: 200px
+}
+
+.wxPaySub {
+    width: 100%;
+    padding: 10px 0;
+    margin: 10px auto 0
+}
+
+.wxPaySub > div {
+    width: 280px;
+    margin: 0 auto
+}
+
+.wxPaySub > div a {
+    display: block;
+    float: left;
+    width: 130px;
+    height: 35px;
+    line-height: 35px;
+    text-align: center;
+    font-size: 16px;
+    border-radius: 4px
+}
+
+.wxPaySub > div a.wxPaySubmit {
+    margin-right: 20px;
+}
+
+.wxPayTip {
+    width: 100%;
+    margin: 10px auto 0;
+    padding: 10px 1.5625%;
+    font-size: 14px;
+}
+
+.wxPayTip .floatl {
+    width: 75px;
+    height: 20px;
+    line-height: 20px;
+}
+
+.wxPayTipR {
+    margin-left: 75px;
+    width: auto;
+    min-height: 20px;
+    line-height: 20px
+}
+
+.EvalShowImg {
+    width: 100%;
+    margin-top: 10px
+}
+
+.EvalShowImg .EvalShowImgThumb {
+    width: 100%
+}
+
+.EvalShowImg .EvalShowImgThumb dd {
+    display: inline-block;
+    float: left;
+    width: 55px;
+    height: 55px;
+    margin: 0 4px 4px 0;
+    overflow: hidden;
+    border-radius: 3px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    text-align: center
+}
+
+.EvalShowImg .EvalShowImgThumb dd img {
+    max-height: 53px;
+    max-width: 53px;
+    vertical-align: middle
+}
+
+.EvalShowImg .EvalShowImgThumb dd span {
+    height: 100%;
+    display: inline-block;
+    vertical-align: middle
+}
+
+.main_visual {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 99999;
+    width: 100%;
+    height: 100%;
+    overflow: hidden
+}
+
+.main_image {
+    overflow: hidden;
+    position: relative;
+    height: 100%
+}
+
+.main_image ul {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0
+}
+
+.main_image li {
+    float: left;
+    width: 100%;
+    height: 100%;
+    display: inline-block;
+    text-align: center
+}
+
+.main_image li > span {
+    height: 100%;
+    vertical-align: middle;
+    display: inline-block
+}
+
+.main_image li img {
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+.pinch-zoom-container {
+    height: 100%;
+}
+
+div.flicking_con {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    z-index: 999;
+    width: 100%;
+    height: 20px;
+    text-align: center
+}
+
+div.flicking_con a {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin: 0 2px
+}
+
+.ShowImgClose {
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    top: 10px;
+    right: 10px
+}
+
+.logisticsF {
+    width: 90%;
+    margin: 10px auto;
+    overflow: hidden
+}
+
+.logisticsF ul li {
+    width: 100%;
+    padding: 10px 0;
+    line-height: 20px
+}
+
+.logisticsF ul li font.contact {
+    text-decoration: underline
+}
+
+.cd-nav-container {
+    position: fixed;
+    z-index: 220;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    -o-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-transform: translateX(100%);
+    -moz-transform: translateX(100%);
+    -ms-transform: translateX(100%);
+    -o-transform: translateX(100%);
+    transform: translateX(100%);
+    -webkit-transition: -webkit-transform .4s 0s, box-shadow 0s .4s;
+    -moz-transition: -moz-transform .4s 0s, box-shadow 0s .4s;
+    transition: transform .4s 0s, box-shadow 0s .4s
+}
+
+.cd-nav-container.is-visible {
+    -webkit-transform: translateX(0);
+    -moz-transform: translateX(0);
+    -ms-transform: translateX(0);
+    -o-transform: translateX(0);
+    transform: translateX(0);
+    -webkit-overflow-scrolling: touch;
+    -webkit-transition: -webkit-transform .4s 0s, box-shadow 0s 0s;
+    -moz-transition: -moz-transform .4s 0s, box-shadow 0s 0s;
+    transition: transform .4s 0s, box-shadow 0s 0s
+}
+
+.cd-nav-head {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    z-index: 11
+}
+
+.BuyBoxClose {
+    width: 40px;
+    height: 50px;
+    text-align: center;
+    line-height: 50px
+}
+
+.BuyBoxClose a {
+    width: 100%;
+    height: 100%;
+    display: block
+}
+
+.BuyBoxClose a img {
+    width: 12px;
+    vertical-align: middle
+}
+
+.BuyBoxTitle {
+    margin: 0 40px;
+    line-height: 50px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.cd-nav-foot {
+    margin-top: 20px;
+    width: 100%;
+    height: 50px;
+    z-index: 11
+}
+
+.cd-nav-head .floatr {
+    width: 40px;
+    height: 50px;
+    line-height: 50px;
+    text-align: center
+}
+
+.cd-nav-head .floatr a {
+    font-size: 14px
+}
+
+.cd-nav-contain {
+    width: 100%;
+    height: 100%;
+    padding: 50px 0 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: relative;
+    z-index: 10
+}
+
+.cd-overlay {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+    visibility: hidden;
+    opacity: 0;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-transition: opacity .4s 0s, visibility 0s .4s;
+    -moz-transition: opacity .4s 0s, visibility 0s .4s;
+    transition: opacity .4s 0s, visibility 0s .4s
+}
+
+.cd-overlay.is-visible {
+    opacity: 1;
+    visibility: visible;
+    -webkit-transition: opacity .4s 0s, visibility 0s 0s;
+    -moz-transition: opacity .4s 0s, visibility 0s 0s;
+    transition: opacity .4s 0s, visibility 0s 0s
+}
+
+.OrderSubmitSucTip {
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    font-size: 16px;
+    margin-top: 20px
+}
+
+.OrderSubmitSucTip img {
+    width: 30px
+}
+
+.MainSpace {
+    width: 100%;
+    height: 100% !important;
+    min-height: inherit;
+    position: relative
+}
+
+.MainSpace .MainFoot {
+    position: absolute;
+    bottom: 50px;
+    left: 0
+}
+
+.OrderProPrice {
+    width: 100%;
+    height: 20px;
+    line-height: 20px;
+    font-size: 14px;
+}
+
+.CrowdfundCartProList dt .floatr {
+    width: 35px;
+    height: 80px;
+    line-height: 80px;
+    text-align: right
+}
+
+.CrowdfundCartProList dt .floatr img {
+    width: 30px;
+    vertical-align: middle
+}
+
+.CrowdfundCartProList dt .OrderProInfo {
+    margin: 0 40px 0 85px
+}
+
+.CrowdfundCartProList dt .OrderProN {
+    height: 20px;
+    line-height: 17px;
+    margin-bottom: 5px
+}
+
+.YgPayResult {
+    width: 320px;
+    margin: 0 auto
+}
+
+.PaySucTip {
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 10px 0
+}
+
+.pay-success .PaySucTip {
+    margin: 31% auto 9.4%;
+}
+
+.PaySucGomall {
+    margin-bottom: 31%;
+}
+
+.PaySucTip img {
+    width: 30px;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+.PayOrderTip {
+    width: 100%;
+    font-size: 12px;
+    text-align: center;
+    line-height: 20px
+}
+
+.PayBonus {
+    width: 315px;
+    height: 120px;
+    margin: 20px auto 0;
+    overflow: hidden;
+    border-radius: 60px;
+}
+
+.PayBonus a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 60px
+}
+
+.GoonPay {
+    width: 95.3125%;
+    height: 40px;
+    margin: 20px auto;
+    line-height: 40px;
+    text-align: center;
+    font-size: 14px
+}
+
+.PayBonusL {
+    width: 88px;
+    height: 120px;
+    margin-left: 20px;
+    float: left;
+    padding-top: 20px;
+    text-align: center;
+    background: url("../images/Bonus1.png") center bottom no-repeat;
+    background-size: 80px 91px
+}
+
+.PayBonusLNum {
+    margin: 55px 0 5px 0;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.PayBonusR {
+    width: auto;
+    height: 120px;
+    padding: 10px 20px 10px 0;
+    margin-left: 110px
+}
+
+.PayBonusGet, .PayBonusShare {
+    width: 100%;
+    font-size: 14px;
+    font-weight: bold
+}
+
+.PayBonusTip {
+    width: 100%;
+    height: 55px;
+    margin: 5px 0
+}
+
+.PayBonusTip .floatl {
+    width: 60px;
+    height: 20px
+}
+
+.PayBonusTip .PayBonusTipr {
+    margin-left: 60px;
+    line-height: 14px
+}
+
+.hide {
+    display: none
+}
+
+.through {
+    pointer-events: none
+}
+
+.biggest-text {
+    font-size: 2rem
+}
+
+.bigger-text {
+    font-size: 1.7rem
+}
+
+.big-text {
+    font-size: 1.12rem
+}
+
+.normal-text {
+    font-size: .96rem
+}
+
+.small-text {
+    font-size: .72rem
+}
+
+.smaller-text {
+    font-size: .56rem
+}
+
+.HeadR.write {
+    width: 45px
+}
+
+.HeadR a.write {
+    background: url("../images/icon-edit.png") center no-repeat;
+    background-size: 25px 25px
+}
+
+.icon {
+    display: inline-block;
+    background-position: center center;
+    background-repeat: no-repeat;
+    vertical-align: middle;
+}
+
+.icon-add-to-cart {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    background: url(../images/icon-add-to-cart.png) center no-repeat;
+    background-size: 100% auto;
+    vertical-align: top
+}
+
+.icon-add-logo {
+    display: inline-block;
+    width: 70px;
+    height: 70px;
+    background: url(../images/icon-add-logo.png) center no-repeat;
+    background-size: 100% auto;
+    vertical-align: top
+}
+
+.icon-web {
+    display: inline-block;
+    width: 17%;
+    height: 100%;
+    background: url(../images/icon-web.png) center no-repeat;
+    background-size: 30px auto;
+    vertical-align: top
+}
+
+.icon-shield {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: url(../images/icon-shield.png) center no-repeat;
+    background-size: 100% auto;
+    vertical-align: top
+}
+
+.icon-warning {
+    width: 4.966%;
+    padding: 2.5% 0;
+    background-image: url("../images/icon-warning.png");
+    background-size: 100% auto
+}
+
+.icon-close {
+    width: 100%;
+    padding: 50% 0;
+    background-image: url("../images/icon-close.png");
+    background-size: 100% auto
+}
+
+.icon-finish {
+    width: 100%;
+    padding: 50% 0;
+    background-image: url("../images/icon-finish.png");
+    background-size: 100% auto
+}
+
+.icon-update {
+    width: 8.333%;
+    padding: 4.166% 0;
+    background-image: url("../images/icon-update.png");
+    background-size: 100% auto
+}
+
+.icon-minus {
+    display: block;
+    width: 20px;
+    height: 20px;
+    background: url("../images/icon-minus.png") center no-repeat;
+    background-size: 100% auto
+}
+
+.icon-phone {
+    width: 100%;
+    height: 100%;
+    background: url("../images/TelIco.png") center no-repeat;
+    background-size: auto 100%;
+}
+
+.icon-arrow-right {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 5.9%;
+    height: 100%;
+    border-radius: 50%;
+    background: url("../images/icon-arrow-right.png") center no-repeat;
+    background-size: 12px 13px
+}
+
+.icon-arrow-down {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 18px;
+    height: 100%;
+    background: url("../images/icon-arrow-down.png") center left no-repeat;
+    background-size: 10px 10px;
+    pointer-events: none
+}
+
+.icon-cancel {
+    display: block;
+    width: 30px;
+    height: 30px;
+    background: url("../images/icon-close.png") center no-repeat;
+    background-size: auto 100%
+}
+
+.icon-confirm {
+    display: block;
+    width: 30px;
+    height: 30px;
+    background: url("../images/PayTipIco.png") center no-repeat;
+    background-size: auto 100%
+}
+
+.icon-delete {
+    display: block;
+    margin: 0 auto;
+    width: 20px;
+    height: 21px;
+    background: url("../images/DeleteIco2.png") center no-repeat;
+    background-size: 20px 21px
+}
+
+.icon-delete-2 {
+    display: inline-block;
+    width: 20px;
+    height: 42px;
+    background: url("../images/DeleteIco2.png") center no-repeat;
+    background-size: 12px 13px
+}
+
+.icon-delete-3 {
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    background: url("../images/logo.png") center no-repeat;
+    background-size: 100% auto;
+}
+
+.icon-home-2 {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    background: url("../images/HomeIco.png") center no-repeat;
+    background-size: 12px auto;
+}
+
+.icon-arrow-left {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    background: url("../images/back.png") center no-repeat;
+    background-size: 12px auto;
+}
+
+.icon-arrow-left-2 {
+    width: 100%;
+    height: 100%;
+    background: url("../images/back2.png") center no-repeat;
+    background-size: auto 100%;
+}
+
+.box-selected {
+    position: relative;
+    width: 100%;
+    height: 41px;
+    margin: 10px 0 0;
+}
+
+.box-selected select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    display: block;
+    width: 100%;
+    padding: 10px 5px;
+    height: 41px;
+    border-radius: 4px;
+}
+
+.btn-drop-menu {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 43px;
+    height: 100%;
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
+    padding-top: 14px;
+    pointer-events: none
+}
+
+.btn-drop-menu .icon {
+    display: block;
+    margin: 0 auto;
+    width: 12px;
+    pointer-events: none
+}
+
+.user_msg_send .HeadR {
+    width: 45px
+}
+
+.user_msg_send .formSendMessage {
+    padding: 3.125% 3.9% 43.59%
+}
+
+.user_msg_send .radio {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    vertical-align: middle;
+    margin-top: 0
+}
+
+.user_msg_send .send-to label, .user_msg_send .send-model label {
+    margin-right: 13%
+}
+
+.user_msg_send .textTitle {
+    display: block;
+    margin: 3.728% 0 1.864%
+}
+
+.user_msg_send .input {
+    width: 100%;
+    padding: 3.389%;
+    border-radius: 4px;
+    resize: none;
+}
+
+.user_msg_send .send-to {
+    margin-bottom: 5.932%
+}
+
+.user_msg_send .send-to .textTitle {
+    margin-bottom: 4.576%
+}
+
+.user_msg_send .send-to .list-radio {
+    display: flex;
+}
+
+.user_msg_send .send-to .list-radio .item-radio {
+    flex: 1;
+}
+
+.user_msg_send .box-line label {
+    vertical-align: middle
+}
+
+.user_msg_send .send-model {
+    padding-bottom: 3.644%
+}
+
+.user_msg_send .btn-main {
+    width: 100%;
+    border-radius: 4px;
+    padding: 3.04% 0;
+    margin-top: 3.644%;
+    border: 0
+}
+
+#spAddressee, #spTitle, #spContent {
+    padding: 10px 0 0;
+    display: block
+}
+
+.formRefund .goods-msg {
+    padding: 4.687% 3.125%;
+}
+
+.formRefund .goods-msg .thumbnail {
+    display: inline-block;
+    position: relative;
+    width: 20.312%;
+}
+
+.formRefund .goods-msg .thumbnail img {
+    width: 100%
+}
+
+.formRefund .goods-msg .thumbnail .num {
+    display: block;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    bottom: 0;
+    padding: 4.615% 0;
+    text-align: center
+}
+
+.formRefund .goods-msg .text {
+    display: inline-block;
+    margin: 0 0 0 3.125%;
+    width: 70.6%;
+    vertical-align: top;
+    font-size: .68rem
+}
+
+.formRefund .refund-msg dl {
+    padding: 0 3.906%
+}
+
+.formRefund .refund-msg dd {
+    margin-top: 3.125%;
+    border-radius: 5px;
+    padding: 0 0 0 2.815%
+}
+
+.formRefund .refund-msg dd.upload, .formRefund .refund-msg dd.method, .formRefund .refund-msg dd.reply-msg, .formRefund .refund-msg dd.status-msg {
+    border: 0;
+    background: transparent;
+    padding: 0
+}
+
+.formRefund .refund-msg dd.method .radio {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    border-radius: 50%
+}
+
+.formRefund .refund-msg dd.method label {
+    vertical-align: middle
+}
+
+.formRefund .refund-msg dd.method div {
+    display: inline-block
+}
+
+.formRefund .tip {
+    padding: 5% 0;
+    text-align: center
+}
+
+.formRefund .refund-msg dd.method .radio:checked {
+    background: url("../images/CollectDelCheck.png") center no-repeat;
+    background-size: auto 100%;
+    border: 0
+}
+
+.formRefund .refund-msg dd.reply-msg .txtaReply {
+    border-radius: 5px;
+    padding: 0 0 0 2.815%
+}
+
+.formRefund .refund-msg .title {
+    display: inline-block;
+    width: 31%;
+    padding: 3.05% 0
+}
+
+.formRefund .refund-msg .btn-select {
+    display: inline-block;
+    position: relative;
+    width: 71%;
+    margin: 0 0 0 -4%
+}
+
+.formRefund .refund-msg select {
+    border: 0;
+    width: 100%;
+    padding: 4.488% 0;
+    background: transparent
+}
+
+.formRefund .refund-msg input {
+    border: 0
+}
+
+.formRefund .refund-msg textarea {
+    border: 0;
+    resize: none;
+    text-align: left;
+    width: 100%;
+    padding: 2.812% 0
+}
+
+.formRefund .refund-msg .icon-arrow-down {
+    display: inline-block;
+    position: absolute;
+    width: 21.446%;
+    height: 100%;
+    top: 0;
+    right: 0;
+    pointer-events: none
+}
+
+.supplier-register .btn-file,
+.formRefund .refund-msg .btn-file {
+    display: none;
+    opacity: 0
+}
+
+.formRefund .voucher-msg .img-upload {
+    position: relative;
+    width: 22.875%;
+    float: left;
+    margin-right: 6%
+}
+
+.formRefund .voucher-msg .img-upload .img-con {
+    display: block;
+    width: 70px;
+    height: 70px;
+    overflow: hidden;
+    border-radius: 5px;
+}
+
+.formRefund .voucher-msg .img-upload .img-con img {
+    width: 100%
+}
+
+.formRefund .voucher-msg .img-upload .img-title {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center
+}
+
+.formRefund .voucher-msg .img-upload .btn-delete {
+    display: block;
+    position: absolute;
+    top: -8%;
+    right: -8%;
+    width: 14.285%
+}
+
+.formRefund .btn {
+    padding: 11.718% 3.906% 5%
+}
+
+.formRefund .btn-submit {
+    padding: 3.437% 0;
+    width: 100%;
+    border: 0;
+    border-radius: 4px;
+    text-align: center
+}
+
+.user_inbox .selection .box-category {
+    position: relative;
+    float: left;
+    width: 71.5%;
+    padding-left: 5%
+}
+
+.user_inbox .selection .btn-delete-all {
+    float: right;
+    margin-right: 5px
+}
+
+.user_inbox .selection .box-category .select {
+    border: 0;
+    height: 42px;
+    line-height: 42px;
+    width: 100%
+}
+
+.user_inbox .selection .box-category .icon-arrow-down {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 34px;
+    height: 100%;
+    pointer-events: none
+}
+
+.user_inbox .selection .btn-delete {
+    display: inline-block;
+    width: 28.5%;
+    padding-left: 1%;
+}
+
+.user_inbox .selection .btn-delete span, .user_inbox .selection .btn-delete-all span {
+    display: inline-block;
+    vertical-align: middle
+}
+
+.user_inbox .list {
+    margin-top: 3.125%
+}
+
+.user_inbox .item {
+    display: block;
+    position: relative;
+    width: 100%;
+    padding: 3.125% 0;
+    border-radius: 4px;
+}
+
+.user_inbox .read .item .point {
+    display: none
+}
+
+.user_inbox li:last-child .item {
+    border: 0
+}
+
+.user_inbox .content {
+    margin: 0 5.9% 0 34px
+}
+
+.user_inbox .draft .content {
+    margin: 0 34px 0 5.9%
+}
+
+.user_inbox .author {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap
+}
+
+.user_inbox .title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 50%
+}
+
+.user_inbox .detail {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2
+}
+
+.user_inbox .point {
+    display: block;
+    position: absolute;
+    left: 20px;
+    top: 22%;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%
+}
+
+.user_inbox .time {
+    display: block;
+    position: absolute;
+    right: 5.9%;
+    top: 15%
+}
+
+.user_inbox .draft .time {
+    right: 34px
+}
+
+.user_inbox .draft .icon-delete-2 {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 0 2% 15.125% 0;
+    width: 27px;
+    height: 100%;
+}
+
+.user_inbox .MenberNewRecListNo {
+    text-align: center
+}
+
+.user_msg_detail .box-content {
+    padding: 0 3.125% 40%
+}
+
+.user_msg_detail h1 {
+    padding-top: 3.125%
+}
+
+.user_msg_detail .title {
+    text-align: right
+}
+
+.user_msg_detail .list li {
+    margin-top: 3.389%;
+    position: relative
+}
+
+.user_msg_detail .list li span {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 66px
+}
+
+.user_msg_detail .list li p {
+    margin-left: 66px
+}
+
+.user_msg_detail .tool-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 112
+}
+
+.user_msg_detail .tool-bar a {
+    display: inline-block
+}
+
+.user_msg_detail .tool-bar a.hide {
+    display: none
+}
+
+.user_msg_detail .tool-bar .btn-delete {
+    padding: 2.109% 3.437%
+}
+
+.user_msg_detail .tool-bar .btn-cancel, .user_msg_detail .tool-bar .btn-confirm {
+    padding: 3.109% 0;
+    vertical-align: middle
+}
+
+.user_msg_detail .tool-bar .tip-msg {
+    display: inline-block;
+    padding: 4% 0;
+    vertical-align: top
+}
+
+.user_msg_detail .btn-main {
+    border-radius: 4px;
+    padding: 2.109% 4.218%;
+    margin: 2.109% 2.5% 2.109% 0
+}
+
+.user_msg_detail .btn-reply {
+    float: right;
+    position: relative
+}
+
+.password_find_page .small-box {
+    display: block;
+    position: relative;
+    width: 100%;
+    padding: 0 4.531%
+}
+
+.password_find_page .small-box .text {
+    width: 72px;
+    float: left;
+    padding-top: 4%;
+}
+
+.password_find_page .small-box .input-box {
+    display: block;
+    margin: 0 0 0 71px;
+    padding: 4.687% .78% 3.593%;
+    border: 0;
+    background: transparent;
+}
+
+.password_find_page .small-box .vcode {
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 4% 4% 0 0
+}
+
+.password_find_page .btn-password {
+    padding: 10px 3.125%
+}
+
+.password_find_page .btn-password .btn-submit {
+    display: block;
+    text-align: center;
+    border-radius: 4px;
+    padding: 2.968% 0;
+    width: 100%;
+    margin-top: 3.281%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.password_find_page .btn-password .btn-submit.sending {
+    background-image: url("../images/icon-update.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: auto 33%;
+    animation: 3s rotate linear infinite
+}
+
+.password_find_page .tip {
+    text-align: center;
+    margin: 6.718% 0
+}
+
+.password_find_page .tip .text {
+    display: inline-block;
+    margin-left: 3px
+}
+
+.password_find_page .jumper, .password_update_page .jumper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 112
+}
+
+.password_find_page .jumper .cover, .password_update_page .jumper .cover {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.password_find_page .jumper .window, .password_update_page .jumper .window {
+    position: relative;
+    margin: 50% auto 0;
+    width: 81.25%;
+    padding: 9.375% 0 22.5%;
+    border-radius: 20px
+}
+
+.password_find_page .jumper .btn-close, .password_update_page .jumper .btn-close {
+    display: block;
+    position: absolute;
+    margin: -7% -7% 0 0;
+    right: 0;
+    top: 0;
+    width: 13.461%
+}
+
+.password_find_page .jumper .text, .password_update_page .jumper .text {
+    text-align: center;
+    width: 80.576%;
+    margin: 0 auto
+}
+
+.password_find_page .jumper .status, .password_update_page .jumper .status {
+    width: 10.961%;
+    margin: 0 auto 3.076%
+}
+
+.password_find_page .foot {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    margin: 0
+}
+
+.password_find_page .tip-msg {
+    display: block;
+    line-height: 200%;
+    text-align: center
+}
+
+.password_find_page .container-mobile-code .input-box {
+    width: 40%;
+}
+
+.password_find_page .container-mobile-code .btnMobileCode {
+    width: 35%;
+    font-size: 14px;
+    text-align: center;
+    border: 0;
+    border-radius: 4px;
+    padding: 3% 0;
+    margin: 2% 0;
+}
+
+.user_expense_records .btn-main {
+    border-radius: 4px;
+    padding: 2.109% 4.218%;
+    margin: 2.109% 2.5% 2.109% 0
+}
+
+.user_expense_records .box-filter {
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-width: 1px
+}
+
+.user_expense_records .box-filter .category:first-child {
+    border-left: none
+}
+
+.user_expense_records .filter-category {
+    display: inline-block;
+    float: left;
+    width: 75%
+}
+
+.user_expense_records .filter-category .category {
+    display: inline-block;
+    width: 32.3%;
+    border-left-style: solid;
+    border-left-width: 1px;
+    border-top: 0;
+    border-right: 0;
+    border-bottom: 0
+}
+
+.user_expense_records .filter-category .category {
+    padding: 6.25% 0;
+    text-align: center
+}
+
+.user_expense_records .filter-category .category:last-child {
+    margin-right: -1%
+}
+
+.user_expense_records .filter-progress {
+    position: relative;
+    border-left-style: solid;
+    border-left-width: 1px;
+    float: left;
+    display: inline-block;
+    width: 25%;
+    margin-right: -3%
+}
+
+.user_expense_records .filter-progress select {
+    display: block;
+    width: 100%;
+    border: 0;
+    padding: 18.75% 0 18.75% 16%;
+    appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    -o-appearance: none;
+    -webkit-appearance: none
+}
+
+.user_expense_records .list {
+    margin-top: 1.25%
+}
+
+.user_expense_records .list li {
+    display: block;
+    position: relative;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    padding: 3.125% 2.968%;
+    text-align: left
+}
+
+.user_expense_records .list li:first-child {
+    border-top-style: solid;
+    border-top-width: 1px
+}
+
+.user_expense_records .list li .left {
+    position: absolute;
+    left: 2.968%;
+    width: 90px
+}
+
+.user_expense_records .list li .mid {
+    display: block;
+    margin: 0 47px 0 90px;
+    overflow: hidden
+}
+
+.user_expense_records .list li .mid p {
+    line-height: 149.888%
+}
+
+.user_expense_records .list li .mid .money {
+    margin-bottom: 3.95%;
+    line-height: 133%
+}
+
+.user_expense_records .list li .right {
+    position: absolute;
+    right: 2.968%;
+    width: 47px
+}
+
+.user_order_comment .icon-minus {
+    width: 26px;
+    height: 26px
+}
+
+.user_order_comment .comment-table {
+    padding: 0 3.906%;
+}
+
+.user_order_comment .comment-table dd {
+    padding-top: 3.437%
+}
+
+.user_order_comment .comment-table label {
+    display: block;
+    margin: 3.437% 0 1.718%
+}
+
+.user_order_comment .comment-table label {
+    display: block;
+    margin: 3.437% 0 1.718%
+}
+
+.user_order_comment .comment-table .input {
+    border-radius: 5px;
+    resize: none;
+    width: 100%;
+    padding: 12px
+}
+
+.user_order_comment .comment-table .btn-file {
+    display: none;
+    opacity: 0
+}
+
+.user_order_comment .comment-table .image-upload .select-upload {
+    display: inline-block;
+    width: 17.343%;
+    padding: 0;
+    vertical-align: top;
+    margin-top: 13px
+}
+
+.user_order_comment .comment-table .image-upload .select-upload img {
+    display: block;
+    width: 92.5%;
+    margin: 3.75% auto 0
+}
+
+.user_order_comment .comment-table .image-upload .count {
+    display: inline-block;
+    vertical-align: top;
+    margin-top: 13px
+}
+
+.user_order_comment .comment-table .image-upload em {
+    display: inline-block;
+    position: relative;
+    width: 70px;
+    margin: 10px 0 0 10px;
+    border-radius: 3px
+}
+
+.user_order_comment .comment-table .image-upload em img {
+    width: 100%;
+    float: left;
+    border-radius: 3px
+}
+
+.user_order_comment .comment-table .image-upload em a {
+    display: block;
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    top: -13px;
+    right: -13px
+}
+
+.user_order_comment .comment-table .code-msg .code-input {
+    width: 52.343%
+}
+
+.user_order_comment .comment-table .code-msg .code {
+    width: 14.062%;
+    margin: 5% .781% 0 2.031%
+}
+
+.user_order_comment .comment-table .code-msg .btn-change {
+    vertical-align: middle
+}
+
+.user_order_comment .comment-table .btn {
+    padding: 6.25% 0 11.25%
+}
+
+.user_order_comment .comment-table .btn-submit {
+    padding: 3.437% 0;
+    width: 100%;
+    border: 0;
+    border-radius: 4px
+}
+
+.user_order_comment .update-tip {
+    text-align: center
+}
+
+.user_order_comment .EvalNoGoods {
+    padding: 40px 20px;
+    margin: 0 auto 20px;
+    text-align: center
+}
+
+.user_order_comment .EvalNoGoods p {
+    font-size: 18px;
+    margin-bottom: 20px
+}
+
+.user_order_comment .EvalNoGoods a.GoshoppingBt {
+    display: block;
+    margin: 0 auto;
+    width: 140px;
+    height: 35px;
+    line-height: 35px;
+    text-align: center;
+    font-size: 18px;
+    border-radius: 4px
+}
+
+.shop-rating {
+    height: 25px;
+    overflow: hidden;
+    zoom: 1;
+    padding: 2px 0;
+    position: relative;
+    z-index: 999
+}
+
+.shop-rating span {
+    height: 23px;
+    display: block;
+    line-height: 23px;
+    float: left
+}
+
+.shop-rating span.title {
+    text-align: left;
+    margin-right: 5px
+}
+
+.shop-rating ul {
+    float: left;
+    margin: 0;
+    padding: 0
+}
+
+.shop-rating .result {
+    margin-left: 20px;
+    padding-top: 2px
+}
+
+.shop-rating .result em {
+    font-family: arial;
+    font-weight: bold
+}
+
+.shop-rating .result strong {
+    font-weight: normal
+}
+
+.rating-level, .rating-level a {
+    background: url(../images/star_v2.png) no-repeat scroll 1000px 1000px
+}
+
+.rating-level {
+    background-position: 0 0;
+    width: 120px;
+    height: 23px;
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+    vertical-align: middle
+}
+
+.rating-level li {
+    display: inline
+}
+
+.rating-level a {
+    line-height: 23px;
+    height: 23px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    text-indent: -999em;
+    *zoom: 1;
+    outline: 0
+}
+
+.rating-level a.one-star {
+    width: 20%;
+    z-index: 6
+}
+
+.rating-level a.two-stars {
+    width: 40%;
+    z-index: 5
+}
+
+.rating-level a.three-stars {
+    width: 60%;
+    z-index: 4
+}
+
+.rating-level a.four-stars {
+    width: 80%;
+    z-index: 3
+}
+
+.rating-level a.five-stars {
+    width: 100%;
+    z-index: 2
+}
+
+.rating-level .current-rating, .rating-level a:hover {
+    background-position: 0 -28px
+}
+
+.rating-level a.one-star:hover, .rating-level a.two-stars:hover, .rating-level a.one-star.current-rating, .rating-level a.two-stars.current-rating {
+    background-position: 0 -116px
+}
+
+.rating-level .three-stars .current-rating, .rating-level .four-stars .current-rating, .rating-level .five-stars .current-rating {
+    background-position: 0 -28px
+}
+
+.user-distribution-number .tip,
+.prolist .dropload-down, .list .dropload-down, .prolist .end, .list .end, .user_expense_records, .TypeList .dropload-down, .TypeList .end {
+    padding: 3.125% 0;
+    text-align: center;
+    font-size: 1rem;
+    clear: both
+}
+
+.user_expense_records {
+    font-size: x-small;
+}
+
+.YgSureAddrBt {
+    width: 98%;
+    height: 30px;
+    margin: 20px auto
+}
+
+.YgSureAddrBt a {
+    display: inline-block;
+    width: 46%;
+    height: 35px;
+    line-height: 35px;
+    text-align: center;
+    font-size: 14px;
+    margin: 0 2%;
+    border-radius: 4px;
+}
+
+.YgOrderList {
+    width: 100%;
+    overflow: hidden;
+}
+
+.YgOrderList li {
+    width: 100%;
+    padding: 10px 1.5625%;
+}
+
+.YgOrderList li .floatl {
+    width: 80px;
+    height: 80px;
+    text-align: center;
+    overflow: hidden
+}
+
+.YgOrderList li .floatl img {
+    max-height: 78px;
+    max-width: 78px
+}
+
+.YgOrderList li .floatr {
+    width: 60px;
+    height: 80px;
+    overflow: hidden;
+    text-align: right;
+}
+
+.YgOrderList li .floatr p {
+    margin-bottom: 5px
+}
+
+.YgOrderInfo {
+    margin: 0 65px 0 85px;
+    min-height: 80px
+}
+
+.YgOrderInfo h1 {
+    width: 100%;
+    height: 20px;
+    line-height: 20px;
+    font-size: 14px;
+    margin-bottom: 5px
+}
+
+.YgOrderInfo h1 a {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.None {
+    width: 100%;
+    height: 100px;
+    font-size: 14px;
+    text-align: center;
+    padding: 50px 0;
+}
+
+.member-msg .member-msg-form li, .coupon-use-page .coupon-msg-form li {
+    padding: 10px;
+}
+
+.member-msg .text, .coupon-use-page .text {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.activity-wheel-result .input-box .input,
+.member-msg .input-box, .coupon-msg-form .input-box {
+    padding: 10px 5px;
+    border-radius: 6px;
+    width: 100%;
+    font-size: .96rem;
+    font-size: 15px;
+}
+
+.member-msg .input-container {
+    position: relative;
+}
+
+.member-msg .input-container .btn {
+    position: absolute;
+    right: 10px;
+    top: 0;
+    padding: 10px 0;
+    line-height: 22px;
+    font-size: 12px;
+}
+
+.member-msg .avatar {
+    display: block;
+    margin: 3% auto;
+    width: 32%;
+    border-radius: 50%
+}
+
+.member-msg .btn-avatar {
+    display: inline-block;
+    width: 38.281%;
+    margin-left: 12%;
+    border-radius: 2px;
+    text-align: center;
+    padding: 5px 0
+}
+
+.member-msg .btn-reflash {
+    display: inline-block;
+    width: 38.281%;
+    border-radius: 2px;
+    text-align: center;
+    padding: 5px 0
+}
+
+.member-msg .sex .for-sex {
+    padding-right: 9.531%
+}
+
+.member-msg .radio {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    margin: 0 1.406% 0 0;
+    border-radius: 50%;
+    vertical-align: middle
+}
+
+.member-msg .radio:checked {
+    background: url(../images/CollectDelCheck.png) center no-repeat;
+    background-size: 100% auto
+}
+
+.member-msg .account-link li {
+    width: 25%;
+    float: left;
+    padding: 0;
+    text-align: center
+}
+
+.member-msg .account-link li img {
+    display: block;
+    margin: 0 auto;
+    width: 66.25%
+}
+
+.member-msg .account-link li span {
+    display: block;
+    margin: 8% auto 5% auto
+}
+
+.member-msg .account-link li a {
+    display: block;
+    margin: 0 auto;
+    width: 63.75%;
+    min-width: 60px;
+    border-radius: 2px;
+    padding: 4.375% 0
+}
+
+.member-msg .btn-submit, .coupon-use-page .btn-submit {
+    width: 100%;
+    border: 0;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 4px;
+    margin: 6.562% 0 8.125% 0
+}
+
+.user_safety .small-box {
+    display: block;
+    width: 100%;
+    height: 41px;
+    padding: 10px 5px;
+    border-radius: 4px;
+    margin: 1.86% 0 3.22%
+}
+
+.user_safety .securityIssueForm {
+    padding: 3.1% 3.9% 54.632%
+}
+
+.user_safety .securityIssueForm .old-answer {
+    border-radius: 4px
+}
+
+.user_safety .securityIssueForm .btn-main {
+    margin-top: 5.59%
+}
+
+.user_face .preview-container {
+    display: none;
+    width: 100%;
+    min-width: 300px
+}
+
+.user_face .photocontainer img {
+    display: block;
+    border-radius: 50%;
+    width: 27%;
+    margin: 10px auto 0
+}
+
+.user_face .preview-container .col-sm-6 {
+    margin: 10px 0
+}
+
+.user_face .cropper-example-1 {
+    max-height: 300px
+}
+
+.user_face .cropper-example-1 > img, .cropper-example-3 > img {
+    max-width: 100%
+}
+
+.user_face .img-container, .user_face .img-preview {
+    overflow: hidden;
+    width: 100%;
+    text-align: center
+}
+
+.user_face .img-preview {
+    float: left;
+    margin-right: 10px;
+    margin-bottom: 10px
+}
+
+.user_face .preview-lg {
+    width: 263px;
+    height: 148px
+}
+
+.user_face .preview-md {
+    width: 139px;
+    height: 78px
+}
+
+.user_face .preview-sm {
+    width: 69px;
+    height: 39px
+}
+
+.user_face .preview-xs {
+    width: 35px;
+    height: 20px;
+    margin-right: 0
+}
+
+.user_face .fileUpload {
+    position: relative;
+    overflow: hidden;
+    padding: 10px 0;
+    width: 100%
+}
+
+.user_face .fileUpload label {
+    display: block;
+    font-size: 14px;
+    text-align: center
+}
+
+.user_face .fileUpload input.upload {
+    height: 40px;
+    text-align: center;
+    line-height: 40px;
+    border-radius: 5px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0;
+    width: 100%
+}
+
+.user_face .MenCenterInfoBt.formUserFace .SubmitBtn {
+    display: block;
+    margin: 20px auto 10px;
+    border: 0;
+    height: 40px;
+    line-height: 40px;
+    font-size: 16px;
+    text-align: center;
+    border-radius: 5px;
+    width: 90%
+}
+
+.commission_index .forbidden-user {
+    padding: 2.5%;
+    text-align: center
+}
+
+.commission_index .forbidden-user .text {
+    margin: 2.5%
+}
+
+.commission_index .btn-main {
+    display: block;
+    margin: 0 auto 10px;
+    padding: 0 5px;
+    width: 90px;
+    height: 28px;
+    line-height: 28px;
+    font-size: 16px;
+}
+
+.commission_index .first-guide {
+    padding: 2.5% 20%;
+    text-align: center
+}
+
+.commission_index .top {
+    margin-bottom: 3.281%
+}
+
+.commission_index .commission-msg {
+    display: block;
+    background: url(../images/MoreArrow.png) 97.5% center no-repeat;
+    background-size: 9px 16px;
+    padding: 2.5%
+}
+
+.commission_index .avatar {
+    width: 8.437%;
+    border-radius: 50%;
+}
+
+.commission_index h1 {
+    display: inline-block;
+    margin: 0 1.562%;
+    width: 85%
+}
+
+.commission_index h1 .level {
+    margin-left: 1.562%
+}
+
+.commission_index .top .big {
+    text-align: center;
+    padding-bottom: 8.593%
+}
+
+.commission_index .top .big .balance {
+    display: block;
+    padding: 12.125% 0 7.03%
+}
+
+.commission_index .top .big .set-password img {
+    width: 3.593%;
+    margin-right: 1.406%;
+    vertical-align: middle
+}
+
+.commission_index .top .big .set-password p {
+    display: inline-block;
+    vertical-align: middle
+}
+
+.commission_index .sec {
+    padding: 4.531% 0 0 0;
+}
+
+.commission_index .sec .big {
+    padding: 0 4.375%;
+}
+
+.commission_index .sec .part {
+    padding: 3.75% 0
+}
+
+.commission_index .sec .part li {
+    width: 50%;
+    float: left
+}
+
+.commission_index .sec .part li:first-child {
+    border: 0
+}
+
+.commission_index .sum {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip
+}
+
+.commission_index .sec .part li a {
+    display: block;
+    height: 100%;
+    width: 98%;
+    padding-left: 25.312%
+}
+
+.commission_index .sec .part li .ExMyExtend {
+    background: url(../images/ExMyExtend.png) 9.375% center no-repeat;
+    background-size: 20px auto
+}
+
+.commission_index .sec .part li .ExMyFamily {
+    background: url(../images/ExMyFamily.png) 9.375% center no-repeat;
+    background-size: 20px auto
+}
+
+.commission_index .sec .part li a .detail {
+    display: block
+}
+
+.commission_index .list li {
+    padding: 0 10px;
+}
+
+.commission_index .list li:first-child, .commission_index .list li:nth-child(4), .commission_index .list li:nth-child(7) {
+    margin-top: 3.281%
+}
+
+.commission_index .list li > a {
+    display: block;
+    background: url(../images/MoreArrow.png) 97.5% center no-repeat;
+    background-size: 9px 16px;
+    padding: 5% 2.5%
+}
+
+.commission_index .list li a .money {
+    float: right;
+    margin-right: 6.093%
+}
+
+.commission_index .list .icon {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    float: left;
+    margin-top: -1.5%
+}
+
+.commission_index .list .icon-0 {
+    background: url(../images/ExListIco0.png) center no-repeat;
+    background-size: 19px 19px
+}
+
+.commission_index .list .icon-1 {
+    background: url(../images/ExListIco1.png) center no-repeat;
+    background-size: 19px 19px
+}
+
+.commission_index .list .icon-2 {
+    background: url(../images/ExListIco2.png) center no-repeat;
+    background-size: 19px 19px
+}
+
+.commission_index .list .icon-3 {
+    background: url(../images/ExListIco3.png) center no-repeat;
+    background-size: 19px 19px
+}
+
+.commission_index .list .icon-4 {
+    background: url(../images/ExListIco4.png) center no-repeat;
+    background-size: 19px 19px
+}
+
+.commission_index .list .icon-5 {
+    background: url(../images/ExListIco5.png) center no-repeat;
+    background-size: 19px 19px
+}
+
+.commission_index .list .icon-6 {
+    background: url(../images/ExListIco6.png) center no-repeat;
+    background-size: 19px 19px
+}
+
+.commission_index .list .content-drop-down img {
+    display: block;
+    margin: 0 auto;
+    width: 65.6%
+}
+
+.commission_index .list .content-drop-down img.big {
+    width: 100%;
+}
+
+.commission_index .list .content-drop-down .tip {
+    display: block;
+    margin: 0 auto 3px;
+    text-align: center
+}
+
+.commission_index .list .content-drop-down .tip.hide {
+    display: none
+}
+
+.commission_index .about {
+    padding: 2.5%;
+    line-height: 150%
+}
+
+.withdrawal .MenberBox {
+    padding: 50px 0
+}
+
+.withdrawal .MenberRH {
+    padding: 5px 10px
+}
+
+.withdrawal .MenberRConBox {
+    width: 100%;
+}
+
+.withdrawal .MenberRFytxList {
+    width: 100%
+}
+
+.withdrawal .MenberRFytxList dd {
+    width: 100%;
+    padding: 15px 10px 0
+}
+
+.withdrawal .MenberRFytx input[type=text], .withdrawal .MenberRFytx input[type=password], .withdrawal .input {
+    width: 100%;
+    padding: 3.389%;
+    margin-top: 3px;
+    border-radius: 4px;
+    resize: none;
+}
+
+.withdrawal .radio {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    vertical-align: middle;
+    margin-top: 0
+}
+
+.withdrawal .MenberRFytx input[type=submit] {
+    width: 100%;
+    height: 34px;
+    text-align: center;
+    line-height: 34px;
+    font-size: 18px;
+    border: 0;
+    border-radius: 4px;
+    margin: 0 0 15px 0
+}
+
+.ConsumerRecords .data-total {
+    text-align: center
+}
+
+.ConsumerRecords .tab-nav {
+    position: fixed;
+    left: 0;
+    width: 100%;
+}
+
+.ConsumerRecords .tab-nav a {
+    display: inline-block;
+    float: left;
+    width: 20%;
+    padding: 3.125% 0;
+    text-align: center
+}
+
+.ConsumerRecords .data-list {
+    padding-top: 14%
+}
+
+.ConsumerRecords li {
+    padding-bottom: 4%
+}
+
+.ConsumerRecords li p {
+    padding: 1% 5% 0
+}
+
+.ConsumerRecords li p:first-child {
+    padding: 3% 5%;
+}
+
+.commission-psw-find .FindPwProIco {
+    width: 90%
+}
+
+.commission-psw-find .formAnswerQuestionCommission {
+    padding: 3.1% 3.9% 44%;
+}
+
+.commission-psw-find .small-box {
+    display: block;
+    width: 100%;
+    padding: 10px 5px;
+    height: 41px;
+    border-radius: 4px;
+    margin: 1.86% 0 3.22%;
+}
+
+.commission-psw-find .btnAnswerQuestion {
+    margin-top: 5.59%;
+}
+
+.commission-update-psw .formUpdateCommissionPwd {
+    padding: 3.1% 3.9% 20%;
+}
+
+.commission-update-psw .small-box {
+    display: block;
+    width: 100%;
+    padding: 10px 5px;
+    height: 41px;
+    border-radius: 4px;
+    margin: 1.86% 0 3.22%;
+}
+
+.commission-update-psw .btnUpdatePassword {
+    margin-top: 5.59%;
+}
+
+.commission-update-psw .FindPwNoSet {
+    padding: 3.1% 3.9%;
+}
+
+.commission-update-psw .FindPwNoSet img {
+    vertical-align: middle
+}
+
+.help-center .HelpSearchBox {
+    padding: 7px 3.125%
+}
+
+.help-center .HelpSearch {
+    position: relative;
+    border-radius: 4px;
+    padding: 7px
+}
+
+.help-center .HelpSearch .helpSearchTxt {
+    width: 40%;
+    border: 0;
+    display: block;
+    margin: 0 auto;
+    text-align: center
+}
+
+.help-center .HelpSearch .helpSearch {
+    position: absolute;
+    left: 27%;
+    top: 7px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: url("../images/SearchIco.png") center no-repeat;
+    background-size: 100% auto;
+    border: 0
+}
+
+.help-center .HelpSearchResultBox {
+    background: url("../images/bg-help-center.jpg") center no-repeat;
+    background-size: 100% 100%;
+    padding-bottom: 2%
+}
+
+.help-center .HelpSearchResulLlsit {
+    padding: 6.562% 0 0 0
+}
+
+.help-center .HelpSearchResulLlsit dt {
+    background: url("../images/HelpFace.png") 5% center no-repeat;
+    background-size: auto 50%
+}
+
+.help-center .HelpSearchResulLlsit dt a {
+    display: block;
+    padding: 3.125% 0;
+    margin: 0 13.281%
+}
+
+.help-center .HelpSearchResulLlsit dd a {
+    display: block;
+    background: url("../images/MoreArrow_white.png") 99.3% center no-repeat;
+    background-size: auto 50%;
+    margin: 0 13.281%;
+    padding: 3.125% 0;
+}
+
+.help-center .HelpSearchResultBox .HelpSearchArrow {
+    width: 6.25%;
+    padding: 1.875% 0;
+    background: url("../images/ArrowIco.png") center no-repeat;
+    background-size: 100% auto;
+    margin: 6.406% auto 4.062%
+}
+
+.help-center .HelpFAQBox {
+    text-align: center;
+    padding: 3.125%;
+}
+
+.help-center .HelpFAQBox li {
+    width: 50%;
+    float: left
+}
+
+.help-center .HelpFAQBox li a {
+    display: block;
+    width: 100%;
+    /* height: 76px; */
+    padding: 6.875% 0;
+    line-height: 100%;
+}
+
+.help-center .HelpFAQBox li a img {
+    display: block;
+    height: 8px;
+    margin: 0 auto 11%;
+}
+
+.help-center .HelpFAQBox li:nth-child(2n) a {
+    border-right: 0
+}
+
+.help-center .HelpFAQBox li:nth-child img {
+    width: 15.625%
+}
+
+.help-center .Cred {
+    padding: 1.708% 4%
+}
+
+.help-center .HelpCenter-list a {
+    display: block;
+    font-weight: bold;
+    padding: 1.708% 4%
+}
+
+.help-center .HelpContent .contents {
+    padding: 0 3.125% 3.125%
+}
+
+.help-center .HelpContent .contents * {
+    margin: 0 auto;
+}
+
+.help-center .HelpContent .contents img {
+    max-width: 100%;
+}
+
+.help-center .HelpContent .contents b {
+    margin-top: 3.125%;
+    font-weight: bold
+}
+
+.BonusListNav {
+    width: 96.875%;
+    height: 40px;
+    margin: 10px auto 0;
+    border-radius: 5px;
+}
+
+.BonusListNav a {
+    display: inline-block;
+    width: 50%;
+    height: 38px;
+    float: left;
+    float: left;
+    font-size: 14px;
+    line-height: 38px;
+    text-align: center
+}
+
+.BonusList {
+    width: 100%;
+    margin: 10px auto;
+}
+
+.BonusList li {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px 1.5625%;
+}
+
+.BonusList li .BonusListl {
+    width: auto;
+    margin-right: 125px;
+    overflow: hidden;
+    min-height: 60px
+}
+
+.BonusList li .BonusListl p {
+    width: 100%;
+    word-break: break-all;
+    word-wrap: break-word;
+    margin-bottom: 5px
+}
+
+.BonusList li .BonusListl p.BonusName {
+    font-size: 14px;
+    margin-bottom: 8px
+}
+
+.BonusList li .floatr {
+    width: 120px;
+    overflow: hidden;
+    text-align: right
+}
+
+.BonusList li .floatr p {
+    margin-bottom: 5px
+}
+
+.BonusList li.BonusHas .BonusListl {
+    padding-left: 54px;
+    background: url("../images/BonusList.png") top left no-repeat;
+    background-size: 50px 56px
+}
+
+.BonusList li.BonusNo .BonusListl {
+    padding-left: 54px;
+    background: url("../images/BonusListNo.png") top left no-repeat;
+    background-size: 50px 56px
+}
+
+.BonusShare a {
+    display: block;
+    width: 55px;
+    height: 25px;
+    line-height: 25px;
+    text-align: center;
+    float: right;
+    border-radius: 4px;
+    margin-left: 5px
+}
+
+.BonusShare a img {
+    width: 12px;
+    vertical-align: middle;
+    margin-right: 4px
+}
+
+.BonusBody {
+    max-width: 640px;
+    min-width: 320px;
+    margin: 0 auto
+}
+
+.OpBonusBox {
+    width: 100%;
+    position: relative
+}
+
+.OpBg {
+    width: 100%
+}
+
+.OpBg img {
+    width: 100%
+}
+
+.OpBonusBgBox {
+    width: 300px;
+    height: 219px;
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    margin-left: -150px;
+    background: url("../images/BonusBg1.png") center no-repeat;
+    background-size: 300px 219px
+}
+
+.OpBonusNum {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    position: absolute;
+    top: 46px;
+    left: 50%;
+    margin-left: -28px;
+    text-align: center;
+    line-height: 60px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.OpBonusNum span {
+    font-size: 28px
+}
+
+.OpBonusTip1 {
+    width: 100%;
+    margin-top: 120px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.OpBonusTip2 {
+    font-size: 14px;
+    text-align: center;
+    margin-top: 5px
+}
+
+.OpBonusRule {
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    margin-top: 95px;
+    text-align: center
+}
+
+.OpBonusRule a {
+    font-size: 14px;
+    display: block;
+    width: 60px;
+    height: 25px;
+    line-height: 25px;
+    margin: 0 auto;
+    border-radius: 5px
+}
+
+.OpBonusRule a img {
+    width: 15px;
+    vertical-align: middle;
+    margin-right: 5px
+}
+
+.OpBonusMoneyNum {
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    text-align: center
+}
+
+.OpBonusMoneyNum span {
+    font-size: 20px
+}
+
+.OpBonusOpenL {
+    width: 100%;
+    margin: -20px 0 20px 0
+}
+
+.OpBonusOpenLH {
+    width: 100%;
+    position: relative
+}
+
+.OpBonusOpenLHCon {
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    background: url("../images/BLine.png") center no-repeat;
+    background-size: 100% 1px;
+    text-align: center;
+    font-size: 14px;
+    position: absolute;
+    bottom: 0
+}
+
+.OpBonusOpenL ul {
+    width: 100%;
+}
+
+.OpBonusOpenL ul li {
+    width: 100%;
+    height: 80px;
+    padding: 15px 3.125%;
+}
+
+.OpBonusOpenL ul li .floatr {
+    width: 80px;
+    height: 50px;
+    padding: 8px 0;
+    overflow: hidden;
+    word-break: break-all;
+    word-wrap: break-word;
+    font-size: 14px
+}
+
+.OpBonusGetFace {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.OpBonusGetFace img {
+    width: 100%;
+    border-radius: 50%
+}
+
+.OpBonusGetInfo {
+    height: 50px;
+    margin-left: 10px
+}
+
+.OpBonusGetInfo p {
+    font-size: 14px;
+    margin: 8px 0
+}
+
+.relaybonus-list .BonusList .BonusHas {
+    position: relative;
+    width: 100%
+}
+
+.relaybonus-list .BonusList .BonusHas img {
+    width: 18.75%;
+    vertical-align: middle
+}
+
+.relaybonus-list .BonusList .BonusHas div {
+    display: inline-block;
+    width: 46.8%;
+    vertical-align: middle
+}
+
+.relaybonus-list .BonusList .BonusHas div p {
+    line-height: 150%
+}
+
+.relaybonus-list .BonusList .BonusHas div .title {
+    text-align: left;
+    font-size: 3.89vw;
+    border-bottom: 0
+}
+
+.relaybonus-list .BonusList .BonusHas div .time {
+    font-size: 3vw;
+}
+
+.relaybonus-list .BonusList .BonusHas div .from {
+    font-size: 2vw
+}
+
+.relaybonus-list .BonusList .BonusHas a {
+    display: inline-block;
+    float: right;
+    width: 28.1%;
+    height: 6vw;
+    line-height: 6vw;
+    text-align: center;
+    font-size: 4.66vw;
+    border-radius: 2vw;
+    vertical-align: middle;
+    margin-top: 3%
+}
+
+.relaybonus-list .BonusList .BonusHas .check-money {
+    display: inline-block;
+    width: 28.1%;
+    float: right;
+    text-align: center
+}
+
+.relaybonus-list .BonusList .BonusHas .money {
+    margin-top: 2%;
+    font-size: 4.66vw;
+    display: inline-block
+}
+
+.relaybonus-list .BonusList .BonusHas .check-money a.active {
+    width: 100%
+}
+
+.relaybonus-list .BonusList .BonusHas img.already-miss {
+    display: block;
+    margin: 0 auto;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 12%;
+    width: auto;
+    height: 76%
+}
+
+.IntegralPaging, .AllPaging {
+    margin: 0 auto;
+}
+
+.pr_showList_page {
+    padding: 0 13px;
+    overflow: hidden;
+    text-align: center
+}
+
+.pr_showList_page ul {
+    display: inline-block
+}
+
+.pr_showList_page li {
+    width: 78px;
+    height: 30px;
+    /* line-height: 30px; */
+    text-align: center;
+    font-size: 14px;
+    font-family: "microsoft yahei", Arial, SimSun;
+    float: left;
+    margin: 20px 5px;
+}
+
+.pr_showList_page li a {
+    line-height: 30px;
+}
+
+.pr_showList_page .pr_showList_pageX {
+    width: auto;
+    background: 0
+}
+
+.pr_showList_page li select {
+    height: 30px;
+    padding-right: 5px;
+    font-size: 14px
+}
+
+.commission-set-password form li, .set-account form li {
+    padding: 1.484% 3.906%
+}
+
+.commission-set-password .text, .set-account .text {
+    display: block;
+    margin-bottom: 1.875%
+}
+
+.commission-set-password .input, .set-account .input {
+    padding: 3.906%;
+    border-radius: 6px;
+    width: 100%;
+    font-size: .96rem
+}
+
+.commission-set-password .btn-submit, .set-account .btn-submit {
+    width: 100%;
+    border: 0;
+    text-align: center;
+    padding: 2.656% 0;
+    border-radius: 4px;
+    margin: 6.562% 0 8.125% 0
+}
+
+.integral-withdrawal .MenberR {
+    padding: 3.125%
+}
+
+.integral-withdrawal .btn-submit {
+    width: 100%;
+    border: 0;
+    text-align: center;
+    padding: 2.656% 0;
+    border-radius: 4px;
+    margin: 6.562% 0 8.125% 0
+}
+
+.pay-online .formOnlinePay {
+    padding: 1.484% 0
+}
+
+.pay-online .RechargePayTypeList li {
+    display: block;
+    padding: 3.125% 3.906%;
+    vertical-align: middle
+}
+
+.pay-online .RechargePayTypeList li img {
+    width: 100px
+}
+
+.pay-online .RechargePayTypeList li label {
+    vertical-align: middle
+}
+
+.pay-online .text {
+    display: block;
+    margin: 0 1.484% 1.875%
+}
+
+.pay-online .input {
+    margin: 0 1.484% 1.875%;
+    padding: 3.906%;
+    border-radius: 6px;
+    width: 97.032%;
+    font-size: 15px;
+}
+
+.pay-online .btn-fixed {
+    position: fixed;
+    left: 0;
+    bottom: 40px;
+    width: 100%;
+    padding: 3.125% 1.484% 8.125%
+}
+
+.pay-online .btn-submit {
+    display: block;
+    width: 100%;
+    border: 0;
+    text-align: center;
+    padding: 2.656% 0;
+    border-radius: 4px
+}
+
+.pay-online .radio {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    border-radius: 50%
+}
+
+.pay-online .radio:checked {
+    background: url("../images/CollectDelCheck.png") center no-repeat;
+    background-size: auto 100%;
+    border: 0
+}
+
+.shake-bonus-list .record .item {
+    display: block;
+    width: 100%;
+    padding: 5% 3%;
+}
+
+.shake-bonus-list .record .item .big-icon {
+    display: inline-block;
+    position: absolute;
+    width: 52px;
+    height: 52px
+}
+
+.shake-bonus-list .record .item .big-icon img {
+    display: block;
+    width: 100%;
+    height: 100%
+}
+
+.shake-bonus-list .record .item .msg {
+    position: relative;
+    margin: 1% 0 10px 52px;
+    padding-left: 3%
+}
+
+.shake-bonus-list .record .item .msg .title {
+    display: block;
+    font-size: 16px;
+    margin: 0 120px 0 0;
+    overflow: hidden;
+    white-space: nowrap
+}
+
+.shake-bonus-list .record .item .msg .time {
+    font-size: 12px;
+    margin-top: 3px;
+    overflow: hidden
+}
+
+.shake-bonus-list .record .item .msg .money {
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 18px;
+}
+
+.coupon-list .ConsumerRecords {
+    padding: 0 5px
+}
+
+.coupon-list .ConsumerRecords li {
+    font-size: 14px;
+    margin: 10px 0;
+    padding-bottom: 5px;
+    overflow: hidden
+}
+
+.coupon-list .ConsumerRecords li p {
+    padding: 3px 0
+}
+
+.coupon-list .coupon-li-img {
+    display: block;
+    width: 100%
+}
+
+.coupon-list .off-line {
+    float: right;
+    margin: 5px
+}
+
+.coupon-list .send {
+    height: 22px;
+    width: 80px;
+    display: inline-block;
+    line-height: 22px;
+    text-align: center
+}
+
+.coupon-pass .activity_info {
+    margin: 0 1.484% 1.875%;
+    padding: 3.125%;
+}
+
+.coupon-pass .apply_title_div h3 {
+    font-weight: bold
+}
+
+.coupon-pass .activity_info li {
+    line-height: 150%
+}
+
+.coupon-pass .activity_info .text {
+    display: inline-block;
+    width: 77px;
+    vertical-align: top
+}
+
+.coupon-pass .activity_info .scan-img {
+    display: inline-block;
+    width: 180px;
+    margin-top: 3px
+}
+
+.coupon-pass .activity_info .btn-submit {
+    display: block;
+    width: 100%;
+    border: 0;
+    text-align: center;
+    padding: 2.656% 0;
+    border-radius: 4px;
+    margin-top: 4%
+}
+
+.pay-success .main-content {
+    margin: 50px 0 60px 0
+}
+
+.pay-success .main-content .result {
+    padding: 26px 0 13px 13px
+}
+
+.pay-success .main-content .result img {
+    vertical-align: middle;
+    width: 20px;
+    height: 20px
+}
+
+.pay-success .main-content .result p {
+    display: inline-block;
+    font-size: 18px;
+    vertical-align: middle
+}
+
+.pay-success .goods-msg {
+    padding: 25px 3%
+}
+
+.pay-success .goods-msg .goods-img {
+    display: inline-block;
+    width: 17%;
+}
+
+.pay-success .goods-msg .goods-img img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%
+}
+
+.pay-success .goods-msg .goods-text {
+    display: inline-block;
+    width: 80%;
+    margin-left: 1%;
+    vertical-align: top;
+    line-height: 150%
+}
+
+.pay-success .goods-msg .goods-text .goods-name {
+    font-size: 15px
+}
+
+.pay-success .goods-msg .goods-text .price {
+    float: left;
+    font-size: 13px
+}
+
+.pay-success .goods-msg .goods-text .sum {
+    float: right;
+    font-size: 13px
+}
+
+.pay-success .red-gift {
+    display: block;
+    position: relative
+}
+
+.pay-success .red-gift img {
+    width: 100%
+}
+
+.pay-success .red-gift p {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-left: 20px;
+    bottom: 44px;
+    font-size: 13px;
+    text-align: center
+}
+
+.pay-success .keep-shopping {
+    display: block;
+    width: 93%;
+    border: 0;
+    text-align: center;
+    padding: 2.656% 0;
+    margin: 1% auto;
+    border-radius: 100px;
+    font-size: .96rem;
+}
+
+.pay-success .red-gift-forces {
+    position: relative;
+    padding-bottom: 0;
+    display: block;
+    margin: 5% auto;
+    width: 95%
+}
+
+.pay-success .red-gift-forces img {
+    position: absolute;
+    width: 100%;
+    z-index: -1
+}
+
+.pay-success .red-gift-forces .floating-layer {
+    padding: 2% 0 0 12.3%
+}
+
+.pay-success .red-gift-forces .floating-layer p {
+    line-height: 120%
+}
+
+.pay-success .red-gift-forces .title {
+    font-size: 5vw;
+    font-weight: bold;
+    text-align: left;
+    border: 0
+}
+
+.pay-success .red-gift-forces .content {
+    font-size: 4vw;
+}
+
+.pay-success .red-gift-forces .date {
+    font-size: 2vw;
+}
+
+.pay-success .red-gift-forces .btn-call {
+    float: right;
+    margin: 0 1.7% 0 6.25%;
+    padding: 2%;
+    font-size: 3vw;
+    border-radius: 4px
+}
+
+.pay-success .MinWidth-320 {
+    padding-bottom: 5%;
+    margin: 5% auto;
+    width: 93%
+}
+
+.pay-success .MinWidth-320 img {
+    width: 100%
+}
+
+.pay-success .MinWidth-320 .floating-layer {
+    padding: 2% 0 0 12.3%
+}
+
+.pay-success .MinWidth-320 .floating-layer p {
+    line-height: 120%
+}
+
+.pay-success .MinWidth-320 .title {
+    font-size: 15px
+}
+
+.pay-success .MinWidth-320 .content {
+    font-size: 12px
+}
+
+.pay-success .MinWidth-320 .date {
+    font-size: 6px
+}
+
+.pay-success .MinWidth-320 .btn-call {
+    margin: 0 1.7% 0 6.25%;
+    padding: 1% 2%;
+    font-size: 6px;
+    border-radius: 4px
+}
+
+.integral-order-result .keep-shopping {
+    display: block;
+    width: 93%;
+    border: 0;
+    text-align: center;
+    padding: 2.656% 0;
+    margin: 1% auto;
+    border-radius: 4px;
+    font-size: .96rem;
+}
+
+#shareBox {
+    display: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    padding: 10%;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    height: 100%;
+}
+
+#shareBox.active {
+    display: block
+}
+
+.supplier-register-agreement,
+.register-agreement .container {
+    margin: 50px 0;
+    padding: 3%;
+}
+
+.supplier-register-agreement {
+    margin-top: 0;
+}
+
+.supplier-register-agreement .title,
+.register-agreement .container h1 {
+    display: inline-block;
+    padding: 0 0 2px 0;
+    margin: 0 0 3% 0
+}
+
+.supplier-register-agreement .detail,
+.register-agreement .container p {
+    line-height: 180%;
+    margin-bottom: 10px
+}
+
+.supplier-register-agreement .submit,
+.register-agreement #btnAgreeServicet {
+    display: block;
+    width: 100%;
+    height: 42px;
+    border: 0;
+    border-radius: 2px;
+    text-align: center;
+    line-height: 42px;
+    font-size: 18px;
+    margin: 10% auto 0;
+    cursor: pointer;
+}
+
+.JoinerInfo {
+    padding-left: 10px;
+    line-height: 23px;
+}
+
+.cfShowMoreBtn {
+    padding: 5px 10px;
+    text-align: center
+}
+
+.activity-info .SignBanner img {
+    width: 100%
+}
+
+.activity-info .SignH {
+    text-align: center;
+    padding: 8px 0;
+    font-weight: bold
+}
+
+.activity-info .SignInfo {
+    padding: 3.125%;
+    line-height: 130%
+}
+
+.activity-info .SignData {
+    padding: 3.75%
+}
+
+.activity-info .SignData input {
+    display: block;
+    width: 100%;
+    border-radius: 4px;
+    padding: 8px;
+    margin: 5px 0 10px;
+    border: 0
+}
+
+.activity-info .SignData .send_btn {
+    margin-top: 20px
+}
+
+.apply_info_show {
+    position: fixed;
+    width: 70%;
+    margin: 30% auto;
+    left: 0;
+    right: 0;
+    padding: 3% 5%;
+    top: 0;
+    z-index: 102;
+    display: none;
+    border-radius: 4px;
+}
+
+.apply_info_show .title {
+    text-align: center
+}
+
+.apply_info_show dd {
+    padding: 3% 0
+}
+
+.apply_info_show .btn {
+    display: block;
+    padding: 3%;
+    text-align: center;
+    margin: 0 auto
+}
+
+.user-index .MenberH {
+    width: auto;
+    height: 150px;
+    padding: 0 16px;
+    margin: 0;
+    overflow: hidden;
+}
+
+.MenberH > .floatl {
+    width: 220px;
+    margin: 40px 0 0;
+    overflow: hidden;
+}
+
+.MenberFace {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    margin-right: 10px
+}
+
+.MenberFace img {
+    width: 100%;
+    border-radius: 50%
+}
+
+.MenberName {
+    width: 140px;
+    padding: 10px 0;
+    overflow: hidden;
+}
+
+.MenberN {
+    font-size: 14px;
+    margin-bottom: 5px;
+    word-break: break-all;
+    word-wrap: break-word
+}
+
+.MenberRatings {
+    width: 80px;
+    height: 20px;
+    line-height: 20px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.MenberH .floatr {
+    width: 50px;
+    height: 30px;
+    margin-top: 10px
+}
+
+.MenberH .floatr a {
+    display: block;
+    width: 50px;
+    height: 25px;
+    border-radius: 5px;
+    background-position-x: 4px;
+    line-height: 26px;
+    text-indent: 20px;
+}
+
+.MenLists {
+    width: 100%;
+    margin: 10px auto 0;
+}
+
+.MenLists dd {
+    width: 100%;
+    height: 50px;
+    overflow: hidden
+}
+
+.MenLists dd > a {
+    display: block;
+    width: 93.75%;
+    height: 100%;
+    margin: 0 auto;
+    background: url(../images/MoreArrow.png) center right no-repeat;
+    background-size: 9px 16px
+}
+
+.MenLists dd > a.MenMyAssets {
+    background: 0
+}
+
+.user-index .btn-exit {
+    display: block;
+    border-radius: 3px;
+    width: 93.8%;
+    text-align: center;
+    height: auto;
+    padding: 9px 0;
+    margin: 10px auto;
+    font-size: 14px
+}
+
+.MenIco {
+    width: 30px;
+    height: 30px;
+    border-radius: 2px;
+    margin: 10px 0;
+    float: left
+}
+
+.MenList {
+    width: auto;
+    height: 50px;
+    line-height: 50px;
+    margin: 0 10px 0 35px;
+    font-size: 14px;
+    position: relative
+}
+
+.MenList .ibCount {
+    margin: 0 3px
+}
+
+.MyNews {
+    position: absolute;
+    top: 4px;
+    left: 55px;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    line-height: 20px;
+    border-radius: 50%;
+    font-size: 12px
+}
+
+.MenIco6 {
+    background: url(../images/MenIco6.png) center no-repeat
+}
+
+.MenIco12 {
+    background: url(../images/MenIco12.png) center no-repeat
+}
+
+.MenIco13 {
+    background: url(../images/MenIco13.png) center no-repeat
+}
+
+.MenIco14 {
+    background: url(../images/MenIco14.png) center no-repeat
+}
+
+.MenIco15 {
+    background: url(../images/MenIco15.png) center no-repeat
+}
+
+.MenIco16 {
+    background: url(../images/MenIco16.png) center no-repeat
+}
+
+.MenIco101 {
+    background: url(../images/MenIco10.png) center no-repeat
+}
+
+.MenIco205 {
+    background: url(../images/MenSIco205.png) center no-repeat;
+    background-size: 100% auto;
+}
+
+.MenLists dt {
+    width: 100%;
+    height: 60px;
+    display: box;
+    display: -webkit-box;
+    display: -moz-box
+}
+
+.MenLists dt > div {
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    box-flex: 1;
+    height: 60px;
+    text-align: center
+}
+
+.MenLists dt > div a {
+    display: block;
+    width: 100%;
+    height: 100%
+}
+
+.MenLists dt > div a p {
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px;
+}
+
+.MenExitBt {
+    width: 93.75%;
+    height: 40px;
+    margin: 20px auto 0
+}
+
+.MenExitBt a {
+    display: block;
+    width: 100%;
+    height: 40px;
+    border-radius: 4px;
+    line-height: 40px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.Map {
+    width: 100%;
+    padding: 0 2.5%;
+    margin: 0 auto;
+}
+
+.Mapcity {
+    width: 95%;
+    margin: 15px auto
+}
+
+.Mapcity span {
+    display: inline-block;
+    float: left;
+    width: 50%
+}
+
+.Mapcity select {
+    width: 98%;
+    padding: 0 5px;
+    margin: 0 auto;
+    height: 30px;
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 0
+}
+
+.MapSearch {
+    width: 100%;
+    margin: 10px auto 0;
+    overflow: hidden
+}
+
+.MapSearchL {
+    width: auto;
+    height: 32px;
+    margin-right: 100px
+}
+
+.MapSearchR {
+    width: 90px;
+    height: 32px;
+    float: right
+}
+
+.MapSearch input.MapSearchTxt {
+    width: 100%;
+    height: 30px;
+    background: 0;
+    -webkit-appearance: none;
+    border-radius: 0;
+    text-align: left;
+    line-height: 30px
+}
+
+.MapSearch input.MapSearchBt {
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    -webkit-appearance: none;
+    border-radius: 0
+}
+
+.MapList {
+    width: 100%
+}
+
+.MapList ul li {
+    width: 99%;
+    clear: both;
+    padding: 10px 0 10px 1%;
+    clear: both
+}
+
+.MapImg {
+    width: 33%;
+    overflow: hidden;
+}
+
+.MapImg img {
+    width: 100%
+}
+
+.MapCon {
+    width: auto;
+    margin-left: 33%
+}
+
+.MapCon > div {
+    margin-bottom: 5px;
+    padding: 0 10px
+}
+
+.MapPage {
+    width: 100%;
+    margin: 20px auto 0
+}
+
+.MapPage a {
+    font-size: 14px;
+}
+
+.MapPage .floatl a {
+    margin-right: 10px
+}
+
+.MapLookDet {
+    margin-top: 10px;
+    height: 40px;
+    overflow: hidden
+}
+
+.MapLookDet .floatR a {
+    width: 60px;
+    height: 40px;
+    border-radius: 5px;
+    text-align: center;
+    line-height: 40px;
+    display: block
+}
+
+.MapScore {
+    margin-bottom: 5px;
+    height: 20px;
+    line-height: 20px
+}
+
+.MapScoreL {
+    float: left;
+    width: 60px
+}
+
+.MapScoreR {
+    float: left;
+    width: 90px;
+    height: 20px;
+    background: url(../images/outletsScore.png) center left no-repeat;
+    background-size: 90px 16px;
+    overflow: hidden
+}
+
+.MapScoreR span {
+    float: left;
+    display: inline-block;
+    height: 20px;
+    background: url(../images/outletsScroed.png) center left no-repeat;
+    background-size: 90px 16px;
+    overflow: hidden
+}
+
+.Mapbanner {
+    width: 100%
+}
+
+.Mapbanner img {
+    width: 100%
+}
+
+.MapInfo {
+    width: 98%;
+    margin: 0 auto;
+    font-size: 14px
+}
+
+.MapInfo > p {
+    width: 100%;
+    margin: 5px 0
+}
+
+.MapInfo > div > p {
+    height: 20px
+}
+
+.MapInfo > p:first-child {
+    height: 20px;
+    line-height: 20px;
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.MapIntroBox {
+    width: 100%;
+    padding: 5px 0;
+    margin: 0 0 15px
+}
+
+.MapIntroH {
+    width: 96.875%;
+    margin: 0 auto
+}
+
+.MapIntroH ul li {
+    width: 49%;
+    display: inline-block;
+    float: left;
+    margin-right: 2%;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    font-size: 16px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box
+}
+
+.MapIntroH ul li:last-child {
+    margin-right: 0
+}
+
+.MapIntro {
+    width: 96.875%;
+    margin: 2px auto 0;
+}
+
+.MapIntroCon {
+    width: 100%;
+    height: auto;
+    padding: 10px 0;
+    display: none
+}
+
+.MapDetPageInfo {
+    width: 100%;
+    padding: 15px;
+    margin: 0 auto;
+}
+
+.MapDetPageInfo p {
+    font-size: 12px
+}
+
+.MapDetPageInfo p.MapDetStoreName {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px
+}
+
+.MapDetPageEval {
+    width: 100%;
+    padding: 15px 0;
+    overflow: hidden;
+}
+
+.MapDetPageNum {
+    width: 83.4375%;
+    margin: 0 auto
+}
+
+.MapDetPageNum ul li {
+    display: inline-block;
+    float: left;
+    width: 50%;
+    height: 30px;
+    line-height: 30px;
+    font-size: 18px;
+    text-align: left;
+}
+
+.MapDetPageNum ul li:last-child {
+    text-align: right
+}
+
+.MapDetPageNum ul li img {
+    width: 20px;
+    vertical-align: middle;
+    margin-right: 4px
+}
+
+.MapDetPageScore {
+    width: 83.4375%;
+    margin: 15px auto 0
+}
+
+.MapDetPageScore .MapScore {
+    height: 21px
+}
+
+.MapDetPageScore .MapScore .MapScoreL {
+    width: 100px;
+    font-size: 18px
+}
+
+.MapDetPageScore .MapScore .MapScoreR {
+    float: left;
+    width: 118px;
+    height: 21px;
+    background: url(../images/outletsScore.png) center left no-repeat;
+    background-size: 118px 21px;
+    overflow: hidden
+}
+
+.MapDetPageScore .MapScore .MapScoreR span {
+    float: left;
+    display: inline-block;
+    height: 21px;
+    background: url(../images/outletsScroed.png) center left no-repeat;
+    background-size: 118px 21px;
+    overflow: hidden
+}
+
+.MapDetStoreInfoBox {
+    width: 100%;
+    height: 120px;
+    overflow: hidden;
+    padding: 0 0 0 15px
+}
+
+.MapTel {
+    width: 80px;
+    height: 120px;
+    overflow: hidden
+}
+
+.MapTel a {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+}
+
+.MapDetStoreInfo {
+    margin-right: 80px;
+    width: auto
+}
+
+.MapDetStoreInfo ul {
+    margin-left: 1.5625%
+}
+
+.MapDetStoreInfo ul li {
+    width: 100%;
+    height: 20px;
+    line-height: 20px;
+    word-break: break-all;
+    word-wrap: break-word
+}
+
+.MapDetStoreInfo ul li.MapDetStoreInfoH {
+    height: auto;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 5px 0
+}
+
+.MapIntroEvalList {
+    width: 99%;
+    margin: 0 auto
+}
+
+.MapEvalerFace {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%
+}
+
+.MapEvalerFace img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%
+}
+
+.MapIntroEvalListR {
+    margin-left: 70px;
+    width: auto
+}
+
+.MapIntroEvalListR dl dt {
+    width: 100%;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 6px
+}
+
+.MapIntroEvalListR dl dd {
+    width: 100%;
+    margin-bottom: 4px
+}
+
+.MapIntroEvalListR dl dd.MapIntroEvalStore {
+    height: 20px
+}
+
+.MapIntroEvalListR dl dd.MapIntroEvalTime {
+    text-align: right
+}
+
+#popedomApplyBtn {
+    width: auto;
+}
+
+/* 积分广告 */
+
+.integral-ad .banner_ad a {
+    display: block;
+    width: 100%;
+    margin: 2% 0;
+}
+
+.integral-ad .banner_ad a img {
+    width: 100%;
+}
+
+/*- dx Add 2016-6-11 -*/
+.MenberH {
+    position: relative;
+}
+
+.MenberH .leftAccountLink {
+    text-align: right;
+}
+
+.leftAccountLink a {
+    display: inline-block;
+    width: 135px;
+    height: 25px;
+    line-height: 25px;
+    border-radius: 3px;
+    margin: 0 0 10px auto;
+    text-align: center;
+}
+
+.status-no {
+    font-size: 24px;
+    text-align: center;
+    opacity: 0.3;
+    padding: 33% 10px;
+}
+
+.online-message-page .AllMessageH {
+    padding: 0 10px;
+}
+
+.online-message-page .AllMessageH .floatl {
+    height: 40px;
+    line-height: 40px;
+    font-size: 16px;
+}
+
+.online-message-page .AllMessageH .floatr {
+    padding: 5px 0;
+}
+
+.online-message-page .AllMessageH .floatr a {
+    display: block;
+    width: 90px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.online-message-page .AllMessageList {
+    padding: 0 20px;
+}
+
+.online-message-page .AllMessageList dd {
+    width: 100%;
+    min-height: 40px;
+    padding-top: 20px;
+}
+
+.online-message-page .AllMessageList dd .floatl {
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+}
+
+.online-message-page .AllMessageList dd .floatl img {
+    width: 100%;
+}
+
+.online-message-page .AllMessageList dd .AllMessage {
+    margin-left: 55px;
+    min-height: 40px;
+    padding-bottom: 20px;
+}
+
+.online-message-page .AllMessageList dd .AllMessage p {
+    width: 100%;
+    line-height: 20px;
+    font-size: 14px;
+}
+
+.online-message-page .AllMessageList dd .AllMessage .AllMessageReply {
+    padding: 15px 10px;
+    position: relative;
+    margin-top: 10px;
+}
+
+.online-message-page .AllMessageList .AllPaging {
+    height: 40px;
+    text-align: right;
+    margin: 10px auto;
+}
+
+.online-message-page .MadeMessageH {
+    height: 40px;
+    line-height: 40px;
+    font-size: 16px;
+    text-indent: 10px;
+}
+
+.online-message-page .MadeMessage li {
+    padding: 1.484% 3.906%;
+}
+
+.online-message-page .MadeMessage .text {
+    display: block;
+    margin-bottom: 1.875%;
+}
+
+.online-message-page .MadeMessage .MadeMessageTxt .input-box {
+    padding: 3.906% 10px;
+    border-radius: 6px;
+    width: 100%;
+    font-size: 0.96rem;
+}
+
+.online-message-page .MadeMessage .MadeMessageTxt .MessageCode {
+    width: 75%;
+}
+
+.online-message-page .MadeMessage .MadeMessageTxt .imgCode {
+    width: 20%;
+    margin: 2% 0;
+}
+
+.online-message-page .MadeMessage .MadeMessageTxt .btn-submit {
+    width: 100%;
+    border: 0;
+    text-align: center;
+    padding: 2.656% 0;
+    border-radius: 4px;
+    margin: 6.562% 0 8.125% 0;
+}
+
+.oauth-login-page .guide-wrap, .oauth-login-page .reg-wrap, .oauth-login-page .bind-wrap {
+    padding: 10px 15px;
+    font-size: 14px;
+}
+
+.oauth-login-page .guide-wrap img {
+    display: block;
+    width: 30%;
+    height: auto;
+    border-radius: 50%;
+    margin: 10px auto;
+}
+
+.oauth-login-page a.btn-submit {
+    display: block;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.user-sign-page .main-container {
+    background-size: 100% auto;
+    text-align: center;
+}
+
+.user-sign-page .bg-bottom {
+    background: url("../images/bg-circle.png") center bottom no-repeat;
+    padding-bottom: 8.75%;
+    margin-bottom: 30px;
+}
+
+.user-sign-page .bg-gold {
+    width: 100%;
+}
+
+.user-sign-page .first-time {
+    display: inline-block;
+    border-radius: 10px;
+}
+
+.user-sign-page .first-time {
+    display: inline-block;
+    border-radius: 12px;
+    padding: 3px 5px;
+    margin-top: 50px;
+}
+
+.user-sign-page .Highlight {
+    font-weight: bold;
+}
+
+.user-sign-page .btn-role {
+    padding: 0 20px;
+    background: url("../images/icon-arrow-up.png") center no-repeat;
+    background-size: 100% auto;
+}
+
+.user-sign-page .status-unable {
+    width: 30.1%;
+    padding: 30px 0;
+    margin: 0 auto;
+}
+
+.user-sign-page .status-unable img {
+    width: 100%;
+}
+
+.user-sign-page .btn-sign {
+    display: block;
+    margin: 0 auto;
+    padding: 15px 0 40px;
+    width: 50.9%;
+}
+
+.user-sign-page .btn-sign img {
+    width: 100%;
+}
+
+.user-sign-page .status-enable {
+    margin-top: 55px;
+}
+
+.user-sign-page .status-enable .title {
+    font-weight: bold;
+}
+
+.user-sign-page .result-container {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    -moz-transition: .3s ease;
+    -webkit-transition: .3s ease;
+    transition: .3s ease;
+    z-index: 112;
+}
+
+.user-sign-page .cover {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.user-sign-page .result-container .result {
+    width: 100%;
+    height: 100%;
+    -moz-transition: .3s ease;
+    -webkit-transition: .3s ease;
+    transition: .3s ease;
+    -moz-transform: scale(1, 1);
+    -webkit-transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
+    -o-transform: scale(1, 1);
+    transform: scale(1, 1);
+}
+
+.user-sign-page .result-container .result {
+    position: relative;
+    padding-top: 30%;
+}
+
+.user-sign-page .result-container .result.hide {
+    -moz-transform: scale(0, 0);
+    -webkit-transform: scale(0, 0);
+    -ms-transform: scale(0, 0);
+    -o-transform: scale(0, 0);
+    transform: scale(0, 0);
+}
+
+.user-sign-page .window {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    width: 76.56%;
+    margin: 33% auto;
+    overflow: hidden;
+    text-align: center;
+    border-radius: 10px;
+}
+
+.user-sign-page .window .contents {
+    padding: 30px 20px;
+}
+
+.user-sign-page .window .title {
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.user-sign-page .window .btn-close {
+    display: block;
+    width: 100%;
+    height: 30px;
+}
+
+.user-sign-page .result-container .window .other-msg {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    padding: 10px;
+}
+
+.user-sign-page .result-container .float-object {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    margin-top: 17%;
+    left: 0;
+    right: 0;
+    z-index: 2;
+}
+
+.user-sign-page .result-container .window .other-msg .time {
+    vertical-align: middle;
+    margin-left: 5px;
+}
+
+.user-sign-page .result-container .window .title {
+    margin-top: 42px;
+}
+
+.user-sign-page .result-container .window .detail {
+    display: inline-block;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.user-sign-page .result-container .window .detail .top {
+    padding-bottom: 11px;
+}
+
+.user-sign-page .result-container .window .detail .top .circle {
+    display: inline-block;
+    width: 10px;
+    height: 18px;
+    margin: -8px 25px 0;
+    border-radius: 5px;
+}
+
+.user-sign-page .result-container .window .detail .bot {
+    padding: 20% 10px;
+    line-height: 100%;
+}
+
+.user-sign-page .result-container .window .detail .left {
+    display: inline-block;
+    width: 12px;
+}
+
+.user-sign-page .result-container .window .detail .day {
+    display: inline-block;
+    font-weight: bold;
+    font-size: 70px;
+}
+
+.user-sign-page .result-container .window .detail .unit {
+    display: inline-block;
+}
+
+.user-sign-page .result-container .window .tip {
+    margin: 15px 0;
+}
+
+/* 设置身份证信息 */
+.IdPopBox {
+    width: 96%;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 11111;
+    position: fixed;
+    top: 10%;
+    left: 2%;
+    display: none;
+}
+
+.IdPopBox h1 {
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+    margin-top: 5px;
+}
+
+.IdPopBox .IdInfo {
+    width: 300px;
+    margin: 10px auto 0;
+}
+
+.IdPopBox .IdInfo dd {
+    width: 100%;
+    clear: both;
+}
+
+.IdPopBox .IdInfo dd .floatl {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    line-height: 16px;
+    text-align: center;
+}
+
+.IdPopBox .IdInfo dd .IdInfoR {
+    margin-left: 22px;
+    width: auto;
+    line-height: 16px;
+    font-size: 14px;
+}
+
+.IdPopBox .IdInput {
+    width: 300px;
+    height: 35px;
+    overflow: hidden;
+    margin: 20px auto 0;
+}
+
+.IdPopBox .IdInput .floatl {
+    width: 80px;
+    height: 35px;
+    line-height: 30px;
+    font-size: 14px;
+}
+
+.IdPopBox .IdTxt {
+    width: 220px;
+    height: 35px;
+    overflow: hidden;
+}
+
+.IdPopBox .IdTxt input[type=text] {
+    width: 200px;
+    height: 30px;
+    font-size: 14px;
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 0;
+}
+
+.IdPopBox .IdSubmit {
+    width: 80px;
+    height: 30px;
+    margin: 20px auto 0;
+}
+
+.IdPopBox .IdSubmit input[type=button] {
+    width: 80px;
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px;
+    text-align: center;
+    border: 0;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.IdPopBox .IdPopshaw {
+    width: 100%;
+    height: 100%;
+    opacity: 0.3;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1110;
+}
+
+.IdPopBox .IdPopClose {
+    display: block;
+    width: 30px;
+    height: 30px;
+    background: url(../images/icon-close.png) center no-repeat;
+    background-size: 100% 100%;
+    position: absolute;
+    top: -15px;
+    right: 10px;
+}
+
+.page-vote-item-submit .image-upload .select-upload {
+    display: inline-block;
+    width: 17%;
+    padding: 8.5% 0;
+    vertical-align: top;
+    margin-top: 13px;
+    background: url("../images/icon-add.png") center no-repeat;
+    background-size: 100% auto;
+}
+
+.page-vote-item-submit .image-upload .select-upload.current {
+    background-image: url("../images/icon-yes.png");
+}
+
+/*spell start*/
+#bg {
+    background-color: #000;
+    position: fixed;
+    z-index: 112;
+    left: 0;
+    top: 0;
+    display: none;
+    width: 100%;
+    height: 100%;
+    opacity: 0.8;
+    filter: alpha(opacity=80);
+    -moz-opacity: 0.8;
+}
+
+.spellMask {
+    display: none;
+    z-index: 114;
+    width: 100%;
+    position: absolute;
+    top: 20px;
+    overflow: hidden;
+    text-align: center;
+    font-size: 14px;
+    padding: 0 30px;
+    line-height: 30px;
+}
+
+.spellMask b {
+    width: 100%;
+    font-size: 18px;
+    margin-bottom: 50px;
+    display: inline-block;
+}
+
+.spellMask img {
+    float: right;
+}
+
+.stepGuild {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+}
+
+.stepGuild .step_tit {
+    font-size: 13px;
+}
+
+.stepGuild .step_tit i {
+    display: inline-block;
+    height: 16px;
+    width: 4px;
+    position: relative;
+    top: 3px;
+}
+
+.stepGuild .step_tit .txt {
+    line-height: 14px;
+    margin-left: 5px;
+}
+
+.stepGuild .step_flow {
+    display: -webkit-box;
+    width: 100%;
+    padding-top: 20px;
+}
+
+.stepGuild .step_flow .step_item {
+    -webkit-box-flex: 1;
+    position: relative;
+    padding-left: 25px;
+    font-size: 12px;
+    line-height: 13px;
+    float: left;
+    margin-bottom: 2px;
+}
+
+.stepGuild .step_item .step_num {
+    display: inline-block;
+    position: absolute;
+    left: 0;
+    top: 4px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    vertical-align: middle;
+    text-align: center;
+    -webkit-border-radius: 20px;
+    border-radius: 20px;
+}
+
+.stepGuild .steps {
+    display: inline-block;
+}
+
+.stepGuild .step_tit a {
+    float: right;
+    padding-top: 2px;
+}
+
+.groupUserimg {
+    padding: 28px 10px 10px 25px;
+    text-align: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+.groupUserimg .userImg {
+    width: 43px;
+    height: 43px;
+    display: inline-block;
+    margin-right: 15px;
+    margin-bottom: 18px;
+    border-radius: 43px;
+}
+
+.groupUserimg .userImg img {
+    margin-top: 1px;
+    width: 41px;
+    height: 41px;
+    border-radius: 41px;
+}
+
+.gr_me_tle {
+    height: 40px;
+    text-align: center;
+    line-height: 40px;
+    font-size: 14px;
+}
+
+.groupMember {
+    transition: all 1s;
+    -moz-transition: all 1s;
+    -webkit-transition: all 1s;
+    -o-transition: all 1s;
+    overflow: hidden;
+    position: relative;
+    display: none;
+}
+
+.groupMember ul {
+    width: 100%;
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    top: 0;
+}
+
+.groupMember .memberItem:nth-child(1) {
+    margin-top: 10px;
+    border-bottom-style: none;
+    border-radius: 3px;
+    position: relative;
+}
+
+.groupMember .memberItem {
+    padding: 0 10px;
+    height: 50px;
+    line-height: 50px;
+    vertical-align: middle;
+    display: list-item;
+}
+
+.groupMember .memberItem img {
+    width: 30px;
+    height: 30px;
+    border-radius: 30px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+.groupMember .memberItem span {
+    font-size: 12px;
+}
+
+.groupMember .memberItem .groupTime {
+    float: right;
+}
+
+.groupMember .memberItem span {
+    font-size: 12px;
+}
+
+.groupMember.open {
+    display: block;
+}
+
+.centerRemind p {
+    width: 100%;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    font-size: 15px;
+}
+
+.centerRemind > p .num {
+    font-size: 20px;
+}
+
+.groupCountdown {
+    height: 50px;
+    padding: 0 10px;
+    padding-top: 10px;
+    vertical-align: middle;
+    display: -webkit-box;
+}
+
+.groupCountdown > p {
+    -webkit-box-flex: 1;
+    height: 1px;
+    margin-top: 17px;
+}
+
+.groupCountdown > .counter {
+    width: 220px;
+    height: 17px;
+    margin-top: 9px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.groupCountdown > .counter .time {
+    padding: 0 3px;
+    border-radius: 2px;
+}
+
+.order_in {
+    font-size: 12px;
+    margin-top: 20px;
+}
+
+.order_in ul {
+    width: 100%;
+}
+
+.order_in .row {
+    border-left: 0;
+    border-right: 0;
+    height: 40px;
+    border-radius: 20px;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.order_in .row .img {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
+    position: relative;
+    top: -5px;
+    float: left;
+    left: -2px;
+    vertical-align: middle;
+}
+
+.order_in .row .info {
+    display: inline-block;
+    height: 40px;
+    float: left;
+    z-index: 1;
+    position: relative;
+    padding-left: 2px;
+    margin: 0;
+    padding: 0;
+}
+
+.order_in .row .info .fir, .order_in .row .info .sec {
+    height: 50%;
+    line-height: 20px;
+}
+
+.order_in .row .info .sec {
+    position: relative;
+    top: 1px;
+}
+
+.order_in .row .rig {
+    display: inline-block;
+    float: right;
+    border-radius: 22px;
+    height: 39px;
+    width: 85px;
+    padding-top: 12px;
+    padding-left: 33px;
+    position: relative;
+    left: 2px;
+    margin: 0;
+    line-height: 38px;
+    padding: 0;
+}
+
+.order_in .rig .go_order {
+    margin-left: 21px;
+    font-size: 14px;
+}
+
+.order_in .row .rig i {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 4px;
+    border-bottom: 4px solid transparent;
+    border-top: 4px solid transparent;
+    position: relative;
+    top: -1px;
+}
+
+.order_in .row .tim {
+    display: inline-block;
+    float: right;
+    height: 38px;
+    text-align: right;
+    width: 116px;
+    position: absolute;
+    right: 66px;
+    padding-right: 3px;
+    margin: 0;
+}
+
+.order_in .row .tim .sec {
+    position: relative;
+    top: 1px;
+}
+
+.wrap_bg {
+    width: 100%;
+}
+
+/*spell end*/
+
+.dealInfo {
+    width: 100%;
+    position: relative;
+    display: -webkit-box;
+    padding: 10px;
+}
+
+.dealInfo > .p {
+    width: 112px;
+    height: 112px;
+}
+
+.dealInfo > .p .p_pic {
+    width: 112px;
+    height: 112px;
+}
+
+.dealInfo > .d {
+    position: relative;
+    padding: 0 0 0 10px;
+    -webkit-box-flex: 1;
+}
+
+.dealInfo > .d .d_tit {
+    display: -webkit-box;
+    overflow: hidden;
+    height: 38px;
+    font-size: 15px;
+    line-height: 19px;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    word-break: break-all;
+}
+
+.dealInfo > .d .d_info {
+    margin-top: 30px;
+    margin-bottom: 3px;
+}
+
+.dealInfo > .d .d_info .tuanNum {
+    font-size: 12px;
+}
+
+.dealInfo > .d .d_info .tuanPrice {
+    font-size: 12px;
+}
+
+.dealInfo > .d .d_info .tuanPrice strong {
+    font-weight: 400;
+    font-size: 18px;
+}
+
+.dealInfo > .d .btn-gotuan {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 80px;
+    height: 30px;
+    border-radius: 3px;
+    text-align: center;
+    font-size: 15px;
+    line-height: 30px;
+}
+
+.dealInfo .status {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 78px;
+    height: 75px;
+}
+
+.dealInfo .success {
+    background: url(../images/success_new.png);
+    background-size: 78px 75px;
+}
+
+.dealInfo .fail {
+    background: url(../images/fail_new.png);
+    background-size: 78px 75px;
+}
+
+.dealInfo .org {
+    margin-left: 5px;
+    text-decoration: line-through;
+    font-size: 12px;
+}
+
+.dealInfo .mark {
+    display: inline-block;
+    margin-top: 2px;
+    font-size: 12px;
+}
+
+.dealInfo .active {
+    padding: 1px 8px;
+    border-radius: 99px;
+    font-size: 11px;
+}
+
+.dealInfo .lu_ru {
+    float: right;
+    display: none;
+    margin-left: 10px;
+    border: 0;
+    font-size: 12px;
+}
+
+.hot_products {
+    float: left;
+    width: 100%;
+}
+
+.hot_products .title {
+    margin: 10px 0;
+    height: 14px;
+    text-align: center;
+    line-height: 14px;
+}
+
+.hot_products .title a {
+    display: inline-block;
+    width: 154px;
+    height: 14px;
+    background: url(../images/hot_icon.png) no-repeat;
+    background-size: cover;
+}
+
+.hot_products .hot-list {
+    float: left;
+    box-sizing: border-box;
+    margin-top: 0;
+    margin-bottom: 10px;
+    padding-top: 0;
+    padding-bottom: 0;
+    width: 50%;
+    font-size: 0;
+}
+
+.hot_products .hot-list:first-child {
+    margin-top: 0;
+}
+
+.hot_products .hot-list .l {
+    position: relative;
+    padding-bottom: 9px;
+    float: left;
+}
+
+.hot_products .hot-list:nth-child(odd) .l {
+    margin-left: 5px;
+}
+
+.hot_products .hot-list:nth-child(even) .l {
+    margin-right: 5px;
+}
+
+.hot_products .hot-list img {
+    width: 100%;
+}
+
+.hot_products .hot-list .txt {
+    display: -webkit-box;
+    overflow: hidden;
+    margin: 12px 8px 8px;
+    height: 34px;
+    font-size: 12px;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.hot_products .hot-list .btm {
+    overflow: hidden;
+    height: 18px;
+    line-height: 18px;
+}
+
+.hot_products .hot-list .price-g {
+    float: left;
+    margin-left: 6px;
+    font-size: 0;
+    font-family: Arial;
+}
+
+.price-g em, .price-g .f {
+    font-size: 12px;
+}
+
+.price-g .y {
+    font-size: 18px;
+}
+
+.hot_products .hot-list .mark {
+    display: inline-block;
+    margin-left: 4px;
+    padding: 0 2px;
+    height: 14px;
+    border-radius: 2px;
+    font-size: 10px;
+    line-height: 15px;
+}
+
+.hot_products .hot-list .people-g {
+    position: relative;
+    top: 1px;
+    float: right;
+    margin-right: 8px;
+    font-size: 10px;
+}
+
+.hot_products .hot-list .state {
+    top: 21%;
+}
+
+.hot_products .hot-list .sp {
+    width: 65px;
+    height: 65px;
+    line-height: 65px;
+}
+
+.deal .icon_position {
+    position: absolute;
+    top: 0;
+    left: 10px;
+    z-index: 3;
+    padding: 9px 5px 2px;
+    width: 30px;
+    height: 42px;
+    background-position: -273px 0;
+    background-size: 382px auto;
+    text-align: center;
+    font-size: 13px;
+    line-height: 15px;
+}
+
+.hot_products .hot-list .txt {
+    font-size: 11px;
+}
+
+.OrderLi .status-no {
+    font-size: 15px;
+    padding: 40px 10px;
+}
+
+.supplier-register .container-tab,
+.RecomH {
+    width: 100%;
+    height: 41px;
+}
+
+.supplier-register .container-tab .item,
+.RecomH li {
+    display: inline-block;
+    float: left;
+    height: 40px;
+    overflow: hidden
+}
+
+.RecomH li {
+    width: 33.3333%;
+}
+
+.supplier-register .container-tab .item {
+    width: 50%;
+}
+
+.supplier-register .container-tab .item .link,
+.RecomH li div {
+    display: block;
+    width: 85px;
+    height: 30px;
+    line-height: 30px;
+    margin: 5px auto;
+    font-size: 16px;
+    text-align: center;
+}
+
+.supplier-register .container-tab .item.active .link,
+.RecomH li.act div {
+    border-radius: 15px;
+}
+
+.supplier-register .container-login .container-ad .item,
+.supplier-register .container-login .container-ad .item .link,
+.supplier-register .container-login .container-ad .item .link .img {
+    display: block;
+    width: 100%;
+}
+
+.supplier-register .container-login .tip,
+.supplier-register .container-login .link {
+    display: block;
+    text-align: center;
+    line-height: 180%;
+    font-size: 14px;
+}
+
+.supplier-list .list-supplier > .item {
+    display: block;
+    padding: 15px;
+    background: #fff;
+    margin-top: 10px;
+}
+
+.supplier-list .list-supplier .top {
+    display: block;
+}
+
+.supplier-list .list-supplier .item .thumbnail {
+    width: 75px;
+    height: 75px;
+    overflow: hidden;
+    float: left;
+}
+
+.supplier-list .list-supplier .item .thumbnail .img {
+    width: 100%;
+}
+
+.supplier-list .list-supplier .item .info {
+    margin-left: 110px;
+}
+
+.supplier-list .list-supplier .item .info .name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+.supplier-list .list-supplier .item .info .attributes {
+    color: #666;
+}
+
+.supplier-list .list-supplier .list-goods .item {
+    float: left;
+    width: 20%;
+    padding: 0 10px 0 0;
+}
+
+.supplier-list .list-supplier .list-goods .item .img {
+    display: block;
+    width: 100%;
+}
+
+.childOrderBtn {
+    text-align: right;
+    background: #ECECEC;
+    padding: 10px;
+}
+
+.childOrderBtn .OrderListCancel {
+    background: #FFFFFF;
+    padding: 5px 10px;
+    border: solid #ddd 1px;
+}
+
+.childOrderBtn .OrderPayBt {
+    padding: 5px 10px;
+}
+
+.childOrderBtn .OrderListDD {
+    background: #FFFFFF;
+    padding: 5px 10px;
+    border: solid #ddd 1px;
+}
+
+.parentwzf {
+    text-align: center;
+    width: 100%;
+    float: left;
+    line-height: 50px;
+    font-size: 18px;
+}
+
+/* 弹窗样式 */
+.container-modal .cover {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.container-modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    -moz-transition: .3s ease;
+    -webkit-transition: .3s ease;
+    transition: .3s ease;
+    z-index: 112;
+}
+
+.container-modal .result {
+    width: 100%;
+    height: 100%;
+    -moz-transition: .3s ease;
+    -webkit-transition: .3s ease;
+    transition: .3s ease;
+    -moz-transform: scale(1, 1);
+    -webkit-transform: scale(1, 1);
+    -ms-transform: scale(1, 1);
+    -o-transform: scale(1, 1);
+    transform: scale(1, 1);
+}
+
+.container-modal .result {
+    position: relative;
+    padding-top: 30%;
+}
+
+.container-modal .result.hide {
+    -moz-transform: scale(0, 0);
+    -webkit-transform: scale(0, 0);
+    -ms-transform: scale(0, 0);
+    -o-transform: scale(0, 0);
+    transform: scale(0, 0);
+}
+
+.container-modal .window {
+    position: relative;
+    border-radius: 16px;
+    width: 76.56%;
+    max-width: 507px;
+    margin: 0 auto;
+}
+
+.container-modal .window {
+    min-height: 60vw;
+}
+
+.container-modal .window .window-title {
+    display: block;
+    width: 63%;
+    margin: -10% auto 0;
+}
+
+.container-modal .window .bg-window {
+    position: absolute;
+    top: -10%;
+    width: 115%;
+    height: 115%;
+    left: -7%;
+}
+
+.container-modal .window .tip-text {
+    padding: 4px 11%;
+    text-align: center;
+    font-size: 3.57vw;
+}
+
+.container-modal .show-pro .content {
+    max-height: 300px;
+    padding: 4%;
+    overflow-y: auto;
+}
+
+.container-modal .show-pro .content .slot {
+    margin-top: 12%;
+    text-align: center;
+}
+
+.container-modal .show-pro .content .goods-link {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.container-modal .show-pro .thumbImg {
+    width: 80px;
+    height: 80px;
+    overflow: hidden;
+}
+
+.container-modal .show-pro .thumbImg img {
+    width: 100%;
+}
+
+.container-modal .show-pro .text {
+    margin-left: 85px;
+    text-align: left;
+}
+
+.container-modal .show-pro .text .name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.container-modal .show-pro .text .attr {
+    color: #fff;
+    margin-top: 3%;
+}
+
+.container-modal .show-pro .price {
+    text-align: left;
+    margin-top: 4%;
+}
+
+.container-modal .show-pro .period {
+    text-align: left;
+}
+
+.container-modal .show-pro .btns {
+    position: relative;
+    text-align: center;
+    z-index: 1;
+}
+
+.container-modal .show-pro .btns .btn {
+    display: inline-block;
+    font-size: 12px;
+    width: 100px;
+    height: 30px;
+    line-height: 30px;
+    margin: 3% 0 3% 1.5%;
+    text-align: center;
+    background: url("../images/bargain-activities/btn-bg-normal-1.png") center no-repeat;
+    background-size: 100% 100%;
+    border-radius: 20px;
+    overflow: hidden;
+    padding: 0;
+}
+
+.container-modal .show-pro .btns .btn-normal-3 {
+    background: url("../images/bargain-activities/btn-bg-normal-3.png") center no-repeat;
+}
+
+.container-modal .show-pro .btns .btn-unable-2 {
+    background: url("../images/bargain-activities/btn-bg-unable-2.png") center no-repeat;
+}
+
+.user-distribution-number .package-list {
+    margin-bottom: 15px;
+}
+
+.user-distribution-number .package-list .title {
+    padding: 5px 15px;
+    border-left-style: solid;
+    border-left-width: 1px;
+    font-size: 14px;
+}
+
+.user-distribution-number .package-list .item {
+    margin-bottom: 15px;
+    padding: 15px;
+}
+
+.user-distribution-number .goods-list {
+    padding: 15px 0 0;
+}
+
+.user-distribution-number .goods-list .item {
+    position: relative;
+    float: left;
+    width: 32%;
+    margin: 2% 2% 0 0;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.user-distribution-number .goods-list .item:before {
+    content: "";
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    margin: -2px 0 0;
+    border-radius: 50%;
+    width: 8px;
+    height: 8px;
+    background: #f8434c;
+}
+
+.user-distribution-number .goods-list .item.disabled {
+    opacity: 1;
+}
+
+.user-distribution-number .goods-list .item.disabled:before {
+    background: #1ead20;
+}
+
+.user-distribution-number .goods-list .item:nth-child(3n) {
+    margin-right: 0;
+}
+
+.draw-wheel .header {
+    padding: 0 10px;
+    /* top: 10px; */
+}
+
+.scan-code-pay .MainFoot,
+.draw-wheel .MainFoot {
+    display: none;
+}
+
+.draw-wheel .header .left,
+.draw-wheel .header .right {
+    margin-top: 5px;
+}
+
+.draw-wheel .header .left {
+    float: left;
+}
+
+.draw-wheel .header .right {
+    float: right;
+}
+
+.draw-wheel .list-reward {
+    margin: 30px 50px 0;
+    height: 40px;
+    padding: 0 10px;
+    line-height: 40px;
+    border-radius: 40px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.draw-wheel .header .btn {
+    display: block;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.draw-wheel .header .btn .icon {
+    width: 100%;
+    height: 100%;
+    background-size: auto 50%;
+}
+
+.draw-wheel .container {
+    background: #022834 url("../images/bg-get-red-gift.jpg") center top no-repeat;
+    background-size: 100% auto;
+}
+
+.draw-wheel .container-game {
+    position: relative;
+}
+
+.draw-wheel .container-game .status-no {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 40%;
+    width: 40%;
+    padding: 10px 0;
+    margin: 30px auto;
+    border-radius: 8px;
+    font-size: 16px;
+    z-index: 2;
+    opacity: 1;
+}
+
+.draw-wheel .container-wheel {
+    position: relative;
+    padding: 9.9% 0 14%;
+    background: url("../images/loadingQRPic.gif") center top no-repeat;
+    background-size: 100% auto;
+}
+
+.draw-wheel .container-wheel .btn-pointer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    margin: -16% auto 0;
+    width: 20%;
+    background: none;
+    border: none;
+    outline: none;
+}
+
+.draw-wheel .container-wheel .btn-pointer .img {
+    width: 100%;
+}
+
+.draw-wheel .container-wheel .btn-pointer .cost {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 20% auto 0;
+    text-align: center;
+    width: 100%;
+    top: 50%;
+    font-size: 12px;
+    color: #fff;
+}
+
+.draw-wheel .container-wheel .btn-pointer .cost .important {
+    font-weight: bold;
+    color: #ffcf1b;
+}
+
+.draw-wheel .container-wheel .wheel {
+    display: block;
+    width: 73%;
+    margin: 0 auto;
+}
+
+.draw-wheel .control {
+    position: absolute;
+    bottom: -15px;
+    width: 100%;
+}
+
+.draw-wheel .control .left,
+.draw-wheel .control .right {
+    max-width: 50%;
+    padding: 4px 8px;
+}
+
+.draw-wheel .control .left {
+    float: left;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.draw-wheel .control .right {
+    float: right;
+    height: 24px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    padding-left: 20px;
+}
+
+.draw-wheel .control .icon,
+.draw-wheel .control .text {
+    vertical-align: middle;
+}
+
+.draw-wheel .control .text {
+    display: block;
+}
+
+.draw-wheel .control .icon {
+    margin: -8px 0 0 -30px;
+    float: left;
+}
+
+.draw-wheel .section .title {
+    position: relative;
+    margin: 0 auto;
+    width: 42.9%;
+}
+
+.draw-wheel .section .title .img {
+    margin: 0 auto;
+    position: absolute;
+    top: 54%;
+    left: 0;
+    right: 0;
+    height: 25%;
+}
+
+.draw-wheel .section .title .background {
+    width: 100%;
+}
+
+.draw-wheel .section .content {
+    margin: -10% 15px 0;
+    padding: 15% 15px 30px;
+    font-size: 12px;
+    line-height: 200%;
+}
+
+.draw-wheel .join-list .content .list .item {
+    margin: 10px 0;
+}
+
+.draw-wheel .join-list .content .list .item .avatar,
+.draw-wheel .join-list .content .list .item .name {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.draw-wheel .join-list .content .list .item .name {
+    margin-left: 5px;
+}
+
+.draw-wheel .join-list .content .list .item .avatar {
+    width: 30px;
+    height: 30px;
+    overflow: hidden;
+    border-radius: 50%;
+}
+
+.draw-wheel .join-list .content .list .item .left,
+.draw-wheel .join-list .content .list .item .right,
+.draw-wheel .join-list .content .list .item .center {
+    line-height: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.draw-wheel .join-list .content .list .item .left {
+    float: left;
+    width: 33%;
+    padding-right: 5px;
+}
+
+.draw-wheel .join-list .content .list .item .right {
+    width: 27%;
+    float: right;
+    text-align: right;
+}
+
+.draw-wheel .join-list .content .list .item .center {
+    float: left;
+    /* margin: 0 5px; */
+    width: 38%;
+}
+
+.draw-wheel .join-list .content .list .item .avatar .img {
+    width: 100%;
+}
+
+.draw-wheel .guide-link {
+    display: block;
+    margin: 15px auto;
+    text-align: center;
+}
+
+.scan-record .status {
+    padding: 15px;
+    font-size: 14px;
+}
+
+.scan-record .status .icon,
+.scan-record .status .text {
+    vertical-align: middle;
+    line-height: 100%;
+}
+
+.scan-record .status .icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+}
+
+.scan-record .list .item {
+    padding: 15px;
+    font-size: 14px;
+}
+
+.scan-record .list .item .left {
+    float: left;
+    width: 30%;
+}
+
+.scan-record .list .item .right {
+    float: right;
+    width: 70%;
+    text-align: right;
+}
+
+.scan-record .list .item .row {
+    display: block;
+    margin-bottom: 5px;
+    min-height: 19px;
+}
+
+.scan-record .list .item .row:last-child {
+    margin-bottom: 0;
+}
+
+.activity-wheel-result .window {
+    padding: 30px 0;
+}
+
+.activity-wheel-result .img {
+    display: block;
+    margin: 0 auto;
+    width: 60%;
+}
+
+.activity-wheel-result .icon {
+    width: 100px;
+}
+
+.activity-wheel-result .modal-title {
+    font-size: 24px;
+    text-align: center;
+}
+
+.activity-wheel-result .show-pro .text {
+    margin: 0 auto;
+    text-align: center;
+}
+
+.activity-wheel-result .input-box {
+    text-align: center;
+    margin: 10px auto 0;
+}
+
+.activity-wheel-result .input-box .input {
+    width: auto;
+    padding: 5px;
+}
+
+.component-goods-list-item {
+    width: 100%;
+    padding: 10px;
+    position: relative;
+}
+
+.component-goods-list-item .thumbnail {
+    width: 100px;
+    height: 100px;
+    float: left;
+    overflow: hidden;
+}
+
+.component-goods-list-item .msg {
+    margin-left: 100px;
+}
+
+
+.component-goods-item {
+    margin: 0;
+}
+
+.component-goods-item .thumbnail {
+    overflow: hidden;
+    position: relative;
+}
+
+.component-goods-item .thumbnail .img {
+    width: 100%;
+}
+
+.component-goods-item .msg {
+    padding: 5px 5px 10px;
+}
+
+.component-goods-item .msg .name {
+    display: block;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.component-goods-item .msg .container-sale {
+    position: relative;
+}
+
+.component-goods-item .msg .container-sale .left {
+    margin-right: 35px;
+}
+
+.component-goods-item .msg .container-sale .sale-msg {
+    padding: 0 0 5px;
+}
+
+.user-prize-list .list .msg {
+    margin-right: 40px;
+}
+
+.user-prize-list .list .name {
+    margin-bottom: 5px;
+}
+
+.user-prize-list .list .status {
+    float: right;
+    margin-top: 40px;
+}
+
+.user-prize-list .list .msg .container-sale .left {
+    margin-right: 0;
+}
+
+.scan-code-pay .container {
+    padding: 0;
+}
+
+.scan-code-pay .container .top {
+    padding: 15px;
+}
+
+.scan-code-pay .container .head .logo {
+    width: 64%;
+}
+
+.scan-code-pay .title {
+    text-align: center;
+    opacity: 0.3;
+    margin-top: 11%;
+    font-size: 14px;
+    color: #fff;
+}
+
+.scan-code-pay .list-keyboard {
+    margin: 0 20px;
+    text-align: center;
+}
+
+.scan-code-pay .list-keyboard .item {
+    float: left;
+    width: 33.3%;
+}
+
+.scan-code-pay .list-keyboard .button {
+    display: block;
+    width: 100%;
+    font-size: 3.7rem;
+    background: none;
+    border: none;
+    outline: none;
+}
+
+.scan-code-pay .list-keyboard .button:active {
+    opacity: 0.5;
+}
+
+.scan-code-pay .list-keyboard .button .text {
+    vertical-align: middle;
+}
+
+.scan-code-pay .tip {
+    text-align: center;
+    opacity: 0.3;
+}
+
+.scan-code-pay .output-container {
+    text-align: center;
+    font-size: 2.4rem;
+}
+
+.scan-code-pay .output-container .output {
+    font-size: 4.8rem;
+    word-break: break-all;
+    line-height: 100%;
+}
+
+.scan-code-pay .control .btn {
+    display: block;
+    border: none;
+    margin: 9% auto 3%;
+    border-radius: 100px;
+    width: 81.46%;
+    text-align: center;
+    padding: 15px 0;
+}
+
+.container-waiting .img {
+    display: block;
+    margin: 10px auto;
+}

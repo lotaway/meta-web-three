@@ -1,0 +1,30 @@
+{
+  "name": "Web App Manifest",
+  "desc": "web app配置文件，与application cache manifest不一样，主要用于设置启动图标icons、启动背景background_color、表现模式display、入口页面路径start_url等",
+  "icons": [
+    {
+      "src": "/html/app-manifest/logo_48.png",
+      "type": "image/png",
+      "sizes": "48x48"
+    },
+    {
+      "src": "/html/app-manifest/logo_96.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    },
+    {
+      "src": "/html/app-manifest/logo_192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/html/app-manifest/logo_512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/?launcher=true",
+  "display": "standalone",
+  "background_color": "#287fc5",
+  "theme_color": "#fff"
+}
