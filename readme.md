@@ -2,7 +2,7 @@
 # 练手项目
 [nodejs中文文档](http://nodejs.cn/api/http.html)
 
-*本项目用于记录nodejs、mongodb、es2015、typescript爬虫等内容的练习*
+*本项目用于记录nodejs与数据库内容的练习*
 
 目录说明：
 * config/* 配置
@@ -11,7 +11,7 @@
 * pratical/* 日常练习目录
     * crawler/* 爬虫
         * input/* 无界面模拟数据输入
-        * shcema/*  数据库骨架
+        * schema/*  数据库骨架
     * es6/* es新版语法练习
     * nodejs/* nodejs内置包API练习
     *typescript/* typescript语法练习
