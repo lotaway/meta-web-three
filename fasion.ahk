@@ -245,7 +245,7 @@ return
 
 #inputlevel,2
 
-$RAlt::
+$RCtrl::
 
 	SetMouseDelay -1
 

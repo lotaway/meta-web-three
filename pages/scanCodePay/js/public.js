@@ -58,13 +58,6 @@ $(function () {
         $(this).attr('href', $(this).attr('href') + '?redirect=' + encodeURI(value != null ? value : location.href));
     });
 
-    //  版权信息
-    var cc = decode('002e004d00610069006e0046006f006f0074'),
-        hr1 = decode('004200790020004d006900630072006f006e00650074'),
-        hr2 = decode('0068007400740070003a002f002f007700770077002e004d006900630072006f006e00650074002e0063006f006d002e0063006e000d000a');
-    $(cc).append(" <a href='" + hr2 + "' target='_blank'>" + hr1 + "</a>");
-    if ($(cc).length < 1) window.location = "/error.html?msg=micronet";
-
     //  返现订单页 计算当前返现百分比
     $(".user-cash-back-list .data-process").each(function () {
         var t = $(this);

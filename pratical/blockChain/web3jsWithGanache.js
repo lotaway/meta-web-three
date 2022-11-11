@@ -74,7 +74,7 @@ function Batch() {
     web3.eth.net.getId().then(info => {
         console.log(info);
     });
-    //  从solididy合约里复制的abi
+    //  从solidity合约里复制的abi
     var abi = [{
                 "inputs": [{
                     "internalType": "unit256",
