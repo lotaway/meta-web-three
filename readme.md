@@ -2,13 +2,14 @@
 # 练手项目
 [nodejs中文文档](http://nodejs.cn/api/http.html)
 
-*本项目用于记录nodejs与数据库内容的练习*
+*本项目用于记录后端nodejs与数据库内容的练习，涉及框架、爬虫、区块链等。*
 
 目录说明：
 * config/* 配置
 * data/* 伪造/存储数据
 * mongodbShell/* mongodb脚本
 * pratical/* 日常练习目录
+    * blockChain 区块链
     * crawler/* 爬虫
         * input/* 无界面模拟数据输入
         * schema/*  数据库骨架
