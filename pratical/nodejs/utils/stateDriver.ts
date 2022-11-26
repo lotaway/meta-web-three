@@ -58,14 +58,13 @@ class EventController {
 module M {
 
     interface Methods extends Object {
-        []: Function
+        [key: string]: Function
     }
 
     export abstract class Mvvm {
         vm: typeof Mvvm;
         data: object;
         methods: Methods;
-        constructor: Function;
     }
 
 }
@@ -73,7 +72,9 @@ module M {
 //  框架类
 class Mvvm extends M.Mvvm {
 
-    constructor(options: object) {
+    vm: any
+
+    constructor(options: any) {
         super();
         this.vm = this;
         this.data = options.data;
@@ -115,11 +116,11 @@ class Mvvm extends M.Mvvm {
      * @param {String} key 属性
      * @param {*} val 值
      */
-    static set(target: object | Array<any> | string, key, val) {
-        if (typeof target === "string") {
+    static set(target: object | any[] | string, key, val) {
+        if (typeof target === "object") {
             target = Mvvm.parsePath(target, key);
         } else if (Array.isArray(target)) {
-            target.length = Math.max(target.length, key);
+            // target.length = Math.max(target.length, key);
             target.splice(key, 1, val);
             return val;
         }
@@ -136,6 +137,7 @@ class Mvvm extends M.Mvvm {
     }
 
     $set(...params) {
+        // @ts-ignore
         Mvvm.set(...params);
     }
 
@@ -157,7 +159,7 @@ class Mvvm extends M.Mvvm {
 class Compile {
 
     vm: Mvvm;
-    el: keyof ElementTagNameMap[any];
+    el: HTMLElement;
     fragment;
 
     constructor(el, vm) {
@@ -176,7 +178,7 @@ class Compile {
 
     init() {
         if (this.el) {
-            console.log(`this.el:${this.el}`);
+            console.log(`this.el:${this.el.toString()}`);
             //  移除页面元素生成文档碎片
             this.fragment = this.nodeToFragment(this.el);
             //  编译文档碎片

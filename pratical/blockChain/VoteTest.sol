@@ -37,7 +37,10 @@ pragma solidity ^0.8.0;
 
     Proposal[] public proposals;
 
+    address chairman;
+
     constructor(bytes32[] memory _proposals, address _addr) {
+        chairman = msg.sender;
         for (uint i = 0; i < _proposals.length; i++) {
             proposals.push(Proposal({
                 name: _proposals[i],
@@ -47,11 +50,31 @@ pragma solidity ^0.8.0;
         }
     }
 
+    function addVoter(address _voterAddr) external {
+        require(msg.sender == chairman, "You have not right to add voter!");
+        require(voters[_voterAddr].status != VoterStatus.NoRight, "Address already add to voter!");
+        voters[_voterAddr].ticker = 1;
+        voters[_voterAddr].status = VoterStatus.HasTicker;
+    }
+
     //  @notice need to get index in client side
     function voteToIndex(uint toIndex) external {
         Voter memory voter = voters[msg.sender];
         require(voter.status == VoterStatus.HasTicker);
         proposals[toIndex].ticker = voter.ticker + voter.delegateTicker;
+    }
+
+    function delegateTo(address _toAddr) external {
+        Voter memory target = voters[_toAddr];
+        require(voters[msg.sender].status != VoterStatus.HasTicker, "You don't has ticker!");
+        require(voters[msg.sender].delegateTo == address(0), "You already delegate to other!");
+        require(target.status == VoterStatus.HasTicker, "Target address is no allow!");
+        voters[msg.sender].delegateTo = _toAddr;
+        voters[_toAddr].delegateFrom.push(msg.sender);
+        voters[_toAddr].delegateTicker += voters[msg.sender].ticker + voters[msg.sender].delegateTicker;
+        voters[msg.sender].ticker = 0;
+        voters[msg.sender].delegateTicker = 0;
+        voters[msg.sender].status = VoterStatus.Ban;
     }
 
  }

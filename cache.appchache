@@ -1,9 +1,0 @@
-CACHE MANIFEST
-# 2016-08-32 v1.0.0
-/public/js/public.js
-
-NETWORK:
-*
-
-FALLBACK:
-/ /404.html

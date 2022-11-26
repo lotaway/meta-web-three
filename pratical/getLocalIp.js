@@ -7,7 +7,7 @@ function getLocalIp() {
     ;
 
     for (let dev in iFaces) {
-        if (iFaces[dev][1].address.indexOf('192.168.44') !== -1) {
+        if (iFaces[dev][1].address.indexOf('192.168') !== -1) {
             return iFaces[dev][1].address;
         }
     }

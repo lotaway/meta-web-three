@@ -2,7 +2,6 @@
 class LoginBackstage {
 
     constructor(host) {
-        this.host = host;
     }
 
     async login({account, password, browser}) {
