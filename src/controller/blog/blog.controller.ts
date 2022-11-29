@@ -1,4 +1,4 @@
-import {Controller, Get, Redirect, Param} from '@nestjs/common';
+import {Controller, Get, Redirect, Param, Query} from '@nestjs/common';
 
 function defaultParam(defaultParams?: any[]) {
     return (target: any, propName: string, descriptor: PropertyDescriptor) => {
@@ -34,7 +34,13 @@ export class BlogController {
         return `p is: ${params.p}`;
     }
 
-    blogDetail(@Param("id") blogId: number) {
+    @Get(":blogNumber")
+    blogStaticDetail(@Param("blogNumber") blogNumber: number) {
+
+    }
+
+    @Get("detail")
+    blogDetail(@Query("id") blogId: number) {
         return `blogId is: ${blogId}`;
     }
 }

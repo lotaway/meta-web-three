@@ -7,37 +7,38 @@ export const ROUTE_METADATA = 'method';
 export const PARAM_METADATA = 'param';
 export const PARSE_METADATA = "parse";
 
-export enum DecoratorType {
+export enum HttpMethod {
     Get = "get",
     Post = "post",
     Put = "put",
     Delete = "delete",
-    Patch = "patch",
+    Patch = "patch"
+}
+
+export enum ParamType {
     Query = "query",
     Body = "body",
     Header = "headers",
     Parse = "parse"
 }
 
-export type HttpMethod =
-    DecoratorType.Get
-    | DecoratorType.Post
-    | DecoratorType.Put
-    | DecoratorType.Delete
-    | DecoratorType.Patch;
-export type Param = DecoratorType.Query | DecoratorType.Body | DecoratorType.Header | DecoratorType.Parse;
-export type Parse = 'number' | 'string' | 'boolean';
-export type ParamType = {
+export enum ParseType {
+    Number = 'number',
+    String = 'string',
+    Boolean = 'boolean'
+}
+
+export type TParam = {
     key: string
     index: number
     type: string
 }
-export type ParseType = {
+export type TParse = {
     name: string
     index: number
     type: string
 }
-export type RouteType = {
+export type TRoute = {
     type: string
     path: string
 };
@@ -48,13 +49,13 @@ export function Controller(path = ''): ClassDecorator {
     };
 }
 
-export function createMethodDecorator(method: HttpMethod = DecoratorType.Get) {
+export function createMethodDecorator(method: HttpMethod | ParamType = HttpMethod.Get) {
     return (path = '/'): MethodDecorator => (target: object, name: string, descriptor: any) => {
         Reflect.defineMetadata(ROUTE_METADATA, {type: method, path}, descriptor.value);
     };
 }
 
-export function createParamDecorator<Key = string>(type: Param) {
+export function createParamDecorator<Key = string>(type: ParamType) {
     return (key?: Key): ParameterDecorator => (target: object, name: string, index: number) => {
         // 这里要注意这里defineMetadata挂在target.name上，但该函数的参数有顺序之分，下一个装饰器定义参数后覆盖之前的，所以要用preMetadata保存起来
         const preMetadata = Reflect.getMetadata(PARAM_METADATA, target, name) || [];
@@ -64,15 +65,17 @@ export function createParamDecorator<Key = string>(type: Param) {
 }
 
 // 使用
-export const Get = createMethodDecorator(DecoratorType.Get);
-export const Post = createMethodDecorator(DecoratorType.Post);
-export const Put = createMethodDecorator(DecoratorType.Put);
-export const Delete = createMethodDecorator(DecoratorType.Delete);
-export const Patch = createMethodDecorator(DecoratorType.Patch);
-export const Query = createParamDecorator(DecoratorType.Query);
-export const Body = createParamDecorator(DecoratorType.Body);
-export const Headers = createParamDecorator(DecoratorType.Header);
-export const Parse = createParamDecorator<Parse>(DecoratorType.Parse);
+export const Get = createMethodDecorator(HttpMethod.Get);
+export const Post = createMethodDecorator(HttpMethod.Post);
+export const Put = createMethodDecorator(HttpMethod.Put);
+export const Delete = createMethodDecorator(HttpMethod.Delete);
+export const Patch = createMethodDecorator(HttpMethod.Patch);
+export const Query = createParamDecorator(ParamType.Query);
+export const Body = createParamDecorator(ParamType.Body);
+export const Header = createParamDecorator(ParamType.Header);
+export const Head = Header;
+export const Parse = createParamDecorator<ParseType>(ParamType.Parse);
+
 // 2）装饰器注入
 export const ControllerRegister = (controllerStore, rootPath: string, app: Express) => {
     const router = Router();
@@ -84,7 +87,7 @@ export const ControllerRegister = (controllerStore, rootPath: string, app: Expre
             n => n !== 'constructor' && typeof proto[n] === 'function',
         );
         routeNameArr.forEach(routeName => {
-            const routeMetadata: RouteType = Reflect.getMetadata(ROUTE_METADATA, proto[routeName]);
+            const routeMetadata: TRoute = Reflect.getMetadata(ROUTE_METADATA, proto[routeName]);
             const {type, path} = routeMetadata;
             const handler = handlerFactory(
                 proto[routeName],
@@ -100,7 +103,7 @@ export const ControllerRegister = (controllerStore, rootPath: string, app: Expre
 declare type NextFunction = Function;
 
 // 路由处理函数工厂
-export function handlerFactory(func: (...args: any[]) => any, paramList: ParamType[], parseList: ParseType[]) {
+export function handlerFactory(func: (...args: any[]) => any, paramList: TParam[], parseList: TParse[]) {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
             // 获取路由函数的参数
@@ -114,7 +117,7 @@ export function handlerFactory(func: (...args: any[]) => any, paramList: ParamTy
 }
 
 // 根据 req 处理装饰的结果
-export function extractParameters(req: Request, res: Response, next: NextFunction, paramArr: ParamType[] = [], parseArr: ParseType[] = [],
+export function extractParameters(req: Request, res: Response, next: NextFunction, paramArr: TParam[] = [], parseArr: TParse[] = [],
 ) {
     if (!paramArr.length) return [req, res, next];
     const args = [];
@@ -123,13 +126,13 @@ export function extractParameters(req: Request, res: Response, next: NextFunctio
         const {key, index, type} = param;
         // 获取相应的值，如 @Query('id') 则为 req.query.id
         switch (type) {
-            case 'query':
+            case ParamType.Query:
                 args[index] = key ? req.query[key] : req.query;
                 break;
-            case 'body':
+            case ParamType.Body:
                 args[index] = key ? req.body[key] : req.body;
                 break;
-            case 'headers':
+            case ParamType.Header:
                 args[index] = key ? req.headers[key.toLowerCase()] : req.headers;
                 break;
             // ...
@@ -139,13 +142,13 @@ export function extractParameters(req: Request, res: Response, next: NextFunctio
     parseArr.forEach(parse => {
         const {type, index} = parse;
         switch (type) {
-            case 'number':
+            case ParseType.Number:
                 args[index] = +args[index];
                 break;
-            case 'string':
+            case ParseType.String:
                 args[index] = args[index] + '';
                 break;
-            case 'boolean':
+            case ParseType.Boolean:
                 args[index] = Boolean(args[index]);
                 break;
         }
