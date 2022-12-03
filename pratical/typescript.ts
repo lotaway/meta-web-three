@@ -18,7 +18,7 @@ class ClassRoom {
 //  Partial, use to transfer every key from necessary to optional
 declare type DataId = number;
 declare type NecessaryData = {
-    id: Readonly<DataId>
+    readonly id: DataId
     title: string
     image: string[]
     desc: string
@@ -46,11 +46,15 @@ let inputData2: InitData = {
 };
 //  Require<InitData> == NecessaryData
 //  Extract, make sure include some props, or will be never
-declare type InsertData = Extract<NecessaryData, { id: DataId }>;
+declare type InsertData = Extract<InitData, { id: DataId }>;
+let inputData3: InsertData = {
+    id: 3,
+    title: "true to be set value"
+};
 //  Exclude, make sure don't include some props, or will be never
 declare type ShowData = Exclude<NecessaryData, { isDone: boolean }>;
-let inputData3: ShowData = {
-    id: 3,
+let inputData4: ShowData = {
+    id: 4,
     title: "this is some data",
     image: [],
     desc: ""
@@ -107,9 +111,18 @@ type I2 = InferArray<number>;   // 不是数组，返回never
 type InferFirst<T extends unknown[]> = T extends [infer First, ...infer _] ? First : never
 // infer P获取第一个元素的类型存储为First，而...infer _获取的是其他所有元素数组类型存储为_;
 type I3 = InferFirst<[3, 2, 1]>; // number, typeof 3
-type InferLast<T extends unknown[]> = T extends [... infer _, infer Last] ? Last : never;
+type InferLast<T extends unknown[]> = T extends [...infer _, infer Last] ? Last : never;
 //  类型上一个，获取最后一个元素的类型存储为Last
 type I4 = InferLast<[3, 2, 1]>; // number, typeof 1
 type InferParameters<T extends Function> = T extends (...args: infer FnParams) => any ? FnParams : never;
-// ...args代表的是函数参数组成的元组, infer FnParams代表的就是推断出来的这个函数参数组成的元组的类型。
+// ...args代表的是函数参数组成的元组, infer FnParams代表的就是推断出来的这个函数参数组成的元组的类型
 type I5 = InferParameters<((arg1: string, arg2: number) => void)>; // [string, number]
+type InferReturnType<T extends Function> = T extends (...args: any) => infer ReturnType ? ReturnType : never;
+// 类似前面推断参数，infer ReturnType代表的就是推断出来的函数的返回值类型
+type I6 = InferReturnType<() => string>; // string
+type InferPromise<T> = T extends Promise<infer ResultData> ? ResultData : never;
+//  推断出Promise中的返回值类型
+type I7 = InferPromise<Promise<string>>; // string
+// 推断字符串字面量类型的第一个字符对应的字面量类型
+type InferString<T extends string> = T extends `${infer First}${infer _}` ? First : [];
+type I8 = InferString<"John">; // 推断出John第一个字符字面量是J
