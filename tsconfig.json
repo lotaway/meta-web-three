@@ -2,7 +2,9 @@
   "compilerOptions": {
     "types": [
       "reflect-metadata",
-      "node"
+      "node",
+      "jest",
+      "cookie-parser"
     ],
     "module": "commonjs",
     "declaration": true,
