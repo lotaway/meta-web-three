@@ -2,7 +2,7 @@
 ;https://wyagd001.github.io/zh-cn/docs/misc/Clipboard.htm
 
 #+f::
-	Run www.teambition.com/project/5a635b9475ff0e39f4a9015d/posts/post/5b950d0a491a5c00198493cf
+	Run https://www.teambition.com/project
 return
 #t::
 	MouseGetPos, MouseX, MouseY

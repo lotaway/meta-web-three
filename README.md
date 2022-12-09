@@ -27,6 +27,21 @@ $ npm run start:dev
 
 # production mode
 $ npm run start:prod
+
+# compile contract
+$ hardhat compile
+
+# contract test
+$ hardhat test
+
+# deploy contract
+$ hardhat run scripts/deploy.js
+
+# start a chain node
+$ hardhat node
+
+# deploy contract to local node for develop
+$ hardhat run scripts/deploy.js --network localhost
 ```
 
 ## Test

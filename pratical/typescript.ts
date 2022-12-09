@@ -1,3 +1,6 @@
+/// <reference path="./system.ts"/>
+const ip: system.IP = system.getIP();
+
 class ClassRoom {
     name: string;
 
