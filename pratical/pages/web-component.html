@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Web Component, the new generation to lost react, vue and angular</title>
+</head>
+<body>
+<template id="template-for-card">
+    <style>
+        .contain {
+            padding: 15px;
+        }
+
+        .contain.round {
+            border-radius: 8px;
+        }
+
+        .contain.bg-black {
+            background: #000;
+            color: #fff;
+        }
+
+        .contain.bg-white {
+            background: #fff;
+            color: #000;
+        }
+
+        .contain.bg-blue {
+            background: #00aaee;
+            color: #fff;
+        }
+
+        .title {
+            text-align: center;
+        }
+
+        .desc {
+        }
+
+        .content {
+            line-height: 170%;
+            border-top: 1px solid #ccc;
+            padding-top: 15px;
+        }
+    </style>
+    <div class="contain">
+        <header class="header">
+            <div class="layout-left">
+                <h3 class="title">
+                    <slot name="title">Default Title</slot>
+                </h3>
+                <p class="desc">
+                    <slot name="desc">Default Description</slot>
+                </p>
+            </div>
+            <div class="layout-right">
+                <slot name="tool"/>
+            </div>
+        </header>
+        <div class="content">
+            <slot/>
+        </div>
+    </div>
+</template>
+Template is not visitably before add to document.
+<h3>Just use customize element in html</h3>
+<div is="wc-card" type="black" minimize="true" round>
+    <span slot="title">To be title</span>
+    <span slot="desc">To be desc</span>
+    <span slot="tool">
+        <ul>
+            <li>
+                <button type="button">Scroll</button>
+            </li>
+            <li>
+                <button type="button">Question</button>
+            </li>
+        </ul>
+    </span>
+    <span>this will be content</span>
+</div>
+<div id="target-contain">
+    Use customize element in js.
+</div>
+<script>
+    class WCCard extends HTMLDivElement {
+        // class WCCard extends HTMLElement {
+        constructor() {
+            super();
+            this._isMinimize = false;
+            const templateContent = document.getElementById("template-for-card").content;
+            // this.appendChild(templateContent.cloneNode(true));
+            const shadowRoot = this.attachShadow({mode: "open"});
+            shadowRoot.appendChild(templateContent.cloneNode(true));
+            //  attribute type to template style
+            const typeStyle = WCCard.typeToStyle[this.getAttribute("type") || "default"];
+            typeStyle && shadowRoot.querySelector(".contain").classList.add(typeStyle);
+            this.getAttribute("round") !== null && shadowRoot.querySelector(".contain").classList.add("round");
+        }
+
+        static get typeToStyle() {
+            return {
+                black: "bg-black",
+                white: "bg-white",
+                blue: "bg-blue"
+            };
+        }
+
+        typeChangeHandler() {
+            const shadowRoot = this.shadowRoot;
+            const typeStyle = WCCard.typeToStyle[this.getAttribute("type") || "default"];
+            typeStyle && shadowRoot.querySelector(".contain").classList.add(typeStyle);
+        }
+
+        //  add watch attributes change
+        static get observedAttributes() {
+            return ["minimize", "type"];
+        }
+
+        //  attributes change callback
+        attributeChangedCallback(name, ordVal, newVal) {
+            switch (name) {
+                case "minimize":
+                    this._isMinimize = Boolean(newVal);
+                    console.log(arguments);
+                    break;
+                case "type":
+                    // this._type = newVal;
+                    console.log("change type");
+                    this.typeChangeHandler();
+                    break;
+            }
+        }
+
+        get minimize() {
+            // return this.getAttribute("minimize");
+            return this._isMinimize;
+        }
+
+        set minimize(value) {
+            this.setAttribute("minimize", value);
+            // this._isMinimize = value;
+            // this.querySelector("h3").innerText = value;
+        }
+
+        get type() {
+            return this.getAttribute("type");
+        }
+
+        set type(value) {
+            return this.setAttribute("type", value);
+        }
+
+        //  after first time add to document
+        connectedCallback() {
+        }
+
+        //  after remote from document
+        disconnectedCallback() {
+        }
+
+        //  move to diff doc
+        adoptedCallback() {
+        }
+
+        //  add connect to form
+        formAssociatedCallback() {
+        }
+
+        formStateRestoreCallback() {
+        }
+
+        formResetCallback() {
+        }
+
+        formDisabledCallback() {
+        }
+
+        render() {
+            // this.innerHTML = "";
+        }
+    }
+
+    window.customElements.define("wc-card", WCCard, {extends: "div"});
+    // window.customElements.define("wc-card", WCCard);
+
+    window.addEventListener("DOMContentLoaded", function () {
+        window.customElements.whenDefined("wc-card").then(function () {
+            const wcCard1 = document.createElement("div", {is: "wc-card"});
+            wcCard1.type = "blue";
+            wcCard1.innerHTML = "<span>Can this be content</span>";
+            document.getElementById("target-contain").appendChild(wcCard1);
+        }).catch(function (err) {
+            console.log("Not define yet." + JSON.stringify(err));
+        });
+    });
+</script>
+</body>
+</html>
