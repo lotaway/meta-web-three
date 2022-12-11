@@ -1,4 +1,4 @@
-import {Controller, Get, Response} from '@nestjs/common';
+import {Controller, Get, Res} from '@nestjs/common';
 import {AppService} from './app.service';
 
 @Controller()
@@ -7,8 +7,8 @@ export class AppController {
     }
 
     @Get()
-    getHello(@Response() response): string {
-        response.cookie("timestamp", +new Date());
+    getHello(@Res() res): string {
+        res.cookie("timestamp", +new Date().toString());
         return this.appService.getHello();
     }
 }

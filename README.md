@@ -58,7 +58,8 @@ $ npm run test:cov
 ```
 
 ## 目录说明
-* pratical/* 预练习
+* contracts 智能合约
+* scripts/* 脚本与练习
     * blockChain 区块链
     * crawler/* 爬虫
     * es7 es新版语法练习
