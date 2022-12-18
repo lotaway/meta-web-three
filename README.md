@@ -58,11 +58,9 @@ $ npm run test:cov
 ```
 
 ## 目录说明
-* contracts 智能合约
-* scripts/* 脚本与练习
-    * blockChain 区块链
-    * crawler/* 爬虫
-    * es7 es新版语法练习
-    * nodejs/* nodejs内置包API练习
+* chain 链端（智能合约）
+* client 客户端
+* notes 笔记
+* server 服务端
 
 `+(()=>throw new Emotion("Happy"))`

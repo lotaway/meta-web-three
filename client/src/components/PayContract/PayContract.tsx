@@ -1,5 +1,5 @@
-import {useState, useEffect, ChangeEvent} from "react";
-import {useDebounce} from "../../utils/hooks";
+import {useState, useEffect, ChangeEvent, useTransition} from "react";
+// import {useDebounce} from "../../utils/hooks";
 
 type Props = {
     defaultValue?: number
@@ -7,14 +7,26 @@ type Props = {
 
 export default function PayContract({defaultValue}: Props) {
     const [value, setValue] = useState(defaultValue ?? 0);
-    const debounceValue = useDebounce(value);
+    const [isLoading, startTransition] = useTransition();
     const handlerChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setValue(Number(event.target.value));
+        startTransition(() => {
+            // do some api check maybe ?
+            setValue(Number(event.target.value));
+        });
     };
     useEffect(() => {
-        // do some api check
-    }, [debounceValue]);
+        value && handlerChange({
+            target: {
+                value: value.toString()
+            }
+        } as ChangeEvent<HTMLInputElement>);
+    }, [value]);
     return (
-        <input type="number" step="0.0001" value={value} onChange={event => handlerChange(event)}/>
-    )
+        <>
+            {
+                isLoading ? <p>Loading...</p> : null
+            }
+            <input type="number" step="0.0001" value={value} onChange={event => handlerChange(event)}/>
+        </>
+    );
 }

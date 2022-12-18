@@ -137,6 +137,9 @@ Template is not visitably before add to document.
         //  attributes change callback
         attributeChangedCallback(name, ordVal, newVal) {
             switch (name) {
+                // case "checked":
+                //     this._internals.setFormValue(this.checked ? 'on' : 'off');
+                //     break;
                 case "minimize":
                     this._isMinimize = newVal;
                     console.log(arguments);
