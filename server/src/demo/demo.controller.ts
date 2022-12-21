@@ -1,14 +1,14 @@
 import {Controller, Get, Render} from "@nestjs/common";
 
 enum Router {
-    WebComponent = "web-component"
+    all = "all"
 }
 
 @Controller("demo")
 export class DemoController {
 
-    @Get(["", Router.WebComponent])
-    @Render(`demo/${Router.WebComponent}`)
+    @Get(["", Router.all])
+    @Render(`demo/${Router.all}`)
     webComponent() {
         return {};
     }

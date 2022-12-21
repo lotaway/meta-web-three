@@ -2,23 +2,26 @@
 const ip: system.IP = system.getIP();
 
 class ClassRoom {
-    name: string;
+    manualName: string;
 
-    //  private param will auto save as instance value, use this.[param-name] to read the value
+    //  构造器形参可以用`private`修饰符，该参数将自动转化成成员变量
     constructor(private readonly _classNumber: number, className?: string) {
-        this.name = className;  //  param without private have to set manual
+        //  这里的第一个形参`_classNumber`添加了`private`修饰，已自动赋值给`this._classNumber`，无需手动赋值。
+        //  this._classNumber
+        //  而第二个形参`className`没有`private`修饰，实例化后无法用`this.className`获取，若需要可以手动赋值。
+        this.manualName = className;
     }
 
     showClassInfo() {
-        console.log(`The member value is defined by constructor private param: ${this._classNumber}`);
-        // console.log(`You can't get it without private: ${this.className}`);  // NO EXIST!
-        console.log(`Param without private only can receive by 'this.name': ${this.name}`);
+        console.log(`已定义：${this._classNumber}`);
+        // console.log(`未定义：${this.className}`);  // 若没有手动赋值，将不存在
+        console.log(`手动定义'this.name'：${this.manualName}`);
     }
 }
 
-//  about <generic>
+//  关于泛型
 
-//  Partial, use to transfer every key from necessary to optional
+//  Partial会将传递的类型内含键都从必需转成可选
 declare type DataId = number;
 declare type NecessaryData = {
     readonly id: DataId
@@ -27,6 +30,7 @@ declare type NecessaryData = {
     desc: string
 };
 declare type OptionalData = Partial<NecessaryData>;
+// 上面的代码相当于：declare type OptionalData = { id? title? image? desc? }`
 let finalData: NecessaryData = {
     id: 1,
     title: "need every prop",
@@ -39,22 +43,21 @@ let inputData1: OptionalData = {
     // image?
     // desc?
 };
-//  exclude null and undefined result
-declare type Result3 = NonNullable<keyof typeof inputData1>;
-//  Pick, use to take only a few props
-declare type InitData = Pick<NecessaryData, "id" | "title">;
+//  排除null和undefined的可能性
+declare type Result3 = NonNullable<keyof typeof inputData1>
+//  从指定的类型中挑选其中几个键作为新类
+declare type InitData = Pick<NecessaryData, "id" | "title">
 let inputData2: InitData = {
     id: 2,
     title: "few props is fine"
 };
-//  Require<InitData> == NecessaryData
-//  Extract, make sure include some props, or will be never
+//  Extract判断指定的类型中是否继承了要求的键，否则返回Never
 declare type InsertData = Extract<InitData, { id: DataId }>;
 let inputData3: InsertData = {
     id: 3,
     title: "true to be set value"
 };
-//  Exclude, make sure don't include some props, or will be never
+//  Exclude与Extract相反，判断指定类型中是否没有继承要求的键，若继承了则返回Never
 declare type ShowData = Exclude<NecessaryData, { isDone: boolean }>;
 let inputData4: ShowData = {
     id: 4,
@@ -62,42 +65,55 @@ let inputData4: ShowData = {
     image: [],
     desc: ""
 }
-//  Omit, like Exclude & Pick mix, but exclude some props then return
+//  Omit与Pick相反，从指定类型中排除键
 declare type ShowData2 = Omit<NecessaryData, "id">
+let showData2: ShowData2 = {
+    // id: "",  //  already exclude
+    title: "",
+    image: [],
+    desc: ""
+}
 
-//  Record, use a type as key type
-enum State {
+//  Record，将指定的类型中所有的键变成第二个参数传入的类型
+enum TargetRecord {
     Pending,
     Success,
     Error
 }
 
-declare type StateInfo = Record<State, OptionalData>;
+interface ToBeKey {
+    id: number
+    value: string
+}
+
+declare type StateInfo = Record<TargetRecord, ToBeKey>;
 let stateInfo: StateInfo = {
-    [State.Pending]: {
-        id: State.Pending
+    [TargetRecord.Pending]: {
+        id: TargetRecord.Pending,
+        value: ""
     },
-    [State.Success]: {
-        id: State.Success
+    [TargetRecord.Success]: {
+        id: TargetRecord.Success,
+        value: ""
     },
-    [State.Error]: {
-        id: State.Error,
-        title: "this is Error"
+    [TargetRecord.Error]: {
+        id: TargetRecord.Error,
+        value: ""
     }
 };
-//  ReturnType, as same as name, get the return type of <some function type>
+//  ReturnType获取函数返回的类型
 declare type HasReturnFn = (a: number, b: number, format: string) => number;
 declare type Result1 = ReturnType<HasReturnFn>;
 const hasReturnFn: HasReturnFn = (a, b) => {
     return a + b;
 };
 declare type Result2 = ReturnType<typeof hasReturnFn>;
-// Result1, Result2 is same type.
+// Result1, Result2为相同类型
 const arr = [1, "ss", {id: 1}];
-// Parameters, get the params type from a function type
+// Parameters将传入的函数的形参类型转成数组类型输出
 declare type FnParamsArr = Parameters<HasReturnFn>;
-const fnParamsArr: FnParamsArr = [1, 2, "number"];    //  all should be match the function params type.
-//  ConstructorParameters, similar as Parameters, but use in class constructor.
+const fnParamsArr: FnParamsArr = [1, 2, "number"];
+//  ConstructorParameter类似Parameters，将传入的类构造器的形参类型转成数组输出
 declare type ClassParamsArr = ConstructorParameters<typeof ClassRoom>;
 const classParamArr: ClassParamsArr = [511, "the first one"];
 declare type ClassInstance = InstanceType<typeof ClassRoom>;

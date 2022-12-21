@@ -1,5 +1,5 @@
 import {Controller, Get, Post, Put, Delete, Redirect, Param, Query, Body} from '@nestjs/common';
-import {BlogId, CreateBlogDto} from "./dto/blog.dto";
+import {BlogId, CreateBlog} from "./dto/blog.dto";
 
 function defaultParam(defaultParams?: any[]) {
     return (target: any, propName: string, descriptor: PropertyDescriptor) => {
@@ -46,7 +46,7 @@ export class BlogController {
     }
 
     @Post()
-    addBlog(@Body() {author}: CreateBlogDto) {
+    addBlog(@Body() {author}: CreateBlog) {
         return `Add a new blog with author ${author}`;
     }
 

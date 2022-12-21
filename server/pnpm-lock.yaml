@@ -34,6 +34,7 @@ specifiers:
   ts-node: ^10.0.0
   tsconfig-paths: 4.1.0
   typescript: ^4.7.4
+  uuid: ^9.0.0
 
 dependencies:
   '@nestjs/common': registry.npmmirror.com/@nestjs/common/9.2.0_yzt46al3aifnexifjjdb4dxxja
@@ -71,6 +72,7 @@ devDependencies:
   ts-node: registry.npmmirror.com/ts-node/10.9.1_fvpuwgkpfe3dm3hnpcpbcxmb3y
   tsconfig-paths: registry.npmmirror.com/tsconfig-paths/4.1.0
   typescript: registry.npmmirror.com/typescript/4.9.3
+  uuid: registry.npmmirror.com/uuid/9.0.0
 
 packages:
 
