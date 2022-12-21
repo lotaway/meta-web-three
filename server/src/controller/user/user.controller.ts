@@ -1,4 +1,4 @@
-import {Controller, Request, Get, Render} from '@nestjs/common';
+import {Controller, Req, Res, Get, Render} from '@nestjs/common';
 //  验证码
 import svgCaptcha from "svg-captcha";
 
@@ -7,8 +7,14 @@ export class UserController {
 
     @Get(["", "index"])
     @Render("user/index")
-    index(@Request() request) {
-        return {welcome: "Hello TTTTThe User.", cookies: request.cookies};
+    index(@Req() req, @Res() res) {
+        res.cookie("timestamp", +new Date().toString());
+        return {welcome: "Hello TTTTThe User.", cookies: req.cookies};
+    }
+
+    @Get(["blog", "blog/all"])
+    getUserBlog(@Req() req) {
+        return "Get the log in user's blogs.";
     }
 
 }

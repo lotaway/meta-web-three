@@ -1,4 +1,5 @@
-import {Controller, Get, Redirect, Param, Query} from '@nestjs/common';
+import {Controller, Get, Post, Put, Delete, Redirect, Param, Query, Body} from '@nestjs/common';
+import {BlogId, CreateBlogDto} from "./dto/blog.dto";
 
 function defaultParam(defaultParams?: any[]) {
     return (target: any, propName: string, descriptor: PropertyDescriptor) => {
@@ -12,7 +13,7 @@ function defaultParam(defaultParams?: any[]) {
     };
 }
 
-interface BlogListParam extends Object {
+interface BlogListQueries extends Object {
     p?: number
 }
 
@@ -28,19 +29,34 @@ export class BlogController {
         });
     }
 
-    @Get("list/:p?")
+    @Get("list")
     // @defaultParam()
-    blogList(@Param() params: BlogListParam = {}) {
-        return `p is: ${params.p}`;
+    blogList(@Query() query: BlogListQueries = {}) {
+        return `p is: ${query.p}`;
     }
 
-    @Get(":blogNumber")
-    blogStaticDetail(@Param("blogNumber") blogNumber: number) {
-
+    @Get("static/:blogNumber")
+    getStaticDetail(@Param("blogNumber") blogNumber: string) {
+        return `Get the blog by id ${blogNumber}`;
     }
 
     @Get("detail")
-    blogDetail(@Query("id") blogId: number) {
-        return `blogId is: ${blogId}`;
+    getBlogDetail(@Query("id") blogId: BlogId) {
+        return `get blog by blogId is: ${blogId}`;
+    }
+
+    @Post()
+    addBlog(@Body() {author}: CreateBlogDto) {
+        return `Add a new blog with author ${author}`;
+    }
+
+    @Put(":blogId")
+    updateBlogDetail(@Param("blogId") blogId: BlogId) {
+        return `Start edit blog with id ${blogId}`;
+    }
+
+    @Delete(":blogId")
+    deleteBlogDetail(@Param("blogId") blogId: BlogId) {
+        return `Gone to delete blog with id ${blogId}`;
     }
 }

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <div className="App">
+      <h1>Download Base 64 PDF</h1>
+      <button onclick="openBase64NewTab()">Open</button>
+    </div>
+  </body>
+</html>
+<script>
+  const base64Pdf =
+    "JVBERi0xLjcKCjEgMCBvYmogICUgZW50cnkgcG9pbnQKPDwKICAvVHlwZSAvQ2F0YWxvZwog" +
+    "IC9QYWdlcyAyIDAgUgo+PgplbmRvYmoKCjIgMCBvYmoKPDwKICAvVHlwZSAvUGFnZXMKICAv" +
+    "TWVkaWFCb3ggWyAwIDAgMjAwIDIwMCBdCiAgL0NvdW50IDEKICAvS2lkcyBbIDMgMCBSIF0K" +
+    "Pj4KZW5kb2JqCgozIDAgb2JqCjw8CiAgL1R5cGUgL1BhZ2UKICAvUGFyZW50IDIgMCBSCiAg" +
+    "L1Jlc291cmNlcyA8PAogICAgL0ZvbnQgPDwKICAgICAgL0YxIDQgMCBSIAogICAgPj4KICA+" +
+    "PgogIC9Db250ZW50cyA1IDAgUgo+PgplbmRvYmoKCjQgMCBvYmoKPDwKICAvVHlwZSAvRm9u" +
+    "dAogIC9TdWJ0eXBlIC9UeXBlMQogIC9CYXNlRm9udCAvVGltZXMtUm9tYW4KPj4KZW5kb2Jq" +
+    "Cgo1IDAgb2JqICAlIHBhZ2UgY29udGVudAo8PAogIC9MZW5ndGggNDQKPj4Kc3RyZWFtCkJU" +
+    "CjcwIDUwIFRECi9GMSAxMiBUZgooSGVsbG8sIHdvcmxkISkgVGoKRVQKZW5kc3RyZWFtCmVu" +
+    "ZG9iagoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDEwIDAwMDAwIG4g" +
+    "CjAwMDAwMDAwNzkgMDAwMDAgbiAKMDAwMDAwMDE3MyAwMDAwMCBuIAowMDAwMDAwMzAxIDAw" +
+    "MDAwIG4gCjAwMDAwMDAzODAgMDAwMDAgbiAKdHJhaWxlcgo8PAogIC9TaXplIDYKICAvUm9v" +
+    "dCAxIDAgUgo+PgpzdGFydHhyZWYKNDkyCiUlRU9G";
+// function base64toBlobOld(base64Data) {
+//   const sliceSize = 1024;
+//   const byteCharacters = atob(base64Data);
+//   const bytesLength = byteCharacters.length;
+//   const slicesCount = Math.ceil(bytesLength / sliceSize);
+//   const byteArrays = new Array(slicesCount);
+
+//   for (let sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+//     const begin = sliceIndex * sliceSize;
+//     const end = Math.min(begin + sliceSize, bytesLength);
+
+//     const bytes = new Array(end - begin);
+//     for (let offset = begin, i = 0; offset < end; ++i, ++offset) {
+//       bytes[i] = byteCharacters[offset].charCodeAt(0);
+//     }
+//     byteArrays[sliceIndex] = new Uint8Array(bytes);
+//   }
+//   return new Blob(byteArrays, { type: "application/pdf" });
+// }
+
+function base64toBlob(base64) {
+  const parts = base64.split(";base64,");
+  const contentType = parts[0].split(":")[1];
+  const raw = atob(parts[1] || base64);
+  const rawLength = raw.length;
+  const uInt8Array = new Uint8Array(rawLength);
+  for (let i = 0; i < rawLength; i += 1) {
+    uInt8Array[i] = raw.charCodeAt(i);
+  }
+  return new Blob([uInt8Array], { type: contentType });
+}
+
+function openBase64NewTab() {
+  var blob = base64toBlob(base64Pdf);
+  if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+    window.navigator.msSaveOrOpenBlob(blob, "pdfBase64.pdf");
+  } else {
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl);
+  }
+}
+</script>

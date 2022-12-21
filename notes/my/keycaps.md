@@ -8,7 +8,7 @@
 | 凡酷             | FK89 热拔插 键线一体版           | 仅支持三脚轴                    |
 | Akko 艾酷        | MOD001 灰鹦鹉 焊接版             | 仅支持三脚轴                    |
 | 老薛             | NT-19 PAD 紫色                   | 三模热拔插                      |
-|                  | 太极 GG86                        | 粉透款                          |
+| GOPOLAR燥极  | 太极 GG86                        | 粉透款                          |
 |                  | NCR-80 R1 热拔插款               |                                 |
 | 闲鱼客制化       | Alice 88 亚克力堆叠 旋钮大回车版 |                                 |
 | FL 腹灵          | 980 黑色 六键热拔插款            |                                 |
@@ -19,10 +19,10 @@
 ## 已拥有
 
 | 品牌              | 名称                            | 高度          | 材质    | 工艺     | 规格       |         
-| :---------------- |:---------------------|:------------|:------|:----------------|:------------|
-| MelGeek           | Master 尤达                     | MG 高度       | ABS   | 二色成型    | 基础+F区反色            |
-| 浅笑              | Iceberg 冰山                    | 原厂高度        | PBT   | 热升华             |
-| 浅笑              | Botanical 植物园                 | 原厂高度        | PBT   | 热升华             | R1                 |
+| :---------------- |:------------------------------|:------------|:------|:----------------|:------------|
+| MelGeek           |  [![](https://img.zfrontier.com/eqp/20210303/zf603f3ad6e2aa5)Master 尤达](https://www.zfrontier.com/app/eqp/nP8zzMYogNln)               | MG 高度       | ABS   | 二色成型    | 基础+F区反色            |
+| 浅笑              | [![](https://gsnapshot.alicdn.com/imgextra/i3/O1CN01jajeTA1HbuQg1iTKA_!!0-fleamarket.jpg)Iceberg 冰山](https://www.zfrontier.com/app/eqp/n9jgbGOxdjqR)                    | 原厂高度        | PBT   | 热升华             |
+| 浅笑              | [![](https://img.zfrontier.com/cover/20210807/FhLavYYT1HmYPrIhzdMeEk_Dj8fc)Botanical 植物园](https://www.zfrontier.com/app/eqp/6pk8kYl3G1x0)                 | 原厂高度        | PBT   | 热升华             | R1                 |
 | 浅笑              | Tianwen1 天问一号                 | 原厂高度        | PBT   | 热升华             |
 | 捕获者            | Aqua 水绿                       | 原厂高度        | PBT   | 二色              | 新版全套+旧版98以外增补 |
 | 捕获者+爱菲       | Olivia 奥莉比娅                   | 原厂高度 | PBT、ABS | 二色              | R1、爱菲ISO配列、左移64增补  | 
