@@ -1,8 +1,10 @@
+const hre = require("hardhat");
+
 const main = async () => {
-    const Transactions = await hre.ethers.getContractFactory("Transactions");
-    const transactions = await Transactions.deploy();
-    await transactions.deployed();
-    console.log(`Transactions already deployed, address: ${transactions.address}`);
+    const TransactionsContract = await hre.ethers.getContractFactory("Transactions");
+    const transactionsContract = await TransactionsContract.deploy();
+    await transactionsContract.deployed();
+    console.log(`Transactions already deployed, address: ${transactionsContract.address}`);
 };
 
 const runMain = async () => {
@@ -14,3 +16,5 @@ const runMain = async () => {
         process.exit(1);
     }
 };
+
+runMain();
