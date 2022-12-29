@@ -1,6 +1,7 @@
 import React, {lazy} from 'react';
 import ReactDOM from 'react-dom/client';
 import {createBrowserRouter, Navigate, RouterProvider} from "react-router-dom";
+import {TransactionProvider} from "./context/TransactionContext";
 import App from './App';
 import './index.css';
 import Home from "./pages/Home/Home";
@@ -49,7 +50,9 @@ const routers = createBrowserRouter([
 ]);
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-    <React.StrictMode>
-        <RouterProvider router={routers}/>
-    </React.StrictMode>
+    <TransactionProvider>
+        <React.StrictMode>
+            <RouterProvider router={routers}/>
+        </React.StrictMode>
+    </TransactionProvider>
 );
