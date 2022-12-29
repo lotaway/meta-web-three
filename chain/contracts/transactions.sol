@@ -17,7 +17,7 @@ contract Transactions {
 
     TransferStruct[] transferStruct;
 
-    function addToBlockchain(address payable receiver, uint amount, string memory message, string memory keyword) public {
+    function addRecord(address payable receiver, uint amount, string memory message, string memory keyword) public {
         transferStruct.push(TransferStruct({
             sender: msg.sender,
             receiver: receiver,
@@ -26,7 +26,7 @@ contract Transactions {
             timestamp: block.timestamp,
             keyword: keyword
         }));
-        emit Transfer(msg.sender, receiver, amount, message, timestamp, keyword);
+        emit Transfer(msg.sender, receiver, amount, message, block.timestamp, keyword);
     }
 
     function getAllTransactions() public view returns (TransferStruct[] memory) {
