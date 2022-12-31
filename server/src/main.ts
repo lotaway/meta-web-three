@@ -7,7 +7,7 @@ import {AppModule} from './app/app.module';
 
 // import webConfig from "./config/web-config";
 
-async function bootstrap(port: number = 3000) {
+async function bootstrap(port: number = 30000) {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
     app.useStaticAssets(join(__dirname, "static"), {
         prefix: "/static/"
