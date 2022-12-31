@@ -199,4 +199,17 @@
     //这三个方法都支持第二个参数，表示开始搜索的位置。
     s.includes('o', 9);
 
+    const aim = {
+        word: "don't move!",
+        target: true
+    }
+    //  定义了常量`obj`，但作为一个对象就算是常量也依旧可以改变属性
+    aim.word = "move!"  //  赋值成功
+    //  当如果使用`freeze`方法就可以锁定对象不可变
+    Object.freeze(aim)
+    aim.word = "try move ?" //  错误，无法赋值
+    //  使用`create`创建新对象，分离两者
+    let looker = Object.create(aim)
+    looker.word = "searching"   //  可以修改
+    aim.word    //  依旧是"don‘t move"或者第一次赋值的"move!"，而不会是"searching"
 }();
