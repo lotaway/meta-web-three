@@ -1,7 +1,4 @@
-/**
- * Buffer 实例方法 on 2016/5/10.
- */
-
+@[TOC](Buffer的学习)
 //  写入字符串
 var buf = new Buffer("123456789");
 console.log(buf.length);
@@ -27,7 +24,7 @@ buf4.copy(buf3, 0, 0, buf3.length);
 //buffer.equal(otherBuffer);
 //buffer.fill(value,offset,end);
 
-var fs = require('fs');
+const fs = require('fs');
 fs.readFile('./public/images/logo.png', function (err, buffer) {
     console.log(Buffer.isBuffer(buffer));
 
@@ -50,10 +47,10 @@ fs.readFile('./public/images/logo.png', function (err, buffer) {
 });
 
 //     使用流输出，可断续
-var fs = require('fs');
+const fs = require('fs');
 var reStm = fs.readFileSync('./public/images/logo.png');
 reStm
-//  数据传输中
+    //  数据传输中
     .on('data', function (chunk) {
         console.log(Buffer.isBuffer(chunk));
 

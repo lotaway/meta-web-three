@@ -1,6 +1,5 @@
 import {Controller, Get, Post, Put, Delete, Redirect, Param, Query, Body} from '@nestjs/common';
 import {BlogId, CreateBlog} from "./dto/blog.dto";
-import {getRedisClient} from "../utils/connect-redis";
 
 function defaultParam(defaultParams?: any[]) {
     return (target: any, propName: string, descriptor: PropertyDescriptor) => {
@@ -21,8 +20,6 @@ interface BlogListQueries extends Object {
 @Controller('blog')
 export class BlogController {
 
-    redisClient = getRedisClient()
-
     @Get(["", "index"])
     // @Redirect("/blog/list")
     async blogIndex() {
@@ -36,13 +33,7 @@ export class BlogController {
     @Get("list")
     // @defaultParam()
     async blogList(@Query() query: BlogListQueries = {}) {
-        try {
-            //  todo 抓取多个网站新闻内容并显示在这里，缓存相应的数据，之后应当使用mysql规则存储每日抓取的数据
-            await this.redisClient.set("blog", "active")
-            return await this.redisClient.get("blog")
-        } catch (err) {
-            return "blog redis error: " + JSON.stringify(err)
-        }
+        return "Get the blog list";
     }
 
     @Get("static/:blogNumber")
