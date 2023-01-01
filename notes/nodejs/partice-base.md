@@ -1,52 +1,50 @@
-/**
- 基础模块练习
- */
+@(TOC)[基础模块练习]
 
-//  创建服务器
-var http = require('http');
-// 显性写法
-var server = new http.Server();
+# 创建服务器
+```javascript
+const http = require('http');
+// 显性写法，直接创建服务器实例
+const server = new http.Server();
 server.on('request', function (req, res) {
 });
-//  封装写法
-var server2 = http.createServer(function (request, response) {
+//  封装写法，也是更常用的写法（当然企业中一般用express或koa框架进行创建），通过生产器内部创建
+const server2 = http.createServer(function (request, response) {
     //req即http.ServerRequest
     //res即http.ServerResponse
-    var qs = require('querystring')
-        , data = ''
-    ;
-
+    const qs = require('querystring')
+    let data = ''
     request.on('data', function (chunk) {
-        data += chunk;
-    });
+        data += chunk
+    })
     request.on('end', function () {
-        data = qs.parse(data);
-    });
-    /*
-     ServerRequest事件：
-     data：当请求体数据到来时，该事件被触发。该事件提供一个参数chunk，表示接收到的数据。该事件可能会被调用多次。如果该事件没有被监听，那么请求体将会被抛弃。
-     end：当请求体数据传输完成时，该事件被触发，此后将不会再有数据到来。
-     close： 用户当前请求结束时，该事件被触发。不同于 end，如果用户强制终止了传输，也还是调用close。
-     ServerRequest属性：
-     complete 客户端请求是否已经发送完成
-     httpVersion HTTP协议版本，通常是1.0或1.1
-     method HTTP 请求方法，如GET、POST、PUT、DELETE等url原始的请求路径，例如/static/image/x.jpg 或/user?name=byvoid
-     headers HTTP 请求头
-     trailers HTTP 请求尾（不常见）
-     connection 当前HTTP连接套接字，为net.Socket的实例
-     socket connection属性的别名
-     client client 属性的别名
-     */
+        data = qs.parse(data)
+    })
     response.writeHead(200, {'Content-Type': 'text/html'});
     response.write('<span class="response">This is the response content.</span>');
     response.end('<p class="end">It\'s end.</p>');   //结束发送
 });
-server2.listen(3000);
-console.log("HTTP server is listening at port 3000");
+server2.listen(3000)
+console.log("HTTP server is listening at port 3000")
+```
+# ServerRequest事件
+* data：当请求体数据到来时，该事件被触发。该事件提供一个参数chunk，表示接收到的数据。该事件可能会被调用多次。如果该事件没有被监听，那么请求体将会被抛弃。
+* end：当请求体数据传输完成时，该事件被触发，此后将不会再有数据到来。
+* close： 用户当前请求结束时，该事件被触发。不同于 end，如果用户强制终止了传输，也还是调用close。
+# ServerRequest属性
+* complete 客户端请求是否已经发送完成
+* httpVersion HTTP协议版本，通常是1.0或1.1
+* method HTTP 请求方法，如GET、POST、PUT、DELETE等url原始的请求路径，例如/static/image/x.jpg 或/user?name=byvoid
+* headers HTTP 请求头
+* trailers HTTP 请求尾（不常见）
+* connection 当前HTTP连接套接字，为net.Socket的实例
+* socket connection属性的别名
+* client client 属性的别名
 
-//  安全的网络响应（需提供证书）
-var https = require('https');
-var fs = require('fs');
+# 创建https服务
+使用https模块创建安全的网络响应，需提供SSL证书
+```javascript
+const https = require('https');
+const fs = require('fs');
 var options = {
     key: fs.readFileSync('ssh_key.pem'),    //  密钥
     cert: fs.readFileSync('ssh_cert.pem')   //  证书
@@ -54,17 +52,19 @@ var options = {
 https.createServer(options, function (request, response) {
     //  相同，略
 });
-
-//  发送异步请求
-var http2 = require('http');
-var qs2 = require('querystring');
+```
+# 发送请求
+如果是简单的接口请求，直接用fetch更好，如果需要详细专业配置才用以下方法
+```javascript
+const http = require('http');
+const qs2 = require('querystring');
 var content = qs2.stringify({
     //发送的内容
     name: 'lotaway',
     email: '576696294@qq.com',
     address: 'shantou,China'
 });
-var req = http2.request({
+var req = http.request({
         //  请求的选项
         //host: 'www.lotaway.com',    //请求网站的域名或IP地址
         path: '/api/post/test?keyword=1', //请求的相对路径和数据参数
@@ -83,7 +83,7 @@ var req = http2.request({
 );
 req.write(content);
 req.end();  //结束请求
-
+```
 // GET请求简便写法
 var http3 = require('http');
 http3.get({host: 'www.lotaway.com'}, function (res) {
