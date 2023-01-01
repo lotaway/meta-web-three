@@ -10,15 +10,34 @@
 
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
 
-## Installation
+## Direct 目录说明
+* chain 链端（智能合约）
+* client 客户端
+* notes 笔记
+* server 服务端
+
+## Installation 安装
 
 ```bash
 $ npm install
 ```
 
-## Running the app
+## Running the app 运行
+
+### Client 客户端
 
 ```bash
+$ cd client
+
+# development
+$ npm run dev
+```
+
+### Server 服务端
+
+```bash
+$ cd server
+
 # development
 $ npm run start
 
@@ -27,6 +46,12 @@ $ npm run start:dev
 
 # production mode
 $ npm run start:prod
+```
+
+### Chain 链端
+
+```bash
+$ cd chain
 
 # compile contract
 $ hardhat compile
@@ -43,24 +68,5 @@ $ hardhat node
 # deploy contract to local node for develop
 $ hardhat run scripts/deploy.js --network localhost
 ```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## 目录说明
-* chain 链端（智能合约）
-* client 客户端
-* notes 笔记
-* server 服务端
 
 `+(()=>throw new Emotion("Happy"))`

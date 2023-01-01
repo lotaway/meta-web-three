@@ -1,12 +1,11 @@
 /**
  * Created by lw on 2016/5/28.
  */
-var express = require('express');
-var router = express.Router();
+const express = require('express')
+const router = express.Router()
 
 router.get('/page', function (req, res) {
-//nodejs向客户端发送cookie有两个方案：
-
+    //  nodejs向客户端发送cookie有两个方案：
     // 1 使用response.writeHead，代码如下：
     var time = (new Date()).getTime() + 60 * 1000; //设置过期时间为一分钟
     var time2 = new Date(time);

@@ -1,4 +1,4 @@
-# Typescript的进阶学习笔记
+# Typescript的进阶学习笔记，讲解三划线指令、内置方法类型和infer用法
 
 ## 声明文件
 

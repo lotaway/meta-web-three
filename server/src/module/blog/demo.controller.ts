@@ -1,7 +1,7 @@
 import {join} from "path";
 import {createReadStream} from "fs";
 import {Controller, Get, Render} from "@nestjs/common";
-import {getRedisClient} from "../utils/connect-redis";
+import {getRedisClient} from "../../utils/connect-redis";
 
 enum Router {
     all = "all"

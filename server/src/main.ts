@@ -3,7 +3,7 @@ import {NestFactory} from '@nestjs/core';
 import {NestExpressApplication} from "@nestjs/platform-express";
 import * as ejs from "ejs";
 import * as cookieParser from "cookie-parser";
-import {AppModule} from './app/app.module';
+import {AppModule} from './module/app/app.module';
 
 // import webConfig from "./config/web-config";
 
