@@ -38,6 +38,9 @@ $ npm run dev
 ```bash
 $ cd server
 
+# generate database
+$ npm run db:create
+
 # development
 $ npm run start
 

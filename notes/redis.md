@@ -18,7 +18,15 @@ set [key] [value]
 如：
 
 ```cmd
-set dbversion 1.0.0
+set db:version 1.0.0
+```
+
+可以看到由于只有一般对key是通过【表名 冒号 列名】的形式来设置
+
+### 设置过期时间
+
+```cmd
+set [key] [value] ex [second]
 ```
 
 该方法无论输入值是什么类型都会作为字符串存储，读取字符串只需要使用命令：
@@ -180,6 +188,32 @@ zrem [key] [value]
 
 ```cmd
 keys *
+```
+
+# 判断值不存在才设置值
+
+```cmd
+setnx [key] [value] ex [second]
+```
+
+一般用于分布式锁的上锁，nx表示当值不存在才会执行，ex表示过期时间。或者用：
+
+```cmd
+set [key] [value] nx ex [second]
+```
+
+# 获取键的剩余时间（多久过期）
+
+```cmd
+ttl [key]
+```
+
+# 获取并删除值
+
+用于分布式锁的解锁
+
+```cmd
+getdel [key]
 ```
 
 # Redis常见问题

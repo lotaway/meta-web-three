@@ -1,7 +1,5 @@
-import {join} from "path";
-import {createReadStream} from "fs";
-import {Controller, Get, Render} from "@nestjs/common";
-import {getRedisClient} from "../../utils/connect-redis";
+import {Controller, Get, Param, Render} from "@nestjs/common";
+import {DemoService} from "./demo.service";
 
 enum Router {
     all = "all"
@@ -10,7 +8,8 @@ enum Router {
 @Controller("demo")
 export class DemoController {
 
-    redisClient = getRedisClient()
+    constructor(private readonly demoService: DemoService) {
+    }
 
     @Get(["", Router.all])
     @Render(`demo/${Router.all}`)
@@ -18,33 +17,14 @@ export class DemoController {
         return {};
     }
 
-    @Get("file")
-    async getMarkDownFile() {
-        if (false) {
-            try {
-                //  todo 抓取多个网站新闻内容并显示在这里，缓存相应的数据，之后应当使用mysql规则存储每日抓取的数据
-                await this.redisClient.set("blog", "contentCache")
-                return await this.redisClient.get("blog")
-            } catch (err) {
-                return "blog redis error: " + JSON.stringify(err)
-            }
-        }
-        const readStream = createReadStream(join(__dirname, "./demo.controller.js"))
-        const result = await new Promise((resolve, reject) => {
-            readStream.on("error", err => {
-                console.log("read file error: " + JSON.stringify(err))
-                reject(err)
-            })
-            let fileChunkArr = []
-            readStream.on("data", chunk => {
-                fileChunkArr.push(chunk)
-            })
-            readStream.on("end", () => {
-                const fileBuffer = fileChunkArr.join("")
-                resolve(fileBuffer.toString())
-            })
-        })
-        return result
+    @Get("user/all")
+    async getAllUsers() {
+        return await this.demoService.getAllUsers()
+    }
+
+    @Get("file/:fileName")
+    async getMarkDownFile(@Param("fileName") fileName) {
+        return await this.demoService.getFileByName(fileName)
     }
 
 }
