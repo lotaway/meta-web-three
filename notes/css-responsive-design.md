@@ -1,0 +1,260 @@
+@[TOC](关于网页响应式设计中会使用到的CSS样式知识)
+
+# 百分比布局
+
+简单的讲就是将元素按照百分比去划分宽度，配合行内元素属性或者浮动达成响应式，如：
+
+```html
+
+<ul class="container">
+    <li class="item">1</li>
+    <li class="item">2</li>
+    <li class="item">3</li>
+    <li class="item">4</li>
+    <li class="item">5</li>
+    <li class="item">6</li>
+    <li class="item">7</li>
+    <li class="item">8</li>
+</ul>
+```
+
+```css
+.item {
+    float: left;
+    width: 49%;
+    padding: calc(1% - 10px)
+}
+```
+
+# 弹性布局
+
+弹性布局既使用flex属性对所有子元素指定统一水平或垂直的布局方式，让子元素根据设定自动完成宽度或高度的适应。
+由于特性决定更适合单行或者单列展示内容，例如快捷功能入口、Tab选项卡栏等。
+如：
+
+```html
+
+<ul class="container">
+    <li class="item">1</li>
+    <li class="item">2</li>
+    <li class="item">3</li>
+    <li class="item">4</li>
+</ul>
+<ul class="container">
+    <li class="item">1</li>
+    <li class="item">2</li>
+    <li class="item">3</li>
+    <li class="item">4</li>
+</ul>
+```
+
+指定横向显示，并且内容分布方式为间隔相等（无论不同内容之间是否相同宽度）
+
+```css
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.item {
+    width: 300px;
+    max-width: 25%;
+}
+```
+
+# 网格布局
+
+网格布局就是通过grid属性完成网格形式的布局，和flex一样有很多配套的额外属性，相比flex布局好处在于适合多行重复的相同内容，例如产品列表、视频列表。
+
+```html
+
+<ul class="container">
+    <li class="item">1</li>
+    <li class="item">2</li>
+    <li class="item">3</li>
+    <li class="item">4</li>
+    <li class="item">5</li>
+    <li class="item">6</li>
+    <li class="item">7</li>
+    <li class="item">8</li>
+</ul>
+```
+
+// 指定每行显示4个，宽度自动，网格间距通过gap指定
+
+```css
+.container {
+    display: grid;
+    gap: 1vw;
+    grid-template-columns: repeat(4, auto)
+}
+```
+
+# 最大最小宽度
+
+通过设定最大最小宽度来限制类似百分比设定的元素，达成有限制的响应式变化：
+
+```css
+.item {
+    width: 70%;
+    min-width: 300px;
+    max-width: 600px;
+}
+```
+
+也可以通过最新的clamp(min, normal, max)属性达成类似目标，如：
+
+```css
+.item {
+    width: clamp(1rem, 1.2vw, 2rem)
+}
+```
+
+上述两种方式要注意除了最大最小值外，指定的单位必须是百分比或者vw、flex:1这种会根据窗口或父元素大小自动变化数值的，否则最大最小值的限制将失去意义。
+
+# 视图窗口
+
+网页本身是作为一个视窗存在，它是可以按照需要变成和窗口大小不一样的，导致一般针对PC端设计的页面，在手机上是必须通过双指缩放来调整视窗的大小，从而看清楚要浏览的内容。
+一般通过meta:viewport指定宽度为当前所用设备的宽度，并且禁止缩放功能来完成手机端适配工作：
+
+```html
+
+<meta name="viewport"
+      content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0"/>
+```
+
+当然也有将宽度指定为固定数值如750px，之后通过脚本计算出合适的缩放倍数来完成自动适配不同屏幕的目标：
+
+```html
+
+<meta name="viewport" content=""/>
+<script>
+    function scaleMatch() {
+        const width = 750
+        document.querySelector("meta[name=viewport]").content = "width=" + width + "px,user-scalable=no;initial-scale=" + 750 / window.width
+    }
+
+    window.addEventListener("load", function () {
+        scaleMatch()
+    })
+    window.addEventListener("resize", function () {
+        scaleMatch()
+    })
+</script>
+```
+
+# 多媒体查询
+
+多媒体查询可以通过指定当设备满足条件时，展示不同的样式。
+
+## 最大最小宽度
+
+以下例子通过判断在大屏时一行显示三个元素，当屏幕中等大小时一行显示两个元素，当小屏幕时，一行显示一个元素：
+
+```css
+.item {
+    float: left;
+    width: 33.3%;
+}
+
+/* 指定宽度小于1000像素时的样式 */
+@media (max-width: 1000px) {
+    .item {
+        width: 50%;
+    }
+}
+
+/* 指定宽度小于300像素时的样式 */
+@media (max-width: 300px) {
+    .item {
+        width: 100%;
+    }
+}
+```
+
+另一种指定最大最小宽度的方式：
+
+```
+.item {
+   float: left;
+   width: 33.3%;
+}
+/* 指定当宽度介于300像素和1000像素之间时的样式 */
+@media (300px < width <= 1000px) {
+   .item {
+        width: 50%;
+   } 
+}
+```
+
+## 竖屏横屏
+
+媒体查询还可以直接指定横屏和竖屏时的样式，不过这实际查询的不是横屏竖屏，而单纯是宽度和高度比，如果宽度更长则视为横屏，如果高度更长则视为竖屏：
+
+```css
+/* 横屏 */
+@media (orientation: landscape) {
+    .item {
+        width: 25%;
+    }
+}
+
+/* 竖屏 */
+@media (orientation: portrait) {
+    .item {
+        width: 50%;
+    }
+}
+```
+
+## 尺寸比
+
+通过指定宽高比例来展示不同样式，很明显适合对尺寸比有精确要求的类型，例如画作、聚集元素大小不一致的情况：
+
+```css
+/* 当宽度和高度比例大于16：9时时 */
+@media (min-aspect-ratio: 16/9) {
+
+}
+
+/* 当宽度和高度比例为小于4：3时 */
+@media (max-aspect-ratio: 4/3) {
+
+}
+```
+
+# 容器属性
+
+容器属性可以让父元素符合要求时展示不同样式：
+
+```html
+
+<ul class="card-container">
+    <li class="card-item">1</li>
+    <li class="card-item">2</li>
+    <li class="card-item">3</li>
+    <li class="card-item">4</li>
+</ul>
+```
+
+```css
+/* 定义容器条件和样式 */
+.card-item {
+    width: 100%;
+}
+
+@container card (width >= 600px) {
+    .card-item {
+        width: 50%;
+    }
+}
+/* 调用时在作为容器的父元素上里指定容器类型和名称即可 */
+.card-container {
+    container-type: inline-size;
+    container-name: card;
+}
+```
+
+[文章详解container属性](https://blog.csdn.net/qq_36963245/article/details/127121047)
+目前推行情况只有谷歌、火狐和苹果浏览器支持，需要做好兼容。

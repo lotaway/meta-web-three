@@ -1,10 +1,8 @@
 import {PrismaClient} from "@prisma/client";
 
-let client = null
+let client: InstanceType<typeof PrismaClient> = null
 
 export function prismaClientProvider() {
-    if (!client) {
-        client = new PrismaClient()
-    }
+    if (!client) client = new PrismaClient()
     return client
 }

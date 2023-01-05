@@ -7,51 +7,62 @@
 
 # 字符串转换成Buffer
 
-通过`new Buffer(string)`的方式可以将内容变成Buffer格式
+通过`Buffer.from(string)`的方式可以将内容变成Buffer格式
 参数：源Buf（必须），偏移量，长度，编码（默认utf8）
 
 ```javascript
-var strBuffer = new Buffer("123456789")
+var strBuffer = Buffer.from("something")
 console.log(strBuffer.length)   //  和数组一样通过length获取长度
 ```
 
 # 指定Buffer长度
 
-可以通过`new Buffer(number)`指定固定长度，当写入字符串内容时会丢弃多余字符
+可以通过`Buffer.alloc(size)`指定固定长度，当写入字符串内容时会丢弃多余字符
 
 ```javascript
-var buf2 = new Buffer(8)
-buf2.write('123456789')
+var buf2 = Buffer.alloc(8)
+buf2.write('something')
 console.log(buf2.length)
 //  获取到的长度固定是8
 ```
 
 # 数组转换成Buffer
 
-更常用的是写入数组，可以直接通过下标调用
+更常用的是写入数组`Buffer.from(array)`，可以直接通过下标调用
 
 ```javascript
-var buf3 = new Buffer([0, 1, 2, 3])
+var buf3 = Buffer.from([0, 1, 2, 3])
 console.log(buf3[0])
 //  获取到的内容为原数组索引0位置的内容：0
 ```
 
 # 复制Buffer
 
-复制需要的参数是：源Buffer（必须），目标写入开始位置，源读取开始位置，源结束位置
+复制是指从一个buffer实例复制到另外一个实例，需要的参数是：源buffer（必须），目标写入开始位置，源读取开始位置，源结束位置
 
 ```javascript
-let originBuffer = new Buffer("这就是要复制的内容")
-let targetBuffer = new Buffer()
+let originBuffer = Buffer.from("这就是要复制的内容")
+let targetBuffer = Buffer.allocUnsafe(originBuffer.length)
 targetBuffer.copy(originBuffer, 0, 0, originBuffer.length)
+```
+
+这种复制适合两个Buffer实例在不同位置创建的
+
+# 更直接的复制方式
+
+这种适合在同个位置或函数内进行复制
+
+```javascript
+let originBuffer = Buffer.from("这就是要复制的内容")
+let targetBuffer = Buffer.from(originBuffer)
 ```
 
 # 更多Buffer方法
 
 ```javascript
-buffer.toString(encoding, start = 0, end = buffer.length)
+Buffer.toString(buffer, encoding, start = 0, end = buffer.length)
 buffer.slice(start, end)
-buffer.compare(otherBuffer)
+Buffer.compare(oneBuffer, otherBuffer)
 buffer.equal(otherBuffer)
 buffer.fill(value, offset, end)
 ```

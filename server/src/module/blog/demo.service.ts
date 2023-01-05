@@ -11,7 +11,6 @@ export class DemoService {
     private readonly redisClient = redisClientProvider()
 
     async getAllUsers() {
-        // await this.prismaClient.$disconnect()
         const allUsers = await this.prismaClient.user.findMany()
         console.log(allUsers)
         return allUsers

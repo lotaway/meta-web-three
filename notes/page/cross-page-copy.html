@@ -79,8 +79,8 @@
                 //     dragged.parentNode.removeChild(dragged);
                 //     event.target.appendChild(dragged);
                 // } else {
-                    console.log(event.dataTransfer.getData("text/plain"));
-                    event.target.innerHTML += event.dataTransfer.getData("text/plain");
+                console.log(event.dataTransfer.getData("text/plain"));
+                event.target.innerHTML += event.dataTransfer.getData("text/plain");
                 // }
             }
         });

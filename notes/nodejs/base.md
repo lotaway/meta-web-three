@@ -224,3 +224,21 @@ doSomething(somethingElse)
 ```
 
 还有precess.platform,process.pid,process.execPath,process.memoryUsage()等方法，以及POSIX进程信号响应机制
+
+# 加密
+
+加密最常见的就是将账户密码进行MD5加密存储，内置库提供了相应的方式：
+
+```javascript
+const crypto = require("crypto")
+const md5 = crypto.createHash("md5")
+md5.update("这里是要加密的字符串内容")
+const cryptoContent = md5.digest("hex") //  加密好的内容，默认全小些
+```
+
+也有更简单的第三方模块（需要通过npm安装）：
+
+```javascript
+const md5 = require("md5")
+const cryptoContent = md5("这里是要加密的字符串内容")   //  加密好的内容，默认全小写
+```
