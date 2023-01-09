@@ -6,6 +6,13 @@
 
 ```html
 
+<style>
+    .item {
+        float: left;
+        width: 49%;
+        padding: calc(1% - 10px)
+    }
+</style>
 <ul class="container">
     <li class="item">1</li>
     <li class="item">2</li>
@@ -16,14 +23,6 @@
     <li class="item">7</li>
     <li class="item">8</li>
 </ul>
-```
-
-```css
-.item {
-    float: left;
-    width: 49%;
-    padding: calc(1% - 10px)
-}
 ```
 
 # 弹性布局
@@ -34,6 +33,19 @@
 
 ```html
 
+<style>
+    /*指定横向显示，并且内容分布方式为间隔相等（无论不同内容之间是否相同宽度）*/
+    .container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+    }
+
+    .item {
+        width: 300px;
+        max-width: 25%;
+    }
+</style>
 <ul class="container">
     <li class="item">1</li>
     <li class="item">2</li>
@@ -46,21 +58,6 @@
     <li class="item">3</li>
     <li class="item">4</li>
 </ul>
-```
-
-指定横向显示，并且内容分布方式为间隔相等（无论不同内容之间是否相同宽度）
-
-```css
-.container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-}
-
-.item {
-    width: 300px;
-    max-width: 25%;
-}
 ```
 
 # 网格布局
@@ -69,6 +66,14 @@
 
 ```html
 
+<style>
+    /*指定每行显示4个，宽度自动，网格间距通过gap指定*/
+    .container {
+        display: grid;
+        gap: 1vw; /*使用视口宽度单位*/
+        grid-template-columns: repeat(4, auto)
+    }
+</style>
 <ul class="container">
     <li class="item">1</li>
     <li class="item">2</li>
@@ -79,16 +84,6 @@
     <li class="item">7</li>
     <li class="item">8</li>
 </ul>
-```
-
-// 指定每行显示4个，宽度自动，网格间距通过gap指定
-
-```css
-.container {
-    display: grid;
-    gap: 1vw;
-    grid-template-columns: repeat(4, auto)
-}
 ```
 
 # 最大最小宽度
@@ -226,10 +221,28 @@
 
 # 容器属性
 
+目前推行情况只有谷歌、微软和苹果浏览器支持，作为一个未来时属性提前了解一下。
 容器属性可以让父元素符合要求时展示不同样式：
 
 ```html
 
+<style>
+    /* 定义容器条件和样式 */
+    .card-item {
+        width: 100%;
+    }
+
+    @container card (width >= 600px) {
+        .card-item {
+            width: 50%;
+        }
+    }
+    /* 调用时在作为容器的父元素上里指定容器类型和名称即可 */
+    .card-container {
+        container-type: inline-size;
+        container-name: card;
+    }
+</style>
 <ul class="card-container">
     <li class="card-item">1</li>
     <li class="card-item">2</li>
@@ -238,23 +251,48 @@
 </ul>
 ```
 
-```css
-/* 定义容器条件和样式 */
-.card-item {
-    width: 100%;
-}
+# 容器查询单位
 
-@container card (width >= 600px) {
-    .card-item {
-        width: 50%;
+可用的单位有：
+
+* cqw: Container Query Width 容器查询宽度
+* cqh: Container Query Height 容器查询宽度
+* cqmin: 容器中取宽高最小的一个作为标准，即容器查询最小边
+* cqmax: 容器中取宽高最大的一个作为标准，即容器查询最大边
+
+取值方式和vw、vh、vmin、vmax相似，1=1%，只不过vw是相对于设备宽高，而cq是相对于作为容器的父元素，例如1cqw即相对于容器的1%宽度，如果容器宽度是1000px，1cqw则是1000x0.1=100px。
+
+```html
+
+<style>
+    .info {
+        font-size: clamp(12px, calc(100cqw / 20), 60px);
     }
-}
-/* 调用时在作为容器的父元素上里指定容器类型和名称即可 */
-.card-container {
-    container-type: inline-size;
-    container-name: card;
-}
+</style>
+<div class="contain">
+    <p class="info">
+        这些内容将会根据容器div大小变化而变化，通过自动变化文字大小，完成固定每行显示20个文字，并且设定最小和最大像素值 </p>
+</div>
 ```
 
-[文章详解container属性](https://blog.csdn.net/qq_36963245/article/details/127121047)
-目前推行情况只有谷歌、火狐和苹果浏览器支持，需要做好兼容。
+[CSS Container Queries属性](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Container_Queries)
+
+# 伪类has
+
+用来判断是否存在子元素，若存在则样式生效，下面是若存在标题则为容器添加边框：
+
+```html
+
+<style>
+    /*判断当存在标题子元素时就显示*/
+    .container:has(.title) {
+        border: 1px solid #000;
+    }
+</style>
+<div class="container">
+    <h5 class="title">这就是标题</h5>
+    <p class="content">这就是详细内容</p>
+</div>
+```
+
+若将title元素去除，边框样式将失效。

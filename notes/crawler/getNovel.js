@@ -1,7 +1,7 @@
 const http = require("http"),
     https = require("https"),
-    domain = require("domain")
-path = require("path"),
+    domain = require("domain"),
+    path = require("path"),
     querystring = require("querystring"),
     fs = require("fs"),
     open = require("open"),
@@ -12,7 +12,7 @@ path = require("path"),
     port = 3000 //	visit url port
     , domainGetNovel = domain.create();
 
-//  todo 对于站点会自行判断userAgent引发的问题，需要设置userAgent？
+//  todo 部分站点会判断userAgent，需要设置userAgent
 domainGetNovel.run(() => {
     let server = http.createServer((req, res) => {
         let template = data => data.list.reduce((prev, item) => {
