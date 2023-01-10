@@ -1,4 +1,4 @@
-@[TOC](关于网页响应式设计中会使用到的CSS样式知识)
+@[TOC](响应式设计-网页CSS样式知识)
 
 # 百分比布局
 
@@ -119,24 +119,29 @@
       content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0"/>
 ```
 
-当然也有将宽度指定为固定数值如750px，之后通过脚本计算出合适的缩放倍数来完成自动适配不同屏幕的目标：
+当然也有将通过指定宽度和缩放比来完成设配的方式：
 
 ```html
 
 <meta name="viewport" content=""/>
 <script>
     function scaleMatch() {
+        //  方式1：直接通过占比像素点（1x/2x/3x）执行缩放，每个位置像素点越高，缩放就越厉害，更注重保持图片的高质量，但使用像素单位的其他元素也会受影响导致缩小
+        // document.querySelector("meta[name=viewport]").content = 'width=device-width, initial-scale=' + (1 / window.devicePixelRatio) + ', user-scalable=no';
+
+        //  方式2：通过一开始固定宽度来决定最后的缩放比例，能确保像素单位元素能自动配合屏幕缩放，相比质量更更注重按照像素设计稿一比一还原。
         const width = 750
         document.querySelector("meta[name=viewport]").content = "width=" + width + "px,user-scalable=no;initial-scale=" + 750 / window.width
     }
 
-    window.addEventListener("load", function () {
+    window.addEventListener("DOMContentLoaded", function () {
         scaleMatch()
     })
     window.addEventListener("resize", function () {
         scaleMatch()
     })
 </script>
+<h1 style="font-size: 1.5rem">标题根据屏幕尺寸变化</h1>
 ```
 
 # 多媒体查询

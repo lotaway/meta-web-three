@@ -1,8 +1,8 @@
-# Typescript的进阶学习笔记，讲解三划线指令、内置方法类型和infer用法
+@[TOC](Typescript的进阶学习笔记-讲解三划线指令、内置方法类型、infer、协变、逆变和交叉类型)
 
-## 声明文件
+# 声明文件
 
-### *system.ts*文件，注意`namespace`不需要`export`导出
+## *system.ts*文件，注意`namespace`不需要`export`导出
 
 ```typescript
 namespace system {
@@ -14,16 +14,16 @@ namespace system {
 }
 ```
 
-### 在*main.ts*文件中使用三划线指令标签引入
+## 在*main.ts*文件中使用三划线指令标签引入
 
 ```typescript
 /// <reference path="./system.ts"/>
 const ip: system.IP = system.getIP();
 ```
 
-## 类参数自动转成成员变量
+# 类参数自动转成成员变量
 
-### 在类的构造器可以用`private`修饰形参，该形参会自动升级为成员变量，当实例化时，实参也将自动赋值给成员变量
+## 在类的构造器可以用`private`修饰形参，该形参会自动升级为成员变量，当实例化时，实参也将自动赋值给成员变量
 
 ```typescript
 class ClassRoom {
@@ -47,7 +47,7 @@ class ClassRoom {
 
 # 关于内置的泛型讲解
 
-### `NonNullable`排除`null`和`undefined`的可能性
+## `NonNullable`排除`null`和`undefined`的可能性
 
 ```typescript
 type OriginData = {
@@ -73,7 +73,7 @@ type NecessaryData = {
 type OptionalData = Partial<NecessaryData>
 ```
 
-### 上面的代码相当于：
+上面的代码相当于：
 
 ```typescript
 type OptionalData = {
@@ -82,7 +82,7 @@ type OptionalData = {
 }
 ```
 
-### 实际使用：
+实际使用：
 
 ```typescript
 let finalData: NecessaryData = {
@@ -105,7 +105,7 @@ type OptionalData = {
 type NecessaryData = Require<OptionalData>
 ```
 
-### 上面的代码相当于：
+上面的代码相当于：
 
 ```typescript
 type necessaryData = {
@@ -161,7 +161,7 @@ let inputData3: InsertData = {
 };
 ```
 
-### 上述是对一个接口类型或对象类型进行检查，另一种用法是对联合类型检查筛选
+上述是对一个接口类型或对象类型进行检查，另一种用法是对联合类型检查筛选
 
 ```typescript
 type Level = number | string | (() => number);
@@ -169,9 +169,9 @@ type CLevel = number | Function
 type TargetLevel = Extract<Level, CLevel>;
 ```
 
-#### 以上相当于 type TargetLevel = number | (() => number)
+以上相当于 type TargetLevel = number | (() => number)
 
-### `Exclude`与`Extract`相反，判断指定类型中是否没有继承要求的键，若继承了则返回`Never`
+## `Exclude`与`Extract`相反，判断指定类型中是否没有继承要求的键，若继承了则返回`Never`
 
 ```typescript
 interface SaveData {
@@ -193,7 +193,7 @@ let inputData: ShowData = {
 }
 ```
 
-### 上述是对接口或对象类型的检查，另一种用法是对联合类型检查筛选
+上述是对接口或对象类型的检查，另一种用法是对联合类型检查筛选
 
 ```typescript
 type Level = number | string | (() => number);
@@ -201,7 +201,7 @@ type HLevel = string | Function
 type TargetLevel = Exclude<Level, HLevel>;
 ```
 
-#### 以上相当于type TargetLevel = number
+以上相当于type TargetLevel = number
 
 ## `Record`将指定的类型中所有的键类型变成第二个参数传入的类型
 
@@ -234,7 +234,7 @@ let stateInfo: StateInfo = {
 }
 ```
 
-#### 将接口类型`ToBeKey`变成了`TargetRecord`所有键的类型
+将接口类型`ToBeKey`变成了`TargetRecord`所有键的类型
 
 ## `ReturnType`传入函数类型，获取该函数的返回值类型
 
@@ -270,7 +270,9 @@ type ClassParamsArr = ConstructorParameters<typeof ClassRoom>;
 const classParamArr: ClassParamsArr = [511, "the first one"];
 ```
 
-## `infer`只能在条件类型的`extends`子句中使用，`infer`得到的类型只能在`true`语句中使用, 即`X ? Y : Z`中的`X`中推断，在`Y`位置引用
+## `infer`推断出类型
+
+只能在条件类型的`extends`子句中使用，`infer`得到的类型只能在`true`语句中使用, 即`X ? Y : Z`中的`X`中推断，在`Y`位置引用
 
 ```typescript
 type InferArray<T> = T extends (infer U)[] ? U : never;
@@ -297,4 +299,94 @@ type I7 = InferPromise<Promise<string>>; // string
 // 推断字符串字面量类型的第一个字符对应的字面量类型
 type InferString<T extends string> = T extends `${infer First}${infer _}` ? First : [];
 type I8 = InferString<"John">; // 推断出John第一个字符字面量是J
+```
+
+# 协变
+
+接口中继承的超集可以协变成父级类型：
+
+```typescript
+interface Person {
+    name: string
+}
+
+interface Student extends Person {
+    classname: string
+}
+
+let p1: Person = {
+    name: "mimi"
+}
+let s1: Student = {
+    name: "xixi",
+    classname: "初一"
+}
+s1 = p1 //  不允许将父级赋值给超集，因为父级缺少超集的必须有的属性类型
+p1 = s1 //  允许将超集赋值给父级，类型依旧是父级，无法调用超集的内容
+p1.classname //  不允许调用超集属性，因为父级类型没有该属性，即使已经将超集赋值给父级也不行
+```
+
+类型中如果属性类型能对应上，则不需要接口继承关系也能自动完成协变：
+
+```typescript
+type Person = {
+    name: string
+}
+type Student = {
+    name: string
+    classname: string
+}
+let p1: Person = {
+    name: "mimi"
+}
+let s1: Student = {
+    name: "xixi",
+    classname: "初一"
+}
+p1 = s1 //  允许，理由同之前一样，即使没有两个类型没有继承关系也可以自动降级
+```
+
+# 逆变
+
+与变量类型和接口相反，参数类型是逆变的，无论协变和逆变都是为了最终的代码安全。
+
+```typescript
+type PersonIntroFn = (args: Person) => string
+type StudentIntroFn = (args: Student) => string
+let personIntro: PersonIntroFn = args => `Hello, I'm ${args.name}`
+let studentIntro: StudentIntroFn = args => `Hello, I'm ${args.classname} student ${args.name}`
+personIntro = studentIntro  //  不允许，因为studentIntro实际代码有可能会调用超集参数中的超集属性，而赋值给[类型是父级参数的方法]却必定是不能调用的
+studentIntro = personIntro //   允许，因为personIntro实际代码只会调用父级参数中的父级属性，而赋值给[类型是超集参数的方法]依旧能满足调用要求
+```
+
+# 交叉类型
+
+通过&或|组合类型变成交叉类型
+
+```typescript
+interface Teacher {
+    name: string
+    teach: string
+}
+
+interface Student {
+    name: string
+    learn: string
+}
+
+type Mixer1 = Teacher & Student
+//  等同于 type Mixer1 = { name: string, teach: string, learn: string }
+type Mixer2 = Teacher | Student
+//  等同于 type Mixer2 = { name: string}
+```
+
+另一种比较复杂的理解方式，强制组合泛型参数变成交叉类型：
+
+```typescript
+type UnionToIntersction<U> = (U extends U ? (a: U) => any : never) extends (a: infer R) => any ? R : never
+type Copy<T> = {
+    [K in keyof T]: T[K]
+}
+type res = Copy<UnionToIntersction<{ a: 1 } | { b: 3 }>>
+//  等同于 type res = { a: 1, b: 3 }
 ```
