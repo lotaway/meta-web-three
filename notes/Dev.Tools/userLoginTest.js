@@ -20,20 +20,20 @@ const host = "http://test.8248.net"
         // devtools: true,
         headless: false
     })
-    const loginPage = await browser.newPage()
-    const response = await loginPage.goto(host + frontUrl, {
+    const page = await browser.newPage()
+    const response = await page.goto(host + frontUrl, {
         // waitUntil: "domcontentloaded"
     })
     if (response.url().indexOf("/cn/login/web.html") > -1) {
-        const accountEle = await loginPage.waitForSelector("#user-account")
+        const accountEle = await page.waitForSelector("#user-account")
         await accountEle.type(backstage.account, {
             // delay: 24
         })
-        const passwordEle = await loginPage.$("#user-password")
+        const passwordEle = await page.$("#user-password")
         await passwordEle.type(backstage.password, {
             // delay: 24
         })
-        const btnSubmit = await loginPage.$(".contain-password-sign-in .btn-submit")
+        const btnSubmit = await page.$(".contain-password-sign-in .btn-submit")
         await btnSubmit.click()
         /*const result = await loginPage.evaluate(() => {
             document.querySelector(".contain-password-sign-in .btn-submit").click();
@@ -43,16 +43,17 @@ const host = "http://test.8248.net"
         })*/
     }
     // await loginPage.waitForXPath(frontUrl)
-    await loginPage.waitForResponse(response => response.url().indexOf(frontUrl) > -1)
-    console.log("in")
-    const memberEle = await loginPage.$(".Lmember")
-    if (memberEle.asElement().innerHTML.indexOf(backstage.nickname) > -1) {
+    await page.waitForNavigation()
+    const memberEle = await page.$(".Lmember")
+    const textContent = await memberEle.getProperty("innerHTML")
+    console.log(textContent.toString())
+    if (textContent.toString().indexOf(backstage.nickname) > -1) {
         console.log("登录成功");
     } else {
         console.log("无法登录");
     }
     console.log("执行截图...");
-    await loginPage.screenshot({
+    await page.screenshot({
         path: path.join(__dirname, "./screenshot.jpeg"),
         type: "jpeg",
         quality: 100,
