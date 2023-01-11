@@ -36,7 +36,7 @@ enum ArticleState {
 model Article {
     id String @db.VarChar(255) @default(uuid()) @unique
     createTime DateTime @default(now())
-    updateTime DateTime @default(now()) @updatedAt
+    updatedAt DateTime @default(now()) @updatedAt
     title String @db.VarChar(50)
     content Unsupported("text")
     state ArticleState @default(PENDING)
