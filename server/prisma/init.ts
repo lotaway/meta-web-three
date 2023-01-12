@@ -57,7 +57,7 @@ async function main() {
             skip: 20,    //  分页用，跳过多少个
             take: 10,   //  分页用，获取多少个
             where: {
-                state: 1,
+                state: 'PENDING',
                 title: {
                     startsWith: "web3"
                 },

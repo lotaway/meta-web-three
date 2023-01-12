@@ -186,12 +186,34 @@ eventEmitter.removeAllListeners(); // 移除所有事件的所有监听器，参
 
 相比js本身的全局对象是window，nodejs的全局对象是global
 
-* process：用于描述当前nodejs进程状态
+## process
+
+* 用于描述当前nodejs进程状态
 * process.argv是命令行参数数组，第一个元素是node，第二个是脚本文件名，第三个开始是运行参数。
 
 ```javascript
   console.log(process.argv)
 //  ['node','/byvoid/argv.js','2016','==v','Carbo Kuo']
+```
+
+## 执行命令行
+
+通过child_process模块的exec方法可在当前环境执行命令行命令，规则：`child_process.exec(command[, options][, callback])`，示例：
+
+```javascript
+const {exec} = require("child_process")
+//  exec("ls")
+//  ls是linux的输出当前文件夹下的目录，window要用dir
+exec("dir", {
+    cmd: "../"  //  在上一级路径执行命令
+}, (err, stdout, stderr) => {
+    //  执行过程遇到错误直接抛出
+    if (err) {
+        throw err
+    }
+    console.log(stdout) //  正常执行命令后的打印命令行返回内容
+    console.error(stderr)   //  执行命令错误后打印命令行返回的错误信息
+})
 ```
 
 ## stdout & stdin 命令行输出输入流

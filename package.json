@@ -4,7 +4,9 @@
   "description": "",
   "author": "",
   "license": "UNLICENSED",
-  "scripts": {},
+  "scripts": {
+    "dev": "node run-dev.js"
+  },
   "dependencies": {
   }
 }

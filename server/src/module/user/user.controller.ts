@@ -1,12 +1,22 @@
-import {Controller, Req, Res, Get, Render} from '@nestjs/common';
+import {Controller, Req, Res, Get, Post, Render, Param} from '@nestjs/common';
 import {UserService} from "./user.service";
 //  验证码
 import svgCaptcha from "svg-captcha";
+import {SignInParam} from "./dto/user.dto";
 
 @Controller('user')
 export class UserController {
 
     constructor(private readonly userService: UserService) {
+    }
+
+    @Post("signIn")
+    signIn(@Param() {account, password}: SignInParam) {
+        if (!account || !password) {
+            return {
+
+            }
+        }
     }
 
     @Get(["", "index"])

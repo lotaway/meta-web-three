@@ -67,7 +67,7 @@ buffer.equal(otherBuffer)
 buffer.fill(value, offset, end)
 ```
 
-# 文件操作
+# 文件操作 fs
 
 fs模块是文件操作的封装，提供了文件读取、写入、更名、删除、遍历目录、链接等POSIX操作，并且都有同步和异步方法。
 
@@ -305,3 +305,35 @@ fs.createReadStream("aFile.txt.gz").pipe(zlib.createGunzip()).pipe(fs.createWrit
 | 修改文件时间戳 | fs.utimes(path, atime, mtime, [callback(err)]) | fs.utimesSync(path, atime, mtime)                 |
 | 修改文件时间戳（文件描述符） | fs.futimes(fd, atime, mtime, [callback(err)]) | fs.futimesSync(fd, atime, mtime)                  |
 | 同步磁盘缓存 | fs.fsync(fd, [callback(err)]) | fs.fsyncSync(fd)                                  | 
+
+# 路径操作 path
+
+path的模块，可以帮你标准化，连接，解析路径，从绝对路径转换到相对路径，从路径中提取各部分信息，检测文件是否存在。总的来说，path模块其实只是些字符串处理，而且也不会到文件系统去做验证（path.exists函数例外）。
+
+## 路径标准化 normalize
+
+将用户输入或者配置文件中获取到的路径进行一次标准化，可以将“..”、“.”、“//”等特定位置或错误的情况进行过滤重整后输出，如：
+
+```javascript
+const {normalize} = require('path')
+normalize('/foo/bar//baz/asdf/quux/..'); // 将双划线和最后的..处理掉，变成：/foo/bar/baz/asdf
+```
+
+## 连接路径 join
+
+串联多个路径成为一个完整路径输出，例如将基础路径和文件夹路径、文件名称合成一个完整的文件路径：
+
+```javascript
+const {join} = require('path')
+join('/foo', 'bar', 'baz/asdf', 'quux', '..'); // /foo/bar/baz/asdf
+```
+
+## 解析路径 resolve
+
+可以把多个路径解析为一个绝对路径。它的功能就像对这些路径挨个不断进行“cd”操作，不同的地方在于不会去确认路径是否存在，如：
+
+```javascript
+const {resolve} = require("path")
+resolve('foo/bar', './baz'); // /foo/bar/baz
+resolve('foo/bar', '/tmp/file/'); // /tmp/file
+```
