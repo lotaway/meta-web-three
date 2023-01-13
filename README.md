@@ -11,6 +11,7 @@
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
 
 ## Direct 目录说明
+
 * chain 链端（智能合约）
 * client 客户端
 * notes 笔记
@@ -22,7 +23,11 @@
 $ npm install
 ```
 
-## Running the app 运行
+## Running the app 同时运行服务端和客户端
+
+```bash
+npm run dev
+```
 
 ### Client 客户端
 

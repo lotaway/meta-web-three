@@ -1,15 +1,27 @@
 const {exec} = require("child_process")
-exec("npm run dev", {
-    cwd: "./client"
-}, (err, stdout, stderr) => {
-    if (err) throw err
-    console.log(`client stdout:${stdout.toString()}`)
-    console.log(`client stderr:${stderr.toString()}`)
-})
-exec("npm run start:dev", {
+let clientProcess = null
+
+function startClientDev() {
+    clientProcess = exec("npm run dev", {
+        cwd: "./client"
+    }, err => {
+        if (err) throw err
+    })
+    clientProcess.stdout.on("data", data => {
+        console.log(`Client: ${data}`)
+    })
+}
+
+const serverProcess = exec("npm run start:dev", {
     cwd: "./server"
-}, (err, stdout, stderr) => {
+}, err => {
     if (err) throw err
-    console.log(`server stdout: ${stdout.toString()}`)
-    console.error(`server stdout:${stderr.toString()}`)
+})
+let timer = null
+serverProcess.stdout.on("data", data => {
+    console.log(`Server: ${data}`)
+    clearTimeout(timer)
+    timer = setTimeout(() => {
+        !clientProcess && startClientDev()
+    }, 1500)
 })

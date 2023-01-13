@@ -11,11 +11,10 @@ export class UserController {
     }
 
     @Post("signIn")
-    signIn(@Param() {account, password}: SignInParam) {
+    signIn(@Param() {account, password}: SignInParam, @Res() res) {
         if (!account || !password) {
-            return {
-
-            }
+            res.status = 403
+            res.message = "缺少参数"
         }
     }
 

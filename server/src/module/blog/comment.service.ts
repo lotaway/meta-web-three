@@ -1,7 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {BlogId, CommentId, BlogComment} from "./dto/blog.dto";
-
-// import {nanoid} from "nanoid";
+import {nanoid} from "nanoid";
 
 @Injectable()
 export class CommentService {
@@ -17,8 +16,8 @@ export class CommentService {
 
     addBlogComment(payload: Omit<BlogComment, "id">) {
         const finalData = {
-            // id: nanoid(),
-            id: crypto.randomUUID(),
+            // id: crypto.randomUUID(),
+            id: nanoid(),
             ...payload
         };
         this.comments.push(finalData);

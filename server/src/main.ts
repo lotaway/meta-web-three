@@ -16,7 +16,9 @@ async function bootstrap(port: number = 30000) {
     app.engine('html', ejs.__express);
     app.setViewEngine("html");
     app.use(cookieParser());
-    await app.listen(port);
+    return await app.listen(port);
 }
 
-bootstrap();
+bootstrap().then(server => {
+    console.log(`run in ${JSON.stringify(server.address())}`)
+});

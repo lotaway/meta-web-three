@@ -19,7 +19,7 @@ function htmlStrToJson(htmlStr) {
         const link = `${targetUrl}${titleNode.children("a").attr("href")}`
         const title = titleNode.text()
         const desc = item.find(".job-description-text").text()
-        const jobType = item.find('data-test="job-type"').text()
+        const jobType = item.find('[data-test="job-type"]').text()
         const budget = item.find('[data-itemprop="baseSalary"]').text()
         jsonArr.push({
             title,
@@ -32,14 +32,19 @@ function htmlStrToJson(htmlStr) {
     return jsonArr
 }
 
-function saveData(dataJson) {
+async function saveData(dataJson) {
     console.log(dataJson)
-    const writeStream = createWriteStream(join(__dirname, "./download.json"))
-    writeStream.write(JSON.stringify(dataJson), (err) => {
-        if (err) throw err
-        console.log("done")
+    return await new Promise(resolve => {
+        const writeStream = createWriteStream(join(__dirname, "./download.json"))
+        writeStream.write(JSON.stringify(dataJson), (err) => {
+            if (err) throw err
+            console.log("done")
+        })
+        writeStream.on("finish", () => {
+            writeStream.close()
+            resolve()
+        })
     })
-    writeStream.close()
 }
 
 async function testPage() {
@@ -48,9 +53,27 @@ async function testPage() {
     })
     const page = await browser.newPage()
     await page.goto(targetUrl)
-    const jobList = await page.$("section.up-card-list-section")
-    console.log(await page.content())
-    // jobList.$
+    //  todo 这一步拿不到内容，因为实际上页面上的内容还没有这些
+    const jobList = await page.waitForSelector("section.up-card-list-section")
+    if (!jobList) throw new Error("jobList not exist")
+    console.log(await jobList.jsonValue())
+    let jsonArr = []
+    for (let jobItem of jobList) {
+        const titleNode = await jobItem.$(".job-tile-title")
+        const title = await titleNode.getProperty("innerText")
+        const link = await titleNode.$("a").getProperty("href")
+        const desc = await jobItem.$(".job-description-text").getProperty("innerText")
+        const jobType = await jobItem.$('[data-test="job-type"]').getProperty("innerText")
+        const budget = await jobItem.$('[data-itemprop="baseSalary"]')
+        jsonArr.push({
+            title,
+            desc,
+            link,
+            jobType,
+            budget
+        })
+    }
+    await saveData(jsonArr)
     await browser.close()
 }
 
