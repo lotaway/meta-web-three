@@ -22,11 +22,7 @@ function htmlStrToJson(htmlStr) {
         const jobType = item.find('[data-test="job-type"]').text()
         const budget = item.find('[data-itemprop="baseSalary"]').text()
         jsonArr.push({
-            title,
-            desc,
-            link,
-            jobType,
-            budget
+            title, desc, link, jobType, budget
         })
     })
     return jsonArr
@@ -49,10 +45,15 @@ async function saveData(dataJson) {
 
 async function testPage() {
     const browser = await puppeteer.launch({
-        headless: true
+        headless: false
     })
     const page = await browser.newPage()
-    await page.goto(targetUrl)
+    const response = await page.goto(targetUrl)
+    if (response.url().indexOf("account-security/login") > -1) {
+        //  需要登录
+        const usernameNode = await page.$("#login_username")
+        await usernameNode.type("576696294@qq.com", {delay: 16})
+    }
     //  todo 这一步拿不到内容，因为实际上页面上的内容还没有这些
     const jobList = await page.waitForSelector("section.up-card-list-section")
     if (!jobList) throw new Error("jobList not exist")
@@ -66,11 +67,7 @@ async function testPage() {
         const jobType = await jobItem.$('[data-test="job-type"]').getProperty("innerText")
         const budget = await jobItem.$('[data-itemprop="baseSalary"]')
         jsonArr.push({
-            title,
-            desc,
-            link,
-            jobType,
-            budget
+            title, desc, link, jobType, budget
         })
     }
     await saveData(jsonArr)

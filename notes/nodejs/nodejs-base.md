@@ -28,7 +28,7 @@ import http from "http"
 
 以上方式将从node_modules文件夹里查找符合条件的第三方库（类似SDK概念），若找不到才会去查找Nodejs核心模块，若还是找不到将从当前文件相对位置查找符合要求的文件。
 
-# 创建网络服务
+# 创建HTTP服务
 
 可以当做创建一个持续运行的网站服务实例，用户可以通过访问网址（HTTP协议）访问到这个服务，而服务可以通过请求和响应进行交互。
 
@@ -73,33 +73,7 @@ server.listen(3000)
 console.log("HTTP server is listening at port 3000")
 ```
 
-以上是nodejs里创建服务的方式，但企业一般在使用express或koa等框架的基础上，通过框架语法创建。
-
-## express框架下创建服务
-
-```javascript
-const express = require("express")
-const app = express()
-app.use("/", (req, res) => {
-    //  处理请求
-})
-app.listen(3000)
-```
-
-## koa框架下创建服务
-
-```javascript
-const koa = require("koa")
-const app = new Koa()
-app.use((context, next) => {
-    //  处理请求
-})
-app.listen(3000)
-```
-
-大部分框架会集成创建服务、路由、后端模板、中间件等功能，感兴趣的可以去查看express和koa框架教程文档，这里只简单介绍，不再展开。
-
-# 创建https服务
+# 创建HTTPS服务
 
 使用https模块创建安全的网络响应，需提供SSL证书
 
@@ -162,35 +136,104 @@ http.get({host: 'www.lotaway.com'}, function (res) {
 })
 ```
 
-# events 事件监听器
+# 创建TCP服务
+
+大多用于长连接类，借助net模块可以轻松创建tcp服务。
 
 ```javascript
-const events = require('events')
-const eventEmitter = new events.EventEmitter()
-//  注册事件监听器，设置自定义事件和回调
-eventEmitter.on('myEventName', function (arg1, arg2) {
-    console.log("trigger the event with arg1:" + arg1 + "and arg2:" + arg2);
-});
-eventEmitter.once('only-trigger-once', function () {
-    console.log("only trigger on the first time");
-});
-eventEmitter.on('error', function () {
-    console.log("into the error event");
-//    一般都要设置错误回调，否则错误时会退出程序并打印调用栈
-});
-//  用延时来模拟触发事件
-setTimeout(function () {
-    eventEmitter.emit('myEventName', 'A1', 'A2');
-}, 2000);
-// 移除指定事件的某个监听器，listener必须是该事件已经注册过的监听器。
-//EventEmitter.removeListener(event, listener)
-eventEmitter.removeAllListeners(); // 移除所有事件的所有监听器，参数可以指定event，则移除指定事件的所有监听器。
+const net = require('net')
+const port = "10101"
+const tcpServer = net.createServer(socket => {
+    console.log("创建服务成功")
+    socket.on('data', data => {
+        console.log(`服务端获取到来自连接的客户端${socket.remoteAddress}:${socket.remotePort}传输的数据流：${data}`)
+    })
+    socket.on('close', () => {
+        console.log('服务关闭')
+    })
+})
+tcpServer.listen(port, '127.0.0.1')
 ```
+
+以上开启了一个tcp服务端，也可以用来创建tcp客户端并连接到tcp服务端上：
+
+```javascript
+const net = require('net')
+const tcpClient = new net.Socket()
+
+tcpClient.connect({
+    port: '10101',
+    host: '127.0.0.1'
+}, () => {
+    console.log('连接服务成功')
+    tcpClient.write('client send some msg')
+})
+tcpClient.on('data', data => {
+    //  接收的data是Buffer，可以直接用toString转化为字符串
+    console.log(`客户端接收到数据：${data}`)
+})
+```
+
+# UDP 用户数据报协议
+
+UDP协议与TCP协议一样用于吹数据报，但无需连接即可发送数据，也因此无法得知信息是否安全完整送达，实际内部负责连接传输的依旧是TCP协议，常见于邮件类在内网中的信息收发，用法类似于TCP服务。
+
+以下创建一个UDP服务接收信息：
+
+```javascript
+const dgram = require("dgram")
+const udpServer = dgram.createSocket("udp4")
+udpServer.on("message", (msg, rinfo) => {
+    console.log(`服务端收到来自${rinfo.address}:${rinfo.port}的信息：${msg}`)
+})
+udpServer.bind(41234)
+```
+
+另外一处程序发送信息：
+
+```javascript
+const dgram = require("dgram")
+const udpClient = dgram.createSocket("udp4")
+udpClient.send("这就是我要发送的内容啊", 41234, "localhost", err => {
+    console.log("已成功发送")
+    udpClient.close()
+})
+```
+
+# events 事件
+
+事件模块被很多别的模块集成，例如HTTP服务、文件读入输出流等，而事件模块本身也能用于创建自定义事件。
+
+```javascript
+const EventEmitter = require('events')
+
+class MyEventEmitter extends EventEmitter {
+}
+
+const myEventEmitter = new MyEventEmitter()
+//  注册事件监听器，设置自定义事件和回调
+myEventEmitter.on('myEventName', function (arg1, arg2) {
+    console.log("事件触发：" + arg1 + " and " + arg2)
+})
+myEventEmitter.once('only-trigger-once', function () {
+    console.log("只触发一次的事件，用于一些第三方异步回调监听")
+});
+myEventEmitter.on('error', function () {
+    console.log("into the error event")
+//    一般都要设置错误回调，否则错误时会退出程序并打印调用栈
+})
+setTimeout(() => {
+    //  模拟在某个回调中触发事件
+    myEventEmitter.emit('myEventName', 'A1', 'A2')
+}, 10 * 1000)
+```
+
+要注意多次注册同个事件会按顺序调用，可以使用Nextick或者定时器延时。
 
 # Buffer 流
 
-`Buffer`既一种二进制的流，大部分数据传输时实际就是作为`Buffer`存在，包括但不限于HTTP上传下载文件、视音频播放、本地文件读取与写入等。
-掌握`Buffer`和流的使用，充实基础才能解决实际面临的数据问题
+`Buffer`既一种二进制的流，大部分数据传输时实际就是作为`Buffer`存在，包括但不限于HTTP上传下载文件、TCP（Websocket）、视音频播放、文件读写等。
+Buffer在Nodejs里作为全局类存在，不需要通过require引入。
 
 ## 字符串转换成Buffer
 
@@ -198,29 +241,41 @@ eventEmitter.removeAllListeners(); // 移除所有事件的所有监听器，参
 参数：源Buf（必须），偏移量，长度，编码（默认utf8）
 
 ```javascript
-var strBuffer = Buffer.from("something")
+const strBuffer = Buffer.from("这是要转换成二进制的字符串")
 console.log(strBuffer.length)   //  和数组一样通过length获取长度
 ```
 
-## 指定Buffer长度
+## 创建固定长度的Buffer
 
-可以通过`Buffer.alloc(size)`指定固定长度，当写入字符串内容时会丢弃多余字符
+可以通过`Buffer.alloc(size)`创建全新固定长度的Buffer，初始化内容为0并分配好内存空间，当写入字符串内容过多时会丢弃多余字符，写入长度不够则会保留原有的内容0。
 
 ```javascript
-var buf2 = Buffer.alloc(8)
-buf2.write('something')
-console.log(buf2.length)
-//  获取到的长度固定是8
+const buf = Buffer.alloc(8)
+buf.write('这是一个固定长度的内容')
+console.log(buf)
+//  字符需要占据两个字节，所以打印内容为：“这是一个”，之后的内容“固定长度的内容”被抛弃
+```
+
+也可以通过`Buffer.allocUnsafe(size)`从原有的内存中创建固定长度的Buffer，此时内容不会初始化，意味着可能含有之前内存地址存储的内容，需要通过fill等语法写入内容后才能正常使用：
+
+```javascript
+const buf = Buffer.allocUnsafe(8)
+console.log(buf)
+//  可能里面是之前存储的内容
 ```
 
 ## 数组转换成Buffer
 
-更常用的是写入数组`Buffer.from(array)`，可以直接通过下标调用
+更常用的是写入数组`Buffer.from(array)`，可以直接通过下标调用或者使用for...of进行迭代：
 
 ```javascript
-var buf3 = Buffer.from([0, 1, 2, 3])
-console.log(buf3[0])
+var buf = Buffer.from([0, 1, 2, 3])
+console.log(buf[0])
 //  获取到的内容为原数组索引0位置的内容：0
+for (const b of buf) {
+    console.log(b)
+}
+// 迭代三次分别打印出1、2、3
 ```
 
 ## 复制Buffer
@@ -244,6 +299,22 @@ let originBuffer = Buffer.from("这就是要复制的内容")
 let targetBuffer = Buffer.from(originBuffer)
 ```
 
+## typedArray
+
+typedArray是为了解决js里没有像其他开发语言一样的Int8、Uint32、Float64等整型和浮点型而提供的多个全局类。
+
+实际上Buffer实例即是Unit8Array的实例，两者之间可以互相复制数据或者共享数据（指向同一内存地址）：
+
+```javascript
+const uint16Arr = new Uint16Array(2)
+uint16Arr[0] = "Hello"
+uint16Arr[1] = "Teacher"
+//  复制数据
+const copyBuf = Buffer.from(uint16Arr)
+//  共享数据
+const shareBuf = Buffer.from(uint16Arr.buffer)
+```
+
 ## 更多Buffer方法
 
 ```javascript
@@ -263,8 +334,10 @@ fs模块是文件操作的封装，提供了文件读取、写入、更名、删
 ```javascript
 const fs = require('fs')
 //  读取文件
-fs.readFile('./logo.png', (err, fileBuffer) => {
-    //  读取出的内容将是`Buffer`类型
+fs.readFile('./logo.png', {
+    // encoding: "utf-8"    //  如果想要读出的内容是正常的字符串而不是Buffer，需要添加编码
+}, (err, fileBuffer) => {
+    //  没有添加编码，读出的内容将是Buffer类型
     console.log(Buffer.isBuffer(fileBuffer))
     //  写入文件
     fs.writeFile('logo-2.png', fileBuffer, err => {
