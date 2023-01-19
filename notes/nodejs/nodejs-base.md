@@ -70,12 +70,31 @@ const server = http.createServer((req, res) => {
     response.end('<p class="end">It\'s end.</p>');   //结束发送
 });
 server.listen(3000)
-console.log("HTTP server is listening at port 3000")
+console.log("HTTP服务正在3000端口监听请求")
 ```
+
+以上创建的默认是http1.1协议，要使用http2.0的话需要用http2模块：
+
+# 创建HTTP2服务
+
+```javascript
+const http2 = require("http2")
+const fs = require('fs')
+//  拿到本地秘钥和证书，关于fs文件模块后面再讲，这里知道是本地文件即可
+var options = {
+    key: fs.readFileSync('ssh_key.pem'),    //  密钥
+    cert: fs.readFileSync('ssh_cert.pem')   //  证书
+}
+const server = http2.createServer(options)
+server.listen(3000)
+console.log("HTTP2服务正在3000端口监听请求")
+```
+
+可以看到HTTP2服务相比HTTP（1.1）需要提供相应的证书和秘钥，一般不会使用，而是直接使用HTTPS服务。
 
 # 创建HTTPS服务
 
-使用https模块创建安全的网络响应，需提供SSL证书
+使用https模块创建安全的网络响应，需提供SSL证书和秘钥，这一般需要通过受信任的第三方机构生成。
 
 ```javascript
 const https = require('https')
@@ -89,14 +108,29 @@ https.createServer(options, (request, response) => {
 })
 ```
 
-# 发送请求
+## GET简易请求
+
+GET请求可以用于获取页面或者调用GET方法的接口，作为服务端也是有可能需要调用第三方的页面或接口的，此时可以很方便地用http.get函数完成：
+
+```javascript
+const http = require('http')
+http.get({host: 'www.lotaway.com'}, function (res) {
+    res.setEncoding('utf8');
+    res.on('data', function (data) {
+        console.log(data);
+    });
+})
+```
+
+# 发送POST请求
 
 类似于js的fetch方法，但Nodejs里没有fetch，只能通过http或者request模块发送请求。
 
 ```javascript
 const http = require('http')
-const qs = require('querystring')
-const content = qs.stringify({
+const querystring = require('querystring')
+//  使用querystring将对象数据转成接口所需的请求格式：如输入{a:1,b:"哈哈"}会输出a=1&b=哈哈
+const content = querystring.stringify({
     //发送的内容
     name: 'lotaway',
     email: '576696294@qq.com',
@@ -124,18 +158,6 @@ req.write(content)
 req.end()  //   结束请求
 ```
 
-## GET请求的简便写法
-
-```javascript
-const http = require('http')
-http.get({host: 'www.lotaway.com'}, function (res) {
-    res.setEncoding('utf8');
-    res.on('data', function (data) {
-        console.log(data);
-    });
-})
-```
-
 # 创建TCP服务
 
 大多用于长连接类，借助net模块可以轻松创建tcp服务。
@@ -143,19 +165,21 @@ http.get({host: 'www.lotaway.com'}, function (res) {
 ```javascript
 const net = require('net')
 const port = "10101"
-const tcpServer = net.createServer(socket => {
-    console.log("创建服务成功")
-    socket.on('data', data => {
-        console.log(`服务端获取到来自连接的客户端${socket.remoteAddress}:${socket.remotePort}传输的数据流：${data}`)
+const tcpServer = net.createServer(clientSocket => {
+    console.log("有客户端连接，clientSocket对应连接的客户端实例")
+    clientSocket.on('data', data => {
+        console.log(`服务端获取到来自连接的客户端${clientSocket.remoteAddress}:${clientSocket.remotePort}传输的数据流：${data}`)
     })
-    socket.on('close', () => {
+    clientSocket.on('close', () => {
         console.log('服务关闭')
     })
+    clientSocket.write("你好客户端，你已经连接成功~")
 })
 tcpServer.listen(port, '127.0.0.1')
 ```
 
-以上开启了一个tcp服务端，也可以用来创建tcp客户端并连接到tcp服务端上：
+以上开启了一个tcp服务端，也可以用来创建tcp客户端并连接到tcp服务端上。
+创建客户端连接方法1：
 
 ```javascript
 const net = require('net')
@@ -166,7 +190,7 @@ tcpClient.connect({
     host: '127.0.0.1'
 }, () => {
     console.log('连接服务成功')
-    tcpClient.write('client send some msg')
+    tcpClient.write('客户端发送内容给服务端')
 })
 tcpClient.on('data', data => {
     //  接收的data是Buffer，可以直接用toString转化为字符串
@@ -174,31 +198,156 @@ tcpClient.on('data', data => {
 })
 ```
 
+创建客户端连接方法2：
+
+```javascript
+const net = require("net")
+const tcpClient = net.createConnection({
+    port: "10101",
+    host: "127.0.0.1"
+})
+tcpClient.on("connect", () => {
+    console.log("连接服务成功")
+    tcpClient.write('客户端发送内容给服务端')
+})
+tcpClient.on("data", data => {
+    console.log(`客户端接收到数据：${data}`)
+})
+```
+
 # UDP 用户数据报协议
 
-UDP协议与TCP协议一样用于吹数据报，但无需连接即可发送数据，也因此无法得知信息是否安全完整送达，实际内部负责连接传输的依旧是TCP协议，常见于邮件类在内网中的信息收发，用法类似于TCP服务。
+UDP协议与TCP协议一样用于处理数据包，常见于各种需要高速而不太依赖质量的通讯，例如直播，这是和TCP两者的对比：
 
-以下创建一个UDP服务接收信息：
+|      | UDP     | TCP       |
+|------|---------|-----------|
+| 连接   | 无连接     | 三次握手连接    |
+| 速度   | 较快      | 较慢        |
+| 目的   | 一对一，一对多 | 一对一       |
+| 消息边界 | 有       | 无         |
+| 消息顺序 | 网络拥挤时无序 | 有序        |
+| 可靠性  | 低       | 高         |
+
+## UPD传播方式
+
+* 单播，一对一，若目的地有多个则需要发送多次
+* 广播，局域网内一对多，由于所有设备都会收到导致不必要的消耗，在IPv6中已经取消
+* 组播，公网一对多，加入特定组的成员就可收到消息
+
+## 创建UDP单播
 
 ```javascript
 const dgram = require("dgram")
 const udpServer = dgram.createSocket("udp4")
-udpServer.on("message", (msg, rinfo) => {
-    console.log(`服务端收到来自${rinfo.address}:${rinfo.port}的信息：${msg}`)
+udpServer.on("listening", () => {
+    const serverAddress = udpServer.address()
+    console.log(`服务端${serverAddress.address}:${serverAddress.port}已开启监听`)
+})
+udpServer.on("message", (msg, remoteInfo) => {
+    console.log(`服务端收到来自${remoteInfo.address}:${remoteInfo.port}的信息：${msg}`)
+})
+udpServer.on("error", err => {
+    console.log("服务端出错：" + err)
 })
 udpServer.bind(41234)
 ```
 
-另外一处程序发送信息：
+客户端的创建与服务端完全相同，两者可以无区别，只不过若客户端不需要接收消息的情况下，不用绑定和监听，而是直接对目标发送消息即可：
 
 ```javascript
 const dgram = require("dgram")
+//  与服务端相同的创建方式
 const udpClient = dgram.createSocket("udp4")
+//  可以不添加服务端的监听，直接发送信息
 udpClient.send("这就是我要发送的内容啊", 41234, "localhost", err => {
     console.log("已成功发送")
     udpClient.close()
 })
 ```
+
+## 创建UDP广播
+
+广播与单播的差别只是一个模式的开关，在监听事件中进行开启，其他一样。
+以下创建广播端：
+
+```javascript
+const dgram = require("dgram")
+const udpServer = dgram.createSocket("udp4")
+udpServer.on("listening", () => {
+    //  唯一区别：开启广播模式
+    udpServer.setBroadcast(true)
+    setInterval(() => {
+        //  255.255.255.255是受限地址，代表在局域网内广播，若使用直接地址例如192.168.10.255则可以跨网段广播
+        udpServer.send("heartbest", 41234, "255.255.255.255", err => {
+            console.log("心跳包已成功发送")
+        }, 2000)
+    })
+})
+udpServer.on("message", (msg, remoteInfo) => {
+    console.log(`服务端收到来自${remoteInfo.address}:${remoteInfo.port}的信息：${msg}`)
+})
+udpServer.on("error", err => {
+    console.log("服务端出错：" + err)
+})
+udpServer.bind(41234)
+```
+
+接着创建接收端，实际两者一样：
+
+```javascript
+const dgram = require("dgram")
+const udpClient = dgram.createSocket("udp4")
+//  实际上也可以开启广播来发送消息
+/*udpClient.on("listening", () => {
+    udpClient.setBroadcast(true)
+})*/
+udpClient.on("message", (msg, remoteInfo) => {
+    console.log(`收到来自${remoteInfo.address}:${remoteInfo.port}的信息：${msg}`)
+})
+// udpClient.bind(55555)
+```
+
+## UDP组播
+
+组播与单播、广播差别只在是否指定和接收频道地址消息。
+创建发送端：
+
+```javascript
+const dgram = require("dgram")
+const udpServer = dgram.createSocket("udp4")
+udpServer.on("listening", () => {
+    setInterval(() => {
+        //  指定频道地址如"224.0.1.100"即可发送组播消息
+        udpServer.send("heartbest", 41234, "224.0.1.100", err => {
+            console.log("心跳包已成功发送")
+        }, 2000)
+    })
+})
+udpServer.on("message", (msg, remoteInfo) => {
+    console.log(`服务端收到来自${remoteInfo.address}:${remoteInfo.port}的信息：${msg}`)
+})
+udpServer.on("error", err => {
+    console.log("服务端出错：" + err)
+})
+udpServer.bind(41234)
+```
+
+接着创建接收端：
+
+```javascript
+const dgram = require("dgram")
+const udpClient = dgram.createSocket("udp4")
+udpClient.on("listening", () => {
+    //  加入指定频道地址如"224.0.1.100"才能接收到组播消息
+    udpClient.addMembership("224.0.1.100")
+})
+udpClient.on("message", (msg, remoteInfo) => {
+    console.log(`收到来自${remoteInfo.address}:${remoteInfo.port}的信息：${msg}`)
+})
+udpClient.bind(55555)
+```
+
+以上是Nodejs自带的HTTP、HTTPS、TCP、WebSocket、UDP四种协议，包含服务端和客户端所需请求和响应方式，接下来介绍其他使用模块。
 
 # events 事件
 
@@ -354,7 +503,7 @@ fs.readFile('./logo.png', {
     console.log(fileStr)
 
     //  将字符串转回为`Buffer`，内容和原本的Buffer是一致的
-    var fileBuffer2 = new Buffer(fileStr, 'base64')
+    var fileBuffer2 = Buffer.from(fileStr, 'base64')
     console.log(Buffer.compare(fileBuffer, fileBuffer2))
     fs.writeFile('logo-decoded.png', fileBuffer2, err => {
         if (err) console.log(err)
@@ -416,7 +565,7 @@ fs.open('aFile.txt', 'r', (err, fd) => {
         console.error(err);
         return;
     }
-    var buf = new Buffer(8);
+    var buf = Buffer.alloc(8);
     fs.read(fd, buf, 0, 8, null, (err, bytesRead, buffer) => {
         if (err) {
             console.error(err)
@@ -430,51 +579,25 @@ fs.open('aFile.txt', 'r', (err, fd) => {
         //  完成后（对于打开文件的操作）需要关闭文件
         fs.close(fd, err => {
             if (err) {
-                console.error(err);
+                console.error(err)
             } else {
-                console.log("关闭文件成功");
+                console.log("关闭文件成功")
             }
-        });
-    });
-});
+        })
+    })
+})
 ```
 
-## 流输出
+## 同步读取和写入
 
-使用流输出，可断续
+上述读写文件都是异步执行，实际上还有更直观的同步执行，差距不大，不过要理解在读取完成之前都不会执行下一步，最好不要尝试在大文件上使用。
 
 ```javascript
-const fs = require('fs');
-var readStream = fs.readFileSync('./logo.png');
-// 数据流是分段传输的，需要通过回调重新拼接成完整`Buffer`
-let fileBuffers = []
-readStream
-    //  获取分段流
-    .on('data', fileBuffer => {
-        console.log(Buffer.isBuffer(fileBuffer))
-        fileBuffers.push(fileBuffer)
-    })
-    //  可读
-    .on('readable', () => {
-        console.log('data readable')
-    })
-    //  数据传输完成
-    .on('end', () => {
-        console.log('data end')
-    })
-    //  异常
-    .on('error', err => {
-        console.log(err)
-    })
-    //  流传输关闭
-    .on('close', () => {
-        console.log('steam close')
-    })
-//  流暂停与继续
-readStream.pause()
-setTimeout(() => {
-    readStream.resume()
-}, 1000)
+const fs = require('fs')
+const fileBuffer = fs.readFileSync('./logo.png')
+console.log(fileBuffer + "," + +new Date())
+fs.writeFileSync("./logo-copy.png", fileBuffer)
+console.log("写入成功" + +new Date())
 ```
 
 ## 输入输出流
@@ -582,12 +705,13 @@ resolve('foo/bar', '/tmp/file/'); // /tmp/file
 
 ### stdout & stdin 命令行输出输入流
 
-process.stdout是标准输出流，而process.stdin是标准输入流，但初始时是暂停的，要输入数据需要恢复流并配上回调函数：
+process.stdout是标准输出流，而process.stdin是标准输入流，可以获取用户在命令行输入的内容，但初始状态是暂停的，需要恢复输入流并添加监听方法即可获取到输入内容：
 
 ```javascript
 process.stdin.resume()
+//  监听命令行输入流，此时在命令行输入内容并回车后会在回调中获取到
 process.stdin.on('data', data => {
-    process.stdout.write('read from console:' + data.toString())
+    process.stdout.write('从命令行读取到的内容：' + data.toString())
 })
 ```
 

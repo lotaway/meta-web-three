@@ -77,10 +77,10 @@ puppeteer库会下载chromium浏览器作为测试用浏览器，如果已有Edg
 const puppeteer = require("puppeteer")
 const {join} = require("path")
 
-let webPageUrl = "https://www.baidu.com";  //  要测试的页面访问路径
+let host = "https://www.baidu.com";  //  要测试的页面访问路径
 
 //  示例
-(async () => {
+async function testMainPage(host) {
     //  启动浏览器
     const browser = await puppeteer.launch({
             // executablePath: "E:/project/demo/node_modules/puppeteer/.local-chromium/win64-515411/chrome-win32/chrome.exe",   //  项目内下载路径，虚翻墙
@@ -90,22 +90,24 @@ let webPageUrl = "https://www.baidu.com";  //  要测试的页面访问路径
         //  新建选项卡
         , page = await browser.newPage();
     //  跳转地址
-    await page.goto(webPageUrl);
+    await page.goto(host);
     // 截图
     await page.screenshot({
         path: join(__dirname, "./", webPath.replace(new RegExp("[?/\\:*<>|\"]*", "g"), "") + ".png")
     });
     //  关闭页面或者选项卡
     await browser.close();
-})();
+}
+
+testMainPage(host)
 ```
 
 这种方式可以配合Jest或者Mocha+Chai框架进行断言测试：
 
 ```typescript
+//  ...省略前面代码
 test("测试端到端", async function () {
-    //  ...省略前面代码
-    await page.goto(someurl)
+    await testMainPage(host)
     const titleElement = await page.waitForSelector("#title")
     expect(titleElement.getProperty("innerHTML")).toBe("Welcome")
     //  ...省略后面代码
