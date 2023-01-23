@@ -8,7 +8,7 @@
 
 ```shell
 -- 用户表
-create table User (
+create table if not exists User (
   Id Integer unique default auto_increment(),
   CreateTime Datetime default current_timestamp,
   UpdateTime Datetime default current_timestamp,
@@ -18,7 +18,7 @@ create table User (
   LastOnlineTime Datetime comment '最后登录时间'
 );
 -- 群聊表
-create table GroupChat (
+create table if not exists GroupChat (
   Id Integer unique default auto_increment(),
   CreateTime Datetime default current_timestamp,
   GroupName Var.Char(20) not null '群名称',
@@ -26,7 +26,7 @@ create table GroupChat (
   state Tinyint(2) not null default 0 comment '群聊状态：【0：正常，1：解散，2：全体禁言，3：全体禁言仅管理员可发言】'
 );
 -- 群聊成员表
-create table GroupChatMember (
+create table if not exists GroupChatMember (
   Id Integer unique default auto_increment(),
   CreateTime Datetime default current_timestamp,
   UserId Integer not null comment '用户标识',
@@ -36,7 +36,7 @@ create table GroupChatMember (
   rights Tinyint(2) default 0 comment '用户权限，【0：普通成员，1：群主，2：管理员】'
 );
 -- 群聊消息
-create table GroupMessage (
+create table if not exists GroupMessage (
   Id Integer default uuid(),
   CreateTime Datetime default current_timestamp,
   Type Tinyint(2) default 0 comment '消息类型，【0：普通消息，1：通知消息】',
@@ -46,7 +46,7 @@ create table GroupMessage (
   GroupChatId Integer comment '所属群聊标识'
 );
 -- 私聊消息
-create table PrivateMessage (
+create table if not exists PrivateMessage (
   Id Var.Char(50) default uuid(),
   CreateTime Datetime default current_timestamp,
   Type Tinyint(2) default 0 comment '消息类型，【0：普通消息，1：通知消息】',
@@ -112,17 +112,19 @@ async function createServer() {
         const socketMessageHandler = async socketMessage => {
             const lastOnlineTime = +new Date()
             switch (socketMessage.type) {
-                //  初始化，将用户链接状态设置为已链接，并把链接实例存储起来
+                //  初始化，完成用户登录、登录时间更新、存储连接等
                 case "init":
-                    userId = socketMessage.userId
-                    mysqlClient.User.update({
+                    const matchUser = await mysqlClient.User.update({
                         where: {
-                            id: userId
+                            username: socketMessage.username,
+                            password: md5(socketMessage.password)
                         },
                         data: {
                             lastOnlineTime
                         }
                     })
+                    if (!matchUser) return false
+                    userId = metchUser.id
                     groupSocketList.add(userId, {
                         groupId: socketMessage.groupId ?? null,
                         lastOnlineTime,
@@ -131,7 +133,7 @@ async function createServer() {
                     break
                 //  心跳包，如果没有定时发送则将该人视为离线
                 case "heartbeat":
-                    const userInfo = groupSocketList.get(socketMessage.userId)
+                    const userInfo = groupSocketList.get(userId)
                     groupSocketList.set(socketMessage.userId, {
                         ...userInfo,
                         lastOnlineTime
@@ -144,7 +146,7 @@ async function createServer() {
                             id: nanoid(),
                             type: ChatMessageType.NORMAL,
                             content: socketMessage.content,
-                            userId: socketMessage.userId,
+                            userId,
                             groupId: socketMessage.groupId
                         }
                     })
@@ -156,19 +158,17 @@ async function createServer() {
                             id: true
                         }
                     })
+                    const markLeaveTime = 2 * 60 * 1000 //  多久没有发送心跳包就视为离线
                     matcherUsers.forEach(user => {
                         const userInfo = groupSocketList.get(user.id)
-                        (lastOnlineTime - userInfo?.lastOnlineTime < 2 * 60 * 1000) && user.connect !== connect && user.connect.send(socketMessage)
+                        if ((lastOnlineTime - userInfo?.lastOnlineTime < markLeaveTime) && user.connect !== connect)
+                            user.connect.send(socketMessage)
                     })
                 //  私聊消息
                 case "privateMessage":
-                    if (!socketMessage.to) {
-                        return false
-                    }
+                    if (!socketMessage.to) return false
                     const targetUser = groupSocketList.get(socketMessage.to)
-                    if (!targetUser) {
-                        return false
-                    }
+                    if (!targetUser) return false
                     mysqlClient.PrivateChatMessage.insert({
                         data: {
                             id: nanoid(),
@@ -209,14 +209,25 @@ createServer()
 //  @web-socket-lib
 let userId = null
 
-export function createWebSocket(userInfo, receiver) {
+export function createUserConnect(userInfo, receiver) {
     const webSocket = new WebSocket('ws://localhost:8001')
+    const setTimeCounter = () => {
+        //  定时两秒发一次心跳包
+        timeCounter && clearInterval(timeCounter)
+        timeCounter = setInterval(() => {
+            webSocket.send({
+                type: "heartbeat"
+            })
+        }, 2 * 1000)
+    }
+    let timeCounter = null
     webSocket.onopen = event => {
         console.log('服务已经成功连接')
         userId = userInfo.id
         //  发送初始化消息
         webSocket.send(JSON.stringify({
-            userId,
+            username: "player1",
+            password: "123456",
             type: "init",
             content: `${userInfo.nickname}已进入聊天室`
         }))
@@ -226,13 +237,24 @@ export function createWebSocket(userInfo, receiver) {
     webSocket.onmessage = message => {
         receiver(message)
     }
+    webSocket.onclose = () => {
+        console.log("连接关闭，请进行重连")
+    }
     return {
-        //  用户发送消息
-        send(message) {
+        sendToGroup(message) {
             webSocket.send({
-                ...message,
-                userId
+                type: "groupMessage",
+                message
             })
+            setTimeCounter()
+        },
+        sendToUser({to, message}) {
+            webSocket.send({
+                to,
+                type: "privateMessage",
+                message
+            })
+            setTimeCounter()
         }
     }
 }
@@ -245,10 +267,11 @@ export function createWebSocket(userInfo, receiver) {
 ## 客户端player1
 
 ```javascript
-import {createWebSocket} from "web-socket-lib"
+import {createUserConnect} from "web-socket-lib"
 
-const webSocket = createWebSocket({
-    id: 1
+const webSocket = createUserConnect({
+    username: "player1",
+    password: "123456"
 }, data => {
     console.log('客户端1接收到信息：', data)
 })
@@ -257,34 +280,21 @@ const webSocket = createWebSocket({
 ## 客户端player2
 
 ```javascript
-import {createWebSocket} from "web-socket-lib"
+import {createUserConnect} from "web-socket-lib"
 
-const webSocket = createWebSocket({
-    id: 2
+const webSocket = createUserConnect({
+    username: "player2",
+    password: "123456"
 }, data => {
     console.log('客户端2接收到信息：', data)
 })
-//  调用发送消息，一般是用户在界面上输入来触发
-webSocket.send({
+//  调用群发消息，一般是用户在界面上输入来触发
+webSocket.sendToGroup({
     content: "大家好"
 })
-```
-
-以上完成了一个简单的群聊天室，如果需要扩展到点对点发消息，即两个用户之间的私聊，可以在数据格式上做扩展，例如发消息时格式为：
-
-```json
-{
-  "type": "privateMessage",
-  "msg": "你好我是来自群的player1"
-}
-```
-
-然后服务端做相应处理：
-
-```javascript
-switch (msg.type) {
-//  省略上下文代码
-    case "privateMessage":
-        break;
-}
+//  调用私聊发消息
+webSocket.sendToUser({
+    to: 1,
+    content: " 你好player1，我是player2"
+})
 ```

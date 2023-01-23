@@ -1,11 +1,11 @@
 > # 观看中
-> * ![我在末世有一座黄金宫漫画](https://manhua.acimg.cn/vertical/0/16_17_52_5214393cab4a942a50eb33bec0b2249f_1634377969915.jpg/420)[我在末世有一座黄金宫漫画110](https://m.imitui.com/manhua/wozaimoshiyouzuohuangjingong/1702577.html)
+> * 致不灭的你第二季12 完？停更？
+> * ![我在末世有一座黄金宫漫画127话](https://manhua.acimg.cn/vertical/0/16_17_52_5214393cab4a942a50eb33bec0b2249f_1634377969915.jpg/420)[我在末世有一座黄金宫漫画110](https://m.imitui.com/manhua/wozaimoshiyouzuohuangjingong/1702577.html)
 > * 入间同学入魔了第三季
 > * 猎魔人 第二季
 > * 我叫MT：归来 第一季02
 > * 乙女游戏世界对路人角色很不友好 漫画40话
 > * 魔物娘同居日常 漫画33话
-> * 我在末世有座黄金宫 漫画126话
 > 
 > - 偷天游戏意大利bgm
 > - 欺诈游戏-bgm， 2012Liar Game预告片-结尾bgm
