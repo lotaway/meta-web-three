@@ -1,5 +1,6 @@
 const {exec} = require("child_process")
 let clientProcess = null
+let desktopProcess = null
 
 function startClientDev() {
     clientProcess = exec("npm run dev", {
@@ -9,6 +10,17 @@ function startClientDev() {
     })
     clientProcess.stdout.on("data", data => {
         console.log(`Client: ${data}`)
+    })
+}
+
+function startDesktopDev() {
+    desktopProcess = exec("npm run dev", {
+        cwd: "./notes"
+    }, err => {
+        if (err) throw err
+    })
+    desktopProcess.stdout.on("data", data => {
+        console.log(`Notes: ${data}`)
     })
 }
 
@@ -23,5 +35,6 @@ serverProcess.stdout.on("data", data => {
     clearTimeout(timer)
     timer = setTimeout(() => {
         !clientProcess && startClientDev()
+        !desktopProcess && startDesktopDev()
     }, 1500)
 })

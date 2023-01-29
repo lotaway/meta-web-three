@@ -1,72 +1,69 @@
-<template>
-  <ul class="list list-select">
-    <li v-for="s in selector" class="item item-select" :key="s.title">
-      <directory-selector :title="s.title" :button-title="buttonTitle" :placeholder="s.placeholder"
-                          @pathChange="pathChangeHandler"/>
-    </li>
-  </ul>
+<template lang="pug">
+.file2video
+  ul.list.list-select
+    li.item.item-select(v-for="(s, sIndex) in selectors" :key="s.title")
+      directory-selector(:title="s.title" :button-title="buttonTitle" :placeholder="s.placeholder" @pathChange="filePaths => pathChangeHandler(sIndex, filePaths)")
+  button.btn.btn-generate(@click="generateVideo")
 </template>
 <style scoped>
 
 </style>
 <script lang="ts" setup>
-//  todo @require("./files2video.pdf") 根据文档完成文件输出成视频的需求
-import fs from "fs"
-import path from "path"
-import {onMounted} from "vue"
+import {ipcRenderer} from "electron"
+import {ref, onMounted} from "vue"
 import DirectorySelector from "../components/DirectorySelector.vue"
-function pathChangeHandler(filePath: string) {
-  const generaPath = path.join(__dirname, "./General")
-  const platformPath = path.join(__dirname, "./Platform")
-  const widgetsPath = path.join(__dirname, "./Widgets")
-  const destinationFolder = path.join(__dirname, "./build")
-  const filenames = getIncludeFiles(filePath)
-  const filePaths = filename2path(filenames, filePath)
+
+interface SelectorVal {
+  title: string,
+  desc: string,
+  placeholder?: string,
+  directoryPath: string
 }
 
-function getIncludeFiles(path: string): string[] {
-  const items = fs.readdirSync(path, {
-    withFileTypes: true
-  })
-  if (items.length === 0) return []
-  let filenames: string[] = []
-  items.forEach((item, index) => item.isFile() && filenames.push(item.name))
-  return filenames
-}
-
-function filename2path(filenames: string[], prevFix: string) {
-  return filenames.map(filename => path.join(prevFix, filename))
-}
-
-interface Props {
-  selector?: Array<{
-    title: string,
-    placeholder?: string,
-    directoryPath: string
-  }>
+type SelectorKey = "general" | "widget" | "platform"
+type Selector = Record<SelectorKey, SelectorVal>
+// type Props = { buttonTitle?: string } & Selector
+interface Props extends Selector {
   buttonTitle?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  selector: () => [
-    {
-      title: "General Folder:",
-      directoryPath: ""
-    },
-    {
-      title: "Widgets Folder:",
-      directoryPath: ""
-    },
-    {
-      title: "Platform Folder:",
-      directoryPath: ""
-    }
-  ],
+  general: () => ({
+    title: "General Folder:",
+    desc: "the files in General will be used in all videos(Intro, Closer...)",
+    directoryPath: ""
+  }),
+  widget: () => ({
+    title: "Widgets Folder:",
+    desc: "a folder with files related to a platform",
+    directoryPath: ""
+  }),
+  platform: () => ({
+    title: "Platform Folder:",
+    desc: "a folder with sub-folders, each of them related to a different widget.",
+    directoryPath: ""
+  }),
   buttonTitle: "Select"
 })
+const selectors = ref([
+  props.general,
+  props.widget,
+  props.platform
+])
 
-onMounted(() => {
+async function pathChangeHandler(index: number, directoryPath: string) {
+  selectors.value[index].directoryPath = directoryPath
+  // window.desktop.Files2videoPathChangeHandler(directoryPath)
+  const files = await ipcRenderer.invoke("readFileInDirectory", directoryPath)
+}
 
+function generateVideo() {
+
+}
+
+onMounted(async () => {
+  const defaultDirectory = localStorage.getItem("Files2video:Directory")
+  if (!defaultDirectory) return false
 })
 </script>
 <script lang="ts">

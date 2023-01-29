@@ -1,40 +1,47 @@
-<template>
-  <label :for="title">{{ props.title }}</label>
-  <input type="text" readonly value="" :id="title" :placeholder="props.placeholder"/>
-  <button type="button" @click="buttonHandler">{{ props.buttonTitle }}</button>
+<template lang="pug">
+label(:for="props.title") {{ props.title }}
+input(type="text" readonly :value="directory" :id="props.title" :placeholder="props.placeholder" :title="inputTip")
+button(type="button" @click="buttonHandler") {{ props.buttonTitle }}
 </template>
 <script setup lang="ts">
-// import {defineProps, withDefaults} from "vue"
 import {dialog} from "@electron/remote"
+import {ref, getCurrentInstance, computed} from "vue"
 
 const props = withDefaults(defineProps<{
   title?: string,
   buttonTitle?: string,
-  placeholder?: string
+  dialogTitle?: string,
+  placeholder?: string,
+  value?: string
 }>(), {
   title: "",
   buttonTitle: "选择",
-  placeholder: ""
+  dialogTitle: "请选择文件夹",
+  placeholder: "",
+  value: ""
 })
+const directory = ref(props.value)
+const inputTip = computed(() => directory.value ? `You're selected ${directory.value}` : `Please select a directory for ${props.title}`)
 const emits = defineEmits(["buttonClick", "pathChange"])
 
-function buttonHandler() {
-  console.log("buttonHandler")
+async function buttonHandler() {
   emits("buttonClick")
-  dialog.showOpenDialog({
-    title: "请选择文件夹",
+  const openResult = await dialog.showOpenDialog({
+    title: props.dialogTitle,
+    defaultPath: directory.value,
     properties: ["openDirectory"]
-  }).then(result => {
-    if (result.canceled) return false
-    alert(JSON.stringify(result))
-    emits("pathChange", result.filePaths)
   })
-
+  if (openResult.canceled) return false
+  directory.value = openResult.filePaths[0]
+  emits("pathChange", directory.value)
 }
 </script>
 <script lang="ts">
 export default {
-  name: "DirectorySelector"
+  name: "DirectorySelector",
+  data() {
+    return {}
+  }
 }
 </script>
 
