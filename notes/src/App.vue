@@ -1,8 +1,8 @@
 <template lang="pug">
-  div.container
-    h1 {{ name }}
-    span.sec-title {{ data.welcomeTitle }}
-    files2video
+div.container
+  h1 {{ name }}
+  span.sec-title {{ data.welcomeTitle }}
+  files2video
 </template>
 <script setup lang="ts">
 import {ref, reactive, watch, watchEffect, onMounted} from "vue"
@@ -23,7 +23,7 @@ interface States {
 
 const name = ref<string>("VideoCron")
 const data = reactive<States>({
-  welcomeTitle: `welcome to use ${name}`,
+  welcomeTitle: `welcome to use ${name.value}`,
   status: Status.NoInit
 })
 /*const stop = watchEffect(async onCleanup => {

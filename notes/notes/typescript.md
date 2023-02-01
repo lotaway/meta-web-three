@@ -169,7 +169,7 @@ type CLevel = number | Function
 type TargetLevel = Extract<Level, CLevel>;
 ```
 
-以上相当于 type TargetLevel = number | (() => number)
+以上相当于 type TargetLevel = number | (() => number)，排除了Level里的string类型，因为string类型无法满足CLevel里的number或Function类型。
 
 ## `Exclude`与`Extract`相反，判断指定类型中是否没有继承要求的键，若继承了则返回`Never`
 
@@ -201,7 +201,7 @@ type HLevel = string | Function
 type TargetLevel = Exclude<Level, HLevel>;
 ```
 
-以上相当于type TargetLevel = number
+以上相当于type TargetLevel = number，因为只有Level里的number类型不满足HLvel的string或Function类型。
 
 ## `Record`将指定的类型中所有的键类型变成第二个参数传入的类型
 
