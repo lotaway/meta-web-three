@@ -1,4 +1,5 @@
 const {contextBridge, ipcMain, ipcRenderer, BrowserWindow} = require("electron")
+const os = require("os")
 
 type ReceiveFn = (...args: any) => void
 
@@ -31,6 +32,17 @@ const desktopFn = {
     },
     ipcRemoveAllListeners: (channel: string) => {
         ipcRenderer.removeAllListeners(channel)
+    },
+    getOSNetworkInterfaces() {
+        const networkInterfaces = os.networkInterfaces()
+        let macIp
+        for (const i in networkInterfaces) {
+            for (const j in networkInterfaces[i]) {
+                if (networkInterfaces[i][j]["family"] === "IPv4" && networkInterfaces[i][j]["mac"] !== "00:00:00:00:00:00" && networkInterfaces[i][j]["address"] !== "127.0.0.1") {
+                    macIp = networkInterfaces[i][j]["mac"]
+                }
+            }
+        }
     }
 }
 if (process.contextIsolated) {

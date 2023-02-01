@@ -13,9 +13,9 @@
 ## Direct 目录说明
 
 * chain 链端（智能合约）
-* client 客户端
-* notes 笔记
-* server 服务端
+* client 客户端（内容、浏览、支付）
+* desktop 桌面端（笔记、通讯）
+* server 服务端（管理）
 
 ## Installation 安装
 

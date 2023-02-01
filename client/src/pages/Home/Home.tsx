@@ -1,4 +1,4 @@
-import {FC, useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Link} from "react-router-dom";
 import './Home.less';
 import NavBar from "../../components/NavBar/NavBar";
@@ -6,6 +6,7 @@ import PayContract from "../../components/PayContract/PayContract";
 
 export default function Home() {
     const [msg, useMsg] = useState(0);
+    const [addressTo, setAddressTo] = useState("")
     useEffect(() => {
         const abortController = new AbortController();
         const counter = setInterval(() => {
@@ -33,7 +34,8 @@ export default function Home() {
                 <h1 className="text-3xl font-bold underline">Welcome to web3!</h1>
                 <Link to="/guide">Guide</Link>
                 <p>You have {msg} message.</p>
-                <PayContract/>
+                <input type="text" value={addressTo} onChange={event => setAddressTo(event.target.value)}/>
+                <PayContract addressTo={addressTo}/>
             </div>
         </div>
     );

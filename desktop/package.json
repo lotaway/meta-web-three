@@ -29,6 +29,7 @@
     "@electron/remote": "^2.0.9",
     "electron": "^22.0.3",
     "fluent-ffmpeg": "^2.1.2",
+    "os": "^0.1.2",
     "path": "^0.12.7",
     "vue": "^3.2.45"
   }

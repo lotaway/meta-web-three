@@ -15,12 +15,12 @@ function startClientDev() {
 
 function startDesktopDev() {
     desktopProcess = exec("npm run dev", {
-        cwd: "./notes"
+        cwd: "./desktop"
     }, err => {
         if (err) throw err
     })
     desktopProcess.stdout.on("data", data => {
-        console.log(`Notes: ${data}`)
+        console.log(`Desktop: ${data}`)
     })
 }
 

@@ -2,7 +2,7 @@ import {useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {TransactionContext} from "../../context/TransactionContext";
 import PayContract from "../../components/PayContract/PayContract";
 import {useDebounce} from "../../utils/hooks";
-// 来源：https://github.com/adrianhajdin/project_web3.0
+// [Source](https://github.com/adrianhajdin/project_web3.0)
 export default function TransactionRecord() {
     const {isTransacting, transactionRecords, transactionCount} = useContext(TransactionContext);
     const [addressTo, setAddressTo] = useState("");
