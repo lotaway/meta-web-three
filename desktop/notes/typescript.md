@@ -270,36 +270,99 @@ type ClassParamsArr = ConstructorParameters<typeof ClassRoom>;
 const classParamArr: ClassParamsArr = [511, "the first one"];
 ```
 
-## `infer`推断出类型
+## infer类型推断
 
 只能在条件类型的`extends`子句中使用，`infer`得到的类型只能在`true`语句中使用, 即`X ? Y : Z`中的`X`中推断，在`Y`位置引用
 
+### 推断数组项的类型
+
 ```typescript
-type InferArray<T> = T extends (infer U)[] ? U : never;
-//  (infer U)[]推断T是否为数组类型，若是的话返回数组项类型
-type I0 = InferArray<[number, string]>; // 是数组，返回所有项的类型：string | number
-type I1 = InferArray<number[]>; // 是数组，返回项类型：number
-type I2 = InferArray<number>;   // 不是数组，返回never
-// const i2: I2 = 1;    //  error, typeof 1 not never
-type InferFirst<T extends unknown[]> = T extends [infer First, ...infer _] ? First : never
-// infer P获取第一个元素的类型存储为First，而...infer _获取的是其他所有元素数组类型存储为_;
-type I3 = InferFirst<[3, 2, 1]>; // number, typeof 3
-type InferLast<T extends unknown[]> = T extends [...infer _, infer Last] ? Last : never;
-//  类型上一个，获取最后一个元素的类型存储为Last
-type I4 = InferLast<[3, 2, 1]>; // number, typeof 1
-type InferParameters<T extends Function> = T extends (...args: infer FnParams) => any ? FnParams : never;
-// ...args代表的是函数参数组成的元组, infer FnParams代表的就是推断出来的这个函数参数组成的元组的类型
-type I5 = InferParameters<((arg1: string, arg2: number) => void)>; // [string, number]
-type InferReturnType<T extends Function> = T extends (...args: any) => infer ReturnType ? ReturnType : never;
-// 类似前面推断参数，infer ReturnType代表的就是推断出来的函数的返回值类型
-type I6 = InferReturnType<() => string>; // string
-type InferPromise<T> = T extends Promise<infer ResultData> ? ResultData : never;
-//  推断出Promise中的返回值类型
-type I7 = InferPromise<Promise<string>>; // string
-// 推断字符串字面量类型的第一个字符对应的字面量类型
-type InferString<T extends string> = T extends `${infer First}${infer _}` ? First : [];
-type I8 = InferString<"John">; // 推断出John第一个字符字面量是J
+//  定义，(infer U)[]推断T是否为数组类型U[]，若是的话返回数组项类型U
+type ArrayItem<T> = T extends (infer U)[] ? U : never
+//  调用推断
+type I1 = ArrayItem<number[]>
+// 推断是数组，type I1 = number
+type I2 = ArrayItem<number>
+// 推断不是数组，type I2 = never
+const arr = [1, "2", 3]
+type I0 = ArrayItem<typeof arr>
+// 推断是数组<number | string>[]，type I0 = string | number
+const i0: I0 = arr[0]
+//  arr[0] = 1，类型为number，符合I0类型，成功通过类型判断
 ```
+
+### 推断单个数组项的类型
+
+结合展开符`...`可推断单个数组项的类型。
+推断第一个数组项的类型：
+
+```typescript
+//  定义
+type InferFirst<T extends unknown[]> = T extends [infer FirstItem, ...infer Others] ? FirstItem : never
+//  调用
+type I3 = InferFirst<[3, 2, 1]>
+```
+
+推断出`type I3 = number`
+接着推断最后一个数组项的类型：
+
+```typescript
+//  定义
+type InferLast<T extends unknown[]> = T extends [...infer Others, infer LastItem] ? LastItem : never
+type I4 = InferLast<[3, 2, 1]>
+```
+
+推断出`type I4 = number`
+
+### 推断方法参数类型
+
+推断方法里的参数类型，类似Parameters<Function>：
+
+```typescript
+// 定义，...args代表的是函数参数组成的元组, infer FnParams代表的就是推断出来的这个函数参数组成的元组的类型
+type InferParameters<T extends Function> = T extends (...args: infer FnParams) => any ? FnParams : never
+//  调用
+type I5 = InferParameters<((arg1: string, arg2: number) => void)>
+```
+
+推断出`type I5 = [string, number]`
+
+## 推断返回值类型
+
+推断方法的返回值类型，类型ReturnType<Function>:
+
+```typesript
+//  定义
+type InferReturnType<T extends Function> = T extends (...args: any) => infer ReturnType ? ReturnType : never
+//  调用
+type I6 = InferReturnType<() => string>
+```
+推断出`type I6 = string`
+
+推断出Promise中的返回值类型：
+
+```typescript
+//  定义
+type InferPromise<T> = T extends Promise<infer U> ? U : never
+//  要推断的Promise
+type Fn = () => Promise<string>
+//  调用推断
+type Data = InferPromise<ReturnType<Fn>>
+```
+
+以上推断出`type Data = string`
+
+### 推断字符串中的字符
+推断字符串字面量类型的第一个字符对应的字面量类型：
+
+```typescript
+//  定义
+type FirstString<T extends string> = T extends `${infer First}${infer _}` ? First : []
+//  调用
+type I8 = FirstString<"John">
+```
+
+以上推断出`type I8 = "J"`
 
 # 协变
 

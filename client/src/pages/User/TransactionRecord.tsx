@@ -1,7 +1,8 @@
-import {useCallback, useContext, useEffect, useMemo, useState} from "react";
-import {TransactionContext} from "../../context/TransactionContext";
-import PayContract from "../../components/PayContract/PayContract";
-import {useDebounce} from "../../utils/hooks";
+import {useCallback, useContext, useEffect, useMemo, useState} from "react"
+import {TransactionContext} from "../../context/TransactionContext"
+import PayContract from "../../components/PayContract/PayContract"
+import {useDebounce} from "../../utils/hooks"
+import Input from "../../components/Input/Input"
 // [Source](https://github.com/adrianhajdin/project_web3.0)
 export default function TransactionRecord() {
     const {isTransacting, transactionRecords, transactionCount} = useContext(TransactionContext);
@@ -11,7 +12,7 @@ export default function TransactionRecord() {
     return (
         <div className="w-full">
             <label className="">Please input a address：</label>
-            <input type="text" value={_accountName} onChange={event => setAccountName(event.target.value)}/>
+            <Input type="text" value={_accountName} onChange={event => setAccountName(event.target.value)}/>
             <button type="button" onClick={() => setAddressTo(_accountName)}>Confirm</button>
             {addressTo ? <PayContract addressTo={addressTo}/> : null}
             {isTransacting ? "transacting..." : null}

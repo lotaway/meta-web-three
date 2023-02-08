@@ -32,7 +32,7 @@ export const TransactionProvider = ({children}: { children: React.ReactNode }) =
                 method: "eth_accounts"
             });
             accounts.length && setCurrentWalletAccount(accounts[0]);
-            getTransactionRecords();
+            void getTransactionRecords();
         } catch (err) {
             console.error(err);
             throw new Error("No ethereum object.");
@@ -108,7 +108,7 @@ export const TransactionProvider = ({children}: { children: React.ReactNode }) =
         }
     };
     useEffect(() => {
-        initWalletConnect();
+        void initWalletConnect();
     }, []);
     return (
         <TransactionContext.Provider value={{

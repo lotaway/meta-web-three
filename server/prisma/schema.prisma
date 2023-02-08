@@ -10,79 +10,92 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+//  用户表
 model User {
-    id Int @id @default(autoincrement())
-    author Author? @relation(fields: [authorId], references: [id])
-    authorId Int? @unique
+  id       Int      @id @default(autoincrement())
+  email    String   @unique
+  password String
+  author   Author?  @relation(fields: [authorId], references: [id])
+  authorId Int?     @unique
+  userType UserType? @relation(fields: [typeId], references: [id])
+  typeId   Int?
+}
+
+//  用户类型，权限管理，如顾客、代理商、客服、管理员等
+model UserType {
+  id Int @id @default(autoincrement())
+  type Int @db.TinyInt() @default(0)
+  typeName String @db.VarChar(10) @default("")
+  desc String @default("")
+  user User[]
 }
 
 //  作者表
 model Author {
-  id       Int      @id @default(autoincrement())
-  email    String   @unique
-  name     String?
+  id       Int       @id @default(autoincrement())
+  realname String?
   articles Article[]
   userId   User?
-  isEnable Boolean  @default(false)
+  isEnable Boolean   @default(false)
 }
 
 //  状态：【0：禁用，1：未审核，2：已发布】
 enum ArticleState {
-    BAN
-    PENDING
-    PUBLISHED
+  BAN
+  PENDING
+  PUBLISHED
 }
 
 model Article {
-    id String @db.VarChar(255) @default(uuid()) @unique
-    createTime DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
-    title String @db.VarChar(50)
-    content Unsupported("text")
-    state ArticleState @default(PENDING)
-    sourceName String @db.VarChar(20)
-    sourceUrl String @db.VarChar(50)
-    author Author @relation(fields: [authorId], references: [id])
-    authorId Int
+  id         String              @db.VarChar(255) @default(uuid()) @unique
+  createTime DateTime            @default(now())
+  updatedAt  DateTime            @default(now()) @updatedAt
+  title      String              @db.VarChar(50)
+  content    Unsupported("text")
+  state      ArticleState        @default(PENDING)
+  sourceName String              @db.VarChar(20)
+  sourceUrl  String              @db.VarChar(50)
+  author     Author              @relation(fields: [authorId], references: [id])
+  authorId   Int
 }
 
 model Talent {
-    id Int @id @default(autoincrement())
-    realName String @db.VarChar(255)
-    profile Profile?
+  id       Int      @id @default(autoincrement())
+  realName String   @db.VarChar(255)
+  profile  Profile?
 }
 
 model Profile {
-  id            Int         @id @default(autoincrement())
-  createTime    DateTime    @default(now())
-  updateTime    DateTime    @default(now()) @updatedAt
-  talent        Talent      @relation(fields: [talentId], references: [id])
-  talentId      Int         @unique
-  company       Company[]
+  id         Int       @id @default(autoincrement())
+  createTime DateTime  @default(now())
+  updateTime DateTime  @default(now()) @updatedAt
+  talent     Talent    @relation(fields: [talentId], references: [id])
+  talentId   Int       @unique
+  company    Company[]
 }
 
 model CompanyType {
-    id Int @id @default(autoincrement())
-    company Company[]
+  id      Int       @id @default(autoincrement())
+  company Company[]
 }
 
 model Company {
-    id              Int @id @default(autoincrement())
-    createTime      DateTime @default(now())
-    updateTime      DateTime @default(now()) @updatedAt
-    name            String @db.VarChar(255)
-    startDate       DateTime
-    endDate         DateTime
-    stillIn         Boolean @default(false)
-    companyType     CompanyType @relation(fields: [companyTypeId], references: [id])
-    companyTypeId   Int
-    profile         Profile @relation(fields: [profileId],references:[id])
-    profileId       Int
+  id            Int         @id @default(autoincrement())
+  createTime    DateTime    @default(now())
+  updateTime    DateTime    @default(now()) @updatedAt
+  name          String      @db.VarChar(255)
+  startDate     DateTime
+  endDate       DateTime
+  stillIn       Boolean     @default(false)
+  companyType   CompanyType @relation(fields: [companyTypeId], references: [id])
+  companyTypeId Int
+  profile       Profile     @relation(fields: [profileId], references: [id])
+  profileId     Int
 }
 
 model Project {
-    id Int @id @default(autoincrement())
-    name String @db.VarChar(255)
-    character String @db.VarChar(255)
-    content String? @db.VarChar(255)
+  id        Int     @id @default(autoincrement())
+  name      String  @db.VarChar(255)
+  character String  @db.VarChar(255)
+  content   String? @db.VarChar(255)
 }

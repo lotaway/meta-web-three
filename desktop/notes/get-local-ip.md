@@ -6,10 +6,10 @@
 const os = require('os')
 
 function getLocalIp() {
-    const netIFaces = os.networkInterfaces()
-    for (let dev in netIFaces) {
-        if (netIFaces[dev][1]?.address?.indexOf('192.168') !== -1) {
-            return netIFaces[dev][1].address
+    const networkInterfaces = os.networkInterfaces()
+    for (let dev in networkInterfaces) {
+        if (networkInterfaces[dev][1]?.address?.indexOf('192.168') !== -1) {
+            return networkInterfaces[dev][1].address
         }
     }
     return null
