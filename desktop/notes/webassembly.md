@@ -24,27 +24,131 @@ Bots游戏，是继HTML、CSS和JavaScript之后的第四种Web语言。到目�
 虽然理论上可以使用任意语言如C/C++/Rust/Go编写wasm代码，但还必须编译工具支持，目前已知的工具：
 
 * Web Assembly Edge
-* [Emscripten](https://github.com/emscripten-core/emsdk)，可编译C/C++
+* [Emsdk](https://github.com/emscripten-core/emsdk)，可编译C/C++
 * [Web Assembly Explorer](https://mbebenita.github.io/WasmExplorer/)，可编译C/C++
 * [Wasm Fiddle](https://wasdk.github.io/WasmFiddle/)，可编译C
 * [Rust Wasm-Pack](https://rustwasm.github.io/wasm-pack)
 * [WebAssembly.studio](https://webassembly.studio)，可编译C/Rust/Wat
 * [Wat2Wasm](https://webassembly.github.io/wabt/demo/wat2wasm/)，可编译Wat
 * [Go](https://golang.google.cn/dl)，Go官方从1.1版本就开始支持编译成wasm
-  接下来用C++语言实现一个斐波数列的计算：
+
+接下来用C++语言实现一个斐波数列的计算：
 
 ```bash
-int fib(int n)
-{
-   if (n <= 1)
+int fib(int n) {
+   if (n <= 1) {
       return n;
+   }
+   return fib(n-1) + fib(n-2);
+}
+```
+
+函数本身非常简单，如果是C++的程序，只需要直接调用即可，但为了配合emsdk让js能方便调用，还需要一些额外工作。
+由于emsdk为了优化体积默认只导出main方法，其他方法想要保留需要加上EMSCRIPTEN_KEEPALIVE，例如：
+
+```bash
+EMSCRIPTEN_KEEPALIVE
+void example(const char& str) {
+  std::cout << str << std::endl;
+}
+```
+
+其次是C++里会因为重载特性编译后会把函数名称都重命名，不利于调用，需要使用extern "C"指定导出为C方法，
+因此结合上述情况写成一个头文件方便调用。
+先引入emscripten.h并定义一个导出方法。
+写一个EM_PORT_API.h文件：
+
+```bash
+#pragma once
+#ifndef EM_PORT_API
+#	if defined(__EMSCRIPTEN__)
+#		include <emscripten.h>
+#		if defined(__cplusplus)
+#			define EM_PORT_API(rettype) extern "C" rettype EMSCRIPTEN_KEEPALIVE
+#		else
+#			define EM_PORT_API(rettype) rettype EMSCRIPTEN_KEEPALIVE
+#		endif
+#	else
+#		if defined(__cplusplus)
+#			define EM_PORT_API(rettype) extern "C" rettype
+#		else
+#			define EM_PORT_API(rettype) rettype
+#		endif
+#	endif
+#endif
+```
+
+引入上面的头文件，并导出斐波序列函数：
+
+```bash
+#include "EM_PORT_API.h"
+EM_PORT_API(int) fib(int n) {
+   if (n <= 1) {
+      return n;
+   }
    return fib(n-1) + fib(n-2);
 }
 ```
 
 # 编译
 
-使用程序完成编译，编译后将生成一个.wasm后缀的文件，例如`math.wasm`。
+使用程序完成编译，编译后将生成一个.wasm后缀的文件，例如`math.wasm`，以下使用emsdk做示例。
+先下载emsdk：
+
+```cmd
+git clone https://github.com/emscripten-core/emsdk.git
+```
+
+参考下载下来的readme.md说明文件进行安装，先进入emsdk：
+
+```cmd
+cd emsdk
+```
+
+执行说明文件的安装命令：
+
+```cmd
+./emsdk install latest
+```
+
+之后是是激活指定sdk版本的命令（实测我该命令每次重新开启命令行时需要重新执行，但按官方和别人的说法是只在修改版本时才需要）：
+
+```cmd
+./emsdk activate latest
+```
+
+执行一次即可的环境命令（实测第一次执行永久有效，但按官方和别人的说法是每次重新开启命令行时需要重新执行）：
+linux：
+
+```cmd
+source ./emsdk_env.sh
+```
+
+window：
+
+```cmd
+./emsdk_env.bat
+```
+
+完成后就可以使用编译命令了，如果只是单文件可以用emcc/em++命令，需要指定编译的文件路径和输出的文件类型
+
+生成纯粹的wasm：
+
+```cmd
+emcc ./main.cpp -o main.wasm
+```
+
+生成带有辅助加载wasm的js+wasm：
+
+```cmd
+emcc ./main.cpp -o main.js
+```
+
+可以生成带有示例的html文件：
+
+```cmd
+emcc ./main.cpp -o main.html
+```
 
 # 加载
 
@@ -53,21 +157,18 @@ int fib(int n)
 若是在前端使用，创建一个scripts.js文件，用于加载.wasm文件：
 
 ```javascript
-let math;
-
 // 写一个通用方法用于加载不同的WebAssembly模块
 function loadWebAssembly(fileName) {
     return fetch(fileName)
         .then(response => response.arrayBuffer())
-        .then(buffer => WebAssembly.compile(buffer)) // Buffer converted to Web Assembly 
-        .then(module => {
-            return new WebAssembly.Instance(module)
-        }); // Instance of Web assmebly module is returened 
-};
+        .then(buffer => WebAssembly.instantiate(buffer))
+        // .then(buffer => WebAssembly.compile(buffer)).then(module => new WebAssembly.Instance(module))
+        ;
+}
 
 //We call the function for math.wasm for the given Instance. 
 const Wasm = {}
-loadWebAssembly('math.wasm')
+loadWebAssembly('main.wasm')
     .then(instance => {
         //  这里加载进来的函数名称是根据编译步骤决定的`_Z3fibi`，而非开发步骤中你所定义的函数名`fib`
         Wasm.fibc = instance.exports._Z3fibi;
@@ -82,7 +183,7 @@ Nodejs可以直接从本地加载文件，而不需要通过接口获取：
 ```javascript
 const fs = require('fs')
 const Wasm = {}
-const buf = fs.readFileSync('./math.wasm')
+const buf = fs.readFileSync('./main.wasm')
 const loadWebAssembly = WebAssembly.instantiate(new Uint8Array(buf)).then(res => {
     Wasm.fibc = res.instance.exports._Z3fibi
 })
@@ -95,3 +196,20 @@ Wasm.fibc(45)
 ```
 
 以上方法将花费9秒左右完成计算并输出结果，如果用纯js编写类似的函数，调用后将花费13秒左右方可输出结果。
+
+# 生成完整的CPP项目
+
+不过Nodejs里本身也可以通过addon方式加载C++库，不过wasm则可以一次编译给前后端使用。
+
+# 数据管理
+
+emsdk还在wasm里提供了三种管理数据/文件FS的方式：
+
+* 虚拟文件管理，实际放在内存里，无法持久化存储
+* NODERAWFS，类Nodejs物理文件管理，可持久化，只能在Nodejs环境才能使用
+* IndexDB数据库，Web前端的应该知道，类似本地数据库，可持久化，只能在浏览器环境里使用
+  具体可以看这篇文件[emsdk-wasm文件管理](https://emscripten.quchafen.com/fileSystem/MEMFS/)
+
+# WASI
+全称Web-Assembly-Interface，即帮WebAssembly搭建一层中间层，用于让WebAssembly不单单可以跑在浏览器和Nodejs服务器上，而是可以直接在Window、Linux、Mac系统或者各种手机和设备上运行，并且有对应的系统功能接口。
+其中WasmEdge提供了可以在命令行直接运行.wasm文件中的方法，或者将.wasm编译成其他适用于不同系统的原生库文件，如适用于Window的.dll，适用于Linux的.so，具体可看官方：[WasmEdge-为云原生而生](https://wasmedge.org)

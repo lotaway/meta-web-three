@@ -2,8 +2,7 @@ import {Controller, Req, Res, Get, Post, Render, Param} from '@nestjs/common';
 import {UserService} from "./user.service";
 //  验证码
 import svgCaptcha from "svg-captcha";
-import {SignInParam} from "./dto/user.dto";
-
+import {ControllerDto} from "./dto/user.dto";
 @Controller('user')
 export class UserController {
 
@@ -11,11 +10,14 @@ export class UserController {
     }
 
     @Post("signIn")
-    signIn(@Param() {account, password}: SignInParam, @Res() res) {
-        if (!account || !password) {
-            res.status = 403
-            res.message = "缺少参数"
+    async signIn(@Param() {username, password}: ControllerDto.SignInParam, @Res() res) {
+        if (!username || !password) {
+            res.status = 403;
+            res.message = "缺少参数";
         }
+        const result = await this.userService.signIn({username, password});
+        res.status = 200;
+        res.data = result;
     }
 
     @Get(["", "index"])

@@ -1,6 +1,8 @@
 export type UserId = string;
 
-export interface SignInParam {
-    account: string
-    password: string
+export namespace ControllerDto {
+    export interface SignInParam {
+        username: string
+        password: string
+    }
 }
