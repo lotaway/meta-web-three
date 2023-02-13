@@ -4,10 +4,10 @@ import "./SignUp.less"
 import Input from "../../components/Input/Input"
 
 export default function SignUp() {
+    const navigate = useNavigate()
     const usernameRef = createRef<HTMLInputElement>()
     const passwordRef = createRef<HTMLInputElement>()
     const repeatPwdRef = createRef<HTMLInputElement>()
-    const navigate = useNavigate()
     const validateData = useCallback(({usernameVal, passwordVal, repeatPwdVal}: any) => {
         let error = ""
         if (!usernameVal || !passwordVal || passwordVal !== repeatPwdVal) {

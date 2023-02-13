@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\client\\src",
+    "\\server\\src",
+    "\\server\\src\\module",
+    "\\server\\src\\module\\app",
+    "\\software",
+    "\\software\\app",
+    "\\software\\app\\src"
+  ],
+  "SelectedNode": "\\software\\app\\src\\utils.cpp",
+  "PreviewInSolutionExplorer": false
+}

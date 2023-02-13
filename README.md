@@ -16,6 +16,7 @@
 * client 客户端（内容、浏览、支付）
 * desktop 桌面端（笔记、通讯）
 * server 服务端（管理）
+* software 软件端（提供客户端和服务端支持）
 
 ## Installation 安装
 
@@ -76,5 +77,9 @@ $ hardhat node
 # deploy contract to local node for develop
 $ hardhat run scripts/deploy.js --network localhost
 ```
+
+### Software 软体端
+
+主要是一些支持库，之后可能智能合约要转成用C++/Rust编译成WASM的形式，而不再使用Solidity（EVM官方实现中）
 
 `+(()=>throw new Emotion("Happy"))`

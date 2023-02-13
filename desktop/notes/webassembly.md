@@ -23,8 +23,7 @@ Bots游戏，是继HTML、CSS和JavaScript之后的第四种Web语言。到目�
 
 虽然理论上可以使用任意语言如C/C++/Rust/Go编写wasm代码，但还必须编译工具支持，目前已知的工具：
 
-* Web Assembly Edge
-* [Emsdk](https://github.com/emscripten-core/emsdk)，可编译C/C++
+* [Emsdk](https://emscripten.quchafen.com)，可编译C/C++
 * [Web Assembly Explorer](https://mbebenita.github.io/WasmExplorer/)，可编译C/C++
 * [Wasm Fiddle](https://wasdk.github.io/WasmFiddle/)，可编译C
 * [Rust Wasm-Pack](https://rustwasm.github.io/wasm-pack)
@@ -138,13 +137,13 @@ window：
 emcc ./main.cpp -o main.wasm
 ```
 
-生成带有辅助加载wasm的js+wasm：
+生成带有辅助的js+wasm：
 
 ```cmd
 emcc ./main.cpp -o main.js
 ```
 
-可以生成带有示例的html文件：
+可以生成带有示例的html+js+wasm文件：
 
 ```cmd
 emcc ./main.cpp -o main.html
@@ -152,9 +151,20 @@ emcc ./main.cpp -o main.html
 
 # 加载
 
-## 用于Js
+## 使用带有辅助的js+wasm
 
-若是在前端使用，创建一个scripts.js文件，用于加载.wasm文件：
+emsdk生成了带有辅助的js，已经默认加载到全局变量Model，在网页中通过RuningTimeInitial回调方法中即可调用wasm中的方法：
+
+```javascript
+var Model = {};
+Model.onRuntimeInitialized = function () {
+    Model._fibi(45);
+}
+```
+
+## 纯wasm用于Js
+
+若是在前端使用，可以创建一个scripts.js文件，用于加载.wasm文件：
 
 ```javascript
 // 写一个通用方法用于加载不同的WebAssembly模块
@@ -167,35 +177,46 @@ function loadWebAssembly(fileName) {
 }
 
 //We call the function for math.wasm for the given Instance. 
-const Wasm = {}
+const Model = {}
 loadWebAssembly('main.wasm')
     .then(instance => {
-        //  这里加载进来的函数名称是根据编译步骤决定的`_Z3fibi`，而非开发步骤中你所定义的函数名`fib`
-        Wasm.fibc = instance.exports._Z3fibi;
+        //  这里加载进来的函数名称是根据编译步骤决定的`_Z3fibi`或`_fib`，而非开发步骤中你所定义的函数名`fib`
+        Model.fibc = instance.exports._Z3fibi;
 
     });
 ```
 
-## 用于Nodejs
+## 纯wasm用于Nodejs
 
 Nodejs可以直接从本地加载文件，而不需要通过接口获取：
 
 ```javascript
 const fs = require('fs')
-const Wasm = {}
+const Model = {}
 const buf = fs.readFileSync('./main.wasm')
 const loadWebAssembly = WebAssembly.instantiate(new Uint8Array(buf)).then(res => {
-    Wasm.fibc = res.instance.exports._Z3fibi
+    Model.fibc = res.instance.exports._Z3fibi
 })
 ```
 
-# 调用
+## 纯wasm调用
 
 ```javascript
-Wasm.fibc(45)
+Model.fibc(45)
 ```
 
 以上方法将花费9秒左右完成计算并输出结果，如果用纯js编写类似的函数，调用后将花费13秒左右方可输出结果。
+
+# dwarf调试
+
+除了sourcemap能处理源码和编译后的代码的映射关系外，dwarf也是一种比较通用的调试数据格式(debugging data format)
+,其广泛运用于c|c++等system programing language上。其为调试提供了代码位置映射，变量名映射等功能。
+emscripten目前已经可以为生成的wasm代码带上dwarf信息。
+
+```bash
+$ emcc hello.cc -o hello.wasm -g // 带上dwarf信息 我们使用lldb和wasmtime进行调试     
+$ lldb -- wasmtime -g hello.wasm
+```
 
 # 生成完整的CPP项目
 
@@ -208,8 +229,15 @@ emsdk还在wasm里提供了三种管理数据/文件FS的方式：
 * 虚拟文件管理，实际放在内存里，无法持久化存储
 * NODERAWFS，类Nodejs物理文件管理，可持久化，只能在Nodejs环境才能使用
 * IndexDB数据库，Web前端的应该知道，类似本地数据库，可持久化，只能在浏览器环境里使用
-  具体可以看这篇文件[emsdk-wasm文件管理](https://emscripten.quchafen.com/fileSystem/MEMFS/)
+* WORKER文件系统，适用于单个blob大文件
+
+具体可以看这篇文件[emsdk-wasm文件管理](https://emscripten.quchafen.com/fileSystem/MEMFS/)
 
 # WASI
+
 全称Web-Assembly-Interface，即帮WebAssembly搭建一层中间层，用于让WebAssembly不单单可以跑在浏览器和Nodejs服务器上，而是可以直接在Window、Linux、Mac系统或者各种手机和设备上运行，并且有对应的系统功能接口。
 其中WasmEdge提供了可以在命令行直接运行.wasm文件中的方法，或者将.wasm编译成其他适用于不同系统的原生库文件，如适用于Window的.dll，适用于Linux的.so，具体可看官方：[WasmEdge-为云原生而生](https://wasmedge.org)
+
+# 参考文章
+
+[C++程序转WASM](https://zhuanlan.zhihu.com/p/158586853)

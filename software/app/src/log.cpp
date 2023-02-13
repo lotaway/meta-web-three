@@ -5,25 +5,27 @@ using namespace std;
 
 int g_variable = 5;	//	全局变量，将可以被extern装饰的同名变量所引用
 
-void log(const char* message) {
-	cout << message << endl;
-}
+namespace logger {
+	void out(const char* message) {
+		cout << message << endl;
+	}
 
-void log(const char* message, const char* name) {
-	log(name);
-	log(message);
-}
+	void out(const char* message, const char* name) {
+		out(name);
+		out(message);
+	}
 
-void log(const char* message, const int value) {
-	log(message);
-	cout << value << endl;
-}
+	void out(const char* message, const int value) {
+		out(message);
+		cout << value << endl;
+	}
 
-void log(LogInfo logInfo) {
-	log(logInfo.message);
-	log(logInfo.name);
-}
+	void out(LogInfo logInfo) {
+		out(logInfo.message);
+		out(logInfo.name);
+	}
 
-int multiply(int a, int b) {
-	return a * b;
+	int multiply(int a, int b) {
+		return a * b;
+	}
 }
