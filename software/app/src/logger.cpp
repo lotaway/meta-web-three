@@ -1,11 +1,19 @@
 #include <iostream>
-#include "./include/EM_PORT_API.h"
-#include "log.h"
+#include "logger.h"
 using namespace std;
 
 int g_variable = 5;	//	全局变量，将可以被extern装饰的同名变量所引用
 
 namespace logger {
+
+	void Info::test() {
+
+	}
+
+	void out(const int value) {
+		cout << value << endl;
+	}
+
 	void out(const char* message) {
 		cout << message << endl;
 	}

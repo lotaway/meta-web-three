@@ -5,6 +5,10 @@ namespace logger {
 		char* message;
 		unsigned int result;
 	};
+	class Info {
+		void test();
+	};
+	void out(const int value);
 	void out(const char* message);
 	void out(const char* meesage, const char* name);
 	void out(const char* message, int value);

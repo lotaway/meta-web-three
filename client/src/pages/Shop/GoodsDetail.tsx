@@ -3,8 +3,8 @@ import {useParams, useLoaderData} from "react-router-dom";
 type Props = {};
 
 export default function GoodsDetail(props: Props) {
-    const {id} = useParams();
-    /*const result = useLoaderData() as {
+    const {id} = useParams()
+    const preData = useLoaderData() as {
         status: number
         data: {
             pictures: Array<{
@@ -13,7 +13,7 @@ export default function GoodsDetail(props: Props) {
             goodsName: string
             goodsRemark: string
         }
-    };*/
+    }
     const result = {
         data: {
             pictures: [{

@@ -25,6 +25,7 @@ export default function Home() {
                 }
             });
         }, 5 * 1000)
+        //  do something with webGPU...
         return () => {
             abortController.abort("reRender")
             clearInterval(counter)
@@ -38,7 +39,8 @@ export default function Home() {
                     <LayoutCard.Header>Welcome to web3!</LayoutCard.Header>
                     <LayoutCard.Body>
                         <p>You have {msg} message.</p>
-                        <Input ref={inputRef} type="text" value={addressTo} onChange={event => setAddressTo(event.target.value)}/>
+                        <Input ref={inputRef} type="text" value={addressTo}
+                               onChange={event => setAddressTo(event.target.value)}/>
                         <PayContract addressTo={addressTo}/>
                     </LayoutCard.Body>
                     <LayoutCard.Below>

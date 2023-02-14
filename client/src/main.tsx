@@ -1,21 +1,21 @@
-import React, {lazy} from 'react';
-import ReactDOM from 'react-dom/client';
-import {createBrowserRouter, Navigate, RouterProvider} from "react-router-dom";
-import {TransactionProvider} from "./context/TransactionContext";
-import App from './App';
-import './index.css';
-// import "tailwindcss/tailwind.css";
-import Home from "./pages/Home/Home";
-import ShopIndex from "./pages/Shop/Index";
-import GoodsDetail from "./pages/Shop/GoodsDetail";
-import SignUp from "./pages/User/SignUp";
-import LogIn from "./pages/User/LogIn";
-import UserCenter from "./pages/User/UserCenter";
-import TransactionRecord from "./pages/User/TransactionRecord";
-import Auth from "./layouts/Auth/Auth";
-// const ShopIndex = lazy(() => import("./pages/Shop/Index"));
-// const host = "import.meta\u200b.env.VITE_SHOP_HOST";
-const shopHost = import.meta.env.VITE_SHOP_HOST;
+import React, {lazy} from 'react'
+import ReactDOM from 'react-dom/client'
+import {createBrowserRouter, Navigate, RouterProvider} from "react-router-dom"
+import {TransactionProvider} from "./context/TransactionContext"
+import App from './App'
+import './index.css'
+// import "tailwindcss/tailwind.css"
+import configHost from "./config/host"
+import Home from "./pages/Home/Home"
+import ShopIndex from "./pages/Shop/Index"
+import GoodsDetail from "./pages/Shop/GoodsDetail"
+import SignUp from "./pages/User/SignUp"
+import LogIn from "./pages/User/LogIn"
+import UserCenter from "./pages/User/UserCenter"
+import TransactionRecord from "./pages/User/TransactionRecord"
+import NewWorld from "./pages/NewWorld"
+import Auth from "./layouts/Auth/Auth"
+// const ShopIndex = lazy(() => import("./pages/Shop/Index"))
 const routers = createBrowserRouter([
     {
         path: "/",
@@ -45,16 +45,16 @@ const routers = createBrowserRouter([
     },
     {
         path: "/auth",
-        element: <Auth />,
+        element: <Auth/>,
         children: [
             {
                 index: true,
                 //  path: "/signUp",
-                element: <SignUp />
+                element: <SignUp/>
             },
             {
                 path: "logIn",
-                element: <LogIn />
+                element: <LogIn/>
             }
         ]
     },
@@ -62,7 +62,7 @@ const routers = createBrowserRouter([
         path: "/shop/goods/:id",
         element: <GoodsDetail/>,
         loader: ({params}) => {
-            return fetch(`${shopHost}/salesOutlets/goods/recommend/details?goodId=${params.id}`);
+            return fetch(`${configHost.goodsService}/salesOutlets/goods/recommend/details?goodId=${params.id}`);
         }
     },
     {
@@ -70,10 +70,14 @@ const routers = createBrowserRouter([
         element: <TransactionRecord/>
     },
     {
+        path: "/NewWorld",
+        element: <NewWorld/>
+    },
+    {
         path: "*",
         element: <Navigate to="/"/>
     }
-]);
+])
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <TransactionProvider>
@@ -81,4 +85,4 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
             <RouterProvider router={routers}/>
         </React.StrictMode>
     </TransactionProvider>
-);
+)

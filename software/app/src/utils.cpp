@@ -6,7 +6,6 @@
 #include <string>
 //	unique_ptr智能指针所需要引入
 #include <memory>
-//	std::vector类需要引入
 #include <vector>
 //	make_tuple需要
 #include <tuple>
@@ -17,7 +16,7 @@
 //	引入解决方案中的其他项目
 // emsdk无法识别，只能使用引号加相对路径"../../engine/src/engine.h"，除了cpp和标准库以外的文件都没有被编译进去wasm
 #include <engine.h>
-#include "log.h"
+#include "logger.h"
 #include "utils.h"
 
 #define debugger(msg) std::cout << "main::debugger:" + msg << std::endl
@@ -139,96 +138,50 @@ namespace utils {
 		PlayerStatus_Disabled
 	};
 
-	class Player {
-	private:
-		PlayerLevel m_level;
-		PlayerStatus m_status;
-	public:
-		int m_positionX, m_positionY;
-		int m_speed;
-		//	构造函数，实例化时调用的方法，名称和类名一样，需要初始化所有的实例变量
-		//	explicit关键字禁止隐性转换，如Player player = PlayerLevel_EntryLevel;
-		explicit Player(PlayerLevel level = PlayerLevel_EntryLevel) : m_level(level), m_status(PlayerStatus_Enabled), m_positionX(0), m_positionY(0), m_speed(15) {
+	Player::Player(PlayerLevel level = PlayerLevel_EntryLevel) : m_level(level), m_status(PlayerStatus_Enabled), m_positionX(0), m_positionY(0), m_speed(15) {
 
-		}
-		//	摧毁类实例时调用的方法，名称为【~类名】
-		~Player() {
-			std::cout << "go out" << std::endl;
-		}
-		void move(int new_x, int new_y) {
-			m_positionX += new_x * m_speed;
-			m_positionY += new_y * m_speed;
-		}
-	};
+	}
+
+	Player::~Player() {
+		std::cout << "go out" << std::endl;
+	}
+
+	void Player::move(int new_x, int new_y) {
+		m_positionX += new_x * m_speed;
+		m_positionY += new_y * m_speed;
+	}
 
 	void fastMove(Player& player, int new_x, int new_y) {
 		player.m_positionX += new_x * player.m_speed * 2;
 		player.m_positionY += new_y * player.m_speed * 2;
 	}
 
-	//	struct 是为了兼容c语法，与class的区别只有struct内的值默认是public，而class默认都是private
-	struct NormalPerson {
-		int m_positionX, m_positionY;
-		int m_speed;
-		Player* m_like;
-		void move(int new_x, int new_y) {
-			m_positionX += new_x * m_speed;
-			m_positionY += new_y * m_speed;
-		}
-		void follow(Player& _player) {
-			m_like = &_player;
-		}
-	};
+	void NormalPerson::move(int new_x, int new_y) {
+		m_positionX += new_x * m_speed;
+		m_positionY += new_y * m_speed;
+	}
+	void NormalPerson::follow(Player& _player) {
+		m_like = &_player;
+	}
 
-	//	访问修饰符
-	class Trainer {
-		//	只能此类调用
-	private:
-		int m_runLevel;
-		int m_runNumber;
-		//	可被此类和继承类调用
-	protected:
-		int m_age;
-		int m_sex;
-		//	所有代码都可调用
-	public:
-		Trainer(int runNumber, int age, int sex) {
-			m_runLevel = 0;
-			m_runNumber = runNumber;
-			m_age = age;
-			m_sex = sex;
-		}
-	};
-	//	通过虚函数实现抽象类/接口
-	class Runner {
-	public:
-		virtual void run() = 0;
-	};
+	Trainer::Trainer(int runNumber, int age, int sex) {
+		m_runLevel = 0;
+		m_runNumber = runNumber;
+		m_age = age;
+		m_sex = sex;
+	}
 
-	//	继承
-	class Racer : public Runner {
-	public:
-		char m_cup;
-		int m_rank;
-		//	初始化列表形式的构造函数
-		Racer(const char& cup, int rank) : m_cup(cup), m_rank(rank) {}
-		void run() override {
-			std::cout << std::string("run") << std::endl;
-		}
-	};
+	void Runner::run() {};
 
-	class Winner : public Racer {
-	public:
-		std::string getNews() {
-			return "He win.";
-		}
-	};
+	Racer::Racer(const char& cup, int rank) : m_cup(cup), m_rank(rank) {}
 
-	class InitStatic {
-	public:
-		static const int s_defaultSpeed = 2;
-		static int s_maxSpeed;
-	};
+	void Racer::run() {
+		std::cout << "run" << std::endl;
+	}
+	
+	std::string Winner::getNews() {
+		return "He win.";
+	}
 
 	//	初始化静态变量只能在类外的全局方式完成
 	//	方式1：通过类名设置
@@ -346,23 +299,17 @@ namespace utils {
 )";
 	}
 
-	class OnlyReadFn {
-	private:
-		int m_x;
-		mutable int getCount;
-	public:
-		OnlyReadFn() : m_x(0), getCount(0) {
+	OnlyReadFn::OnlyReadFn() : m_x(0), getCount(0) {
 
-		}
-		//	使用const在尾部将函数标记为不会修改类
-		const int getX() const {
-			//	不可用赋值，因为已经标记为const
-			//m_x = 2;
-			//	但对mutable依旧可以修改,mutable>const>variable
-			getCount += 1;
-			return m_x;
-		}
-	};
+	}
+
+	const int OnlyReadFn::getX() const {
+		//	不可用赋值，因为已经标记为const
+		//m_x = 2;
+		//	但对mutable依旧可以修改,mutable>const>variable
+		getCount += 1;
+		return m_x;
+	}
 
 	void initConst() {
 		//	常量，只读
@@ -405,48 +352,41 @@ namespace utils {
 		lam();
 	}
 
-	//	重载操作符
-	class Vec {
-	public:
-		float m_x, m_y;
-		Vec(float x, float y) : m_x(x || 0.0f), m_y(y || 0.0f) {}
-		Vec add(const Vec& _vec) const {
-			return Vec(m_x + _vec.m_x, m_y + _vec.m_y);
-		}
-		//	重载操作符加号
-		Vec operator+(const Vec& _vec) const {
-			return this->add(_vec);
-		}
-		Vec multiply(const Vec& _vec) const {
-			return Vec(m_x * _vec.m_x, m_y * _vec.m_y);
-		}
-		//	重载操作符乘号
-		Vec operator*(const Vec& _vec) const {
-			return this->multiply(_vec);
-		}
-		bool isEqual(const Vec& _vec) const {
-			return m_x == _vec.m_x && m_y == _vec.m_y;
-		}
-		//	重载相等操作符
-		bool operator==(const Vec& _vec) const {
-			return this->isEqual(_vec);
-		}
-	};
+	Vec::Vec(float x, float y): m_x(x || 0.0f), m_y(y || 0.0f) {}
+
+	Vec Vec::add(const Vec& _vec) const {
+		return Vec(m_x + _vec.m_x, m_y + _vec.m_y);
+	}
+
+	Vec Vec::operator+(const Vec& _vec) const {
+		return this->add(_vec);
+	}
+
+	Vec Vec::multiply(const Vec& _vec) const {
+		return Vec(m_x * _vec.m_x, m_y * _vec.m_y);
+	}
+
+	Vec Vec::operator*(const Vec& _vec) const {
+		return this->multiply(_vec);
+	}
+
+	bool Vec::isEqual(const Vec& _vec) const {
+		return m_x == _vec.m_x && m_y == _vec.m_y;
+	}
+
+	bool Vec::operator==(const Vec& _vec) const {
+		return this->isEqual(_vec);
+	}
+
 	//	输出流的<<操作符也可以重载
 	std::ostream& operator<<(std::ostream& stream, const Vec& _vec) {
 		stream << _vec.m_x << ',' << _vec.m_y;
 		return stream;
 	}
 
-	//	使用花括号初始化引用的类
-	class Vecv {
-	public:
-		Vec vec{ 2.0f,2.0f };
-		Vecv() {};
-		Vec& getVec() {
-			return vec;
-		}
-	};
+	Vec& Vecv::getVec() {
+		return vec;
+	}
 
 	void initCalculate() {
 		Vec vec(0.0f, 0.0f);
@@ -468,22 +408,14 @@ namespace utils {
 		int* arr = new int[50];
 		return arr;
 	}
-	//	利用栈类来摧毁堆类
-	class Entity {
-	public:
-		void dododo() {}
-	};
-	class ScopeEntity {
-	private:
-		Entity* m_entity;
-	public:
-		//	传入堆上的实例
-		ScopeEntity(Entity* entity) : m_entity(entity) {}
-		//	删除堆上的实例
-		~ScopeEntity() {
-			delete m_entity;
-		}
-	};
+
+	void Entity::dododo() {}
+
+	ScopeEntity::ScopeEntity(Entity* entity) : m_entity(entity) {}
+
+	ScopeEntity::~ScopeEntity() {
+		delete m_entity;
+	}
 
 	void initStackClass() {
 		//	此处有自动隐性转换，相当于ScopeEntity(new Entity())
@@ -522,36 +454,22 @@ namespace utils {
 		std::cin.get();
 	}
 
-	class SS {
-	private:
-		char* m_buffer;
-		unsigned int m_size;
-	public:
-		SS(const char* content) {
-			m_size = (unsigned int)strlen(content) + 1;
-			m_buffer = new char[m_size];
-			fri(*this, content);
-		}
-		//	拷贝时会调用的构造函数
-		SS(const SS& ss) : m_size(ss.m_size) {
-			m_buffer = new char[m_size];
-			//memcpy(m_buffer, ss.m_buffer, ss.m_size);
-			fri(*this, ss.m_buffer);
-		}
-		~SS() {
-			delete[] m_buffer;
-		}
-		void print() const {
-			std::cout << m_buffer << std::endl;
-		}
-		char& operator[](unsigned int index) {
-			return m_buffer[index];
-		}
-		//	友元方法声明，可让私有变量也被外部函数调用
-		friend void fri(SS& ss, const char* content);
-	};
+	SS::SS(const char* content) {
+		m_size = (unsigned int)strlen(content) + 1;
+		m_buffer = new char[m_size];
+		fri(*this, content);
+	}
 
-	//	友元方法定义，可以调用声明处的实例私有属性
+	SS::SS(const SS& ss) : m_size(ss.m_size) {
+		m_buffer = new char[m_size];
+		//memcpy(m_buffer, ss.m_buffer, ss.m_size);
+		fri(*this, ss.m_buffer);
+	}
+
+	SS::~SS() {
+		delete[] m_buffer;
+	}
+
 	void fri(SS& ss, const char* content) {
 		memcpy(ss.m_buffer, content, ss.m_size);
 	}
@@ -566,24 +484,17 @@ namespace utils {
 		std::cin.get();
 	}
 
-	class Origin {
-	public:
-		void print() const {
-			std::cout << "haha" << std::endl;
-		}
-	};
+	void Origin::print() const {
+		std::cout << "haha" << std::endl;
+	}
 
-	class SpecPointer {
-	private:
-		Origin* origin;
-	public:
-		SpecPointer(Origin* _origin) : origin(_origin) {
+	SpecPointer::SpecPointer(Origin* _origin) : origin(_origin) {
 
-		}
-		const Origin* operator->() const {
-			return origin;
-		}
-	};
+	}
+	
+	const Origin* SpecPointer::operator->() const {
+		return origin;
+	}
 
 	void arrowPoint() {
 		SpecPointer specPointer = new Origin();
@@ -591,12 +502,7 @@ namespace utils {
 		std::cin.get();
 	}
 
-	struct Vex {
-		float x, y, z;
-		Vex(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {
-
-		}
-	};
+	Vex::Vex(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {};
 
 	//	重载输出，方便输出Vex类
 	std::ostream& operator<<(std::ostream& stream, const Vex& vex) {
@@ -631,25 +537,16 @@ namespace utils {
 		outputVex(vexs);
 	}
 
-	//	用于多返回值的struct
-	struct Return1 {
-		std::string x;
-		std::string y;
-		int z;
-	};
-	//	利用struct多返回值
 	Return1 returnStruct() {
 		return { "hello", "lotaway", 1 };
 	}
 
-	//	用于传递多个引用参数并多返回值
 	void returnParams(std::string& str1, std::string& str2, int& z) {
 		str1 = "hello";
 		str2 = "lotaway";
 		z = 1;
 	}
 
-	//	用于数组多返回值
 	std::array<std::string, 2> returnArray() {
 		std::array<std::string, 2> arr;
 		arr[0] = "hello";
@@ -657,12 +554,10 @@ namespace utils {
 		return arr;
 	}
 
-	//	返回自定义的多返回值
 	std::tuple<std::string, std::string, int> returnTuple() {
 		return std::make_tuple("hello", "lotaway", 1);
 	}
 
-	//	多返回值方法：1、struct；2、传递引用参数再赋值；3、返回数组；4、tuple定义多个不同类型值。
 	void initReturn() {
 		auto return1 = returnStruct();
 		std::cout << return1.x + ',' + return1.y + ',' + std::to_string(return1.z) << std::endl;
@@ -677,27 +572,48 @@ namespace utils {
 		std::cout << str1 + ',' + str2 + ',' + std::to_string(z) << std::endl;
 	}
 
-	//	template可以通过指定泛型来减少无谓的函数重载定义
 	template<typename FirstParam>
 	void template1(FirstParam param) {
 		std::cout << param << std::endl;
-	}
-
-	//	template定义类里的变量类型和数组大小
-	template<typename Arr, int size>
-	class SArray {
-	private:
-		Arr arr[size];
-	public:
-		int getSize() const {
-			return sizeof(arr);
-		}
 	};
+
+	template<typename Arr, int size>
+	int SArray<Arr, size>::getSize() const {
+		return sizeof(arr);
+	}
 
 	//	template类似一种元编程，即代码本身不是在编译时确定，而是在运行期才确定
 	void initTemplate() {
 		template1("hahah");	//	可以自动根据输入值推断类型，或者手动限制template1<std::string>("hahah");
 		SArray<int, 5> sarray;
 		std::cout << sarray.getSize() << std::endl;
+	}
+
+	template<typename Value>
+	//	如果形参里定义的回调函数是匿名类型会导致lambda无法使用[]捕获作用域变量，会报错参数不符合
+	//void each(const std::vector<Value>& values, void(*handler)(Value)) {
+	//	形参里用标准库方法模板定义回调函数类型，lambda才能使用[]捕获作用域变量
+	void each(const std::vector<Value>& values, const std::function<void(Value)>& handler) {
+		for (Value value : values) {
+			handler(value);
+		}
+	}
+
+	void initLambda() {
+		const char* name = "extra";
+		using Value = int;
+		std::vector<Value> vec = { 1, 2, 3 };
+		// 匿名函数里没有当前作用域的变量
+		each<Value>(vec, [](Value val) { logger::out("name", val); });
+		// 匿名函数里需要有当前作用域的所有变量
+		each<Value>(vec, [=](Value val) { logger::out(name, val); });
+		// 匿名函数里需要有当前作用域的某个变量
+		each<Value>(vec, [&name](Value val) { logger::out(name, val); });
+	}
+
+	void initAuto() {
+		std::vector<int> vec = { 1, 2, 3 };
+		auto it = std::find_if(vec.begin(), vec.end(), [](int val) { return val > 2; });
+		logger::out(*it);
 	}
 }
