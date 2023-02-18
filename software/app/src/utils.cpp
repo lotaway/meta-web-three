@@ -1,14 +1,9 @@
 #pragma once
-#include <iostream>
-//	std:array 需要
-#include <array>
-//	cout << std::to_string 时需要，帮助int转为string
-#include <string>
-//	unique_ptr智能指针所需要引入
-#include <memory>
-#include <vector>
-//	make_tuple需要
-#include <tuple>
+#include "./include/stdafx.h"
+//	std::mutex 互斥锁
+#include <mutex>
+//	std::async 异步任务
+#include <future>
 //	静态库，需要打包到exe文件中，效率更好，但单文件更大
 //	动态库，一般是放置到exe文件旁边
 //	引入依赖库
@@ -34,7 +29,7 @@ namespace utils {
 	void variableAndLog() {
 		logger::out("hello world");
 		const char* name = "c++";
-		std::string s = "This's string~~";
+		std::string s = "This's string";
 		//std::wstring s = "这就是字符串了";
 		logger::out("welcome", name);
 		int value = -1;
@@ -46,8 +41,6 @@ namespace utils {
 		long int liVal = 3;
 		bool needMoreInfo = value < 0;
 		//logger.out("going end", value);
-		int mVal = logger::multiply(2, 3);
-		logger::out("mVal", mVal);
 		std::cin.get();
 
 		if (needMoreInfo) {
@@ -127,19 +120,20 @@ namespace utils {
 		localStaticVar();	//	4
 	}
 
+	//	传统枚举，枚举名只是作为类型而非命令空间存在，会自动将内部属性名称作为当前作用域变量使用
 	enum PlayerLevel {
 		PlayerLevel_EntryLevel,
 		PlayerLevel_Intermediate,
 		PlayerLevel_Expert
 	};
 
-	enum PlayerStatus {
-		PlayerStatus_Enabled,
-		PlayerStatus_Disabled
+	//	枚举类，枚举名同时作为类型和命名空间存在，需在前缀加上类名才能调用
+	enum class PlayerStatus {
+		Enabled,
+		Disabled
 	};
 
-	Player::Player(PlayerLevel level = PlayerLevel_EntryLevel) : m_level(level), m_status(PlayerStatus_Enabled), m_positionX(0), m_positionY(0), m_speed(15) {
-
+	Player::Player(PlayerLevel level = PlayerLevel_EntryLevel) : m_level(level), m_status(PlayerStatus::Enabled), m_positionX(0), m_positionY(0), m_speed(15) {
 	}
 
 	Player::~Player() {
@@ -453,6 +447,7 @@ namespace utils {
 		std::cout << weakEntity.lock() << std::endl;
 		std::cin.get();
 	}
+	//  现代C++《生产环境都使用智能指针而非原始指针，单纯只是学习和积累经验则使用原始指针，甚至自己定制智能指针。
 
 	SS::SS(const char* content) {
 		m_size = (unsigned int)strlen(content) + 1;
@@ -502,17 +497,27 @@ namespace utils {
 		std::cin.get();
 	}
 
-	Vex::Vex(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {};
+	Vex::Vex(float _x, float _y) : x(_x), y(_y) {
+	};
+
+	void initUnion() {
+		using namespace std;
+		Vex4 v4 = { 1.0f, 2.0f, 3.0f, 4.0f };
+		//	可以当作2个Vex类型输出，也可以当作4个浮点类型输出，灵活且共享内存
+		cout << v4.a.x << ',' << v4.a.y << ',' << v4.b.x << ',' << v4.b.y << endl;
+		cout << v4.p1 << ',' << v4.p2 << ',' << v4.p3 << ',' << v4.p4 << endl;
+	}
 
 	//	重载输出，方便输出Vex类
 	std::ostream& operator<<(std::ostream& stream, const Vex& vex) {
-		stream << vex.x << ',' << vex.y << ',' << vex.z;
+		stream << vex.x << ',' << vex.y;
 		return stream;
 	}
 
-	void outputVex(const std::vector<Vex>& vexs) {
+	template<typename Vec>
+	void outputVex(const std::vector<Vec>& vexs) {
 		//	循环读取项
-		for (const Vex& vex : vexs) {
+		for (const Vec& vex : vexs) {
 			std::cout << vex << std::endl;
 		}
 	}
@@ -523,15 +528,15 @@ namespace utils {
 		std::vector<Vex> vexs;
 		//	随时放入新数据，数组会自动根据长度所需去重新创建新数组（并删除旧数组）
 		//	push_back会在当前环境创建一个Vex实例，之后才复制进vector类
-		vexs.push_back({ 0.0f, 0.0f, 0.0f });
-		vexs.push_back({ 1.0f, 4.0f, 7.0f });
-		outputVex(vexs);
+		vexs.push_back({ 0.0f, 0.0f });
+		vexs.push_back({ 1.0f, 4.0f });
+		outputVex<Vex>(vexs);
 		//	清除所有数据
 		vexs.clear();
 		//	emplace_back会直接在vector内部创建，就不会有先创建再复制导致的效率问题
-		vexs.emplace_back(1.0f, 1.0f, 1.0f);
-		vexs.emplace_back(2.0f, 7.0f, 8.0f);
-		outputVex(vexs);
+		vexs.emplace_back(1.0f, 1.0f);
+		vexs.emplace_back(2.0f, 7.0f);
+		outputVex<Vex>(vexs);
 		//	删除指定索引的值，无法直接用number类型，.begin()相当于开始的0，即删除索引值为1的第二个值
 		vexs.erase(vexs.begin() + 1);
 		outputVex(vexs);
@@ -569,6 +574,7 @@ namespace utils {
 		auto array = returnArray();
 		std::cout << array[0] + ',' + array[1] << std::endl;
 		std::tie(str1, str2, z) = returnTuple();
+		auto [str3, str4, z1] = returnTuple();
 		std::cout << str1 + ',' + str2 + ',' + std::to_string(z) << std::endl;
 	}
 
@@ -616,4 +622,418 @@ namespace utils {
 		auto it = std::find_if(vec.begin(), vec.end(), [](int val) { return val > 2; });
 		logger::out(*it);
 	}
+
+	bool isFinish = false;
+
+	void doWork() {
+		std::cout << std::this_thread::get_id() << std::endl;
+		using namespace std::literals::chrono_literals;
+		while (!isFinish) {
+			logger::out("pending");
+			std::this_thread::sleep_for(1s);
+		}
+	}
+
+	void initThread() {
+		PROFILE_FUNCTION();
+		std::cout << std::this_thread::get_id() << std::endl;
+		std::thread worker(doWork);
+		isFinish = true;
+		worker.join();
+		logger::out("线程结束");
+	}
+
+	void initSort() {
+		std::vector<int> vecInt = { 1, 5, 7, 3 , 2 };
+		//  内置排序方法，默认按照从小到大排序，如果没有传递判断方法的话
+		std::sort(vecInt.begin(), vecInt.end(), [](int a, int b) {
+			return a < b;
+			});
+		utils::outputVex<int>(vecInt);
+	}
+
+	//	类型转换依赖于RTTI(Runing Time Type Info，运行时类型信息），启用该配置和使用C++函数风格类型转转
+	void initTypeConvertionCheck() {
+		double a = 5.25;
+		int b1 = a;	//	隐式转换，C风格
+		int b2 = (double)a;	//	显式转换，C风格
+		//	以下是C++风格的类型转换，实际上是一个函数，有额外开销：
+		//	静态类型转换，方便编译器在编译和运行阶段确定错误哦，并且有利于后续维护查找哪里进行了类型转换
+		int b = static_cast<int>(a);
+		//	类型双关的转换
+		logger::timer timer("initTypeConvertionCheck repinterpret_cast");
+		double* t = (double*)reinterpret_cast<logger::timer*>(&timer);
+		//	动态类型转换，适用于确认继承关系下的类型
+		Racer* racer = new Racer(*"worker", 1);
+		Runner* runner = racer;
+		Racer* newRacer = dynamic_cast<Racer*>(runner);
+		//	将子类指针赋值给父类指针变量后，可通过动态类型转换确认是否为某特定子类类型，转换后若有值则是该子类类型，失败Null则不是
+		if (newRacer) {
+
+		}
+
+		//	常量与变量的转换
+		const char* cc = "hello";
+		char* dd = const_cast<char*>(cc);
+	}
+
+	//	读取可能不存在的文件，并设置为可选返回值
+	std::optional<std::string> readFileAsString(const std::string filePath) {
+		std::fstream fstream(filePath);
+		if (fstream) {
+			//	read file(no done)
+			std::string line;
+			std::string result;
+			while (std::getline(fstream, line)) {
+				result += line;
+			}
+			fstream.close();
+			return result;
+		}
+		return {};
+	}
+
+	void initGetFile() {
+		auto file = readFileAsString("file.json");
+		//	method 1, check data if exist
+		if (file.has_value()) {
+			logger::out(file.value());
+		}
+		else {
+			logger::out("File No Found!");
+		}
+		//	method 2, if data not exist, return value_or value;
+		std::string data = file.value_or("File No Found!");
+		logger::out(data);
+	}
+
+	//	指定多类型的单一变量variant，相比union更注重类型安全，但union更具效率和更少内存占用
+	void sigleVariantMultiType() {
+		std::variant<std::string, int> data;
+		//	可能是字符串
+		data = "lotaway";
+		//	需要指定获取的类型
+		logger::out(std::get<std::string>(data));
+		//	也可能是数值
+		data = 30;
+		logger::out(std::get<int>(data));
+		//	无法确定最终类型的情况下，最好是通过判断获取
+		logger::out(*std::get_if<std::string>(&data));
+	}
+
+	//	std::any 任意类型的单一变量（不推荐用），相比variant无需事先声明所有可能的类型，相同的点是在取值时需要指定类型，缺点是需要动态分配内存导致性能问题
+	void anyValue() {
+		std::any data;
+		data = "lotaway";
+		data = 30;
+		logger::out(std::any_cast<int>(data));
+	}
+
+	//	通过异步（多线程）并行处理任务，提升性能
+
+	namespace Hazel {
+
+		class Mesh {
+		public:
+			Mesh(const std::string& _filepath) : filepath(_filepath) {}
+			static Mesh* load(const std::string& filepath) {
+				//	 do something...
+				Mesh* mesh = new Mesh(filepath);
+				return mesh;
+			}
+		private:
+			const std::string& filepath;
+		};
+
+		template<class T>
+		struct Ref {
+		public:
+			using _TargetType = T;
+			Ref(_TargetType* _t) : t(_t) {}
+			~Ref() {
+				delete t;
+			}
+		private:
+			_TargetType* t;
+		};
+		//	互斥锁
+		static std::mutex s_meshesMutex;
+
+		class EditorLayer {
+		public:
+
+			static void loadMesh(std::vector<Ref<Mesh>>* meshes, std::string filepath) {
+				auto mesh = Mesh::load(filepath);
+				std::lock_guard<std::mutex> lock(s_meshesMutex);
+				meshes->push_back(mesh);
+			}
+
+			void loadMeshes() {
+				std::ifstream stream("src/Models.txt");
+				std::string line;
+				std::vector<std::string> meshFilepaths;
+				while (std::getline(stream, line))
+					meshFilepaths.push_back(line);
+#define ASYNC 1
+#if ASYNC
+				for (const auto& file : meshFilepaths)
+					m_futures.push_back(std::async(std::launch::async, loadMesh, &m_meshes, file));
+#else
+				for (const auto& file : meshFilepaths)
+					m_meshes.push_back(Mesh::load(file));
+#endif
+			}
+		private:
+			std::vector<Ref<Mesh>> m_meshes;
+			std::vector<std::future<void>> m_futures;
+		};
+
+		void initLockAndAsync() {
+			EditorLayer editorLayer;
+			editorLayer.loadMeshes();
+		}
+	};
+
+	//	字符串优化：最好是减少使用string而用char，子字符串用string_view
+	void initStringOptimization() {
+		//	bad, 4 times memory allocate, 
+		std::string str = "Way Luk";
+		logger::out(str);
+		std::string first = str.substr(0, 3);
+		logger::out(first);
+		std::string last = str.substr(3, 7);
+		logger::out(last);
+		//	good, but still need string, 1 time memory allocate
+		std::string_view firstName1(str.c_str(), 3);
+		std::cout << firstName1 << std::endl;
+		std::string_view lastName1(str.c_str() + 4, 3);
+		std::cout << lastName1 << std::endl;
+		//	actually good, only need char, 
+		const char* name = "Way Luk";
+		logger::out(name);
+		std::string_view firstName2(name, 3);
+		std::cout << firstName2 << std::endl;
+		std::string_view lastName2(name + 4, 3);
+		std::cout << lastName2 << std::endl;
+	}
+	//	实际上Release环境编译时会有SSO小字符串优化，会自动将字符不多的字符串用栈缓冲区而非堆去分配内存，只有比较长的字符才会正常用堆分配内存，在VS2019中，触发这种机制的长度是15个字符。
+
+	//	设计模式：单例模式
+	class Random {
+	public:
+		static Random& get() {
+			return s_instance;
+		}
+		static float Float() {
+			return get()._Float();
+		}
+		//	ban copy instance
+		Random(const Random&) = delete;
+	private:
+		static Random s_instance;
+		float s_randomGenerator = 0.5f;
+		float _Float() {
+			return s_randomGenerator;
+		}
+		Random() {}
+	};
+
+	Random Random::s_instance;
+
+	//	左值和右值，有具体位置的是左值，只是临时值的是右值，右值没有位置，所以不能被赋值
+	int getValue() {
+		return 10;
+	}
+	void setValue(int val) {
+	}
+	//	引用时，只能传递左值，不能传递右值
+	void setValue(std::string& name) {
+
+	}
+	//	常量引用时，可以传递左值和右值
+	void setValue2(const std::string& name) {
+
+	}
+	//	双重引用时，只能传递右值，不能传递左值
+	void setValue3(std::string&& name) {
+
+	}
+	void initLValueAndRValue() {
+		//	这里a是左值，1是右值
+		int a = 1;
+		//	这里a和b都是左值
+		int b = a;
+		//	这里c是左值，getValue()返回一个右值
+		int c = getValue();
+		//	不能堆getValue()赋值，因为它返回一个右值
+		//getValue() = a;
+		//	这里a是左值
+		setValue(a);
+		//	这里2是右值
+		setValue(2);
+		
+		//	firstName是左值，"Way"是右值
+		std::string firstName = "Way";
+		//	lastName是右值，"Luk"是右值
+		std::string lastName = "Luk";
+		//	这里右边是两个左值firstName和lastName，但firstName + lastName加起来生成了一个临时值，所以是右值
+		std::string fullName = firstName + lastName;
+
+		//	引用时，只能传递左值
+		setValue(fullName);
+		//	引用时，不能传递右值，此处是常量字面量右值
+		//setValue("lotaway");
+		// 
+		//	常量引用时，既能传递左值
+		setValue2(fullName);
+		//	常量引用时，也能传递右值
+		setValue2("Way Luk");
+
+		//	双重引用时，只能传递右值
+		setValue3("Way Luk");
+		//	双重引用时，不能传递左值
+		//serValue3(fullName);
+
+		//	可以利用这种传递特性写重载方法，完成移动语义之类，当传递的是右值时，可以放心进行使用甚至修改，因为只是临时使用而不会复制或者影响其他内容。
+	}
+
+	// iteralor迭代器，使用指针进行循环迭代取值
+	void initIteralor() {
+
+		//	vector iterator
+		std::vector<int> values = { 1, 2, 3, 4, 5 };
+		//	method 1: using trandition for
+		for (int i = 0;i < values.size(); i++) {
+			logger::out(values[i]);
+		}
+		//	method 2: using for :
+		for (int value : values) {
+			logger::out(value);
+		}
+		// method 3: vector inset iterator
+		for (std::vector<int>::iterator iterator = values.begin(); iterator != values.end(); iterator++) {
+			logger::out(*iterator);
+		}
+
+
+		//	map iterator
+		using ScoreMap = std::unordered_map<std::string, int>;
+		using SMConstIter = ScoreMap::const_iterator;
+		ScoreMap map;
+		map["lotaway"] = 30;
+		map["C Plus Plus"] = 100;
+		//	method 1: using unordered_map::const_iterator
+		for (ScoreMap::const_iterator it = map.begin(); it != map.end(); it++) {
+			//	it is a vector:pair
+			auto& key = it->first;
+			auto& value = it->second;
+			logger::out(key, value);
+		}
+		//	method 2: using for :
+		for (auto& it : map) {
+			auto& key = it.first;
+			auto& value = it.second;
+		}
+		//	method 3: using for : with 结构解构
+		for (auto [key, value] : map) {
+			logger::out(key, value);
+		}
+	}
+
+	//	make you own vector iterator
+	template<typename _Vector>
+	class MyVectorIterator {
+	public:
+		using Iterator = MyVectorIterator;
+		using ValueType = typename _Vector::ValueType;
+		using PointerType = ValueType*;
+		using ReferenceType = ValueType&;
+		MyVectorIterator(PointerType ptr): m_ptr(ptr) {
+
+		}
+		Iterator& operator++() {
+			m_ptr++;
+			return *this;
+		}
+		Iterator operator++(int) {
+			Iterator iterator = *this;
+			++(*this);
+			return iterator;
+		}
+		Iterator operator--() {
+			m_ptr--;
+			return *this;
+		}
+		Iterator operator--(int) {
+			Iterator iterator = *this;
+			--(*this);
+			return iterator;
+		}
+		ReferenceType operator[](int index) {
+			return *(m_ptr + index);
+		}
+		PointerType operator->() {
+			return m_ptr;
+		}
+		PointerType operator*() {
+			return *m_ptr;
+		}
+		bool operator==(const Iterator& other) const {
+			return m_ptr == other.m_ptr;
+		}
+	private:
+		PointerType m_ptr;
+	};
+
+	template<typename T>
+	class MyVector {
+	public:
+		using ValueType = T;
+		using Iterator = MyVectorIterator<MyVector>;
+		MyVector() {
+			ReAlloc(2);
+		}
+		~MyVector() {
+			Clear();
+			::operator delete(m_data, m_capacity * sizeof(T));
+		}
+		size_t Size() const {
+			return m_size;
+		}
+		Iterator begin() {
+			return Iterator(m_data);
+		}
+		Iterator end() {
+			return Iterator(m_data + m_size);
+		}
+	private:
+		T* m_data;
+		size_t m_capacity;
+		size_t m_size;
+		void ReAlloc(size_t newCapacity) {
+			T* newBlock = (T*)::operator new(newCapacity * sizeof(T));
+			if (newCapacity < m_size) {
+				m_size = newCapacity;
+			}
+			for (size_t i = 0; i < m_size; i++) {
+				new (&newBlock[i]) T(std::move(m_data[i]));
+			}
+			for (size_t i = 0; i < m_size; i++) {
+				m_data[i].~T();
+			}
+			::operator delete(m_data, m_capacity * sizeof(T));
+			m_data = newBlock;
+			m_capacity = newCapacity;
+		}
+		void Clear() {
+
+		}
+	};
+
+	void initCustomIterator() {
+		MyVector<int> mVector;
+	}
+
+	//	双重检查锁？
+
 }

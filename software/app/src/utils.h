@@ -1,8 +1,5 @@
 #pragma once
-//	std::vector类需要引入
-#include <vector>
-//	std::function所需，用于定义回调和引用函数
-#include <functional>
+#include "./include/stdafx.h"
 
 namespace utils {
 	void useLibrary();
@@ -13,7 +10,7 @@ namespace utils {
 	void localStaticVar();
 	void initStatic();
 	enum PlayerLevel;
-	enum PlayerStatus;
+	enum  class PlayerStatus;
 	class Player {
 	private:
 		PlayerLevel m_level;
@@ -25,7 +22,7 @@ namespace utils {
 		//	explicit关键字禁止隐性转换，如Player player = PlayerLevel_EntryLevel;
 		explicit Player(PlayerLevel level);
 		//	摧毁类实例时调用的方法，名称为【~类名】
-		~Player();
+		virtual ~Player();
 		void move(int new_x, int new_y);
 	};
 	//	重载操作符
@@ -140,7 +137,7 @@ namespace utils {
 		//	传入堆上的实例
 		ScopeEntity(Entity* entity);
 		//	删除堆上的实例
-		~ScopeEntity();
+		virtual ~ScopeEntity();
 	};
 
 	void initStackClass();
@@ -155,7 +152,7 @@ namespace utils {
 		SS(const char* content);
 		//	拷贝时会调用的构造函数
 		SS(const SS& ss);
-		~SS();
+		virtual ~SS();
 		void print() const {
 			std::cout << m_buffer << std::endl;
 		}
@@ -187,13 +184,33 @@ namespace utils {
 	void arrowPoint();
 
 	struct Vex {
-		float x, y, z;
-		Vex(float _x, float _y, float _z);
+		float x, y;
+		Vex(float _x, float _y);
 	};
 
-	void outputVex(const std::vector<Vex>& vexs);
+	template<typename Vec>
+	void outputVex(const std::vector<Vec>& vexs);
 
 	void initVector();
+
+	//	通过联合体设置共享内存地址的双关类型，例如下面的4个浮动类型可以替换成2个Vex类型（因为Vex是2个浮动类型）
+	union Vex4 {
+		struct {
+			float p1, p2, p3, p4;
+		};
+		struct {
+			Vex a, b;
+		};
+	};
+
+	void initUnion();
+
+	//	整型和双重精度浮动型也是双关类型，可设置为联合体
+	union NumberValue {
+		int nvi;
+		double nvd;
+	};
+	//	实践中会使用类似xyz空间坐标同时代表rgb颜色使用
 
 	//	用于多返回值的struct
 	struct Return1 {
@@ -241,4 +258,18 @@ namespace utils {
 	void initLambda();
 
 	void initAuto();
+
+	void initThread();
+
+	void initSort();
+
+	void initGetFile();
+
+	namespace Hazel {
+		void initLockAndAsync();
+	}
+
+	void initStringOptimization();
+
+	void initCustomIterator();
 }
