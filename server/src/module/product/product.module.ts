@@ -1,6 +1,6 @@
-import {Module} from "@nestjs/common";
+import * as nest from "@nestjs/common";
 
-@Module({
+@nest.Module({
     controllers: [],
     providers: []
 })

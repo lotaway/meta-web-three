@@ -271,5 +271,7 @@ namespace utils {
 
 	void initStringOptimization();
 
+	void initMyVector();
+
 	void initCustomIterator();
 }

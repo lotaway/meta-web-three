@@ -894,7 +894,96 @@ namespace utils {
 		//	双重引用时，不能传递左值
 		//serValue3(fullName);
 
-		//	可以利用这种传递特性写重载方法，完成移动语义之类，当传递的是右值时，可以放心进行使用甚至修改，因为只是临时使用而不会复制或者影响其他内容。
+		//	可以利用这种传递特性写重载方法，完成移动语义，当传递的是右值时，可以放心进行使用甚至修改，因为只是临时使用而不会复制或者影响其他内容。
+	}
+
+	//	移动语义
+	class String {
+	public:
+		String() = default;
+		String(const char* data) {
+			printf("Created!\n");
+			m_size = strlen(data);
+			m_data = new char[m_size];
+			memcpy(m_data, data, m_size);
+		}
+		String(const String& other) {
+			printf("Copyed!\n");
+			m_size = other.m_size;
+			m_data = new char[m_size];
+			memcpy(m_data, other.m_data, m_size);
+		}
+		String(String&& other) noexcept {
+			printf("Moved!\n");
+			m_size = other.m_size;
+			//	在双重引用下能拿到右值，并简单地移动指针，之后删除原指针
+			m_data = other.m_data;
+			other.m_data = nullptr;
+		}
+		~String() {
+			delete m_data;
+		}
+	private:
+		uint32_t m_size;
+		char* m_data;
+	};
+
+	class Enstring {
+	public:
+		Enstring(const String& name) : m_name(name) {}
+		//	形参里name是右值，但放到初始化列表里的实参name将作为左值传入，需要使用std;:move无条件再次强制变成右值
+		Enstring(String&& name): m_name(std::move(name)) {}
+	private:
+		String m_name;
+	};
+
+	void initStringAndMove() {
+		//	如果不使用双重引用&&重载String构造方法，这个创建方式会先在堆上分配创建String("lotaway")，之后在Enstring通过m_name初始化列表又重新在堆上分配创建（即使使用的是引用&，但String的构造创建与复制方法决定了会分配成两个堆）
+		Enstring enstring("lotaway");
+	}
+
+	template <typename T, size_t SIZE>
+	class MyArray {
+	public:
+		MyArray() : m_array() {
+			//(void*)alloc(size);
+		}
+		~MyArray() {
+			delete[] m_array;
+		}
+		int size() const {
+			return SIZE;
+		}
+		T& operator[](size_t index) {
+			if (index >= SIZE)
+				__debugbreak();
+			return m_array[index];
+		}
+		const T& operator[](size_t index) const {
+			return m_array[index];
+		}
+		T& data() {
+			return m_array;
+		}
+		const T& data() const {
+			return m_array;
+		}
+	private:
+		T m_array[SIZE];
+	};
+
+	void initDiyArray() {
+		const int size = 5;
+		MyArray<std::string, size> narr;
+		const auto& refNarr = narr;
+		memset(&narr[0], 0, narr.size() * sizeof(int));
+		narr[1] = 5;
+		narr[4] = 8;
+		for (size_t i = 0; i < narr.size(); i++) {
+			//refNarr[i] = "hi";	//	no allow change in reference
+			narr[i] = "hi";
+			std::cout << refNarr[i] << std::endl;
+		}
 	}
 
 	// iteralor迭代器，使用指针进行循环迭代取值
@@ -948,7 +1037,7 @@ namespace utils {
 		using ValueType = typename _Vector::ValueType;
 		using PointerType = ValueType*;
 		using ReferenceType = ValueType&;
-		MyVectorIterator(PointerType ptr): m_ptr(ptr) {
+		MyVectorIterator(PointerType ptr) : m_ptr(ptr) {
 
 		}
 		Iterator& operator++() {
@@ -985,20 +1074,59 @@ namespace utils {
 		PointerType m_ptr;
 	};
 
-	template<typename T>
+	template<typename T, size_t S = 2>
 	class MyVector {
 	public:
 		using ValueType = T;
 		using Iterator = MyVectorIterator<MyVector>;
 		MyVector() {
-			ReAlloc(2);
+			logger::out("MyVector created");
+			static_assert(S > 0, "size_t S should not be 0");
+			reAlloc(S);
 		}
 		~MyVector() {
-			Clear();
+			logger::out("MyVector destroyed");
+			clear();
 			::operator delete(m_data, m_capacity * sizeof(T));
 		}
-		size_t Size() const {
+		size_t size() const {
 			return m_size;
+		}
+		void push_back(const T& value) {
+			if (m_size >= m_capacity)
+				reAlloc(m_capacity + m_capacity / 2);
+			m_data[m_size++] = value;
+		}
+		void push_back(T&& value) {
+			if (m_size >= m_capacity)
+				reAlloc(m_capacity + m_capacity / 2);
+			m_data[m_size] = std::move(value);
+			m_size++;
+			//value = nullptr;
+		}
+		template<typename... Args>
+		T& emplace_back(Args&... args) {
+			if (m_size >= m_capacity)
+				reAlloc(m_capacity + m_capacity / 2);
+			new (&m_data[m_size]) T(std::forward<Args>(args)...);
+			return m_data[m_size++];
+		}
+		void pop_back() {
+			if (m_size > 0) {
+				m_size--;
+				m_data[m_size].~T();
+			}
+		}
+		void clear() {
+			for (size_t i = 0; i < m_size; i++)
+				m_data[i].~T();
+			m_size = 0;
+		}
+		T& operator[](size_t index) {
+			return m_data[index];
+		}
+		const T& operator[](size_t index) const {
+			return m_data[index];
 		}
 		Iterator begin() {
 			return Iterator(m_data);
@@ -1007,28 +1135,40 @@ namespace utils {
 			return Iterator(m_data + m_size);
 		}
 	private:
-		T* m_data;
-		size_t m_capacity;
-		size_t m_size;
-		void ReAlloc(size_t newCapacity) {
+		T* m_data = nullptr;
+		size_t m_capacity = 0;
+		size_t m_size = 0;
+		void reAlloc(size_t newCapacity) {
 			T* newBlock = (T*)::operator new(newCapacity * sizeof(T));
-			if (newCapacity < m_size) {
+			if (newCapacity < m_size)
 				m_size = newCapacity;
-			}
-			for (size_t i = 0; i < m_size; i++) {
+			for (size_t i = 0; i < m_size; i++)
 				new (&newBlock[i]) T(std::move(m_data[i]));
-			}
-			for (size_t i = 0; i < m_size; i++) {
+			for (size_t i = 0; i < m_size; i++)
 				m_data[i].~T();
-			}
 			::operator delete(m_data, m_capacity * sizeof(T));
 			m_data = newBlock;
 			m_capacity = newCapacity;
 		}
-		void Clear() {
-
-		}
 	};
+
+	void printMyVector(const MyVector<std::string>& vector) {
+		logger::out(vector.size());
+		for (int i = 0; i < vector.size(); i++)
+			std::cout << "vector item: " + vector[i] << std::endl;
+	}
+
+	void initMyVector() {
+		MyVector<std::string> myVector;
+		myVector.emplace_back("heihei");
+		myVector.push_back("haha");
+		printMyVector(myVector);
+		//myVector.push_back("way luk");
+		myVector.emplace_back("lotaway");
+		printMyVector(myVector);
+		myVector.pop_back();
+		printMyVector(myVector);
+	}
 
 	void initCustomIterator() {
 		MyVector<int> mVector;

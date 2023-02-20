@@ -1,15 +1,15 @@
-import {Controller, Get, Param, Post, Put, Delete, Body, Res, ParseUUIDPipe} from "@nestjs/common";
-import {CreateBlogCommentParams, FindBlogCommentParams, CommentId} from "./dto/blog.dto";
+import * as nest from "@nestjs/common";
+import {BlogDto} from "./dto/blog.dto";
 import {CommentService} from "./comment.service";
 
-@Controller("comment")
+@nest.Controller("comment")
 export class BlogCommentController {
 
     constructor(private readonly commentService: CommentService) {
     }
 
-    @Get("byBlog/:blogId")
-    getCommentsByBlogId(@Param() params: FindBlogCommentParams) {
+    @nest.Get("byBlog/:blogId")
+    getCommentsByBlogId(@nest.Param() params: BlogDto.FindBlogCommentParams) {
         const comments = this.commentService.getCommentsByBlogId(params.blogId);
         return {
             blogId: params.blogId,
@@ -17,13 +17,13 @@ export class BlogCommentController {
         };
     }
 
-    @Get("byId/:commentId")
-    getCommentById(@Param("commendId", new ParseUUIDPipe()) commendId: CommentId) {
+    @nest.Get("byId/:commentId")
+    getCommentById(@nest.Param("commendId", new nest.ParseUUIDPipe()) commendId: BlogDto.CommentId) {
 
     }
 
-    @Post("byBlog")
-    addBlogComment(@Body() body: CreateBlogCommentParams, @Res() res) {
+    @nest.Post("byBlog")
+    addBlogComment(@nest.Body() body: BlogDto.CreateBlogCommentParams, @nest.Res() res) {
         const now = new Date();
         const result = this.commentService.addBlogComment({
             ...body,
@@ -36,13 +36,13 @@ export class BlogCommentController {
         return res;
     }
 
-    @Put(":blogId/:commendId")
+    @nest.Put(":blogId/:commendId")
     updateBlogComment() {
         return "Not allow edit comment twice!";
     }
 
-    @Delete()
-    deleteBlogComment(@Param() {commentId}) {
+    @nest.Delete()
+    deleteBlogComment(@nest.Param() {commentId}) {
         return "delete blog comment by commentId";
     }
 

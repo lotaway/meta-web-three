@@ -1,46 +1,9 @@
-import {Injectable} from "@nestjs/common";
+import * as nest from "@nestjs/common";
 import {prismaClientProvider} from "../../utils/connect-prisma";
+import {UserDto} from "./dto/user.dto";
 
-interface User extends Object {
-
-}
-
-type Provider = ReturnType<typeof prismaClientProvider>;
-
-interface CreateUserParams {
-    email: string
-    password: string
-}
-
-interface CreateUserResult {
-
-}
-
-interface GetUserByIdParams {
-    id: number
-}
-
-interface SignInParams extends Object {
-    username: string
-    password: string
-}
-
-interface SignInResult {
-
-}
-
-abstract class Service {
-    protected readonly prismaClient: Provider;
-
-    abstract createUser(params: CreateUserParams): Promise<CreateUserResult>
-
-    abstract signIn(params: SignInParams): Promise<SignInResult>
-
-    abstract getUserById<Result = unknown>(options?: GetUserByIdParams): Promise<Result | User>;
-}
-
-@Injectable()
-export class UserService extends Service {
+@nest.Injectable()
+export class UserService extends UserDto.Service.Class {
     protected readonly prismaClient = prismaClientProvider();
 
     override async createUser({email, password}) {
@@ -52,7 +15,7 @@ export class UserService extends Service {
         });
     }
 
-    override async signIn({username, password}: SignInParams) {
+    override async signIn({username, password}: UserDto.Service.SignInParams) {
         return await this.prismaClient.user.findMany({
             where: {
                 email: username,
@@ -67,6 +30,10 @@ export class UserService extends Service {
                 id
             }
         });
+    }
+
+    async checkUserStatus() {
+        // return await this.redis
     }
 
     addFollower() {

@@ -1,21 +1,21 @@
-import {MiddlewareConsumer, Module, NestModule, RequestMethod} from "@nestjs/common";
+import * as nest from "@nestjs/common";
 import {UserController} from "./user.controller";
 import {UserService} from "./user.service";
 import {ValidUserMiddleware} from "../../common/middleware/valid-user.middleware";
 
-@Module({
+@nest.Module({
     controllers: [UserController],
     providers: [UserService]
 })
-export class UserModule implements NestModule {
-    configure(consumer: MiddlewareConsumer) {
+export class UserModule implements nest.NestModule {
+    configure(consumer: nest.MiddlewareConsumer) {
         consumer.apply(ValidUserMiddleware).forRoutes({
             path: "user/index",
-            method: RequestMethod.GET
+            method: nest.RequestMethod.GET
         });
         consumer.apply(ValidUserMiddleware).forRoutes({
             path: "user/blog",
-            method: RequestMethod.GET
+            method: nest.RequestMethod.GET
         });
     }
 }

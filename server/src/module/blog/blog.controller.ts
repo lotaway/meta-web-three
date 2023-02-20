@@ -1,5 +1,5 @@
-import {Controller, Get, Post, Put, Delete, Redirect, Param, Query, Body} from '@nestjs/common';
-import {BlogId, CreateBlog} from "./dto/blog.dto";
+import * as nest from '@nestjs/common';
+import {BlogDto} from "./dto/blog.dto";
 
 function defaultParam(defaultParams?: any[]) {
     return (target: any, propName: string, descriptor: PropertyDescriptor) => {
@@ -17,10 +17,10 @@ interface BlogListQueries extends Object {
     p?: number
 }
 
-@Controller('blog')
+@nest.Controller('blog')
 export class BlogController {
 
-    @Get(["", "index"])
+    @nest.Get(["", "index"])
     // @Redirect("/blog/list")
     async blogIndex() {
         return await new Promise((resolve) => {
@@ -30,34 +30,34 @@ export class BlogController {
         });
     }
 
-    @Get("list")
+    @nest.Get("list")
     // @defaultParam()
-    async blogList(@Query() query: BlogListQueries = {}) {
+    async blogList(@nest.Query() query: BlogListQueries = {}) {
         return "Get the blog list";
     }
 
-    @Get("static/:blogNumber")
-    getStaticDetail(@Param("blogNumber") blogNumber: string) {
+    @nest.Get("static/:blogNumber")
+    getStaticDetail(@nest.Param("blogNumber") blogNumber: string) {
         return `Get the blog by id ${blogNumber}`;
     }
 
-    @Get("detail")
-    getBlogDetail(@Query("id") blogId: BlogId) {
+    @nest.Get("detail")
+    getBlogDetail(@nest.Query("id") blogId: BlogDto.BlogId) {
         return `get blog by blogId is: ${blogId}`;
     }
 
-    @Post()
-    addBlog(@Body() {author}: CreateBlog) {
+    @nest.Post()
+    addBlog(@nest.Body() {author}: BlogDto.CreateBlog) {
         return `Add a new blog with author ${author}`;
     }
 
-    @Put(":blogId")
-    updateBlogDetail(@Param("blogId") blogId: BlogId) {
+    @nest.Put(":blogId")
+    updateBlogDetail(@nest.Param("blogId") blogId: BlogDto.BlogId) {
         return `Start edit blog with id ${blogId}`;
     }
 
-    @Delete(":blogId")
-    deleteBlogDetail(@Param("blogId") blogId: BlogId) {
+    @nest.Delete(":blogId")
+    deleteBlogDetail(@nest.Param("blogId") blogId: BlogDto.BlogId) {
         return `Gone to delete blog with id ${blogId}`;
     }
 }

@@ -6,7 +6,5 @@
   "license": "UNLICENSED",
   "scripts": {
     "dev": "node run-dev.js"
-  },
-  "dependencies": {
   }
 }

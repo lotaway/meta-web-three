@@ -1,9 +1,9 @@
-import {Controller, Get} from "@nestjs/common";
+import * as nest from "@nestjs/common";
 
-@Controller("analysis")
+@nest.Controller("analysis")
 export class AnalysisController {
 
-    @Get(["blog", "blog/all"])
+    @nest.Get(["blog", "blog/all"])
     getCreatorBlogAnalysis() {
         return "get creator blog analysis.";
     }

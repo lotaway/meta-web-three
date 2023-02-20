@@ -17,18 +17,19 @@ namespace allocateMetrics {
 }
 
 //  重写new操作符让所有堆内存分配都能进行记录，以便进行程序优化
-void* operator new (size_t size) {
-    allocateMetrics::s_allocCount++;
-    std::cout << "allocating " << size << " bytes\n";
-    return malloc(size);
-}
+//void* operator new (size_t size) {
+//    allocateMetrics::s_allocCount++;
+//    std::cout << "allocating " << size << " bytes\n";
+//    return malloc(size);
+//}
 
-void operator delete(void* memory, size_t size) {
-    allocateMetrics::s_allocCount--;
-    std::cout << "Freeing " << size << " bytes\n";
-    free(memory);
-}
+//void operator delete(void* memory, size_t size) {
+//    allocateMetrics::s_allocCount--;
+//    std::cout << "Freeing " << size << " bytes\n";
+//    free(memory);
+//}
 
 int main() {
     logger::out("application.cpp runing");
+    //utils::initMyVector();
 }

@@ -1,21 +1,24 @@
 import {prismaClientProvider} from "../src/utils/connect-prisma";
 // import {nanoid} from "nanoid";
+import md5 = require("md5-node");
 
 const prismaClient = prismaClientProvider()
 
 async function main() {
     try {
+        const email = "111@qq.com"
+        const password = md5("123123")
         const userCreateData = {
             // id: window.crypto.randomUUID()
             // id: nanoid()
+            email,
+            password
         }
         const createUserRes = await prismaClient.user.create({
             data: userCreateData
         })
-        const email = "111@qq.com"
         const createAuthorRes = await prismaClient.author.create({
             data: {
-                email,
                 userId: {
                     connect: {
                         id: createUserRes.id
@@ -71,8 +74,7 @@ async function main() {
                 author: {
                     select: {
                         id: true,
-                        name: true,
-                        email: true
+                        realname: true
                     }
                 }
             }
@@ -80,7 +82,7 @@ async function main() {
         //  关联表的联合查询
         await prismaClient.author.findUnique({
             where: {
-                email: "576696294@qq.com"
+                id: 1
             },
             include: {
                 articles: true  //  设置在author表模型的外键反关联键
@@ -89,7 +91,7 @@ async function main() {
         //  另一种关联表查询
         await prismaClient.author.findUnique({
             where: {
-                email: "890@qq.com"
+                id: 1
             }
         }).articles({
             take: 5,
@@ -102,9 +104,11 @@ async function main() {
         //  通过关联同时创建，不需要事务
         await prismaClient.user.create({
             data: {
+                email,
+                password,
                 author: {
                     create: {
-                        email: "890@qq.com"
+                        id: 1
                     }
                 }
             }
