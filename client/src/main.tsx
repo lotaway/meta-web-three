@@ -1,6 +1,7 @@
 import React, {lazy} from 'react'
 import ReactDOM from 'react-dom/client'
 import {createBrowserRouter, Navigate, RouterProvider} from "react-router-dom"
+import {AppStoreProvider} from "./store/container";
 import {TransactionProvider} from "./context/TransactionContext"
 import App from './App'
 import './index.css'
@@ -67,7 +68,9 @@ const routers = createBrowserRouter([
     },
     {
         path: "/user/payRecord",
-        element: <TransactionRecord/>
+        element: <TransactionProvider>
+            <TransactionRecord/>
+        </TransactionProvider>
     },
     {
         path: "/NewWorld",
@@ -80,9 +83,9 @@ const routers = createBrowserRouter([
 ])
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-    <TransactionProvider>
+    <AppStoreProvider>
         <React.StrictMode>
             <RouterProvider router={routers}/>
         </React.StrictMode>
-    </TransactionProvider>
+    </AppStoreProvider>
 )

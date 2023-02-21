@@ -1,5 +1,5 @@
 import * as path from "path";
-import {createReadStream} from "fs";
+import * as fs from "fs";
 import * as nest from "@nestjs/common";
 import {prismaClientProvider} from "../../utils/connect-prisma";
 import {redisClientProvider} from "../../utils/connect-redis";
@@ -23,7 +23,7 @@ export class DemoService {
             const keyName = `file:${fileName}`
             const redisFile = await this.redisClient.get(keyName)
             if (redisFile) return redisFile
-            const readStream = createReadStream(path.join(settings.PROJECT_DIR, "assets/files", fileName))
+            const readStream = fs.createReadStream(path.join(settings.PROJECT_DIR, "assets/files", fileName))
             const fileData = await new Promise((resolve, reject) => {
                 let fileChunkArr = []
                 readStream

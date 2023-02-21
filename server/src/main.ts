@@ -3,11 +3,12 @@ import {NestFactory} from '@nestjs/core';
 import {NestExpressApplication} from "@nestjs/platform-express";
 import * as ejs from "ejs";
 import * as cookieParser from "cookie-parser";
+import setting from "./config/settings";
 import {AppModule} from './module/app/app.module';
 
 // import webConfig from "./config/web-config";
 
-async function bootstrap(port: number = 30000) {
+async function bootstrap(port: number = 30001) {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
     app.useStaticAssets(join(__dirname, "static"), {
         prefix: "/static/"
@@ -19,6 +20,6 @@ async function bootstrap(port: number = 30000) {
     return await app.listen(port);
 }
 
-bootstrap().then(server => {
+bootstrap(setting.PORT).then(server => {
     console.log(`run in ${JSON.stringify(server.address())}`)
 });

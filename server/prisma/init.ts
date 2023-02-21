@@ -6,7 +6,7 @@ const prismaClient = prismaClientProvider()
 
 async function main() {
     try {
-        const email = "111@qq.com"
+        const email = "576696294@qq.com"
         const password = md5("123123")
         const userCreateData = {
             // id: window.crypto.randomUUID()

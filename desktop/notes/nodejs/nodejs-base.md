@@ -219,14 +219,14 @@ tcpClient.on("data", data => {
 
 UDP协议与TCP协议一样用于处理数据包，常见于各种需要高速而不太依赖质量的通讯，例如直播，这是和TCP两者的对比：
 
-|      | UDP     | TCP       |
-|------|---------|-----------|
-| 连接   | 无连接     | 三次握手连接    |
-| 速度   | 较快      | 较慢        |
-| 目的   | 一对一，一对多 | 一对一       |
-| 消息边界 | 有       | 无         |
-| 消息顺序 | 网络拥挤时无序 | 有序        |
-| 可靠性  | 低       | 高         |
+|      | UDP     | TCP    |
+|------|---------|--------|
+| 连接   | 无连接     | 三次握手连接 |
+| 速度   | 较快      | 较慢     |
+| 目的   | 一对一，一对多 | 一对一    |
+| 消息边界 | 有       | 无      |
+| 消息顺序 | 网络拥挤时无序 | 有序     |
+| 可靠性  | 低       | 高      |
 
 ## UPD传播方式
 
@@ -769,6 +769,67 @@ childProcess.stdout.on("end", () => {
 要注意通过on监听输出流事件能获取到命令行持续输出的内容，适合耗时长或者保持运行不会结束的命令，如压缩、调试等。
 而exec中的callback回调只在命令结束后才会调用，适合快速或只需要拿到结果的命令。
 还有，查看文件一般使用`fs`模块进行处理，这里只是做个简单示范。
+
+### 创建子进程
+
+在主进程中执行：
+
+```javascript
+const child_process = require("node:child_process");
+
+function startChild() {
+//  通过指定一个要运行的脚本来开启进程
+    const childProcess = child_process.fork(path.join(__dirname, "./child.js"));
+    childProcess.send("你好啊，我的子进程！");
+    childProcess.on("message", message => {
+        console.log("主进程收到信息:" + message);
+    });
+    process.on("message", message => {
+        console.log("主进程收到信息了：" + message);
+    });
+}
+
+startChild();
+```
+
+在子进程child.js中开启监听：
+
+```javascript
+process.on("message", message => {
+  console.log("子进程收到信息：" + message);
+  process.send("我是子进程，我收到了！！");
+});
+
+```
+
+# cluster
+
+一般是通过cluster而非child_process来开启子进程：
+
+```javascript
+const cluster = require("node:cluster");
+const worker = cluster.fork("worker.js");
+worker.on("message", message => {
+    
+})
+```
+
+在子进程worker.js中开启监听：
+```javascript
+import cluster from "node:cluster";
+
+if (cluster.isWorker) {
+  process.on("message", message => {
+    console.log("Worker收到信息了：" + message);
+    process.send("我收到啦！！！");
+  });
+}
+//  也可以创建另外的监听端口，方便外界通过多个网址端口直接调用
+const http = require("node:http");
+http.createServer((req, res) => {
+  res.end("worker success");
+}).listen();
+```
 
 # 加密
 

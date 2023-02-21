@@ -1,8 +1,12 @@
 @[TOC](Typescript的进阶学习笔记-讲解三划线指令、内置方法类型、infer、协变、逆变和交叉类型)
 
-# 声明文件
+# 三划线指令
 
-## *system.ts*文件，注意`namespace`不需要`export`导出
+三划线指令可以让命令空间无须导出即可引用，类似C/C++中引用头文件#include <someFileName.h>
+
+## 定义命名空间
+
+在*system.ts*文件定义命令空间（注意`namespace`不需要`export`导出）：
 
 ```typescript
 namespace system {
@@ -14,7 +18,9 @@ namespace system {
 }
 ```
 
-## 在*main.ts*文件中使用三划线指令标签引入
+## 引用文件
+
+在*main.ts*文件中使用三划线指令标签引入即可调用该命令空间内的变量和方法：
 
 ```typescript
 /// <reference path="./system.ts"/>
@@ -23,7 +29,7 @@ const ip: system.IP = system.getIP();
 
 # 类参数自动转成成员变量
 
-## 在类的构造器可以用`private`修饰形参，该形参会自动升级为成员变量，当实例化时，实参也将自动赋值给成员变量
+在类的构造器可以用`private`修饰形参，该形参会自动升级为成员变量，当实例化时，实参也将自动赋值给成员变量
 
 ```typescript
 class ClassRoom {
@@ -38,8 +44,8 @@ class ClassRoom {
     }
 
     showClassInfo() {
-        console.log(`已定义：${this._classNumber}`);
-        console.log(`未定义：${this.className}`);  // 若没有手动赋值，将不存在
+        console.log(`已自动定义'this._classNumber'：${this._classNumber}`);
+        console.log(`未定义‘this.className’：${this.className}`);  // 若没有手动赋值，将不存在
         console.log(`手动定义'this.name'：${this.manualName}`);
     }
 }
@@ -47,23 +53,29 @@ class ClassRoom {
 
 # 关于内置的泛型讲解
 
-## `NonNullable`排除`null`和`undefined`的可能性
+## NonNullable 不可为空
+
+`NonNullable`输出的类型将排除赋值`null`和`undefined`的可能性：
 
 ```typescript
 type OriginData = {
     id: number
     title: string
 }
-let data1: OriginData = null; //  可以将变量赋值为null，之后再重新赋值
-data1 = {
+//  可以将变量初始化为null，之后再赋值为正确类型
+let inputData: OriginData = null;
+inputData = {
     id: 1,
     title: "二次赋值"
 };
 type SQLData = NonNullable<OriginData>
-let data2: SQLData = null;  //  这样会报错，不允许赋值null
+//  被NonNullable输出的类型将不可为null，以下初始化会报错
+let fullData: SQLData = null;
 ```
 
-## `Partial`会将传入的类型内含键全部从必需变为可选
+## Partial 可选
+
+`Partial`会将传入参数内含全部键类型从必选变为可选
 
 ```tepescript
 type NecessaryData = {
@@ -73,7 +85,7 @@ type NecessaryData = {
 type OptionalData = Partial<NecessaryData>
 ```
 
-上面的代码相当于：
+上面的代码将id和title都变为可选，相当于：
 
 ```typescript
 type OptionalData = {
@@ -87,15 +99,17 @@ type OptionalData = {
 ```typescript
 let finalData: NecessaryData = {
     id: 1,
-    title: "必需定义所有属性"
+    title: "必须定义所有属性"
 }
 let inputData1: OptionalData = {
-    // id不需要定义
-    title: "只要定义部分属性即可"
+    // id可以不需要定义
+    title: "可以只定义部分属性"
 }
 ```
 
-## `Require`与`Partial`相反，会将出啊惹怒的类型内含键全部从可选变为必需
+## Require 必须
+
+`Require`与`Partial`相反，会将传入的类型内含键全部从可选变为必选
 
 ```typescript
 type OptionalData = {
@@ -105,16 +119,18 @@ type OptionalData = {
 type NecessaryData = Require<OptionalData>
 ```
 
-上面的代码相当于：
+上面的代码将id和title变为可选，相当于：
 
 ```typescript
-type necessaryData = {
+type NecessaryData = {
     id: number
     title: string
 }
 ```
 
-## `Pick`从指定的类型中挑选其中几个键作为新类
+## Pick 挑选键
+
+`Pick`从指定的类型中挑选你指定的若干键作为新类：
 
 ```typescript
 type FullData = {
@@ -124,25 +140,63 @@ type FullData = {
     updateTime: Date
 }
 type InitData = Pick<FullData, "title" | "image">
-let inputData2: InitData = {
-    title: "初始化数据不需要id",
-    // image: []    //  保留原类型里的可选项
+```
+
+以上代码相当于：
+
+```typescript
+type InitData = {
+    title: string
+    image?: string[]    //  从原类型继承的可选
 }
 ```
 
-## `Omit`与`Pick`相反，从指定类型中排除键
+实际使用：
 
 ```typescript
-declare type ShowData2 = Omit<NecessaryData, "id">
-let showData2: ShowData2 = {
-    // id: "",  //  already exclude
+let inputData2: InitData = {
+    title: "初始化数据只需要title和image，其中image继承原类型的可选"
+}
+```
+
+## Omit 排除键
+
+`Omit`与`Pick`相反，从指定类型中排除键
+
+```typescript
+type NecessaryData = {
+    id: number
+    title: string
+    image?: string[]
+    desc: string
+}
+type ShowData = Omit<NecessaryData, "id">
+```
+
+以上代码相当于：
+
+```typescript
+type ShowData = {
+    title: string
+    image?: string[]
+    desc: string
+}
+```
+
+实际使用：
+
+```typescript
+let showData: ShowData = {
+    // id: "",  //  被排除的键，填入会报错
     title: "",
     image: [],
     desc: ""
 }
 ```
 
-## `Extract`判断指定的类型中是否继承了要求的键，否则返回`Never`
+## Extract 已包含
+
+`Extract`判断类型中是否继承了指定的键，否则返回`Never`
 
 ```typescript
 interface IData {
@@ -154,24 +208,32 @@ interface IBlog {
     title: string
 }
 
+//  判断IBlog中是否继承IData，检查通过（已继承），则InsertData = IBlog，否则InsertData = Never
 type InsertData = Extract<IBlog, IData>;
 let inputData3: InsertData = {
     id: 3,
-    title: "检查通过"
+    title: "检查通过（已继承），否则此处赋值会报错"
 };
 ```
 
-上述是对一个接口类型或对象类型进行检查，另一种用法是对联合类型检查筛选
+上述是对一个接口或对象类型进行检查，另一种用法是对两个联合类型进行并集操作，输出同时存在于两个类型中的类型：
 
 ```typescript
-type Level = number | string | (() => number);
-type CLevel = number | Function
-type TargetLevel = Extract<Level, CLevel>;
+type ALevel = number | string | (() => number);
+type BLevel = number | Function
+type TargetLevel = Extract<ALevel, BLevel>;
 ```
 
-以上相当于 type TargetLevel = number | (() => number)，排除了Level里的string类型，因为string类型无法满足CLevel里的number或Function类型。
+以上相当于：
 
-## `Exclude`与`Extract`相反，判断指定类型中是否没有继承要求的键，若继承了则返回`Never`
+```typescript
+// 排除了ALevel里的string类型，因为string类型无法同时满足ALevel和BLevel要求的类型类型
+type TargetLevel = number | (() => number);
+```
+
+## Exclude 未包含
+
+`Exclude`与`Extract`相反，判断指定类型中是否没继承要求的键，若继承了则返回`Never`
 
 ```typescript
 interface SaveData {
@@ -185,58 +247,67 @@ interface InputData {
     desc: string
 }
 
+//  判断InputData中是否没继承SaveData，检查通过（没继承），则ShowData = InputData，否则InsertData = Never
 type ShowData = Exclude<InputData, SaveData>;
 let inputData: ShowData = {
-    title: "检查通过",
+    title: "检查通过（没继承），否则此处赋值报错",
     image: [],
     desc: ""
 }
 ```
 
-上述是对接口或对象类型的检查，另一种用法是对联合类型检查筛选
+上述是对接口或对象类型的检查，另一种用法是对两个联合类型进行并集再取反集操作，输出没有同时存在于两个类型的类型：
 
 ```typescript
-type Level = number | string | (() => number);
-type HLevel = string | Function
-type TargetLevel = Exclude<Level, HLevel>;
+type ALevel = number | string | (() => number);
+type BLevel = number | Function
+type TargetLevel = Exclude<ALevel, BLevel>;
 ```
 
-以上相当于type TargetLevel = number，因为只有Level里的number类型不满足HLvel的string或Function类型。
-
-## `Record`将指定的类型中所有的键类型变成第二个参数传入的类型
+以上相当于：
 
 ```typescript
-enum TargetRecord {
+//  返回了ALevel里的string类型，因为string类型无法同时满足ALevel和BLevel要求的类型
+type TargetLevel = string;
+```
+
+## Record 键名键值挂钩
+
+`Record`将指定的类型A中所有的键值的类型变成类型B传入的类型，一般适用于将对象类型或接口套入枚举：
+
+```typescript
+enum PayStatus {
     Pending,
     Success,
     Error
 }
 
-interface ToBeKey {
-    id: number
-    value: string
+interface StatusInfo {
+    value: number
+    title: string
 }
 
-type StateInfo = Record<TargetRecord, ToBeKey>;
-let stateInfo: StateInfo = {
+type PayStateInfo = Record<PayStatus, StatusInfo>;
+//  注意payStateInfo的键名是来源枚举PayStatus，键值类型来源于接口StatusInfo
+let payStateInfo: PayStateInfo = {
     [TargetRecord.Pending]: {
-        id: TargetRecord.Pending,
-        value: ""
+        value: 0,
+        title: "处理中"
     },
     [TargetRecord.Success]: {
-        id: TargetRecord.Success,
-        value: ""
+        value: 1,
+        title: "支付成功"
     },
     [TargetRecord.Error]: {
-        id: TargetRecord.Error,
-        value: ""
+        value: -1,
+        title: "支付失败"
     }
 }
 ```
 
-将接口类型`ToBeKey`变成了`TargetRecord`所有键的类型
+## ReturnType 返回值类型
 
-## `ReturnType`传入函数类型，获取该函数的返回值类型
+`ReturnType`传入函数类型，获取该函数的返回值类型
 
 ```typescript
 type HasReturnFn = (a: number, b: number, format: string) => number;
@@ -249,32 +320,38 @@ type Result2 = ReturnType<typeof hasReturnFn>;
 const arr = [1, "ss", {id: 1}];
 ```
 
-## `InstanceType`类似`ReturnType`，相比获取函数返回值，这里传入的是类类型，获取的是类实例类型
+## InstanceType
+
+`InstanceType`类似`ReturnType`，相比获取函数返回值，这里传入的是类类型，获取的是类实例类型
 
 ```typescript
 type ClassInstance = InstanceType<typeof ClassRoom>;
 const instance: ClassInstance = new ClassRoom(512, "the second room");
 ```
 
-## `Parameters`传入函数类型，获取该函数的形参类型并转成数组类型输出
+## Parameters 函数形参类型
+
+`Parameters`传入函数类型，获取该函数的形参类型并转成数组类型输出
 
 ```typescript
 type FnParamsArr = Parameters<HasReturnFn>;
 const fnParamsArr: FnParamsArr = [1, 2, "number"];
 ```
 
-## `ConstructorParameter`类似`Parameters`，传入类类型，获取类构造器的形参类型并转成数组输出
+## ConstructorParameter
+
+`ConstructorParameter`类似`Parameters`，传入类类型，获取类构造器的形参类型并转成数组输出
 
 ```typescript
 type ClassParamsArr = ConstructorParameters<typeof ClassRoom>;
 const classParamArr: ClassParamsArr = [511, "the first one"];
 ```
 
-## infer类型推断
+# infer 类型推断
 
 只能在条件类型的`extends`子句中使用，`infer`得到的类型只能在`true`语句中使用, 即`X ? Y : Z`中的`X`中推断，在`Y`位置引用
 
-### 推断数组项的类型
+## 推断数组项的类型
 
 ```typescript
 //  定义，(infer U)[]推断T是否为数组类型U[]，若是的话返回数组项类型U
@@ -291,7 +368,7 @@ const i0: I0 = arr[0]
 //  arr[0] = 1，类型为number，符合I0类型，成功通过类型判断
 ```
 
-### 推断单个数组项的类型
+## 推断单个数组项的类型
 
 结合展开符`...`可推断单个数组项的类型。
 推断第一个数组项的类型：
@@ -314,7 +391,7 @@ type I4 = InferLast<[3, 2, 1]>
 
 推断出`type I4 = number`
 
-### 推断方法参数类型
+## 推断方法参数类型
 
 推断方法里的参数类型，类似Parameters<Function>：
 
@@ -337,6 +414,7 @@ type InferReturnType<T extends Function> = T extends (...args: any) => infer Ret
 //  调用
 type I6 = InferReturnType<() => string>
 ```
+
 推断出`type I6 = string`
 
 推断出Promise中的返回值类型：
@@ -352,7 +430,8 @@ type Data = InferPromise<ReturnType<Fn>>
 
 以上推断出`type Data = string`
 
-### 推断字符串中的字符
+## 推断字符串中的字符
+
 推断字符串字面量类型的第一个字符对应的字面量类型：
 
 ```typescript
