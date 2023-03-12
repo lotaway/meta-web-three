@@ -229,7 +229,7 @@ contract AboutFunction {
         });
     }
 
-    //  @overload, and diff pan sequence params
+    //  overload, and diff pan sequence params
     function setValueWithJson(uint _a) public {
         setValue({
         b : "1",
@@ -242,7 +242,7 @@ contract AboutFunction {
 
     //  only can call by other function in this contract and extend
     function selfCallOnly() internal {
-        //  inside the contract, a function with `external` can only call with `this.functionName()` 
+        //  inside the contract, a function with `external` can only call with `this.functionName()`
         this.outCallOnly();
         // outCallOnly();  //  not allow direct call a function with `external`
     }
@@ -280,7 +280,7 @@ contract ChildContract is AboutFunction(1), Func2, Func3 {
         _;
     }
 
-    //  @overide 
+    //  @overide
     function willBeOverride() public override {
     }
 
@@ -326,6 +326,7 @@ contract ChildContract is AboutFunction(1), Func2, Func3 {
     }
 
     function insetFunc(bytes calldata str1) public pure returns (uint result1, uint result2, bytes32 encodeStr1, bytes32 encodeStr2, bytes20 encodeStr3) {
+        //  some method inset in solidity
         result1 = addmod(1, 2, 3);
         //  (1 + 2) % 3
         result2 = mulmod(1, 2, 3);
@@ -370,8 +371,8 @@ contract AboutMapping {
         return students[key];
     }
 
-    function getTeacthers() public {
-        // mapping(uint => string) teachters;    //  no allow
+    function getTeachers() public {
+        // mapping(uint => string) teachers;    //  no allow
     }
 
 }

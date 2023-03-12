@@ -10,6 +10,7 @@ div.container
       span.item-info x: {{ mousePosition.x}},
       span.item-info y: {{ mousePosition.y}}
     files2video
+      template(#content) content
 </template>
 <script setup lang="ts">
 import {ref, reactive, watch, watchEffect, onMounted} from "vue"

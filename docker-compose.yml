@@ -1,0 +1,56 @@
+version: '2'
+services:
+  meta-web-three-gateway:
+    build:
+      context: "./gateway"
+      dockerfile: dockerfile
+    image: meta-web-three-gateway
+#    volumes:
+#      - ${DATA_PATH}/.data/gateway:/var/lib/meta-web-three/gateway
+    ports:
+      - "30001:30001"
+    links:
+      - mysql
+      - redis
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - meta-web-three
+  meta-web-three-mysql:
+    image: "mysql"
+    restart: always
+    volumes:
+      - ${DATA_PATH}/.data/mysql:/var/lib/mysql
+    expose:
+      - "3306"
+    env_file:
+      - .env
+      - ./gateway/.env
+    environment:
+      - M
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - TZ=${TIMEZONE}
+    command: --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --sql_mode=IGNORE_SPACE,NO_ENGINE_SUBSTITUTION
+      --lower_case_table_names=2
+    networks:
+      - meta-web-three
+  redis:
+    image: 'redis:alpine'
+    restart: always
+    ports:
+      - 6379:6379
+    env_file:
+      - .env
+      - gateway/.env
+    volumes:
+      - ${DATA_PATH}/.data/redis:/data
+    networks:
+      - meta-web-three
+networks:
+  meta-web-three:
+    driver: bridge

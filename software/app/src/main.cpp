@@ -31,5 +31,5 @@ namespace allocateMetrics {
 
 int main() {
     logger::out("application.cpp runing");
-    //utils::initMyVector();
+    utils::initListNumberAdd();
 }

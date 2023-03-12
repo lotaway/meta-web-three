@@ -1,11 +1,11 @@
 import {useCallback, useContext, useEffect, useMemo, useState} from "react"
-import {TransactionContext} from "../../context/TransactionContext"
+import {ContactContext} from "../../context/ContactContext"
 import PayContract from "../../components/PayContract/PayContract"
 import {useDebounce} from "../../utils/hooks"
 import Input from "../../components/Input/Input"
 // [Source](https://github.com/adrianhajdin/project_web3.0)
 export default function TransactionRecord() {
-    const {isTransacting, transactionRecords, transactionCount} = useContext(TransactionContext);
+    const {isTransacting, transactionRecords, transactionCount} = useContext(ContactContext);
     const [addressTo, setAddressTo] = useState("");
     const [_accountName, setAccountName] = useState(addressTo);
     const accountName = useDebounce(_accountName);

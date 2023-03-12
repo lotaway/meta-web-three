@@ -239,7 +239,7 @@ namespace utils {
 		for (int i = 0;i < arrSize;i++) {
 			iarr[i] = 0;
 		}
-		//	因为分配了内存，使用完需要删除
+		//	因为在堆上分配了内存，使用完需要删除
 		delete[] iarr;
 		//	新式数组
 		std::array<int, arrSize> stdArray;
@@ -924,7 +924,7 @@ namespace utils {
 			delete m_data;
 		}
 	private:
-		uint32_t m_size;
+		size_t m_size;
 		char* m_data;
 	};
 
@@ -940,50 +940,6 @@ namespace utils {
 	void initStringAndMove() {
 		//	如果不使用双重引用&&重载String构造方法，这个创建方式会先在堆上分配创建String("lotaway")，之后在Enstring通过m_name初始化列表又重新在堆上分配创建（即使使用的是引用&，但String的构造创建与复制方法决定了会分配成两个堆）
 		Enstring enstring("lotaway");
-	}
-
-	template <typename T, size_t SIZE>
-	class MyArray {
-	public:
-		MyArray() : m_array() {
-			//(void*)alloc(size);
-		}
-		~MyArray() {
-			delete[] m_array;
-		}
-		int size() const {
-			return SIZE;
-		}
-		T& operator[](size_t index) {
-			if (index >= SIZE)
-				__debugbreak();
-			return m_array[index];
-		}
-		const T& operator[](size_t index) const {
-			return m_array[index];
-		}
-		T& data() {
-			return m_array;
-		}
-		const T& data() const {
-			return m_array;
-		}
-	private:
-		T m_array[SIZE];
-	};
-
-	void initDiyArray() {
-		const int size = 5;
-		MyArray<std::string, size> narr;
-		const auto& refNarr = narr;
-		memset(&narr[0], 0, narr.size() * sizeof(int));
-		narr[1] = 5;
-		narr[4] = 8;
-		for (size_t i = 0; i < narr.size(); i++) {
-			//refNarr[i] = "hi";	//	no allow change in reference
-			narr[i] = "hi";
-			std::cout << refNarr[i] << std::endl;
-		}
 	}
 
 	// iteralor迭代器，使用指针进行循环迭代取值
@@ -1176,4 +1132,140 @@ namespace utils {
 
 	//	双重检查锁？
 
+	// hash map 官方实现：unordered_map，无序且键名唯一，随机桶分配方式
+	void initHashMap() {
+		//	需要提供键名类型和键值类型才能创建hashmap
+		std::unordered_map<std::string, int> umap;
+
+		//	添加数据（若原本的键已经存在则覆盖）
+		umap.emplace("wayluk", 30);
+		umap.emplace("lotaway", 18);
+
+		//	获取数据
+		std::unordered_map<std::string, int>::const_iterator it = umap.find("wayluk");
+		if (it == umap.end())
+			std::cout << "找不到数据" << std::endl;
+		else
+			std::cout << "找到了！！：" << it->second << std::endl;
+
+		//	删除数据，此处为单条删除，也可以迭代器范围性删除
+		umap.erase("wayluk");
+
+		//	插入新数据（只会插入新键不会覆盖已有，且允许批量插入多个值或其他map）
+		//	方式1：传递pair
+		std::pair<std::string, int> newGuy("wayluk", 31);
+		umap.insert(newGuy);
+		//	方式2：传入另一个map（一部分或者全部）
+		std::unordered_map<std::string, int> other_map{ { "mimi", 27 }, {"haha", 37} };
+		umap.insert(other_map.begin(), other_map.end());
+		//	方式3：直接字面量初始化
+		umap.insert({ { "shutup", 30 }, { "hate", 30 }, {"eatshit", 30} });
+
+		//	迭代器范围性删除
+		if (!umap.empty())
+			umap.erase(other_map.begin(), other_map.end());
+
+		//	循环输出
+		for (auto& m : umap)
+			std::cout << m.first << ":" << m.second << std::endl;
+	}
+
+	//	用hashmap完成在数组里找到指定结果的两数相加，如提供数组[30,40,60,80]和总值100，其中40+60=100，要求找到40和60并返回它们的索引值
+	std::vector<int> getSumTwoBySum(const std::vector<int>& arr, const int sum) {
+		std::unordered_map<int, int> requireUMap;
+		for (int i = 0, l = arr.size(); i < l; i++) {
+			//	当找到和所需的数值一致时，则代表当前这个数值和已在map的索引所在的数值能作为一对，得到结果。
+			std::unordered_map<int, int>::const_iterator it = requireUMap.find(sum - arr[i]);
+			if (it != requireUMap.end())
+				return { it->second, i };
+			//	将当前所需要的数值和索引值记录下来
+			requireUMap.emplace(arr[i], i);
+		}
+		return { 0, 0 };
+	}
+
+	//	判断输入的数字是否为回文格式，如121，12321就是回文，从高位到低位反过来也是相等，注意不要使用字符串方式
+	bool isPalindrome(int x) {
+		if (x < 0)
+			return false;
+		if (x == 0)
+			return true;
+		const size_t size = static_cast<size_t>(std::log10(x)) + 1;
+		if (size == 1)
+			return true;
+		//int arr[size];
+		std::vector<int> arr(size);
+		int index = 0;
+		size_t max = size;
+		while (max > 1) {
+			int pos = static_cast<int>(pow(10, --max));
+			arr[index++] = x / pos;
+			// arr.push_back(x / pos);
+			x %= pos;
+		}
+		arr[index] = x;
+		// arr.push_back(x);
+		double l = (size - 1) * 0.5;
+		for (int i = 0; i < l; i++) {
+			if (arr[i] != arr[size - 1 - i])
+				return false;
+		}
+		return true;
+	}
+
+	void reverseString(std::string x) {
+		std::string originStr = "12321";
+
+		//	反转字符串，方式1，需要创建另外一个字符串
+		std::string reStr(originStr.rbegin(), originStr.rend());
+
+		//	反转字符串，方式2，直接修改原有的字符串
+		std::reverse(originStr.begin(), originStr.end());
+
+		//	反转字符串，方式3，复制一个字符串进行反转
+		std::string cpStr;
+		std::reverse_copy(std::begin(originStr), std::end(originStr), std::begin(cpStr));
+	}
+
+	struct ListNode {
+		int val;
+		ListNode* next;
+		ListNode() : val(0), next(nullptr) {}
+		ListNode(int x) : val(x), next(nullptr) {}
+		ListNode(int x, ListNode* next) : val(x), next(next) {}
+	};
+	ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+		int up = 0;
+		int sum = l1->val + l2->val + up;
+		ListNode* ln = new ListNode{ sum % 10 };
+		ListNode* tempLn = ln;
+		up = sum / 10;
+		while (l1->next != nullptr || l2->next != nullptr || up > 0) {
+			l1 = l1->next == nullptr ? new ListNode() : l1->next;
+			l2 = l2->next == nullptr ? new ListNode() : l2->next;
+			sum = l1->val + l2->val + up;
+			up = sum / 10;
+			tempLn->next = new ListNode(sum % 10);
+			tempLn = tempLn->next;
+		}
+		return ln;
+	}
+	template<size_t size>
+	ListNode* createListNodeWithArray(int i_arr[size]) {
+		ListNode* ln = new ListNode{ i_arr[0] };
+		ListNode* tempLn = ln;
+		for (int i = 1; i < size; i++) {
+			tempLn->next = new ListNode{ i_arr[i] };
+			tempLn = tempLn->next;
+		}
+		return ln;
+	}
+	void initListNumberAdd() {
+		int i1[1]{ 9 };
+		int i2[10]{ 1,9,9,9,9,9,9,9,9,9 };
+		ListNode* l1 = createListNodeWithArray<1>(i1);
+		ListNode* l2 = createListNodeWithArray<10>(i2);
+		ListNode* ln = addTwoNumbers(l1, l2);
+		std::cout << ln << std::endl;
+	}
 }

@@ -1,20 +1,53 @@
 const hre = require("hardhat");
+// const ethers = hre.ethers;
 
-const main = async () => {
-    const TransactionsContract = await hre.ethers.getContractFactory("Transactions");
-    const transactionsContract = await TransactionsContract.deploy();
-    await transactionsContract.deployed();
-    console.log(`Transactions already deployed, address: ${transactionsContract.address}`);
-};
+const ethers = require("ethers");
+const path = require("node:path");
+const {createWriteStream} = require("node:fs");
 
-const runMain = async () => {
-    try {
-        await main();
-        process.exit(0);
-    } catch (err) {
-        console.error(err);
-        process.exit(1);
+async function main(options) {
+    // const AccountTransferContract = await hre.ethers.getContractFactory("AccountTransfer");
+    // const accountTransferContract = await AccountTransferContract.deploy();
+    // await accountTransferContract.deployed();
+    // console.log(`AccountTransfer already deployed, address: ${accountTransferContract.address}`);
+    const solNames = ["AccountTransfer", "AccountTemplate"];
+    // const addresses = [];
+    /*let compiles = solNames.map(solName => {
+        return hre.ethers.getContractFactory(solName)
+            .then(Contract => Contract.deploy())
+            .then(contract => {
+                const output = `${solName} already deployed, address: ${contract.address}`;
+                console.log(output);
+                // writeStream.write(output + "\n");
+                return contract.deployed();
+            });
+    });*/
+    while (solNames.length) {
+        const solName = solNames.shift();
+        const Contract = await hre.ethers.getContractFactory(solName);
+        const contract = await Contract.deploy();
+        options?.output(`${solName} already deployed, address: ${contract.address}`);
     }
-};
+    // await Promise.all(compiles);
+}
 
-runMain();
+function runMain() {
+    const logWriteStream = createWriteStream(path.join(__dirname, "../artifacts/build-info/deploy-output.txt"), {encoding: "utf-8", flags: "r+"});
+    return main({
+        output(message) {
+            console.log(message);
+            logWriteStream.write(message + "\n");
+        }})
+        .then(() => {
+            logWriteStream.end("success");
+            process.exit(0)
+        })
+        .catch(err => {
+            const message = "error: " + JSON.stringify(err);
+            console.error(message);
+            logWriteStream.end(message);
+            process.exit(1);
+        });
+}
+
+void runMain();

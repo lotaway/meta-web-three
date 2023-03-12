@@ -38,7 +38,7 @@ export class DemoController {
     }
 
     @nest.Get("file/:fileName")
-    @useLogger()
+    // @useLogger()
     async getMarkDownFile(@nest.Param("fileName") fileName) {
         return await this.demoService.getFileByName(fileName)
     }

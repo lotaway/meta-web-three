@@ -4,10 +4,11 @@
 本例子选用nodejs-websocket模块，也可以选择像是ws、socket.io等第三方包。
 下面将让用户可以登录和创建频道，频道里可以进行群聊，也能发起私聊。
 
-以MySQL为例建表，需要一个用户表、群聊表、群聊成员表、群聊消息、私聊消息表，要注意并没有实现好友列表，只是群聊里可以直接进行陌生人私聊：
+以MySQL为例建表结构，需要用户表、群聊表、群聊成员表、群聊消息、私聊消息表。
+要注意此结构中并没有实现好友列表，而是群聊里可以直接对组员发起私聊。
 
 ```shell
--- 用户表
+# 用户表
 create table if not exists User (
   Id Integer unique default auto_increment(),
   CreateTime Datetime default current_timestamp,
@@ -17,7 +18,7 @@ create table if not exists User (
   Nickname Var.Char(10) comment '用户昵称',
   LastOnlineTime Datetime comment '最后登录时间'
 );
--- 群聊表
+# 群聊表
 create table if not exists GroupChat (
   Id Integer unique default auto_increment(),
   CreateTime Datetime default current_timestamp,
@@ -25,7 +26,7 @@ create table if not exists GroupChat (
   GroupNumer Tinyint(20) unique default auto_increment() comment '唯一群号',
   state Tinyint(2) not null default 0 comment '群聊状态：【0：正常，1：解散，2：全体禁言，3：全体禁言仅管理员可发言】'
 );
--- 群聊成员表
+# 群聊成员表
 create table if not exists GroupChatMember (
   Id Integer unique default auto_increment(),
   CreateTime Datetime default current_timestamp,
@@ -35,7 +36,7 @@ create table if not exists GroupChatMember (
   constraint `GroupChatMember_GroupChatId_GroupChatId` foreign key GroupChatId on GroupChat(Id),
   rights Tinyint(2) default 0 comment '用户权限，【0：普通成员，1：群主，2：管理员】'
 );
--- 群聊消息
+# 群聊消息
 create table if not exists GroupMessage (
   Id Integer default uuid(),
   CreateTime Datetime default current_timestamp,
@@ -45,7 +46,7 @@ create table if not exists GroupMessage (
   constraint `GroupMessage_From_UserId` foreign key `From` on User(Id),
   GroupChatId Integer comment '所属群聊标识'
 );
--- 私聊消息
+# 私聊消息
 create table if not exists PrivateMessage (
   Id Var.Char(50) default uuid(),
   CreateTime Datetime default current_timestamp,
@@ -97,7 +98,7 @@ async function initData() {
     })
     //  todo 配置普通用户群所能使用的群号例如：88888888开始
 }
-
+//  预设的群聊消息类型，例如普通消息、群通知，方便以后拓展
 enum ChatMessageType {
     NORMAL,
     NOTICE
@@ -202,6 +203,10 @@ async function createServer() {
 
 createServer()
 ```
+以上部分考虑服务可能挂掉的情况，需要额外拓展几个特性：
+* 多线程，利用cluster创建多个子进程并同样开启websocket服务处理消息分发，减少主线程挂掉的可能
+* 微服务，通过微服务减少单个服务拖垮其他所有服务的可能性，例如私聊是一个服务，群聊是另一个服务，这样私聊服务挂了不妨碍群聊，反过来也一样。
+* 主从数据库，通过主从数据库减少存储的庞大数据可能带来的问题，主要用于读取的数据库只负责读写最近的聊天记录，确保速度，并且数据量或日期达到一定要求时就将旧数据剔除，而真正的主数据库存储有所有聊天记录，但无论读取和写入都比较慢，负荷也大，会采用异步消息队列牺牲速度来确保稳定性。
 
 ## 客户端脚本
 

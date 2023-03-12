@@ -24,14 +24,14 @@ function startDesktopDev() {
     })
 }
 
-const serverProcess = exec("npm run start:dev", {
-    cwd: "./server"
+const gatewayProcess = exec("npm run start:dev", {
+    cwd: "./gateway"
 }, err => {
     if (err) throw err
 })
 let timer = null
-serverProcess.stdout.on("data", data => {
-    console.log(`Server: ${data}`)
+gatewayProcess.stdout.on("data", data => {
+    console.log(`Gateway: ${data}`)
     clearTimeout(timer)
     timer = setTimeout(() => {
         !clientProcess && startClientDev()

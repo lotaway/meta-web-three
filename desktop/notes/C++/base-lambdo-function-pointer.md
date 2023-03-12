@@ -1,4 +1,4 @@
-@[HOC](C＋＋基础－栈·堆·宏·auto·指针函数·lambda)
+@[TOC](C＋＋基础－栈·堆·宏·auto·指针函数·lambda)
 
 # 栈&堆
 

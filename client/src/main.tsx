@@ -2,7 +2,7 @@ import React, {lazy} from 'react'
 import ReactDOM from 'react-dom/client'
 import {createBrowserRouter, Navigate, RouterProvider} from "react-router-dom"
 import {AppStoreProvider} from "./store/container";
-import {TransactionProvider} from "./context/TransactionContext"
+import {ContactProvider} from "./context/ContactContext"
 import App from './App'
 import './index.css'
 // import "tailwindcss/tailwind.css"
@@ -68,9 +68,9 @@ const routers = createBrowserRouter([
     },
     {
         path: "/user/payRecord",
-        element: <TransactionProvider>
+        element: <ContactProvider>
             <TransactionRecord/>
-        </TransactionProvider>
+        </ContactProvider>
     },
     {
         path: "/NewWorld",

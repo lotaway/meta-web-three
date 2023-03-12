@@ -1,0 +1,5 @@
+# smart contract
+/artifacts
+/cache
+# compiled output
+/node_modules

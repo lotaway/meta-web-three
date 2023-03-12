@@ -4,8 +4,8 @@
 namespace utils {
 	void useLibrary();
 	void variableAndLog();
-	void incrementWithPointer(int* value);
-	void incrementWithReference(int& value);
+	void incrementWithPointer(int*);
+	void incrementWithReference(int&);
 	void PointerAndReference();
 	void localStaticVar();
 	void initStatic();
@@ -185,11 +185,11 @@ namespace utils {
 
 	struct Vex {
 		float x, y;
-		Vex(float _x, float _y);
+		Vex(float, float);
 	};
 
 	template<typename Vec>
-	void outputVex(const std::vector<Vec>& vexs);
+	void outputVex(const std::vector<Vec>&);
 
 	void initVector();
 
@@ -223,7 +223,7 @@ namespace utils {
 	Return1 returnStruct();
 
 	//	用于传递多个引用参数并多返回值
-	void returnParams(std::string& str1, std::string& str2, int& z);
+	void returnParams(std::string&, std::string&, int&);
 
 	//	用于数组多返回值
 	std::array<std::string, 2> returnArray();
@@ -274,4 +274,8 @@ namespace utils {
 	void initMyVector();
 
 	void initCustomIterator();
+
+	bool isPalindrome(int);
+
+	void initListNumberAdd();
 }

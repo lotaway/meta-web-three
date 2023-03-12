@@ -4,10 +4,13 @@ require("@nomiclabs/hardhat-waffle");
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
     solidity: "0.8.0",
+    paths: {
+        sources: "./contracts"
+    },
     networks: {
         ganache: {
             url: "http://127.0.0.1:7545",
-            accounts: ["bf6af5d328604e9c04bd3e9fb422d0b8839bc786ece3adfaf4a923344faffe74"]
+            accounts: ["3e77a307df1a0446f5cef20cf8a2fcbbe267290e204127973b7342687494ff78"]
         },
         sepolia: {
             url: "https://eth-sepolia.alchemyapi.io/v2/liTsZpkvhffOegSsOSi-DAaOzu",

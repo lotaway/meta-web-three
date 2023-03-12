@@ -1,9 +1,12 @@
 <template lang="pug">
 .file2video
+  slot(name="title")
   ul.list.list-select
     li.item.item-select(v-for="(s, sIndex) in selectors" :key="s.title")
       directory-selector(:title="s.title" :button-title="props.buttonTitle" :placeholder="s.placeholder" @pathChange="filePaths => pathChangeHandler(sIndex, filePaths)")
+  slot(name="content")
   button.btn.btn-generate(:class="hasSelected ? ' active' : ' no-active'" @click="generateVideo") GENERATE
+  slot(name="footer")
 </template>
 <style lang="sass" scoped>
 .btn.active
@@ -49,7 +52,7 @@ let selectors = reactive<SelectorVal[]>([
     directoryPath: ""
   }
 ])
-let videoPaths = ref<string[]>([])
+let videoPaths = reactive<string[]>([])
 
 const hasSelected = computed(() => selectors.filter(selector => selector.directoryPath).length === selectors.length)
 
@@ -57,14 +60,15 @@ async function pathChangeHandler(index: number, directoryPath: string) {
   selectors[index].directoryPath = directoryPath
   // window.desktop.Files2videoPathChangeHandler(directoryPath)
   const result: { names: string[], paths: string[] } = await ipcRenderer.invoke("readFileInDirectory", directoryPath)
-  videoPaths.value = result.paths.filter(path => path.match(/.(mp4|flv)$/) !== null)
+  videoPaths = result.paths.filter(path => path.match(/.(mp4|flv)$/) !== null)
 }
 
 async function generateVideo() {
-  if (videoPaths.value.length === 0) {
+  if (videoPaths.length === 0) {
     return Promise.reject("没有视频")
   }
-  return await ipcRenderer.invoke("mergeVideo", videoPaths.value.map(item => String(item)))
+  selectors.forEach(selector => selector.title = 'Please ' + selector.title.toLowerCase())
+  return await ipcRenderer.invoke("mergeVideo", videoPaths.map(item => String(item)))
 }
 
 onMounted(async () => {

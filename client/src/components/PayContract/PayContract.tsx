@@ -1,5 +1,5 @@
 import React, {useState, useEffect, ChangeEvent, useTransition, useContext, useCallback} from "react";
-import {TransactionContext} from "../../context/TransactionContext";
+import {ContactContext} from "../../context/ContactContext";
 // import {useDebounce} from "../../utils/hooks";
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default function PayContract({addressTo, amount, keyword, message}: Props) {
-    const {currentWalletAccount, connectWallet, sendTransaction} = useContext(TransactionContext);
+    const {currentWalletAccount, connectWallet, sendTransaction} = useContext(ContactContext);
     const [formData, setFormData] = useState({
         addressTo: addressTo,
         amount: amount ?? "0",

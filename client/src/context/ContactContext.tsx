@@ -1,24 +1,19 @@
 import React, {createContext, useEffect, useState} from "react";
 import {ethers} from "ethers";
-import {contractABI, transactionContractAddress} from "../config/constants";
+import {deployedContract} from "../config/constants";
 
-export const TransactionContext = createContext<any>({});
+export const ContactContext = createContext<any>({});
 
 export const {ethereum} = window as any;
 
 const getContacts = () => {
     const provider = new ethers.providers.Web3Provider(ethereum);
     const signer = provider.getSigner();
-    const transactionContract = new ethers.Contract(transactionContractAddress, contractABI, signer);
-    console.log({
-        provider,
-        signer,
-        transactionContract
-    });
-    return {transactionContract};
+    const accountTransferContract = new ethers.Contract(deployedContract.accountTransfer.address, deployedContract.accountTransfer.abi, signer);
+    return {accountTransferContract};
 }
 
-export const TransactionProvider = ({children}: { children: React.ReactNode }) => {
+export const ContactProvider = ({children}: { children: React.ReactNode }) => {
     const [isTransacting, setIsTransacting] = useState(false);
     const [currentWalletAccount, setCurrentWalletAccount] = useState("");
     const [transactionCount, setTransactionCount] = useState(0);    //  应使用类似localstorage保存缓存
@@ -63,7 +58,7 @@ export const TransactionProvider = ({children}: { children: React.ReactNode }) =
             if (!ethereum) {
                 return alert("Please install metamask");
             }
-            const {transactionContract} = getContacts();
+            const {accountTransferContract} = getContacts();
             //  直接从钱包账户之间转账，没有放入合约账户
             await ethereum.request({
                 method: "eth_sendTransaction",
@@ -74,13 +69,13 @@ export const TransactionProvider = ({children}: { children: React.ReactNode }) =
                     value: ethers.utils.parseEther(amount)._hex,
                 }]
             });
-            const transactionHash = await transactionContract.addRecord(addressTo, amount, message, keyword);
+            const transactionHash = await accountTransferContract.addRecord(addressTo, amount, message, keyword);
             setIsTransacting(true);
             console.log(`Transacting - ${transactionHash.hash}`);
             await transactionHash.wait();   //  交易完成回调
             setIsTransacting(false);
             console.log(`Transaction Success - ${transactionHash.hash}`);
-            const transactionCount = await transactionContract.getRecordCount();
+            const transactionCount = await accountTransferContract.getRecordCount();
             setTransactionCount(transactionCount);
         } catch (err) {
             console.error(err);
@@ -92,9 +87,9 @@ export const TransactionProvider = ({children}: { children: React.ReactNode }) =
             if (!ethereum) {
                 return alert("Please install metamask");
             }
-            const {transactionContract} = getContacts();
-            const transactionRecords = await transactionContract.getRecord();
-            setTransactionRecords(transactionRecords.map((transaction: any) => ({
+            const {accountTransferContract} = getContacts();
+            const accountTransferRecords = await accountTransferContract.getRecord();
+            setTransactionRecords(accountTransferRecords.map((transaction: any) => ({
                 addressTo: transaction.receiver,
                 from: transaction.sender,
                 amount: parseInt(transaction.amount._hex) * (10 ** 18),
@@ -111,7 +106,7 @@ export const TransactionProvider = ({children}: { children: React.ReactNode }) =
         void initWalletConnect();
     }, []);
     return (
-        <TransactionContext.Provider value={{
+        <ContactContext.Provider value={{
             isTransacting,
             connectWallet,
             currentWalletAccount,
@@ -120,6 +115,6 @@ export const TransactionProvider = ({children}: { children: React.ReactNode }) =
             transactionRecords
         }}>
             {children}
-        </TransactionContext.Provider>
+        </ContactContext.Provider>
     )
 }

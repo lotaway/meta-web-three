@@ -1,10 +1,11 @@
 {
   "name": "meta-web-three",
-  "version": "1.0.1-20221218",
+  "version": "1.0.2-20230225",
   "description": "",
   "author": "",
   "license": "UNLICENSED",
   "scripts": {
-    "dev": "node run-dev.js"
+    "dev": "node run-dev.js",
+    "build": "docker build -t wayluk/meta-web-three:1.0.2 ."
   }
 }

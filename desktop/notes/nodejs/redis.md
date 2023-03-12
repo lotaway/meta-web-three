@@ -132,12 +132,12 @@ hexist [key] [hashkey]
 hdel [key] [hashkey]
 ```
 
-## set 无序集合，值不可重复
+## set 无序集合
 
-添加值：
+添加值，可以一次添加一个，也可以一次添加多个，值不可重复
 
 ```cmd
-sadd [key] [value]
+sadd [key] [value] ... [value2] [value3]
 ```
 
 读取所有值：
@@ -151,6 +151,15 @@ smembers [key]
 ```cmd
  srem [key] [value]
 ```
+
+获取多个集合之间的并集sinter [key1] [key2] ... [keyN]。
+示例通过定义标签tag对应的产品id，从而让选择多个标签后能快速挑选出对应的产品id
+```cmd
+sadd product:tags:1 1 4 9 7 3
+sadd product:tags:2 1 7 8 9
+sinter product:tags:1 product:tags:2
+```
+以上命令能获取到产品id值交集的 1 7 9，之后通过这些id去sql查询产品即可。
 
 ## zset / sorted set 有序集合
 
