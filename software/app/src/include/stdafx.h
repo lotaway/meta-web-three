@@ -22,6 +22,8 @@
 #include <fstream>
 //	unordered_map, some kind of hashmap
 #include <unordered_map>
+//	set type
+#include <set>
 //	std::variant, sigle variant with multiple type possible
 #include <variant>
 //	std::any 任意类型的数据

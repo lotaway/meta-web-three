@@ -1,14 +1,9 @@
-import {obj2FormData} from "../utils/decorator";
+import Decorator, {obj2FormData} from "../utils/decorator"
+import * as IFBase from "./IFBase"
 
-interface UploadFileArgs {
-    method?: string
-    headers?: {
-        [key: string]: string
-    }
-}
-
+@Decorator.implementsWithStatic<IFBase.IFBaseServiceWithStatic>()
 export default class BaseService {
-    static uploadFile(apiUrl: string, file: File, options: UploadFileArgs) {
+    static uploadFile(apiUrl: string, file: File, options: IFBase.UploadFileArgs) {
         const formData = new FormData()
         formData.append("file", file)
         let headers = options.headers || {}

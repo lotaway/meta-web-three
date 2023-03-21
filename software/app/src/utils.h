@@ -278,4 +278,16 @@ namespace utils {
 	bool isPalindrome(int);
 
 	void initListNumberAdd();
+
+	int lengthOfLongestSubstring(std::string);
+
+	void testQuickSort();
+
+	double findMedianSortedArrays(std::vector<int>&, std::vector<int>&);
+
+	void initFindMedianSortedArrays();
+
+	void initCountMoney();
+
+	std::string longestPalindrome(std::string);
 }

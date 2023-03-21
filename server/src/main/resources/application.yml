@@ -1,0 +1,22 @@
+---
+server:
+  port: 10083
+spring:
+  config:
+    activate:
+      on-profile: dev
+name: "meta-web-three"
+author:
+  name: "Way Luk"
+  email: "lotaway@foxmail.com"
+---
+server:
+  port: 10083
+spring:
+  config:
+    activate:
+      on-profile: pro
+---
+spring:
+  profiles:
+    active: dev

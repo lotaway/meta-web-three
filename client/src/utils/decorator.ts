@@ -190,4 +190,52 @@ export default class Decorator {
             }
         }
     }
+
+    static implementsWithStatic<ConstructorType>() {
+        return (constructor: ConstructorType) => {
+        }
+    }
+
+    static IntIterator(startValue: number, length: number) {
+        const int = {
+            startValue,
+            length,
+            index: startValue,
+            setIndex(index: number) {
+                this.index = index
+            },
+            begin() {
+                return this.startValue
+            },
+            end() {
+                return this.length
+            },
+            toInt() {
+                return this.index
+            },
+            toString() {
+                return this.index.toString()
+            },
+            [Symbol.iterator]() {
+                return {
+                    next: (data: any) => {
+                        this.index++
+                        return {
+                            value: this.index,
+                            done: this.index >= this.length
+                        }
+                    },
+                    return: () => {
+                        this.index = this.startValue
+                        return {
+                            done: true,
+                            value: undefined
+                        }
+                    }
+                }
+            }
+        }
+        Object.freeze(int)
+        return int
+    }
 }

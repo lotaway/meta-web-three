@@ -237,8 +237,9 @@ namespace utils {
 		//	不建议使用：获取整型数组长度（没有可以直接获取长度的属性或方法，sizeof获取的是字节长度）
 		//int arrSize = sizeof(iarr) / sizeof(int);
 		for (int i = 0;i < arrSize;i++) {
-			iarr[i] = 0;
+			iarr[i] = i;
 		}
+		std::cout << *iarr << std::endl;
 		//	因为在堆上分配了内存，使用完需要删除
 		delete[] iarr;
 		//	新式数组
@@ -1234,6 +1235,7 @@ namespace utils {
 		ListNode(int x) : val(x), next(nullptr) {}
 		ListNode(int x, ListNode* next) : val(x), next(next) {}
 	};
+
 	ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
 		int up = 0;
 		int sum = l1->val + l2->val + up;
@@ -1250,6 +1252,7 @@ namespace utils {
 		}
 		return ln;
 	}
+
 	template<size_t size>
 	ListNode* createListNodeWithArray(int i_arr[size]) {
 		ListNode* ln = new ListNode{ i_arr[0] };
@@ -1260,6 +1263,7 @@ namespace utils {
 		}
 		return ln;
 	}
+
 	void initListNumberAdd() {
 		int i1[1]{ 9 };
 		int i2[10]{ 1,9,9,9,9,9,9,9,9,9 };
@@ -1267,5 +1271,233 @@ namespace utils {
 		ListNode* l2 = createListNodeWithArray<10>(i2);
 		ListNode* ln = addTwoNumbers(l1, l2);
 		std::cout << ln << std::endl;
+	}
+
+	size_t max(size_t a, size_t b) {
+		return a > b ? a : b;
+	}
+
+	//	获取字符串里梅没有重复字符的子字符串长度，如abcacd中，abc是最长的无重复字符的子字符串，长度为3
+	int lengthOfLongestSubstring(std::string s) {
+		size_t size = s.size();
+		size_t longestCount = 0;
+		int startIndex = 0;
+		std::unordered_map<char, int> char2LastIndex;
+		for (size_t i = startIndex; i < size; i++) {
+			char c = s[i];
+			auto charLastIndex = char2LastIndex.find(c);
+			bool isLast = i == size - 1;
+			bool hasRepeat = charLastIndex != char2LastIndex.end() && charLastIndex->second >= startIndex;
+			//  if already have a repeat char inside the child string, just count get the longest count and reset the child start index
+			if (isLast || hasRepeat) {
+				longestCount = max(i - startIndex + (hasRepeat ? 0 : 1), longestCount);
+				if (isLast)
+					break;
+				startIndex = charLastIndex->second + 1;
+				if (size - startIndex <= longestCount)
+					break;
+			}
+			char2LastIndex[c] = i;
+		}
+		return longestCount;
+	}
+
+	void quickSort(int arr[], int start, int end) {
+		if (start >= end) return;
+		int keyVal = arr[start];
+		int _start = start;
+		int _end = end;
+		while (_start < _end) {
+			while (_start < _end) {
+				if (arr[_end] < keyVal) {
+					break;
+				}
+				_end--;
+			}
+			while (_start < _end) {
+				if (arr[_start] > keyVal) {
+					int temp = arr[_start];
+					arr[_start] = arr[_end];
+					arr[_end] = temp;
+					break;
+				}
+				_start++;
+			}
+		}
+		if (_start == _end)
+			arr[_start] = keyVal;
+		quickSort(arr, start, _start - 1);
+		quickSort(arr, _start + 1, end);
+	}
+
+	void testQuickSort() {
+		int arr[11] = { 5,6,3,2,7,8,9,1,4,0,0 };
+		quickSort(arr, 0, 10);
+		for (int x : arr) {
+			std::cout << x << " ";
+		}
+	}
+
+	double getMid(double prevNum, double nextNum, bool isQ = false) {
+		if (isQ)
+			return nextNum;
+		return (prevNum + nextNum) / 2.0f;
+	}
+
+	double findMedianSortedArrays(std::vector<int>& nums1, std::vector<int>& nums2) {
+		int sumSize = nums1.size() + nums2.size(), neededSize = sumSize / 2 + 1, isQ = sumSize % 2 == 1, index = 0;
+		double mid = 0.0;
+		std::vector<int>::iterator ptr1 = nums1.begin(), ptr2 = nums2.begin();
+		while (true) {
+			if (ptr1 == nums1.end()) {
+				if (index == neededSize - 1) {
+					if (!isQ) {
+						mid = (mid + *ptr2) / 2.0f;
+					}
+					else {
+						mid = *ptr2;
+					}
+				}
+				else {
+					mid = getMid(*(ptr2 + neededSize - 2 - index), *(ptr2 + neededSize - 1 - index), isQ);
+				}
+				break;
+			}
+			if (ptr2 == nums2.end()) {
+				if (index == neededSize - 1) {
+					if (!isQ) {
+						mid = (mid + *ptr1) / 2.0f;
+					}
+					else {
+						mid = *ptr1;
+					}
+				}
+				else {
+					mid = getMid(*(ptr1 + neededSize - 2 - index), *(ptr1 + neededSize - 1 - index), isQ);
+				}
+				break;
+			}
+			if (*ptr1 < *ptr2) {
+				if (index == neededSize - 1) {
+					mid = getMid(mid, *ptr1, isQ);
+					break;
+				}
+				mid = *ptr1;
+				ptr1++;
+			}
+			else {
+				if (index == neededSize - 1) {
+					mid = getMid(mid, *ptr2, isQ);
+					break;
+				}
+				mid = *ptr2;
+				ptr2++;
+			}
+			index++;
+		}
+		return mid;
+	}
+
+	void initFindMedianSortedArrays() {
+		std::set<std::vector<int>*> uset;
+		std::vector<int> f1[]{ {1,2},{3,4} }, f2[]{ {1,3},{2} }, f3[]{ {}, { 1,2,3,4,5 } };
+		uset.insert(f1);
+		uset.insert(f2);
+		uset.insert(f3);
+		//std::vector<int> nums1{ 1, 2 }, nums2{ 3, 4 };
+		//std::vector<int> nums1{ 1,3 }, nums2{ 2 };
+		//std::vector<int> nums1, nums2 = { 1,2,3,4,5 };
+		//	output as fixed float 0.000000
+		std::cout.setf(std::ios_base::fixed, std::ios_base::floatfield);
+		for (std::vector<int>* it : uset) {
+			double mid = findMedianSortedArrays(it[0], it[1]);
+			for (int i = 0; i < it->size(); i++) {
+				std::cout << '{';
+				for (int integer : it[i]) {
+					std::cout << integer << ',';
+				}
+				std::cout << '}';
+			}
+			std::cout << ':' << mid << std::endl;
+		}
+		//std::cout.unsetf(std::ios::hex);
+	}
+
+	struct Money {
+		int m_type;
+		int m_value = 0;
+	};
+
+	Money* countMoney() {
+		int input;
+		const size_t size = 6;
+		//int types[]{ 100, 50, 20, 10, 5, 1 };
+		Money* moneys = new Money[size]{ {100,0},{50,0},{20,0},{10,0},{5,0},{1,0} };
+		//Money* moneys = new Money[size];
+		std::cout << "Please input your money:" << std::endl;
+		std::cin >> input;
+
+		for (int i = 0; i < size; i++) {
+			moneys[i].m_value = input / moneys[i].m_type;
+			//moneys[i] = { types[i] ,input / types[i] };
+			input %= moneys[i].m_type;
+		}
+		return moneys;
+	}
+
+	void initCountMoney() {
+		Money* moneys = countMoney();
+		for (int i = 0; i < 6; i++) {
+			Money m = moneys[i];
+			std::cout << m.m_type << "元的张数是：" << m.m_value << std::endl;
+		}
+	}
+
+	void testOutput() {
+		std::cout.setf(std::ios::hex, std::ios::basefield);
+		std::cout << 100 << " ";
+		std::cout.unsetf(std::ios::hex);
+		std::cout << 100 << " ";
+	}
+
+	// get the longest palindrome, input `abase`, return `aba`
+	std::string longestPalindrome(std::string s) {
+		std::string palindrome = "";
+		int targetIndex = 0;
+		int longest = 0;
+		for (int i = 0, l = s.size();i < l;i++) {
+			if ((l - i) * 2 - 1 <= longest) {
+				break;
+			}
+			int prevIndex = i, nextIndex = i;
+			bool isOdd = true, isEven = true;
+			while (isOdd || isEven) {
+				if (isOdd) {
+					if (prevIndex < 0 || nextIndex >= l || s[prevIndex] != s[nextIndex]) {
+						isOdd = false;
+						int length = nextIndex - prevIndex - 1;
+						if (length > longest) {
+							targetIndex = i;
+							longest = length;
+						}
+					}
+				}
+				if (isEven) {
+					int evenNextIndex = nextIndex + 1;
+					if (prevIndex < 0 || evenNextIndex >= l || s[prevIndex] != s[evenNextIndex]) {
+						isEven = false;
+						int length = evenNextIndex - prevIndex - 1;
+						if (length > longest) {
+							targetIndex = i;
+							longest = length;
+						}
+					}
+				}
+				prevIndex--;
+				nextIndex++;
+			}
+		}
+		palindrome = s.substr(targetIndex - longest / 2 + (longest % 2 == 0 ? 1 : 0), longest);
+		return palindrome;
 	}
 }

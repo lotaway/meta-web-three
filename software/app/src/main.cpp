@@ -30,6 +30,6 @@ namespace allocateMetrics {
 //}
 
 int main() {
-    logger::out("application.cpp runing");
-    utils::initListNumberAdd();
+    std::string s = utils::longestPalindrome("ababd");
+    std::cout << s << std::endl;
 }

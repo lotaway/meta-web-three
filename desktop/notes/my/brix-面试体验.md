@@ -110,28 +110,31 @@ function quoteCheck(parens) {
 
 ## 获取字符串中非重复字符长度（困难）
 
-获取字符串中无重复字符的子字符串的最长长度，如"abcabcdabcde"中最长无重复字符的是最后的"abcde"，因此需要返回长度5
+获取字符串里没有重复字符的子字符串长度，如abcacd中，abc是最长的无重复字符的子字符串，长度为3
 
-```javascript
-function lenOfSubstr(s) {
-    const charArray = s.split("")
-    let longestCount = 0
-    let collections = {}
-    for (let i = 0, l = charArray.length; i < l; i++) {
-        if (longestCount > l - i) {
-            break
+```bash
+int lengthOfLongestSubstring(std::string s) {
+    size_t size = s.size();
+    size_t longestCount = 0;
+    int startIndex = 0;
+    std::unordered_map<char, int> char2LastIndex;
+    for (size_t i = startIndex; i < size; i++) {
+        char c = s[i];
+        auto charLastIndex = char2LastIndex.find(c);
+        bool isLast = i == size - 1;
+        bool hasRepeat = charLastIndex != char2LastIndex.end() && charLastIndex->second >= startIndex;
+        //  if already have a repeat char inside the child string, just count get the longest count and reset the child start index
+        if (isLast || hasRepeat) {
+            longestCount = max(i - startIndex + (hasRepeat ? 0 : 1), longestCount);
+            if (isLast)
+                break;
+            startIndex = charLastIndex->second + 1;
+            if (size - startIndex <= longestCount)
+                break;
         }
-        collections[charArray[i]] = true
-        for (let j = i + 1; j < l; j++) {
-            if (collections[charArray[j]]) {
-                collections = {}
-                longestCount = Math.max(longestCount, j - i + 1)
-                break
-            }
-            collections[charArray[j]] = true
-        }
+        char2LastIndex[c] = i;
     }
-    return longestCount
+    return longestCount;
 }
 ```
 
