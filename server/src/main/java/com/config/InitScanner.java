@@ -1,11 +1,14 @@
 package com.config;
 
 import com.google.gson.Gson;
+import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 
 @FunctionalInterface
@@ -369,30 +372,6 @@ public class InitScanner extends ConfigScannerAdapter {
         return fileList;
     }
 
-    public String getErrorLog(File file) throws IOException {
-        StringBuilder sb = new StringBuilder();
-//        FileInputStream fileInputStream = new FileInputStream(file);
-//        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream, StandardCharsets.UTF_8));
-        FileReader fileReader = new FileReader(file, StandardCharsets.UTF_8);
-        BufferedReader bufferedReader = new BufferedReader(fileReader);
-        try (fileReader; bufferedReader;) {
-            //  自定义缓冲区的文件字节流和自动缓冲区加行读取的字符流最快，一个字节一个字节读取的方式非常慢，相差接近十倍
-            /*int length;
-            byte[] data = new byte[1042 * 1024 * 5];
-            while ((length = fileInputStream.read(data)) != -1) {
-                sb.append(new String(data), sb.length(), length);
-            }*/
-            String lineText;
-            while ((lineText = bufferedReader.readLine()) != null) {
-                sb.append(lineText);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        bufferedReader.close();
-        return sb.toString();
-    }
-
     public static boolean copyDir(File sourceDir, File destDir) throws IOException {
         boolean result = true;
         File[] files = sourceDir.listFiles();
@@ -414,6 +393,15 @@ public class InitScanner extends ConfigScannerAdapter {
                     result = copyDir(file, new File(destDir, file.getName()));
                 }
             }
+        return result;
+    }
+
+    //  using common.io library
+    public static boolean testCopyFile(String source, String dest) throws IOException {
+        boolean result = true;
+        File sFile = new File(source);
+        File dFile = new File(dest);
+        FileUtils.copyFile(sFile, dFile);
         return result;
     }
 
@@ -454,5 +442,61 @@ public class InitScanner extends ConfigScannerAdapter {
                     size += getDirSize(file);
             }
         return size;
+    }
+
+    public static boolean errorOutputToFile(String message) throws IOException {
+        boolean result = true;
+        PrintStream ps = new PrintStream(new FileOutputStream("error\\error.log"));
+        ps.write(message.getBytes());
+        ps.close();
+        return result;
+    }
+
+    public static String getErrorLog(String filePath) throws IOException {
+        return getErrorLog(new File(filePath));
+    }
+
+    public static String getErrorLog(File file) throws IOException {
+        StringBuilder sb = new StringBuilder();
+//        FileInputStream fileInputStream = new FileInputStream(file);
+//        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream, StandardCharsets.UTF_8));
+        FileReader fileReader = new FileReader(file, StandardCharsets.UTF_8);
+        BufferedReader bufferedReader = new BufferedReader(fileReader);
+        try (bufferedReader;) {
+            //  自定义缓冲区的文件字节流和自动缓冲区加行读取的字符流最快，一个字节一个字节读取的方式非常慢，相差接近十倍
+            /*int length;
+            byte[] data = new byte[1042 * 1024 * 5];
+            while ((length = fileInputStream.read(data)) != -1) {
+                sb.append(new String(data), sb.length(), length);
+            }*/
+            String lineText;
+            while ((lineText = bufferedReader.readLine()) != null) {
+                sb.append(lineText);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        bufferedReader.close();
+        return sb.toString();
+    }
+
+    public static void toZip(File sourceDir, ZipOutputStream zos, String name) throws IOException {
+        File[] files = sourceDir.listFiles();
+        if (files != null)
+            for (File file : files) {
+                if (file.isFile()) {
+                    ZipEntry ze = new ZipEntry(new File(name, file.getName()).getPath());
+                    zos.putNextEntry(ze);
+                    FileInputStream fis = new FileInputStream(file);
+                    int b;
+                    while ((b = fis.read()) != -1) {
+                        zos.write(b);
+                    }
+                    fis.close();
+                    zos.closeEntry();
+                } else {
+                    toZip(file, zos, new File(name, file.getName()).toString());
+                }
+            }
     }
 }

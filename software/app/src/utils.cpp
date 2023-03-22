@@ -1500,4 +1500,27 @@ namespace utils {
 		palindrome = s.substr(targetIndex - longest / 2 + (longest % 2 == 0 ? 1 : 0), longest);
 		return palindrome;
 	}
+
+	int bestTeamScore(std::vector<int>& scores, std::vector<int>& ages) {
+		int sum = 0;
+		int size = scores.size();
+		std::vector<std::pair<int, int>> interview(size);
+		std::vector<int> dp(size, 0);
+		for (int i = 0; i < size; i++) {
+			interview[i] = { scores[i], ages[i]};
+		}
+		std::sort(interview.begin(), interview.end());
+		for (int i = 0; i < size; i++) {
+			int j = i - 1;
+			while (j > 0) {
+				if (interview[i].second <= interview[j].second) {
+					dp[i] = max(dp[i], dp[j]);
+				}
+				j--;
+			}
+			dp[i] += interview[i].first;
+			sum = max(sum, dp[i]);
+		}
+		return sum;
+	}
 }

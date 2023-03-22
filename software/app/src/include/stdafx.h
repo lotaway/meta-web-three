@@ -10,7 +10,7 @@
 #include <vector>
 //	std::function所需，用于定义回调和引用函数
 #include <functional>
-//	std::sort数组排序需要
+//	std::sort数组排序和std::max获取最大值需要
 #include <algorithm>
 //	make_tuple需要
 #include <tuple>

@@ -8,8 +8,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.config.InitScanner;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @RestController
-public class ShowInfo {
+public class ShowInfo implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
     @Value("${name}")
     private String name;
 
@@ -40,5 +46,11 @@ public class ShowInfo {
     @RequestMapping(path = "/showConfig", method = RequestMethod.GET)
     public String showConfig() {
         return "showConfig";
+    }
+
+    @RequestMapping("/showError")
+    public String showError() throws Exception {
+        boolean result = InitScanner.errorOutputToFile("Nothing error");
+        return InitScanner.getErrorLog("error/error.log");
     }
 }

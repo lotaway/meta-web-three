@@ -4,7 +4,7 @@ let desktopProcess = null
 
 function startClientDev() {
     clientProcess = exec("npm run dev", {
-        cwd: "./client"
+        cwd: "../client"
     }, err => {
         if (err) throw err
     })
@@ -15,7 +15,7 @@ function startClientDev() {
 
 function startDesktopDev() {
     desktopProcess = exec("npm run dev", {
-        cwd: "./desktop"
+        cwd: "../desktop"
     }, err => {
         if (err) throw err
     })
@@ -25,7 +25,7 @@ function startDesktopDev() {
 }
 
 const gatewayProcess = exec("npm run start:dev", {
-    cwd: "./gateway"
+    cwd: "../gateway"
 }, err => {
     if (err) throw err
 })
