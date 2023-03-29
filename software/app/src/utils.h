@@ -290,4 +290,6 @@ namespace utils {
 	void initCountMoney();
 
 	std::string longestPalindrome(std::string);
+
+	std::string convert(std::string, int);
 }

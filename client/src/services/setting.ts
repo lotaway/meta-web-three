@@ -270,12 +270,12 @@ namespace NSSetting {
             }
         }
 
-        @Decorator.setUrlWithHost(host.userService, [[["Url"]]])
+        @Decorator.AddHost(host.userService, [[["Url"]]])
         static getUserMenu(apiData: UserMenuResponse) {
             return apiData.ArrayOfMenuInfo.MenuInfo as GetUserMenuData
         }
 
-        @Decorator.setUrlWithHost(host.userService, [[["link_url", "icon"]]])
+        @Decorator.AddHost(host.userService, [[["link_url", "icon"]]])
         static getFastEntry(res: FastEntryResponse) {
             return res.navigation.child_navigation.filter(item => item.is_enable === "True").sort((prev, item) => prev.sort - item.sort).map(item => {
                 switch (item.linkType) {
@@ -320,7 +320,7 @@ namespace NSSetting {
             return adapterData
         }
 
-        @Decorator.setUrlWithHost(host.userService, [["backgroundImage", ["background", ['icon']]]])
+        @Decorator.AddHost(host.userService, [["backgroundImage", ["background", ['icon']]]])
         static getAppConfig(responseData: GetAppConfigResponse): GetAppConfigResponse {
             if (responseData.status === 1000) {
                 responseData.userMenu.displayType = responseData.userMenu.displayType || ""
@@ -338,7 +338,7 @@ namespace NSSetting {
             return _data
         }
 
-        @Decorator.setUrlWithHost(host.goodsService, [["noticeurl"]])
+        @Decorator.AddHost(host.goodsService, [["noticeurl"]])
         static getSitePublicConfig(res: SiteConfigResponse): GetSitePublicConfigData {
             let _data = res.Siteconfig as Partial<GetSitePublicConfigData>
             const mobiMokorCodeMatches = (_data.mobi_mokor_code || "").match(/src="([^"]+)/g),
@@ -369,14 +369,14 @@ namespace NSSetting {
         }
 
         //  获取选项卡数据
-        @Decorator.useAdapter(Adapter.getTabBar)
+        @Decorator.UseAdapter(Adapter.getTabBar)
         async getTabBar() {
             return await this.getAppConfig().then(appSetting => appSetting.status === 1000 ? Promise.resolve(appSetting.tab || {list: []}) : Promise.resolve({list: []}))
         }
 
         // 通过模板名称获取会员菜单
-        @Decorator.useAdapter(Adapter.getUserMenu)
-        @Decorator.useCache()
+        @Decorator.UseAdapter(Adapter.getUserMenu)
+        @Decorator.UseCache()
         async getUserMenu(args: { templateName: string }): Promise<ReturnType<typeof Adapter.getUserMenu>> {
             const finalApiUrl = API_URL.getUserMenu.replace(`{${templateFolderPlaceHolder}`, args.templateName)
             return await Service.request(finalApiUrl, {}, {
@@ -389,7 +389,7 @@ namespace NSSetting {
          * @param args {object} 参数
          * @return {Promise} 是否成功
          */
-        @Decorator.useAdapter(Adapter.getFastEntry)
+        @Decorator.UseAdapter(Adapter.getFastEntry)
         async getHomeMenu(args: { templateName: string }): Promise<FastEntryData> {
             const finalApiUrl = API_URL.getHomeMenu.replace(`{${templateFolderPlaceHolder}}`, args.templateName)
             return await Service.request(finalApiUrl, {}, {method: "GET", dataType: "XML"})
@@ -400,7 +400,7 @@ namespace NSSetting {
          * @param args {object} 参数
          * @return {Promise} 是否成功
          */
-        @Decorator.useAdapter(Adapter.getTemplateConfig)
+        @Decorator.UseAdapter(Adapter.getTemplateConfig)
         async getTemplateConfig(args: { templateName: string }) {
             const finalApiUrl = API_URL.getTemplateConfig.replace(`{${templateFolderPlaceHolder}`, args.templateName)
             return await Service.request(finalApiUrl, {}, {method: "GET", dataType: "XML"})
@@ -410,8 +410,8 @@ namespace NSSetting {
          * 获取应用设置
          * @return {Promise} 是否成功
          */
-        @Decorator.useCache()
-        @Decorator.useAdapter(Adapter.getAppConfig)
+        @Decorator.UseCache()
+        @Decorator.UseAdapter(Adapter.getAppConfig)
         async getAppConfig(): Promise<GetAppConfigResponse> {
             return await Service.request(API_URL.getAppConfig, {}, {method: "GET", dataType: "XML"})
         }
@@ -428,8 +428,8 @@ namespace NSSetting {
          * 获取功能设置
          * @return {Promise} 是否成功
          */
-        @Decorator.useCache()
-        @Decorator.useAdapter(Adapter.getFunctionConfig)
+        @Decorator.UseCache()
+        @Decorator.UseAdapter(Adapter.getFunctionConfig)
         async getFunctionConfig(): Promise<{
             [functionId: number]: boolean
         }> {
@@ -440,8 +440,8 @@ namespace NSSetting {
          * 获取站点配置
          * @return {Promise} 是否成功
          */
-        @Decorator.useCache()
-        @Decorator.useAdapter(Adapter.getSitePublicConfig)
+        @Decorator.UseCache()
+        @Decorator.UseAdapter(Adapter.getSitePublicConfig)
         async getSitePublicConfig(): Promise<GetSitePublicConfigData> {
             return await Service.request(API_URL.getSitePublicConfig, {}, {method: "GET", dataType: "XML"})
         }

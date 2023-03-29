@@ -7,7 +7,7 @@
 //	静态库，需要打包到exe文件中，效率更好，但单文件更大
 //	动态库，一般是放置到exe文件旁边
 //	引入依赖库
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h>
 //	引入解决方案中的其他项目
 // emsdk无法识别，只能使用引号加相对路径"../../engine/src/engine.h"，除了cpp和标准库以外的文件都没有被编译进去wasm
 #include <engine.h>
@@ -21,8 +21,8 @@ extern int g_variable;	//	将从外部所有文件里找到这个全局值，目前定义在log.cpp里
 namespace utils {
 	//	来源于静态库或动态库的方法
 	void useLibrary() {
-		int a = glfwInit();
-		std::cout << a << std::endl;
+		//int a = glfwInit();
+		//std::cout << a << std::endl;
 		engine::printMessage();
 	}
 
@@ -1347,7 +1347,7 @@ namespace utils {
 	double findMedianSortedArrays(std::vector<int>& nums1, std::vector<int>& nums2) {
 		int sumSize = nums1.size() + nums2.size(), neededSize = sumSize / 2 + 1, isQ = sumSize % 2 == 1, index = 0;
 		double mid = 0.0;
-		std::vector<int>::iterator ptr1 = nums1.begin(), ptr2 = nums2.begin();
+		std::vector<int>::const_iterator ptr1 = nums1.begin(), ptr2 = nums2.begin();
 		while (true) {
 			if (ptr1 == nums1.end()) {
 				if (index == neededSize - 1) {
@@ -1501,6 +1501,7 @@ namespace utils {
 		return palindrome;
 	}
 
+	//	try get the best team with highest score sum, the only rule is not allow a younger teamate have a higher score than the older one.
 	int bestTeamScore(std::vector<int>& scores, std::vector<int>& ages) {
 		int sum = 0;
 		int size = scores.size();
@@ -1512,7 +1513,7 @@ namespace utils {
 		std::sort(interview.begin(), interview.end());
 		for (int i = 0; i < size; i++) {
 			int j = i - 1;
-			while (j > 0) {
+			while (j >= 0) {
 				if (interview[i].second <= interview[j].second) {
 					dp[i] = max(dp[i], dp[j]);
 				}
@@ -1522,5 +1523,52 @@ namespace utils {
 			sum = max(sum, dp[i]);
 		}
 		return sum;
+	}
+
+/*
+0        8          16
+1     7  9       15 17
+2   6   10    14    18
+3 5     11 13       19
+4       12          20
+
+0   4    8	  12
+1 3 5 7  9 11 13
+2   6   10
+=>
+0	 1	  2	   3
+4 5  6 7  8 9 10
+11  12	 13
+
+P     I     N
+A   L S   I G
+Y A   H R   
+P     I
+
+*/
+	std::string convert(std::string s, int numRows) {
+		int size = s.size();
+		if (numRows == 1 || numRows >= size || size <= 2)
+			return s;
+		int loopSize = (numRows - 1) * 2;
+		int c = (size + loopSize - 1) / loopSize * (numRows - 1);
+		std::vector<std::string> mat(numRows, std::string(c, 0));
+		for (int i = 0, x = 0, y = 0; i < size; ++i) {
+			mat[x][y] = s[i];
+			if (i % loopSize < numRows - 1)
+				++x;
+			else {
+				--x;
+				++y;
+			}
+		}
+		std::string result;
+		for (std::string& row : mat) {
+			for (char c : row) {
+				if (c)
+					result += c;
+			}
+		}
+		return result;
 	}
 }

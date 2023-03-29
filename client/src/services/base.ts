@@ -1,7 +1,7 @@
 import Decorator, {obj2FormData} from "../utils/decorator"
 import * as IFBase from "./IFBase"
 
-@Decorator.implementsWithStatic<IFBase.IFBaseServiceWithStatic>()
+@Decorator.ImplementsWithStatic<IFBase.IFBaseServiceWithStatic>()
 export default class BaseService {
     static uploadFile(apiUrl: string, file: File, options: IFBase.UploadFileArgs) {
         const formData = new FormData()

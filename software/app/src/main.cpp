@@ -30,6 +30,9 @@ namespace allocateMetrics {
 //}
 
 int main() {
-    std::string s = utils::longestPalindrome("ababd");
-    std::cout << s << std::endl;
+    short a[2] = { 1, 0 };
+    short b = 1;
+    int d = 1;
+    int p = *(int*)&a;
+    std::cout << p << '\0';
 }

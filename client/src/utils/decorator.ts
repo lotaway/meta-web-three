@@ -112,10 +112,63 @@ function saveData(storeName: string, data: StoreValue["data"]): Promise<any> {
     return Promise.resolve();
 }
 
+export enum ElementType {
+    TYPE,
+    FIELD,
+    METHOD,
+    PARAMETER,
+    CONSTRUCTOR,
+    LOCAL_VARIABLE,
+    ANNOTATION_TYPE,
+    PACKAGE,
+    TYPE_PARAMETER,
+    TYPE_USE,
+    MODULE,
+    RECORD_COMPONENT
+}
+
+function Target(value: ElementType): MethodDecorator {
+    return (target, propName, descriptor: PropertyDescriptor) => {
+
+    }
+}
+
+function Documented(target: Object, propName: string, descriptor: PropertyDescriptor) {
+
+}
+
+enum RetentionPolicy {
+    SOURCE,
+    CLASS,
+    RUNTIME
+}
+
+function Retention(value: RetentionPolicy = RetentionPolicy.CLASS): MethodDecorator {
+    return (target, propName, descriptor: PropertyDescriptor) => {
+
+    }
+}
+
 export default class Decorator {
 
+    @Target(ElementType.METHOD)
+    @Retention()
+    @Documented
+    static Override(target: Object, propName: string, descriptor: PropertyDescriptor) {
+        let Class: Object | null
+        try {
+            Class = Reflect.getPrototypeOf(target)
+        } catch (err) {
+            throw new TypeError("override must be set in a class method")
+        }
+        if (Class && (Class as Function).name)
+            throw new TypeError("override must be set in a class method which have a super class")
+        if ((Class as Function).prototype.hasOwnProperty(propName))
+            throw new TypeError("override must be set in a class method with already exist in super class")
+    }
+
     //  参数默认值装饰器
-    static setDefaultArgs<T extends any[]>(...defaultArgs: T): MethodDecorator {
+    static DefaultArgs<T extends any[]>(...defaultArgs: T): MethodDecorator {
         return (target, propName, descriptor: PropertyDescriptor) => {
             const originMethod = descriptor.value
             descriptor.value = function (...realArgs: any[]) {
@@ -137,7 +190,7 @@ export default class Decorator {
      * 适配装饰器
      * @param adapter {function} 适配器
      */
-    static useAdapter<ReturnType extends any>(adapter: (result2: any) => ReturnType): MethodDecorator {
+    static UseAdapter<ReturnType extends any>(adapter: (result2: any) => ReturnType): MethodDecorator {
         return (target, propName, descriptor: PropertyDescriptor) => {
             const originMethod = descriptor.value
             descriptor.value = function (...args: any[]) {
@@ -150,7 +203,7 @@ export default class Decorator {
         }
     }
 
-    static setUrlWithHost(_host: string = host.mainServer, attrs: AttrArray | string | unknown = undefined, adapter = convertDataUrl): MethodDecorator {
+    static AddHost(_host: string = host.mainServer, attrs: AttrArray | string | unknown = undefined, adapter = convertDataUrl): MethodDecorator {
         return (target, propName, descriptor: PropertyDescriptor) => {
             const originMethod = descriptor.value
             descriptor.value = function (...args: any[]) {
@@ -168,7 +221,7 @@ export default class Decorator {
      * @param storeName {string} 存储名称（默认使用类名+方法名）
      * @param saveTime {number} 存储有效期，毫秒为单位
      */
-    static useCache(storeName?: string, saveTime = initConfig.cacheValidityTime) {
+    static UseCache(storeName?: string, saveTime = initConfig.cacheValidityTime) {
         return function (target: any, propName: string, descriptor: PropertyDescriptor) {
             const method = descriptor.value
             descriptor.value = function (...params: any[]) {
@@ -181,7 +234,7 @@ export default class Decorator {
         }
     }
 
-    static sign(apiUrl: string, adapter = getApiSign): MethodDecorator {
+    static Sign(apiUrl: string, adapter = getApiSign): MethodDecorator {
         return (target, propName, descriptor: PropertyDescriptor) => {
             const originMethod = descriptor.value
             descriptor.value = function (...[firstArg, otherArgs]: any[]) {
@@ -191,7 +244,7 @@ export default class Decorator {
         }
     }
 
-    static implementsWithStatic<ConstructorType>() {
+    static ImplementsWithStatic<ConstructorType>() {
         return (constructor: ConstructorType) => {
         }
     }
@@ -237,5 +290,17 @@ export default class Decorator {
         }
         Object.freeze(int)
         return int
+    }
+
+    _testOverride() {
+
+    }
+}
+
+
+class TestDecorator extends Decorator {
+    @Decorator.Override
+    testOverride() {
+
     }
 }

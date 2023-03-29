@@ -55,7 +55,7 @@ export namespace NSAdvertisement {
 
     export class Adapter {
 
-        @Decorator.setUrlWithHost(host.goodsService)
+        @Decorator.AddHost(host.goodsService)
         static getCategoryAd(res: CategoryAdResponse) {
             if (res) {
                 res.url = res.link
@@ -64,17 +64,17 @@ export namespace NSAdvertisement {
             return res
         }
 
-        @Decorator.setUrlWithHost(host.goodsService)
+        @Decorator.AddHost(host.goodsService)
         static getPublicAd(res: GetPublicAdsResponse) {
             return res
         }
 
-        @Decorator.setUrlWithHost(host.goodsService, ["src"])
+        @Decorator.AddHost(host.goodsService, ["src"])
         static getAppHomeBanner(res: GetPublicAdsResponse) {
             return res
         }
 
-        @Decorator.setUrlWithHost(host.goodsService, [["ad", '@src']])
+        @Decorator.AddHost(host.goodsService, [["ad", '@src']])
         static getAppStartAd(res: GetAppStartAdResponse) {
             return res
         }
@@ -94,14 +94,14 @@ export namespace NSAdvertisement {
          * @param {Object} args 参数
          * @return {Promise} 是否成功
          */
-        @Decorator.setDefaultArgs<[CategoryAdArgs]>({
+        @Decorator.DefaultArgs<[CategoryAdArgs]>({
             categoryIdentity: "",
             duoge: 0,
             location: "",
             pageName: ""
         })
-        @Decorator.sign(API_URL.getCategoryAd)
-        @Decorator.useAdapter(Adapter.getCategoryAd)
+        @Decorator.Sign(API_URL.getCategoryAd)
+        @Decorator.UseAdapter(Adapter.getCategoryAd)
         async getCategoryAd(args: CategoryAdArgs) {
             return await Service.request<CategoryAdResponse>(API_URL.getCategoryAd, args)
         }
@@ -112,13 +112,13 @@ export namespace NSAdvertisement {
          * @param {string=} apiUrl 接口路径
          * @return {Promise} 是否成功
          */
-        @Decorator.setDefaultArgs<[GetPublicAdArgs]>({
+        @Decorator.DefaultArgs<[GetPublicAdArgs]>({
             isMutiple: 0,
             location: "",
             name: ""
         })
-        @Decorator.sign(API_URL.getPublicAd)
-        @Decorator.useAdapter(Adapter.getPublicAd)
+        @Decorator.Sign(API_URL.getPublicAd)
+        @Decorator.UseAdapter(Adapter.getPublicAd)
         async getPublicAd<T = GetPublicAdsResponse | GetPublicAdResponse>(args: GetPublicAdArgs, apiUrl = API_URL.getPublicAd) {
             return await Service.request<T>(apiUrl, args)
         }
@@ -136,13 +136,13 @@ export namespace NSAdvertisement {
          * @param {object} args 参数
          * @return {Promise} 是否成功
          */
-        @Decorator.setDefaultArgs({
+        @Decorator.DefaultArgs({
             num: initConfig.SLIDER_IMG_NUM,
             page: 1,
             type: "top"
         })
-        @Decorator.sign(API_URL.getAppHomeBanner)
-        @Decorator.useAdapter(Adapter.getAppHomeBanner)
+        @Decorator.Sign(API_URL.getAppHomeBanner)
+        @Decorator.UseAdapter(Adapter.getAppHomeBanner)
         async getAppHomeBanner(args: GetAppHomeBannerArgs = {}) {
             return await Service.request<GetPublicAdsResponse>(API_URL.getAppHomeBanner, args)
         }
@@ -153,12 +153,12 @@ export namespace NSAdvertisement {
          * @param params 更多参数
          * @return {Promise} 是否成功
          */
-        @Decorator.setDefaultArgs({
+        @Decorator.DefaultArgs({
             type: "home",
             num: 1
         })
-        @Decorator.sign(API_URL.getAppStartAd)
-        @Decorator.useAdapter(Adapter.getAppStartAd)
+        @Decorator.Sign(API_URL.getAppStartAd)
+        @Decorator.UseAdapter(Adapter.getAppStartAd)
         async getAppStartAd(args: GetAppStartAdParam = {}, ...params: any) {
             return await Service.request<GetAppStartAdResponse>(API_URL.getAppStartAd, args)
         }

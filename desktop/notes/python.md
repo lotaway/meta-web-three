@@ -13,14 +13,20 @@ c = True
 ## 数据类型
 
 Python中常见的数据类型有整型、浮点型、字符串、布尔型、列表、元组、字典等。
-
+类型会根据初始值自动推断而无须手动声明，反之若是没有初始值则需要手动声明。
 ```python
 a = 1  # 整型
+_a: int = 1 # 以上等同
 b = 1.0  # 浮点型
+_b: float = 1.0 # 以上等同
 c = "hello"  # 字符串
+_c: str = "hello" # 以上等同
 d = True  # 布尔型
+_d: bool = True # 以上等同
 e = [1, 2, 3]  # 列表
+_e: [int] = [1, 2, 3] # 以上等同
 f = (1, 2, 3)  # 元组
+_f: tuple[int, ...] = (1, 2, 3)
 g = {"name": "Tom", "age": 18}  # 字典
 ```
 
@@ -60,9 +66,11 @@ for i in range(10):
     print(i)
 
 # while
+condition=True
 while condition:
     # do something
 # 函数
+```
 
 Python中可以使用def关键字定义函数，函数可以接受参数，也可以返回值。
 
@@ -128,3 +136,4 @@ from datetime import datetime
 
 now = datetime.now()
 print(now)
+```

@@ -21,11 +21,13 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="gson-2.10.1" level="project" />
+    <orderEntry type="library" name="commons-io-2.11.0" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-web:3.0.4" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter:3.0.4" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot:3.0.4" level="project" />
@@ -57,6 +59,14 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-aop:6.0.6" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-context:6.0.6" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-expression:6.0.6" level="project" />
+    <orderEntry type="library" name="Maven: org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.1" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-jdbc:3.0.4" level="project" />
+    <orderEntry type="library" name="Maven: com.zaxxer:HikariCP:5.0.1" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-jdbc:6.0.6" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-tx:6.0.6" level="project" />
+    <orderEntry type="library" name="Maven: org.mybatis.spring.boot:mybatis-spring-boot-autoconfigure:3.0.1" level="project" />
+    <orderEntry type="library" name="Maven: org.mybatis:mybatis:3.5.11" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.mysql:mysql-connector-j:8.0.32" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.springframework.boot:spring-boot-starter-test:3.0.4" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.springframework.boot:spring-boot-test:3.0.4" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.springframework.boot:spring-boot-test-autoconfigure:3.0.4" level="project" />
@@ -89,7 +99,9 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.springframework:spring-test:6.0.6" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.xmlunit:xmlunit-core:2.9.1" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-configuration-processor:3.0.4" level="project" />
+    <orderEntry type="library" name="Maven: org.mybatis:mybatis-spring:3.0.1" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.projectlombok:lombok:1.18.26" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.9.1" level="project" />
-    <orderEntry type="library" name="commons-io-2.11.0" level="project" />
+    <orderEntry type="library" name="Maven: commons-io:commons-io:2.11.0" level="project" />
   </component>
 </module>

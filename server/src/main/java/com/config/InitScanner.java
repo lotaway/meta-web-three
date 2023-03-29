@@ -4,9 +4,13 @@ import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Stream;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -498,5 +502,43 @@ public class InitScanner extends ConfigScannerAdapter {
                     toZip(file, zos, new File(name, file.getName()).toString());
                 }
             }
+    }
+
+    public static Thread createExtractConfigThread() {
+        Thread ec = new ExtractConfigThread();
+        ec.start();
+        return ec;
+    }
+
+    public static Runnable createExtractConfigRunner() {
+        Runnable rn = new ExtractConfigRunner();
+        Thread thread = new Thread(rn);
+        thread.start();
+        return rn;
+    }
+
+    public static String createExtractConfig() throws ExecutionException, InterruptedException {
+        Callable<String> ca = new ExtractConfigCallable();
+        FutureTask<String> task = new FutureTask<>(ca);
+        Thread thread = new Thread(task);
+        thread.start();
+        return task.get();
+    }
+
+    public static void checkMeta() throws ClassNotFoundException, NoSuchMethodException {
+        Class<?> ExtractConfigThreadClass = Class.forName("com.config.ExtractConfigThread");
+        Class<?> ExtractConfigRunnerClass = ExtractConfigRunner.class;
+        Callable<String> ca = new ExtractConfigCallable();
+        Class<?> ExtractConfigCallableClass = ca.getClass();
+        Field[] fields = ExtractConfigThreadClass.getFields();
+        System.out.println(ExtractConfigThreadClass);
+        for (Field field : fields) {
+            System.out.println(field);
+        }
+        Method methodRun = ExtractConfigThreadClass.getDeclaredMethod("run");
+        //  若是使用了private修饰符则需要暴力反射将其变成可访问的public
+        methodRun.setAccessible(true);
+        System.out.println(ExtractConfigRunnerClass);
+        System.out.println(ExtractConfigCallableClass);
     }
 }
