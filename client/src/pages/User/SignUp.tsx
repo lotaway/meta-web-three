@@ -27,7 +27,7 @@ export default function SignUp() {
         const formData = new FormData()
         formData.set("username", usernameVal)
         formData.set("password", passwordVal)
-        fetch(`/signUp`, {
+        fetch(`/user/create`, {
             method: "POST",
             body: formData
         }).then(async response => {
@@ -53,7 +53,9 @@ export default function SignUp() {
                     <Input ref={repeatPwdRef} required/>
                 </li>
             </ul>
-            <button type="submit" className="py-3 px-4 bg bg-blue-500 font-bold white-500 rounded w-full" onClick={submitHandle}>Sign Up</button>
+            <button type="submit" className="py-3 px-4 bg bg-blue-500 font-bold white-500 rounded w-full"
+                    onClick={submitHandle}>Sign Up
+            </button>
         </form>
     )
 }

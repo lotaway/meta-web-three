@@ -281,6 +281,10 @@ namespace utils {
 
 	int lengthOfLongestSubstring(std::string);
 
+	std::string checkPassword(std::string);
+
+	void testCheckPassword();
+
 	void testQuickSort();
 
 	double findMedianSortedArrays(std::vector<int>&, std::vector<int>&);
@@ -292,4 +296,12 @@ namespace utils {
 	std::string longestPalindrome(std::string);
 
 	std::string convert(std::string, int);
+
+	int strongPasswordChecker(std::string);
+
+	void testStrongPasswordChecker();
+
+	std::string reverseParentheses(std::string);
+
+	void testReverseParentheses();
 }

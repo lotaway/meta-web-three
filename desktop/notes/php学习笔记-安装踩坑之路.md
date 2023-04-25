@@ -13,3 +13,11 @@ PHP是世界上最好的语言，Linux是世界上最好的系统。
 # 下载
 [Wordpress]()
 [Php下载](https://www.php.net/downloads.php)
+
+不知为何通过这种方式下载安装后并无法正常使用，虽然在命令行输入`php -version`能检测到php版本，但是缺少了php-rpm等很多东西，Nginx里配置的fastcgi没有可配置的服务路径。
+之后直接通过Linux自身的包管理下载：
+```bash
+apt intall php php-rpm
+```
+这种方式成功安装了php8.1，虽然与官网直接下载的php8.2.4版本不一致，但奇怪的是两者竟然能共存，只不过之后会有什么问题我也不清楚。
+目前的情况就是fastcgi配置的是php8.1里的rpm.sock，而命令行里查到的php是8.2.4，使用`echo $PATH`也没看到php配置的路径。

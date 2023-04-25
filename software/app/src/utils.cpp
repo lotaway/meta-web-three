@@ -1,25 +1,27 @@
-#pragma once
+ï»¿#pragma once
 #include "./include/stdafx.h"
-//	std::mutex »¥³âËø
+//	std::mutex äº’æ–¥é”
 #include <mutex>
-//	std::async Òì²½ÈÎÎñ
+//	std::async å¼‚æ­¥ä»»åŠ¡
 #include <future>
-//	¾²Ì¬¿â£¬ĞèÒª´ò°üµ½exeÎÄ¼şÖĞ£¬Ğ§ÂÊ¸üºÃ£¬µ«µ¥ÎÄ¼ş¸ü´ó
-//	¶¯Ì¬¿â£¬Ò»°ãÊÇ·ÅÖÃµ½exeÎÄ¼şÅÔ±ß
-//	ÒıÈëÒÀÀµ¿â
+//	stack æ ˆæ‰€éœ€è¦
+#include <stack>
+//	é™æ€åº“ï¼Œéœ€è¦æ‰“åŒ…åˆ°exeæ–‡ä»¶ä¸­ï¼Œæ•ˆç‡æ›´å¥½ï¼Œä½†å•æ–‡ä»¶æ›´å¤§
+//	åŠ¨æ€åº“ï¼Œä¸€èˆ¬æ˜¯æ”¾ç½®åˆ°exeæ–‡ä»¶æ—è¾¹
+//	å¼•å…¥ä¾èµ–åº“
 //#include <GLFW/glfw3.h>
-//	ÒıÈë½â¾ö·½°¸ÖĞµÄÆäËûÏîÄ¿
-// emsdkÎŞ·¨Ê¶±ğ£¬Ö»ÄÜÊ¹ÓÃÒıºÅ¼ÓÏà¶ÔÂ·¾¶"../../engine/src/engine.h"£¬³ıÁËcppºÍ±ê×¼¿âÒÔÍâµÄÎÄ¼ş¶¼Ã»ÓĞ±»±àÒë½øÈ¥wasm
+//	å¼•å…¥è§£å†³æ–¹æ¡ˆä¸­çš„å…¶ä»–é¡¹ç›®
+// emsdkæ— æ³•è¯†åˆ«ï¼Œåªèƒ½ä½¿ç”¨å¼•å·åŠ ç›¸å¯¹è·¯å¾„"../../engine/src/engine.h"ï¼Œé™¤äº†cppå’Œæ ‡å‡†åº“ä»¥å¤–çš„æ–‡ä»¶éƒ½æ²¡æœ‰è¢«ç¼–è¯‘è¿›å»wasm
 #include <engine.h>
 #include "logger.h"
 #include "utils.h"
 
 #define debugger(msg) std::cout << "main::debugger:" + msg << std::endl
 
-extern int g_variable;	//	½«´ÓÍâ²¿ËùÓĞÎÄ¼şÀïÕÒµ½Õâ¸öÈ«¾ÖÖµ£¬Ä¿Ç°¶¨ÒåÔÚlog.cppÀï
+extern int g_variable;	//	å°†ä»å¤–éƒ¨æ‰€æœ‰æ–‡ä»¶é‡Œæ‰¾åˆ°è¿™ä¸ªå…¨å±€å€¼ï¼Œç›®å‰å®šä¹‰åœ¨log.cppé‡Œ
 
 namespace utils {
-	//	À´Ô´ÓÚ¾²Ì¬¿â»ò¶¯Ì¬¿âµÄ·½·¨
+	//	æ¥æºäºé™æ€åº“æˆ–åŠ¨æ€åº“çš„æ–¹æ³•
 	void useLibrary() {
 		//int a = glfwInit();
 		//std::cout << a << std::endl;
@@ -30,7 +32,7 @@ namespace utils {
 		logger::out("hello world");
 		const char* name = "c++";
 		std::string s = "This's string";
-		//std::wstring s = "Õâ¾ÍÊÇ×Ö·û´®ÁË";
+		//std::wstring s = "è¿™å°±æ˜¯å­—ç¬¦ä¸²äº†";
 		logger::out("welcome", name);
 		int value = -1;
 		unsigned int uValue = 2;
@@ -54,28 +56,28 @@ namespace utils {
 
 		int var = 8;
 		void* ptr = &var;
-		//*ptr = 10;	//	´íÎó£¬voidÖ¸ÕëÎŞ·¨Ã÷°×10ÊÇÊ²Ã´ÀàĞÍÔò²»ÄÜĞ´Èë
+		//*ptr = 10;	//	é”™è¯¯ï¼ŒvoidæŒ‡é’ˆæ— æ³•æ˜ç™½10æ˜¯ä»€ä¹ˆç±»å‹åˆ™ä¸èƒ½å†™å…¥
 		int* ptr1 = &var;
-		*ptr1 = 10;	//	ÕıÈ·£¬intÖ¸ÕëÃ÷°×10Ó¦µ±ÊÇÕûĞÍÀàĞÍ£¬¿ÉÒÔĞ´Èë
+		*ptr1 = 10;	//	æ­£ç¡®ï¼ŒintæŒ‡é’ˆæ˜ç™½10åº”å½“æ˜¯æ•´å‹ç±»å‹ï¼Œå¯ä»¥å†™å…¥
 		double* ptr2 = (double*)&var;
 		//log((char*)&ptr2);
 		std::cin.get();
 
-		char* buffer = new char[8];	//	ÇëÇó8×Ö½ÚÄÚ´æ
-		memset(buffer, 0, 8);	//	ÓÃÊı¾İÌî³äÄÚ´æ
-		//	Ö´ĞĞÒ»Ğ©²Ù×÷
+		char* buffer = new char[8];	//	è¯·æ±‚8å­—èŠ‚å†…å­˜
+		memset(buffer, 0, 8);	//	ç”¨æ•°æ®å¡«å……å†…å­˜
+		//	æ‰§è¡Œä¸€äº›æ“ä½œ
 		char** ptr3 = &buffer;
-		//	Ö´ĞĞÒ»Ğ©²Ù×÷Ö®ºó¡£¡£¡£
-		delete[] buffer;	//	É¾³ıÖ¸Õë£¬ÒòÎªÌî³äÁËÄÚ´æ
+		//	æ‰§è¡Œä¸€äº›æ“ä½œä¹‹åã€‚ã€‚ã€‚
+		delete[] buffer;	//	åˆ é™¤æŒ‡é’ˆï¼Œå› ä¸ºå¡«å……äº†å†…å­˜
 		std::cin.get();
 	}
 
-	//	Ç¿´ó£º´«µİÖ¸Õë½øĞĞĞŞ¸Ä
+	//	å¼ºå¤§ï¼šä¼ é€’æŒ‡é’ˆè¿›è¡Œä¿®æ”¹
 	void incrementWithPointer(int* value) {
 		(*value)++;
 	}
 
-	//	¼ò»¯£º´«µİÒıÓÃ½øĞĞĞŞ¸Ä£¬ÍÆ¼öÊ¹ÓÃÕâÖÖ·½Ê½
+	//	ç®€åŒ–ï¼šä¼ é€’å¼•ç”¨è¿›è¡Œä¿®æ”¹ï¼Œæ¨èä½¿ç”¨è¿™ç§æ–¹å¼
 	void incrementWithReference(int& value) {
 		value++;
 	}
@@ -96,17 +98,17 @@ namespace utils {
 		std::cin.get();
 
 		int& ref = a;
-		//	refÊÇ¶ÔaµÄÒıÓÃ£¬½«cÕâ¸öÖµ¸³Öµ¸ørefºÍa£¬¼´a=8£¬ref=8£¬²¢ÇÒc=8£¬Á½Õß»¥²»¸ÉÈÅ
+		//	refæ˜¯å¯¹açš„å¼•ç”¨ï¼Œå°†cè¿™ä¸ªå€¼èµ‹å€¼ç»™refå’Œaï¼Œå³a=8ï¼Œref=8ï¼Œå¹¶ä¸”c=8ï¼Œä¸¤è€…äº’ä¸å¹²æ‰°
 		ref = c;
 		logger::out("ref", ref);
-		//	Ö¸Õë¿ÉÒÔ±»ĞŞ¸ÄÖ¸Ïòµ½ĞÂµÄµØÖ·£¬µ«ÒıÓÃ²»¿ÉÒÔ£¬Ö»ÄÜ¸³Öµ
+		//	æŒ‡é’ˆå¯ä»¥è¢«ä¿®æ”¹æŒ‡å‘åˆ°æ–°çš„åœ°å€ï¼Œä½†å¼•ç”¨ä¸å¯ä»¥ï¼Œåªèƒ½èµ‹å€¼
 		b = &c;
 		c = 10;
 		logger::out("b change", *b);
 	}
 
 	void localStaticVar() {
-		//	¾Ö²¿¾²Ì¬±äÁ¿Êµ¼ÊÉÏÊÇ³ÖĞø´æÔÚµÄ¾²Ì¬±äÁ¿£¬µÚÒ»´Îµ÷ÓÃ»á³õÊ¼»¯£¨ÖµÎª1£©£¬Ö®ºó±£³ÖÔö³¤£¨2¡¢3¡¢4...£©
+		//	å±€éƒ¨é™æ€å˜é‡å®é™…ä¸Šæ˜¯æŒç»­å­˜åœ¨çš„é™æ€å˜é‡ï¼Œç¬¬ä¸€æ¬¡è°ƒç”¨ä¼šåˆå§‹åŒ–ï¼ˆå€¼ä¸º1ï¼‰ï¼Œä¹‹åä¿æŒå¢é•¿ï¼ˆ2ã€3ã€4...ï¼‰
 		static int variable = 1;
 		variable++;
 		std::cout << "local static variable " + std::to_string(variable) << std::endl;
@@ -114,20 +116,20 @@ namespace utils {
 
 	void initStatic() {
 		logger::out("extern global variable", g_variable);
-		//	µ÷ÓÃ¶à´Îº¯ÊıÄÚ½«Êä³ö²»Í¬µÄ¾Ö²¿¾²Ì¬±äÁ¿
+		//	è°ƒç”¨å¤šæ¬¡å‡½æ•°å†…å°†è¾“å‡ºä¸åŒçš„å±€éƒ¨é™æ€å˜é‡
 		localStaticVar();	//	2
 		localStaticVar();	//	3
 		localStaticVar();	//	4
 	}
 
-	//	´«Í³Ã¶¾Ù£¬Ã¶¾ÙÃûÖ»ÊÇ×÷ÎªÀàĞÍ¶ø·ÇÃüÁî¿Õ¼ä´æÔÚ£¬»á×Ô¶¯½«ÄÚ²¿ÊôĞÔÃû³Æ×÷Îªµ±Ç°×÷ÓÃÓò±äÁ¿Ê¹ÓÃ
+	//	ä¼ ç»Ÿæšä¸¾ï¼Œæšä¸¾ååªæ˜¯ä½œä¸ºç±»å‹è€Œéå‘½ä»¤ç©ºé—´å­˜åœ¨ï¼Œä¼šè‡ªåŠ¨å°†å†…éƒ¨å±æ€§åç§°ä½œä¸ºå½“å‰ä½œç”¨åŸŸå˜é‡ä½¿ç”¨
 	enum PlayerLevel {
 		PlayerLevel_EntryLevel,
 		PlayerLevel_Intermediate,
 		PlayerLevel_Expert
 	};
 
-	//	Ã¶¾ÙÀà£¬Ã¶¾ÙÃûÍ¬Ê±×÷ÎªÀàĞÍºÍÃüÃû¿Õ¼ä´æÔÚ£¬ĞèÔÚÇ°×º¼ÓÉÏÀàÃû²ÅÄÜµ÷ÓÃ
+	//	æšä¸¾ç±»ï¼Œæšä¸¾ååŒæ—¶ä½œä¸ºç±»å‹å’Œå‘½åç©ºé—´å­˜åœ¨ï¼Œéœ€åœ¨å‰ç¼€åŠ ä¸Šç±»åæ‰èƒ½è°ƒç”¨
 	enum class PlayerStatus {
 		Enabled,
 		Disabled
@@ -172,20 +174,20 @@ namespace utils {
 	void Racer::run() {
 		std::cout << "run" << std::endl;
 	}
-	
+
 	std::string Winner::getNews() {
 		return "He win.";
 	}
 
-	//	³õÊ¼»¯¾²Ì¬±äÁ¿Ö»ÄÜÔÚÀàÍâµÄÈ«¾Ö·½Ê½Íê³É
-	//	·½Ê½1£ºÍ¨¹ıÀàÃûÉèÖÃ
+	//	åˆå§‹åŒ–é™æ€å˜é‡åªèƒ½åœ¨ç±»å¤–çš„å…¨å±€æ–¹å¼å®Œæˆ
+	//	æ–¹å¼1ï¼šé€šè¿‡ç±»åè®¾ç½®
 	int InitStatic::s_maxSpeed = 3;
-	//	·½Ê½2£ºÀàÊµÀıÀïÒ²ÄÜÏñÉèÖÃ³ÉÔ±±äÁ¿Ò»ÑùÉèÖÃ¾²Ì¬±äÁ¿
+	//	æ–¹å¼2ï¼šç±»å®ä¾‹é‡Œä¹Ÿèƒ½åƒè®¾ç½®æˆå‘˜å˜é‡ä¸€æ ·è®¾ç½®é™æ€å˜é‡
 	//InitStatic initState;
 	//int initState.s_maxSpeed = 3
 
 	void initClass() {
-		//	ÔÚÕ»ÉÏÊµÀı»¯£¬Ö»ÔÚ×÷ÓÃÓòÄÚ´æÔÚ£¬Àë¿ª×÷ÓÃÓòºó×Ô¶¯ÊÍ·ÅÄÚ´æ£¬ÇÒÕ»Ö»ÓĞ1~2MB´óĞ¡
+		//	åœ¨æ ˆä¸Šå®ä¾‹åŒ–ï¼Œåªåœ¨ä½œç”¨åŸŸå†…å­˜åœ¨ï¼Œç¦»å¼€ä½œç”¨åŸŸåè‡ªåŠ¨é‡Šæ”¾å†…å­˜ï¼Œä¸”æ ˆåªæœ‰1~2MBå¤§å°
 		Player* p1;
 		{
 			Player player;
@@ -196,31 +198,31 @@ namespace utils {
 			fastMove(player, 1, 1);
 			p1 = &player;
 		}
-		//	p1Ö¸ÏòÎª¿ÕµÄPlayerÀà£¬ÒòÎªÔ­±¾µÄplayerÒÑ¾­Ïú»Ù
+		//	p1æŒ‡å‘ä¸ºç©ºçš„Playerç±»ï¼Œå› ä¸ºåŸæœ¬çš„playerå·²ç»é”€æ¯
 		std::cout << p1 << std::endl;
-		//	ÔÚ¶ÑÉÏÊµÀı»¯£¬¿ÉÒÔÔÚ×÷ÓÃÓòÒÔÍâµÄµØ·½´æÔÚ£¬²»Ê¹ÓÃÊ±ĞèÒªÊÖ¶¯ÊÍ·ÅÄÚ´æ
+		//	åœ¨å †ä¸Šå®ä¾‹åŒ–ï¼Œå¯ä»¥åœ¨ä½œç”¨åŸŸä»¥å¤–çš„åœ°æ–¹å­˜åœ¨ï¼Œä¸ä½¿ç”¨æ—¶éœ€è¦æ‰‹åŠ¨é‡Šæ”¾å†…å­˜
 		Player* p2;
 		{
 			Player* player2 = new Player();
 			player2->m_positionX = 1;
 			p2 = player2;
 		}
-		//	*p2Ö¸ÏòµÄplayer2ÒÀ¾É´æÔÚ
+		//	*p2æŒ‡å‘çš„player2ä¾æ—§å­˜åœ¨
 		std::cout << p2 << std::endl;
 
-		// Í¨¹ı¶ÔÏó·½Ê½Ö±½Ó³õÊ¼»¯³ÉÔ±±äÁ¿£¬Ö»ÊÊÓÃÓÚÃ»ÓĞ×Ô¶¨Òå¹¹Ôìº¯ÊıµÄÇé¿ö
+		// é€šè¿‡å¯¹è±¡æ–¹å¼ç›´æ¥åˆå§‹åŒ–æˆå‘˜å˜é‡ï¼Œåªé€‚ç”¨äºæ²¡æœ‰è‡ªå®šä¹‰æ„é€ å‡½æ•°çš„æƒ…å†µ
 		NormalPerson normalPerson = { 0, 0, 10 };
 
-		//	new·ûºÅ³õÊ¼»¯Ê±Ö»»á·µ»ØÖ¸Õë£¬ĞèÒªÓÃ*´æ´¢
+		//	newç¬¦å·åˆå§‹åŒ–æ—¶åªä¼šè¿”å›æŒ‡é’ˆï¼Œéœ€è¦ç”¨*å­˜å‚¨
 		Player* player3 = new Player();
 		player3->m_positionX = 0;
 
 		NormalPerson* normalPerson2 = new NormalPerson();
-		//	ÓÉÓÚÊÇÖ¸Õë£¬¿ÉÒÔÍ¨¹ıÊ¹ÓÃĞÇºÅµ÷ÓÃ»òÉèÖÃ³ÉÔ±±äÁ¿
+		//	ç”±äºæ˜¯æŒ‡é’ˆï¼Œå¯ä»¥é€šè¿‡ä½¿ç”¨æ˜Ÿå·è°ƒç”¨æˆ–è®¾ç½®æˆå‘˜å˜é‡
 		(*normalPerson2).m_speed = 4;
-		//	Ò²¿ÉÒÔÍ¨¹ı¼ıÍ·->µ÷ÓÃ»òÉèÖÃ³ÉÔ±±äÁ¿
+		//	ä¹Ÿå¯ä»¥é€šè¿‡ç®­å¤´->è°ƒç”¨æˆ–è®¾ç½®æˆå‘˜å˜é‡
 		normalPerson2->m_speed = 5;
-		//	Èç¹û²»ÊÇ¶ÀÁ¢µÄº¯ÊıµÈ×÷ÓÃÓò£¬ÀıÈçmainÖĞ·ÖÅäÁËÄÚ´æ¿Õ¼ä£¬²»Ê¹ÓÃÁËÒª½øĞĞÉ¾³ı
+		//	å¦‚æœä¸æ˜¯ç‹¬ç«‹çš„å‡½æ•°ç­‰ä½œç”¨åŸŸï¼Œä¾‹å¦‚mainä¸­åˆ†é…äº†å†…å­˜ç©ºé—´ï¼Œä¸ä½¿ç”¨äº†è¦è¿›è¡Œåˆ é™¤
 		delete normalPerson2;
 
 		std::cin.get();
@@ -229,64 +231,64 @@ namespace utils {
 
 	void initArray() {
 		const int arrSize = 5;
-		//	¶¨Òå¶¨³¤ÕûĞÍÊı×é£¬±ØĞëÔÙÍ¨¹ıÑ­»·½øĞĞ³õÊ¼»¯
+		//	å®šä¹‰å®šé•¿æ•´å‹æ•°ç»„ï¼Œå¿…é¡»å†é€šè¿‡å¾ªç¯è¿›è¡Œåˆå§‹åŒ–
 		int arr[arrSize];
 		std::cout << arr << std::endl;
-		//	ÊµÀı»¯¶¨Òå£¬ÊµÀı±ØĞëÊÇÖ¸Õë£¬±ØĞëÍ¨¹ıÑ­»·½øĞĞ³õÊ¼»¯
+		//	å®ä¾‹åŒ–å®šä¹‰ï¼Œå®ä¾‹å¿…é¡»æ˜¯æŒ‡é’ˆï¼Œå¿…é¡»é€šè¿‡å¾ªç¯è¿›è¡Œåˆå§‹åŒ–
 		int* iarr = new int[arrSize];
-		//	²»½¨ÒéÊ¹ÓÃ£º»ñÈ¡ÕûĞÍÊı×é³¤¶È£¨Ã»ÓĞ¿ÉÒÔÖ±½Ó»ñÈ¡³¤¶ÈµÄÊôĞÔ»ò·½·¨£¬sizeof»ñÈ¡µÄÊÇ×Ö½Ú³¤¶È£©
+		//	ä¸å»ºè®®ä½¿ç”¨ï¼šè·å–æ•´å‹æ•°ç»„é•¿åº¦ï¼ˆæ²¡æœ‰å¯ä»¥ç›´æ¥è·å–é•¿åº¦çš„å±æ€§æˆ–æ–¹æ³•ï¼Œsizeofè·å–çš„æ˜¯å­—èŠ‚é•¿åº¦ï¼‰
 		//int arrSize = sizeof(iarr) / sizeof(int);
 		for (int i = 0;i < arrSize;i++) {
 			iarr[i] = i;
 		}
 		std::cout << *iarr << std::endl;
-		//	ÒòÎªÔÚ¶ÑÉÏ·ÖÅäÁËÄÚ´æ£¬Ê¹ÓÃÍêĞèÒªÉ¾³ı
+		//	å› ä¸ºåœ¨å †ä¸Šåˆ†é…äº†å†…å­˜ï¼Œä½¿ç”¨å®Œéœ€è¦åˆ é™¤
 		delete[] iarr;
-		//	ĞÂÊ½Êı×é
+		//	æ–°å¼æ•°ç»„
 		std::array<int, arrSize> stdArray;
 		std::cout << stdArray[0] << std::endl;
 		delete& stdArray;
 	}
 
-	//	Í¨¹ıº¯Êı´«µİ×Ö·û´®Ê±×îºÃÍ¨¹ıÒıÓÃ´«µİ£¬·ñÔò»á±ä³É¸´ÖÆ£¨·ÖÅäĞÂÄÚ´æ£©
+	//	é€šè¿‡å‡½æ•°ä¼ é€’å­—ç¬¦ä¸²æ—¶æœ€å¥½é€šè¿‡å¼•ç”¨ä¼ é€’ï¼Œå¦åˆ™ä¼šå˜æˆå¤åˆ¶ï¼ˆåˆ†é…æ–°å†…å­˜ï¼‰
 	void PrintString(const std::string& str) {
 		std::cout << str << std::endl;
 	}
 
 	void initString() {
-		//	×Ö·ûÖ¸Õë£¬Êµ¼ÊÊÇÊı×é£¬¿Éµ±×ö×Ö·û´®Ê¹ÓÃ£¬Êµ¼Ê×Ö·ûÊÇ·Ö¿ª´æ´¢Îª['l','o','t','a','w','a','y']
+		//	å­—ç¬¦æŒ‡é’ˆï¼Œå®é™…æ˜¯æ•°ç»„ï¼Œå¯å½“åšå­—ç¬¦ä¸²ä½¿ç”¨ï¼Œå®é™…å­—ç¬¦æ˜¯åˆ†å¼€å­˜å‚¨ä¸º['l','o','t','a','w','a','y']
 		const char* cname = "lotaway";
-		//	×Ö·ûÊı×é£¬utf8£¬×¢Òâ³¤¶ÈÊÇ7£¬±ÈÊµ¼Ê×Ö·û¶à1Î»£¬ÒòÎªÔÚ×îºó»á×Ô¶¯Ìí¼Ó\0×÷Îª½áÊø×Ö·û
+		//	å­—ç¬¦æ•°ç»„ï¼Œutf8ï¼Œæ³¨æ„é•¿åº¦æ˜¯7ï¼Œæ¯”å®é™…å­—ç¬¦å¤š1ä½ï¼Œå› ä¸ºåœ¨æœ€åä¼šè‡ªåŠ¨æ·»åŠ \0ä½œä¸ºç»“æŸå­—ç¬¦
 		const char aname[7] = "lotawa";
-		//	¸ü³¤µÄ×Ö·ûÊı×é
+		//	æ›´é•¿çš„å­—ç¬¦æ•°ç»„
 		const wchar_t* cname2 = L"lotaway";
-		//	utf16£¬Ã¿¸ö×Ö·û2×Ö½Ú
+		//	utf16ï¼Œæ¯ä¸ªå­—ç¬¦2å­—èŠ‚
 		const char16_t* ccname = u"lotaway";
-		//	utf32£¬Ã¿¸ö×Ö·û4×Ö½Ú
+		//	utf32ï¼Œæ¯ä¸ªå­—ç¬¦4å­—èŠ‚
 		const char32_t* cccname = U"lotaway";
-		//	»ñÈ¡×Ö·ûÊı×é³¤¶È
+		//	è·å–å­—ç¬¦æ•°ç»„é•¿åº¦
 		std::cout << strlen(cname) << std::endl;
-		//	¸´ÖÆ×Ö·ûÊı×é
+		//	å¤åˆ¶å­—ç¬¦æ•°ç»„
 		char* cpyName = new char[5];
 		//strcpy_s(cpyName, strlen(cpyName - 1), cname);
 
-		//	×Ö·û´®
+		//	å­—ç¬¦ä¸²
 		std::string sname = "lotaway";
 		std::cout << sname << std::endl;
-		//	»ñÈ¡×Ö·û´®³¤¶È
+		//	è·å–å­—ç¬¦ä¸²é•¿åº¦
 		std::cout << sname.size() << std::endl;
-		//	×Ö·û´®Æ´½Ó£¬¶ø²»ÄÜÔÚ¶¨ÒåÊ±Ö±½ÓÌí¼Ó
+		//	å­—ç¬¦ä¸²æ‹¼æ¥ï¼Œè€Œä¸èƒ½åœ¨å®šä¹‰æ—¶ç›´æ¥æ·»åŠ 
 		sname += "'s name!";
-		//	»òÕßÔÚ¶¨ÒåÊ±¶¨Òå¶à¸ö×Ö·û´®
+		//	æˆ–è€…åœ¨å®šä¹‰æ—¶å®šä¹‰å¤šä¸ªå­—ç¬¦ä¸²
 		std::string ssname = std::string("lotaway") + "'s name";
-		//	ÅĞ¶Ï×Ö·û´®ÖĞÊÇ·ñ´æÔÚÄ³Ğ©×Ó×Ö·û´®
+		//	åˆ¤æ–­å­—ç¬¦ä¸²ä¸­æ˜¯å¦å­˜åœ¨æŸäº›å­å­—ç¬¦ä¸²
 		bool contains = ssname.find("name") != std::string::npos;
 
-		//	Óï·¨ÌÇÆ´½Ó£¬ĞèÒªÒıÈë¿â
+		//	è¯­æ³•ç³–æ‹¼æ¥ï¼Œéœ€è¦å¼•å…¥åº“
 		using namespace std::string_literals;
 		std::string uname = "lotaway"s + "'s name";
 		std::u32string uuname = U"lotaway"s + U"'s name";
-		//	¿É»»ĞĞ×Ö·ûÊı×é
+		//	å¯æ¢è¡Œå­—ç¬¦æ•°ç»„
 		const char* change = R"(line1
 		line2
 		line3
@@ -299,35 +301,35 @@ namespace utils {
 	}
 
 	const int OnlyReadFn::getX() const {
-		//	²»¿ÉÓÃ¸³Öµ£¬ÒòÎªÒÑ¾­±ê¼ÇÎªconst
+		//	ä¸å¯ç”¨èµ‹å€¼ï¼Œå› ä¸ºå·²ç»æ ‡è®°ä¸ºconst
 		//m_x = 2;
-		//	µ«¶ÔmutableÒÀ¾É¿ÉÒÔĞŞ¸Ä,mutable>const>variable
+		//	ä½†å¯¹mutableä¾æ—§å¯ä»¥ä¿®æ”¹,mutable>const>variable
 		getCount += 1;
 		return m_x;
 	}
 
 	void initConst() {
-		//	³£Á¿£¬Ö»¶Á
+		//	å¸¸é‡ï¼Œåªè¯»
 		const int MAX_AGE = 140;
-		//	±àÒëÆÚ³£Á¿
+		//	ç¼–è¯‘æœŸå¸¸é‡
 		constexpr int MAX_COUNT = 1;
-		//	³£Á¿Ö¸Õë£¬¼´Ö¸Ïò³£Á¿µÄÖ¸Õë¡£¿ÉĞŞ¸ÄÖ¸Õë£¬µ«²»¿ÉĞŞ¸ÄÖ¸ÕëÖ¸ÏòµÄÄÚÈİ
+		//	å¸¸é‡æŒ‡é’ˆï¼Œå³æŒ‡å‘å¸¸é‡çš„æŒ‡é’ˆã€‚å¯ä¿®æ”¹æŒ‡é’ˆï¼Œä½†ä¸å¯ä¿®æ”¹æŒ‡é’ˆæŒ‡å‘çš„å†…å®¹
 		const int* a = new int(2);
 		std::cout << *a << std::endl;
-		//	²»ÔÊĞíĞŞ¸ÄaÖ¸ÏòµÄÄÚÈİ
+		//	ä¸å…è®¸ä¿®æ”¹aæŒ‡å‘çš„å†…å®¹
 		//*a = 2;
-		//	ÔÊĞíĞŞ¸ÄÖ¸Õë±¾Éí
+		//	å…è®¸ä¿®æ”¹æŒ‡é’ˆæœ¬èº«
 		a = &MAX_AGE;
 		std::cout << *a << std::endl;
-		//	Ö¸Õë³£Á¿£¬¼´Ö¸ÕëÊÇ³£Á¿¡£²»¿ÉĞŞ¸ÄÖ¸Õë£¬µ«¿ÉĞŞ¸ÄÖ¸ÕëÖ¸ÏòµÄÄÚÈİ
+		//	æŒ‡é’ˆå¸¸é‡ï¼Œå³æŒ‡é’ˆæ˜¯å¸¸é‡ã€‚ä¸å¯ä¿®æ”¹æŒ‡é’ˆï¼Œä½†å¯ä¿®æ”¹æŒ‡é’ˆæŒ‡å‘çš„å†…å®¹
 		int* const b = new int;
 		std::cout << b << std::endl;
-		//	ÔÊĞíĞŞ¸ÄbÖ¸Õë±¾Éí
+		//	å…è®¸ä¿®æ”¹bæŒ‡é’ˆæœ¬èº«
 		*b = MAX_AGE;
 		std::cout << b << std::endl;
-		//	²»ÔÊĞíĞŞ¸ÄbÖ¸ÕëÖ¸ÏòµÄÄÚÈİ
+		//	ä¸å…è®¸ä¿®æ”¹bæŒ‡é’ˆæŒ‡å‘çš„å†…å®¹
 		//b = &MAX_AGE;
-		//	³£Á¿Ö¸Õë³£Á¿£¿¼È²»¿ÉÒÔĞŞ¸ÄÖ¸Õë£¬Ò²²»¿ÉÒÔĞŞ¸ÄÖ¸ÕëÖ¸ÏòµÄÄÚÈİ
+		//	å¸¸é‡æŒ‡é’ˆå¸¸é‡ï¼Ÿæ—¢ä¸å¯ä»¥ä¿®æ”¹æŒ‡é’ˆï¼Œä¹Ÿä¸å¯ä»¥ä¿®æ”¹æŒ‡é’ˆæŒ‡å‘çš„å†…å®¹
 		const int* const c = new int(3);
 		std::cout << *c << std::endl;
 		//*c = MAX_AGE:
@@ -338,7 +340,7 @@ namespace utils {
 
 	void initLabbda() {
 		int a = 8;
-		//	lambda±í´ïÊ½£¬Ò»´ÎĞÔº¯Êı£¬&´ú±íÒıÓÃ£¬=´ú±íÖµ´«µİ
+		//	lambdaè¡¨è¾¾å¼ï¼Œä¸€æ¬¡æ€§å‡½æ•°ï¼Œ&ä»£è¡¨å¼•ç”¨ï¼Œ=ä»£è¡¨å€¼ä¼ é€’
 		auto lam = [&]() {
 			a++;
 			std::cout << a << std::endl;
@@ -373,7 +375,7 @@ namespace utils {
 		return this->isEqual(_vec);
 	}
 
-	//	Êä³öÁ÷µÄ<<²Ù×÷·ûÒ²¿ÉÒÔÖØÔØ
+	//	è¾“å‡ºæµçš„<<æ“ä½œç¬¦ä¹Ÿå¯ä»¥é‡è½½
 	std::ostream& operator<<(std::ostream& stream, const Vec& _vec) {
 		stream << _vec.m_x << ',' << _vec.m_y;
 		return stream;
@@ -387,19 +389,19 @@ namespace utils {
 		Vec vec(0.0f, 0.0f);
 		Vec walkSpeed(1.0f, 1.0f);
 		Vec powerUp(2.0f, 2.0f);
-		//	µ÷ÓÃ·½·¨Íê³É¼ÆËã
+		//	è°ƒç”¨æ–¹æ³•å®Œæˆè®¡ç®—
 		Vec mulRes = vec.add(walkSpeed).multiply(powerUp);
-		//	µ÷ÓÃ²Ù×÷·ûÍê³É¼ÆËã
+		//	è°ƒç”¨æ“ä½œç¬¦å®Œæˆè®¡ç®—
 		Vec mulRes2 = (vec + Vec(walkSpeed)) * powerUp;
 		std::cout << (mulRes == mulRes2) << std::endl;
-		//	std::ostream << VecÀàĞÍµÄ²Ù×÷·ûÖØÔØÁË£¬¿ÉÒÔÊä³öVecÀàĞÍ
+		//	std::ostream << Vecç±»å‹çš„æ“ä½œç¬¦é‡è½½äº†ï¼Œå¯ä»¥è¾“å‡ºVecç±»å‹
 		std::cout << mulRes2 << std::endl;
 	};
 
 	int* createArray() {
-		//	Õ»ÉÏ·ÖÅä£¬·µ»Øºó¾Í»áÏú»Ù±äÁ¿£¬·µ»ØÖµÃ»ÓĞÒâÒå
+		//	æ ˆä¸Šåˆ†é…ï¼Œè¿”å›åå°±ä¼šé”€æ¯å˜é‡ï¼Œè¿”å›å€¼æ²¡æœ‰æ„ä¹‰
 		//int arr[50];
-		//	¶ÑÉÏ·ÖÅä£¬»áÒ»Ö±±£ÁôÖ±µ½ÊÖ¶¯´İ»Ù
+		//	å †ä¸Šåˆ†é…ï¼Œä¼šä¸€ç›´ä¿ç•™ç›´åˆ°æ‰‹åŠ¨æ‘§æ¯
 		int* arr = new int[50];
 		return arr;
 	}
@@ -413,42 +415,42 @@ namespace utils {
 	}
 
 	void initStackClass() {
-		//	´Ë´¦ÓĞ×Ô¶¯ÒşĞÔ×ª»»£¬Ïàµ±ÓÚScopeEntity(new Entity())
+		//	æ­¤å¤„æœ‰è‡ªåŠ¨éšæ€§è½¬æ¢ï¼Œç›¸å½“äºScopeEntity(new Entity())
 		{
 			ScopeEntity se = new Entity();
 		}
-		//	Àë¿ª×÷ÓÃÓòºó£¬Õ»ÉÏµÄse×Ô¶¯Ïú»Ù£¬¶ø´«ÈëµÄ¶ÑÉÏµÄentityÊµÀıÒ²»áÒòÎªµ÷ÓÃÕÛ¹¹º¯Êı¶ø±»É¾³ı
+		//	ç¦»å¼€ä½œç”¨åŸŸåï¼Œæ ˆä¸Šçš„seè‡ªåŠ¨é”€æ¯ï¼Œè€Œä¼ å…¥çš„å †ä¸Šçš„entityå®ä¾‹ä¹Ÿä¼šå› ä¸ºè°ƒç”¨æŠ˜æ„å‡½æ•°è€Œè¢«åˆ é™¤
 	}
 
-	//	ÖÇÄÜÖ¸Õë£¬×Ô¶¯¹ÜÀínewºÍdelete
+	//	æ™ºèƒ½æŒ‡é’ˆï¼Œè‡ªåŠ¨ç®¡ç†newå’Œdelete
 	void initIntelligencePointer() {
-		//	unique_ptrÓÃÓÚ´´½¨Î¨Ò»Ö¸Õë£¬²»¿É¸´ÖÆ
+		//	unique_ptrç”¨äºåˆ›å»ºå”¯ä¸€æŒ‡é’ˆï¼Œä¸å¯å¤åˆ¶
 		{
-			//	´´½¨Î¨Ò»Ö¸Õë£¬Àë¿ª×÷ÓÃÓòºó×Ô¶¯É¾³ı¶ÑÉÏµÄÊµÀı±äÁ¿
+			//	åˆ›å»ºå”¯ä¸€æŒ‡é’ˆï¼Œç¦»å¼€ä½œç”¨åŸŸåè‡ªåŠ¨åˆ é™¤å †ä¸Šçš„å®ä¾‹å˜é‡
 			std::unique_ptr<Entity> uniqueEntity(new Entity());
-			//	»òÕß
+			//	æˆ–è€…
 			std::unique_ptr<Entity> uniqueEntity2 = std::make_unique<Entity>();
 			uniqueEntity->dododo();
 		}
-		//	shared_ptrÓÃÓÚ´´½¨¹²ÏíÖ¸Õë£¬¿É¸´ÖÆ£¬µ±ÒıÓÃ¹éÁãÔò×Ô¶¯Ïú»Ù
+		//	shared_ptrç”¨äºåˆ›å»ºå…±äº«æŒ‡é’ˆï¼Œå¯å¤åˆ¶ï¼Œå½“å¼•ç”¨å½’é›¶åˆ™è‡ªåŠ¨é”€æ¯
 		std::shared_ptr<Entity> shareEntity;
 		{
 			std::shared_ptr<Entity> shareEntity2(new Entity());
 			shareEntity = shareEntity2;
 		}
-		//	ÒÀ¾É¿ÉÒÔµ÷ÓÃ£¬ÒòÎªentity0»¹ÓĞÒıÓÃ
+		//	ä¾æ—§å¯ä»¥è°ƒç”¨ï¼Œå› ä¸ºentity0è¿˜æœ‰å¼•ç”¨
 		std::cout << shareEntity << std::endl;
-		//	weak_ptrÓÃÓÚ´´½¨Èõ¹²ÏíÖ¸Õë£¬²»»á±»¼ÇÈëÒıÓÃÖĞ
+		//	weak_ptrç”¨äºåˆ›å»ºå¼±å…±äº«æŒ‡é’ˆï¼Œä¸ä¼šè¢«è®°å…¥å¼•ç”¨ä¸­
 		std::weak_ptr<Entity> weakEntity;
 		{
 			std::shared_ptr<Entity> shareEntity3(new Entity());
 			weakEntity = shareEntity3;
 		}
-		//	ÒÑ¾­±»É¾³ı£¬ÒòÎª²»¼ÆÈëÒıÓÃ
+		//	å·²ç»è¢«åˆ é™¤ï¼Œå› ä¸ºä¸è®¡å…¥å¼•ç”¨
 		std::cout << weakEntity.lock() << std::endl;
 		std::cin.get();
 	}
-	//  ÏÖ´úC++¡¶Éú²ú»·¾³¶¼Ê¹ÓÃÖÇÄÜÖ¸Õë¶ø·ÇÔ­Ê¼Ö¸Õë£¬µ¥´¿Ö»ÊÇÑ§Ï°ºÍ»ıÀÛ¾­ÑéÔòÊ¹ÓÃÔ­Ê¼Ö¸Õë£¬ÉõÖÁ×Ô¼º¶¨ÖÆÖÇÄÜÖ¸Õë¡£
+	//  ç°ä»£C++ã€Šç”Ÿäº§ç¯å¢ƒéƒ½ä½¿ç”¨æ™ºèƒ½æŒ‡é’ˆè€ŒéåŸå§‹æŒ‡é’ˆï¼Œå•çº¯åªæ˜¯å­¦ä¹ å’Œç§¯ç´¯ç»éªŒåˆ™ä½¿ç”¨åŸå§‹æŒ‡é’ˆï¼Œç”šè‡³è‡ªå·±å®šåˆ¶æ™ºèƒ½æŒ‡é’ˆã€‚
 
 	SS::SS(const char* content) {
 		m_size = (unsigned int)strlen(content) + 1;
@@ -472,7 +474,7 @@ namespace utils {
 
 	void stringCopy() {
 		SS ss("lotaway");
-		//	Ç³¿½±´£¬¶Ôchar* m_bufferÖ»»á¿½±´Ö¸Õë£¬×îÖÕµ¼ÖÂÔÚÕÛ¹¹·½·¨ÖĞÇåÀíÄÚ´æÊ±±¨´í£¬ÒòÎªÎŞ·¨É¾³ıÁ½´Î
+		//	æµ…æ‹·è´ï¼Œå¯¹char* m_bufferåªä¼šæ‹·è´æŒ‡é’ˆï¼Œæœ€ç»ˆå¯¼è‡´åœ¨æŠ˜æ„æ–¹æ³•ä¸­æ¸…ç†å†…å­˜æ—¶æŠ¥é”™ï¼Œå› ä¸ºæ— æ³•åˆ é™¤ä¸¤æ¬¡
 		SS sp = ss;
 		sp[1] = 'i';
 		ss.print();
@@ -487,7 +489,7 @@ namespace utils {
 	SpecPointer::SpecPointer(Origin* _origin) : origin(_origin) {
 
 	}
-	
+
 	const Origin* SpecPointer::operator->() const {
 		return origin;
 	}
@@ -504,12 +506,12 @@ namespace utils {
 	void initUnion() {
 		using namespace std;
 		Vex4 v4 = { 1.0f, 2.0f, 3.0f, 4.0f };
-		//	¿ÉÒÔµ±×÷2¸öVexÀàĞÍÊä³ö£¬Ò²¿ÉÒÔµ±×÷4¸ö¸¡µãÀàĞÍÊä³ö£¬Áé»îÇÒ¹²ÏíÄÚ´æ
+		//	å¯ä»¥å½“ä½œ2ä¸ªVexç±»å‹è¾“å‡ºï¼Œä¹Ÿå¯ä»¥å½“ä½œ4ä¸ªæµ®ç‚¹ç±»å‹è¾“å‡ºï¼Œçµæ´»ä¸”å…±äº«å†…å­˜
 		cout << v4.a.x << ',' << v4.a.y << ',' << v4.b.x << ',' << v4.b.y << endl;
 		cout << v4.p1 << ',' << v4.p2 << ',' << v4.p3 << ',' << v4.p4 << endl;
 	}
 
-	//	ÖØÔØÊä³ö£¬·½±ãÊä³öVexÀà
+	//	é‡è½½è¾“å‡ºï¼Œæ–¹ä¾¿è¾“å‡ºVexç±»
 	std::ostream& operator<<(std::ostream& stream, const Vex& vex) {
 		stream << vex.x << ',' << vex.y;
 		return stream;
@@ -517,28 +519,29 @@ namespace utils {
 
 	template<typename Vec>
 	void outputVex(const std::vector<Vec>& vexs) {
-		//	Ñ­»·¶ÁÈ¡Ïî
+		//	å¾ªç¯è¯»å–é¡¹
 		for (const Vec& vex : vexs) {
-			std::cout << vex << std::endl;
+			std::cout << vex;
 		}
+		std::cout << std::endl;
 	}
 
-	//	¶¯Ì¬Êı×é
+	//	åŠ¨æ€æ•°ç»„
 	void initVector() {
-		//	´«ÈëÏîÀàĞÍÀ´´´½¨¶¯Ì¬Êı×é
+		//	ä¼ å…¥é¡¹ç±»å‹æ¥åˆ›å»ºåŠ¨æ€æ•°ç»„
 		std::vector<Vex> vexs;
-		//	ËæÊ±·ÅÈëĞÂÊı¾İ£¬Êı×é»á×Ô¶¯¸ù¾İ³¤¶ÈËùĞèÈ¥ÖØĞÂ´´½¨ĞÂÊı×é£¨²¢É¾³ı¾ÉÊı×é£©
-		//	push_back»áÔÚµ±Ç°»·¾³´´½¨Ò»¸öVexÊµÀı£¬Ö®ºó²Å¸´ÖÆ½øvectorÀà
+		//	éšæ—¶æ”¾å…¥æ–°æ•°æ®ï¼Œæ•°ç»„ä¼šè‡ªåŠ¨æ ¹æ®é•¿åº¦æ‰€éœ€å»é‡æ–°åˆ›å»ºæ–°æ•°ç»„ï¼ˆå¹¶åˆ é™¤æ—§æ•°ç»„ï¼‰
+		//	push_backä¼šåœ¨å½“å‰ç¯å¢ƒåˆ›å»ºä¸€ä¸ªVexå®ä¾‹ï¼Œä¹‹åæ‰å¤åˆ¶è¿›vectorç±»
 		vexs.push_back({ 0.0f, 0.0f });
 		vexs.push_back({ 1.0f, 4.0f });
 		outputVex<Vex>(vexs);
-		//	Çå³ıËùÓĞÊı¾İ
+		//	æ¸…é™¤æ‰€æœ‰æ•°æ®
 		vexs.clear();
-		//	emplace_back»áÖ±½ÓÔÚvectorÄÚ²¿´´½¨£¬¾Í²»»áÓĞÏÈ´´½¨ÔÙ¸´ÖÆµ¼ÖÂµÄĞ§ÂÊÎÊÌâ
+		//	emplace_backä¼šç›´æ¥åœ¨vectorå†…éƒ¨åˆ›å»ºï¼Œå°±ä¸ä¼šæœ‰å…ˆåˆ›å»ºå†å¤åˆ¶å¯¼è‡´çš„æ•ˆç‡é—®é¢˜
 		vexs.emplace_back(1.0f, 1.0f);
 		vexs.emplace_back(2.0f, 7.0f);
 		outputVex<Vex>(vexs);
-		//	É¾³ıÖ¸¶¨Ë÷ÒıµÄÖµ£¬ÎŞ·¨Ö±½ÓÓÃnumberÀàĞÍ£¬.begin()Ïàµ±ÓÚ¿ªÊ¼µÄ0£¬¼´É¾³ıË÷ÒıÖµÎª1µÄµÚ¶ş¸öÖµ
+		//	åˆ é™¤æŒ‡å®šç´¢å¼•çš„å€¼ï¼Œæ— æ³•ç›´æ¥ç”¨numberç±»å‹ï¼Œ.begin()ç›¸å½“äºå¼€å§‹çš„0ï¼Œå³åˆ é™¤ç´¢å¼•å€¼ä¸º1çš„ç¬¬äºŒä¸ªå€¼
 		vexs.erase(vexs.begin() + 1);
 		outputVex(vexs);
 	}
@@ -589,17 +592,17 @@ namespace utils {
 		return sizeof(arr);
 	}
 
-	//	templateÀàËÆÒ»ÖÖÔª±à³Ì£¬¼´´úÂë±¾Éí²»ÊÇÔÚ±àÒëÊ±È·¶¨£¬¶øÊÇÔÚÔËĞĞÆÚ²ÅÈ·¶¨
+	//	templateç±»ä¼¼ä¸€ç§å…ƒç¼–ç¨‹ï¼Œå³ä»£ç æœ¬èº«ä¸æ˜¯åœ¨ç¼–è¯‘æ—¶ç¡®å®šï¼Œè€Œæ˜¯åœ¨è¿è¡ŒæœŸæ‰ç¡®å®š
 	void initTemplate() {
-		template1("hahah");	//	¿ÉÒÔ×Ô¶¯¸ù¾İÊäÈëÖµÍÆ¶ÏÀàĞÍ£¬»òÕßÊÖ¶¯ÏŞÖÆtemplate1<std::string>("hahah");
+		template1("hahah");	//	å¯ä»¥è‡ªåŠ¨æ ¹æ®è¾“å…¥å€¼æ¨æ–­ç±»å‹ï¼Œæˆ–è€…æ‰‹åŠ¨é™åˆ¶template1<std::string>("hahah");
 		SArray<int, 5> sarray;
 		std::cout << sarray.getSize() << std::endl;
 	}
 
 	template<typename Value>
-	//	Èç¹ûĞÎ²ÎÀï¶¨ÒåµÄ»Øµ÷º¯ÊıÊÇÄäÃûÀàĞÍ»áµ¼ÖÂlambdaÎŞ·¨Ê¹ÓÃ[]²¶»ñ×÷ÓÃÓò±äÁ¿£¬»á±¨´í²ÎÊı²»·ûºÏ
+	//	å¦‚æœå½¢å‚é‡Œå®šä¹‰çš„å›è°ƒå‡½æ•°æ˜¯åŒ¿åç±»å‹ä¼šå¯¼è‡´lambdaæ— æ³•ä½¿ç”¨[]æ•è·ä½œç”¨åŸŸå˜é‡ï¼Œä¼šæŠ¥é”™å‚æ•°ä¸ç¬¦åˆ
 	//void each(const std::vector<Value>& values, void(*handler)(Value)) {
-	//	ĞÎ²ÎÀïÓÃ±ê×¼¿â·½·¨Ä£°å¶¨Òå»Øµ÷º¯ÊıÀàĞÍ£¬lambda²ÅÄÜÊ¹ÓÃ[]²¶»ñ×÷ÓÃÓò±äÁ¿
+	//	å½¢å‚é‡Œç”¨æ ‡å‡†åº“æ–¹æ³•æ¨¡æ¿å®šä¹‰å›è°ƒå‡½æ•°ç±»å‹ï¼Œlambdaæ‰èƒ½ä½¿ç”¨[]æ•è·ä½œç”¨åŸŸå˜é‡
 	void each(const std::vector<Value>& values, const std::function<void(Value)>& handler) {
 		for (Value value : values) {
 			handler(value);
@@ -610,11 +613,11 @@ namespace utils {
 		const char* name = "extra";
 		using Value = int;
 		std::vector<Value> vec = { 1, 2, 3 };
-		// ÄäÃûº¯ÊıÀïÃ»ÓĞµ±Ç°×÷ÓÃÓòµÄ±äÁ¿
+		// åŒ¿åå‡½æ•°é‡Œæ²¡æœ‰å½“å‰ä½œç”¨åŸŸçš„å˜é‡
 		each<Value>(vec, [](Value val) { logger::out("name", val); });
-		// ÄäÃûº¯ÊıÀïĞèÒªÓĞµ±Ç°×÷ÓÃÓòµÄËùÓĞ±äÁ¿
+		// åŒ¿åå‡½æ•°é‡Œéœ€è¦æœ‰å½“å‰ä½œç”¨åŸŸçš„æ‰€æœ‰å˜é‡
 		each<Value>(vec, [=](Value val) { logger::out(name, val); });
-		// ÄäÃûº¯ÊıÀïĞèÒªÓĞµ±Ç°×÷ÓÃÓòµÄÄ³¸ö±äÁ¿
+		// åŒ¿åå‡½æ•°é‡Œéœ€è¦æœ‰å½“å‰ä½œç”¨åŸŸçš„æŸä¸ªå˜é‡
 		each<Value>(vec, [&name](Value val) { logger::out(name, val); });
 	}
 
@@ -641,44 +644,44 @@ namespace utils {
 		std::thread worker(doWork);
 		isFinish = true;
 		worker.join();
-		logger::out("Ïß³Ì½áÊø");
+		logger::out("çº¿ç¨‹ç»“æŸ");
 	}
 
 	void initSort() {
 		std::vector<int> vecInt = { 1, 5, 7, 3 , 2 };
-		//  ÄÚÖÃÅÅĞò·½·¨£¬Ä¬ÈÏ°´ÕÕ´ÓĞ¡µ½´óÅÅĞò£¬Èç¹ûÃ»ÓĞ´«µİÅĞ¶Ï·½·¨µÄ»°
+		//  å†…ç½®æ’åºæ–¹æ³•ï¼Œé»˜è®¤æŒ‰ç…§ä»å°åˆ°å¤§æ’åºï¼Œå¦‚æœæ²¡æœ‰ä¼ é€’åˆ¤æ–­æ–¹æ³•çš„è¯
 		std::sort(vecInt.begin(), vecInt.end(), [](int a, int b) {
 			return a < b;
 			});
 		utils::outputVex<int>(vecInt);
 	}
 
-	//	ÀàĞÍ×ª»»ÒÀÀµÓÚRTTI(Runing Time Type Info£¬ÔËĞĞÊ±ÀàĞÍĞÅÏ¢£©£¬ÆôÓÃ¸ÃÅäÖÃºÍÊ¹ÓÃC++º¯Êı·ç¸ñÀàĞÍ×ª×ª
+	//	ç±»å‹è½¬æ¢ä¾èµ–äºRTTI(Runing Time Type Infoï¼Œè¿è¡Œæ—¶ç±»å‹ä¿¡æ¯ï¼‰ï¼Œå¯ç”¨è¯¥é…ç½®å’Œä½¿ç”¨C++å‡½æ•°é£æ ¼ç±»å‹è½¬è½¬
 	void initTypeConvertionCheck() {
 		double a = 5.25;
-		int b1 = a;	//	ÒşÊ½×ª»»£¬C·ç¸ñ
-		int b2 = (double)a;	//	ÏÔÊ½×ª»»£¬C·ç¸ñ
-		//	ÒÔÏÂÊÇC++·ç¸ñµÄÀàĞÍ×ª»»£¬Êµ¼ÊÉÏÊÇÒ»¸öº¯Êı£¬ÓĞ¶îÍâ¿ªÏú£º
-		//	¾²Ì¬ÀàĞÍ×ª»»£¬·½±ã±àÒëÆ÷ÔÚ±àÒëºÍÔËĞĞ½×¶ÎÈ·¶¨´íÎóÅ¶£¬²¢ÇÒÓĞÀûÓÚºóĞøÎ¬»¤²éÕÒÄÄÀï½øĞĞÁËÀàĞÍ×ª»»
+		int b1 = a;	//	éšå¼è½¬æ¢ï¼ŒCé£æ ¼
+		int b2 = (double)a;	//	æ˜¾å¼è½¬æ¢ï¼ŒCé£æ ¼
+		//	ä»¥ä¸‹æ˜¯C++é£æ ¼çš„ç±»å‹è½¬æ¢ï¼Œå®é™…ä¸Šæ˜¯ä¸€ä¸ªå‡½æ•°ï¼Œæœ‰é¢å¤–å¼€é”€ï¼š
+		//	é™æ€ç±»å‹è½¬æ¢ï¼Œæ–¹ä¾¿ç¼–è¯‘å™¨åœ¨ç¼–è¯‘å’Œè¿è¡Œé˜¶æ®µç¡®å®šé”™è¯¯å“¦ï¼Œå¹¶ä¸”æœ‰åˆ©äºåç»­ç»´æŠ¤æŸ¥æ‰¾å“ªé‡Œè¿›è¡Œäº†ç±»å‹è½¬æ¢
 		int b = static_cast<int>(a);
-		//	ÀàĞÍË«¹ØµÄ×ª»»
+		//	ç±»å‹åŒå…³çš„è½¬æ¢
 		logger::timer timer("initTypeConvertionCheck repinterpret_cast");
 		double* t = (double*)reinterpret_cast<logger::timer*>(&timer);
-		//	¶¯Ì¬ÀàĞÍ×ª»»£¬ÊÊÓÃÓÚÈ·ÈÏ¼Ì³Ğ¹ØÏµÏÂµÄÀàĞÍ
+		//	åŠ¨æ€ç±»å‹è½¬æ¢ï¼Œé€‚ç”¨äºç¡®è®¤ç»§æ‰¿å…³ç³»ä¸‹çš„ç±»å‹
 		Racer* racer = new Racer(*"worker", 1);
 		Runner* runner = racer;
 		Racer* newRacer = dynamic_cast<Racer*>(runner);
-		//	½«×ÓÀàÖ¸Õë¸³Öµ¸ø¸¸ÀàÖ¸Õë±äÁ¿ºó£¬¿ÉÍ¨¹ı¶¯Ì¬ÀàĞÍ×ª»»È·ÈÏÊÇ·ñÎªÄ³ÌØ¶¨×ÓÀàÀàĞÍ£¬×ª»»ºóÈôÓĞÖµÔòÊÇ¸Ã×ÓÀàÀàĞÍ£¬Ê§°ÜNullÔò²»ÊÇ
+		//	å°†å­ç±»æŒ‡é’ˆèµ‹å€¼ç»™çˆ¶ç±»æŒ‡é’ˆå˜é‡åï¼Œå¯é€šè¿‡åŠ¨æ€ç±»å‹è½¬æ¢ç¡®è®¤æ˜¯å¦ä¸ºæŸç‰¹å®šå­ç±»ç±»å‹ï¼Œè½¬æ¢åè‹¥æœ‰å€¼åˆ™æ˜¯è¯¥å­ç±»ç±»å‹ï¼Œå¤±è´¥Nullåˆ™ä¸æ˜¯
 		if (newRacer) {
 
 		}
 
-		//	³£Á¿Óë±äÁ¿µÄ×ª»»
+		//	å¸¸é‡ä¸å˜é‡çš„è½¬æ¢
 		const char* cc = "hello";
 		char* dd = const_cast<char*>(cc);
 	}
 
-	//	¶ÁÈ¡¿ÉÄÜ²»´æÔÚµÄÎÄ¼ş£¬²¢ÉèÖÃÎª¿ÉÑ¡·µ»ØÖµ
+	//	è¯»å–å¯èƒ½ä¸å­˜åœ¨çš„æ–‡ä»¶ï¼Œå¹¶è®¾ç½®ä¸ºå¯é€‰è¿”å›å€¼
 	std::optional<std::string> readFileAsString(const std::string filePath) {
 		std::fstream fstream(filePath);
 		if (fstream) {
@@ -708,21 +711,21 @@ namespace utils {
 		logger::out(data);
 	}
 
-	//	Ö¸¶¨¶àÀàĞÍµÄµ¥Ò»±äÁ¿variant£¬Ïà±Èunion¸ü×¢ÖØÀàĞÍ°²È«£¬µ«union¸ü¾ßĞ§ÂÊºÍ¸üÉÙÄÚ´æÕ¼ÓÃ
+	//	æŒ‡å®šå¤šç±»å‹çš„å•ä¸€å˜é‡variantï¼Œç›¸æ¯”unionæ›´æ³¨é‡ç±»å‹å®‰å…¨ï¼Œä½†unionæ›´å…·æ•ˆç‡å’Œæ›´å°‘å†…å­˜å ç”¨
 	void sigleVariantMultiType() {
 		std::variant<std::string, int> data;
-		//	¿ÉÄÜÊÇ×Ö·û´®
+		//	å¯èƒ½æ˜¯å­—ç¬¦ä¸²
 		data = "lotaway";
-		//	ĞèÒªÖ¸¶¨»ñÈ¡µÄÀàĞÍ
+		//	éœ€è¦æŒ‡å®šè·å–çš„ç±»å‹
 		logger::out(std::get<std::string>(data));
-		//	Ò²¿ÉÄÜÊÇÊıÖµ
+		//	ä¹Ÿå¯èƒ½æ˜¯æ•°å€¼
 		data = 30;
 		logger::out(std::get<int>(data));
-		//	ÎŞ·¨È·¶¨×îÖÕÀàĞÍµÄÇé¿öÏÂ£¬×îºÃÊÇÍ¨¹ıÅĞ¶Ï»ñÈ¡
+		//	æ— æ³•ç¡®å®šæœ€ç»ˆç±»å‹çš„æƒ…å†µä¸‹ï¼Œæœ€å¥½æ˜¯é€šè¿‡åˆ¤æ–­è·å–
 		logger::out(*std::get_if<std::string>(&data));
 	}
 
-	//	std::any ÈÎÒâÀàĞÍµÄµ¥Ò»±äÁ¿£¨²»ÍÆ¼öÓÃ£©£¬Ïà±ÈvariantÎŞĞèÊÂÏÈÉùÃ÷ËùÓĞ¿ÉÄÜµÄÀàĞÍ£¬ÏàÍ¬µÄµãÊÇÔÚÈ¡ÖµÊ±ĞèÒªÖ¸¶¨ÀàĞÍ£¬È±µãÊÇĞèÒª¶¯Ì¬·ÖÅäÄÚ´æµ¼ÖÂĞÔÄÜÎÊÌâ
+	//	std::any ä»»æ„ç±»å‹çš„å•ä¸€å˜é‡ï¼ˆä¸æ¨èç”¨ï¼‰ï¼Œç›¸æ¯”variantæ— éœ€äº‹å…ˆå£°æ˜æ‰€æœ‰å¯èƒ½çš„ç±»å‹ï¼Œç›¸åŒçš„ç‚¹æ˜¯åœ¨å–å€¼æ—¶éœ€è¦æŒ‡å®šç±»å‹ï¼Œç¼ºç‚¹æ˜¯éœ€è¦åŠ¨æ€åˆ†é…å†…å­˜å¯¼è‡´æ€§èƒ½é—®é¢˜
 	void anyValue() {
 		std::any data;
 		data = "lotaway";
@@ -730,7 +733,7 @@ namespace utils {
 		logger::out(std::any_cast<int>(data));
 	}
 
-	//	Í¨¹ıÒì²½£¨¶àÏß³Ì£©²¢ĞĞ´¦ÀíÈÎÎñ£¬ÌáÉıĞÔÄÜ
+	//	é€šè¿‡å¼‚æ­¥ï¼ˆå¤šçº¿ç¨‹ï¼‰å¹¶è¡Œå¤„ç†ä»»åŠ¡ï¼Œæå‡æ€§èƒ½
 
 	namespace Hazel {
 
@@ -757,7 +760,7 @@ namespace utils {
 		private:
 			_TargetType* t;
 		};
-		//	»¥³âËø
+		//	äº’æ–¥é”
 		static std::mutex s_meshesMutex;
 
 		class EditorLayer {
@@ -795,9 +798,9 @@ namespace utils {
 		}
 	};
 
-	//	×Ö·û´®ÓÅ»¯£º×îºÃÊÇ¼õÉÙÊ¹ÓÃstring¶øÓÃchar£¬×Ó×Ö·û´®ÓÃstring_view
+	//	å­—ç¬¦ä¸²ä¼˜åŒ–ï¼šæœ€å¥½æ˜¯å‡å°‘ä½¿ç”¨stringè€Œç”¨charï¼Œå­å­—ç¬¦ä¸²ç”¨string_view
 	void initStringOptimization() {
-		//	bad, 4 times memory allocate, 
+		//	bad, 4 times memory allocate,
 		std::string str = "Way Luk";
 		logger::out(str);
 		std::string first = str.substr(0, 3);
@@ -809,7 +812,7 @@ namespace utils {
 		std::cout << firstName1 << std::endl;
 		std::string_view lastName1(str.c_str() + 4, 3);
 		std::cout << lastName1 << std::endl;
-		//	actually good, only need char, 
+		//	actually good, only need char,
 		const char* name = "Way Luk";
 		logger::out(name);
 		std::string_view firstName2(name, 3);
@@ -817,9 +820,9 @@ namespace utils {
 		std::string_view lastName2(name + 4, 3);
 		std::cout << lastName2 << std::endl;
 	}
-	//	Êµ¼ÊÉÏRelease»·¾³±àÒëÊ±»áÓĞSSOĞ¡×Ö·û´®ÓÅ»¯£¬»á×Ô¶¯½«×Ö·û²»¶àµÄ×Ö·û´®ÓÃÕ»»º³åÇø¶ø·Ç¶ÑÈ¥·ÖÅäÄÚ´æ£¬Ö»ÓĞ±È½Ï³¤µÄ×Ö·û²Å»áÕı³£ÓÃ¶Ñ·ÖÅäÄÚ´æ£¬ÔÚVS2019ÖĞ£¬´¥·¢ÕâÖÖ»úÖÆµÄ³¤¶ÈÊÇ15¸ö×Ö·û¡£
+	//	å®é™…ä¸ŠReleaseç¯å¢ƒç¼–è¯‘æ—¶ä¼šæœ‰SSOå°å­—ç¬¦ä¸²ä¼˜åŒ–ï¼Œä¼šè‡ªåŠ¨å°†å­—ç¬¦ä¸å¤šçš„å­—ç¬¦ä¸²ç”¨æ ˆç¼“å†²åŒºè€Œéå †å»åˆ†é…å†…å­˜ï¼Œåªæœ‰æ¯”è¾ƒé•¿çš„å­—ç¬¦æ‰ä¼šæ­£å¸¸ç”¨å †åˆ†é…å†…å­˜ï¼Œåœ¨VS2019ä¸­ï¼Œè§¦å‘è¿™ç§æœºåˆ¶çš„é•¿åº¦æ˜¯15ä¸ªå­—ç¬¦ã€‚
 
-	//	Éè¼ÆÄ£Ê½£ºµ¥ÀıÄ£Ê½
+	//	è®¾è®¡æ¨¡å¼ï¼šå•ä¾‹æ¨¡å¼
 	class Random {
 	public:
 		static Random& get() {
@@ -841,64 +844,64 @@ namespace utils {
 
 	Random Random::s_instance;
 
-	//	×óÖµºÍÓÒÖµ£¬ÓĞ¾ßÌåÎ»ÖÃµÄÊÇ×óÖµ£¬Ö»ÊÇÁÙÊ±ÖµµÄÊÇÓÒÖµ£¬ÓÒÖµÃ»ÓĞÎ»ÖÃ£¬ËùÒÔ²»ÄÜ±»¸³Öµ
+	//	å·¦å€¼å’Œå³å€¼ï¼Œæœ‰å…·ä½“ä½ç½®çš„æ˜¯å·¦å€¼ï¼Œåªæ˜¯ä¸´æ—¶å€¼çš„æ˜¯å³å€¼ï¼Œå³å€¼æ²¡æœ‰ä½ç½®ï¼Œæ‰€ä»¥ä¸èƒ½è¢«èµ‹å€¼
 	int getValue() {
 		return 10;
 	}
 	void setValue(int val) {
 	}
-	//	ÒıÓÃÊ±£¬Ö»ÄÜ´«µİ×óÖµ£¬²»ÄÜ´«µİÓÒÖµ
+	//	å¼•ç”¨æ—¶ï¼Œåªèƒ½ä¼ é€’å·¦å€¼ï¼Œä¸èƒ½ä¼ é€’å³å€¼
 	void setValue(std::string& name) {
 
 	}
-	//	³£Á¿ÒıÓÃÊ±£¬¿ÉÒÔ´«µİ×óÖµºÍÓÒÖµ
+	//	å¸¸é‡å¼•ç”¨æ—¶ï¼Œå¯ä»¥ä¼ é€’å·¦å€¼å’Œå³å€¼
 	void setValue2(const std::string& name) {
 
 	}
-	//	Ë«ÖØÒıÓÃÊ±£¬Ö»ÄÜ´«µİÓÒÖµ£¬²»ÄÜ´«µİ×óÖµ
+	//	åŒé‡å¼•ç”¨æ—¶ï¼Œåªèƒ½ä¼ é€’å³å€¼ï¼Œä¸èƒ½ä¼ é€’å·¦å€¼
 	void setValue3(std::string&& name) {
 
 	}
 	void initLValueAndRValue() {
-		//	ÕâÀïaÊÇ×óÖµ£¬1ÊÇÓÒÖµ
+		//	è¿™é‡Œaæ˜¯å·¦å€¼ï¼Œ1æ˜¯å³å€¼
 		int a = 1;
-		//	ÕâÀïaºÍb¶¼ÊÇ×óÖµ
+		//	è¿™é‡Œaå’Œbéƒ½æ˜¯å·¦å€¼
 		int b = a;
-		//	ÕâÀïcÊÇ×óÖµ£¬getValue()·µ»ØÒ»¸öÓÒÖµ
+		//	è¿™é‡Œcæ˜¯å·¦å€¼ï¼ŒgetValue()è¿”å›ä¸€ä¸ªå³å€¼
 		int c = getValue();
-		//	²»ÄÜ¶ÑgetValue()¸³Öµ£¬ÒòÎªËü·µ»ØÒ»¸öÓÒÖµ
+		//	ä¸èƒ½å †getValue()èµ‹å€¼ï¼Œå› ä¸ºå®ƒè¿”å›ä¸€ä¸ªå³å€¼
 		//getValue() = a;
-		//	ÕâÀïaÊÇ×óÖµ
+		//	è¿™é‡Œaæ˜¯å·¦å€¼
 		setValue(a);
-		//	ÕâÀï2ÊÇÓÒÖµ
+		//	è¿™é‡Œ2æ˜¯å³å€¼
 		setValue(2);
-		
-		//	firstNameÊÇ×óÖµ£¬"Way"ÊÇÓÒÖµ
+
+		//	firstNameæ˜¯å·¦å€¼ï¼Œ"Way"æ˜¯å³å€¼
 		std::string firstName = "Way";
-		//	lastNameÊÇÓÒÖµ£¬"Luk"ÊÇÓÒÖµ
+		//	lastNameæ˜¯å³å€¼ï¼Œ"Luk"æ˜¯å³å€¼
 		std::string lastName = "Luk";
-		//	ÕâÀïÓÒ±ßÊÇÁ½¸ö×óÖµfirstNameºÍlastName£¬µ«firstName + lastName¼ÓÆğÀ´Éú³ÉÁËÒ»¸öÁÙÊ±Öµ£¬ËùÒÔÊÇÓÒÖµ
+		//	è¿™é‡Œå³è¾¹æ˜¯ä¸¤ä¸ªå·¦å€¼firstNameå’ŒlastNameï¼Œä½†firstName + lastNameåŠ èµ·æ¥ç”Ÿæˆäº†ä¸€ä¸ªä¸´æ—¶å€¼ï¼Œæ‰€ä»¥æ˜¯å³å€¼
 		std::string fullName = firstName + lastName;
 
-		//	ÒıÓÃÊ±£¬Ö»ÄÜ´«µİ×óÖµ
+		//	å¼•ç”¨æ—¶ï¼Œåªèƒ½ä¼ é€’å·¦å€¼
 		setValue(fullName);
-		//	ÒıÓÃÊ±£¬²»ÄÜ´«µİÓÒÖµ£¬´Ë´¦ÊÇ³£Á¿×ÖÃæÁ¿ÓÒÖµ
+		//	å¼•ç”¨æ—¶ï¼Œä¸èƒ½ä¼ é€’å³å€¼ï¼Œæ­¤å¤„æ˜¯å¸¸é‡å­—é¢é‡å³å€¼
 		//setValue("lotaway");
-		// 
-		//	³£Á¿ÒıÓÃÊ±£¬¼ÈÄÜ´«µİ×óÖµ
+		//
+		//	å¸¸é‡å¼•ç”¨æ—¶ï¼Œæ—¢èƒ½ä¼ é€’å·¦å€¼
 		setValue2(fullName);
-		//	³£Á¿ÒıÓÃÊ±£¬Ò²ÄÜ´«µİÓÒÖµ
+		//	å¸¸é‡å¼•ç”¨æ—¶ï¼Œä¹Ÿèƒ½ä¼ é€’å³å€¼
 		setValue2("Way Luk");
 
-		//	Ë«ÖØÒıÓÃÊ±£¬Ö»ÄÜ´«µİÓÒÖµ
+		//	åŒé‡å¼•ç”¨æ—¶ï¼Œåªèƒ½ä¼ é€’å³å€¼
 		setValue3("Way Luk");
-		//	Ë«ÖØÒıÓÃÊ±£¬²»ÄÜ´«µİ×óÖµ
+		//	åŒé‡å¼•ç”¨æ—¶ï¼Œä¸èƒ½ä¼ é€’å·¦å€¼
 		//serValue3(fullName);
 
-		//	¿ÉÒÔÀûÓÃÕâÖÖ´«µİÌØĞÔĞ´ÖØÔØ·½·¨£¬Íê³ÉÒÆ¶¯ÓïÒå£¬µ±´«µİµÄÊÇÓÒÖµÊ±£¬¿ÉÒÔ·ÅĞÄ½øĞĞÊ¹ÓÃÉõÖÁĞŞ¸Ä£¬ÒòÎªÖ»ÊÇÁÙÊ±Ê¹ÓÃ¶ø²»»á¸´ÖÆ»òÕßÓ°ÏìÆäËûÄÚÈİ¡£
+		//	å¯ä»¥åˆ©ç”¨è¿™ç§ä¼ é€’ç‰¹æ€§å†™é‡è½½æ–¹æ³•ï¼Œå®Œæˆç§»åŠ¨è¯­ä¹‰ï¼Œå½“ä¼ é€’çš„æ˜¯å³å€¼æ—¶ï¼Œå¯ä»¥æ”¾å¿ƒè¿›è¡Œä½¿ç”¨ç”šè‡³ä¿®æ”¹ï¼Œå› ä¸ºåªæ˜¯ä¸´æ—¶ä½¿ç”¨è€Œä¸ä¼šå¤åˆ¶æˆ–è€…å½±å“å…¶ä»–å†…å®¹ã€‚
 	}
 
-	//	ÒÆ¶¯ÓïÒå
+	//	ç§»åŠ¨è¯­ä¹‰
 	class String {
 	public:
 		String() = default;
@@ -917,7 +920,7 @@ namespace utils {
 		String(String&& other) noexcept {
 			printf("Moved!\n");
 			m_size = other.m_size;
-			//	ÔÚË«ÖØÒıÓÃÏÂÄÜÄÃµ½ÓÒÖµ£¬²¢¼òµ¥µØÒÆ¶¯Ö¸Õë£¬Ö®ºóÉ¾³ıÔ­Ö¸Õë
+			//	åœ¨åŒé‡å¼•ç”¨ä¸‹èƒ½æ‹¿åˆ°å³å€¼ï¼Œå¹¶ç®€å•åœ°ç§»åŠ¨æŒ‡é’ˆï¼Œä¹‹ååˆ é™¤åŸæŒ‡é’ˆ
 			m_data = other.m_data;
 			other.m_data = nullptr;
 		}
@@ -932,18 +935,18 @@ namespace utils {
 	class Enstring {
 	public:
 		Enstring(const String& name) : m_name(name) {}
-		//	ĞÎ²ÎÀïnameÊÇÓÒÖµ£¬µ«·Åµ½³õÊ¼»¯ÁĞ±íÀïµÄÊµ²Îname½«×÷Îª×óÖµ´«Èë£¬ĞèÒªÊ¹ÓÃstd;:moveÎŞÌõ¼şÔÙ´ÎÇ¿ÖÆ±ä³ÉÓÒÖµ
+		//	å½¢å‚é‡Œnameæ˜¯å³å€¼ï¼Œä½†æ”¾åˆ°åˆå§‹åŒ–åˆ—è¡¨é‡Œçš„å®å‚nameå°†ä½œä¸ºå·¦å€¼ä¼ å…¥ï¼Œéœ€è¦ä½¿ç”¨std;:moveæ— æ¡ä»¶å†æ¬¡å¼ºåˆ¶å˜æˆå³å€¼
 		Enstring(String&& name): m_name(std::move(name)) {}
 	private:
 		String m_name;
 	};
 
 	void initStringAndMove() {
-		//	Èç¹û²»Ê¹ÓÃË«ÖØÒıÓÃ&&ÖØÔØString¹¹Ôì·½·¨£¬Õâ¸ö´´½¨·½Ê½»áÏÈÔÚ¶ÑÉÏ·ÖÅä´´½¨String("lotaway")£¬Ö®ºóÔÚEnstringÍ¨¹ım_name³õÊ¼»¯ÁĞ±íÓÖÖØĞÂÔÚ¶ÑÉÏ·ÖÅä´´½¨£¨¼´Ê¹Ê¹ÓÃµÄÊÇÒıÓÃ&£¬µ«StringµÄ¹¹Ôì´´½¨Óë¸´ÖÆ·½·¨¾ö¶¨ÁË»á·ÖÅä³ÉÁ½¸ö¶Ñ£©
+		//	å¦‚æœä¸ä½¿ç”¨åŒé‡å¼•ç”¨&&é‡è½½Stringæ„é€ æ–¹æ³•ï¼Œè¿™ä¸ªåˆ›å»ºæ–¹å¼ä¼šå…ˆåœ¨å †ä¸Šåˆ†é…åˆ›å»ºString("lotaway")ï¼Œä¹‹ååœ¨Enstringé€šè¿‡m_nameåˆå§‹åŒ–åˆ—è¡¨åˆé‡æ–°åœ¨å †ä¸Šåˆ†é…åˆ›å»ºï¼ˆå³ä½¿ä½¿ç”¨çš„æ˜¯å¼•ç”¨&ï¼Œä½†Stringçš„æ„é€ åˆ›å»ºä¸å¤åˆ¶æ–¹æ³•å†³å®šäº†ä¼šåˆ†é…æˆä¸¤ä¸ªå †ï¼‰
 		Enstring enstring("lotaway");
 	}
 
-	// iteralorµü´úÆ÷£¬Ê¹ÓÃÖ¸Õë½øĞĞÑ­»·µü´úÈ¡Öµ
+	// iteralorè¿­ä»£å™¨ï¼Œä½¿ç”¨æŒ‡é’ˆè¿›è¡Œå¾ªç¯è¿­ä»£å–å€¼
 	void initIteralor() {
 
 		//	vector iterator
@@ -980,7 +983,7 @@ namespace utils {
 			auto& key = it.first;
 			auto& value = it.second;
 		}
-		//	method 3: using for : with ½á¹¹½â¹¹
+		//	method 3: using for : with ç»“æ„è§£æ„
 		for (auto [key, value] : map) {
 			logger::out(key, value);
 		}
@@ -1131,61 +1134,61 @@ namespace utils {
 		MyVector<int> mVector;
 	}
 
-	//	Ë«ÖØ¼ì²éËø£¿
+	//	åŒé‡æ£€æŸ¥é”ï¼Ÿ
 
-	// hash map ¹Ù·½ÊµÏÖ£ºunordered_map£¬ÎŞĞòÇÒ¼üÃûÎ¨Ò»£¬Ëæ»úÍ°·ÖÅä·½Ê½
+	// hash map å®˜æ–¹å®ç°ï¼šunordered_mapï¼Œæ— åºä¸”é”®åå”¯ä¸€ï¼Œéšæœºæ¡¶åˆ†é…æ–¹å¼
 	void initHashMap() {
-		//	ĞèÒªÌá¹©¼üÃûÀàĞÍºÍ¼üÖµÀàĞÍ²ÅÄÜ´´½¨hashmap
+		//	éœ€è¦æä¾›é”®åç±»å‹å’Œé”®å€¼ç±»å‹æ‰èƒ½åˆ›å»ºhashmap
 		std::unordered_map<std::string, int> umap;
 
-		//	Ìí¼ÓÊı¾İ£¨ÈôÔ­±¾µÄ¼üÒÑ¾­´æÔÚÔò¸²¸Ç£©
+		//	æ·»åŠ æ•°æ®ï¼ˆè‹¥åŸæœ¬çš„é”®å·²ç»å­˜åœ¨åˆ™è¦†ç›–ï¼‰
 		umap.emplace("wayluk", 30);
 		umap.emplace("lotaway", 18);
 
-		//	»ñÈ¡Êı¾İ
+		//	è·å–æ•°æ®
 		std::unordered_map<std::string, int>::const_iterator it = umap.find("wayluk");
 		if (it == umap.end())
-			std::cout << "ÕÒ²»µ½Êı¾İ" << std::endl;
+			std::cout << "æ‰¾ä¸åˆ°æ•°æ®" << std::endl;
 		else
-			std::cout << "ÕÒµ½ÁË£¡£¡£º" << it->second << std::endl;
+			std::cout << "æ‰¾åˆ°äº†ï¼ï¼ï¼š" << it->second << std::endl;
 
-		//	É¾³ıÊı¾İ£¬´Ë´¦Îªµ¥ÌõÉ¾³ı£¬Ò²¿ÉÒÔµü´úÆ÷·¶Î§ĞÔÉ¾³ı
+		//	åˆ é™¤æ•°æ®ï¼Œæ­¤å¤„ä¸ºå•æ¡åˆ é™¤ï¼Œä¹Ÿå¯ä»¥è¿­ä»£å™¨èŒƒå›´æ€§åˆ é™¤
 		umap.erase("wayluk");
 
-		//	²åÈëĞÂÊı¾İ£¨Ö»»á²åÈëĞÂ¼ü²»»á¸²¸ÇÒÑÓĞ£¬ÇÒÔÊĞíÅúÁ¿²åÈë¶à¸öÖµ»òÆäËûmap£©
-		//	·½Ê½1£º´«µİpair
+		//	æ’å…¥æ–°æ•°æ®ï¼ˆåªä¼šæ’å…¥æ–°é”®ä¸ä¼šè¦†ç›–å·²æœ‰ï¼Œä¸”å…è®¸æ‰¹é‡æ’å…¥å¤šä¸ªå€¼æˆ–å…¶ä»–mapï¼‰
+		//	æ–¹å¼1ï¼šä¼ é€’pair
 		std::pair<std::string, int> newGuy("wayluk", 31);
 		umap.insert(newGuy);
-		//	·½Ê½2£º´«ÈëÁíÒ»¸ömap£¨Ò»²¿·Ö»òÕßÈ«²¿£©
+		//	æ–¹å¼2ï¼šä¼ å…¥å¦ä¸€ä¸ªmapï¼ˆä¸€éƒ¨åˆ†æˆ–è€…å…¨éƒ¨ï¼‰
 		std::unordered_map<std::string, int> other_map{ { "mimi", 27 }, {"haha", 37} };
 		umap.insert(other_map.begin(), other_map.end());
-		//	·½Ê½3£ºÖ±½Ó×ÖÃæÁ¿³õÊ¼»¯
+		//	æ–¹å¼3ï¼šç›´æ¥å­—é¢é‡åˆå§‹åŒ–
 		umap.insert({ { "shutup", 30 }, { "hate", 30 }, {"eatshit", 30} });
 
-		//	µü´úÆ÷·¶Î§ĞÔÉ¾³ı
+		//	è¿­ä»£å™¨èŒƒå›´æ€§åˆ é™¤
 		if (!umap.empty())
 			umap.erase(other_map.begin(), other_map.end());
 
-		//	Ñ­»·Êä³ö
+		//	å¾ªç¯è¾“å‡º
 		for (auto& m : umap)
 			std::cout << m.first << ":" << m.second << std::endl;
 	}
 
-	//	ÓÃhashmapÍê³ÉÔÚÊı×éÀïÕÒµ½Ö¸¶¨½á¹ûµÄÁ½ÊıÏà¼Ó£¬ÈçÌá¹©Êı×é[30,40,60,80]ºÍ×ÜÖµ100£¬ÆäÖĞ40+60=100£¬ÒªÇóÕÒµ½40ºÍ60²¢·µ»ØËüÃÇµÄË÷ÒıÖµ
+	//	ç”¨hashmapå®Œæˆåœ¨æ•°ç»„é‡Œæ‰¾åˆ°æŒ‡å®šç»“æœçš„ä¸¤æ•°ç›¸åŠ ï¼Œå¦‚æä¾›æ•°ç»„[30,40,60,80]å’Œæ€»å€¼100ï¼Œå…¶ä¸­40+60=100ï¼Œè¦æ±‚æ‰¾åˆ°40å’Œ60å¹¶è¿”å›å®ƒä»¬çš„ç´¢å¼•å€¼
 	std::vector<int> getSumTwoBySum(const std::vector<int>& arr, const int sum) {
 		std::unordered_map<int, int> requireUMap;
 		for (int i = 0, l = arr.size(); i < l; i++) {
-			//	µ±ÕÒµ½ºÍËùĞèµÄÊıÖµÒ»ÖÂÊ±£¬Ôò´ú±íµ±Ç°Õâ¸öÊıÖµºÍÒÑÔÚmapµÄË÷ÒıËùÔÚµÄÊıÖµÄÜ×÷ÎªÒ»¶Ô£¬µÃµ½½á¹û¡£
+			//	å½“æ‰¾åˆ°å’Œæ‰€éœ€çš„æ•°å€¼ä¸€è‡´æ—¶ï¼Œåˆ™ä»£è¡¨å½“å‰è¿™ä¸ªæ•°å€¼å’Œå·²åœ¨mapçš„ç´¢å¼•æ‰€åœ¨çš„æ•°å€¼èƒ½ä½œä¸ºä¸€å¯¹ï¼Œå¾—åˆ°ç»“æœã€‚
 			std::unordered_map<int, int>::const_iterator it = requireUMap.find(sum - arr[i]);
 			if (it != requireUMap.end())
 				return { it->second, i };
-			//	½«µ±Ç°ËùĞèÒªµÄÊıÖµºÍË÷ÒıÖµ¼ÇÂ¼ÏÂÀ´
+			//	å°†å½“å‰æ‰€éœ€è¦çš„æ•°å€¼å’Œç´¢å¼•å€¼è®°å½•ä¸‹æ¥
 			requireUMap.emplace(arr[i], i);
 		}
 		return { 0, 0 };
 	}
 
-	//	ÅĞ¶ÏÊäÈëµÄÊı×ÖÊÇ·ñÎª»ØÎÄ¸ñÊ½£¬Èç121£¬12321¾ÍÊÇ»ØÎÄ£¬´Ó¸ßÎ»µ½µÍÎ»·´¹ıÀ´Ò²ÊÇÏàµÈ£¬×¢Òâ²»ÒªÊ¹ÓÃ×Ö·û´®·½Ê½
+	//	åˆ¤æ–­è¾“å…¥çš„æ•°å­—æ˜¯å¦ä¸ºå›æ–‡æ ¼å¼ï¼Œå¦‚121ï¼Œ12321å°±æ˜¯å›æ–‡ï¼Œä»é«˜ä½åˆ°ä½ä½åè¿‡æ¥ä¹Ÿæ˜¯ç›¸ç­‰ï¼Œæ³¨æ„ä¸è¦ä½¿ç”¨å­—ç¬¦ä¸²æ–¹å¼
 	bool isPalindrome(int x) {
 		if (x < 0)
 			return false;
@@ -1217,13 +1220,13 @@ namespace utils {
 	void reverseString(std::string x) {
 		std::string originStr = "12321";
 
-		//	·´×ª×Ö·û´®£¬·½Ê½1£¬ĞèÒª´´½¨ÁíÍâÒ»¸ö×Ö·û´®
+		//	åè½¬å­—ç¬¦ä¸²ï¼Œæ–¹å¼1ï¼Œéœ€è¦åˆ›å»ºå¦å¤–ä¸€ä¸ªå­—ç¬¦ä¸²
 		std::string reStr(originStr.rbegin(), originStr.rend());
 
-		//	·´×ª×Ö·û´®£¬·½Ê½2£¬Ö±½ÓĞŞ¸ÄÔ­ÓĞµÄ×Ö·û´®
+		//	åè½¬å­—ç¬¦ä¸²ï¼Œæ–¹å¼2ï¼Œç›´æ¥ä¿®æ”¹åŸæœ‰çš„å­—ç¬¦ä¸²
 		std::reverse(originStr.begin(), originStr.end());
 
-		//	·´×ª×Ö·û´®£¬·½Ê½3£¬¸´ÖÆÒ»¸ö×Ö·û´®½øĞĞ·´×ª
+		//	åè½¬å­—ç¬¦ä¸²ï¼Œæ–¹å¼3ï¼Œå¤åˆ¶ä¸€ä¸ªå­—ç¬¦ä¸²è¿›è¡Œåè½¬
 		std::string cpStr;
 		std::reverse_copy(std::begin(originStr), std::end(originStr), std::begin(cpStr));
 	}
@@ -1273,33 +1276,100 @@ namespace utils {
 		std::cout << ln << std::endl;
 	}
 
-	size_t max(size_t a, size_t b) {
-		return a > b ? a : b;
-	}
-
-	//	»ñÈ¡×Ö·û´®ÀïÃ·Ã»ÓĞÖØ¸´×Ö·ûµÄ×Ó×Ö·û´®³¤¶È£¬ÈçabcacdÖĞ£¬abcÊÇ×î³¤µÄÎŞÖØ¸´×Ö·ûµÄ×Ó×Ö·û´®£¬³¤¶ÈÎª3
+	//	è·å–å­—ç¬¦ä¸²é‡Œæ¢…æ²¡æœ‰é‡å¤å­—ç¬¦çš„å­å­—ç¬¦ä¸²é•¿åº¦ï¼Œå¦‚abcacdä¸­ï¼Œabcæ˜¯æœ€é•¿çš„æ— é‡å¤å­—ç¬¦çš„å­å­—ç¬¦ä¸²ï¼Œé•¿åº¦ä¸º3
 	int lengthOfLongestSubstring(std::string s) {
 		size_t size = s.size();
 		size_t longestCount = 0;
 		int startIndex = 0;
-		std::unordered_map<char, int> char2LastIndex;
+		std::unordered_map<char, int> char2Index;
 		for (size_t i = startIndex; i < size; i++) {
-			char c = s[i];
-			auto charLastIndex = char2LastIndex.find(c);
+			char letter = s[i];
+			auto it = char2Index.find(letter);
 			bool isLast = i == size - 1;
-			bool hasRepeat = charLastIndex != char2LastIndex.end() && charLastIndex->second >= startIndex;
+			bool isRepeat = it != char2Index.end() && it->second >= startIndex;
 			//  if already have a repeat char inside the child string, just count get the longest count and reset the child start index
-			if (isLast || hasRepeat) {
-				longestCount = max(i - startIndex + (hasRepeat ? 0 : 1), longestCount);
-				if (isLast)
-					break;
-				startIndex = charLastIndex->second + 1;
+			if (isLast || isRepeat) {
+				longestCount = std::max(i - startIndex + (isRepeat ? 0 : 1), longestCount);
+				startIndex = it->second + 1;
 				if (size - startIndex <= longestCount)
 					break;
 			}
-			char2LastIndex[c] = i;
+			char2Index[letter] = i;
 		}
 		return longestCount;
+	}
+
+	//	åˆ¤æ–­å½“å‰å¯†ç æ˜¯å¼ºå¯†ç è¿˜æ˜¯å¼±å¯†ç ï¼Œè¿”å›strongæˆ–weakï¼Œè§„åˆ™1ï¼šä¸å¯ä»¥æœ‰è¿ç»­é‡å¤ç›¸åŒå­—ç¬¦3æ¬¡ï¼›è§„åˆ™2ï¼šå¿…é¡»æ˜¯8~22ä¸ªå­—ç¬¦ä¹‹é—´ï¼›è§„åˆ™3ï¼šå¿…é¡»åŒ…å«è‡³å°‘1ä¸ªæ•°å­—ã€1ä¸ªå°å†™å­—æ¯å’Œ1ä¸ªå¤§å†™å­—æ¯
+	std::string checkPassword(std::string password) {
+		std::string Strong = "strong", Weak = "weak";
+		size_t size = password.size();
+		if (size < 8 || size > 22)
+			return Weak;
+		bool hasLowcase = false, hasUppercase = false, hasNum = false;
+		char prevCh = '\0';
+		size_t repeatCount = 0;
+		for (std::string::const_iterator it = password.begin(); it != password.end(); it++)
+		{
+			char ch = *it;
+			if (ch == prevCh)
+			{
+				repeatCount++;
+				if (repeatCount >= 3)
+					return Weak;
+			}
+			else
+			{
+				prevCh = ch;
+				repeatCount = 1;
+			}
+			if ('a' <= ch && ch <= 'z')
+				hasLowcase = true;
+			if ('A' <= ch && ch <= 'Z')
+				hasUppercase = true;
+			if (0 <= ch <= 9)
+				hasNum = true;
+		}
+		return hasLowcase && hasUppercase && hasNum ? Strong : Weak;
+	}
+
+	void testCheckPassword(std::string password = "") {
+		while (true) {
+			if (password == "") {
+				std::cout << "Please input your password:" << std::endl;
+				std::cin >> password;
+			}
+			std::string result = utils::checkPassword(password);
+			std::cout << result << std::endl;
+			password = "";
+		}
+	}
+
+	//	æ ¹æ®æ’åºå¥½çš„B-æ ‘è¾“å‡ºæˆæ•°ç»„å½¢å¼
+	struct BMinTree {
+		int m_value;
+		BMinTree* m_left = nullptr,*m_right = nullptr;
+		BMinTree(int value) : m_value(value) {}
+		BMinTree(int value, BMinTree* left)
+			: m_value(value), m_left(left) {}
+		BMinTree(int value, BMinTree* left, BMinTree* right)
+			: m_value(value), m_left(left),m_right(right) {}
+		BMinTree(int value, int left_value, int right_value) : m_value(value) {
+			m_left = new BMinTree(left_value);
+			m_right = new BMinTree(right_value);
+		}
+		BMinTree* build() {
+
+		}
+	};
+
+	std::vector<int> tree2Array(BMinTree& root) {
+		std::vector<int> result;
+
+		return result;
+	}
+
+	void testTree2Array() {
+		BMinTree* _root = new BMinTree{ 7, 5, 8 };
 	}
 
 	void quickSort(int arr[], int start, int end) {
@@ -1449,7 +1519,7 @@ namespace utils {
 		Money* moneys = countMoney();
 		for (int i = 0; i < 6; i++) {
 			Money m = moneys[i];
-			std::cout << m.m_type << "ÔªµÄÕÅÊıÊÇ£º" << m.m_value << std::endl;
+			std::cout << m.m_type << "å…ƒçš„å¼ æ•°æ˜¯ï¼š" << m.m_value << std::endl;
 		}
 	}
 
@@ -1515,12 +1585,12 @@ namespace utils {
 			int j = i - 1;
 			while (j >= 0) {
 				if (interview[i].second <= interview[j].second) {
-					dp[i] = max(dp[i], dp[j]);
+					dp[i] = std::max(dp[i], dp[j]);
 				}
 				j--;
 			}
 			dp[i] += interview[i].first;
-			sum = max(sum, dp[i]);
+			sum = std::max(sum, dp[i]);
 		}
 		return sum;
 	}
@@ -1542,7 +1612,7 @@ namespace utils {
 
 P     I     N
 A   L S   I G
-Y A   H R   
+Y A   H R
 P     I
 
 */
@@ -1571,4 +1641,140 @@ P     I
 		}
 		return result;
 	}
+
+	/*
+	ç”±è‡³å°‘ 6 ä¸ªï¼Œè‡³å¤š 20 ä¸ªå­—ç¬¦ç»„æˆã€‚
+åŒ…å«è‡³å°‘ ä¸€ä¸ªå°å†™ å­—æ¯ï¼Œè‡³å°‘Â ä¸€ä¸ªå¤§å†™ å­—æ¯ï¼Œå’Œè‡³å°‘Â ä¸€ä¸ªæ•°å­— ã€‚
+ä¸åŒ…å«è¿ç»­ä¸‰ä¸ªé‡å¤å­—ç¬¦ (æ¯”å¦‚ "Baaabb0" æ˜¯å¼±å¯†ç , ä½†æ˜¯Â "Baaba0" æ˜¯å¼ºå¯†ç )ã€‚
+ç»™ä½ ä¸€ä¸ªå­—ç¬¦ä¸² password ï¼Œè¿”å› å°† password ä¿®æ”¹åˆ°æ»¡è¶³å¼ºå¯†ç æ¡ä»¶éœ€è¦çš„æœ€å°‘ä¿®æ”¹æ­¥æ•°ã€‚å¦‚æœ password å·²ç»æ˜¯å¼ºå¯†ç ï¼Œåˆ™è¿”å› 0
+*/
+	int strongPasswordChecker(std::string password) {
+		short need_insert = 0, need_delete = 0, need_replace = 0, require_letter = 0, fixed = 0;
+		size_t size = password.size();
+		if (6 > size)
+			need_insert = 6 - size;
+		if (size > 20)
+			need_delete = size - 20;
+		std::vector<int> vec_repeat;
+
+		bool has_upper = false, has_lower = false, has_digit = false;
+		short repeat_size = 3, repeat_count = 0;
+		std::string::const_iterator prevIt = password.end();
+		for (std::string::const_iterator it = password.begin(); it != password.end(); it++) {
+			char ch = *it;
+			if (prevIt != password.end() && *prevIt == *it)
+				repeat_count++;
+			else {
+				if (repeat_count >= repeat_size)
+					vec_repeat.push_back(repeat_count);
+				repeat_count = 1;
+			}
+			if (!has_upper && std::isupper(ch))
+				has_upper = true;
+			if (!has_lower && std::islower(ch))
+				has_lower = true;
+			if (!has_digit && std::isdigit(ch))
+				has_digit = true;
+			prevIt = it;
+		}
+		require_letter = has_upper + has_lower + has_digit;
+
+		for (std::vector<int>::iterator it = vec_repeat.begin(); it != vec_repeat.end(); it++) {
+			int repeat_count = *it;
+			while (repeat_count >= repeat_size) {
+				int loop = repeat_count / repeat_size;
+				int left = repeat_count % repeat_size;
+				if (need_delete > 0 && left > 0 && left <= need_delete) {
+					need_delete -= left;
+					fixed += left;
+					repeat_count -= left;
+				}
+				else if (need_insert > 0) {
+					if (require_letter > 0) {
+
+					}
+					else {
+						repeat_count -= std::min(repeat_count / 2, (int)need_insert) * 2;
+					}
+				}
+				else {
+					need_replace++;
+					repeat_count -= repeat_size;
+				}
+			}
+		}
+
+		while (require_letter-- > 0)
+			if (need_insert > 0) {
+				need_insert--;
+				fixed++;
+			}
+			else if (need_replace > 0) {
+				need_replace--;
+				fixed++;
+			}
+			else
+				fixed++;
+		return fixed + need_insert + need_delete + need_replace;
+	}
+
+	void testStrongPasswordChecker() {
+		//	bbaaAaaAaaAaaAaaccAcc
+		int result = strongPasswordChecker("bbaaaaaaaaaaaaaaacccccc");
+		std::cout << result << std::endl;
+	}
+
+		bool strongPasswordCheckerII(std::string password) {
+			size_t size = password.size();
+			if (size < 8)
+				return false;
+			bool hasUp = false, hasLow = false, hasNum = false, hasSch = false;
+			char prevCh = '\0';
+			std::set<char> sch{ '!','@','#','$','%','^','&','*','(',')','-','+' };
+			for (auto it = password.begin();it != password.end();it++) {
+				char ch = *it;
+				if (ch == prevCh)
+					return false;
+				prevCh = ch;
+				if (!hasUp && 'A' <= ch && ch <= 'Z')
+					hasUp = true;
+				if (!hasLow && 'a' <= ch && ch <= 'z')
+					hasLow = true;
+				if (!hasNum && '0' <= ch && ch <= '9')
+					hasNum = true;
+				auto sch_it = sch.find(ch);
+				if (!hasSch && sch_it != sch.end())
+					hasSch = true;
+			}
+			return hasUp && hasLow && hasNum && hasSch;
+		}
+
+		//	abc(def(gh)i)jkl => abc(i(gh)fed)jkl => abcighfedjkl
+		std::string reverseParentheses(std::string input_string) {
+			std::stack<std::string> stk;
+			std::string str;
+			for (char& ch : input_string) {
+				if (ch == '(') {
+					stk.push(str);
+					str = "";
+				}
+				else if (ch == ')') {
+					std::reverse(str.begin(), str.end());
+					str = stk.top() + str;
+					stk.pop();
+				}
+				else {
+					str.push_back(ch);
+				}
+			}
+			return str;
+		}
+
+		void testReverseParentheses() {
+			//	æ²¡æœ‰è€ƒè™‘å¤šä¸ªå­æ‹¬å·å¹¶è”æ—¶éœ€è¦å…ˆäº¤æ¢ä½ç½®
+			std::string input_string{ "n(ev(t)((()lfevf))yd)cb()" };
+			std::cout << "input: " << input_string << std::endl;
+			std::string result = reverseParentheses(input_string);
+			std::cout << "output: " << result << std::endl;
+		}
 }

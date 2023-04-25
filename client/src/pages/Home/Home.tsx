@@ -21,7 +21,7 @@ export default function Home() {
                 if (err.name === "AbortError") {
                     console.log("Cancel by abort controller.")
                 } else {
-
+                    
                 }
             });
         }, 5 * 1000)

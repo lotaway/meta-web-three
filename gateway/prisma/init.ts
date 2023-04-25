@@ -19,12 +19,12 @@ async function main() {
         })
         const createAuthorRes = await prismaClient.author.create({
             data: {
-                userId: {
+                user_id: {
                     connect: {
                         id: createUserRes.id
                     }
                 },
-                isEnable: true
+                is_enable: true
             }
         })
         // const createArticleRes = await prismaClient.article.create({
@@ -41,7 +41,7 @@ async function main() {
         //     }
         // })
         //  使用了text字段类型后，无法支持create和update方法，只能直接写SQL语句
-        const createArticleRes = await prismaClient.$queryRaw`insert into article (id,title,content,state,sourceName,sourceUrl,authorId) values (uuid(),'这就是文章标题1','这就是文章内容2',1,'','google.com',${createAuthorRes.id})` as { id: string }
+        const createArticleRes = await prismaClient.$queryRaw`insert into Article (id,title,content,state,source_name,source_url,author_id) values (uuid(),'这就是文章标题1','这就是文章内容2',1,'','google.com',${createAuthorRes.id})` as { id: string }
         /*const updateArticleRes = await prismaClient.article.update({
             where: {
                 id: createArticleRes.id
@@ -74,7 +74,7 @@ async function main() {
                 author: {
                     select: {
                         id: true,
-                        realname: true
+                        real_name: true
                     }
                 }
             }

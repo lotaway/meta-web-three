@@ -237,3 +237,79 @@ where id = 1;
 ```shell
 delete from `BookChapter` where id=1;
 ```
+
+# 锁
+
+## 全局锁/库锁
+全局锁就是对整个数据库都加锁，使用以下命令完成：
+```sql
+Flush tables with read lock;
+```
+也可以考虑用全局变量：
+```sql
+set global readonly=true;
+```
+这会让整个库都只能读，写入修改数据和结构都是不被允许的。这种方式一般只有用于数据库备份甚至不被使用。
+
+## 表级锁
+
+表级锁即对单个或多个表加锁，MySQL里的表级锁会分为表锁和元数据锁。
+
+表锁可以限制只能读取或者读写都禁止：
+
+```sql
+-- 表锁
+lock/unlock tables table_name_1 read/write, table_name_2 read/write;
+```
+
+MDL元数据锁（Meta Data Lock）是当sql语句执行时会自动添加而无须显式调用，增删改查的sql会添加MDL读锁，禁止修改表结构的sql；修改表结构的sql会添加MDL写锁，禁止增删改查的sql。
+MDL是MySQL特有的。
+
+## 行锁
+
+行锁即只针对单行或多行数据加锁。
+行锁一般是数据库引擎实现的，也不是所有的引擎都支持，常见于事务使用：
+
+```sql
+begin;
+update table_name_1 set value = value + 1 where name = 'a name';
+delete from table_name_2 where id = 1;
+commit;
+```
+
+## 间隔锁 Gap Lock
+
+间隔锁（Gap Lock）是MySQL中的一种行锁，用于锁定一个范围而不是单个行。它锁定一个范围，但不包括记录本身，因此允许其他事务在范围内插入新记录，但不允许其他事务插入已经存在的记录。间隔锁可以防止幻读问题，但是会降低并发性能。
+
+间隔锁在以下场景会自动使用：
+当使用范围条件查询时，MySQL会自动使用间隔锁来防止幻读问题。
+例如：
+```sql
+SELECT * FROM `table_name` WHERE `id` BETWEEN 10 AND 20 FOR UPDATE;
+```
+
+手动使用间隔锁：
+可以使用以下语句手动添加间隔锁：
+
+### X锁/排他锁
+
+```sql
+SELECT * FROM `table_name` WHERE `id` BETWEEN 10 AND 20 FOR UPDATE;
+```
+
+或者
+
+### S锁/共享锁
+
+```sql
+SELECT * FROM `table_name` WHERE `id` BETWEEN 10 AND 20 LOCK IN SHARE MODE;
+```
+
+共享锁和另一个共享锁可以共存，但共享锁和排他锁之间、排他锁和另一个排他锁之间不能共存
+
+## 幻读和不可重复读
+
+-- 幻读是指在同一事务中，由于其他事务插入了新的数据，导致同一查询条件下返回了不同的结果集。
+-- 不可重复读是指在同一事务中，由于其他事务修改了数据，导致同一查询条件下返回了不同的结果集。
+-- 幻读和不可重复读都是事务隔离级别中的问题，但是幻读是针对插入操作，不可重复读是针对修改操作。
+-- 可以通过设置事务隔离级别来解决这些问题，例如将隔离级别设置为Serializable。 

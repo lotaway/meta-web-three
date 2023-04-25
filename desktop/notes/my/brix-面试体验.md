@@ -73,7 +73,6 @@ function matrixTranform(parens) {
 # 小括号检查（中等/困难）
 
 要求检查所有左右括号是否正确匹配上，如"(abc)(as)"是正确的，而"()))"，")("是不正确的。
-
 ```javascript
 function quoteCheck(parens) {
     //  先通过正则和字符串转数组的分隔符将不是括号的项和紧靠的括号对都排除掉
@@ -88,7 +87,7 @@ function quoteCheck(parens) {
     let result = true
     let left = 0
     for (let i = 0, l = array.length; i < l; i++) {
-        if (!result) {
+        if (!result || left > l - i) {
             break;
         }
         switch (array[i]) {
@@ -184,7 +183,6 @@ function tree2Array(root = mock) {
         return prev
     }, [])
 }
-
 ```
 
 # 平台面试

@@ -1,5 +1,6 @@
 from cmd import Cmd
 import os
+import requests
 
 
 class Mm:
@@ -35,6 +36,7 @@ def main(args: [str, ...] = None):
                     status.is_start = True
         file_run_dev.close()
     cmd = Cmd(file_run_dev_content)
+    requests.get("https://demo.8248.net")
     # os.system("dir")
 
 
