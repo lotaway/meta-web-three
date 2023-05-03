@@ -61,7 +61,7 @@ public class UserController {
         Map<String, Object> claimsMap = new HashMap<>();
         claimsMap.put("email", email);
         claimsMap.put("typeId", typeId);
-        Key key = SecretUtilsKey.getKey();
+        Key key = SecretUtilsKey.getKey("/init_config/sign_in_secret_key.txt");
         String jwt = Jwts.builder().setSubject(subject).signWith(key, SignatureAlgorithm.HS256).setClaims(claimsMap).setExpiration(new Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000)).compact();
         return ApiResponse.success(jwt);
     }

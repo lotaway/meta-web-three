@@ -255,8 +255,6 @@ namespace utils {
 	//	形参里用标准库方法模板定义回调函数类型，lambda才能使用[]捕获作用域变量
 	void each(const std::vector<Value>& values, const std::function<void(Value)>& handler);
 
-	void initLambda();
-
 	void initAuto();
 
 	void initThread();
@@ -304,4 +302,10 @@ namespace utils {
 	std::string reverseParentheses(std::string);
 
 	void testReverseParentheses();
+
+	void initLambda();
+
+	void reverse_num();
+
+	void test_reverse_num();
 }

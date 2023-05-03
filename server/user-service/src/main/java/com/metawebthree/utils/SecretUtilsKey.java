@@ -12,9 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 
 public class SecretUtilsKey {
-    public static Key getKey() throws IOException {
+    public static Key getKey(String path) throws IOException {
         Key key = null;
-        String path = "/init_config/sign_in_secret_key.txt";
         File destFile = new File(path);
         String secretKey = FileUtils.readFileToString(destFile, StandardCharsets.UTF_8);
         if (secretKey.equals("")) {

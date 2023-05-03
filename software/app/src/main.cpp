@@ -30,5 +30,5 @@ namespace allocateMetrics {
 //}
 
 int main() {
-    utils::testReverseParentheses();
+    utils::test_reverse_num();
 }

@@ -338,17 +338,6 @@ namespace utils {
 		std::cout << onlyReadFn.getX() << std::endl;
 	}
 
-	void initLabbda() {
-		int a = 8;
-		//	lambda表达式，一次性函数，&代表引用，=代表值传递
-		auto lam = [&]() {
-			a++;
-			std::cout << a << std::endl;
-			std::cin.get();
-		};
-		lam();
-	}
-
 	Vec::Vec(float x, float y): m_x(x || 0.0f), m_y(y || 0.0f) {}
 
 	Vec Vec::add(const Vec& _vec) const {
@@ -607,18 +596,6 @@ namespace utils {
 		for (Value value : values) {
 			handler(value);
 		}
-	}
-
-	void initLambda() {
-		const char* name = "extra";
-		using Value = int;
-		std::vector<Value> vec = { 1, 2, 3 };
-		// 匿名函数里没有当前作用域的变量
-		each<Value>(vec, [](Value val) { logger::out("name", val); });
-		// 匿名函数里需要有当前作用域的所有变量
-		each<Value>(vec, [=](Value val) { logger::out(name, val); });
-		// 匿名函数里需要有当前作用域的某个变量
-		each<Value>(vec, [&name](Value val) { logger::out(name, val); });
 	}
 
 	void initAuto() {
@@ -1776,5 +1753,61 @@ P     I
 			std::cout << "input: " << input_string << std::endl;
 			std::string result = reverseParentheses(input_string);
 			std::cout << "output: " << result << std::endl;
+		}
+
+		template<typename T>
+		void refence(T &&t, T v) {
+			t = v;
+		}
+
+		int getRightValue() {
+			int k = 3;
+			return k;
+		}
+
+		void testRefence() {
+			int i = 1;
+			const int j = 2;
+			//refence(i, 1);	//	错误，第一个参数T推断为int&整型左值引用，而第二个参数推断为int左值或者右值，两者冲突
+			//refence(j, 1);	//	错误，第一个参数T推断为const int&整型常量左值引用，而第二个参数推断为int左值或者右值，两者冲突
+			refence(getRightValue(), 1);	//	正确，第一个参数T推断为int&&右值引用，而第二个参数推断为int左值或者右值，两者没有冲突
+		}
+
+		//	lambda表达式，一次性函数，&代表引用，=代表值传递
+		void initLambda() {
+			const char* name = "extra";
+			using Value = int;
+			std::vector<Value> vec = { 1, 2, 3 };
+			// 匿名函数里没有当前作用域的变量
+			each<Value>(vec, [](Value val) { logger::out("name", val); });
+			// 匿名函数里需要有当前作用域的所有变量
+			each<Value>(vec, [=](Value val) { logger::out(name, val); });
+			// 匿名函数里需要有当前作用域的某个变量
+			each<Value>(vec, [&name](Value val) { logger::out(name, val); });
+		}
+
+		int reverse_num(int x) {
+			int result = 0;
+			while (x != 0) {
+				int v = 0;
+				if (std::abs(x) >= 10)
+					v = x % 10;
+				else
+					v = x;
+				if (v != 0 || x != 0) {
+					if (result > INT_MAX / 10 || result < INT_MIN / 10)
+						return 0;
+					if (result != 0)
+						result *= 10;
+					result += v;
+				}
+				x /= 10;
+			}
+			return result;
+		}
+
+		void test_reverse_num() {
+			int result = reverse_num(1534236469);
+			std::cout << result << std::endl;
 		}
 }
