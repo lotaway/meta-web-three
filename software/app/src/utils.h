@@ -308,4 +308,16 @@ namespace utils {
 	void reverse_num();
 
 	void test_reverse_num();
+
+	int reverse_number_position();
+
+	void test_reverse_number_position();
+
+	int atoi(std::string);
+
+	void test_atoi();
+
+	int count_time(std::string);
+
+	void test_count_time();
 }

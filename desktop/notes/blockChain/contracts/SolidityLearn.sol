@@ -247,6 +247,7 @@ contract AboutFunction {
         // outCallOnly();  //  not allow direct call a function with `external`
     }
 
+    //  virtual mean the contract need extend and override this method
     modifier canBeOverride() virtual {
         _;
     }
@@ -256,14 +257,14 @@ contract AboutFunction {
 
 }
 
-contract Func2 {
+contract AboutFunc2 {
 
     constructor() {}
 
 }
 
-//  abstract contract, no need to implement
-abstract contract Func3 {
+//  abstract contract, just define and wait for implement
+abstract contract AboutFunc3 {
 
     function onlyDefine() public virtual returns (uint);
 
@@ -271,7 +272,7 @@ abstract contract Func3 {
 
 /// @title extend `AboutFunction`
 /// @notice parent const param `(1)`
-contract ChildContract is AboutFunction(1), Func2, Func3 {
+contract ChildContract is AboutFunction(1), AboutFunc2, AboutFunc3 {
 
     //  parent var param
     // constructor(uint _a) AboutFunction(_a) {}
@@ -383,7 +384,7 @@ contract AboutStructMappingEnum {
     struct Student {
         uint age;
         string name;
-        // mapping(string => uint) grade;   //  no securty, already remove
+        // mapping(string => uint) grade;   //  it's no secure, already remove
     }
 
     Student mimi;

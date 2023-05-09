@@ -1810,4 +1810,112 @@ P     I
 			int result = reverse_num(1534236469);
 			std::cout << result << std::endl;
 		}
+
+		int reverse_number_position(int x) {
+			int result = 0;
+			while (x != 0) {
+				int v = 0;
+				if (std::abs(x) >= 10)
+					v = x % 10;
+				else
+					v = x;
+				if (v != 0 || x != 0) {
+					if (result > INT_MAX / 10 || result < INT_MIN / 10)
+						return 0;
+					if (result != 0)
+						result *= 10;
+					result += v;
+				}
+				x /= 10;
+			}
+			return result;
+		}
+
+		void test_reverse_number_position() {
+			int result = reverse_number_position(-123);
+			std::cout << result << std::endl;
+		}
+
+		int atoi(std::string s) {
+			std::unordered_map<char, int> c2num{ {'0', 0}, {'1', 1}, {'2', 2}, {'3', 3}, {'4', 4}, {'5', 5}, {'6', 6}, {'7', 7}, {'8', 8}, {'9', 9} };
+			bool has_num = false;
+			int result = 0;
+			short is_positive = 0;
+			for (const char& c : s) {
+				auto it = c2num.find(c);
+				if (it != c2num.end()) {
+					has_num = true;
+					if (is_positive != -1)
+						if (result >= (INT_MAX - it->second) / 10)
+							return INT_MAX;
+						else
+							result = result * 10 + it->second;
+					if (is_positive == -1)
+						if (result >= -(INT_MIN + it->second) / 10)
+							return INT_MIN;
+						else
+							result = result * 10 - it->second;
+				}
+				else if (has_num == false) {
+					if (c == ' ')
+						continue;
+					if ((c == '-' || c == '+') && is_positive == 0)
+						is_positive = c == '-' ? -1 : 1;
+					else
+						return 0;
+				}
+				else {
+					break;
+				}
+			}
+			return (is_positive == -1 ? -1 : 1) * result;
+		}
+
+		void test_atoi() {
+			int result = atoi("-000000000000001");
+			std::cout << result << std::endl;
+		}
+
+
+		/*给你一个长度为 5 的字符串 time ，表示一个电子时钟当前的时间，格式为 "hh:mm" 。最早 可能的时间是 "00:00" ，最晚 可能的时间是 "23:59" 。
+			在字符串 time 中，被字符  ? 替换掉的数位是 未知的 ，被替换的数字可能是 0 到 9 中的任何一个。
+			请你返回一个整数 answer ，将每一个 ? 都用 0 到 9 中一个数字替换后，可以得到的有效时间的数目。
+
+			示例 1：
+			输入：time = "?5:00"
+			输出：2
+			解释：我们可以将 ? 替换成 0 或 1 ，得到 "05:00" 或者 "15:00" 。注意我们不能替换成 2 ，因为时间 "25:00" 是无效时间。所以我们有两个选择。
+
+			示例 2：
+			输入：time = "0?:0?"
+			输出：100
+			解释：两个 ? 都可以被 0 到 9 之间的任意数字替换，所以我们总共有 100 种选择。
+
+			示例 3：
+			输入：time = "??:??"
+			输出：1440
+			解释：小时总共有 24 种选择，分钟总共有 60 种选择。所以总共有 24 * 60 = 1440 种选择。
+
+			提示：
+			time 是一个长度为 5 的有效字符串，格式为 "hh:mm" 。
+			"00" <= hh <= "23"
+			"00" <= mm <= "59"
+			字符串中有的数位是 '?' ，需要用 0 到 9 之间的数字替换。*/
+		int count_time(std::string time) {
+			int m10 = time[3] == '?' ? 6 : 1, m1 = time[4] == '?' ? 10 : 1, hh;
+			if (time[0] == '?' && time[1] == '?')
+				hh = 24;
+			else if (time[0] == '?')
+				hh = time[1] < '4' ? 3 : 2;
+			else if (time[1] == '?')
+				hh = time[0] == '2' ? 4 : 10;
+			else
+				hh = 1;
+			return hh * m10 * m1;
+		}
+
+		void test_count_time() {
+			int result = count_time("?5:00");
+			std::cout << result << std::endl;
+		}
 }

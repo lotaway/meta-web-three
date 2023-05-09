@@ -162,19 +162,19 @@ Javascript的超集，添加了静态类型支持和最新的JS特性，包含�
 
 ## 适用于React
 
-1、Material UI
-2、Onsen UI
-3、Chakra UI
-4、React Boostrap
-*、中国更流行Ant Design
+* Material UI
+* Chakra UI
+* Onsen UI
+* React Boostrap
+* Ant Design（中国更流行）
 
 ## 适用于Vue
 
-1、Vuetify
-2、Buefy
-3、Vue Material
-4、Bootstrap Vue
-*、中国更流行ElementUI
+* Vuetify
+* Buefy
+* Vue Material
+* Bootstrap Vue
+* ElementUI（中国更流行）
 
 ## 适用于Angular
 
@@ -185,10 +185,10 @@ Javascript的超集，添加了静态类型支持和最新的JS特性，包含�
 
 ## 适用于Svelte
 
-1、Svelte Material UI
-2、Materialify
-3、Smelte
-4、Sveltestrap
+* Svelte Material UI
+* Materialify
+* Smelte
+* Sveltestrap
 
 # 测试
 
@@ -245,12 +245,12 @@ Headless CMS，内容管理框架，一般用于前后端之间管理和发布�
 # 服务端/后端开发语言
 
 * Node.js，事件驱动，适合高强度IO请求，不适合CPU重度计算用途的应用。作为前端能很轻松上手，适合大前端或前端转全栈的岗位。
-* Java，最常见的大型后端程序开发语言，一般和SpringBoot一起出现，拥有众多支持库和无数的历史坑，当年号称一星期能掌握的开发语言。
-* GoLang，比较新，Google制作用于取代Java，剔除历史包袱，适用于高并发应用，小而美的存在，建议是Java和Go里选择一个选择甚至两个都学。
+* Java，最常见的大型后端程序开发语言，一般和SpringBoot一起出现，拥有众多支持库和无数的历史坑，中国比较常见使用。
+* Kotlin，非常新，主要是作为Android开发中代替Java的存在，也可以用于网站开发但非常少见。
+* GoLang，简称go，比较新的开发语言，Google制作用于取代Java，剔除历史包袱，适用于高并发应用，小而美的存在，建议是Java和Go里选择一个选择甚至两个都学。
 * Python，常见于大数据、机械学习、人工智能等领域相关，作为网站和桌面开发、脚本开发都比较常见。
 * PHP，比较常见于个人或者小型企业网站，但因为国外顶尖建站平台的Wordexpress和Shopify都使用PHP，并附带可自定义开发，而国内也有【】企业需求全栈的PHP人员，所以作为起步也是不错的选择。
 * C#（ASP.NET），比较常见于中国国内网站和国外桌面软件，基础起步也不错，但在国内不如Java受欢迎。
-* Kotlin，非常新，主要是作为Android开发中代替Java的存在，但也可以用于网站开发但非常少见。
 * Rust，比较新，号称最安全的语言，内存管理好，用于替代C++，国外比较多，中国国内非常小众，开发桌面软件比较多，但也有用于网站开发微服务应用。
 * Ruby，国内非常少见，国外比较多。
 * Scala，少见，主要是数据引擎、接口服务、微服务等。
@@ -287,9 +287,9 @@ Laravel非常常见，严谨化了PHP本身，并且是建造在另一个框架S
 
 几乎没有别的可选，就是官方自带的ASP.NET和MVC框架。并且还是那句话，更常见于桌面软件、游戏引擎等。
 
-## Kolin
+## Kotlin
 
-和Java一样适用Spring，其次是Vert.x。
+和Java一样适用Spring Boot，其次是Vert.x。
 
 ## Rust
 
@@ -306,15 +306,15 @@ Laravel非常常见，严谨化了PHP本身，并且是建造在另一个框架S
 
 ## Swift & RLang
 
-无资料。
+略。
 
 # 数据库
 
 主要分为传统的关系型结数据库和非关系型数据库，关系型即表结构固定，例如规定了用户表有哪些信息字段，每个用户记录也都将相同。
 而非关系型即打破这种特性，不同用户记录是可以完全不同的信息字段记录。
 
-* MySQL，关系型数据库，常见搭配PHP，Wordexpress和Shopify也在使用。建议学习，MSSQL和PostSQL都差不多。
-* MS SQL Server，关系型数据库，和MySQL差不多，一般搭配C#使用。
+* MySQL，关系型数据库，常见搭配PHP，Wordpress和Shopify也在使用。建议学习，MSSQL和PostSQL都与MySQL差不多。
+* Microsoft SQL Server，即MSSQL，关系型数据库，和MySQL差不多，一般搭配C#使用。
 * PostgreSQL，关系型数据库，和MySQL差不多，国外使用比较多，中国国内也在逐渐流行起来。
 * Redis，非关系型数据库，建议学习，一般作为缓存层，嫁接在关系型数据库和程序之间。
 * MongoDB，文档型数据库，也是非关系型，一般和Nodejs一起出现，适合各种结构差异大的数据高速读写。
@@ -338,8 +338,7 @@ ORM（Object-Reference-Module）即对象映射模型，因为SQL语法和程序
 
 # REST APIs
 
-REST
-API是一种接口请求开发方式，通过HTTP的请求方法POST、DELETE、PUT、GET对应增删改查，通过统一语义化的URL地址对应请求的功能，例如GET：/product/1对应读取查询id为1的产品信息，DELETE：/product/1对应删除id为1的产品
+REST-API是一种接口请求开发方式，通过HTTP的请求方法POST、DELETE、PUT、GET对应增删改查，通过统一语义化的URL地址对应请求的功能，例如GET：/product/1对应读取查询id为1的产品信息，DELETE：/product/1对应删除id为1的产品
 
 # GraphQL
 
@@ -382,8 +381,8 @@ GraphQL是基于前端需要经常变化接口请求所得的数据内容和结�
 主要是通过跨端框架一次性完成Android和iOS应用的开发工作，虽然大部分时候并不能抹平差异和性能底下、层出不穷的奇怪BUG，跟不上原生系统更新速度等。
 
 * Flutter，目前最受欢迎的跨端框架，通过制作动画一样的方式完成界面开发，需要学习Dart开发语言，无论是Web开发人员还是原生开发人员都可以学习。
-* React Native，基于React的跨端框架，并加入许多原生组件和属性、特性，实际没有减少多少开发量，慎入。
-* Uniapp，中国国内非常常见的跨端框架，主要是能同时兼容H5、Android、iOS、各种小程序，但对PC支持有限（由于类小程序的限制导致响应式设计效果不太好），且性能较差，Web开发人员可以学一学。
+* React Native，基于React的手机应用跨端框架，并加入许多原生组件和属性、特性，实际没有减少多少开发量，坑也多，慎入。
+* Uniapp，中国国内非常常见的跨端框架，主要是能同时兼容H5、Android、iOS、各种小程序，但对PC支持有限（由于类小程序的限制导致响应式设计效果不太好），且性能较差，Web开发人员可以学一学，但坑也非常多，国内主要是用于开发小程序比较方便。
 * Ionic，可以兼容使用其他任何框架，使用预建UI组件来搭建。
 * Xamarin，基于C#的跨端框架，很少见，不建议学习。
 
@@ -392,23 +391,21 @@ GraphQL是基于前端需要经常变化接口请求所得的数据内容和结�
 需要学习的内容：
 
 * 区块链和最大的公网以太网
-* Solidity契约型编程语言，用于编写智能合约
+* Solidity/Viper 契约型编程语言，用于编写智能合约
 * 应用类型，如D游戏、DAO、DeFi、NFT、碳平衡，其中广为外界所知的NFT其实就是一种带有唯一性的货币作为产品本身销售，所以每个货币会因为价值变得价格不一。
 
 # 人工智能
 
-*
-
-TensorFlow一个强大的前端脚本，可以用于加载已完成机器学习的模型，更可搭配调用用户设备摄像头、麦克风、陀螺仪、手势等现场完成训练模型。例如可以用摄像头对你头部动作采样后，让你的头部动作可以控制游戏操作如上下左右移动或者视角变化等。
-
+* TensorFlow一个强大的前端脚本，可以用于加载已完成机器学习的模型，更可搭配调用用户设备摄像头、麦克风、陀螺仪、手势等现场完成训练模型。例如可以用摄像头对你头部动作采样后，让你的头部动作可以控制游戏操作如上下左右移动或者视角变化等。
 * GitHub Copilot，一个编程助手，作为软件插件出现，可以根据当前文件上下文和编写的注释提供比较通用的代码片段，减少重复劳动。
 * ChatGPT，一个非常强大的对话型助手，可以通过输入问题让其提供已知的解决方案，也可以帮你解析代码中存在的问题，相当于一个什么事都懂一点的万能助手。
 * ML-APIs，Python中封装好的识别库，的可以用于图像分类（如狮子和帆船）、多人脸识别、图像文字读取等。
 
 # WebAssembly
 
-可以看做新时代的Flash，主要是用于将程序代码打包放到前端方便调用，主要是高效完成前端javascript不擅长的密集计算、3D模型加载等。
+WebAssembly简称wasm，可以看做新时代的Flash或者程序版的Docker，主要是用于将程序代码打包放到前端方便调用，高效完成前端javascript不擅长的密集计算、3D模型加载等。
 而使用的程序开发语言根据编译工具决定，可以是Rust或者C/C++、Python等，相当于Flash里的ActionScript。
+其次还有wasi（Web Assembly System Interface），基于系统接口进行程序编程的wasm，目标是通过操作系统的适配，使wasm能在Window、Mac、Linux、Android、iOS、浏览器、服务端所有地方都能直接运行并调用系统接口，如摄像头、本地文件系统、消息推送等，这是系统层面的适配而不是原本的浏览器/服务端程序开发语言层面的实现。简单讲就是适用性更广，一次开发处处运行。
 
 # Metaverse 元宇宙
 

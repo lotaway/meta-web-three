@@ -1,7 +1,7 @@
 import {createSlice} from '@reduxjs/toolkit';
 import type {PayloadAction} from '@reduxjs/toolkit';
 
-export interface GlobalStates extends Object {
+export interface GlobalStates {
     clickCount: number
     pageErrorTitle: string
     pageMsgListTitle: string

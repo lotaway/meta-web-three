@@ -30,5 +30,5 @@ namespace allocateMetrics {
 //}
 
 int main() {
-    utils::test_reverse_num();
+    utils::test_atoi();
 }

@@ -1,7 +1,7 @@
 import {createSlice, createAsyncThunk} from "@reduxjs/toolkit";
 import {NSAdvertisement} from "../../services/advertisement";
 
-export interface States extends Object {
+export interface States {
 
 }
 

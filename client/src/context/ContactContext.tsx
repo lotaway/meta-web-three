@@ -2,6 +2,13 @@ import React, {createContext, useEffect, useState} from "react";
 import {ethers} from "ethers";
 import {deployedContract} from "../config/constants";
 
+interface ISendTransactionArgument {
+    addressTo: string
+    amount: string
+    keyword: string
+    message: string
+}
+
 export const ContactContext = createContext<any>({});
 
 export const {ethereum} = window as any;
@@ -48,12 +55,7 @@ export const ContactProvider = ({children}: { children: React.ReactNode }) => {
             throw new Error("No ethereum object.");
         }
     };
-    const sendTransaction = async ({addressTo, amount, keyword, message}: {
-        addressTo: string
-        amount: string
-        keyword: string
-        message: string
-    }) => {
+    const sendTransaction = async ({addressTo, amount, keyword, message}: ISendTransactionArgument) => {
         try {
             if (!ethereum) {
                 return alert("Please install metamask");
