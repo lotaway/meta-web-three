@@ -134,10 +134,27 @@ namespace utils {
 	private:
 		Entity* m_entity;
 	public:
-		//	传入堆上的实例
-		ScopeEntity(Entity* entity);
-		//	删除堆上的实例
-		virtual ~ScopeEntity();
+		//	构造函数，传入堆上的实例Entity
+		ScopeEntity(Entity* entity): m_entity(entity) {
+		};
+		//	析构函数，删除堆上的实例Entity
+		virtual ~ScopeEntity() {
+			delete m_entity;
+		}
+		//	复制构造函数，用于处理复制时的情况，需要重新创建一个堆实例Entity
+		ScopeEntity(const ScopeEntity& other): ScopeEntity(other.m_entity) {
+		}
+		//	移动构造函数
+		ScopeEntity(ScopeEntity&& other) noexcept: m_entity(std::exchange(other.m_entity, nullptr)) {
+		}
+		//	复制赋值，赋值时需要进行原地址的析构和对新地址复制构造
+		ScopeEntity& operator=(const ScopeEntity& other) {
+			return *this = ScopeEntity(other);
+		}
+		ScopeEntity& operator=(ScopeEntity&& other) noexcept {
+			std::swap(m_entity, other.m_entity);
+			return *this;
+		}
 	};
 
 	void initStackClass();
@@ -189,7 +206,7 @@ namespace utils {
 	};
 
 	template<typename Vec>
-	void outputVex(const std::vector<Vec>&);
+	void print_vector(const std::vector<Vec>&);
 
 	void initVector();
 
@@ -269,10 +286,6 @@ namespace utils {
 
 	void initStringOptimization();
 
-	void initMyVector();
-
-	void initCustomIterator();
-
 	bool isPalindrome(int);
 
 	void initListNumberAdd();
@@ -282,6 +295,19 @@ namespace utils {
 	std::string checkPassword(std::string);
 
 	void testCheckPassword();
+
+	struct Tree_node {
+		int val;
+		std::vector<Tree_node*> children;
+		Tree_node(int val)
+			: val(val) {}
+		Tree_node(int val, std::vector<Tree_node*>& children)
+			: val(val), children(children) {}
+	};
+
+	std::vector<int> tree_node_to_array(Tree_node*);
+
+	void test_tree_node2array();
 
 	void testQuickSort();
 
@@ -320,4 +346,12 @@ namespace utils {
 	int count_time(std::string);
 
 	void test_count_time();
+
+	std::vector<int> add_negabinary(std::vector<int>&, std::vector<int>&);
+
+	void test_add_negabinary();
+
+	bool regex_match(const std::string&, const std::string&);
+
+	void test_regex_match();
 }

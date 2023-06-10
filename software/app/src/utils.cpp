@@ -397,12 +397,6 @@ namespace utils {
 
 	void Entity::dododo() {}
 
-	ScopeEntity::ScopeEntity(Entity* entity) : m_entity(entity) {}
-
-	ScopeEntity::~ScopeEntity() {
-		delete m_entity;
-	}
-
 	void initStackClass() {
 		//	此处有自动隐性转换，相当于ScopeEntity(new Entity())
 		{
@@ -507,7 +501,7 @@ namespace utils {
 	}
 
 	template<typename Vec>
-	void outputVex(const std::vector<Vec>& vexs) {
+	void print_vector(const std::vector<Vec>& vexs) {
 		//	循环读取项
 		for (const Vec& vex : vexs) {
 			std::cout << vex;
@@ -523,16 +517,16 @@ namespace utils {
 		//	push_back会在当前环境创建一个Vex实例，之后才复制进vector类
 		vexs.push_back({ 0.0f, 0.0f });
 		vexs.push_back({ 1.0f, 4.0f });
-		outputVex<Vex>(vexs);
+		print_vector<Vex>(vexs);
 		//	清除所有数据
 		vexs.clear();
 		//	emplace_back会直接在vector内部创建，就不会有先创建再复制导致的效率问题
 		vexs.emplace_back(1.0f, 1.0f);
 		vexs.emplace_back(2.0f, 7.0f);
-		outputVex<Vex>(vexs);
+		print_vector<Vex>(vexs);
 		//	删除指定索引的值，无法直接用number类型，.begin()相当于开始的0，即删除索引值为1的第二个值
 		vexs.erase(vexs.begin() + 1);
-		outputVex(vexs);
+		print_vector(vexs);
 	}
 
 	Return1 returnStruct() {
@@ -630,7 +624,7 @@ namespace utils {
 		std::sort(vecInt.begin(), vecInt.end(), [](int a, int b) {
 			return a < b;
 			});
-		utils::outputVex<int>(vecInt);
+		utils::print_vector<int>(vecInt);
 	}
 
 	//	类型转换依赖于RTTI(Runing Time Type Info，运行时类型信息），启用该配置和使用C++函数风格类型转转
@@ -966,151 +960,6 @@ namespace utils {
 		}
 	}
 
-	//	make you own vector iterator
-	template<typename _Vector>
-	class MyVectorIterator {
-	public:
-		using Iterator = MyVectorIterator;
-		using ValueType = typename _Vector::ValueType;
-		using PointerType = ValueType*;
-		using ReferenceType = ValueType&;
-		MyVectorIterator(PointerType ptr) : m_ptr(ptr) {
-
-		}
-		Iterator& operator++() {
-			m_ptr++;
-			return *this;
-		}
-		Iterator operator++(int) {
-			Iterator iterator = *this;
-			++(*this);
-			return iterator;
-		}
-		Iterator operator--() {
-			m_ptr--;
-			return *this;
-		}
-		Iterator operator--(int) {
-			Iterator iterator = *this;
-			--(*this);
-			return iterator;
-		}
-		ReferenceType operator[](int index) {
-			return *(m_ptr + index);
-		}
-		PointerType operator->() {
-			return m_ptr;
-		}
-		PointerType operator*() {
-			return *m_ptr;
-		}
-		bool operator==(const Iterator& other) const {
-			return m_ptr == other.m_ptr;
-		}
-	private:
-		PointerType m_ptr;
-	};
-
-	template<typename T, size_t S = 2>
-	class MyVector {
-	public:
-		using ValueType = T;
-		using Iterator = MyVectorIterator<MyVector>;
-		MyVector() {
-			logger::out("MyVector created");
-			static_assert(S > 0, "size_t S should not be 0");
-			reAlloc(S);
-		}
-		~MyVector() {
-			logger::out("MyVector destroyed");
-			clear();
-			::operator delete(m_data, m_capacity * sizeof(T));
-		}
-		size_t size() const {
-			return m_size;
-		}
-		void push_back(const T& value) {
-			if (m_size >= m_capacity)
-				reAlloc(m_capacity + m_capacity / 2);
-			m_data[m_size++] = value;
-		}
-		void push_back(T&& value) {
-			if (m_size >= m_capacity)
-				reAlloc(m_capacity + m_capacity / 2);
-			m_data[m_size] = std::move(value);
-			m_size++;
-			//value = nullptr;
-		}
-		template<typename... Args>
-		T& emplace_back(Args&... args) {
-			if (m_size >= m_capacity)
-				reAlloc(m_capacity + m_capacity / 2);
-			new (&m_data[m_size]) T(std::forward<Args>(args)...);
-			return m_data[m_size++];
-		}
-		void pop_back() {
-			if (m_size > 0) {
-				m_size--;
-				m_data[m_size].~T();
-			}
-		}
-		void clear() {
-			for (size_t i = 0; i < m_size; i++)
-				m_data[i].~T();
-			m_size = 0;
-		}
-		T& operator[](size_t index) {
-			return m_data[index];
-		}
-		const T& operator[](size_t index) const {
-			return m_data[index];
-		}
-		Iterator begin() {
-			return Iterator(m_data);
-		}
-		Iterator end() {
-			return Iterator(m_data + m_size);
-		}
-	private:
-		T* m_data = nullptr;
-		size_t m_capacity = 0;
-		size_t m_size = 0;
-		void reAlloc(size_t newCapacity) {
-			T* newBlock = (T*)::operator new(newCapacity * sizeof(T));
-			if (newCapacity < m_size)
-				m_size = newCapacity;
-			for (size_t i = 0; i < m_size; i++)
-				new (&newBlock[i]) T(std::move(m_data[i]));
-			for (size_t i = 0; i < m_size; i++)
-				m_data[i].~T();
-			::operator delete(m_data, m_capacity * sizeof(T));
-			m_data = newBlock;
-			m_capacity = newCapacity;
-		}
-	};
-
-	void printMyVector(const MyVector<std::string>& vector) {
-		logger::out(vector.size());
-		for (int i = 0; i < vector.size(); i++)
-			std::cout << "vector item: " + vector[i] << std::endl;
-	}
-
-	void initMyVector() {
-		MyVector<std::string> myVector;
-		myVector.emplace_back("heihei");
-		myVector.push_back("haha");
-		printMyVector(myVector);
-		//myVector.push_back("way luk");
-		myVector.emplace_back("lotaway");
-		printMyVector(myVector);
-		myVector.pop_back();
-		printMyVector(myVector);
-	}
-
-	void initCustomIterator() {
-		MyVector<int> mVector;
-	}
-
 	//	双重检查锁？
 
 	// hash map 官方实现：unordered_map，无序且键名唯一，随机桶分配方式
@@ -1347,6 +1196,36 @@ namespace utils {
 
 	void testTree2Array() {
 		BMinTree* _root = new BMinTree{ 7, 5, 8 };
+	}
+
+	void setValByLevel(std::vector<std::vector<int>>& matrix, Tree_node* child, size_t level = 0) {
+		if (matrix.size() < level)
+			matrix[level + 1] = { child->val };
+		else
+			matrix[level].emplace_back(child->val);
+		for (Tree_node* ch : child->children) {
+			setValByLevel(matrix, ch, level + 1);
+		}
+	}
+
+	std::vector<int> tree_node_to_array(Tree_node* root) {
+		std::vector<std::vector<int>> matrix;
+		setValByLevel(matrix, root);
+		std::vector<int> result;
+		for (const std::vector<int>& vec : matrix) {
+			for (const int val : vec) {
+				result.push_back(val);
+			}
+		}
+		return result;
+	}
+
+	void test_tree_node2array() {
+		std::vector<Tree_node*> vec = { new Tree_node(2), new Tree_node(3)};
+		Tree_node* root = new Tree_node(1, vec);
+		std::vector<int> result = tree_node_to_array(root);
+		for (int val : result)
+			std::cout << val << std::endl;
 	}
 
 	void quickSort(int arr[], int start, int end) {
@@ -1916,6 +1795,49 @@ P     I
 
 		void test_count_time() {
 			int result = count_time("?5:00");
+			std::cout << result << std::endl;
+		}
+
+		std::vector<int> add_negabinary(std::vector<int>& arr1, std::vector<int>& arr2) {
+			int offset = 0;
+			std::vector<int> sum;
+			for (int i = arr1.size() - 1, j = arr2.size() - 1; i >= 0 || j >= 0 || offset != 0; i--, j--) {
+				int _sum = (i >= 0 ? arr1[i] : 0) + (j >= 0 ? arr2[j] : 0) + offset;
+				//	相邻的每一位都是正负正负，但存储的值是正值，因此有进位时相当于对下一位是减1，当为负数时相当于进位加1
+				if (_sum >= 2) {
+					_sum -= 2;
+					offset = -1;
+				}
+				else if (_sum >= 0) {
+					offset = 0;
+				}
+				else {
+					_sum = 1;
+					offset = 1;
+				}
+				sum.push_back(_sum);
+			}
+			while (sum.size() > 1 && sum.back() == 0) {
+				sum.pop_back();
+			}
+			std::reverse(sum.begin(), sum.end());
+			return sum;
+		}
+
+		void test_add_negabinary() {
+			std::vector<int> nums1 = { 1 }, nums2 = { 1 };
+			std::vector<int> sum = utils::add_negabinary(nums1, nums2);
+			print_vector(sum);
+		}
+
+		bool regex_match(const std::string &str, const std::string &regex) {
+			std::regex mobilephone_regex{ regex };
+			std::cmatch matches;
+			return std::regex_search(str.c_str(), matches, mobilephone_regex);
+		}
+
+		void test_regex_match() {
+			bool result = regex_match("+8615999948166", "[\+]?\\d{7,14}");
 			std::cout << result << std::endl;
 		}
 }

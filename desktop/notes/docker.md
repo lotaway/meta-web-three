@@ -57,6 +57,16 @@ docker run [container] -p 8000:8000
 docker exec [container] -it /bin/bash
 ```
 
+例如开启了mysql的容器，要进入mysql，需要先执行以上命令进入容器（相当于一个只有内核的系统），成功后再继续输入进入数据库的命令。
+
+以下进入mysql数据库服务，-u后面是用户名root，-p表示需要输入密码，之后按照password提示输入正确后即可进入：
+
+```bash
+mysql -uroot -p
+```
+
+因此无论启动何种服务，除了少数可以直接通过ip地址+端口号进入的以外，其他就是先进入容器再输入命令进入相应的服务。
+
 查看当前正在运行的容器：
 
 ```bash

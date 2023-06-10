@@ -14,7 +14,7 @@ import SignUp from "./pages/User/SignUp"
 import LogIn from "./pages/User/LogIn"
 import UserCenter from "./pages/User/UserCenter"
 import TransactionRecord from "./pages/User/TransactionRecord"
-import NewWorld from "./pages/NewWorld"
+import NewWorld from "./pages/NewWorld/NewWorld"
 import Auth from "./layouts/Auth/Auth"
 // const ShopIndex = lazy(() => import("./pages/Shop/Index"))
 const routers = createBrowserRouter([

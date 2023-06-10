@@ -315,7 +315,7 @@ public class InitScanner extends ConfigScannerAdapter {
         //  数据结构，增强了头尾元素存取便利性
         LinkedList<String> ll = new LinkedList<>();
         ll.add(sArr[0]);
-        ll.getFirst();
+        System.out.println(ll.getFirst());
 
         ArrayList<Integer> ial = new ArrayList<>();
         for (Integer i : ial) {

@@ -1,5 +1,8 @@
 package com.config;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class ExtractConfigThread extends Thread {
 
 //    public final static Object lock = new Object();
@@ -19,5 +22,14 @@ public class ExtractConfigThread extends Thread {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        /*
+        Lock lock = new ReentrantLock();
+        lock.lock();
+        boolean isLock = lock.tryLock();
+        if (isLock) {
+
+        }
+        lock.unlock();
+        */
     }
 }

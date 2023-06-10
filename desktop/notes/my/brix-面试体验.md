@@ -140,48 +140,30 @@ int lengthOfLongestSubstring(std::string s) {
 ## 树结构转数组（困难）
 
 这题和二叉树有点相似，都是对树结构的处理，和二叉树不同的是子节点可以有两个以上。
+以下树结构数据1为根节点，子节点为2、3，2的子节点为4、5，3的子节点为6，4的子节点为7，8，8的子节点为9，要求转为数组输出[1, 2, 3, 4, 5, 6, 7, 8, 9]
 要求是按照层数排列，既顶层节点，所有2层节点，所有3层节点...
-
-以下模拟树结构数据，要求转为[1, 2, 3, 4, 5, 6, 7, 8, 9]
-
-```javascript
-const mock = {
-    value: 1, childNodes: [{
-        value: 2, childNodes: [{
-            value: 4, childNodes: [{
-                value: 8, childNodes: null
-            }, {
-                value: 9, childNodes: null
-            }]
-        }, {
-            value: 5, childNodes: null
-        }, {
-            value: 6, childNodes: null
-        }]
-    }, {
-        value: 3, childNodes: [{
-            value: 7, childNodes: null
-        }]
-    }]
-}
-```
 
 既然是按照层数转换，就在递归时提供一个层数，每进入深一层递归就增加一层，完成一个按照层级的二维数组，之后再转换为一维数组，可能效率不是很好，但也是我目前想到的唯一解法。
 
-```javascript
-function tree2Array(root = mock) {
-    const array = []
-    const toArr = (target, level = 0) => {
-        array[level] = array[level] || []
-        array[level].push(target.value)
-        if (target.childNodes === null) return false
-        return target.childNodes.map(childNode => toArr(childNode, level + 1))
-    }
-    toArr(root)
-    return array.reduce((prev, item) => {
-        prev.push(...item)
-        return prev
-    }, [])
+```bash
+struct Tree_node {
+	int val;
+	std::vector<Tree_node*> children;
+	Tree_node(int val)
+        : val(val) {}
+	Tree_node(int val, std::vector<Tree_node*>& children)
+		: val(val), children(children) {}
+};
+std::vector<int> tree_node_to_array(Tree_node* root) {
+	std::vector<std::vector<int>> matrix;
+	setValByLevel(matrix, root);
+	std::vector<int> result;
+	for (const std::vector<int>& vec : matrix) {
+		for (const int val : vec) {
+			result.push_back(val);
+		}
+	}
+	return result;
 }
 ```
 

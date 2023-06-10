@@ -657,6 +657,10 @@ fs.createReadStream("aFile.txt").pipe(zlib.createGzip()).pipe(fs4.createWriteStr
 fs.createReadStream("aFile.txt.gz").pipe(zlib.createGunzip()).pipe(fs.createWriteStream("aFile.txt"))
 ```
 
+## 实现大文件传输
+
+[实现一个大文件上传和断点续传](https://www.jianshu.com/p/bd6c6948826b)
+
 # 路径操作 path
 
 path的模块，可以帮你标准化，连接，解析路径，从绝对路径转换到相对路径，从路径中提取各部分信息，检测文件是否存在。总的来说，path模块其实只是些字符串处理，而且也不会到文件系统去做验证（path.exists函数例外）。

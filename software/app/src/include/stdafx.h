@@ -10,13 +10,13 @@
 #include <vector>
 //	std::function所需，用于定义回调和引用函数
 #include <functional>
-//	std::sort数组排序和std::max获取最大值需要
+//	数学计算相关，如std::sort数组排序和std::max获取最大值、uint32_t类型
 #include <algorithm>
 //	make_tuple需要
 #include <tuple>
 //	线程
 #include <thread>
-//	可选类型std::optional，即可能是null
+//	可选类型std::optional
 #include <optional>
 //	文件读写std::fstream
 #include <fstream>
@@ -28,3 +28,5 @@
 #include <variant>
 //	std::any 任意类型的数据
 #include <any>
+//	C++11，正则匹配：std::regex, std::cmatch, std::search_regex
+#include <regex>

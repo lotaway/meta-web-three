@@ -107,16 +107,16 @@ let inputData1: OptionalData = {
 }
 ```
 
-## Require 必须
+## Required 必须
 
-`Require`与`Partial`相反，会将传入的类型内含键全部从可选变为必选
+`Required`与`Partial`相反，会将传入的类型内含键全部从可选变为必选
 
 ```typescript
 type OptionalData = {
     id?: number
     title?: string
 }
-type NecessaryData = Require<OptionalData>
+type NecessaryData = Required<OptionalData>
 ```
 
 上面的代码将id和title变为可选，相当于：
@@ -354,7 +354,8 @@ const classParamArr: ClassParamsArr = [511, "the first one"];
 ## 推断数组项的类型
 
 ```typescript
-//  定义，(infer U)[]推断T是否为数组类型U[]，若是的话返回数组项类型U
+//  定义，Array<infer U>或者(infer U)[]推断数组项的类型为U，判断是否继承数组类型，若是的话返回数组项类型U
+// type ArrayItem<T> = T extends Array<infer U> ? U : never
 type ArrayItem<T> = T extends (infer U)[] ? U : never
 //  调用推断
 type I1 = ArrayItem<number[]>
@@ -377,7 +378,8 @@ const i0: I0 = arr[0]
 //  定义
 type InferFirst<T extends unknown[]> = T extends [infer FirstItem, ...infer Others] ? FirstItem : never
 //  调用
-type I3 = InferFirst<[3, 2, 1]>
+type I3 = InferFirst<[number, string, boolean]>
+//  推断为传入数组类型的第一项类型，type I3 = number
 ```
 
 推断出`type I3 = number`
@@ -525,10 +527,10 @@ type Mixer2 = Teacher | Student
 另一种比较复杂的理解方式，强制组合泛型参数变成交叉类型：
 
 ```typescript
-type UnionToIntersction<U> = (U extends U ? (a: U) => any : never) extends (a: infer R) => any ? R : never
+type UnionToIntersection<U> = (U extends U ? (a: U) => any : never) extends (a: infer R) => any ? R : never
 type Copy<T> = {
     [K in keyof T]: T[K]
 }
-type res = Copy<UnionToIntersction<{ a: 1 } | { b: 3 }>>
+type res = Copy<UnionToIntersection<{ a: 1 } | { b: 3 }>>
 //  等同于 type res = { a: 1, b: 3 }
 ```

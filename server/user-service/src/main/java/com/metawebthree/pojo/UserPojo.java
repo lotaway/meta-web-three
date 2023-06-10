@@ -15,4 +15,5 @@ public class UserPojo {
     private String password;
     private Integer authorId;
     private Short typeId;
+
 }

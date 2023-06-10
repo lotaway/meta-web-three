@@ -2,6 +2,8 @@
 server:
   port: 10083
 spring:
+  application:
+    name: user-service
   config:
     activate:
       on-profile: dev
@@ -30,4 +32,5 @@ spring:
 ---
 spring:
   profiles:
+    include: common-dev
     active: dev

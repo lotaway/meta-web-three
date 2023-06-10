@@ -163,7 +163,7 @@ export default class Decorator {
         }
         if (Class && (Class as Function).name)
             throw new TypeError("override must be set in a class method which have a super class")
-        if ((Class as Function).prototype.hasOwnProperty(propName))
+        if ((Class as Function).constructor.hasOwnProperty(propName))
             throw new TypeError("override must be set in a class method with already exist in super class")
     }
 
