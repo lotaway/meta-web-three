@@ -1,24 +1,35 @@
-import Decorator, {obj2FormData} from "../utils/decorator"
-import * as IFBase from "./IFBase"
+import {IBaseMapperRequestOptions, ISystem} from "./IFBase"
+import SystemImpl from "../system/SystemImpl";
+import Decorator from "../utils/decorator";
 
-@Decorator.ImplementsWithStatic<IFBase.IFBaseServiceWithStatic>()
-export default class BaseService {
-    static uploadFile(apiUrl: string, file: File, options: IFBase.UploadFileArgs) {
-        const formData = new FormData()
-        formData.append("file", file)
-        let headers = options.headers || {}
-        headers['Content-Type'] = 'multipart/form-data'
-        return fetch(apiUrl, {
-            method: options.method || "POST",
-            body: formData,
-            headers
-        }).then(response => response.ok ? response.json() : Promise.reject(response))
+export interface IApiMapper<Arguments = any, ResponseData = any> {
+
+    abortController: AbortController | undefined
+
+    start(args: Arguments): Promise<ResponseData>
+
+    stop(): boolean
+}
+
+export interface IApiMapperStatic<InstanceType> {
+    new(rpc: ISystem, options?: IBaseMapperRequestOptions): InstanceType
+}
+
+export class BaseMapper {
+
+    abortController: AbortController | undefined = undefined
+    constructor(protected readonly rpc: SystemImpl, protected options: IBaseMapperRequestOptions = {}) {
     }
 
-    static async request<responseData extends any>(apiUrl: string, data: object, options?: { dataType?: string, method?: string }) {
-        return await fetch(apiUrl, {
-            method: options?.method || "POST",
-            body: obj2FormData(data)
-        }).then(response => response.ok ? (response.json() as Promise<responseData>) : Promise.reject(response))
+    init() {
+        this.abortController = new AbortController()
+    }
+
+    stop() {
+        if (!this.abortController)
+            return false
+        this.abortController.abort("call stop")
+        this.abortController = undefined
+        return true
     }
 }

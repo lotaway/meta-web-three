@@ -3,24 +3,29 @@ import initConfig from "../config/init";
 import host from "../config/host";
 import {API_URL} from "../config/api";
 import Decorator from "../utils/decorator"
-import BaseService from "./base"
+import {BaseMapper, IApiMapper, IApiMapperStatic} from "./base"
+import SystemImpl from "../system/SystemImpl"
 
 export namespace NSAdvertisement {
 
-    export interface CategoryAdArgs extends Object {
+    interface BaseArgs {
+        signal?: AbortSignal
+    }
+
+    export interface CategoryAdArgs extends BaseArgs {
         categoryIdentity: number | string     //  分类标识
         duoge?: number     //  是否多个 (0,不是;1是;默认不是)
         location: string        //  位置
         pageName: string            //  页面
     }
 
-    export interface CategoryAdResponse extends Object {
+    export interface CategoryAdResponse extends BaseArgs {
         src: string
         link?: string
         url?: string
     }
 
-    export interface GetPublicAdArgs extends Object {
+    export interface GetPublicAdArgs extends BaseArgs {
         isMutiple?: number  //  是否多个 (0,不是;1是;默认不是)
         location: string    //  广告所处位置
         name: string    //  大类所处页面名
@@ -40,12 +45,12 @@ export namespace NSAdvertisement {
         num?: number
     }
 
-    export interface GetAppStartAdParam extends Object {
+    export interface GetAppStartAdParam extends BaseArgs {
         type?: string,  //  类型：[home:启动图，boot:引导图]
         num?: number    //  数量
     }
 
-    interface AppImgItem extends Object {
+    interface AppImgItem extends BaseArgs {
         "@src": string
         ad: string
     }
@@ -80,20 +85,8 @@ export namespace NSAdvertisement {
         }
     }
 
-    /**
-     * 广告图接口
-     */
-    export class Service extends BaseService {
-
-        constructor() {
-            super()
-        }
-
-        /**
-         * 获取分类广告图
-         * @param {Object} args 参数
-         * @return {Promise} 是否成功
-         */
+    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<CategoryAdArgs, CategoryAdResponse>>>()
+    export class CategoryAdMapper extends BaseMapper {
         @Decorator.DefaultArgs<[CategoryAdArgs]>({
             categoryIdentity: "",
             duoge: 0,
@@ -102,16 +95,14 @@ export namespace NSAdvertisement {
         })
         @Decorator.Sign(API_URL.getCategoryAd)
         @Decorator.UseAdapter(Adapter.getCategoryAd)
-        async getCategoryAd(args: CategoryAdArgs) {
-            return await Service.request<CategoryAdResponse>(API_URL.getCategoryAd, args)
+        async start(args: CategoryAdArgs): Promise<CategoryAdResponse> {
+            super.init()
+            return await this.rpc.request<CategoryAdResponse>(API_URL.getCategoryAd, args, this.options)
         }
+    }
 
-        /**
-         * 获取自定义广告
-         * @param {Object} args 参数
-         * @param {string=} apiUrl 接口路径
-         * @return {Promise} 是否成功
-         */
+    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<GetPublicAdArgs, CategoryAdResponse>>>()
+    export class PublicAdMapper extends BaseMapper {
         @Decorator.DefaultArgs<[GetPublicAdArgs]>({
             isMutiple: 0,
             location: "",
@@ -119,8 +110,59 @@ export namespace NSAdvertisement {
         })
         @Decorator.Sign(API_URL.getPublicAd)
         @Decorator.UseAdapter(Adapter.getPublicAd)
-        async getPublicAd<T = GetPublicAdsResponse | GetPublicAdResponse>(args: GetPublicAdArgs, apiUrl = API_URL.getPublicAd) {
-            return await Service.request<T>(apiUrl, args)
+        async start<T = GetPublicAdsResponse | GetPublicAdResponse>(args: GetPublicAdArgs): Promise<T> {
+            super.init()
+            return await this.rpc.request<T>(API_URL.getPublicAd, args, this.options)
+        }
+    }
+
+    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<GetAppHomeBannerArgs, GetPublicAdsResponse>>>()
+    export class AppHomeBannerMapper extends BaseMapper {
+
+        @Decorator.DefaultArgs({
+            num: initConfig.SLIDER_IMG_NUM,
+            page: 1,
+            type: "top"
+        })
+        @Decorator.Sign(API_URL.getAppHomeBanner)
+        @Decorator.UseAdapter(Adapter.getAppHomeBanner)
+        async start(args: GetAppHomeBannerArgs): Promise<GetPublicAdsResponse> {
+            super.init()
+            return await this.rpc.request<GetPublicAdsResponse>(API_URL.getPublicAd, args, this.options)
+        }
+    }
+
+    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<GetAppStartAdParam, GetAppStartAdResponse>>>()
+    export class AppStartAdService extends BaseMapper {
+
+        @Decorator.DefaultArgs({
+            type: "home",
+            num: 1
+        })
+        @Decorator.Sign(API_URL.getAppStartAd)
+        @Decorator.UseAdapter(Adapter.getAppStartAd)
+        async start(args: GetAppStartAdParam): Promise<GetAppStartAdResponse> {
+            super.init()
+            return await this.rpc.request<GetAppStartAdResponse>(API_URL.getAppStartAd, args, this.options)
+        }
+    }
+
+    /**
+     * 广告图接口
+     */
+    export class Service {
+
+        constructor(private readonly systemImpl: SystemImpl) {
+        }
+
+        async getCategoryAd(args: CategoryAdArgs) {
+            const mapper = new CategoryAdMapper(this.systemImpl)
+            return await mapper.start(args)
+        }
+
+        async getPublicAd<T = GetPublicAdsResponse | GetPublicAdResponse>(args: GetPublicAdArgs) {
+            const mapper = new PublicAdMapper(this.systemImpl)
+            return await mapper.start(args)
         }
 
         //  获取商标
@@ -131,36 +173,14 @@ export namespace NSAdvertisement {
             });
         }
 
-        /**
-         * 获取应用轮播图
-         * @param {object} args 参数
-         * @return {Promise} 是否成功
-         */
-        @Decorator.DefaultArgs({
-            num: initConfig.SLIDER_IMG_NUM,
-            page: 1,
-            type: "top"
-        })
-        @Decorator.Sign(API_URL.getAppHomeBanner)
-        @Decorator.UseAdapter(Adapter.getAppHomeBanner)
         async getAppHomeBanner(args: GetAppHomeBannerArgs = {}) {
-            return await Service.request<GetPublicAdsResponse>(API_URL.getAppHomeBanner, args)
+            const mapper = new AppHomeBannerMapper(this.systemImpl)
+            return await mapper.start(args)
         }
 
-        /**
-         * 获取启动图/引导图
-         * @param {Object} args 参数
-         * @param params 更多参数
-         * @return {Promise} 是否成功
-         */
-        @Decorator.DefaultArgs({
-            type: "home",
-            num: 1
-        })
-        @Decorator.Sign(API_URL.getAppStartAd)
-        @Decorator.UseAdapter(Adapter.getAppStartAd)
-        async getAppStartAd(args: GetAppStartAdParam = {}, ...params: any) {
-            return await Service.request<GetAppStartAdResponse>(API_URL.getAppStartAd, args)
+        async getAppStartAd(args: GetAppStartAdParam = {}) {
+            const mapper = new AppStartAdService(this.systemImpl)
+            return await mapper.start(args)
         }
 
     }

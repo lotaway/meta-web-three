@@ -1,8 +1,10 @@
 import initConfig from "../config/init"
-import Base from './base'
+import {BaseMapper, IApiMapper, IApiMapperStatic} from './base'
 import Decorator from "../utils/decorator";
 import host from "../config/host";
 import {API_URL, templateFolderPlaceHolder} from "../config/api";
+import SystemImpl from "../system/SystemImpl";
+import {IBaseMapperRequestOptions} from "./IFBase";
 
 namespace NSSetting {
 
@@ -185,6 +187,10 @@ namespace NSSetting {
         }
     }
 
+    export interface FunctionConfigResponse {
+        [functionId: number]: boolean
+    }
+
     //  会员菜单实际数据
     export type GetUserMenuData = Array<{
         [key: string]: string
@@ -359,91 +365,149 @@ namespace NSSetting {
 
     }
 
+    interface SettingArgs {
+        templateName: string
+    }
+
+    class SettingBaseMapper extends BaseMapper {
+        constructor(protected readonly systemImpl: SystemImpl, protected readonly options: IBaseMapperRequestOptions = {}) {
+            super(systemImpl, {
+                method: "GET",
+                dataType: "XML",
+                ...options
+            });
+        }
+
+        getFinalApiUrlByTemplateName(apiUrl: string, templateName: string): string {
+            return API_URL.getUserMenu.replace(`{${templateFolderPlaceHolder}`, templateName)
+        }
+    }
+
+    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<SettingArgs, ReturnType<typeof Adapter.getUserMenu>>>>()
+    export class UserMenuMapper<ResponseData = ReturnType<typeof Adapter.getUserMenu>> extends SettingBaseMapper {
+
+        @Decorator.UseAdapter(Adapter.getUserMenu)
+        @Decorator.UseCache()
+        async start(args: SettingArgs): Promise<ResponseData> {
+            super.init()
+            const FINAL_API_URL = this.getFinalApiUrlByTemplateName(API_URL.getUserMenu, args.templateName)
+            return await this.rpc.request<ResponseData>(FINAL_API_URL, args, this.options)
+        }
+    }
+
+    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<SettingArgs, FastEntryData>>>()
+    export class HomeMenuMapper extends SettingBaseMapper {
+
+        @Decorator.UseAdapter(Adapter.getFastEntry)
+        async start(args: SettingArgs): Promise<FastEntryData> {
+            super.init()
+            const FINAL_API_URL = this.getFinalApiUrlByTemplateName(API_URL.getHomeMenu, args.templateName)
+            return await this.rpc.request<FastEntryData>(FINAL_API_URL, args, this.options)
+        }
+    }
+
+    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<SettingArgs, ReturnType<typeof Adapter.getTemplateConfig>>>>()
+    export class TemplateConfigMapper<ResponseData = ReturnType<typeof Adapter.getTemplateConfig>> extends SettingBaseMapper {
+
+        @Decorator.UseAdapter(Adapter.getTemplateConfig)
+        async start(args: SettingArgs): Promise<ResponseData> {
+            super.init()
+            const FINAL_API_URL = this.getFinalApiUrlByTemplateName(API_URL.getTemplateConfig, args.templateName)
+            return await this.rpc.request<ResponseData>(FINAL_API_URL, args, this.options)
+        }
+    }
+
+    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<SettingArgs, GetAppConfigResponse>>>()
+    export class AppConfigMapper extends SettingBaseMapper {
+
+        @Decorator.UseCache()
+        @Decorator.UseAdapter(Adapter.getAppConfig)
+        async start(args: SettingArgs): Promise<GetAppConfigResponse> {
+            super.init()
+            const FINAL_API_URL = this.getFinalApiUrlByTemplateName(API_URL.getAppConfig, args.templateName)
+            return await this.rpc.request<GetAppConfigResponse>(FINAL_API_URL, args, this.options)
+        }
+    }
+
+    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<SettingArgs, unknown>>>()
+    export class WeChatConfigMapper extends SettingBaseMapper {
+
+        async start(args: SettingArgs): Promise<unknown> {
+            super.init()
+            const FINAL_API_URL = this.getFinalApiUrlByTemplateName(API_URL.getWeChatConfig, args.templateName)
+            return await this.rpc.request<unknown>(FINAL_API_URL, args, this.options)
+        }
+    }
+
+    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<SettingArgs, FunctionConfigResponse>>>()
+    export class FunctionConfigMapper extends SettingBaseMapper {
+
+        @Decorator.UseCache()
+        @Decorator.UseAdapter(Adapter.getFunctionConfig)
+        async start(args: SettingArgs): Promise<FunctionConfigResponse> {
+            super.init()
+            const FINAL_API_URL = this.getFinalApiUrlByTemplateName(API_URL.getFunctionConfig, args.templateName)
+            return await this.rpc.request<FunctionConfigResponse>(FINAL_API_URL, args, this.options)
+        }
+    }
+
+    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<SettingArgs, GetSitePublicConfigData>>>()
+    export class SitePublicConfigMapper extends SettingBaseMapper {
+
+        @Decorator.UseCache()
+        @Decorator.UseAdapter(Adapter.getSitePublicConfig)
+        async start(args: SettingArgs): Promise<GetSitePublicConfigData> {
+            super.init()
+            const FINAL_API_URL = this.getFinalApiUrlByTemplateName(API_URL.getFunctionConfig, args.templateName)
+            return await this.rpc.request<GetSitePublicConfigData>(FINAL_API_URL, args, this.options)
+        }
+    }
+
     /**
      * 配置文件接口
      */
-    class Service extends Base {
+    class Service {
 
-        constructor() {
-            super()
+        constructor(private readonly systemImpl: SystemImpl, private readonly options: {
+            templateName: string
+        }) {
         }
 
-        //  获取选项卡数据
+        setTemplateName(name: string) {
+            this.options.templateName = name
+        }
+
         @Decorator.UseAdapter(Adapter.getTabBar)
         async getTabBar() {
             return await this.getAppConfig().then(appSetting => appSetting.status === 1000 ? Promise.resolve(appSetting.tab || {list: []}) : Promise.resolve({list: []}))
         }
 
-        // 通过模板名称获取会员菜单
-        @Decorator.UseAdapter(Adapter.getUserMenu)
-        @Decorator.UseCache()
-        async getUserMenu(args: { templateName: string }): Promise<ReturnType<typeof Adapter.getUserMenu>> {
-            const finalApiUrl = API_URL.getUserMenu.replace(`{${templateFolderPlaceHolder}`, args.templateName)
-            return await Service.request(finalApiUrl, {}, {
-                method: "GET", dataType: "XML"
-            })
+        async getUserMenu(mapper: IApiMapper = new UserMenuMapper(this.systemImpl)) {
+            return await mapper.start(this.options)
         }
 
-        /**
-         * 获取首页菜单
-         * @param args {object} 参数
-         * @return {Promise} 是否成功
-         */
-        @Decorator.UseAdapter(Adapter.getFastEntry)
-        async getHomeMenu(args: { templateName: string }): Promise<FastEntryData> {
-            const finalApiUrl = API_URL.getHomeMenu.replace(`{${templateFolderPlaceHolder}}`, args.templateName)
-            return await Service.request(finalApiUrl, {}, {method: "GET", dataType: "XML"})
+        async getHomeMenu(mapper: IApiMapper = new HomeMenuMapper(this.systemImpl)): Promise<FastEntryData> {
+            return await mapper.start(this.options)
         }
 
-        /**
-         * 获取模板配置
-         * @param args {object} 参数
-         * @return {Promise} 是否成功
-         */
-        @Decorator.UseAdapter(Adapter.getTemplateConfig)
-        async getTemplateConfig(args: { templateName: string }) {
-            const finalApiUrl = API_URL.getTemplateConfig.replace(`{${templateFolderPlaceHolder}`, args.templateName)
-            return await Service.request(finalApiUrl, {}, {method: "GET", dataType: "XML"})
+        async getTemplateConfig(mapper: IApiMapper = new TemplateConfigMapper(this.systemImpl)) {
+            return await mapper.start(this.options)
         }
 
-        /**
-         * 获取应用设置
-         * @return {Promise} 是否成功
-         */
-        @Decorator.UseCache()
-        @Decorator.UseAdapter(Adapter.getAppConfig)
-        async getAppConfig(): Promise<GetAppConfigResponse> {
-            return await Service.request(API_URL.getAppConfig, {}, {method: "GET", dataType: "XML"})
+        async getAppConfig(mapper: IApiMapper = new AppConfigMapper(this.systemImpl)) {
+            return await mapper.start(this.options)
         }
 
-        /**
-         * 获取微信配置
-         * @return {Promise} 是否成功
-         */
-        async getWeChatConfig() {
-            return await Service.request(API_URL.getWeChatConfig, {}, {method: "GET", dataType: "XML"})
+        async getWeChatConfig(mapper: IApiMapper = new WeChatConfigMapper(this.systemImpl)) {
+            return await mapper.start(this.options)
         }
 
-        /**
-         * 获取功能设置
-         * @return {Promise} 是否成功
-         */
-        @Decorator.UseCache()
-        @Decorator.UseAdapter(Adapter.getFunctionConfig)
-        async getFunctionConfig(): Promise<{
-            [functionId: number]: boolean
-        }> {
-            return await Service.request(API_URL.getFunctionConfig, {}, {method: "GET", dataType: "XML"})
+        async getFunctionConfig(mapper: IApiMapper = new FunctionConfigMapper(this.systemImpl)) {
+            return await mapper.start(this.options)
         }
 
-        /**
-         * 获取站点配置
-         * @return {Promise} 是否成功
-         */
-        @Decorator.UseCache()
-        @Decorator.UseAdapter(Adapter.getSitePublicConfig)
-        async getSitePublicConfig(): Promise<GetSitePublicConfigData> {
-            return await Service.request(API_URL.getSitePublicConfig, {}, {method: "GET", dataType: "XML"})
+        async getSitePublicConfig(mapper: IApiMapper = new SitePublicConfigMapper(this.systemImpl)) {
+            return await mapper.start(this.options)
         }
 
     }

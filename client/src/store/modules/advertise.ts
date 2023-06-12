@@ -1,5 +1,6 @@
 import {createSlice, createAsyncThunk} from "@reduxjs/toolkit";
 import {NSAdvertisement} from "../../services/advertisement";
+import SystemImpl from "../../system/SystemImpl";
 
 export interface States {
 
@@ -8,7 +9,7 @@ export interface States {
 const initialState: States = {
 
     },
-    serviceAdvertise = new NSAdvertisement.Service(),
+    serviceAdvertise = new NSAdvertisement.Service(SystemImpl.getInstance()),
     name = "advertise",
     advertiseSlice = createSlice({
         name,

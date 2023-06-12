@@ -24,14 +24,19 @@ export interface UploadFileArgs {
     }
 }
 
-export interface IFBaseService {
-
+export interface IBaseMapperRequestOptions {
+    dataType?: string,
+    method?: string,
+    signal?: AbortSignal
 }
 
-export interface IFBaseServiceWithStatic<T = IFBaseService> {
-    new(...args: any[]): T;
-
+export interface ISystem {
     uploadFile(apiUrl: string, file: File, options: UploadFileArgs): Promise<any>;
 
     // stopFile(): boolean
+    request<responseData extends any>(apiUrl: string, data: object, options?: IBaseMapperRequestOptions): Promise<responseData>
+}
+
+export interface ISystemWithStatic<T extends ISystem = ISystem> {
+    new(...args: any[]): T;
 }
