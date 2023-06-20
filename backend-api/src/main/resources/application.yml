@@ -1,0 +1,8 @@
+---
+spring:
+  application:
+    name: server
+---
+spring:
+  profiles:
+    active: user-service, product-service

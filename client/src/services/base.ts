@@ -1,6 +1,4 @@
-import {IBaseMapperRequestOptions, ISystem} from "./IFBase"
-import SystemImpl from "../system/SystemImpl";
-import Decorator from "../utils/decorator";
+import {IBaseMapperRequestOptions, ISystem} from "../core/iCore"
 
 export interface IApiMapper<Arguments = any, ResponseData = any> {
 
@@ -18,7 +16,8 @@ export interface IApiMapperStatic<InstanceType> {
 export class BaseMapper {
 
     abortController: AbortController | undefined = undefined
-    constructor(protected readonly rpc: SystemImpl, protected options: IBaseMapperRequestOptions = {}) {
+
+    constructor(protected readonly rpc: ISystem, protected options: IBaseMapperRequestOptions = {}) {
     }
 
     init() {
@@ -31,5 +30,26 @@ export class BaseMapper {
         this.abortController.abort("call stop")
         this.abortController = undefined
         return true
+    }
+}
+
+export function ServiceWrapper() {
+
+}
+
+export class MapperWrapper<DefaultArgs = any> {
+    constructor(private readonly systemImpl: ISystem, private readonly defaultArgs?: Partial<DefaultArgs>) {
+    }
+
+    get system(): ISystem {
+        return this.systemImpl
+    }
+
+    start<Args extends DefaultArgs, ResponseData>(Mapper: IApiMapperStatic<IApiMapper<Args, ResponseData>>, args: Omit<Args, keyof DefaultArgs> & Partial<DefaultArgs>) {
+        const mapper = new Mapper(this.systemImpl)
+        return mapper.start({
+            ...this.defaultArgs,
+            ...args
+        } as Args)
     }
 }

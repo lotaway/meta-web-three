@@ -12,11 +12,11 @@
 ## Direct 目录说明
 
 * chain 链端（合约）
-* client 客户端（内容、浏览、支付）
-* desktop 桌面端（笔记、通讯）
-* gateway 网关（协调、管理）
+* client 网站客户端（内容、浏览、支付）
+* gateway 网关中心（协调、管理）
 * server 服务端（业务处理、储存数据）
-* software 软件端（提供客户端和服务端支持）
+* system-management 桌面端管理（管理、笔记、通讯）
+* system-support 系统支持（提供客户端和服务端支持）
 
 ## Installation 安装
 

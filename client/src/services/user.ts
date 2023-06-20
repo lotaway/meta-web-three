@@ -4,7 +4,7 @@ export default class UserService {
     }
 
     async getMessage() {
-        return await fetch("");
+        // return await fetch("");
     }
 
 }

@@ -31,7 +31,7 @@ function handler<ValueType>(value: ValueType) {
     const result2 = getItem(value)
     //  TODO 希望拿到的result类型是3的类型，即number
     type Result = InferFirst<[number, string, boolean]>
-    console.log(result, result2)
+    // console.log(result, result2)
 }
 
 
@@ -41,7 +41,7 @@ const AntButton: FunctionComponent<IProps> = ({ref, type, shape, className, chil
         case style.dashed:
         case style.text:
         case style.link:
-            console.log("match")
+            // console.log("match")
             break
         default:
             break
@@ -52,4 +52,4 @@ const AntButton: FunctionComponent<IProps> = ({ref, type, shape, className, chil
     )
 }
 
-export default forwardRef(AntButton)
+// export default forwardRef<IProps>(AntButton)

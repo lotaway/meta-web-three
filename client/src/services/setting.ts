@@ -1,10 +1,9 @@
 import initConfig from "../config/init"
-import {BaseMapper, IApiMapper, IApiMapperStatic} from './base'
-import Decorator from "../utils/decorator";
-import host from "../config/host";
-import {API_URL, templateFolderPlaceHolder} from "../config/api";
-import SystemImpl from "../system/SystemImpl";
-import {IBaseMapperRequestOptions} from "./IFBase";
+import {BaseMapper, IApiMapper, IApiMapperStatic, MapperWrapper} from './base'
+import Decorator from "../utils/decorator"
+import host from "../config/host"
+import {API_URL, templateFolderPlaceHolder} from "../config/api"
+import {IBaseMapperRequestOptions, ISystem} from "../core/iCore"
 
 namespace NSSetting {
 
@@ -370,7 +369,7 @@ namespace NSSetting {
     }
 
     class SettingBaseMapper extends BaseMapper {
-        constructor(protected readonly systemImpl: SystemImpl, protected readonly options: IBaseMapperRequestOptions = {}) {
+        constructor(protected readonly systemImpl: ISystem, protected readonly options: IBaseMapperRequestOptions = {}) {
             super(systemImpl, {
                 method: "GET",
                 dataType: "XML",
@@ -468,9 +467,16 @@ namespace NSSetting {
      */
     class Service {
 
-        constructor(private readonly systemImpl: SystemImpl, private readonly options: {
+        mapperWrapper: MapperWrapper
+
+        constructor(systemImpl: ISystem, private readonly options: {
             templateName: string
         }) {
+            this.mapperWrapper = new MapperWrapper(systemImpl, this.options)
+        }
+
+        get system() {
+            return this.mapperWrapper.system
         }
 
         setTemplateName(name: string) {
@@ -482,32 +488,32 @@ namespace NSSetting {
             return await this.getAppConfig().then(appSetting => appSetting.status === 1000 ? Promise.resolve(appSetting.tab || {list: []}) : Promise.resolve({list: []}))
         }
 
-        async getUserMenu(mapper: IApiMapper = new UserMenuMapper(this.systemImpl)) {
-            return await mapper.start(this.options)
+        async getUserMenu() {
+            return await this.mapperWrapper.start(UserMenuMapper, {})
         }
 
-        async getHomeMenu(mapper: IApiMapper = new HomeMenuMapper(this.systemImpl)): Promise<FastEntryData> {
-            return await mapper.start(this.options)
+        async getHomeMenu() {
+            return await this.mapperWrapper.start(HomeMenuMapper, {})
         }
 
-        async getTemplateConfig(mapper: IApiMapper = new TemplateConfigMapper(this.systemImpl)) {
-            return await mapper.start(this.options)
+        async getTemplateConfig() {
+            return await this.mapperWrapper.start(TemplateConfigMapper, {})
         }
 
-        async getAppConfig(mapper: IApiMapper = new AppConfigMapper(this.systemImpl)) {
-            return await mapper.start(this.options)
+        async getAppConfig() {
+            return await this.mapperWrapper.start(AppConfigMapper, {})
         }
 
-        async getWeChatConfig(mapper: IApiMapper = new WeChatConfigMapper(this.systemImpl)) {
-            return await mapper.start(this.options)
+        async getWeChatConfig() {
+            return await this.mapperWrapper.start(WeChatConfigMapper, {})
         }
 
-        async getFunctionConfig(mapper: IApiMapper = new FunctionConfigMapper(this.systemImpl)) {
-            return await mapper.start(this.options)
+        async getFunctionConfig() {
+            return await this.mapperWrapper.start(FunctionConfigMapper, {})
         }
 
-        async getSitePublicConfig(mapper: IApiMapper = new SitePublicConfigMapper(this.systemImpl)) {
-            return await mapper.start(this.options)
+        async getSitePublicConfig() {
+            return await this.mapperWrapper.start(SitePublicConfigMapper, {})
         }
 
     }

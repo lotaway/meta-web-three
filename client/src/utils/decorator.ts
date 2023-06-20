@@ -1,6 +1,5 @@
 import host from "../config/host"
 import initConfig from "../config/init"
-import Logger from "../utils/logger"
 import crypto from "../utils/crypto"
 
 interface StoreValue extends Object {
@@ -106,7 +105,6 @@ function saveData(storeName: string, data: StoreValue["data"]): Promise<any> {
     try {
         localStorage.setItem(storeName, JSON.stringify(data));
     } catch (e) {
-        (new Logger()).output("存储数据出错:" + JSON.stringify(e));
         return Promise.reject(e);
     }
     return Promise.resolve();

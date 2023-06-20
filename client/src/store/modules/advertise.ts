@@ -1,6 +1,6 @@
 import {createSlice, createAsyncThunk} from "@reduxjs/toolkit";
 import {NSAdvertisement} from "../../services/advertisement";
-import SystemImpl from "../../system/SystemImpl";
+import System from "../../system/System";
 
 export interface States {
 
@@ -9,19 +9,26 @@ export interface States {
 const initialState: States = {
 
     },
-    serviceAdvertise = new NSAdvertisement.Service(SystemImpl.getInstance()),
+    serviceAdvertise = new NSAdvertisement.Service(System.getInstance()),
     name = "advertise",
     advertiseSlice = createSlice({
         name,
         initialState,
         reducers: {
             setHomeBanner(state: States, {payload}) {
-
+                return serviceAdvertise.getAppHomeBanner()
+            },
+            setCategoryAd(state: States, {payload}) {
+                return serviceAdvertise.getCategoryAd({
+                    categoryIdentity: 0,
+                    location: "category",
+                    pageName: "home"
+                })
             }
         },
         extraReducers: (builder) => {
             builder
-                .addCase(getHomeBanner.fulfilled.type, (state, action: any) => {
+                .addCase(getHomeBanner.fulfilled.type, (state, action) => {
 
                 })
         }

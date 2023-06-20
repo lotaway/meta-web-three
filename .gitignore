@@ -2,6 +2,7 @@
 .env
 .data
 */.env
+.aws
 
 # compiled output
 /dist

@@ -1,5 +1,5 @@
 import {memo, createRef, useEffect} from "react"
-import {createGPU} from "../../utils/webGPU"
+import {createGPU} from "../../system/webGPU"
 import vertexCodeWGSL from "../../shader/vertex.wgsl?raw"
 import fragmentWGSL from "../../shader/frag.wgsl?raw"
 import style from "./NewWorld.module.less"

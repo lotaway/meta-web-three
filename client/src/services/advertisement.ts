@@ -3,8 +3,8 @@ import initConfig from "../config/init";
 import host from "../config/host";
 import {API_URL} from "../config/api";
 import Decorator from "../utils/decorator"
-import {BaseMapper, IApiMapper, IApiMapperStatic} from "./base"
-import SystemImpl from "../system/SystemImpl"
+import {BaseMapper, IApiMapper, IApiMapperStatic, MapperWrapper} from "./base"
+import { ISystem } from "../core/iCore"
 
 export namespace NSAdvertisement {
 
@@ -39,7 +39,7 @@ export namespace NSAdvertisement {
         width: string
     }
 
-    export type GetPublicAdsResponse = Array<GetPublicAdResponse>
+    export type GetPublicAdsResponse = GetPublicAdResponse[]
 
     export interface GetAppHomeBannerArgs {
         num?: number
@@ -133,7 +133,7 @@ export namespace NSAdvertisement {
     }
 
     @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<GetAppStartAdParam, GetAppStartAdResponse>>>()
-    export class AppStartAdService extends BaseMapper {
+    export class AppStartAdMapper extends BaseMapper {
 
         @Decorator.DefaultArgs({
             type: "home",
@@ -152,17 +152,27 @@ export namespace NSAdvertisement {
      */
     export class Service {
 
-        constructor(private readonly systemImpl: SystemImpl) {
+        // TODO 换成类装饰器和方法装饰器进行自动包裹？
+        private readonly mapperWrapper: MapperWrapper
+
+        constructor(systemImpl: ISystem) {
+            this.mapperWrapper = new MapperWrapper(systemImpl)
+        }
+
+        get system(): ISystem {
+            return this.mapperWrapper.system
+        }
+
+        async getCategoryAds<Args extends CategoryAdArgs, ResponseData>(args: Args, mapper: IApiMapper<Args, ResponseData>) {
+            return await mapper.start(args)
         }
 
         async getCategoryAd(args: CategoryAdArgs) {
-            const mapper = new CategoryAdMapper(this.systemImpl)
-            return await mapper.start(args)
+            return await this.mapperWrapper.start(CategoryAdMapper, args)
         }
 
         async getPublicAd<T = GetPublicAdsResponse | GetPublicAdResponse>(args: GetPublicAdArgs) {
-            const mapper = new PublicAdMapper(this.systemImpl)
-            return await mapper.start(args)
+            return await this.mapperWrapper.start<GetPublicAdArgs, T>(PublicAdMapper, args)
         }
 
         //  获取商标
@@ -170,17 +180,15 @@ export namespace NSAdvertisement {
             return await this.getPublicAd({
                 name: "home",
                 location: "logo"
-            });
+            })
         }
 
         async getAppHomeBanner(args: GetAppHomeBannerArgs = {}) {
-            const mapper = new AppHomeBannerMapper(this.systemImpl)
-            return await mapper.start(args)
+            return await this.mapperWrapper.start(AppHomeBannerMapper, args)
         }
 
         async getAppStartAd(args: GetAppStartAdParam = {}) {
-            const mapper = new AppStartAdService(this.systemImpl)
-            return await mapper.start(args)
+            return await this.mapperWrapper.start(AppStartAdMapper, args)
         }
 
     }
