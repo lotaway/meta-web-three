@@ -11,6 +11,7 @@ export default function Home() {
     const [addressTo, setAddressTo] = useState<string>("")
     const inputRef = createRef<HTMLInputElement>()
     useEffect(() => {
+        const MESSAGE_DELAY = 5 * 1000
         const abortController = new AbortController()
         const counter = setInterval(() => {
             fetch(`${import.meta.env.VITE_SERVER_HOST}/message`, {
@@ -21,15 +22,15 @@ export default function Home() {
                 if (err.name === "AbortError") {
                     console.log("Cancel by abort controller.")
                 } else {
-                    
+
                 }
-            });
-        }, 5 * 1000)
+            })
+        }, MESSAGE_DELAY)
         //  do something with webGPU...
         return () => {
             abortController.abort("reRender")
             clearInterval(counter)
-        };
+        }
     }, [])
     return (
         <div className="min-h-screen home">

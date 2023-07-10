@@ -1,5 +1,5 @@
-import {Outlet} from "react-router-dom";
-import TabBar from "./components/TabBar/TabBar";
+import {Outlet} from "react-router-dom"
+import TabBar from "./components/TabBar/TabBar"
 
 function App() {
     return (
@@ -7,7 +7,7 @@ function App() {
             <Outlet/>
             <TabBar/>
         </div>
-    );
+    )
 }
 
-export default App;
+export default App

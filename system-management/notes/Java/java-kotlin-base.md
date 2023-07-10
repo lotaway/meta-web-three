@@ -33,27 +33,39 @@ Java可用而Kotlin隐藏了的原始类型，这些类型源于C++，性能最�
 
 包括（注意首字母小写）：
 
-* byte
-* int
-* short
-* float
-* double
+* boolean 布尔型，可选值为true，false
+* byte 字节型，即存放文本，只允许1个字节，意味着特殊语言如中文需要占据2~4个字节是无法用它存储的
+* char 字符型，即存放文本，允许2/4个字节，根据编译器32/64位而定，因此可以用于存放1个中文文本
+* int 整型，属于数字，只允许整数，4个字节（byte）
+* short 短整型，属于数字，只允许整数，2个字节
+* long 长整型，相当于long int，属于数字，只允许整数，8个字节
+* float 浮动型，属于数字，允许小数位存在，4个字节
+* double 双精度浮动型，属于数字，允许小数位存在，8个字节
+
+### 关于不同类型存储值的计算方式
+
+例如int整型为4个字节，而1个字节等于8个比特，即整型为4x8=32个比特。
+而1个比特可存放0或1这两种值，含有32个比特相当于2的32次方的取值。
+而整型是可以存放包含负数在内的整数，因此需要保留1比特位作为正负符号位，剩下31比特，因此实际整型的取值范围为-2^31 ~ 2^31-1。
+这里正整数的上限减1是留了1个值来表示0。例如2的2次方取值应当是[0,1,2,3]，2^2-1=3才是代表了正整数上限。
 
 ## 封装类型
 
-Java和Kotlin都具有的封装类型，实际是个类类型。
+Java和Kotlin都具有的封装类型，实际是个类。
 这些类型是将原始类型值放到类属性里，使用时直接使用类，性能相比原始类型只有可忽略的损耗，实例化时有对内存和数据溢出或null的细节处理，也可作为类调用内部各种方法。
-实际Java也更鼓励使用封装类型而不是原始类型。
+实际Java也更鼓励使用封装类型而不是原始类型，不过基于兼容性原因还是保留了原始类型给人使用。
+而Kotlin没有这样的历史烦恼，于是直接全面使用封装类型，不给显式创建原始类型
 
 包括（注意首字母大写）：
 
+* Boolean
 * Byte
+* String
 * Short
 * Int
 * Long
 * Float
 * Double
-* String
 
 ```java
 class Zava {
@@ -101,7 +113,7 @@ var arr = mutableListof(1, 2, 3)
 Java与其他语言一样使用if、else、switch：
 
 ```java
-class Kava {
+class Zava {
     init() {
         int i = 2;
         int j;
@@ -155,7 +167,7 @@ Java有普通的for循环、增强for、数组类型的迭代器、while，而Ko
 java有普通or和while循环：
 
 ```java
-class Kava {
+class Zava {
     init() {
         //  普通for
         for (int i = 0; i < 10; i++) {
@@ -209,7 +221,7 @@ for (i in 0..10) {
 Java使用冒号:来输出增强for：
 
 ```java
-class Kava {
+class Zava {
     init() {
         int[] arr = new int[]{1, 2, 3};
         for (int value : arr) {
@@ -254,7 +266,7 @@ Java输出值，注意传统方式是需要实现接口再作为参数传入，�
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-class Kava {
+class Zava {
     init() {
         ArrayList<String> arr = new ArrayList<>("hello", "world", "please");
         //  传统Java实现接口的方式
@@ -535,12 +547,13 @@ Kotlin还有另一种通过by方式实现属性值的委托，包含了[重载�
 特性重载了赋值和获取值的行为
 
 ```kotlin
-
 class FamilyChoose {
+    var version = 1
     operator fun getValue(thisReference: Any, property: KProperty<*>): String {
         return v
     }
     operator fun setValue(thisReference: Any, property: KProperty<*>, i: String) {
+        version++
         v = i
     }
 }
@@ -548,6 +561,8 @@ class Woman : Person {
     var workType by FamilyChoose()
 }
 ```
+
+以上代码相当于将变量workType的取值和赋值都委托给类FamilyChoose处理，方便在受类约束的情况下，完成复杂与动态的处理。
 
 # 枚举类
 
@@ -569,7 +584,7 @@ public enum Type {
     }
 }
 
-class Kava {
+class Zava {
     void init() {
         //  比较两个枚举值
         bool isSame = Type.TEACHER.equals(Type.WORKER);
@@ -594,22 +609,59 @@ val isSame = Type.TEACHER.equals(Type.WORKER)
 
 # 密封类
 
-Kotlin特有的属于枚举类的扩展类，相比起来属性值直接使用了类本身而不再是实例，当在使用时才创建实例，所以可被回收，虽然每次创建的实例不同，但可以直接对比类本身来确认是否相同
+Kotlin特有的属于枚举类的扩展类，相比起来属性值直接使用了类本身而不再是实例，当在使用时才创建实例，所以可被回收，虽然每次创建的实例不同，但可以对比类类型来确认是否相同
 
 ```kotlin
-sealed class PartTimeJob {
-    class DRIVER : Boolean
-    class BATMAN : Boolean
+interface Skill {
+    val name: String
+    val damage: Int
 }
 
+sealed class PartTimeJob {
+    data class Driver(val name: String) : PartTimeJob()
+    data class Batman(val skills: Array<Skill>) : PartTimeJob()
+}
+//  密封类可以很好地配合when完成分支判断并根据不同分支所拥有的不同参数进行额外处理
 fun handle(partTimeJob: PartTimeJob) {
     when (partTimeJob) {
-        is PartTimeJob.BATMAN -> println("I'm batman")
-        else -> println("Just a normal guy trying to live")
+        is PartTimeJob.Batman(emptyList()) -> println("The batman:$partTimeJob.skills")
+        else -> println("A driver: $partTimeJob.name")
     }
 }
+
 fun main(wantToByHero: Boolean) {
     val partTimeJob = if (wantToByHero) PartTimeJob.BATMAN() else PartTimeJob.DRIVER()
     handle(partTimeJob)
+}
+```
+
+密封类最强大的地方在于额外封装众多实例方法用于处理各种情况，这是枚举类无法做到的
+
+```kotlin
+
+//  定义密封类的成员方法
+inline fun PartTimeJob.isDriver(next: (String) -> Unit) {
+    if (this is PartTimeJob.Driver)
+        next(name)
+}
+
+inline fun PartTimeJob.isBatman(next: (Array<Skill>) -> Unit) {
+    if (this is PartTimeJob.Batman)
+        next(skills)
+}
+
+//  实例可以通过调用共用的成员方法轻松完成类似when的分支判断
+fun handle2(partTimeJob: PartTimeJob) {
+    partTimeJob.isDriver {
+        println("A driver:$name")
+    }
+    partTimeJob.isBatman {
+        println("The batman:$skills") 
+    }
+}
+
+fun main(wantToByHero: Boolean) {
+    val partTimeJob = if (wantToByHero) PartTimeJob.BATMAN() else PartTimeJob.DRIVER()
+    handle2(partTimeJob)
 }
 ```

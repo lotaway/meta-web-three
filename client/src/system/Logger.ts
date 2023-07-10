@@ -1,7 +1,7 @@
 // <reference path="../config/init_config.ts"/>
 import initConfig from "../config/init"
 import {ILogger, ILoggerWithStatic} from "../core/iCore"
-import Decorator from "../utils/decorator"
+import Decorator from "../utils/support"
 
 @Decorator.ImplementsWithStatic<ILoggerWithStatic>()
 export default class Logger {

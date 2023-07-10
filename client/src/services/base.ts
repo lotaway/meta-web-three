@@ -1,6 +1,6 @@
-import {IBaseMapperRequestOptions, ISystem} from "../core/iCore"
+import {IBaseProviderOptions, ISystem} from "../core/iCore"
 
-export interface IApiMapper<Arguments = any, ResponseData = any> {
+export interface IApiProvider<Arguments = any, ResponseData = any> {
 
     abortController: AbortController | undefined
 
@@ -9,15 +9,15 @@ export interface IApiMapper<Arguments = any, ResponseData = any> {
     stop(): boolean
 }
 
-export interface IApiMapperStatic<InstanceType> {
-    new(rpc: ISystem, options?: IBaseMapperRequestOptions): InstanceType
+export interface IApiProviderStatic<InstanceType> {
+    new(rpc: ISystem, options?: IBaseProviderOptions): InstanceType
 }
 
-export class BaseMapper {
+export class BaseProvider {
 
     abortController: AbortController | undefined = undefined
 
-    constructor(protected readonly rpc: ISystem, protected options: IBaseMapperRequestOptions = {}) {
+    constructor(protected readonly rpc: ISystem, protected options: IBaseProviderOptions = {}) {
     }
 
     init() {
@@ -45,7 +45,7 @@ export class MapperWrapper<DefaultArgs = any> {
         return this.systemImpl
     }
 
-    start<Args extends DefaultArgs, ResponseData>(Mapper: IApiMapperStatic<IApiMapper<Args, ResponseData>>, args: Omit<Args, keyof DefaultArgs> & Partial<DefaultArgs>) {
+    start<Args extends DefaultArgs, ResponseData>(Mapper: IApiProviderStatic<IApiProvider<Args, ResponseData>>, args: Omit<Args, keyof DefaultArgs> & Partial<DefaultArgs>) {
         const mapper = new Mapper(this.systemImpl)
         return mapper.start({
             ...this.defaultArgs,

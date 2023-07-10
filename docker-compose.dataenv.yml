@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  mysql:
+    image: ${MYSQL_IMAGE}
+    ports:
+      - ${MYSQL_PORT}:${MYSQL_PORT}
+
+  redis:
+    image: ${REDIS_IMAGE}
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+
+  rabbitmq:
+    ports:
+      - "5671:5671"
+      - "5672:5672"
+      - "15672:15672"

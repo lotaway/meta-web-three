@@ -1,3 +1,5 @@
+import Global from "../store/modules/global";
+
 interface Swing {
     com(type: number): void
 }
@@ -11,43 +13,43 @@ function createUseSwing() {
         com(type: number): void {
 
         }
-    });
+    })
     useSwing(type => {
-        type++;
+        type++
     })
 }
 
-export interface UploadFileArgs {
+interface UploadFileArgs {
     method?: string
     headers?: {
         [key: string]: string
     }
 }
 
-export interface IBaseMapperRequestOptions {
+interface IBaseProviderOptions {
     dataType?: string,
     method?: string,
     signal?: AbortSignal
 }
 
-export interface ILogger {
+interface ILogger {
     output(message: any, force?: boolean): void
 }
 
-export interface ILoggerWithStatic<T extends ILogger = ILogger> {
-    new(...args: any[]): T;
+interface ILoggerWithStatic<T extends ILogger = ILogger> {
+    new(...args: any[]): T
     instance: ILogger | undefined
 }
 
-export interface ISystem {
-    uploadFile(apiUrl: string, file: File, options: UploadFileArgs): Promise<any>;
+interface ISystem {
+    uploadFile(apiUrl: string, file: File, options: UploadFileArgs): Promise<any>
 
     // stopFile(): boolean
-    request<responseData extends any>(apiUrl: string, data: object, options?: IBaseMapperRequestOptions): Promise<responseData>
+    request<responseData extends any>(apiUrl: string, data: object, options?: IBaseProviderOptions): Promise<responseData>
 
     print(message: string): void
 }
 
-export interface ISystemWithStatic<T extends ISystem = ISystem> {
-    new(...args: any[]): T;
+interface ISystemWithStatic<T extends ISystem = ISystem> {
+    new(...args: any[]): T
 }

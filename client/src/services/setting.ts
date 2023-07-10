@@ -1,9 +1,9 @@
 import initConfig from "../config/init"
-import {BaseMapper, IApiMapper, IApiMapperStatic, MapperWrapper} from './base'
-import Decorator from "../utils/decorator"
+import {BaseProvider, IApiProvider, IApiProviderStatic, MapperWrapper} from './base'
+import Decorator from "../utils/support"
 import host from "../config/host"
 import {API_URL, templateFolderPlaceHolder} from "../config/api"
-import {IBaseMapperRequestOptions, ISystem} from "../core/iCore"
+import {IBaseProviderOptions, ISystem} from "../core/iCore"
 
 namespace NSSetting {
 
@@ -368,8 +368,8 @@ namespace NSSetting {
         templateName: string
     }
 
-    class SettingBaseMapper extends BaseMapper {
-        constructor(protected readonly systemImpl: ISystem, protected readonly options: IBaseMapperRequestOptions = {}) {
+    class SettingBaseMapper extends BaseProvider {
+        constructor(protected readonly systemImpl: ISystem, protected readonly options: IBaseProviderOptions = {}) {
             super(systemImpl, {
                 method: "GET",
                 dataType: "XML",
@@ -382,7 +382,7 @@ namespace NSSetting {
         }
     }
 
-    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<SettingArgs, ReturnType<typeof Adapter.getUserMenu>>>>()
+    @Decorator.ImplementsWithStatic<IApiProviderStatic<IApiProvider<SettingArgs, ReturnType<typeof Adapter.getUserMenu>>>>()
     export class UserMenuMapper<ResponseData = ReturnType<typeof Adapter.getUserMenu>> extends SettingBaseMapper {
 
         @Decorator.UseAdapter(Adapter.getUserMenu)
@@ -394,7 +394,7 @@ namespace NSSetting {
         }
     }
 
-    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<SettingArgs, FastEntryData>>>()
+    @Decorator.ImplementsWithStatic<IApiProviderStatic<IApiProvider<SettingArgs, FastEntryData>>>()
     export class HomeMenuMapper extends SettingBaseMapper {
 
         @Decorator.UseAdapter(Adapter.getFastEntry)
@@ -405,7 +405,7 @@ namespace NSSetting {
         }
     }
 
-    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<SettingArgs, ReturnType<typeof Adapter.getTemplateConfig>>>>()
+    @Decorator.ImplementsWithStatic<IApiProviderStatic<IApiProvider<SettingArgs, ReturnType<typeof Adapter.getTemplateConfig>>>>()
     export class TemplateConfigMapper<ResponseData = ReturnType<typeof Adapter.getTemplateConfig>> extends SettingBaseMapper {
 
         @Decorator.UseAdapter(Adapter.getTemplateConfig)
@@ -416,7 +416,7 @@ namespace NSSetting {
         }
     }
 
-    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<SettingArgs, GetAppConfigResponse>>>()
+    @Decorator.ImplementsWithStatic<IApiProviderStatic<IApiProvider<SettingArgs, GetAppConfigResponse>>>()
     export class AppConfigMapper extends SettingBaseMapper {
 
         @Decorator.UseCache()
@@ -428,7 +428,7 @@ namespace NSSetting {
         }
     }
 
-    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<SettingArgs, unknown>>>()
+    @Decorator.ImplementsWithStatic<IApiProviderStatic<IApiProvider<SettingArgs, unknown>>>()
     export class WeChatConfigMapper extends SettingBaseMapper {
 
         async start(args: SettingArgs): Promise<unknown> {
@@ -438,7 +438,7 @@ namespace NSSetting {
         }
     }
 
-    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<SettingArgs, FunctionConfigResponse>>>()
+    @Decorator.ImplementsWithStatic<IApiProviderStatic<IApiProvider<SettingArgs, FunctionConfigResponse>>>()
     export class FunctionConfigMapper extends SettingBaseMapper {
 
         @Decorator.UseCache()
@@ -450,7 +450,7 @@ namespace NSSetting {
         }
     }
 
-    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<SettingArgs, GetSitePublicConfigData>>>()
+    @Decorator.ImplementsWithStatic<IApiProviderStatic<IApiProvider<SettingArgs, GetSitePublicConfigData>>>()
     export class SitePublicConfigMapper extends SettingBaseMapper {
 
         @Decorator.UseCache()

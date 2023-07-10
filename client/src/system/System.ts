@@ -1,5 +1,5 @@
-import Decorator, {obj2FormData} from "../utils/decorator"
-import {ILogger, ISystem, ISystemWithStatic, UploadFileArgs, IBaseMapperRequestOptions} from "../core/iCore"
+import Decorator, {obj2FormData} from "../utils/support"
+import {ILogger, ISystem, ISystemWithStatic, UploadFileArgs, IBaseProviderOptions} from "../core/iCore"
 import Logger from "./Logger"
 
 @Decorator.ImplementsWithStatic<ISystemWithStatic>()
@@ -28,7 +28,7 @@ export default class System {
         }).then(response => response.ok ? response.json() : Promise.reject(response))
     }
 
-    async request<responseData = any>(apiUrl: string, data: object, options?: IBaseMapperRequestOptions) {
+    async request<responseData = any>(apiUrl: string, data: object, options?: IBaseProviderOptions) {
         return await fetch(apiUrl, {
             method: options?.method || "POST",
             body: obj2FormData(data),

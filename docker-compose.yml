@@ -1,14 +1,12 @@
 version: '2'
 services:
-  meta-web-three-mysql:
-    image: "mysql"
+  mysql:
+    image: ${MYSQL_IMAGE}
     restart: always
     volumes:
       - ${DATA_PATH}/.data/mysql:/var/lib/mysql
-    #    expose:
-    #      - "3306"
     ports:
-      - "3306:3306"
+      - ${MYSQL_PORT}:${MYSQL_PORT}
     env_file:
       - .env
       - ./gateway/.env
@@ -24,11 +22,11 @@ services:
       --lower_case_table_names=2
     networks:
       - meta-web-three
-  meta-web-three-redis:
-    image: 'redis:alpine'
+  redis:
+    image: ${REDIS_IMAGE}
     restart: always
     ports:
-      - "6379:6379"
+      - ${REDIS_PORT}:${REDIS_PORT}
     env_file:
       - .env
       - gateway/.env
@@ -36,43 +34,47 @@ services:
       - ${DATA_PATH}/.data/redis:/data
     networks:
       - meta-web-three
-  meta-web-three-gateway:
+  gateway:
     build:
       context: "./gateway"
       dockerfile: dockerfile
-    image: meta-web-three-gateway
+    image: meta-web-three/gateway
     volumes:
       - ${DATA_PATH}/.data/gateway:/gateway
     ports:
       - "30001:30001"
-    links:
-      - meta-web-three-mysql
-      - meta-web-three-redis
     depends_on:
-      - meta-web-three-mysql
-      - meta-web-three-redis
+      mysql:
+        - condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - meta-web-three
-  meta-web-three-server:
+  backend-api:
     build:
-      context: "./server"
+      context: "./backend-api"
       dockerfile: dockerfile
     volumes:
-      - ${DATA_PATH}/.data/server:/
+      - ${DATA_PATH}/.data/backend-api:/
     ports:
       - "10082:10082"
       - "10083:10083"
     networks:
       - meta-web-three
     depends_on:
-      - meta-web-three-mysql
-      - meta-web-three-redis
-  meta-web-three-client:
+      mysql:
+        - condition: service_healthy
+      redis:
+        condition: service_started
+  client:
     build:
       context: "./client"
       dockerfile: dockerfile
     ports:
       - "30001:80"
+    depends_on:
+      backend-api:
+        condition: service_started
 networks:
   meta-web-three:
     driver: bridge

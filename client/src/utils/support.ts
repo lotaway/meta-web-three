@@ -2,7 +2,7 @@ import host from "../config/host"
 import initConfig from "../config/init"
 import crypto from "../utils/crypto"
 
-interface StoreValue extends Object {
+interface CacheStoreValue extends Object {
     updateTime: number
     data: object
 }
@@ -87,27 +87,27 @@ export function obj2FormData(object: { [key: string | number]: any }) {
     return formData
 }
 
-function getData<DataType extends StoreValue["data"]>(storeName: string): Promise<DataType | any> {
+function getData<DataType extends CacheStoreValue["data"]>(storeName: string): Promise<DataType | any> {
     return new Promise((resolve, reject) => {
         let strData = localStorage.getItem(storeName)
             , storeValue
         if (strData) {
-            storeValue = JSON.parse(strData) as StoreValue;
-            storeValue ? resolve(storeValue.data as DataType) : reject();
+            storeValue = JSON.parse(strData) as CacheStoreValue
+            storeValue ? resolve(storeValue.data as DataType) : reject()
         } else {
-            reject();
+            reject()
         }
-    });
-    // return Promise.reject();
+    })
+    // return Promise.reject()
 }
 
-function saveData(storeName: string, data: StoreValue["data"]): Promise<any> {
+function saveData(storeName: string, data: CacheStoreValue["data"]): Promise<any> {
     try {
-        localStorage.setItem(storeName, JSON.stringify(data));
+        localStorage.setItem(storeName, JSON.stringify(data))
     } catch (e) {
-        return Promise.reject(e);
+        return Promise.reject(e)
     }
-    return Promise.resolve();
+    return Promise.resolve()
 }
 
 export enum ElementType {
@@ -179,8 +179,8 @@ export default class Decorator {
                             real[key] = real[key] ?? def[key]
                         })
                     return real ?? def
-                }));
-            };
+                }))
+            }
         }
     }
 

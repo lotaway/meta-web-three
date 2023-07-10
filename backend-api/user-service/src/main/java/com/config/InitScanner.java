@@ -7,6 +7,9 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -43,8 +46,7 @@ public class InitScanner extends ConfigScannerAdapter {
         for (var swing : swings) {
             if (prevSwing != null) {
                 prevSwing = prevSwing.andThen(swing);
-            }
-            else {
+            } else {
                 prevSwing = (Consumer<Integer>) swing;
             }
         }
@@ -289,18 +291,26 @@ public class InitScanner extends ConfigScannerAdapter {
         return unit[(position - 1) % unit.length];
     }
 
-    public void time() {
-        //  Date 原始日期
-        //  SimpleDateFormat 日期格式化和解析
-        //  Calender 系统日历 方便单独获取或加减年月星期
-        //  ZoneID 时区
-        //  Instant 时间戳
-        //  ZoneDateTime 本地日期，根据时区而定
-        //  DateTimeFormatter 本地日期格式化和解析
-        //  LocalDate/LocalTime/LocalDateTime 本地日期，更简化的获取和加减
-        //  Period.between 计算日期的年月日间隔
-        //  Duration 计算日期的日时分毫秒纳秒间隔
-        //  ChronoUnit 根据单位计算日期间隔
+    public String getTimeNow() {
+        return getTimeNow("yyyy/MM/dd EEE");
+    }
+
+    public String getTimeNow(String format) {
+          /*
+          Date 原始日期
+          SimpleDateFormat 日期格式化和解析
+          Calender 系统日历 方便单独获取或加减年月星期
+          ZoneID 时区
+          Instant 时间戳
+          ZoneDateTime 本地日期，根据时区而定
+          DateTimeFormatter 本地日期格式化和解析
+          LocalDate/LocalTime/LocalDateTime 本地日期，更简化的获取和加减
+          Period.between 计算日期的年月日间隔
+          Duration 计算日期的日时分毫秒纳秒间隔
+          ChronoUnit 根据单位计算日期间隔
+          */
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format, Locale.CHINA);
+        return LocalDate.now().format(formatter);
     }
 
     public void dataCollection(String[] sArr) {
@@ -308,7 +318,7 @@ public class InitScanner extends ConfigScannerAdapter {
         ArrayList<String> al = new ArrayList<>();
 
         //  Immutable collection
-        List<String> iTsSc = List.of("Mike", "Joker", "Franklin");
+        List<String> iTsSc = List.of("Standard", "Advance", "TopRank");
         System.out.println(iTsSc.get(0));
 //        iTsSc.set(0, "Traffer"); //   no allow to modify
 
@@ -364,8 +374,9 @@ public class InitScanner extends ConfigScannerAdapter {
         hm.put(3, "B");
         for (Map.Entry<Integer, String> entry : hm.entrySet()) {
             String rex = "";
-            entry.getValue().matches(rex);
-            System.out.println(entry.getKey() + ":" + entry.getValue());
+            if (entry.getValue().matches(rex)) {
+                System.out.println(entry.getKey() + ":" + entry.getValue());
+            }
         }
         // distinct will use comparator and hashcode to exclude duplicate element
         hm.entrySet().stream().distinct().filter(item -> item.getKey() > 1).skip(1).limit(10).forEach(item -> {

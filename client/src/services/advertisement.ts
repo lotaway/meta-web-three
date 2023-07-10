@@ -2,61 +2,10 @@
 import initConfig from "../config/init";
 import host from "../config/host";
 import {API_URL} from "../config/api";
-import Decorator from "../utils/decorator"
-import {BaseMapper, IApiMapper, IApiMapperStatic, MapperWrapper} from "./base"
-import { ISystem } from "../core/iCore"
+import Decorator from "../utils/support"
+import {BaseProvider, IApiProvider, IApiProviderStatic, MapperWrapper} from "./base"
 
 export namespace NSAdvertisement {
-
-    interface BaseArgs {
-        signal?: AbortSignal
-    }
-
-    export interface CategoryAdArgs extends BaseArgs {
-        categoryIdentity: number | string     //  分类标识
-        duoge?: number     //  是否多个 (0,不是;1是;默认不是)
-        location: string        //  位置
-        pageName: string            //  页面
-    }
-
-    export interface CategoryAdResponse extends BaseArgs {
-        src: string
-        link?: string
-        url?: string
-    }
-
-    export interface GetPublicAdArgs extends BaseArgs {
-        isMutiple?: number  //  是否多个 (0,不是;1是;默认不是)
-        location: string    //  广告所处位置
-        name: string    //  大类所处页面名
-    }
-
-    export type GetPublicAdResponse = {
-        alt: string
-        height: string
-        src: string
-        url: string
-        width: string
-    }
-
-    export type GetPublicAdsResponse = GetPublicAdResponse[]
-
-    export interface GetAppHomeBannerArgs {
-        num?: number
-    }
-
-    export interface GetAppStartAdParam extends BaseArgs {
-        type?: string,  //  类型：[home:启动图，boot:引导图]
-        num?: number    //  数量
-    }
-
-    interface AppImgItem extends BaseArgs {
-        "@src": string
-        ad: string
-    }
-
-    export interface GetAppStartAdResponse extends Array<AppImgItem> {
-    }
 
     export class Adapter {
 
@@ -85,8 +34,8 @@ export namespace NSAdvertisement {
         }
     }
 
-    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<CategoryAdArgs, CategoryAdResponse>>>()
-    export class CategoryAdMapper extends BaseMapper {
+    @Decorator.ImplementsWithStatic<IApiProviderStatic<IApiProvider<CategoryAdArgs, CategoryAdResponse>>>()
+    export class CategoryAdMapper extends BaseProvider {
         @Decorator.DefaultArgs<[CategoryAdArgs]>({
             categoryIdentity: "",
             duoge: 0,
@@ -101,8 +50,8 @@ export namespace NSAdvertisement {
         }
     }
 
-    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<GetPublicAdArgs, CategoryAdResponse>>>()
-    export class PublicAdMapper extends BaseMapper {
+    @Decorator.ImplementsWithStatic<IApiProviderStatic<IApiProvider<GetPublicAdArgs, CategoryAdResponse>>>()
+    export class PublicAdMapper extends BaseProvider {
         @Decorator.DefaultArgs<[GetPublicAdArgs]>({
             isMutiple: 0,
             location: "",
@@ -116,8 +65,8 @@ export namespace NSAdvertisement {
         }
     }
 
-    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<GetAppHomeBannerArgs, GetPublicAdsResponse>>>()
-    export class AppHomeBannerMapper extends BaseMapper {
+    @Decorator.ImplementsWithStatic<IApiProviderStatic<IApiProvider<GetAppHomeBannerArgs, GetPublicAdsResponse>>>()
+    export class AppHomeBannerMapper extends BaseProvider {
 
         @Decorator.DefaultArgs({
             num: initConfig.SLIDER_IMG_NUM,
@@ -132,8 +81,8 @@ export namespace NSAdvertisement {
         }
     }
 
-    @Decorator.ImplementsWithStatic<IApiMapperStatic<IApiMapper<GetAppStartAdParam, GetAppStartAdResponse>>>()
-    export class AppStartAdMapper extends BaseMapper {
+    @Decorator.ImplementsWithStatic<IApiProviderStatic<IApiProvider<GetAppStartAdParam, GetAppStartAdResponse>>>()
+    export class AppStartAdMapper extends BaseProvider {
 
         @Decorator.DefaultArgs({
             type: "home",
@@ -163,7 +112,7 @@ export namespace NSAdvertisement {
             return this.mapperWrapper.system
         }
 
-        async getCategoryAds<Args extends CategoryAdArgs, ResponseData>(args: Args, mapper: IApiMapper<Args, ResponseData>) {
+        async getCategoryAds<Args extends CategoryAdArgs, ResponseData>(args: Args, mapper: IApiProvider<Args, ResponseData>) {
             return await mapper.start(args)
         }
 
