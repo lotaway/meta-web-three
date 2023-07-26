@@ -11,7 +11,8 @@
 
 ## Direct 目录说明
 
-* chain 链端（合约）
+* block-chain 区块链
+* block-chain-use 链端（合约）
 * client 网站客户端（内容、浏览、支付）
 * gateway 网关中心（协调、管理）
 * server 服务端（业务处理、储存数据）
