@@ -13,6 +13,8 @@
 
 # 下载AsmBB
 
+## 通过Fossil进行下载
+
 可参考[官网下载链接](https://asm32.info/fossil/asmbb/index)进行下载。
 
 推荐操作系统是Linux，如果是Window那建议使用WSL进行安装使用。
@@ -44,6 +46,35 @@ mkdir repositories
 mkdir asmbb
 # 解压项目文件
 ./Fossil/fossil open /repositories/asmbb.fossil
+```
+
+## 通过github公共仓库下载
+
+命令行直接克隆整个项目：
+
+```bash
+git clone https://github.com/johnfound/asmbb.git 
+```
+
+这样就可以进行自己的修改了！
+如果想要保持与官方版本一起更新，但又需要进行自定义修改，建议是先进行fork后进行修改，这样能从上游拉取官方版本的新提交，也能修改自己的版本，步骤参考：
+
+1. 在官方项目仓库右上角点击fork，根据提示创建成自己的项目，这个项目将会保持对上游也就是官方仓库提交内容的跟踪；
+2. 命令行克隆自己整个项目源码，命令前面已提供过，更换成自己的仓库地址即可；
+3. 在自己本地项目里打开命令行，使用git相关命令设置和获取上游仓库的更新（参考下方）；
+4. 之后可以进行自己的修改，按照往常一样上传到自己的远程仓库即可。
+
+使用git命令设置和获取上游仓库的更新，具体因版本更新可能有所不同，若有错误参考网上git最新版本命令：
+
+```bash
+# 添加官方仓库作为自己本地项目的上游仓库
+git remote set-url upsteam https://github.com/johnfound/asmbb.git
+# 获取上游仓库的更新
+git fetch upstream
+# 获取自己远程仓库的更新
+git checkout master
+# 如果有更新，需要进行合并
+git merge upstream/master
 ```
 
 以上就完成了asmbb项目源代码的获取工作。

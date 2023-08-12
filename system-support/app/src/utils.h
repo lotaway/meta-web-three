@@ -280,10 +280,6 @@ namespace utils {
 
 	void init_get_file();
 
-	namespace hazel {
-		void initLockAndAsync();
-	}
-
 	void initStringOptimization();
 
 	bool isPalindrome(int);

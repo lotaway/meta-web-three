@@ -272,15 +272,19 @@ class Zava {
         //  传统Java实现接口的方式
         arr.forEach(new Consumer() {
             void accept(String str) {
-                System.out.println(str);
+                println(str);
             }
         });
         //  后续推荐更简洁的Lambda表达式，类似匿名方法
         arr.forEach((str) -> {
-            System.out.println(str);
+            println(str);
         });
         //  如果已有相同参数与返回值的方法，也能用【包.类::方法名】引用，同属于Lambda语法
-        arr.forEach(System.out::println);
+        arr.forEach(Zava::println);
+    }
+    
+    public void println(String str) {
+        System.out.println(str);
     }
 }
 ```
@@ -293,9 +297,8 @@ var arr = arrayOf("hello", "world", "please")
 arr.forEach {
     println(it)
 }
-//  上面方式与以下相同
-arr.forEach({ index ->
-    {
+//  上面方式与以下相同，区别在于上述方式简化并将第一个传入的形参视为it
+arr.forEach({ index -> {
         println(index)
     }
 })
@@ -353,7 +356,7 @@ println("跳出后到了这里")
 
 # 函数
 
-Java里没有所谓函数function，只有定义在类里的方法method，也可以说Java里的函数指代的就是方法。
+Java里没有所谓namespace命名空间和函数function，只有定义在类里的方法method，也有人将Java里类当作命名空间，而静态方法当作函数来调用。
 
 ```java
 class M {
@@ -382,6 +385,7 @@ fun main() {
 # 类与接口
 
 Java的类与接口是最为重要的一环，通过接口抽象定义约束，然后交给类具体实现。
+Java所有的类默认都是继承自Object对象，Object对象自带有对比、哈希签名等，可以将其视为最简版本的struct，js里也经常使用Object定义参数和各种相关数据集结。
 其中实现接口使用implements关键字，语法[class 类名 implements 接口名]。
 继承类使用extends关键字，语法[class 类名 extends 父类名]，父类即要被继承的类，继承了父类的类则称为子类。
 定义构造方法只需要定义与类型相同的方法即可：

@@ -150,6 +150,17 @@ public class InitScanner extends ConfigScannerAdapter {
         useSwing(swing);
         //  简化
         useSwing(type -> type * 2);
+        //  直接引用参数与返回值都适配的静态方法
+//        useSwing(CSwing.instance::com);
+    }
+
+    public static class CSwing {
+
+        private static CSwing instance = new CSwing();
+
+        public int com(int type) {
+            return type * 2;
+        }
     }
 
     public static void showInfo() {

@@ -1,5 +1,5 @@
 import {defineConfig} from 'vite'
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -8,7 +8,7 @@ export default defineConfig({
     ],
     //  配置前端服务地址和端口
     server: {
-        host: '0.0.0.0',
+        host: 'localhost',
         port: 30001,
         //  是否开启https
         // https: true,

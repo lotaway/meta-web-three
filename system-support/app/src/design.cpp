@@ -6,7 +6,9 @@
 
 // 模板方法 Template Method，通过抽象了过程，提供切入方法，完成晚绑定的调用方式（即框架类自动调用应用程序开发者所继承实现的方法）。
 #include <stack>
+#include "logger.h"
 #include "utils.h"
+
 class Library {
 protected:
 	Library() {
@@ -23,16 +25,6 @@ protected:
 	}
 	virtual void on_create() = 0;
 	virtual void on_destroy() {
-
-	}
-};
-
-class Application : public Library {
-protected:
-	/*void run() override {
-
-	}*/
-	void on_create() {
 
 	}
 };
@@ -515,11 +507,18 @@ public:
 	}
 };
 
-class Application {
+class CommpilerApplication : public Library {
 public:
 	void run() {
 		ServiceProxy* serviceProxy = new ServiceProxy;
 		bool result = serviceProxy->request();
+	}
+protected:
+	/*void run() override {
+
+	}*/
+	void on_create() {
+
 	}
 };
 
@@ -600,23 +599,6 @@ public:
 	virtual void done() = 0;
 };
 
-class SettleStatus : public IStatus {
-	static SettleStatus* m_instance;
-public:
-	static SettleStatus* getInstance() {
-		if (m_instance == nullptr)
-			m_instance = new SettleStatus;
-		return m_instance;
-	}
-	void settle() override;
-	void cancel() override {
-		nextStatus = CancelStatus::getInstance();
-	}
-	void done() override {
-		nextStatus = DoneStatus::getInstance();
-	}
-};
-
 class CancelStatus : public IStatus {
 	static CancelStatus* m_instance;
 public:
@@ -641,6 +623,23 @@ public:
 	void settle() override;
 	void cancel() override;
 	void done() override;
+};
+
+class SettleStatus : public IStatus {
+	static SettleStatus* m_instance;
+public:
+	static SettleStatus* getInstance() {
+		if (m_instance == nullptr)
+			m_instance = new SettleStatus;
+		return m_instance;
+	}
+	void settle() override;
+	void cancel() override {
+		nextStatus = CancelStatus::getInstance();
+	}
+	void done() override {
+		nextStatus = DoneStatus::getInstance();
+	}
 };
 
 //	所有订单状态变更和改变状态所需的判断都是交给状态类管理，本身订单类只负责调用，不做任何如判断赋值的额外处理

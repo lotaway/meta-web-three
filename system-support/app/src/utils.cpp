@@ -1,5 +1,4 @@
-﻿#pragma once
-#include "./include/stdafx.h"
+﻿#include "./include/stdafx.h"
 //	std::mutex 互斥锁
 #include <mutex>
 //	std::async 异步任务
@@ -703,71 +702,6 @@ namespace utils {
 		data = 30;
 		logger::out(std::any_cast<int>(data));
 	}
-
-	//	通过异步（多线程）并行处理任务，提升性能
-
-	namespace hazel {
-
-		class Mesh {
-		public:
-			Mesh(const std::string& _filepath) : filepath(_filepath) {}
-			static Mesh* load(const std::string& filepath) {
-				//	 do something...
-				Mesh* mesh = new Mesh(filepath);
-				return mesh;
-			}
-		private:
-			const std::string& filepath;
-		};
-
-		template<class T>
-		struct Ref {
-		public:
-			using _TargetType = T;
-			Ref(_TargetType* _t) : t(_t) {}
-			~Ref() {
-				delete t;
-			}
-		private:
-			_TargetType* t;
-		};
-		//	互斥锁
-		static std::mutex s_meshesMutex;
-
-		class EditorLayer {
-		public:
-
-			static void loadMesh(std::vector<Ref<Mesh>>* meshes, std::string filepath) {
-				auto mesh = Mesh::load(filepath);
-				std::lock_guard<std::mutex> lock(s_meshesMutex);
-				meshes->push_back(mesh);
-			}
-
-			void loadMeshes() {
-				std::ifstream stream("src/Models.txt");
-				std::string line;
-				std::vector<std::string> meshFilepaths;
-				while (std::getline(stream, line))
-					meshFilepaths.push_back(line);
-#define ASYNC 1
-#if ASYNC
-				for (const auto& file : meshFilepaths)
-					m_futures.push_back(std::async(std::launch::async, loadMesh, &m_meshes, file));
-#else
-				for (const auto& file : meshFilepaths)
-					m_meshes.push_back(Mesh::load(file));
-#endif
-			}
-		private:
-			std::vector<Ref<Mesh>> m_meshes;
-			std::vector<std::future<void>> m_futures;
-		};
-
-		void initLockAndAsync() {
-			EditorLayer editorLayer;
-			editorLayer.loadMeshes();
-		}
-	};
 
 	//	字符串优化：最好是减少使用string而用char，子字符串用string_view
 	void initStringOptimization() {

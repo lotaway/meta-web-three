@@ -164,6 +164,8 @@
     <ClCompile Include="src\compiler\compiler.cpp" />
     <ClCompile Include="src\compiler\compile_process.cpp" />
     <ClCompile Include="src\design.cpp" />
+    <ClCompile Include="src\hazel.cpp" />
+    <ClCompile Include="src\hello.c" />
     <ClCompile Include="src\include\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -175,6 +177,8 @@
   <ItemGroup>
     <ClInclude Include="src\compiler\compiler.h" />
     <ClInclude Include="src\compiler\compile_process.h" />
+    <ClInclude Include="src\hazel.h" />
+    <ClInclude Include="src\hello.h" />
     <ClInclude Include="src\include\EM_PORT_API.h" />
     <ClInclude Include="src\include\stdafx.h" />
     <ClInclude Include="src\logger.h" />

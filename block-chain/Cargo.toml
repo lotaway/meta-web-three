@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 hex = "0.4.1"
 crypto-hash = "0.3.2"
+tokio = { version = "1.29.1", features = ["full"] }
+hyper = "^1.0.0-rc.3"

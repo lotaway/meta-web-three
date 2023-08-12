@@ -1,6 +1,4 @@
-use std::collections::HashMap;
 use std::ops::Add;
-use crate::utils;
 
 #[derive(Debug)]
 #[derive(PartialEq)]
@@ -43,28 +41,35 @@ impl NameMatcher {
     }
 }
 
-pub fn test_matcher<T: std::cmp::PartialOrd>(values: &[T]) -> &T {
-    let matcher = Matcher { count: 1 };
-    let n_matcher = NameMatcher::new();
-    let is_m = matcher.is_match();
-    if is_m && n_matcher.supper.eq(&matcher) {
-        println!("match!{:?}", matcher);
-        println!("{:?}", n_matcher.supper);
+#[cfg(test)]
+pub mod matcher_tests {
+    use std::collections::HashMap;
+    use crate::matcher::{Matcher, NameMatcher};
+    use crate::utils;
+
+    pub fn test_matcher<T: std::cmp::PartialOrd>(values: &[T]) -> &T {
+        let matcher = Matcher { count: 1 };
+        let n_matcher = NameMatcher::new();
+        let is_m = matcher.is_match();
+        if is_m && n_matcher.supper.eq(&matcher) {
+            println!("match!{:?}", matcher);
+            println!("{:?}", n_matcher.supper);
+        }
+        Matcher::greatest::<T>(values)
     }
-    Matcher::greatest::<T>(values)
-}
 
-
-pub fn test_color_matcher() {
-    let mut map: HashMap<&str, i8> = HashMap::new();
-    map.insert("Red", 1);
-    map.insert("Blue", 3);
-    map.insert("Yellow", 2);
-    let values = map.values().collect::<Vec<_>>();
-    let result = test_matcher(&values);
-    let matcher = Matcher { count: 1 };
-    println!("Hello world! With result: {result} and is matcher: {}", matcher.count);
-    dbg!(&map); //  debug——自动输出所有内容和所在代码位置
-    utils::show_info(map.get("Red").map_or(0i8, |x| *x).to_string().as_str());
-    utils::show_info(map["Red"].to_string().as_str())
+    #[test]
+    pub fn test_color_matcher() {
+        let mut map: HashMap<&str, i8> = HashMap::new();
+        map.insert("Red", 1);
+        map.insert("Blue", 3);
+        map.insert("Yellow", 2);
+        let values = map.values().collect::<Vec<_>>();
+        let result = test_matcher(&values);
+        let matcher = Matcher { count: 1 };
+        println!("Hello world! With result: {result} and is matcher: {}", matcher.count);
+        dbg!(&map); //  debug——自动输出所有内容和所在代码位置
+        utils::show_info(map.get("Red").map_or(0i8, |x| *x).to_string().as_str());
+        utils::show_info(map["Red"].to_string().as_str())
+    }
 }
