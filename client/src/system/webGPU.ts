@@ -6,7 +6,7 @@ export namespace ThreeGPU {
 
     export type CreateGPUParams = GPUId | HTMLCanvasElement
 
-    interface CanvasRes<T extends RenderingContext | GPUCanvasContext = RenderingContext | GPUCanvasContext> {
+    export interface CanvasRes<T extends RenderingContext | GPUCanvasContext = RenderingContext | GPUCanvasContext> {
         canvas: HTMLCanvasElement
         context: T
     }
@@ -21,70 +21,10 @@ export namespace ThreeGPU {
         data: DataType,
         size: number
     }
-
-    export function getCanvas<T extends CanvasRes["context"]>(_targetCanvas: Readonly<CreateGPUParams>, contextId: string = "webgpu"): CanvasRes<T> {
-        let canvas
-        if (typeof _targetCanvas === "string")
-            canvas = document.getElementById(_targetCanvas) as HTMLCanvasElement
-        else
-            canvas = _targetCanvas as HTMLCanvasElement
-        if (!canvas)
-            throw new Error("No canvas found.")
-        const context = canvas.getContext(contextId) as T
-        if (!context)
-            throw new Error(`No canvas ${contextId}} context`)
-        return {canvas, context}
-    }
-
-    export async function createGPU(_targetCanvas: CreateGPUParams) {
-        if (!navigator?.gpu)
-            throw new Error("No gpu found.")
-        //  获取最合适的GPU
-        const adapter = await navigator.gpu.requestAdapter()
-        if (!adapter)
-            throw new Error("No gpu adapter.")
-        // adapter.features:array
-        // adapter.limits:object
-        //  获取设备并请求分配一定资源
-        const device = await adapter.requestDevice({
-            requiredFeatures: ["texture-compression-bc"],
-            requiredLimits: {
-                maxStorageBufferBindingSize: adapter.limits.maxStorageBufferBindingSize
-            }
-        })
-        const {canvas, context} = getCanvas<GPUCanvasContext>(_targetCanvas)
-        //  自行指定
-        // const format = "rgba8unorm"
-        //  根据显卡支持的格式里选最佳的
-        const format = navigator.gpu.getPreferredCanvasFormat()
-        const size = [canvas.clientWidth * window.devicePixelRatio, canvas.clientHeight * window.devicePixelRatio]
-        const configure: GPUCanvasConfiguration = {
-            device,
-            //  绘制画布的格式，可手动定义，这里是使用自动获取最佳格式
-            format,
-            // size,
-            //  设置不透明
-            alphaMode: "opaque",
-            // compositingAlphaMode: "opaque"
-        }
-        //  配置上下文
-        context.configure(configure)
-        return {
-            adapter,
-            device,
-            format,
-            canvas,
-            context
-        }
-    }
 }
 
 export interface ToArray<T> {
     toArray(): Array<T>
-}
-
-export type EasyCreate<T> = {
-    create(value?: any): T
 }
 
 export interface Vec {
@@ -106,17 +46,112 @@ export interface Vec4 extends Vec3 {
 }
 
 export interface WebGPUOptions {
+    canvas: HTMLCanvasElement
+    context: GPUCanvasContext
     shaderLocation?: number
     adapter: GPUAdapter
     device: GPUDevice
     format: GPUTextureFormat
 }
 
+export class WebGPUOptionsWrapper implements WebGPUOptions {
+    adapter: GPUAdapter
+    canvas: HTMLCanvasElement
+    context: GPUCanvasContext
+    device: GPUDevice
+    format: GPUTextureFormat
+
+    constructor(options: WebGPUOptions) {
+        this.adapter = options.adapter
+        this.canvas = options.canvas
+        this.context = options.context
+        this.device = options.device
+        this.format = options.format
+    }
+
+    static async create(_targetCanvas: ThreeGPU.CreateGPUParams) {
+        if (!navigator?.gpu)
+            throw new Error("No gpu found.")
+        //  获取最合适的GPU
+        const adapter = await navigator.gpu.requestAdapter()
+        if (!adapter)
+            throw new Error("No gpu adapter.")
+        // adapter.features:array
+        // adapter.limits:object
+        //  获取设备并请求分配一定资源
+        const device = await adapter.requestDevice({
+            requiredFeatures: ["texture-compression-bc"],
+            requiredLimits: {
+                maxStorageBufferBindingSize: adapter.limits.maxStorageBufferBindingSize
+            }
+        })
+        const {canvas, context} = WebGPUBuilder.getCanvas<GPUCanvasContext>(_targetCanvas)
+        //  自行指定
+        // const format = "rgba8unorm"
+        //  根据显卡支持的格式里选最佳的
+        const format = navigator.gpu.getPreferredCanvasFormat()
+        const size = [canvas.clientWidth * window.devicePixelRatio, canvas.clientHeight * window.devicePixelRatio]
+        const configure: GPUCanvasConfiguration = {
+            device,
+            //  绘制画布的格式，可手动定义，这里是使用自动获取最佳格式
+            format,
+            // size,
+            //  设置不透明
+            alphaMode: "opaque",
+            // compositingAlphaMode: "opaque"
+        }
+        //  配置上下文
+        context.configure(configure)
+        return new WebGPUOptionsWrapper({
+            adapter,
+            canvas,
+            context,
+            device,
+            format,
+        })
+    }
+}
+
 export class WebGPUBuilder {
+    canvas: HTMLCanvasElement
+    context: GPUCanvasContext
+    adapter: GPUAdapter
+    device: GPUDevice
+    format: GPUTextureFormat
     private _shaderLocation: number
 
     constructor(options: WebGPUOptions) {
+        this.canvas = options.canvas
+        this.context = options.context
+        this.adapter = options.adapter
+        this.device = options.device
+        this.format = options.format
         this._shaderLocation = options.shaderLocation ?? 0
+    }
+
+    static async create(_targetCanvas: ThreeGPU.CreateGPUParams) {
+        const {adapter, device, format, canvas, context} = await WebGPUOptionsWrapper.create(_targetCanvas)
+        return new WebGPUBuilder({
+            adapter,
+            device,
+            format,
+            canvas,
+            context
+        })
+    }
+
+    static getCanvas<T extends ThreeGPU.CanvasRes["context"]>(_targetCanvas: Readonly<ThreeGPU.CreateGPUParams>, contextId: string = "webgpu"): ThreeGPU.CanvasRes<T> {
+        let canvas
+        if (typeof _targetCanvas === "string")
+            canvas = document.getElementById(_targetCanvas) as HTMLCanvasElement
+        else
+            canvas = _targetCanvas as HTMLCanvasElement
+        if (!canvas)
+            throw new Error("No canvas found.")
+        const context = canvas.getContext(contextId) as T
+        if (!context)
+            throw new Error(`No canvas ${contextId}} context`)
+        return {canvas, context}
     }
 
     get shaderLocation() {
@@ -127,6 +162,327 @@ export class WebGPUBuilder {
             },
             value: this._shaderLocation
         }
+    }
+}
+
+export class GPUVertexBufferLayoutBuilder implements GPUVertexBufferLayout {
+    constructor(
+        readonly arrayStride: number,
+        readonly attributes: Iterable<GPUVertexAttribute>,
+        readonly stepMode?: GPUVertexStepMode | undefined,
+    ) {
+    }
+
+}
+
+export class GPUFragmentStateBuilder implements GPUFragmentState {
+    constructor(
+        readonly targets: Iterable<GPUColorTargetState | null>,
+        readonly module: GPUShaderModule,
+        readonly entryPoint: string,
+        readonly constants?: Record<string, number> | undefined,
+    ) {
+
+    }
+
+    static create(targets: Iterable<GPUColorTargetState | null>,
+                  //  着色器文件
+                  module: GPUShaderModule, entryPoint: string = "main", constants?: Record<string, number> | undefined) {
+        return new GPUFragmentStateBuilder(targets, module, entryPoint, constants)
+    }
+}
+
+export class GPUPrimitiveStateBuilder implements GPUPrimitiveState {
+    constructor(
+        // 指定是三角形
+        readonly topology: GPUPrimitiveTopology,
+        readonly stripIndexFormat?: GPUIndexFormat | undefined,
+        readonly frontFace?: GPUFrontFace | undefined,
+        readonly cullMode?: GPUCullMode | undefined,
+        readonly unclippedDepth?: boolean | undefined,
+    ) {
+    }
+
+    static create(topology: GPUPrimitiveTopology = "triangle-list") {
+        return new GPUPrimitiveStateBuilder(topology, undefined, undefined, /*"back"*/)
+    }
+
+    build() {
+        return this as GPUPrimitiveState
+    }
+
+}
+
+export class GPUDepthStencilStateBuilder implements GPUDepthStencilState {
+    constructor(
+        readonly format: GPUTextureFormat,
+        readonly depthWriteEnabled: boolean,
+        readonly depthCompare: GPUCompareFunction,
+        readonly stencilFront?: GPUStencilFaceState | undefined,
+        readonly stencilBack?: GPUStencilFaceState | undefined,
+        readonly stencilReadMask?: number | undefined,
+        readonly stencilWriteMask?: number | undefined,
+        readonly depthBias?: number | undefined,
+        readonly depthBiasSlopeScale?: number | undefined,
+        readonly depthBiasClamp?: number | undefined,
+    ) {
+    }
+
+    static create() {
+        return new GPUDepthStencilStateBuilder("depth32float", true, "less")
+    }
+
+    build() {
+        return this as GPUDepthStencilState
+    }
+}
+
+export class IndexProxy {
+    private currentValue: number | undefined
+    private startValue: number
+
+    constructor(initialValue: number = 0) {
+        this.startValue = initialValue
+    }
+
+    get value(): number {
+        if (this.currentValue === undefined)
+            throw new Error("value is not initial! Please call next before get value!")
+        return this.currentValue
+    }
+
+    next(): IndexProxy {
+        this.currentValue = this.currentValue === undefined ? this.startValue : this.currentValue + 1
+        return this
+    }
+}
+
+export class BindGroupProxy extends IndexProxy {
+    private groupProxies: Array<IndexProxy>
+
+    constructor() {
+        super()
+        this.groupProxies = [new IndexProxy()]
+    }
+
+    get groupIndex() {
+        return this.value
+    }
+
+    get group() {
+        return this.groupProxies[this.value]
+    }
+
+    get binding() {
+        return this.group.value
+    }
+
+    next(): BindGroupProxy {
+        this.groupProxies.push(new IndexProxy())
+        super.next()
+        return this
+    }
+
+    nextGroup() {
+        this.next()
+        return this.group
+    }
+
+    nextBinding() {
+        return this.group.next()
+    }
+}
+
+export class GPUSamplerBuilder implements GPUSamplerDescriptor {
+    constructor(
+        readonly magFilter?: GPUFilterMode,
+        readonly minFilter?: GPUFilterMode,
+        readonly addressModeU?: GPUAddressMode,
+        readonly addressModeV?: GPUAddressMode,
+        readonly compare?: GPUCompareFunction
+    ) {
+    }
+
+    static create() {
+        return new GPUSamplerBuilder("linear", "linear")
+    }
+
+    static createShadow() {
+        return new GPUSamplerBuilder(undefined, undefined, undefined, undefined, "less")
+    }
+
+    build(device: GPUDevice) {
+        return device.createSampler(this)
+    }
+}
+
+export class GPUTextureBuilder implements GPUTextureDescriptor {
+
+    constructor(
+        readonly size: GPUExtent3DStrict,
+        readonly format: GPUTextureFormat,
+        readonly usage: number,
+        readonly mipLevelCount?: number | undefined,
+        readonly sampleCount?: number | undefined,
+        readonly dimension?: GPUTextureDimension | undefined,
+        readonly viewFormats?: Iterable<GPUTextureFormat> | undefined,
+        readonly label?: string | undefined,
+    ) {
+    }
+
+    static create(size: GPUExtent3DStrict, sampleCount?: number) {
+        return new GPUTextureBuilder(
+            size,
+            "rgba8unorm",
+            GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
+            undefined,
+            sampleCount
+        )
+    }
+
+    static createForDepth(size: GPUExtent3DStrict, format: GPUTextureFormat = "depth32float") {
+        return new GPUTextureBuilder(size, format, GPUTextureUsage.RENDER_ATTACHMENT)
+    }
+
+    static createForShadowDepth(size: GPUExtent3DStrict, format: GPUTextureFormat = "depth32float") {
+        return new GPUTextureBuilder(size, format, GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING)
+    }
+
+    build(device: GPUDevice) {
+        return device.createTexture(this)
+    }
+
+    buildWithImage(device: GPUDevice, source: GPUImageCopyExternalImageSource) {
+        const texture = this.build(device)
+        device.queue.copyExternalImageToTexture({
+            source
+        }, {
+            texture
+        }, this.size)
+        return texture
+    }
+
+    createView(device: GPUDevice) {
+        return device.createTexture(this).createView()
+    }
+
+}
+
+export class GPUBindGroupLayoutEntryBuilder implements GPUBindGroupLayoutEntry {
+    constructor(
+        readonly binding: number,
+        readonly visibility: number,
+        readonly buffer?: GPUBufferBindingLayout | undefined,
+        readonly sampler?: GPUSamplerBindingLayout | undefined,
+        readonly texture?: GPUTextureBindingLayout | undefined,
+        readonly storageTexture?: GPUStorageTextureBindingLayout | undefined,
+        readonly externalTexture?: GPUExternalTextureBindingLayout | undefined,
+    ) {
+
+    }
+
+    static create(binding: number = 0, visibility: number = GPUShaderStage.VERTEX) {
+        GPUShaderStage.VERTEX
+        return new GPUBindGroupLayoutEntryBuilder(
+            binding,
+            visibility,
+            {
+                type: 'uniform',
+                hasDynamicOffset: true,
+                minBindingSize: 0
+            })
+    }
+}
+
+// https://blog.csdn.net/m0_51146371/article/details/126943884?spm=1001.2014.3001.5502
+export class GPUBindGroupLayoutBuilder implements GPUBindGroupLayoutDescriptor {
+    constructor(
+        readonly entries: Iterable<GPUBindGroupLayoutEntry>,
+        readonly label?: string | undefined
+    ) {
+    }
+
+    static create() {
+        return new GPUBindGroupLayoutBuilder(Array.of(GPUBindGroupLayoutEntryBuilder.create()))
+    }
+
+    build(device: GPUDevice) {
+        return device.createBindGroupLayout(this)
+    }
+}
+
+export class GPUBindGroupEntryBuilder implements GPUBindGroupEntry {
+    constructor(
+        readonly resource: GPUBindingResource,
+        readonly binding: number = 0,
+    ) {
+    }
+}
+
+export class GPUBindGroupEntriesBuilder {
+    list: Array<GPUBindingResource>
+
+    constructor(list: Array<GPUBindingResource> = []) {
+        this.list = list
+    }
+
+    static create() {
+        return new GPUBindGroupEntriesBuilder()
+    }
+
+    push(item: GPUBindingResource) {
+        this.list.push(item)
+    }
+
+    build(layout: GPUBindGroupLayout) {
+        return GPUBindGroupBuilder.create(this.list, layout)
+    }
+}
+
+export class GPUBindGroupBuilder implements GPUBindGroupDescriptor {
+    constructor(
+        readonly layout: GPUBindGroupLayout,
+        readonly entries: Iterable<GPUBindGroupEntry>,
+        readonly label?: string | undefined,
+    ) {
+    }
+
+    static create(resources: Iterable<GPUBindingResource>, layout: GPUBindGroupLayout, bindGroupProxy?: BindGroupProxy) {
+        if (!bindGroupProxy) {
+            bindGroupProxy = new BindGroupProxy().next()
+        }
+        const entries: Array<GPUBindGroupEntry> = []
+        for (const resource of resources) {
+            entries.push({
+                binding: bindGroupProxy.nextBinding().value,
+                resource
+            })
+        }
+        return new GPUBindGroupBuilder(layout, entries)
+    }
+
+    build(device: GPUDevice) {
+        return device.createBindGroup(this)
+    }
+
+    setToPass(renderPass: GPURenderPassEncoder, bindGroup: GPUBindGroup, groupIndex: number = 0) {
+        return renderPass.setBindGroup(groupIndex, bindGroup)
+    }
+}
+
+export class GPUPipelineLayoutBuilder implements GPUPipelineLayoutDescriptor {
+    constructor(
+        readonly bindGroupLayouts: Iterable<GPUBindGroupLayout>,
+        readonly label?: string | undefined
+    ) {
+    }
+
+    static create(layout: GPUBindGroupLayout) {
+        return new GPUPipelineLayoutBuilder([layout])
+    }
+
+    build(device: GPUDevice) {
+        return device.createPipelineLayout(this)
     }
 }
 
@@ -156,17 +512,51 @@ export class GPUImpl implements GPU {
     }
 }
 
-export class GPUBufferDescriptorBuilder implements GPUBufferDescriptor {
-    constructor(readonly size: number, public usage: number, readonly mappedAtCreation?: boolean | undefined, readonly label?: string | undefined) {
+export class GPUBufferBuilder implements GPUBufferDescriptor {
+    constructor(
+        readonly size: number,
+        public usage: number,
+        readonly mappedAtCreation?: boolean | undefined,
+        readonly label?: string | undefined
+    ) {
     }
 
-    setUsage(usage: keyof GPUBufferUsage) {
-        this.usage = Number(usage)
-        return this
+    static create(size: number, usage: number, options?: {
+        mappedAtCreation?: boolean | undefined,
+        label?: string | undefined
+    }) {
+        return new GPUBufferBuilder(size, usage, options?.mappedAtCreation, options?.label)
+    }
+
+    static createForVertex(size: number) {
+        return GPUBufferBuilder.create(size, GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST, {
+            label: "GPUBuffer for vertex"
+        })
+    }
+
+    static createForVertexIndex(size: number) {
+        return GPUBufferBuilder.create(size, GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST, {
+            label: "GPUBuffer for vertex index"
+        })
+    }
+
+    static createForUniform(size: number) {
+        return GPUBufferBuilder.create(size, GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST, {
+            label: "GPUBuffer for uniform"
+        })
     }
 
     from(descriptor: GPUBufferDescriptor) {
-        return new GPUBufferDescriptorBuilder(descriptor.size, descriptor.usage, descriptor.mappedAtCreation, descriptor.label)
+        return new GPUBufferBuilder(descriptor.size, descriptor.usage, descriptor.mappedAtCreation, descriptor.label)
+    }
+
+    build(device: GPUDevice) {
+        return device.createBuffer(this)
+    }
+
+    write(device: GPUDevice, array: BufferSource | SharedArrayBuffer, buffer?: GPUBuffer) {
+        device.queue.writeBuffer(buffer ?? this.build(device), 0, array)
+        return this
     }
 }
 
@@ -416,7 +806,7 @@ export class VertexBuilder<DataType = ThreeGPU.TypedArray> implements ThreeGPU.V
 
     }
 
-    static fromVex<DataType = Float32Array>(vexs: Iterable<Vec2 | Vec3 | Vec4>, _TypedArray: ThreeGPU.TypedArray = Float32Array): ThreeGPU.Vertex<DataType> {
+    static fromVex<DataType = Float32Array>(vexs: Iterable<object>, _TypedArray: ThreeGPU.TypedArray = Float32Array): ThreeGPU.Vertex<DataType> {
         let arr: Array<number> = []
         let size = 0
         for (let v of vexs) {
@@ -457,22 +847,92 @@ export class GPUShaderModuleBuilder {
     }
 
     static buildModule(device: GPUDevice, code: GPUShaderModuleDescriptor["code"]): GPUShaderModule {
-        return GPUShaderModuleBuilder.fromWGSL(code).setDevice(device).build()
-    }
-
-    setDevice(device: GPUDevice) {
-        this.device = device
-        return this
+        return GPUShaderModuleBuilder.fromWGSL(code).build(device)
     }
 
     getDescriptor(): GPUShaderModuleDescriptor {
         return this.descriptor
     }
 
-    build(): GPUShaderModule {
-        if (!this.device)
-            throw new Error("Device is not initial.")
-        return this.device.createShaderModule(this.getDescriptor())
+    build(device: GPUDevice): GPUShaderModule {
+        return device.createShaderModule(this.getDescriptor())
+    }
+}
+
+export class GPUVertexStateBuilder implements GPUVertexState {
+    constructor(
+        readonly module: GPUShaderModule,
+        readonly entryPoint: string,
+        readonly buffers?: Iterable<GPUVertexBufferLayout | null> | undefined,
+        readonly constants?: Record<string, number> | undefined
+    ) {
+    }
+
+    static create(module: GPUShaderModule, buffers?: Iterable<GPUVertexBufferLayout | null> | undefined, entryPoint: string = "main") {
+        return new GPUVertexStateBuilder(module, entryPoint, buffers)
+    }
+
+    build() {
+        return this as GPUVertexState
+    }
+}
+
+export class GPURenderPipelineBuilder implements GPURenderPipelineDescriptor {
+    constructor(
+        readonly vertex: GPUVertexState,
+        readonly layout: "auto" | GPUPipelineLayout,
+        readonly fragment?: GPUFragmentState | undefined,
+        readonly primitive?: GPUPrimitiveState | undefined,
+        readonly depthStencil?: GPUDepthStencilState | undefined,
+        readonly multisample?: GPUMultisampleState | undefined,
+        readonly label?: string | undefined,
+    ) {
+
+    }
+
+    static create(vertex: GPUVertexState, fragment?: GPUFragmentState | undefined, layout: "auto" | GPUPipelineLayout = "auto", primitive?: GPUPrimitiveState | undefined, depthStencil?: GPUDepthStencilState | undefined, multisample?: GPUMultisampleState | undefined, label: string = "render pipeline") {
+        return new GPURenderPipelineBuilder(vertex, layout, fragment, primitive, depthStencil, multisample, label)
+    }
+
+    build(device: GPUDevice) {
+        return device.createRenderPipeline(this)
+    }
+}
+
+export class GPURenderPassBuilder implements GPURenderPassDescriptor {
+    constructor(
+        readonly colorAttachments: Iterable<GPURenderPassColorAttachment | null>,
+        readonly depthStencilAttachment?: GPURenderPassDepthStencilAttachment | undefined,
+        readonly occlusionQuerySet?: GPUQuerySet | undefined,
+        readonly timestampWrites?: GPURenderPassTimestampWrites | undefined,
+        readonly maxDrawCount?: number | undefined,
+        readonly label?: string | undefined,
+    ) {
+    }
+
+    /*static create(view: GPUTextureView, depthView: GPUTextureView, depthClearValue: number = 1.0, depthLoadOp: GPULoadOp = "clear", depthStoreOp: GPUStoreOp = "store") {
+        return new GPURenderPassBuilder([{
+            view,
+            clearValue,
+        }], {
+            view: depthView,
+            depthClearValue,
+            depthLoadOp,
+            depthStoreOp,
+        })
+    }*/
+
+    static createShadow(view: GPUTextureView, depthClearValue: number = 1.0, depthLoadOp: GPULoadOp = "clear", depthStoreOp: GPUStoreOp = "store") {
+        return new GPURenderPassBuilder([], {
+            view,
+            depthClearValue,
+            depthLoadOp,
+            depthStoreOp,
+        })
+    }
+
+    build(encoder: GPUCommandEncoder) {
+        return encoder.beginRenderPass(this)
     }
 }
 

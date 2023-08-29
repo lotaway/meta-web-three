@@ -13,28 +13,4 @@ function startClientDev() {
     })
 }
 
-function startDesktopDev() {
-    desktopProcess = exec("npm run dev", {
-        cwd: "../system-management"
-    }, err => {
-        if (err) throw err
-    })
-    desktopProcess.stdout.on("data", data => {
-        console.log(`system-management: ${data}`)
-    })
-}
-
-const gatewayProcess = exec("npm run start:dev", {
-    cwd: "../gateway"
-}, err => {
-    if (err) throw err
-})
-let timer = null
-gatewayProcess.stdout.on("data", data => {
-    console.log(`gateway: ${data}`)
-    clearTimeout(timer)
-    timer = setTimeout(() => {
-        !clientProcess && startClientDev()
-        !desktopProcess && startDesktopDev()
-    }, 1500)
-})
+startClientDev()

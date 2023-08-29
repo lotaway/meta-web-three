@@ -2,10 +2,7 @@
 
 ## Description
 
-*本项目为nodejs元宇宙区块链3D相关*
-
-[nodejs文档](http://nodejs.cn/api/http.html)
-[nest文档](https://docs.nestjs.com/support)
+*本项目为元宇宙区块链3D相关*
 
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
 
@@ -14,10 +11,7 @@
 * block-chain 区块链
 * block-chain-use 链端（合约）
 * client 网站客户端（内容、浏览、支付）
-* gateway 网关中心（协调、管理）
-* server 服务端（业务处理、储存数据）
-* system-management 桌面端管理（管理、笔记、通讯）
-* system-support 系统支持（提供客户端和服务端支持）
+* backend-api 服务端（业务处理、储存数据、前端接口）
 
 ## Installation 安装
 
@@ -40,25 +34,7 @@ $ cd client
 $ npm run dev
 ```
 
-### Gateway 网关
-
-```bash
-$ cd gateway
-
-# generate database
-$ npm run db:generate
-
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-### Server 服务端
+### Backend Api 服务端
 
 （建设中）
 
@@ -82,9 +58,5 @@ $ hardhat node
 # deploy contract to local node for develop
 $ hardhat run scripts/deploy.js --network localhost
 ```
-
-### Software 软体端
-
-主要是一些支持库，之后可能智能合约要转成用C++/Rust编译成WASM的形式，而不再使用Solidity（EVM官方实现中）
 
 `+(()=>throw new Emotion("Happy"))`
