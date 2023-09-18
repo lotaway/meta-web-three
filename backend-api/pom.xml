@@ -12,8 +12,8 @@
     <groupId>com.metawebthree</groupId>
     <artifactId>backend-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>server</name>
-    <description>server</description>
+    <name>backend-api</name>
+    <description>backend-api</description>
     <packaging>pom</packaging>
     <modules>
         <module>user-service</module>

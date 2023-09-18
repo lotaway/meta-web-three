@@ -417,12 +417,15 @@ export class GPUBindGroupEntryBuilder implements GPUBindGroupEntry {
         readonly binding: number = 0,
     ) {
     }
+
+    build() {
+        return this as GPUBindGroupEntry
+    }
 }
 
 export class GPUBindGroupEntriesBuilder {
-    list: Array<GPUBindingResource>
 
-    constructor(list: Array<GPUBindingResource> = []) {
+    constructor(private list: Array<GPUBindingResource> = []) {
         this.list = list
     }
 
@@ -432,6 +435,10 @@ export class GPUBindGroupEntriesBuilder {
 
     push(item: GPUBindingResource) {
         this.list.push(item)
+    }
+
+    get entries() {
+        return this.list
     }
 
     build(layout: GPUBindGroupLayout) {
@@ -447,18 +454,17 @@ export class GPUBindGroupBuilder implements GPUBindGroupDescriptor {
     ) {
     }
 
-    static create(resources: Iterable<GPUBindingResource>, layout: GPUBindGroupLayout, bindGroupProxy?: BindGroupProxy) {
-        if (!bindGroupProxy) {
-            bindGroupProxy = new BindGroupProxy().next()
-        }
+    static create(resources: Iterable<GPUBindingResource>, layout: GPUBindGroupLayout, bindingProxy?: BindGroupProxy, label: string | undefined = "gpu bind group") {
+        if (!bindingProxy)
+            bindingProxy = new BindGroupProxy().next()
         const entries: Array<GPUBindGroupEntry> = []
         for (const resource of resources) {
             entries.push({
-                binding: bindGroupProxy.nextBinding().value,
+                binding: bindingProxy.nextBinding().value,
                 resource
             })
         }
-        return new GPUBindGroupBuilder(layout, entries)
+        return new GPUBindGroupBuilder(layout, entries, label)
     }
 
     build(device: GPUDevice) {
@@ -878,6 +884,10 @@ export class GPUVertexStateBuilder implements GPUVertexState {
 }
 
 export class GPURenderPipelineBuilder implements GPURenderPipelineDescriptor {
+
+    private _gpuRenderPipeline: GPURenderPipeline | undefined
+    private bindGroupProxy: BindGroupProxy
+
     constructor(
         readonly vertex: GPUVertexState,
         readonly layout: "auto" | GPUPipelineLayout,
@@ -887,7 +897,19 @@ export class GPURenderPipelineBuilder implements GPURenderPipelineDescriptor {
         readonly multisample?: GPUMultisampleState | undefined,
         readonly label?: string | undefined,
     ) {
+        this.bindGroupProxy = new BindGroupProxy()
+    }
 
+    get gpuRenderPipeline() {
+        return this._gpuRenderPipeline
+    }
+
+    get nextGroup() {
+        return this.bindGroupProxy.nextGroup()
+    }
+
+    get nextBinding() {
+        return this.bindGroupProxy.nextBinding()
     }
 
     static create(vertex: GPUVertexState, fragment?: GPUFragmentState | undefined, layout: "auto" | GPUPipelineLayout = "auto", primitive?: GPUPrimitiveState | undefined, depthStencil?: GPUDepthStencilState | undefined, multisample?: GPUMultisampleState | undefined, label: string = "render pipeline") {
@@ -895,7 +917,8 @@ export class GPURenderPipelineBuilder implements GPURenderPipelineDescriptor {
     }
 
     build(device: GPUDevice) {
-        return device.createRenderPipeline(this)
+        this._gpuRenderPipeline = device.createRenderPipeline(this)
+        return this
     }
 }
 

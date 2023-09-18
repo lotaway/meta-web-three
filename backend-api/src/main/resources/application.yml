@@ -1,7 +1,7 @@
 ---
 spring:
   application:
-    name: server
+    name: backend-api
 ---
 spring:
   profiles:

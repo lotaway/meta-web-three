@@ -1,53 +1,53 @@
-const hre = require("hardhat");
-// const ethers = hre.ethers;
+const hre = require("hardhat")
+// const ethers = hre.ethers
 
-const ethers = require("ethers");
-const path = require("node:path");
-const {createWriteStream} = require("node:fs");
+const ethers = require("ethers")
+const path = require("node:path")
+const {createWriteStream} = require("node:fs")
 
 async function main(options) {
-    // const AccountTransferContract = await hre.ethers.getContractFactory("AccountTransfer");
-    // const accountTransferContract = await AccountTransferContract.deploy();
-    // await accountTransferContract.deployed();
-    // console.log(`AccountTransfer already deployed, address: ${accountTransferContract.address}`);
-    const solNames = ["AccountTransfer", "AccountTemplate"];
-    // const addresses = [];
+    // const AccountTransferContract = await hre.ethers.getContractFactory("AccountTransfer")
+    // const accountTransferContract = await AccountTransferContract.deploy()
+    // await accountTransferContract.deployed()
+    // console.log(`AccountTransfer already deployed, address: ${accountTransferContract.address}`)
+    const solNames = ["AccountTransfer", "AccountTemplate", "EncryptedToken"]
+    // const addresses = []
     /*let compiles = solNames.map(solName => {
         return hre.ethers.getContractFactory(solName)
             .then(Contract => Contract.deploy())
             .then(contract => {
-                const output = `${solName} already deployed, address: ${contract.address}`;
-                console.log(output);
-                // writeStream.write(output + "\n");
-                return contract.deployed();
-            });
-    });*/
+                const output = `${solName} already deployed, address: ${contract.address}`
+                console.log(output)
+                // writeStream.write(output + "\n")
+                return contract.deployed()
+            })
+    })*/
     while (solNames.length) {
-        const solName = solNames.shift();
-        const Contract = await hre.ethers.getContractFactory(solName);
-        const contract = await Contract.deploy();
-        options?.output(`${solName} already deployed, address: ${contract.address}`);
+        const solName = solNames.shift()
+        const Contract = await hre.ethers.getContractFactory(solName)
+        const contract = await Contract.deploy()
+        options?.output(`${solName} already deployed, address: ${contract.address}`)
     }
-    // await Promise.all(compiles);
+    // await Promise.all(compiles)
 }
 
 function runMain() {
-    const logWriteStream = createWriteStream(path.join(__dirname, "../artifacts/build-info/deploy-output.txt"), {encoding: "utf-8", flags: "r+"});
+    const logWriteStream = createWriteStream(path.join(__dirname, "../artifacts/build-info/deploy-output.txt"), {encoding: "utf-8", flags: "r+"})
     return main({
         output(message) {
-            console.log(message);
-            logWriteStream.write(message + "\n");
+            console.log(message)
+            logWriteStream.write(message + "\n")
         }})
         .then(() => {
-            logWriteStream.end("success");
+            logWriteStream.end("success")
             process.exit(0)
         })
         .catch(err => {
-            const message = "error: " + JSON.stringify(err);
-            console.error(message);
-            logWriteStream.end(message);
-            process.exit(1);
-        });
+            const message = "error: " + JSON.stringify(err)
+            console.error(message)
+            logWriteStream.end(message)
+            process.exit(1)
+        })
 }
 
-void runMain();
+void runMain()

@@ -19,16 +19,32 @@ import colorFragmentWGSL from "../../shader/color.frag.wgsl?raw"
 import style from "./NewWorld.module.less"
 import {mat4, vec3} from "gl-matrix"
 
+interface RenderOptions {
+    textureView?: GPUTextureView,
+    vert: {
+        vertex: ThreeGPU.Vertex<Float32Array>,
+        index: Uint16Array,
+        vertexBuffer: GPUBuffer,
+        vertexIndexBuffer: GPUBuffer,
+        vertexColorsBuffer: GPUBuffer,
+    },
+    depthTexture: GPUTexture,
+    shadowDepthTextureView: GPUTextureView
+}
+
 class Web3d {
 
-    private pipelines: Array<GPURenderPipeline>
+    private shadowPipelineBuilder: GPURenderPipelineBuilder | undefined
+    private renderPipelineBuilder: GPURenderPipelineBuilder | undefined
     groupProxy: BindGroupProxy
-    bindGroups: Array<{ slot: number; bindGroup: GPUBindGroup }>
+    bindGroups: Array<{
+        slot: number
+        entries: Iterable<GPUBindingResource>
+    }>
 
     constructor(
         private readonly webGpu: WebGPUBuilder
     ) {
-        this.pipelines = []
         this.groupProxy = new BindGroupProxy()
         this.bindGroups = []
     }
@@ -36,12 +52,12 @@ class Web3d {
     async init() {
         const {vert, depthTexture, shadowDepthTexture} = await this.initPipeline()
         this.initUniform()
-        const {texture, textureSlot, textureBindGroup, sampler} = await this.initTexture()
-        this.bindGroups.push({
-            slot: textureSlot,
-            bindGroup: textureBindGroup
+        await this.initTexture()
+        this.render({
+            vert,
+            depthTexture,
+            shadowDepthTextureView: shadowDepthTexture.createView(),
         })
-        this.render(null, vert, depthTexture, shadowDepthTexture.createView())
     }
 
     static async create(element: ThreeGPU.CreateGPUParams) {
@@ -330,7 +346,7 @@ class Web3d {
         const depthTexture = GPUTextureBuilder.createForDepth(this.webGpu.canvas).build(this.webGpu.device)
 
         const shadowDepthTexture = GPUTextureBuilder.createForShadowDepth([2048, 2048]).build(this.webGpu.device)  //  注意size根据贴图大小而定
-        const shadowPipeline = GPURenderPipelineBuilder
+        this.shadowPipelineBuilder = GPURenderPipelineBuilder
             .create(
                 GPUVertexStateBuilder
                     .create(
@@ -346,9 +362,8 @@ class Web3d {
                 "shadow pipeline"
             )
             .build(this.webGpu.device)
-        this.pipelines.push(shadowPipeline)
 
-        const renderPipeline = GPURenderPipelineBuilder
+        const renderPipelineBuilder = GPURenderPipelineBuilder
             .create(
                 //  指定顶点着色器
                 GPUVertexStateBuilder
@@ -372,8 +387,7 @@ class Web3d {
                     count: 4
                 },*/
             )
-            .build(this.webGpu.device)
-        this.pipelines.push(renderPipeline)
+        this.renderPipelineBuilder = renderPipelineBuilder
         return {
             vert: {
                 vertex: cubeVertex,
@@ -395,17 +409,13 @@ class Web3d {
         const groupIndex = this.groupProxy.next().value
         const texture = GPUTextureBuilder.create([bitmap.width, bitmap.height]).buildWithImage(this.webGpu.device, bitmap)
         const sampler = GPUSamplerBuilder.create().build(this.webGpu.device)
-        const textureBindGroup = new GPUBindGroupBuilder(
-            this.pipelines[1].getBindGroupLayout(groupIndex),
-            [{
-                binding: this.groupProxy.nextBinding().value,
-                resource: texture.createView()
-            }, {
-                binding: this.groupProxy.nextBinding().value,
-                resource: sampler
-            }]
-        ).build(this.webGpu.device)
-        return {texture, textureSlot: groupIndex, textureBindGroup, sampler}
+        this.bindGroups.push({
+            slot: groupIndex,
+            entries: [
+                texture.createView(),
+                sampler,
+            ],
+        })
     }
 
 //  Uniform负责实现变形矩阵，bindGroup可以实现对顶点着色器和片元着色器传递值
@@ -414,67 +424,61 @@ class Web3d {
         const gpuBufferBuilder = GPUBufferBuilder.createForUniform(colorsArray.byteLength)
         const colorsBuffer = gpuBufferBuilder.build(this.webGpu.device)
         gpuBufferBuilder.write(this.webGpu.device, colorsArray, colorsBuffer)
-        const group = this.groupProxy.nextGroup()
-        const fragmentGroupIndex = this.groupProxy.groupIndex
-        const fragmentBindGroup = GPUBindGroupBuilder.create(
-            [{
-                buffer: colorsBuffer
-            }],
-            this.pipelines[1].getBindGroupLayout(fragmentGroupIndex),
-            this.groupProxy,
-        ).build(this.webGpu.device)
+        const fragmentGroupIndex = this.groupProxy.next().value
         this.bindGroups.push({
             slot: fragmentGroupIndex,
-            bindGroup: fragmentBindGroup
+            entries: [{
+                buffer: colorsBuffer
+            }]
         })
     }
 
-    setUniform(renderPass: GPURenderPassEncoder, pipeline: GPURenderPipeline, datas: BufferSource | SharedArrayBuffer | Array<BufferSource | SharedArrayBuffer>, groupIndex: number) {
+    setUniform(renderPass: GPURenderPassEncoder, pipeline: GPURenderPipeline, datas: BufferSource | SharedArrayBuffer | Array<BufferSource | SharedArrayBuffer>, groupIndex: number, indexProxy = new IndexProxy()) {
         if (!(datas instanceof Array)) {
             datas = [datas as BufferSource | SharedArrayBuffer]
         }
         const entries: Array<GPUBindGroupEntry> = []
-        const bindGroupProxy = new BindGroupProxy().next()
         for (const data of datas as Array<BufferSource | SharedArrayBuffer>) {
             const bufferBuilder = GPUBufferBuilder.createForUniform(data.byteLength)
             const buffer = bufferBuilder.build(this.webGpu.device)
             bufferBuilder.write(this.webGpu.device, data, buffer)
             entries.push({
-                binding: bindGroupProxy.nextBinding().value,
+                binding: indexProxy.next().value,
                 resource: {
-                    buffer
-                }
+                    buffer,
+                },
             })
         }
-        const groupBuilder = new GPUBindGroupBuilder(
+        const bindGroupBuilder = new GPUBindGroupBuilder(
             pipeline.getBindGroupLayout(groupIndex),
             entries,
         )
-        groupBuilder.setToPass(renderPass, groupBuilder.build(this.webGpu.device), groupIndex)
+        bindGroupBuilder.setToPass(renderPass, bindGroupBuilder.build(this.webGpu.device), groupIndex)
     }
 
     getMatrix(position: vec3, rotate: vec3, scale: vec3) {
+        //  想要放置的实际位置
         const modelViewMatrix = mat4.create()
         mat4.translate(modelViewMatrix, modelViewMatrix, position)
         mat4.rotateX(modelViewMatrix, modelViewMatrix, rotate[0])
         mat4.rotateY(modelViewMatrix, modelViewMatrix, rotate[1])
         mat4.rotateZ(modelViewMatrix, modelViewMatrix, rotate[2])
         mat4.scale(modelViewMatrix, modelViewMatrix, scale)
-        const projectionMatrix = mat4.create()
-        mat4.perspective(projectionMatrix, Math.PI / 2, this.webGpu.canvas.width / this.webGpu.canvas.height, 1, 100)
+        const cameraProjectionMatrix = mat4.create()
+        mat4.perspective(cameraProjectionMatrix, Math.PI / 2, this.webGpu.canvas.width / this.webGpu.canvas.height, 1, 100)
         // const mvpMatrix = mat4.create() as Float32Array
-        // mat4.multiply(mvpMatrix, projectionMatrix, modelViewMatrix)
-        return {modelViewMatrix, projectionMatrix}
+        // mat4.multiply(mvpMatrix, cameraProjectionMatrix, modelViewMatrix)
+        return {modelViewMatrix, cameraProjectionMatrix}
     }
 
-    drawTestMatrix(renderPass: GPURenderPassEncoder, pipeline: GPURenderPipeline, drawHandler: () => void, groupIndex: number, binding: number, angle: number) {
+    drawTestMatrix(renderPass: GPURenderPassEncoder, pipeline: GPURenderPipeline, drawHandler: Function, groupIndex: number, angle: number, directionalArray: Float32Array | mat4) {
         //  状态1，绘制成第1个图形
         const mvpMatrix1 = this.getMatrix(
             vec3.fromValues(2.0, 1.5, -5.0),
             vec3.fromValues(angle, angle, 0),
             vec3.fromValues(1.0, 1.0, 1.0)
         )
-        this.setUniform(renderPass, pipeline, Object.values(mvpMatrix1) as Array<Float32Array>, groupIndex)
+        this.setUniform(renderPass, pipeline, [mvpMatrix1.modelViewMatrix, directionalArray, mvpMatrix1.cameraProjectionMatrix] as Array<Float32Array>, groupIndex)
         drawHandler()
 
         //  状态2，绘制成第2个图形
@@ -483,7 +487,7 @@ class Web3d {
             vec3.fromValues(angle * 1.7, Math.pow(angle * 1.3, 2), 0.1),
             vec3.fromValues(1.0, 1.0, 1.0)
         )
-        this.setUniform(renderPass, pipeline, Object.values(mvpMatrix2) as Array<Float32Array>, groupIndex)
+        this.setUniform(renderPass, pipeline, [mvpMatrix2.modelViewMatrix, directionalArray, mvpMatrix2.cameraProjectionMatrix] as Array<Float32Array>, groupIndex)
         drawHandler()
 
         //  状态3，绘制成第3个图形
@@ -492,22 +496,11 @@ class Web3d {
             vec3.fromValues(Math.pow(angle * 2.1, 2), angle * 2.2, 0.05),
             vec3.fromValues(1.0, 1.0, 1.0)
         )
-        this.setUniform(renderPass, pipeline, Object.values(mvpMatrix3) as Array<Float32Array>, groupIndex)
+        this.setUniform(renderPass, pipeline, [mvpMatrix3.modelViewMatrix, directionalArray, mvpMatrix3.cameraProjectionMatrix] as Array<Float32Array>, groupIndex)
         drawHandler()
     }
 
-    render(
-        textureView: GPUTextureView | null,
-        vert: {
-            vertex: ThreeGPU.Vertex<Float32Array>,
-            index: Uint16Array,
-            vertexBuffer: GPUBuffer,
-            vertexIndexBuffer: GPUBuffer,
-            vertexColorsBuffer: GPUBuffer,
-        },
-        depthTexture: GPUTexture,
-        shadowDepthTextureView: GPUTextureView
-    ) {
+    render(options: RenderOptions) {
         const web3d = this
 
         function loop() {
@@ -535,25 +528,18 @@ class Web3d {
             directionalArray[2] = Math.cos(now / 1500)
             directionalBufferBuilder.write(web3d.webGpu.device, directionalArray, directionalBuffer)
 
-            const shadowPass = GPURenderPassBuilder.createShadow(shadowDepthTextureView).build(commandEncoder)
-            shadowPass.setPipeline(web3d.pipelines[0])
-            shadowPass.setVertexBuffer(0, vert.vertexBuffer)
-            shadowPass.setIndexBuffer(vert.vertexIndexBuffer, "uint16")
-            shadowPass.setVertexBuffer(1, vert.vertexColorsBuffer)
-            //  设置uniform
-            for (const item of web3d.bindGroups) {
+            const shadowPass = GPURenderPassBuilder.createShadow(options.shadowDepthTextureView).build(commandEncoder)
+            shadowPass.setPipeline(shadowPipeline)
+            shadowPass.setVertexBuffer(0, options.vert.vertexBuffer)
+            shadowPass.setIndexBuffer(options.vert.vertexIndexBuffer, "uint16")
+            shadowPass.setVertexBuffer(1, options.vert.vertexColorsBuffer)
+            for (const item of shadowBindGroups) {
                 shadowPass.setBindGroup(item.slot, item.bindGroup)
             }
-            // lightGroupBuilder.setToPass(shadowPass, lightGroup, lightGroupIndex)
-
-            /*web3d.drawTestMatrix(shadowPass, web3d.pipelines[0], () => {
-                //  绘制三角形，根据wgsl定义好的顶点数
-                // renderPass.draw(6, 1, 0, 0)
-                //  绘制图形，根据js里自定义的vertex
-                // renderPass.draw(vert.vertex.size)
-                shadowPass.drawIndexed(vert.index.length, num / 2, 0, 0)
-            }, mvpGroupIndex, mvpGroupBinding, angle)*/
-
+            web3d.drawTestMatrix(shadowPass, shadowPipeline, () => {
+                //  开启绘制顶点就会报错group index 0没有设置，是否就算没有使用0也因为用了2所以必须设置？
+                // shadowPass.drawIndexed(vert.index.length, 2, 0, 0, 0)
+            }, mvpGroupIndex, angle, directProjectionMatrix as Float32Array)
             shadowPass.end()
 
             //  开启一个渲染通道（类似图层）
@@ -561,7 +547,7 @@ class Web3d {
                 //  颜色附件数组
                 [{
                     //  最终解析的纹理
-                    view: textureView ?? web3d.webGpu.context.getCurrentTexture().createView(),
+                    view: options.textureView ?? web3d.webGpu.context.getCurrentTexture().createView(),
                     //  中途解析的纹理
                     // resolveTarget: context.getCurrentTexture().createView(),
                     clearValue: baseBg,
@@ -571,31 +557,31 @@ class Web3d {
                     storeOp: "store",
                 }],
                 {
-                    view: depthTexture.createView(),
+                    view: options.depthTexture.createView(),
                     depthClearValue: 1.0,
                     depthLoadOp: "clear",
                     depthStoreOp: "store"
                 }
             ).build(commandEncoder)
             //  设置渲染管线
-            renderPass.setPipeline(web3d.pipelines[1])
+            renderPass.setPipeline(renderPipeline)
             //  插入顶点值，slot对应buffers所在的index
-            renderPass.setVertexBuffer(0, vert.vertexBuffer)
-            renderPass.setIndexBuffer(vert.vertexIndexBuffer, "uint16")
-            renderPass.setVertexBuffer(1, vert.vertexColorsBuffer)
+            renderPass.setVertexBuffer(0, options.vert.vertexBuffer)
+            renderPass.setIndexBuffer(options.vert.vertexIndexBuffer, "uint16")
+            renderPass.setVertexBuffer(1, options.vert.vertexColorsBuffer)
             //  设置uniform
-            for (const item of web3d.bindGroups) {
+            for (const item of renderBindGroups) {
                 renderPass.setBindGroup(item.slot, item.bindGroup)
             }
             lightGroupBuilder.setToPass(renderPass, lightGroup, lightGroupIndex)
 
-            web3d.drawTestMatrix(renderPass, web3d.pipelines[1], () => {
+            web3d.drawTestMatrix(renderPass, renderPipeline, () => {
                 //  绘制三角形，根据wgsl定义好的顶点数
                 // renderPass.draw(6, 1, 0, 0)
                 //  绘制图形，根据js里自定义的vertex
                 // renderPass.draw(vert.vertex.size)
-                renderPass.drawIndexed(vert.index.length, num / 2, 0, 0)
-            }, mvpGroupIndex, mvpGroupBinding, angle)
+                renderPass.drawIndexed(options.vert.index.length, 2, 0, 0, 0)
+            }, mvpGroupIndex, angle, directProjectionMatrix as Float32Array)
 
             //  结束渲染通道
             renderPass.end()
@@ -606,9 +592,35 @@ class Web3d {
             requestAnimationFrame(() => loop())
         }
 
-        const mvpGroupIndex = this.groupProxy.next().value
-        const mvpGroupBinding = this.groupProxy.nextBinding().value
+        if (!web3d.shadowPipelineBuilder || !web3d.renderPipelineBuilder)
+            return
+        const shadowPipeline = web3d.shadowPipelineBuilder.build(web3d.webGpu.device).gpuRenderPipeline as GPURenderPipeline
+        const renderPipeline = web3d.renderPipelineBuilder.build(web3d.webGpu.device).gpuRenderPipeline as GPURenderPipeline
+        const shadowBindGroups: Array<{ slot: number; bindGroup: GPUBindGroup }> = []
+        const renderBindGroups: Array<{ slot: number; bindGroup: GPUBindGroup }> = []
+        for (const item of web3d.bindGroups) {
+            if (shadowPipeline && item.slot === 2)
+                shadowBindGroups.push({
+                    slot: item.slot,
+                    bindGroup: GPUBindGroupBuilder.create(
+                        item.entries,
+                        shadowPipeline.getBindGroupLayout(item.slot),
+                        undefined,
+                        "circle shadow bind group",
+                    ).build(this.webGpu.device)
+                })
+            renderBindGroups.push({
+                slot: item.slot,
+                bindGroup: GPUBindGroupBuilder.create(
+                    item.entries,
+                    renderPipeline.getBindGroupLayout(item.slot),
+                    undefined,
+                    "circle render bind group",
+                ).build(this.webGpu.device)
+            })
+        }
 
+        const mvpGroupIndex = this.groupProxy.next().value
         const lightGroupIndex = this.groupProxy.next().value
 
         // console.log(Web3d.getCircleVertex().length / 8)
@@ -633,12 +645,34 @@ class Web3d {
         pointArray[5] = 20  // radius
         const pointBufferBuilder = GPUBufferBuilder.createForUniform(pointArray.byteLength)
         const pointBuffer = pointBufferBuilder.build(this.webGpu.device)
+
         const directionalArray = new Float32Array(8)
         directionalArray[4] = 0.5   //   intensity
+
+        function changeDirectLight(now: number) {
+            directPosition[0] = Math.sin((now / 1500)) * 50
+            directPosition[2] = Math.cos(now / 1500) * 50
+            mat4.lookAt(directViewMatrix, directPosition, origin, up)
+            //  生成正交矩阵，符合直射光平行照射下的正交投影计算，参数是用于生成包裹所有物品的矩形空间
+            mat4.ortho(directViewMatrix, -40, 40, -40, 40, -50, 200)
+            mat4.multiply(directProjectionMatrix, directProjectionMatrix, directViewMatrix)
+        }
+
+        const directViewMatrix = mat4.create()
+        const directProjectionMatrix = mat4.create()
+        const directPosition = vec3.fromValues(0, 100, 0)
+        const up = vec3.fromValues(0, 1, 0)
+        const origin = vec3.fromValues(0, 0, 0)
+        // changeLight(now)
+        const dirBufferBuilder = GPUBufferBuilder.createForUniform((directViewMatrix as Float32Array).byteLength)
+        const dirBuffer = dirBufferBuilder.build(web3d.webGpu.device)
+        dirBufferBuilder.write(web3d.webGpu.device, directViewMatrix as Float32Array, dirBuffer)
+
         const directionalBufferBuilder = GPUBufferBuilder.createForUniform(directionalArray.byteLength)
         const directionalBuffer = directionalBufferBuilder.build(this.webGpu.device)
+
         const lightGroupBuilder = new GPUBindGroupBuilder(
-            this.pipelines[1].getBindGroupLayout(lightGroupIndex),
+            renderPipeline.getBindGroupLayout(lightGroupIndex),
             [{
                 binding: this.groupProxy.nextBinding().value,
                 resource: {
@@ -656,7 +690,7 @@ class Web3d {
                 }
             }, {
                 binding: this.groupProxy.nextBinding().value,
-                resource: shadowDepthTextureView
+                resource: options.shadowDepthTextureView
             }, {
                 binding: this.groupProxy.nextBinding().value,
                 resource: GPUSamplerBuilder.createShadow().build(this.webGpu.device)

@@ -2,17 +2,18 @@
 @group(0) @binding(0) var<uniform> colors: vec3<f32>;
 @group(1) @binding(0) var text: texture_2d<f32>;
 @group(1) @binding(1) var sam: sampler;
-@group(3) @binding(0) var<uniform> ambient_intensity: f32;
-@group(3) @binding(1) var<uniform> point_light: array<vec4<f32>, 2>;
-@group(3) @binding(2) var<uniform> direction_light: array<vec4<f32>, 2>;
-@group(3) @binding(3) var shadow_map: texture_depth_2d;
-@group(3) @binding(4) var shadow_sampler: sampler_comparison;
+@group(3) @binding(0) var<uniform> ambientIntensity: f32;
+@group(3) @binding(1) var<uniform> pointLight: array<vec4<f32>, 2>;
+@group(3) @binding(2) var<uniform> directionLight: array<vec4<f32>, 2>;
+@group(3) @binding(3) var shadowMap: texture_depth_2d;
+@group(3) @binding(4) var shadowSampler: sampler_comparison;
 
 struct Input {
     @location(0) f_pos: vec3<f32>,
     @location(1) f_normal: vec3<f32>,
     @location(2) f_uv: vec2<f32>,
-    @location(3) v_colors: vec3<f32>,
+    @location(3) shadow_pos: vec3<f32>,
+    @location(4) v_colors: vec3<f32>,
 }
 
 @fragment
@@ -25,16 +26,16 @@ fn main(input: Input) -> @location(0) vec4<f32> {
 //    return vec4(input.f_pos.x, colors.y, 1 - input.f_pos.y, 1.0);
     var out_colors = vec4(input.v_colors.x, input.v_colors.y, input.f_pos.y - colors.z, 1.0);
     //  ambient
-    light_result += ambient_light_color * ambient_intensity;
+    light_result += ambient_light_color * ambientIntensity;
     // directional light
-    var direction_position = direction_light[0].xyz;
-    var direction_intensity: f32 = direction_light[1][0];
+    var direction_position = directionLight[0].xyz;
+    var direction_intensity: f32 = directionLight[1][0];
     var diffuse: f32 = max(dot(normalize(direction_position), input.f_normal), 0.0);
     light_result += dir_light_color * direction_intensity * diffuse;
     //   point light
-    var point_position = point_light[0].xyz;
-    var point_intensity: f32 = point_light[1][0];
-    var point_radius: f32 = point_light[1][1];
+    var point_position = pointLight[0].xyz;
+    var point_intensity: f32 = pointLight[1][0];
+    var point_radius: f32 = pointLight[1][1];
     var L = point_position - input.f_pos;
     var distance = length(L);
     var diffuse2: f32 = max(dot(normalize(L), input.f_normal), 0.0);
@@ -45,13 +46,13 @@ fn main(input: Input) -> @location(0) vec4<f32> {
 
     // add shadow factor
     var shadow: f32 = 0.0;
-    let size = f32(textureDimensions(shadow_map).x);
+    let size = f32(textureDimensions(shadowMap).x);
     for (var y: i32 = -1; y <= 1 ; y = y + 1) {
         for (var x: i32 = -1; x <= 1; x = x + 1) {
             let offset = vec2<f32>(f32(x) / size, f32(y) / size);
             shadow = shadow + textureSampleCompare(
-                shadow_map,
-                shadow_sampler,
+                shadowMap,
+                shadowSampler,
                 input.f_pos.xy + offset,
                 input.f_pos.z - 0.005,
             );
@@ -60,6 +61,7 @@ fn main(input: Input) -> @location(0) vec4<f32> {
     }
     shadow = shadow / 9.0;
     let lightFactor = min(0.3 + shadow * diffuse, 1.0);
+    light_result += lightFactor;
 
     return vec4<f32>(textureSample(text, sam, input.f_uv).xyz * light_result, 1.0);
 }
