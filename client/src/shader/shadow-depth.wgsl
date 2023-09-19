@@ -14,7 +14,7 @@ fn main(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4<f32>
     return vec4<f32>(pos[vertexIndex], 0.0, 1.0);
 }*/
 
-@group(2) @binding(0) var<uniform> modelViews: mat4x4<f32>;
+@group(2) @binding(0) var<uniform> modelView: mat4x4<f32>;
 @group(2) @binding(1) var<uniform> lightProjection: mat4x4<f32>;
 @group(2) @binding(2) var<uniform> cameraProjection: mat4x4<f32>;
 
@@ -29,7 +29,7 @@ struct Input {
 @vertex
 fn main(input: Input) -> @builtin(position) vec4<f32> {
     let _cameraProjection = cameraProjection;
-    let modelView = modelViews[input.instanceIndex];
+//    let modelView = modelViews[input.instanceIndex];
     let pos = vec4(input.position, 1.0);
     return lightProjection * modelView * pos;
 }

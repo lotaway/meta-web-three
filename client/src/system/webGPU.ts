@@ -540,20 +540,52 @@ export class GPUBufferBuilder implements GPUBufferDescriptor {
         })
     }
 
-    static createForVertexIndex(size: number) {
+    static createForVertexIndex(size: number, label: string = "GPUBuffer for vertex index") {
         return GPUBufferBuilder.create(size, GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST, {
-            label: "GPUBuffer for vertex index"
+            label
         })
     }
 
-    static createForUniform(size: number) {
+    static createForUniform(size: number, label: string = "GPUBuffer for uniform") {
         return GPUBufferBuilder.create(size, GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST, {
-            label: "GPUBuffer for uniform"
+            label
         })
+    }
+
+    static createStorage(size: number, label: string = "GPUBuffer for storage") {
+        return GPUBufferBuilder.create(
+            size,
+            GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+            {
+                label
+            }
+        )
+    }
+
+    static createRead(size: number, label: string = "GPUBuffer for read") {
+        return GPUBufferBuilder.create(
+            size,
+            GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
+            {
+                label
+            }
+        )
     }
 
     from(descriptor: GPUBufferDescriptor) {
         return new GPUBufferBuilder(descriptor.size, descriptor.usage, descriptor.mappedAtCreation, descriptor.label)
+    }
+
+    copy(commandEncoder: GPUCommandEncoder, sourceBuffer: GPUBuffer, destBuffer: GPUBuffer, size: number) {
+        return commandEncoder.copyBufferToBuffer(sourceBuffer, 0, destBuffer, 0, size)
+    }
+
+    async shareToCPU(buffer: GPUBuffer) {
+        //  获得可被CPU操作的内存片段
+        await buffer.mapAsync(GPUMapMode.READ)
+        //  将内存片段映射到CPU，这里是js环境因此呈现出来的是ArrayBuffer对象
+        const copyBuffer = buffer.getMappedRange()
+        return new Float32Array(copyBuffer)
     }
 
     build(device: GPUDevice) {
@@ -880,6 +912,18 @@ export class GPUVertexStateBuilder implements GPUVertexState {
 
     build() {
         return this as GPUVertexState
+    }
+}
+
+export class GPUComputePipelineBuilder implements GPUComputePipeline {
+    constructor(
+        readonly __brand: "GPUComputePipeline",
+        readonly label: string,
+    ) {
+    }
+
+    getBindGroupLayout(index: number): GPUBindGroupLayout {
+        throw new Error("Method not implemented.")
     }
 }
 
