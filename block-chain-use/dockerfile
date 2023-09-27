@@ -1,0 +1,23 @@
+# 引用镜像
+FROM node:latest
+# 创建文件夹
+RUN mkdir -p /block-chain-use
+# 拷贝发布文件
+COPY ./dist /block-chain-use/dist
+COPY ./node_modules /block-chain-use/node_modules
+COPY ./package*.json /block-chain-use
+COPY ./tsconfig.json /block-chain-use
+# 设定命令作用目录
+WORKDIR /block-chain-use
+# 执行初始化
+# RUN npm install
+RUN npx prisma generate
+RUN rm -rf ./dist/prisma
+
+# 配置系统变量，指定端口
+# ENV HOST 0.0.0.0
+# ENV PORT 30001
+# 开放端口
+EXPOSE 30001
+# 容器启动命令
+CMD ["npm", "run" , "start:prod"]

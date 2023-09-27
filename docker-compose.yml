@@ -36,11 +36,11 @@ services:
       - meta-web-three
   gateway:
     build:
-      context: "./gateway"
+      context: "./block-chain-use"
       dockerfile: dockerfile
-    image: meta-web-three/gateway
+    image: meta-web-three/block-chain-use
     volumes:
-      - ${DATA_PATH}/.data/gateway:/gateway
+      - ${DATA_PATH}/.data/block-chain-use:/block-chain-use
     ports:
       - "30001:30001"
     depends_on:
@@ -50,22 +50,6 @@ services:
         condition: service_started
     networks:
       - meta-web-three
-  backend-api:
-    build:
-      context: "./backend-api"
-      dockerfile: dockerfile
-    volumes:
-      - ${DATA_PATH}/.data/backend-api:/
-    ports:
-      - "10082:10082"
-      - "10083:10083"
-    networks:
-      - meta-web-three
-    depends_on:
-      mysql:
-        - condition: service_healthy
-      redis:
-        condition: service_started
   client:
     build:
       context: "./client"
