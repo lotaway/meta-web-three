@@ -1,6 +1,9 @@
 mod block;
+
 pub use crate::block::Block;
+// use axum::extract::FromRef;
 pub use crate::block::BlockChain;
+
 mod transaction;
 mod hashable;
 
@@ -93,3 +96,30 @@ pub mod lib {
             .collect::<Vec<String>>()
     }
 }
+
+/*#[derive(FromRef, Clone)]
+pub struct AppState {
+    pub db_pool: AsyncConnectPool,
+    pub signing_keys: uchat_crypto::sign::Keys,
+    pub rng: rand::rngs::StdRng,
+}
+
+impl AppState {
+    pub async fn connect(&self) -> Result<AsyncConnection, QueryError> {
+        self.db_pool.get().await
+    }
+}
+
+impl FromRef<AppState> for AppState {
+    fn from_ref(input: &AppState) -> Self {
+        AppState {
+            db_pool: input.db_pool,
+            signing_keys: input.signing_keys,
+            rng: input.rng,
+        }
+    }
+}
+
+pub mod cli {
+    pub fn gen_keys<R>(rng: &mut R) -> color_eyre::Result<(EncodedPrivateKey, Keys)> where R: CryptoRng + RngCore, {}
+}*/

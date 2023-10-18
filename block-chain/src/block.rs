@@ -1,11 +1,32 @@
 use std::collections::HashSet;
 use std::fmt::{Debug, Formatter};
+use serde::{Deserialize, Serialize};
 use crate::hashable::Hashable;
 use crate::lib::{BlockHash, difficulty_bytes_as_u128, now, u128_bytes, u32_bytes, u64_bytes};
 use crate::Transaction;
 use crate::transaction::Output;
 
-#[derive(Clone)]
+// 3. 区块链网络：实现一个点对点的区块链网络，使得多个节点可以相互通信和同步区块链数据。这可以使用网络编程库来实现，例如Rust中的tokio或async-std。
+// 4. 共识算法：在分布式环境中，需要实现共识算法来确保所有节点对区块链的状态达成一致。常见的共识算法包括拜占庭容错算法、权益证明（Proof of Stake）等。具体的实现取决于你选择的共识算法。这三步提供一下代码示例
+
+pub struct BlockHeader {
+    pub index: usize,
+    pub prev_block_hash: BlockHash,
+    //  交易总哈希，假设有[1,2,3,4,5]条交易在一个区块里,1+2计算哈希=tx12,3+4=tx34，5+5=tx5，之后12+34=1234,55+55=5555,1234+5555=最终的哈希值
+    pub tx_hash: BlockHash,
+}
+
+impl BlockHeader {
+    fn new(index: usize, prev_block_hash: BlockHash, tx_hash: BlockHash) -> Self {
+        BlockHeader {
+            index,
+            prev_block_hash,
+            tx_hash,
+        }
+    }
+}
+
+#[derive(Clone, Deserialize, Serialize)]
 pub struct Block {
     pub index: usize,
     pub timestamp: u128,
@@ -49,8 +70,17 @@ impl Block {
         block
     }
 
-    pub fn mine(&mut self) {
-        for n in 0..u64::MAX {
+    pub fn get_header(&self) -> BlockHeader {
+        BlockHeader::new(
+            self.index.clone(),
+            self.prev_block_hash.clone(),
+            vec! {0, 8},
+        )
+    }
+
+    //  工作量证明
+    pub fn proof_of_work(&mut self, max: u64) {
+        for n in 0..max {
             self.nonce = n;
             let hash = self.hash();
             if Block::check_difficulty(&hash, self.difficulty) {
@@ -58,6 +88,11 @@ impl Block {
                 break;
             }
         }
+    }
+
+    // 挖矿
+    pub fn mine(&mut self) {
+        self.proof_of_work(u64::MAX)
     }
 
     pub fn check_difficulty(hash: &BlockHash, difficulty: u128) -> bool {
@@ -152,6 +187,7 @@ impl BlockChain {
         Ok(())
     }
 
+    //  验证区块是否有效
     pub fn verify_block(&self, block: &Block, index: usize) -> Result<(), BlockValidationErr> {
         if block.index != index {
             return Err(BlockValidationErr::MismatchedIndex);
@@ -181,7 +217,7 @@ impl BlockChain {
         self.blocks.len()
     }
 
-    fn add_block(&mut self, block: Block) {
+    pub fn add_block(&mut self, block: Block) {
         self.blocks.push(block);
     }
 

@@ -1,4 +1,3 @@
-use std::convert::Infallible;
 use std::fs::File;
 use std::io::{ErrorKind, Read};
 use std::path::{Path, PathBuf};

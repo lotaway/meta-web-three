@@ -1,8 +1,9 @@
 use std::collections::HashSet;
+use serde::{Serialize, Deserialize};
 use crate::hashable::Hashable;
 use crate::lib::{Address, BlockHash, u64_bytes};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Output {
     pub to: Address,
     pub value: u64,
@@ -27,7 +28,7 @@ impl IntVec for Vec<Output> {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Transaction {
     pub inputs: Vec<Output>,
     pub outputs: Vec<Output>,
