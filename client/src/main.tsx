@@ -1,11 +1,12 @@
-import React, {lazy} from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom/client'
 import {createBrowserRouter, Navigate, RouterProvider} from "react-router-dom"
-import {AppStoreProvider} from "./store/container";
-import {ContactProvider} from "./context/ContactContext"
-import App from './App'
-import './index.css'
+import './index.sass'
 // import "tailwindcss/tailwind.css"
+import './locale/config'
+import {AppStoreProvider} from "./store/container"
+import {BlockChainProvider} from "./context/BlockChainContext"
+import App from './App'
 import configHost from "./config/host"
 import Home from "./pages/Home/Home"
 import ShopIndex from "./pages/Shop/Index"
@@ -16,6 +17,9 @@ import UserCenter from "./pages/User/UserCenter"
 import TransactionRecord from "./pages/User/TransactionRecord"
 import NewWorld from "./pages/NewWorld/NewWorld"
 import Auth from "./layouts/Auth/Auth"
+import Charge from "./pages/User/Charge"
+import Withdrawal from "./pages/User/Withdrawal"
+import Account from "./pages/User/Account"
 // const ShopIndex = lazy(() => import("./pages/Shop/Index"))
 const routers = createBrowserRouter([
     {
@@ -38,9 +42,24 @@ const routers = createBrowserRouter([
                 ]
             },
             {
-                path: "user/center",
+                path: "user",
                 element: <UserCenter/>,
-                children: []
+                children: [
+                    {
+                        path: "account",
+                        element: <Account/>,
+                        children: [
+                            {
+                                path: "charge",
+                                element: <Charge/>,
+                            },
+                            {
+                                path: "withdrawal",
+                                element: <Withdrawal/>,
+                            },
+                        ]
+                    },
+                ]
             }
         ]
     },
@@ -68,9 +87,9 @@ const routers = createBrowserRouter([
     },
     {
         path: "/user/payRecord",
-        element: <ContactProvider>
+        element: <BlockChainProvider>
             <TransactionRecord/>
-        </ContactProvider>
+        </BlockChainProvider>
     },
     {
         path: "/NewWorld",

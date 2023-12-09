@@ -1,5 +1,5 @@
 import Decorator, {obj2FormData} from "../utils/support"
-import {ILogger, ISystem, ISystemWithStatic, UploadFileArgs, IBaseProviderOptions} from "../core/iCore"
+import type {ILogger, ISystem, ISystemWithStatic, UploadFileArgs, IBaseProviderOptions} from "../core/iCore"
 import Logger from "./Logger"
 
 @Decorator.ImplementsWithStatic<ISystemWithStatic>()
@@ -38,5 +38,9 @@ export default class System {
 
     print(message: string) {
         this.loggerImpl.output(message)
+    }
+
+    language() {
+        return navigator.language
     }
 }

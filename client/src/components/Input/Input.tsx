@@ -1,4 +1,4 @@
-import {forwardRef, InputHTMLAttributes, useCallback, useMemo} from "react"
+import {forwardRef, InputHTMLAttributes, useMemo} from "react"
 
 export default forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
     ({className, id, ...otherProps}, ref) => {

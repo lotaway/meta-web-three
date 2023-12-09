@@ -1,6 +1,7 @@
 import {createContext, ReactNode, useEffect, useState} from "react"
 import {ethers} from "ethers"
 import {deployedContract} from "../config/constants"
+import {useTranslation} from "react-i18next"
 
 interface ISendTransactionArgument {
     addressTo: string
@@ -9,7 +10,7 @@ interface ISendTransactionArgument {
     message: string
 }
 
-export const ContactContext = createContext<any>({})
+export const BlockChainContext = createContext<any>({})
 
 export const {ethereum} = window as any
 
@@ -20,7 +21,8 @@ const getContacts = () => {
     return {accountTransferContract}
 }
 
-export const ContactProvider = ({children}: { children: ReactNode }) => {
+export const BlockChainProvider = ({children}: { children: ReactNode }) => {
+    const {t} = useTranslation()
     const [isTransacting, setIsTransacting] = useState(false)
     const [currentWalletAccount, setCurrentWalletAccount] = useState("")
     const [transactionCount, setTransactionCount] = useState(0)    //  应使用类似localstorage保存缓存
@@ -28,22 +30,24 @@ export const ContactProvider = ({children}: { children: ReactNode }) => {
     const initWalletConnect = async () => {
         try {
             if (!ethereum) {
-                return alert("Please install metamask")
+                return alert(t("connectWalletError"))
             }
             const accounts = await ethereum.request({
                 method: "eth_accounts"
             })
+            // @todo need correct see:https://ethereum.org/en/developers/docs/
+            // const avatar = await ethereum.send("eth_getProfile", [accounts[0]])
             accounts.length && setCurrentWalletAccount(accounts[0])
             void getTransactionRecords()
         } catch (err) {
             console.error(err)
-            throw new Error("No ethereum object.")
+            throw new Error(t("evmObjMissing"))
         }
     }
     const connectWallet = async () => {
         try {
             if (!ethereum) {
-                return alert("Please install metamask")
+                return alert(t("connectWalletError"))
             }
             //  the external account
             const accounts = await ethereum.request({
@@ -52,13 +56,13 @@ export const ContactProvider = ({children}: { children: ReactNode }) => {
             setCurrentWalletAccount(accounts[0])
         } catch (err) {
             console.error(err)
-            throw new Error("No ethereum object.")
+            throw new Error(t("evmObjMissing"))
         }
     }
     const sendTransaction = async ({addressTo, amount, keyword, message}: ISendTransactionArgument) => {
         try {
             if (!ethereum) {
-                return alert("Please install metamask")
+                return new Error(t("evmObjMissing"))
             }
             const {accountTransferContract} = getContacts()
             //  直接从钱包账户之间转账，没有放入合约账户
@@ -81,13 +85,13 @@ export const ContactProvider = ({children}: { children: ReactNode }) => {
             setTransactionCount(transactionCount)
         } catch (err) {
             console.error(err)
-            throw new Error("No ethereum object.")
+            throw new Error(t("evmObjMissing"))
         }
     }
     const getTransactionRecords = async () => {
         try {
             if (!ethereum) {
-                return alert("Please install metamask")
+                return alert(t("connectWalletError"))
             }
             const {accountTransferContract} = getContacts()
             const accountTransferRecords = await accountTransferContract.getRecord()
@@ -101,14 +105,14 @@ export const ContactProvider = ({children}: { children: ReactNode }) => {
             })))
         } catch (err) {
             console.error(err)
-            throw new Error("No ethereum object.")
+            throw new Error(t("evmObjMissing"))
         }
     }
     useEffect(() => {
         void initWalletConnect()
     }, [])
     return (
-        <ContactContext.Provider value={{
+        <BlockChainContext.Provider value={{
             isTransacting,
             connectWallet,
             currentWalletAccount,
@@ -117,6 +121,6 @@ export const ContactProvider = ({children}: { children: ReactNode }) => {
             transactionRecords
         }}>
             {children}
-        </ContactContext.Provider>
+        </BlockChainContext.Provider>
     )
 }

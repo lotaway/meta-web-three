@@ -1,13 +1,27 @@
-import {createSlice} from '@reduxjs/toolkit';
-import type {PayloadAction} from '@reduxjs/toolkit';
+import {createSlice} from '@reduxjs/toolkit'
+import type {PayloadAction} from '@reduxjs/toolkit'
+import i18n from 'i18next'
+import {defaultLanguage, resources} from "../../locale/config"
 
 export interface GlobalStates {
+    language: string
+    languageList: Array<{
+        name: string
+        code: string
+    }>
     clickCount: number
     pageErrorTitle: string
     pageMsgListTitle: string
 }
 
 const initialState: GlobalStates = {
+    language: defaultLanguage,
+    languageList: Object.keys(resources).map(key => {
+        return {
+            name: resources[key].name,
+            code: key,
+        }
+    }) || [],
     clickCount: 0,
     pageErrorTitle: "找不到页面",
     pageMsgListTitle: "我的消息"
@@ -22,6 +36,10 @@ const globalSlice = createSlice({
         },
         //  @todo receive store from other app/webview/micron-service, update current store.
         receiveSync: (state, action: PayloadAction<typeof state>) => {
+        },
+        changeLanguage(state, action: PayloadAction<string>) {
+            void i18n.changeLanguage(action.payload)
+            state.language = action.payload
         },
         setPageTitle: (state, action: PayloadAction<string>) => {
             typeof document !== "undefined" && (document.title = action.payload);

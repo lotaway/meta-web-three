@@ -3,7 +3,7 @@ import {Link} from "react-router-dom"
 import './Home.less'
 import NavBar from "../../components/NavBar/NavBar"
 import PayContract from "../../components/PayContract/PayContract"
-import LayoutCard from "../../layouts/Card/Card"
+import Card from "../../layouts/Card/Card"
 import Input from "../../components/Input/Input"
 
 export default function Home() {
@@ -36,18 +36,18 @@ export default function Home() {
         <div className="min-h-screen home">
             <div className="gradient-bg-welcome">
                 <NavBar/>
-                <LayoutCard>
-                    <LayoutCard.Header>Welcome to web3!</LayoutCard.Header>
-                    <LayoutCard.Body>
+                <Card>
+                    <Card.Header>Welcome to web3!</Card.Header>
+                    <Card.Body>
                         <p>You have {msg} message.</p>
                         <Input ref={inputRef} type="text" value={addressTo}
                                onChange={event => setAddressTo(event.target.value)}/>
                         <PayContract addressTo={addressTo}/>
-                    </LayoutCard.Body>
-                    <LayoutCard.Below>
+                    </Card.Body>
+                    <Card.Below>
                         <Link to="/guide">Guide</Link>
-                    </LayoutCard.Below>
-                </LayoutCard>
+                    </Card.Below>
+                </Card>
             </div>
         </div>
     )

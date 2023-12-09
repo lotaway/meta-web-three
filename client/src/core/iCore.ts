@@ -1,24 +1,3 @@
-import Global from "../store/modules/global";
-
-interface Swing {
-    com(type: number): void
-}
-
-function useSwing(swing: Swing | Swing["com"]) {
-
-}
-
-function createUseSwing() {
-    useSwing(new class implements Swing {
-        com(type: number): void {
-
-        }
-    })
-    useSwing(type => {
-        type++
-    })
-}
-
 interface UploadFileArgs {
     method?: string
     headers?: {
@@ -48,6 +27,8 @@ interface ISystem {
     request<responseData extends any>(apiUrl: string, data: object, options?: IBaseProviderOptions): Promise<responseData>
 
     print(message: string): void
+
+    language(): string
 }
 
 interface ISystemWithStatic<T extends ISystem = ISystem> {
