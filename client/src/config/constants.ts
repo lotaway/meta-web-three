@@ -1,5 +1,5 @@
-import accountTemplateAbiJSON from "./contractAbi/AccountTemplate.json";
-import accountTransferAbiJSON from "./contractAbi/AccountTransfer.json";
+import accountTemplateAbiJSON from "./contractAbi/AccountTemplate.json"
+import accountTransferAbiJSON from "./contractAbi/AccountTransfer.json"
 
 export const deployedContract = {
     accountTemplate: {

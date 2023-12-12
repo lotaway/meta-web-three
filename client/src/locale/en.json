@@ -1,4 +1,9 @@
 {
+  "welcome": "Welcome to web3!",
+  "homeTitle": "HOME",
+  "shopTitle": "SHOP",
+  "userCenterTitle": "USER",
+  "menuTitle": "Menu",
   "evmObjMissing": "Ethereum object not found",
   "connectWalletError": "Please install metamask or other wallet first",
   "uniSatTitle": "UniSat",

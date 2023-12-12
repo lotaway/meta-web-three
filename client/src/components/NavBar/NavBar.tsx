@@ -1,13 +1,15 @@
 import {useEffect} from "react"
 import {Link, useLocation} from "react-router-dom"
-import style from "./NavBar.module.less"
+import style from "./NavBar.module.sass"
 import logo from "../../assets/logo.svg"
+import {useTranslation} from "react-i18next"
 
-export default function Header() {
-    const {pathname} = useLocation()
+export default function NavBar() {
+    const location = useLocation()
+    const {t} = useTranslation()
     useEffect(() => {
-        console.log(`change location!:${pathname}, need to change view`)
-    }, [pathname])
+        console.log(`change location!:${location.pathname}, need to change view`)
+    }, [location.pathname])
     return (
         <nav className="w-full flex nav-bar">
             <h1 className="md:flex-[0.5] flex-initial ">
@@ -15,7 +17,8 @@ export default function Header() {
                     <object className={style.logo} type="image/svg+xml" data={logo}/>
                 </Link>
             </h1>
-            <button type="button">Menu</button>
+            <button type="button">{t("menuTitle")}</button>
         </nav>
     )
+
 }

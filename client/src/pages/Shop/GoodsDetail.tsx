@@ -1,6 +1,6 @@
-import {useParams, useLoaderData} from "react-router-dom";
+import {useParams, useLoaderData} from "react-router-dom"
 
-type Props = {};
+type Props = {}
 
 export default function GoodsDetail(props: Props) {
     const {id} = useParams()

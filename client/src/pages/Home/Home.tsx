@@ -5,9 +5,10 @@ import NavBar from "../../components/NavBar/NavBar"
 import PayContract from "../../components/PayContract/PayContract"
 import Card from "../../layouts/Card/Card"
 import Input from "../../components/Input/Input"
+import { useTranslation } from 'react-i18next'
 
 export default function Home() {
-    const [msg, useMsg] = useState<number>(0)
+    const {t} = useTranslation()
     const [addressTo, setAddressTo] = useState<string>("")
     const inputRef = createRef<HTMLInputElement>()
     useEffect(() => {
@@ -37,9 +38,8 @@ export default function Home() {
             <div className="gradient-bg-welcome">
                 <NavBar/>
                 <Card>
-                    <Card.Header>Welcome to web3!</Card.Header>
+                    <Card.Header>{t("welcome")}</Card.Header>
                     <Card.Body>
-                        <p>You have {msg} message.</p>
                         <Input ref={inputRef} type="text" value={addressTo}
                                onChange={event => setAddressTo(event.target.value)}/>
                         <PayContract addressTo={addressTo}/>

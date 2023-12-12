@@ -1,6 +1,7 @@
-import {useEffect} from "react";
-import {Link, Outlet, useLocation} from "react-router-dom";
-import "./TabBar.css";
+import {useEffect} from "react"
+import {Link, Outlet, useLocation} from "react-router-dom"
+import "./TabBar.css"
+import {useTranslation} from "react-i18next"
 
 export type Tab = {
     path: string
@@ -8,20 +9,7 @@ export type Tab = {
 }
 
 type Props = {
-    tabs: Tab[]
-};
-
-const props: Props = {
-    tabs: [{
-        path: "/index",
-        name: "HOME"
-    }, {
-        path: "/shop",
-        name: "SHOP"
-    }, {
-        path: "/user/center",
-        name: "USER"
-    }]
+    tabs?: Tab[]
 };
 
 type TabBarItemProps = {
@@ -39,12 +27,22 @@ const TabBarItem = ({path, title}: TabBarItemProps) => {
     )
 }
 
-export default function TabBar(/*props: Props*/) {
+export default function TabBar(props: Props) {
+    const {t} = useTranslation()
     return (
         <ul className="w-full flex md:justify-center justify-between tab-bar">
             <ul className="list text-black md:flex hidden">
                 {
-                    props.tabs.map(item => (
+                    (props.tabs ?? [{
+                        path: "/index",
+                        name: t("homeTitle")
+                    }, {
+                        path: "/shop",
+                        name: t("shopTitle")
+                    }, {
+                        path: "/user/center",
+                        name: t("userCenterTitle")
+                    }]).map(item => (
                         <TabBarItem key={item.path} path={item.path} title={item.name}/>
                     ))
                 }

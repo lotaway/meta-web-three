@@ -16,12 +16,12 @@ export default class System {
         return this.instance
     }
 
-    uploadFile(apiUrl: string, file: File, options: UploadFileArgs) {
+    async uploadFile(apiUrl: string, file: File, options: UploadFileArgs) {
         const formData = new FormData()
         formData.append("file", file)
         let headers = options.headers || {}
         headers['Content-Type'] = 'multipart/form-data'
-        return fetch(apiUrl, {
+        return await fetch(apiUrl, {
             method: options.method || "POST",
             body: formData,
             headers
