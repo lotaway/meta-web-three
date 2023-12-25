@@ -2,6 +2,7 @@ import {createContext, ReactNode, useEffect, useState} from "react"
 import {ethers} from "ethers"
 import {deployedContract} from "../config/constants"
 import {useTranslation} from "react-i18next"
+import EthersProvider from "../provider/EthersProvider";
 
 interface ISendTransactionArgument {
     addressTo: string
@@ -14,9 +15,9 @@ export const BlockChainContext = createContext<any>({})
 
 export const {ethereum} = window as any
 
-const getContacts = () => {
-    const provider = new ethers.providers.Web3Provider(ethereum)
-    const signer = provider.getSigner()
+const getContacts = async () => {
+    const provider = EthersProvider.getInstance(ethereum)
+    const signer = await provider.getSigner()
     const accountTransferContract = new ethers.Contract(deployedContract.accountTransfer.address, deployedContract.accountTransfer.abi, signer)
     return {accountTransferContract}
 }
@@ -64,7 +65,7 @@ export const BlockChainProvider = ({children}: { children: ReactNode }) => {
             if (!ethereum) {
                 return new Error(t("evmObjMissing"))
             }
-            const {accountTransferContract} = getContacts()
+            const {accountTransferContract} = await getContacts()
             //  直接从钱包账户之间转账，没有放入合约账户
             await ethereum.request({
                 method: "eth_sendTransaction",
@@ -72,7 +73,8 @@ export const BlockChainProvider = ({children}: { children: ReactNode }) => {
                     from: currentWalletAccount,
                     to: addressTo,
                     gas: "0x5208",  //  21000 GWEI
-                    value: ethers.utils.parseEther(amount)._hex,
+                    // value: ethers.utils.parseEther(amount)._hex,
+                    value: ethers.formatEther(amount),
                 }]
             })
             const transactionHash = await accountTransferContract.addRecord(addressTo, amount, message, keyword)
@@ -93,7 +95,7 @@ export const BlockChainProvider = ({children}: { children: ReactNode }) => {
             if (!ethereum) {
                 return alert(t("connectWalletError"))
             }
-            const {accountTransferContract} = getContacts()
+            const {accountTransferContract} = await getContacts()
             const accountTransferRecords = await accountTransferContract.getRecord()
             setTransactionRecords(accountTransferRecords.map((transaction: any) => ({
                 addressTo: transaction.receiver,

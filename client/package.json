@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@web3modal/ethers": "^3.5.2",
+    "@web3modal/wallet": "^3.5.2",
     "gl-matrix": "^3.4.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
@@ -22,7 +24,7 @@
     "@webGPU/types": "npm:@webgpu/types@^0.1.34",
     "antd": "^5.0.5",
     "autoprefixer": "^10.4.13",
-    "ethers": "^5.7.2",
+    "ethers": "^6.9.1",
     "i18next": "^23.7.8",
     "less": "^4.1.3",
     "postcss": "^8.4.20",
