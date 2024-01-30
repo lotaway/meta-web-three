@@ -10,7 +10,13 @@ async function main(options) {
     // const accountTransferContract = await AccountTransferContract.deploy()
     // await accountTransferContract.deployed()
     // console.log(`AccountTransfer already deployed, address: ${accountTransferContract.address}`)
-    const solNames = ["AccountTransfer", "AccountTemplate", "EncryptedToken"]
+    const solNames = [
+        // "AccountTransfer",
+        // "AccountTemplate",
+        // "EncryptedToken",
+        "BIERC20",
+        "BIERC20Factory",
+    ]
     // const addresses = []
     /*let compiles = solNames.map(solName => {
         return hre.ethers.getContractFactory(solName)

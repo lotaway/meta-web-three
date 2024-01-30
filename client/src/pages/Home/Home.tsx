@@ -5,7 +5,7 @@ import NavBar from "../../components/NavBar/NavBar"
 import PayContract from "../../components/PayContract/PayContract"
 import Card from "../../layouts/Card/Card"
 import Input from "../../components/Input/Input"
-import { useTranslation } from 'react-i18next'
+import {useTranslation} from 'react-i18next'
 import {useAppDispatch, useAppSelector} from "../../store/hooks";
 import {changeClickCount} from "../../store/modules/global";
 
@@ -15,34 +15,37 @@ export default function Home() {
     const dispatch = useAppDispatch()
     const [addressTo, setAddressTo] = useState<string>("")
     const inputRef = createRef<HTMLInputElement>()
+
     function showClickCount() {
-        console.log(clickCount)
-    }
-    useEffect(() => {
         console.log((`click count change: ${clickCount}`))
+    }
+
+    useEffect(() => {
+
     }, [clickCount])
+
     useEffect(() => {
         const MESSAGE_DELAY = 5 * 1000
         const abortController = new AbortController()
-        const counter = setInterval(() => {
-            fetch(`${import.meta.env.VITE_SERVER_HOST}/message`, {
-                signal: abortController.signal
-            }).then(res => {
+        // const counter = setInterval(() => {
+        fetch(`${import.meta.env.VITE_SERVER_HOST}/message`, {
+            signal: abortController.signal
+        }).then(res => {
 
-            }).catch(err => {
-                if (err.name === "AbortError") {
-                    console.log("Cancel by abort controller.")
-                } else {
+        }).catch(err => {
+            if (err.name === "AbortError") {
+                console.log("Cancel by abort controller.")
+            } else {
 
-                }
-            })
-        }, MESSAGE_DELAY)
+            }
+        })
+        // }, MESSAGE_DELAY)
         const timer = setInterval(() => {
             dispatch(changeClickCount(clickCount + 1))
         }, 1000)
         return () => {
             abortController.abort("reRender")
-            clearInterval(counter)
+            // clearInterval(counter)
             clearInterval(timer)
         }
     }, [])

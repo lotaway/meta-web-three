@@ -1,0 +1,32 @@
+[package]
+name = "Wasm-FF"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+wasm-bindgen-futures = "0.4.29"
+hmac = "^0.12.1"
+sha1 = "^0.10.6"
+percent-encoding = "2.1.0"
+uuid = { version = "1.7.0", features = ["v4", "js"] }
+getrandom = { version = "0.2", features = ["js"] }
+base64 = "0.13.0"
+chrono = { version = "0.4.19", features = ["serde"] }
+js-sys = "0.3.56"
+serde = { version = "1.0.136", features = ["derive"] }
+serde_derive = "1.0.136"
+serde_json = "1.0.79"
+web-sys = { version = "0.3.56", features = [
+    "Headers",
+    "Request",
+    "RequestInit",
+    "RequestMode",
+    "Response",
+    "console"
+] }

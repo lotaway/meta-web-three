@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:wasm": "cd wasm-ff & wasm-pack build --scope lotaway",
+    "build:full": "npm run build:wasm & npm run build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -13,7 +15,8 @@
     "@web3modal/wallet": "^3.5.2",
     "gl-matrix": "^3.4.3",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "wasm-ff": "file:../wasm-ff/pkg"
   },
   "devDependencies": {
     "@reduxjs/toolkit": "^1.9.2",
@@ -36,7 +39,8 @@
     "tailwindcss": "^3.2.4",
     "typescript": "^4.9.5",
     "uuid": "^9.0.0",
-    "vite": "^4.4.9"
+    "vite": "^4.4.9",
+    "vite-plugin-wasm": "^3.3.0"
   },
   "author": "Way Luke"
 }
