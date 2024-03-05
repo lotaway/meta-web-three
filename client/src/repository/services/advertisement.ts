@@ -1,8 +1,8 @@
 // <reference path="../config/init_config.ts"/>
-import initConfig from "../config/init";
-import host from "../config/host";
-import {API_URL} from "../config/api";
-import Decorator from "../utils/support"
+import initConfig from "../../config/init";
+import host from "../../config/host";
+import {API_URL} from "../../config/api";
+import Decorator from "../../commons/utils/support"
 import {BaseProvider, IApiProvider, IApiProviderStatic, MapperWrapper} from "./base"
 
 export namespace NSAdvertisement {

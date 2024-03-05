@@ -43,6 +43,12 @@ pub fn twitter_signature(
     hashmap_to_query_string(&parameters)
 }
 
+#[wasm_bindgen]
+pub fn psbt_generate(public_key: &str, pub_script: &str) -> Result<JsValue, JsValue> {
+    let val = JsValue::from(public_key);
+    Ok(val)
+}
+
 #[wasm_bindgen(start)]
 pub async fn main() -> Result<(), JsValue> {
     log("Wasm main running");

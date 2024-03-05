@@ -1,6 +1,6 @@
 import {createContext, ReactNode, useEffect, useState} from "react"
 import {ethers} from "ethers"
-import {deployedContract} from "../config/constants"
+import {deployedContract} from "../../config/constants"
 import {useTranslation} from "react-i18next"
 import EthersProvider from "../provider/EthersProvider";
 

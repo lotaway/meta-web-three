@@ -1,5 +1,5 @@
 import {Outlet} from "react-router-dom"
-import TabBar from "./components/TabBar/TabBar"
+import TabBar from "../commons/components/TabBar/TabBar"
 import {useEffect} from "react"
 import * as wasm from "../../wasm-ff/pkg"
 

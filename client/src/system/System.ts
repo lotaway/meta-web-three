@@ -1,5 +1,4 @@
-import Decorator, {obj2FormData} from "../utils/support"
-import type {ILogger, ISystem, ISystemWithStatic, UploadFileArgs, IBaseProviderOptions} from "../core/iCore"
+import Decorator, {obj2FormData} from "../commons/utils/support"
 import Logger from "./Logger"
 
 @Decorator.ImplementsWithStatic<ISystemWithStatic>()

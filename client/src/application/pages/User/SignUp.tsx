@@ -1,7 +1,7 @@
 import {createRef, MouseEvent, useCallback} from "react"
 import {useNavigate} from "react-router-dom"
 import "./SignUp.less"
-import Input from "../../components/Input/Input"
+import Input from "../../commons/components/Input/Input"
 
 export default function SignUp() {
     const navigate = useNavigate()

@@ -1,10 +1,10 @@
-import Button from "../../components/Button/Button"
+import Button from "../../commons/components/Button/Button"
 import {useTranslation} from "react-i18next"
-import Dropdown from "../../container/Dropdown/Dropdown"
+import Dropdown from "../../commons/container/Dropdown/Dropdown"
 import "./Charge.sass"
-import Box from "../../layouts/Box/Box"
-import InputBox from "../../components/InputBox/InputBox"
-import Tag from "../../components/Tag/Tag"
+import Box from "../../commons/layouts/Box/Box"
+import InputBox from "../../commons/components/InputBox/InputBox"
+import Tag from "../../commons/components/Tag/Tag"
 
 export default function Charge() {
     const {t} = useTranslation()

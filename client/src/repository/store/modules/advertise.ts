@@ -1,5 +1,5 @@
 import {createSlice, createAsyncThunk} from "@reduxjs/toolkit";
-import {NSAdvertisement} from "../../services/advertisement";
+import {NSAdvertisement} from "../../repository/services/advertisement";
 import System from "../../system/System";
 
 export interface States {

@@ -1,5 +1,3 @@
-import {IBaseProviderOptions, ISystem} from "../core/iCore"
-
 export interface IApiProvider<Arguments = any, ResponseData = any> {
 
     abortController: AbortController | undefined

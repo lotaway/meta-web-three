@@ -1,26 +1,26 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import {createBrowserRouter, Navigate, RouterProvider} from "react-router-dom"
-import './index.sass'
+import './application/index.sass'
 // import "tailwindcss/tailwind.css"
-import './locale/config'
-import {AppStoreProvider} from "./store/container"
-import {BlockChainProvider} from "./context/BlockChainContext"
-import App from './App'
+import './config/locale/config'
+import {AppStoreProvider} from "./repository/store/container"
+import {BlockChainProvider} from "./application/context/BlockChainContext"
+import App from './application/App'
 import configHost from "./config/host"
-import Home from "./pages/Home/Home"
-import ShopIndex from "./pages/Shop/Index"
-import GoodsDetail from "./pages/Shop/GoodsDetail"
-import SignUp from "./pages/User/SignUp"
-import LogIn from "./pages/User/LogIn"
-import UserCenter from "./pages/User/UserCenter"
-import TransactionRecord from "./pages/Wallet/TransactionRecord"
-import NewWorld from "./pages/NewWorld/NewWorld"
-import Auth from "./layouts/Auth/Auth"
-import Charge from "./pages/User/Charge"
-import Withdrawal from "./pages/User/Withdrawal"
-import Account from "./pages/User/Account"
-// const ShopIndex = lazy(() => import("./pages/Shop/Index"))
+import Home from "./application/pages/Home/Home"
+import ShopIndex from "./application/pages/Shop/Index"
+import GoodsDetail from "./application/pages/Shop/GoodsDetail"
+import SignUp from "./application/pages/User/SignUp"
+import LogIn from "./application/pages/User/LogIn"
+import UserCenter from "./application/pages/User/UserCenter"
+import TransactionRecord from "./application/pages/Wallet/TransactionRecord"
+import NewWorld from "./application/pages/NewWorld/NewWorld"
+import Auth from "./commons/layouts/Auth/Auth"
+import Charge from "./application/pages/User/Charge"
+import Withdrawal from "./application/pages/User/Withdrawal"
+import Account from "./application/pages/User/Account"
+// const ShopIndex = lazy(() => import("./application/pages/Shop/Index"))
 const routers = createBrowserRouter([
     {
         path: "/",

@@ -1,9 +1,8 @@
-import initConfig from "../config/init"
+import initConfig from "../../config/init"
 import {BaseProvider, IApiProvider, IApiProviderStatic, MapperWrapper} from './base'
-import Decorator from "../utils/support"
-import host from "../config/host"
-import {API_URL, templateFolderPlaceHolder} from "../config/api"
-import {IBaseProviderOptions, ISystem} from "../core/iCore"
+import Decorator from "../../commons/utils/support"
+import host from "../../config/host"
+import {API_URL, templateFolderPlaceHolder} from "../../config/api"
 
 namespace NSSetting {
 

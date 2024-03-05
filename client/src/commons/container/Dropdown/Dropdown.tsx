@@ -1,5 +1,5 @@
-import DropdownMenu, {DropdownMenuProps} from "../../layouts/DropdownMenu/DropdownMenu"
-import Box from "../../layouts/Box/Box"
+import DropdownMenu, {DropdownMenuProps} from "../../commons/layouts/DropdownMenu/DropdownMenu"
+import Box from "../../commons/layouts/Box/Box"
 import iconArrowDownSimple from "../../assets/icon-arrow-down-simple.svg"
 import {HTMLAttributes, useState} from "react"
 import {useTranslation} from "react-i18next"
