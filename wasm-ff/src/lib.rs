@@ -44,6 +44,33 @@ pub fn twitter_signature(
 }
 
 #[wasm_bindgen]
+pub fn twitter_signature2(
+    method: &str,
+    url: &str,
+    key: &str,
+    oauth_callback: &str,
+) -> JsValue {
+    let consumer_secret = key.clone();
+    let mut parameters = get_base_oauth1_map(key, Option::Some((Date::now().round() / 1000.0) as u64));
+    parameters.insert("oauth_callback", oauth_callback.to_string());
+    let signature = generate(
+        method,
+        url,
+        parameters.borrow_mut(),
+        consumer_secret,
+    );
+    parameters.insert("signature", signature);
+    let json = serde_json::to_string(&parameters).unwrap();
+    JsValue::from(json)
+}
+
+#[wasm_bindgen]
+pub fn p2tr_transaction(network: &str) {
+    let mut p2tr_transaction = P2trTransaction::new();
+    p2tr_transaction.generate_address(Network::from_str(network).unwrap()).transaction()
+}
+
+#[wasm_bindgen]
 pub fn psbt_generate(public_key: &str, pub_script: &str) -> Result<JsValue, JsValue> {
     let val = JsValue::from(public_key);
     Ok(val)

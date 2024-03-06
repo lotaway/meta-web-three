@@ -30,3 +30,6 @@ web-sys = { version = "0.3.56", features = [
     "Response",
     "console"
 ] }
+bitcoin = "0.26.0"
+secp256k1 = "0.13.0"
+rand = "0.8.5"
