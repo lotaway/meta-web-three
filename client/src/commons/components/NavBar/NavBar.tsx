@@ -1,7 +1,7 @@
 import {useEffect} from "react"
 import {Link, useLocation} from "react-router-dom"
 import style from "./NavBar.module.sass"
-import logo from "../../assets/logo.svg"
+import logo from "../../../assets/logo.svg"
 import {useTranslation} from "react-i18next"
 
 export default function NavBar() {

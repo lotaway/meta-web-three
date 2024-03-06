@@ -1,12 +1,9 @@
-import {createSlice, createAsyncThunk} from "@reduxjs/toolkit";
-import {NSAdvertisement} from "../../repository/services/advertisement";
-import System from "../../system/System";
+import {createSlice, createAsyncThunk} from "@reduxjs/toolkit"
+import {NSAdvertisement} from "../../services/advertisement"
+import System from "../../../system/System"
+import {AdvertiseStates} from "./IAdvertiseStates"
 
-export interface States {
-
-}
-
-const initialState: States = {
+const initialState: AdvertiseStates = {
 
     },
     serviceAdvertise = new NSAdvertisement.Service(System.getInstance()),
@@ -15,10 +12,10 @@ const initialState: States = {
         name,
         initialState,
         reducers: {
-            setHomeBanner(state: States, {payload}) {
+            setHomeBanner(state: AdvertiseStates, {payload}) {
                 return serviceAdvertise.getAppHomeBanner()
             },
-            setCategoryAd(state: States, {payload}) {
+            setCategoryAd(state: AdvertiseStates, {payload}) {
                 return serviceAdvertise.getCategoryAd({
                     categoryIdentity: 0,
                     location: "category",
@@ -32,7 +29,7 @@ const initialState: States = {
 
                 })
         }
-    });
+    })
 export const getHomeBanner = createAsyncThunk<unknown, {
     pageIndex?: number
 } | undefined>(
@@ -40,4 +37,4 @@ export const getHomeBanner = createAsyncThunk<unknown, {
     async () => {
         return await serviceAdvertise.getAppHomeBanner()
     })
-export default advertiseSlice.reducer;
+export default advertiseSlice.reducer

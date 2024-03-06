@@ -1,5 +1,5 @@
 import {useLocation, useNavigate} from "react-router-dom"
-import Card from "../../commons/layouts/Card/Card"
+import Card from "../../../commons/layouts/Card/Card"
 import {useTranslation} from "react-i18next"
 import {useEffect} from "react"
 import "./Account.sass"

@@ -1,8 +1,8 @@
 import {useCallback, useContext, useEffect, useMemo, useState} from "react"
-import {BlockChainContext} from "../../application/context/BlockChainContext"
-import PayContract from "../../commons/components/PayContract/PayContract"
-import {useDebounce} from "../../commons/utils/hooks"
-import Input from "../../commons/components/Input/Input"
+import {BlockChainContext} from "../../context/BlockChainContext"
+import PayContract from "../../../commons/components/PayContract/PayContract"
+import {useDebounce} from "../../../commons/utils/hooks"
+import Input from "../../../commons/components/Input/Input"
 // [Source](https://github.com/adrianhajdin/project_web3.0)
 export default function TransactionRecord() {
     const {isTransacting, transactionRecords, transactionCount} = useContext(BlockChainContext);

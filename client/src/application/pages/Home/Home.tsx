@@ -1,13 +1,13 @@
 import {createRef, useEffect, useState} from 'react'
 import {Link} from "react-router-dom"
 import './Home.less'
-import NavBar from "../../commons/components/NavBar/NavBar"
-import PayContract from "../../commons/components/PayContract/PayContract"
-import Card from "../../commons/layouts/Card/Card"
-import Input from "../../commons/components/Input/Input"
+import NavBar from "../../../commons/components/NavBar/NavBar"
+import PayContract from "../../../commons/components/PayContract/PayContract"
+import Card from "../../../commons/layouts/Card/Card"
+import Input from "../../../commons/components/Input/Input"
 import {useTranslation} from 'react-i18next'
-import {useAppDispatch, useAppSelector} from "../../repository/store/hooks"
-import {changeClickCount} from "../../repository/store/modules/global"
+import {useAppDispatch, useAppSelector} from "../../../repository/store/hooks"
+import {changeClickCount} from "../../../repository/store/modules/global"
 
 export default function Home() {
     const {t} = useTranslation()

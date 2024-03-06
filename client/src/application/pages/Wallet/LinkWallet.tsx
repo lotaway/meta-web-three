@@ -1,8 +1,8 @@
 import './LinkWallet'
 import React, {useContext} from "react"
-import Card from "../../commons/layouts/Card/Card"
-import Button from "../../commons/components/Button/Button"
-import {BlockChainContext} from "../../application/context/BlockChainContext"
+import Card from "../../../commons/layouts/Card/Card"
+import Button from "../../../commons/components/Button/Button"
+import {BlockChainContext} from "../../context/BlockChainContext"
 import {useTranslation} from "react-i18next"
 
 export default function LinkWallet() {
