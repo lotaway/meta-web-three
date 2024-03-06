@@ -1,37 +1,62 @@
-import {ethers, BrowserProvider, Eip1193Provider} from "ethers"
+import {ethers, BrowserProvider, Eip1193Provider, BigNumberish, Networkish} from "ethers"
+import {getMessageByWalletAddress} from "../config/wallectConnect";
+import IWebProvider from "../core/IWebProvider"
 
-export default class EthersProvider {
+export default class EthersProvider implements IWebProvider {
 
     static ethersProvider: EthersProvider
 
     browserProvider: BrowserProvider
 
-    constructor(readonly walletProvider: Eip1193Provider) {
-        this.browserProvider = new BrowserProvider(walletProvider)
+    private constructor(readonly walletProvider: Eip1193Provider, network?: Networkish) {
+        this.browserProvider = new BrowserProvider(walletProvider, network)
     }
 
-    static getInstance(walletProvider?: Eip1193Provider): EthersProvider {
+    static getInstance(walletProvider?: Eip1193Provider, network?: Networkish): EthersProvider {
         if (!EthersProvider.ethersProvider) {
             if (!walletProvider)
                 throw new TypeError(`walletProvider not exist: ${walletProvider}`)
-            EthersProvider.ethersProvider = new EthersProvider(walletProvider as Eip1193Provider)
+            EthersProvider.ethersProvider = new EthersProvider(walletProvider as Eip1193Provider, network)
         }
         return EthersProvider.ethersProvider
     }
 
+    static ether2eth(etherVal: bigint | BigNumberish) {
+        return ethers.formatEther(etherVal)
+    }
+
+    static eth2ether(ethVal: string) {
+        return ethers.parseEther(ethVal)
+    }
+
+    async switchToChain(chainId: number) {
+        return await this.browserProvider.send("wallet_switchEthereumChain", [{chainId: `0x${chainId.toString(16)}`}])
+    }
+
+    async addChain(chainId: number) {
+        return await this.browserProvider.send("wallet_addEthereumChain", [
+            {
+                chainId: `0x${chainId.toString(16)}`
+            }
+        ])
+    }
+
+    async connect() {
+        return await this.browserProvider.send("eth_requestAccounts", [])
+    }
+
     async getWalletDefaultAddress() {
-        const accounts = await this.browserProvider.send("eth_requestAccounts", [])
+        const accounts = await this.connect()
         return accounts[0]
     }
 
     // 读取钱包地址
     async getWalletAddress() {
-        return await this.browserProvider.send("eth_requestAccounts", [])
+        return await this.browserProvider.send("eth_accounts", [])
     }
 
     async getBalance(walletAddress: string) {
-        // return await this.browserProvider.send("eth_getBalance", [walletAddress])
-        return ethers.formatEther(await this.browserProvider.getBalance(walletAddress))
+        return await this.browserProvider.getBalance(walletAddress)
     }
 
     async getSigner() {
@@ -39,14 +64,22 @@ export default class EthersProvider {
     }
 
     // 获取钱包签名
-    async getWalletSignature(walletAddress: string, timestamp: number = this.getTimestamp(), message?: string) {
-        message = message ?? `${walletAddress}|login by wallet|${timestamp}`
+    async getWalletSignature(message: string) {
         const signer = await this.getSigner()
         return await signer.signMessage(message)
     }
 
-    getTimestamp() {
+    static getTimestamp() {
         return +new Date()
+    }
+
+    // 只可监听以太坊
+    async addAccountsChangedListener(callback: (accounts: string[]) => void) {
+        return await this.browserProvider.on("accountsChanged", callback)
+    }
+
+    disconnect() {
+        return Promise.reject(new Error("Please use wallet connect modal to disconnect"))
     }
 
 }

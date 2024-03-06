@@ -27,6 +27,7 @@
     "@webGPU/types": "npm:@webgpu/types@^0.1.34",
     "antd": "^5.0.5",
     "autoprefixer": "^10.4.13",
+    "buffer": "^6.0.3",
     "ethers": "^6.9.1",
     "i18next": "^23.7.8",
     "less": "^4.1.3",

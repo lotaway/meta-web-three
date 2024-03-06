@@ -6,15 +6,15 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use uuid::{Uuid};
 use crate::log;
 
-pub fn get_base_oauth1_map(key: &str, timestamp: Option<u64>) -> HashMap<String, String> {
+pub fn get_base_oauth1_map(key: &str, timestamp: Option<u64>) -> HashMap<&str, String> {
     let mut parameters = HashMap::new();
-    parameters.insert("oauth_consumer_key".to_string(), key.to_string());
+    parameters.insert("oauth_consumer_key", key.to_string());
     parameters.insert(
-        "oauth_signature_method".to_string(),
+        "oauth_signature_method",
         "HMAC-SHA1".to_string(),
     );
     parameters.insert(
-        "oauth_timestamp".to_string(),
+        "oauth_timestamp",
         timestamp
             .or_else(|| {
                 Option::Some(SystemTime::now()
@@ -25,27 +25,28 @@ pub fn get_base_oauth1_map(key: &str, timestamp: Option<u64>) -> HashMap<String,
             .unwrap()
             .to_string(),
     );
-    parameters.insert("oauth_nonce".to_string(), Uuid::new_v4().to_string());
-    parameters.insert("oauth_version".to_string(), "1.0".to_string());
+    parameters.insert("oauth_nonce", Uuid::new_v4().to_string());
+    parameters.insert("oauth_version", "1.0".to_string());
     parameters
 }
 
 pub fn generate(
     method: &str,
     url: &str,
-    parameters: &mut HashMap<String, String>,
+    parameters: &mut HashMap<&str, String>,
     consumer_secret: &str,
 ) -> String {
     let mut sorted_params: Vec<_> = parameters.iter().collect();
     sorted_params.sort_by(|a, b| a.0.cmp(b.0));
     let base_string = generate_base_string(method, url, &sorted_params);
+    log(format!("base_string:{}", base_string).as_str());
     hmac_sha1(base_string.as_bytes(), consumer_secret.as_bytes())
 }
 
 pub fn generate_base_string(
     method: &str,
     url: &str,
-    sorted_params: &Vec<(&String, &String)>,
+    sorted_params: &Vec<(&&str, &String)>,
 ) -> String {
     let params: Vec<String> = sorted_params
         .iter()
@@ -56,7 +57,7 @@ pub fn generate_base_string(
         "{}&{}&{}",
         method.to_uppercase(),
         encode(url),
-        encode(&params_str)
+        encode(params_str.as_ref())
     )
 }
 
@@ -99,7 +100,7 @@ pub fn encode(value: &str) -> String {
     utf8_percent_encode(value, ENCODE_URI_FRAGMENT).to_string()
 }
 
-pub fn hashmap_to_query_string(parameters: &HashMap<String, String>) -> String {
+pub fn hashmap_to_query_string(parameters: &HashMap<&str, String>) -> String {
     parameters.iter()
         .map(|(key, value)| format!("{}={}", encode(key), encode(value)))
         .collect::<Vec<String>>()
@@ -122,14 +123,14 @@ mod tests {
         let key = "OxhqcUXNEaQUtMMreqvRdYl38";
         let oauth_callback = "http://tsp.nat300.top/airdrop/bindAccount";
         let mut parameters = get_base_oauth1_map(key, Option::None);
-        parameters.insert(String::from("oauth_callback"), String::from(oauth_callback));
+        parameters.insert("oauth_callback", String::from(oauth_callback));
         let method = "POST";
         let url = "https://api.twitter.com/oauth/request_token";
         let consumer_secret = key.clone();
 
         let signature = generate(method, url, &mut parameters, consumer_secret);
         // assert_eq!(signature, "vLIA5PXGId2uCyDXYyp90hkg9G8=");
-        parameters.insert(String::from("signature"), signature);
+        parameters.insert("signature", signature);
         let full_query_str = hashmap_to_query_string(&parameters);
         println!("{}", full_query_str.clone());
         assert_eq!(full_query_str.starts_with(url), false)

@@ -42,14 +42,14 @@ function convertDataUrl(data: ConvertArray | ConvertObject, attrs: AttrArray | s
     if (!attrs)
         throw new Error("没有设置需要转换的字段")
     if (data instanceof Array && data.length) {
-        data = data.map(item => convertDataUrl(item, attrs))
+        data = data.map(item => convertDataUrl(item, attrs, _host))
     } else if (typeof data === 'object') {
         (attrs as AttrArray).forEach(attr => {
             if (attr instanceof Array && attr.length) {
                 const firstAttr = attr[0] as string
-                (data as ConvertObject)[firstAttr] && ((data as ConvertObject)[firstAttr] = convertDataUrl((data as ConvertObject)[firstAttr], attr.slice(1)))
+                (data as ConvertObject)[firstAttr] && ((data as ConvertObject)[firstAttr] = convertDataUrl((data as ConvertObject)[firstAttr], attr.slice(1), _host))
             } else if ((data as ConvertObject)[attr as string]) {
-                (data as ConvertObject)[attr as string] = convertUrl((data as ConvertObject)[attr as string])
+                (data as ConvertObject)[attr as string] = convertUrl((data as ConvertObject)[attr as string], _host)
             }
         })
     }
@@ -173,7 +173,7 @@ export default class Decorator {
                 const largerArgs = defaultArgs.length > realArgs.length ? defaultArgs : realArgs
                 return originMethod.call(this, ...largerArgs.map((item, index) => {
                     const def = defaultArgs[index]
-                    let real = realArgs[index]
+                    let real = realArgs[index] as any
                     if (def?.constructor === Object && real?.constructor === Object)
                         Object.keys(def).forEach(key => {
                             real[key] = real[key] ?? def[key]

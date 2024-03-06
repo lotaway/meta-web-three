@@ -8,7 +8,7 @@ export default function NavBar() {
     const location = useLocation()
     const {t} = useTranslation()
     useEffect(() => {
-        console.log(`change location!:${location.pathname}, need to change view`)
+        // console.log(`change location!:${location.pathname}, need to change view`)
     }, [location.pathname])
     return (
         <nav className="w-full flex nav-bar">

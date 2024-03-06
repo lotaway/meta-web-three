@@ -5,6 +5,7 @@ import * as wasm from "../../wasm-ff/pkg"
 
 function App() {
     useEffect(() => {
+        const abortController = new AbortController()
         // wasm.greet("from wasm")
         const urlInfo = {
             proxyPrevFix: "/twitter/api",
@@ -19,8 +20,12 @@ function App() {
             `${location.protocol + "//" + location.host}/airdrop/bindAccount`,
         )
         console.log(`twitter signature fullQueryStr: ${fullQueryStr}`)
+        const headers = new Headers()
+        headers.set("Content-Type", "application/json")
         fetch(`${urlInfo.proxyPrevFix}${urlInfo.path}?${fullQueryStr}`, {
             method,
+            signal: abortController.signal,
+            headers,
         })
             .then(res => {
                 console.log(`res: ${res}`)
@@ -32,6 +37,7 @@ function App() {
             .catch(err => {
                 console.log(`err: ${err}`)
             })
+        return () => abortController.abort("useEffect callback")
     }, [])
     return (
         <div className="app">

@@ -21,6 +21,8 @@ import Charge from "./application/pages/User/Charge"
 import Withdrawal from "./application/pages/User/Withdrawal"
 import Account from "./application/pages/User/Account"
 // const ShopIndex = lazy(() => import("./application/pages/Shop/Index"))
+import LinkWallet from "./application/pages/Wallet/LinkWallet"
+
 const routers = createBrowserRouter([
     {
         path: "/",
@@ -87,9 +89,11 @@ const routers = createBrowserRouter([
     },
     {
         path: "/user/payRecord",
-        element: <BlockChainProvider>
-            <TransactionRecord/>
-        </BlockChainProvider>
+        element: <TransactionRecord/>,
+    },
+    {
+        path: "/wallet/linkWallet",
+        element: <LinkWallet/>,
     },
     {
         path: "/NewWorld",
@@ -103,8 +107,10 @@ const routers = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <AppStoreProvider>
-        <React.StrictMode>
-            <RouterProvider router={routers}/>
-        </React.StrictMode>
+        <BlockChainProvider>
+            <React.StrictMode>
+                <RouterProvider router={routers}/>
+            </React.StrictMode>
+        </BlockChainProvider>
     </AppStoreProvider>
 )
