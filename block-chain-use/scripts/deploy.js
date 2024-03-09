@@ -11,11 +11,9 @@ async function main(options) {
     // await accountTransferContract.deployed()
     // console.log(`AccountTransfer already deployed, address: ${accountTransferContract.address}`)
     const solNames = [
-        // "AccountTransfer",
-        // "AccountTemplate",
-        // "EncryptedToken",
-        "BIERC20",
-        "BIERC20Factory",
+        "AccountTransfer",
+        "AccountTemplate",
+        "EncryptedToken",
     ]
     // const addresses = []
     /*let compiles = solNames.map(solName => {
