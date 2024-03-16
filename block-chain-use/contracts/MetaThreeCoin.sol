@@ -3,9 +3,6 @@ pragma solidity ^0.8.20;
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract MetaThreeCoin is ERC20 {
-    string public name = "MetaThreeCoin";
-    string public symbol = "BLC";
-    uint8 public decimals = 4;
     uint256 public TOKENS = 99_999;
     address public owner;
 
@@ -21,5 +18,9 @@ contract MetaThreeCoin is ERC20 {
         require(msg.sender == owner, "Not owner");
         SetOwner(owner, newOwner);
         owner = newOwner;
+    }
+
+    function decimals() view public override returns (uint8) {
+        return 4;
     }
 }
