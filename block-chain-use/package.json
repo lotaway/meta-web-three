@@ -6,8 +6,10 @@
   "license": "UNLICENSED",
   "main": "hardhat.config.js",
   "scripts": {
-    "deploy:g": "npx hardhat run scripts/deploy.js --network ganache",
-    "deploy:s": "npx hardhat run scripts/deploy.js --network sepolia",
+    "dg": "yarn deploy:ganache",
+    "deploy:ganache": "npx hardhat run scripts/deploy.js --network ganache",
+    "ds": "yarn deploy:sepolia",
+    "deploy:sepolia": "npx hardhat run scripts/deploy.js --network sepolia",
     "db:migrate": "npx prisma migrate dev --name init",
     "db:generate": "npx prisma generate",
     "db:init": "ts-node ./prisma/init.ts",

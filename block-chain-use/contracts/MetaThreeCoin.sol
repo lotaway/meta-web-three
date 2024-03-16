@@ -8,19 +8,19 @@ contract MetaThreeCoin is ERC20 {
 
     constructor() ERC20("MetaCoinETH", "ECH") {
         owner = msg.sender;
-        totalSupply = TOKENS;
-        balanceOf[msg.sender] = TOKENS;
+//        totalSupply = TOKENS;
+//        balanceOf[msg.sender] = TOKENS;
     }
 
     event SetOwner(address originOwner, address newOwner);
 
     function setOwner(address newOwner) public {
         require(msg.sender == owner, "Not owner");
-        SetOwner(owner, newOwner);
         owner = newOwner;
+        emit SetOwner(owner, newOwner);
     }
 
-    function decimals() view public override returns (uint8) {
+    function decimals() pure public override returns (uint8) {
         return 4;
     }
 }
