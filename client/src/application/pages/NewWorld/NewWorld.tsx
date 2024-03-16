@@ -10,7 +10,7 @@ import {
     ThreeGPU,
     VertexBuilder,
     WebGPUBuilder
-} from "../../system/webGPU"
+} from "../../../system/webGPU"
 import positionVertWGSL from "../../shader/position.vert.wgsl?raw"
 import vertexWGSL from "../../shader/triangle.vert.wgsl?raw"
 import shadowDepthWGSL from "../../shader/shadow-depth.wgsl?raw"

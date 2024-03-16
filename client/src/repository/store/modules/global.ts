@@ -1,18 +1,8 @@
 import {createSlice} from '@reduxjs/toolkit'
 import type {PayloadAction} from '@reduxjs/toolkit'
 import i18n from 'i18next'
-import {defaultLanguage, resources} from "../../locale/config"
-
-export interface GlobalStates {
-    language: string
-    languageList: Array<{
-        name: string
-        code: string
-    }>
-    clickCount: number
-    pageErrorTitle: string
-    pageMsgListTitle: string
-}
+import {defaultLanguage, resources} from "../../../config/locale/config"
+import {GlobalStates} from "./IGlobal"
 
 const initialState: GlobalStates = {
     language: defaultLanguage,

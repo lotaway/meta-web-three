@@ -1,5 +1,5 @@
 import React, {useState, useEffect, ChangeEvent, useTransition, useContext, useCallback} from "react";
-import {BlockChainContext} from "../../context/BlockChainContext"
+import {BlockChainContext} from "../../../application/context/BlockChainContext"
 
 type Props = {
     addressTo: string

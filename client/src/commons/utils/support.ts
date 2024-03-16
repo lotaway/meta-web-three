@@ -1,6 +1,6 @@
-import host from "../config/host"
-import initConfig from "../config/init"
-import crypto from "../commons/utils/crypto"
+import host from "../../config/host"
+import initConfig from "../../config/init"
+import crypto from "../../commons/utils/crypto"
 
 interface CacheStoreValue extends Object {
     updateTime: number

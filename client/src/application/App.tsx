@@ -1,12 +1,13 @@
 import {Outlet} from "react-router-dom"
 import TabBar from "../commons/components/TabBar/TabBar"
 import {useEffect} from "react"
-import * as wasm from "../../wasm-ff/pkg"
+import * as wasm from "../../../wasm-ff/pkg"
 
 function App() {
     useEffect(() => {
         const abortController = new AbortController()
         // wasm.greet("from wasm")
+        // console.log(wasm.psbt_generate("1", "2"))
         const urlInfo = {
             proxyPrevFix: "/twitter/api",
             host: "https://api.twitter.com",
