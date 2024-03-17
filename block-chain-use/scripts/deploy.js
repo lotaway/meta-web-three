@@ -2,7 +2,7 @@ const hre = require("hardhat")
 // const ethers = hre.ethers
 
 const ethers = require("ethers")
-const path = require("node:path")
+const {join} = require("node:path")
 const {createWriteStream} = require("node:fs")
 
 async function main(options) {
@@ -37,20 +37,20 @@ async function main(options) {
 }
 
 function runMain() {
-    const logWriteStream = createWriteStream(path.join(__dirname, "../artifacts/build-info/deploy-output.txt"), {encoding: "utf-8", flags: "r+"})
+    const logWriteStream = () => createWriteStream(join(__dirname, "../artifacts/build-info/deploy-output.txt"), {encoding: "utf-8", flags: "r+"})
     return main({
         output(message) {
             console.log(message)
-            logWriteStream.write(message + "\n")
+            logWriteStream().write(message + "\n")
         }})
         .then(() => {
-            logWriteStream.end("success")
+            logWriteStream().end("success")
             process.exit(0)
         })
         .catch(err => {
             const message = "error: " + JSON.stringify(err)
             console.error(message)
-            logWriteStream.end(message)
+            logWriteStream().end(message)
             process.exit(1)
         })
 }

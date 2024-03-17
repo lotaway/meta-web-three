@@ -10,7 +10,7 @@ module.exports = {
     networks: {
         ganache: {
             url: "http://127.0.0.1:7545",
-            accounts: ["c30842c1848849a13236ac5e6b52af56a58be5653d8ac6b71c65ae37292d13c9"]
+            accounts: ["0x14a6c69405e6bc4c7a061a114681939e7d06a60ac9ca011761ef236d06447e90"]
         },
         sepolia: {
             url: "https://eth-sepolia.alchemyapi.io/v2/liTsZpkvhffOegSsOSi-DAaOzu",
