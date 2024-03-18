@@ -3,7 +3,7 @@
     "types": [
       "reflect-metadata",
       "node",
-      "jest",
+      "mocha",
       "cookie-parser"
     ],
     "module": "commonjs",
@@ -12,7 +12,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2017",
+    "target": "ESNext",
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
