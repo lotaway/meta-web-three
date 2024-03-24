@@ -42,4 +42,8 @@ export default class System {
     language() {
         return navigator.language
     }
+
+    db() {
+        return window.indexedDB
+    }
 }
