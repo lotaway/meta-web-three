@@ -1,4 +1,10 @@
 export namespace ClientStore {
+
+    function test() {
+        const upgradeDBScript = new UpgradeDBScript(1)
+        upgradeDBScript.addCommand(new ClientDBTable("nfts"))
+    }
+
     export class ClientDB {
 
         protected upgradeScripts: UpgradeDBScript[] = []
@@ -38,11 +44,6 @@ export namespace ClientStore {
         constructor(readonly version: number) {
 
         }
-
-        static test() {
-            const upgradeDBScript = new UpgradeDBScript(1)
-            new ClientDBTable("nfts")
-        }
         
         addCommand(command: DBCommand) {
             this.commands.push(command)
@@ -76,9 +77,17 @@ export namespace ClientStore {
         }
 
         use(db: IDBDatabase): IDBObjectStore {
-            return db.createObjectStore(this.name, {
+            const objectStore =  db.createObjectStore(this.name, {
                 keyPath: this.key,
             })
+            for (const field of this.fields) {
+                field.use(objectStore)
+            }
+            return objectStore
+        }
+
+        getData(db: IDBDatabase) {
+            const transaction = db.transaction(this.name, "readonly")
         }
     }
 
