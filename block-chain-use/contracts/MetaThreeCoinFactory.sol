@@ -5,6 +5,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/extensions/AccessControlDefaultAdminRulesUpgradeable.sol";
+import "./MetaThreeCoin.sol";
 
 contract MetaThreeChinFactory is Initializable, AccessControlDefaultAdminRulesUpgradeable, ReentrancyGuardUpgradeable, UUPSUpgradeable {
 
@@ -29,6 +30,12 @@ contract MetaThreeChinFactory is Initializable, AccessControlDefaultAdminRulesUp
         __AccessControlDefaultAdminRules_init(3 days ,_msgSender());
         __ReentrancyGuard_init();
         __UUPSUpgradeable_init();
+    }
+
+    function createToken(MetaThreeCoin token) {
+        new MetaThreeCoin {
+
+        };
     }
 
 }
