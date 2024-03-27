@@ -32,10 +32,8 @@ contract MetaThreeChinFactory is Initializable, AccessControlDefaultAdminRulesUp
         __UUPSUpgradeable_init();
     }
 
-    function createToken(MetaThreeCoin token) {
-        new MetaThreeCoin {
-
-        };
+    function createToken(string memory name, string memory symbol) public {
+        address token = address(new MetaThreeCoin(name, symbol));
     }
 
 }

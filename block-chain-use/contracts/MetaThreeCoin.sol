@@ -6,7 +6,7 @@ contract MetaThreeCoin is ERC20 {
     uint256 public TOKENS = 99_999;
     address public owner;
 
-    constructor() ERC20("MetaCoinETH", "ECH") {
+    constructor(string memory name, string memory symbol) ERC20("MetaCoinETH", "ECH") {
         owner = msg.sender;
 //        totalSupply = TOKENS;
 //        balanceOf[msg.sender] = TOKENS;
