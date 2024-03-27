@@ -16,9 +16,16 @@ contract WETH {
         deposit();
     }
 
-    function deposit() public payable {
-        balanceOf[msg.sender] += msg.value;
-        emit Deposit(msg.sender, msg.value);
+    function deposit(ERC20 token, address to, uint256 amount) public payable {
+        if (address(token) == 0 && amount == 0) {
+            balanceOf[msg.sender] += msg.value;
+            emit Deposit(msg.sender, msg.value);
+        }
+        else {
+            require(token.balanceOf(msg.sender) >= amount, "No enough balance");
+            token.transferFrom(address(token), to, amount);
+            emit Deposit(msg.sender, amount);
+        }
     }
 
     function withdraw(uint256 amount) public {
