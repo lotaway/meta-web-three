@@ -10,7 +10,7 @@ export namespace ClientStore {
         protected upgradeScripts: UpgradeDBScript[] = []
 
         constructor(readonly dbFactory: IDBFactory) {
-            
+
         }
 
         addUprade(script: UpgradeDBScript) {
@@ -28,7 +28,7 @@ export namespace ClientStore {
                         }
                     })
                 }
-                request.onsuccess = function(event) {
+                request.onsuccess = function (event) {
                     resolve(request.result)
                 }
                 request.onerror = reject
@@ -44,7 +44,7 @@ export namespace ClientStore {
         constructor(readonly version: number) {
 
         }
-        
+
         addCommand(command: DBCommand) {
             this.commands.push(command)
         }
@@ -59,6 +59,11 @@ export namespace ClientStore {
 
     export interface DBCommand {
         use(db: IDBDatabase): void
+    }
+
+    export interface IPageWrapper {
+        getPage() : number
+        getPageSize(): number
     }
 
     export class ClientDBTable implements DBCommand {
@@ -77,7 +82,7 @@ export namespace ClientStore {
         }
 
         use(db: IDBDatabase): IDBObjectStore {
-            const objectStore =  db.createObjectStore(this.name, {
+            const objectStore = db.createObjectStore(this.name, {
                 keyPath: this.key,
             })
             for (const field of this.fields) {
@@ -88,11 +93,26 @@ export namespace ClientStore {
 
         getData(db: IDBDatabase) {
             const transaction = db.transaction(this.name, "readonly")
+            const store = transaction.objectStore(this.name)
+            const request = store.getAll()
+            return new Promise((resolve, reject) => {
+                request.onsuccess = resolve
+                request.onerror = reject
+            })
+        }
+        
+        getPage(store: IDBObjectStore, wrapper: IPageWrapper) {
+            const page = wrapper.getPage()
+            const pageSize = wrapper.getPageSize()
+            const request = store.openCursor()
+            request.onsuccess = function (e) {
+                // e.target.result
+            }
         }
     }
 
     export class ClientDBField<Type = string> {
-        
+
         constructor(readonly data: {
             name: string
             key?: string
