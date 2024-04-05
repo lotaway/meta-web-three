@@ -8,6 +8,7 @@ export namespace ClientStore {
     export class ClientDB {
 
         protected upgradeScripts: UpgradeDBScript[] = []
+        protected db: IDBDatabase | null = null
 
         constructor(readonly dbFactory: IDBFactory) {
 
@@ -29,10 +30,19 @@ export namespace ClientStore {
                     })
                 }
                 request.onsuccess = function (event) {
+                    self.db = request.result
                     resolve(request.result)
                 }
                 request.onerror = reject
             })
+        }
+
+        close() {
+            return this.db?.close?.()
+        }
+
+        getTable(storeName: string) {
+            return new ClientDBTable(storeName)
         }
 
     }
@@ -147,7 +157,7 @@ export namespace ClientStore {
                 request.onsuccess = resolve
                 request.onerror = reject
             })
-        }
+        } 
 
         updateData(store: IDBObjectStore, data: DO) {
             return new Promise((resolve, reject) => {
@@ -157,11 +167,17 @@ export namespace ClientStore {
             })
         }
 
-        delData(store: IDBObjectStore, key: string) {
+        delData(store: IDBObjectStore, value: string) {
             return new Promise((resolve, reject) => {
-                const request = store.delete(IDBKeyRange.only(key))
+                const request = store.delete(IDBKeyRange.only(value))
                 request.onsuccess = resolve
                 request.onerror = reject
+            })
+        }
+
+        delDatas(store: IDBObjectStore, key: string, value: string) {
+            return new Promise((resolve, reject) => {
+                store.openCursor(IDBKeyRange.bound)
             })
         }
     }
@@ -184,10 +200,6 @@ export namespace ClientStore {
             objectStore.createIndex(this.data.name, this.data.key ?? this.data.name, {
                 unique: this.data.unique,
             })
-        }
-
-        updateData(data: Type) {
-            // @todo
         }
     }
 }
