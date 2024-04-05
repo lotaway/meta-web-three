@@ -2,7 +2,18 @@ export namespace ClientStore {
 
     function test() {
         const upgradeDBScript = new UpgradeDBScript(1)
-        upgradeDBScript.addCommand(new ClientDBTable("nfts"))
+        const clientDBTable = new ClientDBTable("nfts")
+        clientDBTable
+            .addField(new ClientDBField({
+                name: "blockNumber",
+                unique: true,
+            }))
+            .addField(new ClientDBField({
+                name: "txid",
+                unique: true,
+            }))
+            .addFieldsAsSimple(["startTime", "endTime", "image", "name", "price", "introduct", "description", "holderCount"])
+        upgradeDBScript.addCommand(clientDBTable)
     }
 
     export class ClientDB {
@@ -24,14 +35,15 @@ export namespace ClientStore {
             return new Promise(function (resolve, reject) {
                 request.onupgradeneeded = function (event) {
                     const db = request.result
-                    self.upgradeScripts.sort((first, second) => first.version - second.version).map(script => {
+                    self.upgradeScripts.sort((first, second) => first.version - second.version).forEach(script => {
                         if (event.oldVersion < script.version) {
+                            script.use(db)
                         }
                     })
                 }
                 request.onsuccess = function (event) {
                     self.db = request.result
-                    resolve(request.result)
+                    resolve(self.db)
                 }
                 request.onerror = reject
             })
@@ -71,11 +83,13 @@ export namespace ClientStore {
         use(db: IDBDatabase): void
     }
 
-    export interface IPageWrapper<Params extends object> {
-        getParams(): Params
+    export interface IPageWrapper<DAO extends object> {
+        getParams(): Partial<DAO>
+        getSelector?: (params: Partial<DAO>) => IDBRequest<IDBCursorWithValue | null>
         getPage(): number
         getPageSize(): number
         getRange(): IDBKeyRange
+        handler(data: DAO, cursor: IDBCursor): boolean
     }
 
     export abstract class BasePageWrapper<VO extends object> implements IPageWrapper<VO> {
@@ -88,7 +102,8 @@ export namespace ClientStore {
         getRange(): IDBKeyRange {
             return IDBKeyRange.only('id')
         }
-        abstract getParams(): VO
+        abstract getParams(): Partial<VO>
+        abstract handler(data: VO, cursor: IDBCursor): boolean
     }
 
     export class ClientDBTable<DO extends object> implements DBCommand {
@@ -104,6 +119,16 @@ export namespace ClientStore {
                 throw new Error(`New field can't have the same as key name: ${this.key}`)
             }
             this.fields.push(field)
+            return this
+        }
+
+        addFieldsAsSimple(names: string[]) {
+            names.forEach(name => {
+                this.addField(new ClientDBField({
+                    name,
+                }))
+            })
+            return this
         }
 
         use(db: IDBDatabase): IDBObjectStore {
@@ -126,29 +151,43 @@ export namespace ClientStore {
             })
         }
 
-        getDataByPage(store: IDBObjectStore, wrapper: IPageWrapper<Partial<DO>>) {
+        queryByPage(store: IDBObjectStore, wrapper: IPageWrapper<Partial<DO>>) {
             const page = wrapper.getPage()
             const pageSize = wrapper.getPageSize()
-            const request = store.openCursor(wrapper.getRange())
             return new Promise((resolve, reject) => {
-                const tableRows: DO[] = []
                 let needSkip = true
+                const request = wrapper.getSelector?.(wrapper.getParams()) ?? store.openCursor(wrapper.getRange())
                 request.onsuccess = function (event) {
                     const cursor = request.result
                     if (!cursor || !cursor.value) {
-                        return resolve(tableRows)
+                        return resolve(true)
                     }
                     if (needSkip) {
                         cursor.advance((page - 1) * pageSize)
                         needSkip = false
                     }
-                    if (tableRows.length < pageSize) {
+                    if (wrapper.handler(cursor.value, cursor)) {
                         return cursor.continue()
                     }
-                    return resolve(tableRows)
                 }
                 request.onerror = reject
             })
+        }
+
+        async getDataByPage(store: IDBObjectStore, params: Partial<DO>) {
+            const tableRows: DO[] = []
+            const wrapper = new class extends BasePageWrapper<DO> {
+                getParams(): Partial<DO> {
+                    return params
+                }
+                handler(data: DO): boolean {
+                    tableRows.push(data)
+                    return tableRows.length < this.getPageSize()
+                }
+
+            }
+            await this.queryByPage(store, wrapper)
+            return tableRows
         }
 
         addData(store: IDBObjectStore, data: DO) {
@@ -157,7 +196,7 @@ export namespace ClientStore {
                 request.onsuccess = resolve
                 request.onerror = reject
             })
-        } 
+        }
 
         updateData(store: IDBObjectStore, data: DO) {
             return new Promise((resolve, reject) => {
@@ -175,9 +214,28 @@ export namespace ClientStore {
             })
         }
 
-        delDatas(store: IDBObjectStore, key: string, value: string) {
-            return new Promise((resolve, reject) => {
-                store.openCursor(IDBKeyRange.bound)
+        delDatas(store: IDBObjectStore, key: keyof DO, value: string) {
+            return new Promise(async (resolve, reject) => {
+                const wrapper = new class extends BasePageWrapper<DO> {
+                    getSelector() {
+                        return store.index(key as string).openCursor(IDBKeyRange.only(value))
+                    }
+                    getParams(): Partial<DO> {
+                        return {
+                            [key]: value,
+                        } as Partial<DO>
+                    }
+                    handler(data: DO, cursor: IDBCursor): boolean {
+                        const request = cursor.delete()
+                        request.onsuccess = function () {
+                            if (request.result !== undefined)
+                                reject("delete fail")
+                        }
+                        request.onerror = reject
+                        return true
+                    }
+                }
+                await this.queryByPage(store, wrapper)
             })
         }
     }
