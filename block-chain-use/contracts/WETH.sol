@@ -1,12 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract WETH {
     string public name = "Wrapped Ether";
     string public symbol = "WETH";
     uint8 public decimals = 18;
 
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
     event Deposit(address indexed sender, uint256 amount);
     event Withdrawal(address indexed receiver, uint256 amount);
 
@@ -14,11 +20,11 @@ contract WETH {
     mapping(address => mapping(address => uint256)) public allowance;
 
     receive() external payable {
-        deposit();
+        deposit(IERC20(address(0)), address(this), msg.value);
     }
 
-    function deposit(ERC20 token, address to, uint256 amount) public payable {
-        if (address(token) == 0 && amount == 0) {
+    function deposit(IERC20 token, address to, uint256 amount) public payable {
+        if (address(token) == address(0) && amount == 0) {
             balanceOf[msg.sender] += msg.value;
             emit Deposit(msg.sender, msg.value);
         }

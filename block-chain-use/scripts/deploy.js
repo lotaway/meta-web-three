@@ -10,12 +10,6 @@ async function main(options) {
     // const accountTransferContract = await AccountTransferContract.deploy()
     // await accountTransferContract.deployed()
     // console.log(`AccountTransfer already deployed, address: ${accountTransferContract.address}`)
-    const solNames = [
-        // "AccountTransfer",
-        // "AccountTemplate",
-        // "EncryptedToken",
-        "MetaThreeCoin",
-    ]
     // const addresses = []
     /*let compiles = solNames.map(solName => {
         return hre.ethers.getContractFactory(solName)
@@ -27,22 +21,44 @@ async function main(options) {
                 return contract.deployed()
             })
     })*/
-    while (solNames.length) {
-        const solName = solNames.shift()
-        const Contract = await hre.ethers.getContractFactory(solName)
-        const contract = await Contract.deploy()
-        options?.output(`${solName} already deployed, address: ${contract.address}`)
-    }
+    const tokenContract = await hre.ethers.getContractFactory("MetaThreeCoin")
+    const solName = "MetaThreeCoinFactory"
+    const FactoryContract = await hre.ethers.getContractFactory(solName)
+    const factoryContract = await FactoryContract.deploy({
+        from: hre.ethers.provider,
+        args: [],
+        log: true,
+        contract: solName,
+        proxy: {
+            owner: hre.ethers.provider,
+            proxyContract: 'UUPS',
+            execute: {
+                init: {
+                    methodName: 'initialize',
+                    args: [],
+                }
+            },
+            upgradeFunction: {
+                methodName: "upgradeToAndCall",
+                upgradeArgs: ['{implementation}', '{data}']
+            }
+        }
+    })
+    options?.output(`${solName} already deployed, address: ${factoryContract.address}`)
     // await Promise.all(compiles)
 }
 
 function runMain() {
-    const logWriteStream = () => createWriteStream(join(__dirname, "../artifacts/build-info/deploy-output.txt"), {encoding: "utf-8", flags: "r+"})
+    const logWriteStream = () => createWriteStream(join(__dirname, "../artifacts/build-info/deploy-output.txt"), {
+        encoding: "utf-8",
+        flags: "r+"
+    })
     return main({
         output(message) {
             console.log(message)
             logWriteStream().write(message + "\n")
-        }})
+        }
+    })
         .then(() => {
             logWriteStream().end("success")
             process.exit(0)

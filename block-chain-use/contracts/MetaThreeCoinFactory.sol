@@ -14,9 +14,7 @@ contract MetaThreeChinFactory is Initializable, AccessControlDefaultAdminRulesUp
     bytes32 private DOMAIN_SEPARATOR;
     bytes32 private ABI_HASH = keccak256("balanceOf(address addr) public returns(uint256)");
 
-    constructor() {
-        
-    }
+    event CreateToken(address indexed sender, address indexed token);
 
     function initialize() public initializer {
 
@@ -32,8 +30,20 @@ contract MetaThreeChinFactory is Initializable, AccessControlDefaultAdminRulesUp
         __UUPSUpgradeable_init();
     }
 
-    function createToken(string memory name, string memory symbol) public {
-        address token = address(new MetaThreeCoin(name, symbol));
+    constructor() {
+
+    }
+
+    receive() external payable {}
+
+    function createToken(string memory name, string memory symbol, uint8 decimals) public returns (address) {
+        address token = address(new MetaThreeCoin{salt: keccak256(abi.encode(name, symbol, decimals))}(name, symbol, decimals));
+        emit CreateToken(msg.sender, token);
+        return token;
+    }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyRole(DEFAULT_ADMIN_ROLE) {
+
     }
 
 }

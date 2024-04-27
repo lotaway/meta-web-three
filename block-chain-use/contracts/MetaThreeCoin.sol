@@ -5,11 +5,13 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract MetaThreeCoin is ERC20 {
     uint256 public TOKENS = 99_999;
     address public owner;
+    uint8 _decimals;
 
-    constructor(string memory name, string memory symbol) ERC20("MetaCoinETH", "ECH") {
+    constructor(string memory name, string memory symbol, uint8 decimalsValue) ERC20(name, symbol) {
         owner = msg.sender;
 //        totalSupply = TOKENS;
 //        balanceOf[msg.sender] = TOKENS;
+        _decimals = decimalsValue;
     }
 
     event SetOwner(address originOwner, address newOwner);
@@ -20,7 +22,7 @@ contract MetaThreeCoin is ERC20 {
         emit SetOwner(owner, newOwner);
     }
 
-    function decimals() pure public override returns (uint8) {
-        return 4;
+    function decimals() view public override returns (uint8) {
+        return _decimals;
     }
 }
