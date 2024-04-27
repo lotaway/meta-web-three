@@ -11,10 +11,39 @@ pub struct P2trTransaction {
     transactions: Vec<Transaction>,
 }
 
+pub enum BitcoinNetwork {
+    LiveNet,
+    TestNet,
+    RegNet,
+    SigNet,
+}
+
+pub struct BitcoinNetworkHelper {}
+
+impl BitcoinNetwork {
+    pub fn from_str(network: &str) -> Option<BitcoinNetwork> {
+        match network {
+            "Livenet" => Option::Some(BitcoinNetwork::LiveNet),
+            "Testnet" => Option::Some(BitcoinNetwork::TestNet),
+            "Regnet" => Option::Some(BitcoinNetwork::RegNet),
+            "Signet" => Option::Some(BitcoinNetwork::SigNet),
+            _ => Option::None
+        }
+    }
+
+    pub fn as_network(&self) -> Network {
+        match self {
+            BitcoinNetwork::LiveNet => Network::Bitcoin,
+            BitcoinNetwork::TestNet => Network::Testnet,
+            BitcoinNetwork::RegNet => Network::Regtest,
+            BitcoinNetwork::SigNet => Network::Signet,
+        }
+    }
+}
+
 impl P2trTransaction {
     pub fn new() -> Self {
         let secp = Secp256k1::new();
-        // 生成随机的私钥
         let mut rng = thread_rng();
         let mut private_key_bytes = [0u8; 32];
         rng.fill(private_key_bytes.as_mut());
@@ -60,50 +89,35 @@ impl P2trTransaction {
             value: amount,
             script_pubkey: recipient_script_pubkey,
         };
-
-        // 构建交易
         let transaction = Transaction {
             version: 2,
             lock_time: 0,
             input: vec![txin],
             output: vec![txout],
         };
-
-        // 创建PSBT并签名
         let mut psbt = PartiallySignedTransaction::from_unsigned_tx(transaction)
             .map_err(|e| e.to_string())?;
 
-        // 这里省略了实际的签名过程，因为需要与具体的UTXO类型和Taproot结构相匹配
-        // 你需要使用私钥和secp256k1上下文对PSBT进行签名
-
-        // 序列化交易
         let raw_transaction = serialize(&psbt.extract_tx());
 
         Ok(bitcoin::hashes::encode(raw_transaction))
     }
 
-    // 步骤 1: 创建 P2TR 地址
     pub fn generate_address(&mut self, network: Network) -> &mut Self {
         let private_key = PrivateKey::new(self.s_private_key, network);
-        // 从私钥生成公钥
         let public_key = PublicKey::from_private_key(&self.secp, &private_key);
-        // 生成 P2TR 地址
         self.to_address = Some(Address::p2wpkh(&public_key, Network::Bitcoin).unwrap());
         println!("P2TR Address: {:?}", self.to_address.clone());
         self
     }
 
-    // 步骤 2: 构建交易
     pub fn build_transaction(&mut self, utxo_tx_id: &str) {
-        // 创建交易
         let mut transaction = Transaction {
             version: 2,
             lock_time: 0,
             input: vec![],
             output: vec![],
         };
-        // 添加输入
-        // 替换以下 UTXO 信息
         let utxo_txid = bitcoin::Txid::from_hex(utxo_tx_id).unwrap();
         let utxo_output_index = 0;
         let utxo_value = Amount::from_btc(1.0).unwrap();
@@ -127,7 +141,6 @@ impl P2trTransaction {
         self.transactions.push(transaction)
     }
 
-    // 步骤 3: 签名交易
     pub fn sign(&mut self) {
         // 签名交易
         self.transactions.iter().map(|transaction| {
@@ -140,27 +153,13 @@ impl P2trTransaction {
         });
     }
 
-    // @todo 步骤 4: 广播交易
     pub fn broad_cast(&mut self) {
-
+        todo!()
     }
 }
 
 pub fn get_utxos(bitcoin_address: &str) {
-    // 2. 连接到比特币节点
-    let client = bitcoincore_rpc::Client::new("http://127.0.0.1:8332", Auth::None)
-        .expect("Failed to create RPC client");
-    // 3. 获取UTXOs
-    let address = bitcoincore_rpc::bitcoin::address::Address::from_str(bitcoin_address).expect("Failed to parse address");
-    if address.network() == Network::Bitcoin {
-
-    }
-    let utxos = client.list_unspent(Some(0), Some(9999999), Some(&[address]), None, None)
-        .expect("Failed to get UTXOs");
-    for utxo in utxos {
-        println!("{:?}", utxo);
-    }
-    utxos
+    todo!()
 }
 
 #[cfg(test)]
