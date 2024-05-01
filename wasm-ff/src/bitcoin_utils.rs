@@ -1,7 +1,9 @@
 use std::str::FromStr;
 use bitcoin::{consensus::encode::serialize, network::constants::Network, util::key::PublicKey, blockdata::script::Builder, util::address::Address, util::amount::Amount, Transaction, SigHashType, PrivateKey};
+use bitcoin::hashes::Hash;
 use bitcoin::hashes::hex::{FromHex, ToHex};
 use bitcoin::secp256k1::{Message, Secp256k1, SecretKey};
+use bitcoin::util::psbt::PartiallySignedTransaction;
 use rand::{Rng, thread_rng};
 
 pub struct P2trTransaction {
@@ -41,6 +43,11 @@ impl BitcoinNetwork {
     }
 }
 
+enum BuildTransactionError {
+    AddressError(bitcoin::util::address::Error),
+    BitcoinError(bitcoin::Error),
+}
+
 impl P2trTransaction {
     pub fn new() -> Self {
         let secp = Secp256k1::new();
@@ -63,22 +70,21 @@ impl P2trTransaction {
         utxo_txid: &str, // UTXO的txid
         utxo_vout: u32, // UTXO的输出索引
         utxo_amount: u64, // UTXO中的金额
-    ) -> Result<String, bitcoin::Error> {
+    ) -> Result<String, BuildTransactionError> {
         let secp = Secp256k1::new();
         let mut rng = thread_rng();
         // 解析扩展私钥
-        let xpriv_secret_key = SecretKey::from_str(xpriv).map_err(|e| e.to_string())?;
+        // let xpriv_secret_key = SecretKey::from_str(xpriv).map_err(|e| e.to_string())?;
         let mut rng = thread_rng();
         let mut priv_key = [0u8; 32];
         rng.fill(priv_key.as_mut());
 
         // 构建接收者的输出脚本
-        let recipient_script_pubkey = Address::from_str(recipient_address)
-            .map_err(|e| e.to_string())?.script_pubkey();
+        let recipient_script_pubkey = Address::from_str(recipient_address).unwrap().script_pubkey();
 
         // 创建交易输入
         let txin = bitcoin::TxIn {
-            previous_output: bitcoin::OutPoint::new(bitcoin::Txid::from_hex(utxo_txid).map_err(|e| e.to_string())?, utxo_vout),
+            previous_output: bitcoin::OutPoint::new(bitcoin::Txid::from_hex(utxo_txid).unwrap(), utxo_vout),
             script_sig: Builder::new().into_script(),
             sequence: 0xFFFFFFFF,
             witness: Vec::new(),
@@ -95,12 +101,10 @@ impl P2trTransaction {
             input: vec![txin],
             output: vec![txout],
         };
-        let mut psbt = PartiallySignedTransaction::from_unsigned_tx(transaction)
-            .map_err(|e| e.to_string())?;
+        let mut psbt = PartiallySignedTransaction::from_unsigned_tx(transaction).unwrap();
 
         let raw_transaction = serialize(&psbt.extract_tx());
-
-        Ok(bitcoin::hashes::encode(raw_transaction))
+        Ok(bitcoin::hashes::hash160::Hash::from_slice(&raw_transaction).unwrap().to_string())
     }
 
     pub fn generate_address(&mut self, network: Network) -> &mut Self {
@@ -143,14 +147,16 @@ impl P2trTransaction {
 
     pub fn sign(&mut self) {
         // 签名交易
-        self.transactions.iter().map(|transaction| {
+        self.transactions = self.transactions.iter().map(|transaction| {
             let hash_type = SigHashType::All;
+            let mut _transaction = transaction.clone();
             let sig = self.secp.sign(
-                &Message::from_slice(&transaction.signature_hash(0, &self.to_address.clone().unwrap().script_pubkey(), hash_type.as_u32()).as_ref()).unwrap(),
+                &Message::from_slice(&_transaction.signature_hash(0, &self.to_address.clone().unwrap().script_pubkey(), hash_type.as_u32()).as_ref()).unwrap(),
                 &self.s_private_key,
             );
-            transaction.input[0].witness = vec![sig.serialize_der().to_vec(), vec![]];
-        });
+            _transaction.input[0].witness = vec![sig.serialize_der().to_vec(), vec![]];
+            _transaction
+        }).collect();
     }
 
     pub fn broad_cast(&mut self) {

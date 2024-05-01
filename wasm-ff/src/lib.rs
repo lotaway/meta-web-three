@@ -87,7 +87,7 @@ pub fn game() {
     let mut pos_set = HashSet::<Vec<usize>>::new();
     pos_set.insert(vec! {0, 0});
     let mut shape = Shape { positions: pos_set };
-    let start_pos = shape.positions.take(1).unwrap();
+    let start_pos = shape.positions.iter().find(|e| true).unwrap().clone();
     let tetris = Tetris::new(start_pos);
 }
 
@@ -95,7 +95,7 @@ pub async fn get_chains(page_index: i32, page_size: i32) -> Result<JsValue, JsVa
     let mut host = String::from("https://www.bitsat.ai");
     let mut options = RequestInit::new();
     options.method("GET");
-    let api_url = format!("{}/bitsat/api/bridge/chain/list?pageSize=100", host);
+    let api_url = format!("{}/bitsat/api/bridge/chain/list?pageIndex={}&pageSize={}", host, page_index, page_size);
     let request = Request::new_with_str_and_init(api_url.as_ref(), options.as_ref())?;
     request.headers().set("Accept", "application/vnd.github.v3+json")?;
     let window = web_sys::window().unwrap();
