@@ -1,7 +1,7 @@
 import {Outlet} from "react-router-dom"
 import TabBar from "../commons/components/TabBar/TabBar"
 import {useEffect} from "react"
-import * as wasm from "../../../wasm-ff/pkg"
+import * as wasm from "../../../wasm-ff/pkg/Wasm_FF"
 
 function App() {
     useEffect(() => {
