@@ -7,7 +7,7 @@
     "start": "vite",
     "build": "tsc && vite build",
     "build:wasm": "cd ../wasm-ff & wasm-pack build --scope lotaway",
-    "build:wasm:debug": "cd wasm-ff & cargo build --target wasm32-unknown-unknown & wasm-bindgen --keep-debug --out-dir pkg --generate-typescript ./target/wasm32-unknown-unknown/debug/Wasm_FF.wasm",
+    "build:wasm:debug": "cd ../wasm-ff & cargo build --target wasm32-unknown-unknown & wasm-bindgen --keep-debug --out-dir pkg ./target/wasm32-unknown-unknown/debug/Wasm_FF.wasm",
     "build:full": "npm run build:wasm & npm run build",
     "preview": "vite preview"
   },
