@@ -16,8 +16,7 @@
     "@web3modal/wallet": "^3.5.2",
     "gl-matrix": "^3.4.3",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "wasm-ff": "file:../wasm-ff/pkg"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@reduxjs/toolkit": "^1.9.2",

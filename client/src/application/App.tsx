@@ -5,40 +5,43 @@ import * as wasm from "../../../wasm-ff/pkg/Wasm_FF"
 
 function App() {
     useEffect(() => {
-        const abortController = new AbortController()
-        // wasm.greet("from wasm")
-        // console.log(wasm.psbt_generate("1", "2"))
-        const urlInfo = {
-            proxyPrevFix: "/twitter/api",
-            host: "https://api.twitter.com",
-            path: "/oauth/request_token",
-        }
-        const method = "POST"
-        const fullQueryStr = wasm.twitter_signature(
-            method,
-            urlInfo.host + urlInfo.path,
-            "OxhqcUXNEaQUtMMreqvRdYl38",
-            `${location.protocol + "//" + location.host}/airdrop/bindAccount`,
-        )
-        console.log(`twitter signature fullQueryStr: ${fullQueryStr}`)
-        const headers = new Headers()
-        headers.set("Content-Type", "application/json")
-        fetch(`${urlInfo.proxyPrevFix}${urlInfo.path}?${fullQueryStr}`, {
-            method,
-            signal: abortController.signal,
-            headers,
-        })
-            .then(res => {
-                console.log(`res: ${res}`)
-                return res.json()
+        const timer = setTimeout(() => {
+            const abortController = new AbortController()
+            // wasm.greet("from wasm")
+            // console.log(wasm.psbt_generate("1", "2"))
+            const urlInfo = {
+                proxyPrevFix: "/twitter/api",
+                host: "https://api.twitter.com",
+                path: "/oauth/request_token",
+            }
+            const method = "POST"
+            const fullQueryStr = wasm.twitter_signature(
+                method,
+                urlInfo.host + urlInfo.path,
+                "OxhqcUXNEaQUtMMreqvRdYl38",
+                `${location.protocol + "//" + location.host}/airdrop/bindAccount`,
+            )
+            console.log(`twitter signature fullQueryStr: ${fullQueryStr}`)
+            const headers = new Headers()
+            headers.set("Content-Type", "application/json")
+            fetch(`${urlInfo.proxyPrevFix}${urlInfo.path}?${fullQueryStr}`, {
+                method,
+                signal: abortController.signal,
+                headers,
             })
-            .then(json => {
-                console.log(`json: ${json}`)
-            })
-            .catch(err => {
-                console.log(`err: ${err}`)
-            })
-        return () => abortController.abort("useEffect callback")
+                .then(res => {
+                    console.log(`res: ${res}`)
+                    return res.json()
+                })
+                .then(json => {
+                    console.log(`json: ${json}`)
+                })
+                .catch(err => {
+                    console.log(`err: ${err}`)
+                })
+            return () => abortController.abort("useEffect callback")
+        }, 150)
+        return () => clearTimeout(timer)
     }, [])
     return (
         <div className="app">
