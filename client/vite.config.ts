@@ -2,8 +2,8 @@ import {defineConfig, ProxyOptions} from 'vite'
 import react from '@vitejs/plugin-react'
 // @ts-ignore
 import wasm from "vite-plugin-wasm"
-import {resolve} from "path"
-import fs from 'fs'
+import {resolve} from "node:path"
+import fs from 'node:fs'
 
 const nginxConfig = fs.readFileSync(resolve(__dirname, 'public/nginx.conf'), 'utf8')
 const locationRegex = /location\s+\^~\s+\/([\w\/]+)\s+\{[\s\S]*?proxy_pass\s+(http[s]?:\/\/[^;]+);[\s\S]*?\}/g
