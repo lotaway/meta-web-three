@@ -1,6 +1,7 @@
 mod oauth_utils;
 mod tetris;
 mod bitcoin_utils;
+mod service;
 
 extern crate wasm_bindgen;
 
