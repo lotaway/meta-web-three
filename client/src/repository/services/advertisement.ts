@@ -3,7 +3,7 @@ import initConfig from "../../config/init";
 import host from "../../config/host";
 import {API_URL} from "../../config/api";
 import Decorator from "../../commons/utils/support"
-import {BaseProvider, IApiProvider, IApiProviderStatic, MapperWrapper} from "./base"
+import {BaseHttpRequest, IApiProvider, IHttpRequestStatic, MapperWrapper} from "./base"
 
 export namespace NSAdvertisement {
 
@@ -34,8 +34,8 @@ export namespace NSAdvertisement {
         }
     }
 
-    @Decorator.ImplementsWithStatic<IApiProviderStatic<IApiProvider<CategoryAdArgs, CategoryAdResponse>>>()
-    export class CategoryAdMapper extends BaseProvider {
+    @Decorator.ImplementsWithStatic<IHttpRequestStatic<IApiProvider<CategoryAdArgs, CategoryAdResponse>>>()
+    export class CategoryAdMapper extends BaseHttpRequest {
         @Decorator.DefaultArgs<[CategoryAdArgs]>({
             categoryIdentity: "",
             duoge: 0,
@@ -50,8 +50,8 @@ export namespace NSAdvertisement {
         }
     }
 
-    @Decorator.ImplementsWithStatic<IApiProviderStatic<IApiProvider<GetPublicAdArgs, CategoryAdResponse>>>()
-    export class PublicAdMapper extends BaseProvider {
+    @Decorator.ImplementsWithStatic<IHttpRequestStatic<IApiProvider<GetPublicAdArgs, CategoryAdResponse>>>()
+    export class PublicAdMapper extends BaseHttpRequest {
         @Decorator.DefaultArgs<[GetPublicAdArgs]>({
             isMutiple: 0,
             location: "",
@@ -65,8 +65,8 @@ export namespace NSAdvertisement {
         }
     }
 
-    @Decorator.ImplementsWithStatic<IApiProviderStatic<IApiProvider<GetAppHomeBannerArgs, GetPublicAdsResponse>>>()
-    export class AppHomeBannerMapper extends BaseProvider {
+    @Decorator.ImplementsWithStatic<IHttpRequestStatic<IApiProvider<GetAppHomeBannerArgs, GetPublicAdsResponse>>>()
+    export class AppHomeBannerMapper extends BaseHttpRequest {
 
         @Decorator.DefaultArgs({
             num: initConfig.SLIDER_IMG_NUM,
@@ -81,8 +81,8 @@ export namespace NSAdvertisement {
         }
     }
 
-    @Decorator.ImplementsWithStatic<IApiProviderStatic<IApiProvider<GetAppStartAdParam, GetAppStartAdResponse>>>()
-    export class AppStartAdMapper extends BaseProvider {
+    @Decorator.ImplementsWithStatic<IHttpRequestStatic<IApiProvider<GetAppStartAdParam, GetAppStartAdResponse>>>()
+    export class AppStartAdMapper extends BaseHttpRequest {
 
         @Decorator.DefaultArgs({
             type: "home",

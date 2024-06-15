@@ -1,4 +1,4 @@
-export interface IApiProvider<Arguments = any, ResponseData = any> {
+export interface IApiProvider<Arguments = unknown, ResponseData = unknown> {
 
     abortController: AbortController | undefined
 
@@ -7,11 +7,11 @@ export interface IApiProvider<Arguments = any, ResponseData = any> {
     stop(): boolean
 }
 
-export interface IApiProviderStatic<InstanceType> {
+export interface IHttpRequestStatic<InstanceType> {
     new(rpc: ISystem, options?: IBaseProviderOptions): InstanceType
 }
 
-export class BaseProvider {
+export class BaseHttpRequest {
 
     abortController: AbortController | undefined = undefined
 
@@ -43,7 +43,7 @@ export class MapperWrapper<DefaultArgs = any> {
         return this.systemImpl
     }
 
-    start<Args extends DefaultArgs, ResponseData>(Mapper: IApiProviderStatic<IApiProvider<Args, ResponseData>>, args: Omit<Args, keyof DefaultArgs> & Partial<DefaultArgs>) {
+    start<Args extends DefaultArgs, ResponseData>(Mapper: IHttpRequestStatic<IApiProvider<Args, ResponseData>>, args: Omit<Args, keyof DefaultArgs> & Partial<DefaultArgs>) {
         const mapper = new Mapper(this.systemImpl)
         return mapper.start({
             ...this.defaultArgs,
