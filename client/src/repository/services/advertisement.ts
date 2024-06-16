@@ -5,7 +5,7 @@ import {API_URL} from "../../config/api";
 import Decorator from "../../commons/utils/support"
 import {BaseHttpRequest, IApiProvider, IHttpRequestStatic, MapperWrapper} from "./base"
 
-export namespace NSAdvertisement {
+namespace NSAdvertisement {
 
     export class Adapter {
 
@@ -142,3 +142,5 @@ export namespace NSAdvertisement {
 
     }
 }
+
+export default NSAdvertisement

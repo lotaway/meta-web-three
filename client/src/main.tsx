@@ -2,7 +2,6 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import {createBrowserRouter, Navigate, RouterProvider} from "react-router-dom"
 import './application/index.sass'
-// import "tailwindcss/tailwind.css"
 import './config/locale/config'
 import {AppStoreProvider} from "./repository/store/container"
 import {BlockChainProvider} from "./application/context/BlockChainContext"

@@ -1,6 +1,6 @@
 import {createRef, MouseEvent, useCallback} from "react"
 import {useNavigate} from "react-router-dom"
-import "./SignUp.less"
+import "./SignUp.sass"
 import Input from "../../../commons/components/Input/Input"
 
 export default function SignUp() {

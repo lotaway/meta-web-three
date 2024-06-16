@@ -1,6 +1,6 @@
 import {createRef, useEffect, useState} from 'react'
 import {Link} from "react-router-dom"
-import './Home.less'
+import './Home.sass'
 import NavBar from "../../../commons/components/NavBar/NavBar"
 import PayContract from "../../../commons/components/PayContract/PayContract"
 import Card from "../../../commons/layouts/Card/Card"

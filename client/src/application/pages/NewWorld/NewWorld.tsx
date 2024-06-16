@@ -16,7 +16,7 @@ import vertexWGSL from "../../shader/triangle.vert.wgsl?raw"
 import shadowDepthWGSL from "../../shader/shadow-depth.wgsl?raw"
 import pinkFragmentWGSL from "../../shader/pink.frag.wgsl?raw"
 import colorFragmentWGSL from "../../shader/color.frag.wgsl?raw"
-import style from "./NewWorld.module.less"
+import style from "./NewWorld.module.sass"
 import {mat4, vec3} from "gl-matrix"
 
 interface RenderOptions {
