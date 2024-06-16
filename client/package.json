@@ -4,6 +4,7 @@
   "type": "module",
   "homepage": "/index.html",
   "scripts": {
+    "dev": "farm start",
     "start": "vite",
     "build": "tsc && vite build",
     "build:wasm": "cd ../wasm-ff & wasm-pack build --scope lotaway",

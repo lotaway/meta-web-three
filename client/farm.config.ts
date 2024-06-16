@@ -2,10 +2,12 @@ import {defineConfig} from '@farmfe/core'
 import farmJsPluginSvgr from "@farmfe/js-plugin-svgr"
 import {resolve} from "node:path"
 import {readFileSync} from 'node:fs'
+// @ts-ignore
+import wasm from "vite-plugin-wasm"
 
 const nginxConfig = readFileSync(resolve(__dirname, 'public/nginx.conf'), 'utf8')
 const locationRegex = /location\s+\^~\s+\/([\w\/]+)\s+\{[\s\S]*?proxy_pass\s+(http[s]?:\/\/[^;]+);[\s\S]*?\}/g
-let proxy: Record<string, ProxyOptions> = {}
+let proxy: Record<string, string | ProxyOptions> = {}
 let match
 while ((match = locationRegex.exec(nginxConfig)) !== null) {
     // 获取路径和目标URL
@@ -23,33 +25,37 @@ while ((match = locationRegex.exec(nginxConfig)) !== null) {
 
 // https://www.farmfe.org/docs/quick-start
 export default defineConfig({
+    vitePlugins: [
+        wasm(),
+    ],
     plugins: [
         '@farmfe/plugin-react',
         '@farmfe/plugin-sass',
         // "vite-plugin-wasm",
         farmJsPluginSvgr(),
-        {
-            name: 'file-loader',
-            // apply: 'build',
-            // enforce: 'pre',
-            transform: {
-                filters: {
-                    moduleTypes: [".wasm"],
-                },
-                executor(code, id) {
-                    if (id.endsWith('.wasm')) {
-                        return Promise.resolve({
-                            code: `export default ${JSON.stringify(id)};`,
-                            map: null
-                        })
-                    }
-                    return Promise.resolve(null)
-                }
-            },
-        }
+        /*{
+             name: 'file-loader',
+             // apply: 'build',
+             // enforce: 'pre',
+             transform: {
+                 filters: {
+                     moduleTypes: ["wasm"],
+                 },
+                 executor(code, id) {
+                     if (id.endsWith('.wasm')) {
+                         return Promise.resolve({
+                             code: `export default ${JSON.stringify(id)};`,
+                             map: null
+                         })
+                     }
+                     return Promise.resolve(null)
+                 }
+             },
+         }*/
     ],
     server: {
         port: 30001,
+        hmr: true,
         proxy,
     }
 });
