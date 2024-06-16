@@ -226,6 +226,10 @@ impl PackageWorker {
     pub fn stop(&mut self) {
         self.is_start = false;
     }
+    
+    pub fn handler(&self) {
+        
+    }
 }
 
 struct RWDocument {
@@ -244,8 +248,8 @@ impl RWDocument {
     }
 
     pub async fn write(&self, value: String) {
-        let write_lock = self.rw_lock_arc.write().await;
-        write_lock.put_string(value)
+        let mut write_lock = self.rw_lock_arc.write().await;
+        write_lock.push_str(value.as_ref())
     }
 }
 
