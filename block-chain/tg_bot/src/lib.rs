@@ -1,3 +1,4 @@
+use dotenv::dotenv;
 use teloxide::prelude::*;
 use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup};
 use teloxide::utils::command::BotCommands;
@@ -15,7 +16,7 @@ pub async fn run() {
     teloxide::enable_logging!();
     log::info!("Starting telegram bot...");
 
-    std::env::dotenv().ok();
+    dotenv().ok();
     let bot = Bot::from_env().auto_send();
 
     teloxide::commands_repl(bot, answer, Command::ty()).await;
@@ -29,7 +30,7 @@ async fn answer(bot: AutoSend<Bot>, msg: Message, cmd: Command) -> ResponseResul
         Command::Start => {
             let keyboard = InlineKeyboardMarkup::new(vec![vec![InlineKeyboardButton::url(
                 "Start It!",
-                "https://baidu.com",
+                reqwest::Url("https://baidu.com"),
             )]]);
             bot.send_message(msg.chat.id, "Welcome to use this mini app")
                 .reply_markup(keyboard)
