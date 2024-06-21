@@ -1,36 +1,41 @@
+use std::env;
 use dotenv::dotenv;
+use teloxide::dispatching::UpdateHandler;
 use teloxide::prelude::*;
-use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup};
-use teloxide::utils::command::BotCommands;
+use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo};
+use teloxide::utils::command::{BotCommands};
+use teloxide::utils::commands_repl::CommandsRepl
 
-#[derive(BotCommands)]
-#[command(rename = "lowercase", description = "These commands are supported:")]
-enum Command {
-    #[command(description = "Show Help")]
+#[derive(BotCommands, PartialEq, Debug)]
+#[command(rename_rule = "lowercase", description = "These commands are supported:")]
+enum UserCommandType {
     Help,
-    #[command(description = "Start the main function")]
     Start,
 }
 
 pub async fn run() {
-    teloxide::enable_logging!();
+    // teloxide::handler!();
     log::info!("Starting telegram bot...");
 
     dotenv().ok();
-    let bot = Bot::from_env().auto_send();
-
-    teloxide::commands_repl(bot, answer, Command::ty()).await;
+    // need env TELOXIDE_TOKEN
+    let bot = Bot::from_env();
+    Dispatcher::builder(bot, |err: Message| {
+        println!("{}", err);
+    }).build().dispatch().await;
 }
 
-async fn answer(bot: AutoSend<Bot>, msg: Message, cmd: Command) -> ResponseResult<()> {
+async fn answer(bot: Bot, msg: Message, cmd: UserCommandType) -> ResponseResult<()> {
     match cmd {
-        Command::Help => {
-            bot.send_message(msg.chat.id, Command::descriptions()).await?;
+        UserCommandType::Help => {
+            bot.send_message(msg.chat.id, "A command list and introduction.").await?;
         }
-        Command::Start => {
-            let keyboard = InlineKeyboardMarkup::new(vec![vec![InlineKeyboardButton::url(
+        UserCommandType::Start => {
+            let keyboard = InlineKeyboardMarkup::new(vec![vec![InlineKeyboardButton::web_app(
                 "Start It!",
-                reqwest::Url("https://baidu.com"),
+                WebAppInfo {
+                    url: reqwest::Url::parse("https://t.me/test_tpc_bot/gamehall").unwrap(),
+                },
             )]]);
             bot.send_message(msg.chat.id, "Welcome to use this mini app")
                 .reply_markup(keyboard)
@@ -38,18 +43,4 @@ async fn answer(bot: AutoSend<Bot>, msg: Message, cmd: Command) -> ResponseResul
         }
     }
     Ok(())
-}
-
-
-struct TGBotRunner {}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    async fn it_works() {
-        main().await;
-        assert_eq!(result, 4);
-    }
 }
