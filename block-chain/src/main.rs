@@ -44,7 +44,7 @@ impl LinkSummonProxy {
         let (tx, mut rx) = mpsc::channel::<Block>(32);
         tokio::task::spawn(async move {
             while let Some(block_from_other) = rx.recv().await {
-                let mut block_chain = self.block_chain.unwrap().lock();
+                let mut block_chain = self.block_chain.as_mut().expect("Can't found block chain to lock").lock();
                 block_chain.unwrap().add_block(block_from_other)
             }
         });
@@ -76,7 +76,7 @@ impl LinkSummonProxy {
         // 启动一个任务来处理区块链数据的同步
         let peers_clone = Arc::clone(&peers);
         tokio::task::spawn(async move {
-            let block_chain_guard = self.block_chain.unwrap().lock().unwrap();
+            let block_chain_guard = self.block_chain.as_ref().expect("Can't found block chain to lock").lock().unwrap();
             let peers_guard = peers_clone.lock().unwrap();
             // 向每个连接的节点发送最新的区块链数据
             for mut writer in peers_guard.values() {
@@ -92,11 +92,12 @@ impl LinkSummonProxy {
 impl TFutureTask<Result<&Arc<Mutex<BlockChain>>, LinkSummonProxyError>> for LinkSummonProxy {
     fn start(&mut self) -> Result<&Arc<Mutex<BlockChain>>, LinkSummonProxyError> {
         self.block_chain = Option::Some(Arc::new(Mutex::new(BlockChain::new())));
-        if self.block_chain.unwrap().init().is_err() {
+        let block_chain = self.block_chain.as_ref().expect("Can't found block chain to return");
+        if block_chain.init().is_err() {
             return Err(LinkSummonProxyError::InitFail);
         }
         dbg!("{:?}", &self.block_chain);
-        Ok(&self.block_chain.unwrap())
+        Ok(&block_chain)
     }
 }
 
@@ -118,7 +119,7 @@ async fn main() {
     }
     tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
     println!("Start run bot");
-    tg_bot::run();
+    run().await;
     println!("End run bot");
     println!("End main");
 }
