@@ -183,8 +183,11 @@ impl<T> BankWork<T> {
     }
 
     pub async fn order_in_spawn(&mut self, name: &str) -> tokio::task::JoinHandle<&str> {
-        tokio::task::spawn(async {
-            self.order(name).await
+        let _self = Arc::new(Mutex::new(self));
+        let _name = String::from(name);
+        tokio::task::spawn(async move {
+            let mut that = _self.lock().unwrap();
+            that.order(_name).await
         })
     }
 
