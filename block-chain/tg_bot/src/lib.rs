@@ -1,8 +1,6 @@
 use std::env;
 use dotenv::dotenv;
 use teloxide::dispatching::UpdateFilterExt;
-use teloxide::dispatching::dialogue::InMemStorage;
-use teloxide::dispatching::HandlerExt;
 use teloxide::types::Update;
 use dptree::prelude::*;
 use teloxide::prelude::*;
@@ -23,7 +21,7 @@ pub async fn run() {
     log::info!("Starting telegram bot...");
 
     dotenv().ok();
-    let mut bot_name = env::var("BOT_NAME").expect("Can't found BOT_NAME");
+    let bot_name = std::sync::Arc::<std::string::String>::from(std::env::var("BOT_NAME").expect("Can't found BOT_NAME"));
     // need env TELOXIDE_TOKEN
     let bot = Bot::from_env();
     Dispatcher::builder(bot, dptree::entry()
@@ -31,20 +29,23 @@ pub async fn run() {
             Update::filter_message()
                 .branch(
                     dptree::filter(|msg: Message| msg.text().is_some())
-                        .endpoint(|msg: Message, bot: Bot| async {
-                            if let Some(text) = msg.text() {
-                                if text.starts_with('/') {
-                                    match UserCommandType::parse(text, bot_name.clone().as_ref()) {
-                                        Ok(userCommand) => {
-                                            answer(bot, msg, userCommand).await?;
-                                        }
-                                        Err(err) => {
-                                            println!("Failed to parse command: {}", err);
+                        .endpoint(move |msg: Message, bot: Bot| {
+                            let _bot_name = bot_name.clone();
+                            async move {
+                                if let Some(text) = msg.text() {
+                                    if text.starts_with('/') {
+                                        match UserCommandType::parse(text, _bot_name.as_ref()) {
+                                            Ok(user_command) => {
+                                                answer(bot, msg, user_command).await?;
+                                            }
+                                            Err(err) => {
+                                                println!("Failed to parse command: {}", err);
+                                            }
                                         }
                                     }
                                 }
+                                Result::<(), teloxide::RequestError>::Ok(())
                             }
-                            Result::<(), teloxide::RequestError>::Ok(())
                         }),
                 ),
         )).build().dispatch().await;

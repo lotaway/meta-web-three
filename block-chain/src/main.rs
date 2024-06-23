@@ -93,7 +93,7 @@ impl TFutureTask<Result<&Arc<Mutex<BlockChain>>, LinkSummonProxyError>> for Link
     fn start(&mut self) -> Result<&Arc<Mutex<BlockChain>>, LinkSummonProxyError> {
         self.block_chain = Option::Some(Arc::new(Mutex::new(BlockChain::new())));
         let block_chain = self.block_chain.as_ref().expect("Can't found block chain to return");
-        if block_chain.init().is_err() {
+        if block_chain.lock().unwrap().init().is_err() {
             return Err(LinkSummonProxyError::InitFail);
         }
         dbg!("{:?}", &self.block_chain);
