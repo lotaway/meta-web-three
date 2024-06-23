@@ -183,8 +183,8 @@ impl<T> BankWork<T> {
     }
 
     pub async fn order_in_spawn(&mut self, name: &str) -> tokio::task::JoinHandle<&str> {
-        tokio::task::spawn(async {
-            self.order(name).await
+        tokio::task::spawn({
+           self.order(name)
         })
     }
 
