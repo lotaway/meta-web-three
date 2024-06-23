@@ -32,7 +32,7 @@ impl LinkSummonProxy {
     }
 
     pub fn start(&self) -> Self {
-        let future = start_future_task(&self);
+        let future = start_future_task(self);
         // println!("{}", &self);
         get_future_result(future)
     }
@@ -52,6 +52,7 @@ impl LinkSummonProxy {
         let listener = tokio::net::TcpListener::bind("127.0.0.1:10100").await.unwrap();
         println!("Listening for incoming connections...");
         while let Result::Ok((socket, _)) = listener.accept().await {
+            let _tx = tx.clone();
             let peers_clone = Arc::clone(&peers);
             // 启动一个任务来处理每个连接
             tokio::task::spawn(async move {
@@ -60,11 +61,11 @@ impl LinkSummonProxy {
                 let mut buffer = [0u8; 1024];
                 let n = reader.read(&mut buffer).await.unwrap();
                 let data_string = String::from_utf8_lossy(&buffer[..n]).to_string();
-                let data_result = serde_json::from_str(&data_string);
+                let data_result: Result<Option<Block>, serde_json::error::Error> = serde_json::from_str(&data_string);
                 match data_result {
                     Result::Ok(block_data) => {
                         // 将区块添加到区块链中
-                        tx.send(block_data.unwrap()).await.unwrap();
+                        _tx.send(block_data.unwrap()).await.unwrap();
                         // 将连接的写端存储到peers中
                         let mut peers = peers_clone.lock().unwrap();
                         peers.insert(socket.peer_addr().unwrap(), writer);

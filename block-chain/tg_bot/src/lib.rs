@@ -1,4 +1,3 @@
-use std::env;
 use dotenv::dotenv;
 use teloxide::dispatching::UpdateFilterExt;
 use teloxide::types::Update;
@@ -21,7 +20,7 @@ pub async fn run() {
     log::info!("Starting telegram bot...");
 
     dotenv().ok();
-    let bot_name = std::sync::Arc::<std::string::String>::from(std::env::var("BOT_NAME").expect("Can't found BOT_NAME"));
+    let bot_name = std::sync::Arc::<String>::from(std::env::var("BOT_NAME").expect("Can't found BOT_NAME"));
     // need env TELOXIDE_TOKEN
     let bot = Bot::from_env();
     Dispatcher::builder(bot, dptree::entry()
