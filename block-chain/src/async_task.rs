@@ -187,7 +187,7 @@ impl<T> BankWork<T> {
         let _name = String::from(name);
         tokio::task::spawn(async move {
             let mut that = _self.lock().unwrap();
-            that.order(_name).await
+            that.order(_name.as_ref()).await
         })
     }
 
