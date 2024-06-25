@@ -18,7 +18,7 @@ function createWorker(): Worker {
 }
 
 function startWorker() {
-    if (cluster.isMaster) {
+    if (cluster.isPrimary) {
         const maxProcess = setting.PROCESS_MAX_COUNT;
         for (let i = currentProcess.length; i < maxProcess; i++)
             currentProcess.push({

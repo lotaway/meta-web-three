@@ -1,6 +1,7 @@
 import * as nest from "@nestjs/common";
 import {BlogDto} from "./dto/blog.dto";
 import {CommentService} from "./comment.service";
+import { ForbittenInterceptor } from "src/common/interceptor/forbitten.interceptor";
 
 @nest.Controller("comment")
 export class BlogCommentController {
@@ -41,6 +42,7 @@ export class BlogCommentController {
         return "Not allow edit comment twice!";
     }
 
+    @Reflect.metadata(ForbittenInterceptor.FORBIT_KEY, true)
     @nest.Delete()
     deleteBlogComment(@nest.Param() {commentId}) {
         return "delete blog comment by commentId";
