@@ -13,11 +13,11 @@ export class UserController {
     @nest.Post("signIn")
     async signIn(@nest.Param() {username, password}: UserDto.Controller.SignInParam, @nest.Res() res) {
         if (!username || !password) {
-            res.status = 403;
+            res.status = nest.HttpStatus.FORBIDDEN;
             res.message = "缺少参数";
         }
         const result = await this.userService.signIn({username, password});
-        res.status = 200;
+        res.status = nest.HttpStatus.OK;
         res.data = result;
         // process.nextTick(this.userService.checkS)
     }

@@ -1,10 +1,15 @@
 import * as nest from "@nestjs/common";
 import {prismaClientProvider} from "../../utils/connect-prisma";
 import {UserDto} from "./dto/user.dto";
+import { RedisService } from "../public/redis.service";
 
 @nest.Injectable()
 export class UserService extends UserDto.Service.Class {
     protected readonly prismaClient = prismaClientProvider();
+
+    constructor(private readonly redisService: RedisService) {
+        super();
+    }
 
     override async createUser({email, password}) {
         return await this.prismaClient.user.create({
@@ -32,8 +37,8 @@ export class UserService extends UserDto.Service.Class {
         });
     }
 
-    async checkUserStatus() {
-        // return await this.redis
+    async checkUserStatus({id}) {
+        return !!(await this.redisService.getToken(id))
     }
 
     addFollower() {

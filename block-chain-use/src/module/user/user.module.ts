@@ -1,19 +1,20 @@
 import * as nest from "@nestjs/common";
 import {UserController} from "./user.controller";
 import {UserService} from "./user.service";
-import {ValidUserMiddleware} from "../../common/middleware/valid-user.middleware";
+import {BlackListMiddleware} from "../../common/middleware/black-list.middleware";
+import { RedisService } from "../public/redis.service";
 
 @nest.Module({
     controllers: [UserController],
-    providers: [UserService]
+    providers: [UserService, RedisService]
 })
 export class UserModule implements nest.NestModule {
     configure(consumer: nest.MiddlewareConsumer) {
-        consumer.apply(ValidUserMiddleware).forRoutes({
+        consumer.apply(BlackListMiddleware).forRoutes({
             path: "user/index",
             method: nest.RequestMethod.GET
         });
-        consumer.apply(ValidUserMiddleware).forRoutes({
+        consumer.apply(BlackListMiddleware).forRoutes({
             path: "user/blog",
             method: nest.RequestMethod.GET
         });

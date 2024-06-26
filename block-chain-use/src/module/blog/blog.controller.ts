@@ -52,7 +52,7 @@ export class BlogController {
     }
 
     @nest.Put(":blogId")
-    updateBlogDetail(@nest.Param("blogId") blogId: BlogDto.BlogId) {
+    updateBlogDetail(@nest.Param("blogId", nest.ParseIntPipe) blogId: BlogDto.BlogId) {
         return `Start edit blog with id ${blogId}`;
     }
 

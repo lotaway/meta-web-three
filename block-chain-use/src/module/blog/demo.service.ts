@@ -2,14 +2,17 @@ import * as path from "path";
 import * as fs from "fs";
 import * as nest from "@nestjs/common";
 import {prismaClientProvider} from "../../utils/connect-prisma";
-import {redisClientProvider} from "../../utils/connect-redis";
 import settings from "../../config/settings";
+import { RedisService } from "../public/redis.service";
 
 @nest.Injectable()
 export class DemoService {
 
     private readonly prismaClient = prismaClientProvider()
-    private readonly redisClient = redisClientProvider()
+    
+    constructor(
+        private readonly redisClient: RedisService
+    ) { }
 
     async getAllUsers() {
         const allUsers = await this.prismaClient.user.findMany()

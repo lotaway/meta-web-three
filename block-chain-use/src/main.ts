@@ -7,6 +7,7 @@ import setting from "./config/settings";
 import {AppModule} from './module/app/app.module';
 import { ForbittenInterceptor } from "./common/interceptor/forbitten.interceptor";
 import { AuthrozationGuard } from "./common/guard/authrozation.guard";
+import { HttpExceptionFilter } from "./common/filter/http-exception.filter";
 
 // import webConfig from "./config/web-config";
 
@@ -21,6 +22,7 @@ async function bootstrap(port: number = 30001) {
     app.use(cookieParser());
     app.useGlobalInterceptors(new ForbittenInterceptor(new Reflector()));
     app.useGlobalGuards(new AuthrozationGuard(new Reflector()));
+    app.useGlobalFilters(new HttpExceptionFilter());
     return await app.listen(port);
 }
 
