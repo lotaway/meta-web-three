@@ -25,7 +25,7 @@ export class DemoService {
             if (redisFile) return redisFile
             const readStream = fs.createReadStream(path.join(settings.PROJECT_DIR, "assets/files", fileName))
             const fileData = await new Promise((resolve, reject) => {
-                let fileChunkArr = []
+                let fileChunkArr: unknown[] = []
                 readStream
                     .on("error", err => {
                         console.log("read file error: " + JSON.stringify(err))
@@ -34,9 +34,7 @@ export class DemoService {
                     .on("data", chunk => {
                         fileChunkArr.push(chunk)
                         const fileBuffer = fileChunkArr.join("")
-                        this.redisClient.set(keyName, fileBuffer.toString(), {
-                            EX: 60
-                        })
+                        this.redisClient.set(keyName, fileBuffer.toString(), "EX", 60)
                     })
                     .on("end", () => {
                         resolve(fileChunkArr.join(""))
