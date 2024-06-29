@@ -1,7 +1,0 @@
-[package]
-name = "farm-plugin-wasm-web"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-farmfe_plugin = { git = "https://github.com/farm-fe/farmfe", branch = "main" }

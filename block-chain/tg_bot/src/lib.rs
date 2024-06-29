@@ -1,6 +1,6 @@
 use dotenv::dotenv;
 use teloxide::dispatching::UpdateFilterExt;
-use teloxide::types::Update;
+use teloxide::types::{InputFile, Update};
 use dptree::prelude::*;
 use teloxide::prelude::*;
 use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo};
@@ -22,7 +22,9 @@ pub async fn run() {
     dotenv().ok();
     let bot_name = std::sync::Arc::<String>::from(std::env::var("BOT_NAME").expect("Can't found BOT_NAME"));
     // need env TELOXIDE_TOKEN
-    let bot = Bot::from_env();
+    // let bot = Bot::from_env();
+    let tg_bot_token = std::env::var("TG_BOT_TOKEN");
+    let bot = Bot::new(tg_bot_token.expect("Can't found TG_BOT_TOKEN"));
     Dispatcher::builder(bot, dptree::entry()
         .branch(
             Update::filter_message()
@@ -62,9 +64,7 @@ async fn answer(bot: Bot, msg: Message, cmd: UserCommandType) -> ResponseResult<
                     url: reqwest::Url::parse("https://t.me/test_tpc_bot/gamehall").expect("Failed to parse URL"),
                 },
             )]]);
-            bot.send_message(msg.chat.id, "Welcome to use this mini app")
-                .reply_markup(keyboard)
-                .await?;
+            bot.send_photo(msg.chat.id, InputFile::url(reqwest::Url::parse("https://i.imgur.com/5y5y5y5.jpg").expect("Failed to parse URL"))).await?;
         }
     }
     Ok(())

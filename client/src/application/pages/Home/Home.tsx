@@ -8,6 +8,7 @@ import Input from "../../../commons/components/Input/Input"
 import {useTranslation} from 'react-i18next'
 import {useAppDispatch, useAppSelector} from "../../../repository/store/hooks"
 import {changeClickCount} from "../../../repository/store/modules/global"
+import std from '../../../commons/utils/std'
 
 export default function Home() {
     const {t} = useTranslation()
@@ -15,9 +16,10 @@ export default function Home() {
     const dispatch = useAppDispatch()
     const [addressTo, setAddressTo] = useState<string>("")
     const inputRef = createRef<HTMLInputElement>()
+    const welcome_text = std.string.to_short("hello world from new world", 5)
 
     function showClickCount() {
-        console.log((`click count change: ${clickCount}`))
+        console.log((`${welcome_text}: ${clickCount}`))
     }
 
     useEffect(() => {

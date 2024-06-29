@@ -4,7 +4,6 @@
   "type": "module",
   "homepage": "/index.html",
   "scripts": {
-    "dev": "farm start",
     "start": "vite",
     "build": "tsc && vite build",
     "build:wasm": "cd ../wasm-ff & wasm-pack build --scope lotaway",
@@ -13,8 +12,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@farmfe/js-plugin-svgr": "^1.4.0",
-    "@farmfe/plugin-sass": "^1.0.5",
     "@web3modal/ethers": "^3.5.2",
     "@web3modal/wallet": "^3.5.2",
     "gl-matrix": "^3.4.3",
@@ -23,9 +20,6 @@
     "vite": "^5.3.1"
   },
   "devDependencies": {
-    "@farmfe/cli": "^1.0.2",
-    "@farmfe/core": "^1.1.14",
-    "@farmfe/plugin-react": "^1.1.0",
     "@reduxjs/toolkit": "^1.9.2",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.9",
