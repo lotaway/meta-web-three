@@ -11,8 +11,13 @@ export class DemoService {
     private readonly prismaClient = prismaClientProvider()
     
     constructor(
-        private readonly redisClient: RedisService
-    ) { }
+        private readonly redisService: RedisService
+    ) {
+     }
+
+    get redisClient() {
+        return this.redisService.getClient()
+    }
 
     async getAllUsers() {
         const allUsers = await this.prismaClient.user.findMany()

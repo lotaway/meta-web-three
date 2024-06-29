@@ -23,6 +23,10 @@ export class RedisService implements nest.OnModuleInit, nest.OnModuleDestroy {
     this.client.disconnect();
   }
 
+  getClient(): Redis {
+    return this.client
+  }
+
   async getToken(userId: string): Promise<string | null> {
     return await this.client.get(userId);
   }
