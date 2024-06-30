@@ -54,31 +54,36 @@ impl TGBotProgram {
     pub async fn run(&mut self) {
         // teloxide::handler!(println!("{:?}", update));
         log::info!("Starting telegram bot...");
+        let mut self_arc = std::sync::Arc::new(std::sync::Mutex::new(self));
         self.bot.set_my_commands(vec![COMMAND_START.clone()]);
         if (self.bot_name.is_none()) {
-            let _bot_name = self.bot.get_me().await.unwrap().username.unwrap();
+            let _bot_name = self_arc.lock().unwrap().bot.get_me().await.unwrap().username.unwrap();
             self.bot_name = Some(_bot_name);
         }
         Dispatcher::builder(
-            self.bot,
+            self.bot.clone(),
             dptree::entry().branch(Update::filter_message().branch(
                 dptree::filter(|msg: Message| msg.text().is_some()).endpoint(
-                    move |msg: Message, bot: Bot| {
-                        let _bot_name = self.bot_name.clone().unwrap();
-                        async move {
-                            if let Some(text) = msg.text() {
-                                if text.starts_with('/') {
-                                    match UserCommandType::parse(text, _bot_name.as_ref()) {
-                                        Ok(user_command) => {
-                                            self.answer( msg, user_command).await?;
-                                        }
-                                        Err(err) => {
-                                            println!("Failed to parse command: {}", err);
+                    {
+                        let self_arc = self_arc.clone();
+                        move |msg: Message, bot: Bot| {
+                            let self_arc = self_arc.clone();
+                            async move {
+                                let bot_name = self_arc.lock().unwrap().bot_name.unwrap();
+                                if let Some(text) = msg.text() {
+                                    if text.starts_with('/') {
+                                        match UserCommandType::parse(text, bot_name.as_ref()) {
+                                            Ok(user_command) => {
+                                                self.answer( msg, user_command).await?;
+                                            }
+                                            Err(err) => {
+                                                println!("Failed to parse command: {}", err);
+                                            }
                                         }
                                     }
                                 }
+                                Result::<(), teloxide::RequestError>::Ok(())
                             }
-                            Result::<(), teloxide::RequestError>::Ok(())
                         }
                     },
                 ),

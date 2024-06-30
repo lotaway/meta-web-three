@@ -4,7 +4,6 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::{mpsc};
 use block_chain::{Block, BlockChain};
 use crate::async_task::{get_future_result, start_future_task, TFutureTask};
-use tg_bot::run;
 
 mod utils;
 mod matcher;
@@ -119,8 +118,5 @@ async fn main() {
         block_chain_proxy.set_online().await;
     }
     tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
-    println!("Start run bot");
-    run().await;
-    println!("End run bot");
     println!("End main");
 }

@@ -50,3 +50,4 @@ yarn.lock
 *.njsproj
 *.sln
 *.sw?
+.vs
