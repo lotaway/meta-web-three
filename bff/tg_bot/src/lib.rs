@@ -60,21 +60,21 @@ impl TGBotProgram {
             let _bot_name = self_arc.lock().unwrap().bot.get_me().await.unwrap().username.unwrap();
             self.bot_name = Some(_bot_name);
         }
+        let self_arc = self_arc.clone();
         Dispatcher::builder(
             self.bot.clone(),
             dptree::entry().branch(Update::filter_message().branch(
                 dptree::filter(|msg: Message| msg.text().is_some()).endpoint(
-                    {
-                        let self_arc = self_arc.clone();
                         move |msg: Message, bot: Bot| {
                             let self_arc = self_arc.clone();
                             async move {
-                                let bot_name = self_arc.lock().unwrap().bot_name.unwrap();
+                                let mut _self = self_arc.lock().unwrap();
+                                let bot_name = _self.bot_name.unwrap();
                                 if let Some(text) = msg.text() {
                                     if text.starts_with('/') {
                                         match UserCommandType::parse(text, bot_name.as_ref()) {
                                             Ok(user_command) => {
-                                                self.answer( msg, user_command).await?;
+                                                _self.answer( msg, user_command).await?;
                                             }
                                             Err(err) => {
                                                 println!("Failed to parse command: {}", err);
@@ -85,7 +85,6 @@ impl TGBotProgram {
                                 Result::<(), teloxide::RequestError>::Ok(())
                             }
                         }
-                    },
                 ),
             )),
         )
