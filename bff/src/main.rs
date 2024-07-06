@@ -1,10 +1,12 @@
-use tg_bot::run;
+use std::io::{BufRead, Write};
+
+use tg_bot;
 
 #[tokio::main]
 async fn main() {
     println!("Hello, world!");
     println!("Start run bot");
-    run().await;
+    tg_bot::TGBotProgram::new().run().await;
     println!("End run bot");
 }
 
@@ -13,7 +15,7 @@ fn run_web() {
         std::net::TcpListener::bind("127.0.0.1:4000").expect("Failed to start web server");
     for stream in listener.incoming() {
         let staam = stream.unwrap();
-        println!("stream:{}", stream)
+        println!("stream:{:?}", staam)
     }
 }
 
