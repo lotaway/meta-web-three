@@ -71,7 +71,6 @@ impl TGBotProgram {
             self.bot_name = Some(_bot_name);
         }
         let self_arc = std::sync::Arc::new(tokio::sync::Mutex::new(self.clone()));
-        self.bot.lock().await.get_updates()
         teloxide::dispatching::Dispatcher::builder(
             self.bot.lock().await.clone(),
             dptree::entry().branch(
