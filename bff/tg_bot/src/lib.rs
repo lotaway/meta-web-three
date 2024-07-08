@@ -71,15 +71,18 @@ impl TGBotProgram {
             self.bot_name = Some(_bot_name);
         }
         let mut self_arc = std::sync::Arc::new(tokio::sync::Mutex::new(self.clone()));
+        let self_arc_clone = std::sync::Arc::clone(&self_arc);
+        let message_listener = tokio::spawn(async move {
+            let mut self_guard = self_arc.lock().await;
+            self_guard.listen_message(self_arc.clone()).await;
+        });
+        let query_listener = tokio::spawn(async move {
+            let mut self_guard = self_arc_clone.lock().await;
+            self_guard.listen_query(self_arc_clone.clone()).await;
+        });
         tokio::join![
-            async {
-                let mut self_guard = self_arc.lock().await;
-                self_guard.listen_message(self_arc.clone()).await;
-            },
-            async {
-                let mut self_guard = self_arc.lock().await;
-                self_guard.listen_query(self_arc.clone()).await;
-            },
+            message_listener,
+            query_listener,
         ];
         println!("Telegram bot stopped.");
     }
@@ -89,7 +92,7 @@ impl TGBotProgram {
         // let self_arc = std::sync::Arc::new(tokio::sync::Mutex::new(self.clone()));
         // let self_arc = self_arc.clone();
         let bot = self_arc.lock().await.bot.lock().await.clone();
-        let self_arc = self_arc.clone();
+        let self_arc = std::sync::Arc::clone(&self_arc);
         teloxide::dispatching::Dispatcher::builder(
             bot,
             dptree::entry().branch(
