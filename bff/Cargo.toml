@@ -12,3 +12,6 @@ members = ["tg_bot"]
 tokio = { version = "1.38", features = ["full"] }
 serde_json = "1.0"
 tg_bot = { path = "tg_bot" }
+
+[profile.dev]
+incremental = true

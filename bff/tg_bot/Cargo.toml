@@ -10,4 +10,7 @@ teloxide = {  version = "0.12", features = ["full", "macros", "ctrlc_handler"] }
 tokio = { version = "1.38", features = ["full"] }
 log = "0.4.21"
 dotenv = "0.15"
-reqwest = "0.11"
+reqwest = "0.12"
+
+[profile.dev]
+incremental = true
