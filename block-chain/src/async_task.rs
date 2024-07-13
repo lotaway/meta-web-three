@@ -1,10 +1,10 @@
+use hex::ToHex;
 use std::future::{Future, IntoFuture};
 use std::pin::Pin;
 use std::sync::{Arc, Barrier, Mutex};
 use std::task::{Context, Poll, Waker};
 use std::thread;
 use std::time::Duration;
-use hex::ToHex;
 
 trait WithArc<T> {
     fn new_arc(value: T) -> Arc<Mutex<Self>>;
@@ -27,7 +27,7 @@ impl WithArc<usize> for tokio::sync::Barrier {
 
 pub async fn start_future_task<ResultType, F>(task: &F) -> ResultType
 where
-    ResultType: Send,
+    ResultType: Send + Clone,
     F: TFutureTask<ResultType>,
 {
     FutureTask::new(task, Some(Duration::from_millis(10))).await
@@ -54,7 +54,7 @@ pub struct FutureTaskContext<'a, F, ResultType> {
 }
 
 pub trait TFutureTask<ResultType>: Send + Sync {
-    fn start(&mut self) -> ResultType;
+    fn start(&mut self) -> impl Future<Output = ResultType>;
 }
 
 pub struct FutureTask<'a, ResultType: Send, F: TFutureTask<ResultType>> {
@@ -97,10 +97,7 @@ where
             Err(error) => {}
         }
 
-        Self {
-            duration,
-            context,
-        }
+        Self { duration, context }
     }
 }
 
@@ -157,43 +154,50 @@ pub async fn tokio_spawn() {
     for handler in async_handlers {
         let async_result = handler.await.unwrap();
         println! {"async result: {async_result}"};
-    };
+    }
 }
 
+#[derive(Clone)]
 pub struct BankWork<T> {
-    semaphore_arc: Arc<Mutex<tokio::sync::Semaphore>>,
-    handler: Box<dyn Fn(T) -> ()>,
+    semaphore_arc: Arc<tokio::sync::Mutex<tokio::sync::Semaphore>>,
+    // handler: Box<dyn Fn(T) -> ()>,
+    data: T,
 }
 
-impl<T> BankWork<T> {
-    fn new(num: usize, handler: Box<dyn Fn(T) -> ()>) -> Self {
+impl<T> BankWork<T>
+where
+    T: Clone + Send + 'static,
+{
+    fn new(num: usize, data: T) -> Self {
         BankWork {
-            semaphore_arc: Arc::new(Mutex::new(tokio::sync::Semaphore::new(
-                num
-            ))),
-            handler,
+            semaphore_arc: Arc::new(tokio::sync::Mutex::new(tokio::sync::Semaphore::new(num))),
+            data,
         }
     }
 
-    pub async fn order<'a>(&mut self, name: &'a str) -> &'a str {
+    pub async fn order<'a>(&mut self, name: &str) -> String {
         println!("{name} came to make order");
         self.teller(name).await;
         println!("{name} leave");
-        name
+        String::from(name)
     }
 
-    pub async fn order_in_spawn(&mut self, name: &str) -> tokio::task::JoinHandle<&str> {
-        let _self = Arc::new(Mutex::new(self));
-        let _name = String::from(name);
+    pub async fn order_in_spawn(&mut self, name: &str) -> tokio::task::JoinHandle<String> {
+        let _self = Arc::new(tokio::sync::Mutex::new(self.clone()));
+        let _name = Arc::new(tokio::sync::Mutex::new(String::from(name)));
         tokio::task::spawn(async move {
-            let mut that = _self.lock().unwrap();
-            that.order(_name.as_ref()).await
+            // let mut that = that.lock().unwrap();
+            let mut that = _self.lock().await;
+            that.order(_name.lock().await.as_ref()).await
         })
     }
 
     pub async fn teller(&mut self, name: &str) {
         println!("order {name} waiting");
-        let semaphore_arc = self.semaphore_arc.lock().expect("Can't found semaphore_arc");
+        let semaphore_arc = self
+            .semaphore_arc
+            .lock()
+            .await;
         let permit = semaphore_arc.acquire().await.unwrap();
         println!("Teller work on order {name}");
         tokio::time::sleep(Duration::from_secs(5)).await;
@@ -227,7 +231,7 @@ impl PackageWorker {
         self
     }
 
-    pub fn start(&mut self) -> Option<&dyn Future<Output=()>> {
+    pub fn start(&mut self) -> Option<&dyn Future<Output = ()>> {
         if self.is_start {
             return Option::None;
         }
@@ -256,7 +260,7 @@ struct RWDocument {
 impl RWDocument {
     pub fn new(value: String) -> Self {
         RWDocument {
-            rw_lock_arc: Arc::new(tokio::sync::RwLock::new(value))
+            rw_lock_arc: Arc::new(tokio::sync::RwLock::new(value)),
         }
     }
 
@@ -272,8 +276,8 @@ impl RWDocument {
 
 #[cfg(test)]
 mod async_task_tests {
+    use std::thread::sleep;
     use std::time::Duration;
-    use std::thread::{sleep};
 
     #[test]
     fn test_tokio_spawn() {
@@ -291,7 +295,7 @@ mod async_task_tests {
         }
         std::thread::spawn(|| async {
             for handler in handlers {
-                let result = handler.await.await.ok().unwrap_or("");
+                let result = handler.await.await.ok().unwrap_or(String::from(""));
             }
             is_done = true;
         });
@@ -305,9 +309,10 @@ mod async_task_tests {
     #[test]
     fn test_batcher() {
         let limit = 12;
-        let mut batcher = crate::async_task::PackageWorker::new(limit, Box::new(|index| {
-            println!("handler with index: {index}")
-        }));
+        let mut batcher = crate::async_task::PackageWorker::new(
+            limit,
+            Box::new(|index| println!("handler with index: {index}")),
+        );
         for package in 0..60 {
             batcher.push();
         }
