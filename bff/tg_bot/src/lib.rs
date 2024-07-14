@@ -56,7 +56,7 @@ impl TGBotProgram {
         // teloxide::handler!(println!("{:?}", update));
         println!("Starting telegram bot...");
         // self.bot.lock().unwrap().set_my_commands(vec![COMMAND_START.clone()]);
-        if (self.bot_name.is_none()) {
+        if self.bot_name.is_none() {
             let _bot_name = self.bot.get_me().await.unwrap().username.clone().unwrap();
             println!("Bot name: {}", &_bot_name);
             self.bot_name = Some(_bot_name);
