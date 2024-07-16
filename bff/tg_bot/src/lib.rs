@@ -24,7 +24,7 @@ enum UserCommandType {
 
 #[derive(Clone)]
 pub struct TGBotProgram {
-    bot: std::sync::Arc<tokio::sync::Mutex<Bot>>,
+    bot: Bot,
     template_directory: String,
     bot_name: Option<String>,
 }
@@ -44,7 +44,7 @@ impl TGBotProgram {
     }
 
     pub fn from_token_and_template(token: &str, template_directory: &str) -> Self {
-        let bot = std::sync::Arc::new(tokio::sync::Mutex::new(Bot::new(token)));
+        let bot = Bot::new(token);
         Self {
             bot,
             template_directory: template_directory.into(),
@@ -56,29 +56,20 @@ impl TGBotProgram {
         // teloxide::handler!(println!("{:?}", update));
         println!("Starting telegram bot...");
         // self.bot.lock().unwrap().set_my_commands(vec![COMMAND_START.clone()]);
-        if (self.bot_name.is_none()) {
-            let _bot_name = self
-                .bot
-                .lock()
-                .await
-                .get_me()
-                .await
-                .unwrap()
-                .username
-                .clone()
-                .unwrap();
-            println!("Bot name: {}", _bot_name);
+        if self.bot_name.is_none() {
+            let _bot_name = self.bot.get_me().await.unwrap().username.clone().unwrap();
+            println!("Bot name: {}", &_bot_name);
             self.bot_name = Some(_bot_name);
         }
-        let mut self_arc = std::sync::Arc::new(tokio::sync::Mutex::new(self.clone()));
-        let self_arc_clone = std::sync::Arc::clone(&self_arc);
+        let self_arc_for_message = std::sync::Arc::new(tokio::sync::Mutex::new(self.clone()));
+        let self_arc_for_query = std::sync::Arc::new(tokio::sync::Mutex::new(self.clone()));
         let message_listener = tokio::spawn(async move {
-            let mut self_guard = self_arc.lock().await;
-            self_guard.listen_message(self_arc.clone()).await;
+            let mut self_guard = self_arc_for_message.lock().await;
+            self_guard.listen_message(self_arc_for_message.clone()).await;
         });
         let query_listener = tokio::spawn(async move {
-            let mut self_guard = self_arc_clone.lock().await;
-            self_guard.listen_query(self_arc_clone.clone()).await;
+            let mut self_guard = self_arc_for_query.lock().await;
+            self_guard.listen_query(self_arc_for_query.clone()).await;
         });
         tokio::join![
             message_listener,
@@ -91,7 +82,7 @@ impl TGBotProgram {
         println!("Start listening message...");
         // let self_arc = std::sync::Arc::new(tokio::sync::Mutex::new(self.clone()));
         // let self_arc = self_arc.clone();
-        let bot = self_arc.lock().await.bot.lock().await.clone();
+        let bot = self.bot.clone();
         let self_arc = std::sync::Arc::clone(&self_arc);
         teloxide::dispatching::Dispatcher::builder(
             bot,
@@ -104,13 +95,13 @@ impl TGBotProgram {
                         println!("Received command: {}", msg.text().unwrap());
                         let self_arc = self_arc.clone();
                         async move {
-                            let mut self_guard = self_arc.lock().await;
+                            let self_guard = self_arc.lock().await;
                             // let mut _self = self_guard.bot.lock().unwrap();
                             let bot_name = self_guard.bot_name.clone().unwrap();
                             if let Some(text) = msg.text() {
                                 match UserCommandType::parse(text, bot_name.as_ref()) {
                                     Ok(user_command) => {
-                                        self_guard.answer(msg, user_command, bot).await?;
+                                        TGBotProgram::answer(msg, user_command, bot).await?;
                                     }
                                     Err(err) => {
                                         println!("Failed to parse command: {}", err);
@@ -131,8 +122,8 @@ impl TGBotProgram {
     async fn listen_query(&mut self, self_arc: std::sync::Arc<tokio::sync::Mutex<Self>>) {
         println!("Start listening query...");
         // let self_arc = std::sync::Arc::new(tokio::sync::Mutex::new(self.clone()));
-        let bot = self_arc.lock().await.bot.lock().await.clone();
-        let self_arc = self_arc.clone();
+        let bot = self.bot.clone();
+        let self_arc = std::sync::Arc::clone(&self_arc);
         teloxide::dispatching::Dispatcher::builder(
             bot,
             dptree::entry().branch(
@@ -154,9 +145,8 @@ impl TGBotProgram {
                                     bot_name.as_ref(),
                                 ) {
                                     Ok(user_command) => {
-                                        let mut query_message = query.message.clone().unwrap();
-                                        let message =
-                                            bot.send_message(query_message.chat.id, data).await?;
+                                        let query_message = query.message.clone().unwrap();
+                                        bot.send_message(query_message.chat.id, data).await?;
                                         // self_guard.answer(message, user_command, bot).await?;
                                         bot.answer_callback_query(query.id).await?;
                                     }
@@ -177,10 +167,9 @@ impl TGBotProgram {
     }
 
     async fn answer(
-        &mut self,
         msg: Message,
         cmd: UserCommandType,
-        mut bot: Bot,
+        bot: Bot,
     ) -> ResponseResult<()> {
         println!(
             "Start to answer command: {:?}, from chat id: {}",
