@@ -37,3 +37,4 @@ features = [
     "console",
     "Window",
 ]
+solana-sdk = "2.0"
