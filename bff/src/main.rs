@@ -7,6 +7,7 @@ use tg_bot;
 async fn main() {
     println!("Hello, world!");
     println!("Start run bot");
+    dotenv::dotenv().ok();
     let mut tg_bot_program =tg_bot::TGBotProgram::new();
     let result = tg_bot_program.run().await;
     run_web();

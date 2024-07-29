@@ -31,12 +31,9 @@ pub struct TGBotProgram {
 
 impl TGBotProgram {
     pub fn new() -> Self {
-        dotenv().ok();
-        Self::from_token(
-            std::env::var("TG_BOT_TOKEN")
-                .expect("Can't found TG_BOT_TOKEN")
-                .as_str(),
-        )
+        // dotenv().ok();
+        let tg_bot_token = std::env::var("TG_BOT_TOKEN").expect("Can't found TG_BOT_TOKEN");
+        Self::from_token(tg_bot_token.as_str())
     }
 
     pub fn from_token(token: &str) -> Self {

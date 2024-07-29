@@ -40,12 +40,6 @@ yarn.lock
 .settings/
 *.sublime-workspace
 *.suo
-.vscode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
 *.ntvs*
 *.njsproj
 *.sln
