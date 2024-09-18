@@ -1,3 +1,5 @@
+import {Snowflake} from "./System";
+
 export namespace ClientStore {
 
     function test() {
@@ -21,18 +23,16 @@ export namespace ClientStore {
         protected upgradeScripts: UpgradeDBScript[] = []
         protected db: IDBDatabase | null = null
 
-        constructor(readonly dbFactory: IDBFactory) {
+        constructor(readonly dbFactory: IDBFactory) {}
 
-        }
-
-        addUprade(script: UpgradeDBScript) {
+        addUpgrade(script: UpgradeDBScript) {
             this.upgradeScripts.push(script)
         }
 
-        connect(dbName: string, version: number = 1) {
-            const self = this
+        connect(dbName: string, version: number = 1): Promise<IDBDatabase | null> {
             const request = this.dbFactory.open(dbName, version)
-            return new Promise(function (resolve, reject) {
+            const self = this
+            return new Promise((resolve, reject) => {
                 request.onupgradeneeded = function (event) {
                     const db = request.result
                     self.upgradeScripts.sort((first, second) => first.version - second.version).forEach(script => {
@@ -50,7 +50,7 @@ export namespace ClientStore {
         }
 
         close() {
-            return this.db?.close?.()
+            this.db?.close()
         }
 
         getTable(storeName: string) {
@@ -63,20 +63,15 @@ export namespace ClientStore {
 
         protected commands: DBCommand[] = []
 
-        constructor(readonly version: number) {
-
-        }
+        constructor(readonly version: number) {}
 
         addCommand(command: DBCommand) {
             this.commands.push(command)
         }
 
         use(db: IDBDatabase) {
-            for (const command of this.commands) {
-                command.use(db)
-            }
+            this.commands.forEach(command => command.use(db))
         }
-
     }
 
     export interface DBCommand {
@@ -93,30 +88,34 @@ export namespace ClientStore {
     }
 
     export abstract class BasePageWrapper<VO extends object> implements IPageWrapper<VO> {
+        abstract getParams(): Partial<VO>
+        abstract handler(data: VO, cursor: IDBCursor): boolean
+
         getPage(): number {
             return 1
         }
+
         getPageSize(): number {
             return 20
         }
+
         getRange(): IDBKeyRange {
             return IDBKeyRange.only('id')
         }
-        abstract getParams(): Partial<VO>
-        abstract handler(data: VO, cursor: IDBCursor): boolean
     }
 
-    export class ClientDBTable<DO extends object> implements DBCommand {
+    export class ClientDBTable<DO extends {id: string}> implements DBCommand {
 
         protected fields: ClientDBField[] = []
+        protected snowflake: Snowflake
 
         constructor(readonly name: string, readonly key: string = "id") {
-
+            this.snowflake = new Snowflake(1, 1)
         }
 
         addField(field: ClientDBField) {
             if (this.key === field.name) {
-                throw new Error(`New field can't have the same as key name: ${this.key}`)
+                throw new Error(`Field name "${field.name}" conflicts with the primary key`)
             }
             this.fields.push(field)
             return this
@@ -124,119 +123,119 @@ export namespace ClientStore {
 
         addFieldsAsSimple(names: string[]) {
             names.forEach(name => {
-                this.addField(new ClientDBField({
-                    name,
-                }))
+                this.addField(new ClientDBField({ name }))
             })
             return this
         }
 
         use(db: IDBDatabase): IDBObjectStore {
-            const objectStore = db.createObjectStore(this.name, {
-                keyPath: this.key,
-            })
-            for (const field of this.fields) {
-                field.use(objectStore)
+            let objectStore: IDBObjectStore
+            if (db.objectStoreNames.contains(this.name)) {
+                objectStore = db.transaction(this.name, "versionchange").objectStore(this.name)
+            } else {
+                objectStore = db.createObjectStore(this.name, { keyPath: this.key })
             }
+
+            this.fields.forEach(field => field.use(objectStore))
             return objectStore
         }
 
-        getData(db: IDBDatabase) {
+        getData(db: IDBDatabase): Promise<DO[]> {
             const transaction = db.transaction(this.name, "readonly")
             const store = transaction.objectStore(this.name)
             const request = store.getAll()
             return new Promise((resolve, reject) => {
-                request.onsuccess = resolve
-                request.onerror = reject
+                transaction.oncomplete = () => resolve(request.result)
+                transaction.onerror = reject
             })
         }
 
-        queryByPage(store: IDBObjectStore, wrapper: IPageWrapper<Partial<DO>>) {
+        addData(store: IDBObjectStore, data: Omit<DO, "id">): Promise<unknown> {
+            (data as DO).id = this.snowflake.nextId().toString()
+            const request = store.add(data)
+            return this.handleRequest(request)
+        }
+
+        updateData(store: IDBObjectStore, data: DO): Promise<unknown> {
+            const request = store.put(data)
+            return this.handleRequest(request)
+        }
+
+        delData(store: IDBObjectStore, value: string): Promise<unknown> {
+            const request = store.delete(IDBKeyRange.only(value))
+            return this.handleRequest(request)
+        }
+
+        private handleRequest(request: IDBRequest): Promise<unknown> {
+            return new Promise((resolve, reject) => {
+                request.onsuccess = () => resolve(request.result)
+                request.onerror = () => reject(request.error)
+            })
+        }
+
+        queryByPage(store: IDBObjectStore, wrapper: IPageWrapper<Partial<DO>>): Promise<boolean> {
             const page = wrapper.getPage()
             const pageSize = wrapper.getPageSize()
             return new Promise((resolve, reject) => {
-                let needSkip = true
+                let skipped = false
                 const request = wrapper.getSelector?.(wrapper.getParams()) ?? store.openCursor(wrapper.getRange())
-                request.onsuccess = function (event) {
+
+                request.onsuccess = function () {
                     const cursor = request.result
                     if (!cursor || !cursor.value) {
                         return resolve(true)
                     }
-                    if (needSkip) {
+                    if (!skipped) {
                         cursor.advance((page - 1) * pageSize)
-                        needSkip = false
+                        skipped = true
                     }
                     if (wrapper.handler(cursor.value, cursor)) {
-                        return cursor.continue()
+                        cursor.continue()
+                    } else {
+                        resolve(true)
                     }
                 }
                 request.onerror = reject
             })
         }
 
-        async getDataByPage(store: IDBObjectStore, params: Partial<DO>) {
+        async getDataByPage(store: IDBObjectStore, params: Partial<DO>): Promise<DO[]> {
             const tableRows: DO[] = []
             const wrapper = new class extends BasePageWrapper<DO> {
                 getParams(): Partial<DO> {
                     return params
                 }
+
                 handler(data: DO): boolean {
                     tableRows.push(data)
                     return tableRows.length < this.getPageSize()
                 }
-
             }
             await this.queryByPage(store, wrapper)
             return tableRows
         }
 
-        addData(store: IDBObjectStore, data: DO) {
-            return new Promise((resolve, reject) => {
-                const request = store.add(data)
-                request.onsuccess = resolve
-                request.onerror = reject
-            })
-        }
-
-        updateData(store: IDBObjectStore, data: DO) {
-            return new Promise((resolve, reject) => {
-                const request = store.put(data)
-                request.onsuccess = resolve
-                request.onerror = reject
-            })
-        }
-
-        delData(store: IDBObjectStore, value: string) {
-            return new Promise((resolve, reject) => {
-                const request = store.delete(IDBKeyRange.only(value))
-                request.onsuccess = resolve
-                request.onerror = reject
-            })
-        }
-
-        delDatas(store: IDBObjectStore, key: keyof DO, value: string) {
-            return new Promise(async (resolve, reject) => {
-                const wrapper = new class extends BasePageWrapper<DO> {
-                    getSelector() {
-                        return store.index(key as string).openCursor(IDBKeyRange.only(value))
-                    }
-                    getParams(): Partial<DO> {
-                        return {
-                            [key]: value,
-                        } as Partial<DO>
-                    }
-                    handler(data: DO, cursor: IDBCursor): boolean {
-                        const request = cursor.delete()
-                        request.onsuccess = function () {
-                            if (request.result !== undefined)
-                                reject("delete fail")
-                        }
-                        request.onerror = reject
-                        return true
-                    }
+        async delDatas(store: IDBObjectStore, key: keyof DO, value: string): Promise<void> {
+            const wrapper = new class extends BasePageWrapper<DO> {
+                getSelector() {
+                    return store.index(key as string).openCursor(IDBKeyRange.only(value))
                 }
-                await this.queryByPage(store, wrapper)
-            })
+
+                getParams(): Partial<DO> {
+                    return { [key]: value } as Partial<DO>
+                }
+
+                handler(data: DO, cursor: IDBCursor) {
+                    const deleteRequest = cursor.delete()
+                    deleteRequest.onsuccess = function () {
+                        if (deleteRequest.result !== undefined) {
+                            throw new Error("delete fail")
+                        }
+                    }
+                    return true
+                }
+            }
+            await this.queryByPage(store, wrapper)
         }
     }
 

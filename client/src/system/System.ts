@@ -46,4 +46,81 @@ export default class System {
     db() {
         return window.indexedDB
     }
+
+}
+
+export class Snowflake {
+    private datacenterId: number
+    private machineId: number
+    private sequence: number
+    private twepoch: number
+    private datacenterIdBits: number
+    private machineIdBits: number
+    private sequenceBits: number
+    private maxDatacenterId: number
+    private maxMachineId: number
+    private maxSequence: number
+    private machineIdShift: number
+    private datacenterIdShift: number
+    private timestampShift: number
+    private lastTimestamp: number
+
+    constructor(datacenterId: number, machineId: number) {
+        this.datacenterId = datacenterId
+        this.machineId = machineId
+        this.sequence = 0
+        this.twepoch = 1577836800000 // Epoch time (2020-01-01)
+
+        this.datacenterIdBits = 5
+        this.machineIdBits = 5
+        this.sequenceBits = 12
+
+        this.maxDatacenterId = -1 ^ (-1 << this.datacenterIdBits)
+        this.maxMachineId = -1 ^ (-1 << this.machineIdBits)
+        this.maxSequence = -1 ^ (-1 << this.sequenceBits)
+
+        this.machineIdShift = this.sequenceBits
+        this.datacenterIdShift = this.sequenceBits + this.machineIdBits
+        this.timestampShift = this.sequenceBits + this.machineIdBits + this.datacenterIdBits
+
+        this.lastTimestamp = -1
+    }
+
+    private getTimestamp(): number {
+        return Date.now()
+    }
+
+    private tilNextMillis(lastTimestamp: number): number {
+        let timestamp = this.getTimestamp()
+        while (timestamp <= lastTimestamp) {
+            timestamp = this.getTimestamp()
+        }
+        return timestamp
+    }
+
+    nextId(): bigint {
+        let timestamp = this.getTimestamp()
+
+        if (timestamp < this.lastTimestamp) {
+            throw new Error('Clock moved backwards')
+        }
+
+        if (this.lastTimestamp === timestamp) {
+            this.sequence = (this.sequence + 1) & this.maxSequence
+            if (this.sequence === 0) {
+                timestamp = this.tilNextMillis(this.lastTimestamp)
+            }
+        } else {
+            this.sequence = 0
+        }
+
+        this.lastTimestamp = timestamp
+
+        return (
+            BigInt((timestamp - this.twepoch) << this.timestampShift) |
+            BigInt(this.datacenterId << this.datacenterIdShift) |
+            BigInt(this.machineId << this.machineIdShift) |
+            BigInt(this.sequence)
+        )
+    }
 }
