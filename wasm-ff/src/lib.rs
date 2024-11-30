@@ -2,6 +2,7 @@ mod oauth_utils;
 mod tetris;
 mod bitcoin_utils;
 mod service;
+mod excel;
 
 extern crate wasm_bindgen;
 
