@@ -293,12 +293,125 @@ export default class Decorator {
     _testOverride() {
 
     }
+
+    static* generateWithLock<Args extends any[]>(lock: ILock, generatorFn: (...args: Args) => any, ...args: Args) {
+        yield lock.acquire()
+        try {
+            yield* generatorFn(...args)
+        } finally {
+            lock.release()
+        }
+    }
 }
 
+export interface ILock {
+    isLocked(): boolean
+    acquire(): Promise<unknown>
+    tryAcquire(): Promise<[null, Error | null]>
+    release(): void
+}
 
-class TestDecorator extends Decorator {
-    @Decorator.Override
-    testOverride() {
+export interface ISpinLock extends ILock {
+    setDelayTime(delayTime: number): this
+}
 
+export class SpinLock implements ISpinLock {
+    private locked: boolean
+    private delayTime: number
+
+    constructor() {
+        this.locked = false
+        this.delayTime = 16
     }
+
+    isLocked(): boolean {
+        return this.locked
+    }
+
+    setDelayTime(delayTime: number) {
+        this.delayTime = delayTime
+        return this
+    }
+
+    acquire() {
+        return new Promise((resolve, reject) => {
+            const tryLock = () => {
+                if (!this.locked) {
+                    this.locked = true
+                    resolve(void 0)
+                } else {
+                    setTimeout(tryLock, this.delayTime)
+                }
+            };
+            tryLock()
+        })
+    }
+
+    async tryAcquire(): Promise<[null, Error | null]> {
+        try {
+            await this.acquire()
+            return [null, null]
+        } catch (e) {
+            return [null, e as Error]
+        }
+    }
+
+    release() {
+        this.locked = false
+    }
+}
+
+const globalLock: ISpinLock = new SpinLock()
+
+function withSpinLock(lock: ISpinLock) {
+    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        const originalFn = descriptor.value;
+
+        descriptor.value = async function (...args: any[]) {
+            await lock.acquire()
+            try {
+                return await originalFn.apply(this, args)
+            } finally {
+                lock.release()
+            }
+        }
+
+        return descriptor
+    }
+}
+
+function testDecorator() {
+
+    class TestOverride extends Decorator {
+        @Decorator.Override
+        testOverride() {
+    
+        }
+    }
+
+    new TestOverride()
+    
+    class Example {
+        @withSpinLock(globalLock)
+        async criticalSection() {
+            console.log("in")
+            await new Promise((resolve) => setTimeout(resolve, 1000))
+            console.log("out")
+        }
+
+        async* generatorSection() {
+            yield new Promise((resolve) => setTimeout(resolve, 1000))
+        }
+    }
+    const example = new Example()
+
+    example.criticalSection()
+    example.criticalSection(); // lock and wait
+
+    (async () => {
+        const generator = generateWithLock(globalLock, example.generatorSection.bind(example))
+        for await (const value of generator) {
+            console.log("Generator waiting...")
+        }
+    })()
 }
