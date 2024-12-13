@@ -302,6 +302,23 @@ export default class Decorator {
             lock.release()
         }
     }
+
+    static withSpinLock(lock: ISpinLock) {
+        return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+            const originalFn = descriptor.value;
+    
+            descriptor.value = async function (...args: any[]) {
+                await lock.acquire()
+                try {
+                    return await originalFn.apply(this, args)
+                } finally {
+                    lock.release()
+                }
+            }
+    
+            return descriptor
+        }
+    }
 }
 
 export interface ILock {
@@ -363,23 +380,6 @@ export class SpinLock implements ISpinLock {
 
 const globalLock: ISpinLock = new SpinLock()
 
-function withSpinLock(lock: ISpinLock) {
-    return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-        const originalFn = descriptor.value;
-
-        descriptor.value = async function (...args: any[]) {
-            await lock.acquire()
-            try {
-                return await originalFn.apply(this, args)
-            } finally {
-                lock.release()
-            }
-        }
-
-        return descriptor
-    }
-}
-
 function testDecorator() {
 
     class TestOverride extends Decorator {
@@ -392,7 +392,7 @@ function testDecorator() {
     new TestOverride()
     
     class Example {
-        @withSpinLock(globalLock)
+        @Decorator.withSpinLock(globalLock)
         async criticalSection() {
             console.log("in")
             await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -409,7 +409,7 @@ function testDecorator() {
     example.criticalSection(); // lock and wait
 
     (async () => {
-        const generator = generateWithLock(globalLock, example.generatorSection.bind(example))
+        const generator = Decorator.generateWithLock(globalLock, example.generatorSection.bind(example))
         for await (const value of generator) {
             console.log("Generator waiting...")
         }
