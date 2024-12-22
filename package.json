@@ -9,6 +9,7 @@
     "build": "docker build -t wayluk/meta-web-three:1.0.2 ."
   },
   "dependencies": {
-    "caniuse-lite": "^1.0.30001519"
+    "caniuse-lite": "^1.0.30001519",
+    "ethers": "^6.13.4"
   }
 }
