@@ -1,4 +1,4 @@
-mod oauth_utils;
+mod utils;
 mod tetris;
 mod bitcoin_utils;
 mod service;
@@ -7,8 +7,7 @@ mod excel;
 extern crate wasm_bindgen;
 
 use wasm_bindgen::prelude::*;
-use crate::oauth_utils::{generate, get_base_oauth1_map, hashmap_to_query_string};
-use std::borrow::BorrowMut;
+use crate::utils::crypto_utils::{generate, get_base_oauth1_map, hashmap_to_query_string};
 use std::collections::HashSet;
 use js_sys::Date;
 use wasm_bindgen_futures::JsFuture;
