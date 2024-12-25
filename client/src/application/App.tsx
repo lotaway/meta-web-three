@@ -7,15 +7,15 @@ function App() {
     useEffect(() => {
         const timer = setTimeout(() => {
             const abortController = new AbortController()
-            // wasm.greet("from wasm")
-            // console.log(wasm.psbt_generate("1", "2"))
+            wasm.greet("from wasm")
+            // console.log(wasm.CryptoUtils.twitter_signature("1", "2", "3", "4"))
             const urlInfo = {
                 proxyPrevFix: "/twitter/api",
                 host: "https://api.twitter.com",
                 path: "/oauth/request_token",
             }
             const method = "POST"
-            const fullQueryStr = wasm.twitter_signature(
+            const fullQueryStr = wasm.CryptoUtils.twitter_signature(
                 method,
                 urlInfo.host + urlInfo.path,
                 "OxhqcUXNEaQUtMMreqvRdYl38",

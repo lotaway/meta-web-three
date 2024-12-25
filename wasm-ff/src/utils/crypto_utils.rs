@@ -1,12 +1,12 @@
+use crate::log;
+use base64::{engine::general_purpose::STANDARD as BASE64, Engine as _};
 use hmac::{Hmac, Mac};
-use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
+use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
+use sha1::Sha1;
+use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 use uuid::Uuid;
-use crate::log;
-use sha1::Sha1;
-use sha2::{Sha256, Digest};
-use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -14,22 +14,42 @@ pub struct CryptoUtils;
 
 #[wasm_bindgen]
 impl CryptoUtils {
+    
+    pub fn twitter_signature(method: &str, url: &str, key: &str, oauth_callback: &str) -> String {
+        let consumer_secret = key.clone();
+        let mut parameters =
+            Self::get_base_oauth1_map(key, Option::Some((js_sys::Date::now().round() / 1000.0) as u64));
+        parameters.insert("oauth_callback", oauth_callback.to_string());
+        let signature = Self::generate(method, url, &mut parameters, consumer_secret);
+        parameters.insert("signature", signature);
+        Self::hashmap_to_query_string(&parameters)
+    }
+
+    pub fn twitter_signature2(method: &str, url: &str, key: &str, oauth_callback: &str) -> JsValue {
+        let consumer_secret = key.clone();
+        let mut parameters =
+            Self::get_base_oauth1_map(key, Option::Some((js_sys::Date::now().round() / 1000.0) as u64));
+        parameters.insert("oauth_callback", oauth_callback.to_string());
+        let signature = Self::generate(method, url, parameters.borrow_mut(), consumer_secret);
+        parameters.insert("signature", signature);
+        let json = serde_json::to_string(&parameters).unwrap();
+        JsValue::from(json)
+    }
 
     fn get_base_oauth1_map(key: &str, timestamp: Option<u64>) -> HashMap<&str, String> {
         let mut parameters = HashMap::new();
         parameters.insert("oauth_consumer_key", key.to_string());
-        parameters.insert(
-            "oauth_signature_method",
-            "HMAC-SHA1".to_string(),
-        );
+        parameters.insert("oauth_signature_method", "HMAC-SHA1".to_string());
         parameters.insert(
             "oauth_timestamp",
             timestamp
                 .or_else(|| {
-                    Option::Some(SystemTime::now()
-                        .duration_since(UNIX_EPOCH)
-                        .unwrap()
-                        .as_secs())
+                    Option::Some(
+                        SystemTime::now()
+                            .duration_since(UNIX_EPOCH)
+                            .unwrap()
+                            .as_secs(),
+                    )
                 })
                 .unwrap()
                 .to_string(),
@@ -81,7 +101,8 @@ impl CryptoUtils {
     }
 
     fn hashmap_to_query_string(parameters: &HashMap<&str, String>) -> String {
-        parameters.iter()
+        parameters
+            .iter()
             .map(|(key, value)| format!("{}={}", Self::encode(key), Self::encode(value)))
             .collect::<Vec<String>>()
             .join("&")
@@ -107,43 +128,43 @@ impl CryptoUtils {
         let input_with_timestamp = format!("{}{}", original, timestamp as i64);
         let bytes = input_with_timestamp.as_bytes();
         let base64_encoded = BASE64.encode(bytes);
-        
+
         let mut hasher = Sha256::new();
         hasher.update(base64_encoded.as_bytes());
         let verify_hash = format!("{:x}", hasher.finalize());
-        
+
         encrypted == verify_hash
     }
 }
 
-    // 定义基于 NON_ALPHANUMERIC，但排除了点号(.)和其他不想编码的字符
-    const ENCODE_URI_FRAGMENT: &AsciiSet = &CONTROLS
-        .add(b' ')
-        .add(b'"')
-        .add(b'<')
-        .add(b'>')
-        .add(b'`') // 这些字符是非字母数字但在 URI 组件中通常不被编码
-        .add(b'#')
-        .add(b'?')
-        .add(b'{')
-        .add(b'}')
-        .add(b';')
-        .add(b'/')
-        .add(b':')
-        .add(b'@')
-        .add(b'=')
-        .add(b'&')
-        .add(b'$')
-        .add(b',')
-        .add(b'[')
-        .add(b']')
-        .add(b'+')
-        .add(b'!')
-        .add(b'*')
-        .add(b'\'')
-        .add(b'(')
-        .add(b')')
-        .add(b'%');
+// 定义基于 NON_ALPHANUMERIC，但排除了点号(.)和其他不想编码的字符
+const ENCODE_URI_FRAGMENT: &AsciiSet = &CONTROLS
+    .add(b' ')
+    .add(b'"')
+    .add(b'<')
+    .add(b'>')
+    .add(b'`') // 这些字符是非字母数字但在 URI 组件中通常不被编码
+    .add(b'#')
+    .add(b'?')
+    .add(b'{')
+    .add(b'}')
+    .add(b';')
+    .add(b'/')
+    .add(b':')
+    .add(b'@')
+    .add(b'=')
+    .add(b'&')
+    .add(b'$')
+    .add(b',')
+    .add(b'[')
+    .add(b']')
+    .add(b'+')
+    .add(b'!')
+    .add(b'*')
+    .add(b'\'')
+    .add(b'(')
+    .add(b')')
+    .add(b'%');
 
 #[cfg(test)]
 mod tests {
@@ -153,7 +174,10 @@ mod tests {
     fn test_encode() {
         assert_eq!(CryptoUtils::encode("1.0"), "1.0");
         assert_eq!(CryptoUtils::encode("HMAC-SHA1"), "HMAC-SHA1");
-        assert_eq!(CryptoUtils::encode("http://tsp.nat300.top/airdrop/bindAccount"), "http%3A%2F%2Ftsp.nat300.top%2Fairdrop%2FbindAccount");
+        assert_eq!(
+            CryptoUtils::encode("http://tsp.nat300.top/airdrop/bindAccount"),
+            "http%3A%2F%2Ftsp.nat300.top%2Fairdrop%2FbindAccount"
+        );
     }
 
     #[test]
@@ -180,8 +204,18 @@ mod tests {
         let result = CryptoUtils::encrypt_common_request(input);
         let encrypted = result.get(0).as_string().unwrap();
         let timestamp = result.get(1).as_f64().unwrap();
-        assert!(CryptoUtils::decrypt_common_request(&encrypted, input, timestamp));
-        assert!(!CryptoUtils::decrypt_common_request(&encrypted, "Wrong input", timestamp));
-        assert!(!CryptoUtils::decrypt_common_request(&encrypted, input, timestamp + 1.0));
+        assert!(CryptoUtils::decrypt_common_request(
+            &encrypted, input, timestamp
+        ));
+        assert!(!CryptoUtils::decrypt_common_request(
+            &encrypted,
+            "Wrong input",
+            timestamp
+        ));
+        assert!(!CryptoUtils::decrypt_common_request(
+            &encrypted,
+            input,
+            timestamp + 1.0
+        ));
     }
-} 
+}
