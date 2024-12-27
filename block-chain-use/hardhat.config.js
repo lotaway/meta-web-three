@@ -4,9 +4,22 @@ require("@nomiclabs/hardhat-waffle");
 /** @type import('hardhat/config').HardhatUserConfig */
 const accounts = process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : []
 module.exports = {
-    solidity: "0.8.20",
+    typechain: {
+        outDir: "./typechain",
+        target: "ethers-v6",
+    },
+    solidity: {
+        version: "0.8.20",
+        settings: {
+            optimizer: {
+                enabled: true,
+                runs: 200
+            }
+        }
+    },
     paths: {
-        sources: "./contracts"
+        sources: "./contracts",
+        artifacts: "./artifacts"
     },
     networks: {
         localhost: {
