@@ -8,6 +8,11 @@ import "./interface/ICommissionToken.sol";
 import "./interface/ICommissionRelation.sol";
 import "./struct/GoodsSpecification.sol";
 
+/**
+ * 从有权限的管理者后台创建
+ * 注意保持足够的费用
+ * todo 需要添加更多角色
+ */
 contract GoodsNFT is ERC721, Ownable {
     IERC20 public metaThreeCoin;
     ICommissionToken public commissionToken;
