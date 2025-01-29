@@ -1,6 +1,9 @@
 import host from "../../config/host"
 import initConfig from "../../config/init"
 import crypto from "../../commons/utils/crypto"
+import "reflect-metadata"
+import BigNumber from "bignumber.js"
+import { Days, Time } from "./std/Time"
 
 interface CacheStoreValue extends Object {
     updateTime: number
@@ -18,6 +21,7 @@ interface AttrArray extends Array<string | AttrArray> {
 
 }
 
+type ClassType<T> = new (...args: any[]) => T
 
 /**
  * 转化网址（缺少域名时添加）
@@ -294,7 +298,7 @@ export default class Decorator {
 
     }
 
-    static* generateWithLock<Args extends any[]>(lock: ILock, generatorFn: (...args: Args) => any, ...args: Args) {
+    static * generateWithLock<Args extends any[]>(lock: ILock, generatorFn: (...args: Args) => any, ...args: Args) {
         yield lock.acquire()
         try {
             yield* generatorFn(...args)
@@ -306,7 +310,7 @@ export default class Decorator {
     static withSpinLock(lock: ISpinLock) {
         return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
             const originalFn = descriptor.value;
-    
+
             descriptor.value = async function (...args: any[]) {
                 await lock.acquire()
                 try {
@@ -315,11 +319,165 @@ export default class Decorator {
                     lock.release()
                 }
             }
-    
+
             return descriptor
         }
     }
 }
+
+
+namespace Data {
+
+    export function Value<T = string>(value: T) {
+        return function (target: any, propertyKey: string) {
+            Reflect.defineProperty(target, propertyKey, {
+                get() {
+                    return typeof value === "string" && value.startsWith("${") && value.endsWith("}") ? eval(value.slice(2, -1)) : value
+                },
+                writable: true,
+                configurable: true,
+            })
+        }
+    }
+
+    type Transformer<Output extends unknown, Input extends unknown> = ((value: Input) => Output) | ClassType<Output>
+
+    type Adapted<T> = T & { [K: string]: T[keyof T] };
+    // pair with `To`
+    export function Adapted<Input extends unknown>() {
+        return function<T>(Clazz: ClassType<T> = BaseDataAdapter as any) {
+            return class extends BaseDataAdapter<Input> {
+                constructor(data: Input) {
+                    super(data);
+                    Object.setPrototypeOf(this, Clazz.prototype);
+                }
+            }
+        }
+    }
+
+    // pair with `Adapted`
+    export function To<Output extends unknown, Input extends unknown>(transformer: Transformer<Output, Input>, options?: {
+        alias?: string
+    }) {
+        return function (target: any, propertyKey: string) {
+            Reflect.defineMetadata(BaseDataAdapter.ADAPTER_FN, transformer, target, propertyKey)
+            if (options?.alias) {
+                Reflect.defineProperty(target, options.alias, {
+                    get() { return this[propertyKey] },
+                    configurable: true,
+                    enumerable: true,
+                })
+            }
+        }
+    }
+
+    export function ParamTo<Input extends unknown>(transformer: Transformer<unknown, Input>) {
+        return function (target: any, methodName: string, paramIndex: number) {
+            if (typeof paramIndex === 'number') {
+                const originalMethod = target[methodName]
+                target[methodName] = function(...args: any[]) {
+                    args[paramIndex] = typeof transformer === "function" ? 
+                        (transformer as (value: unknown) => unknown)(args[paramIndex]) : 
+                        new (transformer as ClassType<unknown>)(args[paramIndex])
+                    return originalMethod.apply(this, args)
+                }
+                return
+            }
+        }
+    }
+
+    export class BaseDataAdapter<Input extends unknown> {
+        static ADAPTER_FN = Symbol("Adapter::Fn")
+        static ADAPTER_NAME = Symbol("Adapter::Name")
+
+        constructor(originData: Input) {
+            for (const key in originData) {
+                const targetKey = Reflect.getMetadata(BaseDataAdapter.ADAPTER_NAME, this, key) ?? key
+                if (this.hasOwnProperty(key)) {
+                    const transformFn: Transformer<unknown, keyof Input> = Reflect.getMetadata(BaseDataAdapter.ADAPTER_FN, this, key)
+                    if (transformFn) {
+                        Reflect.defineProperty(this, targetKey, {
+                            value: typeof transformFn === "function" ? (transformFn as (value: unknown) => unknown)(originData[key]) : new (transformFn as ClassType<unknown>)(originData[key]),
+                            writable: true,
+                            configurable: true,
+                        })
+                    } else {
+                        Reflect.defineProperty(this, targetKey, {
+                            value: originData[key],
+                            writable: true,
+                            configurable: true,
+                        })
+                    }
+                }
+            }
+        }
+
+        static new<Input extends unknown>(data: Input): Adapted<BaseDataAdapter<Input>> {
+            return new BaseDataAdapter(data) as Adapted<BaseDataAdapter<Input>>
+        }
+    }
+
+    interface TestDataFromBE {
+        name?: string | null
+        age?: number | string | null
+        accountBalance?: number | string | null
+        createTime?: number | string | null
+    }
+
+    export function testDataAdapter() {
+        class DataAdapter extends BaseDataAdapter<TestDataFromBE> {
+    
+            @Data.To(String)
+            name!: string
+    
+            @Data.To(Number)
+            age!: number
+    
+            @Data.To(BigNumber, { alias: "balanceOf" })
+            accountBalance!: BigNumber
+
+            @Data.To(Time.new)
+            createTime!: Time
+
+            get balanceOf() {
+                return this.accountBalance
+            }
+
+            get endTime() {
+                return this.createTime.toJSTime() + Days.oneDay().toJSTime()
+            }
+
+            get createTimeDisplay() {
+                return this.createTime.toDate().toLocaleString()
+            }
+
+            getCountDownToEnd(@Data.ParamTo(Time.toJSTime) current: number = new Date().getTime()) {
+                return this.endTime - current
+            }
+        }
+    
+        const data = new DataAdapter({
+            name: "John",
+            age: 30,
+            accountBalance: "1000.00",
+            createTime: new Date().getTime() / 1000
+        })
+        try {
+            console.group("testDataAdapter")
+            console.log(data.name)
+            console.log(data.age)
+            console.log(data.accountBalance.toFixed(0, BigNumber.ROUND_DOWN))
+            console.log(data.balanceOf.toFixed(0, BigNumber.ROUND_DOWN))
+            console.log(data.createTimeDisplay)
+            console.log(data.getCountDownToEnd())
+            console.groupEnd()
+        } catch (e) {
+            console.error(e)
+        }
+    }
+}
+
+export { Data }
 
 export interface ILock {
     isLocked(): boolean
@@ -385,12 +543,12 @@ function testDecorator() {
     class TestOverride extends Decorator {
         @Decorator.Override
         testOverride() {
-    
+
         }
     }
 
     new TestOverride()
-    
+
     class Example {
         @Decorator.withSpinLock(globalLock)
         async criticalSection() {
