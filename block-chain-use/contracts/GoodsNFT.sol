@@ -7,13 +7,13 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interface/ICommissionToken.sol";
 import "./interface/ICommissionRelation.sol";
 import "./struct/GoodsSpecification.sol";
-
+import "./interface/IGoodsNFT.sol";
 /**
  * 从有权限的管理者后台创建
  * 注意保持足够的费用
  * todo 需要添加更多角色
  */
-contract GoodsNFT is ERC721, Ownable {
+contract GoodsNFT is IGoodsNFT, ERC721, Ownable {
     IERC20 public metaThreeCoin;
     ICommissionToken public commissionToken;
     ICommissionRelation public commissionRelation;
@@ -26,7 +26,7 @@ contract GoodsNFT is ERC721, Ownable {
     uint256 public constant UPLINE_COMMISSION_RATE = 15; // 15% for uplines
     uint256 public constant RATE_DENOMINATOR = 100;
     
-    event GoodCreated(uint256 indexed tokenId, string name, uint256 price, address creator);
+    event Replenishment(uint256 indexed tokenId, string name, uint256 price, address creator);
     event GoodMinted(uint256 indexed tokenId, address indexed buyer, address indexed referrer, uint256 commission);
     
     constructor(
@@ -41,7 +41,7 @@ contract GoodsNFT is ERC721, Ownable {
         commissionToken = ICommissionToken(_commissionToken);
     }
     
-    function createGood(
+    function replenishment(
         string memory name,
         string[] memory keys,
         string[] memory values,
@@ -58,8 +58,12 @@ contract GoodsNFT is ERC721, Ownable {
             good.specifications.push(Specification(keys[i], values[i]));
         }
         
-        emit GoodCreated(tokenId, name, price, msg.sender);
+        emit Replenishment(tokenId, name, price, msg.sender);
         return tokenId;
+    }
+
+    function buy(uint256 tokenId, address referrer) external {
+        mint(tokenId, referrer);
     }
     
     function mint(uint256 tokenId, address referrer) external {

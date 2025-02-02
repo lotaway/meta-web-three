@@ -9,8 +9,12 @@ export class Str extends Options<string> {
         super(str)
     }
 
-    static new(str: any) {
-        return new Str(str === null ? null : String(str))
+    static new(str: any, defaultValue: string | null = null) {
+        return new Str(str === null || str === undefined ? defaultValue : String(str))
+    }
+
+    static builder_with_default(defaultValue: string | null = null) {
+        return (str: any) => Str.new(str, defaultValue)
     }
 
     static generateRandomHexString(length: number = 66): string {

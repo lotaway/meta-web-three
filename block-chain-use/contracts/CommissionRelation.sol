@@ -2,9 +2,9 @@
 pragma solidity ^0.8.20;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import "./interface/ICommissionRelation.sol";
+import "./lib/Commission.sol";
 
 contract CommissionRelation is ICommissionRelation, Ownable {
-    uint8 public constant MAX_LEVEL = 7; // 最大层级数
     
     // 存储上级关系
     mapping(address => address) public uplines;
@@ -35,7 +35,7 @@ contract CommissionRelation is ICommissionRelation, Ownable {
         
         // 检查是否形成循环引用
         address currentUpline = upline;
-        for(uint8 i = 0; i < MAX_LEVEL; i++) {
+        for(uint8 i = 0; i < CommissionLib.MAX_LEVEL; i++) {
             require(currentUpline != account, "Circular reference detected");
             if(currentUpline == address(0)) break;
             currentUpline = uplines[currentUpline];
@@ -56,7 +56,7 @@ contract CommissionRelation is ICommissionRelation, Ownable {
         address current = account;
         uint8 level = 1;
         
-        while(uplines[current] != address(0) && level <= MAX_LEVEL) {
+        while(uplines[current] != address(0) && level <= CommissionLib.MAX_LEVEL) {
             current = uplines[current];
             levels[current] = level;
             level++;
@@ -65,11 +65,11 @@ contract CommissionRelation is ICommissionRelation, Ownable {
     
     // 获取某个地址的所有上级
     function getUplines(address account) external view returns (address[] memory) {
-        address[] memory result = new address[](MAX_LEVEL);
+        address[] memory result = new address[](CommissionLib.MAX_LEVEL);
         address current = account;
         uint8 count = 0;
         
-        while(uplines[current] != address(0) && count < MAX_LEVEL) {
+        while(uplines[current] != address(0) && count < CommissionLib.MAX_LEVEL) {
             current = uplines[current];
             result[count] = current;
             count++;
