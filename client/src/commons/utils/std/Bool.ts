@@ -15,10 +15,13 @@ export class Bool extends Options<boolean> {
         }
         if (typeof value === "string") {
             const str = value.toUpperCase()
-            return new Bool(str === "TRUE" || str === "1" || str === "YES" || str === "Y" || str === "ON" || str === "ENABLED")
+            return new Bool(str === "TRUE" || str === "1" || str === "1n" || str === "YES" || str === "Y" || str === "ON" || str === "ENABLED")
         }
         if (typeof value === "number") {
             return new Bool(value === 1)
+        }
+        if (typeof value === "bigint") {
+            return new Bool(value === 1n)
         }
         const noValue = value === null || value === undefined
         if (noValue) {
