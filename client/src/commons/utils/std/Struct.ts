@@ -98,8 +98,17 @@ export class Result<DataType> extends Wrap<DataType> implements IWrap<DataType> 
         return new Result(val, State.SOLVE)
     }
 
+
     unwrap() {
         return this.val as DataType
+    }
+
+    protected _valueHandle(f: DataType | (() => DataType)) {
+        return () => this.val ?? (typeof f === "function" ? (f as Function)() : f)
+    }
+
+    unwrap_with_default(f: DataType | (() => DataType)) {
+        return this._valueHandle(f)()
     }
 
     is_ok() {
@@ -107,9 +116,7 @@ export class Result<DataType> extends Wrap<DataType> implements IWrap<DataType> 
     }
 
     or_else(f: DataType | (() => DataType)) {
-        this.unwrap = () => {
-            return this.val ?? (typeof f === "function" ? (f as Function)() : f)
-        }
+        this.unwrap = this._valueHandle(f)
         return this
     }
 
