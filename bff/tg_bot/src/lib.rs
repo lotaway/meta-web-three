@@ -50,45 +50,35 @@ impl TGBotProgram {
     }
 
     pub async fn run(&mut self) {
-        // teloxide::handler!(println!("{:?}", update));
         println!("Starting telegram bot...");
-        // self.bot.lock().unwrap().set_my_commands(vec![COMMAND_START.clone()]);
         if self.bot_name.is_none() {
             let _bot_name = self.bot.get_me().await;
             match _bot_name {
                 Ok(me) => {
-                    let _bot_name =me.username.clone().expect("Failed to get bot username");
+                    let _bot_name = me.username.clone().expect("Failed to get bot username");
                     println!("Bot name: {}", &_bot_name);
                     self.bot_name = Some(_bot_name);
                     let self_arc_for_message = std::sync::Arc::new(tokio::sync::Mutex::new(self.clone()));
                     let self_arc_for_query = std::sync::Arc::new(tokio::sync::Mutex::new(self.clone()));
-                    let message_listener = tokio::spawn(async move {
+                    
+                    // Create futures for both listeners
+                    let message_handler = {
                         let mut self_guard = self_arc_for_message.lock().await;
-                        self_guard.listen_message(self_arc_for_message.clone()).await;
-                    });
-                    let query_listener = tokio::spawn(async move {
+                        self_guard.listen_message(self_arc_for_message.clone())
+                    };
+                    
+                    let query_handler = {
                         let mut self_guard = self_arc_for_query.lock().await;
-                        self_guard.listen_query(self_arc_for_query.clone()).await;
-                    });
-                    let (result_message, result_query) = tokio::join![
-                        message_listener,
-                        query_listener,
-                    ];
-                    match result_message {
-                        Ok(_) => {
-                            println!("Telegram bot started.");
-                        }
-                        Err(error) => {
-                            println!("Failed to start telegram bot: {}", error);
-                        }
-                    }
-                    match result_query {
-                        Ok(_) => {
-                            println!("Telegram bot started.");
-                        }
-                        Err(error) => {
-                            println!("Failed to start telegram bot: {}", error);
-                        }
+                        self_guard.listen_query(self_arc_for_query.clone())
+                    };
+
+                    // Run both handlers concurrently and wait for both to complete
+                    tokio::join!(message_handler, query_handler);
+                    println!("Telegram bot running...");
+                    
+                    // Keep the program running
+                    loop {
+                        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
                     }
                 }
                 Err(error) => {

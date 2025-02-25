@@ -3,6 +3,7 @@ import {ethers} from "ethers"
 import {deployedContract} from "../../config/constants"
 import {useTranslation} from "react-i18next"
 import EthersProvider from "../../commons/provider/EthersProvider"
+import { AccountTransfer, AccountTransfer__factory } from "../../config/contractAbi/types"
 
 interface ISendTransactionArgument {
     addressTo: string
@@ -18,7 +19,10 @@ export const {ethereum} = window as any
 const getContacts = async () => {
     const provider = EthersProvider.getInstance(ethereum)
     const signer = await provider.getSigner()
-    const accountTransferContract = new ethers.Contract(deployedContract.accountTransfer.address, deployedContract.accountTransfer.abi, signer)
+    // const accountTransferContract = ethers.BaseContract.from<AccountTransfer>(deployedContract.accountTransfer.address, deployedContract.accountTransfer.abi, signer)
+    const accountTransferContract = AccountTransfer__factory.connect(deployedContract.accountTransfer.address, signer)
+    // const contract = new AccountTransfer__factory()
+    // const accountTransferContract = contract.attach(deployedContract.accountTransfer.address).connect(signer)
     return {accountTransferContract}
 }
 
@@ -84,7 +88,7 @@ export const BlockChainProvider = ({children}: { children: ReactNode }) => {
             setIsTransacting(false)
             console.log(`Transaction Success - ${transactionHash.hash}`)
             const transactionCount = await accountTransferContract.getRecordCount()
-            setTransactionCount(transactionCount)
+            setTransactionCount(Number(transactionCount))
         } catch (err) {
             console.error(err)
             throw new Error(t("evmObjMissing"))

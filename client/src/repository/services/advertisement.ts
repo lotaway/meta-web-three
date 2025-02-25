@@ -2,8 +2,9 @@
 import initConfig from "../../config/init";
 import host from "../../config/host";
 import {API_URL} from "../../config/api";
-import Decorator from "../../commons/utils/support"
+import Decorator, { Data } from "../../commons/utils/support"
 import {BaseHttpRequest, IApiProvider, IHttpRequestStatic, MapperWrapper} from "./base"
+import { Str } from "../../commons/utils/std/Str";
 
 namespace NSAdvertisement {
 
@@ -25,12 +26,42 @@ namespace NSAdvertisement {
 
         @Decorator.AddHost(host.goodsService, ["src"])
         static getAppHomeBanner(res: GetPublicAdsResponse) {
-            return res
+            return res.map(item => new GetAppHomeBannerV2(item))
         }
 
         @Decorator.AddHost(host.goodsService, [["ad", '@src']])
         static getAppStartAd(res: GetAppStartAdResponse) {
             return res
+        }
+    }
+
+    export class GetAppHomeBannerV2 extends Data.BaseDataAdapter<GetPublicAdResponse> {
+
+        @Data.To(Str.builder_with_default(""))
+        src!: string
+
+        get srcWithHost() {
+            return new URL(this.src, host.goodsService).toString()
+        }
+
+        @Data.To(Str.builder_with_default(""))
+        url!: string
+
+        get urlWithHost() {
+            return new URL(this.url, host.goodsService).toString()
+        }
+
+        @Data.To(Str.builder_with_default(""))
+        alt!: string
+
+        @Data.To(Str.builder_with_default(""))
+        height!: string
+
+        @Data.To(Str.builder_with_default(""))
+        width!: string
+
+        constructor(originData: GetPublicAdResponse) {
+            super(originData)
         }
     }
 

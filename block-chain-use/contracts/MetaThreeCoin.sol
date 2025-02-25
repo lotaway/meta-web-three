@@ -1,28 +1,21 @@
 //  SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-contract MetaThreeCoin is ERC20 {
-    uint256 public TOKENS = 99_999;
-    address public owner;
-    uint8 _decimals;
+contract MetaThreeCoin is ERC20, Ownable, ReentrancyGuard {
+    uint256 public TOKENS = 999_999_999;
 
-    constructor(string memory name, string memory symbol, uint8 decimalsValue) ERC20(name, symbol) {
-        owner = msg.sender;
-//        totalSupply = TOKENS;
-//        balanceOf[msg.sender] = TOKENS;
-        _decimals = decimalsValue;
+    constructor(
+        string memory name, 
+        string memory symbol
+    ) ERC20(name, symbol) Ownable(msg.sender) {
+        _mint(msg.sender, TOKENS);
     }
 
-    event SetOwner(address originOwner, address newOwner);
-
-    function setOwner(address newOwner) public {
-        require(msg.sender == owner, "Not owner");
-        owner = newOwner;
-        emit SetOwner(owner, newOwner);
+    function decimals() pure public override returns (uint8) {
+        return 2;
     }
 
-    function decimals() view public override returns (uint8) {
-        return _decimals;
-    }
 }

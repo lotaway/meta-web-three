@@ -2,17 +2,11 @@
 pragma solidity ^0.8.0;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract WETH {
+contract WETH is IERC20 {
     string public name = "Wrapped Ether";
     string public symbol = "WETH";
     uint8 public decimals = 18;
 
-    event Transfer(address indexed from, address indexed to, uint256 value);
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 value
-    );
     event Deposit(address indexed sender, uint256 amount);
     event Withdrawal(address indexed receiver, uint256 amount);
 
@@ -21,6 +15,16 @@ contract WETH {
 
     receive() external payable {
         deposit(IERC20(address(0)), address(this), msg.value);
+    }
+
+    function approve(address spender, uint256 amount) public returns (bool) {
+        allowance[msg.sender][spender] = amount;
+        emit Approval(msg.sender, spender, amount);
+        return true;
+    }
+
+    function totalSupply() public view returns (uint256) {
+        return address(this).balance;
     }
 
     function deposit(IERC20 token, address to, uint256 amount) public payable {
@@ -47,12 +51,6 @@ contract WETH {
         balanceOf[msg.sender] -= amount;
         balanceOf[to] += amount;
         emit Transfer(msg.sender, to, amount);
-        return true;
-    }
-
-    function approve(address spender, uint256 amount) public returns (bool) {
-        allowance[msg.sender][spender] = amount;
-        emit Approval(msg.sender, spender, amount);
         return true;
     }
 

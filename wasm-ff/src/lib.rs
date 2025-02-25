@@ -1,15 +1,13 @@
-mod oauth_utils;
+mod utils;
 mod tetris;
 mod bitcoin_utils;
 mod service;
+mod excel;
 
 extern crate wasm_bindgen;
 
 use wasm_bindgen::prelude::*;
-use crate::oauth_utils::{generate, get_base_oauth1_map, hashmap_to_query_string};
-use std::borrow::BorrowMut;
 use std::collections::HashSet;
-use js_sys::Date;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Request, RequestInit, Response};
 use crate::bitcoin_utils::{BitcoinNetwork, P2trTransaction};
@@ -29,47 +27,6 @@ extern {
 #[wasm_bindgen]
 pub fn greet(name: &str) {
     alert(&format!("Hello, {}!", name));
-}
-
-#[wasm_bindgen]
-pub fn twitter_signature(
-    method: &str,
-    url: &str,
-    key: &str,
-    oauth_callback: &str,
-) -> String {
-    let consumer_secret = key.clone();
-    let mut parameters = get_base_oauth1_map(key, Option::Some((Date::now().round() / 1000.0) as u64));
-    parameters.insert("oauth_callback", oauth_callback.to_string());
-    let signature = generate(
-        method,
-        url,
-        parameters.borrow_mut(),
-        consumer_secret,
-    );
-    parameters.insert("signature", signature);
-    hashmap_to_query_string(&parameters)
-}
-
-#[wasm_bindgen]
-pub fn twitter_signature2(
-    method: &str,
-    url: &str,
-    key: &str,
-    oauth_callback: &str,
-) -> JsValue {
-    let consumer_secret = key.clone();
-    let mut parameters = get_base_oauth1_map(key, Option::Some((Date::now().round() / 1000.0) as u64));
-    parameters.insert("oauth_callback", oauth_callback.to_string());
-    let signature = generate(
-        method,
-        url,
-        parameters.borrow_mut(),
-        consumer_secret,
-    );
-    parameters.insert("signature", signature);
-    let json = serde_json::to_string(&parameters).unwrap();
-    JsValue::from(json)
 }
 
 #[wasm_bindgen]
@@ -95,7 +52,7 @@ pub fn game() {
 pub async fn get_chains(page_index: i32, page_size: i32) -> Result<JsValue, JsValue> {
     let mut host = String::from("https://www.bitsat.ai");
     let mut options = RequestInit::new();
-    options.method("GET");
+    options.set_method("GET");
     let api_url = format!("{}/bitsat/api/bridge/chain/list?pageIndex={}&pageSize={}", host, page_index, page_size);
     let request = Request::new_with_str_and_init(api_url.as_ref(), options.as_ref())?;
     request.headers().set("Accept", "application/vnd.github.v3+json")?;
