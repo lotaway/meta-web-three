@@ -1,7 +1,7 @@
 import torch
 
 # check if GPU device work
-if torch.boackends.mps.is_available():
+if torch.backends.mps.is_available():
     device = torch.device("mps") # use AMD Metal Performance Shaders
     print("AMD GPU is available.")
 else:
