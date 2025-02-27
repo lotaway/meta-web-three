@@ -44,6 +44,7 @@ def load_data():
 
     train_loader = DataLoader(dataset=train_dataset, batch_size=64, shuffle=True)
     test_loader = DataLoader(dataset=test_dataset, batch_size=64, shuffle=False)
+    return (train_loader, test_loader)
 
 class SimpleNN(nn.Module):
     def __init__(self):
@@ -75,6 +76,7 @@ def start_train():
     model = SimpleNN().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     criterion = nn.CrossEntropyLoss()
+    (train_loader, test_loader) = load_data()
 
     # 开始训练
     for epoch in range(5):
