@@ -10,6 +10,8 @@ from torchvision import datasets
 from torch.utils.data import DataLoader
 import torch.nn as nn
 
+from utils import tokenize
+
 
 def get_device():
     device = torch_directml.device()
@@ -91,7 +93,6 @@ def paint():
     plt.xlabel("angle")
     plt.ylabel("sine")
     plt.title('sine wave')
-    # 使用show展示图像
     plt.show()
 
 def paint2():
@@ -111,6 +112,8 @@ def main():
     print(tensor)
     paint()
     paint2()
+    tokens = tokenize("RagFlow对话系统特点与应用")
+    print(tokens)
 
 
 if __name__ == "__main__":
