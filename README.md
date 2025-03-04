@@ -5,7 +5,7 @@
 
 ## Description
 
-*本项目为元宇宙区块链3D相关*
+*本项目为元宇宙3D+区块链AI相关*
 
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
 
