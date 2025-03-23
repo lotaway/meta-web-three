@@ -2,6 +2,7 @@ from nltk import pos_tag, download
 from nltk.tokenize import word_tokenize
 import torch
 import torch_directml
+import platform
 
 if not download('punkt_tab'):
     print("Download punkt_tab not done")
@@ -17,7 +18,9 @@ def tokenize(text):
     return tokens
 
 def get_device():
-    device = torch_directml.device()
+    device = None
+    if platform.system() == 'Windows':
+        device = torch_directml.device()
     if device:
         print("Using GPU ms ml")
         return device
