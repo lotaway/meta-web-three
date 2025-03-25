@@ -1,9 +1,12 @@
+from typing import Optional
+
 import torch
 import torch_directml
 import torchvision.transforms as transforms
 from torchvision import datasets
 from torch.utils.data import DataLoader
 import torch.nn as nn
+
 
 def load_data():
     # 定义数据变换
@@ -20,17 +23,20 @@ def load_data():
     test_loader = DataLoader(dataset=test_dataset, batch_size=64, shuffle=False)
     return (train_loader, test_loader)
 
+
 class SimpleNN(nn.Module):
-    def __init__(self):
+    def __init__(self, input_dim: Optional[int], input_dim_2: Optional[int], out_dim: Optional[int], ):
         super(SimpleNN, self).__init__()
-        self.fc1 = nn.Linear(28 * 28, 128)
-        self.fc2 = nn.Linear(128, 10)
+        _output_dim = input_dim_2.__or__(128)
+        self.fc1 = nn.Linear(input_dim.__or__(28 * 28), _output_dim)
+        self.fc2 = nn.Linear(_output_dim, out_dim.__or__(10))
 
     def forward(self, x):
         x = x.view(-1, 28 * 28)  # 展平
         x = torch.nn.functional.relu(self.fc1(x))
         x = self.fc2(x)
         return x
+
 
 def train(model, train_loader, optimizer, criterion, device):
     model.train()
@@ -42,6 +48,7 @@ def train(model, train_loader, optimizer, criterion, device):
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
+
 
 def start_train():
     # 实例化模型、定义优化器和损失函数

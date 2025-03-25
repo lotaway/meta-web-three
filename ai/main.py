@@ -58,5 +58,13 @@ def init_torch(_x: np.ndarray):
     return x, y, z, y + z
 
 
+def test_backward():
+    # torch.zeros(3, 2).is_leaf
+    return (
+            torch.randn(3, 4, requires_grad=True) +
+            torch.randn(3, 4, requires_grad=True)
+    ).sum().backward()
+
+
 if __name__ == "__main__":
     main()
