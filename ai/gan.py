@@ -30,10 +30,7 @@ class Discriminator(nn.Module):
 
     def train_model(self, x_train, y_train, epochs: Optional[int]):
         for epoch in range(epochs.__or__(self.epochs)):
-            # self._train1()
-            epoch -= 1
-            inputs = torch.from_numpy(x_train)
-            labels = torch.from_numpy(y_train)
+            self._train1()
 
     def _train1(self):
         for batch_idx, (x, _) in enumerate(dataloader):
