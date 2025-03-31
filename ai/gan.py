@@ -33,34 +33,35 @@ class Discriminator(nn.Module):
             self._train1()
 
     def _train1(self):
-        for batch_idx, (x, _) in enumerate(dataloader):
-            x = x.view(-1, 784).to(device)  # 展平
-            batch_size = x.shape[0]
-            # 判别器反向传播==========================================================================
-            dx = disc(x).view(-1)  # 判别器对真实数据的预测概率
-            loss_real = criterion(dx, torch.ones_like(dx))  # 所有真实数据的损失均值
-            loss_real.backward()
-            D_x = dx.mean().item()
-
-            noise = torch.randn((batch_size, z_dim)).to(device)
-            gz = gen(noise)
-            dgz1 = disc(gz.detach())  # 需要使用detach来阻止gz进入D的计算图，判别器对生成数据的预测概率
-            loss_fake = criterion(dgz1, torch.zeros_like(dgz1))  # 所有生成数据的损失均值
-            loss_fake.backward(
-                D_G_z1=dgz1.mean().item()
-
-            errorD = loss_real + loss_fake
-            # errorD.backward() #直接对errorD反向传播，也可分别对loss_real，loss_fake执行反向传播
-            optim_disc.step()  # 更新判别器上的权重
-            disc.zero_grad()  # 清零判别器迭代后的梯度
-
-            # 生成器反向传播*==========================================================================
-            dgz2 = disc(gz)  # 注意，由于在此时判别器上的权重已经被更新过了，所以dgz的值会变化，需要重新生成
-            Gloss = criterion(dgz2, torch.ones_like(dgz2))
-            Gloss.backward()  # 反向传播
-            optim_gen.step()  # 更新生成器上的权重
-            gen.zero_grad()  # 清零生成器更新后梯度
-            D_G_z2 = dgz2.mean().item()
+        print("No implement")
+        # for batch_idx, (x, _) in enumerate(dataloader):
+        #     x = x.view(-1, 784).to(device)  # 展平
+        #     batch_size = x.shape[0]
+        #     # 判别器反向传播==========================================================================
+        #     dx = disc(x).view(-1)  # 判别器对真实数据的预测概率
+        #     loss_real = criterion(dx, torch.ones_like(dx))  # 所有真实数据的损失均值
+        #     loss_real.backward()
+        #     D_x = dx.mean().item()
+        #
+        #     noise = torch.randn((batch_size, z_dim)).to(device)
+        #     gz = gen(noise)
+        #     dgz1 = disc(gz.detach())  # 需要使用detach来阻止gz进入D的计算图，判别器对生成数据的预测概率
+        #     loss_fake = criterion(dgz1, torch.zeros_like(dgz1))  # 所有生成数据的损失均值
+        #     loss_fake.backward(
+        #         D_G_z1=dgz1.mean().item()
+        #
+        #     errorD = loss_real + loss_fake
+        #     # errorD.backward() #直接对errorD反向传播，也可分别对loss_real，loss_fake执行反向传播
+        #     optim_disc.step()  # 更新判别器上的权重
+        #     disc.zero_grad()  # 清零判别器迭代后的梯度
+        #
+        #     # 生成器反向传播*==========================================================================
+        #     dgz2 = disc(gz)  # 注意，由于在此时判别器上的权重已经被更新过了，所以dgz的值会变化，需要重新生成
+        #     Gloss = criterion(dgz2, torch.ones_like(dgz2))
+        #     Gloss.backward()  # 反向传播
+        #     optim_gen.step()  # 更新生成器上的权重
+        #     gen.zero_grad()  # 清零生成器更新后梯度
+        #     D_G_z2 = dgz2.mean().item()
 
 
 class Generator(nn.Module):

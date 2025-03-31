@@ -8,6 +8,7 @@ import math
 import torch
 from numexpr.expressions import double
 
+from LinearRegressionModel import LinearRegressionModel
 from utils import tokenize, get_device
 
 
@@ -33,7 +34,7 @@ def paint2():
     plt.show()
 
 
-def main():
+def main1():
     device = get_device()
     tensor = torch.randn(2, 2).to(device)
     print(tensor)
@@ -42,6 +43,11 @@ def main():
     tokens = tokenize("RagFlow对话系统特点与应用")
     print(tokens)
     init_torch(torch.randn(5, 3).numpy())
+
+def main():
+    x_train, y_train = LinearRegressionModel.train_data()
+    model = LinearRegressionModel.train_model(x_train, y_train)
+    print(model)
 
 
 def init_torch(_x: np.ndarray):
