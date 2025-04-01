@@ -45,7 +45,9 @@ def main1():
     init_torch(torch.randn(5, 3).numpy())
 
 def main():
+    print("Start in main")
     x_train, y_train = LinearRegressionModel.train_data()
+    print("Train data get done")
     model = LinearRegressionModel.train_model(x_train, y_train)
     print(model)
 
