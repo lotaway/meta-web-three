@@ -55,11 +55,11 @@ class LinearRegressionModel(nn.Module):
         for epoch in range(epochs.__or__(epochs)):
             epoch += 1
             inputs = torch.from_numpy(x_train).to(device)
-            labels = torch.from_numpy(y_train).long().to(device)
+            labels = torch.from_numpy(y_train).to(device)
             optimizer.zero_grad()
             outputs = model(inputs)
-            print("Outputs shape:", outputs.shape)
-            print("Labels shape:", labels.shape)
+            # print("Outputs shape:", outputs.shape)
+            # print("Labels shape:", labels.shape)
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
