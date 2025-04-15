@@ -3,10 +3,11 @@ from torch import nn
 import pandas as pd
 from datasets import load_dataset
 import numpy as np
+import matplotlib.pyplot as plt
 
 class WeatherModel(nn.Module):
     def __init__(self, input_features, labels):
-        super.__init__()
+        super().__init__()
 
         self.x = torch.tensor(input_features, dtype=float)
         self.y = torch.tensor(labels, dtype=float)
@@ -30,11 +31,11 @@ class WeatherModel(nn.Module):
         output_size = 1
         learning_rate = 0.001
 
-        weights = torch.randn((input_size, hidden_size), dtype=float, required_grad=True)
-        biases = torch.randn((1, hidden_size), dtype=float, required_grad=True)
+        weights = torch.randn((input_size, hidden_size), dtype=float, requires_grad=True)
+        biases = torch.randn((1, hidden_size), dtype=float, requires_grad=True)
 
-        weights2 = torch.randn((hidden_size, 1), dtype=float, required_grad=True)
-        biases2 = torch.randn((output_size, 1), dtype=float, required_grad=True)
+        weights2 = torch.randn((hidden_size, 1), dtype=float, requires_grad=True)
+        biases2 = torch.randn((output_size, 1), dtype=float, requires_grad=True)
         losses = []
 
         for i in range(1000):
@@ -101,3 +102,38 @@ class WeatherModel(nn.Module):
                 mean_batch_loss = np.mean(batch_loss)
                 losses.append(mean_batch_loss)
                 print(f"Epoch {i}: Loss {mean_batch_loss}")
+
+        x = torch.tensor(input_features, dtype=torch.float)
+        predict = my_nn(x).data.numpy()
+        
+        # 准备绘图数据
+
+        # 提取日期信息
+        dates = pd.to_datetime(df['date'])
+        years = dates.dt.year
+        months = dates.dt.month
+        days = dates.dt.day
+        date_strings = [f"{int(year)}-{int(month):02d}-{int(day):02d}" 
+                       for year, month, day in zip(years, months, days)]
+        
+        cls.plot_results({
+            'model': my_nn,
+            'predictions': predict,
+            'actual': labels,
+            'dates': date_strings,
+            'losses': losses
+        })
+
+    @classmethod
+    def plot_results(cls, results):
+        plt.figure(figsize=(12, 6))
+        plt.plot(results['dates'], results['actual'], label='Actual', color='blue')
+        plt.plot(results['dates'], results['predictions'], label='Predicted', color='red')
+        plt.xlabel('Date')
+        plt.ylabel('Temperature')
+        plt.title('Weather Prediction Results')
+        plt.xticks(rotation=45)
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
+
