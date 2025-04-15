@@ -10,6 +10,7 @@ from numexpr.expressions import double
 
 from LinearRegressionModel import LinearRegressionModel
 from utils import tokenize, get_device
+from WeatherModel import WeatherModel
 
 
 def paint():
@@ -44,12 +45,17 @@ def main1():
     print(tokens)
     init_torch(torch.randn(5, 3).numpy())
 
-def main():
+def main2():
     print("Start in main")
     x_train, y_train = LinearRegressionModel.train_data()
     print("Train data get done")
     model = LinearRegressionModel.train_model(x_train, y_train)
     print(model)
+
+def main():
+    print("Start in main")
+    WeatherModel.train_model()
+    print("Train data get done")
 
 
 def init_torch(_x: np.ndarray):
