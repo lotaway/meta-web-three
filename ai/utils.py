@@ -4,8 +4,8 @@ import torch
 import torch_directml
 import platform
 
-if not download('punkt_tab'):
-    print("Download punkt_tab not done")
+# if not download('punkt_tab'):
+#     print("Download punkt_tab not done")
 
 def test():
     text = "NLP is a fascinating field of study."

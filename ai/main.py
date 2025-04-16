@@ -54,7 +54,7 @@ def main2():
 
 def main():
     print("Start in main")
-    WeatherModel.train_model()
+    WeatherModel.train_model_simple()
     print("Train data get done")
 
 
