@@ -1,9 +1,10 @@
 import torch
 from torch import nn
 import pandas as pd
-from datasets import load_dataset
+from datasets import load_dataset, config
 import numpy as np
 import matplotlib.pyplot as plt
+# print(config.HF_DATASETS_CACHE)
 
 class WeatherModel(nn.Module):
     def __init__(self, input_features, labels):
@@ -15,11 +16,13 @@ class WeatherModel(nn.Module):
     @classmethod
     def train_data(cls):
         dataset = load_dataset("kanishka089/weather")
-        df = pd.read_csv(dataset)
+        # dataset = load_dataset("csv", data_files={"weather_classification_data.csv"})
+        # df = pd.read_csv(dataset)
+        df = dataset["train"].to_pandas()
         return df
 
     @classmethod
-    def train_model_mannually(cls):
+    def train_model_manually(cls):
         df = cls.train_data()
         input_features = df.drop("actual", axis=1).values
         labels = df["actual"].values
