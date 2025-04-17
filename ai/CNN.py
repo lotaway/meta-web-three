@@ -43,6 +43,20 @@ class CNN(nn.Module):
         return x
     
     @classmethod
+    def base_train(cls):
+        model = nn.Sequential(
+            nn.Conv2d(3, 64, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+            nn.Flatten(),
+            nn.Linear(128 * 56 * 56, 10)  # 假设输入为224x224
+        )
+        return model
+    
+    @classmethod
     def train_model(cls):
         # 创建模型
         model = CNN()
@@ -72,3 +86,24 @@ class CNN(nn.Module):
                 running_loss += loss.item()
 
             print(f'Epoch {epoch+1}, Loss: {running_loss/len(train_loader)}')
+
+class CNNBuilder(nn.Module):
+    def __init__(self, config):
+        super().__init__()
+        layers = []
+        for (in_ch, out_ch, kernel) in config:
+            layers += [
+                nn.Conv2d(in_ch, out_ch, kernel),
+                nn.BatchNorm2d(out_ch),
+                nn.ReLU()
+            ]
+        self.net = nn.Sequential(*layers)
+    
+    def forward(self, x):
+        return self.net(x)
+
+    @classmethod
+    def test(cls):
+        config = [(3,64,3), (64,128,3), (128,256,5)]
+        model = CNNBuilder(config)
+        print(model)
