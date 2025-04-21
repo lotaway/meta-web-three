@@ -1,7 +1,6 @@
 from typing import Optional
 
 import torch
-import torch_directml
 import torchvision.transforms as transforms
 from torchvision import datasets
 from torch.utils.data import DataLoader
