@@ -69,8 +69,21 @@ class WeatherModel(nn.Module):
     @classmethod
     def train_model_simple(cls):
         df = cls.train_data()
-        input_features = df.drop("actual", axis=1).values
-        labels = df["actual"].values
+        # Convert date column to numeric features if it exists
+        if 'date' in df.columns:
+            df['date'] = pd.to_datetime(df['date'])
+            df['year'] = df['date'].dt.year
+            df['month'] = df['date'].dt.month
+            df['day'] = df['date'].dt.day
+            df = df.drop('date', axis=1)
+        
+        # Ensure all columns are numeric
+        for col in df.columns:
+            if df[col].dtype == 'object':
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+        
+        input_features = df.drop("Temperature", axis=1).values.astype(np.float32)
+        labels = df["Temperature"].values.astype(np.float32)
 
         input_size = input_features.shape[1]
         hidden_size = 128
