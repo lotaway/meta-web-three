@@ -69,6 +69,9 @@ class WeatherModel(nn.Module):
     @classmethod
     def train_model_simple(cls):
         df = cls.train_data()
+        print("Original data shape:", df.shape)
+        print("Original columns:", df.columns)
+        
         # Convert date column to numeric features if it exists
         if 'date' in df.columns:
             df['date'] = pd.to_datetime(df['date'])
@@ -77,47 +80,82 @@ class WeatherModel(nn.Module):
             df['day'] = df['date'].dt.day
             df = df.drop('date', axis=1)
         
-        # Ensure all columns are numeric
+        # Ensure all columns are numeric and handle NaN values
         for col in df.columns:
             if df[col].dtype == 'object':
                 df[col] = pd.to_numeric(df[col], errors='coerce')
+            # Remove rows with NaN values
+            df = df.dropna(subset=[col])
+        
+        print("Data shape after cleaning:", df.shape)
+        print("Data types:", df.dtypes)
+        
+        # Normalize the data
+        df = (df - df.mean()) / df.std()
+        
+        # Check for any remaining NaN values
+        if df.isnull().any().any():
+            print("Warning: NaN values still present after normalization")
+            print(df.isnull().sum())
+            return
         
         input_features = df.drop("Temperature", axis=1).values.astype(np.float32)
         labels = df["Temperature"].values.astype(np.float32)
 
+        print("Input features shape:", input_features.shape)
+        print("Labels shape:", labels.shape)
+        
         input_size = input_features.shape[1]
-        hidden_size = 128
+        hidden_size = 64  # Reduced from 128
         output_size = 1
-        batch_size = 16
-        learning_rate = 0.001
+        batch_size = 32  # Increased from 16
+        learning_rate = 0.0001  # Reduced from 0.001
 
         my_nn = nn.Sequential(
-            torch.nn.Linear(input_size, hidden_size),
-            torch.nn.Sigmoid(),
-            torch.nn.Linear(hidden_size, output_size),
+            nn.Linear(input_size, hidden_size),
+            nn.BatchNorm1d(hidden_size),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_size, output_size)
         )
 
-        cost = torch.nn.MSELoss(reduction='mean')
-        optimizer = torch.optim.Adam(my_nn.parameters(), lr=learning_rate)
+        criterion = nn.MSELoss()
+        optimizer = torch.optim.Adam(my_nn.parameters(), lr=learning_rate, weight_decay=1e-5)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=5)
 
         losses = []
         for i in range(1000):
             batch_loss = []
+            my_nn.train()  # Set model to training mode
+            
             for start in range(0, len(input_features), batch_size):
                 end = start + batch_size if start + batch_size < len(input_features) else len(input_features)
-                xx = torch.tensor(input_features[start:end], dtype=torch.float, requires_grad=True)
-                yy = torch.tensor(labels[start:end], dtype=torch.float, requires_grad=True)
-                prediction = my_nn(xx)
-                loss = cost(prediction, yy)
-                batch_loss.append(loss.data.numpy())
+                xx = torch.tensor(input_features[start:end], dtype=torch.float32)
+                yy = torch.tensor(labels[start:end], dtype=torch.float32)
+                
                 optimizer.zero_grad()
-                loss.backward(retain_graph=True)
+                prediction = my_nn(xx)
+                loss = criterion(prediction.squeeze(), yy)
+                
+                if torch.isnan(loss):
+                    print(f"Warning: NaN loss detected at epoch {i}, batch {start}")
+                    print("Input features stats:", xx.mean().item(), xx.std().item())
+                    print("Labels stats:", yy.mean().item(), yy.std().item())
+                    break
+                
+                loss.backward()
+                # Gradient clipping
+                torch.nn.utils.clip_grad_norm_(my_nn.parameters(), max_norm=1.0)
                 optimizer.step()
+                batch_loss.append(loss.item())
 
-            if i % 100 == 0:
+            if batch_loss:  # Only proceed if we have valid losses
                 mean_batch_loss = np.mean(batch_loss)
                 losses.append(mean_batch_loss)
-                print(f"Epoch {i}: Loss {mean_batch_loss}")
+                scheduler.step(mean_batch_loss)
+                
+                if i % 10 == 0:  # Print more frequently
+                    print(f"Epoch {i}: Loss {mean_batch_loss:.6f}, LR: {optimizer.param_groups[0]['lr']:.6f}")
 
         x = torch.tensor(input_features, dtype=torch.float)
         predict = my_nn(x).data.numpy()
