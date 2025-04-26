@@ -191,3 +191,12 @@ class WeatherModel(nn.Module):
         plt.tight_layout()
         plt.show()
 
+class Weather2Model(nn.Moddle):
+
+    @classmethod
+    def get_data(cls):
+        x_train, y_train, x_valid, y_valid = map(
+            torch.tensor, (x_train, y_train, x_valid, y_valid)
+        )
+        n, c = x_train.shape
+        print("Training data shape:", x_train.shape)

@@ -4,6 +4,7 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 import math
 import numpy as np
+from utils import get_device
 
 class TextDataset(Dataset):
     def __init__(self, texts, vocab, max_length):
@@ -132,8 +133,8 @@ def test():
     learning_rate = 0.0001
     
     # 设备设置
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    
+    device = get_device()
+
     # 示例数据
     texts = [
         "Hello, how are you?",
