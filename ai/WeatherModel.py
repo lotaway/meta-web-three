@@ -200,3 +200,4 @@ class Weather2Model(nn.Moddle):
         )
         n, c = x_train.shape
         print("Training data shape:", x_train.shape)
+        return x_train, y_train, x_valid, y_valid, n, c
