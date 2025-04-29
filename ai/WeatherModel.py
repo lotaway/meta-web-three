@@ -1,9 +1,11 @@
 import torch
 from torch import nn
+import torch.nn.functional as F
 import pandas as pd
 from datasets import load_dataset, config
 import numpy as np
 import matplotlib.pyplot as plt
+from utils import DataLoaderWrapper, fit
 # print(config.HF_DATASETS_CACHE)
 
 class WeatherModel(nn.Module):
@@ -191,13 +193,50 @@ class WeatherModel(nn.Module):
         plt.tight_layout()
         plt.show()
 
-class Weather2Model(nn.Moddle):
+class Mnist_NN(nn.Moddle):
 
     @classmethod
     def get_data(cls):
+        x_train = np.array([[1, 2], [3, 4]])  # 示例数据
+        y_train = np.array([1, 2])
+        x_valid = np.array([[5, 6], [7, 8]])
+        y_valid = np.array([3, 4])
+
         x_train, y_train, x_valid, y_valid = map(
             torch.tensor, (x_train, y_train, x_valid, y_valid)
         )
         n, c = x_train.shape
         print("Training data shape:", x_train.shape)
         return x_train, y_train, x_valid, y_valid, n, c
+
+    @classmethod
+    def train_model(cls):
+        x_train, y_train, x_valid, y_valid, n, c = cls.get_data()
+        train_dl, valid_dl = DataLoaderWrapper(x_train, y_train, x_valid, y_valid, bs=32)
+
+        loss_func = F.cross_entropy
+
+        bs = 64
+        # xb = x_train[0:bs]
+        # yb = y_train[0:bs]
+        # weights = torch.randn([784, 10], dtype=torch.float, requires_grad=True)
+        # bias = torch.zeros(10, requires_grad=True)
+
+        # result = xb.mm(weights) + bias
+        # print(result)
+        model = Mnist_NN()
+        optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+        fit(25, model, loss_func, optimizer, train_dl, valid_dl)
+        print(model, optimizer)
+
+    def __init__(self):
+        super().__init__()
+        self.hidden1 = nn.Linear(784, 128)
+        self.hidden2 = nn.Linear(128, 256)
+        self.output = nn.Linear(256, 10)
+
+    def forward(self, x):
+        x = F.relu(self.hidden1(x))
+        x = F.relu(self.hidden2(x))
+        x = self.output(x)
+        return x
