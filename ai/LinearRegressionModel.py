@@ -3,7 +3,6 @@ from typing import Optional
 import torch
 from torch import nn
 from utils import get_device
-from torchvision import datasets, transforms
 import numpy as np
 
 
