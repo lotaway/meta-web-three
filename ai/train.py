@@ -8,8 +8,15 @@ import torch.nn as nn
 
 
 def load_data():
-    # 定义数据变换
+    # 定义数据变换，可增加更多数据集
     transform = transforms.Compose([
+        # for vision dataset
+        # transforms.RandomRotation(45), # 随机旋转，范围为[-45, 45]
+        # transforms.CenterCrop(224), # 中心裁剪
+        # transforms.RandomHorizontalFlip(p=0.5), # 概率翻转
+        # transforms.RandomVerticalFlip(p=0.5), # 概率翻转
+        # transforms.ColorJitter(brightness=0.2, contrast=0.1, saturation=0.1, hue=0.1), # 随机调整亮度、对比度、饱和度、色调
+        # transforms.RandomGrayscale(p=0.1), # 随机灰度化
         transforms.ToTensor(),
         transforms.Normalize((0.5,), (0.5,))
     ])
