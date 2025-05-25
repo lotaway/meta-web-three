@@ -1,4 +1,6 @@
-require("@nomiclabs/hardhat-waffle");
+require("@nomiclabs/hardhat-waffle")
+require("dotenv").config()
+
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 /** @type import('hardhat/config').HardhatUserConfig */
@@ -30,7 +32,7 @@ module.exports = {
             accounts
         },
         sepolia: {
-            url: "https://eth-sepolia.alchemyapi.io/v2/liTsZpkvhffOegSsOSi-DAaOzu",
+            url: `https://eth-sepolia.alchemyapi.io/v2/${process.env.NETWORK_KEY}`,
             accounts
         }
     }
