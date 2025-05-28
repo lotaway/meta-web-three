@@ -40,7 +40,7 @@ module.exports = {
             accounts
         },
         sepolia: {
-            url: "https://eth-sepolia.alchemyapi.io/v2/liTsZpkvhffOegSsOSi-DAaOzu",
+            url: `https://eth-sepolia.alchemyapi.io/v2/${process.env.NETWORK_KEY}`,
             accounts
         }
     }
