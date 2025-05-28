@@ -1,4 +1,9 @@
 require("@nomiclabs/hardhat-waffle");
+require("@nomicfoundation/hardhat-toolbox");
+require("hardhat-deploy");
+require("@openzeppelin/hardhat-upgrades");
+require("hardhat-gas-reporter");
+require("dotenv").config();
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 /** @type import('hardhat/config').HardhatUserConfig */
@@ -7,6 +12,11 @@ module.exports = {
     typechain: {
         outDir: "./typechain",
         target: "ethers-v6",
+    },
+    etherscan: {
+        apiKey: {
+            sepolia: process.env.SEPOLIA_KEY ?? "",
+        }
     },
     solidity: {
         version: "0.8.20",

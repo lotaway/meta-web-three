@@ -1,11 +1,9 @@
 const hre = require("hardhat")
 // const ethers = hre.ethers
-
-const ethers = require("ethers")
 const {join} = require("node:path")
 const {createWriteStream} = require("node:fs")
 
-async function main(options) {
+export default async function({deployments, getNamedAccounts, network, solNames}) {
     // const AccountTransferContract = await hre.ethers.getContractFactory("AccountTransfer")
     // const accountTransferContract = await AccountTransferContract.deploy()
     // await accountTransferContract.deployed()
@@ -21,16 +19,19 @@ async function main(options) {
                 return contract.deployed()
             })
     })*/
+   const adminAddress = getNamedAccounts().admin
     const tokenContract = await hre.ethers.getContractFactory("MetaThreeCoin")
     const solName = "MetaThreeCoinFactory"
     const FactoryContract = await hre.ethers.getContractFactory(solName)
     const factoryContract = await FactoryContract.deploy({
-        from: hre.ethers.provider,
+        // from: hre.ethers.provider,
+        from: adminAddress,
         args: [],
         log: true,
         contract: solName,
         proxy: {
             owner: hre.ethers.provider,
+            owner: adminAddress,
             proxyContract: 'UUPS',
             execute: {
                 init: {
@@ -44,31 +45,20 @@ async function main(options) {
             }
         }
     })
-    options?.output(`${solName} already deployed, address: ${factoryContract.address}`)
+    // await factoryContract.deployed()
+    await factoryContract.waitForDeployment()
+    // const tx = await factoryContract.deployTransaction()
+    // await tx.wait(5)
+    console.info(`${solName} already deployed, address: ${factoryContract.address}`)
     // await Promise.all(compiles)
-}
-
-function runMain() {
-    const logWriteStream = () => createWriteStream(join(__dirname, "../artifacts/build-info/deploy-output.txt"), {
-        encoding: "utf-8",
-        flags: "r+"
-    })
-    return main({
-        output(message) {
-            console.log(message)
-            logWriteStream().write(message + "\n")
-        }
-    })
-        .then(() => {
-            logWriteStream().end("success")
-            process.exit(0)
+    // const name = await hre.ethers.provider.getNetwork()
+    // const needVerify = !!(name === "hardhat" || name === "localhost") // product verify
+    const needVerify = false
+    if (needVerify) {
+        const verifyTX = await hre.run("verify:verify", {
+            address: factoryContract.address,
+            constructorArguments: []
         })
-        .catch(err => {
-            const message = "error: " + JSON.stringify(err)
-            console.error(message)
-            logWriteStream().end(message)
-            process.exit(1)
-        })
+        console.info(`verifyTX: ${verifyTX}`)
+    }
 }
-
-void runMain()
