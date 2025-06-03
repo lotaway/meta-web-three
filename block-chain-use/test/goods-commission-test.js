@@ -59,10 +59,10 @@ describe("Goods and Commission System", function () {
         
         // 验证商品规格
         const specs = await goodsNFT.getGoodSpecifications(0);
-        expect(specs[0].key).to.equal("Color");
-        expect(specs[0].value).to.equal("Red");
-        expect(specs[1].key).to.equal("Size");
-        expect(specs[1].value).to.equal("Large");
+        specs.forEach((item, index) => {
+            expect(item.key).to.equal(keys[index])
+            expect(item.value).to.equal(values[index])
+        })
 
         // 验证 NFT 所有权
         expect(await goodsNFT.ownerOf(0)).to.equal(buyer.address);
