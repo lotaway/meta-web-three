@@ -13,4 +13,11 @@ pub mod solana_contract {
 }
 
 #[derive(Accounts)]
-pub struct Initialize {}
+pub struct Initialize<'info> {
+    #[account(init, payer = admin, space = 8 + 8)]
+    token_manager: AccountInfo<'info>,
+    #[account(mut)]
+    admin: Signer<'info>,
+    system_program: Program<'info, System>,
+}
+
