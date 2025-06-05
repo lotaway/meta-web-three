@@ -32,10 +32,11 @@ pub mod solana_contract {
         let transaction = Transfer {
             from: ctx.accounts.program_token_account.to_account_info(),
             to: ctx.accounts.recevier_token_account.to_account_info(),
-            authority: ctx.accounts.token_mananer.to_account_info(),
+            authority: ctx.accounts.token_manager.to_account_info(),
         };
-        let seeds = [seeds::TOKEN_MANAGER, ctx.accounts.token_mint_account.key().as_ref()];
-        let bump = ctx.accounts.token_manager.bump;
+        let binding = ctx.accounts.token_mint_account.key();
+        let seeds = &[seeds::TOKEN_MANAGER, binding.as_ref()];
+        let bump = ctx.bumps.token_manager;
         let signer = &[&seeds[..]];
         let cpi_ctx = CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
@@ -115,7 +116,7 @@ pub struct DepositAccounts<'info> {
 }
 
 #[derive(Accounts)]
-pub struct WithDrawAccounts<'info> {
+pub struct WithdrawAccounts<'info> {
 
     #[account(
         mut, 
