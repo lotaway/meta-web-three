@@ -34,9 +34,8 @@ pub mod solana_contract {
             to: ctx.accounts.recevier_token_account.to_account_info(),
             authority: ctx.accounts.token_manager.to_account_info(),
         };
-        let binding = ctx.accounts.token_mint_account.key();
-        let seeds = &[seeds::TOKEN_MANAGER, binding.as_ref()];
-        let bump = ctx.bumps.token_manager;
+        let bump: u8 = ctx.bumps.token_manager;
+        let seeds = &[seeds::TOKEN_MANAGER, &[bump]];
         let signer = &[&seeds[..]];
         let cpi_ctx = CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
