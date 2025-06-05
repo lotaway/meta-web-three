@@ -49,7 +49,9 @@ pub mod solana_contract {
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
-
+    /// The PDA account that manages token operations.
+    /// CHECK: This is a PDA account that serves as the authority for program token operations.
+    /// Safety is ensured through PDA derivation using TOKEN_MANAGER seeds and bump.
     #[account(
         init_if_needed,
         payer = signer, 
@@ -68,6 +70,9 @@ pub struct Initialize<'info> {
     )]
     program_token_account: Account<'info, TokenAccount>,
 
+    /// CHECK: This is the mint account for the token being managed.
+    /// It is safe because it's only used as a reference for PDA derivation
+    /// and is validated by the Token Program in program_token_account constraints.
     token_mint_account: AccountInfo<'info>,
 
     #[account(mut)]
@@ -82,7 +87,9 @@ pub struct Initialize<'info> {
 
 #[derive(Accounts)]
 pub struct DepositAccounts<'info> {
-
+    /// The PDA account that manages token operations.
+    /// CHECK: This is a PDA account verified by seeds and bump constraint.
+    /// It is safe because it can only be derived from the program's TOKEN_MANAGER seed.
     #[account(
         mut, 
         seeds=[seeds::TOKEN_MANAGER], 
@@ -99,9 +106,15 @@ pub struct DepositAccounts<'info> {
     )]
     program_token_account: Account<'info, TokenAccount>,
 
+    /// CHECK: This is the source token account owned by the signer.
+    /// It is safe because:
+    /// 1. The signer must sign the transaction (enforced by Anchor)
+    /// 2. The Token Program validates ownership and balance during transfer
     #[account(mut)]
     sender_token_account: AccountInfo<'info>,
 
+    /// CHECK: This is the mint account that represents the token type being transferred.
+    /// It is safe because it's validated through the token constraints on program_token_account.
     token_mint_account: AccountInfo<'info>,
 
     #[account(mut)]
@@ -116,7 +129,9 @@ pub struct DepositAccounts<'info> {
 
 #[derive(Accounts)]
 pub struct WithdrawAccounts<'info> {
-
+    /// The PDA account that manages token operations.
+    /// CHECK: This is a PDA account validated by seeds and bump constraint.
+    /// Safety is guaranteed as it can only be derived from TOKEN_MANAGER seed and is used as a signing PDA.
     #[account(
         mut, 
         seeds=[seeds::TOKEN_MANAGER], 
@@ -133,9 +148,16 @@ pub struct WithdrawAccounts<'info> {
     )]
     program_token_account: Account<'info, TokenAccount>,
 
+    /// CHECK: This is the destination token account for withdrawal.
+    /// It is safe because the Token Program validates during transfer:
+    /// 1. The account is a valid token account
+    /// 2. It has the correct mint
+    /// 3. It can receive tokens
     #[account(mut)]
     recevier_token_account: AccountInfo<'info>,
 
+    /// CHECK: This is the mint account for the token being withdrawn.
+    /// It is safe because it's validated through the token constraints on program_token_account.
     token_mint_account: AccountInfo<'info>,
 
     #[account(mut)]
