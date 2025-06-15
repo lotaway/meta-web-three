@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{Token, TokenAccount, Transfer, transfer};
 pub mod seeds;
 
-declare_id!("FJBs8eFtXpdnGWcnihfqRJpJTx8Loak4f1pUUAS6nFxn");
+declare_id!("EUDxXt8kG9o76MWGwyZCGUL1oPPnoNvmAprdZskjyBTh");
 
 #[program]
 pub mod solana_contract {
