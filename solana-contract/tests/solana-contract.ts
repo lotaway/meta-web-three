@@ -9,6 +9,7 @@ describe("solana-contract", () => {
 
   let program: Program<SolanaContract>
   let createdNFT: CreateCompressedNftOutput
+  let createNFTKeypair: Keypair
 
   before(async () => {
     anchor.setProvider(anchor.AnchorProvider.env())
@@ -17,12 +18,13 @@ describe("solana-contract", () => {
 
   it("Is nft created", async () => {
     // const tx = await program.methods.createNft().rpc();
+    createNFTKeypair = Keypair.generate()
     const metaplex = new Metaplex(anchor.getProvider().connection).use(
       keypairIdentity(anchor.getProvider().wallet.payer)
     )
     if (metaplex.cluster === "localnet") {
       createdNFT = {
-        mintAddress: Keypair.generate().publicKey
+        mintAddress: createNFTKeypair.publicKey
       } as CreateCompressedNftOutput
       console.log("createdNFT", createdNFT.mintAddress)
       return
@@ -32,18 +34,18 @@ describe("solana-contract", () => {
       symbol: "TEST",
       uri: "https://example.com/nft.json",
       sellerFeeBasisPoints: 0,
+      useExistingMint: createNFTKeypair.publicKey,
     })
     console.log("Your transaction signature", createdNFT)
   })
 
   it("Is initialized!", async () => {
-    console.log("mintAddress", createdNFT.mintAddress)
     const tx = await program.methods
       .initialize()
       .accounts({
-        tokenMintAccount: createdNFT.mintAddress,
-        // signer
+        tokenMintAccount: createNFTKeypair.publicKey.toBase58(),
       })
+      .signers([createNFTKeypair])
       .rpc()
     console.log("Your transaction signature", tx)
   })
