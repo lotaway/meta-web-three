@@ -61,15 +61,6 @@ pub struct Initialize<'info> {
     )]
     token_manager: AccountInfo<'info>,
 
-    #[account(
-        init_if_needed,
-        payer = signer,
-        seeds=[seeds::PROGRAM_TOKEN_ACCOUNT, token_mint_account.key().as_ref()],
-        bump,
-        space = TokenAccount::LEN,
-    )]
-    program_token_account: Account<'info, TokenAccount>,
-
     /// CHECK: This is the mint account for the token being managed.
     /// It is safe because it's only used as a reference for PDA derivation
     /// and is validated by the Token Program in program_token_account constraints.
@@ -80,6 +71,17 @@ pub struct Initialize<'info> {
         mint::authority = signer,
     )]
     token_mint_account: Account<'info, anchor_spl::token::Mint>,
+
+    #[account(
+        init_if_needed,
+        payer = signer,
+        seeds=[seeds::PROGRAM_TOKEN_ACCOUNT, token_mint_account.key().as_ref()],
+        bump,
+        token::mint = token_mint_account,
+        token::authority = token_manager,
+        // space = TokenAccount::LEN,
+    )]
+    program_token_account: Account<'info, TokenAccount>,
 
     #[account(mut)]
     signer: Signer<'info>,
