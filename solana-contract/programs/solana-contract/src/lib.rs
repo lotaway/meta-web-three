@@ -1,4 +1,4 @@
-use anchor_lang::prelude::*;
+use anchor_lang::prelude::{borsh::de, *};
 use anchor_spl::token::{Token, TokenAccount, Transfer, transfer};
 pub mod seeds;
 
@@ -73,7 +73,13 @@ pub struct Initialize<'info> {
     /// CHECK: This is the mint account for the token being managed.
     /// It is safe because it's only used as a reference for PDA derivation
     /// and is validated by the Token Program in program_token_account constraints.
-    token_mint_account: AccountInfo<'info>,
+    #[account(
+        init_if_needed,
+        payer = signer,
+        mint::decimals = 9,
+        mint::authority = signer,
+    )]
+    token_mint_account: Account<'info, anchor_spl::token::Mint>,
 
     #[account(mut)]
     signer: Signer<'info>,
