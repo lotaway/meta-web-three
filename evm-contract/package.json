@@ -1,0 +1,37 @@
+{
+  "name": "evm-contract",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dg": "yarn deploy:ganache",
+    "deploy:ganache": "npx hardhat run scripts/deploy.js --network ganache",
+    "ds": "yarn deploy:sepolia",
+    "deploy:sepolia": "npx hardhat run scripts/deploy.js --network sepolia",
+    "deploy:verify": "npx hardhat verify --network sepolia",
+    "deploy:coverage": "npx hardhat coverage",
+    "test": "npx hardhat test test/simple-test.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.9",
+    "@nomicfoundation/hardhat-ethers": "^3.0.9",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.13",
+    "@nomicfoundation/hardhat-toolbox": "^6.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.14",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-waffle": "^2.0.6",
+    "@openzeppelin/contracts": "^5.3.0",
+    "@openzeppelin/hardhat-upgrades": "^3.9.0",
+    "chai": "^5.2.0",
+    "dotenv": "^16.5.0",
+    "ethereum-waffle": "^4.0.10",
+    "hardhat": "^2.25.0",
+    "hardhat-deploy": "^1.0.4",
+    "hardhat-gas-reporter": "^2.3.0",
+    "zeppelin-solidity": "^1.12.0"
+  }
+}
