@@ -1,6 +1,5 @@
 mod utils;
 mod tetris;
-mod bitcoin_utils;
 mod service;
 mod excel;
 
@@ -10,7 +9,6 @@ use wasm_bindgen::prelude::*;
 use std::collections::HashSet;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Request, RequestInit, Response};
-use crate::bitcoin_utils::{BitcoinNetwork, P2trTransaction};
 use crate::tetris::{Shape, Tetris};
 
 #[wasm_bindgen]
@@ -27,18 +25,6 @@ extern {
 #[wasm_bindgen]
 pub fn greet(name: &str) {
     alert(&format!("Hello, {}!", name));
-}
-
-#[wasm_bindgen]
-pub fn p2tr_transaction(network: &str) {
-    let mut p2tr_transaction = P2trTransaction::new();
-    p2tr_transaction.generate_address(BitcoinNetwork::from_str(network).unwrap().as_network()).build_transaction("0")
-}
-
-#[wasm_bindgen]
-pub fn psbt_generate(public_key: &str, pub_script: &str) -> Result<JsValue, JsValue> {
-    let val = JsValue::from(public_key);
-    Ok(val)
 }
 
 pub fn game() {

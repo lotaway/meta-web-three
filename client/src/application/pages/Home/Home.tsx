@@ -16,7 +16,7 @@ export default function Home() {
     const dispatch = useAppDispatch()
     const [addressTo, setAddressTo] = useState<string>("")
     const inputRef = createRef<HTMLInputElement>()
-    const welcome_text = std.string.to_short("hello world from new world", 5)
+    const welcome_text = std.string.toShort("hello world from new world", 5)
 
     function showClickCount() {
         console.log((`${welcome_text}: ${clickCount}`))

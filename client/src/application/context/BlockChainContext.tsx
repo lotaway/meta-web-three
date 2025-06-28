@@ -3,7 +3,7 @@ import {ethers} from "ethers"
 import {deployedContract} from "../../config/constants"
 import {useTranslation} from "react-i18next"
 import EthersProvider from "../../commons/provider/EthersProvider"
-import { AccountTransfer, AccountTransfer__factory } from "../../config/contractAbi/types"
+// import { AccountTransfer, AccountTransfer__factory } from "../../config/contractAbi/types"
 
 interface ISendTransactionArgument {
     addressTo: string
@@ -20,10 +20,10 @@ const getContacts = async () => {
     const provider = EthersProvider.getInstance(ethereum)
     const signer = await provider.getSigner()
     // const accountTransferContract = ethers.BaseContract.from<AccountTransfer>(deployedContract.accountTransfer.address, deployedContract.accountTransfer.abi, signer)
-    const accountTransferContract = AccountTransfer__factory.connect(deployedContract.accountTransfer.address, signer)
+    // const accountTransferContract = AccountTransfer__factory.connect(deployedContract.accountTransfer.address, signer)
     // const contract = new AccountTransfer__factory()
     // const accountTransferContract = contract.attach(deployedContract.accountTransfer.address).connect(signer)
-    return {accountTransferContract}
+    // return {accountTransferContract}
 }
 
 export const BlockChainProvider = ({children}: { children: ReactNode }) => {
@@ -69,7 +69,7 @@ export const BlockChainProvider = ({children}: { children: ReactNode }) => {
             if (!ethereum) {
                 return new Error(t("evmObjMissing"))
             }
-            const {accountTransferContract} = await getContacts()
+            // const {accountTransferContract} = await getContacts()
             //  直接从钱包账户之间转账，没有放入合约账户
             await ethereum.request({
                 method: "eth_sendTransaction",
@@ -81,14 +81,14 @@ export const BlockChainProvider = ({children}: { children: ReactNode }) => {
                     value: ethers.formatEther(amount),
                 }]
             })
-            const transactionHash = await accountTransferContract.addRecord(addressTo, amount, message, keyword)
-            setIsTransacting(true)
-            console.log(`Transacting - ${transactionHash.hash}`)
-            await transactionHash.wait()   //  交易完成回调
-            setIsTransacting(false)
-            console.log(`Transaction Success - ${transactionHash.hash}`)
-            const transactionCount = await accountTransferContract.getRecordCount()
-            setTransactionCount(Number(transactionCount))
+            // const transactionHash = await accountTransferContract.addRecord(addressTo, amount, message, keyword)
+            // setIsTransacting(true)
+            // console.log(`Transacting - ${transactionHash.hash}`)
+            // await transactionHash.wait()   //  交易完成回调
+            // setIsTransacting(false)
+            // console.log(`Transaction Success - ${transactionHash.hash}`)
+            // const transactionCount = await accountTransferContract.getRecordCount()
+            // setTransactionCount(Number(transactionCount))
         } catch (err) {
             console.error(err)
             throw new Error(t("evmObjMissing"))
@@ -99,16 +99,16 @@ export const BlockChainProvider = ({children}: { children: ReactNode }) => {
             if (!ethereum) {
                 return alert(t("connectWalletError"))
             }
-            const {accountTransferContract} = await getContacts()
-            const accountTransferRecords = await accountTransferContract.getRecord()
-            setTransactionRecords(accountTransferRecords.map((transaction: any) => ({
-                addressTo: transaction.receiver,
-                from: transaction.sender,
-                amount: parseInt(transaction.amount._hex) * (10 ** 18),
-                message: transaction.message,
-                keyword: transaction.keyword.split(" ").join(","),
-                timestamp: (new Date(transaction.timestamp.toNumber() * 1000)).toLocaleString()
-            })))
+            // const {accountTransferContract} = await getContacts()
+            // const accountTransferRecords = await accountTransferContract.getRecord()
+            // setTransactionRecords(accountTransferRecords.map((transaction: any) => ({
+            //     addressTo: transaction.receiver,
+            //     from: transaction.sender,
+            //     amount: parseInt(transaction.amount._hex) * (10 ** 18),
+            //     message: transaction.message,
+            //     keyword: transaction.keyword.split(" ").join(","),
+            //     timestamp: (new Date(transaction.timestamp.toNumber() * 1000)).toLocaleString()
+            // })))
         } catch (err) {
             console.error(err)
             throw new Error(t("evmObjMissing"))

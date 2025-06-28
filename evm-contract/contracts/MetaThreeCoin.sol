@@ -14,7 +14,7 @@ contract MetaThreeCoin is ERC20, Ownable, ReentrancyGuard {
         _mint(msg.sender, TOKENS);
     }
 
-    function decimals() pure public override returns (uint8) {
+    function decimals() public pure override returns (uint8) {
         return 2;
     }
 
