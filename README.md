@@ -54,7 +54,7 @@ $ yarn dev
 ### evm-contract 链端 网关
 
 ```bash
-$ cd chain
+$ cd evm-contract
 
 # compile contract
 $ yarn compile
