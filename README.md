@@ -24,19 +24,22 @@
 ## Direct 目录说明
 
 * block-chain 区块链
-* block-chain-use 链端（合约）、网关中心（协调、管理）
+* server 后端、网关中心（协调、管理）
+* evm-contract Ethereum及衍生链合约
+* solana-contract Solana合约
 * client 网站客户端（内容、浏览、支付）
+* tools 工具库
 
 ## Installation 安装
 
 ```bash
-$ npm install
+$ yarn install
 ```
 
 ## Running the app 同时运行服务端和客户端
 
 ```bash
-npm run dev
+$ yarn dev
 ```
 
 ### Client 客户端
@@ -45,16 +48,16 @@ npm run dev
 $ cd client
 
 # development
-$ npm run dev
+$ yarn dev
 ```
 
-### Chain 链端 网关
+### evm-contract 链端 网关
 
 ```bash
 $ cd chain
 
 # compile contract
-$ hardhat compile
+$ yarn compile
 
 # contract test
 $ hardhat test
