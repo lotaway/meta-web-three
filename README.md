@@ -13,16 +13,17 @@
 | ------ | ---------------------------------- | ------------------ |
 | 前端     | Next.js + Tailwind CSS + shadcn/ui | SSR/SSG 全能选手，开发效率高 |
 | 部署     | GitHub + Vercel                    | 自动构建、自动部署、全球 CDN   |
-| 后端 API | Node.js/Java 自建服务器                      | 灵活、自由、成本低          |
+| 后端 API | Node.js 自建服务器                      | 灵活、自由、成本低，也可直接Java或go          |
 | 数据库    | NoSQL → PlanetScale/PG                | 起步快，后期扩展轻松         |
 | 用户系统   | Auth.js / Supabase                 | 简单开箱即用             |
 | 邮件服务   | Resend                             | 接口简洁，免费额度友好        |
-| App    | React Native                       | 代码复用，跨平台           |
+| App    | React Native + Expo                      | 代码复用，跨平台           |
 | 高并发    | Redis+ES+K8s+RocketMQ                | 扩展选项         |
 
 
 ## Direct 目录说明
 
+* ai AI模型
 * block-chain 区块链
 * server 后端、网关中心（协调、管理）
 * evm-contract Ethereum及衍生链合约
