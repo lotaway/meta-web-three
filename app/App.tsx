@@ -7,9 +7,12 @@
 
 import { NewAppScreen } from '@react-native/new-app-screen';
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import appSdk from 'app-sdk'
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
+
+  appSdk.scan()
 
   return (
     <View style={styles.container}>
