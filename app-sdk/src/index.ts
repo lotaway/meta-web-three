@@ -1,4 +1,7 @@
 // src/index.ts
-// TODO: Export the main SDK functionality
+// Export the main SDK functionality
 
-export * from './myble'; 
+import AppSdk from './appsdk';
+
+// Export the default instance
+export default AppSdk;

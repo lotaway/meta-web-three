@@ -1,17 +1,25 @@
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform, StyleSheet, Alert } from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import * as appSdk from 'app-sdk';
+import {default as appSdk} from 'app-sdk';
 import { useEffect } from 'react';
 
 export default function HomeScreen() {
   useEffect(() => {
-    appSdk.scan()
-  }, []);
+    try {
+      console.log('Testing AppSdk module...')
+      appSdk.scan()
+      console.log('AppSdk scan() called successfully')
+    } catch (error) {
+      console.error('Error calling AppSdk.scan():', error)
+      Alert.alert('Error', `Failed to call AppSdk.scan(): ${error}`)
+    }
+  }, [])
+  
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}

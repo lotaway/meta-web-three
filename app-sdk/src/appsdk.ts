@@ -5,4 +5,4 @@ export interface Spec extends TurboModule {
   scan(): void
 }
 
-export default TurboModuleRegistry.getEnforcing<Spec>('MyBle')
+export default TurboModuleRegistry.getEnforcing<Spec>('AppSdk')
