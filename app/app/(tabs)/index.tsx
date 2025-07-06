@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { Platform, StyleSheet, Alert } from 'react-native';
+import { Platform, StyleSheet, Alert, NativeModules } from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -7,9 +7,15 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import AppSdk from 'app-sdk/js/NativeAppSdk';
 import { useEffect, useState } from 'react';
+import { ScannerView, ScannerViewProps } from '@/modules/scanner';
 
 export default function HomeScreen() {
   const [data, setData] = useState(0)
+
+  function handleOnLoad(event: Parameters<ScannerViewProps['onLoad']>[0]) {
+    console.log(NativeModules.Scanner.hello())
+    console.log(event.nativeEvent.url)
+  }
 
   useEffect(() => {
     try {
@@ -39,6 +45,7 @@ export default function HomeScreen() {
           style={styles.reactLogo}
         />
       }>
+      <ScannerView onLoad={handleOnLoad}/>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Welcome! Add{data}</ThemedText>
         <HelloWave />
