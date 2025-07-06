@@ -14,7 +14,8 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "install:sdk": "yarn upgrade app-sdk",
-    "openas": "open -a '/Applications/Android Studio.app'"
+    "openas": "open -a '/Applications/Android Studio.app'",
+    "check:config": "npx react-native config"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",

@@ -13,4 +13,6 @@ class AppSdkModule(reactContext: ReactApplicationContext) : NativeAppSdkSpec(rea
     companion object {
         const val NAME = "AppSdk"
     }
+
+    override fun getName() = NAME
 }
