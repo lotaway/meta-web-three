@@ -5,21 +5,31 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import {default as appSdk} from 'app-sdk';
-import { useEffect } from 'react';
+import AppSdk from 'app-sdk/js/NativeAppSdk';
+import { useEffect, useState } from 'react';
 
 export default function HomeScreen() {
+  const [data, setData] = useState(0)
+
   useEffect(() => {
     try {
-      console.log('Testing AppSdk module...')
-      appSdk.scan()
-      console.log('AppSdk scan() called successfully')
+      console.log('Testing AppSdk module...', AppSdk)
+      const ret = AppSdk?.add(1, 2)
+      ret?.then(res => {
+          console.log('AppSdk add() called successfully:', res)
+          setData(res)
+        })
+        .catch(error => {
+          console.error('Error calling AppSdk.add():', error)
+          Alert.alert('Error', `Failed to call AppSdk.add(): ${error}`)
+        })
+      console.log("ret", ret)
     } catch (error) {
-      console.error('Error calling AppSdk.scan():', error)
-      Alert.alert('Error', `Failed to call AppSdk.scan(): ${error}`)
+      console.error('Error calling AppSdk.add():', error)
+      Alert.alert('Error', `Failed to call AppSdk.add(): ${error}`)
     }
   }, [])
-  
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -30,7 +40,7 @@ export default function HomeScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
+        <ThemedText type="title">Welcome! Add{data}</ThemedText>
         <HelloWave />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>

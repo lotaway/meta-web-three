@@ -1,0 +1,45 @@
+{
+  "name": "app-sdk",
+  "version": "1.0.1",
+  "description": "SDK Turbo Native Modules for React Native App",
+  "react-native": "js/index",
+  "source": "js/index",
+  "scripts": {
+    "init:ios": "node ../app/node_modules/react-native/scripts/generate-codegen-artifacts.js --targetPlatform ios --path ../app/ --outputPath generated/",
+    "install:ios": "cd ../app/ios\nRCT_NEW_ARCH_ENABLED=1 pod install",
+    "init:android": "cd ../app/android \n ./gradlew generateCodegenArtifactsFromSchema",
+    "clear": "rm -rf ../app/ios/build & rm -rf ../app/android/build & rm -rf generated/"
+  },
+  "files": [
+    "js",
+    "android",
+    "ios",
+    "app-sdk.podspec",
+    "!android/build",
+    "!ios/build",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__"
+  ],
+  "keywords": ["react-native", "ios", "android"],
+  "repository": "https://github.com/lotaway/app-sdk",
+  "author": "WayLuk lotaway@foxmail.com> (https://github.com/lotaway)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lotaway/app-sdk/issues"
+  },
+  "homepage": "https://github.com/lotaway/app-sdk#readme",
+  "devDependencies": {},
+  "peerDependencies": {
+    "react": "19.0.0",
+    "react-native": "0.79.5"
+  },
+  "codegenConfig": {
+    "name": "AppSdk",
+    "type": "modules",
+    "jsSrcsDir": "js",
+    "android": {
+      "javaPackageName": "com.appsdk"
+    }
+  }
+}

@@ -61,6 +61,4 @@ target 'app' do
       end
     end
   end
-
-  pod 'AppSdk', :path => '../../app-sdk/ios'
 end
