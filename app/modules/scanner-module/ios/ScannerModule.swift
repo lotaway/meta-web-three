@@ -7,8 +7,8 @@ public class ScannerModule: Module {
   public func definition() -> ModuleDefinition {
     // Sets the name of the module that JavaScript code will use to refer to the module. Takes a string as an argument.
     // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
-    // The module will be accessible from `requireNativeModule('Scanner')` in JavaScript.
-    Name("Scanner")
+    // The module will be accessible from `requireNativeModule('ScannerModule')` in JavaScript.
+    Name("ScannerModule")
 
     // Sets constant properties on the module. Can take a dictionary or a closure that returns a dictionary.
     Constants([
@@ -34,9 +34,9 @@ public class ScannerModule: Module {
 
     // Enables the module to be used as a native view. Definition components that are accepted as part of the
     // view definition: Prop, Events.
-    View(ScannerView.self) {
+    View(ScannerModuleView.self) {
       // Defines a setter for the `url` prop.
-      Prop("url") { (view: ScannerView, url: URL) in
+      Prop("url") { (view: ScannerModuleView, url: URL) in
         if view.webView.url != url {
           view.webView.load(URLRequest(url: url))
         }

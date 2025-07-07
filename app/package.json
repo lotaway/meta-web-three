@@ -11,8 +11,9 @@
     "eios": "expo start --ios",
     "ios": "expo run:ios",
     "ios:cache": "expo run:ios --no-build",
+    "clear": "expo prebuild --clean",
     "web": "expo start --web",
-    "create:module": "npx create-expo-module my-module",
+    "create:module": "npx create-expo-module MyModule",
     "lint": "expo lint",
     "install:sdk": "yarn upgrade app-sdk",
     "openas": "open -a '/Applications/Android Studio.app'",
@@ -54,5 +55,10 @@
     "eslint-config-expo": "~9.2.0",
     "typescript": "~5.8.3"
   },
-  "private": true
+  "private": true,
+  "expo": {
+    "autolinking": {
+      "nativeModulesDir": "./modules"
+    }
+  }
 }

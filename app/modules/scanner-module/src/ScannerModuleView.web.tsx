@@ -1,8 +1,8 @@
 import * as React from 'react';
 
-import { ScannerViewProps } from './Scanner.types';
+import { ScannerModuleViewProps } from './ScannerModule.types';
 
-export default function ScannerView(props: ScannerViewProps) {
+export default function ScannerModuleView(props: ScannerModuleViewProps) {
   return (
     <div>
       <iframe

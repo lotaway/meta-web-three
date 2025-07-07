@@ -1,6 +1,6 @@
 import { registerWebModule, NativeModule } from 'expo';
 
-import { ChangeEventPayload } from './Scanner.types';
+import { ChangeEventPayload } from './ScannerModule.types';
 
 type ScannerModuleEvents = {
   onChange: (params: ChangeEventPayload) => void;

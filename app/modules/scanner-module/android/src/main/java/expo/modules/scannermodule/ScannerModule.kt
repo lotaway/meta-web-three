@@ -1,4 +1,4 @@
-package expo.modules.scanner
+package expo.modules.scannermodule
 
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
@@ -11,8 +11,8 @@ class ScannerModule : Module() {
   override fun definition() = ModuleDefinition {
     // Sets the name of the module that JavaScript code will use to refer to the module. Takes a string as an argument.
     // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
-    // The module will be accessible from `requireNativeModule('Scanner')` in JavaScript.
-    Name("Scanner")
+    // The module will be accessible from `requireNativeModule('ScannerModule')` in JavaScript.
+    Name("ScannerModule")
 
     // Sets constant properties on the module. Can take a dictionary or a closure that returns a dictionary.
     Constants(
@@ -38,9 +38,9 @@ class ScannerModule : Module() {
 
     // Enables the module to be used as a native view. Definition components that are accepted as part of
     // the view definition: Prop, Events.
-    View(ScannerView::class) {
+    View(ScannerModuleView::class) {
       // Defines a setter for the `url` prop.
-      Prop("url") { view: ScannerView, url: URL ->
+      Prop("url") { view: ScannerModuleView, url: URL ->
         view.webView.loadUrl(url.toString())
       }
       // Defines an event that the view can send to JavaScript.

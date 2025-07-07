@@ -1,6 +1,6 @@
 import { NativeModule, requireNativeModule } from 'expo';
 
-import { ScannerModuleEvents } from './Scanner.types';
+import { ScannerModuleEvents } from './ScannerModule.types';
 
 declare class ScannerModule extends NativeModule<ScannerModuleEvents> {
   PI: number;
@@ -9,4 +9,4 @@ declare class ScannerModule extends NativeModule<ScannerModuleEvents> {
 }
 
 // This call loads the native module object from the JSI.
-export default requireNativeModule<ScannerModule>('Scanner');
+export default requireNativeModule<ScannerModule>('ScannerModule');

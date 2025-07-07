@@ -5,36 +5,37 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import AppSdk from 'app-sdk/js/NativeAppSdk';
+// import AppSdk from 'app-sdk/js/NativeAppSdk';
 import { useEffect, useState } from 'react';
-import { ScannerView, ScannerViewProps } from '@/modules/scanner';
+import { ScannerModuleView, ScannerModuleViewProps } from '@/modules/scanner-module';
+import ScannerModule from '@/modules/scanner-module/src/ScannerModule';
 
 export default function HomeScreen() {
-  const [data, setData] = useState(0)
+  const [data, setData] = useState("no")
 
-  function handleOnLoad(event: Parameters<ScannerViewProps['onLoad']>[0]) {
-    console.log(NativeModules.Scanner.hello())
-    console.log(event.nativeEvent.url)
+  function handleOnLoad(event: Parameters<ScannerModuleViewProps['onLoad']>[0]) {
+    console.log("handleOnLoad:" + event.nativeEvent.url)
+    setData(ScannerModule.hello())
   }
 
-  useEffect(() => {
-    try {
-      console.log('Testing AppSdk module...', AppSdk)
-      const ret = AppSdk?.add(1, 2)
-      ret?.then(res => {
-          console.log('AppSdk add() called successfully:', res)
-          setData(res)
-        })
-        .catch(error => {
-          console.error('Error calling AppSdk.add():', error)
-          Alert.alert('Error', `Failed to call AppSdk.add(): ${error}`)
-        })
-      console.log("ret", ret)
-    } catch (error) {
-      console.error('Error calling AppSdk.add():', error)
-      Alert.alert('Error', `Failed to call AppSdk.add(): ${error}`)
-    }
-  }, [])
+  // useEffect(() => {
+  //   try {
+  //     console.log('Testing AppSdk module...', AppSdk)
+  //     const ret = AppSdk?.add(1, 2)
+  //     ret?.then(res => {
+  //         console.log('AppSdk add() called successfully:', res)
+  //         setData(res)
+  //       })
+  //       .catch(error => {
+  //         console.error('Error calling AppSdk.add():', error)
+  //         Alert.alert('Error', `Failed to call AppSdk.add(): ${error}`)
+  //       })
+  //     console.log("ret", ret)
+  //   } catch (error) {
+  //     console.error('Error calling AppSdk.add():', error)
+  //     Alert.alert('Error', `Failed to call AppSdk.add(): ${error}`)
+  //   }
+  // }, [])
 
   return (
     <ParallaxScrollView
@@ -45,7 +46,7 @@ export default function HomeScreen() {
           style={styles.reactLogo}
         />
       }>
-      <ScannerView onLoad={handleOnLoad}/>
+      <ScannerModuleView url="https://www.baidu.com" onLoad={handleOnLoad}/>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Welcome! Add{data}</ThemedText>
         <HelloWave />

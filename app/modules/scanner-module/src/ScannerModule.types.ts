@@ -12,7 +12,7 @@ export type ChangeEventPayload = {
   value: string;
 };
 
-export type ScannerViewProps = {
+export type ScannerModuleViewProps = {
   url: string;
   onLoad: (event: { nativeEvent: OnLoadEventPayload }) => void;
   style?: StyleProp<ViewStyle>;

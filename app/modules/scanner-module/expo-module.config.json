@@ -4,6 +4,6 @@
     "modules": ["ScannerModule"]
   },
   "android": {
-    "modules": ["expo.modules.scanner.ScannerModule"]
+    "modules": ["expo.modules.scannermodule.ScannerModule"]
   }
 }
