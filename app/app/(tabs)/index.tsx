@@ -5,7 +5,7 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-// import AppSdk from 'app-sdk/js/NativeAppSdk';
+import AppSdk from 'app-sdk/js/NativeAppSdk';
 import { useEffect, useState } from 'react';
 import { ScannerModuleView, ScannerModuleViewProps } from '@/modules/scanner-module';
 import ScannerModule from '@/modules/scanner-module/src/ScannerModule';

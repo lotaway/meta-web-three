@@ -1,10 +1,15 @@
+#import "AppSdkSpec.h"
 #import "AppSdk.h"
 
 @implementation AppSdk
 
-RCT_EXPORT_MODULE()
+RCT_EXPORT_MODULE(AppSdk)
 
-- (void)add:(double)a b:(double)b resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
+RCT_REMAP_METHOD(add, addA:(NSInteger)a
+                      andB:(NSInteger)b
+                withResolver:(RCTPromiseResolveBlock) resolve
+                withRejecter:(RCTPromiseRejectBlock) reject)
+{
     NSNumber *result = [[NSNumber alloc] initWithInteger:a+b];
     resolve(result);
 }

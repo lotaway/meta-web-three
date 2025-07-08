@@ -14,7 +14,7 @@
     "js",
     "android",
     "ios",
-    "app-sdk.podspec",
+    "AppSdk.podspec",
     "!android/build",
     "!ios/build",
     "!**/__tests__",

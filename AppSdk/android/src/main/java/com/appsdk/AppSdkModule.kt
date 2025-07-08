@@ -2,7 +2,6 @@ package com.appsdk
 
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
-import com.rtncalculator.NativeAppSdkSpec
 
 class AppSdkModule(reactContext: ReactApplicationContext) : NativeAppSdkSpec(reactContext) {
 
