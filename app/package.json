@@ -17,7 +17,13 @@
     "lint": "expo lint",
     "install:sdk": "yarn upgrade app-sdk",
     "openas": "open -a '/Applications/Android Studio.app'",
-    "check:config": "npx react-native config"
+    "check:config": "npx react-native config",
+    "generate:android:key": "keytool -genkeypair -v -storetype PKCS12 -keystore android.keystore -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000",
+    "build:config": "eas build:configure",
+    "preview": "eas build --profile preview --platform all",
+    "deploy": "eas build --profile production --platform all",
+    "ios:upload": "eas submit --platform ios --profile production",
+    "android:upload": "eas submit --platform android --profile production"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -51,8 +57,10 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/react": "~19.0.10",
+    "eas-cli": "^16.14.1",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~9.2.0",
+    "expo-cli": "^6.3.10",
     "typescript": "~5.8.3"
   },
   "private": true

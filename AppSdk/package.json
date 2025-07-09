@@ -35,7 +35,7 @@
     "react-native": "0.79.5"
   },
   "codegenConfig": {
-    "name": "AppSdk",
+    "name": "AppSdkSpec",
     "type": "modules",
     "jsSrcsDir": "js",
     "android": {

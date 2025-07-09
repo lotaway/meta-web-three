@@ -19,10 +19,10 @@ class AppSdkPackage : BaseReactPackage() {
             AppSdkModule.NAME to ReactModuleInfo(
                 AppSdkModule.NAME,
                 AppSdkModule.NAME,
-                false, // canOverrideExistingModule
-                false, // needsEagerInit
-                false, // isCxxModule
-                true // isTurboModule
+                canOverrideExistingModule = false,
+                needsEagerInit = false,
+                isCxxModule = false,
+                isTurboModule = true
             )
         )
     }

@@ -3,8 +3,6 @@
 
 @implementation AppSdk
 
-RCT_EXPORT_MODULE(AppSdk)
-
 RCT_REMAP_METHOD(add, addA:(NSInteger)a
                       andB:(NSInteger)b
                 withResolver:(RCTPromiseResolveBlock) resolve

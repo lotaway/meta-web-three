@@ -48,3 +48,26 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## 获取iOS设备UDID用于预览应用
+
+[https://www.betaqr.com.cn/udid](https://www.betaqr.com.cn/udid)
+
+## 发布
+
+### iOS 证书和描述文件
+
+Expo EAS 通过 Apple Developer API 自动管理证书和描述文件，无需手动下载/配置。实现方式如下：
+
+当你在终端运行 eas build:configure 或首次执行 eas build --platform ios 时，Expo CLI 会要求你：
+
+- 登录 Apple Developer 账号（需 Account Holder 或 Admin 权限）。
+- 开启 App Store Connect API 访问权限（需在 Apple Developer 中生成 API Key）。
+- 授权 Expo 使用你的团队 ID（appleTeamId）。
+
+EAS 服务器会通过 Apple API 自动完成以下操作：
+
+- 创建所需的 Development/Distribution Certificates
+- 生成匹配的 Provisioning Profiles
+- 处理推送证书（需部分手动操作，见下文）
+- 需设置环境变量 EXPO_APPLE_PASSWORD 和 EXPO_APPLE_APP_SPECIFIC_PASSWORD 实现 CI 自动化

@@ -28,7 +28,7 @@
         <key>CFBundleURLSchemes</key>
         <array>
           <string>app</string>
-          <string>com.anonymous.app</string>
+          <string>com.metawebthree.app</string>
         </array>
       </dict>
     </array>
