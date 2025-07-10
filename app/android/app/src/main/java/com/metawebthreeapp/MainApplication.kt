@@ -1,4 +1,4 @@
-package com.metawebthree.app
+package com.metawebthreeapp
 
 import android.app.Application
 import android.content.res.Configuration
@@ -15,7 +15,6 @@ import com.facebook.soloader.SoLoader
 
 import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ReactNativeHostWrapper
-// import com.appsdk.AppSdkPackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -23,10 +22,10 @@ class MainApplication : Application(), ReactApplication {
         this,
         object : DefaultReactNativeHost(this) {
           override fun getPackages(): List<ReactPackage> {
-            PackageList(this).packages.apply {
-              // Packages that cannot be autolinked yet can be added manually here, for example:
-              add(AppSdkPackage())
-            }
+            val packages = PackageList(this).packages
+            // Packages that cannot be autolinked yet can be added manually here, for example:
+            // packages.add(MyReactNativePackage())
+            return packages
           }
 
           override fun getJSMainModuleName(): String = ".expo/.virtual-metro-entry"

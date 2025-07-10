@@ -2,9 +2,19 @@
   "name": "app-sdk",
   "version": "1.0.1",
   "description": "SDK Turbo Native Modules for React Native App",
-  "react-native": "js/index",
-  "source": "js/index",
+  "main": "./lib/module/index.js",
+  "types": "./lib/typescript/src/index.d.ts",
+  "exports": {
+    ".": {
+      "source": "./src/index.tsx",
+      "types": "./lib/typescript/src/index.d.ts",
+      "default": "./lib/module/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
+    "pod": "RCT_NEW_ARCH_ENABLED=1 npx pod-install",
+    "init:npm": "cd ../app \n yarn add app-sdk",
     "init:ios": "node ../app/node_modules/react-native/scripts/generate-codegen-artifacts.js --targetPlatform ios --path ../app/ --outputPath generated/",
     "install:ios": "cd ../app/ios\nRCT_NEW_ARCH_ENABLED=1 pod install",
     "init:android": "cd ../app/android \n ./gradlew generateCodegenArtifactsFromSchema",

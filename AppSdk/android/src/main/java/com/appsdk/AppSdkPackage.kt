@@ -14,16 +14,16 @@ class AppSdkPackage : BaseReactPackage() {
             null
         }
 
-    override fun getReactModuleInfoProvider(): ReactModuleInfoProvider? {
-        mapOf(
-            AppSdkModule.NAME to ReactModuleInfo(
-                AppSdkModule.NAME,
-                AppSdkModule.NAME,
-                canOverrideExistingModule = false,
-                needsEagerInit = false,
-                isCxxModule = false,
-                isTurboModule = true
-            )
+    override fun getReactModuleInfoProvider(): ReactModuleInfoProvider {
+        val moduleInfos: MutableMap<String, ReactModuleInfo> = HashMap()
+        moduleInfos[AppsdkModule.NAME] = ReactModuleInfo(
+            AppSdkModule.NAME,
+            AppSdkModule.NAME,
+            canOverrideExistingModule = false,
+            needsEagerInit = false,
+            isCxxModule = false,
+            isTurboModule = true
         )
+        moduleInfos
     }
 }

@@ -1,8 +1,11 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "module": "esnext",
+    "forceConsistentCasingInFileNames": true,
     "strict": true,
     "paths": {
+      "app-sdk": ["../AppSdk/js/index.ts"],
       "@/*": [
         "./*"
       ]

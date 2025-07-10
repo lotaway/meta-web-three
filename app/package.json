@@ -3,7 +3,7 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --dev-client",
     "reset-project": "node ./scripts/reset-project.js",
     "eandroid": "expo start --android",
     "android": "expo run:android",
@@ -14,14 +14,17 @@
     "rebuild": "expo prebuild --clean",
     "web": "expo start --web",
     "create:module": "npx create-expo-module MyModule",
+    "create:sdk": "npx create-react-native-library@latest react-native-appsdk",
     "lint": "expo lint",
-    "install:sdk": "yarn upgrade app-sdk",
+    "install:sdk": "yarn add app-sdk",
+    "update:sdk": "yarn upgrade app-sdk",
     "openas": "open -a '/Applications/Android Studio.app'",
     "check:config": "npx react-native config",
     "generate:android:key": "keytool -genkeypair -v -storetype PKCS12 -keystore android.keystore -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000",
     "build:config": "eas build:configure",
     "preview": "eas build --profile preview --platform all",
     "deploy": "eas build --profile production --platform all",
+    "pod": "RCT_NEW_ARCH_ENABLED=1 npx pod-install",
     "ios:upload": "eas submit --platform ios --profile production",
     "android:upload": "eas submit --platform android --profile production"
   },
@@ -30,7 +33,6 @@
     "@react-navigation/bottom-tabs": "^7.3.10",
     "@react-navigation/elements": "^2.3.8",
     "@react-navigation/native": "^7.1.14",
-    "app-sdk": "../AppSdk",
     "expo": "~53.0.16",
     "expo-blur": "~14.1.5",
     "expo-constants": "~17.1.6",
@@ -56,12 +58,15 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@expo/cli": "^0.24.20",
     "@types/react": "~19.0.10",
     "eas-cli": "^16.14.1",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~9.2.0",
-    "expo-cli": "^6.3.10",
     "typescript": "~5.8.3"
+  },
+  "resolutions": {
+    "@expo/cli": "^0.24.20"
   },
   "private": true
 }

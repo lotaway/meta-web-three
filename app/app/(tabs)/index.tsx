@@ -5,17 +5,18 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import AppSdk from 'app-sdk/js/AppSdk';
+import AppSdk from 'app-sdk';
 import { useEffect, useState } from 'react';
 import { ScannerModuleView, ScannerModuleViewProps } from '@/modules/scanner-module';
 import ScannerModule from '@/modules/scanner-module/src/ScannerModule';
 
 export default function HomeScreen() {
-  const [data, setData] = useState("")
+  const [welcomeData, setWelcomeData] = useState("")
+  const [count, setCount] = useState(-1)
 
   function handleOnLoad(event: Parameters<ScannerModuleViewProps['onLoad']>[0]) {
     console.log("handleOnLoad:" + event.nativeEvent.url)
-    setData(ScannerModule.hello())
+    setWelcomeData(ScannerModule.hello())
   }
 
   useEffect(() => {
@@ -23,8 +24,8 @@ export default function HomeScreen() {
       console.log('Testing AppSdk module...', AppSdk)
       const ret = AppSdk?.add(1, 2)
       ret?.then(res => {
-          console.log('AppSdk add() called successfully:', res)
-          setData(res.toString())
+          console.log('AppSdk.add() called successfully:', res)
+          setCount(res)
         })
         .catch(error => {
           console.error('Error calling AppSdk.add():', error)
@@ -48,7 +49,7 @@ export default function HomeScreen() {
       }>
       <ScannerModuleView url="https://www.baidu.com" onLoad={handleOnLoad}/>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome! Add{data}</ThemedText>
+        <ThemedText type="title">Welcome {welcomeData}! Add {count}</ThemedText>
         <HelloWave />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
