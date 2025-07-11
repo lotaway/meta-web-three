@@ -1,11 +1,29 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    "rootDir": ".",
+    "paths": {
+      "react-native-appsdk": ["./src/index"]
+    },
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
+    "lib": ["ESNext"],
     "module": "ESNext",
-    "declaration": true,
-    "outDir": "./dist",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitUseStrict": false,
+    "noStrictGenericChecks": false,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
     "strict": true,
-    "esModuleInterop": true
-  },
-  "include": ["js/**/*"]
+    "target": "ESNext",
+    "verbatimModuleSyntax": true
+  }
 }

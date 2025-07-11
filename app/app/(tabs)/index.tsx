@@ -5,7 +5,7 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import AppSdk from 'app-sdk';
+import * as AppSdk from 'react-native-appsdk';
 import { useEffect, useState } from 'react';
 import { ScannerModuleView, ScannerModuleViewProps } from '@/modules/scanner-module';
 import ScannerModule from '@/modules/scanner-module/src/ScannerModule';
@@ -22,16 +22,17 @@ export default function HomeScreen() {
   useEffect(() => {
     try {
       console.log('Testing AppSdk module...', AppSdk)
-      const ret = AppSdk?.add(1, 2)
-      ret?.then(res => {
-          console.log('AppSdk.add() called successfully:', res)
-          setCount(res)
-        })
-        .catch(error => {
-          console.error('Error calling AppSdk.add():', error)
-          Alert.alert('Error', `Failed to call AppSdk.add(): ${error}`)
-        })
+      const ret = AppSdk.multiply(1, 2)
+      // ret?.then(res => {
+      //     console.log('AppSdk.multiply() called successfully:', res)
+      //     setCount(res)
+      //   })
+      //   .catch(error => {
+      //     console.error('Error calling AppSdk.multiply():', error)
+      //     Alert.alert('Error', `Failed to call AppSdk.multiply(): ${error}`)
+      //   })
       console.log("ret", ret)
+      setCount(ret)
     } catch (error) {
       console.error('Error calling AppSdk.add():', error)
       Alert.alert('Error', `Failed to call AppSdk.add(): ${error}`)

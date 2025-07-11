@@ -65,10 +65,6 @@ android {
 }
 
 repositories {
-  maven {
-    // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-    url "$projectDir/../node_modules/react-native/android"
-  }
   mavenCentral()
   google()
 }
@@ -81,7 +77,7 @@ dependencies {
 }
 
 react {
-  jsRootDir = file("../js/")
+  jsRootDir = file("../src/")
   libraryName = "Appsdk"
   codegenJavaPackageName = "com.appsdk"
 }

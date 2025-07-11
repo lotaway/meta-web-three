@@ -1,7 +1,33 @@
-# How to use React Native Turbo Native Module
+# react-native-appsdk
 
-[React Native Turbo Module Introduction](https://github.com/reactwg/react-native-new-architecture/blob/main/docs/turbo-modules.md)
+App SDK in Turbo Module
 
-# Or just use expo module
+## Installation
 
-[React Native Expo Module Introduction](https://expo.nodejs.cn/modules/native-module-tutorial/)
+```sh
+npm install react-native-appsdk
+```
+
+## Usage
+
+
+```js
+import { multiply } from 'react-native-appsdk';
+
+// ...
+
+const result = multiply(3, 7);
+```
+
+
+## Contributing
+
+See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
+
+## License
+
+MIT
+
+---
+
+Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)

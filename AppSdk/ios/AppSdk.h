@@ -1,5 +1,5 @@
-#import <AppSdkSpec/AppSdkSpec.h>
+#import <AppsdkSpec/AppsdkSpec.h>
 
-@interface AppSdk : NSObject <NativeAppSdkSpec>
+@interface Appsdk : NSObject <NativeAppsdkSpec>
 
 @end

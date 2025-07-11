@@ -1,13 +1,5 @@
 const path = require('path');
-const AppSdkPkg = require('../AppSdk/package.json');
-
-const getDirname = () => {
-  try {
-    return __dirname;
-  } catch {
-    return path.dirname(require.main.filename);
-  }
-};
+const pkg = require('../package.json');
 
 module.exports = {
   project: {
@@ -16,8 +8,8 @@ module.exports = {
     },
   },
   dependencies: {
-    [AppSdkPkg.name]: {
-      root: path.join(getDirname(), '../AppSdk'),
+    [pkg.name]: {
+      root: path.join(__dirname, '..'),
       platforms: {
         // Codegen script incorrectly fails without this
         // So we explicitly specify the platforms with empty object

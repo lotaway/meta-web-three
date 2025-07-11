@@ -1,17 +1,18 @@
-#import "AppSdk.h"
+#import "Appsdk.h"
 
-@implementation AppSdk
+@implementation Appsdk
 RCT_EXPORT_MODULE()
 
-- (void)add:(double)a:(double)b withResolver:(RCTPromiseResolveBlock) resolve withRejecter:(RCTPromiseRejectBlock) reject)
-{
-    NSNumber *result = [[NSNumber alloc] initWithInteger:a+b];
-    resolve(result);
+- (NSNumber *)multiply:(double)a b:(double)b {
+    NSNumber *result = @(a * b);
+
+    return result;
 }
 
-- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
+    (const facebook::react::ObjCTurboModule::InitParams &)params
 {
-    return std::make_shared<facebook::react::NativeAppSdkSpecJSI>(params);
+    return std::make_shared<facebook::react::NativeAppsdkSpecJSI>(params);
 }
 
 @end
