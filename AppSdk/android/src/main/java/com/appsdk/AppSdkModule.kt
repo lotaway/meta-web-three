@@ -17,6 +17,10 @@ class AppsdkModule(reactContext: ReactApplicationContext) :
     return a * b
   }
 
+  override fun add(a: Double, b: Double, promise: Promise) {
+    promise.resolve(a + b)
+  }
+
   companion object {
     const val NAME = "Appsdk"
   }

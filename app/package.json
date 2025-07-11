@@ -18,7 +18,7 @@
     "lint": "expo lint",
     "install:sdk": "yarn add file:../appsdk",
     "update:sdk": "yarn upgrade react-native-appsdk",
-    "openas": "open -a '/Applications/Android Studio.app'",
+    "openas": "open -a '/Applications/Android Studio' ./android",
     "check:config": "npx react-native config",
     "generate:android:key": "keytool -genkeypair -v -storetype PKCS12 -keystore android.keystore -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000",
     "build:config": "eas build:configure",

@@ -32,7 +32,6 @@
     "!**/.*"
   ],
   "scripts": {
-    "pod": "RCT_NEW_ARCH_ENABLED=1 npx pod-install",
     "example": "yarn workspace react-native-appsdk-example",
     "test": "jest",
     "typecheck": "tsc",
