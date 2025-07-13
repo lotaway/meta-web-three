@@ -1,6 +1,7 @@
 {
     "cli": {
-      "version": ">= 6.3.10"
+      "version": ">= 6.3.10",
+      "appVersionSource": "remote"
     },
     "build": {
       "development": {
@@ -25,6 +26,7 @@
         }
       },
       "production": {
+        "autoIncrement": true,
         "env": {
           "APP_ENV": "production"
         },
@@ -41,11 +43,6 @@
     },
     "submit": {
       "production": {
-        "android": {
-          "serviceAccountKeyPath": "./keys/google-play-service-account.json",
-          "track": "production",
-          "credentialsSource": "local"
-        },
         "ios": {
           "appleId": "your-apple-id@example.com",
           "ascAppId": "YOUR_APP_STORE_CONNECT_APP_ID",

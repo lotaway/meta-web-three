@@ -39,6 +39,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "717cdc24-d90e-42b8-9a4f-cb0050834d6c"
+      }
+    },
+    "owner": "lotaway"
   }
 }
