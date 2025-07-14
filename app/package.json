@@ -1,5 +1,5 @@
 {
-  "name": "app",
+  "name": "meta-web-three-app",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
@@ -24,6 +24,7 @@
     "deploy:config": "eas build:configure",
     "deploy:init": "eas init",
     "generate:android:key": "keytool -genkeypair -v -storetype PKCS12 -keystore keys/android.jks -alias android-key -keyalg RSA -keysize 2048 -validity 10000",
+    "manage:android:key": "eas credentials",
     "deploy:android": "export NODE_ENV=production && eas build --local --platform android",
     "preview": "eas build --local --profile preview --platform all",
     "deploy": "export NODE_ENV=production && eas build --local --profile production --platform all",
@@ -32,6 +33,7 @@
     "android:upload": "eas submit --platform android --profile production"
   },
   "dependencies": {
+    "@expo/plist": "^0.3.5",
     "@expo/vector-icons": "^14.1.0",
     "@react-navigation/bottom-tabs": "^7.3.10",
     "@react-navigation/elements": "^2.3.8",
@@ -53,7 +55,7 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.5",
-    "react-native-appsdk": "file:../appsdk",
+    "react-native-appsdk": "file:../appsdk/react-native-appsdk.tgz",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
