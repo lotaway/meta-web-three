@@ -3,6 +3,7 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
+    "skip-postinstall": "cd ./turbo-module/appsdk && yarn install",
     "start": "expo start --dev-client",
     "reset-project": "node ./scripts/reset-project.js",
     "eandroid": "expo start --android",
@@ -14,9 +15,8 @@
     "rebuild": "expo prebuild --clean",
     "web": "expo start --web",
     "create:module": "npx create-expo-module MyModule",
-    "create:sdk": "npx create-react-native-library@latest ../appsdk",
+    "create:sdk": "npx create-react-native-library@latest ../turbo-module/MyModule",
     "lint": "expo lint",
-    "install:sdk": "yarn add file:../appsdk",
     "update:sdk": "yarn upgrade react-native-appsdk",
     "openas": "open -a '/Applications/Android Studio' ./android",
     "check:expo:dep": "expo install --check",
@@ -32,6 +32,9 @@
     "ios:upload": "eas submit --platform ios --profile production",
     "android:upload": "eas submit --platform android --profile production"
   },
+  "workspaces": [
+    "turbo-module/*"
+  ],
   "dependencies": {
     "@expo/plist": "^0.3.5",
     "@expo/vector-icons": "^14.1.0",
@@ -55,7 +58,7 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.5",
-    "react-native-appsdk": "file:../appsdk/react-native-appsdk.tgz",
+    "react-native-appsdk": "*",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",

@@ -1,4 +1,6 @@
-{
+import withNativeBuildConfig from './plugins/with-native-build-config'
+
+export default {
   "expo": {
     "name": "meta-web-three-app",
     "slug": "app",
@@ -26,6 +28,7 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      withNativeBuildConfig,
       "expo-router",
       [
         "expo-splash-screen",

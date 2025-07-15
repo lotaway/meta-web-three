@@ -2,6 +2,16 @@
   "name": "react-native-appsdk",
   "version": "0.1.0",
   "description": "App SDK in Turbo Module",
+  "scripts": {
+    "example": "yarn workspace react-native-appsdk-example",
+    "test": "jest",
+    "typecheck": "tsc",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
+    "postinstall": "bob build",
+    "build": "bob build",
+    "deploy": "npm pack && mv react-native-appsdk-*.tgz ../app/react-native-appsdk.tgz"
+  },
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
   "exports": {
@@ -31,16 +41,6 @@
     "!**/__mocks__",
     "!**/.*"
   ],
-  "scripts": {
-    "example": "yarn workspace react-native-appsdk-example",
-    "test": "jest",
-    "typecheck": "tsc",
-    "lint": "eslint \"**/*.{js,ts,tsx}\"",
-    "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
-    "prepare": "bob build",
-    "release": "release-it --only-version",
-    "deploy": "npm pack && mv react-native-appsdk-*.tgz react-native-appsdk.tgz"
-  },
   "keywords": [
     "react-native",
     "ios",
@@ -68,7 +68,6 @@
     "@react-native-community/cli": "15.0.0-alpha.2",
     "@react-native/babel-preset": "0.79.2",
     "@react-native/eslint-config": "^0.78.0",
-    "@release-it/conventional-changelog": "^9.0.2",
     "@types/jest": "^29.5.5",
     "@types/react": "^19.0.0",
     "commitlint": "^19.6.1",
@@ -81,7 +80,6 @@
     "react": "19.0.0",
     "react-native": "0.79.2",
     "react-native-builder-bob": "^0.40.11",
-    "release-it": "^17.10.0",
     "turbo": "^1.10.7",
     "typescript": "^5.8.3"
   },
@@ -104,25 +102,6 @@
     "extends": [
       "@commitlint/config-conventional"
     ]
-  },
-  "release-it": {
-    "git": {
-      "commitMessage": "chore: release ${version}",
-      "tagName": "v${version}"
-    },
-    "npm": {
-      "publish": true
-    },
-    "github": {
-      "release": true
-    },
-    "plugins": {
-      "@release-it/conventional-changelog": {
-        "preset": {
-          "name": "angular"
-        }
-      }
-    }
   },
   "prettier": {
     "quoteProps": "consistent",
@@ -161,5 +140,6 @@
     "languages": "kotlin-objc",
     "type": "turbo-module",
     "version": "0.51.1"
-  }
+  },
+  "private": true
 }
