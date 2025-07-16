@@ -18,19 +18,23 @@
     "create:sdk": "npx create-react-native-library@latest ../turbo-module/MyModule",
     "lint": "expo lint",
     "update:sdk": "yarn upgrade react-native-appsdk",
-    "openas": "open -a '/Applications/Android Studio' ./android",
+    "open:AndroidStudio": "open -a '/Applications/Android Studio' ./android",
+    "edit:ios": "opeopen netawebthreeapp.xcworkspace",
+    "edit:ios:module": "opeopen ./turbo-module/appsdk/ios/AppdkExample.xcworkspace",
     "check:expo:dep": "expo install --check",
     "check:config": "npx react-native config",
     "deploy:config": "eas build:configure",
     "deploy:init": "eas init",
     "generate:android:key": "keytool -genkeypair -v -storetype PKCS12 -keystore keys/android.jks -alias android-key -keyalg RSA -keysize 2048 -validity 10000",
     "manage:android:key": "eas credentials",
-    "deploy:android": "export NODE_ENV=production && eas build --local --platform android",
     "preview": "eas build --local --profile preview --platform all",
+    "deploy:android": "export NODE_ENV=production && eas build --local --platform android",
+    "deploy:ios": "export NODE_ENV=production && eas build --local --platform ios",
     "deploy": "export NODE_ENV=production && eas build --local --profile production --platform all",
     "pod": "RCT_NEW_ARCH_ENABLED=1 npx pod-install",
     "ios:upload": "eas submit --platform ios --profile production",
-    "android:upload": "eas submit --platform android --profile production"
+    "android:upload": "eas submit --platform android --profile production",
+    "aab2apk": "bundletool build-apks --bundle=build-*.aab --output=app-*.apks"
   },
   "workspaces": [
     "turbo-module/*"
