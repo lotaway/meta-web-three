@@ -33,8 +33,7 @@
     "deploy": "export NODE_ENV=production && eas build --local --profile production --platform all",
     "pod": "RCT_NEW_ARCH_ENABLED=1 npx pod-install",
     "ios:upload": "eas submit --platform ios --profile production",
-    "android:upload": "eas submit --platform android --profile production",
-    "aab2apk": "bundletool build-apks --bundle=build-*.aab --output=app-*.apks"
+    "android:upload": "eas submit --platform android --profile production"
   },
   "workspaces": [
     "turbo-module/*"

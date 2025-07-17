@@ -71,3 +71,35 @@ EAS 服务器会通过 Apple API 自动完成以下操作：
 - 生成匹配的 Provisioning Profiles
 - 处理推送证书（需部分手动操作，见下文）
 - 需设置环境变量 EXPO_APPLE_PASSWORD 和 EXPO_APPLE_APP_SPECIFIC_PASSWORD 实现 CI 自动化
+
+### 如何生成apk
+
+安卓默认打包使用`yarn deploy:android`命令生成谷歌的aab文件，如果需要生成apk文件有两种方式：
+方式一，修改`eas.json`里的build方式然后重新打包：
+
+```json
+"build": {
+    "android": {
+      "buildType": "apk",
+      "gradleCommand": ":app:assembleRelease"
+    }
+  }
+```
+
+方式二，使用转换工具，安装并配置好[bundletool](https://github.com/google/bundletool)，然后在终端运行：
+
+```bash
+bundletool build-apks --bundle=build.aab --output=app.apks --mode=universal --ks=./keys/android.jks --ks-key-alias=android-keys --ks-pass=pass:your-keystore-password --key-pass=pass:your-key-password
+```
+
+打包出来的是谷歌的apks内含多文件，使用解压命令得到apk：
+
+```bash
+unzip app.apks
+```
+
+也可以使用命令直接安装apks到本地设备：
+
+```bash
+bundletool install-apks --apks=app.apks
+```
