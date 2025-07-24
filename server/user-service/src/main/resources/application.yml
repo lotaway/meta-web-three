@@ -3,10 +3,15 @@ spring:
     import: classpath:/application.yml
 ---
 server:
-  port: 10083
+  port: 10084
 spring:
   application:
     name: user-service
+  cloud:
+    zookeeper:
+      connect-string: localhost:2181
+      discovery:
+        enabled: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://172.29.222.103:3306/metawebthree?useUnicode=true&characterEncoding=utf-8

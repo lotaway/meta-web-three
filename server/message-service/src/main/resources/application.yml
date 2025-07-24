@@ -3,10 +3,10 @@ spring:
     import: classpath:/application.yml
 ---
 server:
-  port: 10084
+  port: 10085
 spring:
   application:
-    name: order-service
+    name: message-service
   cloud:
     zookeeper:
       connect-string: localhost:2181
@@ -21,3 +21,8 @@ spring:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
+aws:
+  region: ap-southeast-1
+  s3:
+    buckets:
+      product: metawebthree

@@ -16,15 +16,17 @@
     <description>backend-api</description>
     <packaging>pom</packaging>
     <modules>
-        <module>user-service</module>
+        <module>common</module>
         <module>product-service</module>
-        <module>message-service</module>
         <module>order-service</module>
+        <module>user-service</module>
+        <module>message-service</module>
     </modules>
     <properties>
         <java.version>11</java.version>
         <spring-boot-starter-aop.version>3.0.5</spring-boot-starter-aop.version>
         <mybatis-spring-boot-starter.version>3.0.1</mybatis-spring-boot-starter.version>
+        <spring-cloud.version>2025.0.0</spring-cloud.version>
         <mybatis-plus-boot-starter.version>3.5.3.1</mybatis-plus-boot-starter.version>
         <mybatis-spring.version>3.0.1</mybatis-spring.version>
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
@@ -39,9 +41,17 @@
         <aws.java.sdk.version>2.20.87</aws.java.sdk.version>
         <aws.lambda.java.version>1.2.2</aws.lambda.java.version>
         <kotlin.version>1.9.20</kotlin.version>
+        <spring-cloud-starter-zookeeper-discovery.version>4.3.0</spring-cloud-starter-zookeeper-discovery.version>
     </properties>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>software.amazon.awssdk</groupId>
                 <artifactId>bom</artifactId>

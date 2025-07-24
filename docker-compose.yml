@@ -36,11 +36,11 @@ services:
       - meta-web-three
   gateway:
     build:
-      context: "./block-chain-use"
+      context: "./server"
       dockerfile: dockerfile
-    image: meta-web-three/block-chain-use
+    image: meta-web-three/server
     volumes:
-      - ${DATA_PATH}/.data/block-chain-use:/block-chain-use
+      - ${DATA_PATH}/.data/server:/server
     ports:
       - "30001:30001"
     depends_on:
