@@ -42,6 +42,7 @@
         <aws.lambda.java.version>1.2.2</aws.lambda.java.version>
         <kotlin.version>1.9.20</kotlin.version>
         <spring-cloud-starter-zookeeper-discovery.version>4.3.0</spring-cloud-starter-zookeeper-discovery.version>
+        <spring-cloud-starter-openfeign.version>4.3.0</spring-cloud-starter-openfeign.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -218,6 +219,14 @@
             <groupId>org.web3j</groupId>
             <artifactId>core</artifactId>
             <version>4.9.8</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-openfeign -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <version>${spring-cloud-starter-openfeign.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
         </dependency>
     </dependencies>
 

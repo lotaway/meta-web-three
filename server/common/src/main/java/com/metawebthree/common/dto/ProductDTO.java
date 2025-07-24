@@ -3,7 +3,7 @@ package com.metawebthree.common.dto;
 import lombok.Data;
 
 @Data
-public class ProductDTO {
+public class ProductDTO extends ProductDTO {
     private Integer id;
     private String name;
     private String description;

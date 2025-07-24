@@ -29,6 +29,11 @@ public class ProductController {
         return Arrays.toString(productService.getProduct("test.txt"));
     }
 
+    @GetMapping("/micro-service-test")
+    public String microServiceTest() {
+        return "from micro-service product-service";
+    }
+
     @PostMapping("/create")
     public String create() {
         productService.createProduct("/product/%s".formatted(UUID.randomUUID().toString()), "create".getBytes());
