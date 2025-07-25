@@ -1,7 +1,6 @@
 package com.metawebthree.product;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.metawebthree.common.dto.ProductDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,5 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("product")
-public class ProductPojo {
+public class ProductDO {
+    private Long id;
+    private String name;
+    private String description;
+    private Integer[] imageIds;
 }

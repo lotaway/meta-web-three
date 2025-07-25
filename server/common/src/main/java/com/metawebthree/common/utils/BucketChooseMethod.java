@@ -1,4 +1,4 @@
-package com.metawebthree.utils;
+package com.metawebthree.common.utils;
 
 public enum BucketChooseMethod {
     BY_ROUND_ROBIN,

@@ -1,6 +1,6 @@
-package com.metawebthree;
+package com.metawebthree.common;
 
-import com.metawebthree.utils.SupportUtil;
+import com.metawebthree.common.utils.SupportUtil;
 import org.junit.Assert;
 import org.junit.Test;
 

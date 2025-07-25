@@ -9,7 +9,7 @@
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>product-service</artifactId>
+    <artifactId>order-service</artifactId>
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-zookeeper-discovery -->

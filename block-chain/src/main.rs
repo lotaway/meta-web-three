@@ -118,7 +118,7 @@ async fn main() {
     let future = async_task::tokio_spawn();
     let mut block_chain_proxy = LinkSummonProxy::new();
     let result = block_chain_proxy.start();
-    dbg!("{:?}", result);
+    dbg!("{:?}", &result);
     if result.ok().is_some() {
         block_chain_proxy.set_online().await;
     }

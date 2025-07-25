@@ -7,6 +7,9 @@ import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.metawebthree.common.dto.ProductDTO;
+
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
 import java.util.Arrays;

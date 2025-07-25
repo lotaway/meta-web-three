@@ -67,7 +67,7 @@ where
     ResultType: Send,
     F: TFutureTask<ResultType>,
 {
-    pub fn new(task: &F, duration: Option<Duration>) -> Self {
+    pub fn new(task: &'a F, duration: Option<Duration>) -> Self {
         println!("Task init");
         let context = Arc::new(Mutex::new(FutureTaskContext {
             state: FutureTaskState::NoInit,

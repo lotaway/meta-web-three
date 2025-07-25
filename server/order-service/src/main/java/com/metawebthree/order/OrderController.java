@@ -3,6 +3,8 @@ package com.metawebthree.order;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import com.metawebthree.client.ProductClient;
+
 @Slf4j
 @RestController
 @RequestMapping("/order")
