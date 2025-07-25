@@ -5,7 +5,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface ProductImageMapper extends MPJBaseMapper<ProductImagePojo> {
+public interface ProductImageMapper extends MPJBaseMapper<ProductImageDO> {
     @Insert("insert into product_image (product_id, image_id, url) values (#{productId}, #{imageId}, #{url})")
-    public int insert(ProductImagePojo productImagePojo);
+    public int insert(ProductImageDO productImageDO);
 }

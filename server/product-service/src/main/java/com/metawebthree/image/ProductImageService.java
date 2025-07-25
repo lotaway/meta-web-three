@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ProductImageService extends ServiceImpl<ProductImageMapper, ProductImagePojo> {
+public class ProductImageService extends ServiceImpl<ProductImageMapper, ProductImageDO> {
 
     ProductImageMapper productImageMapper;
 
@@ -13,10 +13,7 @@ public class ProductImageService extends ServiceImpl<ProductImageMapper, Product
     }
 
     public int create(Integer productId, String imageId, String url) {
-        ProductImagePojo productImagePojo = new ProductImagePojo();
-        productImagePojo.setProductId(productId);
-        productImagePojo.setImageId(imageId);
-        productImagePojo.setUrl(url);
-        return productImageMapper.insert(productImagePojo);
+        ProductImageDO productImageDO = ProductImageDO.builder().productId(productId).imageId(imageId).url(url).build();
+        return productImageMapper.insert(productImageDO);
     }
 }
