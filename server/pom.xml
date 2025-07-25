@@ -29,11 +29,10 @@
         <maven.compiler.target>19</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>17</java.version>
-        <spring-boot-starter-aop.version>3.0.5</spring-boot-starter-aop.version>
+        <spring-boot.version>3.5.4</spring-boot.version>
         <mybatis-spring-boot-starter.version>3.0.1</mybatis-spring-boot-starter.version>
-        <spring-boot-web.version>3.5.4</spring-boot-web.version>
         <spring-cloud.version>2025.0.0</spring-cloud.version>
-        <mybatis-plus-boot-starter.version>3.5.3.1</mybatis-plus-boot-starter.version>
+        <mybatis-plus-boot-starter.version>3.5.3.2</mybatis-plus-boot-starter.version>
         <mybatis-spring.version>3.0.1</mybatis-spring.version>
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
         <slf4j-api.version>2.0.7</slf4j-api.version>
@@ -55,7 +54,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-web</artifactId>
-                <version>${spring-boot-web.version}</version>
+                <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -84,18 +83,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
-            <version>${spring-boot-starter-aop.version}</version>
+            <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>
-            <groupId>org.mybatis.spring.boot</groupId>
-            <artifactId>mybatis-spring-boot-starter</artifactId>
-            <version>${mybatis-spring-boot-starter.version}</version>
-        </dependency>-->
         <!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-boot-starter -->
         <dependency>
             <groupId>com.baomidou</groupId>
@@ -269,6 +263,19 @@
                 </executions>
                 <configuration>
                     <jvmTarget>1.8</jvmTarget>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
         </plugins>
