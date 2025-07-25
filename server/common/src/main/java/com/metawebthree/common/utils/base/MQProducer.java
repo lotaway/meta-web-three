@@ -30,7 +30,7 @@ public class MQProducer {
     }
 
     public void test() throws MQClientException, MQBrokerException, RemotingException, InterruptedException {
-        SendResult sendResult = send("justATopic", "Hello, this is a test message", "test");
+        SendResult sendResult = send("TestTopic", "Hello, this is a test message", "test");
         System.out.println(sendResult);
     }
 

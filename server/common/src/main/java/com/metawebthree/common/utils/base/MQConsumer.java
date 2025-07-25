@@ -36,7 +36,7 @@ public class MQConsumer {
     }
 
     public void test() throws MQClientException {
-        start("JustATopic", new MessageListenerConcurrently() {
+        start("TestTopic", new MessageListenerConcurrently() {
             @Override
             public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> list, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
                 for (int i = 0; i < list.size(); i++) {

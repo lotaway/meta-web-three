@@ -40,14 +40,19 @@ public class ProductController {
         return Arrays.toString(productService.getProduct("test.txt"));
     }
 
-    @PutMapping("/update/{id}")
+    @GetMapping("/{id}")
+    public ProductDTO get(@PathVariable Integer id) {
+        return new ProductDTO(id, "name", "description", new Integer[]{1, 2, 3}, "19");
+    }
+
+    @PutMapping("/{id}")
     public String update(@PathVariable Integer id, @RequestParam String content) {
         PutObjectResponse res = productService.updateProduct("/product/%s".formatted(id), content.getBytes());
         return res.toString();
     }
 
-    @DeleteMapping("/delete")
-    public boolean delete() throws MQBrokerException, RemotingException, InterruptedException, MQClientException {
+    @DeleteMapping("/{id}")
+    public boolean delete(@PathVariable Integer id) throws MQBrokerException, RemotingException, InterruptedException, MQClientException {
         productService.deleteProduct("test.txt");
         return true;
     }

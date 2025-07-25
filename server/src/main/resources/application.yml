@@ -1,11 +1,11 @@
 ---
 spring:
   application:
-    name: backend-api
+    name: server
 ---
 spring:
   profiles:
-    active: user-service, product-service
+    active: user-service, product-service, order-service, message-service
 # rocketMQ
 rocketmq:
   client:
