@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.Key;
-import java.security.PublicKey;
+import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -42,8 +42,8 @@ public class UserController {
     }
 
     @GetMapping("/list")
-    public ApiResponse<List<UserPojo>> userList(@RequestParam(defaultValue = "1", required = false) Integer pageNum, @RequestParam(required = false) String email, @RequestParam(required = false) Short typeId, @RequestParam(required = false) String realName) {
-        UserPojo userPojo = new UserPojo();
+    public ApiResponse<List<UserDO>> userList(@RequestParam(defaultValue = "1", required = false) Integer pageNum, @RequestParam(required = false) String email, @RequestParam(required = false) Short typeId, @RequestParam(required = false) String realName) {
+        UserDO userPojo = new UserDO();
         userPojo.setTypeId(typeId);
         userPojo.setEmail(email);
         AuthorPojo authorPojo = new AuthorPojo();
@@ -53,7 +53,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ApiResponse create(@RequestBody Map<String, Object> params) {
+    public ApiResponse<?> create(@RequestBody Map<String, Object> params) throws NoSuchAlgorithmException {
         Short typeId = (Short) params.get("typeId");
         if (typeId == null)
             typeId = 0;
@@ -64,7 +64,7 @@ public class UserController {
     }
 
     @RequestMapping("/signIn")
-    public ApiResponse signIn(@RequestParam(defaultValue = "0", required = false) Short typeId, @RequestParam String email) throws IOException {
+    public ApiResponse<?> signIn(@RequestParam(defaultValue = "0", required = false) Short typeId, @RequestParam String email) throws IOException {
         Map<String, Object> claimsMap = new HashMap<>();
         claimsMap.put("email", email);
         claimsMap.put("typeId", typeId);
@@ -74,7 +74,7 @@ public class UserController {
     }
 
     @RequestMapping("/checkAuth")
-    public ApiResponse checkAuth(@RequestParam String jwt) {
+    public ApiResponse<?> checkAuth(@RequestParam String jwt) {
         Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
         Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt).getBody();
         assert claims.getSubject().equals(subject);
@@ -110,7 +110,7 @@ public class UserController {
     }
 
     @GetMapping("/checkBitcoinSignature")
-    public ApiResponse checkSignerMessage2() {
+    public ApiResponse<?> checkSignerMessage2() {
 //        PublicKey publicKey = new PublicKey("na");
         return ApiResponse.error("todo");
     }

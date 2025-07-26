@@ -10,6 +10,7 @@ class ProductServiceApplicationTests {
 
     @Test
     void contextLoads() {
+        System.out.println("Java version: " + System.getProperty("java.version"));
     }
 
     @Test

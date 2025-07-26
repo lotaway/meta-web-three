@@ -12,8 +12,12 @@ public class ProductImageService extends ServiceImpl<ProductImageMapper, Product
         this.productImageMapper = productImageMapper;
     }
 
-    public int create(Integer productId, String imageId, String url) {
-        ProductImageDO productImageDO = ProductImageDO.builder().productId(productId).imageId(imageId).url(url).build();
+    public int create(Long productId, String imageId, String url) {
+        ProductImageDO productImageDO = ProductImageDO.builder()
+                .productId(productId)
+                .imageId(imageId)
+                .url(url)
+                .build();
         return productImageMapper.insert(productImageDO);
     }
 }

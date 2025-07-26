@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationProperties(prefix = "project.author")
-public class ProjectAuthorVo {
+public class ProjectAuthorVO {
     private String name;
     private String email;
 

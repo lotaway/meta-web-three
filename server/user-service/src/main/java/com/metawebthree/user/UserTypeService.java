@@ -11,7 +11,7 @@ import java.nio.channels.FileChannel;
 import java.util.List;
 
 @Service
-public class UserTypeService extends ServiceImpl<UserTypeMapper, UserPojo> {
+public class UserTypeService extends ServiceImpl<UserTypeMapper, UserDO> {
 
     private final UserTypeMapper userTypeMapper;
 
@@ -19,18 +19,21 @@ public class UserTypeService extends ServiceImpl<UserTypeMapper, UserPojo> {
         this.userTypeMapper = userTypeMapper;
     }
 
-    public List<UserPojo> getList() {
+    public List<UserDO> getList() {
 //        MPJLambdaWrapper<UserPojo> wrapper = new MPJLambdaWrapper<>();
 //        wrapper.select(UserPojo::getId);
         return userTypeMapper.selectList(null);
     }
 
     public void testNIO(String path) throws IOException {
-        FileChannel fc = new FileInputStream(new File(path)).getChannel();
+        FileInputStream fs = new FileInputStream(new File(path));
+        FileChannel fc = fs.getChannel();
         ByteBuffer buf = ByteBuffer.allocate(48);
         int result;
         while ((result = fc.read(buf)) != 0) {
             System.out.println(result);
         }
+        fs.close();
+        fc.close();
     }
 }

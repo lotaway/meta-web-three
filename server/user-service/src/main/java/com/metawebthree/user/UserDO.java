@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("User")
-public class UserPojo {
+public class UserDO {
     private Integer id;
     private String email;
     private String password;

@@ -1,10 +1,8 @@
-spring:
-  config:
-    import: classpath:/application.yml
----
 server:
   port: 10082
 spring:
+  config:
+    import: classpath:/application.yml
   application:
     name: product-service
   cloud:
@@ -21,6 +19,8 @@ spring:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
+  type-aliases-package: com.metawebthree
+  mapper-locations: classpath*:mapper/*.xml
 aws:
   region: ap-southeast-1
   s3:

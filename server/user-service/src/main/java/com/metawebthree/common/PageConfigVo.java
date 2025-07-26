@@ -7,6 +7,6 @@ import org.springframework.stereotype.Component;
 @Data
 @Component
 @ConfigurationProperties(prefix = "page-config")
-public class PageConfigVo {
+public class PageConfigVO {
     private Integer pageSize;
 }

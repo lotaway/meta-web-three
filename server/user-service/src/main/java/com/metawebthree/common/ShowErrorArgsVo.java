@@ -1,5 +1,8 @@
 package com.metawebthree.common;
 
-public class ShowErrorArgsVo {
+import lombok.Data;
+
+@Data
+public class ShowErrorArgsVO {
     private String type;
 }

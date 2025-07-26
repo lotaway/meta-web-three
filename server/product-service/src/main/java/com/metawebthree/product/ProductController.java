@@ -61,12 +61,12 @@ public class ProductController {
     }
 
     @PostMapping(path = "/product/{id}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public boolean uploadImage(@PathVariable(name = "id") Integer productId, @RequestParam MultipartFile file) {
+    public boolean uploadImage(@PathVariable(name = "id") Long productId, @RequestParam MultipartFile file) {
         return productService.uploadImage(productId, file);
     }
 
     @GetMapping("/product/{id}/images")
-    public byte[] getImage(@PathVariable(name = "id") Integer productId) {
+    public byte[] getImage(@PathVariable(name = "id") Long productId) {
         return productService.getImages(productId);
     }
 }

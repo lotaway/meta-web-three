@@ -62,7 +62,10 @@ public class ApiResponse<DataType> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ApiResponse<DataType> that = (ApiResponse<DataType>) o;
+        if (!(o instanceof ApiResponse)) {
+            return false;
+        }
+        ApiResponse<?> that = (ApiResponse<?>) o;
         return status == that.status && message.equals(that.message) && data.equals(that.data);
     }
 

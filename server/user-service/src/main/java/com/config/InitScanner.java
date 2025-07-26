@@ -7,7 +7,6 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -252,6 +251,7 @@ public class InitScanner extends ConfigScannerAdapter {
         StringJoiner sj = new StringJoiner(",", "Start:", "---End.");
         sj.add("Hello");
         sj.add("Baby");
+        sc.close();
         //  output "Start:Hello,Baby---End."
     }
 
@@ -260,6 +260,7 @@ public class InitScanner extends ConfigScannerAdapter {
         Scanner sc = new Scanner(System.in);
         while (!input.matches("^[^-]?"))
             input = sc.next();
+        sc.close();
         return this.getInputToShow(input);
     }
 
@@ -327,6 +328,7 @@ public class InitScanner extends ConfigScannerAdapter {
     public void dataCollection(String[] sArr) {
         //  数组结构
         ArrayList<String> al = new ArrayList<>();
+        System.out.println(al);
 
         //  Immutable collection
         List<String> iTsSc = List.of("Standard", "Advance", "TopRank");
@@ -353,6 +355,7 @@ public class InitScanner extends ConfigScannerAdapter {
             System.out.println(s);
         }
         Iterator<String> it = hs.iterator();
+        System.out.println(it.next());
 
         hs.forEach(System.out::println);
         //  相比HashSet借助另外的链表结构保持了存取顺序
@@ -411,7 +414,8 @@ public class InitScanner extends ConfigScannerAdapter {
             if (!createDirResult)
                 throw new IOException("创建目录失败");
             boolean createFileResult = exConfig.createNewFile();
-
+            if (!createFileResult)
+                throw new IOException("创建文件失败");
         }
     }
 

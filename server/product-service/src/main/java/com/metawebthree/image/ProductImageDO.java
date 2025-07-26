@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @TableName("product_image")
 public class ProductImageDO {
-    private Integer id;
+    private Long id;
     private String imageId;
-    private Integer productId;
+    private Long productId;
     private String url;
-}
+}   

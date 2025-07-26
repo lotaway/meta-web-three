@@ -6,14 +6,14 @@ import org.apache.ibatis.annotations.*;
 import java.util.ArrayList;
 
 @Mapper
-public interface UserMapper extends MPJBaseMapper<UserPojo> {
-    ArrayList<UserPojo> getUserList(int pageSize, int offset, UserPojo userPojo);
+public interface UserMapper extends MPJBaseMapper<UserDO> {
+    ArrayList<UserDO> getUserList(int pageSize, int offset, UserDO userPojo);
 
     @Options(keyProperty = "id", useGeneratedKeys = true)
     @Insert("insert into User(email,password,type_id) values(#{email},#{password},#{typeId})")
-    int createUser(UserPojo userPojo);
+    int createUser(UserDO userPojo);
 
-    void updateUser(UserPojo userPojo);
+    void updateUser(UserDO userPojo);
 
     @Delete("delete from User where id=#{id}")
     boolean deleteUser(Integer id);

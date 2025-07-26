@@ -52,29 +52,30 @@ public class ProductService {
         mqProducer.send("deleteProduct", "delete product with:" + key, null, null);
     }
 
-    public boolean uploadImage(Integer productId, MultipartFile file) {
+    public boolean uploadImage(Long productId, MultipartFile file) {
         String imageId = UUID.randomUUID().toString();
         String url = "/product/%s/images/%s".formatted(productId, imageId);
         try {
             PutObjectResponse res = s3Service.putObject(s3Bucket.getProduct(), url, file.getBytes());
+            System.out.println("Image uploaded successfully: " + res);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return Integer.valueOf(1).equals(productImageService.create(productId, imageId, url));
     }
 
-    public byte[] getImages(Integer productId) {
+    public byte[] getImages(Long productId) {
         return s3Service.getObject(s3Bucket.getProduct(), "/product/%s/images/".formatted(productId));
     }
 
-    ConcurrentHashMap<Integer, Object> statisticLockMap = new ConcurrentHashMap<>();
+    ConcurrentHashMap<Long, Object> statisticLockMap = new ConcurrentHashMap<>();
     Long count = 0L;
 
-    public boolean updateFeatureStatistic(Integer featureId, Integer increated) {
+    public boolean updateFeatureStatistic(Long featureId, Integer increated) {
         return updateFeatureStatisticWithLock(featureId, increated);
     }
 
-    public boolean updateFeatureStatisticWithLock(Integer featureId, Integer increated) {
+    public boolean updateFeatureStatisticWithLock(Long featureId, Integer increated) {
         Object lock = statisticLockMap.computeIfAbsent(featureId, key -> new Object());
         synchronized (lock) {
             count += increated;

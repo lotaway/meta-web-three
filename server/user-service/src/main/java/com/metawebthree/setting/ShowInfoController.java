@@ -1,8 +1,8 @@
 package com.metawebthree.setting;
 
 import com.metawebthree.common.ApiResponse;
-import com.metawebthree.common.ProjectAuthorVo;
-import com.metawebthree.common.ShowErrorArgsVo;
+import com.metawebthree.common.ProjectAuthorVO;
+import com.metawebthree.common.ShowErrorArgsVO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +31,9 @@ public class ShowInfoController implements Serializable {
     @Autowired
     private SettingService settingService;
 
-    private final ProjectAuthorVo projectAuthorVo;
+    private final ProjectAuthorVO projectAuthorVo;
 
-    public ShowInfoController(ProjectAuthorVo projectAuthorVo) {
+    public ShowInfoController(ProjectAuthorVO projectAuthorVo) {
         this.projectAuthorVo = projectAuthorVo;
     }
 
@@ -43,7 +43,7 @@ public class ShowInfoController implements Serializable {
     }
 
     @RequestMapping("/author")
-    public ProjectAuthorVo getAuthor() {
+    public ProjectAuthorVO getAuthor() {
         return this.projectAuthorVo;
     }
 
@@ -59,8 +59,9 @@ public class ShowInfoController implements Serializable {
     }
 
     @RequestMapping("/showError")
-    public String showError(ShowErrorArgsVo showErrorArgsVo) throws Exception {
+    public String showError(ShowErrorArgsVO showErrorArgsVo) throws Exception {
         boolean result = InitScanner.errorOutputToFile("Nothing error");
+        System.out.println("error output to file result: " + result);
         return InitScanner.getErrorLog("error/error.log");
     }
 

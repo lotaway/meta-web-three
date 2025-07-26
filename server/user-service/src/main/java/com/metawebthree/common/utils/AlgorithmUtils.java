@@ -1,13 +1,8 @@
 package com.metawebthree.common.utils;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 public class AlgorithmUtils {
 
@@ -22,6 +17,7 @@ public class AlgorithmUtils {
         for (String strNum : strNums) {
             data[dataIndex++] = Integer.parseInt(strNum);
         }
+        fileReader.close();
         return data;
     }
 

@@ -4,23 +4,23 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 
-public interface IUserService extends IService<UserPojo> {
-    IPage<UserPojo> getUserList(int pageNum);
+public interface IUserService extends IService<UserDO> {
+    IPage<UserDO> getUserList(int pageNum);
 
-    IPage<UserPojo> getUserList(int pageNum, int pageSize);
+    IPage<UserDO> getUserList(int pageNum, int pageSize);
 
-    IPage<UserPojo> getUserList(Integer pageNum, UserPojo userPojo, Integer pageSize);
+    IPage<UserDO> getUserList(Integer pageNum, UserDO userPojo, Integer pageSize);
 
-    IPage<UserPojo> getUserList(Integer pageNum, MPJLambdaWrapper<UserPojo> wrapper);
+    IPage<UserDO> getUserList(Integer pageNum, MPJLambdaWrapper<UserDO> wrapper);
 
-    IPage<UserPojo> getUserList(Integer pageNum, MPJLambdaWrapper<UserPojo> wrapper, Integer pageSize);
+    IPage<UserDO> getUserList(Integer pageNum, MPJLambdaWrapper<UserDO> wrapper, Integer pageSize);
 
-    int createUser(String email, String password);
+    int createUser(String email, String password) throws Exception;
 
-    int createUser(String email, String password, Short typeId);
+    int createUser(String email, String password, Short typeId) throws Exception;
 
     default int updateUser(Integer id) {
-        UserPojo user = new UserPojo();
+        UserDO user = new UserDO();
         user.setId(id);
 //        userMapper.updateUserInfo(user);
         return 0;

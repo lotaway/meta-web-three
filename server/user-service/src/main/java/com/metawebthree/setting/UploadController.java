@@ -17,7 +17,7 @@ import java.io.IOException;
 public class UploadController {
 
     @PostMapping("/file")
-    public ApiResponse file(MultipartFile file) {
+    public ApiResponse<Exception> file(MultipartFile file) {
         String fileName = file.getOriginalFilename();
         try {
             File destFile = new File("/upload/file/" + fileName);
