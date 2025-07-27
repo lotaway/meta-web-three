@@ -1,8 +1,19 @@
 server:
   port: 10084
 spring:
-  profiles:
-    include: common-dev
-    active: dev
   application:
     name: user-service
+  profiles:
+    active: dev
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+    import: classpath:application-common-dev.yml
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import: classpath:application-common-prod.yml

@@ -1,7 +1,3 @@
-spring:
-  config:
-    activate:
-      on-profile: dev
 # application level configuration
 rocket:
   client:

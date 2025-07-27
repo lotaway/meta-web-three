@@ -25,3 +25,7 @@ aws:
 rocketmq:
   client:
     namesrv: 192.168.43.137:9876
+# mybatis将SQL下划线字段自动转驼峰
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true

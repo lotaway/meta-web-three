@@ -1,12 +1,19 @@
 server:
   port: 10082
 spring:
-  profiles:
-    include: common-dev
-    active: dev
   application:
     name: product-service
-# mybatis将SQL下划线字段自动转驼峰
-mybatis-plus:
-  configuration:
-    map-underscore-to-camel-case: true
+  profiles:
+    active: dev
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+    import: classpath:application-common-dev.yml
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import: classpath:application-common-prod.yml

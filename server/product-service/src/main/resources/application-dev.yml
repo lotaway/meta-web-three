@@ -1,7 +1,3 @@
-# spring:
-  # profiles:
-    # include:
-    # - common-dev
 # application level configuration
 aws:
   s3:
