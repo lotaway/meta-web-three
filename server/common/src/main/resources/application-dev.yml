@@ -1,4 +1,8 @@
-# rocketMQ
-rocketmq:
+spring:
+  config:
+    activate:
+      on-profile: dev
+# application level configuration
+rocket:
   client:
-    namesrv: 192.168.43.137:9876
+    appliaction-topic: "commonApplicationTopic"

@@ -1,4 +1,4 @@
-package com.metawebthree.cloud;
+package com.metawebthree.common.cloud;
 
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.sync.RequestBody;

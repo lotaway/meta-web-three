@@ -1,7 +1,7 @@
 package com.metawebthree.product;
 
-import com.metawebthree.cloud.S3Buckets;
-import com.metawebthree.cloud.S3Service;
+import com.metawebthree.common.cloud.S3Buckets;
+import com.metawebthree.common.cloud.S3Service;
 import com.metawebthree.common.utils.base.MQProducer;
 import com.metawebthree.image.ProductImageService;
 import org.apache.rocketmq.client.exception.MQBrokerException;
@@ -35,20 +35,20 @@ public class ProductService {
     }
 
     public PutObjectResponse createProduct(String key, byte[] content) {
-        return s3Service.putObject(s3Bucket.getProduct(), key, content);
+        return s3Service.putObject(s3Bucket.getName(), key, content);
     }
 
     public PutObjectResponse updateProduct(String key, byte[] content) {
-        return s3Service.putObject(s3Bucket.getProduct(), key, content);
+        return s3Service.putObject(s3Bucket.getName(), key, content);
     }
 
     public byte[] getProduct(String key) throws RuntimeException {
-        return s3Service.getObject(s3Bucket.getProduct(), key);
+        return s3Service.getObject(s3Bucket.getName(), key);
     }
 
     public void deleteProduct(String key)
             throws MQBrokerException, RemotingException, InterruptedException, MQClientException {
-        s3Service.deleteObject(s3Bucket.getProduct(), key);
+        s3Service.deleteObject(s3Bucket.getName(), key);
         mqProducer.send("deleteProduct", "delete product with:" + key, null, null);
     }
 
@@ -56,7 +56,7 @@ public class ProductService {
         String imageId = UUID.randomUUID().toString();
         String url = "/product/%s/images/%s".formatted(productId, imageId);
         try {
-            PutObjectResponse res = s3Service.putObject(s3Bucket.getProduct(), url, file.getBytes());
+            PutObjectResponse res = s3Service.putObject(s3Bucket.getName(), url, file.getBytes());
             System.out.println("Image uploaded successfully: " + res);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -65,7 +65,7 @@ public class ProductService {
     }
 
     public byte[] getImages(Long productId) {
-        return s3Service.getObject(s3Bucket.getProduct(), "/product/%s/images/".formatted(productId));
+        return s3Service.getObject(s3Bucket.getName(), "/product/%s/images/".formatted(productId));
     }
 
     ConcurrentHashMap<Long, Object> statisticLockMap = new ConcurrentHashMap<>();

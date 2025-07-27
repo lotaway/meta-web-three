@@ -18,9 +18,13 @@ import java.util.List;
 @Configuration
 public class MQConsumer {
     private final DefaultMQPushConsumer consumer;
-    @Value("rocketmq.client.namesrv")
+    
+    @Value("${rocketmq.client.namesrv:未配置}")
     private String namesrv;
-
+    
+    @Value("${rocketmq.client.appliaction-topic:未配置}")
+    private String applicationTopic;
+    
     public MQConsumer() {
         consumer = new DefaultMQPushConsumer("MQConsumer");
     }
@@ -28,6 +32,8 @@ public class MQConsumer {
     @PostConstruct
     public void init() {
         consumer.setNamesrvAddr(namesrv);
+        System.out.println("RocketMQ Nameserver: " + namesrv);
+        System.out.println("RocketMQ Common application config: " + applicationTopic);
     }
 
     public void start(String topic, MessageListener messageListener, @Nullable String subExpression) throws MQClientException {

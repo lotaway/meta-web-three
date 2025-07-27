@@ -12,16 +12,6 @@
     <artifactId>product-service</artifactId>
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <!--https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-zookeeper-discovery -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
-            <version>${spring-cloud-starter-zookeeper-discovery.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.metawebthree</groupId>
             <artifactId>common</artifactId>
             <version>1.0.0</version>
