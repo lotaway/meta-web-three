@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.Nullable;
+import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,8 +25,12 @@ public class MQConsumer {
         consumer = new DefaultMQPushConsumer("MQConsumer");
     }
 
-    public void start(String topic, MessageListener messageListener, @Nullable String subExpression) throws MQClientException {
+    @PostConstruct
+    public void init() {
         consumer.setNamesrvAddr(namesrv);
+    }
+
+    public void start(String topic, MessageListener messageListener, @Nullable String subExpression) throws MQClientException {
         if (subExpression == null) {
             subExpression = "*";
         }

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.Nullable;
+import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 
 @Configuration
@@ -21,6 +22,10 @@ public class MQProducer {
 
     MQProducer() {
         producer = new DefaultMQProducer("MQProducer");
+    }
+
+    @PostConstruct
+    public void init() {
         producer.setNamesrvAddr(namesrv);
     }
 

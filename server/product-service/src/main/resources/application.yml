@@ -1,28 +1,11 @@
 server:
   port: 10082
 spring:
-  config:
-    import: classpath:/application.yml
+  profiles:
+    active: dev
   application:
     name: product-service
-  cloud:
-    zookeeper:
-      connect-string: localhost:2181
-      discovery:
-        enabled: true
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://172.29.222.103:3306/metawebthree?useUnicode=true&characterEncoding=utf-8
-    username: root
-    password: 123123
 # mybatis将SQL下划线字段自动转驼峰
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
-  type-aliases-package: com.metawebthree
-  mapper-locations: classpath*:mapper/*.xml
-aws:
-  region: ap-southeast-1
-  s3:
-    buckets:
-      product: metawebthree

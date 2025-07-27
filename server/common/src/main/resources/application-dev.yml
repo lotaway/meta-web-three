@@ -1,0 +1,4 @@
+# rocketMQ
+rocketmq:
+  client:
+    namesrv: 192.168.43.137:9876
