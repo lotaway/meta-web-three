@@ -1,4 +1,4 @@
-package com.config;
+package com.metawebthree.common.config;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.autoconfigure.ConfigurationCustomizer;
@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 // extends this config and add @Configuration and @MapperScan("scan.your.mapper.package") to use pagination
 public abstract class MybatisPlusDefaultConfig {

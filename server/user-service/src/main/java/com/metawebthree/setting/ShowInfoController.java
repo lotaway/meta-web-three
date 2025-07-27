@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
-import com.config.InitScanner;
+import com.metawebthree.common.config.InitScanner;
 
 //import java.io.Serial;
 import java.io.Serializable;
@@ -50,11 +50,12 @@ public class ShowInfoController implements Serializable {
     @RequestMapping("/scanner")
     public String scanner(HttpServletRequest request) throws Exception {
         String showType = request.getParameter("showType");
+        System.out.println(showType);
         return InitScanner.getInfo();
     }
 
     @RequestMapping(path = "/showConfig", method = RequestMethod.POST)
-    public ApiResponse showConfig(@RequestParam String type) {
+    public ApiResponse<?> showConfig(@RequestParam String type) {
         return ApiResponse.success("show config");
     }
 

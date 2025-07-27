@@ -1,4 +1,4 @@
-package com.config;
+package com.metawebthree.common.config;
 
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;

@@ -1,4 +1,4 @@
-package com.config;
+package com.metawebthree.common.config;
 
 public class ConfigScannerAdapter implements ConfigScanner {
     private String name = "配置扫描适配器";

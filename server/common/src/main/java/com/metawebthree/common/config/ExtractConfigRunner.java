@@ -1,4 +1,4 @@
-package com.config;
+package com.metawebthree.common.config;
 
 public class ExtractConfigRunner implements Runnable {
 
