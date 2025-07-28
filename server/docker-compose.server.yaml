@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: zookeeper:3.7
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    restart: unless-stopped
+
+  product-service:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    container_name: meta-web-three/product-service
+    ports:
+      - "10082:10082"
+    command: ["java", "-jar", "/product-servie.jar"]
+    volumes:
+      - ${DATA_PATH}/.data/server/product:/server/product
+    depends_on:
+      zookeeper:
+        - condition: service_healthy
+      mysql:
+        - condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - meta-web-three
+    restart: unless-stopped
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: meta-web-three/user-service
+    ports:
+      - "10083:10083"
+    command: ["java", "-jar", "/user-servie.jar"]
+    volumes:
+      - ${DATA_PATH}/.data/server/user:/server/user
+    depends_on:
+      zookeeper:
+        - condition: service_healthy
+      mysql:
+        - condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - meta-web-three
+    restart: unless-stopped
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: meta-web-three/order-service
+    ports:
+      - "10084:10084"
+    command: ["java", "-jar", "/order-service.jar"]
+    volumes:
+      - ${DATA_PATH}/.data/server/order:/server/order
+    depends_on:
+      zookeeper:
+        - condition: service_healthy
+      mysql:
+        - condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - meta-web-three
+    restart: unless-stopped
+
+  message-service:
+    build:
+      context: ./message-service
+      dockerfile: Dockerfile
+    container_name: meta-web-three/message-service
+    ports:
+      - "10085:10085"
+    command: ["java", "-jar", "/message-service.jar"]
+    volumes:
+      - ${DATA_PATH}/.data/server/message:/server/message
+    depends_on:
+      zookeeper:
+        - condition: service_healthy
+      mysql:
+        - condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - meta-web-three
+    restart: unless-stopped

@@ -1,4 +1,8 @@
 version: '2'
+
+include:
+  - ./server/docker-compose.server.yml
+
 services:
   mysql:
     image: ${MYSQL_IMAGE}
@@ -9,7 +13,7 @@ services:
       - ${MYSQL_PORT}:${MYSQL_PORT}
     env_file:
       - .env
-      - ./gateway/.env
+      - ./server/.env
     environment:
       - MYSQL_USERNAME=${MYSQL_USERNAME}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
@@ -29,20 +33,18 @@ services:
       - ${REDIS_PORT}:${REDIS_PORT}
     env_file:
       - .env
-      - gateway/.env
+      - ./server/.env
     volumes:
       - ${DATA_PATH}/.data/redis:/data
     networks:
       - meta-web-three
-  gateway:
+  server:
     build:
       context: "./server"
       dockerfile: dockerfile
     image: meta-web-three/server
     volumes:
       - ${DATA_PATH}/.data/server:/server
-    ports:
-      - "30001:30001"
     depends_on:
       mysql:
         - condition: service_healthy
