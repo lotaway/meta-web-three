@@ -23,22 +23,22 @@ public class ApplicationLifeCycleHook {
         System.out.println("namesrv: " + namesrv);
         System.out.println("server.port: " + serverPort);
     }
+}
 
-    @Component
-    public static class ApplicationHook implements ApplicationListener<ApplicationReadyEvent> {
-        
-        @Override
-        public void onApplicationEvent(ApplicationReadyEvent event) {
-            System.out.println("=== ApplicationLifeCycleHook ApplicationReadyEvent ===");
-        }
+@Component
+class ApplicationHook implements ApplicationListener<ApplicationReadyEvent> {
+    
+    @Override
+    public void onApplicationEvent(ApplicationReadyEvent event) {
+        System.out.println("=== ApplicationLifeCycleHook ApplicationReadyEvent ===");
     }
+}
 
-    @Component
-    public static class CommandLineHook implements CommandLineRunner {
-        
-        @Override
-        public void run(String... args) throws Exception {
-            System.out.println("=== ApplicationLifeCycleHook CommandLineRunner ===");
-        }
+@Component
+class CommandLineHook implements CommandLineRunner {
+    
+    @Override
+    public void run(String... args) throws Exception {
+        System.out.println("=== ApplicationLifeCycleHook CommandLineRunner ===");
     }
 }

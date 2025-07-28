@@ -10,10 +10,15 @@ spring:
   config:
     activate:
       on-profile: dev
-    import: classpath:application-common-dev.yml
+    import: 
+      # - optional:classpath:/config/application-common-${spring.profiles.active}.yml
+      - optional:classpath:application-common-${spring.profiles.active}.yml
+      - optional:classpath:application-common-dev.yml
 ---
 spring:
   config:
     activate:
       on-profile: prod
-    import: classpath:application-common-prod.yml
+    import:
+      - optional:classpath:application-common.yml
+      - optional:classpath:application-common-prod.yml

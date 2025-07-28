@@ -1,4 +1,0 @@
-# application level configuration
-rocket:
-  client:
-    appliaction-topic: "commonApplicationTopic"
