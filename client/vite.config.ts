@@ -32,7 +32,7 @@ export default defineConfig({
     //  配置前端服务地址和端口
     server: {
         host: 'localhost',
-        port: 30001,
+        port: parseInt(process.env.VITE_PORT) ||30001,
         //  是否开启https
         // https: true,
         // 设置反向代理，跨域

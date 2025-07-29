@@ -38,4 +38,10 @@ public class SyncRecentNotificationJob implements Job {
     public void execute(JobExecutionContext context) throws JobExecutionException {
         // @todo reach notifi
     }
+
+    protected void multiSourceSync() {
+        new Thread(() -> {
+
+        });
+    }
 }

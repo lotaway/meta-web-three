@@ -1,66 +1,18 @@
 version: '2'
 
 include:
+  - ./server/docker-compose.dataenv.yml
   - ./server/docker-compose.server.yml
 
 services:
-  mysql:
-    image: ${MYSQL_IMAGE}
-    restart: always
-    volumes:
-      - ${DATA_PATH}/.data/mysql:/var/lib/mysql
-    ports:
-      - ${MYSQL_PORT}:${MYSQL_PORT}
-    env_file:
-      - .env
-      - ./server/.env
-    environment:
-      - MYSQL_USERNAME=${MYSQL_USERNAME}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - TZ=${TIMEZONE}
-    command: --default-authentication-plugin=mysql_native_password
-      --character-set-server=utf8mb4
-      --collation-server=utf8mb4_general_ci
-      --sql_mode=IGNORE_SPACE,NO_ENGINE_SUBSTITUTION
-      --lower_case_table_names=2
-    networks:
-      - meta-web-three
-  redis:
-    image: ${REDIS_IMAGE}
-    restart: always
-    ports:
-      - ${REDIS_PORT}:${REDIS_PORT}
-    env_file:
-      - .env
-      - ./server/.env
-    volumes:
-      - ${DATA_PATH}/.data/redis:/data
-    networks:
-      - meta-web-three
-  server:
-    build:
-      context: "./server"
-      dockerfile: dockerfile
-    image: meta-web-three/server
-    volumes:
-      - ${DATA_PATH}/.data/server:/server
-    depends_on:
-      mysql:
-        - condition: service_healthy
-      redis:
-        condition: service_started
-    networks:
-      - meta-web-three
   client:
     build:
       context: "./client"
       dockerfile: dockerfile
     ports:
-      - "30001:80"
-    depends_on:
-      backend-api:
-        condition: service_started
+      - "${VITE_PORT}:${VITE_PORT}"
+    networks:
+      - meta-web-three
 networks:
   meta-web-three:
     driver: bridge
