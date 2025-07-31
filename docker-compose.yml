@@ -1,7 +1,7 @@
 version: '2'
 
 include:
-  - ./server/docker-compose.dataenv.yml
+  - ./docker-compose.dataenv.yml
   - ./server/docker-compose.server.yml
 
 services:

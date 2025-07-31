@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: meta-web-three
+  labels:
+    app: user-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      initContainers:
+      - name: wait-for-mysql
+        image: busybox:1.35
+        command: ['sh', '-c', 'until nc -z mysql-service 3306; do echo waiting for mysql; sleep 2; done;']
+      - name: wait-for-redis
+        image: busybox:1.35
+        command: ['sh', '-c', 'until nc -z redis-service 6379; do echo waiting for redis; sleep 2; done;']
+      - name: wait-for-zookeeper
+        image: busybox:1.35
+        command: ['sh', '-c', 'until nc -z zookeeper-service 2181; do echo waiting for zookeeper; sleep 2; done;']
+      containers:
+      - name: user-service
+        image: meta-web-three/user-service:latest
+        ports:
+        - containerPort: 10083
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10083"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: user-data
+          mountPath: /server/user
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 10083
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 10083
+          initialDelaySeconds: 30
+          periodSeconds: 10
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: user-data
+        persistentVolumeClaim:
+          claimName: user-data-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: user-data-pvc
+  namespace: meta-web-three
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-storage
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: meta-web-three
+  labels:
+    app: user-service
+spec:
+  selector:
+    app: user-service
+  ports:
+  - port: 10083
+    targetPort: 10083
+  type: ClusterIP 

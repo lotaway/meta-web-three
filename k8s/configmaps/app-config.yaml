@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: meta-web-three
+data:
+  # 应用通用配置
+  application-common.yml: |
+    spring:
+      profiles:
+        active: dev
+    rocketmq:
+      client:
+        appliaction-topic: "publicApplicationTopic"
+  
+  # 开发环境配置
+  application-common-dev.yml: |
+    spring:
+      cloud:
+        zookeeper:
+          connect-string: zookeeper-service:2181
+          discovery:
+            enabled: true
+      datasource:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://mysql-service:3306/metawebthree?useUnicode=true&characterEncoding=utf-8
+        username: root
+        password: 123123
+    name: "meta-web-three"
+    project:
+      author:
+        name: "Way Luk"
+        email: "lotaway@foxmail.com"
+    page-config:
+      page-size: 20
+    aws:
+      region: ap-southeast-1
+      s3:
+        buckets:
+          name: metawebthree
+    rocketmq:
+      client:
+        namesrv: rocketmq-service:9876
+    mybatis-plus:
+      configuration:
+        map-underscore-to-camel-case: true
+  
+  # 生产环境配置
+  application-common-prod.yml: |
+    spring:
+      cloud:
+        zookeeper:
+          connect-string: zookeeper-service:2181
+          discovery:
+            enabled: true
+      datasource:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://mysql-service:3306/metawebthree?useUnicode=true&characterEncoding=utf-8
+        username: root
+        password: 123123
+    name: "meta-web-three"
+    project:
+      author:
+        name: "Way Luk"
+        email: "lotaway@foxmail.com"
+    page-config:
+      page-size: 20
+    aws:
+      region: ap-southeast-1
+      s3:
+        buckets:
+          name: metawebthree
+    rocketmq:
+      client:
+        namesrv: rocketmq-service:9876
+    mybatis-plus:
+      configuration:
+        map-underscore-to-camel-case: true 

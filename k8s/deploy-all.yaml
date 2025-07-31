@@ -1,0 +1,846 @@
+# Meta Web Three Kubernetes 部署配置
+# 使用命令: kubectl apply -f k8s/deploy-all.yaml
+
+# 1. 创建命名空间
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: meta-web-three
+  labels:
+    name: meta-web-three
+
+# 2. 创建存储类
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-storage
+  namespace: meta-web-three
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+
+# 3. 创建持久化存储卷
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv
+  namespace: meta-web-three
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/mysql
+  storageClassName: local-storage
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: redis-pv
+  namespace: meta-web-three
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/redis
+  storageClassName: local-storage
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: product-data-pv
+  namespace: meta-web-three
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/server/product
+  storageClassName: local-storage
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: user-data-pv
+  namespace: meta-web-three
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/server/user
+  storageClassName: local-storage
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: order-data-pv
+  namespace: meta-web-three
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/server/order
+  storageClassName: local-storage
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: message-data-pv
+  namespace: meta-web-three
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/server/message
+  storageClassName: local-storage
+
+# 4. 创建配置
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: meta-web-three
+data:
+  application-common.yml: |
+    spring:
+      profiles:
+        active: dev
+    rocketmq:
+      client:
+        appliaction-topic: "publicApplicationTopic"
+  
+  application-common-dev.yml: |
+    spring:
+      cloud:
+        zookeeper:
+          connect-string: zookeeper-service:2181
+          discovery:
+            enabled: true
+      datasource:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://mysql-service:3306/metawebthree?useUnicode=true&characterEncoding=utf-8
+        username: root
+        password: 123123
+    name: "meta-web-three"
+    project:
+      author:
+        name: "Way Luk"
+        email: "lotaway@foxmail.com"
+    page-config:
+      page-size: 20
+    aws:
+      region: ap-southeast-1
+      s3:
+        buckets:
+          name: metawebthree
+    rocketmq:
+      client:
+        namesrv: rocketmq-service:9876
+    mybatis-plus:
+      configuration:
+        map-underscore-to-camel-case: true
+
+# 注意：Secret 需要手动创建，不要放在代码仓库中
+# 使用命令：kubectl create secret generic database-secret \
+#   --from-literal=mysql-root-password=your-password \
+#   --from-literal=mysql-username=your-username \
+#   --from-literal=mysql-database=your-database \
+#   -n meta-web-three
+
+# 5. 部署基础设施服务
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper
+  namespace: meta-web-three
+  labels:
+    app: zookeeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      containers:
+      - name: zookeeper
+        image: zookeeper:3.8
+        ports:
+        - containerPort: 2181
+        env:
+        - name: ZOO_MY_ID
+          value: "1"
+        - name: ZOO_SERVERS
+          value: "server.1=0.0.0.0:2888:3888;2181"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper-service
+  namespace: meta-web-three
+spec:
+  selector:
+    app: zookeeper
+  ports:
+  - name: client
+    port: 2181
+    targetPort: 2181
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: meta-web-three
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database-secret
+              key: mysql-root-password
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: database-secret
+              key: mysql-database
+        command:
+        - mysqld
+        - --default-authentication-plugin=mysql_native_password
+        - --character-set-server=utf8mb4
+        - --collation-server=utf8mb4_general_ci
+        - --sql_mode=IGNORE_SPACE,NO_ENGINE_SUBSTITUTION
+        - --lower_case_table_names=2
+        volumeMounts:
+        - name: mysql-data
+          mountPath: /var/lib/mysql
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: mysql-data
+        persistentVolumeClaim:
+          claimName: mysql-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: meta-web-three
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-storage
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  namespace: meta-web-three
+spec:
+  selector:
+    app: mysql
+  ports:
+  - port: 3306
+    targetPort: 3306
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: meta-web-three
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        command:
+        - redis-server
+        - --appendonly
+        - yes
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: redis-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: meta-web-three
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-storage
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: meta-web-three
+spec:
+  selector:
+    app: redis
+  ports:
+  - port: 6379
+    targetPort: 6379
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: meta-web-three
+  labels:
+    app: rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3-management
+        ports:
+        - containerPort: 5672
+        - containerPort: 5671
+        - containerPort: 15672
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          value: "admin"
+        - name: RABBITMQ_DEFAULT_PASS
+          value: "admin123"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-service
+  namespace: meta-web-three
+spec:
+  selector:
+    app: rabbitmq
+  ports:
+  - name: amqp
+    port: 5672
+    targetPort: 5672
+  - name: amqp-ssl
+    port: 5671
+    targetPort: 5671
+  - name: management
+    port: 15672
+    targetPort: 15672
+  type: ClusterIP
+
+# 6. 部署业务服务
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-service
+  namespace: meta-web-three
+  labels:
+    app: product-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: product-service
+  template:
+    metadata:
+      labels:
+        app: product-service
+    spec:
+      containers:
+      - name: product-service
+        image: meta-web-three/product-service:latest
+        ports:
+        - containerPort: 10082
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10082"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: product-data
+          mountPath: /server/product
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: product-data
+        persistentVolumeClaim:
+          claimName: product-data-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: product-data-pvc
+  namespace: meta-web-three
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-storage
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: meta-web-three
+spec:
+  selector:
+    app: product-service
+  ports:
+  - port: 10082
+    targetPort: 10082
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: meta-web-three
+  labels:
+    app: user-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: meta-web-three/user-service:latest
+        ports:
+        - containerPort: 10083
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10083"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: user-data
+          mountPath: /server/user
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: user-data
+        persistentVolumeClaim:
+          claimName: user-data-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: user-data-pvc
+  namespace: meta-web-three
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-storage
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: meta-web-three
+spec:
+  selector:
+    app: user-service
+  ports:
+  - port: 10083
+    targetPort: 10083
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+  namespace: meta-web-three
+  labels:
+    app: order-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+      - name: order-service
+        image: meta-web-three/order-service:latest
+        ports:
+        - containerPort: 10084
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10084"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: order-data
+          mountPath: /server/order
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: order-data
+        persistentVolumeClaim:
+          claimName: order-data-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: order-data-pvc
+  namespace: meta-web-three
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-storage
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+  namespace: meta-web-three
+spec:
+  selector:
+    app: order-service
+  ports:
+  - port: 10084
+    targetPort: 10084
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: message-service
+  namespace: meta-web-three
+  labels:
+    app: message-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: message-service
+  template:
+    metadata:
+      labels:
+        app: message-service
+    spec:
+      containers:
+      - name: message-service
+        image: meta-web-three/message-service:latest
+        ports:
+        - containerPort: 10085
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10085"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: message-data
+          mountPath: /server/message
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: message-data
+        persistentVolumeClaim:
+          claimName: message-data-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: message-data-pvc
+  namespace: meta-web-three
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-storage
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: message-service
+  namespace: meta-web-three
+spec:
+  selector:
+    app: message-service
+  ports:
+  - port: 10085
+    targetPort: 10085
+  type: ClusterIP
+
+# 7. 部署前端
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client
+  namespace: meta-web-three
+  labels:
+    app: client
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: client
+  template:
+    metadata:
+      labels:
+        app: client
+    spec:
+      containers:
+      - name: client
+        image: meta-web-three/client:latest
+        ports:
+        - containerPort: 30001
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-service
+  namespace: meta-web-three
+spec:
+  selector:
+    app: client
+  ports:
+  - port: 30001
+    targetPort: 30001
+  type: ClusterIP
+
+# 8. 创建Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: client-ingress
+  namespace: meta-web-three
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - host: meta-web-three.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: client-service
+            port:
+              number: 30001
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-ingress
+  namespace: meta-web-three
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+spec:
+  rules:
+  - host: api.meta-web-three.local
+    http:
+      paths:
+      - path: /product
+        pathType: Prefix
+        backend:
+          service:
+            name: product-service
+            port:
+              number: 10082
+      - path: /user
+        pathType: Prefix
+        backend:
+          service:
+            name: user-service
+            port:
+              number: 10083
+      - path: /order
+        pathType: Prefix
+        backend:
+          service:
+            name: order-service
+            port:
+              number: 10084
+      - path: /message
+        pathType: Prefix
+        backend:
+          service:
+            name: message-service
+            port:
+              number: 10085 
