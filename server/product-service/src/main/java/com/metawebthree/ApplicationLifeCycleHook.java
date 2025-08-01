@@ -5,9 +5,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.PostConstruct;
 
+@Slf4j
 @Component
 public class ApplicationLifeCycleHook {
 
@@ -19,26 +21,28 @@ public class ApplicationLifeCycleHook {
 
     @PostConstruct
     public void init() {
-        System.out.println("=== ApplicationLifeCycleHook @PostConstruct ===");
-        System.out.println("namesrv: " + namesrv);
-        System.out.println("server.port: " + serverPort);
+        log.info("=== ApplicationLifeCycleHook @PostConstruct ===");
+        log.info("namesrv: " + namesrv);
+        log.info("server.port: " + serverPort);
     }
 }
 
+@Slf4j
 @Component
 class ApplicationHook implements ApplicationListener<ApplicationReadyEvent> {
-    
+
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        System.out.println("=== ApplicationLifeCycleHook ApplicationReadyEvent ===");
+        log.info("=== ApplicationLifeCycleHook ApplicationReadyEvent ===");
     }
 }
 
+@Slf4j
 @Component
 class CommandLineHook implements CommandLineRunner {
-    
+
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("=== ApplicationLifeCycleHook CommandLineRunner ===");
+        log.info("=== ApplicationLifeCycleHook CommandLineRunner ===");
     }
 }
