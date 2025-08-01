@@ -9,7 +9,6 @@ spring:
     url: jdbc:mysql://172.29.222.103:3306/metawebthree?useUnicode=true&characterEncoding=utf-8
     username: root
     password: 123123
-name: "meta-web-three"
 project:
   author:
     name: "Way Luk"
