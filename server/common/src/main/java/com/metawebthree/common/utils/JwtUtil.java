@@ -9,7 +9,6 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -24,10 +23,10 @@ import javax.crypto.spec.SecretKeySpec;
 public class JwtUtil {
 
     @Value("${jwt.secret:123123}")
-    private String secret;
+    protected String secret;
 
-    @Autowired
-    private String name;
+    @Value("${name:JWT}")
+    protected String name;
 
     public String generate(String subject) {
         return Jwts.builder()
@@ -36,10 +35,6 @@ public class JwtUtil {
                 .setIssuedAt(new Date())
                 .signWith(getSignKey())
                 .compact();
-    }
-
-    public String generate(Long userId) {
-        return generate(userId.toString());
     }
 
     protected Key getSignKey() {
@@ -62,18 +57,6 @@ public class JwtUtil {
         }
     }
 
-    public Optional<String> getSubject(String token) {
-        return tryDecode(token).map(Claims::getSubject);
-    }
-
-    public Optional<Long> getUserId(String token) {
-        return tryDecode(token).map(Claims::getSubject).map(Long::parseLong);
-    }
-
-    public Optional<Date> getExpiration(String token) {
-        return tryDecode(token).map(Claims::getExpiration);
-    }
-
     public boolean isTokenExpired(Date expiration) {
         return expiration.before(new Date());
     }
@@ -82,8 +65,8 @@ public class JwtUtil {
         return !isTokenExpired(expiration);
     }
 
-    public boolean isTokenValid(String token) {
-        return tryDecode(token).map(Claims::getExpiration).map(this::isTokenNotExpired).orElse(false);
+    public boolean isTokenValid(Claims claims) {
+        return this.isTokenNotExpired(claims.getExpiration());
     }
 
 }

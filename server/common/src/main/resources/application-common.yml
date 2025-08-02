@@ -1,6 +1,9 @@
 spring:
   profiles:
     active: dev
+  cloud:
+    discovery:
+      enabled: true
 name: "meta-web-three"
 rocketmq:
   client:

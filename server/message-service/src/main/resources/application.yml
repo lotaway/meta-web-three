@@ -12,7 +12,7 @@ spring:
       on-profile: dev
     import: 
       # - optional:classpath:/config/application-common-${spring.profiles.active}.yml
-      - optional:classpath:application-common-${spring.profiles.active}.yml
+      - optional:classpath:application-common.yml
       - optional:classpath:application-common-dev.yml
 ---
 spring:
