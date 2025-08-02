@@ -89,8 +89,4 @@ public class JwtUtil {
         return !isTokenExpired(expiration);
     }
 
-    public boolean isTokenValid(Claims claims) {
-        return this.isTokenNotExpired(claims.getExpiration());
-    }
-
 }

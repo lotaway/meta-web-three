@@ -26,8 +26,8 @@ public class UserJwtUtil extends JwtUtil {
         return claimsMap;
     }
 
-    public Optional<Long> getUserId(Claims claims) {
-        return Optional.of(Long.parseLong(claims.getSubject()));
+    public Long getUserId(Claims claims) {
+        return Long.parseLong(claims.getSubject());
     }
 
 }

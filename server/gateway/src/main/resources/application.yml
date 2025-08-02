@@ -10,5 +10,13 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: true # 自动基于注册信息转发
+          enabled: true # Enable discovery locator proxy
           lower-case-service-id: true
+      routes:
+        - id: user
+          uri: lb://user-service
+          predicates:
+            - Path=/user/**
+          filters:
+            - UserAuthFilter
+            # - RoleFilter=user
