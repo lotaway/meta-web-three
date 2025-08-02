@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.security.SignatureException;
 import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -28,13 +29,36 @@ public class JwtUtil {
     @Value("${name:JWT}")
     protected String name;
 
+    protected String secName = "JWT";
+
+    private final Long ONE_MONTH = 30L * 24 * 60 * 60 * 1000;
+
     public String generate(String subject) {
         return Jwts.builder()
-                .setHeaderParam(name, "JWT")
+                .setHeaderParam(name, secName)
                 .setSubject(subject)
                 .setIssuedAt(new Date())
                 .signWith(getSignKey())
                 .compact();
+    }
+
+    public String generate(String subject, Map<String, Object> claimsMap) {
+        return generate(subject, claimsMap, getDefaultExpiration());
+    }
+
+    public String generate(String subject, Map<String, Object> claimsMap, Date expiration) {
+        return Jwts.builder()
+                .setHeaderParam(name, secName)
+                .setSubject(subject)
+                .setClaims(claimsMap)
+                .setIssuedAt(new Date())
+                .setExpiration(expiration)
+                .signWith(getSignKey())
+                .compact();
+    }
+
+    public Date getDefaultExpiration() {
+        return new Date(System.currentTimeMillis() + ONE_MONTH);
     }
 
     protected Key getSignKey() {

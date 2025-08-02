@@ -65,12 +65,8 @@ public class UserController {
 
     @RequestMapping("/signIn")
     public ApiResponse<?> signIn(@RequestParam(defaultValue = "0", required = false) Short typeId, @RequestParam String email) throws IOException {
-        Map<String, Object> claimsMap = new HashMap<>();
-        claimsMap.put("email", email);
-        claimsMap.put("typeId", typeId);
-        Key key = SecretUtilsKey.getKey("/init_config/sign_in_secret_key.txt");
-        String jwt = Jwts.builder().setSubject(subject).signWith(key, SignatureAlgorithm.HS256).setClaims(claimsMap).setExpiration(new Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000)).compact();
-        return ApiResponse.success(jwt);
+        // @todo check database, generate jwt in gateway
+        return ApiResponse.success();
     }
 
     @RequestMapping("/checkAuth")
