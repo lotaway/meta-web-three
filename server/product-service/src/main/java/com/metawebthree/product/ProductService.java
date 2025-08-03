@@ -11,7 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,10 +27,7 @@ public class ProductService {
 
     private final ProductImageService productImageService;
 
-    public ProductService(
-            S3Service s3Service,
-            S3Buckets s3Bucket,
-            MQProducer mqProducer,
+    public ProductService(S3Service s3Service, S3Buckets s3Bucket, MQProducer mqProducer,
             ProductImageService productImageService) {
         this.s3Service = s3Service;
         this.s3Bucket = s3Bucket;
@@ -50,6 +51,18 @@ public class ProductService {
             throws MQBrokerException, RemotingException, InterruptedException, MQClientException {
         s3Service.deleteObject(s3Bucket.getName(), key);
         mqProducer.send("deleteProduct", "delete product with:" + key, null, null);
+    }
+
+    public void testNIOUpdateImage(String path) throws IOException {
+        FileInputStream fs = new FileInputStream(new File(path));
+        FileChannel fc = fs.getChannel();
+        ByteBuffer buf = ByteBuffer.allocate(48);
+        int result;
+        while ((result = fc.read(buf)) != 0) {
+            System.out.println(result);
+        }
+        fs.close();
+        fc.close();
     }
 
     public boolean uploadImage(Long productId, MultipartFile file) {

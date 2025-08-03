@@ -1,12 +1,13 @@
 package com.metawebthree.user;
 
-import com.metawebthree.author.AuthorPojo;
+import com.metawebthree.author.AuthorDO;
 import com.metawebthree.common.OAuth1Utils;
-import com.metawebthree.common.utils.SecretUtilsKey;
 import com.metawebthree.common.utils.UserRole;
+import com.metawebthree.user.DO.UserDO;
+import com.metawebthree.user.DTO.LoginResponseDTO;
 import com.metawebthree.common.ApiResponse;
 import com.metawebthree.common.utils.JwtUtil;
-import com.metawebthree.user.dto.LoginResponseDTO;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -21,7 +22,6 @@ import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +53,7 @@ public class UserController {
         UserDO userPojo = new UserDO();
         userPojo.setTypeId(typeId);
         userPojo.setEmail(email);
-        AuthorPojo authorPojo = new AuthorPojo();
+        AuthorDO authorPojo = new AuthorDO();
         authorPojo.setRealName(realName);
         // return ApiResponse.success(userService.getUserList(pageNum,
         // wrapper).getRecords());
@@ -65,8 +65,8 @@ public class UserController {
         Short typeId = (Short) params.get("typeId");
         if (typeId == null)
             typeId = 0;
-        Long userId = userService.createUser(String.valueOf(params.get("email")), String.valueOf(params.get("password")),
-                typeId);
+        Long userId = userService.createUser(String.valueOf(params.get("email")),
+                String.valueOf(params.get("password")), typeId);
         LocalDateTime localDateTime = LocalDateTime.now();
         log.info("userId:" + userId + ", date_time:" + localDateTime);
         return ApiResponse.success();
@@ -74,8 +74,7 @@ public class UserController {
 
     @RequestMapping("/signIn")
     public ApiResponse<LoginResponseDTO> signIn(@RequestParam(defaultValue = "0", required = false) Short typeId,
-            @RequestParam String email,
-            @RequestParam String password) throws IOException, NoSuchAlgorithmException {
+            @RequestParam String email, @RequestParam String password) throws IOException, NoSuchAlgorithmException {
         UserDO user = userService.validateUser(email, password, typeId);
         if (user == null) {
             return ApiResponse.error("Invalid credentials", LoginResponseDTO.class);
@@ -94,8 +93,8 @@ public class UserController {
      */
     @PostMapping("/signInWithWallet")
     public ApiResponse<LoginResponseDTO> signInWithWallet(@RequestParam String walletAddress,
-            @RequestParam String timestamp,
-            @RequestParam String signature) throws SignatureException, NoSuchAlgorithmException {
+            @RequestParam String timestamp, @RequestParam String signature)
+            throws SignatureException, NoSuchAlgorithmException {
         // 验证签名
         String message = String.format("%s%s%s", walletAddress, "|login by wallet|", timestamp);
 
@@ -105,8 +104,7 @@ public class UserController {
         if (v < 27) {
             v += 27;
         }
-        Sign.SignatureData signatureData = new Sign.SignatureData(
-                v,
+        Sign.SignatureData signatureData = new Sign.SignatureData(v,
                 Numeric.toBytesPadded(Numeric.toBigInt(signature.substring(2, 66)), 32),
                 Numeric.toBytesPadded(Numeric.toBigInt(signature.substring(66, 130)), 32));
 
@@ -147,9 +145,7 @@ public class UserController {
     }
 
     @GetMapping("/checkWeb3SignerMessage")
-    public ApiResponse<String> checkSignerMessage(
-            @RequestParam String walletAddress,
-            @RequestParam String timestamp,
+    public ApiResponse<String> checkSignerMessage(@RequestParam String walletAddress, @RequestParam String timestamp,
             @RequestParam String signature) throws SignatureException {
         // 要验证的消息
         String message = String.format("%s%s%s", walletAddress, "|login by wallet|", timestamp); // 替换为您的消息
@@ -160,8 +156,7 @@ public class UserController {
         if (v < 27) {
             v += 27;
         }
-        Sign.SignatureData signatureData = new Sign.SignatureData(
-                v,
+        Sign.SignatureData signatureData = new Sign.SignatureData(v,
                 Numeric.toBytesPadded(Numeric.toBigInt(signature.substring(2, 66)), 32),
                 Numeric.toBytesPadded(Numeric.toBigInt(signature.substring(66, 130)), 32));
         // 从签名信息中提取公钥
