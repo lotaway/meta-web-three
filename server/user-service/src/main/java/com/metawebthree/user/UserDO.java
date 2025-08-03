@@ -10,9 +10,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @TableName("User")
 public class UserDO {
-    private Integer id;
+    private Long id;
+    private String username;
+    private String nickname;
     private String email;
     private String password;
     private Integer authorId;
     private Short typeId;
+    private String walletAddress;
 }

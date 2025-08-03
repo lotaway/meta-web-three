@@ -54,6 +54,10 @@ public class ApiResponse<DataType> {
         return new ApiResponse<>(201, errMessage);
     }
 
+    public static <T> ApiResponse<T> error(String errMessage, Class<T> clazz) {
+        return new ApiResponse<>(201, errMessage);
+    }
+
     public static ApiResponse<Exception> error(Exception e) {
         return new ApiResponse<>(201, "error", e);
     }

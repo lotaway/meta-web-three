@@ -3,7 +3,10 @@ package com.metawebthree.user;
 import com.metawebthree.author.AuthorPojo;
 import com.metawebthree.common.OAuth1Utils;
 import com.metawebthree.common.utils.SecretUtilsKey;
+import com.metawebthree.common.utils.UserRole;
 import com.metawebthree.common.ApiResponse;
+import com.metawebthree.common.utils.JwtUtil;
+import com.metawebthree.user.dto.LoginResponseDTO;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -34,21 +37,26 @@ public class UserController {
 
     private final String subject = "metawebthree";
 
-    //    @Autowired
+    // @Autowired
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, JwtUtil jwtUtil) {
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
     }
 
     @GetMapping("/list")
-    public ApiResponse<List<UserDO>> userList(@RequestParam(defaultValue = "1", required = false) Integer pageNum, @RequestParam(required = false) String email, @RequestParam(required = false) Short typeId, @RequestParam(required = false) String realName) {
+    public ApiResponse<List<UserDO>> userList(@RequestParam(defaultValue = "1", required = false) Integer pageNum,
+            @RequestParam(required = false) String email, @RequestParam(required = false) Short typeId,
+            @RequestParam(required = false) String realName) {
         UserDO userPojo = new UserDO();
         userPojo.setTypeId(typeId);
         userPojo.setEmail(email);
         AuthorPojo authorPojo = new AuthorPojo();
         authorPojo.setRealName(realName);
-//        return ApiResponse.success(userService.getUserList(pageNum, wrapper).getRecords());
+        // return ApiResponse.success(userService.getUserList(pageNum,
+        // wrapper).getRecords());
         return ApiResponse.success(userService.getUserList(pageNum, userPojo, authorPojo).getRecords());
     }
 
@@ -57,16 +65,77 @@ public class UserController {
         Short typeId = (Short) params.get("typeId");
         if (typeId == null)
             typeId = 0;
-        int userId = userService.createUser(String.valueOf(params.get("email")), String.valueOf(params.get("password")), typeId);
+        Long userId = userService.createUser(String.valueOf(params.get("email")), String.valueOf(params.get("password")),
+                typeId);
         LocalDateTime localDateTime = LocalDateTime.now();
         log.info("userId:" + userId + ", date_time:" + localDateTime);
         return ApiResponse.success();
     }
 
     @RequestMapping("/signIn")
-    public ApiResponse<?> signIn(@RequestParam(defaultValue = "0", required = false) Short typeId, @RequestParam String email) throws IOException {
-        // @todo check database, generate jwt in gateway
-        return ApiResponse.success();
+    public ApiResponse<LoginResponseDTO> signIn(@RequestParam(defaultValue = "0", required = false) Short typeId,
+            @RequestParam String email,
+            @RequestParam String password) throws IOException, NoSuchAlgorithmException {
+        UserDO user = userService.validateUser(email, password, typeId);
+        if (user == null) {
+            return ApiResponse.error("Invalid credentials", LoginResponseDTO.class);
+        }
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getId());
+        claims.put("name", user.getNickname());
+        claims.put("role", UserRole.USER.name());
+        String token = jwtUtil.generate(user.getId().toString(), claims);
+        LoginResponseDTO response = new LoginResponseDTO(token, user, null, "email");
+        return ApiResponse.success(response);
+    }
+
+    /**
+     * Web3钱包登录
+     */
+    @PostMapping("/signInWithWallet")
+    public ApiResponse<LoginResponseDTO> signInWithWallet(@RequestParam String walletAddress,
+            @RequestParam String timestamp,
+            @RequestParam String signature) throws SignatureException, NoSuchAlgorithmException {
+        // 验证签名
+        String message = String.format("%s%s%s", walletAddress, "|login by wallet|", timestamp);
+
+        // 以太坊签名信息解析
+        byte[] signatureBytes = Numeric.hexStringToByteArray(signature);
+        byte v = signatureBytes[64];
+        if (v < 27) {
+            v += 27;
+        }
+        Sign.SignatureData signatureData = new Sign.SignatureData(
+                v,
+                Numeric.toBytesPadded(Numeric.toBigInt(signature.substring(2, 66)), 32),
+                Numeric.toBytesPadded(Numeric.toBigInt(signature.substring(66, 130)), 32));
+
+        // 从签名信息中提取公钥
+        byte[] publicKey = Sign.signedMessageToKey(message.getBytes(), signatureData).toByteArray();
+        // 从公钥创建凭证
+        Credentials credentials = Credentials.create(Numeric.toHexStringNoPrefix(publicKey));
+
+        // 验证钱包地址是否匹配
+        if (!credentials.getAddress().equalsIgnoreCase(walletAddress)) {
+            return ApiResponse.error("Invalid signature", LoginResponseDTO.class);
+        }
+
+        // 查找或创建用户
+        UserDO user = userService.findOrCreateUserByWallet(walletAddress);
+
+        // 生成JWT token
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getId());
+        claims.put("walletAddress", walletAddress);
+        claims.put("typeId", user.getTypeId());
+        claims.put("role", "USER");
+
+        String token = jwtUtil.generate(user.getId().toString(), claims);
+
+        // 返回登录成功信息和token
+        LoginResponseDTO response = new LoginResponseDTO(token, user, walletAddress, "wallet");
+
+        return ApiResponse.success(response);
     }
 
     @RequestMapping("/checkAuth")
@@ -81,8 +150,7 @@ public class UserController {
     public ApiResponse<String> checkSignerMessage(
             @RequestParam String walletAddress,
             @RequestParam String timestamp,
-            @RequestParam String signature
-    ) throws SignatureException {
+            @RequestParam String signature) throws SignatureException {
         // 要验证的消息
         String message = String.format("%s%s%s", walletAddress, "|login by wallet|", timestamp); // 替换为您的消息
 
@@ -95,8 +163,7 @@ public class UserController {
         Sign.SignatureData signatureData = new Sign.SignatureData(
                 v,
                 Numeric.toBytesPadded(Numeric.toBigInt(signature.substring(2, 66)), 32),
-                Numeric.toBytesPadded(Numeric.toBigInt(signature.substring(66, 130)), 32)
-        );
+                Numeric.toBytesPadded(Numeric.toBigInt(signature.substring(66, 130)), 32));
         // 从签名信息中提取公钥
         byte[] publicKey = Sign.signedMessageToKey(message.getBytes(), signatureData).toByteArray();
         // 从公钥创建凭证
@@ -107,7 +174,7 @@ public class UserController {
 
     @GetMapping("/checkBitcoinSignature")
     public ApiResponse<?> checkSignerMessage2() {
-//        PublicKey publicKey = new PublicKey("na");
+        // PublicKey publicKey = new PublicKey("na");
         return ApiResponse.error("todo");
     }
 
@@ -128,7 +195,8 @@ public class UserController {
             if (queryStringBuilder.length() > 0) {
                 queryStringBuilder.append("&");
             }
-            queryStringBuilder.append(OAuth1Utils.encode(param.getKey())).append("=").append(OAuth1Utils.encode(param.getValue()));
+            queryStringBuilder.append(OAuth1Utils.encode(param.getKey())).append("=")
+                    .append(OAuth1Utils.encode(param.getValue()));
         }
 
         return url + "?" + queryStringBuilder.toString();

@@ -29,13 +29,13 @@ public class JwtUtil {
     @Value("${name:JWT}")
     protected String name;
 
-    protected String secName = "JWT";
+    protected String value = "JWT";
 
     private final Long ONE_MONTH = 30L * 24 * 60 * 60 * 1000;
 
     public String generate(String subject) {
         return Jwts.builder()
-                .setHeaderParam(name, secName)
+                .setHeaderParam(name, value)
                 .setSubject(subject)
                 .setIssuedAt(new Date())
                 .signWith(getSignKey())
@@ -48,7 +48,7 @@ public class JwtUtil {
 
     public String generate(String subject, Map<String, Object> claimsMap, Date expiration) {
         return Jwts.builder()
-                .setHeaderParam(name, secName)
+                .setHeaderParam(name, value)
                 .setSubject(subject)
                 .setClaims(claimsMap)
                 .setIssuedAt(new Date())
