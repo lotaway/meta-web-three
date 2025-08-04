@@ -5,6 +5,11 @@ spring:
     name: user-service
   profiles:
     active: dev
+dubbo:
+  application:
+    name: user-service
+  protocol:
+    port: 20083
 ---
 spring:
   config:

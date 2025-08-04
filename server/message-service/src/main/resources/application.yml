@@ -5,6 +5,11 @@ spring:
     name: message-service
   profiles:
     active: dev
+dubbo:
+  application:
+    name: message-service
+  protocol:
+    port: 20085
 ---
 spring:
   config:

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.yaml.snakeyaml.util.Tuple;
 
-import com.metawebthree.common.contants.RequestHeader;
+import com.metawebthree.common.contants.RequestHeaderKeys;
 import com.metawebthree.common.utils.UserJwtUtil;
 
 import io.jsonwebtoken.Claims;
@@ -51,9 +51,9 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
         ServerWebExchange _exchange = exchange.mutate()
                 .request(
                         exchange.getRequest().mutate()
-                                .header(RequestHeader.USER_ID.getValue(), userJwtUtil.getUserId(claims).toString())
-                                .header(RequestHeader.USER_NAME.getValue(), userJwtUtil.getUserName(claims).toString())
-                                .header(RequestHeader.USER_ROLE.getValue(), userJwtUtil.getUserRole(claims).toString())
+                                .header(RequestHeaderKeys.USER_ID.getValue(), userJwtUtil.getUserId(claims).toString())
+                                .header(RequestHeaderKeys.USER_NAME.getValue(), userJwtUtil.getUserName(claims).toString())
+                                .header(RequestHeaderKeys.USER_ROLE.getValue(), userJwtUtil.getUserRole(claims).toString())
                                 .build())
                 .build();
         return chain.filter(_exchange);

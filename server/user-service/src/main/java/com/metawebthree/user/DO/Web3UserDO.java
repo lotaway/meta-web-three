@@ -14,5 +14,6 @@ import lombok.NoArgsConstructor;
 @TableName("Web3_User")
 public class Web3UserDO {
     private Long id;
+    private Long userId;
     private String walletAddress;
 }
