@@ -2,9 +2,13 @@ package com.metawebthree.user;
 
 import com.metawebthree.author.AuthorDO;
 import com.metawebthree.common.OAuth1Utils;
+import com.metawebthree.common.contants.RequestHeaderKeys;
+import com.metawebthree.common.dto.OrderDTO;
+import com.metawebthree.common.rpc.interfaces.OrderService;
 import com.metawebthree.common.utils.UserRole;
 import com.metawebthree.user.DO.UserDO;
 import com.metawebthree.user.DTO.LoginResponseDTO;
+import com.metawebthree.user.impl.UserServiceImpl;
 import com.metawebthree.common.ApiResponse;
 import com.metawebthree.common.utils.JwtUtil;
 
@@ -13,6 +17,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -38,10 +44,14 @@ public class UserController {
     private final String subject = "metawebthree";
 
     // @Autowired
-    private final UserService userService;
+    private final UserServiceImpl userService;
+
+    @DubboReference
+    private OrderService orderService;
+
     private final JwtUtil jwtUtil;
 
-    public UserController(UserService userService, JwtUtil jwtUtil) {
+    public UserController(UserServiceImpl userService, JwtUtil jwtUtil) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
     }
@@ -195,6 +205,12 @@ public class UserController {
         }
 
         return url + "?" + queryStringBuilder.toString();
+    }
+
+    @GetMapping("/order")
+    public ApiResponse<List<OrderDTO>> getOrderByUser(@RequestHeader Map<String, String> header) {
+        Long userId = Long.parseLong(header.get(RequestHeaderKeys.USER_ID.getValue()));
+        return ApiResponse.success(orderService.getOrderByUserId(userId));
     }
 
 }

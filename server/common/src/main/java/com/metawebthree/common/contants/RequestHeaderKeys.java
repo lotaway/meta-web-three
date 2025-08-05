@@ -1,13 +1,13 @@
 package com.metawebthree.common.contants;
 
-public enum RequestHeader {
+public enum RequestHeaderKeys {
     USER_ID("X-User-Id"),
     USER_ROLE("X-User-Role"),
     USER_NAME("X-User-Name");
 
     private final String value;
 
-    RequestHeader(String value) {
+    RequestHeaderKeys(String value) {
         this.value = value;
     }
 

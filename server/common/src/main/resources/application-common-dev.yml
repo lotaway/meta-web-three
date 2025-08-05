@@ -3,26 +3,13 @@ spring:
     zookeeper:
       connect-string: localhost:2181
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://172.29.222.103:3306/metawebthree?useUnicode=true&characterEncoding=utf-8
     username: root
     password: 123123
-project:
-  author:
-    name: "Way Luk"
-    email: "lotaway@foxmail.com"
-page-config:
-  page-size: 20
-aws:
-  region: ap-southeast-1
-  s3:
-    buckets:
-      name: metawebthree
 # rocketMQ
 rocketmq:
   client:
-    namesrv: 192.168.43.137:9876
-# mybatis将SQL下划线字段自动转驼峰
-mybatis-plus:
-  configuration:
-    map-underscore-to-camel-case: true
+    namesrv: 192.168.1.194:9876
+dubbo:
+  registry:
+    address: zookeeper://localhost:2181

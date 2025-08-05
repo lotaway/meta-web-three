@@ -4,9 +4,33 @@ spring:
   cloud:
     discovery:
       enabled: true
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
 name: "meta-web-three"
+project:
+  author:
+    name: "Way Luk"
+    email: "lotaway@foxmail.com"
+page-config:
+  page-size: 20
+aws:
+  region: ap-southeast-1
+  s3:
+    buckets:
+      name: metawebthree
+# mybatis-plus
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
 rocketmq:
   client:
     appliaction-topic: "publicApplicationTopic"
 jwt:
   secret: mwt123123
+dubbo:
+  registry:
+    timeout: 30000
+  provider:
+    timeout: 5000 # service call timeout
+  protocol:
+    name: dubbo

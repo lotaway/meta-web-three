@@ -229,6 +229,27 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
             <version>${spring-cloud-starter-openfeign.version}</version>
+        </dependency><!-- Dubbo Spring Boot Starter -->
+        <!-- https://mvnrepository.com/artifact/org.apache.dubbo/dubbo-spring-boot-starter -->
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-spring-boot-starter</artifactId>
+            <version>3.3.5</version>
+        </dependency>
+        <!-- ZooKeeper Registry Center Support -->
+        <!-- https://mvnrepository.com/artifact/org.apache.dubbo/dubbo-registry-zookeeper -->
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-registry-zookeeper</artifactId>
+            <version>3.3.5</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- ZK Client (Optional Curator) -->
+        <!-- https://mvnrepository.com/artifact/org.apache.curator/curator-recipes -->
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+            <version>5.9.0</version>
         </dependency>
     </dependencies>
 

@@ -5,6 +5,11 @@ spring:
     name: order-service
   profiles:
     active: dev
+dubbo:
+  application:
+    name: order-service
+  protocol:
+    port: 20084
 ---
 spring:
   config:
