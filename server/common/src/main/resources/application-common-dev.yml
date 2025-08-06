@@ -1,7 +1,7 @@
 spring:
   cloud:
     zookeeper:
-      connect-string: localhost:2181
+      connect-string: 192.168.1.194:2181
   datasource:
     url: jdbc:mysql://172.29.222.103:3306/metawebthree?useUnicode=true&characterEncoding=utf-8
     username: root
@@ -12,4 +12,4 @@ rocketmq:
     namesrv: 192.168.1.194:9876
 dubbo:
   registry:
-    address: zookeeper://localhost:2181
+    address: zookeeper://192.168.1.194:2181

@@ -7,9 +7,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.metawebthree.author.AuthorDO;
 import com.metawebthree.common.PageConfigVO;
+import com.metawebthree.common.utils.UserRole;
 import com.metawebthree.user.UserService;
 import com.metawebthree.user.UserMapper;
 import com.metawebthree.user.DO.UserDO;
+import com.metawebthree.user.DO.UserRoleMappingDO;
 import com.metawebthree.user.DO.Web3UserDO;
 
 import java.security.MessageDigest;
@@ -30,17 +32,35 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         this.userMapper = userMapper;
     }
 
-    public IPage<UserDO> getUserList(int pageNum, UserDO userPojo, AuthorDO authorPojo) {
+    public IPage<UserDO> getUserList(int pageNum, UserDO userPojo, AuthorDO authorDO) {
         // QueryWrapper<UserPojo> userQueryWrapper = new QueryWrapper<>();
         // userQueryWrapper.select("id", "email", "authorId", "typeId").like("email",
         // email).eq("user_type", user_type).eq("user_type", userType).and(wrapper ->
         // wrapper.inSql("User.author_id", "select author_id from Author where real_name
         // =" + realName));
         MPJLambdaWrapper<UserDO> wrapper = new MPJLambdaWrapper<>();
-        wrapper.select(UserDO::getId, UserDO::getEmail, UserDO::getAuthorId, UserDO::getTypeId)
-                .select(AuthorDO::getRealName).innerJoin(AuthorDO.class, AuthorDO::getId, UserDO::getAuthorId)
-                .eq(AuthorDO::getIsEnable, true).like(AuthorDO::getRealName, authorPojo.getRealName())
-                .eq(UserDO::getTypeId, userPojo.getTypeId()).eq(UserDO::getEmail, userPojo.getEmail());
+        wrapper.select(
+                UserDO::getId,
+                UserDO::getEmail,
+                UserDO::getTypeId)
+                .select(
+                        AuthorDO::getUserId, AuthorDO::getRealName)
+                .innerJoin(
+                        AuthorDO.class,
+                        AuthorDO::getUserId,
+                        UserDO::getId)
+                .eq(
+                        AuthorDO::getIsEnable,
+                        true)
+                .like(
+                        AuthorDO::getRealName,
+                        authorDO.getRealName())
+                .eq(
+                        UserDO::getTypeId,
+                        userPojo.getTypeId())
+                .eq(
+                        UserDO::getEmail,
+                        userPojo.getEmail());
         return getUserList(pageNum, wrapper);
     }
 
@@ -89,14 +109,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     }
 
     @Transactional
-    public Long createUser(String email, String password, Short typeId, String walletAddress)
+    public Long createUser(String email, String password, UserRole userRoleId, String walletAddress)
             throws NoSuchAlgorithmException {
         UserDO userDO = new UserDO();
         userDO.setId(IdWorker.getId());
         userDO.setEmail(email);
         userDO.setPassword(md5Encrypt(password));
-        userDO.setTypeId(typeId);
-        userDO.setWalletAddress(walletAddress);
+        UserRoleMappingDO userRoleMappingDO = UserRoleMappingDO
+                .builder()
+                .id(IdWorker.getId())
+                .userId(userDO.getId())
+                .userRoleId(userRoleId)
+                .build();
+        // userDO.setWalletAddress(walletAddress);
         int result = userMapper.createUserWithWallet(userDO);
         System.out.println("User created with ID: " + userDO.getId() + " and result: " + result);
         return userDO.getId();
@@ -142,10 +167,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             return user;
         }
         user = new UserDO();
-        // user.setEmail(walletAddress + "@wallet.local"); // generate visual email address
+        // user.setEmail(walletAddress + "@wallet.local"); // generate visual email
+        // address
         // user.setPassword("");
         user.setTypeId((short) 1);
-        Web3UserDO web3UserDO = Web3UserDO.builder().id(IdWorker.getId()).userId(user.getId()).walletAddress(walletAddress).build();
+        Web3UserDO web3UserDO = Web3UserDO.builder().id(IdWorker.getId()).userId(user.getId())
+                .walletAddress(walletAddress).build();
         // web3UserMapper.insert(web3UserDO);
 
         try {

@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @TableName("Author")
 public class AuthorDO {
     private Integer id;
+    private String userId;
     @TableField("real_name")
     private String realName;
     @TableField("is_enable")

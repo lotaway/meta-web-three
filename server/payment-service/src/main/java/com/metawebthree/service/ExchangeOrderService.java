@@ -36,69 +36,69 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class ExchangeOrderService {
-    
+
     private final ExchangeOrderRepository exchangeOrderRepository;
     private final UserKYCRepository userKYCRepository;
     private final PriceEngineService priceEngineService;
     private final RiskControlService riskControlService;
     private final PaymentService paymentService;
     private final CryptoWalletService cryptoWalletService;
-    
+
     @Value("${payment.risk-control.single-limit.usd:10000}")
     private BigDecimal singleLimitUSD;
-    
+
     @Value("${payment.risk-control.daily-limit.usd:50000}")
     private BigDecimal dailyLimitUSD;
-    
+
     /**
      * 创建兑换订单
      */
     @Transactional
     public ExchangeOrderResponse createOrder(ExchangeOrderRequest request, Long userId) {
         log.info("Creating exchange order for user {}: {}", userId, request);
-        
+
         // 1. 验证用户KYC级别
         validateUserKYC(userId, request.getAmount(), request.getFiatCurrency());
-        
+
         // 2. 风控检查
         riskControlService.validateOrder(userId, request.getAmount(), request.getFiatCurrency());
-        
+
         // 3. 获取实时价格
         BigDecimal exchangeRate = getExchangeRate(request);
-        
+
         // 4. 计算兑换金额
         BigDecimal cryptoAmount = calculateCryptoAmount(request.getAmount(), exchangeRate, request.getOrderType());
-        
+
         // 5. 创建订单
         ExchangeOrder order = buildOrder(request, userId, exchangeRate, cryptoAmount);
         order = exchangeOrderRepository.save(order);
-        
+
         // 6. 生成支付信息
         ExchangeOrderResponse response = buildResponse(order);
-        
+
         // 7. 如果自动执行，启动支付流程
         if (request.getAutoExecute()) {
             processPayment(order);
         }
-        
+
         log.info("Created exchange order: {}", order.getOrderNo());
         return response;
     }
-    
+
     /**
      * 获取订单详情
      */
     public ExchangeOrderResponse getOrder(String orderNo, Long userId) {
         ExchangeOrder order = exchangeOrderRepository.findByOrderNo(orderNo)
                 .orElseThrow(() -> new RuntimeException("Order not found: " + orderNo));
-        
+
         if (!order.getUserId().equals(userId)) {
             throw new RuntimeException("Unauthorized access to order");
         }
-        
+
         return buildResponse(order);
     }
-    
+
     /**
      * 获取用户订单列表
      */
@@ -109,12 +109,12 @@ public class ExchangeOrderService {
         } else {
             orders = exchangeOrderRepository.findByUserId(userId);
         }
-        
+
         return orders.stream()
                 .map(this::buildResponse)
                 .toList();
     }
-    
+
     /**
      * 取消订单
      */
@@ -122,21 +122,21 @@ public class ExchangeOrderService {
     public void cancelOrder(String orderNo, Long userId) {
         ExchangeOrder order = exchangeOrderRepository.findByOrderNo(orderNo)
                 .orElseThrow(() -> new RuntimeException("Order not found: " + orderNo));
-        
+
         if (!order.getUserId().equals(userId)) {
             throw new RuntimeException("Unauthorized access to order");
         }
-        
+
         if (order.getStatus() != ExchangeOrder.OrderStatus.PENDING) {
             throw new RuntimeException("Cannot cancel order with status: " + order.getStatus());
         }
-        
+
         order.setStatus(ExchangeOrder.OrderStatus.CANCELLED);
         exchangeOrderRepository.save(order);
-        
+
         log.info("Cancelled order: {}", orderNo);
     }
-    
+
     /**
      * 处理支付回调
      */
@@ -144,12 +144,12 @@ public class ExchangeOrderService {
     public void handlePaymentCallback(String paymentOrderNo, String status, String transactionId) {
         ExchangeOrder order = exchangeOrderRepository.findByPaymentOrderNo(paymentOrderNo)
                 .orElseThrow(() -> new RuntimeException("Order not found for payment: " + paymentOrderNo));
-        
+
         if ("SUCCESS".equals(status)) {
             order.setStatus(ExchangeOrder.OrderStatus.PAID);
             order.setPaidAt(LocalDateTime.now());
             exchangeOrderRepository.save(order);
-            
+
             // 启动数字资产转账
             processCryptoTransfer(order);
         } else {
@@ -157,32 +157,32 @@ public class ExchangeOrderService {
             order.setFailureReason("Payment failed: " + status);
             exchangeOrderRepository.save(order);
         }
-        
+
         log.info("Payment callback processed for order {}: {}", order.getOrderNo(), status);
     }
-    
+
     /**
      * 验证用户KYC级别
      */
     private void validateUserKYC(Long userId, BigDecimal amount, String fiatCurrency) {
         Optional<UserKYC> kycOpt = userKYCRepository.findHighestApprovedLevelByUserId(userId);
-        
+
         if (kycOpt.isEmpty()) {
             throw new RuntimeException("KYC verification required");
         }
-        
+
         UserKYC kyc = kycOpt.get();
         BigDecimal limit = BigDecimal.valueOf(kyc.getLevel().getLimit());
-        
+
         // 简单汇率转换（实际应该使用实时汇率）
         BigDecimal usdAmount = convertToUSD(amount, fiatCurrency);
-        
+
         if (usdAmount.compareTo(limit) > 0) {
-            throw new RuntimeException("Amount exceeds KYC level limit. Current level: " + 
+            throw new RuntimeException("Amount exceeds KYC level limit. Current level: " +
                     kyc.getLevel().getDescription() + ", Limit: " + limit + " USD");
         }
     }
-    
+
     /**
      * 获取兑换汇率
      */
@@ -195,7 +195,7 @@ public class ExchangeOrderService {
             return priceEngineService.getWeightedAveragePrice(request.getFiatCurrency(), request.getCryptoCurrency());
         }
     }
-    
+
     /**
      * 计算数字币数量
      */
@@ -206,13 +206,14 @@ public class ExchangeOrderService {
             return fiatAmount.multiply(exchangeRate).setScale(8, RoundingMode.HALF_UP);
         }
     }
-    
+
     /**
      * 构建订单实体
      */
-    private ExchangeOrder buildOrder(ExchangeOrderRequest request, Long userId, BigDecimal exchangeRate, BigDecimal cryptoAmount) {
+    private ExchangeOrder buildOrder(ExchangeOrderRequest request, Long userId, BigDecimal exchangeRate,
+            BigDecimal cryptoAmount) {
         String orderNo = generateOrderNo();
-        
+
         return ExchangeOrder.builder()
                 .orderNo(orderNo)
                 .userId(userId)
@@ -228,10 +229,10 @@ public class ExchangeOrderService {
                 .kycLevel(request.getKycLevel())
                 .kycVerified(true) // 假设KYC已验证
                 .expiredAt(LocalDateTime.now().plusMinutes(30)) // 30分钟过期
-                .remark(request.getRemark())
+                // .remark(request.getRemark())
                 .build();
     }
-    
+
     /**
      * 构建响应对象
      */
@@ -254,7 +255,7 @@ public class ExchangeOrderService {
                 .remark(order.getRemark())
                 .build();
     }
-    
+
     /**
      * 处理支付
      */
@@ -270,7 +271,7 @@ public class ExchangeOrderService {
             exchangeOrderRepository.save(order);
         }
     }
-    
+
     /**
      * 处理数字资产转账
      */
@@ -281,7 +282,7 @@ public class ExchangeOrderService {
             order.setStatus(ExchangeOrder.OrderStatus.COMPLETED);
             order.setCompletedAt(LocalDateTime.now());
             exchangeOrderRepository.save(order);
-            
+
             log.info("Crypto transfer completed for order {}: {}", order.getOrderNo(), txHash);
         } catch (Exception e) {
             log.error("Failed to transfer crypto for order {}: {}", order.getOrderNo(), e.getMessage());
@@ -290,14 +291,14 @@ public class ExchangeOrderService {
             exchangeOrderRepository.save(order);
         }
     }
-    
+
     /**
      * 生成订单号
      */
     private String generateOrderNo() {
         return "EX" + System.currentTimeMillis() + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
-    
+
     /**
      * 转换为USD（简化实现）
      */
@@ -309,4 +310,4 @@ public class ExchangeOrderService {
             default -> amount;
         };
     }
-} 
+}

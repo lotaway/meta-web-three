@@ -19,6 +19,4 @@ public class UserDO {
     private String avatar;
     private String email;
     private String password;
-    @TableField("type_id")
-    private Short typeId;
 }
