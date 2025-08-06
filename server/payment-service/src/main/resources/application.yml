@@ -1,0 +1,148 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: payment-service
+  
+  datasource:
+    url: jdbc:mysql://localhost:3306/payment_service?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        
+  redis:
+    host: localhost
+    port: 6379
+    password: 
+    database: 0
+    timeout: 10000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
+
+# 支付配置
+payment:
+  # 法币支付渠道配置
+  fiat:
+    # 支付宝配置
+    alipay:
+      app-id: your_alipay_app_id
+      private-key: your_alipay_private_key
+      public-key: your_alipay_public_key
+      gateway-url: https://openapi.alipay.com/gateway.do
+      
+    # 微信支付配置
+    wechat:
+      app-id: your_wechat_app_id
+      mch-id: your_wechat_mch_id
+      api-key: your_wechat_api_key
+      cert-path: /path/to/wechat/cert.p12
+      
+    # 银行转账配置
+    bank:
+      enabled: true
+      timeout-minutes: 30
+      
+  # 数字资产配置
+  crypto:
+    # 支持的币种
+    supported-currencies:
+      - BTC
+      - ETH
+      - USDT
+      - USDC
+      
+    # 钱包配置
+    wallet:
+      # 热钱包地址
+      hot-wallet:
+        btc: your_btc_hot_wallet_address
+        eth: your_eth_hot_wallet_address
+        usdt: your_usdt_hot_wallet_address
+        
+      # 冷钱包地址
+      cold-wallet:
+        btc: your_btc_cold_wallet_address
+        eth: your_eth_cold_wallet_address
+        usdt: your_usdt_cold_wallet_address
+        
+  # 价格引擎配置
+  price-engine:
+    # 价格源配置
+    sources:
+      - name: binance
+        url: https://api.binance.com/api/v3/ticker/price
+        weight: 0.4
+      - name: coinbase
+        url: https://api.coinbase.com/v2/prices
+        weight: 0.3
+      - name: okx
+        url: https://www.okx.com/api/v5/market/ticker
+        weight: 0.3
+        
+    # 价格更新频率（秒）
+    update-interval: 5
+    
+  # 风控配置
+  risk-control:
+    # 单笔限额
+    single-limit:
+      usd: 10000
+      cny: 70000
+      eur: 9000
+      
+    # 日限额
+    daily-limit:
+      usd: 50000
+      cny: 350000
+      eur: 45000
+      
+    # 滑点控制
+    slippage:
+      max-percentage: 2.0
+      
+  # KYC配置
+  kyc:
+    # KYC级别配置
+    levels:
+      l0:
+        name: "基础验证"
+        limit: 1000
+      l1:
+        name: "身份验证"
+        limit: 10000
+      l2:
+        name: "高级验证"
+        limit: 100000
+      l3:
+        name: "企业验证"
+        limit: 1000000
+
+# 日志配置
+logging:
+  level:
+    com.metawebthree.payment: DEBUG
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# 服务发现配置
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true 

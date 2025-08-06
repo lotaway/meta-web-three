@@ -1,0 +1,312 @@
+package com.metawebthree.service;
+
+import com.metawebthree.dto.ExchangeOrderRequest;
+import com.metawebthree.dto.ExchangeOrderResponse;
+import com.metawebthree.entity.ExchangeOrder;
+import com.metawebthree.entity.UserKYC;
+import com.metawebthree.repository.ExchangeOrderRepository;
+import com.metawebthree.repository.UserKYCRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+/**
+ * 兑换订单服务
+ *
+ * TODO: 如需对接自定义KYC、风控、支付、汇率等服务，请在本类中注入自定义实现，
+ * 并在 createOrder、validateUserKYC、processPayment、processCryptoTransfer 等方法中调用。
+ * 推荐将第三方服务的接口抽象为独立Service，便于后续扩展和切换。
+ *
+ * 示例：
+ * 1. 注入自定义KYCService实现
+ * 2. 注入自定义RiskControlService实现
+ * 3. 注入自定义PaymentService实现
+ * 4. 注入自定义PriceEngineService实现
+ */
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class ExchangeOrderService {
+    
+    private final ExchangeOrderRepository exchangeOrderRepository;
+    private final UserKYCRepository userKYCRepository;
+    private final PriceEngineService priceEngineService;
+    private final RiskControlService riskControlService;
+    private final PaymentService paymentService;
+    private final CryptoWalletService cryptoWalletService;
+    
+    @Value("${payment.risk-control.single-limit.usd:10000}")
+    private BigDecimal singleLimitUSD;
+    
+    @Value("${payment.risk-control.daily-limit.usd:50000}")
+    private BigDecimal dailyLimitUSD;
+    
+    /**
+     * 创建兑换订单
+     */
+    @Transactional
+    public ExchangeOrderResponse createOrder(ExchangeOrderRequest request, Long userId) {
+        log.info("Creating exchange order for user {}: {}", userId, request);
+        
+        // 1. 验证用户KYC级别
+        validateUserKYC(userId, request.getAmount(), request.getFiatCurrency());
+        
+        // 2. 风控检查
+        riskControlService.validateOrder(userId, request.getAmount(), request.getFiatCurrency());
+        
+        // 3. 获取实时价格
+        BigDecimal exchangeRate = getExchangeRate(request);
+        
+        // 4. 计算兑换金额
+        BigDecimal cryptoAmount = calculateCryptoAmount(request.getAmount(), exchangeRate, request.getOrderType());
+        
+        // 5. 创建订单
+        ExchangeOrder order = buildOrder(request, userId, exchangeRate, cryptoAmount);
+        order = exchangeOrderRepository.save(order);
+        
+        // 6. 生成支付信息
+        ExchangeOrderResponse response = buildResponse(order);
+        
+        // 7. 如果自动执行，启动支付流程
+        if (request.getAutoExecute()) {
+            processPayment(order);
+        }
+        
+        log.info("Created exchange order: {}", order.getOrderNo());
+        return response;
+    }
+    
+    /**
+     * 获取订单详情
+     */
+    public ExchangeOrderResponse getOrder(String orderNo, Long userId) {
+        ExchangeOrder order = exchangeOrderRepository.findByOrderNo(orderNo)
+                .orElseThrow(() -> new RuntimeException("Order not found: " + orderNo));
+        
+        if (!order.getUserId().equals(userId)) {
+            throw new RuntimeException("Unauthorized access to order");
+        }
+        
+        return buildResponse(order);
+    }
+    
+    /**
+     * 获取用户订单列表
+     */
+    public List<ExchangeOrderResponse> getUserOrders(Long userId, String status) {
+        List<ExchangeOrder> orders;
+        if (status != null && !status.isEmpty()) {
+            orders = exchangeOrderRepository.findByUserIdAndStatus(userId, ExchangeOrder.OrderStatus.valueOf(status));
+        } else {
+            orders = exchangeOrderRepository.findByUserId(userId);
+        }
+        
+        return orders.stream()
+                .map(this::buildResponse)
+                .toList();
+    }
+    
+    /**
+     * 取消订单
+     */
+    @Transactional
+    public void cancelOrder(String orderNo, Long userId) {
+        ExchangeOrder order = exchangeOrderRepository.findByOrderNo(orderNo)
+                .orElseThrow(() -> new RuntimeException("Order not found: " + orderNo));
+        
+        if (!order.getUserId().equals(userId)) {
+            throw new RuntimeException("Unauthorized access to order");
+        }
+        
+        if (order.getStatus() != ExchangeOrder.OrderStatus.PENDING) {
+            throw new RuntimeException("Cannot cancel order with status: " + order.getStatus());
+        }
+        
+        order.setStatus(ExchangeOrder.OrderStatus.CANCELLED);
+        exchangeOrderRepository.save(order);
+        
+        log.info("Cancelled order: {}", orderNo);
+    }
+    
+    /**
+     * 处理支付回调
+     */
+    @Transactional
+    public void handlePaymentCallback(String paymentOrderNo, String status, String transactionId) {
+        ExchangeOrder order = exchangeOrderRepository.findByPaymentOrderNo(paymentOrderNo)
+                .orElseThrow(() -> new RuntimeException("Order not found for payment: " + paymentOrderNo));
+        
+        if ("SUCCESS".equals(status)) {
+            order.setStatus(ExchangeOrder.OrderStatus.PAID);
+            order.setPaidAt(LocalDateTime.now());
+            exchangeOrderRepository.save(order);
+            
+            // 启动数字资产转账
+            processCryptoTransfer(order);
+        } else {
+            order.setStatus(ExchangeOrder.OrderStatus.FAILED);
+            order.setFailureReason("Payment failed: " + status);
+            exchangeOrderRepository.save(order);
+        }
+        
+        log.info("Payment callback processed for order {}: {}", order.getOrderNo(), status);
+    }
+    
+    /**
+     * 验证用户KYC级别
+     */
+    private void validateUserKYC(Long userId, BigDecimal amount, String fiatCurrency) {
+        Optional<UserKYC> kycOpt = userKYCRepository.findHighestApprovedLevelByUserId(userId);
+        
+        if (kycOpt.isEmpty()) {
+            throw new RuntimeException("KYC verification required");
+        }
+        
+        UserKYC kyc = kycOpt.get();
+        BigDecimal limit = BigDecimal.valueOf(kyc.getLevel().getLimit());
+        
+        // 简单汇率转换（实际应该使用实时汇率）
+        BigDecimal usdAmount = convertToUSD(amount, fiatCurrency);
+        
+        if (usdAmount.compareTo(limit) > 0) {
+            throw new RuntimeException("Amount exceeds KYC level limit. Current level: " + 
+                    kyc.getLevel().getDescription() + ", Limit: " + limit + " USD");
+        }
+    }
+    
+    /**
+     * 获取兑换汇率
+     */
+    private BigDecimal getExchangeRate(ExchangeOrderRequest request) {
+        if ("BUY_CRYPTO".equals(request.getOrderType())) {
+            // 法币购买数字币，使用卖价
+            return priceEngineService.getWeightedAveragePrice(request.getCryptoCurrency(), request.getFiatCurrency());
+        } else {
+            // 数字币兑换法币，使用买价
+            return priceEngineService.getWeightedAveragePrice(request.getFiatCurrency(), request.getCryptoCurrency());
+        }
+    }
+    
+    /**
+     * 计算数字币数量
+     */
+    private BigDecimal calculateCryptoAmount(BigDecimal fiatAmount, BigDecimal exchangeRate, String orderType) {
+        if ("BUY_CRYPTO".equals(orderType)) {
+            return fiatAmount.divide(exchangeRate, 8, RoundingMode.HALF_UP);
+        } else {
+            return fiatAmount.multiply(exchangeRate).setScale(8, RoundingMode.HALF_UP);
+        }
+    }
+    
+    /**
+     * 构建订单实体
+     */
+    private ExchangeOrder buildOrder(ExchangeOrderRequest request, Long userId, BigDecimal exchangeRate, BigDecimal cryptoAmount) {
+        String orderNo = generateOrderNo();
+        
+        return ExchangeOrder.builder()
+                .orderNo(orderNo)
+                .userId(userId)
+                .orderType(ExchangeOrder.OrderType.valueOf(request.getOrderType()))
+                .status(ExchangeOrder.OrderStatus.PENDING)
+                .fiatCurrency(request.getFiatCurrency())
+                .cryptoCurrency(request.getCryptoCurrency())
+                .fiatAmount(request.getAmount())
+                .cryptoAmount(cryptoAmount)
+                .exchangeRate(exchangeRate)
+                .paymentMethod(ExchangeOrder.PaymentMethod.valueOf(request.getPaymentMethod()))
+                .userWalletAddress(request.getWalletAddress())
+                .kycLevel(request.getKycLevel())
+                .kycVerified(true) // 假设KYC已验证
+                .expiredAt(LocalDateTime.now().plusMinutes(30)) // 30分钟过期
+                .remark(request.getRemark())
+                .build();
+    }
+    
+    /**
+     * 构建响应对象
+     */
+    private ExchangeOrderResponse buildResponse(ExchangeOrder order) {
+        return ExchangeOrderResponse.builder()
+                .orderNo(order.getOrderNo())
+                .status(order.getStatus().name())
+                .orderType(order.getOrderType().name())
+                .fiatCurrency(order.getFiatCurrency())
+                .cryptoCurrency(order.getCryptoCurrency())
+                .fiatAmount(order.getFiatAmount())
+                .cryptoAmount(order.getCryptoAmount())
+                .exchangeRate(order.getExchangeRate())
+                .paymentMethod(order.getPaymentMethod().name())
+                .walletAddress(order.getUserWalletAddress())
+                .createdAt(order.getCreatedAt())
+                .expiredAt(order.getExpiredAt())
+                .kycLevel(order.getKycLevel())
+                .kycVerified(order.getKycVerified())
+                .remark(order.getRemark())
+                .build();
+    }
+    
+    /**
+     * 处理支付
+     */
+    private void processPayment(ExchangeOrder order) {
+        try {
+            String paymentUrl = paymentService.createPayment(order);
+            // 这里应该更新订单的支付URL
+            log.info("Payment URL generated for order {}: {}", order.getOrderNo(), paymentUrl);
+        } catch (Exception e) {
+            log.error("Failed to create payment for order {}: {}", order.getOrderNo(), e.getMessage());
+            order.setStatus(ExchangeOrder.OrderStatus.FAILED);
+            order.setFailureReason("Payment creation failed: " + e.getMessage());
+            exchangeOrderRepository.save(order);
+        }
+    }
+    
+    /**
+     * 处理数字资产转账
+     */
+    private void processCryptoTransfer(ExchangeOrder order) {
+        try {
+            String txHash = cryptoWalletService.transferCrypto(order);
+            order.setCryptoTransactionHash(txHash);
+            order.setStatus(ExchangeOrder.OrderStatus.COMPLETED);
+            order.setCompletedAt(LocalDateTime.now());
+            exchangeOrderRepository.save(order);
+            
+            log.info("Crypto transfer completed for order {}: {}", order.getOrderNo(), txHash);
+        } catch (Exception e) {
+            log.error("Failed to transfer crypto for order {}: {}", order.getOrderNo(), e.getMessage());
+            order.setStatus(ExchangeOrder.OrderStatus.FAILED);
+            order.setFailureReason("Crypto transfer failed: " + e.getMessage());
+            exchangeOrderRepository.save(order);
+        }
+    }
+    
+    /**
+     * 生成订单号
+     */
+    private String generateOrderNo() {
+        return "EX" + System.currentTimeMillis() + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
+    
+    /**
+     * 转换为USD（简化实现）
+     */
+    private BigDecimal convertToUSD(BigDecimal amount, String currency) {
+        return switch (currency) {
+            case "USD" -> amount;
+            case "CNY" -> amount.divide(new BigDecimal("7.0"), 2, RoundingMode.HALF_UP);
+            case "EUR" -> amount.multiply(new BigDecimal("1.1"));
+            default -> amount;
+        };
+    }
+} 

@@ -1,0 +1,45 @@
+### 创建兑换订单
+POST http://localhost:8084/api/v1/exchange/orders
+Content-Type: application/json
+X-User-ID: 1
+
+{
+  "orderType": "BUY_CRYPTO",
+  "fiatCurrency": "USD",
+  "cryptoCurrency": "BTC",
+  "amount": 1000.00,
+  "paymentMethod": "ALIPAY",
+  "walletAddress": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+  "autoExecute": true,
+  "remark": "测试订单"
+}
+
+### 获取订单详情
+GET http://localhost:8084/api/v1/exchange/orders/EX1234567890
+X-User-ID: 1
+
+### 获取用户订单列表
+GET http://localhost:8084/api/v1/exchange/orders?status=PENDING
+X-User-ID: 1
+
+### 取消订单
+DELETE http://localhost:8084/api/v1/exchange/orders/EX1234567890
+X-User-ID: 1
+
+### 获取实时价格
+GET http://localhost:8084/api/v1/prices/BTC-USD
+
+### 获取加权平均价格
+GET http://localhost:8084/api/v1/prices/weighted/BTC/USD
+
+### 计算兑换汇率
+GET http://localhost:8084/api/v1/prices/exchange-rate?fromCurrency=USD&toCurrency=BTC&amount=1000
+
+### 获取价格变化
+GET http://localhost:8084/api/v1/prices/BTC-USD/change?hours=24
+
+### 支付回调（模拟）
+POST http://localhost:8084/api/v1/exchange/payment/callback
+Content-Type: application/x-www-form-urlencoded
+
+paymentOrderNo=PAY1234567890&status=SUCCESS&transactionId=TX1234567890 
