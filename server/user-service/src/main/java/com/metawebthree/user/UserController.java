@@ -11,11 +11,6 @@ import com.metawebthree.user.DTO.LoginResponseDTO;
 import com.metawebthree.user.impl.UserServiceImpl;
 import com.metawebthree.common.ApiResponse;
 import com.metawebthree.common.utils.JwtUtil;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -24,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
-import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.time.LocalDateTime;
@@ -41,9 +35,6 @@ import org.web3j.utils.Numeric;
 @RequestMapping("/user")
 public class UserController {
 
-    private final String subject = "metawebthree";
-
-    // @Autowired
     private final UserServiceImpl userService;
 
     @DubboReference
@@ -98,17 +89,12 @@ public class UserController {
         return ApiResponse.success(response);
     }
 
-    /**
-     * Web3钱包登录
-     */
     @PostMapping("/signInWithWallet")
     public ApiResponse<LoginResponseDTO> signInWithWallet(@RequestParam String walletAddress,
             @RequestParam String timestamp, @RequestParam String signature)
             throws SignatureException, NoSuchAlgorithmException {
-        // 验证签名
         String message = String.format("%s%s%s", walletAddress, "|login by wallet|", timestamp);
 
-        // 以太坊签名信息解析
         byte[] signatureBytes = Numeric.hexStringToByteArray(signature);
         byte v = signatureBytes[64];
         if (v < 27) {
@@ -117,21 +103,15 @@ public class UserController {
         Sign.SignatureData signatureData = new Sign.SignatureData(v,
                 Numeric.toBytesPadded(Numeric.toBigInt(signature.substring(2, 66)), 32),
                 Numeric.toBytesPadded(Numeric.toBigInt(signature.substring(66, 130)), 32));
-
-        // 从签名信息中提取公钥
         byte[] publicKey = Sign.signedMessageToKey(message.getBytes(), signatureData).toByteArray();
-        // 从公钥创建凭证
         Credentials credentials = Credentials.create(Numeric.toHexStringNoPrefix(publicKey));
 
-        // 验证钱包地址是否匹配
         if (!credentials.getAddress().equalsIgnoreCase(walletAddress)) {
             return ApiResponse.error("Invalid signature", LoginResponseDTO.class);
         }
 
-        // 查找或创建用户
         UserDO user = userService.findOrCreateUserByWallet(walletAddress);
 
-        // 生成JWT token
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
         claims.put("walletAddress", walletAddress);
@@ -146,21 +126,11 @@ public class UserController {
         return ApiResponse.success(response);
     }
 
-    @RequestMapping("/checkAuth")
-    public ApiResponse<?> checkAuth(@RequestParam String jwt) {
-        Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt).getBody();
-        assert claims.getSubject().equals(subject);
-        return ApiResponse.success(claims);
-    }
-
     @GetMapping("/checkWeb3SignerMessage")
     public ApiResponse<String> checkSignerMessage(@RequestParam String walletAddress, @RequestParam String timestamp,
             @RequestParam String signature) throws SignatureException {
-        // 要验证的消息
-        String message = String.format("%s%s%s", walletAddress, "|login by wallet|", timestamp); // 替换为您的消息
+        String message = String.format("%s%s%s", walletAddress, "|login by wallet|", timestamp);
 
-        // 以太坊签名信息解析
         byte[] signatureBytes = Numeric.hexStringToByteArray(signature);
         byte v = signatureBytes[64];
         if (v < 27) {
@@ -169,9 +139,7 @@ public class UserController {
         Sign.SignatureData signatureData = new Sign.SignatureData(v,
                 Numeric.toBytesPadded(Numeric.toBigInt(signature.substring(2, 66)), 32),
                 Numeric.toBytesPadded(Numeric.toBigInt(signature.substring(66, 130)), 32));
-        // 从签名信息中提取公钥
         byte[] publicKey = Sign.signedMessageToKey(message.getBytes(), signatureData).toByteArray();
-        // 从公钥创建凭证
         Credentials credentials = Credentials.create(Numeric.toHexStringNoPrefix(publicKey));
 
         return ApiResponse.success(credentials.getAddress());
