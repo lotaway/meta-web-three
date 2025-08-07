@@ -9,10 +9,15 @@ import com.metawebthree.author.AuthorDO;
 import com.metawebthree.common.PageConfigVO;
 import com.metawebthree.common.utils.UserRole;
 import com.metawebthree.user.UserService;
+import com.metawebthree.user.Web3UserMapper;
 import com.metawebthree.user.UserMapper;
+import com.metawebthree.user.UserRoleMappingMapper;
 import com.metawebthree.user.DO.UserDO;
 import com.metawebthree.user.DO.UserRoleMappingDO;
 import com.metawebthree.user.DO.Web3UserDO;
+import com.metawebthree.user.DTO.UserDTO;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -20,34 +25,46 @@ import java.security.NoSuchAlgorithmException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements UserService {
 
     private final PageConfigVO pageConfigVo;
 
     private final UserMapper userMapper;
+    private final Web3UserMapper web3UserMapper;
+    private final UserRoleMappingMapper userRoleMappingMapper;
 
-    public UserServiceImpl(PageConfigVO pageConfigVo, UserMapper userMapper) {
+    public UserServiceImpl(PageConfigVO pageConfigVo, UserMapper userMapper, Web3UserMapper web3UserMapper,
+            UserRoleMappingMapper userRoleMappingMapper) {
         this.pageConfigVo = pageConfigVo;
         this.userMapper = userMapper;
+        this.web3UserMapper = web3UserMapper;
+        this.userRoleMappingMapper = userRoleMappingMapper;
     }
 
-    public IPage<UserDO> getUserList(int pageNum, UserDO userPojo, AuthorDO authorDO) {
+    public IPage<UserDTO> getUserList(int pageNum, UserDTO userDTO, AuthorDO authorDO) {
         // QueryWrapper<UserPojo> userQueryWrapper = new QueryWrapper<>();
         // userQueryWrapper.select("id", "email", "authorId", "typeId").like("email",
         // email).eq("user_type", user_type).eq("user_type", userType).and(wrapper ->
         // wrapper.inSql("User.author_id", "select author_id from Author where real_name
         // =" + realName));
         MPJLambdaWrapper<UserDO> wrapper = new MPJLambdaWrapper<>();
-        wrapper.select(
-                UserDO::getId,
-                UserDO::getEmail,
-                UserDO::getTypeId)
-                .select(
-                        AuthorDO::getUserId, AuthorDO::getRealName)
-                .innerJoin(
+        wrapper.select(UserDO::getId, UserDO::getEmail)
+                .select(AuthorDO::getUserId, AuthorDO::getRealName)
+                .select(UserRoleMappingDO::getUserRoleId)
+                .select(Web3UserDO::getWalletAddress)
+                .leftJoin(
                         AuthorDO.class,
                         AuthorDO::getUserId,
+                        UserDO::getId)
+                .leftJoin(
+                        Web3UserDO.class,
+                        Web3UserDO::getUserId,
+                        UserDO::getId)
+                .leftJoin(
+                        UserRoleMappingDO.class,
+                        UserRoleMappingDO::getUserId,
                         UserDO::getId)
                 .eq(
                         AuthorDO::getIsEnable,
@@ -56,54 +73,68 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
                         AuthorDO::getRealName,
                         authorDO.getRealName())
                 .eq(
-                        UserDO::getTypeId,
-                        userPojo.getTypeId())
+                        UserDTO::getUserRoleId,
+                        userDTO.getUserRoleId())
                 .eq(
-                        UserDO::getEmail,
-                        userPojo.getEmail());
+                        UserDTO::getEmail,
+                        userDTO.getEmail());
         return getUserList(pageNum, wrapper);
     }
 
-    public IPage<UserDO> getUserList() {
+    public IPage<UserDTO> getUserList() {
         return getUserList(1);
     }
 
-    public IPage<UserDO> getUserList(int pageNum) {
+    public IPage<UserDTO> getUserList(int pageNum) {
         return getUserList(pageNum, pageConfigVo.getPageSize());
     }
 
-    public IPage<UserDO> getUserList(int pageNum, int pageSize) {
-        return getUserList(pageNum, (UserDO) null, pageSize);
+    public IPage<UserDTO> getUserList(int pageNum, int pageSize) {
+        return getUserList(pageNum, (UserDTO) null, pageSize);
     }
 
-    public IPage<UserDO> getUserList(Integer pageNum, UserDO userDO, Integer pageSize) {
-        Page<UserDO> page = new Page<>(pageNum, pageSize);
-        var wrapper = userDO == null ? null : new MPJLambdaWrapper<>(userDO);
-        return userMapper.selectJoinPage(page, UserDO.class, wrapper);
+    public IPage<UserDTO> getUserList(Integer pageNum, UserDTO userDTO, Integer pageSize) {
+        Page<UserDTO> page = new Page<>(pageNum, pageSize);
+        MPJLambdaWrapper<UserDO> wrapper = new MPJLambdaWrapper<>();
+        wrapper.selectAll(UserDO.class)
+                .select(UserRoleMappingDO::getUserRoleId)
+                .select(Web3UserDO::getWalletAddress)
+                .leftJoin(UserRoleMappingDO.class, UserRoleMappingDO::getUserId, UserDO::getId)
+                .leftJoin(Web3UserDO.class, Web3UserDO::getUserId, UserDO::getId);
+        if (userDTO != null) {
+            if (userDTO.getEmail() != null) {
+                wrapper.eq(UserDO::getEmail, userDTO.getEmail());
+            }
+            if (userDTO.getUserRoleId() != null) {
+                wrapper.eq(UserRoleMappingDO::getUserRoleId, userDTO.getUserRoleId());
+            }
+        }
+        return userMapper.selectJoinPage(page, UserDTO.class, wrapper);
     }
 
-    public IPage<UserDO> getUserList(Integer pageNum, MPJLambdaWrapper<UserDO> wrapper) {
+    public IPage<UserDTO> getUserList(Integer pageNum, MPJLambdaWrapper<UserDO> wrapper) {
         return getUserList(pageNum, wrapper, pageConfigVo.getPageSize());
     }
 
-    public IPage<UserDO> getUserList(Integer pageNum, MPJLambdaWrapper<UserDO> wrapper, Integer pageSize) {
-        Page<UserDO> page = new Page<>(pageNum, pageSize);
-        return userMapper.selectJoinPage(page, UserDO.class, wrapper);
+    public IPage<UserDTO> getUserList(Integer pageNum, MPJLambdaWrapper<UserDO> wrapper, Integer pageSize) {
+        Page<UserDTO> page = new Page<>(pageNum, pageSize);
+        return userMapper.selectJoinPage(page, UserDTO.class, wrapper);
     }
 
     @Transactional
     public Long createUser(String email, String password) throws NoSuchAlgorithmException {
-        return createUser(email, password, (short) 0);
+        return createUser(email, password, UserRole.USER);
     }
 
     @Transactional
-    public Long createUser(String email, String password, Short typeId) throws NoSuchAlgorithmException {
+    public Long createUser(String email, String password, UserRole userRoleId) throws NoSuchAlgorithmException {
         UserDO userDO = new UserDO();
         userDO.setEmail(email);
         userDO.setPassword(md5Encrypt(password));
-        userDO.setTypeId(typeId);
+        UserRoleMappingDO userRoleMappingDO = UserRoleMappingDO.builder().userRoleId(userRoleId).build();
         int result = userMapper.createUser(userDO);
-        System.out.println("User created with ID: " + userDO.getId() + " and result: " + result);
+        int result2 = userRoleMappingMapper.insert(userRoleMappingDO);
+        log.info("User created with ID: " + userDO.getId() + " and result: " + result + ", result2: " + result2);
         // userMapper.selectCount()
         return userDO.getId();
     }
@@ -121,9 +152,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
                 .userId(userDO.getId())
                 .userRoleId(userRoleId)
                 .build();
-        // userDO.setWalletAddress(walletAddress);
-        int result = userMapper.createUserWithWallet(userDO);
-        System.out.println("User created with ID: " + userDO.getId() + " and result: " + result);
+        Web3UserDO web3UserDO = Web3UserDO
+                .builder()
+                .id(IdWorker.getId())
+                .userId(userDO.getId())
+                .walletAddress(walletAddress)
+                .build();
+        // int result = userMapper.createUserWithWallet(userDO);
+        int result = userMapper.insert(userDO);
+        int result2 = userRoleMappingMapper.insert(userRoleMappingDO);
+        int result3 = web3UserMapper.insert(web3UserDO);
+        log.info("User created with ID: " + userDO.getId() + " and result: " + result + ", result2: " + result2
+                + ", result3: " + result3);
         return userDO.getId();
     }
 
@@ -147,9 +187,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         return result;
     }
 
-    public UserDO validateUser(String email, String password, Short typeId) throws NoSuchAlgorithmException {
+    public UserDTO validateUser(String email, String password, Long userRoleId) throws NoSuchAlgorithmException {
         // 根据邮箱和类型ID查询用户
-        UserDO user = userMapper.findByEmailAndTypeId(email, typeId);
+        UserDTO user = userMapper.findByEmailAndTypeId(email, userRoleId);
         if (user == null) {
             return null;
         }
@@ -161,22 +201,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         return user;
     }
 
-    public UserDO findOrCreateUserByWallet(String walletAddress) {
-        UserDO user = userMapper.findByWalletAddress(walletAddress);
+    public UserDTO findOrCreateUserByWallet(String walletAddress) {
+        UserDTO user = userMapper.findByWalletAddress(walletAddress);
         if (user != null) {
             return user;
         }
-        user = new UserDO();
+        user = new UserDTO();
         // user.setEmail(walletAddress + "@wallet.local"); // generate visual email
         // address
         // user.setPassword("");
-        user.setTypeId((short) 1);
+        user.setUserRoleId(UserRole.USER);
         Web3UserDO web3UserDO = Web3UserDO.builder().id(IdWorker.getId()).userId(user.getId())
                 .walletAddress(walletAddress).build();
-        // web3UserMapper.insert(web3UserDO);
+        web3UserMapper.insert(web3UserDO);
 
         try {
-            Long userId = createUser(user.getEmail(), user.getPassword(), user.getTypeId(), walletAddress);
+            Long userId = createUser(user.getEmail(), user.getPassword(), user.getUserRoleId(), walletAddress);
             user.setId(userId);
             return user;
         } catch (NoSuchAlgorithmException e) {

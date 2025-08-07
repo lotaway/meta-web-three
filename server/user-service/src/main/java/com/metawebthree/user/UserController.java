@@ -6,8 +6,8 @@ import com.metawebthree.common.contants.RequestHeaderKeys;
 import com.metawebthree.common.dto.OrderDTO;
 import com.metawebthree.common.rpc.interfaces.OrderService;
 import com.metawebthree.common.utils.UserRole;
-import com.metawebthree.user.DO.UserDO;
 import com.metawebthree.user.DTO.LoginResponseDTO;
+import com.metawebthree.user.DTO.UserDTO;
 import com.metawebthree.user.impl.UserServiceImpl;
 import com.metawebthree.common.ApiResponse;
 import com.metawebthree.common.utils.JwtUtil;
@@ -48,35 +48,33 @@ public class UserController {
     }
 
     @GetMapping("/list")
-    public ApiResponse<List<UserDO>> userList(@RequestParam(defaultValue = "1", required = false) Integer pageNum,
-            @RequestParam(required = false) String email, @RequestParam(required = false) Short typeId,
+    public ApiResponse<List<UserDTO>> userList(@RequestParam(defaultValue = "1", required = false) Integer pageNum,
+            @RequestParam(required = false) String email, @RequestParam(required = false) Long userRoleId,
             @RequestParam(required = false) String realName) {
-        UserDO userPojo = new UserDO();
-        userPojo.setTypeId(typeId);
-        userPojo.setEmail(email);
-        AuthorDO authorPojo = new AuthorDO();
-        authorPojo.setRealName(realName);
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUserRoleId(UserRole.valueOf(userRoleId));
+        userDTO.setEmail(email);
+        AuthorDO authorDO = new AuthorDO();
+        authorDO.setRealName(realName);
         // return ApiResponse.success(userService.getUserList(pageNum,
         // wrapper).getRecords());
-        return ApiResponse.success(userService.getUserList(pageNum, userPojo, authorPojo).getRecords());
+        return ApiResponse.success(userService.getUserList(pageNum, userDTO, authorDO).getRecords());
     }
 
     @PostMapping("/create")
     public ApiResponse<?> create(@RequestBody Map<String, Object> params) throws NoSuchAlgorithmException {
-        Short typeId = (Short) params.get("typeId");
-        if (typeId == null)
-            typeId = 0;
+        UserRole userRoleId = UserRole.tryValueOf((long) (params.get("typeId"))).orElse(UserRole.USER);
         Long userId = userService.createUser(String.valueOf(params.get("email")),
-                String.valueOf(params.get("password")), typeId);
+                String.valueOf(params.get("password")), userRoleId);
         LocalDateTime localDateTime = LocalDateTime.now();
         log.info("userId:" + userId + ", date_time:" + localDateTime);
         return ApiResponse.success();
     }
 
     @RequestMapping("/signIn")
-    public ApiResponse<LoginResponseDTO> signIn(@RequestParam(defaultValue = "0", required = false) Short typeId,
+    public ApiResponse<LoginResponseDTO> signIn(@RequestParam(defaultValue = "0", required = false) Long userRoleId,
             @RequestParam String email, @RequestParam String password) throws IOException, NoSuchAlgorithmException {
-        UserDO user = userService.validateUser(email, password, typeId);
+        UserDTO user = userService.validateUser(email, password, userRoleId);
         if (user == null) {
             return ApiResponse.error("Invalid credentials", LoginResponseDTO.class);
         }
@@ -110,12 +108,12 @@ public class UserController {
             return ApiResponse.error("Invalid signature", LoginResponseDTO.class);
         }
 
-        UserDO user = userService.findOrCreateUserByWallet(walletAddress);
+        UserDTO user = userService.findOrCreateUserByWallet(walletAddress);
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
         claims.put("walletAddress", walletAddress);
-        claims.put("typeId", user.getTypeId());
+        claims.put("userRole", user.getUserRoleId());
         claims.put("role", "USER");
 
         String token = jwtUtil.generate(user.getId().toString(), claims);

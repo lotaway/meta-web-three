@@ -2,6 +2,7 @@ package com.metawebthree.user;
 
 import com.github.yulichang.base.MPJBaseMapper;
 import com.metawebthree.user.DO.UserDO;
+import com.metawebthree.user.DTO.UserDTO;
 
 import org.apache.ibatis.annotations.*;
 
@@ -16,8 +17,6 @@ public interface UserMapper extends MPJBaseMapper<UserDO> {
     int createUser(UserDO userDO);
 
     @Options(keyProperty = "id", useGeneratedKeys = true)
-    @Insert("insert into User(email,password,type_id,wallet_address) values(#{email},#{password},#{typeId},#{walletAddress})")
-    int createUserWithWallet(UserDO userDO);
 
     void updateUser(UserDO userDO);
 
@@ -25,9 +24,9 @@ public interface UserMapper extends MPJBaseMapper<UserDO> {
 
     void deleteUsers(Long[] ids);
 
-    @Select("select * from User where email = #{email} and type_id = #{typeId}")
-    UserDO findByEmailAndTypeId(@Param("email") String email, @Param("typeId") Short typeId);
+    @Select("select User.*, User_Role_Mapping.user_role_id, Web3_User.wallet_address from User, User_Role_Mapping, Web3_User where email = #{email} and User.id = User_Role_Mapping.user_id and User_Role_Mapping.user_role_id = #{userRoleId} and User.id = Web3_User.user_id group by User.id")
+    UserDTO findByEmailAndTypeId(@Param("email") String email, @Param("userRoleId") Long userRoleId);
 
-    @Select("select * from Web3_User where wallet_address = #{walletAddress}")
-    UserDO findByWalletAddress(@Param("walletAddress") String walletAddress);
+    @Select("select User.*, Web3_User.wallet_address from User, Web3_User where Web3_User.user_id = User.id and Web3_User.wallet_address = #{walletAddress} group by User.id")
+    UserDTO findByWalletAddress(@Param("walletAddress") String walletAddress);
 }
