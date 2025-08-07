@@ -1,5 +1,6 @@
 package com.metawebthree.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.metawebthree.dto.ExchangeOrderRequest;
 import com.metawebthree.dto.ExchangeOrderResponse;
 import com.metawebthree.entity.ExchangeOrder;
@@ -16,7 +17,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -71,7 +71,7 @@ public class ExchangeOrderService {
 
         // 5. 创建订单
         ExchangeOrder order = buildOrder(request, userId, exchangeRate, cryptoAmount);
-        order = exchangeOrderRepository.save(order);
+        exchangeOrderRepository.insert(order);
 
         // 6. 生成支付信息
         ExchangeOrderResponse response = buildResponse(order);
@@ -89,8 +89,10 @@ public class ExchangeOrderService {
      * 获取订单详情
      */
     public ExchangeOrderResponse getOrder(String orderNo, Long userId) {
-        ExchangeOrder order = exchangeOrderRepository.findByOrderNo(orderNo)
-                .orElseThrow(() -> new RuntimeException("Order not found: " + orderNo));
+        ExchangeOrder order = exchangeOrderRepository.findByOrderNo(orderNo);
+        if (order == null) {
+            throw new RuntimeException("Order not found: " + orderNo);
+        }
 
         if (!order.getUserId().equals(userId)) {
             throw new RuntimeException("Unauthorized access to order");
@@ -105,7 +107,7 @@ public class ExchangeOrderService {
     public List<ExchangeOrderResponse> getUserOrders(Long userId, String status) {
         List<ExchangeOrder> orders;
         if (status != null && !status.isEmpty()) {
-            orders = exchangeOrderRepository.findByUserIdAndStatus(userId, ExchangeOrder.OrderStatus.valueOf(status));
+            orders = exchangeOrderRepository.findByUserIdAndStatus(userId, status);
         } else {
             orders = exchangeOrderRepository.findByUserId(userId);
         }
@@ -120,8 +122,10 @@ public class ExchangeOrderService {
      */
     @Transactional
     public void cancelOrder(String orderNo, Long userId) {
-        ExchangeOrder order = exchangeOrderRepository.findByOrderNo(orderNo)
-                .orElseThrow(() -> new RuntimeException("Order not found: " + orderNo));
+        ExchangeOrder order = exchangeOrderRepository.findByOrderNo(orderNo);
+        if (order == null) {
+            throw new RuntimeException("Order not found: " + orderNo);
+        }
 
         if (!order.getUserId().equals(userId)) {
             throw new RuntimeException("Unauthorized access to order");
@@ -132,7 +136,7 @@ public class ExchangeOrderService {
         }
 
         order.setStatus(ExchangeOrder.OrderStatus.CANCELLED);
-        exchangeOrderRepository.save(order);
+        exchangeOrderRepository.updateById(order);
 
         log.info("Cancelled order: {}", orderNo);
     }
@@ -142,20 +146,22 @@ public class ExchangeOrderService {
      */
     @Transactional
     public void handlePaymentCallback(String paymentOrderNo, String status, String transactionId) {
-        ExchangeOrder order = exchangeOrderRepository.findByPaymentOrderNo(paymentOrderNo)
-                .orElseThrow(() -> new RuntimeException("Order not found for payment: " + paymentOrderNo));
+        ExchangeOrder order = exchangeOrderRepository.findByPaymentOrderNo(paymentOrderNo);
+        if (order == null) {
+            throw new RuntimeException("Order not found for payment: " + paymentOrderNo);
+        }
 
         if ("SUCCESS".equals(status)) {
             order.setStatus(ExchangeOrder.OrderStatus.PAID);
             order.setPaidAt(LocalDateTime.now());
-            exchangeOrderRepository.save(order);
+            exchangeOrderRepository.updateById(order);
 
             // 启动数字资产转账
             processCryptoTransfer(order);
         } else {
             order.setStatus(ExchangeOrder.OrderStatus.FAILED);
             order.setFailureReason("Payment failed: " + status);
-            exchangeOrderRepository.save(order);
+            exchangeOrderRepository.updateById(order);
         }
 
         log.info("Payment callback processed for order {}: {}", order.getOrderNo(), status);
@@ -165,13 +171,12 @@ public class ExchangeOrderService {
      * 验证用户KYC级别
      */
     private void validateUserKYC(Long userId, BigDecimal amount, String fiatCurrency) {
-        Optional<UserKYC> kycOpt = userKYCRepository.findHighestApprovedLevelByUserId(userId);
+        UserKYC kyc = userKYCRepository.findHighestApprovedLevelByUserId(userId);
 
-        if (kycOpt.isEmpty()) {
+        if (kyc == null) {
             throw new RuntimeException("KYC verification required");
         }
 
-        UserKYC kyc = kycOpt.get();
         BigDecimal limit = BigDecimal.valueOf(kyc.getLevel().getLimit());
 
         // 简单汇率转换（实际应该使用实时汇率）
@@ -229,7 +234,7 @@ public class ExchangeOrderService {
                 .kycLevel(request.getKycLevel())
                 .kycVerified(true) // 假设KYC已验证
                 .expiredAt(LocalDateTime.now().plusMinutes(30)) // 30分钟过期
-                // .remark(request.getRemark())
+                .remark(request.getRemark())
                 .build();
     }
 
@@ -268,7 +273,7 @@ public class ExchangeOrderService {
             log.error("Failed to create payment for order {}: {}", order.getOrderNo(), e.getMessage());
             order.setStatus(ExchangeOrder.OrderStatus.FAILED);
             order.setFailureReason("Payment creation failed: " + e.getMessage());
-            exchangeOrderRepository.save(order);
+            exchangeOrderRepository.updateById(order);
         }
     }
 
@@ -281,14 +286,14 @@ public class ExchangeOrderService {
             order.setCryptoTransactionHash(txHash);
             order.setStatus(ExchangeOrder.OrderStatus.COMPLETED);
             order.setCompletedAt(LocalDateTime.now());
-            exchangeOrderRepository.save(order);
+            exchangeOrderRepository.updateById(order);
 
             log.info("Crypto transfer completed for order {}: {}", order.getOrderNo(), txHash);
         } catch (Exception e) {
             log.error("Failed to transfer crypto for order {}: {}", order.getOrderNo(), e.getMessage());
             order.setStatus(ExchangeOrder.OrderStatus.FAILED);
             order.setFailureReason("Crypto transfer failed: " + e.getMessage());
-            exchangeOrderRepository.save(order);
+            exchangeOrderRepository.updateById(order);
         }
     }
 

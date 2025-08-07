@@ -92,7 +92,7 @@ services:
       dockerfile: Dockerfile
     container_name: meta-web-three/payment-service
     ports:
-      - "10086:8084"
+      - "10086:10086"
     command: ["java", "-jar", "/app.jar"]
     volumes:
       - ${DATA_PATH}/.data/server/payment:/server/payment

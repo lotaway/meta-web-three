@@ -22,6 +22,13 @@ aws:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: ASSIGN_ID
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
 rocketmq:
   client:
     appliaction-topic: "publicApplicationTopic"
@@ -34,3 +41,9 @@ dubbo:
     timeout: 5000 # service call timeout
   protocol:
     name: dubbo
+logging:
+  level:
+    com.metawebthree: DEBUG
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

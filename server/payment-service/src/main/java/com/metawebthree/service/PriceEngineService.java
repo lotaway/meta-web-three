@@ -42,8 +42,13 @@ public class PriceEngineService {
         }
         
         // 从数据库获取最新价格
-        return cryptoPriceRepository.findFirstBySymbolOrderByTimestampDesc(symbol)
-                .orElseGet(() -> fetchAndSavePrice(symbol));
+        CryptoPrice dbPrice = cryptoPriceRepository.findFirstBySymbolOrderByTimestampDesc(symbol);
+        if (dbPrice != null) {
+            return dbPrice;
+        }
+        
+        // 如果数据库中没有，从外部API获取
+        return fetchAndSavePrice(symbol);
     }
     
     /**
@@ -116,9 +121,9 @@ public class PriceEngineService {
         try {
             CryptoPrice price = externalPriceService.fetchPrice(symbol);
             if (price != null) {
-                CryptoPrice savedPrice = cryptoPriceRepository.save(price);
-                priceCache.put(symbol, savedPrice);
-                return savedPrice;
+                cryptoPriceRepository.insert(price);
+                priceCache.put(symbol, price);
+                return price;
             }
         } catch (Exception e) {
             log.error("Failed to fetch price for {}: {}", symbol, e.getMessage());

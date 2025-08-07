@@ -1,36 +1,40 @@
 package com.metawebthree.repository;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.metawebthree.entity.UserKYC;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
-import java.util.Optional;
 
-@Repository
-public interface UserKYCRepository extends JpaRepository<UserKYC, Long> {
+@Mapper
+public interface UserKYCRepository extends BaseMapper<UserKYC> {
     
-    Optional<UserKYC> findByUserId(Long userId);
+    @Select("SELECT * FROM user_kyc WHERE user_id = #{userId}")
+    UserKYC findByUserId(@Param("userId") Long userId);
     
-    Optional<UserKYC> findByUserIdAndStatus(Long userId, UserKYC.KYCStatus status);
+    @Select("SELECT * FROM user_kyc WHERE user_id = #{userId} AND status = #{status}")
+    UserKYC findByUserIdAndStatus(@Param("userId") Long userId, @Param("status") String status);
     
-    List<UserKYC> findByStatus(UserKYC.KYCStatus status);
+    @Select("SELECT * FROM user_kyc WHERE status = #{status}")
+    List<UserKYC> findByStatus(@Param("status") String status);
     
-    List<UserKYC> findByLevel(UserKYC.KYCLevel level);
+    @Select("SELECT * FROM user_kyc WHERE level = #{level}")
+    List<UserKYC> findByLevel(@Param("level") String level);
     
-    @Query("SELECT kyc FROM UserKYC kyc WHERE kyc.userId = :userId AND kyc.status = 'APPROVED' ORDER BY kyc.level DESC LIMIT 1")
-    Optional<UserKYC> findHighestApprovedLevelByUserId(@Param("userId") Long userId);
+    @Select("SELECT * FROM user_kyc WHERE user_id = #{userId} AND status = 'APPROVED' ORDER BY level DESC LIMIT 1")
+    UserKYC findHighestApprovedLevelByUserId(@Param("userId") Long userId);
     
-    @Query("SELECT kyc FROM UserKYC kyc WHERE kyc.userId = :userId ORDER BY kyc.createdAt DESC LIMIT 1")
-    Optional<UserKYC> findLatestByUserId(@Param("userId") Long userId);
+    @Select("SELECT * FROM user_kyc WHERE user_id = #{userId} ORDER BY created_at DESC LIMIT 1")
+    UserKYC findLatestByUserId(@Param("userId") Long userId);
     
-    boolean existsByUserIdAndStatus(Long userId, UserKYC.KYCStatus status);
+    @Select("SELECT COUNT(*) FROM user_kyc WHERE user_id = #{userId} AND status = #{status}")
+    boolean existsByUserIdAndStatus(@Param("userId") Long userId, @Param("status") String status);
     
-    @Query("SELECT COUNT(kyc) FROM UserKYC kyc WHERE kyc.status = 'PENDING'")
+    @Select("SELECT COUNT(*) FROM user_kyc WHERE status = 'PENDING'")
     Long countPendingKYC();
     
-    @Query("SELECT kyc FROM UserKYC kyc WHERE kyc.status = 'PENDING' ORDER BY kyc.createdAt ASC")
+    @Select("SELECT * FROM user_kyc WHERE status = 'PENDING' ORDER BY created_at ASC")
     List<UserKYC> findPendingKYC();
 } 

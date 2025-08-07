@@ -6,7 +6,7 @@ WORKDIR /app
 COPY target/payment-service-*.jar app.jar
 
 # Expose the port
-EXPOSE 8084
+EXPOSE 10086
 
 # Set environment variables
 ENV JAVA_OPTS="-Xmx512m -Xms256m"

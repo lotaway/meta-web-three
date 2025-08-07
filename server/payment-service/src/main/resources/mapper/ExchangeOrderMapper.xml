@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metawebthree.repository.ExchangeOrderRepository">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="com.metawebthree.entity.ExchangeOrder">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="order_no" property="orderNo" jdbcType="VARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="order_type" property="orderType" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="fiat_currency" property="fiatCurrency" jdbcType="VARCHAR"/>
+        <result column="crypto_currency" property="cryptoCurrency" jdbcType="VARCHAR"/>
+        <result column="fiat_amount" property="fiatAmount" jdbcType="DECIMAL"/>
+        <result column="crypto_amount" property="cryptoAmount" jdbcType="DECIMAL"/>
+        <result column="exchange_rate" property="exchangeRate" jdbcType="DECIMAL"/>
+        <result column="actual_rate" property="actualRate" jdbcType="DECIMAL"/>
+        <result column="payment_method" property="paymentMethod" jdbcType="VARCHAR"/>
+        <result column="payment_order_no" property="paymentOrderNo" jdbcType="VARCHAR"/>
+        <result column="crypto_transaction_hash" property="cryptoTransactionHash" jdbcType="VARCHAR"/>
+        <result column="user_wallet_address" property="userWalletAddress" jdbcType="VARCHAR"/>
+        <result column="failure_reason" property="failureReason" jdbcType="TEXT"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="paid_at" property="paidAt" jdbcType="TIMESTAMP"/>
+        <result column="completed_at" property="completedAt" jdbcType="TIMESTAMP"/>
+        <result column="expired_at" property="expiredAt" jdbcType="TIMESTAMP"/>
+        <result column="kyc_level" property="kycLevel" jdbcType="VARCHAR"/>
+        <result column="kyc_verified" property="kycVerified" jdbcType="BOOLEAN"/>
+        <result column="remark" property="remark" jdbcType="TEXT"/>
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        id, order_no, user_id, order_type, status, fiat_currency, crypto_currency, 
+        fiat_amount, crypto_amount, exchange_rate, actual_rate, payment_method, 
+        payment_order_no, crypto_transaction_hash, user_wallet_address, failure_reason,
+        created_at, paid_at, completed_at, expired_at, kyc_level, kyc_verified, remark
+    </sql>
+
+</mapper> 

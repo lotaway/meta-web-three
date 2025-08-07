@@ -1,5 +1,7 @@
 package com.metawebthree.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.metawebthree.entity.ExchangeOrder;
 import com.metawebthree.repository.ExchangeOrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 风控服务
@@ -106,11 +109,10 @@ public class RiskControlService {
      */
     private void validateAbnormalBehavior(Long userId) {
         // 检查是否有失败的订单
-        long failedOrders = exchangeOrderRepository.findByUserIdAndStatus(userId, 
-                com.metawebthree.entity.ExchangeOrder.OrderStatus.FAILED).size();
+        List<ExchangeOrder> failedOrders = exchangeOrderRepository.findByUserIdAndStatus(userId, "FAILED");
         
-        if (failedOrders > 5) {
-            throw new RuntimeException("Too many failed orders. Failed count: " + failedOrders);
+        if (failedOrders.size() > 5) {
+            throw new RuntimeException("Too many failed orders. Failed count: " + failedOrders.size());
         }
         
         // 检查是否有可疑的订单模式（简化实现）

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metawebthree.repository.CryptoPriceRepository">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="com.metawebthree.entity.CryptoPrice">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="symbol" property="symbol" jdbcType="VARCHAR"/>
+        <result column="base_currency" property="baseCurrency" jdbcType="VARCHAR"/>
+        <result column="quote_currency" property="quoteCurrency" jdbcType="VARCHAR"/>
+        <result column="price" property="price" jdbcType="DECIMAL"/>
+        <result column="bid_price" property="bidPrice" jdbcType="DECIMAL"/>
+        <result column="ask_price" property="askPrice" jdbcType="DECIMAL"/>
+        <result column="volume_24h" property="volume24h" jdbcType="DECIMAL"/>
+        <result column="change_24h" property="change24h" jdbcType="DECIMAL"/>
+        <result column="change_percent_24h" property="changePercent24h" jdbcType="DECIMAL"/>
+        <result column="source" property="source" jdbcType="VARCHAR"/>
+        <result column="timestamp" property="timestamp" jdbcType="TIMESTAMP"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        id, symbol, base_currency, quote_currency, price, bid_price, ask_price,
+        volume_24h, change_24h, change_percent_24h, source, timestamp, created_at
+    </sql>
+
+</mapper> 

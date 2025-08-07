@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -70,11 +69,11 @@ class ExchangeOrderServiceTest {
     void testCreateOrder_Success() {
         // Given
         when(userKYCRepository.findHighestApprovedLevelByUserId(1L))
-                .thenReturn(Optional.of(testKYC));
+                .thenReturn(testKYC);
         when(priceEngineService.getWeightedAveragePrice("BTC", "USD"))
                 .thenReturn(new BigDecimal("45000"));
-        when(exchangeOrderRepository.save(any(ExchangeOrder.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(exchangeOrderRepository.insert(any(ExchangeOrder.class)))
+                .thenReturn(1);
 
         // When
         ExchangeOrderResponse response = exchangeOrderService.createOrder(testRequest, 1L);
@@ -93,7 +92,7 @@ class ExchangeOrderServiceTest {
     void testCreateOrder_KYCRequired() {
         // Given
         when(userKYCRepository.findHighestApprovedLevelByUserId(1L))
-                .thenReturn(Optional.empty());
+                .thenReturn(null);
 
         // When & Then
         assertThrows(RuntimeException.class, () -> {
@@ -106,7 +105,7 @@ class ExchangeOrderServiceTest {
         // Given
         testRequest.setAmount(new BigDecimal("50000")); // 超过L1级别限制
         when(userKYCRepository.findHighestApprovedLevelByUserId(1L))
-                .thenReturn(Optional.of(testKYC));
+                .thenReturn(testKYC);
 
         // When & Then
         assertThrows(RuntimeException.class, () -> {

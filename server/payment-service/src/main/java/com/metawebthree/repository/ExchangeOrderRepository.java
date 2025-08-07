@@ -1,43 +1,50 @@
 package com.metawebthree.repository;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.metawebthree.entity.ExchangeOrder;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
-@Repository
-public interface ExchangeOrderRepository extends JpaRepository<ExchangeOrder, Long> {
+@Mapper
+public interface ExchangeOrderRepository extends BaseMapper<ExchangeOrder> {
     
-    Optional<ExchangeOrder> findByOrderNo(String orderNo);
+    @Select("SELECT * FROM exchange_orders WHERE order_no = #{orderNo}")
+    ExchangeOrder findByOrderNo(@Param("orderNo") String orderNo);
     
-    List<ExchangeOrder> findByUserId(Long userId);
+    @Select("SELECT * FROM exchange_orders WHERE user_id = #{userId}")
+    List<ExchangeOrder> findByUserId(@Param("userId") Long userId);
     
-    List<ExchangeOrder> findByUserIdAndStatus(Long userId, ExchangeOrder.OrderStatus status);
+    @Select("SELECT * FROM exchange_orders WHERE user_id = #{userId} AND status = #{status}")
+    List<ExchangeOrder> findByUserIdAndStatus(@Param("userId") Long userId, @Param("status") String status);
     
-    List<ExchangeOrder> findByStatus(ExchangeOrder.OrderStatus status);
+    @Select("SELECT * FROM exchange_orders WHERE status = #{status}")
+    List<ExchangeOrder> findByStatus(@Param("status") String status);
     
-    List<ExchangeOrder> findByStatusAndCreatedAtBefore(ExchangeOrder.OrderStatus status, LocalDateTime time);
+    @Select("SELECT * FROM exchange_orders WHERE status = #{status} AND created_at < #{time}")
+    List<ExchangeOrder> findByStatusAndCreatedAtBefore(@Param("status") String status, @Param("time") LocalDateTime time);
     
-    @Query("SELECT o FROM ExchangeOrder o WHERE o.userId = :userId AND o.status IN ('PENDING', 'PAID', 'PROCESSING')")
+    @Select("SELECT * FROM exchange_orders WHERE user_id = #{userId} AND status IN ('PENDING', 'PAID', 'PROCESSING')")
     List<ExchangeOrder> findActiveOrdersByUserId(@Param("userId") Long userId);
     
-    @Query("SELECT SUM(o.fiatAmount) FROM ExchangeOrder o WHERE o.userId = :userId AND o.status = 'COMPLETED' AND o.createdAt >= :startDate")
+    @Select("SELECT COALESCE(SUM(fiat_amount), 0) FROM exchange_orders WHERE user_id = #{userId} AND status = 'COMPLETED' AND created_at >= #{startDate}")
     BigDecimal getTotalCompletedAmountByUserIdAndDateRange(@Param("userId") Long userId, @Param("startDate") LocalDateTime startDate);
     
-    @Query("SELECT COUNT(o) FROM ExchangeOrder o WHERE o.userId = :userId AND o.status = 'COMPLETED' AND o.createdAt >= :startDate")
+    @Select("SELECT COUNT(*) FROM exchange_orders WHERE user_id = #{userId} AND status = 'COMPLETED' AND created_at >= #{startDate}")
     Long getCompletedOrderCountByUserIdAndDateRange(@Param("userId") Long userId, @Param("startDate") LocalDateTime startDate);
     
-    @Query("SELECT o FROM ExchangeOrder o WHERE o.paymentOrderNo = :paymentOrderNo")
-    Optional<ExchangeOrder> findByPaymentOrderNo(@Param("paymentOrderNo") String paymentOrderNo);
+    @Select("SELECT * FROM exchange_orders WHERE payment_order_no = #{paymentOrderNo}")
+    ExchangeOrder findByPaymentOrderNo(@Param("paymentOrderNo") String paymentOrderNo);
     
-    @Query("SELECT o FROM ExchangeOrder o WHERE o.cryptoTransactionHash = :txHash")
-    Optional<ExchangeOrder> findByCryptoTransactionHash(@Param("txHash") String txHash);
+    @Select("SELECT * FROM exchange_orders WHERE crypto_transaction_hash = #{txHash}")
+    ExchangeOrder findByCryptoTransactionHash(@Param("txHash") String txHash);
     
-    boolean existsByOrderNo(String orderNo);
+    @Select("SELECT COUNT(*) FROM exchange_orders WHERE order_no = #{orderNo}")
+    boolean existsByOrderNo(@Param("orderNo") String orderNo);
 } 

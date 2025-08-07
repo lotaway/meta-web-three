@@ -52,6 +52,12 @@
 - **CryptoPrice**: 加密货币价格实体
 - **UserKYC**: 用户KYC实体
 
+### 数据访问层
+- **MyBatis Plus**: 使用MyBatis Plus进行数据访问
+- **Mapper接口**: 继承BaseMapper，提供基础CRUD操作
+- **XML映射**: 支持复杂SQL查询和结果映射
+- **自动填充**: 支持创建时间和更新时间的自动填充
+
 ## API接口
 
 ### 兑换订单接口
@@ -72,6 +78,21 @@ GET /api/v1/prices/{symbol}/change    # 获取价格变化
 ```
 
 ## 配置说明
+
+### MyBatis Plus配置
+```yaml
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  mapper-locations: classpath*:/mapper/**/*.xml
+```
 
 ### 支付配置
 ```yaml
@@ -94,13 +115,9 @@ payment:
     single-limit:
       usd: 10000
       cny: 70000
-      eur: 9000
     daily-limit:
       usd: 50000
       cny: 350000
-      eur: 45000
-    slippage:
-      max-percentage: 2.0
 ```
 
 ### KYC配置
@@ -108,18 +125,10 @@ payment:
 payment:
   kyc:
     levels:
-      l0:
-        name: "基础验证"
-        limit: 1000
-      l1:
-        name: "身份验证"
-        limit: 10000
-      l2:
-        name: "高级验证"
-        limit: 100000
-      l3:
-        name: "企业验证"
-        limit: 1000000
+      l0: {name: "基础验证", limit: 1000}
+      l1: {name: "身份验证", limit: 10000}
+      l2: {name: "高级验证", limit: 100000}
+      l3: {name: "企业验证", limit: 1000000}
 ```
 
 ## 部署说明
@@ -137,8 +146,8 @@ SPRING_DATASOURCE_USERNAME=root
 SPRING_DATASOURCE_PASSWORD=root
 
 # Redis配置
-SPRING_REDIS_HOST=localhost
-SPRING_REDIS_PORT=6379
+SPRING_DATA_REDIS_HOST=localhost
+SPRING_DATA_REDIS_PORT=6379
 
 # 支付配置
 PAYMENT_FIAT_ALIPAY_APP_ID=your_alipay_app_id
@@ -151,7 +160,7 @@ PAYMENT_FIAT_WECHAT_APP_ID=your_wechat_app_id
 docker build -t payment-service .
 
 # 运行容器
-docker run -d -p 8084:8084 --name payment-service payment-service
+docker run -d -p 10086:10086 --name payment-service payment-service
 ```
 
 ## 业务流程
@@ -224,4 +233,28 @@ docker run -d -p 8084:8084 --name payment-service payment-service
 ### 支持新交易所
 1. 实现价格获取接口
 2. 添加权重配置
-3. 更新价格聚合逻辑 
+3. 更新价格聚合逻辑
+
+## 数据访问层说明
+
+### MyBatis Plus特性
+- **BaseMapper**: 提供基础的CRUD操作
+- **分页插件**: 支持分页查询
+- **自动填充**: 自动处理创建时间和更新时间
+- **逻辑删除**: 支持软删除
+- **条件构造器**: 支持动态SQL构建
+
+### Mapper接口
+```java
+@Mapper
+public interface ExchangeOrderRepository extends BaseMapper<ExchangeOrder> {
+    // 自定义查询方法
+    @Select("SELECT * FROM exchange_orders WHERE order_no = #{orderNo}")
+    ExchangeOrder findByOrderNo(@Param("orderNo") String orderNo);
+}
+```
+
+### XML映射文件
+- 位置：`src/main/resources/mapper/`
+- 功能：定义复杂SQL查询和结果映射
+- 命名空间：对应Mapper接口的完整类名 

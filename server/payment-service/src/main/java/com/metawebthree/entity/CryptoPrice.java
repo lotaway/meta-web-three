@@ -1,6 +1,6 @@
 package com.metawebthree.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -9,56 +9,49 @@ import lombok.Builder;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "crypto_prices")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@TableName("crypto_prices")
 public class CryptoPrice {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
     
-    @Column(nullable = false)
+    @TableField("symbol")
     private String symbol; // BTC-USD, ETH-USD, etc.
     
-    @Column(nullable = false)
+    @TableField("base_currency")
     private String baseCurrency; // BTC, ETH, USDT
     
-    @Column(nullable = false)
+    @TableField("quote_currency")
     private String quoteCurrency; // USD, CNY, EUR
     
-    @Column(nullable = false, precision = 20, scale = 8)
+    @TableField("price")
     private BigDecimal price;
     
-    @Column(nullable = false, precision = 20, scale = 8)
+    @TableField("bid_price")
     private BigDecimal bidPrice;
     
-    @Column(nullable = false, precision = 20, scale = 8)
+    @TableField("ask_price")
     private BigDecimal askPrice;
     
-    @Column(nullable = false, precision = 20, scale = 8)
+    @TableField("volume_24h")
     private BigDecimal volume24h;
     
-    @Column(nullable = false, precision = 20, scale = 8)
+    @TableField("change_24h")
     private BigDecimal change24h;
     
-    @Column(nullable = false, precision = 5, scale = 2)
+    @TableField("change_percent_24h")
     private BigDecimal changePercent24h;
     
-    @Column(nullable = false)
+    @TableField("source")
     private String source; // binance, coinbase, okx
     
-    @Column(nullable = false)
+    @TableField("timestamp")
     private LocalDateTime timestamp;
     
-    @Column(nullable = false)
+    @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
-    
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
 } 

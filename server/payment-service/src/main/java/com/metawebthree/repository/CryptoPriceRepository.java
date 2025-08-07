@@ -1,35 +1,38 @@
 package com.metawebthree.repository;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.metawebthree.entity.CryptoPrice;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
-@Repository
-public interface CryptoPriceRepository extends JpaRepository<CryptoPrice, Long> {
+@Mapper
+public interface CryptoPriceRepository extends BaseMapper<CryptoPrice> {
     
-    Optional<CryptoPrice> findFirstBySymbolOrderByTimestampDesc(String symbol);
+    @Select("SELECT * FROM crypto_prices WHERE symbol = #{symbol} ORDER BY timestamp DESC LIMIT 1")
+    CryptoPrice findFirstBySymbolOrderByTimestampDesc(@Param("symbol") String symbol);
     
-    List<CryptoPrice> findByBaseCurrencyAndQuoteCurrency(String baseCurrency, String quoteCurrency);
+    @Select("SELECT * FROM crypto_prices WHERE base_currency = #{baseCurrency} AND quote_currency = #{quoteCurrency}")
+    List<CryptoPrice> findByBaseCurrencyAndQuoteCurrency(@Param("baseCurrency") String baseCurrency, @Param("quoteCurrency") String quoteCurrency);
     
-    @Query("SELECT cp FROM CryptoPrice cp WHERE cp.symbol = :symbol AND cp.timestamp >= :startTime ORDER BY cp.timestamp DESC")
-    List<CryptoPrice> findBySymbolAndTimestampAfter(@Param("symbol") String symbol, @Param("startTime") java.time.LocalDateTime startTime);
+    @Select("SELECT * FROM crypto_prices WHERE symbol = #{symbol} AND timestamp >= #{startTime} ORDER BY timestamp DESC")
+    List<CryptoPrice> findBySymbolAndTimestampAfter(@Param("symbol") String symbol, @Param("startTime") LocalDateTime startTime);
     
-    @Query("SELECT cp FROM CryptoPrice cp WHERE cp.baseCurrency = :baseCurrency AND cp.quoteCurrency = :quoteCurrency AND cp.source = :source ORDER BY cp.timestamp DESC LIMIT 1")
-    Optional<CryptoPrice> findLatestBySymbolAndSource(@Param("baseCurrency") String baseCurrency, 
-                                                      @Param("quoteCurrency") String quoteCurrency, 
-                                                      @Param("source") String source);
+    @Select("SELECT * FROM crypto_prices WHERE base_currency = #{baseCurrency} AND quote_currency = #{quoteCurrency} AND source = #{source} ORDER BY timestamp DESC LIMIT 1")
+    CryptoPrice findLatestBySymbolAndSource(@Param("baseCurrency") String baseCurrency, 
+                                           @Param("quoteCurrency") String quoteCurrency, 
+                                           @Param("source") String source);
     
-    @Query("SELECT cp FROM CryptoPrice cp WHERE cp.baseCurrency = :baseCurrency AND cp.quoteCurrency = :quoteCurrency ORDER BY cp.timestamp DESC LIMIT 1")
-    Optional<CryptoPrice> findLatestBySymbol(@Param("baseCurrency") String baseCurrency, 
-                                             @Param("quoteCurrency") String quoteCurrency);
+    @Select("SELECT * FROM crypto_prices WHERE base_currency = #{baseCurrency} AND quote_currency = #{quoteCurrency} ORDER BY timestamp DESC LIMIT 1")
+    CryptoPrice findLatestBySymbol(@Param("baseCurrency") String baseCurrency, 
+                                   @Param("quoteCurrency") String quoteCurrency);
     
-    List<CryptoPrice> findBySource(String source);
+    @Select("SELECT * FROM crypto_prices WHERE source = #{source}")
+    List<CryptoPrice> findBySource(@Param("source") String source);
     
-    @Query("SELECT DISTINCT cp.symbol FROM CryptoPrice cp")
+    @Select("SELECT DISTINCT symbol FROM crypto_prices")
     List<String> findAllSymbols();
 } 

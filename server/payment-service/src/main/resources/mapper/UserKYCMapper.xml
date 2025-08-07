@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metawebthree.repository.UserKYCRepository">
+
+    <!-- 基础结果映射 -->
+    <resultMap id="BaseResultMap" type="com.metawebthree.entity.UserKYC">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="level" property="level" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="real_name" property="realName" jdbcType="VARCHAR"/>
+        <result column="id_number" property="idNumber" jdbcType="VARCHAR"/>
+        <result column="id_type" property="idType" jdbcType="VARCHAR"/>
+        <result column="phone_number" property="phoneNumber" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="address" property="address" jdbcType="TEXT"/>
+        <result column="country" property="country" jdbcType="VARCHAR"/>
+        <result column="nationality" property="nationality" jdbcType="VARCHAR"/>
+        <result column="date_of_birth" property="dateOfBirth" jdbcType="VARCHAR"/>
+        <result column="gender" property="gender" jdbcType="VARCHAR"/>
+        <result column="id_card_front_url" property="idCardFrontUrl" jdbcType="VARCHAR"/>
+        <result column="id_card_back_url" property="idCardBackUrl" jdbcType="VARCHAR"/>
+        <result column="selfie_url" property="selfieUrl" jdbcType="VARCHAR"/>
+        <result column="proof_of_address_url" property="proofOfAddressUrl" jdbcType="VARCHAR"/>
+        <result column="bank_account_number" property="bankAccountNumber" jdbcType="VARCHAR"/>
+        <result column="bank_name" property="bankName" jdbcType="VARCHAR"/>
+        <result column="bank_branch" property="bankBranch" jdbcType="VARCHAR"/>
+        <result column="tax_id" property="taxId" jdbcType="VARCHAR"/>
+        <result column="occupation" property="occupation" jdbcType="VARCHAR"/>
+        <result column="employer" property="employer" jdbcType="VARCHAR"/>
+        <result column="annual_income" property="annualIncome" jdbcType="VARCHAR"/>
+        <result column="source_of_funds" property="sourceOfFunds" jdbcType="VARCHAR"/>
+        <result column="purpose_of_transaction" property="purposeOfTransaction" jdbcType="VARCHAR"/>
+        <result column="reviewer_id" property="reviewerId" jdbcType="VARCHAR"/>
+        <result column="review_notes" property="reviewNotes" jdbcType="TEXT"/>
+        <result column="submitted_at" property="submittedAt" jdbcType="TIMESTAMP"/>
+        <result column="reviewed_at" property="reviewedAt" jdbcType="TIMESTAMP"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 基础字段 -->
+    <sql id="Base_Column_List">
+        id, user_id, level, status, real_name, id_number, id_type, phone_number, email,
+        address, country, nationality, date_of_birth, gender, id_card_front_url,
+        id_card_back_url, selfie_url, proof_of_address_url, bank_account_number,
+        bank_name, bank_branch, tax_id, occupation, employer, annual_income,
+        source_of_funds, purpose_of_transaction, reviewer_id, review_notes,
+        submitted_at, reviewed_at, created_at, updated_at
+    </sql>
+
+</mapper> 

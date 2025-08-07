@@ -1,6 +1,6 @@
 package com.metawebthree.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -8,128 +8,111 @@ import lombok.Builder;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "user_kyc")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@TableName("user_kyc")
 public class UserKYC {
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
     
-    @Column(nullable = false)
+    @TableField("user_id")
     private Long userId;
     
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @TableField("level")
     private KYCLevel level;
     
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @TableField("status")
     private KYCStatus status;
     
-    @Column
+    @TableField("real_name")
     private String realName;
     
-    @Column
+    @TableField("id_number")
     private String idNumber;
     
-    @Column
+    @TableField("id_type")
     private String idType; // ID_CARD, PASSPORT, DRIVER_LICENSE
     
-    @Column
+    @TableField("phone_number")
     private String phoneNumber;
     
-    @Column
+    @TableField("email")
     private String email;
     
-    @Column
+    @TableField("address")
     private String address;
     
-    @Column
+    @TableField("country")
     private String country;
     
-    @Column
+    @TableField("nationality")
     private String nationality;
     
-    @Column
+    @TableField("date_of_birth")
     private String dateOfBirth;
     
-    @Column
+    @TableField("gender")
     private String gender;
     
-    @Column
+    @TableField("id_card_front_url")
     private String idCardFrontUrl;
     
-    @Column
+    @TableField("id_card_back_url")
     private String idCardBackUrl;
     
-    @Column
+    @TableField("selfie_url")
     private String selfieUrl;
     
-    @Column
+    @TableField("proof_of_address_url")
     private String proofOfAddressUrl;
     
-    @Column
+    @TableField("bank_account_number")
     private String bankAccountNumber;
     
-    @Column
+    @TableField("bank_name")
     private String bankName;
     
-    @Column
+    @TableField("bank_branch")
     private String bankBranch;
     
-    @Column
+    @TableField("tax_id")
     private String taxId;
     
-    @Column
+    @TableField("occupation")
     private String occupation;
     
-    @Column
+    @TableField("employer")
     private String employer;
     
-    @Column
+    @TableField("annual_income")
     private String annualIncome;
     
-    @Column
+    @TableField("source_of_funds")
     private String sourceOfFunds;
     
-    @Column
+    @TableField("purpose_of_transaction")
     private String purposeOfTransaction;
     
-    @Column
+    @TableField("reviewer_id")
     private String reviewerId;
     
-    @Column
+    @TableField("review_notes")
     private String reviewNotes;
     
-    @Column
+    @TableField("submitted_at")
     private LocalDateTime submittedAt;
     
-    @Column
+    @TableField("reviewed_at")
     private LocalDateTime reviewedAt;
     
-    @Column(nullable = false)
+    @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
     
-    @Column
+    @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
-    
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        if (status == null) {
-            status = KYCStatus.PENDING;
-        }
-    }
-    
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
     
     public enum KYCLevel {
         L0("基础验证", 1000),
