@@ -25,9 +25,9 @@ impl WithArc<usize> for tokio::sync::Barrier {
     }
 }
 
-pub async fn start_future_task<ResultType, F>(task: &F) -> ResultType
+pub async fn start_future_task<ResultType, F>(task: &mut F) -> ResultType
 where
-    ResultType: Send + Clone,
+    ResultType: Send + Clone + 'static,
     F: TFutureTask<ResultType>,
 {
     FutureTask::new(task, Some(Duration::from_millis(10))).await
@@ -46,44 +46,41 @@ pub enum FutureTaskState {
     Error,
 }
 
-pub struct FutureTaskContext<'a, F, ResultType> {
+pub struct FutureTaskContext<ResultType> {
     pub waker: Option<Waker>,
     pub state: FutureTaskState,
-    pub task: &'a F,
     pub result: Option<ResultType>,
 }
 
 pub trait TFutureTask<ResultType>: Send + Sync {
-    fn start(&mut self) -> impl Future<Output = ResultType>;
+    fn start(&mut self) -> ResultType;
 }
 
-pub struct FutureTask<'a, ResultType: Send, F: TFutureTask<ResultType>> {
+pub struct FutureTask<ResultType: Send> {
     pub duration: Option<Duration>,
-    pub context: Arc<Mutex<FutureTaskContext<'a, F, ResultType>>>,
+    pub context: Arc<Mutex<FutureTaskContext<ResultType>>>,
 }
 
-impl<'a, ResultType, F> FutureTask<'a, ResultType, F>
+impl<ResultType> FutureTask<ResultType>
 where
-    ResultType: Send,
-    F: TFutureTask<ResultType>,
+    ResultType: Send + Clone + 'static,
 {
-    pub fn new(task: &'a F, duration: Option<Duration>) -> Self {
+    pub fn new<F: TFutureTask<ResultType>>(task: &mut F, duration: Option<Duration>) -> Self {
         println!("Task init");
         let context = Arc::new(Mutex::new(FutureTaskContext {
             state: FutureTaskState::NoInit,
             waker: None,
-            task,
             result: None,
         }));
         let context_clone = context.clone();
-        // let context_clone = Arc::clone(&context);
+        let result = task.start();
         let thread_handler = thread::spawn(move || {
             if let Some(d) = duration {
                 thread::sleep(d);
             }
             let mut guard = context_clone.lock().unwrap();
             guard.state = FutureTaskState::Pending;
-            guard.result = Some(guard.task.start());
+            guard.result = Some(result);
             guard.state = FutureTaskState::Finish;
             if let Some(waker) = guard.waker.take() {
                 waker.wake();
@@ -101,10 +98,9 @@ where
     }
 }
 
-impl<'a, ResultType, F> Future for FutureTask<'a, ResultType, F>
+impl<ResultType> Future for FutureTask<ResultType>
 where
-    ResultType: Send + Clone,
-    F: TFutureTask<ResultType>,
+    ResultType: Send + Clone + 'static,
 {
     type Output = ResultType;
 
@@ -182,9 +178,9 @@ where
         String::from(name)
     }
 
-    pub async fn order_in_spawn(&mut self, name: &str) -> tokio::task::JoinHandle<String> {
+    pub async fn order_in_spawn(&mut self, name: String) -> tokio::task::JoinHandle<String> {
         let _self = Arc::new(tokio::sync::Mutex::new(self.clone()));
-        let _name = Arc::new(tokio::sync::Mutex::new(String::from(name)));
+        let _name = Arc::new(tokio::sync::Mutex::new(name));
         tokio::task::spawn(async move {
             // let mut that = that.lock().unwrap();
             let mut that = _self.lock().await;
@@ -205,6 +201,8 @@ where
         println!("Teller end work on order {name}");
     }
 }
+
+
 
 struct PackageWorker {
     notify_arc: Arc<Mutex<tokio::sync::Notify>>,
@@ -231,12 +229,12 @@ impl PackageWorker {
         self
     }
 
-    pub fn start(&mut self) -> Option<&dyn Future<Output = ()>> {
+    pub fn start(&mut self) -> Option<Box<dyn Future<Output = ()> + '_>> {
         if self.is_start {
             return Option::None;
         }
         self.is_start = true;
-        Option::Some(&self.wait_for_notify())
+        Option::Some(Box::new(self.wait_for_notify()))
     }
 
     pub async fn wait_for_notify(&self) {
@@ -287,23 +285,19 @@ mod async_task_tests {
 
     #[test]
     fn test_bank_work() {
-        let mut bank_work = crate::async_task::BankWork::new(4, Box::new(|t: &str| {}));
-        let mut handlers = Vec::new();
-        let mut is_done = false;
-        for people in 0..10usize {
-            handlers.push(bank_work.order_in_spawn(people.to_string().as_ref()));
-        }
-        std::thread::spawn(|| async {
-            for handler in handlers {
-                let result = handler.await.await.ok().unwrap_or(String::from(""));
+        let bank_work = crate::async_task::BankWork::new(4, Box::new(|_t: &str| {}));
+        
+        // Use tokio runtime to handle the async operations
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(async {
+            for people in 0..10usize {
+                let mut cloned_bank_work = bank_work.clone();
+                let name = people.to_string();
+                let handler = cloned_bank_work.order_in_spawn(name);
+                let result = handler.await;
+                println!("Handler completed");
             }
-            is_done = true;
         });
-        let waiter = || sleep(Duration::from_secs(4 * 5));
-        while !is_done {
-            println!("is done: {is_done}, keep waiting");
-            waiter()
-        }
     }
 
     #[test]
@@ -321,9 +315,9 @@ mod async_task_tests {
     #[test]
     fn test_rw_document() {
         let rw_document = crate::async_task::RWDocument::new(String::from(""));
-        tokio::task::spawn(async {
+        tokio::task::spawn(async move {
             rw_document.read().await;
-            rw_document.write(String::from("Start in here..."))
+            rw_document.write(String::from("Start in here...")).await;
         });
     }
 }

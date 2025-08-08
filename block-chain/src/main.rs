@@ -99,10 +99,19 @@ impl LinkSummonProxy {
 type TFutureTaskResult = Result<Arc<Mutex<BlockChain>>, LinkSummonProxyError>;
 
 impl TFutureTask<TFutureTaskResult> for LinkSummonProxy {
-    async fn start(&mut self) -> TFutureTaskResult {
+    fn start(&mut self) -> TFutureTaskResult {
         self.block_chain = Option::Some(Arc::new(Mutex::new(BlockChain::new())));
         let block_chain = self.block_chain.as_ref().expect("Can't found block chain to return").clone();
-        if block_chain.lock().await.init().is_err() {
+        // Note: This is a blocking call, which is not ideal for async contexts
+        // Consider using tokio::task::spawn_blocking or restructuring
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        let init_result = rt.block_on(async {
+            if block_chain.lock().await.init().is_err() {
+                return Err(LinkSummonProxyError::InitFail);
+            }
+            Ok(())
+        });
+        if init_result.is_err() {
             return Err(LinkSummonProxyError::InitFail);
         }
         dbg!("{:?}", &self.block_chain);
