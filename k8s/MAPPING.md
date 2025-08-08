@@ -7,6 +7,7 @@
 ## 1. 网络配置映射
 
 ### Docker Compose 网络配置
+
 ```yaml
 # docker-compose.yml
 networks:
@@ -15,6 +16,7 @@ networks:
 ```
 
 ### Kubernetes 网络配置
+
 ```yaml
 # namespace.yaml
 apiVersion: v1
@@ -26,6 +28,7 @@ metadata:
 ```
 
 **映射说明**：
+
 - Docker Compose 的 `networks` 映射到 Kubernetes 的 `Namespace`
 - 使用命名空间进行网络隔离，比 Docker 网络更安全
 - 服务间通信通过 Service 实现，无需显式网络配置
@@ -33,6 +36,7 @@ metadata:
 ## 2. 端口映射
 
 ### Docker Compose 端口配置
+
 ```yaml
 # docker-compose.yml
 services:
@@ -42,6 +46,9 @@ services:
 
 # docker-compose.server.yaml
 services:
+  gateway:
+    ports:
+      - "10081:10081"
   product-service:
     ports:
       - "10082:10082"
@@ -57,6 +64,7 @@ services:
 ```
 
 ### Kubernetes 端口配置
+
 ```yaml
 # Service 配置
 apiVersion: v1
@@ -91,6 +99,7 @@ spec:
 ```
 
 **映射说明**：
+
 - Docker Compose 的 `ports` 映射到 Kubernetes 的 `Service` + `Ingress`
 - Service 提供集群内访问
 - Ingress 提供外部访问入口
@@ -99,6 +108,7 @@ spec:
 ## 3. 环境变量配置
 
 ### Docker Compose 环境配置
+
 ```yaml
 # docker-compose.dataenv.yml
 services:
@@ -114,6 +124,7 @@ services:
 ```
 
 ### Kubernetes 环境配置
+
 ```yaml
 # ConfigMap
 apiVersion: v1
@@ -158,6 +169,7 @@ spec:
 ```
 
 **映射说明**：
+
 - Docker Compose 的 `env_file` 映射到 Kubernetes 的 `ConfigMap`
 - Docker Compose 的 `environment` 映射到 Kubernetes 的 `Secret` + 环境变量
 - 敏感信息使用 Secret 存储，非敏感信息使用 ConfigMap
@@ -166,6 +178,7 @@ spec:
 ## 4. 存储卷配置
 
 ### Docker Compose 存储配置
+
 ```yaml
 # docker-compose.dataenv.yml
 services:
@@ -193,6 +206,7 @@ services:
 ```
 
 ### Kubernetes 存储配置
+
 ```yaml
 # StorageClass
 apiVersion: storage.k8s.io/v1
@@ -245,6 +259,7 @@ spec:
 ```
 
 **映射说明**：
+
 - Docker Compose 的 `volumes` 映射到 Kubernetes 的 `PersistentVolume` + `PersistentVolumeClaim`
 - 使用 StorageClass 定义存储类型
 - 更灵活的存储管理和动态分配
@@ -253,6 +268,7 @@ spec:
 ## 5. 重启策略
 
 ### Docker Compose 重启配置
+
 ```yaml
 # docker-compose.server.yaml
 services:
@@ -267,6 +283,7 @@ services:
 ```
 
 ### Kubernetes 重启配置
+
 ```yaml
 # Deployment 自动重启
 apiVersion: apps/v1
@@ -284,11 +301,12 @@ spec:
         app: product-service
     spec:
       containers:
-      - name: product-service
-        image: meta-web-three/product-service:latest
+        - name: product-service
+          image: meta-web-three/product-service:latest
 ```
 
 **映射说明**：
+
 - Docker Compose 的 `restart: unless-stopped` 映射到 Kubernetes 的 `Deployment`
 - Deployment 自动管理 Pod 的生命周期
 - 支持滚动更新和回滚
@@ -297,6 +315,7 @@ spec:
 ## 6. 依赖关系
 
 ### Docker Compose 依赖配置
+
 ```yaml
 # docker-compose.server.yaml (注释掉的配置)
 services:
@@ -311,24 +330,36 @@ services:
 ```
 
 ### Kubernetes 依赖配置
+
 ```yaml
 # 使用 initContainers 等待依赖服务
 spec:
   template:
     spec:
       initContainers:
-      - name: wait-for-mysql
-        image: busybox
-        command: ['sh', '-c', 'until nc -z mysql-service 3306; do echo waiting for mysql; sleep 2; done;']
-      - name: wait-for-redis
-        image: busybox
-        command: ['sh', '-c', 'until nc -z redis-service 6379; do echo waiting for redis; sleep 2; done;']
+        - name: wait-for-mysql
+          image: busybox
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z mysql-service 3306; do echo waiting for mysql; sleep 2; done;",
+            ]
+        - name: wait-for-redis
+          image: busybox
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z redis-service 6379; do echo waiting for redis; sleep 2; done;",
+            ]
       containers:
-      - name: product-service
-        image: meta-web-three/product-service:latest
+        - name: product-service
+          image: meta-web-three/product-service:latest
 ```
 
 **映射说明**：
+
 - Docker Compose 的 `depends_on` 映射到 Kubernetes 的 `initContainers`
 - 使用初始化容器等待依赖服务就绪
 - 更精确的依赖控制
@@ -337,6 +368,7 @@ spec:
 ## 7. 镜像构建
 
 ### Docker Compose 构建配置
+
 ```yaml
 # docker-compose.yml
 services:
@@ -354,17 +386,19 @@ services:
 ```
 
 ### Kubernetes 镜像配置
+
 ```yaml
 # Deployment 中的镜像配置
 spec:
   template:
     spec:
       containers:
-      - name: product-service
-        image: meta-web-three/product-service:latest
+        - name: product-service
+          image: meta-web-three/product-service:latest
 ```
 
 **映射说明**：
+
 - Docker Compose 的 `build` 指令在 Kubernetes 中需要预先构建
 - 需要手动构建镜像并推送到镜像仓库
 - 建议使用 CI/CD 流水线自动化构建过程
@@ -372,12 +406,14 @@ spec:
 ## 8. 服务发现
 
 ### Docker Compose 服务发现
+
 ```yaml
 # 服务间通过服务名直接访问
 # 例如：mysql://mysql:3306
 ```
 
 ### Kubernetes 服务发现
+
 ```yaml
 # Service 提供集群内服务发现
 apiVersion: v1
@@ -388,15 +424,15 @@ spec:
   selector:
     app: mysql
   ports:
-  - port: 3306
-    targetPort: 3306
+    - port: 3306
+      targetPort: 3306
   type: ClusterIP
-
 # 应用配置中使用服务名访问
 # 例如：mysql://mysql-service:3306
 ```
 
 **映射说明**：
+
 - Docker Compose 的服务名映射到 Kubernetes 的 Service 名
 - Service 提供负载均衡和服务发现
 - 支持多种 Service 类型（ClusterIP、NodePort、LoadBalancer）
@@ -404,36 +440,39 @@ spec:
 ## 9. 健康检查
 
 ### Docker Compose 健康检查
+
 ```yaml
 # Docker Compose 没有内置健康检查
 # 依赖应用自身的健康检查机制
 ```
 
 ### Kubernetes 健康检查
+
 ```yaml
 # Liveness Probe
 spec:
   template:
     spec:
       containers:
-      - name: product-service
-        livenessProbe:
-          httpGet:
-            path: /actuator/health
-            port: 10082
-          initialDelaySeconds: 60
-          periodSeconds: 30
+        - name: product-service
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 10082
+            initialDelaySeconds: 60
+            periodSeconds: 30
 
-# Readiness Probe
-        readinessProbe:
-          httpGet:
-            path: /actuator/health
-            port: 10082
-          initialDelaySeconds: 30
-          periodSeconds: 10
+          # Readiness Probe
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 10082
+            initialDelaySeconds: 30
+            periodSeconds: 10
 ```
 
 **映射说明**：
+
 - Kubernetes 提供内置的健康检查机制
 - Liveness Probe 检测应用是否存活
 - Readiness Probe 检测应用是否就绪
@@ -442,29 +481,32 @@ spec:
 ## 10. 资源限制
 
 ### Docker Compose 资源限制
+
 ```yaml
 # Docker Compose 没有内置资源限制
 # 依赖 Docker 的资源限制机制
 ```
 
 ### Kubernetes 资源限制
+
 ```yaml
 # 资源请求和限制
 spec:
   template:
     spec:
       containers:
-      - name: product-service
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "250m"
-          limits:
-            memory: "1Gi"
-            cpu: "500m"
+        - name: product-service
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
 ```
 
 **映射说明**：
+
 - Kubernetes 提供细粒度的资源管理
 - 支持 CPU 和内存的请求和限制
 - 更好的资源利用和调度
@@ -472,28 +514,36 @@ spec:
 ## 11. 无法直接映射的配置
 
 ### 1. Docker Compose 的 `build` 指令
+
 **问题**: Kubernetes 不直接支持构建镜像
-**解决方案**: 
+**解决方案**:
+
 - 预先构建镜像并推送到镜像仓库
 - 使用 CI/CD 流水线自动化构建过程
 - 使用 Kaniko 或 BuildKit 在 Kubernetes 中构建
 
 ### 2. Docker Compose 的 `container_name`
+
 **问题**: Kubernetes 自动生成 Pod 名称
-**解决方案**: 
+**解决方案**:
+
 - 使用标签和选择器进行服务发现
 - 使用 StatefulSet 获得稳定的网络标识
 
 ### 3. Docker Compose 的 `depends_on`
+
 **问题**: Kubernetes 没有直接的依赖关系
-**解决方案**: 
+**解决方案**:
+
 - 使用 `initContainers` 等待依赖服务就绪
 - 使用 Helm 的依赖管理
 - 在应用代码中实现重试机制
 
 ### 4. Docker Compose 的 `external_links`
+
 **问题**: Kubernetes 不支持外部链接
-**解决方案**: 
+**解决方案**:
+
 - 使用 Service 和 Endpoints
 - 使用 ExternalName Service
 - 使用 API Gateway 或 Service Mesh
@@ -501,6 +551,7 @@ spec:
 ## 12. 最佳实践建议
 
 ### 1. 使用 Helm Chart
+
 ```bash
 # 创建 Helm Chart
 helm create meta-web-three
@@ -508,21 +559,25 @@ helm create meta-web-three
 ```
 
 ### 2. 配置管理
+
 - 使用 ConfigMap 管理非敏感配置
 - 使用 Secret 管理敏感信息
 - 使用外部配置管理系统（如 Vault）
 
 ### 3. 存储管理
+
 - 使用 StorageClass 定义存储类型
 - 使用 PersistentVolumeClaim 申请存储
 - 考虑使用 StatefulSet 管理有状态服务
 
 ### 4. 网络管理
+
 - 使用 NetworkPolicy 控制 Pod 间通信
 - 使用 Ingress 提供外部访问
 - 考虑使用 Service Mesh（如 Istio）
 
 ### 5. 监控和日志
+
 - 集成 Prometheus + Grafana 监控
 - 使用 ELK Stack 收集日志
 - 配置告警和通知
@@ -530,6 +585,7 @@ helm create meta-web-three
 ## 总结
 
 Kubernetes 配置相比 Docker Compose 提供了：
+
 - ✅ 更强大的编排能力
 - ✅ 更好的可扩展性
 - ✅ 更安全的配置管理
@@ -538,8 +594,9 @@ Kubernetes 配置相比 Docker Compose 提供了：
 - ✅ 更丰富的监控和日志功能
 
 需要额外处理的部分：
+
 - 🔧 镜像构建和推送
 - 🔧 存储目录创建
 - 🔧 域名和证书配置
 - 🔧 监控和日志收集
-- 🔧 备份策略 
+- 🔧 备份策略

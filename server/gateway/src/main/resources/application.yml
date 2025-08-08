@@ -17,10 +17,14 @@ spring:
             - id: user
               uri: lb://user-service
               predicates:
-                - Path=/user/**
-              filters:
-                - UserAuthFilter
-                # - RoleFilter=user
+                - Path=/user-service/**
+              # UserAuthFilter is implemented as GlobalFilter, no need to specify here
+              # filters:
+              #   - UserAuthFilter
+            - id: product
+              uri: lb://product-service
+              predicates:
+                - Path=/product-service/**
   main:
     web-application-type: reactive
 ---
@@ -28,7 +32,7 @@ spring:
   config:
     activate:
       on-profile: dev
-    import: 
+    import:
       # - optional:classpath:/config/application-common-${spring.profiles.active}.yml
       - optional:classpath:application-common.yml
       - optional:classpath:application-common-dev.yml
