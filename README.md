@@ -1,40 +1,54 @@
 ![阿卢说他遇到阿玮](https://tvax2.sinaimg.cn/crop.47.138.345.345.180/6b20647bly8fh6rmudt3cj20c80ha40r.jpg)
 
-[nodejs文档](http://nodejs.cn/api/http.html)
-[nest文档](https://docs.nestjs.com/support)
+[nodejs 文档](http://nodejs.cn/api/http.html)
+[nest 文档](https://docs.nestjs.com/support)
 
 ## Description
 
-*本项目为元宇宙3D+区块链AI相关*
+_本项目为元宇宙 3D+区块链 AI 相关_
 
 <a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
 
-| 模块     | 方案                                 | 优势                 |
-| ------ | ---------------------------------- | ------------------ |
-| 前端     | Next.js + Tailwind CSS + shadcn/ui | SSR/SSG 全能选手，开发效率高 |
-| 部署     | GitHub + Vercel                    | 自动构建、自动部署、全球 CDN   |
-| 后端 API | Node.js 自建服务器                      | 灵活、自由、成本低，也可直接Java或go          |
-| 数据库    | NoSQL → PlanetScale/PG                | 起步快，后期扩展轻松         |
-| 用户系统   | Auth.js / Supabase                 | 简单开箱即用             |
-| 邮件服务   | Resend                             | 接口简洁，免费额度友好        |
-| App    | React Native + Expo                      | 代码复用，跨平台           |
-| 高并发    | Redis+ES+K8s+RocketMQ                | 扩展选项         |
-
+| 模块     | 方案                               | 优势                                    |
+| -------- | ---------------------------------- | --------------------------------------- |
+| 前端     | Next.js + Tailwind CSS + shadcn/ui | SSR/SSG 全能选手，开发效率高            |
+| 部署     | GitHub + Vercel                    | 自动构建、自动部署、全球 CDN            |
+| 后端 API | Node.js 自建服务器                 | 灵活、自由、成本低，也可直接 Java 或 go |
+| 数据库   | NoSQL → PlanetScale/PG             | 起步快，后期扩展轻松                    |
+| 用户系统 | Auth.js / Supabase                 | 简单开箱即用                            |
+| 邮件服务 | Resend                             | 接口简洁，免费额度友好                  |
+| App      | React Native + Expo                | 代码复用，跨平台                        |
+| 高并发   | Redis+ES+K8s+RocketMQ              | 扩展选项                                |
 
 ## Direct 目录说明
 
-* ai AI模型
-* block-chain 区块链
-* server 后端、网关中心（协调、管理）
-* evm-contract Ethereum及衍生链合约
-* solana-contract Solana合约
-* client 网站客户端（内容、浏览、支付）
-* tools 工具库
+- ai AI 模型
+- block-chain 区块链
+- server 后端、网关中心（协调、管理）
+- evm-contract Ethereum 及衍生链合约
+- solana-contract Solana 合约
+- client 网站客户端（内容、浏览、支付）
+- tools 工具库
 
 ## Installation 安装
 
 ```bash
 $ yarn install
+```
+
+### ai 环境
+
+需要以下4种的任意一种作为环境管理器使用：
+* [anaconda](https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive)，第三方维护，包含非py包，数量几千，兼容性强
+* [condaforce](https://conda-forge.org/miniforge)，社区维护，包含非py包，数量几万，但是兼容性差
+* [uv](https://pypi.org/project/uv)，python包管理器
+* pip，python环境自带
+
+以anaconda为例，下载后执行：
+
+```bash
+conda create -n ai -c conda-forge
+conda activate ai
 ```
 
 ## Running the app 同时运行服务端和客户端
