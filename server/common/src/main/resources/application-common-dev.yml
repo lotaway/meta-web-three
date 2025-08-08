@@ -13,4 +13,10 @@ rocketmq:
     namesrv: 192.168.1.194:9876
 dubbo:
   registry:
-    address: zookeeper://192.168.1.194:2181
+    address: 192.168.1.194:2181
+    protocol: zookeeper
+  application:
+    name: ${spring.application.name}
+  protocol:
+    name: dubbo
+    port: -1

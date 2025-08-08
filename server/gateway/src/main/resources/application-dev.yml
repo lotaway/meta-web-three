@@ -1,0 +1,25 @@
+spring:
+  cloud:
+    zookeeper:
+      discovery:
+        enabled: true
+        register: true
+        root: /spring-cloud
+        metadata:
+          version: 1.0.0
+        prefer-ip-address: true
+        instance-id: ${spring.application.name}:${server.port}
+        service-name: ${spring.application.name}
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+        health-check-timeout: 5s
+        health-check-retries: 3
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always

@@ -1,23 +1,42 @@
-spring:
-  profiles:
-    active: dev
 server:
   port: 10081
----
 spring:
   application:
     name: gateway
+  profiles:
+    active: dev
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true # Enable discovery locator proxy
-          lower-case-service-id: true
-      routes:
-        - id: user
-          uri: lb://user-service
-          predicates:
-            - Path=/user/**
-          filters:
-            - UserAuthFilter
-            # - RoleFilter=user
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true # Enable discovery locator proxy
+              lower-case-service-id: true
+          routes:
+            - id: user
+              uri: lb://user-service
+              predicates:
+                - Path=/user/**
+              filters:
+                - UserAuthFilter
+                # - RoleFilter=user
+  main:
+    web-application-type: reactive
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+    import: 
+      # - optional:classpath:/config/application-common-${spring.profiles.active}.yml
+      - optional:classpath:application-common.yml
+      - optional:classpath:application-common-dev.yml
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import:
+      - optional:classpath:application-common.yml
+      - optional:classpath:application-common-prod.yml

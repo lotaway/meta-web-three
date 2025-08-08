@@ -10,11 +10,14 @@ import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @Configuration
 public class MQConsumer {
     private final DefaultMQPushConsumer consumer;
@@ -32,8 +35,8 @@ public class MQConsumer {
     @PostConstruct
     public void init() {
         consumer.setNamesrvAddr(namesrv);
-        System.out.println("RocketMQ Nameserver: " + namesrv);
-        System.out.println("RocketMQ Common application config: " + applicationTopic);
+        log.info("RocketMQ Nameserver: " + namesrv);
+        log.info("RocketMQ Common application config: " + applicationTopic);
     }
 
     public void start(String topic, MessageListener messageListener, @Nullable String subExpression) throws MQClientException {

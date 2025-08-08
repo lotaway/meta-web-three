@@ -48,6 +48,7 @@
         <kotlin.version>1.9.20</kotlin.version>
         <spring-cloud-starter-zookeeper-discovery.version>4.3.0</spring-cloud-starter-zookeeper-discovery.version>
         <spring-cloud-starter-openfeign.version>4.3.0</spring-cloud-starter-openfeign.version>
+        <io.grpc.version>1.58.0</io.grpc.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -250,6 +251,21 @@
             <artifactId>dubbo-spring-boot-starter</artifactId>
             <version>3.3.5</version>
         </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty</artifactId>
+            <version>${io.grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-protobuf</artifactId>
+            <version>${io.grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-stub</artifactId>
+            <version>${io.grpc.version}</version>
+        </dependency>
         <!-- ZooKeeper Registry Center Support -->
         <!-- https://mvnrepository.com/artifact/org.apache.dubbo/dubbo-registry-zookeeper -->
         <dependency>
@@ -262,7 +278,7 @@
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
-            <version>3.29.2-GA</version> 
+            <version>3.29.2-GA</version>
         </dependency>
         <!-- ZK Client (Optional Curator) -->
         <!-- https://mvnrepository.com/artifact/org.apache.curator/curator-recipes -->

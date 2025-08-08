@@ -1,7 +1,7 @@
 package com.metawebthree.product;
 
-import com.metawebthree.common.cloud.S3Buckets;
-import com.metawebthree.common.cloud.S3Service;
+import com.metawebthree.common.cloud.DefaultS3Buckets;
+import com.metawebthree.common.cloud.DefaultS3Service;
 import com.metawebthree.common.utils.base.MQProducer;
 import com.metawebthree.image.ProductImageService;
 import org.apache.rocketmq.client.exception.MQBrokerException;
@@ -21,13 +21,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class ProductService {
-    private final S3Service s3Service;
-    private final S3Buckets s3Bucket;
+    private final DefaultS3Service s3Service;
+    private final DefaultS3Buckets s3Bucket;
     private final MQProducer mqProducer;
 
     private final ProductImageService productImageService;
 
-    public ProductService(S3Service s3Service, S3Buckets s3Bucket, MQProducer mqProducer,
+    public ProductService(DefaultS3Service s3Service, DefaultS3Buckets s3Bucket, MQProducer mqProducer,
             ProductImageService productImageService) {
         this.s3Service = s3Service;
         this.s3Bucket = s3Bucket;

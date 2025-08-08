@@ -32,12 +32,20 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
+        String path = request.getPath().value();
+        
+        if (path.startsWith("/user/signIn") || path.startsWith("/user/create") || 
+            path.startsWith("/user/checkWeb3SignerMessage") || path.startsWith("/actuator")) {
+            return chain.filter(exchange);
+        }
+        
         String authHeader = request.getHeaders().getFirst("Authorization");
-        if (authHeader == null || !authHeader.startsWith("/user")) {
+        if (authHeader == null || !authHeader.startsWith(AUTH_HEADER)) {
             ServerHttpResponse response = exchange.getResponse();
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
             return response.setComplete();
         }
+        
         String token = authHeader.substring(AUTH_HEADER.length());
         Tuple<Boolean, Claims> validResult = validateToken(token);
         Boolean isValid = validResult._1();
@@ -48,6 +56,7 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
             return response.setComplete();
         }
+        
         ServerWebExchange _exchange = exchange.mutate()
                 .request(
                         exchange.getRequest().mutate()
@@ -67,7 +76,7 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
         Claims claims = oClaims.get();
         Long userId = userJwtUtil.getUserId(claims);
         if (userId == null) {
-            return new Tuple<>(null, null);
+            return new Tuple<>(false, null);
         }
         if (userJwtUtil.isTokenExpired(claims.getExpiration())) {
             return new Tuple<>(false, null);
