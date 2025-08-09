@@ -47,7 +47,6 @@
         <aws.lambda.java.version>1.2.2</aws.lambda.java.version>
         <kotlin.version>1.9.20</kotlin.version>
         <spring-cloud-starter-zookeeper-discovery.version>4.3.0</spring-cloud-starter-zookeeper-discovery.version>
-        <spring-cloud-starter-openfeign.version>4.3.0</spring-cloud-starter-openfeign.version>
         <io.grpc.version>1.58.0</io.grpc.version>
     </properties>
     <dependencyManagement>
@@ -232,13 +231,6 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
             <version>${spring-cloud-starter-zookeeper-discovery.version}</version>
-        </dependency>
-        <!--
-        https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-openfeign -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-            <version>${spring-cloud-starter-openfeign.version}</version>
         </dependency>
         <!-- Spring Cloud Circuit Breaker -->
         <dependency>

@@ -2,8 +2,11 @@ spring:
   profiles:
     active: dev
   cloud:
-    discovery:
-      enabled: true
+    zookeeper:
+      connect-string: localhost:2181
+      discovery:
+        enabled: true
+        # root: /meta-web-three
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
 name: "meta-web-three"
