@@ -272,13 +272,19 @@
             <artifactId>javassist</artifactId>
             <version>3.29.2-GA</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.curator/curator-framework -->
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+            <version>5.9.0</version>
+        </dependency>
         <!-- ZK Client (Optional Curator) -->
         <!-- https://mvnrepository.com/artifact/org.apache.curator/curator-recipes -->
-        <dependency>
+        <!-- <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-recipes</artifactId>
             <version>5.9.0</version>
-        </dependency>
+        </dependency> -->
         <!-- Spring Boot Validation -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

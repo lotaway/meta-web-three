@@ -8,12 +8,20 @@ import org.apache.dubbo.config.annotation.DubboService;
 import com.metawebthree.common.dto.OrderDTO;
 import com.metawebthree.common.rpc.interfaces.OrderService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @DubboService
 public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderDTO> getOrderByUserId(Long id) {
-        return List.of(OrderDTO.builder().id(1L).userId(id).orderNo("1234567890").orderStatus("1").orderType("1").orderAmount(BigDecimal.valueOf(100)).orderRemark("test").build());
+        List<OrderDTO> result = List.of(getOrderByUserIdMock(id));
+        return result;
     }
-    
+
+    public OrderDTO getOrderByUserIdMock(Long id) {
+        return new OrderDTO(id, 1L, "1234567890", "1", "1", BigDecimal.valueOf(100), "test");
+    }
+
 }

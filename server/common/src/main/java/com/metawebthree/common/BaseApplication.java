@@ -16,11 +16,15 @@ public abstract class BaseApplication {
     @Value("${spring.application.name}")
     private String name;
 
-    @Value("${spring.cloud.zookeeper.discovery.enabled}")
-    private boolean zkEnabled;
+    @Value("${spring.cloud.zookeeper.connect-string}")
+    private String zkConnected;
 
     @PostConstruct
     public void logServices() {
-        log.info("After {} started, ZK discovery is {}, available services: {}", name, zkEnabled, discoveryClient.getServices());
+        log.info(
+                "After {} started, ZK connection is {}, available services: {}",
+                name,
+                zkConnected,
+                discoveryClient.getServices());
     }
 }

@@ -11,7 +11,7 @@ public class LocalConfig {
     @Bean
     public PropertySourcesPlaceholderConfigurer propertySources() {
         PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
-        Resource localConfig = new FileSystemResource("application--common-local.yml");
+        Resource localConfig = new FileSystemResource("application-common-local.yml");
         if (localConfig.exists()) {
             configurer.setLocations(localConfig);
         }

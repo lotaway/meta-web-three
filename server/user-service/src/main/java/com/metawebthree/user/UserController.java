@@ -11,6 +11,8 @@ import com.metawebthree.user.DTO.UserDTO;
 import com.metawebthree.user.impl.UserServiceImpl;
 import com.metawebthree.common.ApiResponse;
 import com.metawebthree.common.utils.JwtUtil;
+import com.metawebthree.common.utils.UserJwtUtil;
+
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -25,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.Sign;
@@ -37,12 +40,12 @@ public class UserController {
 
     private final UserServiceImpl userService;
 
-    @DubboReference
+    @DubboReference(check = false, lazy = true)
     private OrderService orderService;
 
-    private final JwtUtil jwtUtil;
+    private final UserJwtUtil jwtUtil;
 
-    public UserController(UserServiceImpl userService, JwtUtil jwtUtil) {
+    public UserController(UserServiceImpl userService, UserJwtUtil jwtUtil) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
     }
@@ -175,7 +178,8 @@ public class UserController {
 
     @GetMapping("/order")
     public ApiResponse<List<OrderDTO>> getOrderByUser(@RequestHeader Map<String, String> header) {
-        Long userId = Long.parseLong(header.get(RequestHeaderKeys.USER_ID.getValue()));
+        Optional<String> oUserId = Optional.ofNullable(header.get(RequestHeaderKeys.USER_ID.getValue()));
+        Long userId = Long.parseLong(oUserId.orElse("0"));
         return ApiResponse.success(orderService.getOrderByUserId(userId));
     }
 
