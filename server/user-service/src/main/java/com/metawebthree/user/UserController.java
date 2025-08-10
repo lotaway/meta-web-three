@@ -2,6 +2,7 @@ package com.metawebthree.user;
 
 import com.metawebthree.author.AuthorDO;
 import com.metawebthree.common.OAuth1Utils;
+import com.metawebthree.common.annotations.LogMethod;
 import com.metawebthree.common.contants.RequestHeaderKeys;
 import com.metawebthree.common.dto.OrderDTO;
 import com.metawebthree.common.rpc.interfaces.OrderService;
@@ -10,7 +11,6 @@ import com.metawebthree.user.DTO.LoginResponseDTO;
 import com.metawebthree.user.DTO.UserDTO;
 import com.metawebthree.user.impl.UserServiceImpl;
 import com.metawebthree.common.ApiResponse;
-import com.metawebthree.common.utils.JwtUtil;
 import com.metawebthree.common.utils.UserJwtUtil;
 
 import lombok.extern.slf4j.Slf4j;
@@ -176,6 +176,7 @@ public class UserController {
         return url + "?" + queryStringBuilder.toString();
     }
 
+    @LogMethod
     @GetMapping("/order")
     public ApiResponse<List<OrderDTO>> getOrderByUser(@RequestHeader Map<String, String> header) {
         Optional<String> oUserId = Optional.ofNullable(header.get(RequestHeaderKeys.USER_ID.getValue()));

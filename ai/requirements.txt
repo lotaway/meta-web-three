@@ -1,0 +1,37 @@
+# deeplearning framework
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+
+# reinforcement learning framework
+gym>=0.21.0
+
+# data and math processing
+numpy>=1.21.0
+pandas>=1.3.0
+numexpr>=2.8.0
+
+# machine learning datasets
+datasets>=2.0.0
+
+# data visualization
+matplotlib>=3.5.0
+
+# natural language processing
+nltk>=3.8
+
+# OpenAI API
+openai>=1.0.0
+
+# machine learning tools
+scikit-learn>=1.0.0
+
+# type hinting support
+typing-extensions>=4.0.0
+
+# platform detection
+platform-utils>=0.1.0
+
+# optional: GPU acceleration support
+# torch-directml>=0.2.5  # Windows DirectML support
+# mps-utils>=0.1.0       # Apple Silicon MPS support
