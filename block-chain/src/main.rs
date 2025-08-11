@@ -1,14 +1,15 @@
+use crate::async_task::{get_future_result, start_future_task, TFutureTask};
+use block_chain::{Block, BlockChain};
 use std::collections::HashMap;
-use std::sync::{Arc};
+use std::sync::Arc;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::{mpsc, Mutex};
-use block_chain::{Block, BlockChain};
-use crate::async_task::{get_future_result, start_future_task, TFutureTask};
 
-mod utils;
+mod async_task;
 mod matcher;
 mod single_linked_list;
-mod async_task;
+mod utils;
+mod order_match;
 
 #[derive(Debug, Clone)]
 struct LinkSummonProxy {
@@ -17,13 +18,13 @@ struct LinkSummonProxy {
 
 #[derive(Clone, Debug)]
 enum LinkSummonProxyError {
-    InitFail
+    InitFail,
 }
 
 impl LinkSummonProxy {
     pub fn new() -> Self {
         Self {
-            block_chain: Option::None
+            block_chain: Option::None,
         }
     }
 
@@ -48,12 +49,18 @@ impl LinkSummonProxy {
             let self_arc = Arc::clone(&_self);
             let mut _self = self_arc.lock().await;
             while let Some(block_from_other) = rx.recv().await {
-                let mut block_chain = _self.block_chain.as_mut().expect("Can't found block chain to lock").lock();
+                let mut block_chain = _self
+                    .block_chain
+                    .as_mut()
+                    .expect("Can't found block chain to lock")
+                    .lock();
                 block_chain.await.add_block(block_from_other)
             }
         });
         // 启动一个任务来监听传入的连接
-        let listener = tokio::net::TcpListener::bind("127.0.0.1:10100").await.unwrap();
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:10100")
+            .await
+            .unwrap();
         println!("Listening for incoming connections...");
         while let Result::Ok((socket, _)) = listener.accept().await {
             let _tx = tx.clone();
@@ -66,7 +73,8 @@ impl LinkSummonProxy {
                 let mut buffer = [0u8; 1024];
                 let n = reader.read(&mut buffer).await.unwrap();
                 let data_string = String::from_utf8_lossy(&buffer[..n]).to_string();
-                let data_result: Result<Option<Block>, serde_json::error::Error> = serde_json::from_str(&data_string);
+                let data_result: Result<Option<Block>, serde_json::error::Error> =
+                    serde_json::from_str(&data_string);
                 match data_result {
                     Result::Ok(block_data) => {
                         // 将区块添加到区块链中
@@ -84,12 +92,20 @@ impl LinkSummonProxy {
         tokio::task::spawn(async move {
             let _self_arc = Arc::clone(&_self_arc);
             let _self = _self_arc.lock().await;
-            let block_chain_guard = _self.block_chain.as_ref().expect("Can't found block chain to lock").lock().await;
+            let block_chain_guard = _self
+                .block_chain
+                .as_ref()
+                .expect("Can't found block chain to lock")
+                .lock()
+                .await;
             let mut peers_guard = peers_clone.lock().await;
             // 向每个连接的节点发送最新的区块链数据
             for writer in peers_guard.values_mut() {
                 for block in &block_chain_guard.blocks {
-                    writer.write_all(serde_json::to_string(&block).unwrap().as_bytes()).await.unwrap();
+                    writer
+                        .write_all(serde_json::to_string(&block).unwrap().as_bytes())
+                        .await
+                        .unwrap();
                 }
             }
         });
@@ -101,7 +117,11 @@ type TFutureTaskResult = Result<Arc<Mutex<BlockChain>>, LinkSummonProxyError>;
 impl TFutureTask<TFutureTaskResult> for LinkSummonProxy {
     fn start(&mut self) -> TFutureTaskResult {
         self.block_chain = Option::Some(Arc::new(Mutex::new(BlockChain::new())));
-        let block_chain = self.block_chain.as_ref().expect("Can't found block chain to return").clone();
+        let block_chain = self
+            .block_chain
+            .as_ref()
+            .expect("Can't found block chain to return")
+            .clone();
         // Note: This is a blocking call, which is not ideal for async contexts
         // Consider using tokio::task::spawn_blocking or restructuring
         let rt = tokio::runtime::Runtime::new().unwrap();
@@ -124,6 +144,12 @@ async fn main() {
     println!("Start main");
     let public_config_str = utils::get_config_file(".\\config\\public.json");
     dbg!("{}", public_config_str);
+    start_block().await;
+    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+    println!("End main");
+}
+
+async fn start_block() {
     let future = async_task::tokio_spawn();
     let mut block_chain_proxy = LinkSummonProxy::new();
     let result = block_chain_proxy.start();
@@ -131,6 +157,4 @@ async fn main() {
     if result.ok().is_some() {
         block_chain_proxy.set_online().await;
     }
-    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
-    println!("End main");
 }
