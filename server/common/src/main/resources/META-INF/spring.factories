@@ -1,0 +1,3 @@
+# ApplicationContextInitializer for LocalConfig
+org.springframework.context.ApplicationContextInitializer=\
+com.metawebthree.common.config.LocalConfig
