@@ -45,7 +45,7 @@
         <json.version>20230227</json.version>
         <aws.java.sdk.version>2.20.87</aws.java.sdk.version>
         <aws.lambda.java.version>1.2.2</aws.lambda.java.version>
-        <kotlin.version>1.9.20</kotlin.version>
+        <kotlin.version>2.2.0</kotlin.version>
         <spring-cloud-starter-zookeeper-discovery.version>4.3.0</spring-cloud-starter-zookeeper-discovery.version>
         <io.grpc.version>1.58.0</io.grpc.version>
     </properties>
@@ -209,9 +209,16 @@
             <artifactId>rocketmq-client</artifactId>
             <version>5.3.3</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-jdk8 -->
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib-jdk8</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib -->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
@@ -308,6 +315,8 @@
     </dependencies>
 
     <build>
+        <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+        <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -334,7 +343,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <jvmTarget>1.8</jvmTarget>
+                    <jvmTarget>1.7</jvmTarget>
                 </configuration>
             </plugin>
             <plugin>

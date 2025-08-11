@@ -1,4 +1,4 @@
-package com.metawebthree.common.utils.base;
+package com.metawebthree.common.utils.RocketMQ;
 
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;

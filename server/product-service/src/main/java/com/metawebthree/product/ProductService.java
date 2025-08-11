@@ -2,7 +2,7 @@ package com.metawebthree.product;
 
 import com.metawebthree.common.cloud.DefaultS3Buckets;
 import com.metawebthree.common.cloud.DefaultS3Service;
-import com.metawebthree.common.utils.base.MQProducer;
+import com.metawebthree.common.utils.RocketMQ.MQProducer;
 import com.metawebthree.image.ProductImageService;
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
