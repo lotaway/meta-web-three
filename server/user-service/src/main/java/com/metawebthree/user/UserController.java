@@ -2,7 +2,6 @@ package com.metawebthree.user;
 
 import com.metawebthree.author.AuthorDO;
 import com.metawebthree.common.OAuth1Utils;
-import com.metawebthree.common.annotations.LogMethod;
 import com.metawebthree.common.contants.RequestHeaderKeys;
 import com.metawebthree.common.dto.OrderDTO;
 import com.metawebthree.common.rpc.interfaces.OrderService;
@@ -121,7 +120,6 @@ public class UserController {
 
         String token = jwtUtil.generate(user.getId().toString(), claims);
 
-        // 返回登录成功信息和token
         LoginResponseDTO response = new LoginResponseDTO(token, user, walletAddress, "wallet");
 
         return ApiResponse.success(response);
@@ -176,12 +174,12 @@ public class UserController {
         return url + "?" + queryStringBuilder.toString();
     }
 
-    @LogMethod
     @GetMapping("/order")
     public ApiResponse<List<OrderDTO>> getOrderByUser(@RequestHeader Map<String, String> header) {
         Optional<String> oUserId = Optional.ofNullable(header.get(RequestHeaderKeys.USER_ID.getValue()));
         Long userId = Long.parseLong(oUserId.orElse("0"));
-        return ApiResponse.success(orderService.getOrderByUserId(userId));
+        List<OrderDTO> result = orderService.getOrderByUserId(userId);
+        return ApiResponse.success(result);
     }
 
 }

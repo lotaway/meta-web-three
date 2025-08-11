@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.apache.dubbo.config.annotation.DubboService;
 
-import com.metawebthree.common.annotations.LogMethod;
 import com.metawebthree.common.dto.OrderDTO;
 import com.metawebthree.common.rpc.interfaces.OrderService;
 
@@ -15,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 @DubboService
 public class OrderServiceImpl implements OrderService {
 
-    @LogMethod
     @Override
     public List<OrderDTO> getOrderByUserId(Long id) {
         List<OrderDTO> result = List.of(getOrderByUserIdMock(id));

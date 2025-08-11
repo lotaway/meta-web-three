@@ -1,5 +1,6 @@
 package com.metawebthree.common.dto;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 import lombok.AllArgsConstructor;
@@ -11,7 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OrderDTO {
+public class OrderDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     private Long id;
     private Long userId;
     private String orderNo;
