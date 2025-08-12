@@ -9,7 +9,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@EnableAspectJAutoProxy
 public abstract class BaseApplication {
 
     @Autowired
