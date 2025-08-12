@@ -42,7 +42,8 @@ pub fn get_config_file(file_name: &str) -> String {
             ErrorKind::NotFound => match File::create(file_name) {
                 Ok(mut n_file) => {
                     let mut _content = String::new();
-                    n_file.read_to_string(&mut _content);
+                    let result = n_file.read_to_string(&mut _content);
+                    println!("result: {}", result.unwrap());
                     _content
                 }
                 Err(err) => panic!("{}", err.to_string())
