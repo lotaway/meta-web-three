@@ -1,7 +1,17 @@
 use anyhow::Result;
 use dubbo::{
-    codegen::async_trait, config::{protocol::{Protocol, ProtocolConfig}, registry::RegistryConfig, service::ServiceConfig}, status::DubboError
+    codegen::async_trait,
+    config::{
+        protocol::{Protocol, ProtocolConfig},
+        provider::ProviderConfig,
+        registry::RegistryConfig,
+        service::ServiceConfig,
+        RootConfig,
+    },
+    status::DubboError,
+    Dubbo, Url,
 };
+use dubbo_config::registry::RegistryConfig;
 use ordered_float::OrderedFloat;
 use rdkafka::config::ClientConfig;
 use rdkafka::producer::{FutureProducer, FutureRecord};
@@ -17,7 +27,13 @@ use std::{
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
-use crate::order_match::{interfaces::interfaces::MatchingService, order_shard::order_shard::ShardManager, structs::structs::{OrderEntry, OrderKind, OrderRequest, OrderResponse, PriceLevel, Side, Trade}};
+use crate::order_match::{
+    interfaces::interfaces::MatchingService,
+    order_shard::order_shard::ShardManager,
+    structs::structs::{
+        OrderEntry, OrderKind, OrderRequest, OrderResponse, PriceLevel, Side, Trade,
+    },
+};
 
 pub struct MatchingServiceImpl {
     managers: HashMap<String, Arc<ShardManager>>,
@@ -79,28 +95,46 @@ impl MatchingService for MatchingServiceImpl {
 }
 
 pub fn start_rpc(markets: Vec<String>, kafka_brokers: &str, kafka_topic: &str, wal_dir: &str) {
-    let registry_config = RegistryConfig {
-        protocol: "zookeeper".to_string(),
-        address: "127.0.0.1:2181".to_string(),
-        ..Default::default()
-    };
+    // @TODO change to consumer?
+    let consumer = MatchingServiceImpl::new(markets, kafka_brokers, kafka_topic, wal_dir);
+    register_server(consumer);
+    let registry_map = HashMap::<String, RegistryConfig>::new();
+    registry_map.insert(
+        "zookeeper".to_string(),
+        RegistryConfig {
+            protocol: "zookeeper".to_string(),
+            address: "127.0.0.1:2181".to_string(),
+        },
+    );
     let protocal = Protocol {
         name: "dubbo".to_string(),
         port: 20086.to_string(),
         ..Default::default()
     };
-    let protocol_config = ProtocolConfig::default();
+    let mut protocol_config = ProtocolConfig::default();
     protocol_config.insert("dubbo".to_string(), protocal);
-    let svc = MatchingServiceImpl::new(markets, kafka_brokers, kafka_topic, wal_dir);
-    let service_config = ServiceConfig::new("org.dex.matching.MatchingService", svc)
-        .with_group("/dev/metawebthree")
-        .with_protocol("dubbo");
+    let mut service_map = HashMap::new();
+    service_map.insert(
+        "MatchingService".to_string(),
+        ServiceConfig {
+            interface: "com.metawebthree.common.rpc.interfaces.MatchingService".to_string(),
+            version: "".to_string(),
+            tag: "".to_string(),
+            group: "/dev/metawebthree".to_string(),
+            protocol: "dubbo".to_string(),
+        },
+    );
+    let mut root_config = RootConfig::new();
+    root_config.registries = registry_map;
+    root_config.protocols = protocol_config;
+    root_config.provider = ProviderConfig::new().with_services(service_map);
     // @TDOO fix dubbo api error
-    dubbo::protocol::triple::TRIPLE_SERVICES
-        .with_registry(registry_config)
-        .with_protocol(protocol_config)
-        .with_service(service_config)
-        .serve();
+    Dubbo::new()
+        .with_config(match root_config.load() {
+            Ok(config) => config,
+            Err(_err) => panic!("err: {:?}", _err), // response was droped
+        })
+        .start();
 }
 
 // #[tokio::main]
