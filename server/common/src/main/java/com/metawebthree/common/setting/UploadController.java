@@ -1,4 +1,4 @@
-package com.metawebthree.setting;
+package com.metawebthree.common.setting;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;

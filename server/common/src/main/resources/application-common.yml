@@ -10,10 +10,6 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
 name: "meta-web-three"
-project:
-  author:
-    name: "Way Luk"
-    email: "lotaway@foxmail.com"
 page-config:
   page-size: 20
 aws:
