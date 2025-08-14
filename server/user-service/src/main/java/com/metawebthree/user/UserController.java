@@ -1,20 +1,21 @@
 package com.metawebthree.user;
 
 import com.metawebthree.author.AuthorDO;
-import com.metawebthree.common.OAuth1Utils;
 import com.metawebthree.common.contants.RequestHeaderKeys;
+import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.dto.OrderDTO;
 import com.metawebthree.common.rpc.interfaces.OrderService;
 import com.metawebthree.common.utils.UserRole;
 import com.metawebthree.user.DTO.LoginResponseDTO;
 import com.metawebthree.user.DTO.UserDTO;
 import com.metawebthree.user.impl.UserServiceImpl;
-import com.metawebthree.common.ApiResponse;
+import com.metawebthree.common.utils.OAuth1Utils;
 import com.metawebthree.common.utils.UserJwtUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -38,6 +39,12 @@ import org.web3j.utils.Numeric;
 public class UserController {
 
     private final UserServiceImpl userService;
+
+    @Value("${x.apikey}")
+    private String twitterApiKey;
+
+    @Value("${x.secretkey}")
+    private String twitterSecretKey;
 
     @DubboReference(check = false, lazy = true)
     private OrderService orderService;
@@ -152,8 +159,6 @@ public class UserController {
 
     @GetMapping("/checkOAuth1")
     public String checkOAuth1() throws GeneralSecurityException, UnsupportedEncodingException {
-        String twitterApiKey = "yDdyzOFkLHmmn5tJ6NeCqbSDy";
-        String twitterSecretKey = "z3skm6f9Hb3RNx9ltfmMj6Vm9LTBXaqJhMYCTdmnNOxpOFHwyp";
         String method = "POST";
         String url = "https://api.twitter.com/oauth/request_token";
         String callback = "http://tsp.nat300.top/airdrop/bindAccount";
@@ -164,7 +169,7 @@ public class UserController {
 
         StringBuilder queryStringBuilder = new StringBuilder();
         for (Map.Entry<String, String> param : params.entrySet()) {
-            if (queryStringBuilder.length() > 0) {
+            if (!queryStringBuilder.isEmpty()) {
                 queryStringBuilder.append("&");
             }
             queryStringBuilder.append(OAuth1Utils.encode(param.getKey())).append("=")

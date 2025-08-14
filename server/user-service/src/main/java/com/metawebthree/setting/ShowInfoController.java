@@ -1,7 +1,8 @@
 package com.metawebthree.setting;
 
-import com.metawebthree.common.ApiResponse;
-import com.metawebthree.common.ProjectAuthorVO;
+import com.metawebthree.common.VO.ProjectAuthorVO;
+import com.metawebthree.common.dto.ApiResponse;
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,7 @@ public class ShowInfoController implements Serializable {
     @RequestMapping("/scanner")
     public ApiResponse<String> scanner(HttpServletRequest request) throws Exception {
         String showType = request.getParameter("showType");
-        System.out.println(showType);
+        log.info(showType);
         return ApiResponse.success(showType);
     }
 

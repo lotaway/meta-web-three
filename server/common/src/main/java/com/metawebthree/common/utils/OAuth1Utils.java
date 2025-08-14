@@ -1,4 +1,4 @@
-package com.metawebthree.common;
+package com.metawebthree.common.utils;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

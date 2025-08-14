@@ -1,32 +1,31 @@
-package com.metawebthree.common;
+package com.metawebthree.common.dto;
 
 
 import lombok.Data;
 
 import java.util.Objects;
 
+import com.metawebthree.common.enums.ResponseStatus;
+
 @Data
-public class ApiResponse<DataType> {
-    private int status;
-    private String message;
-    private DataType data;
+public class ApiResponse<D> extends IBaseResponse<D> {
 
     public ApiResponse() {
 
     }
 
-    public ApiResponse(int status, String message) {
+    public ApiResponse(ResponseStatus status, String message) {
         this.status = status;
         this.message = message;
     }
 
-    public ApiResponse(int status, String message, DataType data) {
+    public ApiResponse(ResponseStatus status, String message, D data) {
         this.status = status;
         this.message = message;
         this.data = data;
     }
 
-    public int getStatus() {
+    public ResponseStatus getStatus() {
         return status;
     }
 
@@ -38,28 +37,28 @@ public class ApiResponse<DataType> {
         return data;
     }
 
-    public static <DataType> ApiResponse<DataType> success() {
-        return new ApiResponse<>(200, "success");
+    public static <D> ApiResponse<D> success() {
+        return new ApiResponse<>(ResponseStatus.SUCCESS, "success");
     }
 
-    public static <DataType> ApiResponse<DataType> success(DataType data) {
-        return new ApiResponse<>(200, "success", data);
+    public static <D> ApiResponse<D> success(D data) {
+        return new ApiResponse<>(ResponseStatus.SUCCESS, "success", data);
     }
 
     public static ApiResponse<Exception> error() {
-        return new ApiResponse<>(201, "error");
+        return new ApiResponse<>(ResponseStatus.ERROR, "error");
     }
 
     public static ApiResponse<Exception> error(String errMessage) {
-        return new ApiResponse<>(201, errMessage);
+        return new ApiResponse<>(ResponseStatus.ERROR, errMessage);
     }
 
     public static <T> ApiResponse<T> error(String errMessage, Class<T> clazz) {
-        return new ApiResponse<>(201, errMessage);
+        return new ApiResponse<>(ResponseStatus.ERROR, errMessage);
     }
 
     public static ApiResponse<Exception> error(Exception e) {
-        return new ApiResponse<>(201, "error", e);
+        return new ApiResponse<>(ResponseStatus.ERROR, "error", e);
     }
 
     @Override

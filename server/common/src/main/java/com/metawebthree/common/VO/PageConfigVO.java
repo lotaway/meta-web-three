@@ -1,4 +1,4 @@
-package com.metawebthree.common;
+package com.metawebthree.common.VO;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

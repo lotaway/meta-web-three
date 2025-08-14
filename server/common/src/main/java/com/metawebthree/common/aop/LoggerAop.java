@@ -1,4 +1,4 @@
-package com.metawebthree.common.utils;
+package com.metawebthree.common.aop;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -14,17 +14,17 @@ import java.util.Arrays;
 @Aspect
 public class LoggerAop {
 
-    @Pointcut("execution(* com.metawebthree.*Service.*(..))")
+    @Pointcut("execution(* com.metawebthree.*.*Controller.*(..))")
     private void pt() {}
 
     @Around("pt()")
-    public Object record(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+    public Object recordControllerInvoke(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
         Class<?> clazz = proceedingJoinPoint.getSignature().getClass();
         String methodName = proceedingJoinPoint.getSignature().getName();
         Object[] args = proceedingJoinPoint.getArgs();
         Object result = proceedingJoinPoint.proceed();
-        log.info("Method invoke: {}: {}, args: {}, time cost: {}", clazz.getName(), methodName, Arrays.toString(args), System.currentTimeMillis() - startTime);
+        log.info("Controller invoke: {}: {}, args: {}, time cost: {}", clazz.getName(), methodName, Arrays.toString(args), System.currentTimeMillis() - startTime);
         return result;
     }
 }

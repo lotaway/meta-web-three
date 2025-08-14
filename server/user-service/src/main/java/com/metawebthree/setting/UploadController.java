@@ -1,12 +1,13 @@
 package com.metawebthree.setting;
 
-import com.metawebthree.common.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.metawebthree.common.dto.ApiResponse;
 
 import java.io.File;
 import java.io.IOException;

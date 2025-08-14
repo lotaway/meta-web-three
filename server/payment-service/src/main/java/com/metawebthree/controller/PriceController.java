@@ -2,6 +2,8 @@ package com.metawebthree.controller;
 
 import com.metawebthree.dto.CryptoPriceResponse;
 import com.metawebthree.service.PriceEngineService;
+
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -10,17 +12,15 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 
 @RestController
-@RequestMapping("/api/v1/prices")
+@RequestMapping("/prices")
 @RequiredArgsConstructor
 @Slf4j
 public class PriceController {
     
     private final PriceEngineService priceEngineService;
     
-    /**
-     * 获取实时价格
-     */
     @GetMapping("/{symbol}")
+    @Operation(summary = "Get realtime price")
     public ResponseEntity<CryptoPriceResponse> getCurrentPrice(@PathVariable String symbol) {
         log.info("Getting current price for symbol: {}", symbol);
         
@@ -44,10 +44,8 @@ public class PriceController {
         return ResponseEntity.ok(response);
     }
     
-    /**
-     * 获取加权平均价格
-     */
     @GetMapping("/weighted/{baseCurrency}/{quoteCurrency}")
+    @Operation(summary = "Get weighted average price for a currency pair")
     public ResponseEntity<BigDecimal> getWeightedAveragePrice(
             @PathVariable String baseCurrency,
             @PathVariable String quoteCurrency) {
@@ -59,10 +57,8 @@ public class PriceController {
         return ResponseEntity.ok(price);
     }
     
-    /**
-     * 计算兑换汇率
-     */
     @GetMapping("/exchange-rate")
+    @Operation(summary = "Calculate exchange rate")
     public ResponseEntity<BigDecimal> calculateExchangeRate(
             @RequestParam String fromCurrency,
             @RequestParam String toCurrency,
@@ -75,10 +71,8 @@ public class PriceController {
         return ResponseEntity.ok(rate);
     }
     
-    /**
-     * 获取价格变化百分比
-     */
     @GetMapping("/{symbol}/change")
+    @Operation(summary = "Get price change percentage")
     public ResponseEntity<BigDecimal> getPriceChange(
             @PathVariable String symbol,
             @RequestParam(defaultValue = "24") int hours) {

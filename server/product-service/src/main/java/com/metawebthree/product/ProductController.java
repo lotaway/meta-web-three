@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.dto.ProductDTO;
 
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
@@ -38,14 +39,14 @@ public class ProductController {
     }
 
     @PostMapping("/create")
-    public String create() {
+    public ApiResponse<String> create() {
         productService.createProduct("/product/%s".formatted(UUID.randomUUID().toString()), "create".getBytes());
-        return Arrays.toString(productService.getProduct("test.txt"));
+        return ApiResponse.success(Arrays.toString(productService.getProduct("test.txt")));
     }
 
     @GetMapping("/{id}")
-    public ProductDTO get(@PathVariable Integer id) {
-        return new ProductDTO(id, "name", "description", new Integer[]{1, 2, 3}, "19");
+    public ApiResponse<ProductDTO> get(@PathVariable Integer id) {
+        return ApiResponse.success(new ProductDTO(id, "name", "description", new Integer[] { 1, 2, 3 }, "19"));
     }
 
     @PutMapping("/{id}")
@@ -55,7 +56,8 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public boolean delete(@PathVariable Integer id) throws MQBrokerException, RemotingException, InterruptedException, MQClientException {
+    public boolean delete(@PathVariable Integer id)
+            throws MQBrokerException, RemotingException, InterruptedException, MQClientException {
         productService.deleteProduct("test.txt");
         return true;
     }

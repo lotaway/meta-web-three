@@ -3,6 +3,8 @@ package com.metawebthree.controller;
 import com.metawebthree.dto.ExchangeOrderRequest;
 import com.metawebthree.dto.ExchangeOrderResponse;
 import com.metawebthree.service.ExchangeOrderService;
+
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -12,16 +14,13 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/exchange")
+@RequestMapping("/exchange")
 @RequiredArgsConstructor
 @Slf4j
 public class ExchangeOrderController {
     
     private final ExchangeOrderService exchangeOrderService;
-    
-    /**
-     * 创建兑换订单
-     */
+   
     @PostMapping("/orders")
     public ResponseEntity<ExchangeOrderResponse> createOrder(
             @Valid @RequestBody ExchangeOrderRequest request,
@@ -34,9 +33,6 @@ public class ExchangeOrderController {
         return ResponseEntity.ok(response);
     }
     
-    /**
-     * 获取订单详情
-     */
     @GetMapping("/orders/{orderNo}")
     public ResponseEntity<ExchangeOrderResponse> getOrder(
             @PathVariable String orderNo,
@@ -48,11 +44,9 @@ public class ExchangeOrderController {
         
         return ResponseEntity.ok(response);
     }
-    
-    /**
-     * 获取用户订单列表
-     */
+   
     @GetMapping("/orders")
+    @Operation(summary = "Get user order list")
     public ResponseEntity<List<ExchangeOrderResponse>> getUserOrders(
             @RequestHeader("X-User-ID") Long userId,
             @RequestParam(required = false) String status) {
@@ -64,10 +58,8 @@ public class ExchangeOrderController {
         return ResponseEntity.ok(orders);
     }
     
-    /**
-     * 取消订单
-     */
     @DeleteMapping("/orders/{orderNo}")
+    @Operation(summary = "Cancel user order")
     public ResponseEntity<Void> cancelOrder(
             @PathVariable String orderNo,
             @RequestHeader("X-User-ID") Long userId) {
@@ -79,10 +71,8 @@ public class ExchangeOrderController {
         return ResponseEntity.ok().build();
     }
     
-    /**
-     * 支付回调
-     */
     @PostMapping("/payment/callback")
+    @Operation(summary = "Payment callback")
     public ResponseEntity<Void> paymentCallback(
             @RequestParam String paymentOrderNo,
             @RequestParam String status,

@@ -1,4 +1,4 @@
-package com.metawebthree.common;
+package com.metawebthree.common.VO;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

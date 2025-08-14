@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.metawebthree.author.AuthorDO;
-import com.metawebthree.common.PageConfigVO;
+import com.metawebthree.common.VO.PageConfigVO;
 import com.metawebthree.common.utils.UserRole;
 import com.metawebthree.user.UserService;
 import com.metawebthree.user.Web3UserMapper;

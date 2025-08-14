@@ -4,6 +4,9 @@ import com.metawebthree.common.cloud.DefaultS3Buckets;
 import com.metawebthree.common.cloud.DefaultS3Service;
 import com.metawebthree.common.utils.RocketMQ.MQProducer;
 import com.metawebthree.image.ProductImageService;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.remoting.exception.RemotingException;
@@ -20,6 +23,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
+@Slf4j
 public class ProductService {
     private final DefaultS3Service s3Service;
     private final DefaultS3Buckets s3Bucket;
@@ -54,15 +58,16 @@ public class ProductService {
     }
 
     public void testNIOUpdateImage(String path) throws IOException {
-        FileInputStream fs = new FileInputStream(new File(path));
-        FileChannel fc = fs.getChannel();
-        ByteBuffer buf = ByteBuffer.allocate(48);
-        int result;
-        while ((result = fc.read(buf)) != 0) {
-            System.out.println(result);
+        try (FileInputStream fs = new FileInputStream(new File(path))) {
+            FileChannel fc = fs.getChannel();
+            ByteBuffer buf = ByteBuffer.allocate(48);
+            int result;
+            while ((result = fc.read(buf)) != 0) {
+                log.info("Read " + result + " bytes");
+            }
+            // fs.close();
+            fc.close();
         }
-        fs.close();
-        fc.close();
     }
 
     public boolean uploadImage(Long productId, MultipartFile file) {
@@ -70,7 +75,7 @@ public class ProductService {
         String url = "/product/%s/images/%s".formatted(productId, imageId);
         try {
             PutObjectResponse res = s3Service.putObject(s3Bucket.getName(), url, file.getBytes());
-            System.out.println("Image uploaded successfully: " + res);
+            log.info("Image uploaded successfully: " + res);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
