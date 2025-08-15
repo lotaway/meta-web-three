@@ -6,7 +6,10 @@
   "license": "UNLICENSED",
   "scripts": {
     "dev": "node run-dev.js",
-    "build": "docker build -t wayluk/meta-web-three:1.0.2 ."
+    "build": "docker build -t wayluk/meta-web-three:1.0.2 .",
+    "init:docker:env": "docker compose -f ./docker-compose.dataenv.yaml up",
+    "delete:docker:env": "docker compose -f ./docker-compose.dataenv.yaml down",
+    "delete:system:docker:env": "docker stop $(docker ps -aq) && docker rm $(docker ps -aq)"
   },
   "dependencies": {
     "caniuse-lite": "^1.0.30001519",
