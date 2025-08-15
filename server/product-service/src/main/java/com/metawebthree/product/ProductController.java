@@ -38,10 +38,8 @@ public class ProductController {
 
     @Operation(summary = "Create a new product")
     @PostMapping("/create")
-    public ApiResponse<String> create() {
-        Long id = IdWorker.getId();
-        productService.createProduct("/product/%s".formatted(id.toString()), "create".getBytes());
-        return ApiResponse.success(Arrays.toString(productService.getProduct("test.txt")));
+    public ApiResponse<Boolean> create() {
+        return ApiResponse.success(productService.createProduct());
     }
 
     @Operation(summary = "Get product by ID")

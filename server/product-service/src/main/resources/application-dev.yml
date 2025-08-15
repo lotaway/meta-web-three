@@ -1,5 +1,0 @@
-# application level configuration
-aws:
-  s3:
-    buckets:
-      application-store.name: product
