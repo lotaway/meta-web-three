@@ -1,5 +1,7 @@
 package com.metawebthree.product;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
@@ -8,17 +10,18 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.dto.ProductDTO;
 
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
 import java.util.Arrays;
-import java.util.UUID;
 
 @Slf4j
 @RestController
 @RequestMapping("/product")
+@Tag(name = "Product Management", description = "APIs for managing products")
 public class ProductController {
 
     private final ProductService productService;
@@ -27,34 +30,34 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @GetMapping("/test")
-    public String test() {
-        productService.createProduct("test.txt", "content for test".getBytes());
-        return Arrays.toString(productService.getProduct("test.txt"));
-    }
-
+    @Operation(summary = "Test microservice connection", description = "Simple endpoint to test if the product service is running")
     @GetMapping("/micro-service-test")
     public String microServiceTest() {
         return "from micro-service product-service";
     }
 
+    @Operation(summary = "Create a new product")
     @PostMapping("/create")
     public ApiResponse<String> create() {
-        productService.createProduct("/product/%s".formatted(UUID.randomUUID().toString()), "create".getBytes());
+        Long id = IdWorker.getId();
+        productService.createProduct("/product/%s".formatted(id.toString()), "create".getBytes());
         return ApiResponse.success(Arrays.toString(productService.getProduct("test.txt")));
     }
 
+    @Operation(summary = "Get product by ID")
     @GetMapping("/{id}")
     public ApiResponse<ProductDTO> get(@PathVariable Integer id) {
         return ApiResponse.success(new ProductDTO(id, "name", "description", new Integer[] { 1, 2, 3 }, "19"));
     }
 
+    @Operation(summary = "Update product content", description = "Updates the content of an existing product")
     @PutMapping("/{id}")
     public String update(@PathVariable Integer id, @RequestParam String content) {
         PutObjectResponse res = productService.updateProduct("/product/%s".formatted(id), content.getBytes());
         return res.toString();
     }
 
+    @Operation(summary = "Delete product", description = "Deletes a product by its ID")
     @DeleteMapping("/{id}")
     public boolean delete(@PathVariable Integer id)
             throws MQBrokerException, RemotingException, InterruptedException, MQClientException {
@@ -62,11 +65,13 @@ public class ProductController {
         return true;
     }
 
+    @Operation(summary = "Upload product image", description = "Uploads an image for a specific product")
     @PostMapping(path = "/product/{id}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public boolean uploadImage(@PathVariable(name = "id") Long productId, @RequestParam MultipartFile file) {
         return productService.uploadImage(productId, file);
     }
 
+    @Operation(summary = "Get product images", description = "Retrieves images for a specific product")
     @GetMapping("/product/{id}/images")
     public byte[] getImage(@PathVariable(name = "id") Long productId) {
         return productService.getImages(productId);

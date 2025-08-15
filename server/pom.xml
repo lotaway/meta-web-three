@@ -321,8 +321,8 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>${project.basedir}/src/main</sourceDirectory>
-        <testSourceDirectory>${project.basedir}/src/test</testSourceDirectory>
+        <!-- <sourceDirectory>${project.basedir}/src/main</sourceDirectory> -->
+        <!-- <testSourceDirectory>${project.basedir}/src/test</testSourceDirectory> -->
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

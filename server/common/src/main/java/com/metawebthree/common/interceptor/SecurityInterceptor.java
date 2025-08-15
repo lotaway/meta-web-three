@@ -1,6 +1,5 @@
 package com.metawebthree.common.interceptor;
 
-import com.metawebthree.common.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +7,8 @@ import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.metawebthree.common.dto.ApiResponse;
 
 @Slf4j
 @Component

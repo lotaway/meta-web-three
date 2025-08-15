@@ -24,7 +24,7 @@ dubbo:
     port: -1
 # swagger docs
 springdoc:
-  api-docs:
-    enabled: true
+  #   api-docs:
+  #     enabled: true
   swagger-ui:
     enabled: true
