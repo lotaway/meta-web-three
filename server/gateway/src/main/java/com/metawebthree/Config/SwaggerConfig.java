@@ -15,7 +15,7 @@ public class SwaggerConfig {
 
     //     List<SwaggerResource> resources = new ArrayList<>();
 
-    //     // 从网关路由自动发现微服务
+    //     // Auto configure Swagger resources for each route
     //     routeLocator.getRoutes().filter(route -> route.getUri().getHost() != null)
     //             .filter(route -> !"api-gateway".equals(route.getUri().getHost()))
     //             .subscribe(route -> resources.add(createResource(
