@@ -1,7 +1,7 @@
 spring:
   cloud:
     zookeeper:
-      connect-string: localhost:2181
+      connect-string: ${env-ip}:2181
       discovery:
         root: /dev/metawebthree
   datasource:
@@ -11,7 +11,7 @@ spring:
 # rocketMQ
 rocketmq:
   client:
-    namesrv: 192.168.1.194:9876
+    namesrv: ${env-ip}:9876
 dubbo:
   registry:
     address: ${spring.cloud.zookeeper.connect-string}

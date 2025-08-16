@@ -1,3 +1,4 @@
+env-ip: localhost
 spring:
   profiles:
     active: dev
