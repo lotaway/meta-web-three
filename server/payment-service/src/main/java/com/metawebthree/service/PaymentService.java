@@ -9,16 +9,19 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 /**
- * 法币支付服务
+ * Fiat payment service
  *
- * TODO: 如需接入自定义法币支付渠道（如Stripe、PayPal、银联等），请实现对应的 createXXXPayment 方法，
- * 并在 createPayment 方法的 switch-case 中添加新渠道。
- * 推荐将第三方SDK调用、签名、回调等逻辑封装为独立方法或类，便于后续维护和切换。
+ * TODO: To add custom payment channels (Stripe, PayPal, UnionPay etc.), 
+ * implement corresponding createXXXPayment methods and add new cases 
+ * in the createPayment switch statement.
+ * 
+ * Best practice: Encapsulate third-party SDK calls, signatures, 
+ * callbacks etc. in separate methods/classes for maintainability.
  *
- * 示例：
- * 1. 新增 PaymentMethod 枚举值
- * 2. 实现 createStripePayment 方法
- * 3. 在 createPayment switch-case 中添加 case STRIPE
+ * Example:
+ * 1. Add new PaymentMethod enum value
+ * 2. Implement createStripePayment method  
+ * 3. Add case STRIPE in createPayment
  */
 @Service
 @RequiredArgsConstructor
@@ -54,109 +57,139 @@ public class PaymentService {
     }
     
     /**
-     * 创建支付宝支付
-     *
-     * TODO: 实际项目中请调用支付宝官方SDK，并处理签名、回调、异常等。
+     * Create Alipay payment
      */
     private String createAlipayPayment(ExchangeOrder order, String paymentOrderNo) {
-        // 实际应该调用支付宝SDK
-        log.info("Creating Alipay payment for order {}: amount={} {}", 
-                order.getOrderNo(), order.getFiatAmount(), order.getFiatCurrency());
-        
-        // 模拟返回支付URL
-        return "https://openapi.alipay.com/gateway.do?orderNo=" + paymentOrderNo;
+        try {
+            AlipayClient alipayClient = new DefaultAlipayClient(
+                "https://openapi.alipay.com/gateway.do",
+                alipayAppId,
+                privateKey,
+                "json",
+                "UTF-8",
+                alipayPublicKey,
+                "RSA2");
+                
+            AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
+            request.setReturnUrl(order.getReturnUrl());
+            request.setNotifyUrl(order.getNotifyUrl());
+            
+            JSONObject bizContent = new JSONObject();
+            bizContent.put("out_trade_no", paymentOrderNo);
+            bizContent.put("total_amount", order.getFiatAmount());
+            bizContent.put("subject", "Crypto Exchange Order #" + order.getOrderNo());
+            bizContent.put("product_code", "FAST_INSTANT_TRADE_PAY");
+            
+            request.setBizContent(bizContent.toString());
+            
+            String form = alipayClient.pageExecute(request).getBody();
+            return form;
+        } catch (Exception e) {
+            log.error("Alipay payment creation failed", e);
+            throw new RuntimeException("Alipay payment creation failed", e);
+        }
     }
     
     /**
-     * 创建微信支付
-     *
-     * TODO: 实际项目中请调用微信支付官方SDK，并处理签名、回调、异常等。
+     * Create WeChat payment
      */
     private String createWechatPayment(ExchangeOrder order, String paymentOrderNo) {
-        // 实际应该调用微信支付SDK
-        log.info("Creating WeChat payment for order {}: amount={} {}", 
-                order.getOrderNo(), order.getFiatAmount(), order.getFiatCurrency());
-        
-        // 模拟返回支付URL
-        return "https://pay.weixin.qq.com/pay?orderNo=" + paymentOrderNo;
+        try {
+            WXPay wxpay = new WXPay(new WXPayConfig() {
+                public String getAppID() { return wechatAppId; }
+                public String getMchID() { return mchId; }
+                public String getKey() { return apiKey; }
+                public InputStream getCertStream() { return certStream; }
+                public int getHttpConnectTimeoutMs() { return 8000; }
+                public int getHttpReadTimeoutMs() { return 10000; }
+            });
+            
+            Map<String, String> data = new HashMap<>();
+            data.put("body", "Crypto Exchange Order #" + order.getOrderNo());
+            data.put("out_trade_no", paymentOrderNo);
+            data.put("total_fee", order.getFiatAmount().multiply(new BigDecimal("100")).intValue());
+            data.put("spbill_create_ip", order.getClientIp());
+            data.put("notify_url", order.getNotifyUrl());
+            data.put("trade_type", "NATIVE");
+            
+            Map<String, String> resp = wxpay.unifiedOrder(data);
+            if ("SUCCESS".equals(resp.get("return_code"))) {
+                return resp.get("code_url");
+            } else {
+                throw new RuntimeException("WeChat payment failed: " + resp.get("return_msg"));
+            }
+        } catch (Exception e) {
+            log.error("WeChat payment creation failed", e);
+            throw new RuntimeException("WeChat payment creation failed", e);
+        }
     }
     
     /**
-     * 创建银行转账支付
+     * Create bank transfer payment
      *
-     * TODO: 如需接入银行API，请在此处实现银行转账接口调用、回调处理等。
+     * TODO: Implement bank API integration here including 
+     * transfer interface calls and callback handling
      */
     private String createBankTransferPayment(ExchangeOrder order, String paymentOrderNo) {
         log.info("Creating bank transfer payment for order {}: amount={} {}", 
                 order.getOrderNo(), order.getFiatAmount(), order.getFiatCurrency());
         
-        // 返回银行转账信息
         return "Bank transfer details for order: " + paymentOrderNo;
     }
     
     /**
-     * 创建Apple Pay支付
+     * Create Apple Pay payment
      *
-     * TODO: 如需接入Apple Pay官方API，请在此处实现。
+     * TODO: Implement official Apple Pay API integration
      */
     private String createApplePayPayment(ExchangeOrder order, String paymentOrderNo) {
         log.info("Creating Apple Pay payment for order {}: amount={} {}", 
                 order.getOrderNo(), order.getFiatAmount(), order.getFiatCurrency());
         
-        // 返回Apple Pay支付信息
         return "Apple Pay payment initiated for order: " + paymentOrderNo;
     }
     
     /**
-     * 创建Google Pay支付
+     * Create Google Pay payment
      *
-     * TODO: 如需接入Google Pay官方API，请在此处实现。
+     * TODO: Implement official Google Pay API integration
      */
     private String createGooglePayPayment(ExchangeOrder order, String paymentOrderNo) {
         log.info("Creating Google Pay payment for order {}: amount={} {}", 
                 order.getOrderNo(), order.getFiatAmount(), order.getFiatCurrency());
         
-        // 返回Google Pay支付信息
         return "Google Pay payment initiated for order: " + paymentOrderNo;
     }
     
     /**
-     * 验证支付回调
+     * Verify payment callback
      */
     public boolean verifyPaymentCallback(String paymentOrderNo, String signature, String data) {
-        // 实际应该验证签名
         log.info("Verifying payment callback for order: {}", paymentOrderNo);
-        
-        // 简化实现，直接返回true
-        return true;
+        return true; // Simplified implementation
     }
     
     /**
-     * 查询支付状态
+     * Query payment status
      */
     public String queryPaymentStatus(String paymentOrderNo) {
-        // 实际应该调用支付平台API查询
         log.info("Querying payment status for order: {}", paymentOrderNo);
-        
-        // 模拟返回支付状态
-        return "SUCCESS";
+        return "SUCCESS"; // Mock response
     }
     
     /**
-     * 生成支付订单号
+     * Generate payment order number
      */
     private String generatePaymentOrderNo() {
         return "PAY" + System.currentTimeMillis() + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
     
     /**
-     * 处理支付退款
+     * Process payment refund
      */
     public boolean refundPayment(String paymentOrderNo, String reason) {
         log.info("Processing refund for payment order: {}, reason: {}", paymentOrderNo, reason);
         
-        // 实际应该调用支付平台退款API
-        // 简化实现，直接返回true
-        return true;
+        return true; // Simplified implementation
     }
 } 
