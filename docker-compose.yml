@@ -15,6 +15,11 @@ services:
       - "${VITE_PORT:-30001}:${VITE_PORT:-30001}"
     networks:
       - meta-web-three
+      - default
 networks:
   meta-web-three:
     driver: bridge
+  default:
+    driver: bridge
+    external: true
+    name: default-bridge

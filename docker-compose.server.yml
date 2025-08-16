@@ -19,6 +19,7 @@ services:
     #     condition: service_started
     networks:
       - meta-web-three
+      - default
     restart: unless-stopped
 
   user-service:
@@ -33,6 +34,7 @@ services:
       - user_service_data:/server/user
     networks:
       - meta-web-three
+      - default
     restart: unless-stopped
 
   order-service:
@@ -47,6 +49,7 @@ services:
       - order_service_data:/server/order
     networks:
       - meta-web-three
+      - default
     restart: unless-stopped
 
   message-service:
@@ -68,6 +71,7 @@ services:
     #     condition: service_started
     networks:
       - meta-web-three
+      - default
     restart: unless-stopped
 
   payment-service:
@@ -93,6 +97,7 @@ services:
         condition: service_started
     networks:
       - meta-web-three
+      - default
     restart: unless-stopped
 
 
@@ -108,9 +113,8 @@ services:
       - media_service_data:/server/media
     networks:
       - meta-web-three
+      - default
     restart: unless-stopped
-
-
 
 volumes:
   product_service_data:
