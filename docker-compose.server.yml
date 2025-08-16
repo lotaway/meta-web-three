@@ -1,21 +1,19 @@
-version: '3.8'
-
 services:
 
   product-service:
     build:
-      context: ./product-service
+      context: ./server/product-service
       dockerfile: Dockerfile
     container_name: meta-web-three/product-service
     ports:
       - "10082:10082"
-    command: ["java", "-jar", "/product-servie.jar"]
+    command: ["java", "-jar", "/product-service.jar"]
     volumes:
-      - ${DATA_PATH}/.data/server/product:/server/product
+      - product_service_data:/server/product
     # depends_on:
     #   zookeeper:
     #     - condition: service_healthy
-    #   mysql:
+    #   postgres:
     #     - condition: service_healthy
     #   redis:
     #     condition: service_started
@@ -25,60 +23,46 @@ services:
 
   user-service:
     build:
-      context: ./user-service
+      context: ./server/user-service
       dockerfile: Dockerfile
     container_name: meta-web-three/user-service
     ports:
       - "10083:10083"
-    command: ["java", "-jar", "/user-servie.jar"]
+    command: ["java", "-jar", "/user-service.jar"]
     volumes:
-      - ${DATA_PATH}/.data/server/user:/server/user
-    # depends_on:
-    #   zookeeper:
-    #     - condition: service_healthy
-    #   mysql:
-    #     - condition: service_healthy
-    #   redis:
-    #     condition: service_started
+      - user_service_data:/server/user
     networks:
       - meta-web-three
     restart: unless-stopped
 
   order-service:
     build:
-      context: ./order-service
+      context: ./server/order-service
       dockerfile: Dockerfile
     container_name: meta-web-three/order-service
     ports:
       - "10084:10084"
     command: ["java", "-jar", "/order-service.jar"]
     volumes:
-      - ${DATA_PATH}/.data/server/order:/server/order
-    # depends_on:
-    #   zookeeper:
-    #     - condition: service_healthy
-    #   mysql:
-    #     - condition: service_healthy
-    #   redis:
-    #     condition: service_started
+      - order_service_data:/server/order
     networks:
       - meta-web-three
     restart: unless-stopped
 
   message-service:
     build:
-      context: ./message-service
+      context: ./server/message-service
       dockerfile: Dockerfile
     container_name: meta-web-three/message-service
     ports:
       - "10085:10085"
     command: ["java", "-jar", "/message-service.jar"]
     volumes:
-      - ${DATA_PATH}/.data/server/message:/server/message
+      - message_service_data:/server/message
     # depends_on:
     #   zookeeper:
     #     - condition: service_healthy
-    #   mysql:
+    #   postgres:
     #     - condition: service_healthy
     #   redis:
     #     condition: service_started
@@ -88,25 +72,50 @@ services:
 
   payment-service:
     build:
-      context: ./payment-service
+      context: ./server/payment-service
       dockerfile: Dockerfile
     container_name: meta-web-three/payment-service
     ports:
       - "10086:10086"
-    command: ["java", "-jar", "/app.jar"]
+    command: ["java", "-jar", "/payment-service.jar"]
     volumes:
-      - ${DATA_PATH}/.data/server/payment:/server/payment
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/payment_service
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - SPRING_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
+      - payment_service_data:/server/payment
+    # environment:
+    #   - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/payment_service
+    #   - SPRING_DATASOURCE_USERNAME=root
+    #   - SPRING_DATASOURCE_PASSWORD=root
+    #   - SPRING_REDIS_HOST=redis
+    #   - SPRING_REDIS_PORT=6379
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_started
     networks:
       - meta-web-three
     restart: unless-stopped
+
+
+  media-service:
+    build:
+      context: ./server/media-service
+      dockerfile: Dockerfile
+    container_name: meta-web-three/media-service
+    ports:
+      - "10087:10087"
+    command: ["java", "-jar", "/media-service.jar"]
+    volumes:
+      - media_service_data:/server/media
+    networks:
+      - meta-web-three
+    restart: unless-stopped
+
+
+
+volumes:
+  product_service_data:
+  user_service_data:
+  order_service_data:
+  message_service_data:
+  payment_service_data:
+  media_service_data:
