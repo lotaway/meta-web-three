@@ -8,7 +8,7 @@ spring:
         enabled: true
         # root: /meta-web-three
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.postgresql.Driver
 name: "meta-web-three"
 page-config:
   page-size: 20

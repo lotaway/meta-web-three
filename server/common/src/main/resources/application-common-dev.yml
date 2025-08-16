@@ -5,10 +5,9 @@ spring:
       discovery:
         root: /dev/metawebthree
   datasource:
-    url: jdbc:mysql://172.29.222.103:3306/metawebthree?useUnicode=true&characterEncoding=utf-8
-    username: root
+    url: jdbc:postgresql://postgres-service:5432/metawebthree?useUnicode=true&characterEncoding=utf-8
+    username: admin
     password: 123123
-    driver-class-name: com.mysql.cj.jdbc.Driver
 # rocketMQ
 rocketmq:
   client:
