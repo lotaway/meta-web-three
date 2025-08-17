@@ -84,7 +84,7 @@ pub mod order_shard {
                         if price < best_price {
                             break;
                         }
-                        if let Some(pl) = self.book.sells.get_mut(&best_k) {
+                        if let Some(pl) = self.book.sells.get_mut(&best_k).clone() {
                             while remaining > 0.0 {
                                 if pl.orders.is_empty() {
                                     break;
@@ -216,7 +216,7 @@ pub mod order_shard {
                             Some(k) => k,
                             None => break,
                         };
-                        if let Some(pl) = self.book.sells.get_mut(&best_k) {
+                        if let Some(pl) = self.book.sells.get_mut(&best_k).clone() {
                             while remaining > 0.0 && !pl.orders.is_empty() {
                                 let maker_idx = pl.orders.front().cloned().unwrap();
                                 let qty = {

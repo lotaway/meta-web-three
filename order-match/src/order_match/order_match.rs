@@ -137,8 +137,7 @@ pub fn start_rpc(markets: Vec<String>, kafka_brokers: &str, kafka_topic: &str, w
         .start();
 }
 
-// #[tokio::main]
-async fn start() {
+pub async fn start() {
     let markets = vec![
         "BTC/USDT".to_string(),
         "ETH/USDT".to_string(),
