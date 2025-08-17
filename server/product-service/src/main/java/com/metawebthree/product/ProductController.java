@@ -14,8 +14,6 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.dto.ProductDTO;
 
-import software.amazon.awssdk.services.s3.model.PutObjectResponse;
-
 import java.util.Arrays;
 
 @Slf4j
@@ -50,8 +48,8 @@ public class ProductController {
 
     @Operation(summary = "Update product content", description = "Updates the content of an existing product")
     @PutMapping("/{id}")
-    public String update(@PathVariable Integer id, @RequestParam String content) {
-        PutObjectResponse res = productService.updateProduct("/product/%s".formatted(id), content.getBytes());
+    public String update(@PathVariable Long id, @RequestParam String content) {
+        Boolean res = productService.updateProduct(id, content.getBytes());
         return res.toString();
     }
 
@@ -67,11 +65,5 @@ public class ProductController {
     @PostMapping(path = "/product/{id}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public boolean uploadImage(@PathVariable(name = "id") Long productId, @RequestParam MultipartFile file) {
         return productService.uploadImage(productId, file);
-    }
-
-    @Operation(summary = "Get product images", description = "Retrieves images for a specific product")
-    @GetMapping("/product/{id}/images")
-    public byte[] getImage(@PathVariable(name = "id") Long productId) {
-        return productService.getImages(productId);
     }
 }

@@ -10,8 +10,8 @@ import org.apache.rocketmq.client.exception.MQBrokerException;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -31,12 +31,23 @@ public class ProductService {
         return Boolean.valueOf(true);
     }
 
+    public boolean updateProduct(Long id, byte[] description) {
+        // @TODO sql modify
+        return true;
+    }
+
     public void deleteProduct(String key)
             throws MQBrokerException, RemotingException, InterruptedException, MQClientException {
         mqProducer.send("deleteProduct", "delete product with:" + key, null, null);
     }
 
-    public boolean uploadImage(Long productId, String imageUrl) {
+    public boolean updateImage(Long productId, MultipartFile imageFile) {
+        String imageId = String.valueOf(IdWorker.getId());
+        // @TODO upload image with MediaService
+        return saveImage(productId, imageId);
+    }
+
+    public boolean saveImage(Long productId, String imageUrl) {
         String imageId = String.valueOf(IdWorker.getId());
         return Integer.valueOf(1).equals(productImageService.create(productId, imageId, imageUrl));
     }
