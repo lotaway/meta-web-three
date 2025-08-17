@@ -8,7 +8,7 @@ services:
   client:
     build:
       context: "./client"
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     env_file:
       - ./client/.env
     ports:
