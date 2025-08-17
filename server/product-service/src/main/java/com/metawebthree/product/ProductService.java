@@ -41,7 +41,7 @@ public class ProductService {
         mqProducer.send("deleteProduct", "delete product with:" + key, null, null);
     }
 
-    public boolean updateImage(Long productId, MultipartFile imageFile) {
+    public boolean uploadImage(Long productId, MultipartFile imageFile) {
         String imageId = String.valueOf(IdWorker.getId());
         // @TODO upload image with MediaService
         return saveImage(productId, imageId);
