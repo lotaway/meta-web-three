@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@TableName("crypto_prices")
+@TableName("Crypto_Prices")
 public class CryptoPrice {
     
     @TableId(type = IdType.AUTO)

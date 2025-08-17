@@ -1,5 +1,6 @@
 package com.metawebthree.service;
 
+import com.metawebthree.common.annotations.LogMethod;
 import com.metawebthree.entity.ExchangeOrder;
 import com.metawebthree.repository.ExchangeOrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,38 +23,21 @@ public class ReconciliationService {
 
     private final ExchangeOrderRepository exchangeOrderRepository;
 
-    /**
-     * Daily reconciliation task (runs at 1 AM)
-     */
     @Scheduled(cron = "0 0 1 * * ?")
+    @LogMethod
     public void dailyReconciliation() {
         LocalDate reconciliationDate = LocalDate.now().minusDays(1);
-        log.info("Starting daily reconciliation for date: {}", reconciliationDate);
-        
-        // 1. Get internal order data
         List<ExchangeOrder> internalOrders = getInternalOrders(reconciliationDate);
-        
-        // 2. Get external bill data (mock)
         List<ExchangeOrder> externalBills = getExternalBills(reconciliationDate);
-        
-        // 3. Execute reconciliation
         reconcileOrders(internalOrders, externalBills);
-        
-        log.info("Daily reconciliation completed for date: {}", reconciliationDate);
     }
 
-    /**
-     * Get internal order data
-     */
     private List<ExchangeOrder> getInternalOrders(LocalDate date) {
-        LocalDateTime start = date.atStartOfDay();
-        LocalDateTime end = date.plusDays(1).atStartOfDay();
+        Timestamp start = Timestamp.valueOf(date.atStartOfDay());
+        Timestamp end = Timestamp.valueOf(date.plusDays(1).atStartOfDay());
         return exchangeOrderRepository.findByCreatedAtBetween(start, end);
     }
 
-    /**
-     * Mock getting external bill data
-     */
     private List<ExchangeOrder> getExternalBills(LocalDate date) {
         // TODO: Should call payment platform API to get bills
         return List.of();
