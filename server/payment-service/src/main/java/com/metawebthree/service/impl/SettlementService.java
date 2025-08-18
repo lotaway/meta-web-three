@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -47,8 +48,8 @@ public class SettlementService {
      * Get pending settlement orders
      */
     private List<ExchangeOrder> getSettlementOrders(LocalDate date) {
-        LocalDateTime start = date.atStartOfDay();
-        LocalDateTime end = date.plusDays(1).atStartOfDay();
+        Timestamp start = Timestamp.valueOf(date.atStartOfDay());
+        Timestamp end = Timestamp.valueOf(date.plusDays(1).atStartOfDay());
         return exchangeOrderRepository.findByStatusAndCreatedAtBetween(
                 "SUCCESS", start, end);
     }
@@ -60,9 +61,9 @@ public class SettlementService {
 
         // Calculate fees
         orders.forEach(order -> {
-            BigDecimal fee = order.getAmount().multiply(feeRate);
+            BigDecimal fee = order.getCryptoAmount().multiply(feeRate);
             order.setFee(fee);
-            order.setSettlementAmount(order.getAmount().subtract(fee));
+            order.setSettlementAmount(order.getFiatAmount().subtract(fee));
         });
     }
 
