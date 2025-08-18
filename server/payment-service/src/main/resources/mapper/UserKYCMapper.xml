@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.metawebthree.repository.UserKYCRepository">
-
-    <!-- 基础结果映射 -->
     <resultMap id="BaseResultMap" type="com.metawebthree.entity.UserKYC">
         <id column="id" property="id" jdbcType="BIGINT"/>
         <result column="user_id" property="userId" jdbcType="BIGINT"/>
@@ -38,8 +36,6 @@
         <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
         <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
     </resultMap>
-
-    <!-- 基础字段 -->
     <sql id="Base_Column_List">
         id, user_id, level, status, real_name, id_number, id_type, phone_number, email,
         address, country, nationality, date_of_birth, gender, id_card_front_url,
@@ -48,5 +44,4 @@
         source_of_funds, purpose_of_transaction, reviewer_id, review_notes,
         submitted_at, reviewed_at, created_at, updated_at
     </sql>
-
 </mapper> 

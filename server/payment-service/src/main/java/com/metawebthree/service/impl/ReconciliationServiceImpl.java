@@ -1,4 +1,4 @@
-package com.metawebthree.service;
+package com.metawebthree.service.impl;
 
 import com.metawebthree.common.annotations.LogMethod;
 import com.metawebthree.entity.ExchangeOrder;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -19,7 +18,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ReconciliationService {
+public class ReconciliationServiceImpl {
 
     private final ExchangeOrderRepository exchangeOrderRepository;
 

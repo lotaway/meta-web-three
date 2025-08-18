@@ -1,4 +1,4 @@
-package com.metawebthree.service;
+package com.metawebthree.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,14 +30,11 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ExternalPriceService {
+public class ExternalPriceServiceImpl {
     
     private final OkHttpClient httpClient;
     private final ObjectMapper objectMapper;
     
-    /**
-     * 从多个交易所获取价格
-     */
     public CryptoPrice fetchPrice(String symbol) {
         String[] sources = {"binance", "coinbase", "okx"};
         
@@ -55,9 +52,6 @@ public class ExternalPriceService {
         throw new RuntimeException("Failed to fetch price from all sources for " + symbol);
     }
     
-    /**
-     * 从指定交易所获取价格
-     */
     private CryptoPrice fetchFromSource(String symbol, String source) throws Exception {
         String url = buildApiUrl(symbol, source);
         Request request = new Request.Builder().url(url).build();
@@ -72,11 +66,6 @@ public class ExternalPriceService {
         }
     }
     
-    /**
-     * 构建API URL
-     *
-     * TODO: 如需接入新的价格源，请在此处添加对应的API地址和参数拼接逻辑。
-     */
     private String buildApiUrl(String symbol, String source) {
         String baseCurrency = symbol.split("-")[0];
         String quoteCurrency = symbol.split("-")[1];
@@ -96,11 +85,6 @@ public class ExternalPriceService {
         }
     }
     
-    /**
-     * 解析价格响应
-     *
-     * TODO: 如需接入新的价格源，请在此处添加对应的响应解析逻辑。
-     */
     private CryptoPrice parsePriceResponse(String responseBody, String symbol, String source) throws Exception {
         JsonNode root = objectMapper.readTree(responseBody);
         String baseCurrency = symbol.split("-")[0];
@@ -116,7 +100,7 @@ public class ExternalPriceService {
         switch (source) {
             case "binance":
                 price = new BigDecimal(root.get("price").asText());
-                // Binance API只返回价格，其他字段需要额外调用
+                // @TODD: Get extra data
                 break;
                 
             case "coinbase":
@@ -149,9 +133,6 @@ public class ExternalPriceService {
                 .build();
     }
     
-    /**
-     * 获取24小时价格变化
-     */
     public CryptoPrice fetch24hTicker(String symbol, String source) throws Exception {
         String baseCurrency = symbol.split("-")[0];
         String quoteCurrency = symbol.split("-")[1];
@@ -181,9 +162,6 @@ public class ExternalPriceService {
         }
     }
     
-    /**
-     * 解析24小时价格变化响应
-     */
     private CryptoPrice parse24hTickerResponse(String responseBody, String symbol, String source) throws Exception {
         JsonNode root = objectMapper.readTree(responseBody);
         String baseCurrency = symbol.split("-")[0];

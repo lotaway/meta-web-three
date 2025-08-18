@@ -1,9 +1,14 @@
-package com.metawebthree.service;
+package com.metawebthree.service.impl;
 
+import com.metawebthree.common.annotations.LogMethod;
 import com.metawebthree.entity.ExchangeOrder;
 import com.metawebthree.repository.ExchangeOrderRepository;
+import com.metawebthree.service.impl.ReconciliationServiceImpl;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +26,7 @@ import java.util.List;
 public class SettlementService {
 
     private final ExchangeOrderRepository exchangeOrderRepository;
-    private final ReconciliationService reconciliationService;
+    private final ReconciliationServiceImpl reconciliationService;
 
     @Value("${payment.settlement.fee-rate:0.002}")
     private BigDecimal feeRate; // Fee rate 0.2%
@@ -30,18 +35,12 @@ public class SettlementService {
      * Daily clearing task (runs at 2 AM)
      */
     @Scheduled(cron = "0 0 2 * * ?")
+    @LogMethod
     public void dailyClearing() {
         LocalDate settlementDate = LocalDate.now().minusDays(1);
-        log.info("Starting daily clearing for date: {}", settlementDate);
-
-        // 1. Run reconciliation first
         reconciliationService.manualReconciliation(settlementDate);
-
-        // 2. Execute clearing
         List<ExchangeOrder> orders = getSettlementOrders(settlementDate);
         clearingOrders(orders);
-
-        log.info("Daily clearing completed for date: {}", settlementDate);
     }
 
     /**
@@ -51,60 +50,43 @@ public class SettlementService {
         LocalDateTime start = date.atStartOfDay();
         LocalDateTime end = date.plusDays(1).atStartOfDay();
         return exchangeOrderRepository.findByStatusAndCreatedAtBetween(
-            "SUCCESS", start, end);
+                "SUCCESS", start, end);
     }
 
-    /**
-     * Order clearing
-     */
+    @LogMethod
     private void clearingOrders(List<ExchangeOrder> orders) {
         // Group by merchant/channel
         // TODO: Implement grouping logic
-        
+
         // Calculate fees
         orders.forEach(order -> {
             BigDecimal fee = order.getAmount().multiply(feeRate);
             order.setFee(fee);
             order.setSettlementAmount(order.getAmount().subtract(fee));
         });
-
-        log.info("Clearing completed for {} orders", orders.size());
     }
 
-    /**
-     * Settlement execution (T+1)
-     */
     @Scheduled(cron = "0 0 9 * * ?")
+    @LogMethod
     public void executeSettlement() {
         LocalDate settlementDate = LocalDate.now().minusDays(1);
-        log.info("Executing settlement for date: {}", settlementDate);
-
-        // 1. Get cleared orders
         List<ExchangeOrder> orders = getSettlementOrders(settlementDate);
-
-        // 2. Execute settlement
         settleOrders(orders);
-
-        log.info("Settlement completed for date: {}", settlementDate);
     }
 
-    /**
-     * Order settlement
-     */
     private void settleOrders(List<ExchangeOrder> orders) {
         // TODO: Call bank/payment platform API for transfer
         orders.forEach(order -> {
             log.info("Settling order {}: amount={}, fee={}, settlementAmount={}",
-                order.getOrderNo(), order.getAmount(), order.getFee(), 
-                order.getSettlementAmount());
+                    order.getOrderNo(),
+                    order.getCryptoAmount(),
+                    order.getFee(),
+                    order.getFiatAmount());
         });
     }
 
-    /**
-     * Manual settlement trigger
-     */
+    @LogMethod
     public void manualSettlement(LocalDate date) {
-        log.info("Manual settlement triggered for date: {}", date);
         executeSettlement();
     }
 }

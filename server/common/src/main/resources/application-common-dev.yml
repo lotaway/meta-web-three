@@ -27,3 +27,7 @@ springdoc:
   #     enabled: true
   swagger-ui:
     enabled: true
+# Test configuration for Mockito
+mockito:
+  inline:
+    enabled: false

@@ -6,6 +6,9 @@ import com.metawebthree.entity.ExchangeOrder;
 import com.metawebthree.entity.UserKYC;
 import com.metawebthree.repository.ExchangeOrderRepository;
 import com.metawebthree.repository.UserKYCRepository;
+import com.metawebthree.service.impl.ExchangeOrderServiceImpl;
+import com.metawebthree.service.impl.RiskControlServiceImpl;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,16 +35,16 @@ class ExchangeOrderServiceTest {
     private PriceEngineService priceEngineService;
 
     @Mock
-    private RiskControlService riskControlService;
+    private RiskControlServiceImpl riskControlService;
 
     @Mock
     private PaymentService paymentService;
 
     @Mock
-    private CryptoWalletService cryptoWalletService;
+    private CryptoWalletServiceImpl cryptoWalletService;
 
     @InjectMocks
-    private ExchangeOrderService exchangeOrderService;
+    private ExchangeOrderServiceImpl exchangeOrderService;
 
     private ExchangeOrderRequest testRequest;
     private UserKYC testKYC;
@@ -103,7 +106,7 @@ class ExchangeOrderServiceTest {
     @Test
     void testCreateOrder_AmountExceedsLimit() {
         // Given
-        testRequest.setAmount(new BigDecimal("50000")); // 超过L1级别限制
+        testRequest.setAmount(new BigDecimal("50000")); // Over L1 limit
         when(userKYCRepository.findHighestApprovedLevelByUserId(1L))
                 .thenReturn(testKYC);
 

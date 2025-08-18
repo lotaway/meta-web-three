@@ -2,7 +2,7 @@ package com.metawebthree.controller;
 
 import com.metawebthree.dto.ExchangeOrderRequest;
 import com.metawebthree.dto.ExchangeOrderResponse;
-import com.metawebthree.service.ExchangeOrderService;
+import com.metawebthree.service.impl.ExchangeOrderServiceImpl;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,7 +22,7 @@ import java.util.List;
 @Tags(value = { @Tag(name = "Exchange"), @Tag(name = "Order"), @Tag(name = "Payment") })
 public class ExchangeOrderController {
 
-    private final ExchangeOrderService exchangeOrderService;
+    private final ExchangeOrderServiceImpl exchangeOrderService;
 
     @PostMapping("/orders")
     public ResponseEntity<ExchangeOrderResponse> createOrder(

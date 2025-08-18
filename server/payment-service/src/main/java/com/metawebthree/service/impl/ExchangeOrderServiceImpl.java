@@ -1,4 +1,4 @@
-package com.metawebthree.service;
+package com.metawebthree.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.metawebthree.dto.ExchangeOrderRequest;
@@ -7,6 +7,9 @@ import com.metawebthree.entity.ExchangeOrder;
 import com.metawebthree.entity.UserKYC;
 import com.metawebthree.repository.ExchangeOrderRepository;
 import com.metawebthree.repository.UserKYCRepository;
+import com.metawebthree.service.PaymentService;
+import com.metawebthree.service.PriceEngineService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,22 +30,21 @@ import java.util.UUID;
  * 推荐将第三方服务的接口抽象为独立Service，便于后续扩展和切换。
  *
  * 示例：
- * 1. 注入自定义KYCService实现
- * 2. 注入自定义RiskControlService实现
+ * 1. 注入自定义KYCSeExchangeOrderServiceImpliskControlService实现
  * 3. 注入自定义PaymentService实现
  * 4. 注入自定义PriceEngineService实现
  */
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ExchangeOrderService {
+public class ExchangeOrderServiceImpl {
 
     private final ExchangeOrderRepository exchangeOrderRepository;
     private final UserKYCRepository userKYCRepository;
-    private final PriceEngineService priceEngineService;
-    private final RiskControlService riskControlService;
+    private final PriceEngineServiceImpl priceEngineService;
+    private final RiskControlServiceImpl riskControlService;
     private final PaymentService paymentService;
-    private final CryptoWalletService cryptoWalletService;
+    private final CryptoWalletServiceImpl cryptoWalletService;
 
     @Value("${payment.risk-control.single-limit.usd:10000}")
     private BigDecimal singleLimitUSD;

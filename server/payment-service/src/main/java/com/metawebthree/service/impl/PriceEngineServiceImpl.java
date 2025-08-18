@@ -19,10 +19,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PriceEngineService {
+public class PriceEngineServiceImpl {
     
     private final CryptoPriceRepository cryptoPriceRepository;
-    private final ExternalPriceService externalPriceService;
+    private final ExternalPriceServiceImpl externalPriceService;
     
     @Value("${payment.price-engine.update-interval:5}")
     private int updateInterval;

@@ -1,4 +1,4 @@
-package com.metawebthree.service;
+package com.metawebthree.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.metawebthree.entity.ExchangeOrder;
@@ -26,7 +26,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RiskControlService {
+public class RiskControlServiceImpl {
     
     private final ExchangeOrderRepository exchangeOrderRepository;
     

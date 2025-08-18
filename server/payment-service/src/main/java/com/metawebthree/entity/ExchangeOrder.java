@@ -43,6 +43,10 @@ public class ExchangeOrder {
     @TableField("crypto_amount")
     private BigDecimal cryptoAmount;
 
+    private Short cryptoDecimals;
+
+    private BigDecimal fee;
+
     @TableField("exchange_rate")
     private BigDecimal exchangeRate;
 

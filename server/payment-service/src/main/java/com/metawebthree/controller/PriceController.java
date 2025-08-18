@@ -20,15 +20,12 @@ import java.math.BigDecimal;
 @Tags(value = { @Tag(name = "Price"), @Tag(name = "Payment") })
 public class PriceController {
 
-    private final PriceEngineService priceEngineService;
+    private final PriceEngineServiceImpl priceEngineService;
 
     @GetMapping("/{symbol}")
     @Operation(summary = "Get realtime price")
     public ResponseEntity<CryptoPriceResponse> getCurrentPrice(@PathVariable String symbol) {
-        log.info("Getting current price for symbol: {}", symbol);
-
         var price = priceEngineService.getCurrentPrice(symbol);
-
         CryptoPriceResponse response = CryptoPriceResponse.builder()
                 .symbol(price.getSymbol())
                 .baseCurrency(price.getBaseCurrency())
@@ -43,7 +40,6 @@ public class PriceController {
                 .timestamp(price.getTimestamp())
                 .updatedAt(price.getCreatedAt())
                 .build();
-
         return ResponseEntity.ok(response);
     }
 
@@ -52,11 +48,7 @@ public class PriceController {
     public ResponseEntity<BigDecimal> getWeightedAveragePrice(
             @PathVariable String baseCurrency,
             @PathVariable String quoteCurrency) {
-
-        log.info("Getting weighted average price for {}-{}", baseCurrency, quoteCurrency);
-
         BigDecimal price = priceEngineService.getWeightedAveragePrice(baseCurrency, quoteCurrency);
-
         return ResponseEntity.ok(price);
     }
 
@@ -66,11 +58,7 @@ public class PriceController {
             @RequestParam String fromCurrency,
             @RequestParam String toCurrency,
             @RequestParam BigDecimal amount) {
-
-        log.info("Calculating exchange rate: {} {} to {}", amount, fromCurrency, toCurrency);
-
         BigDecimal rate = priceEngineService.calculateExchangeRate(fromCurrency, toCurrency, amount);
-
         return ResponseEntity.ok(rate);
     }
 
@@ -79,11 +67,7 @@ public class PriceController {
     public ResponseEntity<BigDecimal> getPriceChange(
             @PathVariable String symbol,
             @RequestParam(defaultValue = "24") int hours) {
-
-        log.info("Getting price change for {} over {} hours", symbol, hours);
-
         BigDecimal change = priceEngineService.getPriceChangePercent(symbol, hours);
-
         return ResponseEntity.ok(change);
     }
 }
