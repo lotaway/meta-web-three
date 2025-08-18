@@ -50,6 +50,8 @@ public class ExchangeOrder {
     @TableField("exchange_rate")
     private BigDecimal exchangeRate;
 
+    private BigDecimal settlementAmount;
+
     @TableField("actual_rate")
     private BigDecimal actualRate;
 

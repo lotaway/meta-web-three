@@ -1,7 +1,7 @@
 package com.metawebthree.controller;
 
 import com.metawebthree.dto.CryptoPriceResponse;
-import com.metawebthree.service.PriceEngineService;
+import com.metawebthree.service.impl.PriceEngineServiceImpl;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

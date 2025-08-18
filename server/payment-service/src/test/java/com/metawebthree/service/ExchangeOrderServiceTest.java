@@ -6,7 +6,9 @@ import com.metawebthree.entity.ExchangeOrder;
 import com.metawebthree.entity.UserKYC;
 import com.metawebthree.repository.ExchangeOrderRepository;
 import com.metawebthree.repository.UserKYCRepository;
+import com.metawebthree.service.impl.CryptoWalletServiceImpl;
 import com.metawebthree.service.impl.ExchangeOrderServiceImpl;
+import com.metawebthree.service.impl.PriceEngineServiceImpl;
 import com.metawebthree.service.impl.RiskControlServiceImpl;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +34,7 @@ class ExchangeOrderServiceTest {
     private UserKYCRepository userKYCRepository;
 
     @Mock
-    private PriceEngineService priceEngineService;
+    private PriceEngineServiceImpl priceEngineService;
 
     @Mock
     private RiskControlServiceImpl riskControlService;

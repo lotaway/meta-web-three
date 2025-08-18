@@ -1,4 +1,4 @@
-package com.metawebthree.service;
+package com.metawebthree.service.impl;
 
 import com.metawebthree.entity.CryptoPrice;
 import com.metawebthree.repository.CryptoPriceRepository;
@@ -27,50 +27,34 @@ public class PriceEngineServiceImpl {
     @Value("${payment.price-engine.update-interval:5}")
     private int updateInterval;
     
-    // 内存缓存，避免频繁数据库查询
     private final Map<String, CryptoPrice> priceCache = new ConcurrentHashMap<>();
     
-    /**
-     * 获取实时价格
-     */
     @Cacheable(value = "cryptoPrices", key = "#symbol")
     public CryptoPrice getCurrentPrice(String symbol) {
-        // 先从缓存获取
         CryptoPrice cachedPrice = priceCache.get(symbol);
         if (cachedPrice != null && isPriceValid(cachedPrice)) {
             return cachedPrice;
         }
-        
-        // 从数据库获取最新价格
         CryptoPrice dbPrice = cryptoPriceRepository.findFirstBySymbolOrderByTimestampDesc(symbol);
         if (dbPrice != null) {
             return dbPrice;
         }
-        
-        // 如果数据库中没有，从外部API获取
         return fetchAndSavePrice(symbol);
     }
     
-    /**
-     * 获取加权平均价格
-     */
     public BigDecimal getWeightedAveragePrice(String baseCurrency, String quoteCurrency) {
         List<CryptoPrice> prices = cryptoPriceRepository.findByBaseCurrencyAndQuoteCurrency(baseCurrency, quoteCurrency);
         
         if (prices.isEmpty()) {
             throw new RuntimeException("No price data available for " + baseCurrency + "-" + quoteCurrency);
         }
-        
         BigDecimal totalWeight = BigDecimal.ZERO;
         BigDecimal weightedSum = BigDecimal.ZERO;
-        
-        // 权重配置
         Map<String, BigDecimal> weights = Map.of(
             "binance", new BigDecimal("0.4"),
             "coinbase", new BigDecimal("0.3"),
             "okx", new BigDecimal("0.3")
         );
-        
         for (CryptoPrice price : prices) {
             BigDecimal weight = weights.getOrDefault(price.getSource(), new BigDecimal("0.1"));
             weightedSum = weightedSum.add(price.getPrice().multiply(weight));
@@ -80,25 +64,15 @@ public class PriceEngineServiceImpl {
         return weightedSum.divide(totalWeight, 8, RoundingMode.HALF_UP);
     }
     
-    /**
-     * 计算兑换汇率
-     */
     public BigDecimal calculateExchangeRate(String fromCurrency, String toCurrency, BigDecimal amount) {
         if (fromCurrency.equals(toCurrency)) {
             return BigDecimal.ONE;
         }
-        
-        // 获取汇率
         BigDecimal rate = getWeightedAveragePrice(fromCurrency, toCurrency);
-        
-        // 计算兑换金额
         return amount.multiply(rate).setScale(8, RoundingMode.HALF_UP);
     }
     
-    /**
-     * 定时更新价格数据
-     */
-    @Scheduled(fixedRate = 5000) // 每5秒更新一次
+    @Scheduled(fixedRate = 5000) // 5 seconds
     public void updatePrices() {
         log.info("Starting price update...");
         
@@ -114,9 +88,6 @@ public class PriceEngineServiceImpl {
         }
     }
     
-    /**
-     * 从外部API获取价格并保存
-     */
     private CryptoPrice fetchAndSavePrice(String symbol) {
         try {
             CryptoPrice price = externalPriceService.fetchPrice(symbol);
@@ -128,26 +99,17 @@ public class PriceEngineServiceImpl {
         } catch (Exception e) {
             log.error("Failed to fetch price for {}: {}", symbol, e.getMessage());
         }
-        
-        // 如果获取失败，返回缓存中的旧价格或抛出异常
         CryptoPrice cachedPrice = priceCache.get(symbol);
         if (cachedPrice != null) {
             return cachedPrice;
         }
-        
         throw new RuntimeException("Unable to fetch price for " + symbol);
     }
     
-    /**
-     * 检查价格是否有效（不超过5分钟）
-     */
     private boolean isPriceValid(CryptoPrice price) {
         return price.getTimestamp().isAfter(LocalDateTime.now().minusMinutes(5));
     }
     
-    /**
-     * 获取价格变化百分比
-     */
     public BigDecimal getPriceChangePercent(String symbol, int hours) {
         LocalDateTime startTime = LocalDateTime.now().minusHours(hours);
         List<CryptoPrice> prices = cryptoPriceRepository.findBySymbolAndTimestampAfter(symbol, startTime);

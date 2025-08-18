@@ -1,6 +1,5 @@
 package com.metawebthree.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.metawebthree.dto.ExchangeOrderRequest;
 import com.metawebthree.dto.ExchangeOrderResponse;
 import com.metawebthree.entity.ExchangeOrder;
@@ -8,7 +7,6 @@ import com.metawebthree.entity.UserKYC;
 import com.metawebthree.repository.ExchangeOrderRepository;
 import com.metawebthree.repository.UserKYCRepository;
 import com.metawebthree.service.PaymentService;
-import com.metawebthree.service.PriceEngineService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

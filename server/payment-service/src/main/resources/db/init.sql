@@ -16,6 +16,7 @@ CREATE TABLE Exchange_Orders (
     crypto_decimals SMALLINT DEFAULT 18,
     fee NUMERIC(20,8) NOT NULL,
     exchange_rate NUMERIC(20,8) NOT NULL,
+    settlement_amount NUMERIC(20,4),
     actual_rate NUMERIC(20,8),
     payment_method VARCHAR(20) NOT NULL,
     payment_order_no VARCHAR(64),
