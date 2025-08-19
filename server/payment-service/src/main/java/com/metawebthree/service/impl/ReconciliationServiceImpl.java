@@ -22,6 +22,7 @@ public class ReconciliationServiceImpl {
 
     private final ExchangeOrderRepository exchangeOrderRepository;
 
+    // @TODO: Move to Quartz scheduler
     @Scheduled(cron = "0 0 1 * * ?")
     @LogMethod
     public void dailyReconciliation() {
@@ -38,13 +39,10 @@ public class ReconciliationServiceImpl {
     }
 
     private List<ExchangeOrder> getExternalBills(LocalDate date) {
-        // TODO: Should call payment platform API to get bills
+        // @TODO: Should call payment platform API to get bills
         return List.of();
     }
 
-    /**
-     * Execute reconciliation
-     */
     private void reconcileOrders(List<ExchangeOrder> internalOrders, List<ExchangeOrder> externalBills) {
         // 1. Check missing orders (exist externally but not internally)
         checkMissingOrders(internalOrders, externalBills);
@@ -56,33 +54,21 @@ public class ReconciliationServiceImpl {
         checkAmountMismatches(internalOrders, externalBills);
     }
 
-    /**
-     * Check missing orders
-     */
     private void checkMissingOrders(List<ExchangeOrder> internalOrders, List<ExchangeOrder> externalBills) {
-        // TODO: Implement missing order check logic
+        // @TODO: Implement missing order check logic
         log.info("Checking for missing orders...");
     }
 
-    /**
-     * Check extra orders
-     */
     private void checkExtraOrders(List<ExchangeOrder> internalOrders, List<ExchangeOrder> externalBills) {
-        // TODO: Implement extra order check logic
+        // @TODO: Implement extra order check logic
         log.info("Checking for extra orders...");
     }
 
-    /**
-     * Check amount mismatches
-     */
     private void checkAmountMismatches(List<ExchangeOrder> internalOrders, List<ExchangeOrder> externalBills) {
-        // TODO: Implement amount mismatch check logic
+        // @TODO: Implement amount mismatch check logic
         log.info("Checking for amount mismatches...");
     }
 
-    /**
-     * Manual reconciliation trigger
-     */
     public void manualReconciliation(LocalDate date) {
         log.info("Manual reconciliation triggered for date: {}", date);
         dailyReconciliation();

@@ -85,7 +85,7 @@ public class DataBucketMap<Data> {
         return dataList.get(chosenPos);
     }
 
-    //    @TODO 最小连接数（Least Connections）法
+    // @TODO Least Connections）
     public Data chooseByLeastConnection() {
         return null;
     }

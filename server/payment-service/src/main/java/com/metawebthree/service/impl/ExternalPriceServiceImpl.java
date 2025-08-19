@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 /**
  * 外部价格服务
  *
- * TODO: 如需接入自定义汇率/价格源，请实现 fetchFromSource、buildApiUrl、parsePriceResponse 等方法，
+ * @TODO: 如需接入自定义汇率/价格源，请实现 fetchFromSource、buildApiUrl、parsePriceResponse 等方法，
  * 并在 fetchPrice 方法中添加自定义 source。
  * 推荐将第三方API调用、签名、认证等逻辑封装为独立方法或类，便于后续维护和切换。
  *

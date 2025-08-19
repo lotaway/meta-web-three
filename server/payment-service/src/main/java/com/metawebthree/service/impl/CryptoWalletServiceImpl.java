@@ -14,7 +14,7 @@ import java.util.UUID;
 /**
  * 数字资产钱包服务
  *
- * TODO: 如需接入自定义区块链钱包服务（如自建节点、第三方托管钱包等），请在 transferCrypto、getWalletBalance、
+ * @TODO: 如需接入自定义区块链钱包服务（如自建节点、第三方托管钱包等），请在 transferCrypto、getWalletBalance、
  * executeTransfer、verifyTransaction、getTransactionDetails、createWalletAddress
  * 等方法中实现。
  * 推荐将区块链API调用、签名、异常处理等逻辑封装为独立方法或类，便于后续维护和切换。
@@ -39,7 +39,7 @@ public class CryptoWalletServiceImpl {
     private String usdtHotWallet;
 
     /**
-     * TODO: Invoke blockchain API or wallet SDK to transfer crypto, sign, broadcast and error
+     * @TODO: Invoke blockchain API or wallet SDK to transfer crypto, sign, broadcast and error
      */
     @LogMethod
     public String transferCrypto(ExchangeOrder order) {
@@ -58,7 +58,7 @@ public class CryptoWalletServiceImpl {
     }
 
     /**
-     * TODO: Invoke blockchain API or wallet SDK to get balance
+     * @TODO: Invoke blockchain API or wallet SDK to get balance
      */
     @LogMethod
     public BigDecimal getWalletBalance(String cryptoCurrency) {
@@ -72,7 +72,7 @@ public class CryptoWalletServiceImpl {
     }
 
     /**
-     * TODO: Invoke blockchain API or wallet SDK to get balance
+     * @TODO: Invoke blockchain API or wallet SDK to get balance
      */
     private String executeTransfer(ExchangeOrder order) {
         return "0x" + UUID.randomUUID().toString().replace("-", "") +
@@ -89,7 +89,7 @@ public class CryptoWalletServiceImpl {
     }
 
     /**
-     * TODO: Invoke blockchain API or wallet SDK to get balance
+     * @TODO: Invoke blockchain API or wallet SDK to get balance
      */
     @LogMethod
     public boolean verifyTransaction(String txHash, String cryptoCurrency) {
@@ -97,7 +97,7 @@ public class CryptoWalletServiceImpl {
     }
 
     /**
-     * TODO: Invoke blockchain API or wallet SDK to get balance
+     * @TODO: Invoke blockchain API or wallet SDK to get balance
      */
     @LogMethod
     public Object getTransactionDetails(String txHash, String cryptoCurrency) {
@@ -110,7 +110,7 @@ public class CryptoWalletServiceImpl {
     }
 
     /**
-     * TODO: Invoke blockchain API or wallet SDK to get balance
+     * @TODO: Invoke blockchain API or wallet SDK to get balance
      */
     @LogMethod
     public String createWalletAddress(String cryptoCurrency) {

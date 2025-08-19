@@ -95,7 +95,6 @@ impl MatchingService for MatchingServiceImpl {
 }
 
 pub fn start_rpc(markets: Vec<String>, kafka_brokers: &str, kafka_topic: &str, wal_dir: &str) {
-    // @TODO change to consumer?
     let consumer = MatchingServiceImpl::new(markets, kafka_brokers, kafka_topic, wal_dir);
     register_server(consumer);
     let registry_map = HashMap::<String, RegistryConfig>::new();

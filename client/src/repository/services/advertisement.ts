@@ -127,12 +127,8 @@ namespace NSAdvertisement {
         }
     }
 
-    /**
-     * 广告图接口
-     */
     export class Service {
 
-        // TODO 换成类装饰器和方法装饰器进行自动包裹？
         private readonly mapperWrapper: MapperWrapper
 
         constructor(systemImpl: ISystem) {
@@ -155,7 +151,6 @@ namespace NSAdvertisement {
             return await this.mapperWrapper.start<GetPublicAdArgs, T>(PublicAdMapper, args)
         }
 
-        //  获取商标
         async getLogo() {
             return await this.getPublicAd({
                 name: "home",

@@ -14,7 +14,7 @@ import java.util.UUID;
 /**
  * Fiat payment service
  *
- * TODO: To add custom payment channels (Stripe, PayPal, UnionPay etc.),
+ * @TODO: To add custom payment channels (Stripe, PayPal, UnionPay etc.),
  * implement corresponding createXXXPayment methods and add new cases
  * in the createPayment switch statement.
  * 
@@ -68,9 +68,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     /**
-     * Create bank transfer payment
-     *
-     * TODO: Implement bank API integration here including
+     * @TODO: Implement bank API integration here including
      * transfer interface calls and callback handling
      */
     @LogMethod
@@ -79,9 +77,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     /**
-     * Create Apple Pay payment
-     *
-     * TODO: Implement official Apple Pay API integration
+     * @TODO: Implement official Apple Pay API integration
      */
     @LogMethod
     private String createApplePayPayment(ExchangeOrder order, String paymentOrderNo) {
@@ -89,9 +85,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     /**
-     * Create Google Pay payment
-     *
-     * TODO: Implement official Google Pay API integration
+     * @TODO: Implement official Google Pay API integration
      */
     @LogMethod
     private String createGooglePayPayment(ExchangeOrder order, String paymentOrderNo) {
@@ -107,7 +101,7 @@ public class PaymentServiceImpl implements PaymentService {
     @LogMethod
     @Override
     public String queryPaymentStatus(String paymentOrderNo) {
-        return "SUCCESS"; // TODO response
+        return "SUCCESS"; // @TODO implementation
     }
 
     private String generatePaymentOrderNo() {

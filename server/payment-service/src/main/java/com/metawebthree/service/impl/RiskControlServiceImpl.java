@@ -1,6 +1,7 @@
 package com.metawebthree.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.metawebthree.common.annotations.LogMethod;
 import com.metawebthree.entity.ExchangeOrder;
 import com.metawebthree.repository.ExchangeOrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,9 @@ public class RiskControlServiceImpl {
     @Value("${payment.risk-control.single-limit.usd:10000}")
     private BigDecimal singleLimitUSD;
 
+    @Value("${payment.rist-control.hourly-order-limit:100}")
+    private Integer hourlyOrderLimit;
+
     @Value("${payment.risk-control.daily-limit.usd:50000}")
     private BigDecimal dailyLimitUSD;
 
@@ -42,14 +46,14 @@ public class RiskControlServiceImpl {
     private BigDecimal maxSlippagePercentage;
 
     /**
-     * @TODO External risk control service integration is not included in this example.
+     * @TODO Add external risk control service integration.
      */
+    @LogMethod
     public void validateOrder(Long userId, BigDecimal amount, String fiatCurrency) {
         validateSingleLimit(amount, fiatCurrency);
         validateDailyLimit(userId, amount, fiatCurrency);
         validateFrequency(userId);
         validateAbnormalBehavior(userId);
-        log.info("Risk control validation passed for user {}: amount={} {}", userId, amount, fiatCurrency);
     }
 
     private void validateSingleLimit(BigDecimal amount, String fiatCurrency) {
@@ -82,8 +86,12 @@ public class RiskControlServiceImpl {
     private void validateFrequency(Long userId) {
         Timestamp oneHourAgo = Timestamp.valueOf(LocalDateTime.now().minusHours(1));
         Long hourlyCount = exchangeOrderRepository.getCompletedOrderCountByUserIdAndDateRange(userId, oneHourAgo);
-        if (hourlyCount > 10) {
-            throw new RuntimeException("Transaction frequency too high. Hourly limit: 10, Current: " + hourlyCount);
+        if (hourlyCount > hourlyOrderLimit) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Transaction frequency too high. Hourly limit: ")
+                    .append(hourlyOrderLimit).append(", Current: ")
+                    .append(hourlyCount);
+            throw new RuntimeException(sb.toString());
         }
     }
 

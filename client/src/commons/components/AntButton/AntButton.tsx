@@ -25,14 +25,6 @@ function getItem<ItemType>(args: [ItemType, ...unknown[]] | ItemType): ItemType 
     return Array.isArray(args) ? args[0] : args
 }
 
-function handler<ValueType>(value: ValueType) {
-    const result = getItem([3, "2", false])
-    const result2 = getItem(value)
-    //  TODO 希望拿到的result类型是3的类型，即number
-    type Result = InferFirst<[number, string, boolean]>
-    console.log(result as Result, result2)
-}
-
 
 const AntButton: FunctionComponent<IProps> = ({ref, type, shape, className, children, ...rProps}) => {
     switch (type) {
