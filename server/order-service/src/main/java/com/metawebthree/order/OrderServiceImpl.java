@@ -20,7 +20,7 @@ public class OrderServiceImpl implements OrderService {
         return result;
     }
 
-    public OrderDTO getOrderByUserIdMock(Long id) {
+    private OrderDTO getOrderByUserIdMock(Long id) {
         return new OrderDTO(id, 1L, "1234567890", "1", "1", BigDecimal.valueOf(100), "test");
     }
 
