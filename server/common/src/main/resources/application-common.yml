@@ -10,6 +10,25 @@ spring:
         # root: /meta-web-three
   datasource:
     driver-class-name: org.postgresql.Driver
+  quartz:
+    job-store-type: JDBC
+    auto-startup: true
+    startup-delay: 0
+    overwrite-existing-jobs: true
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: MetaWebThreeScheduler
+          jobStore:
+            isClustered: true
+            instanceId: AUTO
+            class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+          threadPool:
+            class: org.quartz.simpl.SimpleThreadPool
+            threadCount: 5
+            threadPriority: 5
 name: "meta-web-three"
 page-config:
   page-size: 20

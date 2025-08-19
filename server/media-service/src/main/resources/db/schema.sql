@@ -1,7 +1,7 @@
--- Postgre SQL init, warning: create "note" database before start this script.
+-- Postgre SQL init, warning: create "metawebthree" database before start this script.
 
--- CREATE DATABASE IF NOT EXISTS note;
--- \c note;
+-- CREATE DATABASE IF NOT EXISTS metawebthree;
+-- \c metawebthree;
 
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$

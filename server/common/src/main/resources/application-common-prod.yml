@@ -3,3 +3,4 @@ spring:
     zookeeper:
         discovery:
             root: /prod/metawebthree
+spring.quartz.jdbc.initialize-schema: never

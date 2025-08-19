@@ -27,7 +27,7 @@ public class QuartzManager {
 
     private final Scheduler scheduler;
 
-    public void addJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName,
+    public QuartzManager addJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName,
             Class<?> jobClass, String cron, String description, String data) {
         try {
             if (!Job.class.isAssignableFrom(jobClass)) {
@@ -50,56 +50,56 @@ public class QuartzManager {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
+        return this;
     }
 
-    public void addJobs(QrtzTriggers qrtzTriggers1, QrtzTriggers qrtzTriggers2, Object... objects) {
+    // public QuartzManager addJobs(QrtzTriggers qrtzTriggers1, QrtzTriggers qrtzTriggers2, Object... objects) {
 
-        try {
-            String jobClassName = qrtzTriggers1.getJobClassName();
-            ClassLoader loader = ClassLoader.getSystemClassLoader();
-            Class<?> loadedClass = Class.forName(jobClassName);
-            if (!Job.class.isAssignableFrom(loadedClass)) {
-                throw new IllegalArgumentException("The class " + jobClassName + " does not implement Job.");
-            }
-            @SuppressWarnings("unchecked")
-            Class<? extends Job> jobClass = (Class<? extends Job>) loadedClass;
-            String jobName = qrtzTriggers1.getJobName();
-            String jobGroupName = qrtzTriggers1.getJobGroup();
-            JobDetail jobDetail = JobBuilder.newJob(jobClass).withIdentity(jobName, jobGroupName).storeDurably()
-                    .requestRecovery().build();
-            List<QrtzTriggers> qrtzTriggersList = new ArrayList<>();
-            qrtzTriggersList.add(qrtzTriggers1);
-            qrtzTriggersList.add(qrtzTriggers2);
-            List<CronTrigger> cronTriggers = new ArrayList<>();
-            for (QrtzTriggers qrtzTrigger : qrtzTriggersList) {
-                TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger();
-                triggerBuilder.withIdentity(qrtzTrigger.getTriggerName(), qrtzTrigger.getTriggerGroup());
-                triggerBuilder.startNow();
-                triggerBuilder.withDescription(qrtzTrigger.getDescription());
-                triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(qrtzTrigger.getCron()));
-                triggerBuilder.forJob(jobDetail);
-                CronTrigger trigger = (CronTrigger) triggerBuilder.build();
-                cronTriggers.add(trigger);
-            }
-            if (objects != null) {
-                for (int i = 0; i < objects.length; i++) {
-                    // jobDetail.getJobDataMap().put("extraData", "admin");
-                    // Get data by using: JobDataMap dataMap =
-                    // context.getJobDetail().getJobDataMap();
-                }
-            }
-            scheduler.addJob(jobDetail, true);
-            scheduler.scheduleJob(cronTriggers.get(0));
-            scheduler.scheduleJob(cronTriggers.get(1));
-            if (!scheduler.isShutdown()) {
-                scheduler.start();
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-    }
+    //     try {
+    //         String jobClassName = qrtzTriggers1.getJobClassName();
+    //         ClassLoader loader = ClassLoader.getSystemClassLoader();
+    //         Class<?> loadedClass = Class.forName(jobClassName);
+    //         if (!Job.class.isAssignableFrom(loadedClass)) {
+    //             throw new IllegalArgumentException("The class " + jobClassName + " does not implement Job.");
+    //         }
+    //         @SuppressWarnings("unchecked")
+    //         Class<? extends Job> jobClass = (Class<? extends Job>) loadedClass;
+    //         String jobName = qrtzTriggers1.getJobName();
+    //         String jobGroupName = qrtzTriggers1.getJobGroup();
+    //         JobDetail jobDetail = JobBuilder.newJob(jobClass).withIdentity(jobName, jobGroupName).storeDurably()
+    //                 .requestRecovery().build();
+    //         List<QrtzTriggers> qrtzTriggersList = new ArrayList<>();
+    //         qrtzTriggersList.add(qrtzTriggers1);
+    //         qrtzTriggersList.add(qrtzTriggers2);
+    //         List<CronTrigger> cronTriggers = new ArrayList<>();
+    //         for (QrtzTriggers qrtzTrigger : qrtzTriggersList) {
+    //             TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger();
+    //             triggerBuilder.withIdentity(qrtzTrigger.getTriggerName(), qrtzTrigger.getTriggerGroup());
+    //             triggerBuilder.startNow();
+    //             triggerBuilder.withDescription(qrtzTrigger.getDescription());
+    //             triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(qrtzTrigger.getCron()));
+    //             triggerBuilder.forJob(jobDetail);
+    //             CronTrigger trigger = (CronTrigger) triggerBuilder.build();
+    //             cronTriggers.add(trigger);
+    //         }
+    //         if (objects != null) {
+    //             for (int i = 0; i < objects.length; i++) {
+    //                 // jobDetail.getJobDataMap().put("extraData", "admin");
+    //                 // Get data by using: JobDataMap dataMap =
+    //                 // context.getJobDetail().getJobDataMap();
+    //             }
+    //         }
+    //         scheduler.addJob(jobDetail, true);
+    //         scheduler.scheduleJob(cronTriggers.get(0));
+    //         scheduler.scheduleJob(cronTriggers.get(1));
+    //         if (!scheduler.isShutdown()) {
+    //             scheduler.start();
+    //         }
+    //     } catch (Exception e) {
+    //         throw new RuntimeException(e);
+    //     }
+    //     return this;
+    // }
 
     public void modifyJobTime(String triggerName, String triggerGroupName,
             String cron) {
