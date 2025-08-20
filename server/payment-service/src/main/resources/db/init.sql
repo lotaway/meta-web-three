@@ -117,3 +117,63 @@ CREATE TRIGGER user_kyc_updated
 BEFORE UPDATE ON User_Kyc
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at();
+
+-- Risk control tables
+CREATE TABLE Risk_Decision_Log (
+  id BIGSERIAL PRIMARY KEY,
+  biz_order_id VARCHAR(64),
+  user_id BIGINT NOT NULL,
+  device_id VARCHAR(128) NOT NULL,
+  scene VARCHAR(32) NOT NULL,
+  decision VARCHAR(16) NOT NULL,
+  score INT,
+  reasons JSON,
+  features JSON,
+  latency_ms INT,
+  ts TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+COMMENT ON TABLE Risk_Decision_Log IS 'Risk decision logs';
+COMMENT ON COLUMN Risk_Decision_Log.biz_order_id IS 'Business order ID';
+COMMENT ON COLUMN Risk_Decision_Log.decision IS 'Decision result: approve, reject, review';
+COMMENT ON COLUMN Risk_Decision_Log.score IS 'Risk score';
+COMMENT ON COLUMN Risk_Decision_Log.reasons IS 'JSON array of reason codes';
+COMMENT ON COLUMN Risk_Decision_Log.features IS 'JSON object of features used in decision';
+
+CREATE INDEX idx_Risk_Decision_Log_user_id ON Risk_Decision_Log (user_id);
+CREATE INDEX idx_Risk_Decision_Log_device_id ON Risk_Decision_Log (device_id);
+CREATE INDEX idx_Risk_Decision_Log_ts ON Risk_Decision_Log (ts);
+
+CREATE TABLE Risk_Rules (
+  id BIGSERIAL PRIMARY KEY,
+  scene VARCHAR(32) NOT NULL,
+  rule_code VARCHAR(32) NOT NULL,
+  expr TEXT NOT NULL,
+  priority INT NOT NULL,
+  status SMALLINT NOT NULL DEFAULT 1,
+  version VARCHAR(16) NOT NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+COMMENT ON TABLE Risk_Rules IS 'Risk control rules';
+COMMENT ON COLUMN Risk_Rules.scene IS 'Business scene: new_credit, transaction, etc';
+COMMENT ON COLUMN Risk_Rules.rule_code IS 'Rule code: R101, R203, etc';
+COMMENT ON COLUMN Risk_Rules.expr IS 'Rule expression';
+COMMENT ON COLUMN Risk_Rules.priority IS 'Execution priority';
+COMMENT ON COLUMN Risk_Rules.status IS 'Rule status: 1-active, 0-inactive';
+
+CREATE INDEX idx_risk_rules_scene ON Risk_Rules (scene);
+CREATE INDEX idx_risk_rules_status ON Risk_Rules (status);
+
+CREATE TABLE Credit_Profile (
+  user_id BIGINT PRIMARY KEY,
+  credit_limit INT NOT NULL DEFAULT 0,
+  credit_used INT NOT NULL DEFAULT 0,
+  risk_level VARCHAR(16) NOT NULL DEFAULT 'C',
+  last_score INT,
+  last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+COMMENT ON TABLE Credit_Profile IS 'User credit profiles';
+COMMENT ON COLUMN Credit_Profile.risk_level IS 'Risk level: A, B, C, D';
+COMMENT ON COLUMN Credit_Profile.last_score IS 'Last risk score';
