@@ -1,5 +1,6 @@
 package com.metawebthree.service.impl;
 
+import com.metawebthree.common.annotations.LogMethod;
 import com.metawebthree.dto.ExchangeOrderRequest;
 import com.metawebthree.dto.ExchangeOrderResponse;
 import com.metawebthree.entity.ExchangeOrder;
@@ -94,25 +95,21 @@ public class ExchangeOrderServiceImpl {
                 .toList();
     }
 
+    @LogMethod
     @Transactional
     public void cancelOrder(String orderNo, Long userId) {
         ExchangeOrder order = exchangeOrderRepository.findByOrderNo(orderNo);
         if (order == null) {
             throw new RuntimeException("Order not found: " + orderNo);
         }
-
         if (!order.getUserId().equals(userId)) {
             throw new RuntimeException("Unauthorized access to order");
         }
-
         if (order.getStatus() != ExchangeOrder.OrderStatus.PENDING) {
             throw new RuntimeException("Cannot cancel order with status: " + order.getStatus());
         }
-
         order.setStatus(ExchangeOrder.OrderStatus.CANCELLED);
         exchangeOrderRepository.updateById(order);
-
-        log.info("Cancelled order: {}", orderNo);
     }
 
     @Transactional
