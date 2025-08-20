@@ -1,4 +1,4 @@
-package com.metawebthree.service.repository;
+package com.metawebthree.repository;
 
 import java.util.Map;
 

@@ -1,7 +1,8 @@
-package com.metawebthree.service.repository.impl;
+package com.metawebthree.repository.impl;
 
 import com.metawebthree.dto.DecisionRequest;
-import com.metawebthree.service.repository.FeatureRepo;
+import com.metawebthree.repository.FeatureRepo;
+
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;

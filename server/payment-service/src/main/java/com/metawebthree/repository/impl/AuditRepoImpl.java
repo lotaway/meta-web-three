@@ -1,7 +1,8 @@
-package com.metawebthree.service.repository.impl;
+package com.metawebthree.repository.impl;
 
 import com.metawebthree.dto.DecisionRequest;
-import com.metawebthree.service.repository.AuditRepo;
+import com.metawebthree.repository.AuditRepo;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 

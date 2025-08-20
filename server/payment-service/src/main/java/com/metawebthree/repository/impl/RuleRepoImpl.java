@@ -1,7 +1,8 @@
-package com.metawebthree.service.repository.impl;
+package com.metawebthree.repository.impl;
 
+import com.metawebthree.repository.RuleRepo;
 import com.metawebthree.service.entity.Rule;
-import com.metawebthree.service.repository.RuleRepo;
+
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;

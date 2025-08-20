@@ -81,9 +81,15 @@ CREATE TABLE User_Kyc (
     nationality VARCHAR(50),
     date_of_birth VARCHAR(20),
     gender VARCHAR(10),
-    id_card_front_url VARCHAR(255),
-    id_card_back_url VARCHAR(255),
-    selfie_url VARCHAR(255),
+    id_card_front_url VARCHAR(255) NOT NULL,
+    id_card_back_url VARCHAR(255) NOT NULL,
+    selfie_url VARCHAR(255) NOT NULL,
+    face_compare_score NUMERIC(5,2),
+    id_card_verified BOOLEAN DEFAULT FALSE,
+    face_verified BOOLEAN DEFAULT FALSE,
+    verification_time TIMESTAMP,
+    verification_result VARCHAR(20),
+    verification_notes TEXT,
     proof_of_address_url VARCHAR(255),
     bank_account_number VARCHAR(50),
     bank_name VARCHAR(100),
@@ -167,12 +173,30 @@ CREATE INDEX idx_risk_rules_status ON Risk_Rules (status);
 
 CREATE TABLE Credit_Profile (
   user_id BIGINT PRIMARY KEY,
-  credit_limit INT NOT NULL DEFAULT 0,
+  base_credit_limit INT NOT NULL DEFAULT 10000,
+  current_credit_limit INT NOT NULL DEFAULT 10000,
   credit_used INT NOT NULL DEFAULT 0,
   risk_level VARCHAR(16) NOT NULL DEFAULT 'C',
   last_score INT,
+  last_limit_adjustment TIMESTAMP,
+  overdue_count_3m INT NOT NULL DEFAULT 0,
+  transaction_success_rate NUMERIC(5,2) NOT NULL DEFAULT 100.00,
+  credit_utilization_rate NUMERIC(5,2) NOT NULL DEFAULT 0.00,
+  last_score_change INT,
+  max_adjustment_percentage NUMERIC(5,2) NOT NULL DEFAULT 0.15,
+  adjustment_history JSON,
   last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+COMMENT ON COLUMN Credit_Profile.base_credit_limit IS 'Base credit limit without adjustments';
+COMMENT ON COLUMN Credit_Profile.current_credit_limit IS 'Current adjusted credit limit';
+COMMENT ON COLUMN Credit_Profile.last_limit_adjustment IS 'Last time credit limit was adjusted';
+COMMENT ON COLUMN Credit_Profile.overdue_count_3m IS 'Overdue count in last 3 months';
+COMMENT ON COLUMN Credit_Profile.transaction_success_rate IS 'Transaction success rate percentage';
+COMMENT ON COLUMN Credit_Profile.credit_utilization_rate IS 'Credit utilization rate percentage';
+COMMENT ON COLUMN Credit_Profile.last_score_change IS 'Last score change compared to previous score';
+COMMENT ON COLUMN Credit_Profile.max_adjustment_percentage IS 'Maximum adjustment percentage allowed';
+COMMENT ON COLUMN Credit_Profile.adjustment_history IS 'JSON array of adjustment history';
 
 COMMENT ON TABLE Credit_Profile IS 'User credit profiles';
 COMMENT ON COLUMN Credit_Profile.risk_level IS 'Risk level: A, B, C, D';

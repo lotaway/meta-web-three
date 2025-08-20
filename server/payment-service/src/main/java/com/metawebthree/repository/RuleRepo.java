@@ -1,4 +1,4 @@
-package com.metawebthree.service.repository;
+package com.metawebthree.repository;
 
 import com.metawebthree.service.entity.Rule;
 import java.util.List;
