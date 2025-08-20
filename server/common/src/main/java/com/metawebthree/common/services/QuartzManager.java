@@ -9,12 +9,12 @@ import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
+import org.quartz.ScheduleBuilder;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.metawebthree.common.annotations.LogMethod;
@@ -27,26 +27,55 @@ public class QuartzManager {
 
     private final Scheduler scheduler;
 
-    private Class<? extends Job> tryConvertClassIntoJob(Class<?> clazz) {
-            if (!Job.class.isAssignableFrom(clazz)) {
-                throw new IllegalArgumentException("The class " + clazz.getName() + " does not implement Job.");
-            }
-            @SuppressWarnings("unchecked")
-            Class<? extends Job> jobClass = (Class<? extends Job>) clazz;
-            return jobClass;
+    public Class<? extends Job> tryConvertClassIntoJob(Class<?> clazz) {
+        if (!Job.class.isAssignableFrom(clazz)) {
+            throw new IllegalArgumentException("The class " + clazz.getName() + " does not implement Job.");
+        }
+        @SuppressWarnings("unchecked")
+        Class<? extends Job> jobClass = (Class<? extends Job>) clazz;
+        return jobClass;
+    }
+
+    public Class<?> tryConvertClassNameIntoClass(String className) throws ClassNotFoundException {
+        Class<?> clazz = null;
+        if (className.indexOf(".") > -1) {
+            clazz = Class.forName(className);
+        } else {
+            clazz = Class.forName("com.metawebthree.job." + className);
+        }
+        return clazz;
+    }
+
+    public QuartzManager addJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName,
+            String jobClassName, String cron, String description, String data) {
+        try {
+            Class<?> jobClass = tryConvertClassNameIntoClass(jobClassName);
+            addJob(jobName, jobGroupName, triggerName, triggerGroupName, jobClass, cron, description, data);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return this;
     }
 
     public QuartzManager addJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName,
             Class<?> jobClass, String cron, String description, String data) {
+        return addJob(jobName, jobGroupName, triggerName, triggerGroupName, jobClass,
+                CronScheduleBuilder.cronSchedule(cron), description, data);
+    }
+
+    public <SBT extends Trigger> QuartzManager addJob(String jobName, String jobGroupName, String triggerName,
+            String triggerGroupName,
+            Class<?> jobClass, ScheduleBuilder<SBT> schedBuilder, String description, String data) {
         try {
-            JobDetail jobDetail = JobBuilder.newJob(tryConvertClassIntoJob(jobClass)).withIdentity(jobName, jobGroupName)
+            JobDetail jobDetail = JobBuilder.newJob(tryConvertClassIntoJob(jobClass))
+                    .withIdentity(jobName, jobGroupName)
                     .withDescription(description).storeDurably().requestRecovery().build();
             jobDetail.getJobDataMap().put("extraData", data);
             TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger();
             triggerBuilder.withIdentity(triggerName, triggerGroupName);
             triggerBuilder.startNow();
             triggerBuilder.withDescription(description);
-            triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(cron));
+            triggerBuilder.withSchedule(schedBuilder);
             CronTrigger trigger = (CronTrigger) triggerBuilder.build();
             scheduler.scheduleJob(jobDetail, trigger);
             if (!scheduler.isShutdown()) {
