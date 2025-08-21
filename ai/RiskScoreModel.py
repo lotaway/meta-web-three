@@ -17,7 +17,8 @@ class RiskScorerService:
             x = np.array([features['values']], dtype=np.float32)
             
             # Run inference
-            prob = sess.run(None, {'input': x})[0][0][1].item()
+            result = sess.run(None, {'input': x})[0]
+            prob = np.array(result)[0][0][1].item()
             
             # Convert probability to score (800-500 range)
             score = int(800 - prob * 300)
