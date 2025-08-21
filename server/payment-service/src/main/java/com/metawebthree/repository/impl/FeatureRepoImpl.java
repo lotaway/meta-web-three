@@ -1,6 +1,7 @@
 package com.metawebthree.repository.impl;
 
 import com.metawebthree.dto.DecisionRequest;
+import com.metawebthree.enums.DeviceRiskTag;
 import com.metawebthree.repository.FeatureRepo;
 
 import org.springframework.stereotype.Repository;
@@ -21,7 +22,7 @@ public class FeatureRepoImpl implements FeatureRepo {
         Map<String, Object> features = new HashMap<>();
         // @TODO Move feature key into enum
         features.put("device_shared_degree", 6);
-        features.put("device_risk_tag", "emu");
+        features.put("device_risk_tag", DeviceRiskTag.EMU);
         features.put("external_debt_ratio", 0.45);
         features.put("first_order", true);
         features.put("gps_stability", 0.62);

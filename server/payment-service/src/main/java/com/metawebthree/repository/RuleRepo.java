@@ -1,7 +1,8 @@
 package com.metawebthree.repository;
 
-import com.metawebthree.service.entity.Rule;
 import java.util.List;
+
+import com.metawebthree.entity.Rule;
 
 public interface RuleRepo {
     List<Rule> load(String scene);

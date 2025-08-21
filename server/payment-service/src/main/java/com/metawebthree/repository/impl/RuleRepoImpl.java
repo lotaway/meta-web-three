@@ -1,7 +1,9 @@
 package com.metawebthree.repository.impl;
 
+import com.metawebthree.entity.Rule;
+import com.metawebthree.enums.DecisionEnum;
+import com.metawebthree.enums.DeviceRiskTag;
 import com.metawebthree.repository.RuleRepo;
-import com.metawebthree.service.entity.Rule;
 
 import org.springframework.stereotype.Repository;
 
@@ -16,16 +18,16 @@ public class RuleRepoImpl implements RuleRepo {
         List<Rule> rules = new ArrayList<>();
         
         Rule r1 = new Rule();
-        r1.setCode("R203");
-        r1.setExpr("device_shared_degree > 5 && device_risk_tag == 'emu'");
-        r1.setAction("reject");
+        r1.setCode("D5RE");
+        r1.setExpr(String.format("device_shared_degree > 5 && device_risk_tag != '%s'", DeviceRiskTag.NORMAL));
+        r1.setAction(DecisionEnum.REJECT);
         r1.setPriority(10);
         rules.add(r1);
 
         Rule r2 = new Rule();
-        r2.setCode("W101");
+        r2.setCode("FYG3");
         r2.setExpr("first_order && gps_stability < 0.3");
-        r2.setAction("review");
+        r2.setAction(DecisionEnum.REVIEW);
         r2.setPriority(100);
         rules.add(r2);
 

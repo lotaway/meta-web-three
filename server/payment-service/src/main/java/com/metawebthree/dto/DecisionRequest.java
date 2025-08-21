@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class DecisionRequest {
     private String bizOrderId;
-    private String userId;
+    private Long userId;
     private String deviceId;
     private String scene;
     private Map<String, Object> context;

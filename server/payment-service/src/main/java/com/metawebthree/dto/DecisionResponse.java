@@ -2,6 +2,8 @@ package com.metawebthree.dto;
 
 import java.util.List;
 
+import com.metawebthree.enums.DecisionEnum;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class DecisionResponse {
-    private String decision;
+    private DecisionEnum decision;
     private int score;
     private List<String> reasons;
 }

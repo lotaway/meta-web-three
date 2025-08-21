@@ -1,7 +1,7 @@
-package com.metawebthree.repository;
+package com.metawebthree.service;
 
 import java.util.Map;
 
-public interface ModelScorer {
+public interface ModelScorerService {
     int score(String scene, Map<String, Object> features);
 }
