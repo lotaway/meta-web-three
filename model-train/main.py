@@ -11,7 +11,6 @@ from numexpr.expressions import double
 from LinearRegressionModel import LinearRegressionModel
 from utils import tokenize, get_device
 from WeatherModel import WeatherModel
-from RiskScoreModel import start_risk_score_model
 
 
 def paint():
@@ -57,9 +56,6 @@ def main():
     print("Start in main")
     WeatherModel.train_model_simple()
     print("Train data get done")
-    print("Start risk score model in rpc")
-    start_risk_score_model()
-    print("Already start risk score model in rpc")
 
 
 def init_torch(_x: np.ndarray):

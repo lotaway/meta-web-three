@@ -19,4 +19,3 @@ dependencies:
     - nltk>=3.8
     - torch-directml>=0.2.5  # Windows DirectML support version=0.2.5.dev240914
     # - mps-utils>=0.1.0       # Apple Silicon MPS support
-    - onnxruntime>=1.22.1

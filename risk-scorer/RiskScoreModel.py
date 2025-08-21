@@ -1,8 +1,4 @@
-from dubbo.codec.hessian2 import DubboCodec
-from dubbo.client import DubboClient
-from dubbo.common.constants import DubboVersion
-from dubbo.registry.zookeeper import ZookeeperRegistry
-from dubbo.server import DubboServer
+from dubbo.client import DubboClient, ZkRegister
 import onnxruntime as ort
 import numpy as np
 
@@ -31,22 +27,13 @@ class RiskScorerService:
 
 def start_risk_score_model():
     # Dubbo service configuration
-    service = RiskScorerService()
     interface = 'com.metawebthree.common.rpc.interfaces.RiskScorerService'
-    # version = '1.0.0'
-    # group = 'risk'
     
     # Zookeeper registry
-    registry = ZookeeperRegistry('192.168.1.194:2181')
+    zk = ZkRegister('192.168.1.194:2181')
     
-    # Start Dubbo server
-    server = DubboServer(
-        service=service,
-        interface=interface,
-        # version=version,
-        # group=group,
-        registry=registry,
-        codec=DubboCodec(),
-        dubbo_version=DubboVersion.DEFAULT
-    )
-    server.start()
+    # Create Dubbo client
+    client = DubboClient(interface, zk_register=zk)
+    
+    # Register service methods
+    client.register_method('score', RiskScorerService().score)
