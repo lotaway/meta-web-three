@@ -10,11 +10,12 @@ import com.metawebthree.repository.CreditProfileRepo;
 import com.metawebthree.repository.FeatureRepo;
 import com.metawebthree.repository.RuleRepo;
 import com.metawebthree.service.DecisionService;
-import com.metawebthree.service.ModelScorerService;
+import com.metawebthree.common.rpc.interfaces.RiskScorerService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
 
 import javax.script.ScriptEngine;
@@ -34,7 +35,8 @@ public class DecisionServiceImpl implements DecisionService {
 
     private final RuleRepo ruleRepo;
     private final FeatureRepo featureRepo;
-    private final ModelScorerService modelScorer;
+    @DubboReference(check = false, lazy = true)
+    private RiskScorerService riskScorerService;
     private final AuditRepo auditRepo;
     private final CreditProfileRepo creditProfileRepo;
 
@@ -55,7 +57,7 @@ public class DecisionServiceImpl implements DecisionService {
             }
         }
 
-        int score = modelScorer.score(request.getScene(), features);
+        int score = riskScorerService.score(request.getScene(), features);
         if (score < 620) {
             return audit(request, features, DecisionEnum.REJECT, score, Arrays.asList("M402"));
         }
