@@ -78,7 +78,7 @@ dubbo:
   provider:
     timeout: 5000 # service call timeout
   protocol:
-    name: dubbo
+    name: tri
 logging:
   level:
     com.metawebthree: DEBUG

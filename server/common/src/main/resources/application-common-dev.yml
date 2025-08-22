@@ -18,7 +18,6 @@ dubbo:
   application:
     name: ${spring.application.name}
   protocol:
-    name: dubbo
     port: -1
 # swagger docs
 springdoc:

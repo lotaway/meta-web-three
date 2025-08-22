@@ -1,58 +1,98 @@
 import dubbo
-from dubbo.configs import ApplicationConfig, RegistryConfig, ServiceConfig, ReferenceConfig
+from dubbo.configs import (
+    ApplicationConfig,
+    RegistryConfig,
+    ServiceConfig,
+)
 from dubbo.proxy.handlers import RpcMethodHandler, RpcServiceHandler
 from dubbo.bootstrap import Dubbo
 import numpy as np
-from dotenv import load_dotenv
 import os
+import struct
+import orjson
 
-load_dotenv()
+
+def base_type_to_bytes(v):
+    if isinstance(v, bool):
+        return b"\x01" if v else b"\x00"
+    if isinstance(v, int):
+        return struct.pack("!i", v)
+    if isinstance(v, float):
+        return struct.pack("!d", v)
+    if isinstance(v, str):
+        return v.encode("utf-8")
+    if v is None:
+        return b""
+    raise TypeError("unsupported type")
+
+
+def json_serializer(v):
+    return orjson.dumps(v)
+
+
+def json_deserializer(b):
+    return orjson.loads(b)
+
 
 class RiskScorerServiceImpl:
-    
+
     def init(cls):
         # @TODO get risk model
-        if (cls.sess is None):
-            cls.sess = ort.InferenceSession('risk_model.onnx', providers=['CPUExecutionProvider'])
+        if cls.sess is None:
+            cls.sess = ort.InferenceSession(
+                "risk_model.onnx", providers=["CPUExecutionProvider"]
+            )
 
-    def test(self,  _=None):
+    def test(self, _=None) -> bytes:
+        # return bytes(100)
         return 100
 
-    def score(self, scene, features):
+    def score(self, scene, features) -> int:
         """Calculate risk score based on input features"""
         RiskScorerServiceImpl.init()
         try:
             # Prepare input data
-            x = np.array([features['values']], dtype=np.float32)
-            
+            x = np.array([features["values"]], dtype=np.float32)
+
             # Run inference
-            result = RiskScorerServiceImpl.sess.run(None, {'input': x})[0]
+            result = RiskScorerServiceImpl.sess.run(None, {"input": x})[0]
             prob = np.array(result)[0][0][1].item()
-            
+
             # Convert probability to score (800-500 range)
             score = int(800 - prob * 300)
             return score
         except Exception as e:
             # Fallback score calculation
-            debt = features.get('external_debt_ratio', 0)
-            age = features.get('age', 30)
+            debt = features.get("external_debt_ratio", 0)
+            age = features.get("age", 30)
             return int(700 - debt * 120 - max(0, 25 - age) * 2)
-        
+
+
 def build_service_handler():
     # build a method handler
     test_method_handler = RpcMethodHandler.unary(
-        method=RiskScorerServiceImpl().test, method_name="test"
+        method=RiskScorerServiceImpl().test,
+        method_name="test",
+        # request_deserializer=json_deserializer,
+        # response_serializer=json_serializer,
     )
     score_method_handler = RpcMethodHandler.unary(
-        method=RiskScorerServiceImpl().score, method_name="score"
+        method=RiskScorerServiceImpl().score,
+        method_name="score",
+        # request_deserializer=json_deserializer,
+        # response_serializer=json_serializer,
     )
     # build a service handler
-    interface = os.getenv("SERVICE_PACKAGE_NAME") or "com.metawebthree.common.rpc.interfaces.RiskScorerService"
+    interface = (
+        os.getenv("SERVICE_PACKAGE_NAME")
+        or "com.metawebthree.common.rpc.interfaces.RiskScorerService"
+    )
     service_handler = RpcServiceHandler(
         service_name=interface,
         method_handlers=[test_method_handler, score_method_handler],
     )
     return service_handler
+
 
 def start_risk_score_model():
     # Configure the Zookeeper registry
@@ -63,12 +103,13 @@ def start_risk_score_model():
 
     # Create the client
     # client = bootstrap.create_client(reference_config)
-    
+
     # build service config
     service_handler = build_service_handler()
     service_config = ServiceConfig(
-        service_handler=service_handler, port=(os.getenv("EXPORT_DUBBO_PORT") or 20088),
-        # protocol="dubbo", # not support dubbo?
+        service_handler=service_handler,
+        port=(os.getenv("EXPORT_DUBBO_PORT") or 20088),
+        # protocol="tri",
     )
     dubbo_config = Dubbo(
         application_config,
@@ -78,9 +119,8 @@ def start_risk_score_model():
     # bootstrap.create_server(service_config).start()
     # start the server
     server = dubbo.Server(
-        service_config, 
+        service_config,
         dubbo_config,
     )
     server.start()
     return server
-
