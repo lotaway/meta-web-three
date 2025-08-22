@@ -40,6 +40,10 @@ public class DecisionServiceImpl implements DecisionService {
     private final AuditRepo auditRepo;
     private final CreditProfileRepo creditProfileRepo;
 
+    public int test() {
+        return riskScorerService.test();
+    }
+
     @Override
     public DecisionResponse decide(DecisionRequest request) {
         Map<String, Object> features = featureRepo.load(request);

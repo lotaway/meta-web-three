@@ -3,12 +3,11 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - python=3.10.18
+  - python>=3.11.13
   - pip:
   # pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/
     - --index-url https://pypi.tuna.tsinghua.edu.cn/simple
     - numpy>=1.21.0
     - onnxruntime>=1.22.1
-    - python3-dubbo>=0.0.8
-    # - apache-dubbo>=3.0.0b1
-    - easy_dotenv>=0.3.2
+    - apache-dubbo>=3.0.0b1
+    - python-dotenv>=1.1.1

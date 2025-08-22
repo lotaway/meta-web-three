@@ -193,7 +193,7 @@ class WeatherModel(nn.Module):
         plt.tight_layout()
         plt.show()
 
-class Mnist_NN(nn.Moddle):
+class Mnist_NN(nn.Module):
 
     @classmethod
     def get_data(cls):

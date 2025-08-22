@@ -1,4 +1,4 @@
-# name: meta-web-three-ai
+name: ai
 channels:
   - defaults
   - conda-forge

@@ -13,6 +13,10 @@ public class DecisionController {
 
     private final DecisionService decisionService;
 
+    public String test() {
+        return String.valueOf(decisionService.test());
+    }
+
     @PostMapping("/decision")
     public DecisionResponse decide(@RequestBody DecisionRequest request) {
         return decisionService.decide(request);
