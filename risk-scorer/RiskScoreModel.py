@@ -1,8 +1,9 @@
 from dubbo.client import DubboClient, ZkRegister
 import onnxruntime as ort
 import numpy as np
+from env_loader import base
 
-# @TODO train risk model
+# @TODO get risk model
 sess = ort.InferenceSession('risk_model.onnx', providers=['CPUExecutionProvider'])
 
 class RiskScorerService:
@@ -26,11 +27,12 @@ class RiskScorerService:
             return int(700 - debt * 120 - max(0, 25 - age) * 2)
 
 def start_risk_score_model():
+
     # Dubbo service configuration
-    interface = 'com.metawebthree.common.rpc.interfaces.RiskScorerService'
+    interface = base.service_package_name
     
     # Zookeeper registry
-    zk = ZkRegister('192.168.1.194:2181')
+    zk = ZkRegister(base.zk_port)
     
     # Create Dubbo client
     client = DubboClient(interface, zk_register=zk)
