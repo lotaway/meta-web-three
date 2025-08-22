@@ -1,6 +1,5 @@
 package com.metawebthree.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.metawebthree.common.annotations.LogMethod;
 import com.metawebthree.entity.ExchangeOrder;
 import com.metawebthree.repository.ExchangeOrderRepository;
