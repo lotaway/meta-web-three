@@ -15,7 +15,7 @@ class RiskScorerServiceImpl:
         if (cls.sess is None):
             cls.sess = ort.InferenceSession('risk_model.onnx', providers=['CPUExecutionProvider'])
 
-    def test(self):
+    def test(self,  _=None):
         return 100
 
     def score(self, scene, features):
@@ -58,7 +58,7 @@ def start_risk_score_model():
     # Configure the Zookeeper registry
     zk = os.getenv("ZK_HOST")
     application_config = ApplicationConfig("risk-scorer-service")
-    registry_config = RegistryConfig.from_url(f"zookeeper://{zk}?root=/dubbo")
+    registry_config = RegistryConfig.from_url(f"zookeeper://{zk}/dubbo")
     # bootstrap = Dubbo(registry_config=registry_config)
 
     # Create the client
@@ -67,7 +67,8 @@ def start_risk_score_model():
     # build service config
     service_handler = build_service_handler()
     service_config = ServiceConfig(
-        service_handler=service_handler, port=(os.getenv("EXPORT_DUBBO_PORT") or 20088)
+        service_handler=service_handler, port=(os.getenv("EXPORT_DUBBO_PORT") or 20088),
+        # protocol="dubbo", # not support dubbo?
     )
     dubbo_config = Dubbo(
         application_config,
