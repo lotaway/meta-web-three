@@ -4,20 +4,8 @@ server:
 spring:
   application:
     name: payment-service
-
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      password: 
-      database: 0
-      timeout: 10000ms
-      lettuce:
-        pool:
-          max-active: 8
-          max-wait: -1ms
-          max-idle: 8
-          min-idle: 0
+  profiles:
+    active: dev
 
 # 支付配置
 payment:
@@ -116,3 +104,20 @@ payment:
       l3:
         name: "企业验证"
         limit: 1000000
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+    import: 
+      # - optional:classpath:/config/application-common-${spring.profiles.active}.yml
+      - optional:classpath:application-common.yml
+      - optional:classpath:application-common-dev.yml
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import:
+      - optional:classpath:application-common.yml
+      - optional:classpath:application-common-prod.yml

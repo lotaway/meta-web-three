@@ -16,9 +16,12 @@ public class DefaultS3Config {
     @Value("${aws.region:未配置}")
     protected String region;
 
+    @Value("${aws.s3.buckets.name:metaserver}")
+    protected String name;
+
     @PostConstruct
     public void init() {
-        log.info("DefaultS3Config region: " + region);
+        log.info("DefaultS3Config region: " + region + ", name: " + name);
     }
 
     @Bean
@@ -26,6 +29,10 @@ public class DefaultS3Config {
         return S3Client.builder()
                 .region(Region.of(this.region))
                 .build();
+    }
+
+    public String getName() {
+        return name;
     }
 
 }

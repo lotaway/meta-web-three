@@ -1,4 +1,4 @@
-package com.metawebthree.common.setting;
+package com.metawebthree.media.setting;
 
 import org.springframework.stereotype.Repository;
 

@@ -1,18 +1,16 @@
 package com.metawebthree.common.cloud;
 
-import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
 import java.io.IOException;
 
-@Service
 public class DefaultS3Service {
 
     private final S3Client s3Client;
 
-    public DefaultS3Service(S3Client s3Client, DefaultS3Buckets s3Bucket) {
+    public DefaultS3Service(S3Client s3Client) {
         this.s3Client = s3Client;
     }
 

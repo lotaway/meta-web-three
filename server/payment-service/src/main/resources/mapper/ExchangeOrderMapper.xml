@@ -17,14 +17,14 @@
         <result column="payment_order_no" property="paymentOrderNo" jdbcType="VARCHAR"/>
         <result column="crypto_transaction_hash" property="cryptoTransactionHash" jdbcType="VARCHAR"/>
         <result column="user_wallet_address" property="userWalletAddress" jdbcType="VARCHAR"/>
-        <result column="failure_reason" property="failureReason" jdbcType="TEXT"/>
+        <result column="failure_reason" property="failureReason" jdbcType="LONGVARCHAR"/>
         <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
         <result column="paid_at" property="paidAt" jdbcType="TIMESTAMP"/>
         <result column="completed_at" property="completedAt" jdbcType="TIMESTAMP"/>
         <result column="expired_at" property="expiredAt" jdbcType="TIMESTAMP"/>
         <result column="kyc_level" property="kycLevel" jdbcType="VARCHAR"/>
         <result column="kyc_verified" property="kycVerified" jdbcType="BOOLEAN"/>
-        <result column="remark" property="remark" jdbcType="TEXT"/>
+        <result column="remark" property="remark" jdbcType="LONGVARCHAR"/>
     </resultMap>
     <sql id="Base_Column_List">
         id, order_no, user_id, order_type, status, fiat_currency, crypto_currency, 

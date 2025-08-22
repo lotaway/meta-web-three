@@ -10,6 +10,24 @@ spring:
         # root: /meta-web-three
   datasource:
     driver-class-name: org.postgresql.Driver
+    # quartz:
+    # #如果需要quartz 第一次运行时自动生成 quartz 所需的表那么 quartzJob? 后面的配置为 ：allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    #   url: jdbc:mysql://localhost:3306/quartzJob?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    #   username: admin
+    #   password: 123123
+  # data:
+  #   redis:
+  #     host: ${env-ip}
+  #     port: 6379
+  #     password:
+  #     database: 0
+  #     timeout: 10000ms
+  #     lettuce:
+  #       pool:
+  #         max-active: 8
+  #         max-wait: -1ms
+  #         max-idle: 8
+  #         min-idle: 0
   quartz:
     job-store-type: JDBC
     auto-startup: true
@@ -50,6 +68,7 @@ mybatis-plus:
       logic-not-delete-value: 0
 rocketmq:
   client:
+    namesrv: ${env-ip}:9876
     appliaction-topic: "publicApplicationTopic"
 jwt:
   secret: mwt123123

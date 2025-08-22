@@ -13,6 +13,7 @@ public class DecisionController {
 
     private final DecisionService decisionService;
 
+    @GetMapping("/test")
     public String test() {
         return String.valueOf(decisionService.test());
     }

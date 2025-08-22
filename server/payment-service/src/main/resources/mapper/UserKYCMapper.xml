@@ -11,7 +11,7 @@
         <result column="id_type" property="idType" jdbcType="VARCHAR"/>
         <result column="phone_number" property="phoneNumber" jdbcType="VARCHAR"/>
         <result column="email" property="email" jdbcType="VARCHAR"/>
-        <result column="address" property="address" jdbcType="TEXT"/>
+        <result column="address" property="address" jdbcType="LONGVARCHAR"/>
         <result column="country" property="country" jdbcType="VARCHAR"/>
         <result column="nationality" property="nationality" jdbcType="VARCHAR"/>
         <result column="date_of_birth" property="dateOfBirth" jdbcType="VARCHAR"/>
@@ -30,7 +30,7 @@
         <result column="source_of_funds" property="sourceOfFunds" jdbcType="VARCHAR"/>
         <result column="purpose_of_transaction" property="purposeOfTransaction" jdbcType="VARCHAR"/>
         <result column="reviewer_id" property="reviewerId" jdbcType="VARCHAR"/>
-        <result column="review_notes" property="reviewNotes" jdbcType="TEXT"/>
+        <result column="review_notes" property="reviewNotes" jdbcType="LONGVARCHAR"/>
         <result column="submitted_at" property="submittedAt" jdbcType="TIMESTAMP"/>
         <result column="reviewed_at" property="reviewedAt" jdbcType="TIMESTAMP"/>
         <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>

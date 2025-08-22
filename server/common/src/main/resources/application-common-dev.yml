@@ -8,10 +8,9 @@ spring:
     url: jdbc:postgresql://postgres-service:5432/metawebthree?useUnicode=true&characterEncoding=utf-8
     username: admin
     password: 123123
-# rocketMQ
-rocketmq:
-  client:
-    namesrv: ${env-ip}:9876
+  quartz:
+    jdbc:
+      initialize-schema: always # auto init database tables
 dubbo:
   registry:
     address: ${spring.cloud.zookeeper.connect-string}
