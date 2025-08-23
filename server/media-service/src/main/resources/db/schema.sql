@@ -13,13 +13,13 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-DROP TABLE IF EXISTS "Video";
+DROP TABLE IF EXISTS "Artwork";
 DROP TABLE IF EXISTS "People_Type";
 DROP TABLE IF EXISTS "People";
-DROP TABLE IF EXISTS "Video_Tag";
-DROP TABLE IF EXISTS "Video_Category";
+DROP TABLE IF EXISTS "Artwork_Tag";
+DROP TABLE IF EXISTS "Artwork_Category";
 
-CREATE TABLE "Video_Category" (
+CREATE TABLE "Artwork_Category" (
     "id" SERIAL PRIMARY KEY,
     "name" VARCHAR NOT NULL,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -27,11 +27,11 @@ CREATE TABLE "Video_Category" (
 );
 
 CREATE TRIGGER update_video_category_updated_at
-BEFORE UPDATE ON "Video_Category"
+BEFORE UPDATE ON "Artwork_Category"
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TABLE "Video_Tag" (
+CREATE TABLE "Artwork_Tag" (
     "id" SERIAL PRIMARY KEY,
     "tag" VARCHAR NOT NULL,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -53,7 +53,7 @@ CREATE TABLE "People_Type" (
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE "Video" (
+CREATE TABLE "Artwork" (
     "id" SERIAL PRIMARY KEY,
     "series" VARCHAR(255) DEFAULT '', -- Batman Prequel
     "title" VARCHAR NOT NULL, -- Batman Begins
@@ -62,7 +62,7 @@ CREATE TABLE "Video" (
     "subtitle" VARCHAR(255) DEFAULT '', -- Behind the scenes
     "season" SMALLINT DEFAULT 1,
     "episode" SMALLINT DEFAULT 1,
-    "category_id" INTEGER REFERENCES "Video_Category" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    "category_id" INTEGER REFERENCES "Artwork_Category" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     "tags" INTEGER[] DEFAULT '{}', -- List of Table Tag IDs
     "year_tag" SMALLINT DEFAULT 0,
     "acts" INTEGER[] DEFAULT '{}', -- List of Table People_Type type=Actor IDs
@@ -71,8 +71,8 @@ CREATE TABLE "Video" (
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TRIGGER update_Video_updated_at
-BEFORE UPDATE ON "Video"
+CREATE TRIGGER update_Artwork_updated_at
+BEFORE UPDATE ON "Artwork"
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
@@ -88,10 +88,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER update_video_tag_created_at
-BEFORE INSERT ON "Video"
+BEFORE INSERT ON "Artwork"
 FOR EACH ROW
 EXECUTE FUNCTION update_year_tag_column();
 
-CREATE INDEX idx_Video_updated_at ON "Video" ("updated_at");
+CREATE INDEX idx_Artwork_updated_at ON "Artwork" ("updated_at");
 
-CREATE INDEX idx_video_tags ON "Video" USING GIN (tags);
+CREATE INDEX idx_video_tags ON "Artwork" USING GIN (tags);
