@@ -1,19 +1,21 @@
 package com.metawebthree.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.metawebthree.common.DO.BaseDO;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 
 import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @TableName("User_Kyc")
-public class UserKYC {
+public class UserKYC extends BaseDO {
     
     @TableId(type = IdType.AUTO)
     private Long id;
@@ -107,12 +109,6 @@ public class UserKYC {
     
     @TableField("reviewed_at")
     private LocalDateTime reviewedAt;
-    
-    @TableField(value = "created_at", fill = FieldFill.INSERT)
-    private LocalDateTime createdAt;
-    
-    @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updatedAt;
     
     public enum KYCLevel {
         L0("基础验证", 1000),

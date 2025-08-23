@@ -6,6 +6,9 @@ import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
 import java.io.IOException;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class DefaultS3Service {
 
     private final S3Client s3Client;

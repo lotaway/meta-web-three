@@ -1,8 +1,6 @@
 package com.metawebthree.media;
 
-import com.metawebthree.common.cloud.DefaultS3Service;
 import com.metawebthree.common.dto.ApiResponse;
-import com.metawebthree.media.MediaService;
 
 import java.io.File;
 import java.io.IOException;

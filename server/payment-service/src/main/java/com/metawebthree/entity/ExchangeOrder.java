@@ -1,10 +1,12 @@
 package com.metawebthree.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.metawebthree.common.DO.BaseDO;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,9 +14,9 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @TableName("Exchange_Orders")
-public class ExchangeOrder {
+public class ExchangeOrder extends BaseDO {
 
     @TableId(type = IdType.AUTO)
     private Long id;
@@ -69,9 +71,6 @@ public class ExchangeOrder {
 
     @TableField("failure_reason")
     private String failureReason;
-
-    @TableField(value = "created_at", fill = FieldFill.INSERT)
-    private LocalDateTime createdAt;
 
     @TableField("paid_at")
     private LocalDateTime paidAt;

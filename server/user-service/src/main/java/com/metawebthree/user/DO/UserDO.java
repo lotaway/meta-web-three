@@ -6,12 +6,12 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.metawebthree.common.DO.BaseDO;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("User")

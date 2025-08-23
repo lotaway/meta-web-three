@@ -1,10 +1,12 @@
 package com.metawebthree.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.metawebthree.common.DO.BaseDO;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,9 +14,9 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @TableName("Crypto_Prices")
-public class CryptoPrice {
+public class CryptoPrice extends BaseDO {
     
     @TableId(type = IdType.AUTO)
     private Long id;
@@ -51,7 +53,4 @@ public class CryptoPrice {
     
     @TableField("timestamp")
     private LocalDateTime timestamp;
-    
-    @TableField(value = "created_at", fill = FieldFill.INSERT)
-    private LocalDateTime createdAt;
 } 

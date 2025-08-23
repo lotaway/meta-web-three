@@ -66,7 +66,7 @@ CREATE TABLE "Artwork" (
     "tags" INTEGER[] DEFAULT '{}', -- List of Table Tag IDs
     "year_tag" SMALLINT DEFAULT 0,
     "acts" INTEGER[] DEFAULT '{}', -- List of Table People_Type type=Actor IDs
-    "Director" INTEGER REFERENCES "People_Type" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    "director" INTEGER REFERENCES "People" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

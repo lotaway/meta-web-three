@@ -2,17 +2,19 @@ package com.metawebthree.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.metawebthree.common.DO.BaseDO;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class ExchangeOrderResponse {
+@SuperBuilder
+public class ExchangeOrderResponse extends BaseDO {
     
     private String orderNo;
     private String status;
@@ -26,7 +28,6 @@ public class ExchangeOrderResponse {
     private String paymentUrl; // 支付链接
     private String qrCode; // 二维码数据
     private String walletAddress;
-    private LocalDateTime createdAt;
     private LocalDateTime expiredAt;
     private String kycLevel;
     private Boolean kycVerified;
