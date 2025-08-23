@@ -12,6 +12,11 @@ END;
 
 $$ LANGUAGE plpgsql;
 
+
+DROP TABLE IF EXISTS "Video";
+DROP TABLE IF EXISTS "People_Type";
+DROP TABLE IF EXISTS "People";
+DROP TABLE IF EXISTS "Video_Tag";
 DROP TABLE IF EXISTS "Video_Category";
 
 CREATE TABLE "Video_Category" (
@@ -26,16 +31,12 @@ BEFORE UPDATE ON "Video_Category"
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
-DROP TABLE IF EXISTS "Video_Tag";
-
 CREATE TABLE "Video_Tag" (
     "id" SERIAL PRIMARY KEY,
     "tag" VARCHAR NOT NULL,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-DROP TABLE IF EXISTS "People";
 
 CREATE TABLE "People" (
     "id" SERIAL PRIMARY KEY,
@@ -45,16 +46,12 @@ CREATE TABLE "People" (
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-DROP TABLE IF EXISTS "People_Type";
-
 CREATE TABLE "People_Type" (
     "id" SERIAL PRIMARY KEY,
     "type" VARCHAR NOT NULL, -- Such as Director, Editor, Actor, Voicer
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-DROP TABLE IF EXISTS "Video";
 
 CREATE TABLE "Video" (
     "id" SERIAL PRIMARY KEY,
