@@ -5,7 +5,7 @@ spring:
       discovery:
         root: /dev/metawebthree
   datasource:
-    url: jdbc:postgresql://postgres-service:5432/metawebthree?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:postgresql://192.168.1.194:5432/metawebthree?useUnicode=true&characterEncoding=utf-8
     username: admin
     password: 123123
   quartz:
