@@ -14,6 +14,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @TableName("People_Type")
 public class PeopleTypeDO extends BaseDO {
-    Long id;
+    Short id;
     String type;
 }
