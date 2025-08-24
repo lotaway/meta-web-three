@@ -2,8 +2,11 @@ package com.metawebthree.media;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.BatchResult;
@@ -114,44 +117,49 @@ public class MediaMapperTest {
     @Transactional
     public List<Integer> processArtworks() {
         List<Integer> results = new ArrayList<>();
-        try (Cursor<ArtWorkDO> cursor = artWorkMapper.getCursor()) {
+        SqlSessionFactory factory = SqlHelper.sqlSessionFactory(ArtWorkDO.class);
+        try (SqlSession session = factory.openSession()) {
+            ArtWorkMapper mapper = session.getMapper(ArtWorkMapper.class);
+            Cursor<ArtWorkDO> cursor = mapper.getCursor();
             List<ArtWorkDO> buffer = new ArrayList<>();
             int batchSize = 1000;
-            for (ArtWorkDO data : cursor) {
+            Iterator<ArtWorkDO> iter = cursor.iterator();
+            while (iter.hasNext()) {
+                ArtWorkDO data = iter.next();
                 data = processArtwork(data);
                 buffer.add(data);
                 if (buffer.size() >= batchSize) {
-                    results.addAll(batchUpdate(buffer));
+                    results.addAll(batchUpdate(buffer, mapper));
                     buffer.clear();
                 }
             }
             if (!buffer.isEmpty()) {
-                results.addAll(batchUpdate(buffer));
+                results.addAll(batchUpdate(buffer, mapper));
                 buffer.clear();
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return results;
     }
 
-    private List<Integer> batchUpdate(List<ArtWorkDO> list) {
+    private List<Integer> batchUpdate(List<ArtWorkDO> list, ArtWorkMapper artWorkMapper) {
         List<Integer> results = new ArrayList<>();
-        SqlSessionFactory factory = SqlHelper.sqlSessionFactory(ArtWorkDO.class);
-        try (SqlSession session = factory.openSession(ExecutorType.BATCH)) {
-            ArtWorkMapper mapper = session.getMapper(ArtWorkMapper.class);
-            for (ArtWorkDO u : list) {
-                results.add(mapper.updateById(u));
-            }
-            session.flushStatements();
+        for (ArtWorkDO u : list) {
+            results.add(artWorkMapper.updateById(u));
         }
         return results;
     }
 
     private ArtWorkDO processArtwork(ArtWorkDO artWorkDO) {
-        if (artWorkDO.getTitle().matches("\\d{1,2}$")) {
-            artWorkDO.setTitle(artWorkDO.getTitle());
-        }
+        // Pattern pattern = Pattern.compile("[^\\d]+(1){1}$");
+        // Matcher matcher = pattern.matcher(artWorkDO.getTitle());
+        // if (matcher.find() && artWorkDO.getSubtitle().startsWith("第") && artWorkDO.getSubtitle().endsWith("季")) {
+        //     String matchPart = matcher.group(1);
+        //     String originTitle = artWorkDO.getTitle();
+        //     artWorkDO.setTitle(originTitle.replace(matchPart, ""));
+        //     System.out.println(String.format("title replace: %s -> %s", originTitle, artWorkDO.getTitle()));
+        // }
         return artWorkDO;
     }
 }
