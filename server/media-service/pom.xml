@@ -16,5 +16,11 @@
             <artifactId>common</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.commonmark/commonmark -->
+        <dependency>
+            <groupId>org.commonmark</groupId>
+            <artifactId>commonmark</artifactId>
+            <version>0.25.1</version>
+        </dependency>
     </dependencies>
 </project>

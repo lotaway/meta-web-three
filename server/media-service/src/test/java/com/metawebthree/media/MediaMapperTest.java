@@ -1,37 +1,38 @@
 package com.metawebthree.media;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.ibatis.cursor.Cursor;
-import org.apache.ibatis.executor.BatchResult;
-import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.commonmark.node.Link;
+import org.commonmark.node.Node;
+import org.commonmark.node.Text;
+import org.commonmark.parser.Parser;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.jupiter.api.Disabled;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.LambdaUtils;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.metawebthree.media.DO.ArtWorkDO;
 import com.metawebthree.media.DO.PeopleDO;
 import com.metawebthree.media.DO.PeopleTypeDO;
+import com.metawebthree.media.utils.DefaultMarkdownVisitor;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -41,6 +42,9 @@ import com.metawebthree.media.DO.PeopleTypeDO;
 })
 @EnableAutoConfiguration
 public class MediaMapperTest {
+
+    @Value("${test-md-file}")
+    private String importMDFile;
 
     @Autowired
     private ArtWorkMapper artWorkMapper;
@@ -108,14 +112,23 @@ public class MediaMapperTest {
     }
 
     @Test
-    public void fixArtworkSeriesError() {
-        List<Integer> results = processArtworks();
+    @Disabled("Fix data")
+    public void fixArtworkSeriesError() throws IOException {
+        Node document = analyzeFile();
+        List<Integer> results = processArtworks(document);
         Assert.assertTrue(results.size() > 0);
         Assert.assertTrue(results.stream().allMatch(i -> i > 0));
     }
 
+    public Node analyzeFile() throws IOException {
+        Parser parser = Parser.builder().build();
+        String fileContent = Files.readString(Path.of(importMDFile), java.nio.charset.StandardCharsets.UTF_8);
+        Node document = parser.parse(fileContent);
+        return document;
+    }
+
     @Transactional
-    public List<Integer> processArtworks() {
+    public List<Integer> processArtworks(Node document) {
         List<Integer> results = new ArrayList<>();
         SqlSessionFactory factory = SqlHelper.sqlSessionFactory(ArtWorkDO.class);
         try (SqlSession session = factory.openSession()) {
@@ -126,7 +139,7 @@ public class MediaMapperTest {
             Iterator<ArtWorkDO> iter = cursor.iterator();
             while (iter.hasNext()) {
                 ArtWorkDO data = iter.next();
-                data = processArtwork(data);
+                data = processArtwork(data, document);
                 buffer.add(data);
                 if (buffer.size() >= batchSize) {
                     results.addAll(batchUpdate(buffer, mapper));
@@ -151,15 +164,33 @@ public class MediaMapperTest {
         return results;
     }
 
-    private ArtWorkDO processArtwork(ArtWorkDO artWorkDO) {
+    private ArtWorkDO processArtwork(ArtWorkDO artWorkDO, Node document) {
         // Pattern pattern = Pattern.compile("[^\\d]+(1){1}$");
         // Matcher matcher = pattern.matcher(artWorkDO.getTitle());
-        // if (matcher.find() && artWorkDO.getSubtitle().startsWith("第") && artWorkDO.getSubtitle().endsWith("季")) {
-        //     String matchPart = matcher.group(1);
-        //     String originTitle = artWorkDO.getTitle();
-        //     artWorkDO.setTitle(originTitle.replace(matchPart, ""));
-        //     System.out.println(String.format("title replace: %s -> %s", originTitle, artWorkDO.getTitle()));
+        // if (matcher.find() && artWorkDO.getSubtitle().startsWith("第") &&
+        // artWorkDO.getSubtitle().endsWith("季")) {
+        // String matchPart = matcher.group(1);
+        // String originTitle = artWorkDO.getTitle();
+        // artWorkDO.setTitle(originTitle.replace(matchPart, ""));
+        // System.out.println(String.format("title replace: %s -> %s", originTitle,
+        // artWorkDO.getTitle()));
         // }
+        if (artWorkDO.getTitle() == null || artWorkDO.getTitle().isEmpty()) {
+            ArtWorkDO pre = artWorkMapper.selectById(artWorkDO.getId() - 1);
+            Node node = document.getNext();
+            while (node != null && pre.getTitle() != null) {
+                String text = DefaultMarkdownVisitor.getText(node);
+                if (!text.contains(pre.getTitle().replaceFirst("1{1}$", ""))) {
+                    continue;
+                }
+                Node cur = node.getNext();
+                if (cur == null) {
+                    continue;
+                }
+                String curText = DefaultMarkdownVisitor.getText(cur);
+                artWorkDO.setTitle(curText);
+            }
+        }
         return artWorkDO;
     }
 }
