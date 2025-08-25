@@ -1,9 +1,11 @@
-use std::fs;
+use std::{env, fs, path::Path};
 
 fn main() {
+    println!("Start rust building script...");
     let mut proto_files = vec![];
-    let proto_dir = "../protos/";
-    if let Ok(entries) = fs::read_dir(proto_dir) {
+    let out_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
+    let proto_dir = Path::new(&out_dir).join("../protos/");
+    if let Ok(entries) = fs::read_dir(proto_dir.clone()) {
         for entry in entries {
             if let Ok(entry) = entry {
                 let path = entry.path();
@@ -14,7 +16,7 @@ fn main() {
             }
         }
     } else {
-        panic!("Failed to read directory: {}", proto_dir);
+        panic!("Failed to read directory: {:?}", proto_dir.to_str().unwrap().to_string());
     }
 
     match tonic_prost_build::configure()
