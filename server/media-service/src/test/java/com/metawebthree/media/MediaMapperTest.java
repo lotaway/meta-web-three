@@ -10,9 +10,7 @@ import java.util.List;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.commonmark.node.Link;
 import org.commonmark.node.Node;
-import org.commonmark.node.Text;
 import org.commonmark.parser.Parser;
 import org.junit.Assert;
 import org.junit.Test;
@@ -96,6 +94,7 @@ public class MediaMapperTest {
     }
 
     @Test
+    @Disabled("Fix data")
     public void fixSubtitleUndefinedError() {
         String errorPart = "undefined";
         ArtWorkDO artWorkDO = ArtWorkDO.builder().subtitle(errorPart).build();
@@ -165,16 +164,6 @@ public class MediaMapperTest {
     }
 
     private ArtWorkDO processArtwork(ArtWorkDO artWorkDO, Node document) {
-        // Pattern pattern = Pattern.compile("[^\\d]+(1){1}$");
-        // Matcher matcher = pattern.matcher(artWorkDO.getTitle());
-        // if (matcher.find() && artWorkDO.getSubtitle().startsWith("第") &&
-        // artWorkDO.getSubtitle().endsWith("季")) {
-        // String matchPart = matcher.group(1);
-        // String originTitle = artWorkDO.getTitle();
-        // artWorkDO.setTitle(originTitle.replace(matchPart, ""));
-        // System.out.println(String.format("title replace: %s -> %s", originTitle,
-        // artWorkDO.getTitle()));
-        // }
         if (artWorkDO.getTitle() == null || artWorkDO.getTitle().isEmpty()) {
             ArtWorkDO pre = artWorkMapper.selectById(artWorkDO.getId() - 1);
             Node node = document.getNext();

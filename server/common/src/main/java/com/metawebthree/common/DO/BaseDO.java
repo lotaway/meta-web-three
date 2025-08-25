@@ -14,9 +14,17 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class BaseDO {
+public class BaseDO implements Cloneable {
     @TableField(fill = FieldFill.INSERT)
     Timestamp createdAt;
     @TableField(fill = FieldFill.INSERT_UPDATE)
     Timestamp updatedAt;
+
+    @Override
+    public BaseDO clone() throws CloneNotSupportedException {
+        BaseDO other = new BaseDO();
+        other.setCreatedAt(this.getCreatedAt());
+        other.setUpdatedAt(this.getUpdatedAt());
+        return other;
+    }
 }
