@@ -38,13 +38,14 @@ $ yarn install
 
 ### ai 环境
 
-需要以下4种的任意一种作为环境管理器使用：
-* [anaconda](https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive)，第三方维护，包含非py包，数量几千，兼容性强
-* [condaforce](https://conda-forge.org/miniforge)，社区维护，包含非py包，数量几万，但是兼容性差
-* [uv](https://pypi.org/project/uv)，python包管理器
-* pip，python环境自带
+需要以下 4 种的任意一种作为环境管理器使用：
 
-以anaconda为例，下载后执行：
+- [anaconda](https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive)，第三方维护，包含非 py 包，数量几千，兼容性强
+- [condaforce](https://conda-forge.org/miniforge)，社区维护，包含非 py 包，数量几万，但是兼容性差
+- [uv](https://pypi.org/project/uv)，python 包管理器
+- pip，python 环境自带
+
+以 anaconda 为例，下载后执行：
 
 ```bash
 conda create -n ai -c conda-forge
@@ -100,3 +101,9 @@ $ npm run start:prod
 ```
 
 `+(()=>throw new Emotion("Happy"))`
+
+### protobuf
+
+Need generate by [protoc v32.0](https://github.com/protocolbuffers/protobuf/releases), [protoc-gen-grpc-java v1.75.0](https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java) and [CMake v4.1.0](https://cmake.org/download) for `Rust` support.
+If using mac, can use `brew install protobuf` to install protoc, `brew install cmake` to install CMake, and can use [Java Project Maven](https://mvnrepository.com/artifact/io.grpc/protoc-gen-grpc-java) to dependecy `protoc-gen-grpc-java` then generate.
+After installed, run `make` to generate multiple language protobuf interface files.

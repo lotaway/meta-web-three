@@ -26,12 +26,14 @@ def base_type_to_bytes(v):
     raise TypeError("unsupported type")
 
 
-def json_serializer(v):
+def json_serializer(v) -> bytes:
     return orjson.dumps(v)
 
 
 def json_deserializer(b):
-    return orjson.loads(b)
+    res = orjson.loads(b)
+    print("json_deserializer: " + b + ", result:" + res)
+    return res
 
 
 class RiskScorerServiceImpl:
@@ -73,14 +75,14 @@ def build_service_handler():
     test_method_handler = RpcMethodHandler.unary(
         method=RiskScorerServiceImpl().test,
         method_name="test",
-        # request_deserializer=json_deserializer,
-        # response_serializer=json_serializer,
+        request_deserializer=json_deserializer,
+        response_serializer=json_serializer,
     )
     score_method_handler = RpcMethodHandler.unary(
         method=RiskScorerServiceImpl().score,
         method_name="score",
-        # request_deserializer=json_deserializer,
-        # response_serializer=json_serializer,
+        request_deserializer=json_deserializer,
+        response_serializer=json_serializer,
     )
     # build a service handler
     interface = (

@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package com.metawebthree.common.generated.rpc;
+
+service RiskScorerService {
+    rpc test (TestRequest) returns (TestResponse);
+    rpc score(ScoreRequest) returns (ScoreResponse);
+}
+
+enum DeviceRiskTag {
+    UNKNOWN = 0;
+    EMU = 1;
+    LOW_RISK = 2;
+    HIGH_RISK = 3;
+}
+
+message Feature {
+    oneof kind {
+        int32 device_shared_degree = 1;
+        DeviceRiskTag device_risk_tag = 2;
+        float external_debt_ratio = 3;
+        bool first_order = 4;
+        float gps_stability = 5;
+        int32 age = 6;
+    }
+}
+
+message TestRequest {
+}
+
+message TestResponse {
+    int32 result = 1;
+}
+
+message ScoreRequest {
+    string scene = 1;
+    map<string, Feature> features = 2;
+}
+
+message ScoreResponse {
+    double score = 1;
+}
