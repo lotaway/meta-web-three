@@ -9,7 +9,15 @@ from dubbo.bootstrap import Dubbo
 import numpy as np
 import os
 import struct
-import orjson
+import onnxruntime as ort
+from generated.rpc.RiskScorerService_pb2 import (
+    TestResponse,
+    ScoreResponse,
+    TestRequest,
+    ScoreRequest,
+    Feature,
+)
+from generated.rpc.RiskScorerService_pb2_grpc import RiskScorerServiceServicer
 
 
 def base_type_to_bytes(v):
@@ -27,16 +35,9 @@ def base_type_to_bytes(v):
 
 
 def json_serializer(v) -> bytes:
-    return orjson.dumps(v)
+    return v.SerializeToString()
 
-
-def json_deserializer(b):
-    res = orjson.loads(b)
-    print("json_deserializer: " + b + ", result:" + res)
-    return res
-
-
-class RiskScorerServiceImpl:
+class RiskScorerServiceImpl(RiskScorerServiceServicer):
 
     def init(cls):
         # @TODO get risk model
@@ -45,29 +46,31 @@ class RiskScorerServiceImpl:
                 "risk_model.onnx", providers=["CPUExecutionProvider"]
             )
 
-    def test(self, _=None) -> bytes:
-        # return bytes(100)
-        return 100
+    def test(self, request: TestRequest, context) -> TestResponse:
+        return TestResponse(result=100)
 
-    def score(self, scene, features) -> int:
+    def score(self, request: ScoreRequest, context) -> ScoreResponse:
         """Calculate risk score based on input features"""
         RiskScorerServiceImpl.init()
         try:
             # Prepare input data
-            x = np.array([features["values"]], dtype=np.float32)
+            features = {
+                k: v.values[0] if isinstance(v, Feature) else v
+                for k, v in request.features.items()
+            }
 
+            x = np.array([features["values"]], dtype=np.float32)
             # Run inference
             result = RiskScorerServiceImpl.sess.run(None, {"input": x})[0]
             prob = np.array(result)[0][0][1].item()
 
             # Convert probability to score (800-500 range)
-            score = int(800 - prob * 300)
-            return score
+            return ScoreResponse(score = int(800 - prob * 300))
         except Exception as e:
             # Fallback score calculation
             debt = features.get("external_debt_ratio", 0)
             age = features.get("age", 30)
-            return int(700 - debt * 120 - max(0, 25 - age) * 2)
+            return ScoreResponse(score=int(700 - debt * 120 - max(0, 25 - age) * 2))
 
 
 def build_service_handler():
@@ -75,13 +78,13 @@ def build_service_handler():
     test_method_handler = RpcMethodHandler.unary(
         method=RiskScorerServiceImpl().test,
         method_name="test",
-        request_deserializer=json_deserializer,
+        request_deserializer=TestRequest().FromString,
         response_serializer=json_serializer,
     )
     score_method_handler = RpcMethodHandler.unary(
         method=RiskScorerServiceImpl().score,
         method_name="score",
-        request_deserializer=json_deserializer,
+        request_deserializer=ScoreRequest().FromString,
         response_serializer=json_serializer,
     )
     # build a service handler
