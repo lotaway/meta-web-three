@@ -9,29 +9,20 @@ use dubbo::{
         RootConfig,
     },
     status::DubboError,
-    Dubbo, Url,
+    Dubbo,
 };
-use dubbo_config::registry::RegistryConfig;
-use ordered_float::OrderedFloat;
 use rdkafka::config::ClientConfig;
-use rdkafka::producer::{FutureProducer, FutureRecord};
-use serde::{Deserialize, Serialize};
-use serde_json::to_string;
-use slab::Slab;
+use rdkafka::producer::{FutureProducer};
 use std::{
-    collections::{BTreeMap, HashMap, VecDeque},
-    fs::{File, OpenOptions},
-    io::Write,
-    sync::{Arc, Mutex},
-    thread,
-    time::{Duration, SystemTime, UNIX_EPOCH},
+    collections::{HashMap},
+    sync::{Arc}
 };
 
 use crate::order_match::{
     interfaces::interfaces::MatchingService,
     order_shard::order_shard::ShardManager,
     structs::structs::{
-        OrderEntry, OrderKind, OrderRequest, OrderResponse, PriceLevel, Side, Trade,
+        OrderRequest, OrderResponse,
     },
 };
 
@@ -96,8 +87,8 @@ impl MatchingService for MatchingServiceImpl {
 
 pub fn start_rpc(markets: Vec<String>, kafka_brokers: &str, kafka_topic: &str, wal_dir: &str) {
     let consumer = MatchingServiceImpl::new(markets, kafka_brokers, kafka_topic, wal_dir);
-    register_server(consumer);
-    let registry_map = HashMap::<String, RegistryConfig>::new();
+    // register_server(consumer);
+    let mut registry_map = HashMap::<String, RegistryConfig>::new();
     registry_map.insert(
         "zookeeper".to_string(),
         RegistryConfig {

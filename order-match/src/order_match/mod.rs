@@ -1,6 +1,6 @@
-mod order_match;
-mod structs;
-mod order_shard;
-mod order_book;
-mod utils;
-mod interfaces;
+pub mod order_match;
+pub mod structs;
+pub mod order_shard;
+pub mod order_book;
+pub mod utils;
+pub mod interfaces;

@@ -1,7 +1,7 @@
 mod order_match;
 
 #[tokio::main]
-fn main() {
+async fn main() {
     println!("Order Book Program is running!");
-    start().await;
+    order_match::order_match::start().await;
 }

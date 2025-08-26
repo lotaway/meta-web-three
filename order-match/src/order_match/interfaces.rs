@@ -4,7 +4,7 @@ pub mod interfaces {
     use crate::order_match::structs::structs::{OrderRequest, OrderResponse};
 
 
-    #[dubbo::service]
+    // #[dubbo::service]
     #[async_trait]
     pub trait MatchingService {
         async fn match_order(&self, req: OrderRequest) -> Result<OrderResponse, DubboError>;

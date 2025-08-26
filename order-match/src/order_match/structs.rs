@@ -1,7 +1,7 @@
 pub mod structs {
     use std::collections::VecDeque;
 
-    use serde::{Deserialize, Serialize};
+    use serde::{de, Deserialize, Serialize};
 
     #[derive(Clone, Serialize, Deserialize, Debug)]
     pub enum Side {
@@ -56,6 +56,7 @@ pub mod structs {
         pub chain: String,
     }
 
+    #[derive(Clone)]
     pub struct PriceLevel {
         pub orders: VecDeque<usize>,
     }

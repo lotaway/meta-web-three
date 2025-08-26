@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package com.metawebthree.common.generated.rpc;
+
+enum DeviceRiskTag {
+    UNKNOWN = 0;
+    EMU = 1;
+    LOW_RISK = 2;
+    HIGH_RISK = 3;
+}

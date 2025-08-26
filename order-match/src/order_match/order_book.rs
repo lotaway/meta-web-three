@@ -6,6 +6,7 @@ pub mod order_book {
 
     use crate::order_match::structs::structs::{OrderEntry, PriceLevel};
 
+    #[derive(Clone)]
     pub struct OrderBook {
         pub buys: BTreeMap<OrderedFloat<f64>, PriceLevel>,
         pub sells: BTreeMap<OrderedFloat<f64>, PriceLevel>,

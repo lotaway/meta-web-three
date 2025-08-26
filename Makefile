@@ -2,6 +2,7 @@ PROTO_DIR = protos
 JAVA_OUT = server/common/src/main/java
 PY_OUT = risk-scorer/generated/rpc
 RUST_DIR = order-match
+RUST_OUT = $(RUST_DIR)/src/generated/rpc
 
 PROTO_FILES := $(wildcard $(PROTO_DIR)/*.proto)
 
@@ -29,8 +30,8 @@ python:
 
 rust:
 	@echo "Generating Rust code..."
-	@mkdir -p $(RUST_DIR)/src/generated
-	@cd $(RUST_DIR) && cargo build
+	@mkdir -p $(RUST_OUT)
+	@cd $(RUST_DIR) && RUST_BACKTRACE=1 cargo build
 
 clean:
 	rm -rf $(JAVA_OUT)/com/metawebthree/common/generated/rpc/*.java

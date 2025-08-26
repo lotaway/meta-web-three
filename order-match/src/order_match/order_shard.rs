@@ -84,7 +84,8 @@ pub mod order_shard {
                         if price < best_price {
                             break;
                         }
-                        if let Some(pl) = self.book.sells.get_mut(&best_k).clone() {
+                        if let Some(plprice_level) = self.book.sells.get_mut(&best_k) {
+                            let mut pl = (*plprice_level).clone();
                             while remaining > 0.0 {
                                 if pl.orders.is_empty() {
                                     break;
@@ -152,7 +153,7 @@ pub mod order_shard {
                         if price > best_price {
                             break;
                         }
-                        if let Some(pl) = self.book.buys.get_mut(&best_k) {
+                        if let Some(pl) = self.book.clone().buys.get_mut(&best_k) {
                             while remaining > 0.0 {
                                 if pl.orders.is_empty() {
                                     break;
@@ -216,7 +217,7 @@ pub mod order_shard {
                             Some(k) => k,
                             None => break,
                         };
-                        if let Some(pl) = self.book.sells.get_mut(&best_k).clone() {
+                        if let Some(pl) = self.book.sells.clone().get_mut(&best_k) {
                             while remaining > 0.0 && !pl.orders.is_empty() {
                                 let maker_idx = pl.orders.front().cloned().unwrap();
                                 let qty = {
@@ -264,7 +265,7 @@ pub mod order_shard {
                             Some(k) => k,
                             None => break,
                         };
-                        if let Some(pl) = self.book.buys.get_mut(&best_k) {
+                        if let Some(pl) = self.book.buys.clone().get_mut(&best_k) {
                             while remaining > 0.0 && !pl.orders.is_empty() {
                                 let maker_idx = pl.orders.front().cloned().unwrap();
                                 let qty = {
