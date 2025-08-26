@@ -78,14 +78,14 @@ def build_service_handler():
     test_method_handler = RpcMethodHandler.unary(
         method=RiskScorerServiceImpl().test,
         method_name="test",
-        request_deserializer=TestRequest().FromString,
-        response_serializer=json_serializer,
+        request_deserializer=TestRequest.FromString,
+        response_serializer=TestResponse.SerializeToString,
     )
     score_method_handler = RpcMethodHandler.unary(
         method=RiskScorerServiceImpl().score,
         method_name="score",
-        request_deserializer=ScoreRequest().FromString,
-        response_serializer=json_serializer,
+        request_deserializer=ScoreRequest.FromString,
+        response_serializer=ScoreResponse.SerializeToString,
     )
     # build a service handler
     interface = (

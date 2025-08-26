@@ -21,12 +21,17 @@ java:
 python:
 	@echo "Generating Python code..."
 	@mkdir -p $(PY_OUT)
-	@for file in $(PROTO_FILES); do \
-		python -m grpc_tools.protoc -I$(PROTO_DIR) \
-			--python_out=$(PY_OUT) \
-			--grpc_python_out=$(PY_OUT) \
-			$$file; \
-	done
+	# @for file in $(PROTO_FILES); do \
+	# 	python -m grpc_tools.protoc -I$(PROTO_DIR) \
+	# 		--python_out=$(PY_OUT) \
+	# 		--grpc_python_out=$(PY_OUT) \
+	# 		$$file; \
+	# done
+	python -m grpc_tools.protoc -I$(PROTO_DIR) \
+		--python_out=$(PY_OUT) \
+		--grpc_python_out=$(PY_OUT) \
+		--pyi_out=$(PY_OUT) \
+		$(PROTO_FILES)
 
 rust:
 	@echo "Generating Rust code..."
