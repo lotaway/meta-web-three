@@ -1,2 +1,7 @@
 __pycache__
 generated
+
+# grpc and proto file
+*_pb2.py
+*_pb2.pyi
+*_pb2_grpc.py
