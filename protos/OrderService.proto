@@ -1,0 +1,20 @@
+service OrderService {
+    rpc getOrderByUserId(GetOrderByUserIdRequest) returns (GetOrderByUserIdResponse);
+}
+
+message GetOrderByUserIdRequest {
+    required int64 id = 1;
+}
+
+message GetOrderByUserIdResponse {
+    repeated OrderDTO orders = 1;
+}
+
+message OrderDTO {
+    required int64 id = 1;
+    required int64 userId = 2;
+    required string orderNo = 3;
+    required string orderStatus = 4;
+    required string orderType = 5;
+    required double orderAmount = 6;
+}

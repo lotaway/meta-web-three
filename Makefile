@@ -6,9 +6,14 @@ RUST_OUT = $(RUST_DIR)/src/generated/rpc
 
 PROTO_FILES := $(wildcard $(PROTO_DIR)/*.proto)
 
-all: java python rust
+all: gen-java gen-python gen-rust
 
-java:
+install:
+	brew install protobuf
+	python3 -m pip install --user grpcio grpcio-tools kazoo
+	mkdir -p $(PROTO_DIR)
+
+gen-java:
 	@echo "Generating Java code..."
 	@mkdir -p $(JAVA_OUT)
 	@for file in $(PROTO_FILES); do \
@@ -18,7 +23,7 @@ java:
 			$$file; \
 	done
 
-python:
+gen-python:
 	@echo "Generating Python code..."
 	@mkdir -p $(PY_OUT)
 	# @for file in $(PROTO_FILES); do \
@@ -33,7 +38,7 @@ python:
 		--pyi_out=$(PY_OUT) \
 		$(PROTO_FILES)
 
-rust:
+gen-rust:
 	@echo "Generating Rust code..."
 	@mkdir -p $(RUST_OUT)
 	@cd $(RUST_DIR) && RUST_BACKTRACE=1 cargo build
