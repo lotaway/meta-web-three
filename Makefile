@@ -1,6 +1,6 @@
 PROTO_DIR = protos
 JAVA_OUT = server/common/src/main/java
-PY_OUT = risk-scorer/generated/rpc
+PY_OUT = risk-scorer
 RUST_DIR = order-match
 RUST_OUT = $(RUST_DIR)/src/generated/rpc
 
@@ -26,17 +26,12 @@ gen-java:
 gen-python:
 	@echo "Generating Python code..."
 	@mkdir -p $(PY_OUT)
-	# @for file in $(PROTO_FILES); do \
-	# 	python -m grpc_tools.protoc -I$(PROTO_DIR) \
-	# 		--python_out=$(PY_OUT) \
-	# 		--grpc_python_out=$(PY_OUT) \
-	# 		$$file; \
-	# done
 	python -m grpc_tools.protoc -I$(PROTO_DIR) \
 		--python_out=$(PY_OUT) \
 		--grpc_python_out=$(PY_OUT) \
 		--pyi_out=$(PY_OUT) \
 		$(PROTO_FILES)
+	# protoc --proto_path=$(PROTO_DIR) --python_out=$(PY_OUT) --pyi_out=$(PY_OUT) $(PROTO_FILES)
 
 gen-rust:
 	@echo "Generating Rust code..."
