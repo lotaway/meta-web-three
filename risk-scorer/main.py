@@ -1,10 +1,12 @@
 import signal
 import threading
-from RiskScoreModel import start_risk_score_model
+from grpcClient import start_risk_score_model
 from dotenv import load_dotenv
 from pathlib import Path
+import sys
 
 load_dotenv(dotenv_path=Path(__file__).parent / ".env")
+sys.path.insert(0, str(Path(__file__).parent.resolve()))
 
 
 def main():
@@ -18,7 +20,7 @@ def keep_alive():
     stop = threading.Event()
     signal.signal(signal.SIGINT, lambda s, f: stop.set())
     signal.signal(signal.SIGTERM, lambda s, f: stop.set())
-    stop.wait()
+    return stop.wait()
 
 
 if __name__ == "__main__":

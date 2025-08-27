@@ -80,6 +80,9 @@ dubbo:
   protocol:
     name: tri
     serialization: protobuf
+grpc:
+  discovery:
+    path-template: /grpc/{spring.application.name}/providers
 logging:
   level:
     com.metawebthree: DEBUG
