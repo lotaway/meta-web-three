@@ -7,7 +7,6 @@ use tokio::sync::{mpsc, Mutex};
 
 mod async_task;
 mod matcher;
-mod single_linked_list;
 mod utils;
 
 #[derive(Debug, Clone)]
@@ -141,7 +140,7 @@ impl TFutureTask<TFutureTaskResult> for LinkSummonProxy {
 #[tokio::main]
 async fn main() {
     println!("Start main");
-    let public_config_str = utils::get_config_file(".\\config\\public.json");
+    let public_config_str = utils::utils::get_config_file("public.json");
     dbg!("{}", public_config_str);
     start_block().await;
     tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;

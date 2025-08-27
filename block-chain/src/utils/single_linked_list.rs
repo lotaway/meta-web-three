@@ -85,7 +85,7 @@ pub fn delete_duplicates(head: Option<Box<ListNode>>) -> Option<Box<ListNode>> {
 
 #[cfg(test)]
 mod single_linked_list_tests {
-    use crate::single_linked_list::{delete_duplicates, ListNode, SingleLinkedList};
+    use crate::utils::single_linked_list::{delete_duplicates, ListNode, SingleLinkedList};
 
     #[test]
     fn test_delete_duplicates_link_node() {

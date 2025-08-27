@@ -46,13 +46,15 @@ pub fn get_config_file(file_name: &str) -> String {
                     println!("result: {}", result.unwrap());
                     _content
                 }
-                Err(err) => panic!("{}", err.to_string())
+                Err(err) => panic!("{}", err.to_string()),
             },
-            _ => panic!("{}", error.to_string())
-        }
+            _ => panic!("{}", error.to_string()),
+        },
     };
     if content.is_empty() {
-        std::io::stdin().read_line(&mut content).expect("error in get config file.");
+        std::io::stdin()
+            .read_line(&mut content)
+            .expect("error in get config file.");
     }
     content
 }
@@ -67,7 +69,9 @@ fn get_file(path: &PathBuf) -> Result<String, std::io::Error> {
     let mut content = String::new();
     // let size = File::open(path).and_then(|mut file| file.read_to_string(&mut content))?;
     // Ok(content)
-    File::open(path)?.read_to_string(&mut content).map(|_| content)
+    File::open(path)?
+        .read_to_string(&mut content)
+        .map(|_| content)
 }
 
 pub fn climb_stairs(n: i32) -> i32 {
@@ -85,7 +89,7 @@ pub fn climb_stairs(n: i32) -> i32 {
 
 #[cfg(test)]
 pub mod utils_tests {
-    use crate::utils::{climb_stairs, find_sub_str_index};
+    use crate::utils::utils::{climb_stairs, find_sub_str_index};
 
     #[test]
     fn test_find_sub_str_index() {

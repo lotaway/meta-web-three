@@ -68,8 +68,8 @@ pub mod matcher_tests {
         let result = test_matcher(&values);
         let matcher = Matcher { count: 1 };
         println!("Hello world! With result: {result} and is matcher: {}", matcher.count);
-        dbg!(&map); //  debug——自动输出所有内容和所在代码位置
-        utils::show_info(map.get("Red").map_or(0i8, |x| *x).to_string().as_str());
-        utils::show_info(map["Red"].to_string().as_str())
+        dbg!(&map);
+        utils::utils::show_info(map.get("Red").map_or(0i8, |x| *x).to_string().as_str());
+        utils::utils::show_info(map["Red"].to_string().as_str())
     }
 }

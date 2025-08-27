@@ -1,7 +1,6 @@
-use hex::ToHex;
-use std::future::{Future, IntoFuture};
+use std::future::{Future};
 use std::pin::Pin;
-use std::sync::{Arc, Barrier, Mutex};
+use std::sync::{Arc, Mutex};
 use std::task::{Context, Poll, Waker};
 use std::thread;
 use std::time::Duration;
@@ -88,10 +87,13 @@ where
         });
         match thread_handler.join() {
             Ok(result) => {
-                // let res = result.unwrap();
-                // dbg!("{:?}", res);
+                println!("Task result: {:?}", result);
             }
-            Err(error) => {}
+            Err(error) => {
+                let mut guard = context.lock().unwrap();
+                guard.state = FutureTaskState::Error;
+                println!("Task error: {:?}", error);
+            }
         }
 
         Self { duration, context }
