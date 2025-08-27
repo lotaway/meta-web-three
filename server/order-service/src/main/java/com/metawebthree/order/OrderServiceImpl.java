@@ -11,7 +11,7 @@ import com.metawebthree.common.rpc.interfaces.OrderService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@DubboService
+@DubboService(protocol = "tri", serialization = "protobuf")
 public class OrderServiceImpl implements OrderService {
 
     @Override

@@ -16,12 +16,10 @@ install:
 gen-java:
 	@echo "Generating Java code..."
 	@mkdir -p $(JAVA_OUT)
-	@for file in $(PROTO_FILES); do \
-		protoc -I=$(PROTO_DIR) \
-			--java_out=$(JAVA_OUT) \
-			--grpc-java_out=$(JAVA_OUT) \
-			$$file; \
-	done
+	protoc -I=$(PROTO_DIR) \
+		--java_out=$(JAVA_OUT) \
+		--grpc-java_out=$(JAVA_OUT) \
+		$(PROTO_FILES)
 
 gen-python:
 	@echo "Generating Python code..."
