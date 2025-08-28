@@ -1,9 +1,20 @@
+syntax = "proto3";
+
+package com.metawebthree.common.generated.rpc;
+
+// option cc_enable_arenas = true;
+option java_multiple_files = true;
+
+// [From](https://github.com/googleapis)
+import "google/type/money.proto";
+import "web3/token.proto";
+
 service OrderService {
     rpc getOrderByUserId(GetOrderByUserIdRequest) returns (GetOrderByUserIdResponse);
 }
 
 message GetOrderByUserIdRequest {
-    required int64 id = 1;
+    int64 id = 1;
 }
 
 message GetOrderByUserIdResponse {
@@ -11,10 +22,11 @@ message GetOrderByUserIdResponse {
 }
 
 message OrderDTO {
-    required int64 id = 1;
-    required int64 userId = 2;
-    required string orderNo = 3;
-    required string orderStatus = 4;
-    required string orderType = 5;
-    required double orderAmount = 6;
+    int64 id = 1;
+    int64 userId = 2;
+    string orderNo = 3;
+    string orderStatus = 4;
+    string orderType = 5;
+    google.type.Money orderAmount = 6;
+    web3.Token tokens = 7;
 }

@@ -13,9 +13,14 @@
   <artifactId>common</artifactId>
   <version>1.0.0</version>
   <packaging>jar</packaging>
-  <dependencies>
-  </dependencies>
   <build>
+    <extensions>
+      <extension>
+        <groupId>kr.motd.maven</groupId>
+        <artifactId>os-maven-plugin</artifactId>
+        <version>1.7.1</version>
+      </extension>
+    </extensions>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>
@@ -23,6 +28,58 @@
         <configuration>
           <skip>true</skip>
         </configuration>
+      </plugin>
+      <!-- For generating protobuf message classes -->
+      <plugin>
+        <groupId>org.xolstice.maven.plugins</groupId>
+        <artifactId>protobuf-maven-plugin</artifactId>
+        <version>0.6.1</version>
+        <configuration>
+          <protocArtifact>
+            com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
+          <pluginId>grpc-java</pluginId>
+          <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
+          <protoSourceRoot>${basedir}/../../protos</protoSourceRoot>
+          <outputDirectory>${basedir}/src/main/java</outputDirectory>
+          <clearOutputDirectory>false</clearOutputDirectory>
+          <protocPlugins>
+            <protocPlugin>
+              <id>dubbo</id>
+              <groupId>org.apache.dubbo</groupId>
+              <artifactId>dubbo-compiler</artifactId>
+              <version>${dubbo.version}</version>
+              <mainClass>org.apache.dubbo.gen.tri.Dubbo3TripleGenerator</mainClass>
+            </protocPlugin>
+          </protocPlugins>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>test-compile</goal>
+              <goal>compile-custom</goal>
+              <goal>test-compile-custom</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.dubbo</groupId>
+        <artifactId>dubbo-maven-plugin</artifactId>
+        <version>${dubbo.version}</version>
+        <executions>
+          <execution>
+            <id>generate-dubbo-interfaces</id>
+            <goals>
+              <goal>dubbo-process-aot</goal>
+            </goals>
+            <configuration>
+              <protoPath>${basedir}/../../protos</protoPath>
+              <outputPath>${basedir}/src/main/java</outputPath>
+              <javaPackage>com.metawebthree.common.generated.rpc</javaPackage>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

@@ -2,6 +2,9 @@ syntax = "proto3";
 
 package com.metawebthree.common.generated.rpc;
 
+option java_multiple_files = true;
+option java_outer_classname = "DeviceRiskTagProto";
+
 enum DeviceRiskTag {
     UNKNOWN = 0;
     EMU = 1;

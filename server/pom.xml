@@ -48,9 +48,11 @@
         <aws.lambda.java.version>1.2.2</aws.lambda.java.version>
         <kotlin.version>2.2.0</kotlin.version>
         <spring-cloud-starter-zookeeper-discovery.version>4.3.0</spring-cloud-starter-zookeeper-discovery.version>
-        <io.grpc.version>1.75.0</io.grpc.version>
         <apache.curator.version>5.9.0</apache.curator.version>
         <mockito.version>5.8.0</mockito.version>
+        <dubbo.version>3.3.5</dubbo.version>
+        <grpc.version>1.75.0</grpc.version>
+        <protobuf.version>4.32.0</protobuf.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -65,6 +67,21 @@
                 <groupId>software.amazon.awssdk</groupId>
                 <artifactId>bom</artifactId>
                 <version>${aws.java.sdk.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.apache.dubbo/dubbo-bom -->
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-bom</artifactId>
+                <version>${dubbo.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-bom</artifactId>
+                <version>${grpc.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -252,49 +269,33 @@
         <dependency>
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo-spring-boot-starter</artifactId>
-            <version>3.3.5</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.dubbo/dubbo-registry-zookeeper -->
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-registry-zookeeper</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.grpc/grpc-netty -->
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-netty</artifactId>
-            <version>${io.grpc.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/io.grpc/grpc-protobuf -->
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
-            <version>${io.grpc.version}</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-stub</artifactId>
-            <version>${io.grpc.version}</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.curator/curator-recipes -->
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-recipes</artifactId>
-            <version>${apache.curator.version}</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.curator/curator-framework -->
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-framework</artifactId>
-            <version>${apache.curator.version}</version>
+            <version>${grpc.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api -->
         <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
             <version>1.3.2</version>
-        </dependency>
-        <!-- ZooKeeper Registry Center Support -->
-        <!-- https://mvnrepository.com/artifact/org.apache.dubbo/dubbo-registry-zookeeper -->
-        <dependency>
-            <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo-registry-zookeeper</artifactId>
-            <version>3.3.5</version>
-            <scope>test</scope>
         </dependency>
         <!-- Dubbo3.x compatible version -->
         <dependency>
@@ -348,7 +349,13 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>4.32.0</version>
+            <version>${protobuf.version}</version>
+        </dependency><!--
+        https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java-util -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java-util</artifactId>
+            <version>${protobuf.version}</version>
         </dependency>
     </dependencies>
 

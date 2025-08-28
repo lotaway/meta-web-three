@@ -14,7 +14,6 @@ import com.metawebthree.common.dto.ApiResponse;
 @Component
 public class SecurityInterceptor implements HandlerInterceptor {
 
-    @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (request.getRequestURL().indexOf("/config") > -1) {
             JSONObject json = new JSONObject(ApiResponse.error(new Exception("security interceptor no pass")));
@@ -24,12 +23,10 @@ public class SecurityInterceptor implements HandlerInterceptor {
         return true;
     }
 
-    @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
 
     }
 
-    @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
 
     }

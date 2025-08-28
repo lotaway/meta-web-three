@@ -1,25 +1,30 @@
 PROTO_DIR = protos
-JAVA_OUT = server/common/src/main/java
+JAVA_DIR = server/common
+JAVA_OUT = $(JAVA_DIR)/src/main/java
 PY_OUT = risk-scorer
 RUST_DIR = order-match
 RUST_OUT = $(RUST_DIR)/src/generated/rpc
 
 PROTO_FILES := $(wildcard $(PROTO_DIR)/*.proto)
 
-all: gen-java gen-python gen-rust
+all: gen-java-dubbo gen-python gen-rust
 
 install:
 	brew install protobuf
 	python3 -m pip install --user grpcio grpcio-tools kazoo
 	mkdir -p $(PROTO_DIR)
 
-gen-java:
-	@echo "Generating Java code..."
+gen-java-grpc:
+	@echo "Generating Java GRPC code..."
 	@mkdir -p $(JAVA_OUT)
 	protoc -I=$(PROTO_DIR) \
 		--java_out=$(JAVA_OUT) \
 		--grpc-java_out=$(JAVA_OUT) \
 		$(PROTO_FILES)
+
+gen-java-dubbo:
+	@echo "Generating Java Dubbo code..."
+	@cd $(JAVA_DIR) && mvn -q -DskipTests protobuf:compile protobuf:compile-custom
 
 gen-python:
 	@echo "Generating Python code..."

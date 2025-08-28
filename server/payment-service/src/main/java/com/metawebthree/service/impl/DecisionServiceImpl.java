@@ -11,13 +11,17 @@ import com.metawebthree.repository.FeatureRepo;
 import com.metawebthree.repository.RuleRepo;
 import com.metawebthree.service.DecisionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.metawebthree.common.generated.rpc.RiskScorerServiceGrpc;
-import com.metawebthree.common.generated.rpc.RiskScorerServiceOuterClass;
-import com.metawebthree.common.generated.rpc.RiskScorerServiceOuterClass.Feature;
+import com.metawebthree.common.generated.rpc.Feature;
+import com.metawebthree.common.generated.rpc.RiskScorerService;
+import com.metawebthree.common.generated.rpc.ScoreRequest;
+import com.metawebthree.common.generated.rpc.ScoreResponse;
+import com.metawebthree.common.generated.rpc.TestRequest;
+import com.metawebthree.common.generated.rpc.TestResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
 
 import javax.script.ScriptEngine;
@@ -37,15 +41,18 @@ public class DecisionServiceImpl implements DecisionService {
 
     private final RuleRepo ruleRepo;
     private final FeatureRepo featureRepo;
-    private final RiskScorerServiceGrpc.RiskScorerServiceBlockingStub riskScorerService;
+
+    @DubboReference(protocol = "tri", check = false)
+    private RiskScorerService riskScorerService;
+
     private final AuditRepo auditRepo;
     private final CreditProfileRepo creditProfileRepo;
 
     public int test() {
         try {
-            RiskScorerServiceOuterClass.TestRequest request = 
-                RiskScorerServiceOuterClass.TestRequest.newBuilder().build();
-            RiskScorerServiceOuterClass.TestResponse response = riskScorerService.test(request);
+            TestRequest request = TestRequest.newBuilder()
+                    .build();
+            TestResponse response = riskScorerService.test(request);
             return response.getResult();
         } catch (Exception e) {
             log.error("Failed to call Risk Scorer Service test method", e);
@@ -55,14 +62,14 @@ public class DecisionServiceImpl implements DecisionService {
 
     private int getRiskScore(String scene, Map<String, Object> features) {
         try {
-            RiskScorerServiceOuterClass.ScoreRequest.Builder requestBuilder = 
-                RiskScorerServiceOuterClass.ScoreRequest.newBuilder()
+            ScoreRequest.Builder requestBuilder = ScoreRequest
+                    .newBuilder()
                     .setScene(scene);
             Feature finalFeatures = new ObjectMapper().convertValue(features, Feature.class);
             log.info("Features: {}", finalFeatures);
             for (Map.Entry<String, Object> entry : features.entrySet()) {
-                RiskScorerServiceOuterClass.Feature.Builder featureBuilder = 
-                    RiskScorerServiceOuterClass.Feature.newBuilder();
+                Feature.Builder featureBuilder = Feature
+                        .newBuilder();
 
                 String key = entry.getKey();
                 Object value = entry.getValue();
@@ -101,10 +108,9 @@ public class DecisionServiceImpl implements DecisionService {
 
                 requestBuilder.putFeatures(key, featureBuilder.build());
             }
-
-            // Call gRPC service
-            RiskScorerServiceOuterClass.ScoreRequest request = requestBuilder.build();
-            RiskScorerServiceOuterClass.ScoreResponse response = riskScorerService.score(request);
+            
+            ScoreRequest request = requestBuilder.build();
+            ScoreResponse response = riskScorerService.score(request);
 
             return (int) response.getScore();
 
