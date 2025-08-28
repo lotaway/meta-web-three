@@ -20,7 +20,7 @@ option cc_enable_arenas = true;
 option go_package = "google.golang.org/genproto/googleapis/type/money;money";
 option java_multiple_files = true;
 option java_outer_classname = "MoneyProto";
-option java_package = "com.google.type";
+option java_package = "com.metawebthree.common.generated.rpc.google.type";
 option objc_class_prefix = "GTP";
 
 // Represents an amount of money with its currency type.

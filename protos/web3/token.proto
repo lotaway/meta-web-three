@@ -4,6 +4,7 @@ package web3;
 
 option java_multiple_files = true;
 option java_outer_classname = "TokenProto";
+option java_package = "com.metawebthree.common.generated.rpc.web3";
 
 message Token {
   string symbol = 1;
