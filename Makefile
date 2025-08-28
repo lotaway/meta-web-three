@@ -43,5 +43,5 @@ gen-rust:
 
 clean:
 	rm -rf $(JAVA_OUT)/com/metawebthree/common/generated/rpc/*.java
-	rm -rf $(PY_OUT)/*.py
+	rm -rf $(PY_OUT)/*_pb2.py $(PY_OUT)/*_pb2.pyi $(PY_OUT)/*_pb2_grpc.py
 	rm -rf $(RUST_DIR)/src/generated/rpc/*.rs

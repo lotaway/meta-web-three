@@ -29,4 +29,5 @@ message OrderDTO {
     string orderType = 5;
     google.type.Money orderAmount = 6;
     web3.Token tokens = 7;
+    string orderRemark = 8;
 }

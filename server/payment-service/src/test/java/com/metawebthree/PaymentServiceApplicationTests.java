@@ -9,27 +9,24 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.metawebthree.common.generated.rpc.RiskScorerService;
-import com.metawebthree.common.generated.rpc.TestRequest;
-import com.metawebthree.common.generated.rpc.TestResponse;
+import com.metawebthree.service.DecisionService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ComponentScan(basePackages = {
-        "com.metawebthree",
+        // "com.metawebthree",
         "com.metawebthree.common"
 })
 @EnableAutoConfiguration
 class PaymentServiceApplicationTests {
 
-    @DubboReference(protocol = "tri")
-    private RiskScorerService riskScorerService;
+    private DecisionService decisionService;
 
     @Test
     void testRPCService() {
-        TestResponse response = riskScorerService.test(TestRequest.newBuilder().build());
-        System.out.println(String.format("RPC Service test result: %s", response.getResult()));
-        Assert.assertTrue(response.getResult() > 0);
+        int score = decisionService.test();
+        System.out.println(String.format("RPC Service test result: %s", score));
+        Assert.assertTrue(score > 0);
     }
 
 }
