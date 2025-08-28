@@ -63,24 +63,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.apache.dubbo</groupId>
-        <artifactId>dubbo-maven-plugin</artifactId>
-        <version>${dubbo.version}</version>
-        <executions>
-          <execution>
-            <id>generate-dubbo-interfaces</id>
-            <goals>
-              <goal>dubbo-process-aot</goal>
-            </goals>
-            <configuration>
-              <protoPath>${basedir}/../../protos</protoPath>
-              <outputPath>${basedir}/src/main/java</outputPath>
-              <javaPackage>com.metawebthree.common.generated.rpc</javaPackage>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
 </project>

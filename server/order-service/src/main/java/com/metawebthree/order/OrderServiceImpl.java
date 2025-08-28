@@ -9,6 +9,7 @@ import com.metawebthree.common.generated.rpc.GetOrderByUserIdRequest;
 import com.metawebthree.common.generated.rpc.GetOrderByUserIdResponse;
 import com.metawebthree.common.generated.rpc.OrderDTO;
 import com.metawebthree.common.generated.rpc.OrderService;
+import com.metawebthree.common.generated.rpc.google.type.Money;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
 
     private OrderDTO getOrderByUserIdMock(Long id) {
         long orderAmount = 100L;
-        com.google.type.Money money = com.google.type.Money.newBuilder().setCurrencyCode("USD").setUnits(orderAmount).build();
+        Money money = Money.newBuilder().setCurrencyCode("USD").setUnits(orderAmount).build();
         return OrderDTO.newBuilder().setId(id).setUserId(1234567890L).setOrderNo("1234567890").setOrderStatus("1").setOrderType("1").setOrderAmount(money).setOrderRemark("test").build();
     }
 

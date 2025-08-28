@@ -3,8 +3,9 @@ package com.metawebthree.user;
 import com.metawebthree.author.AuthorDO;
 import com.metawebthree.common.contants.RequestHeaderKeys;
 import com.metawebthree.common.dto.ApiResponse;
-import com.metawebthree.common.dto.OrderDTO;
-import com.metawebthree.common.rpc.interfaces.OrderService;
+import com.metawebthree.common.generated.rpc.GetOrderByUserIdRequest;
+import com.metawebthree.common.generated.rpc.OrderDTO;
+import com.metawebthree.common.generated.rpc.OrderService;
 import com.metawebthree.common.utils.UserRole;
 import com.metawebthree.user.DTO.LoginResponseDTO;
 import com.metawebthree.user.DTO.UserDTO;
@@ -183,7 +184,8 @@ public class UserController {
     public ApiResponse<List<OrderDTO>> getOrderByUser(@RequestHeader Map<String, String> header) {
         Optional<String> oUserId = Optional.ofNullable(header.get(RequestHeaderKeys.USER_ID.getValue()));
         Long userId = Long.parseLong(oUserId.orElse("0"));
-        List<OrderDTO> result = orderService.getOrderByUserId(userId);
+        GetOrderByUserIdRequest request = GetOrderByUserIdRequest.newBuilder().setId(userId).build();
+        List<OrderDTO> result = orderService.getOrderByUserId(request).getOrdersList();
         return ApiResponse.success(result);
     }
 
