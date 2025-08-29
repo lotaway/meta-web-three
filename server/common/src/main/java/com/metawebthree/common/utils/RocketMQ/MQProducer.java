@@ -10,8 +10,9 @@ import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import jakarta.annotation.PostConstruct;
+
 import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 
 @Configuration
