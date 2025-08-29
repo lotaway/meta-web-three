@@ -32,8 +32,8 @@
         <maven.compiler.target>19</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>17</java.version>
+        <spring-boot.version>3.5.4</spring-boot.version>
         <spring-cloud.version>2025.0.0</spring-cloud.version>
-        <spring-framework.version>7.0.0-M7</spring-framework.version>
         <mybatis-plus.version>3.5.12</mybatis-plus.version>
         <mybatis-plus-join-boot-starter.version>1.5.4</mybatis-plus-join-boot-starter.version>
         <slf4j-api.version>2.0.17</slf4j-api.version>
@@ -64,6 +64,15 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency> -->
+            <!--
+            https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -71,16 +80,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-core</artifactId>
-                <version>${spring-framework.version}</version>
-            </dependency> -->
-            <!-- <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-beans</artifactId>
-                <version>${spring-framework.version}</version>
-            </dependency> -->
             <dependency>
                 <groupId>software.amazon.awssdk</groupId>
                 <artifactId>bom</artifactId>
@@ -228,18 +227,11 @@
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-redis -->
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-redis</artifactId>
-            <version>4.0.0-M5</version>
-        </dependency>
         <!--
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-redis -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
-            <version>4.0.0-M2</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
@@ -265,10 +257,11 @@
             <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.web3j/core -->
         <dependency>
             <groupId>org.web3j</groupId>
             <artifactId>core</artifactId>
-            <version>4.9.8</version>
+            <version>5.0.0</version>
         </dependency>
         <!--
         https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-zookeeper-discovery -->
@@ -294,6 +287,12 @@
             <version>${dubbo.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.javassist/javassist -->
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.30.2-GA</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/io.grpc/grpc-netty -->
         <dependency>
             <groupId>io.grpc</groupId>
@@ -315,18 +314,18 @@
             <artifactId>jakarta.annotation-api</artifactId>
             <version>2.1.1</version>
         </dependency>
-        <!-- Dubbo3.x compatible version -->
-        <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-            <version>3.29.2-GA</version>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.curator/curator-framework -->
-        <!-- <dependency>
+        <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-framework</artifactId>
-            <version>5.9.0</version>
-        </dependency> -->
+            <version>${apache.curator.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.curator/curator-recipes -->
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+            <version>${apache.curator.version}</version>
+        </dependency>
         <!-- Spring Boot Validation -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
