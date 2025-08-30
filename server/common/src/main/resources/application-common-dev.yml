@@ -16,8 +16,6 @@ dubbo:
     address: ${spring.cloud.zookeeper.connect-string}
   application:
     name: ${spring.application.name}
-  protocol:
-    port: -1
 # swagger docs
 springdoc:
   #   api-docs:

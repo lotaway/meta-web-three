@@ -41,10 +41,10 @@ public class UserController {
 
     private final UserServiceImpl userService;
 
-    @Value("${x.apikey}")
+    @Value("${x.apikey:未配置}")
     private String twitterApiKey;
 
-    @Value("${x.secretkey}")
+    @Value("${x.secretkey:未配置}")
     private String twitterSecretKey;
 
     @DubboReference(check = false, lazy = true)
@@ -186,6 +186,7 @@ public class UserController {
         Long userId = Long.parseLong(oUserId.orElse("0"));
         GetOrderByUserIdRequest request = GetOrderByUserIdRequest.newBuilder().setId(userId).build();
         List<OrderDTO> result = orderService.getOrderByUserId(request).getOrdersList();
+        // @TODO simple response dto, jackson can't serialize OrderDTO from protobuf
         return ApiResponse.success(result);
     }
 

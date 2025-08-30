@@ -42,7 +42,7 @@ public class DecisionServiceImpl implements DecisionService {
     private final RuleRepo ruleRepo;
     private final FeatureRepo featureRepo;
 
-    @DubboReference(protocol = "tri", check = false)
+    @DubboReference(check = false, lazy = true)
     private RiskScorerService riskScorerService;
 
     private final AuditRepo auditRepo;
@@ -108,7 +108,7 @@ public class DecisionServiceImpl implements DecisionService {
 
                 requestBuilder.putFeatures(key, featureBuilder.build());
             }
-            
+
             ScoreRequest request = requestBuilder.build();
             ScoreResponse response = riskScorerService.score(request);
 

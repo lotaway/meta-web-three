@@ -79,6 +79,7 @@ dubbo:
   provider:
     timeout: 10000 # service call timeout
   protocol:
+    port: -1
     name: tri
     serialization: protobuf
 grpc:
