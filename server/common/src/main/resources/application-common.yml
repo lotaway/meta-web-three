@@ -74,9 +74,10 @@ jwt:
   secret: mwt123123
 dubbo:
   registry:
+    protocol: zookeeper
     timeout: 30000
   provider:
-    timeout: 5000 # service call timeout
+    timeout: 10000 # service call timeout
   protocol:
     name: tri
     serialization: protobuf

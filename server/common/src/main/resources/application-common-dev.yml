@@ -14,7 +14,6 @@ spring:
 dubbo:
   registry:
     address: ${spring.cloud.zookeeper.connect-string}
-    protocol: zookeeper
   application:
     name: ${spring.application.name}
   protocol:
