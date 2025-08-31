@@ -1,0 +1,34 @@
+package com.metawebthree.media;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
+@RestController
+@RequestMapping("/excel")
+public class ExcelController {
+
+    private final ExcelService excelService;
+
+    public ExcelController(ExcelService excelService) {
+        this.excelService = excelService;
+    }
+
+    @GetMapping("/template")
+    public ResponseEntity<byte[]> downloadTemplate() throws UnsupportedEncodingException {
+        byte[] excelBytes = excelService.generateTemplate();
+        String fileName = URLEncoder.encode("template.xlsx", StandardCharsets.UTF_8.toString())
+                .replaceAll("\\+", "%20");      
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
+                .body(excelBytes);
+    }
+}

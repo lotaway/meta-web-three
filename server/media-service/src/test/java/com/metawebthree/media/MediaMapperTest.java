@@ -125,8 +125,7 @@ public class MediaMapperTest {
     public Node analyzeFile() throws IOException {
         Parser parser = Parser.builder().build();
         String fileContent = Files.readString(Path.of(importMDFile), java.nio.charset.StandardCharsets.UTF_8);
-        Node document = parser.parse(fileContent);
-        return document;
+        return parser.parse(fileContent);
     }
 
     @Transactional

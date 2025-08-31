@@ -14,6 +14,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @TableName("Artwork_Category")
 public class ArtWorkCategoryDO extends BaseDO {
-    Long id;
+    Integer id;
     String name;
 }

@@ -49,7 +49,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         // email).eq("user_type", user_type).eq("user_type", userType).and(wrapper ->
         // wrapper.inSql("User.author_id", "select author_id from Author where real_name
         // =" + realName));
-        MPJLambdaWrapper<UserDO> wrapper = new MPJLambdaWrapper<>();
+        var wrapper = new MPJLambdaWrapper<UserDO>();
         wrapper.select(UserDO::getId, UserDO::getEmail)
                 .select(AuthorDO::getUserId, AuthorDO::getRealName)
                 .select(UserRoleMappingDO::getUserRoleId)
