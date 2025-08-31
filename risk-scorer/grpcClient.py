@@ -1,5 +1,6 @@
 from concurrent import futures
 import time
+from tokenize import group
 from kazoo.client import KazooClient
 from kazoo.exceptions import NodeExistsError
 import grpc
@@ -15,14 +16,14 @@ logger = init_logger()
 class ZookeeperServiceRegistry:
     """Zookeeper service registry for gRPC service discovery"""
     
-    def __init__(self, zk_hosts, service_name, service_host, service_port):
+    def __init__(self, zk_hosts, service_name, service_host, service_port, group_name):
         self.zk_hosts = zk_hosts
+        self.group_name = self._final_service_group(group_name)
         self.service_name = service_name
         self.service_host = service_host
         self.service_port = service_port
         self.zk = None
-        # switch to gRPC namespace
-        self.service_path = f"/grpc/{service_name}/providers"
+        self.service_path = f"{group_name}/{service_name}"
     
     def start(self):
         """Start Zookeeper connection and register service"""
@@ -44,6 +45,12 @@ class ZookeeperServiceRegistry:
         except Exception as e:
             logger.error(f"Failed to register service with Zookeeper: {e}")
             raise
+
+    def _final_service_group(self, group_name):
+        if group_name == "" or group_name.startswith("/"):
+            return group_name
+        else:
+            return f"/{group_name}"
     
     def stop(self):
         """Stop Zookeeper connection"""
@@ -58,9 +65,10 @@ def start_risk_score_model():
     # Get configuration from environment variables
     zk_hosts = os.getenv("ZK_HOST", "localhost:2181")
     service_host = os.getenv("SERVICE_HOST", "0.0.0.0")
-    service_port = int(os.getenv("SERVICE_PORT", "9090"))
+    service_port = int(os.getenv("EXPORT_DUBBO_PORT", "20088"))
     # use fully-qualified gRPC service name
     service_name = os.getenv("SERVICE_NAME", "com.metawebthree.common.generated.rpc.RiskScorerService")
+    group_name = os.getenv("GROUP_NAME", "")
     
     # Create gRPC server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
@@ -75,7 +83,7 @@ def start_risk_score_model():
     server.start()
     
     # Register service with Zookeeper
-    registry = ZookeeperServiceRegistry(zk_hosts, service_name, service_host, service_port)
+    registry = ZookeeperServiceRegistry(zk_hosts, service_name, service_host, service_port, group_name)
     try:
         registry.start()
         logger.info("Service registered with Zookeeper successfully")
