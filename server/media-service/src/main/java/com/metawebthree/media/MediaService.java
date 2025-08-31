@@ -3,6 +3,7 @@ package com.metawebthree.media;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.metawebthree.common.cloud.DefaultS3Config;
 import com.metawebthree.common.cloud.DefaultS3Service;
+import com.metawebthree.media.DO.ArtWorkDO;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +19,13 @@ public class MediaService {
     private final DefaultS3Service s3Service;
 
     private final DefaultS3Config s3Config;
+
+    private final ArtWorkMapper artWorkMapper;
+
+    public Boolean createMediaMetadata(ArtWorkDO artWorkDO) {
+        artWorkMapper.insert(artWorkDO);
+        return true;
+    }
 
     public PutObjectResponse createMedia(String key, byte[] content) {
         return s3Service.putObject(s3Config.getName(), key, content);

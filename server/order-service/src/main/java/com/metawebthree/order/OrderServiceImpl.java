@@ -14,13 +14,13 @@ import com.metawebthree.common.generated.rpc.google.type.Money;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@DubboService(protocol = "tri", serialization = "protobuf")
+@DubboService
 public class OrderServiceImpl implements OrderService {
 
     @Override
     public GetOrderByUserIdResponse getOrderByUserId(GetOrderByUserIdRequest request) {
         Long id = request.getId();
-        List<OrderDTO> result = List.of(getOrderByUserIdMock(id));
+        var result = List.of(getOrderByUserIdMock(id));
         return GetOrderByUserIdResponse.newBuilder().addAllOrders(result).build();
     }
 
@@ -31,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
 
     private OrderDTO getOrderByUserIdMock(Long id) {
         long orderAmount = 100L;
-        Money money = Money.newBuilder().setCurrencyCode("USD").setUnits(orderAmount).build();
+        var money = Money.newBuilder().setCurrencyCode("USD").setUnits(orderAmount).build();
         return OrderDTO.newBuilder().setId(id).setUserId(1234567890L).setOrderNo("1234567890").setOrderStatus("1").setOrderType("1").setOrderAmount(money).setOrderRemark("test").build();
     }
 

@@ -53,6 +53,9 @@ public class MediaMapperTest {
     @Autowired
     private PeopleTypeMapper peopleTypeMapper;
 
+    @Autowired
+    private MediaService mediaService;
+
     @Test
     @Disabled("Fix data")
     public void fixArtWorkDirector() {
@@ -181,5 +184,12 @@ public class MediaMapperTest {
             }
         }
         return artWorkDO;
+    }
+
+    @Test
+    private void testCreateMediaMetadata() {
+        ArtWorkDO artWorkDO = ArtWorkDO.builder().title("").build();
+        Boolean result = mediaService.createMediaMetadata(artWorkDO);
+        Assert.assertTrue(result);
     }
 }
