@@ -4,3 +4,7 @@ spring:
         discovery:
             root: /prod/metawebthree
 spring.quartz.jdbc.initialize-schema: never
+logging:
+  level:
+    com.metawebthree: ERROR
+    org.springframework.web: ERROR
