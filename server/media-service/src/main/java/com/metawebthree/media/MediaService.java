@@ -34,7 +34,7 @@ public class MediaService {
     public PutObjectResponse updateMedia(String key, byte[] content) {
         return s3Service.putObject(s3Config.getName(), key, content);
     }
-
+    
     public byte[] getMedia(String key) {
         return s3Service.getObject(s3Config.getName(), key);
     }
