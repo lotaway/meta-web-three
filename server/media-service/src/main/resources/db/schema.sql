@@ -48,7 +48,7 @@ CREATE TABLE "People" (
 
 CREATE TABLE "People_Type" (
     "id" SERIAL PRIMARY KEY,
-    "type" VARCHAR NOT NULL, -- Such as Director, Editor, Actor, Voicer
+    "type" VARCHAR NOT NULL UNIQUE, -- Such as Director, Editor, Actor, Voicer
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

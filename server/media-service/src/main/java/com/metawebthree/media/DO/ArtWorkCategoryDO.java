@@ -1,5 +1,7 @@
 package com.metawebthree.media.DO;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.metawebthree.common.DO.BaseDO;
 
@@ -14,6 +16,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @TableName("Artwork_Category")
 public class ArtWorkCategoryDO extends BaseDO {
+    @TableId(type=IdType.AUTO)
     Integer id;
     String name;
 }

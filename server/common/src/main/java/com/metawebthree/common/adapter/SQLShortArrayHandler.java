@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
-public class ShortArrayTypeHandler extends BaseTypeHandler<Short[]> {
+public class SQLShortArrayHandler extends BaseTypeHandler<Short[]> {
 
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, Short[] parameter, JdbcType jdbcType) throws SQLException {

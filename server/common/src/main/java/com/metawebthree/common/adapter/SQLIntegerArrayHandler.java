@@ -13,7 +13,7 @@ import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.postgresql.util.PGobject;
 
-public class IntegerArrayTypeHandler extends BaseTypeHandler<Integer[]> {
+public class SQLIntegerArrayHandler extends BaseTypeHandler<Integer[]> {
 
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, Integer[] parameter, JdbcType jdbcType) throws SQLException {
