@@ -15,19 +15,11 @@ spring:
     #   url: jdbc:mysql://localhost:3306/quartzJob?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     #   username: admin
     #   password: 123123
-  # data:
-  #   redis:
-  #     host: ${env-ip}
-  #     port: 6379
-  #     password:
-  #     database: 0
-  #     timeout: 10000ms
-  #     lettuce:
-  #       pool:
-  #         max-active: 8
-  #         max-wait: -1ms
-  #         max-idle: 8
-  #         min-idle: 0
+  data:
+    redis:
+      host: ${env-ip}
+      port: 6379
+      database: 0
   quartz:
     job-store-type: JDBC
     auto-startup: true
@@ -69,7 +61,7 @@ mybatis-plus:
 rocketmq:
   client:
     namesrv: ${env-ip}:9876
-    appliaction-topic: "publicApplicationTopic"
+    appliaction-topic: "MetaWebThree"
 jwt:
   secret: mwt123123
 dubbo:

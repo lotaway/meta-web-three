@@ -5,6 +5,8 @@ import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.yulichang.query.MPJLambdaQueryWrapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.metawebthree.media.DO.ArtWorkCategoryDO;
@@ -18,6 +20,8 @@ import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.web3j.tuples.generated.Tuple2;
 
@@ -26,8 +30,9 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
-import java.util.stream.Collector;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -35,6 +40,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ExcelService {
 
+    private final StringRedisTemplate redisTemplate;
+    private static final String IMPORT_EXCEL_QUEUE_KEY = "excel-processing-queue";
+    private static final String FAILED_DECODE_IMPORT_EXCEL_QUEUE_KEY = "failed-decode-excel-processing-queue";
+    private static final String FAILED_ENCODE_IMPORT_EXCEL_QUEUE_KEY = "failed-encode-excel-processing-queue";
     private final ArtWorkMapper artworkMapper;
     private final ArtWorkCategoryMapper artworkCategoryMapper;
     private final PeopleMapper peopleMapper;
@@ -45,7 +54,6 @@ public class ExcelService {
 
     private final ExecutorService processingExecutor = Executors.newFixedThreadPool(PROCESSING_THREADS);
     private final ExecutorService insertionExecutor = Executors.newSingleThreadExecutor();
-    private final BlockingQueue<List<ArtWorkDO>> processingQueue = new LinkedBlockingQueue<>();
     private final Map<String, String> HEADER_MAPPING = new HashMap<>();
 
     private interface FieldProcessor {
@@ -211,26 +219,34 @@ public class ExcelService {
         private final List<Map<Integer, String>> rawDataBuffer = new ArrayList<>();
         private Map<Integer, String> columnMapping;
         private final CountDownLatch completionLatch = new CountDownLatch(1);
-        private static final List<ArtWorkDO> END_MARKER = Collections.emptyList();
+        private static final String END_MARKER = "__END__";
+        private final ObjectMapper objectMapper = new ObjectMapper();
 
         public CustomExcelListener(int batchSize,
                 BiFunction<ArtWorkDO, String, Object> missingFieldHandler) {
             this.batchSize = batchSize;
             this.missingFieldHandler = missingFieldHandler;
             insertionExecutor.execute(() -> {
-                try {
-                    while (!Thread.currentThread().isInterrupted()) {
-                        List<ArtWorkDO> batch = processingQueue.take();
-                        if (batch == END_MARKER) {
-                            completionLatch.countDown();
-                            break;
+                while (!Thread.currentThread().isInterrupted()) {
+                    List<String> datas = redisTemplate.opsForList().leftPop(IMPORT_EXCEL_QUEUE_KEY,
+                            batchSize);
+                    boolean isEnd = datas.isEmpty() || datas.getLast().equals(END_MARKER);
+                    List<ArtWorkDO> batch = datas.stream().filter(data -> !data.equals(END_MARKER)).map(data -> {
+                        try {
+                            return objectMapper.readValue(data, ArtWorkDO.class);
+                        } catch (JsonProcessingException e) {
+                            redisTemplate.opsForList().rightPush(FAILED_DECODE_IMPORT_EXCEL_QUEUE_KEY, data);
+                            log.error("Failed to deserialize JSON to ArtWorkDO", e);
+                            return null;
                         }
-                        if (!batch.isEmpty()) {
-                            artworkMapper.insert(batch);
-                        }
+                    }).filter(Objects::nonNull).toList();
+                    if (!batch.isEmpty()) {
+                        artworkMapper.insert(batch);
                     }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+                    if (isEnd) {
+                        completionLatch.countDown();
+                        break;
+                    }
                 }
             });
         }
@@ -273,25 +289,28 @@ public class ExcelService {
 
                     data.forEach((index, value) -> {
                         String fieldName = columnMapping.get(index);
-                        if (fieldName != null && value != null && !value.isEmpty()) {
-                            FieldProcessor processor = FIELD_PROCESSORS.get(fieldName);
-                            if (processor != null) {
-                                var result = processor.process(value, entity);
-                                fieldName = result.component1();
-                                value = result.component2();
-                            }
-                            setFieldValue(entity, fieldName, value);
+                        if (fieldName == null || value == null || value.isEmpty()) {
+                            return;
                         }
+                        FieldProcessor processor = FIELD_PROCESSORS.get(fieldName);
+                        if (processor != null) {
+                            var result = processor.process(value, entity);
+                            fieldName = result.component1();
+                            value = result.component2();
+                        }
+                        setFieldValue(entity, fieldName, value);
                     });
 
                     HEADER_MAPPING.values().forEach(fieldName -> {
                         try {
-                            if (getFieldValue(entity, fieldName) == null) {
-                                Object defaultValue = missingFieldHandler.apply(entity, fieldName);
-                                if (defaultValue != null) {
-                                    setFieldValue(entity, fieldName, defaultValue);
-                                }
+                            if (getFieldValue(entity, fieldName) != null) {
+                                return;
                             }
+                            Object defaultValue = missingFieldHandler.apply(entity, fieldName);
+                            if (defaultValue == null) {
+                                return;
+                            }
+                            setFieldValue(entity, fieldName, defaultValue);
                         } catch (Exception e) {
                             log.warn("Failed to check field {}: {}", fieldName, e.getMessage());
                         }
@@ -299,13 +318,18 @@ public class ExcelService {
 
                     processedBatch.add(entity);
                 }
-
-                try {
-                    processingQueue.put(processedBatch);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    log.error("Interrupted while adding batch to queue", e);
-                }
+                var artWorkRedisTemplate = new RedisTemplate<String, ArtWorkDO>()
+                        .boundListOps(FAILED_ENCODE_IMPORT_EXCEL_QUEUE_KEY);
+                redisTemplate.opsForList().rightPushAll(IMPORT_EXCEL_QUEUE_KEY,
+                        processedBatch.stream().map(data -> {
+                            try {
+                                return objectMapper.writeValueAsString(data);
+                            } catch (JsonProcessingException e) {
+                                log.error("Failed to serialize batch to JSON", e);
+                                artWorkRedisTemplate.rightPush(data);
+                                return null;
+                            }
+                        }).filter(Objects::nonNull).toList());
             });
         }
 
@@ -320,7 +344,7 @@ public class ExcelService {
                 if (!processingExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
                     processingExecutor.shutdownNow();
                 }
-                processingQueue.put(END_MARKER);
+                redisTemplate.opsForList().rightPush(IMPORT_EXCEL_QUEUE_KEY, END_MARKER);
                 insertionExecutor.shutdown();
                 if (!insertionExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
                     insertionExecutor.shutdownNow();
