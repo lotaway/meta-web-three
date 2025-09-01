@@ -3,10 +3,13 @@ package com.metawebthree.media;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
+import com.baomidou.mybatisplus.core.metadata.TableInfo;
+import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.github.yulichang.query.MPJLambdaQueryWrapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.metawebthree.media.DO.ArtWorkCategoryDO;
 import com.metawebthree.media.DO.ArtWorkDO;
+import com.metawebthree.media.DO.ArtWorkTagDO;
 import com.metawebthree.media.DO.PeopleDO;
 import com.metawebthree.media.DO.PeopleTypeDO;
 
@@ -24,6 +27,7 @@ import java.net.URI;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.BiFunction;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -35,6 +39,7 @@ public class ExcelService {
     private final ArtWorkCategoryMapper artworkCategoryMapper;
     private final PeopleMapper peopleMapper;
     private final PeopleTypeMapper peopleTypeMapper;
+    private final ArtWorkTagMapper artworkTagMapper;
     private static final int BATCH_SIZE = 1000;
     private static final int PROCESSING_THREADS = 4;
 
@@ -76,9 +81,23 @@ public class ExcelService {
             return new Tuple2<String, String>("categoryId", categoryDO.getId().toString());
         });
 
-        FIELD_PROCESSORS.put("tags", (value, entity) -> {
-            // TODO: 实现标签分割和查找/创建逻辑
-            return new Tuple2<String, String>("tags", value);
+        FIELD_PROCESSORS.put("tags", (tagNames, entity) -> {
+            var tagNameList = List.<String>of(tagNames.split(","));
+            var tagIdList = new ArrayList<Integer>();
+            tagNameList.forEach((String tagName) -> {
+                var wrapper = new MPJLambdaWrapper<ArtWorkTagDO>();
+                List<ArtWorkTagDO> result = artworkTagMapper.selectList(wrapper);
+                ArtWorkTagDO artWorkTagDO;
+                if (result == null || result.isEmpty()) {
+                    artWorkTagDO = ArtWorkTagDO.builder().tag(tagName).build();
+                    artworkTagMapper.insert(artWorkTagDO);
+                } else {
+                    artWorkTagDO = result.get(0);
+                }
+                tagIdList.add(artWorkTagDO.getId());
+            });
+            return new Tuple2<String, String>("tags",
+                    tagIdList.stream().map(String::valueOf).collect(Collectors.joining(",")));
         });
 
         FIELD_PROCESSORS.put("yearTag", (value, entity) -> {
@@ -89,13 +108,18 @@ public class ExcelService {
             return new Tuple2<String, String>("yearTag", result.isEmpty() ? "" : result.get().toString());
         });
 
+        TableInfo peopleTableInfo = TableInfoHelper.getTableInfo(PeopleDO.class);
+        String peopleTableName = peopleTableInfo.getTableName().replace("\"", "");
+        TableInfo peopleTypeTableInfo = TableInfoHelper.getTableInfo(PeopleTypeDO.class);
+        String peopleTypeTableName = peopleTypeTableInfo.getTableName();
+
         FIELD_PROCESSORS.put("acts", (actorNames, entity) -> {
             var actorNameList = List.<String>of(actorNames.split(","));
             var actorIdList = new ArrayList<Integer>();
             actorNameList.forEach((String actorName) -> {
                 var wrapper = new MPJLambdaWrapper<PeopleDO>();
                 wrapper.select(PeopleDO::getId).eq(PeopleDO::getName, actorName).leftJoin(PeopleTypeDO.class,
-                        PeopleTypeDO::getId, PeopleDO::getTypes);
+                        on -> on.apply(String.format("%d.id = ANY(%d.types)", peopleTypeTableName, peopleTableName)));
                 List<PeopleDO> result = peopleMapper.selectJoinList(wrapper);
                 PeopleDO peopleDO;
                 if (result == null || result.isEmpty()) {
@@ -108,16 +132,15 @@ public class ExcelService {
                 }
                 actorIdList.add(peopleDO.getId());
             });
-            if (!actorIdList.isEmpty()) {
-                return new Tuple2<String, String>("acts",
-                        actorIdList.stream().map(String::valueOf).collect(Collectors.joining(",")));
-            }
-            return new Tuple2<String, String>("acts", "");
+            return new Tuple2<String, String>("acts",
+                    actorIdList.stream().map(String::valueOf).collect(Collectors.joining(",")));
         });
 
-        FIELD_PROCESSORS.put("director", (value, entity) -> {
-            // TODO: 实现导演查找/创建逻辑
-            return value;
+        FIELD_PROCESSORS.put("director", (directorName, entity) -> {
+            var wrapper = new MPJLambdaWrapper<PeopleDO>();
+            wrapper.select(PeopleDO::getId).eq(PeopleDO::getName, directorName).leftJoin(PeopleTypeDO.class,
+                    on -> on.apply(String.format("%d.id = ANY(%d.types)", peopleTypeTableName, peopleTableName)));
+            return new Tuple2<String, String>("director", "");
         });
     }
 
@@ -143,11 +166,11 @@ public class ExcelService {
 
     public void processExcelData(String excelUrl, int batchSize) {
         try (InputStream inputStream = new URI(excelUrl).toURL().openStream()) {
-            EasyExcel.read(inputStream, new CustomExcelListener(
-                    artworkMapper,
+            var excelListener = new CustomExcelListener(
                     Math.min(batchSize, BATCH_SIZE),
-                    this::handleMissingField)).sheet().doRead();
-
+                    this::handleMissingField);
+            EasyExcel.read(inputStream, excelListener).sheet().doRead();
+            excelListener.completionLatchAwait();
             log.info("Excel data processing completed successfully");
         } catch (Exception e) {
             log.error("Failed to process Excel data", e);
@@ -183,32 +206,37 @@ public class ExcelService {
     }
 
     private class CustomExcelListener extends AnalysisEventListener<Map<Integer, String>> {
-        private final ArtWorkMapper mapper;
         private final int batchSize;
         private final BiFunction<ArtWorkDO, String, Object> missingFieldHandler;
         private final List<Map<Integer, String>> rawDataBuffer = new ArrayList<>();
         private Map<Integer, String> columnMapping;
         private final CountDownLatch completionLatch = new CountDownLatch(1);
+        private static final List<ArtWorkDO> END_MARKER = Collections.emptyList();
 
-        public CustomExcelListener(ArtWorkMapper mapper, int batchSize,
+        public CustomExcelListener(int batchSize,
                 BiFunction<ArtWorkDO, String, Object> missingFieldHandler) {
-            this.mapper = mapper;
             this.batchSize = batchSize;
             this.missingFieldHandler = missingFieldHandler;
-
-            // Start insertion worker thread
             insertionExecutor.execute(() -> {
                 try {
                     while (!Thread.currentThread().isInterrupted()) {
                         List<ArtWorkDO> batch = processingQueue.take();
+                        if (batch == END_MARKER) {
+                            completionLatch.countDown();
+                            break;
+                        }
                         if (!batch.isEmpty()) {
-                            mapper.insert(batch);
+                            artworkMapper.insert(batch);
                         }
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
             });
+        }
+
+        public boolean completionLatchAwait() throws InterruptedException {
+            return this.completionLatch.await(5, TimeUnit.MINUTES);
         }
 
         @Override
@@ -285,17 +313,17 @@ public class ExcelService {
         public void doAfterAllAnalysed(AnalysisContext context) {
             if (!rawDataBuffer.isEmpty()) {
                 processBatchInBackground(new ArrayList<>(rawDataBuffer));
+                rawDataBuffer.clear();
             }
-
-            insertionExecutor.shutdown();
-            processingExecutor.shutdown();
-
             try {
-                if (!insertionExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
-                    insertionExecutor.shutdownNow();
-                }
+                processingExecutor.shutdown();
                 if (!processingExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
                     processingExecutor.shutdownNow();
+                }
+                processingQueue.put(END_MARKER);
+                insertionExecutor.shutdown();
+                if (!insertionExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
+                    insertionExecutor.shutdownNow();
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
