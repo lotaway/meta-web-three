@@ -109,7 +109,7 @@ public class ExcelService {
                 while (!Thread.currentThread().isInterrupted()) {
                     List<String> datas = redisTemplate.opsForList().leftPop(IMPORT_EXCEL_QUEUE_KEY,
                             batchSize);
-                    boolean isEnd = datas.isEmpty() || datas.getLast().equals(END_MARKER);
+                    boolean isEnd = datas.isEmpty() || datas.get(datas.size() - 1).equals(END_MARKER);
                     List<ArtWorkDO> batch = datas.stream().filter(data -> !data.equals(END_MARKER)).map(data -> {
                         try {
                             return objectMapper.readValue(data, ArtWorkDO.class);

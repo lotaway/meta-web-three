@@ -2,6 +2,9 @@ package com.metawebthree.common.config;
 
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+
+import java.io.File;
+
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
@@ -11,12 +14,14 @@ public class LogRocksDBAppender extends AppenderBase<ILoggingEvent> {
     private static long seq = 0;
     private static final String SEQ_KEY = "SystemOut";
 
-    private final String LOG_PATH = "/logs/logs-rocksdb";
+    private final String LOG_PATH = "/tmp/logs-rocksdb";
 
     @Override
     public void start() {
         RocksDB.loadLibrary();
-        try (Options options = new Options().setCreateIfMissing(true)) {
+        try (final Options options = new Options().setCreateIfMissing(true)) {
+            // boolean result = createDirectory(LOG_PATH);
+            // System.out.println("Log directory created: " + result);
             db = RocksDB.open(options, LOG_PATH);
             byte[] preSeq = db.get(SEQ_KEY.getBytes());
             if (preSeq != null && preSeq.length > 0) {
@@ -30,6 +35,14 @@ public class LogRocksDBAppender extends AppenderBase<ILoggingEvent> {
         } catch (RocksDBException e) {
             addError("Failed to open RocksDB", e);
         }
+    }
+
+    private boolean createDirectory(String path) {
+        File file = new File(path);
+        if (!file.exists()) {
+            return file.mkdirs();
+        }
+        return true;
     }
 
     @Override
