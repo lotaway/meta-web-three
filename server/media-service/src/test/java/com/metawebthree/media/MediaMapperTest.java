@@ -56,6 +56,9 @@ public class MediaMapperTest {
     @Autowired
     private MediaService mediaService;
 
+    @Autowired
+    private ExcelService excelService;
+
     @Test
     @Disabled("Fix data")
     public void fixArtWorkDirector() {
@@ -186,9 +189,10 @@ public class MediaMapperTest {
     }
 
     @Test
-    private void testCreateMediaMetadata() {
-        ArtWorkDO artWorkDO = ArtWorkDO.builder().title("").build();
-        Boolean result = mediaService.createMediaMetadata(artWorkDO);
-        Assert.assertTrue(result);
+    public void testImportExcel() {
+        excelService.processExcelData("https://docs.qq.com/sheet/DUU9jcm9IRWpyeFVH?tab=BB08J2");
+        Long count = artWorkMapper
+                .selectCount(new MPJLambdaWrapper<ArtWorkDO>().select(ArtWorkDO::getId).eq(ArtWorkDO::getTitle, "金砖香"));
+        Assert.assertTrue(count > 0);
     }
 }

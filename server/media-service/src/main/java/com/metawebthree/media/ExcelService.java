@@ -3,42 +3,25 @@ package com.metawebthree.media;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
-import com.baomidou.mybatisplus.core.metadata.TableInfo;
-import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.yulichang.query.MPJLambdaQueryWrapper;
-import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.metawebthree.media.BO.ExcelTemplateBO;
-import com.metawebthree.media.DO.ArtWorkCategoryDO;
 import com.metawebthree.media.DO.ArtWorkDO;
-import com.metawebthree.media.DO.ArtWorkTagDO;
-import com.metawebthree.media.DO.PeopleDO;
-import com.metawebthree.media.DO.PeopleTypeDO;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-import org.web3j.tuples.generated.Tuple2;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiFunction;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -83,7 +66,11 @@ public class ExcelService {
         FIELD_SETTERS.put("导演", (String value, ExcelTemplateBO entity) -> entity.setDirectorName(value));
     }
 
-    public void processExcelData(String excelUrl, int batchSize) {
+    public void processExcelData(String excelUrl) throws RuntimeException {
+        processExcelData(excelUrl, MAX_BATCH_SIZE);
+    }
+
+    public void processExcelData(String excelUrl, int batchSize) throws RuntimeException {
         try (InputStream inputStream = new URI(excelUrl).toURL().openStream()) {
             var excelListener = new CustomExcelListener(Math.max(MIN_BATCH_SIZE, Math.min(batchSize, MAX_BATCH_SIZE)));
             EasyExcel.read(inputStream, excelListener).sheet().doRead();
