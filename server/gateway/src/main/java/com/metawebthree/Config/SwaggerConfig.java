@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+// @TODO integrate all micro service api into one ui
 @Configuration
 public class SwaggerConfig {
 

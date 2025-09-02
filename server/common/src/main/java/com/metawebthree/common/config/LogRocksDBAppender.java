@@ -13,16 +13,18 @@ public class LogRocksDBAppender extends AppenderBase<ILoggingEvent> {
     private RocksDB db;
     private static long seq = 0;
     private static final String SEQ_KEY = "SystemOut";
-
-    private final String LOG_PATH = "/tmp/logs-rocksdb";
+    private static final String LOG_PATH = "logs/rocksdb-logs/{serviceName}-{instanceId}";
 
     @Override
     public void start() {
         RocksDB.loadLibrary();
         try (final Options options = new Options().setCreateIfMissing(true)) {
-            // boolean result = createDirectory(LOG_PATH);
-            // System.out.println("Log directory created: " + result);
-            db = RocksDB.open(options, LOG_PATH);
+            String path = new File(LOG_PATH).getAbsolutePath();
+            boolean result = createDirectory(path);
+            if (!result) {
+                System.out.println("Warning: Log directory created failed.");
+            }
+            db = RocksDB.open(options, path);
             byte[] preSeq = db.get(SEQ_KEY.getBytes());
             if (preSeq != null && preSeq.length > 0) {
                 try {
