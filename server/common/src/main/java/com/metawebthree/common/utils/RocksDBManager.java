@@ -23,10 +23,10 @@ import java.util.StringJoiner;
 @Component
 public class RocksDBManager {
 
-    @Value("${logger.data-path:logs/rocksdb-data}")
+    @Value("${logging.data-path:logs/rocksdb-data}")
     private String BASE_PATH;
 
-    @Value("${logger.expire-time}")
+    @Value("${logging.expire-time}")
     private long EXPIRE_TIME;
 
     static {

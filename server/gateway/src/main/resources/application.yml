@@ -15,6 +15,21 @@ spring:
               lower-case-service-id: true
   main:
     web-application-type: reactive
+springdoc:
+  swagger-ui:
+    urls:
+      - name: media-service
+        url: /v3/api-docs/media
+      - name: message-service
+        url: /v3/api-docs/message
+      - name: order-service
+        url: /v3/api-docs/order
+      - name: payment-service
+        url: /v3/api-docs/payment
+      - name: product-service
+        url: /v3/api-docs/product
+      - name: user-service
+        url: /v3/api-docs/user
 ---
 spring:
   config:
