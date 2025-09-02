@@ -192,7 +192,7 @@ public class MediaMapperTest {
     public void testImportExcel() {
         var wrapper = new MPJLambdaWrapper<ArtWorkDO>().select(ArtWorkDO::getId);
         Long originCount = artWorkMapper.selectCount(wrapper);
-        excelService.processExcelData("https://docs-import-export-1251316161.cos.ap-guangzhou.myqcloud.com/export/xlsx/QoSWzHPRWHxR/5d301edc641421e915013d0c5389e4a0.json.xlsx?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKID8GWineS8xy0uqtmhiaKxNiuwtywncHya%2F20250902%2Fap-guangzhou%2Fs3%2Faws4_request&X-Amz-Date=20250902T155607Z&X-Amz-Expires=1800&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3Bfilename%3D%22template-from-excel-servicecurrentsort.xlsx%22%3Bfilename%2A%3DUTF-8%27%27template-from-excel-service%2528current%2520sort%2529.xlsx&response-content-type=&X-Amz-Signature=6e071a0696ae1af8f228ab6ac4a44db4570f717b6f2c82a60bf18ce0441c3653");
+        excelService.processExcelData("your-excel-file-download-url");
         Long count = artWorkMapper
                 .selectCount(wrapper);
         Assert.assertTrue(count > originCount);
