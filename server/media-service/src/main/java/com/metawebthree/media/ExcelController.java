@@ -7,12 +7,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequestMapping("/excel")
+@Tag(name = "Excel Management")
 public class ExcelController {
 
     private final ExcelService excelService;
@@ -22,12 +26,14 @@ public class ExcelController {
     }
 
     @GetMapping("/template")
+    @Operation(summary = "Show/Download Excel import/upload template")
     public ResponseEntity<byte[]> downloadTemplate() throws UnsupportedEncodingException {
         byte[] excelBytes = excelService.generateTemplate();
         String fileName = URLEncoder.encode("template.xlsx", StandardCharsets.UTF_8.toString())
-                .replaceAll("\\+", "%20");      
+                .replaceAll("\\+", "%20");
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .contentType(
+                        MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
                 .body(excelBytes);
     }

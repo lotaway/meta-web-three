@@ -4,22 +4,29 @@ import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 
 import java.io.File;
+import java.net.InetAddress;
 
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 
+import com.metawebthree.common.utils.JavaUtil;
+
 public class LogRocksDBAppender extends AppenderBase<ILoggingEvent> {
     private RocksDB db;
     private static long seq = 0;
     private static final String SEQ_KEY = "SystemOut";
-    private static final String LOG_PATH = "logs/rocksdb-logs/{serviceName}-{instanceId}";
+    // @TODO diff micro service can't use same path, it's lock
+    private String LOG_PATH = "logs/rocksdb-logs";
 
     @Override
     public void start() {
+        var supportUtil = new JavaUtil();
+        String serviceName = supportUtil.getServiceName();
+        String instanceId = supportUtil.getInstanceId();
         RocksDB.loadLibrary();
         try (final Options options = new Options().setCreateIfMissing(true)) {
-            String path = new File(LOG_PATH).getAbsolutePath();
+            String path = new File(LOG_PATH + "/" + serviceName + "-" + instanceId).getAbsolutePath();
             boolean result = createDirectory(path);
             if (!result) {
                 System.out.println("Warning: Log directory created failed.");

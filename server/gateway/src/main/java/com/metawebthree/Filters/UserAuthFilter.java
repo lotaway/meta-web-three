@@ -10,7 +10,6 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-import org.web3j.tuples.generated.Tuple2;
 
 import com.metawebthree.common.contants.RequestHeaderKeys;
 import com.metawebthree.common.utils.UserJwtUtil;
@@ -50,11 +49,9 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
         }
 
         String token = authHeader.substring(AUTH_HEADER.length());
-        Tuple2<Boolean, Claims> validResult = validateToken(token);
-        Boolean isValid = validResult.component1();
-        Claims claims = validResult.component2();
+        ValidateTokenResponse validResult = validateToken(token);
 
-        if (!isValid) {
+        if (!validResult.isValid) {
             ServerHttpResponse response = exchange.getResponse();
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
             return response.setComplete();
@@ -63,30 +60,36 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
         ServerWebExchange _exchange = exchange.mutate()
                 .request(
                         exchange.getRequest().mutate()
-                                .header(RequestHeaderKeys.USER_ID.getValue(), userJwtUtil.getUserId(claims).toString())
+                                .header(RequestHeaderKeys.USER_ID.getValue(),
+                                        userJwtUtil.getUserId(validResult.claims).toString())
                                 .header(RequestHeaderKeys.USER_NAME.getValue(),
-                                        userJwtUtil.getUserName(claims).toString())
+                                        userJwtUtil.getUserName(validResult.claims).toString())
                                 .header(RequestHeaderKeys.USER_ROLE.getValue(),
-                                        userJwtUtil.getUserRole(claims).toString())
+                                        userJwtUtil.getUserRole(validResult.claims).toString())
                                 .build())
                 .build();
         return chain.filter(_exchange);
     }
 
-    private Tuple2<Boolean, Claims> validateToken(String token) {
+    private ValidateTokenResponse validateToken(String token) {
         Optional<Claims> oClaims = userJwtUtil.tryDecode(token);
+        var response = new ValidateTokenResponse();
+        response.isValid = false;
         if (oClaims.isEmpty()) {
-            return new Tuple2<>(false, null);
+            return response;
         }
-        Claims claims = oClaims.get();
-        Long userId = userJwtUtil.getUserId(claims);
-        if (userId == null) {
-            return new Tuple2<>(false, null);
+        response.claims = oClaims.get();
+        Long userId = userJwtUtil.getUserId(response.claims);
+        if (userId == null || userJwtUtil.isTokenExpired(response.claims.getExpiration())) {
+            return response;
         }
-        if (userJwtUtil.isTokenExpired(claims.getExpiration())) {
-            return new Tuple2<>(false, null);
-        }
-        return new Tuple2<>(true, claims);
+        response.isValid = true;
+        return response;
+    }
+
+    static class ValidateTokenResponse {
+        public boolean isValid;
+        public Claims claims;
     }
 
     @Override

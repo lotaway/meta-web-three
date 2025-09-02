@@ -1,17 +1,14 @@
 package com.metawebthree.common;
 
-import com.metawebthree.common.utils.SupportUtil;
+import com.metawebthree.common.utils.JavaUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
 
-public class SupportUtilTest {
+public class JavaUtilTest {
 
-    private final SupportUtil supportUtil = new SupportUtil();
-
-    public SupportUtilTest() {
-    }
+    private final JavaUtil supportUtil = new JavaUtil();
 
     @Test
     public void getInsertPosTest() {

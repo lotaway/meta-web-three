@@ -48,14 +48,12 @@ public class ExcelService {
         void setField(String value, T entity);
     }
 
-    private final Map<String, FieldSetter<ExcelTemplateBO>> FIELD_SETTERS = new HashMap<>();
+    private final Map<String, FieldSetter<ExcelTemplateBO>> FIELD_SETTERS = new LinkedHashMap<>();
 
     @PostConstruct
     private void initialize() {
         FIELD_SETTERS.put("作品ID", (String value, ExcelTemplateBO entity) -> entity.setId(value));
         FIELD_SETTERS.put("标题", (String value, ExcelTemplateBO entity) -> entity.setTitle(value));
-        FIELD_SETTERS.put("封面链接", (String value, ExcelTemplateBO entity) -> entity.setCover(value));
-        FIELD_SETTERS.put("详情链接", (String value, ExcelTemplateBO entity) -> entity.setLink(value));
         FIELD_SETTERS.put("副标题", (String value, ExcelTemplateBO entity) -> entity.setSubtitle(value));
         FIELD_SETTERS.put("季数", (String value, ExcelTemplateBO entity) -> entity.setSeason(value));
         FIELD_SETTERS.put("集数", (String value, ExcelTemplateBO entity) -> entity.setEpisode(value));
@@ -64,6 +62,8 @@ public class ExcelService {
         FIELD_SETTERS.put("年份标签", (String value, ExcelTemplateBO entity) -> entity.setYearTag(value));
         FIELD_SETTERS.put("演员", (String value, ExcelTemplateBO entity) -> entity.setActNames(value));
         FIELD_SETTERS.put("导演", (String value, ExcelTemplateBO entity) -> entity.setDirectorName(value));
+        FIELD_SETTERS.put("封面链接", (String value, ExcelTemplateBO entity) -> entity.setCover(value));
+        FIELD_SETTERS.put("详情链接", (String value, ExcelTemplateBO entity) -> entity.setLink(value));
     }
 
     public void processExcelData(String excelUrl) throws RuntimeException {
@@ -71,14 +71,28 @@ public class ExcelService {
     }
 
     public void processExcelData(String excelUrl, int batchSize) throws RuntimeException {
+        // if (!excelUrl.matches("(?i).*\\.xlsx?$")) {
+        //     throw new IllegalArgumentException("URL must point to a downloadable Excel file (.xls or .xlsx)");
+        // }
+
         try (InputStream inputStream = new URI(excelUrl).toURL().openStream()) {
+            String contentType = new URI(excelUrl).toURL().openConnection().getContentType();
+            if (contentType != null && !contentType.toLowerCase().contains("excel") 
+                && !contentType.toLowerCase().contains("spreadsheet")) {
+                throw new IllegalArgumentException("URL must point to an Excel file, got content type: " + contentType);
+            }
+
             var excelListener = new CustomExcelListener(Math.max(MIN_BATCH_SIZE, Math.min(batchSize, MAX_BATCH_SIZE)));
             EasyExcel.read(inputStream, excelListener).sheet().doRead();
             excelListener.completionLatchAwait();
             log.info("Excel data processing completed successfully");
         } catch (Exception e) {
-            log.error("Failed to process Excel data", e);
-            throw new RuntimeException("Failed to process Excel data", e);
+            String errorMsg = "Failed to process Excel data from URL: " + excelUrl;
+            if (excelUrl.contains("docs.qq.com")) {
+                errorMsg += "\nNote: Online document sharing links are not supported. Please provide a direct download link to the Excel file.";
+            }
+            log.error(errorMsg, e);
+            throw new RuntimeException(errorMsg, e);
         }
     }
 
@@ -135,7 +149,7 @@ public class ExcelService {
 
         @Override
         public void invoke(Map<Integer, String> data, AnalysisContext context) {
-            if (columnMapping == null) {
+            if (columnMapping == null || columnMapping.isEmpty()) {
                 String msg = "columnMapping for head is not initialized, maybe invokeHeadMap not invoked";
                 log.error(msg, context);
                 throw new IllegalStateException(msg);
@@ -263,7 +277,7 @@ public class ExcelService {
                     "凯奇·古丽",
                     "雷蒙·利特波");
             EasyExcel.write(outputStream)
-                    .head(Collections.singletonList(headers))
+                    .head(headers.stream().map(Collections::singletonList).toList())
                     .sheet("template")
                     .doWrite(Arrays.asList(exampleRow1, exampleRow2));
 
