@@ -36,8 +36,13 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
         String path = request.getPath().value();
 
         // @TODO add more paths to exclude from authentication
-        if (!path.startsWith("/user-service/") || path.startsWith("/user-/signIn") || path.startsWith("/user/create") ||
-                path.startsWith("/user/checkWeb3SignerMessage") || path.startsWith("/actuator")) {
+        if (path.contains("/v3/api-docs")
+                || path.contains("/swagger-ui")
+                || !path.startsWith("/user-service/")
+                || path.startsWith("/user-/signIn")
+                || path.startsWith("/user/create")
+                || path.startsWith("/user/checkWeb3SignerMessage")
+                || path.startsWith("/actuator")) {
             return chain.filter(exchange);
         }
         log.info("matching Authorization path: " + path);
