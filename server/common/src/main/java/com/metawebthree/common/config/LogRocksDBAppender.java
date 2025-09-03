@@ -4,6 +4,8 @@ import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 
 import java.io.File;
+import java.util.Properties;
+import java.util.StringJoiner;
 
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
@@ -19,12 +21,19 @@ public class LogRocksDBAppender extends AppenderBase<ILoggingEvent> {
     @Override
     public void start() {
         // var supportUtil = new JavaUtil();
-        // String serviceName = supportUtil.getServiceName();
         // String instanceId = supportUtil.getInstanceId();
-        String serviceName = System.getProperty("spring.application.name", "default");
+        Properties properties = System.getProperties();
+        System.out.println("properties: " + properties);
+        String serviceName = System.getProperty("APPLICATION_NAME");
+        if (serviceName == null) {
+            serviceName = System.getProperty("spring.boot.project.name", "default");
+        }
         RocksDB.loadLibrary();
         try (final Options options = new Options().setCreateIfMissing(true)) {
-            String path = new File(LOG_PATH + "/" + serviceName).getAbsolutePath();
+            var sj = new StringJoiner("/");
+            sj.add(LOG_PATH).add(serviceName);
+            // sj.add(instanceId);
+            String path = new File(sj.toString()).getAbsolutePath();
             boolean result = createDirectory(path);
             if (!result) {
                 System.out.println("Warning: Log directory created failed.");
