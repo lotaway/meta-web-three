@@ -4,26 +4,29 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import reactor.core.publisher.Mono;
+import com.metawebthree.config.SwaggerUIProperties;
+import com.metawebthree.config.SwaggerUIProperties.UrlConfig;
 
+import reactor.core.publisher.Mono;
 import org.springframework.web.bind.annotation.GetMapping;
 
-@RestController
+@RestController("/v3")
 public class SwaggerController {
     private final WebClient.Builder webClientBuilder;
 
-    public SwaggerController(WebClient.Builder webClientBuilder) {
+    private final SwaggerUIProperties swaggerUIProperties;
+
+    public SwaggerController(WebClient.Builder webClientBuilder, SwaggerUIProperties swaggerUIProperties) {
         this.webClientBuilder = webClientBuilder;
+        this.swaggerUIProperties = swaggerUIProperties;
     }
 
-    @GetMapping("/v3/api-docs/{service}")
+    @GetMapping("/api-docs/{serviceName}")
     public Mono<String> getServiceDocs(@PathVariable String service) {
-        String url = switch (service) {
-            case "user" -> "http://user-service/v3/api-docs";
-            case "order" -> "http://order-service/v3/api-docs";
-            case "product" -> "http://product-service/v3/api-docs";
-            default -> throw new RuntimeException("service not found: " + service);
-        };
+        UrlConfig urlConfig = swaggerUIProperties.getUrlConfigs().stream().filter(uc -> uc.getName().equals(service)).findFirst().orElseThrow(() -> new RuntimeException("service not found: " + service));
+        var sb = new StringBuilder();
+        sb.append("http://").append(service).append(urlConfig.getUrl());
+        String url = sb.toString();
         return webClientBuilder.build()
                 .get()
                 .uri(url)
