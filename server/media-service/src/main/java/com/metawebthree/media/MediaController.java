@@ -2,6 +2,8 @@ package com.metawebthree.media;
 
 import com.metawebthree.common.dto.ApiResponse;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -11,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/media")
+@Tag(name = "Media Management")
 public class MediaController {
 
     private final MediaService mediaService;
