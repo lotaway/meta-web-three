@@ -79,4 +79,4 @@ grpc:
     path-template: /grpc/{spring.application.name}/providers
 logging:
   expire-time: 2592000000 # 30 days
-  data-path: logs/rocksdb-data-${spring.application.name}
+  data-path: logs/rocksdb-data/${spring.application.name}
