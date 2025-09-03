@@ -10,7 +10,7 @@ import com.metawebthree.config.SwaggerUIProperties.UrlConfig;
 import reactor.core.publisher.Mono;
 import org.springframework.web.bind.annotation.GetMapping;
 
-@RestController("/v3")
+// @RestController("/v3")
 public class SwaggerController {
     private final WebClient.Builder webClientBuilder;
 

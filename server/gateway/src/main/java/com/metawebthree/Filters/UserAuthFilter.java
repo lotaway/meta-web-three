@@ -22,7 +22,7 @@ import reactor.core.publisher.Mono;
 @Component
 public class UserAuthFilter implements GlobalFilter, Ordered {
 
-    private final static String AUTH_HEADER = "Bearer ";
+    private static final String AUTH_HEADER = "Bearer ";
 
     private final UserJwtUtil userJwtUtil;
 

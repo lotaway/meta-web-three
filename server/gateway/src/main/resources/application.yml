@@ -17,19 +17,15 @@ spring:
     web-application-type: reactive
 springdoc:
   swagger-ui:
-    urls:
-      - name: media-service
-        url: /v3/api-docs/media
-      - name: message-service
-        url: /v3/api-docs/message
-      - name: order-service
-        url: /v3/api-docs/order
-      - name: payment-service
-        url: /v3/api-docs/payment
-      - name: product-service
-        url: /v3/api-docs/product
-      - name: user-service
-        url: /v3/api-docs/user
+    path: /swagger-ui.html
+    tagsSorter: alpha
+    operationsSorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'all'
+      paths-to-match: '/**'
+      packages-to-scan: 'com.metawebthree'
 ---
 spring:
   config:
