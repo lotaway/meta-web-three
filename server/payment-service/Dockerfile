@@ -3,7 +3,7 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Copy the JAR file
-COPY target/payment-service-*.jar app.jar
+COPY target/payment-service-*.jar payment-service.jar
 
 # Expose the port
 EXPOSE 10086
@@ -12,4 +12,4 @@ EXPOSE 10086
 ENV JAVA_OPTS="-Xmx512m -Xms256m"
 
 # Run the application
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"] 
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar payment-service.jar"]
