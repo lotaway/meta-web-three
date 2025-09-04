@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,8 +36,12 @@ public class MediaService {
         return s3Service.putObject(s3Config.getName(), key, content);
     }
     
-    public byte[] getMedia(String key) {
+    public Optional<byte[]> getMedia(String key) {
         return s3Service.getObject(s3Config.getName(), key);
+    }
+    
+    public String getFileUrl(String key) {
+        return s3Service.getFileUrlWithCheck(s3Config.getName(), key);
     }
 
     public void deleteMedia(String key) {

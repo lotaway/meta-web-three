@@ -27,14 +27,12 @@ public class ExcelController {
 
     @GetMapping("/template")
     @Operation(summary = "Show/Download Excel import/upload template")
-    public ResponseEntity<byte[]> downloadTemplate() throws UnsupportedEncodingException {
-        byte[] excelBytes = excelService.generateTemplate();
-        String fileName = URLEncoder.encode("template.xlsx", StandardCharsets.UTF_8.toString())
-                .replaceAll("\\+", "%20");
+    public ResponseEntity<String> downloadTemplate() throws UnsupportedEncodingException {
+        String fileUrl = excelService.generateTemplate();
         return ResponseEntity.ok()
-                .contentType(
-                        MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
-                .body(excelBytes);
+                // .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                // .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(fileUrl);
     }
 }

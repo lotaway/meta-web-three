@@ -5,6 +5,8 @@ import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.metawebthree.common.cloud.DefaultS3Config;
+import com.metawebthree.common.cloud.DefaultS3Service;
 import com.metawebthree.media.BO.ExcelTemplateBO;
 import com.metawebthree.media.DO.ArtWorkDO;
 
@@ -20,6 +22,8 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -40,6 +44,8 @@ public class ExcelService {
     private static final int MIN_BATCH_SIZE = 1;
     private static final int MAX_BATCH_SIZE = 1000;
     private static final int PROCESSING_THREADS = 4;
+    private final DefaultS3Service s3Service;
+    private final DefaultS3Config s3Config;
 
     private final ExecutorService processingExecutor = Executors.newFixedThreadPool(PROCESSING_THREADS);
     private final ExecutorService insertionExecutor = Executors.newSingleThreadExecutor();
@@ -72,13 +78,14 @@ public class ExcelService {
 
     public void processExcelData(String excelUrl, int batchSize) throws RuntimeException {
         // if (!excelUrl.matches("(?i).*\\.xlsx?$")) {
-        //     throw new IllegalArgumentException("URL must point to a downloadable Excel file (.xls or .xlsx)");
+        // throw new IllegalArgumentException("URL must point to a downloadable Excel
+        // file (.xls or .xlsx)");
         // }
 
         try (InputStream inputStream = new URI(excelUrl).toURL().openStream()) {
             String contentType = new URI(excelUrl).toURL().openConnection().getContentType();
-            if (contentType != null && !contentType.toLowerCase().contains("excel") 
-                && !contentType.toLowerCase().contains("spreadsheet")) {
+            if (contentType != null && !contentType.toLowerCase().contains("excel")
+                    && !contentType.toLowerCase().contains("spreadsheet")) {
                 throw new IllegalArgumentException("URL must point to an Excel file, got content type: " + contentType);
             }
 
@@ -247,44 +254,55 @@ public class ExcelService {
         }
     }
 
-    public byte[] generateTemplate() {
+    public String generateTemplate() {
+        String CACHE_TEMPLATE_PATH = "/excel/cache/template.xlsx";
+        Optional<String> cachedTemplate = s3Service.getFileUrlWithCheck(s3Config.getName(), CACHE_TEMPLATE_PATH);
+        if (cachedTemplate.isPresent()) {
+            return cachedTemplate.get();
+        }
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             List<String> headers = new ArrayList<>(FIELD_SETTERS.keySet());
-            List<Object> exampleRow1 = Arrays.asList(
-                    "",
-                    "示例作品2023",
-                    "https://example.com/cover1.jpg",
-                    "https://example.com/detail1",
-                    "示例副标题",
-                    1,
-                    10,
-                    "类别如Movie",
-                    "标签1,标签2",
-                    "2023",
-                    "演员1,演员2",
-                    "导演1");
-            List<Object> exampleRow2 = Arrays.asList(
-                    "",
-                    "超人联盟",
-                    "https://youku.com/gis/superman_legend.jpg",
-                    "https://youku.com/video/superman_legend",
-                    "假期大作战",
-                    1,
-                    1,
-                    "Movie",
-                    "喜剧,超能力,动画",
-                    "2022",
-                    "凯奇·古丽",
-                    "雷蒙·利特波");
             EasyExcel.write(outputStream)
                     .head(headers.stream().map(Collections::singletonList).toList())
                     .sheet("template")
-                    .doWrite(Arrays.asList(exampleRow1, exampleRow2));
-
-            return outputStream.toByteArray();
+                    .doWrite(generateExampleData());
+            byte[] fileContent = outputStream.toByteArray();
+            String fileName = URLEncoder.encode("template.xlsx", StandardCharsets.UTF_8.toString())
+                    .replaceAll("\\+", "%20");
+            return s3Service.uploadExcel(s3Config.getName(), fileContent, fileName);
         } catch (Exception e) {
             log.error("Failed to generate Excel template", e);
             throw new RuntimeException("Failed to generate Excel template", e);
         }
+    }
+
+    protected List<List<Object>> generateExampleData() {
+        List<Object> exampleRow1 = Arrays.asList(
+                "",
+                "示例作品2023",
+                "https://example.com/cover1.jpg",
+                "https://example.com/detail1",
+                "示例副标题",
+                1,
+                10,
+                "类别如Movie",
+                "标签1,标签2",
+                "2023",
+                "演员1,演员2",
+                "导演1");
+        List<Object> exampleRow2 = Arrays.asList(
+                "",
+                "超人联盟",
+                "https://youku.com/gis/superman_legend.jpg",
+                "https://youku.com/video/superman_legend",
+                "假期大作战",
+                1,
+                1,
+                "Movie",
+                "喜剧,超能力,动画",
+                "2022",
+                "凯奇·古丽",
+                "雷蒙·利特波");
+        return Arrays.asList(exampleRow1, exampleRow2);
     }
 }
