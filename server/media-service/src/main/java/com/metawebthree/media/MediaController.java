@@ -41,7 +41,7 @@ public class MediaController {
 
     @GetMapping("/{key}")
     public byte[] getMedia(@PathVariable String key) {
-        return mediaService.getMedia(key);
+        return mediaService.getMedia(key).orElse(new byte[]{});
     }
 
     @DeleteMapping("/{key}")
