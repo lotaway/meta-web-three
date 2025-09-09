@@ -117,7 +117,8 @@ services:
       - .env
       - ./server/.env
     environment:
-      - MYSQL_USERNAME=${MYSQL_USERNAME}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - TZ=${TIMEZONE}
