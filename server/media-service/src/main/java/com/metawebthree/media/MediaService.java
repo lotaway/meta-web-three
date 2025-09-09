@@ -41,7 +41,7 @@ public class MediaService {
     }
     
     public String getFileUrl(String key) {
-        return s3Service.getFileUrlWithCheck(s3Config.getName(), key);
+        return s3Service.getFileUrlWithCheck(s3Config.getName(), key).orElse(null);
     }
 
     public void deleteMedia(String key) {
