@@ -1,0 +1,68 @@
+services:
+  graph-node:
+    image: graphprotocol/graph-node
+    container_name: default-graph-node
+    ports:
+      - "${GRAPH_NODE_PORT:-8000}:8000"
+      - "${GRAPH_NODE_DEBUG_PORT:-8001}:8001"
+      - "${GRAPH_NODE_ADMIN_PORT:-8020}:8020"
+      - "${GRAPH_NODE_INDEXER_PORT:-8030}:8030"
+      - "${GRAPH_NODE_QUERY_PORT:-8040}:8040"
+    depends_on:
+      - ipfs
+      - postgres
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    environment:
+      postgres_host: graph-postgres
+      postgres_user: ${GRAPH_POSTGRES_USER:-admin}
+      postgres_pass: ${GRAPH_POSTGRES_PASSWORD:123123}
+      postgres_db: ${GRAPH_POSTGRES_DB:-graph-node}
+      ipfs: "ipfs:${IPFS_PORT:-5001}"
+      ethereum: "mainnet:https://base-rpc.publicnode.com"
+      GRAPH_LOG: error
+    networks:
+      - default-base-graph
+
+  graph-ipfs:
+    image: ipfs/kubo:v0.17.0
+    container_name: default-graph-ipfs
+    ports:
+      - "${IPFS_PORT:-5001}:5001"
+    volumes:
+      - ipfs_data:/data/ipfs
+    networks:
+      - default-base-graph
+
+  graph-postgres:
+    image: postgres:14
+    container_name: default-graph-postgres
+    ports:
+      - "${GRAPH_POSTGRES_PORT:-5433}:5432"
+    command:
+      [
+        "postgres",
+        "-cshared_preload_libraries=pg_stat_statements",
+        "-cmax_connections=200",
+      ]
+    environment:
+      POSTGRES_USER: ${GRAPH_POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${GRAPH_POSTGRES_PASSWORD:123123}
+      POSTGRES_DB: ${GRAPH_POSTGRES_DB:-graph-node}
+      # FIXME: remove this env. var. which we shouldn't need. Introduced by
+      # <https://github.com/graphprotocol/graph-node/pull/3511>, maybe as a
+      # workaround for https://github.com/docker/for-mac/issues/6270?
+      PGDATA: "/var/lib/postgresql/data"
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=C"
+    volumes:
+      - graph_postgres_data:/var/lib/postgresql/data
+    networks:
+      - default-base-graph
+
+volumes:
+  ipfs_data:
+  graph_postgres_data:
+
+networks:
+  default-base-graph:
+    driver: bridge
