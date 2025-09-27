@@ -50,7 +50,7 @@
         <mockito.version>5.8.0</mockito.version>
         <dubbo.version>3.3.5</dubbo.version>
         <grpc.version>1.75.0</grpc.version>
-        <protobuf.version>3.25.7</protobuf.version>
+        <protobuf.version>4.32.1</protobuf.version>
     </properties>
     <dependencyManagement>
         <dependencies>
