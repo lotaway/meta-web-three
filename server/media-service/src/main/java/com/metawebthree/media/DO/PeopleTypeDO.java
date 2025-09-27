@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-@TableName("People_Type")
+@TableName("\"People_Type\"")
 public class PeopleTypeDO extends BaseDO {
     @TableId(type=IdType.AUTO)
     Short id;

@@ -14,6 +14,9 @@ spring:
   quartz:
     jdbc:
       initialize-schema: always # auto init database tables
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 dubbo:
   registry:
     address: ${spring.cloud.zookeeper.connect-string}

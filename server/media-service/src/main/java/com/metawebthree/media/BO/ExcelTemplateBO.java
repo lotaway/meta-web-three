@@ -44,12 +44,25 @@ public class ExcelTemplateBO {
     TableInfo peopleTypeTableInfo = TableInfoHelper.getTableInfo(PeopleTypeDO.class);
     String peopleTypeTableName = peopleTypeTableInfo.getTableName();
 
+    protected String getCleanName(String name) {
+        return name.trim().replaceAll("\\s+", " ");
+    }
+
+    public void setCategoryName(String name) {
+        categoryName = getCleanName(name);
+    }
+
+    public void setTagNames(String names) {
+        tagNames = getCleanName(names);
+    }
+
     public Integer updateCategoryNameToCategoryId(MPJBaseMapper<ArtWorkCategoryDO> artworkCategoryMapper) {
         var wrapper = new MPJLambdaQueryWrapper<ArtWorkCategoryDO>();
-        wrapper.eq(ArtWorkCategoryDO::getName, categoryName);
-        ArtWorkCategoryDO result = artworkCategoryMapper.selectOne(wrapper);
-        if (result != null) {
-            return result.getId();
+        wrapper.eq(ArtWorkCategoryDO::getName, categoryName).isNull(ArtWorkCategoryDO::getId).last("limit 1");
+        // System.out.println("Generated SQL: " + wrapper.getSqlSelect()); 
+        List<ArtWorkCategoryDO> result = artworkCategoryMapper.selectList(wrapper);
+        if (result != null && result.size() == 1) {
+            return result.get(0).getId();
         }
         var categoryDO = ArtWorkCategoryDO.builder().name(categoryName).build();
         artworkCategoryMapper.insert(categoryDO);

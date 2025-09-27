@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-@TableName("Artwork_Tag")
+@TableName("\"Artwork_Tag\"")
 public class ArtWorkTagDO extends BaseDO {
     @TableId(type=IdType.AUTO)
     Integer id;
