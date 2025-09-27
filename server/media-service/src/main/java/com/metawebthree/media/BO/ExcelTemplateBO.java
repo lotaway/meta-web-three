@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.apache.poi.hpsf.Array;
-
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.github.yulichang.base.MPJBaseMapper;
@@ -21,7 +19,9 @@ import com.metawebthree.media.DO.PeopleTypeDO;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Data
 @NoArgsConstructor
 public class ExcelTemplateBO {
@@ -45,7 +45,15 @@ public class ExcelTemplateBO {
     String peopleTypeTableName = peopleTypeTableInfo.getTableName();
 
     protected String getCleanName(String name) {
+        if (name == null)
+            return name;
         return name.trim().replaceAll("\\s+", " ");
+    }
+
+    protected String uniSplit(String value) {
+        if (value == null)
+            return value;
+        return value.replace("，", ",");
     }
 
     public void setCategoryName(String name) {
@@ -53,10 +61,21 @@ public class ExcelTemplateBO {
     }
 
     public void setTagNames(String names) {
-        tagNames = getCleanName(names);
+        tagNames = uniSplit(getCleanName(names));
+    }
+
+    public void setActNames(String names) {
+        actNames = uniSplit(getCleanName(names));
+    }
+
+    public void setDirectorName(String name) {
+        directorName = getCleanName(name);
     }
 
     public Integer updateCategoryNameToCategoryId(MPJBaseMapper<ArtWorkCategoryDO> artworkCategoryMapper) {
+        if (categoryName == null || categoryName.isEmpty()) {
+            return null;
+        }
         var wrapper = new MPJLambdaQueryWrapper<ArtWorkCategoryDO>();
         wrapper.select(ArtWorkCategoryDO::getId).eq(ArtWorkCategoryDO::getName, categoryName).last("limit 1");
         ArtWorkCategoryDO result = artworkCategoryMapper.selectOne(wrapper);
@@ -69,15 +88,17 @@ public class ExcelTemplateBO {
     }
 
     public List<Integer> updateTagNamesToTagIds(ArtWorkTagMapper artworkTagMapper) {
+        if (tagNames == null || tagNames.isEmpty()) {
+            return new ArrayList<>();
+        }
         var nameList = List.<String>of(tagNames.split(","));
         var wrapper = new MPJLambdaQueryWrapper<ArtWorkTagDO>();
         wrapper.select(ArtWorkTagDO::getId, ArtWorkTagDO::getTag).in(ArtWorkTagDO::getTag, nameList);
         List<ArtWorkTagDO> existingDOs = artworkTagMapper.selectList(wrapper);
         var missingNames = new ArrayList<String>();
         var idList = new ArrayList<Integer>();
-
-        Stream<ArtWorkTagDO> stream = existingDOs.stream();
         nameList.forEach((String name) -> {
+            Stream<ArtWorkTagDO> stream = existingDOs.stream();
             ArtWorkTagDO artWorkTagDO = stream.filter(existingDO -> existingDO.getTag().equals(name)).findFirst()
                     .orElse(null);
             if (artWorkTagDO == null) {
@@ -86,6 +107,9 @@ public class ExcelTemplateBO {
             }
             idList.add(artWorkTagDO.getId());
         });
+        if (missingNames.isEmpty()) {
+            return idList;
+        }
         List<Integer> newIds = artworkTagMapper.insertBatchThenReturnIds(missingNames);
         idList.addAll(newIds);
         return idList;
@@ -93,6 +117,9 @@ public class ExcelTemplateBO {
 
     public List<Integer> updateActNamesToActIds(PeopleMapper peopleMapper,
             MPJBaseMapper<PeopleTypeDO> peopleTypeMapper) {
+        if (actNames == null || actNames.isEmpty()) {
+            return new ArrayList<>();
+        }
         var nameList = List.<String>of(actNames.split(","));
         var wrapper = new MPJLambdaWrapper<PeopleDO>();
         String PEOPLE_TYPE = "Actor";
@@ -106,11 +133,11 @@ public class ExcelTemplateBO {
         List<PeopleTypeDO> typeDOs = peopleTypeMapper.selectList(new MPJLambdaWrapper<PeopleTypeDO>()
                 .select(PeopleTypeDO::getId).eq(PeopleTypeDO::getType, PEOPLE_TYPE));
 
-        Stream<PeopleDO> stream = existingDOs.stream();
         var missingPeopleDOs = new ArrayList<PeopleDO>();
         var idList = new ArrayList<Integer>();
 
         nameList.forEach(name -> {
+            Stream<PeopleDO> stream = existingDOs.stream();
             PeopleDO peopleDO = stream.filter(existingDO -> existingDO.getName().equals(name)).findFirst().orElse(null);
             if (peopleDO == null) {
                 missingPeopleDOs
@@ -120,12 +147,16 @@ public class ExcelTemplateBO {
             idList.add(peopleDO.getId());
         });
         List<Integer> newIds = peopleMapper.insertBatchThenReturnIds(missingPeopleDOs);
+        log.info("newIds: {}", newIds);
         idList.addAll(newIds);
         return idList;
     }
 
     public Integer updateDirectorNameToDirectorId(MPJBaseMapper<PeopleDO> peopleMapper,
             MPJBaseMapper<PeopleTypeDO> peopleTypeMapper) {
+        if (directorName == null || directorName.isEmpty()) {
+            return null;
+        }
         var wrapper = new MPJLambdaWrapper<PeopleDO>();
         wrapper.select(PeopleDO::getId).eq(PeopleDO::getName, directorName).leftJoin(PeopleTypeDO.class,
                 on -> on.apply(String.format("%s.id = ANY(%s.types)", peopleTypeTableName, peopleTableName)))
