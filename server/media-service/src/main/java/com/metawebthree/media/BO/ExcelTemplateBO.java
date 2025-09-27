@@ -58,15 +58,10 @@ public class ExcelTemplateBO {
 
     public Integer updateCategoryNameToCategoryId(MPJBaseMapper<ArtWorkCategoryDO> artworkCategoryMapper) {
         var wrapper = new MPJLambdaQueryWrapper<ArtWorkCategoryDO>();
-        wrapper.eq(ArtWorkCategoryDO::getName, categoryName).isNull(ArtWorkCategoryDO::getId).last("limit 1");
-        System.out.println("Generated SQL: " + wrapper.getSqlSelect());
+        wrapper.select(ArtWorkCategoryDO::getId).eq(ArtWorkCategoryDO::getName, categoryName).last("limit 1");
         ArtWorkCategoryDO result = artworkCategoryMapper.selectOne(wrapper);
         if (result != null) {
             return result.getId();
-        }
-        List<ArtWorkCategoryDO> results = artworkCategoryMapper.selectList(wrapper);
-        if (results != null && results.size() == 1) {
-            return results.get(0).getId();
         }
         var categoryDO = ArtWorkCategoryDO.builder().name(categoryName).build();
         artworkCategoryMapper.insert(categoryDO);
