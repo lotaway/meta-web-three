@@ -15,8 +15,8 @@ import org.apache.ibatis.annotations.Mapper;
 public interface PeopleMapper extends MPJBaseMapper<PeopleDO> {
     @Insert({
             "<script>",
-            "INSERT INTO People (name,types) VALUES",
-            "<foreach collection='list' item='item' separator=','>",
+            "INSERT INTO \"People\" (name,types)",
+            "<foreach collection='list' item='item' separator=',' open='VALUES' close=''>",
             "(#{item.name},#{item.types})",
             "</foreach>",
             "RETURNING id",
