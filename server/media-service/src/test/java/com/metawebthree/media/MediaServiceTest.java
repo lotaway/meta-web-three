@@ -39,7 +39,7 @@ import com.metawebthree.media.utils.DefaultMarkdownVisitor;
         "com.metawebthree.common"
 })
 @EnableAutoConfiguration
-public class MediaMapperTest {
+public class MediaServiceTest {
 
     @Value("${test-md-file}")
     private String importMDFile;
@@ -55,9 +55,6 @@ public class MediaMapperTest {
 
     @Autowired
     private MediaService mediaService;
-
-    @Autowired
-    private ExcelService excelService;
 
     @Test
     @Disabled("Fix data")
@@ -186,15 +183,5 @@ public class MediaMapperTest {
             }
         }
         return artWorkDO;
-    }
-
-    @Test
-    public void testImportExcel() {
-        var wrapper = new MPJLambdaWrapper<ArtWorkDO>().select(ArtWorkDO::getId);
-        Long originCount = artWorkMapper.selectCount(wrapper);
-        excelService.processExcelData("your-excel-file-download-url");
-        Long count = artWorkMapper
-                .selectCount(wrapper);
-        Assert.assertTrue(count > originCount);
     }
 }

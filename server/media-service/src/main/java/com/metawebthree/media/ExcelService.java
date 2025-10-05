@@ -269,7 +269,7 @@ public class ExcelService {
             byte[] fileContent = outputStream.toByteArray();
             String fileName = URLEncoder.encode("template.xlsx", StandardCharsets.UTF_8.toString())
                     .replaceAll("\\+", "%20");
-            return s3Service.uploadExcel(s3Config.getName(), fileContent, fileName);
+            return s3Service.uploadExcel(s3Config.getName(), fileContent, fileName, true);
         } catch (Exception e) {
             log.error("Failed to generate Excel template", e);
             throw new RuntimeException("Failed to generate Excel template", e);
