@@ -43,7 +43,7 @@ public class ExcelService {
     private final ArtWorkTagMapper artworkTagMapper;
     private static final int MIN_BATCH_SIZE = 1;
     private static final int MAX_BATCH_SIZE = 1000;
-    private static final int PROCESSING_THREADS = 4;
+    private static final int PROCESSING_THREADS = 2;
     private final DefaultS3Service s3Service;
     private final DefaultS3Config s3Config;
 
