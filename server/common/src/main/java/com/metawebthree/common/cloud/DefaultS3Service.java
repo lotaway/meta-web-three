@@ -2,6 +2,7 @@ package com.metawebthree.common.cloud;
 
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
@@ -53,12 +54,17 @@ public class DefaultS3Service {
     }
 
     public String uploadExcel(String bucketName, byte[] excelBytes, String fileName) {
+        return uploadExcel(bucketName, excelBytes, fileName, false);
+    }
+
+    public String uploadExcel(String bucketName, byte[] excelBytes, String fileName, boolean isPublic) {
         try {
             RequestBody requestBody = RequestBody.fromBytes(excelBytes);
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(fileName)
                     .contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    .acl(isPublic ? ObjectCannedACL.PUBLIC_READ : ObjectCannedACL.PRIVATE)
                     .build();
             PutObjectResponse putObjectResponse = s3Client.putObject(putObjectRequest, requestBody);
             putObjectResponse.bucketKeyEnabled();
