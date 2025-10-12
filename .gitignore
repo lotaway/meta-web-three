@@ -12,6 +12,7 @@
 */node_modules
 */dist-ssr
 *.local
+/target
 
 # Logs
 logs
