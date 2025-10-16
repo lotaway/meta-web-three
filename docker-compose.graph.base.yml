@@ -19,8 +19,8 @@ services:
       postgres_pass: ${GRAPH_POSTGRES_PASSWORD:-123123}
       postgres_db: ${GRAPH_POSTGRES_DB:-graph-node}
       ipfs: "graph-ipfs:5001"
-      ethereum: "base:https://base-rpc.publicnode.com,https://mainnet.base.org,https://developer-access-mainnet.base.org,https://base.gateway.tenderly.co,wss://base.gateway.tenderly.co,wss://base-rpc.publicnode.com"
-      GRAPH_LOG: error
+      ethereum: "base:https://base-rpc.publicnode.com,https://mainnet.base.org,https://developer-access-mainnet.base.org,https://base.gateway.tenderly.co"
+      GRAPH_LOG: warning
     networks:
       - default-base-graph
 
