@@ -1,0 +1,10 @@
+[chains]
+ingestor = "block_ingestor_node"
+
+[chains.base]
+provider = [
+  { label = "rpc1", url = "https://base-rpc.publicnode.com" },
+  { label = "rpc2", url = "https://mainnet.base.org" },
+  { label = "rpc3", url = "https://developer-access-mainnet.base.org" },
+  { label = "rpc4", url = "https://base.gateway.tenderly.co" }
+]

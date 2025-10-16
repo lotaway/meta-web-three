@@ -19,8 +19,10 @@ services:
       postgres_pass: ${GRAPH_POSTGRES_PASSWORD:-123123}
       postgres_db: ${GRAPH_POSTGRES_DB:-graph-node}
       ipfs: "graph-ipfs:5001"
-      ethereum: "base:https://base-rpc.publicnode.com,https://base.gateway.tenderly.co"
       GRAPH_LOG: warning
+    command:
+      - --config
+      - /etc/graph-node/graph-node-config.toml
     networks:
       - default-base-graph
 
