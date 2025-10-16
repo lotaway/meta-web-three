@@ -22,7 +22,7 @@ services:
       GRAPH_LOG: warning
     command:
       - --config
-      - /etc/graph-node/graph-node-config.toml
+      - ./graph-node-config.toml
     networks:
       - default-base-graph
 
