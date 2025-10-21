@@ -65,18 +65,21 @@ rocketmq:
 jwt:
   secret: mwt123123
 dubbo:
+  application:
+    name: ${spring.application.name}
   registry:
     protocol: zookeeper
     timeout: 30000
+    address: ${spring.cloud.zookeeper.connect-string}
+    group: ${spring.cloud.zookeeper.discovery.root}
   provider:
     timeout: 10000 # service call timeout
   protocol:
     port: -1
-    name: tri
+    name: grpc
     serialization: protobuf
-grpc:
-  discovery:
-    path-template: /grpc/{spring.application.name}/providers
+  grpc:
+    enable: true
 logging:
   expire-time: 2592000000 # 30 days
   data-path: logs/rocksdb-data/${spring.application.name}

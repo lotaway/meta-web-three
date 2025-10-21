@@ -23,7 +23,7 @@ class ZookeeperServiceRegistry:
         self.service_host = service_host
         self.service_port = service_port
         self.zk = None
-        self.service_path = f"{group_name}/{service_name}"
+        self.service_path = f"{group_name}/{service_name}/providers"
     
     def start(self):
         """Start Zookeeper connection and register service"""
@@ -36,11 +36,19 @@ class ZookeeperServiceRegistry:
             # Create service path if not exists
             self.zk.ensure_path(self.service_path)
             
-            # Register service (store as host:port)
-            node_name = f"{self.service_host}:{self.service_port}"
-            node_path = f"{self.service_path}/{node_name}"
+            # Register service with Dubbo-compatible URL format
+            # Format: provider://host:port/service_name?interface=service_name&application=appName&category=providers&dubbo=2.0.2&release=3.3.5&side=provider&methods=methods&timestamp=timestamp
+            import urllib.parse
+            import time
+            import os
+            timestamp = int(time.time() * 1000)
+            pid = os.getpid()
+            methods = "score,scoreAsync,test,testAsync"
+            provider_url = f"provider://{self.service_host}:{self.service_port}/{self.service_name}?interface={self.service_name}&application=risk-scorer&category=providers&dubbo=2.0.2&release=3.3.5&side=provider&methods={methods}&pid={pid}&timestamp={timestamp}"
+            encoded_url = urllib.parse.quote(provider_url, safe='')
+            node_path = f"{self.service_path}/{encoded_url}"
             self.zk.create(node_path, b"", ephemeral=True, makepath=True)
-            logger.info(f"Service registered: {node_name}")
+            logger.info(f"Service registered with Dubbo format: {provider_url}")
             
         except Exception as e:
             logger.error(f"Failed to register service with Zookeeper: {e}")
@@ -65,7 +73,7 @@ def start_risk_score_model():
     # Get configuration from environment variables
     zk_hosts = os.getenv("ZK_HOST", "localhost:2181")
     service_host = os.getenv("SERVICE_HOST", "0.0.0.0")
-    service_port = int(os.getenv("EXPORT_DUBBO_PORT", "20088"))
+    service_port = int(os.getenv("RPC_PORT", "20088"))
     # use fully-qualified gRPC service name
     service_name = os.getenv("SERVICE_NAME", "com.metawebthree.common.generated.rpc.RiskScorerService")
     group_name = os.getenv("GROUP_NAME", "")

@@ -17,11 +17,7 @@ spring:
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-dubbo:
-  registry:
-    address: ${spring.cloud.zookeeper.connect-string}
-  application:
-    name: ${spring.application.name}
+# dubbo:
 # swagger docs
 springdoc:
   #   api-docs:
