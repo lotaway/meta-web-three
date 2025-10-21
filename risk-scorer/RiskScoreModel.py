@@ -5,6 +5,7 @@ gRPC Risk Scoring Service Implementation
 Replaces the original Dubbo implementation with standard gRPC
 """
 
+from random import Random
 import grpc
 import os
 import numpy as np
@@ -51,7 +52,7 @@ class RiskScorerServiceImpl(RiskScorerServiceServicer):
         """Test method implementation"""
         try:
             logger.info("Test method called")
-            return TestResponse(result=100)
+            return TestResponse(result=Random().randint(1000, 5000))
         except Exception as e:
             logger.error(f"Test method error: {e}")
             context.set_code(grpc.StatusCode.INTERNAL)

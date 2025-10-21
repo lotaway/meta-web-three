@@ -36,19 +36,15 @@ class ZookeeperServiceRegistry:
             # Create service path if not exists
             self.zk.ensure_path(self.service_path)
             
-            # Register service with Dubbo-compatible URL format
-            # Format: provider://host:port/service_name?interface=service_name&application=appName&category=providers&dubbo=2.0.2&release=3.3.5&side=provider&methods=methods&timestamp=timestamp
+            # Register service with minimal required parameters
             import urllib.parse
             import time
-            import os
             timestamp = int(time.time() * 1000)
-            pid = os.getpid()
-            methods = "score,scoreAsync,test,testAsync"
-            provider_url = f"provider://{self.service_host}:{self.service_port}/{self.service_name}?interface={self.service_name}&application=risk-scorer&category=providers&dubbo=2.0.2&release=3.3.5&side=provider&methods={methods}&pid={pid}&timestamp={timestamp}"
+            provider_url = f"tri://{self.service_host}:{self.service_port}/{self.service_name}?interface={self.service_name}&application=risk-scorer&category=providers&side=provider&timestamp={timestamp}"
             encoded_url = urllib.parse.quote(provider_url, safe='')
             node_path = f"{self.service_path}/{encoded_url}"
             self.zk.create(node_path, b"", ephemeral=True, makepath=True)
-            logger.info(f"Service registered with Dubbo format: {provider_url}")
+            logger.info(f"Service registered with minimal parameters: {provider_url}")
             
         except Exception as e:
             logger.error(f"Failed to register service with Zookeeper: {e}")
