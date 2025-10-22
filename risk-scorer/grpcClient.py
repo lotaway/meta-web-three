@@ -38,9 +38,7 @@ class ZookeeperServiceRegistry:
             
             # Register service with minimal required parameters
             import urllib.parse
-            import time
-            timestamp = int(time.time() * 1000)
-            provider_url = f"tri://{self.service_host}:{self.service_port}/{self.service_name}?interface={self.service_name}&application=risk-scorer&category=providers&side=provider&timestamp={timestamp}"
+            provider_url = f"tri://{self.service_host}:{self.service_port}/{self.service_name}"
             encoded_url = urllib.parse.quote(provider_url, safe='')
             node_path = f"{self.service_path}/{encoded_url}"
             self.zk.create(node_path, b"", ephemeral=True, makepath=True)
