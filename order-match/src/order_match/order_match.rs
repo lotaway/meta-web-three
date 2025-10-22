@@ -15,7 +15,8 @@ use rdkafka::config::ClientConfig;
 use rdkafka::producer::{FutureProducer};
 use std::{
     collections::{HashMap},
-    sync::{Arc}
+    sync::{Arc},
+    env,
 };
 
 use crate::order_match::{
@@ -25,32 +26,31 @@ use crate::order_match::{
         OrderRequest, OrderResponse,
     },
 };
+use crate::config::AppConfig;
 
 pub struct MatchingServiceImpl {
     managers: HashMap<String, Arc<ShardManager>>,
 }
 
 impl MatchingServiceImpl {
-    pub fn new(
-        markets: Vec<String>,
-        kafka_brokers: &str,
-        kafka_topic: &str,
-        wal_dir: &str,
-    ) -> Self {
+    pub fn new(config: &AppConfig) -> Self {
         let producer: FutureProducer = ClientConfig::new()
-            .set("bootstrap.servers", kafka_brokers)
+            .set("bootstrap.servers", &config.kafka.brokers)
+            .set("request.timeout.ms", config.kafka.producer_timeout_ms.to_string())
+            .set("retries", config.kafka.producer_retry_count.to_string())
             .create()
-            .expect("producer");
+            .expect("Failed to create Kafka producer");
+        
         let mut managers = HashMap::new();
-        for m in markets {
+        for market in &config.markets.markets {
             let mgr = Arc::new(ShardManager::new(
-                &m,
+                market,
                 producer.clone(),
-                kafka_topic,
-                wal_dir,
+                &config.kafka.topic,
+                &config.storage.wal_dir,
             ));
             mgr.start_with(1);
-            managers.insert(m.clone(), mgr);
+            managers.insert(market.clone(), mgr);
         }
         MatchingServiceImpl { managers }
     }
@@ -85,20 +85,20 @@ impl MatchingService for MatchingServiceImpl {
     }
 }
 
-pub fn start_rpc(markets: Vec<String>, kafka_brokers: &str, kafka_topic: &str, wal_dir: &str) {
-    let consumer = MatchingServiceImpl::new(markets, kafka_brokers, kafka_topic, wal_dir);
+pub fn start_rpc(config: &AppConfig) {
+    let _consumer = MatchingServiceImpl::new(config);
     // register_server(consumer);
     let mut registry_map = HashMap::<String, RegistryConfig>::new();
     registry_map.insert(
         "zookeeper".to_string(),
         RegistryConfig {
             protocol: "zookeeper".to_string(),
-            address: "127.0.0.1:2181".to_string(),
+            address: config.dubbo.registry_address.clone(),
         },
     );
     let protocal = Protocol {
         name: "dubbo".to_string(),
-        port: 20086.to_string(),
+        port: config.dubbo.port.to_string(),
         ..Default::default()
     };
     let mut protocol_config = ProtocolConfig::default();
@@ -108,9 +108,9 @@ pub fn start_rpc(markets: Vec<String>, kafka_brokers: &str, kafka_topic: &str, w
         "MatchingService".to_string(),
         ServiceConfig {
             interface: "com.metawebthree.common.rpc.interfaces.MatchingService".to_string(),
-            version: "".to_string(),
+            version: config.dubbo.version.clone(),
             tag: "".to_string(),
-            group: "/dev/metawebthree".to_string(),
+            group: config.dubbo.group.clone(),
             protocol: "dubbo".to_string(),
         },
     );
@@ -119,19 +119,33 @@ pub fn start_rpc(markets: Vec<String>, kafka_brokers: &str, kafka_topic: &str, w
     root_config.protocols = protocol_config;
     root_config.provider = ProviderConfig::new().with_services(service_map);
     // @TDOO fix dubbo api error
-    Dubbo::new()
+    let mut dubbo = Dubbo::new()
         .with_config(match root_config.load() {
             Ok(config) => config,
             Err(_err) => panic!("err: {:?}", _err), // response was droped
-        })
-        .start();
+        });
+    let _dubbo = dubbo.start();
 }
 
 pub async fn start() {
-    let markets = vec![
-        "BTC/USDT".to_string(),
-        "ETH/USDT".to_string(),
-        "DOGE/USDT".to_string(),
-    ];
-    start_rpc(markets, "localhost:9092", "dex-trades", "/tmp");
+    // 加载配置
+    let config = AppConfig::load().unwrap_or_else(|e| {
+        eprintln!("Failed to load configuration: {}", e);
+        eprintln!("Using default configuration");
+        AppConfig::default()
+    });
+
+    // 设置日志级别
+    unsafe {
+        env::set_var("RUST_LOG", &config.app.log_level);
+    }
+    env_logger::init();
+
+    log::info!("Starting {} with configuration:", config.app.name);
+    log::info!("  Kafka brokers: {}", config.kafka.brokers);
+    log::info!("  Kafka topic: {}", config.kafka.topic);
+    log::info!("  Dubbo port: {}", config.dubbo.port);
+    log::info!("  Markets: {:?}", config.markets.markets);
+
+    start_rpc(&config);
 }

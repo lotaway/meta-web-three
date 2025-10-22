@@ -1,3 +1,4 @@
+mod config;
 mod order_match;
 
 #[tokio::main]
