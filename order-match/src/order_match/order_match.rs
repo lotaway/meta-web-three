@@ -1,23 +1,15 @@
 use anyhow::Result;
-use dubbo::{
-    codegen::async_trait,
-    config::{
-        protocol::{Protocol, ProtocolConfig},
-        provider::ProviderConfig,
-        registry::RegistryConfig,
-        service::ServiceConfig,
-        RootConfig,
-    },
-    status::DubboError,
-    Dubbo,
-};
 use rdkafka::config::ClientConfig;
 use rdkafka::producer::{FutureProducer};
 use std::{
     collections::{HashMap},
     sync::{Arc},
     env,
+    time,
 };
+use tonic::{transport::Server, Request, Response, Status};
+use zookeeper::{Acl, ZooKeeper};
+use std::str::FromStr;
 
 use crate::order_match::{
     interfaces::interfaces::MatchingService,
@@ -27,6 +19,40 @@ use crate::order_match::{
     },
 };
 use crate::config::AppConfig;
+use prost_types::value::Kind;
+
+struct ZookeeperServiceRegistry {
+    zk: ZooKeeper,
+    service_path: String,
+}
+
+impl ZookeeperServiceRegistry {
+    fn new(zk_hosts: &str, service_name: &str, service_host: &str, service_port: u16, group_name: &str) -> Result<Self> {
+        let zk = ZooKeeper::connect(zk_hosts, time::Duration::from_secs(15), |_| ())?;
+        
+        let group_name = if group_name.is_empty() || group_name.starts_with('/') {
+            group_name.to_string()
+        } else {
+            format!("/{}", group_name)
+        };
+        
+        let service_path = format!("{}/{}/providers", group_name, service_name);
+        
+        Ok(Self { zk, service_path })
+    }
+
+    fn register(&self, service_host: &str, service_port: u16) -> Result<()> {
+        self.zk.ensure_path(&self.service_path)?;
+        
+        let provider_url = format!("tri://{}:{}/{}", service_host, service_port, "MatchingService");
+        let encoded_url = urlencoding::encode(&provider_url);
+        let node_path = format!("{}/{}", self.service_path, encoded_url);
+        
+        self.zk.create(&node_path, vec![], zookeeper::Acl::open_unsafe(), zookeeper::CreateMode::Ephemeral)?;
+        
+        Ok(())
+    }
+}
 
 pub struct MatchingServiceImpl {
     managers: HashMap<String, Arc<ShardManager>>,
@@ -85,57 +111,44 @@ impl MatchingService for MatchingServiceImpl {
     }
 }
 
-pub fn start_rpc(config: &AppConfig) {
-    let _consumer = MatchingServiceImpl::new(config);
-    // register_server(consumer);
-    let mut registry_map = HashMap::<String, RegistryConfig>::new();
-    registry_map.insert(
-        "zookeeper".to_string(),
-        RegistryConfig {
-            protocol: "zookeeper".to_string(),
-            address: config.dubbo.registry_address.clone(),
-        },
-    );
-    let protocal = Protocol {
-        name: "dubbo".to_string(),
-        port: config.dubbo.port.to_string(),
-        ..Default::default()
-    };
-    let mut protocol_config = ProtocolConfig::default();
-    protocol_config.insert("dubbo".to_string(), protocal);
-    let mut service_map = HashMap::new();
-    service_map.insert(
-        "MatchingService".to_string(),
-        ServiceConfig {
-            interface: "com.metawebthree.common.rpc.interfaces.MatchingService".to_string(),
-            version: config.dubbo.version.clone(),
-            tag: "".to_string(),
-            group: config.dubbo.group.clone(),
-            protocol: "dubbo".to_string(),
-        },
-    );
-    let mut root_config = RootConfig::new();
-    root_config.registries = registry_map;
-    root_config.protocols = protocol_config;
-    root_config.provider = ProviderConfig::new().with_services(service_map);
-    // @TDOO fix dubbo api error
-    let mut dubbo = Dubbo::new()
-        .with_config(match root_config.load() {
-            Ok(config) => config,
-            Err(_err) => panic!("err: {:?}", _err), // response was droped
-        });
-    let _dubbo = dubbo.start();
+pub async fn start_rpc(config: &AppConfig) -> Result<()> {
+    let service = MatchingServiceImpl::new(config);
+    
+    // Start gRPC server
+    let addr = format!("[::]:{}", config.dubbo.port).parse()?;
+    let server = Server::builder()
+        .add_service(MatchingServiceServer::new(service))
+        .serve(addr);
+    
+    // Register with Zookeeper
+    let registry = ZookeeperServiceRegistry::new(
+        &config.dubbo.registry_address,
+        "com.metawebthree.common.rpc.interfaces.MatchingService",
+        "0.0.0.0",
+        config.dubbo.port,
+        &config.dubbo.group,
+    )?;
+    
+    registry.register("0.0.0.0", config.dubbo.port)?;
+    
+    tokio::spawn(async move {
+        if let Err(e) = server.await {
+            eprintln!("Server error: {}", e);
+        }
+    });
+    
+    Ok(())
 }
 
-pub async fn start() {
-    // 加载配置
+use crate::order_match::interfaces::interfaces::MatchingServiceServer;
+
+pub async fn start() -> Result<()> {
     let config = AppConfig::load().unwrap_or_else(|e| {
         eprintln!("Failed to load configuration: {}", e);
         eprintln!("Using default configuration");
         AppConfig::default()
     });
 
-    // 设置日志级别
     unsafe {
         env::set_var("RUST_LOG", &config.app.log_level);
     }
@@ -147,5 +160,9 @@ pub async fn start() {
     log::info!("  Dubbo port: {}", config.dubbo.port);
     log::info!("  Markets: {:?}", config.markets.markets);
 
-    start_rpc(&config);
+    start_rpc(&config).await?;
+    
+    // Keep the server running
+    tokio::signal::ctrl_c().await?;
+    Ok(())
 }

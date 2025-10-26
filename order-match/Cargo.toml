@@ -24,6 +24,7 @@ dotenvy = "0.15"
 # for proto
 tonic = "0.14.1"
 prost = "0.14.1"
+zookeeper = "0.10"
 
 [build-dependencies]
 tonic-prost-build = "0.14.1"
