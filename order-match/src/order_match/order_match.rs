@@ -1,4 +1,5 @@
 use anyhow::Result;
+use dubbo::codegen::Service;
 use dubbo::status::DubboError;
 use rdkafka::config::ClientConfig;
 use rdkafka::producer::{FutureProducer};
@@ -19,6 +20,7 @@ use crate::order_match::{
     },
 };
 use crate::config::AppConfig;
+// use crate::order_match::order_match_service_server;
 
 struct ZookeeperServiceRegistry {
     zk: ZooKeeper,
@@ -81,8 +83,8 @@ impl MatchingServiceImpl {
     }
 }
 
-#[async_trait]
-impl OrderMatchService for MatchingServiceImpl {
+#[tonic::async_trait]
+impl<'a> OrderMatchService for MatchingServiceImpl {
     async fn match_order(&self, req: OrderRequest) -> Result<OrderResponse, DubboError> {
         if let Some(mgr) = self.managers.get(&req.market) {
             if let Err(e) = mgr.route(req.clone()) {
@@ -110,33 +112,34 @@ impl OrderMatchService for MatchingServiceImpl {
     }
 }
 
-use crate::order_match::interfaces::interfaces::OrderMatchServiceServer;
-
 pub async fn start_rpc(config: &AppConfig) -> Result<()> {
     let service = MatchingServiceImpl::new(config);
     
     // Start gRPC server
-    let addr = format!("[::]:{}", config.dubbo.port).parse()?;
-    let server = Server::builder()
-        .add_service(OrderMatchServiceServer::new(service))
-        .serve(addr);
+    let addr: std::net::SocketAddr = format!("[::]:{}", config.dubbo.port)
+        .parse()
+        .map_err(|e| DubboError::new(format!("Invalid address: {}", e)))?;
+
+    // let server = Server::builder()
+    //     .add_service(order_match_service_server::OrderMatchServiceServer::new(service))
+    //     .serve(addr);
     
-    // Register with Zookeeper
-    let registry = ZookeeperServiceRegistry::new(
-        &config.dubbo.registry_address,
-        "com.metawebthree.common.rpc.interfaces.OrderMatchService",
-        "0.0.0.0",
-        config.dubbo.port,
-        &config.dubbo.group,
-    )?;
+    // // Register with Zookeeper
+    // let registry = ZookeeperServiceRegistry::new(
+    //     &config.dubbo.registry_address,
+    //     "com.metawebthree.common.rpc.interfaces.OrderMatchService",
+    //     "0.0.0.0",
+    //     config.dubbo.port,
+    //     &config.dubbo.group,
+    // )?;
     
-    registry.register("0.0.0.0", config.dubbo.port)?;
+    // registry.register("0.0.0.0", config.dubbo.port)?;
     
-    tokio::spawn(async move {
-        if let Err(e) = server.await {
-            eprintln!("Server error: {}", e);
-        }
-    });
+    // tokio::spawn(async move {
+    //     if let Err(e) = server.await {
+    //         eprintln!("Server error: {}", e);
+    //     }
+    // });
     
     Ok(())
 }
