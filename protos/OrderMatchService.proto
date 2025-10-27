@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package com.metawebthree.common.generated.rpc;
+
+// option cc_enable_arenas = true;
+option java_multiple_files = true;
+
+service OrderMatchService {
+    rpc addBid(AddBidRequest) returns (AddBidResponse);
+}
+
+message AddBidRequest {
+    repeated BidDTO orders = 1;
+}
+
+message AddBidResponse {
+    int64 id = 1;
+}
+
+message BidDTO {
+    int64 id = 1;
+    int64 userId = 2;
+    string orderNo = 3;
+}

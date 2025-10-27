@@ -1,4 +1,5 @@
 use anyhow::Result;
+use dubbo::status::DubboError;
 use rdkafka::config::ClientConfig;
 use rdkafka::producer::{FutureProducer};
 use std::{
@@ -8,18 +9,16 @@ use std::{
     time,
 };
 use tonic::{transport::Server, Request, Response, Status};
-use zookeeper::{Acl, ZooKeeper};
-use std::str::FromStr;
+use zookeeper::{Acl, ZooKeeper, ZooKeeperExt};
 
 use crate::order_match::{
-    interfaces::interfaces::MatchingService,
+    interfaces::interfaces::OrderMatchService,
     order_shard::order_shard::ShardManager,
     structs::structs::{
         OrderRequest, OrderResponse,
     },
 };
 use crate::config::AppConfig;
-use prost_types::value::Kind;
 
 struct ZookeeperServiceRegistry {
     zk: ZooKeeper,
@@ -44,11 +43,11 @@ impl ZookeeperServiceRegistry {
     fn register(&self, service_host: &str, service_port: u16) -> Result<()> {
         self.zk.ensure_path(&self.service_path)?;
         
-        let provider_url = format!("tri://{}:{}/{}", service_host, service_port, "MatchingService");
+        let provider_url = format!("tri://{}:{}/{}", service_host, service_port, "OrderMatchService");
         let encoded_url = urlencoding::encode(&provider_url);
         let node_path = format!("{}/{}", self.service_path, encoded_url);
         
-        self.zk.create(&node_path, vec![], zookeeper::Acl::open_unsafe(), zookeeper::CreateMode::Ephemeral)?;
+        self.zk.create(&node_path, vec![], Acl::open_unsafe().to_vec(), zookeeper::CreateMode::Ephemeral)?;
         
         Ok(())
     }
@@ -83,7 +82,7 @@ impl MatchingServiceImpl {
 }
 
 #[async_trait]
-impl MatchingService for MatchingServiceImpl {
+impl OrderMatchService for MatchingServiceImpl {
     async fn match_order(&self, req: OrderRequest) -> Result<OrderResponse, DubboError> {
         if let Some(mgr) = self.managers.get(&req.market) {
             if let Err(e) = mgr.route(req.clone()) {
@@ -111,19 +110,21 @@ impl MatchingService for MatchingServiceImpl {
     }
 }
 
+use crate::order_match::interfaces::interfaces::OrderMatchServiceServer;
+
 pub async fn start_rpc(config: &AppConfig) -> Result<()> {
     let service = MatchingServiceImpl::new(config);
     
     // Start gRPC server
     let addr = format!("[::]:{}", config.dubbo.port).parse()?;
     let server = Server::builder()
-        .add_service(MatchingServiceServer::new(service))
+        .add_service(OrderMatchServiceServer::new(service))
         .serve(addr);
     
     // Register with Zookeeper
     let registry = ZookeeperServiceRegistry::new(
         &config.dubbo.registry_address,
-        "com.metawebthree.common.rpc.interfaces.MatchingService",
+        "com.metawebthree.common.rpc.interfaces.OrderMatchService",
         "0.0.0.0",
         config.dubbo.port,
         &config.dubbo.group,
@@ -139,8 +140,6 @@ pub async fn start_rpc(config: &AppConfig) -> Result<()> {
     
     Ok(())
 }
-
-use crate::order_match::interfaces::interfaces::MatchingServiceServer;
 
 pub async fn start() -> Result<()> {
     let config = AppConfig::load().unwrap_or_else(|e| {

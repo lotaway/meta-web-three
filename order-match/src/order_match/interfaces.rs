@@ -6,7 +6,7 @@ pub mod interfaces {
 
     // #[dubbo::service]
     #[async_trait]
-    pub trait MatchingService {
+    pub trait OrderMatchService {
         async fn match_order(&self, req: OrderRequest) -> Result<OrderResponse, DubboError>;
     }
 }
