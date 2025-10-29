@@ -5,7 +5,6 @@ use std::{
 
 fn main() {
     start_build();
-    // start_build_v2();
 }
 
 fn get_proto_root_dir() -> PathBuf {
@@ -76,24 +75,4 @@ fn start_build() {
             panic!("Failed to compile protos: {}", e);
         }
     }
-}
-
-// use protobuf_codegen::CodeGen;
-
-fn start_build_v2() {
-    println!("Start rust building script...");
-    let _out_dir = "src/generated/rpc";
-    let proto_root_dir = get_proto_root_dir();
-    let proto_dirs = get_proto_dirs(proto_root_dir.clone());
-    let proto_files = get_proto_files(proto_root_dir.clone());
-    println!("proto root dir:{:?},proto dirs:{:?}", proto_root_dir.to_str(), proto_dirs.clone().iter());
-    // CodeGen::new()
-    //     .inputs(proto_files)
-    //     .includes(proto_dirs.iter())
-    //     // .dependency(protobuf_well_known_types::get_dependency(
-    //     //     "protobuf_well_known_types",
-    //     // ))
-    //     .output_dir(_out_dir)
-    //     .generate_and_compile()
-    //     .expect("Failed to compile protos with code gen tool");
 }
