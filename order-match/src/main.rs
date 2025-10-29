@@ -1,5 +1,6 @@
 mod config;
 mod order_match;
+mod generated;
 
 #[tokio::main]
 async fn main() {

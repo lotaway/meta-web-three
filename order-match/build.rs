@@ -58,13 +58,14 @@ fn get_proto_files(proto_dir: PathBuf) -> Vec<PathBuf> {
 
 fn start_build() {
     println!("Start rust building script...");
-    let _out_dir = "src/generated/rpc";
+    let _out_dir = "src/generated";
     // fs::create_dir_all(_out_dir).expect("failed to create output directory");
     let proto_dir = get_proto_root_dir();
     let proto_files = get_proto_files(proto_dir.clone());
-    match tonic_build::configure()
+    match tonic_prost_build::configure()
         .build_client(false)
         .out_dir(_out_dir)
+        .include_file("mod.rs")
         .compile_protos(&proto_files, &[proto_dir])
     {
         Ok(data) => {
