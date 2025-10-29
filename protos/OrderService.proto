@@ -5,9 +5,9 @@ package com.metawebthree.common.generated.rpc;
 // option cc_enable_arenas = true;
 option java_multiple_files = true;
 
+import "web3/token.proto";
 // [From](https://github.com/googleapis)
 import "google/type/money.proto";
-import "web3/token.proto";
 
 service OrderService {
     rpc getOrderByUserId(GetOrderByUserIdRequest) returns (GetOrderByUserIdResponse);

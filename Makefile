@@ -6,6 +6,7 @@ RUST_DIR = order-match
 RUST_OUT = $(RUST_DIR)/src/generated/rpc
 
 PROTO_FILES := $(wildcard $(PROTO_DIR)/*.proto)
+PROTO_INCLUDE := $(wildcard $(PROTO_DIR)/**/*.proto)
 
 all: gen-java-dubbo gen-python gen-rust
 
@@ -39,7 +40,7 @@ gen-python:
 gen-rust:
 	@echo "Generating Rust code..."
 	@mkdir -p $(RUST_OUT)
-	@cd $(RUST_DIR) && RUST_BACKTRACE=1 cargo build
+	@cd $(RUST_DIR) && RUST_BACKTRACE=1 PROTOC_INCLUDE="$(PROTO_INCLUDE)" cargo build
 
 clean:
 	rm -rf $(JAVA_OUT)/com/metawebthree/common/generated/rpc/*.java
