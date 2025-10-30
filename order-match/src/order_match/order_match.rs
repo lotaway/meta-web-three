@@ -12,6 +12,7 @@ use std::{
 use tonic::{transport::Server, Request, Response, Status};
 use zookeeper::{Acl, ZooKeeper, ZooKeeperExt};
 
+use crate::generated::com::metawebthree::common::generated::rpc::{AddOrderMatchRequest, AddOrderMatchResponse};
 // Import generated modules
 use crate::generated::com::metawebthree::common::generated::rpc::order_match_service_server::{self, OrderMatchService};
 
@@ -87,29 +88,34 @@ impl OrderMatchServiceImpl {
 // @TODO Edit proto and implement to match requirements
 #[tonic::async_trait]
 impl<'a> OrderMatchService for OrderMatchServiceImpl {
-    async fn match_order(&self, req: OrderRequest) -> Result<OrderResponse, DubboError> {
-        if let Some(mgr) = self.managers.get(&req.market) {
-            if let Err(e) = mgr.route(req.clone()) {
-                return Ok(OrderResponse {
+    async fn add_order(&self, _req: tonic::Request<AddOrderMatchRequest>) -> Result<tonic::Response<AddOrderMatchResponse>, DubboError> {
+        let req = _req.into_inner();
+        if req.orders.is_empty() {
+            return Err(DubboError::new("orders must not be empty!".to_string()))
+        }
+        let order = req.orders[0];
+        if let Some(mgr) = self.managers.get(&order.market) {
+            if let Err(e) = mgr.route(order.clone()) {
+                return Ok(tonic::Response::new(AddOrderMatchResponse {
                     success: false,
                     message: format!("route err: {}", e),
                     trades: vec![],
-                    remaining: req.quantity,
-                });
+                    remaining: order.quantity,
+                }));
             }
-            Ok(OrderResponse {
+            Ok(tonic::Response::new(AddOrderMatchResponse {
                 success: true,
                 message: "accepted".to_string(),
                 trades: vec![],
-                remaining: req.quantity,
-            })
+                remaining: order.quantity,
+            }))
         } else {
-            Ok(OrderResponse {
+            Ok(tonic::Response::new(AddOrderMatchResponse {
                 success: false,
                 message: "unknown market".to_string(),
                 trades: vec![],
-                remaining: req.quantity,
-            })
+                remaining: order.quantity,
+            }))
         }
     }
 }

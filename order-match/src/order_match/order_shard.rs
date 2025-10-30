@@ -433,7 +433,7 @@ pub mod order_shard {
             });
         }
 
-        pub fn route(&self, req: OrderRequest) -> Result<(), anyhow::Error> {
+        pub fn route(&self, req: OrderMatchDto) -> Result<(), anyhow::Error> {
             let s = self.shards.lock().unwrap();
             if s.is_empty() {
                 return Err(anyhow::anyhow!("no shards"));
@@ -444,7 +444,7 @@ pub mod order_shard {
                 .map_err(|e| anyhow::anyhow!(e.to_string()))
         }
 
-        pub fn hash_price(&self, req: &OrderRequest) -> u64 {
+        pub fn hash_price(&self, req: &OrderMatchDto) -> u64 {
             let mut h = fxhash::FxHasher::default();
             use std::hash::{Hash, Hasher};
             req.market.hash(&mut h);

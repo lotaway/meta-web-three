@@ -6,19 +6,40 @@ package com.metawebthree.common.generated.rpc;
 option java_multiple_files = true;
 
 service OrderMatchService {
-    rpc addBid(AddBidRequest) returns (AddBidResponse);
+    rpc addOrder(AddOrderMatchRequest) returns (AddOrderMatchResponse);
 }
 
-message AddBidRequest {
-    repeated BidDTO orders = 1;
+message AddOrderMatchRequest {
+    repeated OrderMatchDTO orders = 1;
 }
 
-message AddBidResponse {
+message AddOrderMatchResponse {
+    bool success = 1;
+    string message = 2;
+    repeated OrderMatchedTrade trades = 3;
+    double remaining = 4;
+}
+
+message OrderMatchedTrade {
     int64 id = 1;
 }
 
-message BidDTO {
-    int64 id = 1;
-    int64 userId = 2;
-    string orderNo = 3;
+enum Side {
+    Buy = 0;
+    Sell = 1;
+}
+
+enum OrderKind {
+    Limit = 0;
+    Market = 1;
+}
+
+message OrderMatchDTO {
+    string market = 1;
+    string chain = 2;
+    string order_id = 3;
+    Side side = 4;
+    OrderKind kind = 5;
+    optional double price = 6;
+    double quantity = 7;
 }
