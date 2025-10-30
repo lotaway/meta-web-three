@@ -3,6 +3,7 @@ use dubbo::codegen::Service;
 use dubbo::status::DubboError;
 use rdkafka::config::ClientConfig;
 use rdkafka::producer::{FutureProducer};
+use tonic::Code;
 use std::{
     collections::{HashMap},
     sync::{Arc},
@@ -18,9 +19,7 @@ use crate::generated::com::metawebthree::common::generated::rpc::order_match_ser
 
 use crate::order_match::{
     order_shard::order_shard::ShardManager,
-    structs::structs::{
-        OrderRequest, OrderResponse,
-    },
+    structs::structs::{ OrderResponse},
 };
 use crate::config::AppConfig;
 
@@ -85,15 +84,17 @@ impl OrderMatchServiceImpl {
     }
 }
 
-// @TODO Edit proto and implement to match requirements
 #[tonic::async_trait]
 impl<'a> OrderMatchService for OrderMatchServiceImpl {
-    async fn add_order(&self, _req: tonic::Request<AddOrderMatchRequest>) -> Result<tonic::Response<AddOrderMatchResponse>, DubboError> {
+    async fn add_order(&self, _req: tonic::Request<AddOrderMatchRequest>) -> Result<tonic::Response<AddOrderMatchResponse>, tonic::Status> {
         let req = _req.into_inner();
         if req.orders.is_empty() {
-            return Err(DubboError::new("orders must not be empty!".to_string()))
+            return Err(Status::new(Code::InvalidArgument, "orders must not be empty!"))
         }
-        let order = req.orders[0];
+        let order =  match (req.orders.get(0)) {
+            Some(order) => order.clone(),
+            None => return Err(Status::new(Code::InvalidArgument, "orders must not be empty!"))
+        };
         if let Some(mgr) = self.managers.get(&order.market) {
             if let Err(e) = mgr.route(order.clone()) {
                 return Ok(tonic::Response::new(AddOrderMatchResponse {

@@ -2,29 +2,7 @@ pub mod structs {
     use std::collections::VecDeque;
 
     use serde::{de, Deserialize, Serialize};
-
-    #[derive(Clone, Serialize, Deserialize, Debug)]
-    pub enum Side {
-        Buy,
-        Sell,
-    }
-
-    #[derive(Clone, Serialize, Deserialize, Debug)]
-    pub enum OrderKind {
-        Limit,
-        Market,
-    }
-
-    #[derive(Clone, Serialize, Deserialize, Debug)]
-    pub struct OrderRequest {
-        pub market: String,
-        pub chain: String,
-        pub order_id: String,
-        pub side: Side,
-        pub kind: OrderKind,
-        pub price: Option<f64>,
-        pub quantity: f64,
-    }
+    use crate::generated::com::metawebthree::common::generated::rpc::{OrderMatchDto,Side,OrderKind};
 
     #[derive(Clone, Serialize, Deserialize, Debug)]
     pub struct Trade {
@@ -70,7 +48,7 @@ pub mod structs {
     }
 
     pub enum EngineCommand {
-        NewOrder(OrderRequest),
+        NewOrder(OrderMatchDto),
         CancelOrder { market: String, order_id: String },
     }
 }
