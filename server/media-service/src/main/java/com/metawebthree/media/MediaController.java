@@ -11,6 +11,7 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+
 @RestController
 @RequestMapping("/media")
 @Tag(name = "Media Management")
@@ -38,6 +39,7 @@ public class MediaController {
         }
         return ApiResponse.success();
     }
+    
 
     @GetMapping("/{key}")
     public byte[] getMedia(@PathVariable String key) {

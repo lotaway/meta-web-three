@@ -89,7 +89,7 @@ public class ExcelService {
                 throw new IllegalArgumentException("URL must point to an Excel file, got content type: " + contentType);
             }
 
-            var excelListener = new CustomExcelListener(Math.max(MIN_BATCH_SIZE, Math.min(batchSize, MAX_BATCH_SIZE)));
+            var excelListener = new CustomExcelListener(redisTemplate, Math.max(MIN_BATCH_SIZE, Math.min(batchSize, MAX_BATCH_SIZE)));
             EasyExcel.read(inputStream, excelListener).sheet().doRead();
             excelListener.completionLatchAwait();
             log.info("Excel data processing completed successfully");
@@ -111,13 +111,21 @@ public class ExcelService {
         private static final String END_MARKER = "__END__";
         private final ObjectMapper objectMapper = new ObjectMapper();
 
-        public CustomExcelListener(int batchSize) {
+        public boolean checkIsEnd(List<?> datas) {
+            return datas.isEmpty() || datas.get(datas.size() - 1).equals(END_MARKER);
+        }
+
+        public List<String> getWaitingListDatas(StringRedisTemplate redisTemplate) {
+            return redisTemplate.opsForList().leftPop(IMPORT_EXCEL_QUEUE_KEY,
+                    batchSize);
+        }
+
+        public CustomExcelListener(StringRedisTemplate redisTemplate, int batchSize) {
             this.batchSize = batchSize;
             insertionExecutor.execute(() -> {
                 while (!Thread.currentThread().isInterrupted()) {
-                    List<String> datas = redisTemplate.opsForList().leftPop(IMPORT_EXCEL_QUEUE_KEY,
-                            batchSize);
-                    boolean isEnd = datas.isEmpty() || datas.get(datas.size() - 1).equals(END_MARKER);
+                    List<String> datas = getWaitingListDatas(redisTemplate);
+                    boolean isEnd = checkIsEnd(datas);
                     List<ArtWorkDO> batch = datas.stream().filter(data -> !data.equals(END_MARKER)).map(data -> {
                         try {
                             return objectMapper.readValue(data, ArtWorkDO.class);
