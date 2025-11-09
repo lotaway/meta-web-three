@@ -3,6 +3,7 @@ package com.metawebthree.media;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.metawebthree.common.cloud.DefaultS3Config;
 import com.metawebthree.common.cloud.DefaultS3Service;
+import com.metawebthree.media.DO.ArtWorkDO;
 
 import lombok.RequiredArgsConstructor;
 
@@ -11,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +21,13 @@ public class MediaService {
 
     private final DefaultS3Config s3Config;
 
+    private final ArtWorkMapper artWorkMapper;
+
+    public Boolean createMediaMetadata(ArtWorkDO artWorkDO) {
+        artWorkMapper.insert(artWorkDO);
+        return true;
+    }
+
     public PutObjectResponse createMedia(String key, byte[] content) {
         return s3Service.putObject(s3Config.getName(), key, content);
     }
@@ -26,9 +35,13 @@ public class MediaService {
     public PutObjectResponse updateMedia(String key, byte[] content) {
         return s3Service.putObject(s3Config.getName(), key, content);
     }
-
-    public byte[] getMedia(String key) {
+    
+    public Optional<byte[]> getMedia(String key) {
         return s3Service.getObject(s3Config.getName(), key);
+    }
+    
+    public String getFileUrl(String key) {
+        return s3Service.getFileUrlWithCheck(s3Config.getName(), key).orElse(null);
     }
 
     public void deleteMedia(String key) {

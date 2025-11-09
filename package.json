@@ -8,10 +8,10 @@
     "activate": "mamba activate meta-web-three-ai",
     "dev": "node run-dev.js",
     "build": "docker build -t wayluk/meta-web-three:1.0.2 .",
-    "init:env": "docker compose -f ./docker-compose.dataenv.yaml up",
-    "start:env": "docker compose -f ./docker-compose.dataenv.yaml start",
-    "stop:env": "docker compose -f ./docker-compose.dataenv.yaml stop",
-    "delete:env": "docker compose -f ./docker-compose.dataenv.yaml down",
+    "init:env": "docker compose -f ./docker-compose.env.yml up",
+    "start:env": "docker compose -f ./docker-compose.env.yml start",
+    "stop:env": "docker compose -f ./docker-compose.env.yml stop",
+    "delete:env": "docker compose -f ./docker-compose.env.yml down",
     "delete:system:docker:env": "docker stop $(docker ps -aq) && docker rm $(docker ps -aq)"
   },
   "dependencies": {

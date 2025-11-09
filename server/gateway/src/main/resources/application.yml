@@ -15,6 +15,17 @@ spring:
               lower-case-service-id: true
   main:
     web-application-type: reactive
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tagsSorter: alpha
+    operationsSorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'all'
+      paths-to-match: '/**'
+      packages-to-scan: 'com.metawebthree'
 ---
 spring:
   config:

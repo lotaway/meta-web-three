@@ -10,14 +10,19 @@ import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
+
 import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 
+@Slf4j
 @Configuration
 public class MQProducer {
+
     private final DefaultMQProducer producer;
-    @Value("rocketmq.client.namesrv")
+
+    @Value("${rocketmq.client.namesrv}")
     public String namesrv;
 
     MQProducer() {
@@ -34,8 +39,8 @@ public class MQProducer {
     }
 
     public void test() throws MQClientException, MQBrokerException, RemotingException, InterruptedException {
-        SendResult sendResult = send("TestTopic", "Hello, this is a test message", "test");
-        System.out.println(sendResult);
+        SendResult sendResult = send("TestTopic", "Hello, this is a test message", "test,debug");
+        log.info("MQProducer Send test result: {}", sendResult);
     }
 
     public SendResult send(String topic) throws MQBrokerException, RemotingException, InterruptedException, MQClientException {
@@ -57,12 +62,12 @@ public class MQProducer {
             sendCallback = new SendCallback() {
                 @Override
                 public void onSuccess(SendResult sendResult) {
-                    System.out.println("Success result: " + sendResult);
+                    log.info("Success result: {}", sendResult);
                 }
 
                 @Override
                 public void onException(Throwable throwable) {
-                    System.out.println(throwable.getStackTrace());
+                    log.error("Error occurred: ", throwable);
                 }
             };
         }

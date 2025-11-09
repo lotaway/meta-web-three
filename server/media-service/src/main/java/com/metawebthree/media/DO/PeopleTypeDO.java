@@ -1,5 +1,7 @@
 package com.metawebthree.media.DO;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.metawebthree.common.DO.BaseDO;
 
@@ -12,8 +14,9 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-@TableName("People_Type")
+@TableName("\"People_Type\"")
 public class PeopleTypeDO extends BaseDO {
+    @TableId(type=IdType.AUTO)
     Short id;
     String type;
 }

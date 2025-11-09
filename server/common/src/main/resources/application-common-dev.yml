@@ -8,17 +8,16 @@ spring:
     url: jdbc:postgresql://192.168.1.194:5432/metawebthree?useUnicode=true&characterEncoding=utf-8
     username: admin
     password: 123123
+  data:
+    redis:
+      password: 123123
   quartz:
     jdbc:
       initialize-schema: always # auto init database tables
-dubbo:
-  registry:
-    address: ${spring.cloud.zookeeper.connect-string}
-    protocol: zookeeper
-  application:
-    name: ${spring.application.name}
-  protocol:
-    port: -1
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+# dubbo:
 # swagger docs
 springdoc:
   #   api-docs:
@@ -29,3 +28,10 @@ springdoc:
 mockito:
   inline:
     enabled: false
+logging:
+  level:
+    com.metawebthree: DEBUG
+    org.springframework.web: INFO
+  pattern:
+    # console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"

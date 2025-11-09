@@ -104,6 +104,6 @@ $ npm run start:prod
 
 ### protobuf
 
-Need generate by [protoc v32.0](https://github.com/protocolbuffers/protobuf/releases), [protoc-gen-grpc-java v1.75.0](https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java) and [CMake v4.1.0](https://cmake.org/download) for `Rust` support.
-If using mac, can use `brew install protobuf` to install protoc, `brew install cmake` to install CMake, and can use [Java Project Maven](https://mvnrepository.com/artifact/io.grpc/protoc-gen-grpc-java) to dependecy `protoc-gen-grpc-java` then generate.
+Need generate by [protoc v32.0](https://github.com/protocolbuffers/protobuf/releases) and [CMake v4.1.0](https://cmake.org/download) for `Rust` support, if need java grpc to build server, need install [protoc-gen-grpc-java v1.75.0](https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java), recommand uses dubbo to support grpc, that already inside java project dependency.
+If using mac, can use `brew install protobuf` to install protoc, `brew install cmake` to install CMake.
 After installed, run `make` to generate multiple language protobuf interface files.

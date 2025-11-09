@@ -1,0 +1,6 @@
+<configuration>
+    <appender name="ROCKSDB" class="com.metawebthree.common.config.LogRocksDBAppender" />
+    <root level="INFO">
+        <appender-ref ref="ROCKSDB" />
+    </root>
+</configuration>

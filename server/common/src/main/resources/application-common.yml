@@ -15,19 +15,11 @@ spring:
     #   url: jdbc:mysql://localhost:3306/quartzJob?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     #   username: admin
     #   password: 123123
-  # data:
-  #   redis:
-  #     host: ${env-ip}
-  #     port: 6379
-  #     password:
-  #     database: 0
-  #     timeout: 10000ms
-  #     lettuce:
-  #       pool:
-  #         max-active: 8
-  #         max-wait: -1ms
-  #         max-idle: 8
-  #         min-idle: 0
+  data:
+    redis:
+      host: ${env-ip}
+      port: 6379
+      database: 0
   quartz:
     job-store-type: JDBC
     auto-startup: true
@@ -69,20 +61,23 @@ mybatis-plus:
 rocketmq:
   client:
     namesrv: ${env-ip}:9876
-    appliaction-topic: "publicApplicationTopic"
+    appliaction-topic: "MetaWebThree"
 jwt:
   secret: mwt123123
 dubbo:
+  application:
+    name: ${spring.application.name}
   registry:
+    protocol: zookeeper
     timeout: 30000
+    address: ${spring.cloud.zookeeper.connect-string}
+    group: ${spring.cloud.zookeeper.discovery.root}
   provider:
-    timeout: 5000 # service call timeout
+    timeout: 10000 # service call timeout
   protocol:
+    port: -1
     name: tri
     serialization: protobuf
 logging:
-  level:
-    com.metawebthree: DEBUG
-    org.springframework.web: INFO
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  expire-time: 2592000000 # 30 days
+  data-path: logs/rocksdb-data/${spring.application.name}

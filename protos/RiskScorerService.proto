@@ -2,6 +2,9 @@ syntax = "proto3";
 
 package com.metawebthree.common.generated.rpc;
 
+option java_multiple_files = true;
+option java_outer_classname = "RiskScorerServiceProto";
+
 import "DeviceRiskTag.proto";
 
 service RiskScorerService {
@@ -33,5 +36,5 @@ message ScoreRequest {
 }
 
 message ScoreResponse {
-    double score = 1;
+    int32 score = 1;
 }

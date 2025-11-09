@@ -1,11 +1,24 @@
 pub mod order_shard {
-    use std::{fs::{File, OpenOptions}, io::Write, sync::{Arc, Mutex}, thread, time::Duration};
+    use std::{
+        fs::{File, OpenOptions},
+        io::Write,
+        sync::{Arc, Mutex},
+        thread,
+        time::Duration,
+    };
 
     use ordered_float::OrderedFloat;
     use rdkafka::producer::{FutureProducer, FutureRecord};
     use serde_json::to_string;
 
-    use crate::order_match::{order_book::order_book::OrderBook, structs::structs::{EngineCommand, OrderEntry, OrderKind, OrderRequest, PriceLevel, Side, Trade}, utils::utils::now_millis};
+    use crate::generated::com::metawebthree::common::generated::rpc::{
+        OrderKind, OrderMatchDto, Side,
+    };
+    use crate::order_match::{
+        order_book::order_book::OrderBook,
+        structs::structs::{EngineCommand, OrderEntry, PriceLevel, Trade},
+        utils::utils::now_millis,
+    };
 
     pub struct Shard {
         pub id: usize,
@@ -58,7 +71,23 @@ pub mod order_shard {
             false
         }
 
-        pub fn process_new_order(&mut self, req: OrderRequest) -> Vec<Trade> {
+        fn i32_to_order_kind(&self, kind: i32) -> Option<OrderKind> {
+            match kind {
+                0 => Some(OrderKind::Limit),
+                1 => Some(OrderKind::Market),
+                _ => None,
+            }
+        }
+
+        fn i32_to_side(&self, side: i32) -> Option<Side> {
+            match side {
+                0 => Some(Side::Buy),
+                1 => Some(Side::Sell),
+                _ => None,
+            }
+        }
+
+        pub fn process_new_order(&mut self, req: OrderMatchDto) -> Vec<Trade> {
             let mut trades = Vec::new();
             let mut remaining = req.quantity;
             let timestamp = now_millis();
@@ -68,12 +97,12 @@ pub mod order_shard {
                 price,
                 remaining: req.quantity,
                 timestamp,
-                side: req.side.clone(),
+                side: self.i32_to_side(req.side.clone()).unwrap(),
                 market: req.market.clone(),
                 chain: req.chain.clone(),
             };
             let idx = self.book.insert_entry(entry);
-            match (req.kind.clone(), req.side.clone()) {
+            match (self.i32_to_order_kind(req.kind.clone()).unwrap(), self.i32_to_side(req.side.clone()).unwrap()) {
                 (OrderKind::Limit, Side::Buy) => {
                     while remaining > 0.0 {
                         let best_k = match self.book.get_best_ask_key() {
@@ -349,7 +378,12 @@ pub mod order_shard {
     }
 
     impl ShardManager {
-        pub fn new(market: &str, producer: FutureProducer, kafka_topic: &str, wal_dir: &str) -> Self {
+        pub fn new(
+            market: &str,
+            producer: FutureProducer,
+            kafka_topic: &str,
+            wal_dir: &str,
+        ) -> Self {
             Self {
                 market: market.to_string(),
                 shards: Arc::new(Mutex::new(Vec::new())),
@@ -358,14 +392,14 @@ pub mod order_shard {
                 wal_dir: wal_dir.to_string(),
             }
         }
-        
+
         pub fn start_with(&self, initial: usize) {
             for i in 0..initial {
                 self.spawn_shard(i)
             }
             self.spawn_monitor();
         }
-        
+
         pub fn spawn_shard(&self, id: usize) {
             let (tx, rx) = crossbeam_channel::bounded::<EngineCommand>(65536);
             let wal_path = format!(
@@ -399,41 +433,43 @@ pub mod order_shard {
             let producer = self.producer.clone();
             let topic = self.kafka_topic.clone();
             let wal_dir = self.wal_dir.clone();
-            thread::spawn(move || loop {
-                thread::sleep(Duration::from_secs(1));
-                let mut s = shards.lock().unwrap();
-                let total_q: usize = s.iter().map(|tx| tx.len()).sum();
-                if total_q > 20000 {
-                    let new_id = s.len();
-                    let (tx, rx) = crossbeam_channel::bounded::<EngineCommand>(65536);
-                    let wal_path = format!(
-                        "{}/wal_{}_shard_{}.log",
-                        wal_dir,
-                        market.replace("/", "_"),
-                        new_id
-                    );
-                    let file = OpenOptions::new()
-                        .create(true)
-                        .append(true)
-                        .open(&wal_path)
-                        .unwrap();
-                    let shard = Shard {
-                        id: new_id,
-                        book: OrderBook::new(),
-                        cmd_rx: rx,
-                        producer: producer.clone(),
-                        kafka_topic: topic.clone(),
-                        wal: file,
-                    };
-                    thread::spawn(move || {
-                        shard.run();
-                    });
-                    s.push(tx);
+            thread::spawn(move || {
+                loop {
+                    thread::sleep(Duration::from_secs(1));
+                    let mut s = shards.lock().unwrap();
+                    let total_q: usize = s.iter().map(|tx| tx.len()).sum();
+                    if total_q > 20000 {
+                        let new_id = s.len();
+                        let (tx, rx) = crossbeam_channel::bounded::<EngineCommand>(65536);
+                        let wal_path = format!(
+                            "{}/wal_{}_shard_{}.log",
+                            wal_dir,
+                            market.replace("/", "_"),
+                            new_id
+                        );
+                        let file = OpenOptions::new()
+                            .create(true)
+                            .append(true)
+                            .open(&wal_path)
+                            .unwrap();
+                        let shard = Shard {
+                            id: new_id,
+                            book: OrderBook::new(),
+                            cmd_rx: rx,
+                            producer: producer.clone(),
+                            kafka_topic: topic.clone(),
+                            wal: file,
+                        };
+                        thread::spawn(move || {
+                            shard.run();
+                        });
+                        s.push(tx);
+                    }
                 }
             });
         }
 
-        pub fn route(&self, req: OrderRequest) -> Result<(), anyhow::Error> {
+        pub fn route(&self, req: OrderMatchDto) -> Result<(), anyhow::Error> {
             let s = self.shards.lock().unwrap();
             if s.is_empty() {
                 return Err(anyhow::anyhow!("no shards"));
@@ -444,7 +480,7 @@ pub mod order_shard {
                 .map_err(|e| anyhow::anyhow!(e.to_string()))
         }
 
-        pub fn hash_price(&self, req: &OrderRequest) -> u64 {
+        pub fn hash_price(&self, req: &OrderMatchDto) -> u64 {
             let mut h = fxhash::FxHasher::default();
             use std::hash::{Hash, Hasher};
             req.market.hash(&mut h);

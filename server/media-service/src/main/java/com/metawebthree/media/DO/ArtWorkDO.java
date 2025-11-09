@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.metawebthree.common.DO.BaseDO;
-import com.metawebthree.common.adapter.IntegerArrayTypeHandler;
+import com.metawebthree.common.adapter.SQLIntegerArrayHandler;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,10 +31,10 @@ public class ArtWorkDO extends BaseDO implements Cloneable {
     Integer season;
     Integer episode;
     Integer categoryId;
-    @TableField(typeHandler = IntegerArrayTypeHandler.class)
+    @TableField(typeHandler = SQLIntegerArrayHandler.class)
     Integer[] tags;
     Integer yearTag;
-    @TableField(typeHandler = IntegerArrayTypeHandler.class)
+    @TableField(typeHandler = SQLIntegerArrayHandler.class)
     Integer[] acts;
     Integer director;
 

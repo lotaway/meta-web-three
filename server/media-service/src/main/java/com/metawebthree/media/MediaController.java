@@ -2,6 +2,8 @@ package com.metawebthree.media;
 
 import com.metawebthree.common.dto.ApiResponse;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -9,8 +11,10 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+
 @RestController
 @RequestMapping("/media")
+@Tag(name = "Media Management")
 public class MediaController {
 
     private final MediaService mediaService;
@@ -35,10 +39,11 @@ public class MediaController {
         }
         return ApiResponse.success();
     }
+    
 
     @GetMapping("/{key}")
     public byte[] getMedia(@PathVariable String key) {
-        return mediaService.getMedia(key);
+        return mediaService.getMedia(key).orElse(new byte[]{});
     }
 
     @DeleteMapping("/{key}")

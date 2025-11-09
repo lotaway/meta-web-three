@@ -19,7 +19,7 @@ import java.util.Arrays;
 @Slf4j
 @RestController
 @RequestMapping("/product")
-@Tag(name = "Product Management", description = "APIs for managing products")
+@Tag(name = "Product Management")
 public class ProductController {
 
     private final ProductService productService;

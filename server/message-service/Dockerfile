@@ -1,4 +1,4 @@
 FROM openjdk:17
 WORKDIR /app
-COPY target/*.jar app.jar
-ENTRYPOINT ["java", "-jar", "app.jar"]
+COPY target/*.jar message-service.jar
+ENTRYPOINT ["java", "-jar", "message-service.jar"]

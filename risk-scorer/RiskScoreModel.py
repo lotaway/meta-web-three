@@ -1,131 +1,177 @@
-import dubbo
-from dubbo.configs import (
-    ApplicationConfig,
-    RegistryConfig,
-    ServiceConfig,
-)
-from dubbo.proxy.handlers import RpcMethodHandler, RpcServiceHandler
-from dubbo.bootstrap import Dubbo
-import numpy as np
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+gRPC Risk Scoring Service Implementation
+Replaces the original Dubbo implementation with standard gRPC
+"""
+
+from random import Random
+import grpc
 import os
-import struct
+import numpy as np
 import onnxruntime as ort
-from generated.rpc.RiskScorerService_pb2 import (
-    TestResponse,
-    ScoreResponse,
-    TestRequest,
-    ScoreRequest,
-    Feature,
+from RiskScorerService_pb2_grpc import (
+    RiskScorerServiceServicer
 )
-from generated.rpc.RiskScorerService_pb2_grpc import RiskScorerServiceServicer
+from RiskScorerService_pb2 import (
+    TestRequest, TestResponse,
+    ScoreRequest, ScoreResponse
+)
+from Logger import init_logger
 
-
-def base_type_to_bytes(v):
-    if isinstance(v, bool):
-        return b"\x01" if v else b"\x00"
-    if isinstance(v, int):
-        return struct.pack("!i", v)
-    if isinstance(v, float):
-        return struct.pack("!d", v)
-    if isinstance(v, str):
-        return v.encode("utf-8")
-    if v is None:
-        return b""
-    raise TypeError("unsupported type")
-
-
-def json_serializer(v) -> bytes:
-    return v.SerializeToString()
+logger = init_logger()
 
 class RiskScorerServiceImpl(RiskScorerServiceServicer):
-
-    def init(cls):
-        # @TODO get risk model
-        if cls.sess is None:
-            cls.sess = ort.InferenceSession(
-                "risk_model.onnx", providers=["CPUExecutionProvider"]
-            )
-
-    def test(self, request: TestRequest, context) -> TestResponse:
-        return TestResponse(result=100)
-
-    def score(self, request: ScoreRequest, context) -> ScoreResponse:
-        """Calculate risk score based on input features"""
-        RiskScorerServiceImpl.init()
+    """
+    gRPC Risk Scoring Service Implementation
+    Inherits from auto-generated RiskScorerServiceServicer
+    """
+    
+    def __init__(self):
+        self.sess = None
+        self._init_model()
+    
+    def _init_model(self):
+        """Initialize machine learning model"""
         try:
-            # Prepare input data
-            features = {
-                k: v.values[0] if isinstance(v, Feature) else v
-                for k, v in request.features.items()
-            }
-
-            x = np.array([features["values"]], dtype=np.float32)
-            # Run inference
-            result = RiskScorerServiceImpl.sess.run(None, {"input": x})[0]
-            prob = np.array(result)[0][0][1].item()
-
-            # Convert probability to score (800-500 range)
-            return ScoreResponse(score = int(800 - prob * 300))
+            # Try to load ONNX model
+            model_path = "risk_model.onnx"
+            if os.path.exists(model_path):
+                self.sess = ort.InferenceSession(
+                    model_path, 
+                    providers=["CPUExecutionProvider"]
+                )
+                logger.info("ONNX model loaded successfully")
+            else:
+                logger.warning("ONNX model not found, using fallback scoring")
         except Exception as e:
-            # Fallback score calculation
-            debt = features.get("external_debt_ratio", 0)
-            age = features.get("age", 30)
-            return ScoreResponse(score=int(700 - debt * 120 - max(0, 25 - age) * 2))
-
-
-def build_service_handler():
-    # build a method handler
-    test_method_handler = RpcMethodHandler.unary(
-        method=RiskScorerServiceImpl().test,
-        method_name="test",
-        request_deserializer=TestRequest.FromString,
-        response_serializer=TestResponse.SerializeToString,
-    )
-    score_method_handler = RpcMethodHandler.unary(
-        method=RiskScorerServiceImpl().score,
-        method_name="score",
-        request_deserializer=ScoreRequest.FromString,
-        response_serializer=ScoreResponse.SerializeToString,
-    )
-    # build a service handler
-    interface = (
-        os.getenv("SERVICE_PACKAGE_NAME")
-        or "com.metawebthree.common.rpc.interfaces.RiskScorerService"
-    )
-    service_handler = RpcServiceHandler(
-        service_name=interface,
-        method_handlers=[test_method_handler, score_method_handler],
-    )
-    return service_handler
-
-
-def start_risk_score_model():
-    # Configure the Zookeeper registry
-    zk = os.getenv("ZK_HOST")
-    application_config = ApplicationConfig("risk-scorer-service")
-    registry_config = RegistryConfig.from_url(f"zookeeper://{zk}/dubbo")
-    # bootstrap = Dubbo(registry_config=registry_config)
-
-    # Create the client
-    # client = bootstrap.create_client(reference_config)
-
-    # build service config
-    service_handler = build_service_handler()
-    service_config = ServiceConfig(
-        service_handler=service_handler,
-        port=(os.getenv("EXPORT_DUBBO_PORT") or 20088),
-        # protocol="tri",
-    )
-    dubbo_config = Dubbo(
-        application_config,
-        registry_config,
-    )
-    # Create and start the server
-    # bootstrap.create_server(service_config).start()
-    # start the server
-    server = dubbo.Server(
-        service_config,
-        dubbo_config,
-    )
-    server.start()
-    return server
+            logger.error(f"Failed to load ONNX model: {e}")
+            self.sess = None
+    
+    def test(self, request: TestRequest, context) -> TestResponse:
+        """Test method implementation"""
+        try:
+            logger.info("Test method called")
+            return TestResponse(result=Random().randint(1000, 5000))
+        except Exception as e:
+            logger.error(f"Test method error: {e}")
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f"Internal error: {str(e)}")
+            return TestResponse()
+    
+    def score(self, request: ScoreRequest, context) -> ScoreResponse:
+        """Risk scoring method implementation"""
+        try:
+            logger.info(f"Score method called for scene: {request.scene}")
+            
+            # Extract feature data from request
+            features = {}
+            for key, feature in request.features.items():
+                if feature.HasField('age'):
+                    features['age'] = feature.age
+                elif feature.HasField('external_debt_ratio'):
+                    features['external_debt_ratio'] = feature.external_debt_ratio
+                elif feature.HasField('first_order'):
+                    features['first_order'] = feature.first_order
+                elif feature.HasField('gps_stability'):
+                    features['gps_stability'] = feature.gps_stability
+                elif feature.HasField('device_shared_degree'):
+                    features['device_shared_degree'] = feature.device_shared_degree
+            
+            # Calculate risk score
+            score = self._calculate_risk_score(request.scene, features)
+            
+            logger.info(f"Risk score calculated: {score}")
+            return ScoreResponse(score=score)
+            
+        except Exception as e:
+            logger.error(f"Score method error: {e}")
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f"Internal error: {str(e)}")
+            return ScoreResponse()
+    
+    def _calculate_risk_score(self, scene: str, features: dict) -> float:
+        """
+        Calculate risk score
+        Prioritize machine learning model, fallback to rule engine
+        """
+        try:
+            # Try to use ONNX model
+            if self.sess is not None:
+                return self._predict_with_model(features)
+        except Exception as e:
+            logger.warning(f"Model prediction failed: {e}")
+        
+        # Use rule engine as fallback
+        return self._calculate_with_rules(features)
+    
+    def _predict_with_model(self, features: dict) -> float:
+        """Use machine learning model for prediction"""
+        try:
+            # Build feature vector
+            feature_vector = self._build_feature_vector(features)
+            x = np.array([feature_vector], dtype=np.float32)
+            
+            # Run inference
+            result = self.sess.run(None, {"input": x})[0]
+            prob = np.array(result)[0][0][1].item()
+            
+            # Convert probability to score (800-500 range)
+            score = 800 - prob * 300
+            return max(300, min(900, score))
+            
+        except Exception as e:
+            logger.error(f"Model prediction error: {e}")
+            raise
+    
+    def _build_feature_vector(self, features: dict) -> list:
+        """Build feature vector"""
+        # Default values
+        default_values = {
+            'age': 30,
+            'external_debt_ratio': 0.0,
+            'first_order': False,
+            'gps_stability': 0.5,
+            'device_shared_degree': 1
+        }
+        
+        # Build feature vector
+        vector = []
+        for key in ['age', 'external_debt_ratio', 'first_order', 'gps_stability', 'device_shared_degree']:
+            value = features.get(key, default_values[key])
+            if key == 'first_order':
+                vector.append(1.0 if value else 0.0)
+            else:
+                vector.append(float(value))
+        
+        return vector
+    
+    def _calculate_with_rules(self, features: dict) -> float:
+        """Calculate score using rule engine"""
+        base_score = 800.0
+        
+        # Age rules
+        age = features.get('age', 30)
+        if age < 25:
+            base_score -= 50
+        elif age > 60:
+            base_score -= 30
+        
+        # Debt ratio rules
+        debt_ratio = features.get('external_debt_ratio', 0.0)
+        base_score -= debt_ratio * 200
+        
+        # First order rules
+        if features.get('first_order', False):
+            base_score += 20
+        
+        # GPS stability rules
+        gps_stability = features.get('gps_stability', 0.5)
+        base_score += gps_stability * 50
+        
+        # Device shared degree rules
+        device_shared_degree = features.get('device_shared_degree', 1)
+        base_score -= device_shared_degree * 30
+        
+        # Ensure score is within reasonable range
+        return max(300, min(900, base_score))

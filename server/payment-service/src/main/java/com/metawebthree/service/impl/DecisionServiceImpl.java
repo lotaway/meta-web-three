@@ -10,7 +10,13 @@ import com.metawebthree.repository.CreditProfileRepo;
 import com.metawebthree.repository.FeatureRepo;
 import com.metawebthree.repository.RuleRepo;
 import com.metawebthree.service.DecisionService;
-import com.metawebthree.common.rpc.interfaces.RiskScorerService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.metawebthree.common.generated.rpc.Feature;
+import com.metawebthree.common.generated.rpc.RiskScorerService;
+import com.metawebthree.common.generated.rpc.ScoreRequest;
+import com.metawebthree.common.generated.rpc.ScoreResponse;
+import com.metawebthree.common.generated.rpc.TestRequest;
+import com.metawebthree.common.generated.rpc.TestResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,13 +41,84 @@ public class DecisionServiceImpl implements DecisionService {
 
     private final RuleRepo ruleRepo;
     private final FeatureRepo featureRepo;
+
     @DubboReference(check = false, lazy = true)
     private RiskScorerService riskScorerService;
+
     private final AuditRepo auditRepo;
     private final CreditProfileRepo creditProfileRepo;
 
     public int test() {
-        return riskScorerService.test();
+        try {
+            TestRequest request = TestRequest.newBuilder()
+                    .build();
+            TestResponse response = riskScorerService.test(request);
+            return response.getResult();
+        } catch (Exception e) {
+            log.error("Failed to call Risk Scorer Service test method", e);
+            return -1;
+        }
+    }
+
+    private int getRiskScore(String scene, Map<String, Object> features) {
+        try {
+            ScoreRequest.Builder requestBuilder = ScoreRequest
+                    .newBuilder()
+                    .setScene(scene);
+            Feature finalFeatures = new ObjectMapper().convertValue(features, Feature.class);
+            log.info("Features: {}", finalFeatures);
+            for (Map.Entry<String, Object> entry : features.entrySet()) {
+                Feature.Builder featureBuilder = Feature
+                        .newBuilder();
+
+                String key = entry.getKey();
+                Object value = entry.getValue();
+
+                switch (key) {
+                    case "age":
+                        if (value instanceof Integer) {
+                            featureBuilder.setAge((Integer) value);
+                        }
+                        break;
+                    case "external_debt_ratio":
+                        if (value instanceof Float) {
+                            featureBuilder.setExternalDebtRatio((Float) value);
+                        } else if (value instanceof Double) {
+                            featureBuilder.setExternalDebtRatio(((Double) value).floatValue());
+                        }
+                        break;
+                    case "first_order":
+                        if (value instanceof Boolean) {
+                            featureBuilder.setFirstOrder((Boolean) value);
+                        }
+                        break;
+                    case "gps_stability":
+                        if (value instanceof Float) {
+                            featureBuilder.setGpsStability((Float) value);
+                        } else if (value instanceof Double) {
+                            featureBuilder.setGpsStability(((Double) value).floatValue());
+                        }
+                        break;
+                    case "device_shared_degree":
+                        if (value instanceof Integer) {
+                            featureBuilder.setDeviceSharedDegree((Integer) value);
+                        }
+                        break;
+                }
+
+                requestBuilder.putFeatures(key, featureBuilder.build());
+            }
+
+            ScoreRequest request = requestBuilder.build();
+            ScoreResponse response = riskScorerService.score(request);
+
+            return (int) response.getScore();
+
+        } catch (Exception e) {
+            log.error("Failed to get risk score from Risk Scorer Service for scene: {}", scene, e);
+            // Return default risk score in case of failure
+            return 700;
+        }
     }
 
     @Override
@@ -61,7 +138,7 @@ public class DecisionServiceImpl implements DecisionService {
             }
         }
 
-        int score = riskScorerService.score(request.getScene(), features);
+        int score = getRiskScore(request.getScene(), features);
         if (score < 620) {
             return audit(request, features, DecisionEnum.REJECT, score, Arrays.asList("M402"));
         }

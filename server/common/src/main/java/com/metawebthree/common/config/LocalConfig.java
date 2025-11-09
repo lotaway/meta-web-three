@@ -22,8 +22,6 @@ public class LocalConfig implements ApplicationContextInitializer<ConfigurableAp
         log.info("=== LocalConfig ApplicationContextInitializer starting ===");
         
         ConfigurableEnvironment environment = applicationContext.getEnvironment();
-        String currentZkConnect = environment.getProperty("spring.cloud.zookeeper.connect-string");
-        log.info("Current zookeeper connect string: {}", currentZkConnect);
         
         Resource localConfig = new ClassPathResource("application-common-local.yml");
         
@@ -42,11 +40,6 @@ public class LocalConfig implements ApplicationContextInitializer<ConfigurableAp
             
             if (props != null && !props.isEmpty()) {
                 log.info("Successfully parsed YAML file with {} properties", props.size());
-                props.forEach((key, value) -> {
-                    if (key.toString().contains("zookeeper") || key.toString().contains("zk")) {
-                        log.info("Found config: {} = {}", key, value);
-                    }
-                });
                 
                 PropertiesPropertySource localPropertySource = new PropertiesPropertySource("localConfig", props);
                 MutablePropertySources propertySources = environment.getPropertySources();
@@ -57,8 +50,6 @@ public class LocalConfig implements ApplicationContextInitializer<ConfigurableAp
                 
                 propertySources.addFirst(localPropertySource);
                 log.info("Successfully added localConfig PropertySource to highest priority");
-                String newZkConnect = environment.getProperty("spring.cloud.zookeeper.connect-string");
-                log.info("Zookeeper connect string after loading local config: {}", newZkConnect);
                 log.info("Current PropertySources order:");
                 propertySources.forEach(ps -> {
                     if (ps.getName().contains("local") || ps.getName().contains("common")) {
