@@ -5,6 +5,8 @@
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments"/>
       </elementProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
     </TestPlan>
     <hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Product Service">
@@ -18,7 +20,7 @@
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Product Service Test">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Product Service Test" enabled="true">
           <stringProp name="HTTPSampler.domain">192.168.1.194</stringProp>
           <stringProp name="HTTPSampler.port">10082</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
@@ -32,7 +34,7 @@
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
+          <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
             <boolProp name="ResultCollector.error_logging">false</boolProp>
             <objProp>
               <name>saveConfig</name>
@@ -96,7 +98,7 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="excelUrl" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">true</boolProp>
-                <stringProp name="Argument.value">https://docs-import-export-1251316161.cos.ap-guangzhou.myqcloud.com/export/xlsx/QoSWzHPRWHxR/12784c676b8e681b5f13cbd8c67c311d.json.xlsx?X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKID8GWineS8xy0uqtmhiaKxNiuwtywncHya%2F20251109%2Fap-guangzhou%2Fs3%2Faws4_request&amp;X-Amz-Date=20251109T091341Z&amp;X-Amz-Expires=1800&amp;X-Amz-SignedHeaders=host&amp;response-content-disposition=attachment%3Bfilename%3D%22template-from-excel-servicecurrentsort.xlsx%22%3Bfilename%2A%3DUTF-8%27%27template-from-excel-service%2528current%2520sort%2529.xlsx&amp;response-content-type=&amp;X-Amz-Signature=a4336816be8bd4b105e24748fa908330adfcc3f6727068c57c970d6ba6199824</stringProp>
+                <stringProp name="Argument.value">https://docs-import-export-1251316161.cos.ap-guangzhou.myqcloud.com/export/xlsx/QoSWzHPRWHxR/12784c676b8e681b5f13cbd8c67c311d.json.xlsx?X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;X-Amz-Credential=AKID8GWineS8xy0uqtmhiaKxNiuwtywncHya%2F20251109%2Fap-guangzhou%2Fs3%2Faws4_request&amp;X-Amz-Date=20251109T121506Z&amp;X-Amz-Expires=1800&amp;X-Amz-SignedHeaders=host&amp;response-content-disposition=attachment%3Bfilename%3D%22template-from-excel-servicecurrentsort.xlsx%22%3Bfilename%2A%3DUTF-8%27%27template-from-excel-service%2528current%2520sort%2529.xlsx&amp;response-content-type=&amp;X-Amz-Signature=1cb820bb7c38136d585ff103e9840d89c59fd619896f45be249d4c97bb59b5ed</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
                 <boolProp name="HTTPArgument.use_equals">true</boolProp>
                 <stringProp name="Argument.name">excelUrl</stringProp>

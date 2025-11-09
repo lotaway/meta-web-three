@@ -18,8 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -76,6 +78,10 @@ public class ExcelService {
         processExcelData(excelUrl, MAX_BATCH_SIZE);
     }
 
+    public void processExcelData(InputStream inputStream) throws RuntimeException {
+        processExcelData(inputStream, MAX_BATCH_SIZE);
+    }
+
     public void processExcelData(String excelUrl, int batchSize) throws RuntimeException {
         // if (!excelUrl.matches("(?i).*\\.xlsx?$")) {
         // throw new IllegalArgumentException("URL must point to a downloadable Excel
@@ -88,11 +94,7 @@ public class ExcelService {
                     && !contentType.toLowerCase().contains("spreadsheet")) {
                 throw new IllegalArgumentException("URL must point to an Excel file, got content type: " + contentType);
             }
-
-            var excelListener = new CustomExcelListener(redisTemplate, Math.max(MIN_BATCH_SIZE, Math.min(batchSize, MAX_BATCH_SIZE)));
-            EasyExcel.read(inputStream, excelListener).sheet().doRead();
-            excelListener.completionLatchAwait();
-            log.info("Excel data processing completed successfully");
+            processExcelStream(inputStream, batchSize);
         } catch (Exception e) {
             String errorMsg = "Failed to process Excel data from URL: " + excelUrl;
             if (excelUrl.contains("docs.qq.com")) {
@@ -101,6 +103,34 @@ public class ExcelService {
             log.error(errorMsg, e);
             throw new RuntimeException(errorMsg, e);
         }
+    }
+
+    public void processExcelData(InputStream inputStream, int batchSize) throws RuntimeException {
+        try {
+            processExcelStream(inputStream, batchSize);
+        } catch (Exception e) {
+            String errorMsg = "Failed to process uploaded Excel file";
+            log.error(errorMsg, e);
+            throw new RuntimeException(errorMsg, e);
+        }
+    }
+
+    public void processExcelFile(MultipartFile file) throws RuntimeException {
+        try {
+            processExcelData(file.getInputStream(), MAX_BATCH_SIZE);
+        } catch (IOException e) {
+            String errorMsg = "Failed to read uploaded Excel file";
+            log.error(errorMsg, e);
+            throw new RuntimeException(errorMsg, e);
+        }
+    }
+
+    private void processExcelStream(InputStream inputStream, int batchSize) throws Exception {
+        var excelListener = new CustomExcelListener(redisTemplate,
+                Math.max(MIN_BATCH_SIZE, Math.min(batchSize, MAX_BATCH_SIZE)));
+        EasyExcel.read(inputStream, excelListener).sheet().doRead();
+        excelListener.completionLatchAwait();
+        log.info("Excel data processing completed successfully");
     }
 
     private class CustomExcelListener extends AnalysisEventListener<Map<Integer, String>> {
@@ -172,9 +202,13 @@ public class ExcelService {
 
             rawDataBuffer.add(data);
             if (rawDataBuffer.size() >= batchSize) {
-                processBatchInBackground(new ArrayList<>(rawDataBuffer));
-                rawDataBuffer.clear();
+                pushToWaitingList();
             }
+        }
+
+        public void pushToWaitingList() {
+            processBatchInBackground(new ArrayList<>(rawDataBuffer));
+            rawDataBuffer.clear();
         }
 
         private void processBatchInBackground(List<Map<Integer, String>> batchData) {
@@ -224,8 +258,7 @@ public class ExcelService {
         @Override
         public void doAfterAllAnalysed(AnalysisContext context) {
             if (!rawDataBuffer.isEmpty()) {
-                processBatchInBackground(new ArrayList<>(rawDataBuffer));
-                rawDataBuffer.clear();
+                pushToWaitingList();
             }
             try {
                 processingExecutor.shutdown();
