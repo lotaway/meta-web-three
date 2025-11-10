@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.metawebthree.common.dto.ApiResponse;
 
@@ -43,6 +44,13 @@ public class ExcelController {
     @PostMapping("/import/url")
     public ApiResponse<?> importExcel(@RequestParam String excelUrl) {
         excelService.processExcelData(excelUrl);
+        return ApiResponse.success();
+    }
+
+    @PostMapping("/import/file")
+    @Operation(summary = "Upload and import Excel file")
+    public ApiResponse<?> importExcelFile(@RequestParam("file") MultipartFile file) {
+        excelService.processExcelFile(file);
         return ApiResponse.success();
     }
 }
