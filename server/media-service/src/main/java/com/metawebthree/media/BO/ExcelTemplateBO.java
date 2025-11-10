@@ -1,6 +1,7 @@
 package com.metawebthree.media.BO;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -123,7 +124,7 @@ public class ExcelTemplateBO {
         var nameList = List.<String>of(actNames.split(","));
         var wrapper = new MPJLambdaWrapper<PeopleDO>();
         String PEOPLE_TYPE = "Actor";
-        wrapper.select(PeopleDO::getId)
+        wrapper.select(PeopleDO::getId, PeopleDO::getName)
                 .in(PeopleDO::getName, nameList)
                 .leftJoin(PeopleTypeDO.class, "t2",
                         on -> on.apply(
@@ -136,18 +137,22 @@ public class ExcelTemplateBO {
         var missingPeopleDOs = new ArrayList<PeopleDO>();
         var idList = new ArrayList<Integer>();
 
-        nameList.forEach(name -> {
-            Stream<PeopleDO> stream = existingDOs.stream();
-            PeopleDO peopleDO = stream.filter(existingDO -> existingDO.getName().equals(name)).findFirst().orElse(null);
-            if (peopleDO == null) {
-                missingPeopleDOs
-                        .add(PeopleDO.builder().name(name).types(new Short[] { typeDOs.get(0).getId() }).build());
-                return;
-            }
-            idList.add(peopleDO.getId());
-        });
+        if (!existingDOs.isEmpty()) {
+            nameList.forEach(name -> {
+                Stream<PeopleDO> stream = existingDOs.stream();
+                PeopleDO peopleDO = stream.filter(existingDO -> existingDO.getName().equals(name)).findFirst()
+                        .orElse(null);
+                if (peopleDO == null) {
+                    missingPeopleDOs
+                            .add(PeopleDO.builder().name(name).types(new Short[] { typeDOs.get(0).getId() }).build());
+                    return;
+                }
+                idList.add(peopleDO.getId());
+            });
+        }
         if (!missingPeopleDOs.isEmpty()) {
-            List<Integer> newIds = ArrayList.from(peopleMapper.insertBatchThenReturnIds(missingPeopleDOs));
+            List<Integer> newIds = Arrays.asList(Arrays.stream(peopleMapper.insertBatchThenReturnIds(missingPeopleDOs))
+                    .boxed().toArray(Integer[]::new));
             log.info("newIds: {}", newIds);
             idList.addAll(newIds);
         }

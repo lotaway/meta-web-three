@@ -49,8 +49,8 @@ public class ExcelService {
     private final DefaultS3Service s3Service;
     private final DefaultS3Config s3Config;
 
-    private final ExecutorService processingExecutor = Executors.newFixedThreadPool(PROCESSING_THREADS);
-    private final ExecutorService insertionExecutor = Executors.newSingleThreadExecutor();
+    private ExecutorService processingExecutor;
+    private ExecutorService insertionExecutor;
 
     private interface FieldSetter<T> {
         void setField(String value, T entity);
@@ -60,6 +60,22 @@ public class ExcelService {
 
     @PostConstruct
     private void initialize() {
+        initializeExecutors();
+        initialExcelField();
+    }
+
+    private void initializeExecutors() {
+        // if (processingExecutor != null && !insertionExecutor.isShutdown()) {
+        // processingExecutor.shutdown();
+        // }
+        // if (insertionExecutor != null && !insertionExecutor.isShutdown()) {
+        // insertionExecutor.shutdown();
+        // }
+        processingExecutor = Executors.newFixedThreadPool(PROCESSING_THREADS);
+        insertionExecutor = Executors.newSingleThreadExecutor();
+    }
+
+    private void initialExcelField() {
         FIELD_SETTERS.put("作品ID", (String value, ExcelTemplateBO entity) -> entity.setId(value));
         FIELD_SETTERS.put("标题", (String value, ExcelTemplateBO entity) -> entity.setTitle(value));
         FIELD_SETTERS.put("副标题", (String value, ExcelTemplateBO entity) -> entity.setSubtitle(value));
@@ -126,8 +142,8 @@ public class ExcelService {
     }
 
     private void processExcelStream(InputStream inputStream, int batchSize) throws Exception {
-        var excelListener = new CustomExcelListener(redisTemplate,
-                Math.max(MIN_BATCH_SIZE, Math.min(batchSize, MAX_BATCH_SIZE)));
+        initializeExecutors();
+        var excelListener = new CustomExcelListener(Math.max(MIN_BATCH_SIZE, Math.min(batchSize, MAX_BATCH_SIZE)));
         EasyExcel.read(inputStream, excelListener).sheet().doRead();
         excelListener.completionLatchAwait();
         log.info("Excel data processing completed successfully");
@@ -142,7 +158,7 @@ public class ExcelService {
         private final ObjectMapper objectMapper = new ObjectMapper();
 
         public boolean checkIsEnd(List<?> datas) {
-            return datas.isEmpty() || datas.get(datas.size() - 1).equals(END_MARKER);
+            return datas == null || datas.isEmpty() || datas.get(datas.size() - 1).equals(END_MARKER);
         }
 
         public List<String> getWaitingListDatas(StringRedisTemplate redisTemplate) {
@@ -150,30 +166,32 @@ public class ExcelService {
                     batchSize);
         }
 
-        public CustomExcelListener(StringRedisTemplate redisTemplate, int batchSize) {
+        public CustomExcelListener(int batchSize) {
             this.batchSize = batchSize;
-            insertionExecutor.execute(() -> {
-                while (!Thread.currentThread().isInterrupted()) {
-                    List<String> datas = getWaitingListDatas(redisTemplate);
-                    boolean isEnd = checkIsEnd(datas);
-                    List<ArtWorkDO> batch = datas.stream().filter(data -> !data.equals(END_MARKER)).map(data -> {
-                        try {
-                            return objectMapper.readValue(data, ArtWorkDO.class);
-                        } catch (JsonProcessingException e) {
-                            redisTemplate.opsForList().rightPush(FAILED_DECODE_IMPORT_EXCEL_QUEUE_KEY, data);
-                            log.error("Failed to deserialize JSON to ArtWorkDO", e);
-                            return null;
-                        }
-                    }).filter(Objects::nonNull).toList();
-                    if (!batch.isEmpty()) {
-                        artworkMapper.insert(batch);
+        }
+
+        private void handleWaitingList() {
+            while (!Thread.currentThread().isInterrupted()) {
+                log.info("handleWaitingList");
+                List<String> datas = getWaitingListDatas(redisTemplate);
+                boolean isEnd = checkIsEnd(datas);
+                List<ArtWorkDO> batch = datas.stream().filter(data -> !data.equals(END_MARKER)).map(data -> {
+                    try {
+                        return objectMapper.readValue(data, ArtWorkDO.class);
+                    } catch (JsonProcessingException e) {
+                        redisTemplate.opsForList().rightPush(FAILED_DECODE_IMPORT_EXCEL_QUEUE_KEY, data);
+                        log.error("Failed to deserialize JSON to ArtWorkDO", e);
+                        return null;
                     }
-                    if (isEnd) {
-                        completionLatch.countDown();
-                        break;
-                    }
+                }).filter(Objects::nonNull).toList();
+                if (!batch.isEmpty()) {
+                    artworkMapper.insert(batch);
                 }
-            });
+                if (isEnd) {
+                    completionLatch.countDown();
+                    break;
+                }
+            }
         }
 
         public boolean completionLatchAwait() throws InterruptedException {
@@ -212,47 +230,47 @@ public class ExcelService {
         }
 
         private void processBatchInBackground(List<Map<Integer, String>> batchData) {
-            // processingExecutor.submit(() -> {
-            List<ArtWorkDO> processedBatch = new ArrayList<>();
-            for (Map<Integer, String> data : batchData) {
-                var excelTemplateBO = new ExcelTemplateBO();
-                var artWorkDO = new ArtWorkDO();
+            processingExecutor.submit(() -> {
+                List<ArtWorkDO> processedBatch = new ArrayList<>();
+                for (Map<Integer, String> data : batchData) {
+                    var excelTemplateBO = new ExcelTemplateBO();
+                    var artWorkDO = new ArtWorkDO();
 
-                data.forEach((index, value) -> {
-                    FieldSetter<ExcelTemplateBO> fieldSetter = columnMapping.get(index);
-                    if (fieldSetter == null || value == null || value.isEmpty()) {
-                        return;
-                    }
-                    fieldSetter.setField(value, excelTemplateBO);
-                });
-                artWorkDO.setId(null);
-                artWorkDO.setTitle(excelTemplateBO.getTitle());
-                artWorkDO.setCover(excelTemplateBO.getCover());
-                artWorkDO.setLink(excelTemplateBO.getLink());
-                artWorkDO.setSubtitle(excelTemplateBO.getSubtitle());
-                artWorkDO.setSeason(excelTemplateBO.getSeasonValue());
-                artWorkDO.setEpisode(excelTemplateBO.getEpisodeValue());
-                artWorkDO.setCategoryId(excelTemplateBO.updateCategoryNameToCategoryId(artworkCategoryMapper));
-                artWorkDO.setTags(excelTemplateBO.updateTagNamesToTagIds(artworkTagMapper).toArray(new Integer[0]));
-                artWorkDO.setActs(excelTemplateBO.updateActNamesToActIds(peopleMapper, peopleTypeMapper)
-                        .toArray(new Integer[0]));
-                artWorkDO.setYearTag(excelTemplateBO.getYear());
-
-                processedBatch.add(artWorkDO);
-            }
-            var artWorkRedisTemplate = new RedisTemplate<String, ArtWorkDO>()
-                    .boundListOps(FAILED_ENCODE_IMPORT_EXCEL_QUEUE_KEY);
-            redisTemplate.opsForList().rightPushAll(IMPORT_EXCEL_QUEUE_KEY,
-                    processedBatch.stream().map(data -> {
-                        try {
-                            return objectMapper.writeValueAsString(data);
-                        } catch (JsonProcessingException e) {
-                            log.error("Failed to serialize batch to JSON", e);
-                            artWorkRedisTemplate.rightPush(data);
-                            return null;
+                    data.forEach((index, value) -> {
+                        FieldSetter<ExcelTemplateBO> fieldSetter = columnMapping.get(index);
+                        if (fieldSetter == null || value == null || value.isEmpty()) {
+                            return;
                         }
-                    }).filter(Objects::nonNull).toList());
-            // });
+                        fieldSetter.setField(value, excelTemplateBO);
+                    });
+                    artWorkDO.setId(null);
+                    artWorkDO.setTitle(excelTemplateBO.getTitle());
+                    artWorkDO.setCover(excelTemplateBO.getCover());
+                    artWorkDO.setLink(excelTemplateBO.getLink());
+                    artWorkDO.setSubtitle(excelTemplateBO.getSubtitle());
+                    artWorkDO.setSeason(excelTemplateBO.getSeasonValue());
+                    artWorkDO.setEpisode(excelTemplateBO.getEpisodeValue());
+                    artWorkDO.setCategoryId(excelTemplateBO.updateCategoryNameToCategoryId(artworkCategoryMapper));
+                    artWorkDO.setTags(excelTemplateBO.updateTagNamesToTagIds(artworkTagMapper).toArray(new Integer[0]));
+                    artWorkDO.setActs(excelTemplateBO.updateActNamesToActIds(peopleMapper, peopleTypeMapper)
+                            .toArray(new Integer[0]));
+                    artWorkDO.setYearTag(excelTemplateBO.getYear());
+
+                    processedBatch.add(artWorkDO);
+                }
+                var artWorkRedisTemplate = new RedisTemplate<String, ArtWorkDO>()
+                        .boundListOps(FAILED_ENCODE_IMPORT_EXCEL_QUEUE_KEY);
+                redisTemplate.opsForList().rightPushAll(IMPORT_EXCEL_QUEUE_KEY,
+                        processedBatch.stream().map(data -> {
+                            try {
+                                return objectMapper.writeValueAsString(data);
+                            } catch (JsonProcessingException e) {
+                                log.error("Failed to serialize batch to JSON", e);
+                                artWorkRedisTemplate.rightPush(data);
+                                return null;
+                            }
+                        }).filter(Objects::nonNull).toList());
+            });
         }
 
         @Override
@@ -260,37 +278,45 @@ public class ExcelService {
             if (!rawDataBuffer.isEmpty()) {
                 pushToWaitingList();
             }
-            try {
-                processingExecutor.shutdown();
-                if (!processingExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
-                    processingExecutor.shutdownNow();
-                }
-                redisTemplate.opsForList().rightPush(IMPORT_EXCEL_QUEUE_KEY, END_MARKER);
-                insertionExecutor.shutdown();
-                if (!insertionExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
-                    insertionExecutor.shutdownNow();
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                log.error("Interrupted while waiting for executor shutdown", e);
-            }
+            // try {
+            // processingExecutor.shutdown();
+            // if (!processingExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
+            // processingExecutor.shutdownNow();
+            // }
+            redisTemplate.opsForList().rightPush(IMPORT_EXCEL_QUEUE_KEY, END_MARKER);
+            // insertionExecutor.shutdown();
+            // if (!insertionExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
+            // insertionExecutor.shutdownNow();
+            // }
+            // } catch (InterruptedException e) {
+            // Thread.currentThread().interrupt();
+            // log.error("Interrupted while waiting for executor shutdown", e);
+            // }
+            insertionExecutor.execute(this::handleWaitingList);
         }
     }
 
     @PreDestroy
-    public void onDestroy() {
-        processingExecutor.shutdown();
-        insertionExecutor.shutdown();
+    public synchronized void onDestroy() {
         try {
-            if (!processingExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
-                processingExecutor.shutdownNow();
-            }
-            if (!insertionExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
-                insertionExecutor.shutdownNow();
+            shutdownExecutor(processingExecutor);
+            shutdownExecutor(insertionExecutor);
+        } finally {
+            processingExecutor = null;
+            insertionExecutor = null;
+        }
+    }
+
+    private void shutdownExecutor(ExecutorService executor) {
+        if (executor == null)
+            return;
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
             }
         } catch (InterruptedException e) {
-            processingExecutor.shutdownNow();
-            insertionExecutor.shutdownNow();
+            executor.shutdownNow();
             Thread.currentThread().interrupt();
         }
     }
