@@ -212,47 +212,47 @@ public class ExcelService {
         }
 
         private void processBatchInBackground(List<Map<Integer, String>> batchData) {
-            processingExecutor.submit(() -> {
-                List<ArtWorkDO> processedBatch = new ArrayList<>();
-                for (Map<Integer, String> data : batchData) {
-                    var excelTemplateBO = new ExcelTemplateBO();
-                    var artWorkDO = new ArtWorkDO();
+            // processingExecutor.submit(() -> {
+            List<ArtWorkDO> processedBatch = new ArrayList<>();
+            for (Map<Integer, String> data : batchData) {
+                var excelTemplateBO = new ExcelTemplateBO();
+                var artWorkDO = new ArtWorkDO();
 
-                    data.forEach((index, value) -> {
-                        FieldSetter<ExcelTemplateBO> fieldSetter = columnMapping.get(index);
-                        if (fieldSetter == null || value == null || value.isEmpty()) {
-                            return;
+                data.forEach((index, value) -> {
+                    FieldSetter<ExcelTemplateBO> fieldSetter = columnMapping.get(index);
+                    if (fieldSetter == null || value == null || value.isEmpty()) {
+                        return;
+                    }
+                    fieldSetter.setField(value, excelTemplateBO);
+                });
+                artWorkDO.setId(null);
+                artWorkDO.setTitle(excelTemplateBO.getTitle());
+                artWorkDO.setCover(excelTemplateBO.getCover());
+                artWorkDO.setLink(excelTemplateBO.getLink());
+                artWorkDO.setSubtitle(excelTemplateBO.getSubtitle());
+                artWorkDO.setSeason(excelTemplateBO.getSeasonValue());
+                artWorkDO.setEpisode(excelTemplateBO.getEpisodeValue());
+                artWorkDO.setCategoryId(excelTemplateBO.updateCategoryNameToCategoryId(artworkCategoryMapper));
+                artWorkDO.setTags(excelTemplateBO.updateTagNamesToTagIds(artworkTagMapper).toArray(new Integer[0]));
+                artWorkDO.setActs(excelTemplateBO.updateActNamesToActIds(peopleMapper, peopleTypeMapper)
+                        .toArray(new Integer[0]));
+                artWorkDO.setYearTag(excelTemplateBO.getYear());
+
+                processedBatch.add(artWorkDO);
+            }
+            var artWorkRedisTemplate = new RedisTemplate<String, ArtWorkDO>()
+                    .boundListOps(FAILED_ENCODE_IMPORT_EXCEL_QUEUE_KEY);
+            redisTemplate.opsForList().rightPushAll(IMPORT_EXCEL_QUEUE_KEY,
+                    processedBatch.stream().map(data -> {
+                        try {
+                            return objectMapper.writeValueAsString(data);
+                        } catch (JsonProcessingException e) {
+                            log.error("Failed to serialize batch to JSON", e);
+                            artWorkRedisTemplate.rightPush(data);
+                            return null;
                         }
-                        fieldSetter.setField(value, excelTemplateBO);
-                    });
-                    artWorkDO.setId(null);
-                    artWorkDO.setTitle(excelTemplateBO.getTitle());
-                    artWorkDO.setCover(excelTemplateBO.getCover());
-                    artWorkDO.setLink(excelTemplateBO.getLink());
-                    artWorkDO.setSubtitle(excelTemplateBO.getSubtitle());
-                    artWorkDO.setSeason(excelTemplateBO.getSeasonValue());
-                    artWorkDO.setEpisode(excelTemplateBO.getEpisodeValue());
-                    artWorkDO.setCategoryId(excelTemplateBO.updateCategoryNameToCategoryId(artworkCategoryMapper));
-                    artWorkDO.setTags(excelTemplateBO.updateTagNamesToTagIds(artworkTagMapper).toArray(new Integer[0]));
-                    artWorkDO.setActs(excelTemplateBO.updateActNamesToActIds(peopleMapper, peopleTypeMapper)
-                            .toArray(new Integer[0]));
-                    artWorkDO.setYearTag(excelTemplateBO.getYear());
-
-                    processedBatch.add(artWorkDO);
-                }
-                var artWorkRedisTemplate = new RedisTemplate<String, ArtWorkDO>()
-                        .boundListOps(FAILED_ENCODE_IMPORT_EXCEL_QUEUE_KEY);
-                redisTemplate.opsForList().rightPushAll(IMPORT_EXCEL_QUEUE_KEY,
-                        processedBatch.stream().map(data -> {
-                            try {
-                                return objectMapper.writeValueAsString(data);
-                            } catch (JsonProcessingException e) {
-                                log.error("Failed to serialize batch to JSON", e);
-                                artWorkRedisTemplate.rightPush(data);
-                                return null;
-                            }
-                        }).filter(Objects::nonNull).toList());
-            });
+                    }).filter(Objects::nonNull).toList());
+            // });
         }
 
         @Override

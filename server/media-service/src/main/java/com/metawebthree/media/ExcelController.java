@@ -49,7 +49,7 @@ public class ExcelController {
 
     @PostMapping("/import/file")
     @Operation(summary = "Upload and import Excel file")
-    public ApiResponse<?> importExcelFile(@RequestParam("file") MultipartFile file) {
+    public ApiResponse<?> importExcelFile(@RequestParam MultipartFile file) {
         excelService.processExcelFile(file);
         return ApiResponse.success();
     }

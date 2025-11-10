@@ -6,7 +6,9 @@
     </appender>
     <appender name="ROCKSDB" class="com.metawebthree.common.config.LogRocksDBAppender" />
     <root level="INFO">
-        <appender-ref ref="CONSOLE" />
         <appender-ref ref="ROCKSDB" />
+    </root>
+    <root level="ERROR">
+        <appender-ref ref="CONSOLE" />
     </root>
 </configuration>

@@ -17,10 +17,10 @@ public interface PeopleMapper extends MPJBaseMapper<PeopleDO> {
             "<script>",
             "INSERT INTO \"People\" (name,types)",
             "<foreach collection='list' item='item' separator=',' open='VALUES' close=''>",
-            "(#{item.name},#{item.types})",
+            "(#{item.name},#{item.types,typeHandler=com.metawebthree.common.adapter.SQLShortArrayHandler})",
             "</foreach>",
             "RETURNING id",
             "</script>"
     })
-    List<Integer> insertBatchThenReturnIds(@Param("list") Collection<PeopleDO> peopleDOs);
+    int[] insertBatchThenReturnIds(@Param("list") Collection<PeopleDO> peopleDOs);
 }

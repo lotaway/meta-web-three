@@ -125,9 +125,9 @@ public class ExcelTemplateBO {
         String PEOPLE_TYPE = "Actor";
         wrapper.select(PeopleDO::getId)
                 .in(PeopleDO::getName, nameList)
-                .leftJoin(PeopleTypeDO.class,
+                .leftJoin(PeopleTypeDO.class, "t2",
                         on -> on.apply(
-                                String.format("%s.id = ANY(%s.types)", peopleTypeTableName, peopleTableName)))
+                                String.format("%s.id = ANY(%s.types)", "t2", "t")))
                 .eq(PeopleTypeDO::getType, PEOPLE_TYPE);
         List<PeopleDO> existingDOs = peopleMapper.selectJoinList(wrapper);
         List<PeopleTypeDO> typeDOs = peopleTypeMapper.selectList(new MPJLambdaWrapper<PeopleTypeDO>()
@@ -146,9 +146,11 @@ public class ExcelTemplateBO {
             }
             idList.add(peopleDO.getId());
         });
-        List<Integer> newIds = peopleMapper.insertBatchThenReturnIds(missingPeopleDOs);
-        log.info("newIds: {}", newIds);
-        idList.addAll(newIds);
+        if (!missingPeopleDOs.isEmpty()) {
+            List<Integer> newIds = ArrayList.from(peopleMapper.insertBatchThenReturnIds(missingPeopleDOs));
+            log.info("newIds: {}", newIds);
+            idList.addAll(newIds);
+        }
         return idList;
     }
 
@@ -158,8 +160,8 @@ public class ExcelTemplateBO {
             return null;
         }
         var wrapper = new MPJLambdaWrapper<PeopleDO>();
-        wrapper.select(PeopleDO::getId).eq(PeopleDO::getName, directorName).leftJoin(PeopleTypeDO.class,
-                on -> on.apply(String.format("%s.id = ANY(%s.types)", peopleTypeTableName, peopleTableName)))
+        wrapper.select(PeopleDO::getId).eq(PeopleDO::getName, directorName).leftJoin(PeopleTypeDO.class, "t2",
+                on -> on.apply(String.format("%s.id = ANY(%s.types)", "t2", "t")))
                 .eq(PeopleTypeDO::getType, "Director");
         List<PeopleDO> result = peopleMapper.selectJoinList(wrapper);
         PeopleDO peopleDO;
