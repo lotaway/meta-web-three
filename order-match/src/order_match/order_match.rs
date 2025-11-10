@@ -134,6 +134,7 @@ pub async fn start_rpc(config: &AppConfig) -> Result<()> {
         .serve(addr);
     
     // Register with Zookeeper
+    eprintln!("Connect to Zookeeper: {}:{}", config.dubbo.registry_address, config.dubbo.port);
     let registry = ZookeeperServiceRegistry::new(
         &config.dubbo.registry_address,
         order_match_service_server::SERVICE_NAME,
@@ -154,11 +155,17 @@ pub async fn start_rpc(config: &AppConfig) -> Result<()> {
 }
 
 pub async fn start() -> Result<()> {
-    let config = AppConfig::load().unwrap_or_else(|e| {
-        eprintln!("Failed to load configuration: {}", e);
-        eprintln!("Using default configuration");
-        AppConfig::default()
-    });
+    let config = match AppConfig::load() {
+        Ok(config) => {
+            log::debug!("Successfully loaded configuration from file and environment");
+            config
+        }
+        Err(e) => {
+            log::warn!("Failed to load configuration: {}", e);
+            log::warn!("Using default configuration");
+            AppConfig::default()
+        }
+    };
 
     unsafe {
         env::set_var("RUST_LOG", &config.app.log_level);
@@ -169,6 +176,8 @@ pub async fn start() -> Result<()> {
     log::info!("  Kafka brokers: {}", config.kafka.brokers);
     log::info!("  Kafka topic: {}", config.kafka.topic);
     log::info!("  Dubbo port: {}", config.dubbo.port);
+    log::info!("  Dubbo registry: {}", config.dubbo.registry_address);
+    log::info!("  Dubbo group: {}", config.dubbo.group);
     log::info!("  Markets: {:?}", config.markets.markets);
 
     start_rpc(&config).await?;

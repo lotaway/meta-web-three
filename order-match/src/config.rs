@@ -1,13 +1,19 @@
 use anyhow::Result;
 use config::{Config, ConfigError, Environment, File};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AppConfig {
+    #[serde(rename = "app")]
     pub app: AppSettings,
+    #[serde(rename = "kafka")]
     pub kafka: KafkaSettings,
+    #[serde(rename = "dubbo")] 
     pub dubbo: DubboSettings,
+    #[serde(rename = "storage")]
     pub storage: StorageSettings,
+    #[serde(rename = "markets")]
     pub markets: MarketsSettings,
 }
 
@@ -45,23 +51,50 @@ pub struct MarketsSettings {
 
 impl AppConfig {
     pub fn load() -> Result<Self, ConfigError> {
-        dotenvy::dotenv().ok();
+        let result = dotenvy::dotenv();
+        match result {
+            Ok(path) => println!("Loaded environment variables from .env file {:?}", path.to_str()),
+            Err(e) => println!("Failed to load environment variables from .env file: {}", e),
+        }
+        
+        // Always print environment variables for debugging
+        println!("==== Environment Variables ====");
+        for (key, value) in std::env::vars() {
+            println!("{}={}", key, value);
+        }
+
+        // Try with ORDER_MATCH_ prefix for backward compatibility
+        let prefixed_env = Environment::with_prefix("ORDER_MATCH")
+            .prefix_separator("_")
+            .separator("_")
+            .try_parsing(true);
 
         let config = Config::builder()
             .add_source(File::with_name("config").required(false))
-            .add_source(
-                Environment::with_prefix("ORDER_MATCH")
-                    .prefix_separator("_")
-                    .separator("_")
-            )
-            .add_source(
-                Environment::default()
-                    .try_parsing(true)
-                    .separator("_")
-            )
-            .build()?;
+            .add_source(prefixed_env)
+            .build()
+            .map_err(|e| {
+            println!("Failed to build config: {}", e);
+                e
+            })?;
 
-        config.try_deserialize()
+        // Always print loaded config keys
+        println!("==== Config Keys ====");
+        if let Ok(settings) = config.clone().try_deserialize::<HashMap<String, String>>() {
+            for (key, value) in settings {
+                println!("{}={:?}", key, value);
+            }
+        }
+
+        let config = config.try_deserialize::<Self>()?;
+        
+        // Validate required fields
+        if config.app.name.is_empty() {
+            return Err(ConfigError::Message("app.name is required".to_string()));
+        }
+
+        println!("Successfully loaded configuration: {:?}", config);
+        Ok(config)
     }
 
     pub fn load_with_env_prefix(prefix: &str) -> Result<Self, ConfigError> {
@@ -73,10 +106,18 @@ impl AppConfig {
                 Environment::with_prefix(prefix)
                     .prefix_separator("_")
                     .separator("_")
+                    .try_parsing(true)
             )
             .build()?;
 
-        config.try_deserialize()
+        let config = config.try_deserialize::<Self>()?;
+        
+        // Validate required fields
+        if config.app.name.is_empty() {
+            return Err(ConfigError::Message("app.name is required".to_string()));
+        }
+
+        Ok(config)
     }
 }
 
