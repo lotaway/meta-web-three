@@ -13,6 +13,15 @@ spring:
             locator:
               enabled: true # Enable discovery locator proxy
               lower-case-service-id: true
+    zookeeper:
+      discovery:
+        enabled: true
+        register: false
+        metadata:
+          version: 1.0.0
+        prefer-ip-address: true
+        instance-id: ${spring.application.name}:${server.port}
+        service-name: ${spring.application.name}
   main:
     web-application-type: reactive
 springdoc:
