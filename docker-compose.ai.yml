@@ -1,0 +1,63 @@
+services:
+  etcd:
+    image: bitnamilegacy/etcd:latest
+    container_name: default-etcd
+    environment:
+      ALLOW_NONE_AUTHENTICATION: yes
+    volumes:
+      - etcd_data:/etcd-data
+    networks:
+      - default-ai
+
+  minio:
+    image: minio/minio:latest
+    container_name: default-minio
+    command: server /data  --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-123123123}
+    ports:
+      - "${MINIO_PORT1:-9000}:9000"
+      - "${MINIO_PORT2:-9001}:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - default-ai
+
+  milvus:
+    image: milvusdb/milvus:v2.6.5
+    container_name: default-milvus
+    command: ["milvus", "run", "standalone"]
+    ports:
+      - "${MILVUS_PORT1:-19530}:19530"
+      - "${MILVUS_PORT2:-9091}:9091"
+    environment:
+      MILVUS_STANDALONE: true
+      ETCD_ENDPOINTS: http://default-etcd:2379
+      MINIO_ADDRESS: default-minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-admin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-123123123}
+      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-milvus-bucket}
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-admin}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-123123123}
+      MINIO_USE_SSL: false
+      MINIO_REGION: us-east-1
+      # 关闭 streaming
+      MILVUS_STREAMING_ENABLED: false
+    volumes:
+      - milvus_data:/var/lib/milvus
+    depends_on:
+      - etcd
+      - minio
+    restart: unless-stopped
+    networks:
+      - default-ai
+
+volumes:
+  milvus_data:
+  minio_data:
+  etcd_data:
+
+networks:
+  default-ai:
+    driver: bridge
