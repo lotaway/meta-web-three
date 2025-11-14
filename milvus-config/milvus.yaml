@@ -1,0 +1,21 @@
+minio:
+  # IP address of MinIO or S3 service.
+  # Environment variable: MINIO_ADDRESS
+  # minio.address and minio.port together generate the valid access to MinIO or S3 service.
+  # MinIO preferentially acquires the valid IP address from the environment variable MINIO_ADDRESS when Milvus is started.
+  # Default value applies when MinIO or S3 is running on the same network with Milvus.
+  address: localhost
+  port: 9000 # Port of MinIO or S3 service.
+  # Access key ID that MinIO or S3 issues to user for authorized access.
+  # Environment variable: MINIO_ACCESS_KEY_ID or minio.accessKeyID
+  # minio.accessKeyID and minio.secretAccessKey together are used for identity authentication to access the MinIO or S3 service.
+  # This configuration must be set identical to the environment variable MINIO_ACCESS_KEY_ID, which is necessary for starting MinIO or S3.
+  # The default value applies to MinIO or S3 service that started with the default docker-compose.yml file.
+  accessKeyID: admin
+  # Secret key used to encrypt the signature string and verify the signature string on server. It must be kept strictly confidential and accessib
+le only to the MinIO or S3 server and users.
+ # Environment variable: MINIO_SECRET_ACCESS_KEY or minio.secretAccessKey
+  # minio.accessKeyID and minio.secretAccessKey together are used for identity authentication to access the MinIO or S3 service.
+  # This configuration must be set identical to the environment variable MINIO_SECRET_ACCESS_KEY, which is necessary for starting MinIO or S3.
+  # The default value applies to MinIO or S3 service that started with the default docker-compose.yml file.
+  secretAccessKey: 123123123
