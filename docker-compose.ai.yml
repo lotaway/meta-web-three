@@ -1,22 +1,29 @@
+# https://github.com/milvus-io/milvus/releases/download/v2.6.5/milvus-standalone-docker-compose.yml
+# https://github.com/milvus-io/milvus/releases/download/v2.6.5/milvus-standalone-docker-compose-gpu.yml
+
 services:
   etcd:
     # image: bitnamilegacy/etcd:latest
-    image: quay.io/coreos/etcd:v3.6.6
+    image: quay.io/coreos/etcd:v3.5.18
     container_name: default-milvus-etcd
     environment:
-      # ALLOW_NONE_AUTHENTICATION: yes
       - ETCD_AUTO_COMPACTION_MODE=revision
       - ETCD_AUTO_COMPACTION_RETENTION=1000
       - ETCD_QUOTA_BACKEND_BYTES=4294967296
       - ETCD_SNAPSHOT_COUNT=50000
-    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd-data
+    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
     volumes:
-      - etcd_data:/etcd-data
+      - etcd_data:/etcd
     networks:
       - default-ai
 
   minio:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2024-12-18T13-15-44Z
     container_name: default-milvus-minio
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-admin}
@@ -29,6 +36,11 @@ services:
     volumes:
       - minio_data:/minio_data
     command: minio server /minio_data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
     networks:
       - default-ai
 
@@ -47,13 +59,20 @@ services:
       # MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-admin}
       # MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-123123123}
       # MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-milvus-bucket}
+      # MILVUS_DEPLOY_MODE: standalone
+      # ENABLE_STREAMING: false
+      MQ_TYPE: woodpecker
     volumes:
       - milvus_data:/var/lib/milvus
-      - ./milvus-config/milvus.yaml:/milvus/configs/milvus.yaml
     depends_on:
       - "etcd"
       - "minio"
-    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 30s
+      start_period: 90s
+      timeout: 20s
+      retries: 3
     networks:
       - default-ai
 
