@@ -11,14 +11,14 @@ services:
       - ETCD_AUTO_COMPACTION_RETENTION=1000
       - ETCD_QUOTA_BACKEND_BYTES=4294967296
       - ETCD_SNAPSHOT_COUNT=50000
+    volumes:
+      - etcd_data:/etcd
     command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
     healthcheck:
       test: ["CMD", "etcdctl", "endpoint", "health"]
       interval: 30s
       timeout: 20s
       retries: 3
-    volumes:
-      - etcd_data:/etcd
     networks:
       - default-ai
 
@@ -28,8 +28,8 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-admin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-123123123}
-      # MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-admin}
-      # MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-123123123}
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-admin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-123123123}
     ports:
       - "${MINIO_PORT1:-9000}:9000"
       - "${MINIO_PORT2:-9001}:9001"
@@ -48,9 +48,6 @@ services:
     image: milvusdb/milvus:v2.6.5
     container_name: default-milvus
     command: ["milvus", "run", "standalone"]
-    ports:
-      - "${MILVUS_PORT1:-19530}:19530"
-      - "${MILVUS_PORT2:-9091}:9091"
     security_opt:
     - seccomp:unconfined
     environment:
@@ -62,17 +59,20 @@ services:
       # MILVUS_DEPLOY_MODE: standalone
       # ENABLE_STREAMING: false
       MQ_TYPE: woodpecker
+    ports:
+      - "${MILVUS_PORT1:-19530}:19530"
+      - "${MILVUS_PORT2:-9091}:9091"
     volumes:
       - milvus_data:/var/lib/milvus
-    depends_on:
-      - "etcd"
-      - "minio"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
       interval: 30s
       start_period: 90s
       timeout: 20s
       retries: 3
+    depends_on:
+      - "etcd"
+      - "minio"
     networks:
       - default-ai
 
