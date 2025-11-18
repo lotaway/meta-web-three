@@ -52,3 +52,6 @@ package-lock.json
 
 # client
 client/src/config/contractAbi/types
+
+# data
+/volumes
