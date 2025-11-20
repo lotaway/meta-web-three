@@ -19,36 +19,37 @@ class DQN(nn.Module):
         return self.net(x)
 
 class ReinforcementAgent:
-    
-    env = gym.make("CartPole-v1")
-    state_dim = env.observation_space.shape[0]
-    action_dim = env.action_space.n
+    def __init__(self):
+        self.env = gym.make("CartPole-v1")
+        self.state_dim = self.env.observation_space.shape[0]
+        self.action_dim = self.env.action_space.n
 
-    policy_net = DQN(state_dim, action_dim)
-    target_net = DQN(state_dim, action_dim)
-    target_net.load_state_dict(policy_net.state_dict())
-    target_net.eval()
+        self.policy_net = DQN(self.state_dim, self.action_dim)
+        self.target_net = DQN(self.state_dim, self.action_dim)
+        self.target_net.load_state_dict(self.policy_net.state_dict())
+        self.target_net.eval()
 
-    optimizer = optim.Adam(policy_net.parameters(), lr=1e-3)
-    criterion = nn.MSELoss()
+        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=1e-3)
+        self.criterion = nn.MSELoss()
 
-    memory = deque(maxlen=10000)
-    batch_size = 64
-    gamma = 0.99
-    epsilon_start = 1.0
-    epsilon_final = 0.01
-    epsilon_decay = 500
-    steps_done = 0
-    target_update = 10
+        self.memory = deque(maxlen=10000)
+        self.batch_size = 64
+        self.gamma = 0.99
+        self.epsilon_start = 1.0
+        self.epsilon_final = 0.01
+        self.epsilon_decay = 500
+        self.steps_done = 0
+        self.target_update = 10
 
     def select_action(self, state):
-        global steps_done
-        epsilon = self.epsilon_final + (self.epsilon_start - self.epsilon_final) * np.exp(-1. * steps_done / self.epsilon_decay)
-        steps_done += 1
+        epsilon = self.epsilon_final + (self.epsilon_start - self.epsilon_final) * np.exp(-1. * self.steps_done / self.epsilon_decay)
+        self.steps_done += 1
         if random.random() > epsilon:
             with torch.no_grad():
-                q_values = self.policy_net(torch.FloatTensor(state))
-                return q_values.argmax().item()
+                # Ensure state is a tensor and has batch dimension if needed
+                if not isinstance(state, torch.Tensor):
+                    state = torch.FloatTensor(state)
+                return self.policy_net(state).argmax().item()
         else:
             return random.randrange(self.action_dim)
 
@@ -58,10 +59,11 @@ class ReinforcementAgent:
         batch = random.sample(self.memory, self.batch_size)
         states, actions, rewards, next_states, dones = zip(*batch)
 
-        states = torch.FloatTensor(states)
+        # Convert to numpy arrays first for efficiency, then to tensors
+        states = torch.FloatTensor(np.array(states))
         actions = torch.LongTensor(actions).unsqueeze(1)
         rewards = torch.FloatTensor(rewards).unsqueeze(1)
-        next_states = torch.FloatTensor(next_states)
+        next_states = torch.FloatTensor(np.array(next_states))
         dones = torch.FloatTensor(dones).unsqueeze(1)
 
         q_values = self.policy_net(states).gather(1, actions)
@@ -78,16 +80,31 @@ class ReinforcementAgent:
         num_episodes = 300
 
         for episode in range(num_episodes):
-            state = self.env.reset()
+            # Handle new gym reset API (returns tuple) vs old (returns state)
+            reset_result = self.env.reset()
+            if isinstance(reset_result, tuple):
+                state = reset_result[0]
+            else:
+                state = reset_result
+            
             total_reward = 0
             done = False
             while not done:
                 action = self.select_action(state)
-                next_state, reward, done, _ = self.env.step(action)
+                
+                # Handle new gym step API (5 values) vs old (4 values)
+                step_result = self.env.step(action)
+                if len(step_result) == 5:
+                    next_state, reward, terminated, truncated, _ = step_result
+                    done = terminated or truncated
+                else:
+                    next_state, reward, done, _ = step_result
+
                 self.memory.append((state, action, reward, next_state, done))
                 state = next_state
                 total_reward += reward
                 self.optimize_model()
+            
             if episode % self.target_update == 0:
                 self.target_net.load_state_dict(self.policy_net.state_dict())
             print(f"Episode {episode} Total Reward: {total_reward}")
