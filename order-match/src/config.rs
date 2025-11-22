@@ -63,10 +63,10 @@ impl AppConfig {
             println!("{}={}", key, value);
         }
 
-        // Try with ORDER_MATCH_ prefix for backward compatibility
+        // Use double underscore for nesting to support keys with underscores (e.g. registry__address)
         let prefixed_env = Environment::with_prefix("ORDER_MATCH")
-            .prefix_separator("_")
-            .separator("_")
+            .prefix_separator("__")
+            .separator("__")
             .try_parsing(true);
 
         let config = Config::builder()
