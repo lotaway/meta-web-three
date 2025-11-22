@@ -6,13 +6,15 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./interface/IGoodsNFT.sol";
 
 contract GoodsFactory is Initializable, OwnableUpgradeable {
-
-
     function initialize() public initializer {
-        __Ownable_init();
+        // __Ownable_init();
     }
 
-    function createGoods(uint256 tokenId, string memory name, uint256 price) public {
-        IGoodsNFT goodsNFT = new IGoodsNFT(name, symbol, address(this));
+    function createGoods(
+        uint256 tokenId,
+        string memory name,
+        uint256 price
+    ) public {
+        // IGoodsNFT goodsNFT = new IGoodsNFT(name, symbol, address(this));
     }
 }

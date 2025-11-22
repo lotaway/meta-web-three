@@ -6,6 +6,6 @@ library CommissionLib {
 
     enum CommissionBaseType {
         ON_BUYER,
-        ON_LAST_ONE,
+        ON_LAST_ONE
     }
 }

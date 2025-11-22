@@ -1,5 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { time } = require("@nomicfoundation/hardhat-network-helpers");
 
 describe("Goods and Commission System", function () {
     let commissionRelation;
@@ -27,32 +28,41 @@ describe("Goods and Commission System", function () {
         );
         await commissionToken.waitForDeployment();
 
+        // 部署 MetaThreeCoin
+        const MetaThreeCoin = await ethers.getContractFactory("MetaThreeCoin");
+        metaThreeCoin = await MetaThreeCoin.deploy();
+        await metaThreeCoin.waitForDeployment();
+
         // 部署 GoodsNFT
         const GoodsNFT = await ethers.getContractFactory("GoodsNFT");
         goodsNFT = await GoodsNFT.deploy(
             "Goods NFT",
             "GNFT",
-            await commissionRelation.getAddress()
+            await commissionRelation.getAddress(),
+            await metaThreeCoin.getAddress(),
+            await commissionToken.getAddress()
         );
         await goodsNFT.waitForDeployment();
 
         // 授权 GoodsNFT 为 minter
         await commissionRelation.authorizeMinter(await goodsNFT.getAddress());
+        await commissionToken.authorizeMinter(await goodsNFT.getAddress());
 
-        // 部署 MetaThreeCoin
-        const MetaThreeCoin = await ethers.getContractFactory("MetaThreeCoin");
-        metaThreeCoin = await MetaThreeCoin.deploy();
-        await metaThreeCoin.waitForDeployment();
     });
 
     it("Should create good, mint with referrer and check commission relation", async function () {
         // 创建商品
         const keys = ["Color", "Size"];
         const values = ["Red", "Large"];
-        await goodsNFT.createGood("Test Good", keys, values);
+        const price = ethers.parseEther("10");
+        await goodsNFT.replenishment("Test Good", keys, values, price);
+
+        // Setup payment for buyer
+        await metaThreeCoin.transfer(buyer.address, price);
+        await metaThreeCoin.connect(buyer).approve(goodsNFT.getAddress(), price);
 
         // Mint NFT with referrer
-        await goodsNFT.mint(0, buyer.address, referrer.address);
+        await goodsNFT.connect(buyer).mint(0, referrer.address);
 
         // 验证分佣关系是否正确设置
         expect(await commissionRelation.getUpline(buyer.address)).to.equal(referrer.address);
@@ -71,7 +81,7 @@ describe("Goods and Commission System", function () {
     it("Should mint NFT with payment and distribute commissions", async function () {
         // 创建商品
         const price = ethers.parseEther("100"); // 100 MetaThreeCoin
-        await goodsNFT.createGood("Test Good", ["Color"], ["Red"], price);
+        await goodsNFT.replenishment("Test Good", ["Color"], ["Red"], price);
         
         // 给买家一些 MetaThreeCoin
         await metaThreeCoin.transfer(buyer.address, price);
@@ -80,6 +90,9 @@ describe("Goods and Commission System", function () {
         // Mint NFT
         await goodsNFT.connect(buyer).mint(0, referrer.address);
         
+        // 模拟7天后
+        await time.increase(7 * 24 * 60 * 60);
+
         // 验证佣金分配
         const commission = price * BigInt(10) / BigInt(100); // 10% commission
         const uplineCommission = commission * BigInt(15) / BigInt(100); // 15% upline commission
@@ -87,4 +100,4 @@ describe("Goods and Commission System", function () {
         expect(await commissionToken.balanceOf(buyer.address)).to.equal(commission);
         expect(await commissionToken.balanceOf(referrer.address)).to.equal(uplineCommission);
     });
-}); 
+});

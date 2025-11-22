@@ -9,33 +9,61 @@ import "./interface/ICommissionRelation.sol";
 
 contract CommissionToken is ICommissionToken, ERC20, Ownable, ReentrancyGuard {
     ICommissionRelation public commissionRelation;
-    
-    modifier onlyCommissionRelation() {
-        require(msg.sender == address(commissionRelation), "Only commission relation contract can call");
+
+    mapping(address => bool) public authorizedMinters;
+
+    event MinterAuthorized(address indexed minter);
+    event MinterRevoked(address indexed minter);
+
+    modifier onlyAuthorizedMinter() {
+        require(
+            authorizedMinters[msg.sender] || msg.sender == owner(),
+            "Not authorized"
+        );
         _;
     }
-    
+
     constructor(
         string memory name,
         string memory symbol,
         address _commissionRelation
     ) ERC20(name, symbol) Ownable(msg.sender) {
-        require(_commissionRelation != address(0), "Invalid commission relation address");
+        require(
+            _commissionRelation != address(0),
+            "Invalid commission relation address"
+        );
         commissionRelation = ICommissionRelation(_commissionRelation);
+        authorizedMinters[_commissionRelation] = true;
     }
-    
-    function mint(address to, uint256 amount) external onlyCommissionRelation nonReentrant returns (bool) {
+
+    function authorizeMinter(address minter) external onlyOwner {
+        authorizedMinters[minter] = true;
+        emit MinterAuthorized(minter);
+    }
+
+    function revokeMinter(address minter) external onlyOwner {
+        authorizedMinters[minter] = false;
+        emit MinterRevoked(minter);
+    }
+
+    function mint(
+        address to,
+        uint256 amount
+    ) external onlyAuthorizedMinter nonReentrant returns (bool) {
         _mint(to, amount);
         emit TokensMinted(to, amount);
         return true;
     }
-    
-    function burn(address from, uint256 amount) external onlyCommissionRelation nonReentrant returns (bool) {
+
+    function burn(
+        address from,
+        uint256 amount
+    ) external onlyCommissionRelation nonReentrant returns (bool) {
         _burn(from, amount);
         emit TokensBurned(from, amount);
         return true;
     }
-    
+
     event TokensMinted(address indexed to, uint256 amount);
     event TokensBurned(address indexed from, uint256 amount);
 }
