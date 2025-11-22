@@ -3,7 +3,6 @@
 
 services:
   etcd:
-    # image: bitnamilegacy/etcd:latest
     image: quay.io/coreos/etcd:v3.5.18
     container_name: default-milvus-etcd
     environment:
@@ -28,8 +27,6 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-admin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-123123123}
-      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-admin}
-      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-123123123}
     ports:
       - "${MINIO_PORT1:-9000}:9000"
       - "${MINIO_PORT2:-9001}:9001"
@@ -53,19 +50,16 @@ services:
     environment:
       ETCD_ENDPOINTS: etcd:2379
       MINIO_ADDRESS: minio:9000
-      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-admin}
-      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-123123123}
-      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-milvus-bucket}
-      MINIO_USE_SSL: false
-      MILVUS_DEPLOY_MODE: standalone
-      ENABLE_STREAMING: false
-      DISABLE_COORDINATOR: true
       MQ_TYPE: woodpecker
+      MINIO_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-admin}
+      MINIO_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:-123123123}
+      # MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-milvus-bucket}
     ports:
       - "${MILVUS_PORT1:-19530}:19530"
       - "${MILVUS_PORT2:-9091}:9091"
     volumes:
       - milvus_data:/var/lib/milvus
+      # - ./milvus-config/milvus.yaml:/milvus/configs/milvus.yaml
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
       interval: 30s
