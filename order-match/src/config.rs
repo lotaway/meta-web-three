@@ -15,6 +15,8 @@ pub struct AppConfig {
     pub storage: StorageSettings,
     #[serde(rename = "markets")]
     pub markets: MarketsSettings,
+    #[serde(rename = "ai_quant", default)]
+    pub ai_quant: AIQuantSettings,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -47,6 +49,25 @@ pub struct StorageSettings {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct MarketsSettings {
     pub markets: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AIQuantSettings {
+    pub enabled: bool,
+    pub provider_url: String,
+    pub api_key: String,
+    pub model_name: String,
+}
+
+impl Default for AIQuantSettings {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            provider_url: "http://localhost:11434/v1/chat/completions".to_string(),
+            api_key: "".to_string(),
+            model_name: "meta-llama/Llama-2-7b-chat-hf".to_string(),
+        }
+    }
 }
 
 impl AppConfig {
@@ -150,6 +171,7 @@ impl Default for AppConfig {
                     "DOGE/USDT".to_string(),
                 ],
             },
+            ai_quant: AIQuantSettings::default(),
         }
     }
 }
