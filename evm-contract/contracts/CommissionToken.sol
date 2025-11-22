@@ -58,7 +58,7 @@ contract CommissionToken is ICommissionToken, ERC20, Ownable, ReentrancyGuard {
     function burn(
         address from,
         uint256 amount
-    ) external onlyCommissionRelation nonReentrant returns (bool) {
+    ) external onlyAuthorizedMinter nonReentrant returns (bool) {
         _burn(from, amount);
         emit TokensBurned(from, amount);
         return true;
