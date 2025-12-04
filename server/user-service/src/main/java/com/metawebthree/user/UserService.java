@@ -5,7 +5,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.metawebthree.common.utils.UserRole;
 import com.metawebthree.user.DO.UserDO;
+import com.metawebthree.user.DTO.SubTokenDTO;
 import com.metawebthree.user.DTO.UserDTO;
+
+import java.util.List;
 
 public interface UserService extends IService<UserDO> {
     IPage<UserDTO> getUserList(int pageNum);
@@ -32,4 +35,8 @@ public interface UserService extends IService<UserDO> {
     boolean deleteUser(Long id);
 
     boolean deleteUsers(Long[] ids);
+
+    SubTokenDTO createSubToken(String parentToken, List<String> permissions, Integer expiresInHours);
+
+    boolean validateSubToken(String childToken);
 }

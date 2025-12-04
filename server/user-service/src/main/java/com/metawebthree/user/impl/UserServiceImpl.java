@@ -12,15 +12,21 @@ import com.metawebthree.user.UserService;
 import com.metawebthree.user.Web3UserMapper;
 import com.metawebthree.user.UserMapper;
 import com.metawebthree.user.UserRoleMappingMapper;
+import com.metawebthree.common.utils.UserJwtUtil;
+import com.metawebthree.user.DO.TokenMappingDO;
 import com.metawebthree.user.DO.UserDO;
 import com.metawebthree.user.DO.UserRoleMappingDO;
 import com.metawebthree.user.DO.Web3UserDO;
+import com.metawebthree.user.DTO.SubTokenDTO;
 import com.metawebthree.user.DTO.UserDTO;
+import com.metawebthree.user.TokenMappingMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,13 +40,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     private final UserMapper userMapper;
     private final Web3UserMapper web3UserMapper;
     private final UserRoleMappingMapper userRoleMappingMapper;
+    private final TokenMappingMapper tokenMappingMapper;
+    private final UserJwtUtil jwtUtil;
 
     public UserServiceImpl(PageConfigVO pageConfigVo, UserMapper userMapper, Web3UserMapper web3UserMapper,
-            UserRoleMappingMapper userRoleMappingMapper) {
+            UserRoleMappingMapper userRoleMappingMapper, TokenMappingMapper tokenMappingMapper, UserJwtUtil jwtUtil) {
         this.pageConfigVo = pageConfigVo;
         this.userMapper = userMapper;
         this.web3UserMapper = web3UserMapper;
         this.userRoleMappingMapper = userRoleMappingMapper;
+        this.tokenMappingMapper = tokenMappingMapper;
+        this.jwtUtil = jwtUtil;
     }
 
     public IPage<UserDTO> getUserList(int pageNum, UserDTO userDTO, AuthorDO authorDO) {
@@ -221,6 +231,62 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             return user;
         } catch (NoSuchAlgorithmException e) {
             return null;
+        }
+    }
+
+    @Transactional
+    public SubTokenDTO createSubToken(String parentToken, List<String> permissions, Integer expiresInHours) {
+        try {
+            var claims = jwtUtil.tryDecode(parentToken);
+            if (claims.isEmpty()) {
+                throw new IllegalArgumentException("Invalid parent token");
+            }
+            Long userId = jwtUtil.getUserId(claims.get());
+            Date expiration = new Date(System.currentTimeMillis() + (expiresInHours != null ? expiresInHours : 1L) * 60L * 60L * 1000L);
+            String childToken = jwtUtil.generate(
+                userId.toString(),
+                jwtUtil.generateClaimsMap(jwtUtil.getUserName(claims.get()), jwtUtil.getUserRole(claims.get())),
+                expiration);
+            TokenMappingDO tokenMapping = TokenMappingDO.builder()
+                .id(IdWorker.getId())
+                .parentToken(parentToken)
+                .childToken(childToken)
+                .userId(userId)
+                .permissions(permissions != null ? String.join(",", permissions) : "")
+                .expiresAt(expiration)
+                .isRevoked(false)
+                .createdAt(new Date())
+                .updatedAt(new Date())
+                .build();
+
+            tokenMappingMapper.insert(tokenMapping);
+
+            return SubTokenDTO.builder()
+                .token(childToken)
+                .expiresAt(tokenMapping.getExpiresAt())
+                .permissions(permissions)
+                .parentToken(parentToken)
+                .build();
+
+        } catch (Exception e) {
+            log.error("Failed to create sub-token", e);
+            throw new RuntimeException("Failed to create sub-token: " + e.getMessage());
+        }
+    }
+
+    public boolean validateSubToken(String childToken) {
+        try {
+            TokenMappingDO mapping = tokenMappingMapper.findValidTokenMapping(childToken);
+            if (mapping == null) {
+                return false;
+            }
+            
+            // 检查父token是否仍然有效
+            var parentClaims = jwtUtil.tryDecode(mapping.getParentToken());
+            return parentClaims.isPresent() && !jwtUtil.isTokenExpired(parentClaims.get().getExpiration());
+        } catch (Exception e) {
+            log.error("Failed to validate sub-token", e);
+            return false;
         }
     }
 }

@@ -51,3 +51,19 @@ CREATE TABLE Author_User_Mapping {
 }
 
 CREATE INDEX idx_web3_user_wallet_address ON Web3_User (wallet_address);
+
+CREATE TABLE TokenMapping (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    parent_token VARCHAR(512) NOT NULL,
+    child_token VARCHAR(512) NOT NULL UNIQUE,
+    user_id BIGINT NOT NULL REFERENCES User(id),
+    permissions VARCHAR(255) COMMENT '子token权限，逗号分隔',
+    expires_at DATETIME NOT NULL,
+    is_revoked BOOLEAN NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_parent_token (parent_token),
+    INDEX idx_child_token (child_token),
+    INDEX idx_user_id (user_id),
+    INDEX idx_expires_at (expires_at)
+);

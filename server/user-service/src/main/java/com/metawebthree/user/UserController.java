@@ -8,6 +8,7 @@ import com.metawebthree.common.generated.rpc.OrderDTO;
 import com.metawebthree.common.generated.rpc.OrderService;
 import com.metawebthree.common.utils.UserRole;
 import com.metawebthree.user.DTO.LoginResponseDTO;
+import com.metawebthree.user.DTO.SubTokenDTO;
 import com.metawebthree.user.DTO.UserDTO;
 import com.metawebthree.user.impl.UserServiceImpl;
 import com.metawebthree.common.utils.OAuth1Utils;
@@ -74,7 +75,8 @@ public class UserController {
     @PostMapping("/create")
     public ApiResponse<?> create(@RequestBody Map<String, Object> params) throws NoSuchAlgorithmException {
         UserRole userRoleId = UserRole.tryValueOf((long) (params.get("typeId"))).orElse(UserRole.USER);
-        Long userId = userService.createUser(String.valueOf(params.get("email")),
+        Long userId = userService.createUser(
+                String.valueOf(params.get("email")),
                 String.valueOf(params.get("password")), userRoleId);
         LocalDateTime localDateTime = LocalDateTime.now();
         log.info("userId:" + userId + ", date_time:" + localDateTime);
@@ -188,6 +190,23 @@ public class UserController {
         List<OrderDTO> result = orderService.getOrderByUserId(request).getOrdersList();
         // @TODO simple response dto, jackson can't serialize OrderDTO from protobuf
         return ApiResponse.success(result);
+    }
+
+    @PostMapping("/createSubToken")
+    public ApiResponse<SubTokenDTO> createSubToken(@RequestHeader("Authorization") String authorizationHeader,
+            @RequestParam(required = false) List<String> permissions,
+            @RequestParam(defaultValue = "24") Integer expiresInHours) {
+        try {
+            String parentToken = authorizationHeader.replace("Bearer ", "");
+            if (expiresInHours == 0) {
+                expiresInHours = 24 * 365 * 10;
+            }
+            SubTokenDTO subToken = userService.createSubToken(parentToken, permissions, expiresInHours);
+            return ApiResponse.success(subToken);
+        } catch (Exception e) {
+            log.error("Failed to create sub-token", e);
+            return ApiResponse.error("Failed to create sub-token: " + e.getMessage(), SubTokenDTO.class);
+        }
     }
 
 }
