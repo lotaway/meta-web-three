@@ -12,6 +12,7 @@ import com.metawebthree.user.UserService;
 import com.metawebthree.user.Web3UserMapper;
 import com.metawebthree.user.UserMapper;
 import com.metawebthree.user.UserRoleMappingMapper;
+import com.metawebthree.common.utils.DateEnum;
 import com.metawebthree.common.utils.UserJwtUtil;
 import com.metawebthree.user.DO.TokenMappingDO;
 import com.metawebthree.user.DO.UserDO;
@@ -235,14 +236,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     }
 
     @Transactional
-    public SubTokenDTO createSubToken(String parentToken, List<String> permissions, Integer expiresInHours) {
+    public SubTokenDTO createSubToken(String parentToken, List<String> permissions, Long expiresInHours) {
         try {
             var claims = jwtUtil.tryDecode(parentToken);
             if (claims.isEmpty()) {
                 throw new IllegalArgumentException("Invalid parent token");
             }
             Long userId = jwtUtil.getUserId(claims.get());
-            Date expiration = new Date(System.currentTimeMillis() + (expiresInHours != null ? expiresInHours : 1L) * 60L * 60L * 1000L);
+            Date expiration = new Date(System.currentTimeMillis() + (expiresInHours != null ? expiresInHours : 1L) * DateEnum.ONE_HOUR.getValue());
             String childToken = jwtUtil.generate(
                 userId.toString(),
                 jwtUtil.generateClaimsMap(jwtUtil.getUserName(claims.get()), jwtUtil.getUserRole(claims.get())),

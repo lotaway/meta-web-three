@@ -105,7 +105,7 @@ public class UserController {
             Date expiration = DateEnum.ONE_HUNDRED_YEAR.toAfterThisAsDate();
             token = jwtUtil.generate(user.getId().toString(), claims, expiration);
         } else {
-            Date expiration = new Date(System.currentTimeMillis() + expiresInHours * 60L * 60 * 1000);
+            Date expiration = new Date(System.currentTimeMillis() + expiresInHours * DateEnum.ONE_HOUR.getValue());
             token = jwtUtil.generate(user.getId().toString(), claims, expiration);
         }
         
@@ -209,11 +209,11 @@ public class UserController {
     @PostMapping("/createSubToken")
     public ApiResponse<SubTokenDTO> createSubToken(@RequestHeader("Authorization") String authorizationHeader,
             @RequestParam(required = false) List<String> permissions,
-            @RequestParam(defaultValue = "24") Integer expiresInHours) {
+            @RequestParam(defaultValue = "24") Long expiresInHours) {
         try {
             String parentToken = authorizationHeader.replace("Bearer ", "");
             if (expiresInHours == 0) {
-                expiresInHours = 24 * 365 * 10;
+                expiresInHours = DateEnum.ONE_HUNDRED_YEAR.getValue();
             }
             SubTokenDTO subToken = userService.createSubToken(parentToken, permissions, expiresInHours);
             return ApiResponse.success(subToken);

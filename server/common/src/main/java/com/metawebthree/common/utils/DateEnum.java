@@ -19,7 +19,7 @@ public enum DateEnum {
         this.value = l;
     }
 
-    Long getValue() {
+    public Long getValue() {
         return value;
     }
 
