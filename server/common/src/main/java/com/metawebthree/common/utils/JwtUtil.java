@@ -31,8 +31,6 @@ public class JwtUtil {
 
     protected String value = "JWT";
 
-    private final Long ONE_MONTH = 30L * 24 * 60 * 60 * 1000;
-
     public String generate(String subject) {
         return Jwts.builder()
                 .setHeaderParam(name, value)
@@ -58,7 +56,7 @@ public class JwtUtil {
     }
 
     public Date getDefaultExpiration() {
-        return new Date(System.currentTimeMillis() + ONE_MONTH);
+        return DateEnum.ONE_MONTH.toAfterThisAsDate();
     }
 
     protected Key getSignKey() {

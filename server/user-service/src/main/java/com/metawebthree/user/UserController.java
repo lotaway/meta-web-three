@@ -11,6 +11,7 @@ import com.metawebthree.user.DTO.LoginResponseDTO;
 import com.metawebthree.user.DTO.SubTokenDTO;
 import com.metawebthree.user.DTO.UserDTO;
 import com.metawebthree.user.impl.UserServiceImpl;
+import com.metawebthree.common.utils.DateEnum;
 import com.metawebthree.common.utils.OAuth1Utils;
 import com.metawebthree.common.utils.UserJwtUtil;
 
@@ -26,6 +27,7 @@ import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +87,8 @@ public class UserController {
 
     @RequestMapping("/signIn")
     public ApiResponse<LoginResponseDTO> signIn(@RequestParam(defaultValue = "0", required = false) Long userRoleId,
-            @RequestParam String email, @RequestParam String password) throws IOException, NoSuchAlgorithmException {
+            @RequestParam String email, @RequestParam String password,
+            @RequestParam(defaultValue = "-1", required = false) Integer expiresInHours) throws IOException, NoSuchAlgorithmException {
         UserDTO user = userService.validateUser(email, password, userRoleId);
         if (user == null) {
             return ApiResponse.error("Invalid credentials", LoginResponseDTO.class);
@@ -94,7 +97,18 @@ public class UserController {
         claims.put("userId", user.getId());
         claims.put("name", user.getNickname());
         claims.put("role", UserRole.USER.name());
-        String token = jwtUtil.generate(user.getId().toString(), claims);
+        
+        String token;
+        if (expiresInHours == -1) {
+            token = jwtUtil.generate(user.getId().toString(), claims);
+        } else if (expiresInHours == 0) {
+            Date expiration = DateEnum.ONE_HUNDRED_YEAR.toAfterThisAsDate();
+            token = jwtUtil.generate(user.getId().toString(), claims, expiration);
+        } else {
+            Date expiration = new Date(System.currentTimeMillis() + expiresInHours * 60L * 60 * 1000);
+            token = jwtUtil.generate(user.getId().toString(), claims, expiration);
+        }
+        
         LoginResponseDTO response = new LoginResponseDTO(token, user, null, "email");
         return ApiResponse.success(response);
     }
