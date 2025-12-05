@@ -36,7 +36,7 @@ public interface UserService extends IService<UserDO> {
 
     boolean deleteUsers(Long[] ids);
 
-    SubTokenDTO createSubToken(String parentToken, List<String> permissions, Integer expiresInHours);
+    SubTokenDTO createSubToken(String parentToken, List<String> permissions, Long expiresInHours);
 
     boolean validateSubToken(String childToken);
 }
