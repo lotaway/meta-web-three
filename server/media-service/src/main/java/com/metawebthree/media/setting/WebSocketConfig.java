@@ -93,12 +93,12 @@ public class WebSocketConfig {
 
     private void sendSystemMessage(String message) {
         try {
-            String formattedMsg = objectMapper.writeValueAsString(new DanmuMessage() {{
-                content = "系统提示: " + message;
-                color = "#FF0000";
-                position = "top";
-                size = 16;
-            }});
+            String formattedMsg = objectMapper.writeValueAsString(DanmuMessageDTO.builder()
+                .content("系统提示: " + message)
+                .color("#FF0000")
+                .position("top")
+                .size(16)
+                .build());
             sendMessageToAll(formattedMsg);
         } catch (IOException e) {
             log.error("Failed to format system message", e);
