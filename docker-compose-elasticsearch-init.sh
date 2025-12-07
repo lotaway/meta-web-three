@@ -1,0 +1,1 @@
+docker exec -it default-elasticsearch /usr/share/elasticsearch/bin/elasticsearch-service-tokens create elastic/kibana kibana-token
