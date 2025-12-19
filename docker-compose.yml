@@ -2,18 +2,6 @@ include:
   - ./docker-compose.env.yml
   - ./docker-compose.server.yml
 
-services:
-  client:
-    build:
-      context: "./client"
-      dockerfile: Dockerfile
-    env_file:
-      - ./client/.env
-    ports:
-      - "${VITE_PORT:-30001}:${VITE_PORT:-30001}"
-    networks:
-      - meta-web-three
-      - default
 networks:
   meta-web-three:
     driver: bridge

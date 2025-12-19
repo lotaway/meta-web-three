@@ -1,5 +1,20 @@
 services:
 
+  gateway:
+    build:
+      context: ./server/gateway
+      dockerfile: Dockerfile
+    container_name: meta-web-three/gateway
+    ports:
+      - "10081:10081"
+    command: ["java", "-jar", "/gateway.jar"]
+    volumes:
+      - gateway_data:/server/gateway
+    networks:
+      - meta-web-three
+      - default
+    restart: unless-stopped
+
   product-service:
     build:
       context: ./server/product-service
@@ -117,6 +132,7 @@ services:
     restart: unless-stopped
 
 volumes:
+  gateway_data:
   product_service_data:
   user_service_data:
   order_service_data:
