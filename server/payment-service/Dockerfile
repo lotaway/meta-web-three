@@ -1,15 +1,10 @@
-FROM eclipse-temurin:17-jre
-
+FROM maven:3.9.11-openjdk-17 AS builder
 WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-# Copy the JAR file
-COPY target/payment-service-*.jar payment-service.jar
-
-# Expose the port
-EXPOSE 10086
-
-# Set environment variables
-ENV JAVA_OPTS="-Xmx512m -Xms256m"
-
-# Run the application
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar payment-service.jar"]
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+COPY --from=builder /app/target/payment-service-*.jar payment-service.jar
+ENTRYPOINT ["java", "-jar", "payment-service.jar"]
