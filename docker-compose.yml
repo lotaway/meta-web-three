@@ -1,11 +1,11 @@
-include:
-  - ./docker-compose.env.yml
-  - ./docker-compose.server.yml
-
 networks:
   meta-web-three:
     driver: bridge
   default:
     driver: bridge
-    external: true
-    name: default-bridge
+  default-ai:
+    driver: bridge
+
+include:
+  - ./docker-compose.env.yml
+  - ./docker-compose.server.yml

@@ -4,7 +4,7 @@ services:
       context: ./server
       dockerfile: Dockerfile
       target: gateway
-    container_name: meta-web-three/gateway
+    container_name: meta-web-three-gateway
     ports:
       - "10081:10081"
     volumes:
@@ -19,7 +19,7 @@ services:
       context: ./server
       dockerfile: Dockerfile
       target: product-service
-    container_name: meta-web-three/product-service
+    container_name: meta-web-three-product-service
     ports:
       - "10082:10082"
     volumes:
@@ -41,7 +41,7 @@ services:
       context: ./server
       dockerfile: Dockerfile
       target: user-service
-    container_name: meta-web-three/user-service
+    container_name: meta-web-three-user-service
     ports:
       - "10083:10083"
     volumes:
@@ -56,7 +56,7 @@ services:
       context: ./server
       dockerfile: Dockerfile
       target: order-service
-    container_name: meta-web-three/order-service
+    container_name: meta-web-three-order-service
     ports:
       - "10084:10084"
     volumes:
@@ -71,7 +71,7 @@ services:
       context: ./server
       dockerfile: Dockerfile
       target: message-service
-    container_name: meta-web-three/message-service
+    container_name: meta-web-three-message-service
     ports:
       - "10085:10085"
     volumes:
@@ -93,7 +93,7 @@ services:
       context: ./server
       dockerfile: Dockerfile
       target: payment-service
-    container_name: meta-web-three/payment-service
+    container_name: meta-web-three-payment-service
     ports:
       - "10086:10086"
     volumes:
@@ -104,11 +104,11 @@ services:
     #   - SPRING_DATASOURCE_PASSWORD=root
     #   - SPRING_REDIS_HOST=redis
     #   - SPRING_REDIS_PORT=6379
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
+    # depends_on:
+    #   postgres:
+    #     condition: service_healthy
+    #   redis:
+    #     condition: service_started
     networks:
       - meta-web-three
       - default
@@ -119,7 +119,7 @@ services:
       context: ./server
       dockerfile: Dockerfile
       target: media-service
-    container_name: meta-web-three/media-service
+    container_name: meta-web-three-media-service
     ports:
       - "10087:10087"
     volumes:
