@@ -1,6 +1,7 @@
 services:
   graph-node:
-    image: graph-node:latest
+    # image: graph-node:latest # local build
+    image: graphprotocol/graph-node:latest
     container_name: default-graph-node
     ports:
       - "${GRAPH_NODE_PORT:-8000}:8000"
