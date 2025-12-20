@@ -1,5 +1,4 @@
 services:
-
   gateway:
     build:
       context: ./server
@@ -114,7 +113,6 @@ services:
       - meta-web-three
       - default
     restart: unless-stopped
-
 
   media-service:
     build:

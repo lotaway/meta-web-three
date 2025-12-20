@@ -1,12 +1,7 @@
 FROM maven:3.9.11-eclipse-temurin-17 AS builder
 WORKDIR /build
-COPY pom.xml .
-RUN mvn -B install -DskipTests
-COPY */pom.xml ./
-RUN mvn -B -e -C dependency:go-offline
 COPY . .
-
-RUN mvn -B package -DskipTests
+RUN mvn -B install -DskipTests
 
 FROM eclipse-temurin:17-jre-jammy AS gateway
 WORKDIR /app
