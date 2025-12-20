@@ -9,6 +9,9 @@ services:
       - "10081:10081"
     volumes:
       - gateway_data:/server/gateway
+    depends_on:
+      zookeeper:
+        condition: service_healthy
     networks:
       - meta-web-three
       - default
@@ -24,13 +27,13 @@ services:
       - "10082:10082"
     volumes:
       - product_service_data:/server/product
-    # depends_on:
-    #   zookeeper:
-    #     - condition: service_healthy
-    #   postgres:
-    #     - condition: service_healthy
-    #   redis:
-    #     condition: service_started
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - meta-web-three
       - default
@@ -46,6 +49,13 @@ services:
       - "10083:10083"
     volumes:
       - user_service_data:/server/user
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - meta-web-three
       - default
@@ -61,6 +71,13 @@ services:
       - "10084:10084"
     volumes:
       - order_service_data:/server/order
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - meta-web-three
       - default
@@ -76,13 +93,13 @@ services:
       - "10085:10085"
     volumes:
       - message_service_data:/server/message
-    # depends_on:
-    #   zookeeper:
-    #     - condition: service_healthy
-    #   postgres:
-    #     - condition: service_healthy
-    #   redis:
-    #     condition: service_started
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - meta-web-three
       - default
@@ -104,11 +121,13 @@ services:
     #   - SPRING_DATASOURCE_PASSWORD=root
     #   - SPRING_REDIS_HOST=redis
     #   - SPRING_REDIS_PORT=6379
-    # depends_on:
-    #   postgres:
-    #     condition: service_healthy
-    #   redis:
-    #     condition: service_started
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - meta-web-three
       - default
@@ -124,6 +143,13 @@ services:
       - "10087:10087"
     volumes:
       - media_service_data:/server/media
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - meta-web-three
       - default
