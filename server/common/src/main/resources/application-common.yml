@@ -3,7 +3,7 @@ spring:
     active: dev
   cloud:
     zookeeper:
-      connect-string: localhost:2181
+      connect-string: zookeeper:2181
       discovery:
         enabled: true
         # root: /meta-web-three
@@ -16,7 +16,7 @@ spring:
     #   password: 123123
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
       database: 0
   quartz:
@@ -59,7 +59,7 @@ mybatis-plus:
       logic-not-delete-value: 0
 rocketmq:
   client:
-    namesrv: localhost:9876
+    namesrv: rocketmq-namesrv:9876
     appliaction-topic: "MetaWebThree"
 jwt:
   secret: mwt123123
