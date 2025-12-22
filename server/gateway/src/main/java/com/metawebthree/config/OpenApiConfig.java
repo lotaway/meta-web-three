@@ -46,20 +46,23 @@ public class OpenApiConfig {
             if (applicationName.equalsIgnoreCase(serviceId)) {
                 continue;
             }
-            List<ServiceInstance> instances = discoveryClient.getInstances(serviceId);
-            if (instances.isEmpty()) {
+            try {
+                List<ServiceInstance> instances = discoveryClient.getInstances(serviceId);
+                if (instances.isEmpty() || instances.size() == 0) {
+                    continue;
+                }
+                ServiceInstance instance = instances.get(0);
+                boolean healthy = testHealthy(instance);
+                if (!healthy) {
+                    continue;
+                }
+                SwaggerUiConfigProperties.SwaggerUrl swaggerUrl = new SwaggerUiConfigProperties.SwaggerUrl();
+                swaggerUrl.setName(serviceId);
+                swaggerUrl.setUrl("/" + serviceId + "/v3/api-docs");
+                swaggerUrls.add(swaggerUrl);
+            } catch (Exception e) {
                 continue;
             }
-            ServiceInstance instance = instances.get(0);
-            boolean healthy = testHealthy(instance);
-            if (!healthy) {
-                continue;
-            }
-
-            SwaggerUiConfigProperties.SwaggerUrl swaggerUrl = new SwaggerUiConfigProperties.SwaggerUrl();
-            swaggerUrl.setName(serviceId);
-            swaggerUrl.setUrl("/" + serviceId + "/v3/api-docs");
-            swaggerUrls.add(swaggerUrl);
         }
         swaggerUiConfigProperties.setUrls(swaggerUrls);
     }

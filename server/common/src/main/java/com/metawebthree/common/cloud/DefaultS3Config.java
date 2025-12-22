@@ -32,15 +32,30 @@ public class DefaultS3Config {
 
     @Bean
     public S3Client s3Client() {
-        ProfileFile profile = ProfileFile.builder().content(Path.of(".aws/credentials")).type(Type.CONFIGURATION)
-                .build();
-        ProfileCredentialsProvider credentialsProvider = ProfileCredentialsProvider.builder().profileFile(profile)
-                .profileName("default").build();
+        try {
+            Path credentialsPath = Path.of(".aws/credentials");
+            if (java.nio.file.Files.exists(credentialsPath)) {
+                ProfileFile profile = ProfileFile.builder().content(credentialsPath).type(Type.CONFIGURATION)
+                        .build();
+                ProfileCredentialsProvider credentialsProvider = ProfileCredentialsProvider.builder().profileFile(profile)
+                        .profileName("default").build();
 
-        return S3Client.builder()
-                .credentialsProvider(credentialsProvider)
-                .region(Region.of(this.region))
-                .build();
+                return S3Client.builder()
+                        .credentialsProvider(credentialsProvider)
+                        .region(Region.of(this.region))
+                        .build();
+            } else {
+                log.warn("AWS credentials file not found at {}, using default configuration without credentials", credentialsPath);
+                return S3Client.builder()
+                        .region(Region.of(this.region))
+                        .build();
+            }
+        } catch (Exception e) {
+            log.warn("Error creating S3 client, using default configuration. Error: {}", e.getMessage());
+            return S3Client.builder()
+                    .region(Region.of(this.region))
+                    .build();
+        }
     }
 
     public String getName() {

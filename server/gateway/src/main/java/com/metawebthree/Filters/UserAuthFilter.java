@@ -39,9 +39,9 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
         if (path.contains("/v3/api-docs")
                 || path.contains("/swagger-ui")
                 || !path.startsWith("/user-service/")
-                || path.startsWith("/user-/signIn")
-                || path.startsWith("/user/create")
-                || path.startsWith("/user/checkWeb3SignerMessage")
+                || path.startsWith("/user-service/user/signIn")
+                || path.startsWith("/user-service/user/create")
+                || path.startsWith("/user-service/user/checkWeb3SignerMessage")
                 || path.startsWith("/actuator")) {
             return chain.filter(exchange);
         }

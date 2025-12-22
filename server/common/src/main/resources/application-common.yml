@@ -1,4 +1,3 @@
-env-ip: localhost
 spring:
   profiles:
     active: dev
@@ -17,7 +16,7 @@ spring:
     #   password: 123123
   data:
     redis:
-      host: ${env-ip}
+      host: localhost
       port: 6379
       database: 0
   quartz:
@@ -60,7 +59,7 @@ mybatis-plus:
       logic-not-delete-value: 0
 rocketmq:
   client:
-    namesrv: ${env-ip}:9876
+    namesrv: localhost:9876
     appliaction-topic: "MetaWebThree"
 jwt:
   secret: mwt123123

@@ -60,7 +60,7 @@ public class JwtUtil {
     }
 
     protected Key getSignKey() {
-        return new SecretKeySpec(secret.getBytes(), SignatureAlgorithm.ES512.getJcaName());
+        return new SecretKeySpec(secret.getBytes(), SignatureAlgorithm.HS512.getJcaName());
     }
 
     public Claims decode(String token) throws ExpiredJwtException, UnsupportedJwtException, MalformedJwtException,

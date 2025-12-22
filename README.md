@@ -1,13 +1,9 @@
-![阿卢说他遇到阿玮](https://tvax2.sinaimg.cn/crop.47.138.345.345.180/6b20647bly8fh6rmudt3cj20c80ha40r.jpg)
-
-[nodejs 文档](http://nodejs.cn/api/http.html)
-[nest 文档](https://docs.nestjs.com/support)
-
 ## Description
 
 _本项目为元宇宙 3D+区块链 AI 相关_
 
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
+
+
 
 | 模块     | 方案                               | 优势                                    |
 | -------- | ---------------------------------- | --------------------------------------- |
@@ -18,16 +14,21 @@ _本项目为元宇宙 3D+区块链 AI 相关_
 | 用户系统 | Auth.js / Supabase                 | 简单开箱即用                            |
 | 邮件服务 | Resend                             | 接口简洁，免费额度友好                  |
 | App      | React Native + Expo                | 代码复用，跨平台                        |
+| Desktop  | Electron.js + Cpp                  | 跨平台，性能好，可快速迭代              |
+| Game     | UE5                                | 3D引擎，画质精美                        |
 | 高并发   | Redis+ES+K8s+RocketMQ              | 扩展选项                                |
 
 ## Direct 目录说明
 
-- ai AI 模型
-- block-chain 区块链
-- server 后端、网关中心（协调、管理）
+- block-chain 区块链侧链
+- server 后端，zk+dubbo+grpc+protobuf+spring cloud gateway+ micro services
+- - common 公共模块
+- - gateway 网关中心
+- protos protobuf 协议文件
+- order-match CEX订单撮合系统
+- risk-scorer 风险评分AI服务
 - evm-contract Ethereum 及衍生链合约
 - solana-contract Solana 合约
-- client 网站客户端（内容、浏览、支付）
 - tools 工具库
 
 ## Installation 安装

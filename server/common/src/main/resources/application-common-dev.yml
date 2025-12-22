@@ -1,7 +1,7 @@
 spring:
   cloud:
     zookeeper:
-      connect-string: ${env-ip}:2181
+      connect-string: localhost:2181
       discovery:
         root: /dev/metawebthree
   datasource:
