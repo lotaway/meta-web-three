@@ -8,7 +8,8 @@ services:
     ports:
       - "10081:10081"
     env_file:
-      - .env
+      - condition: exists
+        path: .env
     volumes:
       - gateway_data:/server/gateway
     depends_on:
@@ -28,7 +29,8 @@ services:
     ports:
       - "10082:10082"
     env_file:
-      - .env
+      - condition: exists
+        path: .env
     volumes:
       - product_service_data:/server/product
     depends_on:
@@ -52,7 +54,8 @@ services:
     ports:
       - "10083:10083"
     env_file:
-      - .env
+      - condition: exists
+        path: .env
     volumes:
       - user_service_data:/server/user
     depends_on:
@@ -76,7 +79,8 @@ services:
     ports:
       - "10084:10084"
     env_file:
-      - .env
+      - condition: exists
+        path: .env
     volumes:
       - order_service_data:/server/order
     depends_on:
@@ -100,7 +104,8 @@ services:
     ports:
       - "10085:10085"
     env_file:
-      - .env
+      - condition: exists
+        path: .env
     volumes:
       - message_service_data:/server/message
     depends_on:
@@ -124,7 +129,8 @@ services:
     ports:
       - "10086:10086"
     env_file:
-      - .env
+      - condition: exists
+        path: .env
     volumes:
       - payment_service_data:/server/payment
     # environment:
@@ -154,7 +160,8 @@ services:
     ports:
       - "10087:10087"
     env_file:
-      - .env
+      - condition: exists
+        path: .env
     volumes:
       - media_service_data:/server/media
     depends_on:
