@@ -7,9 +7,9 @@ services:
     container_name: meta-web-three-gateway
     ports:
       - "10081:10081"
-    env_file:
-      - condition: exists
-        path: .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
     volumes:
       - gateway_data:/server/gateway
     depends_on:
@@ -28,9 +28,9 @@ services:
     container_name: meta-web-three-product-service
     ports:
       - "10082:10082"
-    env_file:
-      - condition: exists
-        path: .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
     volumes:
       - product_service_data:/server/product
     depends_on:
@@ -53,9 +53,9 @@ services:
     container_name: meta-web-three-user-service
     ports:
       - "10083:10083"
-    env_file:
-      - condition: exists
-        path: .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
     volumes:
       - user_service_data:/server/user
     depends_on:
@@ -78,9 +78,9 @@ services:
     container_name: meta-web-three-order-service
     ports:
       - "10084:10084"
-    env_file:
-      - condition: exists
-        path: .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
     volumes:
       - order_service_data:/server/order
     depends_on:
@@ -103,9 +103,9 @@ services:
     container_name: meta-web-three-message-service
     ports:
       - "10085:10085"
-    env_file:
-      - condition: exists
-        path: .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
     volumes:
       - message_service_data:/server/message
     depends_on:
@@ -128,9 +128,9 @@ services:
     container_name: meta-web-three-payment-service
     ports:
       - "10086:10086"
-    env_file:
-      - condition: exists
-        path: .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
     volumes:
       - payment_service_data:/server/payment
     # environment:
@@ -159,9 +159,9 @@ services:
     container_name: meta-web-three-media-service
     ports:
       - "10087:10087"
-    env_file:
-      - condition: exists
-        path: .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
     volumes:
       - media_service_data:/server/media
     depends_on:
