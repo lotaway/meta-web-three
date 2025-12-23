@@ -3,7 +3,7 @@ spring:
     active: dev
   cloud:
     zookeeper:
-      connect-string: zookeeper:2181
+      connect-string: localhost:2181
       discovery:
         enabled: true
         # root: /meta-web-three
