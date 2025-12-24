@@ -33,23 +33,44 @@ public class DefaultS3Config {
     @Bean
     public S3Client s3Client() {
         try {
-            Path credentialsPath = Path.of(".aws/credentials");
-            if (java.nio.file.Files.exists(credentialsPath)) {
-                ProfileFile profile = ProfileFile.builder().content(credentialsPath).type(Type.CONFIGURATION)
+            Path dockerCredentialsPath = Path.of("/.aws/credentials");
+            if (java.nio.file.Files.exists(dockerCredentialsPath)) {
+                log.info("Using AWS credentials from Docker environment: {}", dockerCredentialsPath);
+                ProfileFile profile = ProfileFile.builder().content(dockerCredentialsPath)
+                        .type(Type.CONFIGURATION)
                         .build();
-                ProfileCredentialsProvider credentialsProvider = ProfileCredentialsProvider.builder().profileFile(profile)
+                ProfileCredentialsProvider credentialsProvider = ProfileCredentialsProvider.builder()
+                        .profileFile(profile)
                         .profileName("default").build();
 
                 return S3Client.builder()
                         .credentialsProvider(credentialsProvider)
                         .region(Region.of(this.region))
                         .build();
-            } else {
-                log.warn("AWS credentials file not found at {}, using default configuration without credentials", credentialsPath);
+            }
+            Path localCredentialsPath = Path.of(".aws/credentials");
+            if (java.nio.file.Files.exists(localCredentialsPath)) {
+                log.info("Using AWS credentials from local environment: {}", localCredentialsPath);
+                ProfileFile profile = ProfileFile.builder().content(localCredentialsPath)
+                        .type(Type.CONFIGURATION)
+                        .build();
+                ProfileCredentialsProvider credentialsProvider = ProfileCredentialsProvider.builder()
+                        .profileFile(profile)
+                        .profileName("default").build();
+
                 return S3Client.builder()
+                        .credentialsProvider(credentialsProvider)
                         .region(Region.of(this.region))
                         .build();
             }
+
+            // 如果两个路径都不存在，使用默认配置
+            log.warn(
+                    "AWS credentials file not found at Docker path {} or local path {}, using default configuration without credentials",
+                    dockerCredentialsPath, localCredentialsPath);
+            return S3Client.builder()
+                    .region(Region.of(this.region))
+                    .build();
         } catch (Exception e) {
             log.warn("Error creating S3 client, using default configuration. Error: {}", e.getMessage());
             return S3Client.builder()
