@@ -2,34 +2,26 @@
 
 _本项目为元宇宙 3D+区块链 AI 相关_
 
-
-
-
-| 模块     | 方案                               | 优势                                    |
-| -------- | ---------------------------------- | --------------------------------------- |
-| 前端     | Next.js + Tailwind CSS + shadcn/ui | SSR/SSG 全能选手，开发效率高            |
-| 部署     | GitHub + Vercel                    | 自动构建、自动部署、全球 CDN            |
-| 后端 API | Node.js 自建服务器                 | 灵活、自由、成本低，也可直接 Java 或 go |
-| 数据库   | NoSQL → PlanetScale/PG             | 起步快，后期扩展轻松                    |
-| 用户系统 | Auth.js / Supabase                 | 简单开箱即用                            |
-| 邮件服务 | Resend                             | 接口简洁，免费额度友好                  |
-| App      | React Native + Expo                | 代码复用，跨平台                        |
-| Desktop  | Electron.js + Cpp                  | 跨平台，性能好，可快速迭代              |
-| Game     | UE5                                | 3D引擎，画质精美                        |
-| 高并发   | Redis+ES+K8s+RocketMQ              | 扩展选项                                |
-
 ## Direct 目录说明
 
 - block-chain 区块链侧链
-- server 后端，zk+dubbo+grpc+protobuf+spring cloud gateway+ micro services
+- server 后端父项目，zk+dubbo+grpc+protobuf+spring-cloud-gateway+micro-services
 - - common 公共模块
 - - gateway 网关中心
-- protos protobuf 协议文件
-- order-match CEX订单撮合系统
-- risk-scorer 风险评分AI服务
+- — user-service 用户微服务
+- - order-service 订单微服务
+- - product-service 商品微服务
+- - payment-service 支付微服务
+- - message-service 消息微服务
+- - media-service 多媒体微服务
+- protos protobuf RPC消息格式，提供给各个微服务使用
+- order-match 订单撮合微服务
+- risk-scorer 风险AI评分微服务
 - evm-contract Ethereum 及衍生链合约
-- solana-contract Solana 合约
+- solana-contract Solana链合约
 - tools 工具库
+- k8s k8s部署配置文件
+- docker-* docker部署配置文件
 
 ## Installation 安装
 
@@ -37,7 +29,7 @@ _本项目为元宇宙 3D+区块链 AI 相关_
 $ yarn install
 ```
 
-### ai 环境
+### AI环境
 
 需要以下 4 种的任意一种作为环境管理器使用：
 
@@ -46,25 +38,16 @@ $ yarn install
 - [uv](https://pypi.org/project/uv)，python 包管理器
 - pip，python 环境自带
 
-以 anaconda 为例，下载后执行：
+以 condaforce/miniforce 为例，下载后执行：
 
 ```bash
-conda create -n ai -c conda-forge
-conda activate ai
+mamba create -n ai -c conda-forge
+mamba activate ai
 ```
 
 ## Running the app 同时运行服务端和客户端
 
 ```bash
-$ yarn dev
-```
-
-### Client 客户端
-
-```bash
-$ cd client
-
-# development
 $ yarn dev
 ```
 
@@ -100,8 +83,6 @@ $ npm run start:dev
 # production mode
 $ npm run start:prod
 ```
-
-`+(()=>throw new Emotion("Happy"))`
 
 ### protobuf
 
