@@ -4,18 +4,17 @@ from tokenize import group
 from kazoo.client import KazooClient
 from kazoo.exceptions import NodeExistsError
 import grpc
-from RiskScorerService_pb2_grpc import (
-    add_RiskScorerServiceServicer_to_server
-)
-from RiskScoreModel import RiskScorerServiceImpl
+from RiskScorerService_pb2_grpc import add_RiskScorerServiceServicer_to_server
+from app.risk_scorer_grpc_service import RiskScorerGrpcService
 from Logger import init_logger
 import os
 
 logger = init_logger()
 
+
 class ZookeeperServiceRegistry:
     """Zookeeper service registry for gRPC service discovery"""
-    
+
     def __init__(self, zk_hosts, service_name, service_host, service_port, group_name):
         self.zk_hosts = zk_hosts
         self.group_name = self._final_service_group(group_name)
@@ -24,7 +23,7 @@ class ZookeeperServiceRegistry:
         self.service_port = service_port
         self.zk = None
         self.service_path = f"{group_name}/{service_name}/providers"
-    
+
     def start(self):
         """Start Zookeeper connection and register service"""
         try:
@@ -32,18 +31,21 @@ class ZookeeperServiceRegistry:
             self.zk = KazooClient(hosts=self.zk_hosts)
             self.zk.start()
             logger.info(f"Connected to Zookeeper at {self.zk_hosts}")
-            
+
             # Create service path if not exists
             self.zk.ensure_path(self.service_path)
-            
+
             # Register service with minimal required parameters
             import urllib.parse
-            provider_url = f"tri://{self.service_host}:{self.service_port}/{self.service_name}"
-            encoded_url = urllib.parse.quote(provider_url, safe='')
+
+            provider_url = (
+                f"tri://{self.service_host}:{self.service_port}/{self.service_name}"
+            )
+            encoded_url = urllib.parse.quote(provider_url, safe="")
             node_path = f"{self.service_path}/{encoded_url}"
             self.zk.create(node_path, b"", ephemeral=True, makepath=True)
             logger.info(f"Service registered with minimal parameters: {provider_url}")
-            
+
         except Exception as e:
             logger.error(f"Failed to register service with Zookeeper: {e}")
             raise
@@ -53,7 +55,7 @@ class ZookeeperServiceRegistry:
             return group_name
         else:
             return f"/{group_name}"
-    
+
     def stop(self):
         """Stop Zookeeper connection"""
         if self.zk:
@@ -69,31 +71,35 @@ def start_risk_score_model():
     service_host = os.getenv("SERVICE_HOST", "0.0.0.0")
     service_port = int(os.getenv("RPC_PORT", "20088"))
     # use fully-qualified gRPC service name
-    service_name = os.getenv("SERVICE_NAME", "com.metawebthree.common.generated.rpc.RiskScorerService")
+    service_name = os.getenv(
+        "SERVICE_NAME", "com.metawebthree.common.generated.rpc.RiskScorerService"
+    )
     group_name = os.getenv("GROUP_NAME", "")
-    
+
     # Create gRPC server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    add_RiskScorerServiceServicer_to_server(RiskScorerServiceImpl(), server)
-    
+    add_RiskScorerServiceServicer_to_server(RiskScorerGrpcService(), server)
+
     # Listen on port
-    listen_addr = f'[::]:{service_port}'
+    listen_addr = f"[::]:{service_port}"
     server.add_insecure_port(listen_addr)
-    
+
     # Start server
     logger.info(f"Starting gRPC server on {listen_addr}")
     server.start()
-    
+
     # Register service with Zookeeper
-    registry = ZookeeperServiceRegistry(zk_hosts, service_name, service_host, service_port, group_name)
+    registry = ZookeeperServiceRegistry(
+        zk_hosts, service_name, service_host, service_port, group_name
+    )
     try:
         registry.start()
         logger.info("Service registered with Zookeeper successfully")
-        
+
         # Keep server running
         while True:
             time.sleep(24 * 60 * 60)  # 24 hours
-            
+
     except KeyboardInterrupt:
         logger.info("Shutting down gRPC server...")
         registry.stop()
