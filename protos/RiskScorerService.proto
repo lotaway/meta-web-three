@@ -37,4 +37,5 @@ message ScoreRequest {
 
 message ScoreResponse {
     int32 score = 1;
+    string decision = 2;
 }
