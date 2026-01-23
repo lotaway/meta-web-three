@@ -6,7 +6,7 @@ import sys
 from fastapi import FastAPI, Request
 import uvicorn
 import os
-from RiskScoreModel import RiskScorerServiceImpl
+from app.risk_scorer_grpc_service import RiskScorerGrpcService
 from RiskScorerService_pb2 import (
     TestRequest, TestResponse,
     ScoreRequest, ScoreResponse
@@ -16,7 +16,7 @@ load_dotenv(dotenv_path=Path(__file__).parent / ".env")
 sys.path.insert(0, str(Path(__file__).parent.resolve()))
 
 app = FastAPI()
-risk_scorer_service = RiskScorerServiceImpl()
+risk_scorer_service = RiskScorerGrpcService()
 
 def main():
     rpc()

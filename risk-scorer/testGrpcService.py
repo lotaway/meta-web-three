@@ -5,13 +5,11 @@ import grpc
 import time
 from concurrent import futures
 import threading
-from generated.rpc.RiskScorerService_pb2_grpc import (
-    add_RiskScorerServiceServicer_to_server
-)
+from generated.rpc.RiskScorerService_pb2_grpc import add_RiskScorerServiceServicer_to_server
 from generated.rpc.RiskScorerService_pb2 import (
     TestRequest, ScoreRequest, Feature
 )
-from RiskScoreModel import RiskScorerServiceImpl
+from app.risk_scorer_grpc_service import RiskScorerGrpcService
 
 
 class TestRiskScorerGrpcService(unittest.TestCase):
@@ -21,7 +19,7 @@ class TestRiskScorerGrpcService(unittest.TestCase):
         """测试前准备"""
         # 启动测试服务器
         self.server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-        add_RiskScorerServiceServicer_to_server(RiskScorerServiceImpl(), self.server)
+        add_RiskScorerServiceServicer_to_server(RiskScorerGrpcService(), self.server)
         self.server.add_insecure_port('[::]:0')  # 使用随机端口
         self.server.start()
         
@@ -105,7 +103,7 @@ class TestRiskScorerGrpcService(unittest.TestCase):
 def run_server_in_background():
     """在后台运行服务器"""
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    add_RiskScorerServiceServicer_to_server(RiskScorerServiceImpl(), server)
+    add_RiskScorerServiceServicer_to_server(RiskScorerGrpcService(), server)
     server.add_insecure_port('[::]:9090')
     server.start()
     
