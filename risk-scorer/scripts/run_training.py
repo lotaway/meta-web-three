@@ -1,35 +1,31 @@
 import sys
-import os
 import pandas as pd
 from pathlib import Path
 
-# Add project root to sys.path
-root = Path(__file__).parent.parent
-sys.path.append(str(root))
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.append(str(PROJECT_ROOT))
 
-from app.training.scorecard_trainer_v2 import train_v2, save_payload
+from app.training.scorecard_trainer_v2 import CreditRiskTrainingPipeline, save_training_artifact
 
-def main():
-    dataset_path = root / "docs" / "dataset" / "GiveMeSomeCredit" / "cs-training.csv"
+def run_production_training_session():
+    dataset_path = PROJECT_ROOT / "docs" / "dataset" / "GiveMeSomeCredit" / "cs-training.csv"
     if not dataset_path.exists():
-        print(f"Dataset not found at {dataset_path}")
         return
 
-    print(f"Loading dataset from {dataset_path}...")
-    df = pd.read_csv(dataset_path)
+    raw_historical_records = pd.read_csv(dataset_path)
     
-    print("Starting training v2...")
-    payload = train_v2(df)
+    pipeline = CreditRiskTrainingPipeline()
+    training_artifact = pipeline.execute_training_workflow(raw_historical_records)
     
-    print("\nTraining Metrics:")
-    print(f"Target: {payload['target']}")
-    print(f"Features: {payload['features']}")
-    print(f"Train AUC: {payload['metrics']['train']['auc']:.4f}, KS: {payload['metrics']['train']['ks']:.4f}")
-    print(f"Test AUC: {payload['metrics']['test']['auc']:.4f}, KS: {payload['metrics']['test']['ks']:.4f}")
-    
-    print("\nSaving model payload...")
-    save_payload(payload)
-    print("Done!")
+    _display_performance_report(training_artifact)
+    save_training_artifact(training_artifact)
+
+def _display_performance_report(artifact):
+    metrics = artifact['performance_metrics']
+    print("\n--- 训练执行报告 ---")
+    print(f"入模特征数: {len(artifact['selected_features'])}")
+    print(f"验证集评估 (AUC): {metrics['test']['auc']:.4f}")
+    print(f"验证集评估 (KS): {metrics['test']['ks']:.4f}")
 
 if __name__ == "__main__":
-    main()
+    run_production_training_session()

@@ -1,7 +1,8 @@
+from typing import Dict, Any, List
 import pandas as pd
-import numpy as np
-from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+
 from ..infrastructure.binning_scorecardpy import ScorecardBinning
 from ..infrastructure.model_store_joblib import JoblibModelStore
 from ..infrastructure.iv_filter import select_by_iv
@@ -9,102 +10,70 @@ from ..infrastructure.evaluation_scorecardpy import evaluate_auc_ks
 from ..infrastructure.scorecard_mapping import build_scorecard
 from ..config import target_label, scoring_params
 
+class CreditRiskTrainingPipeline:
+    def __init__(self, iv_exclusion_threshold: float = 0.02):
+        self._iv_threshold = iv_exclusion_threshold
+        self._binning_service = ScorecardBinning()
 
-def clean_dataset(df: pd.DataFrame, target: str) -> pd.DataFrame:
-    """
-    Clean the dataset:
-    - Drop column 'Unnamed: 0' if it exists (index column in Kaggle datasets)
-    - Fill missing values with median
-    - Ensure target is numeric
-    """
-    if "Unnamed: 0" in df.columns:
-        df = df.drop(columns=["Unnamed: 0"])
-    
-    # Fill missing values: MonthlyIncome and NumberOfDependents are often missing in GMSC dataset
-    df = df.fillna(df.median())
-    
-    if target in df.columns:
-        df[target] = pd.to_numeric(df[target])
+    def execute_training_workflow(
+        self, 
+        historical_records: pd.DataFrame, 
+        target_field: str = None
+    ) -> Dict[str, Any]:
+        indicator = target_field or target_label()
+        cleaned_data = self._preprocess_raw_records(historical_records, indicator)
         
-    return df
-
-
-def train_v2(
-    df: pd.DataFrame, 
-    target: str = None, 
-    iv_threshold: float = 0.02,
-    test_size: float = 0.2
-):
-    """
-    Advanced training pipeline:
-    1. Preprocessing and cleaning
-    2. Binning (WoE)
-    3. Feature selection by IV
-    4. Data splitting
-    5. Logistic Regression Modeling
-    6. Scorecard Mapping (Points conversion)
-    7. Evaluation
-    """
-    t = target if target else target_label()
-    if t not in df.columns and "SeriousDlqin2yrs" in df.columns:
-        t = "SeriousDlqin2yrs" # Auto-detect for GMSC dataset
+        character_bins = self._binning_service.generate(cleaned_data, indicator)
+        woe_encoded_data = self._binning_service.apply(cleaned_data, character_bins)
+        active_features = select_by_iv(character_bins, self._iv_threshold)
         
-    df = clean_dataset(df, t)
-    
-    # Generate Bins
-    binning_svc = ScorecardBinning()
-    bins = binning_svc.generate(df, t)
-    
-    # Apply WoE
-    df_woe = binning_svc.apply(df, bins)
-    
-    # Filter variables by IV
-    keep_vars = select_by_iv(bins, iv_threshold)
-    
-    # Prepare X and y
-    cols = [c for c in df_woe.columns if c in keep_vars and c != t]
-    if not cols:
-        # Fallback to all if IV filter is too aggressive
-        cols = [c for c in df_woe.columns if c != t]
+        return self._build_predictive_model(woe_encoded_data, indicator, active_features, character_bins)
+
+    def _preprocess_raw_records(self, data: pd.DataFrame, target: str) -> pd.DataFrame:
+        data = data.drop(columns=["Unnamed: 0"], errors="ignore")
+        data = data.fillna(data.median())
+        data[target] = pd.to_numeric(data[target])
+        return data
+
+    def _build_predictive_model(
+        self, 
+        encoded_data: pd.DataFrame, 
+        target: str, 
+        features: List[str],
+        bins: Any
+    ) -> Dict[str, Any]:
+        x_train, x_test, y_train, y_test = self._split_performance_data(encoded_data, target, features)
         
-    X = df_woe[cols]
-    y = df_woe[t]
-    
-    # Split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
-    
-    # Train Model
-    model = LogisticRegression(max_iter=1000, C=0.1, solver='lbfgs')
-    model.fit(X_train, y_train)
-    
-    # Build Scorecard (Mapping WoE to Points)
-    params = scoring_params()
-    scorecard = build_scorecard(
-        bins, 
-        model, 
-        cols,
-        pdo=params.get("pdo", 50), 
-        base_score=params.get("base_score", 600)
-    )
-    
-    # Evaluate
-    train_metrics = evaluate_auc_ks(model, X_train, y_train)
-    test_metrics = evaluate_auc_ks(model, X_test, y_test)
-    
-    payload = {
-        "model": model,
-        "bins": bins,
-        "scorecard": scorecard,
-        "features": cols,
-        "metrics": {
-            "train": train_metrics,
-            "test": test_metrics
-        },
-        "target": t
-    }
-    
-    return payload
+        regression_optimizer = LogisticRegression(max_iter=1000, C=0.1)
+        regression_optimizer.fit(x_train, y_train)
+        
+        card = self._generate_scorecard_mapping(bins, regression_optimizer, features)
+        metrics = self._validate_model_performance(regression_optimizer, x_train, y_train, x_test, y_test)
+        
+        return self._assemble_training_payload(regression_optimizer, bins, card, features, metrics, target)
 
+    def _split_performance_data(self, data: pd.DataFrame, target: str, features: List[str]):
+        return train_test_split(data[features], data[target], test_size=0.2, random_state=42)
 
-def save_payload(payload):
+    def _generate_scorecard_mapping(self, bins, model, features):
+        params = scoring_params()
+        return build_scorecard(bins, model, features, pdo=params["pdo"], base_score=params["base_score"])
+
+    def _validate_model_performance(self, model, x_tr, y_tr, x_te, y_te):
+        return {
+            "train": evaluate_auc_ks(model, x_tr, y_tr),
+            "test": evaluate_auc_ks(model, x_te, y_te)
+        }
+
+    def _assemble_training_payload(self, model, bins, card, features, metrics, target):
+        return {
+            "model": model,
+            "bins": bins,
+            "scorecard": card,
+            "selected_features": features,
+            "performance_metrics": metrics,
+            "target_variable": target
+        }
+
+def save_training_artifact(payload: Dict[str, Any]) -> None:
     JoblibModelStore().save(payload)
