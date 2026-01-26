@@ -1,8 +1,8 @@
 import scorecardpy as sc
 import pandas as pd
 
-def build_scorecard(bins, model, pdo: int, base_score: int):
-    card = sc.scorecard(bins, model, pdo=pdo, basepoints=base_score)
+def build_scorecard(bins, model, xcolumns, pdo: int, base_score: int):
+    card = sc.scorecard(bins, model, xcolumns, pdo=pdo, points0=base_score)
     return card
 
 def to_yaml_mapping(scorecard_df: pd.DataFrame):

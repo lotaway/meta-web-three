@@ -5,7 +5,7 @@ def model_store_path() -> str:
     p = os.getenv("RISK_MODEL_PATH")
     if p and p.strip():
         return p
-    return str(Path(__file__).parent / "model" / "scorecard.pkl")
+    return str(Path(__file__).parent.parent / "models" / "scorecard.pkl")
 
 def target_label() -> str:
     v = os.getenv("RISK_TARGET_LABEL")
