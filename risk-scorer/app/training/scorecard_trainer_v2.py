@@ -26,8 +26,9 @@ class CreditRiskTrainingPipeline:
         character_bins = self._binning_service.generate(cleaned_data, indicator)
         woe_encoded_data = self._binning_service.apply(cleaned_data, character_bins)
         active_features = select_by_iv(character_bins, self._iv_threshold)
+        woe_features = [f"{f}_woe" for f in active_features]
         
-        return self._build_predictive_model(woe_encoded_data, indicator, active_features, character_bins)
+        return self._build_predictive_model(woe_encoded_data, indicator, woe_features, character_bins)
 
     def _preprocess_raw_records(self, data: pd.DataFrame, target: str) -> pd.DataFrame:
         data = data.drop(columns=["Unnamed: 0"], errors="ignore")
