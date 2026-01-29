@@ -1,0 +1,25 @@
+package com.metawebthree.product;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
+import java.math.BigDecimal;
+
+@Data
+@TableName("tb_goods_entity")
+public class GoodsEntityDO {
+    @TableId(type = IdType.AUTO)
+    private Integer id;
+    private Integer goodsId;
+    private String goodsArtno;
+    private BigDecimal salePrice;
+    private BigDecimal marketPrice;
+    private Integer inventory;
+    private String imageUrl;
+    private Integer isUserDiscount;
+    private BigDecimal cashBack;
+    private Integer cashBackCycle;
+    private Integer cycleUnit;
+}

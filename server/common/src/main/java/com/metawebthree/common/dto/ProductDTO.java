@@ -9,8 +9,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProductDTO {
     private Integer id;
+    private String goodsNo;
     private String name;
-    private String description;
-    private Integer[] imageIds;
+    private String imageUrl;
     private String price;
+    private String marketPrice;
+    private Double scores;
+    private Integer saleCount;
+    private Integer commentNumber;
 }

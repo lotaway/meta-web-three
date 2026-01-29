@@ -13,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.dto.ProductDTO;
+import com.metawebthree.common.dto.ProductDetailDTO;
+import java.util.List;
 
 import java.util.Arrays;
 
@@ -43,7 +45,10 @@ public class ProductController {
     @Operation(summary = "Get product by ID")
     @GetMapping("/{id}")
     public ApiResponse<ProductDTO> get(@PathVariable Integer id) {
-        return ApiResponse.success(new ProductDTO(id, "name", "description", new Integer[] { 1, 2, 3 }, "19"));
+        ProductDTO dto = new ProductDTO();
+        dto.setId(id);
+        dto.setName("name");
+        return ApiResponse.success(dto);
     }
 
     @Operation(summary = "Update product content", description = "Updates the content of an existing product")
@@ -59,6 +64,25 @@ public class ProductController {
             throws MQBrokerException, RemotingException, InterruptedException, MQClientException {
         productService.deleteProduct("test.txt");
         return true;
+    }
+
+    @Operation(summary = "Get detailed product info")
+    @GetMapping("/detail/{id}")
+    public ApiResponse<ProductDetailDTO> getDetail(@PathVariable Integer id) {
+        ProductDetailDTO detail = productService.getProductDetail(id);
+        if (detail == null) {
+            return ApiResponse.error("Product not found");
+        }
+        return ApiResponse.success(detail);
+    }
+
+    @Operation(summary = "List products with filters")
+    @GetMapping("/list")
+    public ApiResponse<List<ProductDTO>> list(
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String priceRange) {
+        return ApiResponse.success(productService.listProducts(categoryId, keyword, priceRange));
     }
 
     @Operation(summary = "Upload product image", description = "Uploads an image for a specific product")
