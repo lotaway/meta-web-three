@@ -8,12 +8,12 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-@TableName("tb_goods_entity")
-public class GoodsEntityDO {
+@TableName("tb_product_entity")
+public class ProductEntityDO {
     @TableId(type = IdType.AUTO)
     private Integer id;
-    private Integer goodsId;
-    private String goodsArtno;
+    private Integer productId;
+    private String productArtno;
     private BigDecimal salePrice;
     private BigDecimal marketPrice;
     private Integer inventory;

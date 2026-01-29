@@ -7,10 +7,10 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-@TableName("tb_goods_stats")
-public class GoodsStatsDO {
+@TableName("tb_product_stats")
+public class ProductStatsDO {
     @TableId
-    private Integer goodsId;
+    private Integer productId;
     private Integer commentNumber;
     private Integer scoreNumber;
     private BigDecimal scores;

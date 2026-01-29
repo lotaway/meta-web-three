@@ -14,9 +14,9 @@ public class ProductImageService extends ServiceImpl<ProductImageMapper, Product
 
     public int create(Long productId, String imageId, String url) {
         ProductImageDO productImageDO = ProductImageDO.builder()
-                .productId(productId)
-                .imageId(imageId)
-                .url(url)
+                .goodsId(productId.intValue())
+                .imageUrl(url)
+                .sortOrder(0)
                 .build();
         return productImageMapper.insert(productImageDO);
     }

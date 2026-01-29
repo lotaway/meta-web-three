@@ -4,5 +4,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface GoodsMapper extends BaseMapper<GoodsDO> {
+public interface ProductStatsMapper extends BaseMapper<ProductStatsDO> {
 }

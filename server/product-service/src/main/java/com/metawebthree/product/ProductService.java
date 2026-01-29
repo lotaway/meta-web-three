@@ -6,6 +6,10 @@ import com.metawebthree.common.dto.ProductDTO;
 import com.metawebthree.common.dto.ProductDetailDTO;
 import com.metawebthree.common.utils.RocketMQ.MQProducer;
 import com.metawebthree.image.ProductImageService;
+import com.metawebthree.product.event.ProductEventType;
+import com.metawebthree.product.exception.ProductDomainException;
+import com.metawebthree.product.exception.ProductErrorCode;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -13,62 +17,69 @@ import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.rocketmq.client.exception.MQBrokerException;
-import org.apache.rocketmq.client.exception.MQClientException;
-import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j
 public class ProductService {
+    private static final String PRODUCT_EVENT_TOPIC = "product-events";
+
     private final MQProducer mqProducer;
     private final ProductImageService productImageService;
-    private final GoodsMapper goodsMapper;
-    private final GoodsEntityMapper goodsEntityMapper;
-    private final GoodsStatsMapper goodsStatsMapper;
-    private final GoodsLimitsMapper goodsLimitsMapper;
+    private final ProductMapper productMapper;
+    private final ProductEntityMapper productEntityMapper;
+    private final ProductStatsMapper productStatsMapper;
+    private final ProductLimitsMapper productLimitsMapper;
 
-    public ProductService(MQProducer mqProducer, ProductImageService productImageService, 
-                          GoodsMapper goodsMapper, GoodsEntityMapper goodsEntityMapper,
-                          GoodsStatsMapper goodsStatsMapper, GoodsLimitsMapper goodsLimitsMapper) {
+    public ProductService(MQProducer mqProducer, ProductImageService productImageService,
+            ProductMapper productMapper, ProductEntityMapper productEntityMapper,
+            ProductStatsMapper productStatsMapper, ProductLimitsMapper productLimitsMapper) {
         this.mqProducer = mqProducer;
         this.productImageService = productImageService;
-        this.goodsMapper = goodsMapper;
-        this.goodsEntityMapper = goodsEntityMapper;
-        this.goodsStatsMapper = goodsStatsMapper;
-        this.goodsLimitsMapper = goodsLimitsMapper;
+        this.productMapper = productMapper;
+        this.productEntityMapper = productEntityMapper;
+        this.productStatsMapper = productStatsMapper;
+        this.productLimitsMapper = productLimitsMapper;
     }
 
     public ProductDetailDTO getProductDetail(Integer id) {
-        GoodsDO goods = goodsMapper.selectById(id);
-        if (goods == null) return null;
+        ProductDO product = productMapper.selectById(id);
+        if (product == null) {
+            return null;
+        }
 
-        List<GoodsEntityDO> entities = goodsEntityMapper.selectList(
-            new QueryWrapper<GoodsEntityDO>().eq("goods_id", id)
-        );
+        List<ProductEntityDO> entities = productEntityMapper.selectList(
+                new QueryWrapper<ProductEntityDO>().eq("product_id", id));
 
-        GoodsEntityDO defaultEntity = entities.stream()
-            .min(Comparator.comparing(GoodsEntityDO::getSalePrice))
-            .orElse(new GoodsEntityDO());
+        ProductEntityDO defaultEntity = findDefaultEntity(entities);
 
-        GoodsStatsDO stats = goodsStatsMapper.selectById(id);
-        GoodsLimitsDO limits = goodsLimitsMapper.selectById(id);
+        ProductStatsDO stats = productStatsMapper.selectById(id);
+        ProductLimitsDO limits = productLimitsMapper.selectById(id);
 
+        return buildProductDetail(product, defaultEntity, stats, limits);
+    }
+
+    private ProductEntityDO findDefaultEntity(List<ProductEntityDO> entities) {
+        return entities.stream()
+                .min(Comparator.comparing(ProductEntityDO::getSalePrice))
+                .orElseGet(ProductEntityDO::new);
+    }
+
+    private ProductDetailDTO buildProductDetail(ProductDO product, ProductEntityDO defaultEntity,
+            ProductStatsDO stats, ProductLimitsDO limits) {
         ProductDetailDTO detail = new ProductDetailDTO();
-        detail.setId(goods.getId());
-        detail.setGoodsName(goods.getGoodsName());
-        detail.setGoodsNo(goods.getGoodsNo());
-        detail.setGoodsRemark(goods.getGoodsRemark());
-        
+        detail.setId(product.getId());
+        detail.setGoodsName(product.getProductName());
+        detail.setGoodsNo(product.getProductNo());
+        detail.setGoodsRemark(product.getProductRemark());
+
         if (stats != null) {
             detail.setCommentNumber(stats.getCommentNumber());
             detail.setScoreNumber(stats.getScoreNumber());
-            detail.setScores(stats.getScores() != null ? stats.getScores().doubleValue() : 0.0);
+            detail.setScores(convertScore(stats.getScores()));
         }
-        
+
         if (limits != null) {
             detail.setPurchase(limits.getPurchase());
         }
@@ -76,11 +87,10 @@ public class ProductService {
         detail.setGoodsEntityId(defaultEntity.getId());
         detail.setSalePrice(defaultEntity.getSalePrice());
         detail.setMarketPrice(defaultEntity.getMarketPrice());
-        detail.setInventory(defaultEntity.getInventory());
-        detail.setGoodsArtno(defaultEntity.getGoodsArtno());
+        detail.setInventory(defaultEntity.getInventory() != null ? defaultEntity.getInventory() : 0);
+        detail.setGoodsArtno(defaultEntity.getProductArtno());
 
-        // Stubs for complex dependencies
-        detail.setPictures(new ArrayList<>()); 
+        detail.setPictures(new ArrayList<>());
         detail.setAttributes(new ArrayList<>());
         detail.setSpecifications(new ArrayList<>());
         detail.setBreadcrumbs(new ArrayList<>());
@@ -89,84 +99,103 @@ public class ProductService {
         return detail;
     }
 
+    private Double convertScore(BigDecimal score) {
+        return score != null ? score.doubleValue() : 0.0;
+    }
+
     public List<ProductDTO> listProducts(Integer categoryId, String keyword, String priceRange) {
-        // Simple mock implementation of filtered listing
-        QueryWrapper<GoodsDO> query = new QueryWrapper<>();
+        QueryWrapper<ProductDO> query = buildListQuery(categoryId, keyword);
+
+        List<ProductDO> items = productMapper.selectList(query);
+        return items.stream()
+                .map(this::convertToProductDTO)
+                .collect(Collectors.toList());
+    }
+
+    private QueryWrapper<ProductDO> buildListQuery(Integer categoryId, String keyword) {
+        QueryWrapper<ProductDO> query = new QueryWrapper<>();
         if (categoryId != null && categoryId != 0) {
-            // In a real scenario, this would involve a join with tb_goods_category_mapping
         }
         if (keyword != null && !keyword.isEmpty()) {
-            query.like("goods_name", keyword);
+            query.like("product_name", keyword);
         }
-        
-        List<GoodsDO> items = goodsMapper.selectList(query);
-        return items.stream().map(item -> {
-            ProductDTO dto = new ProductDTO();
-            dto.setId(item.getId());
-            dto.setName(item.getGoodsName());
-            dto.setGoodsNo(item.getGoodsNo());
-            
-            // Fetch default SKU for price and image
-            List<GoodsEntityDO> entities = goodsEntityMapper.selectList(
-                new QueryWrapper<GoodsEntityDO>().eq("goods_id", item.getId())
-            );
-            entities.stream()
-                .min(Comparator.comparing(GoodsEntityDO::getSalePrice))
+        return query;
+    }
+
+    private ProductDTO convertToProductDTO(ProductDO item) {
+        ProductDTO dto = new ProductDTO();
+        dto.setId(item.getId());
+        dto.setName(item.getProductName());
+        dto.setGoodsNo(item.getProductNo());
+
+        enrichWithDefaultSku(dto, item.getId());
+
+        ProductStatsDO stats = productStatsMapper.selectById(item.getId());
+        if (stats != null) {
+            dto.setCommentNumber(stats.getCommentNumber());
+            dto.setScores(convertScore(stats.getScores()));
+        }
+
+        return dto;
+    }
+
+    private void enrichWithDefaultSku(ProductDTO dto, Integer productId) {
+        List<ProductEntityDO> entities = productEntityMapper.selectList(
+                new QueryWrapper<ProductEntityDO>().eq("product_id", productId));
+        entities.stream()
+                .min(Comparator.comparing(ProductEntityDO::getSalePrice))
                 .ifPresent(entity -> {
-                    dto.setPrice(entity.getSalePrice().toString());
-                    dto.setMarketPrice(entity.getMarketPrice().toString());
+                    dto.setPrice(entity.getSalePrice() != null ? entity.getSalePrice().toString() : null);
+                    dto.setMarketPrice(entity.getMarketPrice() != null ? entity.getMarketPrice().toString() : null);
                     dto.setImageUrl(entity.getImageUrl());
                 });
-
-            GoodsStatsDO stats = goodsStatsMapper.selectById(item.getId());
-            if (stats != null) {
-                dto.setCommentNumber(stats.getCommentNumber());
-                dto.setScores(stats.getScores() != null ? stats.getScores().doubleValue() : 0.0);
-            }
-            
-            return dto;
-        }).collect(Collectors.toList());
     }
 
     public Boolean createProduct() {
         Long id = IdWorker.getId();
-        // @TODO sql
         return Boolean.valueOf(true);
     }
 
     public boolean updateProduct(Long id, byte[] description) {
-        // @TODO sql modify
         return true;
     }
 
-    public void deleteProduct(String key)
-            throws MQBrokerException, RemotingException, InterruptedException, MQClientException {
-        mqProducer.send("deleteProduct", "delete product with:" + key, null, null);
+    public void deleteProduct(String key) {
+        String eventMessage = "delete product with:" + key;
+        sendProductEvent(ProductEventType.PRODUCT_DELETED, eventMessage);
+    }
+
+    private void sendProductEvent(ProductEventType eventType, String message) {
+        try {
+            mqProducer.send(
+                    PRODUCT_EVENT_TOPIC,
+                    message,
+                    eventType.getEventName(),
+                    null);
+        } catch (Exception e) {
+            throw new ProductDomainException(
+                    ProductErrorCode.PRODUCT_DELETE_FAILED,
+                    "Failed to send product event: " + eventType.getEventName(),
+                    e);
+        }
     }
 
     public boolean uploadImage(Long productId, MultipartFile imageFile) {
         String imageId = String.valueOf(IdWorker.getId());
-        // @TODO upload image with MediaService
         return saveImage(productId, imageId);
     }
 
-    public boolean saveImage(Long productId, String imageUrl) {
+    private boolean saveImage(Long productId, String imageUrl) {
         String imageId = String.valueOf(IdWorker.getId());
-        return Integer.valueOf(1).equals(productImageService.create(productId, imageId, imageUrl));
+        int result = productImageService.create(productId, imageId, imageUrl);
+        return result == 1;
     }
 
-    ConcurrentHashMap<Long, Object> statisticLockMap = new ConcurrentHashMap<>();
-    Long count = 0L;
-
-    public boolean updateFeatureStatistic(Long featureId, Integer increated) {
-        return updateFeatureStatisticWithLock(featureId, increated);
-    }
-
-    public boolean updateFeatureStatisticWithLock(Long featureId, Integer increated) {
-        Object lock = statisticLockMap.computeIfAbsent(featureId, key -> new Object());
-        synchronized (lock) {
-            count += increated;
+    public ProductDTO getProductById(Integer id) {
+        ProductDO product = productMapper.selectById(id);
+        if (product == null) {
+            return null;
         }
-        return true;
+        return convertToProductDTO(product);
     }
 }

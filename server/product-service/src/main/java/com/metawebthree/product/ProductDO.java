@@ -1,18 +1,22 @@
 package com.metawebthree.product;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@TableName("product")
+@TableName("tb_product")
 public class ProductDO {
-    private Long id;
-    private String name;
-    private String description;
-    private Integer[] imageIds;
+    @TableId(type = IdType.AUTO)
+    private Integer id;
+    private String productNo;
+    private String productName;
+    private Integer creator;
+    private LocalDateTime createTime;
+    private String productRemark;
+    private Integer isShelves;
+    private String languageVersion;
 }
