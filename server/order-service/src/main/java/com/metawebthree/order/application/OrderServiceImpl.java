@@ -1,4 +1,4 @@
-package com.metawebthree.order;
+package com.metawebthree.order.application;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

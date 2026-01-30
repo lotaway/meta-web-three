@@ -1,4 +1,4 @@
-package com.metawebthree.order.DO;
+package com.metawebthree.order.domain.model;
 
 import java.math.BigDecimal;
 

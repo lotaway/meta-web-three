@@ -1,4 +1,4 @@
-package com.metawebthree.order;
+package com.metawebthree.order.interfaces.web;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
