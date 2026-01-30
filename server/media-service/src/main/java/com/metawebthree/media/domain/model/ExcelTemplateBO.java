@@ -11,12 +11,8 @@ import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.github.yulichang.base.MPJBaseMapper;
 import com.github.yulichang.query.MPJLambdaQueryWrapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
-import com.metawebthree.media.ArtWorkTagMapper;
-import com.metawebthree.media.PeopleMapper;
-import com.metawebthree.media.DO.ArtWorkCategoryDO;
-import com.metawebthree.media.DO.ArtWorkTagDO;
-import com.metawebthree.media.DO.PeopleDO;
-import com.metawebthree.media.DO.PeopleTypeDO;
+import com.metawebthree.media.infrastructure.persistence.mapper.ArtWorkTagMapper;
+import com.metawebthree.media.infrastructure.persistence.mapper.PeopleMapper;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
