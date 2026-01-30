@@ -1,4 +1,4 @@
-package com.metawebthree.common.contants;
+package com.metawebthree.common.constants;
 
 public enum RequestHeaderKeys {
     USER_ID("X-User-Id"),

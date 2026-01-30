@@ -1,4 +1,4 @@
-package com.metawebthree.product;
+package com.metawebthree.product.domain.model;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;

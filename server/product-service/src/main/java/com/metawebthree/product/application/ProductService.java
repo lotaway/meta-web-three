@@ -1,4 +1,4 @@
-package com.metawebthree.product;
+package com.metawebthree.product.application;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
@@ -6,9 +6,11 @@ import com.metawebthree.common.dto.ProductDTO;
 import com.metawebthree.common.dto.ProductDetailDTO;
 import com.metawebthree.common.utils.RocketMQ.MQProducer;
 import com.metawebthree.image.ProductImageService;
-import com.metawebthree.product.event.ProductEventType;
-import com.metawebthree.product.exception.ProductDomainException;
-import com.metawebthree.product.exception.ProductErrorCode;
+import com.metawebthree.product.domain.event.ProductEventType;
+import com.metawebthree.product.domain.exception.ProductDomainException;
+import com.metawebthree.product.domain.exception.ProductErrorCode;
+import com.metawebthree.product.domain.model.*;
+import com.metawebthree.product.infrastructure.persistence.mapper.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -69,34 +71,47 @@ public class ProductService {
     private ProductDetailDTO buildProductDetail(ProductDO product, ProductEntityDO defaultEntity,
             ProductStatsDO stats, ProductLimitsDO limits) {
         ProductDetailDTO detail = new ProductDetailDTO();
+        mapBasicInfo(detail, product);
+        mapStatsInfo(detail, stats);
+        mapLimitsInfo(detail, limits);
+        mapEntityInfo(detail, defaultEntity);
+        initCollections(detail);
+        return detail;
+    }
+
+    private void mapBasicInfo(ProductDetailDTO detail, ProductDO product) {
         detail.setId(product.getId());
         detail.setGoodsName(product.getProductName());
         detail.setGoodsNo(product.getProductNo());
         detail.setGoodsRemark(product.getProductRemark());
+    }
 
-        if (stats != null) {
-            detail.setCommentNumber(stats.getCommentNumber());
-            detail.setScoreNumber(stats.getScoreNumber());
-            detail.setScores(convertScore(stats.getScores()));
-        }
+    private void mapStatsInfo(ProductDetailDTO detail, ProductStatsDO stats) {
+        if (stats == null) return;
+        detail.setCommentNumber(stats.getCommentNumber());
+        detail.setScoreNumber(stats.getScoreNumber());
+        detail.setScores(convertScore(stats.getScores()));
+    }
 
-        if (limits != null) {
-            detail.setPurchase(limits.getPurchase());
-        }
+    private void mapLimitsInfo(ProductDetailDTO detail, ProductLimitsDO limits) {
+        if (limits == null) return;
+        detail.setPurchase(limits.getPurchase());
+    }
 
-        detail.setGoodsEntityId(defaultEntity.getId());
-        detail.setSalePrice(defaultEntity.getSalePrice());
-        detail.setMarketPrice(defaultEntity.getMarketPrice());
-        detail.setInventory(defaultEntity.getInventory() != null ? defaultEntity.getInventory() : 0);
-        detail.setGoodsArtno(defaultEntity.getProductArtno());
+    private void mapEntityInfo(ProductDetailDTO detail, ProductEntityDO entity) {
+        detail.setGoodsEntityId(entity.getId());
+        detail.setSalePrice(entity.getSalePrice());
+        detail.setMarketPrice(entity.getMarketPrice());
+        detail.setInventory(entity.getInventory() != null ? entity.getInventory() : 0);
+        detail.setGoodsArtno(entity.getProductArtno());
+    }
 
+    private void initCollections(ProductDetailDTO detail) {
         detail.setPictures(new ArrayList<>());
         detail.setAttributes(new ArrayList<>());
         detail.setSpecifications(new ArrayList<>());
         detail.setBreadcrumbs(new ArrayList<>());
         detail.setComments(new ArrayList<>());
-
-        return detail;
     }
 
     private Double convertScore(BigDecimal score) {
@@ -105,7 +120,6 @@ public class ProductService {
 
     public List<ProductDTO> listProducts(Integer categoryId, String keyword, String priceRange) {
         QueryWrapper<ProductDO> query = buildListQuery(categoryId, keyword);
-
         List<ProductDO> items = productMapper.selectList(query);
         return items.stream()
                 .map(this::convertToProductDTO)
@@ -115,6 +129,7 @@ public class ProductService {
     private QueryWrapper<ProductDO> buildListQuery(Integer categoryId, String keyword) {
         QueryWrapper<ProductDO> query = new QueryWrapper<>();
         if (categoryId != null && categoryId != 0) {
+            // TODO: implement category filtering
         }
         if (keyword != null && !keyword.isEmpty()) {
             query.like("product_name", keyword);
@@ -129,14 +144,17 @@ public class ProductService {
         dto.setGoodsNo(item.getProductNo());
 
         enrichWithDefaultSku(dto, item.getId());
+        enrichWithStats(dto, item.getId());
 
-        ProductStatsDO stats = productStatsMapper.selectById(item.getId());
+        return dto;
+    }
+
+    private void enrichWithStats(ProductDTO dto, Integer productId) {
+        ProductStatsDO stats = productStatsMapper.selectById(productId);
         if (stats != null) {
             dto.setCommentNumber(stats.getCommentNumber());
             dto.setScores(convertScore(stats.getScores()));
         }
-
-        return dto;
     }
 
     private void enrichWithDefaultSku(ProductDTO dto, Integer productId) {
@@ -151,17 +169,17 @@ public class ProductService {
                 });
     }
 
-    public Boolean createProduct() {
+    public void createProduct() {
+        // TODO: Map to domain entity and persist
         Long id = IdWorker.getId();
-        return Boolean.valueOf(true);
     }
 
-    public boolean updateProduct(Long id, byte[] description) {
-        return true;
+    public void updateProduct(Long productId, byte[] description) {
+        // TODO: Load, update and persist
     }
 
-    public void deleteProduct(String key) {
-        String eventMessage = "delete product with:" + key;
+    public void deleteProduct(String productId) {
+        String eventMessage = "delete product with:" + productId;
         sendProductEvent(ProductEventType.PRODUCT_DELETED, eventMessage);
     }
 
@@ -180,15 +198,14 @@ public class ProductService {
         }
     }
 
-    public boolean uploadImage(Long productId, MultipartFile imageFile) {
+    public void uploadImage(Long productId, MultipartFile imageFile) {
         String imageId = String.valueOf(IdWorker.getId());
-        return saveImage(productId, imageId);
+        saveImage(productId, imageId);
     }
 
-    private boolean saveImage(Long productId, String imageUrl) {
+    private void saveImage(Long productId, String imageUrl) {
         String imageId = String.valueOf(IdWorker.getId());
-        int result = productImageService.create(productId, imageId, imageUrl);
-        return result == 1;
+        productImageService.create(productId, imageId, imageUrl);
     }
 
     public ProductDTO getProductById(Integer id) {

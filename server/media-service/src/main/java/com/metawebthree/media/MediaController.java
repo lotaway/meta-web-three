@@ -29,13 +29,14 @@ public class MediaController {
     }
 
     @PostMapping("/upload/file")
-    public ApiResponse<Exception> file(MultipartFile file) {
+    public ApiResponse<Void> file(@RequestParam("file") MultipartFile file) {
         String fileName = file.getOriginalFilename();
         try {
+            // TODO: Avoid hardcoded paths
             File destFile = new File("/upload/file/" + fileName);
             FileUtils.writeByteArrayToFile(destFile, file.getBytes());
         } catch (IOException e) {
-            return ApiResponse.error(e);
+            return ApiResponse.error(e.getMessage());
         }
         return ApiResponse.success();
     }

@@ -45,20 +45,12 @@ public class ApiResponse<D> extends IBaseResponse<D> {
         return new ApiResponse<>(ResponseStatus.SUCCESS, "success", data);
     }
 
-    public static ApiResponse<Exception> error() {
+    public static ApiResponse<Void> error() {
         return new ApiResponse<>(ResponseStatus.ERROR, "error");
     }
 
-    public static ApiResponse<Exception> error(String errMessage) {
+    public static ApiResponse<Void> error(String errMessage) {
         return new ApiResponse<>(ResponseStatus.ERROR, errMessage);
-    }
-
-    public static <T> ApiResponse<T> error(String errMessage, Class<T> clazz) {
-        return new ApiResponse<>(ResponseStatus.ERROR, errMessage);
-    }
-
-    public static ApiResponse<Exception> error(Exception e) {
-        return new ApiResponse<>(ResponseStatus.ERROR, "error", e);
     }
 
     @Override

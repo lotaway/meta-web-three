@@ -1,5 +1,6 @@
-package com.metawebthree.product;
+package com.metawebthree.product.interfaces.web;
 
+import com.metawebthree.product.application.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,8 +35,9 @@ public class ProductController {
 
     @Operation(summary = "Create a new product")
     @PostMapping
-    public ApiResponse<Boolean> createProduct() {
-        return ApiResponse.success(productService.createProduct());
+    public ApiResponse<Void> createProduct() {
+        productService.createProduct();
+        return ApiResponse.success();
     }
 
     @Operation(summary = "List products with filters")
@@ -60,27 +62,27 @@ public class ProductController {
 
     @Operation(summary = "Update product content", description = "Updates the description/content of an existing product")
     @PutMapping("/{id}")
-    public ApiResponse<Boolean> updateProduct(
+    public ApiResponse<Void> updateProduct(
             @Parameter(description = "Product ID") @PathVariable @NotNull Integer id,
             @RequestBody String content) {
-        boolean success = productService.updateProduct(Long.valueOf(id), content.getBytes());
-        return ApiResponse.success(success);
+        productService.updateProduct(Long.valueOf(id), content.getBytes());
+        return ApiResponse.success();
     }
 
     @Operation(summary = "Delete product", description = "Deletes a product by its ID")
     @DeleteMapping("/{id}")
-    public ApiResponse<Boolean> deleteProduct(
+    public ApiResponse<Void> deleteProduct(
             @Parameter(description = "Product ID") @PathVariable @NotNull Integer id) {
         productService.deleteProduct(id.toString());
-        return ApiResponse.success(true);
+        return ApiResponse.success();
     }
 
     @Operation(summary = "Upload product image", description = "Uploads an image for a specific product")
     @PostMapping(path = "/{id}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<Boolean> uploadImage(
+    public ApiResponse<Void> uploadImage(
             @Parameter(description = "Product ID") @PathVariable Integer id,
             @Parameter(description = "Image file") @RequestParam MultipartFile file) {
-        boolean success = productService.uploadImage(Long.valueOf(id), file);
-        return ApiResponse.success(success);
+        productService.uploadImage(Long.valueOf(id), file);
+        return ApiResponse.success();
     }
 }
