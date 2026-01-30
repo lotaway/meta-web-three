@@ -1,4 +1,4 @@
-package com.metawebthree.user.DO;
+package com.metawebthree.user.domain.model;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.metawebthree.common.utils.UserRole;

@@ -1,16 +1,16 @@
-package com.metawebthree.user;
+package com.metawebthree.user.interfaces.web;
 
 import com.metawebthree.author.AuthorDO;
-import com.metawebthree.common.contants.RequestHeaderKeys;
+import com.metawebthree.common.constants.RequestHeaderKeys;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.generated.rpc.GetOrderByUserIdRequest;
 import com.metawebthree.common.generated.rpc.OrderDTO;
 import com.metawebthree.common.generated.rpc.OrderService;
 import com.metawebthree.common.utils.UserRole;
-import com.metawebthree.user.DTO.LoginResponseDTO;
-import com.metawebthree.user.DTO.SubTokenDTO;
-import com.metawebthree.user.DTO.UserDTO;
-import com.metawebthree.user.impl.UserServiceImpl;
+import com.metawebthree.user.application.dto.LoginResponseDTO;
+import com.metawebthree.user.application.dto.SubTokenDTO;
+import com.metawebthree.user.application.dto.UserDTO;
+import com.metawebthree.user.application.UserService;
 import com.metawebthree.common.utils.DateEnum;
 import com.metawebthree.common.utils.OAuth1Utils;
 import com.metawebthree.common.utils.UserJwtUtil;
@@ -42,7 +42,7 @@ import org.web3j.utils.Numeric;
 @RequestMapping("/user")
 public class UserController {
 
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
     @Value("${x.apikey:未配置}")
     private String twitterApiKey;
@@ -55,7 +55,7 @@ public class UserController {
 
     private final UserJwtUtil jwtUtil;
 
-    public UserController(UserServiceImpl userService, UserJwtUtil jwtUtil) {
+    public UserController(UserService userService, UserJwtUtil jwtUtil) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
     }

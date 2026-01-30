@@ -1,8 +1,9 @@
-package com.metawebthree.user;
+package com.metawebthree.user.infrastructure.persistence.mapper;
+import com.metawebthree.user.domain.model.*;
 
 import com.github.yulichang.base.MPJBaseMapper;
-import com.metawebthree.user.DO.UserDO;
-import com.metawebthree.user.DTO.UserDTO;
+import com.metawebthree.user.domain.model.UserDO;
+import com.metawebthree.user.application.dto.UserDTO;
 
 import org.apache.ibatis.annotations.*;
 

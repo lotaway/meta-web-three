@@ -1,4 +1,4 @@
-package com.metawebthree.user.DTO;
+package com.metawebthree.user.application.dto;
 
 import lombok.Data;
 import lombok.AllArgsConstructor;

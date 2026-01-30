@@ -1,4 +1,4 @@
-package com.metawebthree.user.impl;
+package com.metawebthree.user.application;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
@@ -8,19 +8,18 @@ import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.metawebthree.author.AuthorDO;
 import com.metawebthree.common.VO.PageConfigVO;
 import com.metawebthree.common.utils.UserRole;
-import com.metawebthree.user.UserService;
-import com.metawebthree.user.Web3UserMapper;
-import com.metawebthree.user.UserMapper;
-import com.metawebthree.user.UserRoleMappingMapper;
+import com.metawebthree.user.infrastructure.persistence.mapper.Web3UserMapper;
+import com.metawebthree.user.infrastructure.persistence.mapper.UserMapper;
+import com.metawebthree.user.infrastructure.persistence.mapper.UserRoleMappingMapper;
 import com.metawebthree.common.utils.DateEnum;
 import com.metawebthree.common.utils.UserJwtUtil;
-import com.metawebthree.user.DO.TokenMappingDO;
-import com.metawebthree.user.DO.UserDO;
-import com.metawebthree.user.DO.UserRoleMappingDO;
-import com.metawebthree.user.DO.Web3UserDO;
-import com.metawebthree.user.DTO.SubTokenDTO;
-import com.metawebthree.user.DTO.UserDTO;
-import com.metawebthree.user.TokenMappingMapper;
+import com.metawebthree.user.domain.model.TokenMappingDO;
+import com.metawebthree.user.domain.model.UserDO;
+import com.metawebthree.user.domain.model.UserRoleMappingDO;
+import com.metawebthree.user.domain.model.Web3UserDO;
+import com.metawebthree.user.application.dto.SubTokenDTO;
+import com.metawebthree.user.application.dto.UserDTO;
+import com.metawebthree.user.infrastructure.persistence.mapper.TokenMappingMapper;
 
 import lombok.extern.slf4j.Slf4j;
 

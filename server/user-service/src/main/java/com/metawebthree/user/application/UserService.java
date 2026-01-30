@@ -1,17 +1,21 @@
-package com.metawebthree.user;
+package com.metawebthree.user.application;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.metawebthree.common.utils.UserRole;
-import com.metawebthree.user.DO.UserDO;
-import com.metawebthree.user.DTO.SubTokenDTO;
-import com.metawebthree.user.DTO.UserDTO;
+import com.metawebthree.user.domain.model.UserDO;
+import com.metawebthree.user.application.dto.SubTokenDTO;
+import com.metawebthree.user.application.dto.UserDTO;
 
 import java.util.List;
 
+import com.metawebthree.author.AuthorDO;
+
 public interface UserService extends IService<UserDO> {
     IPage<UserDTO> getUserList(int pageNum);
+
+    IPage<UserDTO> getUserList(int pageNum, UserDTO userDTO, AuthorDO authorDO);
 
     IPage<UserDTO> getUserList(int pageNum, int pageSize);
 

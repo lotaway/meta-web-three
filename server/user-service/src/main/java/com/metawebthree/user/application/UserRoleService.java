@@ -1,7 +1,8 @@
-package com.metawebthree.user;
+package com.metawebthree.user.application;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.metawebthree.user.DO.UserRoleDO;
+import com.metawebthree.user.domain.model.UserRoleDO;
+import com.metawebthree.user.infrastructure.persistence.mapper.UserRoleMapper;
 
 import org.springframework.stereotype.Service;
 

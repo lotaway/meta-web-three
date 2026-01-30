@@ -1,4 +1,4 @@
-package com.metawebthree.user.DO;
+package com.metawebthree.user.domain.model;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.github.yulichang.annotation.Table;

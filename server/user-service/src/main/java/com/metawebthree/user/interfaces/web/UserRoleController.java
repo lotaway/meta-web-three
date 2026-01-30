@@ -1,4 +1,5 @@
-package com.metawebthree.user;
+package com.metawebthree.user.interfaces.web;
+import com.metawebthree.user.application.UserRoleService;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
