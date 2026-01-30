@@ -1,4 +1,4 @@
-package com.metawebthree.media.DO;
+package com.metawebthree.media.domain.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

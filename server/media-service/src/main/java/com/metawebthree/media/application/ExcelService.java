@@ -1,4 +1,7 @@
-package com.metawebthree.media;
+package com.metawebthree.media.application;
+import com.metawebthree.media.domain.model.*;
+import com.metawebthree.media.application.dto.*;
+import com.metawebthree.media.infrastructure.persistence.mapper.*;
 
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
@@ -7,8 +10,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metawebthree.common.cloud.DefaultS3Config;
 import com.metawebthree.common.cloud.DefaultS3Service;
-import com.metawebthree.media.BO.ExcelTemplateBO;
-import com.metawebthree.media.DO.ArtWorkDO;
+import com.metawebthree.media.domain.model.ExcelTemplateBO;
+import com.metawebthree.media.domain.model.ArtWorkDO;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;

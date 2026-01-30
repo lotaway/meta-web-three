@@ -1,4 +1,4 @@
-package com.metawebthree.media.DO;
+package com.metawebthree.media.domain.model;
 
 import java.sql.Array;
 import java.util.List;

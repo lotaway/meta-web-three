@@ -1,7 +1,7 @@
-package com.metawebthree.media;
+package com.metawebthree.media.infrastructure.persistence.mapper;
 
 import com.github.yulichang.base.MPJBaseMapper;
-import com.metawebthree.media.DO.ArtWorkTagDO;
+import com.metawebthree.media.domain.model.ArtWorkTagDO;
 
 import java.util.Collection;
 import java.util.List;

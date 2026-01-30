@@ -1,7 +1,7 @@
-package com.metawebthree.media;
+package com.metawebthree.media.infrastructure.persistence.mapper;
 
 import com.github.yulichang.base.MPJBaseMapper;
-import com.metawebthree.media.DO.PeopleDO;
+import com.metawebthree.media.domain.model.PeopleDO;
 
 import io.lettuce.core.dynamic.annotation.Param;
 

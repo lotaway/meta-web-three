@@ -1,9 +1,12 @@
-package com.metawebthree.media;
+package com.metawebthree.media.application;
+import com.metawebthree.media.domain.model.*;
+import com.metawebthree.media.application.dto.*;
+import com.metawebthree.media.infrastructure.persistence.mapper.*;
 
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.metawebthree.common.cloud.DefaultS3Config;
 import com.metawebthree.common.cloud.DefaultS3Service;
-import com.metawebthree.media.DO.ArtWorkDO;
+import com.metawebthree.media.domain.model.ArtWorkDO;
 
 import lombok.RequiredArgsConstructor;
 

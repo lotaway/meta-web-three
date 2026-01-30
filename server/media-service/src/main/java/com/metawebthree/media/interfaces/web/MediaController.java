@@ -1,4 +1,7 @@
-package com.metawebthree.media;
+package com.metawebthree.media.interfaces.web;
+import com.metawebthree.media.application.*;
+import com.metawebthree.media.application.dto.*;
+import com.metawebthree.media.domain.model.*;
 
 import com.metawebthree.common.dto.ApiResponse;
 

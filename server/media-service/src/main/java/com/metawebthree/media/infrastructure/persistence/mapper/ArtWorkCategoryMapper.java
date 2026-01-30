@@ -1,7 +1,7 @@
-package com.metawebthree.media;
+package com.metawebthree.media.infrastructure.persistence.mapper;
 
 import com.github.yulichang.base.MPJBaseMapper;
-import com.metawebthree.media.DO.ArtWorkCategoryDO;
+import com.metawebthree.media.domain.model.ArtWorkCategoryDO;
 
 import org.apache.ibatis.annotations.Mapper;
 

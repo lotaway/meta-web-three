@@ -1,4 +1,4 @@
-package com.metawebthree.media.DTO;
+package com.metawebthree.media.application.dto;
 
 import lombok.Builder;
 import lombok.Data;

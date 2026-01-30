@@ -1,4 +1,4 @@
-package com.metawebthree.media.BO;
+package com.metawebthree.media.domain.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,7 +1,7 @@
-package com.metawebthree.media;
+package com.metawebthree.media.infrastructure.persistence.mapper;
 
 import com.github.yulichang.base.MPJBaseMapper;
-import com.metawebthree.media.DO.PeopleTypeDO;
+import com.metawebthree.media.domain.model.PeopleTypeDO;
 
 import org.apache.ibatis.annotations.Mapper;
 
