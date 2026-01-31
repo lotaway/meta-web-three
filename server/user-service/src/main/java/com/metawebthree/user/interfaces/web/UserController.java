@@ -75,7 +75,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ApiResponse<?> create(@RequestBody Map<String, Object> params) throws NoSuchAlgorithmException {
+    public ApiResponse<?> create(@RequestBody Map<String, Object> params) throws Exception {
         UserRole userRoleId = UserRole.tryValueOf((long) (params.get("typeId"))).orElse(UserRole.USER);
         Long userId = userService.createUser(
                 String.valueOf(params.get("email")),
@@ -88,16 +88,17 @@ public class UserController {
     @RequestMapping("/signIn")
     public ApiResponse<LoginResponseDTO> signIn(@RequestParam(defaultValue = "0", required = false) Long userRoleId,
             @RequestParam String email, @RequestParam String password,
-            @RequestParam(defaultValue = "-1", required = false) Integer expiresInHours) throws IOException, NoSuchAlgorithmException {
+            @RequestParam(defaultValue = "-1", required = false) Integer expiresInHours)
+            throws IOException, NoSuchAlgorithmException {
         UserDTO user = userService.validateUser(email, password, userRoleId);
         if (user == null) {
-            return ApiResponse.error("Invalid credentials", LoginResponseDTO.class);
+            return new ApiResponse<>(com.metawebthree.common.enums.ResponseStatus.ERROR, "Invalid credentials");
         }
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
         claims.put("name", user.getNickname());
         claims.put("role", UserRole.USER.name());
-        
+
         String token;
         if (expiresInHours == -1) {
             token = jwtUtil.generate(user.getId().toString(), claims);
@@ -108,7 +109,7 @@ public class UserController {
             Date expiration = new Date(System.currentTimeMillis() + expiresInHours * DateEnum.ONE_HOUR.getValue());
             token = jwtUtil.generate(user.getId().toString(), claims, expiration);
         }
-        
+
         LoginResponseDTO response = new LoginResponseDTO(token, user, null, "email");
         return ApiResponse.success(response);
     }
@@ -131,7 +132,7 @@ public class UserController {
         Credentials credentials = Credentials.create(Numeric.toHexStringNoPrefix(publicKey));
 
         if (!credentials.getAddress().equalsIgnoreCase(walletAddress)) {
-            return ApiResponse.error("Invalid signature", LoginResponseDTO.class);
+            return new ApiResponse<>(com.metawebthree.common.enums.ResponseStatus.ERROR, "Invalid signature");
         }
 
         UserDTO user = userService.findOrCreateUserByWallet(walletAddress);
@@ -197,12 +198,19 @@ public class UserController {
     }
 
     @GetMapping("/order")
-    public ApiResponse<List<OrderDTO>> getOrderByUser(@RequestHeader Map<String, String> header) {
-        Optional<String> oUserId = Optional.ofNullable(header.get(RequestHeaderKeys.USER_ID.getValue()));
-        Long userId = Long.parseLong(oUserId.orElse("0"));
+    public ApiResponse<List<OrderDTO>> getOrderByUser(@RequestHeader Map<String, String> header,
+            @RequestHeader(value = "Authorization", required = false) String authorization) {
+        Long userId = null;
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            String token = authorization.substring("Bearer ".length());
+            userId = jwtUtil.tryDecode(token).map(claims -> jwtUtil.getUserId(claims)).orElse(null);
+        }
+        if (userId == null) {
+            Optional<String> oUserId = Optional.ofNullable(header.get(RequestHeaderKeys.USER_ID.getValue()));
+            userId = Long.parseLong(oUserId.orElse("0"));
+        }
         GetOrderByUserIdRequest request = GetOrderByUserIdRequest.newBuilder().setId(userId).build();
         List<OrderDTO> result = orderService.getOrderByUserId(request).getOrdersList();
-        // @TODO simple response dto, jackson can't serialize OrderDTO from protobuf
         return ApiResponse.success(result);
     }
 
@@ -219,7 +227,8 @@ public class UserController {
             return ApiResponse.success(subToken);
         } catch (Exception e) {
             log.error("Failed to create sub-token", e);
-            return ApiResponse.error("Failed to create sub-token: " + e.getMessage(), SubTokenDTO.class);
+            return new ApiResponse<>(com.metawebthree.common.enums.ResponseStatus.ERROR,
+                    "Failed to create sub-token: " + e.getMessage());
         }
     }
 

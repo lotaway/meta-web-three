@@ -1,13 +1,13 @@
 package com.metawebthree.payment.application;
 
 import com.metawebthree.common.annotations.LogMethod;
-import com.metawebthree.dto.ExchangeOrderRequest;
-import com.metawebthree.dto.ExchangeOrderResponse;
-import com.metawebthree.entity.ExchangeOrder;
-import com.metawebthree.entity.UserKYC;
-import com.metawebthree.repository.ExchangeOrderRepository;
-import com.metawebthree.repository.UserKYCRepository;
-import com.metawebthree.service.PaymentService;
+import com.metawebthree.payment.application.dto.ExchangeOrderRequest;
+import com.metawebthree.payment.application.dto.ExchangeOrderResponse;
+import com.metawebthree.payment.domain.model.ExchangeOrder;
+import com.metawebthree.payment.domain.model.UserKYC;
+import com.metawebthree.payment.infrastructure.persistence.mapper.ExchangeOrderRepository;
+import com.metawebthree.payment.infrastructure.persistence.mapper.UserKYCRepository;
+import com.metawebthree.payment.application.PaymentService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,18 +21,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * 兑换订单服务
- *
- * @TODO: 如需对接自定义KYC、风控、支付、汇率等服务，请在本类中注入自定义实现，
- * 并在 createOrder、validateUserKYC、processPayment、processCryptoTransfer 等方法中调用。
- * 推荐将第三方服务的接口抽象为独立Service，便于后续扩展和切换。
- *
- * 示例：
- * 1. 注入自定义KYCSeExchangeOrderServiceImpliskControlService实现
- * 3. 注入自定义PaymentService实现
- * 4. 注入自定义PriceEngineService实现
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j

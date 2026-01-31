@@ -9,6 +9,7 @@ import com.metawebthree.user.application.dto.SubTokenDTO;
 import com.metawebthree.user.application.dto.UserDTO;
 
 import java.util.List;
+import java.security.NoSuchAlgorithmException;
 
 import com.metawebthree.author.AuthorDO;
 
@@ -43,4 +44,8 @@ public interface UserService extends IService<UserDO> {
     SubTokenDTO createSubToken(String parentToken, List<String> permissions, Long expiresInHours);
 
     boolean validateSubToken(String childToken);
+
+    UserDTO validateUser(String email, String password, Long userRoleId) throws NoSuchAlgorithmException;
+
+    UserDTO findOrCreateUserByWallet(String walletAddress);
 }

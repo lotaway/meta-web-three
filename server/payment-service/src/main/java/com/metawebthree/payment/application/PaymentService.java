@@ -1,15 +1,6 @@
 package com.metawebthree.payment.application;
-import com.metawebthree.payment.domain.model.*;
-import com.metawebthree.payment.infrastructure.persistence.mapper.*;
-
-import com.metawebthree.entity.ExchangeOrder;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.util.UUID;
-
+import com.metawebthree.payment.domain.model.ExchangeOrder;
+ 
 public interface PaymentService {
     
     public String createPayment(ExchangeOrder order);

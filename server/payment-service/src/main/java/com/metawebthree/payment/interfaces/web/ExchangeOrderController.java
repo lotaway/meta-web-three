@@ -1,10 +1,8 @@
 package com.metawebthree.payment.interfaces.web;
-import com.metawebthree.payment.application.*;
-import com.metawebthree.payment.application.dto.*;
 
-import com.metawebthree.dto.ExchangeOrderRequest;
-import com.metawebthree.dto.ExchangeOrderResponse;
-import com.metawebthree.service.impl.ExchangeOrderServiceImpl;
+import com.metawebthree.payment.application.dto.ExchangeOrderRequest;
+import com.metawebthree.payment.application.dto.ExchangeOrderResponse;
+import com.metawebthree.payment.application.ExchangeOrderServiceImpl;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

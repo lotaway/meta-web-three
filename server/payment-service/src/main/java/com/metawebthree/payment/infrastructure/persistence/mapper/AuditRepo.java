@@ -1,8 +1,8 @@
 package com.metawebthree.payment.infrastructure.persistence.mapper;
 import com.metawebthree.payment.domain.model.*;
 
-import com.metawebthree.dto.DecisionRequest;
-import com.metawebthree.enums.DecisionEnum;
+import com.metawebthree.payment.application.dto.DecisionRequest;
+import com.metawebthree.payment.enums.DecisionEnum;
 
 import java.util.List;
 import java.util.Map;

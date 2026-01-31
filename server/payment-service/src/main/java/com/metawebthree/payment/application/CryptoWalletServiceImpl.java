@@ -1,7 +1,7 @@
 package com.metawebthree.payment.application;
-
+ 
 import com.metawebthree.common.annotations.LogMethod;
-import com.metawebthree.entity.ExchangeOrder;
+import com.metawebthree.payment.domain.model.ExchangeOrder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

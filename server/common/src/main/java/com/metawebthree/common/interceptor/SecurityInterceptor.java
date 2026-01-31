@@ -16,7 +16,7 @@ public class SecurityInterceptor implements HandlerInterceptor {
 
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (request.getRequestURL().indexOf("/config") > -1) {
-            JSONObject json = new JSONObject(ApiResponse.error(new Exception("security interceptor no pass")));
+            JSONObject json = new JSONObject(ApiResponse.error("security interceptor no pass"));
             response.getWriter().write(json.toString());
             return false;
         }

@@ -1,8 +1,8 @@
 package com.metawebthree.payment.infrastructure.persistence.mapper;
 import com.metawebthree.payment.domain.model.*;
-
+ 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.metawebthree.entity.UserKYC;
+import com.metawebthree.payment.domain.model.UserKYC;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;

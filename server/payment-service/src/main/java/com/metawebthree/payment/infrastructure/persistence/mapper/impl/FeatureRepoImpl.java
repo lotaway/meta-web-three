@@ -1,8 +1,8 @@
-package com.metawebthree.payment.repository.impl;
+package com.metawebthree.payment.infrastructure.persistence.mapper.impl;
 
-import com.metawebthree.dto.DecisionRequest;
+import com.metawebthree.payment.application.dto.DecisionRequest;
 import com.metawebthree.enums.DeviceRiskTag;
-import com.metawebthree.repository.FeatureRepo;
+import com.metawebthree.payment.infrastructure.persistence.mapper.FeatureRepo;
 
 import org.springframework.stereotype.Repository;
 

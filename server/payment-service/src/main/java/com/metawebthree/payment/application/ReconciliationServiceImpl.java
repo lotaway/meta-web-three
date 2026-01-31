@@ -1,8 +1,8 @@
 package com.metawebthree.payment.application;
 
 import com.metawebthree.common.annotations.LogMethod;
-import com.metawebthree.entity.ExchangeOrder;
-import com.metawebthree.repository.ExchangeOrderRepository;
+import com.metawebthree.payment.domain.model.ExchangeOrder;
+import com.metawebthree.payment.infrastructure.persistence.mapper.ExchangeOrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -46,10 +46,10 @@ public class ReconciliationServiceImpl {
     private void reconcileOrders(List<ExchangeOrder> internalOrders, List<ExchangeOrder> externalBills) {
         // 1. Check missing orders (exist externally but not internally)
         checkMissingOrders(internalOrders, externalBills);
-        
+
         // 2. Check extra orders (exist internally but not externally)
         checkExtraOrders(internalOrders, externalBills);
-        
+
         // 3. Check amount mismatches
         checkAmountMismatches(internalOrders, externalBills);
     }
