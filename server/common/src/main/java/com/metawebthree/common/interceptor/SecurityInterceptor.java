@@ -3,12 +3,11 @@ package com.metawebthree.common.interceptor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.metawebthree.common.dto.ApiResponse;
+import com.metawebthree.common.enums.ResponseStatus;
 
 @Slf4j
 @Component
@@ -16,8 +15,8 @@ public class SecurityInterceptor implements HandlerInterceptor {
 
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (request.getRequestURL().indexOf("/config") > -1) {
-            JSONObject json = new JSONObject(ApiResponse.error("security interceptor no pass"));
-            response.getWriter().write(json.toString());
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"code\":\"" + ResponseStatus.SYSTEM_ERROR.getCode() + "\",\"message\":\"security interceptor no pass\"}");
             return false;
         }
         return true;

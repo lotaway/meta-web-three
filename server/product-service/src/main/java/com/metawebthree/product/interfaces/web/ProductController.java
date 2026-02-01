@@ -1,6 +1,8 @@
 package com.metawebthree.product.interfaces.web;
 
 import com.metawebthree.product.application.ProductService;
+import com.metawebthree.product.exception.ProductDomainException;
+import com.metawebthree.product.exception.ProductErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -55,7 +57,7 @@ public class ProductController {
             @Parameter(description = "Product ID") @PathVariable @NotNull Integer id) {
         ProductDetailDTO detail = productService.getProductDetail(id);
         if (detail == null) {
-            return ApiResponse.error("Product not found");
+            throw new ProductDomainException(ProductErrorCode.NOT_FOUND, "Product not found with id: " + id);
         }
         return ApiResponse.success(detail);
     }

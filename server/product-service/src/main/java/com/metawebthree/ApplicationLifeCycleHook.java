@@ -14,17 +14,15 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class ApplicationLifeCycleHook {
 
-    @Value("${rocketmq.client.namesrv:未配置}")
+    @Value("${rocketmq.client.namesrv:${ROCKETMQ_NAMESRV_DEFAULT}}")
     private String namesrv;
 
-    @Value("${server.port:8080}")
+    @Value("${server.port:${SERVER_PORT_DEFAULT}}")
     private String serverPort;
 
     @PostConstruct
     public void init() {
-        log.info("=== ApplicationLifeCycleHook @PostConstruct ===");
-        log.info("namesrv: " + namesrv);
-        log.info("server.port: " + serverPort);
+        log.info("Application starting - namesrv: {}, port: {}", namesrv, serverPort);
     }
 }
 
@@ -34,7 +32,7 @@ class ApplicationHook implements ApplicationListener<ApplicationReadyEvent> {
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        log.info("=== ApplicationLifeCycleHook ApplicationReadyEvent ===");
+        log.info("Application ready event triggered");
     }
 }
 
@@ -44,6 +42,6 @@ class CommandLineHook implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        log.info("=== ApplicationLifeCycleHook CommandLineRunner ===");
+        log.info("Command line runner executed");
     }
 }

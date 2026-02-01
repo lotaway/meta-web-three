@@ -1,76 +1,50 @@
 package com.metawebthree.common.dto;
 
-
+import com.metawebthree.common.enums.ResponseStatus;
 import lombok.Data;
 
 import java.util.Objects;
 
-import com.metawebthree.common.enums.ResponseStatus;
-
 @Data
-public class ApiResponse<D> extends IBaseResponse<D> {
+public class ApiResponse<D> {
+    private String code;
+    private String message;
+    private D data;
+    private Long timestamp;
 
     public ApiResponse() {
-
+        this.timestamp = System.currentTimeMillis();
     }
 
-    public ApiResponse(ResponseStatus status, String message) {
-        this.status = status;
-        this.message = message;
+    public ApiResponse(ResponseStatus status, D data) {
+        this.code = status.getCode();
+        this.message = status.getMessage();
+        this.data = data;
+        this.timestamp = System.currentTimeMillis();
     }
 
-    public ApiResponse(ResponseStatus status, String message, D data) {
-        this.status = status;
+    public ApiResponse(String code, String message, D data) {
+        this.code = code;
         this.message = message;
         this.data = data;
-    }
-
-    public ResponseStatus getStatus() {
-        return status;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public Object getData() {
-        return data;
+        this.timestamp = System.currentTimeMillis();
     }
 
     public static <D> ApiResponse<D> success() {
-        return new ApiResponse<>(ResponseStatus.SUCCESS, "success");
+        return new ApiResponse<>(ResponseStatus.SUCCESS, null);
     }
 
     public static <D> ApiResponse<D> success(D data) {
-        return new ApiResponse<>(ResponseStatus.SUCCESS, "success", data);
+        return new ApiResponse<>(ResponseStatus.SUCCESS, data);
     }
 
-    public static ApiResponse<Void> error() {
-        return new ApiResponse<>(ResponseStatus.ERROR, "error");
+    public static <D> ApiResponse<D> error(ResponseStatus status) {
+        return new ApiResponse<>(status, null);
     }
 
-    public static ApiResponse<Void> error(String errMessage) {
-        return new ApiResponse<>(ResponseStatus.ERROR, errMessage);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!(o instanceof ApiResponse)) {
-            return false;
-        }
-        ApiResponse<?> that = (ApiResponse<?>) o;
-        return status == that.status && message.equals(that.message) && data.equals(that.data);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(status, message, data);
-    }
-
-    @Override
-    public String toString() {
-        return "{'status':" + status + ",'message':'" + message + ", 'data':" + data + '}';
+    public static <D> ApiResponse<D> error(ResponseStatus status, String customMessage) {
+        ApiResponse<D> response = new ApiResponse<>(status, null);
+        response.setMessage(customMessage);
+        return response;
     }
 }

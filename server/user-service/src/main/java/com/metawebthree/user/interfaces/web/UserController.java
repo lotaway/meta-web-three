@@ -3,6 +3,7 @@ package com.metawebthree.user.interfaces.web;
 import com.metawebthree.author.AuthorDO;
 import com.metawebthree.common.constants.RequestHeaderKeys;
 import com.metawebthree.common.dto.ApiResponse;
+import com.metawebthree.common.enums.ResponseStatus;
 import com.metawebthree.common.generated.rpc.GetOrderByUserIdRequest;
 import com.metawebthree.common.generated.rpc.OrderDTO;
 import com.metawebthree.common.generated.rpc.OrderService;
@@ -26,7 +27,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -80,8 +80,7 @@ public class UserController {
         Long userId = userService.createUser(
                 String.valueOf(params.get("email")),
                 String.valueOf(params.get("password")), userRoleId);
-        LocalDateTime localDateTime = LocalDateTime.now();
-        log.info("userId:" + userId + ", date_time:" + localDateTime);
+        log.info("New user created - userId: {}", userId);
         return ApiResponse.success();
     }
 
@@ -92,26 +91,33 @@ public class UserController {
             throws IOException, NoSuchAlgorithmException {
         UserDTO user = userService.validateUser(email, password, userRoleId);
         if (user == null) {
-            return new ApiResponse<>(com.metawebthree.common.enums.ResponseStatus.ERROR, "Invalid credentials");
+            return ApiResponse.error(ResponseStatus.USER_PASSWORD_ERROR, "Invalid credentials");
         }
+
+        Map<String, Object> claims = buildClaims(user);
+        String token = generateToken(user.getId().toString(), claims, expiresInHours);
+
+        return ApiResponse.success(new LoginResponseDTO(token, user, null, "email"));
+    }
+
+    private Map<String, Object> buildClaims(UserDTO user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
         claims.put("name", user.getNickname());
         claims.put("role", UserRole.USER.name());
+        return claims;
+    }
 
-        String token;
+    private String generateToken(String userId, Map<String, Object> claims, Integer expiresInHours) {
         if (expiresInHours == -1) {
-            token = jwtUtil.generate(user.getId().toString(), claims);
-        } else if (expiresInHours == 0) {
-            Date expiration = DateEnum.ONE_HUNDRED_YEAR.toAfterThisAsDate();
-            token = jwtUtil.generate(user.getId().toString(), claims, expiration);
-        } else {
-            Date expiration = new Date(System.currentTimeMillis() + expiresInHours * DateEnum.ONE_HOUR.getValue());
-            token = jwtUtil.generate(user.getId().toString(), claims, expiration);
+            return jwtUtil.generate(userId, claims);
         }
-
-        LoginResponseDTO response = new LoginResponseDTO(token, user, null, "email");
-        return ApiResponse.success(response);
+        if (expiresInHours == 0) {
+            Date expiration = DateEnum.ONE_HUNDRED_YEAR.toAfterThisAsDate();
+            return jwtUtil.generate(userId, claims, expiration);
+        }
+        Date expiration = new Date(System.currentTimeMillis() + expiresInHours * DateEnum.ONE_HOUR.getValue());
+        return jwtUtil.generate(userId, claims, expiration);
     }
 
     @PostMapping("/signInWithWallet")
@@ -132,7 +138,7 @@ public class UserController {
         Credentials credentials = Credentials.create(Numeric.toHexStringNoPrefix(publicKey));
 
         if (!credentials.getAddress().equalsIgnoreCase(walletAddress)) {
-            return new ApiResponse<>(com.metawebthree.common.enums.ResponseStatus.ERROR, "Invalid signature");
+            return ApiResponse.error(ResponseStatus.USER_WALLET_MISMATCH, "Invalid signature");
         }
 
         UserDTO user = userService.findOrCreateUserByWallet(walletAddress);
@@ -145,9 +151,7 @@ public class UserController {
 
         String token = jwtUtil.generate(user.getId().toString(), claims);
 
-        LoginResponseDTO response = new LoginResponseDTO(token, user, walletAddress, "wallet");
-
-        return ApiResponse.success(response);
+        return ApiResponse.success(new LoginResponseDTO(token, user, walletAddress, "wallet"));
     }
 
     @GetMapping("/checkWeb3SignerMessage")
@@ -172,7 +176,7 @@ public class UserController {
     @GetMapping("/checkBitcoinSignature")
     public ApiResponse<?> checkSignerMessage2() {
         // PublicKey publicKey = new PublicKey("na");
-        return ApiResponse.error("todo");
+        return ApiResponse.error(com.metawebthree.common.enums.ResponseStatus.SYSTEM_ERROR, "todo");
     }
 
     @GetMapping("/checkOAuth1")
@@ -200,18 +204,22 @@ public class UserController {
     @GetMapping("/order")
     public ApiResponse<List<OrderDTO>> getOrderByUser(@RequestHeader Map<String, String> header,
             @RequestHeader(value = "Authorization", required = false) String authorization) {
-        Long userId = null;
-        if (authorization != null && authorization.startsWith("Bearer ")) {
-            String token = authorization.substring("Bearer ".length());
-            userId = jwtUtil.tryDecode(token).map(claims -> jwtUtil.getUserId(claims)).orElse(null);
-        }
-        if (userId == null) {
-            Optional<String> oUserId = Optional.ofNullable(header.get(RequestHeaderKeys.USER_ID.getValue()));
-            userId = Long.parseLong(oUserId.orElse("0"));
-        }
+        Long userId = extractUserId(authorization, header);
         GetOrderByUserIdRequest request = GetOrderByUserIdRequest.newBuilder().setId(userId).build();
         List<OrderDTO> result = orderService.getOrderByUserId(request).getOrdersList();
         return ApiResponse.success(result);
+    }
+
+    private Long extractUserId(String authorization, Map<String, String> header) {
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            String token = authorization.substring("Bearer ".length());
+            Optional<Map<String, Object>> oClaims = jwtUtil.tryDecode(token);
+            if (oClaims.isPresent()) {
+                return jwtUtil.getUserId(oClaims.get());
+            }
+        }
+        Optional<String> oUserId = Optional.ofNullable(header.get(RequestHeaderKeys.USER_ID.getValue()));
+        return Long.parseLong(oUserId.orElse("0"));
     }
 
     @PostMapping("/createSubToken")
@@ -227,9 +235,7 @@ public class UserController {
             return ApiResponse.success(subToken);
         } catch (Exception e) {
             log.error("Failed to create sub-token", e);
-            return new ApiResponse<>(com.metawebthree.common.enums.ResponseStatus.ERROR,
-                    "Failed to create sub-token: " + e.getMessage());
+            return ApiResponse.error(ResponseStatus.SYSTEM_ERROR);
         }
     }
-
 }

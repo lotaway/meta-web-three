@@ -13,11 +13,7 @@ import java.time.LocalDateTime;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.context.annotation.Bean;
 
-// extends this config and add @Configuration and @MapperScan("scan.your.mapper.package") to use pagination
 public abstract class MybatisPlusDefaultConfig {
-    /**
-     * new page plugin, one cache and two cache follow the rules of mybatis, need to set, need to set MybatisConfiguration#useDeprecatedExecutor = false to avoid cache problems (this attribute will be removed together with the old plugin)
-     */
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();

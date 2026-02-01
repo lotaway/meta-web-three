@@ -1,11 +1,11 @@
 package com.metawebthree.product.exception;
 
 public enum ProductErrorCode {
-    PRODUCT_NOT_FOUND("PRODUCT_001", "Product not found"),
-    PRODUCT_DELETE_FAILED("PRODUCT_002", "Failed to delete product"),
-    PRODUCT_IMAGE_UPLOAD_FAILED("PRODUCT_003", "Failed to upload product image"),
-    PRODUCT_CREATE_FAILED("PRODUCT_004", "Failed to create product"),
-    PRODUCT_UPDATE_FAILED("PRODUCT_005", "Failed to update product");
+    NOT_FOUND("PRODUCT_001", "商品不存在"),
+    DELETE_FAILED("PRODUCT_002", "商品删除失败"),
+    IMAGE_UPLOAD_FAILED("PRODUCT_003", "商品图片上传失败"),
+    CREATE_FAILED("PRODUCT_004", "商品创建失败"),
+    UPDATE_FAILED("PRODUCT_005", "商品更新失败");
 
     private final String code;
     private final String message;

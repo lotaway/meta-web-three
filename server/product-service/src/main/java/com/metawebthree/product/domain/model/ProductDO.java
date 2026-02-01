@@ -17,6 +17,6 @@ public class ProductDO {
     private Integer creator;
     private LocalDateTime createTime;
     private String productRemark;
-    private Integer isShelves;
+    private Boolean shelved;
     private String languageVersion;
 }

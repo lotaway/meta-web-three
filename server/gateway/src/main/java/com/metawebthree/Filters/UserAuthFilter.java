@@ -35,17 +35,10 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getPath().value();
 
-        // @TODO add more paths to exclude from authentication
-        if (path.contains("/v3/api-docs")
-                || path.contains("/swagger-ui")
-                || !path.startsWith("/user-service/")
-                || path.startsWith("/user-service/user/signIn")
-                || path.startsWith("/user-service/user/create")
-                || path.startsWith("/user-service/user/checkWeb3SignerMessage")
-                || path.startsWith("/actuator")) {
+        if (isExcludedPath(path)) {
             return chain.filter(exchange);
         }
-        log.info("matching Authorization path: " + path);
+
         String authHeader = request.getHeaders().getFirst("Authorization");
         if (authHeader == null || !authHeader.startsWith(AUTH_HEADER)) {
             ServerHttpResponse response = exchange.getResponse();
@@ -54,7 +47,7 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
         }
 
         String token = authHeader.substring(AUTH_HEADER.length());
-        ValidateTokenResponse validResult = validateToken(token);
+        ValidateTokenResult validResult = validateToken(token);
 
         if (!validResult.isValid) {
             ServerHttpResponse response = exchange.getResponse();
@@ -76,9 +69,19 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
         return chain.filter(_exchange);
     }
 
-    private ValidateTokenResponse validateToken(String token) {
+    private boolean isExcludedPath(String path) {
+        return path.contains("/v3/api-docs")
+                || path.contains("/swagger-ui")
+                || !path.startsWith("/user-service/")
+                || path.startsWith("/user-service/user/signIn")
+                || path.startsWith("/user-service/user/create")
+                || path.startsWith("/user-service/user/checkWeb3SignerMessage")
+                || path.startsWith("/actuator");
+    }
+
+    private ValidateTokenResult validateToken(String token) {
         Optional<Claims> oClaims = userJwtUtil.tryDecode(token);
-        var response = new ValidateTokenResponse();
+        var response = new ValidateTokenResult();
         response.isValid = false;
         if (oClaims.isEmpty()) {
             return response;
@@ -92,7 +95,7 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
         return response;
     }
 
-    static class ValidateTokenResponse {
+    static class ValidateTokenResult {
         public boolean isValid;
         public Claims claims;
     }

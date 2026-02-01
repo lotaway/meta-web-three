@@ -14,16 +14,16 @@ public class CreditProfile {
     private Long userId;
 
     @TableField("base_credit_limit")
-    private int baseCreditLimit = 10000;
+    private int baseCreditLimit = CreditLimit.DEFAULT_BASE;
 
     @TableField("current_credit_limit")
-    private int currentCreditLimit = 10000;
+    private int currentCreditLimit = CreditLimit.DEFAULT_BASE;
 
     @TableField("credit_used")
     private int creditUsed = 0;
 
     @TableField(value = "risk_level")
-    private String riskLevel = "C";
+    private String riskLevel = RiskLevel.C;
 
     @TableField("last_score")
     private Integer lastScore;
@@ -44,11 +44,29 @@ public class CreditProfile {
     private Integer lastScoreChange;
 
     @TableField("max_adjustment_percentage")
-    private double maxAdjustmentPercentage = 0.15;
+    private double maxAdjustmentPercentage = AdjustmentPercent.MAX;
 
     @TableField(value = "adjustment_history")
     private List<Map<String, Object>> adjustmentHistory;
 
     @TableField("last_update")
     private LocalDateTime lastUpdate = LocalDateTime.now();
+}
+
+class CreditLimit {
+    static final int DEFAULT_BASE = 10000;
+    static final int LEVEL_L1 = 10000;
+    static final int LEVEL_L2 = 100000;
+    static final int LEVEL_L3 = 1000000;
+}
+
+class RiskLevel {
+    static final String A = "A";
+    static final String B = "B";
+    static final String C = "C";
+    static final String D = "D";
+}
+
+class AdjustmentPercent {
+    static final double MAX = 0.15;
 }

@@ -36,7 +36,7 @@ public class UserKYC extends BaseDO {
     private String idNumber;
     
     @TableField("id_type")
-    private String idType; // ID_CARD, PASSPORT, DRIVER_LICENSE
+    private String idType;
     
     @TableField("phone_number")
     private String phoneNumber;
@@ -111,10 +111,10 @@ public class UserKYC extends BaseDO {
     private LocalDateTime reviewedAt;
     
     public enum KYCLevel {
-        L0("基础验证", 1000),
-        L1("身份验证", 10000),
-        L2("高级验证", 100000),
-        L3("企业验证", 1000000);
+        L0(KYCLevelConstant.BASIC_VERIFICATION, KYCLevelConstant.L0_LIMIT),
+        L1(KYCLevelConstant.IDENTITY_VERIFICATION, KYCLevelConstant.L1_LIMIT),
+        L2(KYCLevelConstant.ADVANCED_VERIFICATION, KYCLevelConstant.L2_LIMIT),
+        L3(KYCLevelConstant.ENTERPRISE_VERIFICATION, KYCLevelConstant.L3_LIMIT);
         
         private final String description;
         private final int limit;
@@ -134,10 +134,10 @@ public class UserKYC extends BaseDO {
     }
     
     public enum KYCStatus {
-        PENDING("待审核"),
-        APPROVED("已通过"),
-        REJECTED("已拒绝"),
-        EXPIRED("已过期");
+        PENDING(KYCStatusConstant.PENDING),
+        APPROVED(KYCStatusConstant.APPROVED),
+        REJECTED(KYCStatusConstant.REJECTED),
+        EXPIRED(KYCStatusConstant.EXPIRED);
         
         private final String description;
         
@@ -149,4 +149,22 @@ public class UserKYC extends BaseDO {
             return description;
         }
     }
+}
+
+class KYCLevelConstant {
+    static final String BASIC_VERIFICATION = "基础验证";
+    static final String IDENTITY_VERIFICATION = "身份验证";
+    static final String ADVANCED_VERIFICATION = "高级验证";
+    static final String ENTERPRISE_VERIFICATION = "企业验证";
+    static final int L0_LIMIT = 1000;
+    static final int L1_LIMIT = 10000;
+    static final int L2_LIMIT = 100000;
+    static final int L3_LIMIT = 1000000;
+}
+
+class KYCStatusConstant {
+    static final String PENDING = "待审核";
+    static final String APPROVED = "已通过";
+    static final String REJECTED = "已拒绝";
+    static final String EXPIRED = "已过期";
 } 

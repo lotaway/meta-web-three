@@ -8,7 +8,6 @@ import com.metawebthree.common.enums.ResponseStatus;
 import com.metawebthree.order.application.OrderApplicationService;
 import com.metawebthree.order.application.OrderApplicationService.OrderCreateRequest;
 import com.metawebthree.order.application.OrderApplicationService.OrderWithItems;
-import com.metawebthree.order.domain.model.OrderDO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -30,8 +29,9 @@ public class OrderController {
     @GetMapping("/{id}")
     public ApiResponse<OrderWithItems> detail(@RequestHeader("X-User-ID") Long userId,
             @PathVariable("id") Long id) {
-        var opt = orderService.getOrderDetail(id, userId).map(ApiResponse::success);
-        return opt.orElseGet(() -> new ApiResponse<>(ResponseStatus.ERROR, "Not found"));
+        return orderService.getOrderDetail(id, userId)
+                .map(ApiResponse::success)
+                .orElseGet(() -> ApiResponse.error(ResponseStatus.ORDER_NOT_FOUND));
     }
 
     @GetMapping("/list")
@@ -45,16 +45,15 @@ public class OrderController {
     @PostMapping("/cancel/{id}")
     public ApiResponse<?> cancel(@RequestHeader("X-User-ID") Long userId,
             @PathVariable("id") Long id) {
-        boolean ok = orderService.cancelOrder(id, userId);
-        if (ok) {
+        boolean cancelled = orderService.cancelOrder(id, userId);
+        if (cancelled) {
             return ApiResponse.success();
-        } else {
-            return new ApiResponse<>(ResponseStatus.ERROR, "Cancel failed");
         }
+        return ApiResponse.error(ResponseStatus.ORDER_CANCEL_FAILED);
     }
 
     @GetMapping("/micro-service-test")
     public String microServiceTest() {
-        return "No implementation";
+        return "Order service is running";
     }
 }
