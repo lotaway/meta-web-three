@@ -8,10 +8,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.metawebthree.common.generated.rpc.RiskScorerService;
+import com.metawebthree.common.generated.rpc.ScoreRequest;
+import com.metawebthree.common.generated.rpc.ScoreResponse;
+import com.metawebthree.common.generated.rpc.Feature;
+import org.apache.dubbo.config.annotation.DubboReference;
+
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 风控服务
@@ -32,6 +40,9 @@ public class RiskControlServiceImpl {
 
     private final ExchangeOrderRepository exchangeOrderRepository;
 
+    @DubboReference(check = false, lazy = true)
+    private RiskScorerService riskScorerService;
+
     @Value("${payment.risk-control.single-limit.usd:10000}")
     private BigDecimal singleLimitUSD;
 
@@ -44,15 +55,47 @@ public class RiskControlServiceImpl {
     @Value("${payment.risk-control.slippage.max-percentage:2.0}")
     private BigDecimal maxSlippagePercentage;
 
+    @Value("${payment.risk-control.min-score:600}")
+    private int minScore;
+
     /**
      * @TODO Add external risk control service integration.
      */
     @LogMethod
     public void validateOrder(Long userId, BigDecimal amount, String fiatCurrency) {
+        checkRiskScore(userId, amount, fiatCurrency);
         validateSingleLimit(amount, fiatCurrency);
         validateDailyLimit(userId, amount, fiatCurrency);
         validateFrequency(userId);
         validateAbnormalBehavior(userId);
+    }
+
+    private void checkRiskScore(Long userId, BigDecimal amount, String fiatCurrency) {
+        try {
+            // TODO: Extract real features from user profile and device info
+            Map<String, Feature> features = new HashMap<>();
+            features.put("age", Feature.newBuilder().setAge(25).build()); // Mock data
+            features.put("first_order", Feature.newBuilder().setFirstOrder(false).build());
+
+            ScoreRequest request = ScoreRequest.newBuilder()
+                    .setScene("payment_execution")
+                    .putAllFeatures(features)
+                    .build();
+
+            ScoreResponse response = riskScorerService.score(request);
+            log.info("Risk score for user {}: score={}, decision={}", userId, response.getScore(),
+                    response.getDecision());
+
+            if (response.getScore() < minScore) {
+                throw new RuntimeException("Risk score too low: " + response.getScore() +
+                        " (Required: " + minScore + "). Decision: " + response.getDecision());
+            }
+        } catch (Exception e) {
+            log.error("Risk score check failed for user {}", userId, e);
+            // In production, you might want to configure whether to fail-open or
+            // fail-closed
+            throw new RuntimeException("Risk assessment failed: " + e.getMessage());
+        }
     }
 
     private void validateSingleLimit(BigDecimal amount, String fiatCurrency) {
@@ -152,4 +195,5 @@ public class RiskControlServiceImpl {
         }
         return false;
     }
+
 }
