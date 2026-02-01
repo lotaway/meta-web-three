@@ -56,7 +56,7 @@ CREATE TABLE TokenMapping (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     parent_token VARCHAR(512) NOT NULL,
     child_token VARCHAR(512) NOT NULL UNIQUE,
-    user_id BIGINT NOT NULL REFERENCES User(id),
+    user_id BIGINT NOT NULL REFERENCES User (id),
     permissions VARCHAR(255) COMMENT '子token权限，逗号分隔',
     expires_at DATETIME NOT NULL,
     is_revoked BOOLEAN NOT NULL DEFAULT 0,
@@ -66,4 +66,17 @@ CREATE TABLE TokenMapping (
     INDEX idx_child_token (child_token),
     INDEX idx_user_id (user_id),
     INDEX idx_expires_at (expires_at)
+);
+
+CREATE TABLE user_profile (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL REFERENCES User (id),
+    age INTEGER,
+    external_debt_ratio FLOAT COMMENT '外部债务比率',
+    gps_stability FLOAT COMMENT 'GPS稳定性(0-1)',
+    device_shared_degree INTEGER COMMENT '设备共享程度(关联账号数)',
+    device_risk_tag VARCHAR(255) COMMENT '设备风险标签(如ROOT,EMULATOR)',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_user_id (user_id)
 );
