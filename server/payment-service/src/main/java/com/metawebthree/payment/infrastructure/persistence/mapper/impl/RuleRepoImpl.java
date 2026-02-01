@@ -1,9 +1,9 @@
-package com.metawebthree.payment.repository.impl;
+package com.metawebthree.payment.infrastructure.persistence.mapper.impl;
 
-import com.metawebthree.entity.Rule;
-import com.metawebthree.enums.DecisionEnum;
-import com.metawebthree.enums.DeviceRiskTag;
-import com.metawebthree.repository.RuleRepo;
+import com.metawebthree.payment.domain.model.Rule;
+import com.metawebthree.payment.enums.DecisionEnum;
+import com.metawebthree.payment.enums.DeviceRiskTag;
+import com.metawebthree.payment.infrastructure.persistence.mapper.RuleRepo;
 
 import org.springframework.stereotype.Repository;
 

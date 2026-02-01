@@ -1,7 +1,7 @@
 package com.metawebthree.payment.application;
 
-import com.metawebthree.entity.CryptoPrice;
-import com.metawebthree.repository.CryptoPriceRepository;
+import com.metawebthree.payment.domain.model.CryptoPrice;
+import com.metawebthree.payment.infrastructure.persistence.mapper.CryptoPriceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

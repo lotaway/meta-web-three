@@ -1,7 +1,7 @@
 package com.metawebthree.payment.infrastructure.persistence.mapper.impl;
 
 import com.metawebthree.payment.application.dto.DecisionRequest;
-import com.metawebthree.enums.DeviceRiskTag;
+import com.metawebthree.payment.enums.DeviceRiskTag;
 import com.metawebthree.payment.infrastructure.persistence.mapper.FeatureRepo;
 
 import org.springframework.stereotype.Repository;

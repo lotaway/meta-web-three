@@ -1,5 +1,5 @@
 package com.metawebthree.payment.application;
- 
+
 import com.metawebthree.common.annotations.LogMethod;
 import com.metawebthree.payment.domain.model.ExchangeOrder;
 import com.metawebthree.payment.infrastructure.persistence.mapper.ExchangeOrderRepository;
@@ -15,8 +15,8 @@ import java.util.List;
 
 /**
  * 风控服务
- *
- * TODO: 如需接入第三方风控服务（如Chainalysis、Elliptic等），请在
+ * 
+ * TODO: 需要添加 @/risk-scorer 程序进行处理，其次如需接入第三方风控服务（如Chainalysis、Elliptic等），请在
  * validateOrder、validateWalletAddress 等方法中
  * 调用外部API进行合规校验、地址风险识别、异常行为检测等。
  * 推荐将第三方API调用、风控规则配置等逻辑封装为独立方法或类，便于后续维护和切换。

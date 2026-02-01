@@ -2,7 +2,7 @@ package com.metawebthree.payment.application.dto;
 
 import java.util.List;
 
-import com.metawebthree.enums.DecisionEnum;
+import com.metawebthree.payment.enums.DecisionEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

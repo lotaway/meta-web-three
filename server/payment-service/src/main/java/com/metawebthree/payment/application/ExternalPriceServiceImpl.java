@@ -2,7 +2,7 @@ package com.metawebthree.payment.application;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.metawebthree.entity.CryptoPrice;
+import com.metawebthree.payment.domain.model.CryptoPrice;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;

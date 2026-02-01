@@ -1,10 +1,8 @@
 package com.metawebthree.payment.interfaces.web;
-import com.metawebthree.payment.application.*;
-import com.metawebthree.payment.application.dto.*;
 
-import com.metawebthree.dto.DecisionRequest;
-import com.metawebthree.dto.DecisionResponse;
-import com.metawebthree.service.DecisionService;
+import com.metawebthree.payment.application.dto.DecisionRequest;
+import com.metawebthree.payment.application.dto.DecisionResponse;
+import com.metawebthree.payment.application.DecisionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

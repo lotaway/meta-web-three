@@ -1,7 +1,6 @@
 package com.metawebthree.payment.infrastructure.persistence.mapper;
-import com.metawebthree.payment.domain.model.*;
 
-import com.metawebthree.dto.DecisionRequest;
+import com.metawebthree.payment.application.dto.DecisionRequest;
 import java.util.Map;
 
 public interface FeatureRepo {

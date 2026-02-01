@@ -1,8 +1,7 @@
 package com.metawebthree.payment.infrastructure.persistence.mapper;
-import com.metawebthree.payment.domain.model.*;
 
 import com.github.yulichang.base.MPJBaseMapper;
-import com.metawebthree.entity.CreditProfile;
+import com.metawebthree.payment.domain.model.CreditProfile;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

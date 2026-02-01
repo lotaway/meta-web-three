@@ -1,9 +1,7 @@
 package com.metawebthree.payment.interfaces.web;
-import com.metawebthree.payment.application.*;
-import com.metawebthree.payment.application.dto.*;
 
-import com.metawebthree.dto.CryptoPriceResponse;
-import com.metawebthree.service.impl.PriceEngineServiceImpl;
+import com.metawebthree.payment.application.dto.CryptoPriceResponse;
+import com.metawebthree.payment.application.PriceEngineServiceImpl;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

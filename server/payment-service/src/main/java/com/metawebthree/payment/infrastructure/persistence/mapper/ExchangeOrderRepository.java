@@ -1,6 +1,5 @@
 package com.metawebthree.payment.infrastructure.persistence.mapper;
-import com.metawebthree.payment.domain.model.*;
- 
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.metawebthree.payment.domain.model.ExchangeOrder;
 import org.apache.ibatis.annotations.Mapper;

@@ -1,15 +1,14 @@
 package com.metawebthree.payment.application;
 
-import com.metawebthree.dto.DecisionRequest;
-import com.metawebthree.dto.DecisionResponse;
-import com.metawebthree.entity.CreditProfile;
-import com.metawebthree.entity.Rule;
-import com.metawebthree.enums.DecisionEnum;
-import com.metawebthree.repository.AuditRepo;
-import com.metawebthree.repository.CreditProfileRepo;
-import com.metawebthree.repository.FeatureRepo;
-import com.metawebthree.repository.RuleRepo;
-import com.metawebthree.service.DecisionService;
+import com.metawebthree.payment.application.dto.DecisionRequest;
+import com.metawebthree.payment.application.dto.DecisionResponse;
+import com.metawebthree.payment.domain.model.CreditProfile;
+import com.metawebthree.payment.domain.model.Rule;
+import com.metawebthree.payment.enums.DecisionEnum;
+import com.metawebthree.payment.infrastructure.persistence.mapper.AuditRepo;
+import com.metawebthree.payment.infrastructure.persistence.mapper.CreditProfileRepo;
+import com.metawebthree.payment.infrastructure.persistence.mapper.FeatureRepo;
+import com.metawebthree.payment.infrastructure.persistence.mapper.RuleRepo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metawebthree.common.generated.rpc.Feature;
 import com.metawebthree.common.generated.rpc.RiskScorerService;
