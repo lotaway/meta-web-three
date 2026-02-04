@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.metawebthree.commission.domain.ports.CommissionRecordStore;
 import com.metawebthree.commission.domain.CommissionRecord;
+import com.metawebthree.commission.domain.CommissionRecordStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +34,7 @@ public class CommissionRecordStoreTest extends PostgresTestBase {
         record.setFromUserId(7001L);
         record.setLevel(1);
         record.setAmount(new BigDecimal("5.5"));
-        record.setStatus("PENDING");
+        record.setStatus(CommissionRecordStatus.PENDING.name());
         record.setAvailableAt(LocalDateTime.now());
         record.setCreatedAt(LocalDateTime.now());
         record.setUpdatedAt(LocalDateTime.now());

@@ -158,7 +158,7 @@ public class CommissionEndToEndTest extends PostgresTestBase {
     }
 
     private void confirmReceive(Long userId, Long orderId) {
-        HttpEntity<Void> entity = jsonEntity(null, userId);
+        HttpEntity<Void> entity = headerEntity(userId);
         restTemplate.postForEntity(ORDER_URL + "/order/confirm-receive/" + orderId, entity, String.class);
     }
 
@@ -188,6 +188,14 @@ public class CommissionEndToEndTest extends PostgresTestBase {
             headers.add("X-User-ID", String.valueOf(userId));
         }
         return new HttpEntity<>(body, headers);
+    }
+
+    private HttpEntity<Void> headerEntity(Long userId) {
+        HttpHeaders headers = new HttpHeaders();
+        if (userId != null) {
+            headers.add("X-User-ID", String.valueOf(userId));
+        }
+        return new HttpEntity<>(headers);
     }
 
     private static void closeContext(ConfigurableApplicationContext context) {
