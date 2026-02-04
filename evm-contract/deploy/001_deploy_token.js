@@ -1,9 +1,6 @@
 const hre = require("hardhat")
-// const ethers = hre.ethers
-const {join} = require("node:path")
-const {createWriteStream} = require("node:fs")
 
-export default async function({deployments, getNamedAccounts, network, solNames}) {
+module.exports = async function ({deployments, getNamedAccounts}) {
     // const AccountTransferContract = await hre.ethers.getContractFactory("AccountTransfer")
     // const accountTransferContract = await AccountTransferContract.deploy()
     // await accountTransferContract.deployed()
@@ -19,44 +16,34 @@ export default async function({deployments, getNamedAccounts, network, solNames}
                 return contract.deployed()
             })
     })*/
-   const adminAddress = getNamedAccounts().admin
-    const tokenContract = await hre.ethers.getContractFactory("MetaThreeCoin")
+    const {deploy} = deployments
+    const {admin: adminAddress} = await getNamedAccounts()
     const solName = "MetaThreeCoinFactory"
-    const FactoryContract = await hre.ethers.getContractFactory(solName)
-    const factoryContract = await FactoryContract.deploy({
-        // from: hre.ethers.provider,
+
+    const factoryDeployment = await deploy(solName, {
         from: adminAddress,
-        args: [],
         log: true,
-        contract: solName,
         proxy: {
-            owner: hre.ethers.provider,
             owner: adminAddress,
-            proxyContract: 'UUPS',
+            proxyContract: "UUPS",
             execute: {
                 init: {
-                    methodName: 'initialize',
-                    args: [],
+                    methodName: "initialize",
+                    args: []
                 }
-            },
-            upgradeFunction: {
-                methodName: "upgradeToAndCall",
-                upgradeArgs: ['{implementation}', '{data}']
             }
         }
     })
-    // await factoryContract.deployed()
-    await factoryContract.waitForDeployment()
     // const tx = await factoryContract.deployTransaction()
     // await tx.wait(5)
-    console.info(`${solName} already deployed, address: ${factoryContract.address}`)
+    console.info(`${solName} deployed, address: ${factoryDeployment.address}`)
     // await Promise.all(compiles)
     // const name = await hre.ethers.provider.getNetwork()
     // const needVerify = !!(name === "hardhat" || name === "localhost") // product verify
     const needVerify = false
     if (needVerify) {
         const verifyTX = await hre.run("verify:verify", {
-            address: factoryContract.address,
+            address: factoryDeployment.address,
             constructorArguments: []
         })
         console.info(`verifyTX: ${verifyTX}`)
