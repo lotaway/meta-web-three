@@ -19,6 +19,7 @@ import com.metawebthree.user.domain.model.UserRoleMappingDO;
 import com.metawebthree.user.domain.model.Web3UserDO;
 import com.metawebthree.user.application.dto.SubTokenDTO;
 import com.metawebthree.user.application.dto.UserDTO;
+import com.metawebthree.user.domain.ports.ReferralBindingPort;
 import com.metawebthree.user.infrastructure.persistence.mapper.TokenMappingMapper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -42,15 +43,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     private final UserRoleMappingMapper userRoleMappingMapper;
     private final TokenMappingMapper tokenMappingMapper;
     private final UserJwtUtil jwtUtil;
+    private final ReferralBindingPort referralBindingPort;
 
     public UserServiceImpl(PageConfigVO pageConfigVo, UserMapper userMapper, Web3UserMapper web3UserMapper,
-            UserRoleMappingMapper userRoleMappingMapper, TokenMappingMapper tokenMappingMapper, UserJwtUtil jwtUtil) {
+            UserRoleMappingMapper userRoleMappingMapper, TokenMappingMapper tokenMappingMapper, UserJwtUtil jwtUtil,
+            ReferralBindingPort referralBindingPort) {
         this.pageConfigVo = pageConfigVo;
         this.userMapper = userMapper;
         this.web3UserMapper = web3UserMapper;
         this.userRoleMappingMapper = userRoleMappingMapper;
         this.tokenMappingMapper = tokenMappingMapper;
         this.jwtUtil = jwtUtil;
+        this.referralBindingPort = referralBindingPort;
     }
 
     public IPage<UserDTO> getUserList(int pageNum, UserDTO userDTO, AuthorDO authorDO) {
@@ -138,15 +142,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
 
     @Transactional
     public Long createUser(String email, String password, UserRole userRoleId) throws NoSuchAlgorithmException {
+        return createUserWithReferrer(email, password, userRoleId, null);
+    }
+
+    @Transactional
+    public Long createUserWithReferrer(String email, String password, UserRole userRoleId, Long referrerId)
+            throws NoSuchAlgorithmException {
         UserDO userDO = new UserDO();
         userDO.setEmail(email);
         userDO.setPassword(md5Encrypt(password));
+        userDO.setTypeId(userRoleId.getValue());
         UserRoleMappingDO userRoleMappingDO = UserRoleMappingDO.builder().userRoleId(userRoleId).build();
         int result = userMapper.createUser(userDO);
         int result2 = userRoleMappingMapper.insert(userRoleMappingDO);
         log.info("User created with ID: " + userDO.getId() + " and result: " + result + ", result2: " + result2);
+        bindReferralIfNeeded(userDO.getId(), referrerId);
         // userMapper.selectCount()
         return userDO.getId();
+    }
+
+    private void bindReferralIfNeeded(Long userId, Long referrerId) {
+        if (referrerId == null || referrerId <= 0) {
+            return;
+        }
+        referralBindingPort.bind(userId, referrerId);
     }
 
     @Transactional
@@ -156,6 +175,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         userDO.setId(IdWorker.getId());
         userDO.setEmail(email);
         userDO.setPassword(md5Encrypt(password));
+        userDO.setTypeId(userRoleId.getValue());
         UserRoleMappingDO userRoleMappingDO = UserRoleMappingDO
                 .builder()
                 .id(IdWorker.getId())

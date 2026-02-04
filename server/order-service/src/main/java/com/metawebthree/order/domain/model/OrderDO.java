@@ -18,18 +18,10 @@ public class OrderDO {
     private Long id;
     private Long userId;
     private String orderNo;
-    private OrderStatus status;
-    private OrderType type;
+    private String orderStatus;
+    private String orderType;
     private BigDecimal orderAmount;
     private String orderRemark;
     private Timestamp createdAt;
     private Timestamp updatedAt;
-}
-
-enum OrderStatus {
-    PENDING, CONFIRMED, PAID, SHIPPED, COMPLETED, CANCELLED, REFUNDED
-}
-
-enum OrderType {
-    NORMAL, GROUP_BUY, FLASH_SALE, PRE_ORDER
 }

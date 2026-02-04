@@ -52,6 +52,26 @@ public class OrderController {
         return ApiResponse.error(ResponseStatus.ORDER_CANCEL_FAILED);
     }
 
+    @PostMapping("/confirm-receive/{id}")
+    public ApiResponse<?> confirmReceive(@RequestHeader("X-User-ID") Long userId,
+            @PathVariable("id") Long id) {
+        boolean confirmed = orderService.confirmReceive(id, userId);
+        if (confirmed) {
+            return ApiResponse.success();
+        }
+        return ApiResponse.error(ResponseStatus.ORDER_STATUS_INVALID);
+    }
+
+    @PostMapping("/refund/{id}")
+    public ApiResponse<?> refund(@RequestHeader("X-User-ID") Long userId,
+            @PathVariable("id") Long id) {
+        boolean refunded = orderService.refundOrder(id, userId);
+        if (refunded) {
+            return ApiResponse.success();
+        }
+        return ApiResponse.error(ResponseStatus.ORDER_STATUS_INVALID);
+    }
+
     @GetMapping("/micro-service-test")
     public String microServiceTest() {
         return "Order service is running";

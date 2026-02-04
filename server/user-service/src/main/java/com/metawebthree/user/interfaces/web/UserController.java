@@ -77,9 +77,20 @@ public class UserController {
     @PostMapping("/create")
     public ApiResponse<?> create(@RequestBody Map<String, Object> params) throws Exception {
         UserRole userRoleId = UserRole.tryValueOf((long) (params.get("typeId"))).orElse(UserRole.USER);
-        Long userId = userService.createUser(
+        Long referrerId = null;
+        if (params.get("referrerId") != null) {
+            try {
+                referrerId = Long.parseLong(String.valueOf(params.get("referrerId")));
+            } catch (NumberFormatException ex) {
+                return ApiResponse.error(ResponseStatus.PARAM_TYPE_ERROR, "Invalid referrerId");
+            }
+            if (referrerId > 0 && userService.getById(referrerId) == null) {
+                return ApiResponse.error(ResponseStatus.USER_NOT_FOUND, "Referrer not found");
+            }
+        }
+        Long userId = userService.createUserWithReferrer(
                 String.valueOf(params.get("email")),
-                String.valueOf(params.get("password")), userRoleId);
+                String.valueOf(params.get("password")), userRoleId, referrerId);
         log.info("New user created - userId: {}", userId);
         return ApiResponse.success();
     }
@@ -213,7 +224,7 @@ public class UserController {
     private Long extractUserId(String authorization, Map<String, String> header) {
         if (authorization != null && authorization.startsWith("Bearer ")) {
             String token = authorization.substring("Bearer ".length());
-            Optional<Map<String, Object>> oClaims = jwtUtil.tryDecode(token);
+            Optional<io.jsonwebtoken.Claims> oClaims = jwtUtil.tryDecode(token);
             if (oClaims.isPresent()) {
                 return jwtUtil.getUserId(oClaims.get());
             }

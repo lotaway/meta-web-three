@@ -8,13 +8,14 @@ CREATE TABLE coupon_type (
     is_enabled BOOLEAN NOT NULL DEFAULT TRUE,
     create_user_id BIGINT,
     type_code VARCHAR(64),
-    start_time DATETIME NOT NULL,
-    end_time DATETIME NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_coupon_type_time (start_time, end_time),
-    INDEX idx_coupon_type_enabled (is_enabled)
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_coupon_type_time ON coupon_type(start_time, end_time);
+CREATE INDEX idx_coupon_type_enabled ON coupon_type(is_enabled);
 
 CREATE TABLE coupon (
     id BIGINT PRIMARY KEY,
@@ -28,19 +29,21 @@ CREATE TABLE coupon (
     consumer_name VARCHAR(64),
     operator_name VARCHAR(64),
     batch_id VARCHAR(64),
-    used_at DATETIME,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_coupon_owner_status (owner_user_id, use_status),
-    INDEX idx_coupon_type (coupon_type_id),
-    INDEX idx_coupon_code (code),
-    INDEX idx_coupon_batch (batch_id)
+    used_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_coupon_owner_status ON coupon(owner_user_id, use_status);
+CREATE INDEX idx_coupon_type ON coupon(coupon_type_id);
+CREATE INDEX idx_coupon_code ON coupon(code);
+CREATE INDEX idx_coupon_batch ON coupon(batch_id);
 
 CREATE TABLE coupon_batch (
     id VARCHAR(64) PRIMARY KEY,
     coupon_type_id BIGINT NOT NULL,
     total_count INTEGER NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_coupon_batch_type (coupon_type_id)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_coupon_batch_type ON coupon_batch(coupon_type_id);

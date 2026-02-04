@@ -1,17 +1,20 @@
 package com.metawebthree.order.application;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.metawebthree.order.domain.model.OrderDO;
 import com.metawebthree.order.domain.model.OrderItemDO;
+import com.metawebthree.order.domain.ports.CommissionSettlementPort;
 import com.metawebthree.order.infrastructure.persistence.mapper.OrderItemMapper;
 import com.metawebthree.order.infrastructure.persistence.mapper.OrderMapper;
 
@@ -21,10 +24,16 @@ import lombok.Data;
 public class OrderApplicationService {
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
+    private final CommissionSettlementPort commissionSettlementPort;
 
-    public OrderApplicationService(OrderMapper orderMapper, OrderItemMapper orderItemMapper) {
+    @Value("${commission.return-window-days}")
+    private int returnWindowDays;
+
+    public OrderApplicationService(OrderMapper orderMapper, OrderItemMapper orderItemMapper,
+            CommissionSettlementPort commissionSettlementPort) {
         this.orderMapper = orderMapper;
         this.orderItemMapper = orderItemMapper;
+        this.commissionSettlementPort = commissionSettlementPort;
     }
 
     @Transactional
@@ -91,6 +100,37 @@ public class OrderApplicationService {
         return orderMapper.updateById(order) > 0;
     }
 
+    @Transactional
+    public boolean confirmReceive(Long orderId, Long userId) {
+        OrderDO order = orderMapper.selectById(orderId);
+        if (order == null || !order.getUserId().equals(userId)) {
+            return false;
+        }
+        order.setOrderStatus("COMPLETED");
+        boolean updated = orderMapper.updateById(order) > 0;
+        if (updated) {
+            LocalDateTime confirmAt = LocalDateTime.now();
+            LocalDateTime returnDeadlineAt = confirmAt.plusDays(returnWindowDays);
+            LocalDateTime availableAt = returnDeadlineAt.plusDays(1);
+            commissionSettlementPort.calculate(orderId, userId, order.getOrderAmount(), availableAt);
+        }
+        return updated;
+    }
+
+    @Transactional
+    public boolean refundOrder(Long orderId, Long userId) {
+        OrderDO order = orderMapper.selectById(orderId);
+        if (order == null || !order.getUserId().equals(userId)) {
+            return false;
+        }
+        order.setOrderStatus("REFUNDED");
+        boolean updated = orderMapper.updateById(order) > 0;
+        if (updated) {
+            commissionSettlementPort.cancel(orderId);
+        }
+        return updated;
+    }
+
     @Data
     public static class OrderItemCreate {
         private Long productId;
@@ -116,4 +156,3 @@ public class OrderApplicationService {
         }
     }
 }
-

@@ -23,4 +23,5 @@ public class UserDO extends BaseDO {
     private String avatar;
     private String email;
     private String password;
+    private Long typeId;
 }

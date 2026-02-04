@@ -30,6 +30,8 @@ public interface UserService extends IService<UserDO> {
 
     Long createUser(String email, String password, UserRole userRoleId) throws Exception;
 
+    Long createUserWithReferrer(String email, String password, UserRole userRoleId, Long referrerId) throws Exception;
+
     default int updateUser(Long id) {
         UserDO user = new UserDO();
         user.setId(id);
