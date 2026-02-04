@@ -1,0 +1,30 @@
+server:
+  port: 10088
+spring:
+  application:
+    name: commission-service
+  profiles:
+    active: dev
+commission:
+  buy-rate: "0.10"
+  level-rates: "0.4,0.2,0.1"
+  max-levels: 3
+  return-window-days: 7
+  settlement:
+    cron: "0 */10 * * * ?"
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+    import:
+      - optional:classpath:application-common.yml
+      - optional:classpath:application-common-dev.yml
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import:
+      - optional:classpath:application-common.yml
+      - optional:classpath:application-common-prod.yml
