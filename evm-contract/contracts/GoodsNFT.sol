@@ -14,7 +14,7 @@ import "./interface/IGoodsNFT.sol";
  * 注意保持足够的费用
  * todo 需要添加更多角色
  */
-contract GoodsNFT is IGoodsNFT, ERC721, Ownable {
+contract GoodsNFT is IGoodsNFT, ERC721, Ownable, ReentrancyGuard {
     IERC20 public metaThreeCoin;
     ICommissionToken public commissionToken;
     ICommissionRelation public commissionRelation;
