@@ -15,7 +15,7 @@ _本项目为元宇宙 3D+区块链 AI 相关_
 - - message-service 消息微服务
 - - media-service 多媒体微服务
 - protos protobuf RPC消息格式，提供给各个微服务使用
-- order-match 订单撮合微服务
+
 - risk-scorer 风险AI评分微服务
 - evm-contract Ethereum 及衍生链合约
 - solana-contract Solana链合约

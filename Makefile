@@ -2,8 +2,8 @@ PROTO_DIR = protos
 JAVA_DIR = server/common
 JAVA_OUT = $(JAVA_DIR)/src/main/java
 PY_OUT = risk-scorer
-RUST_DIR = order-match
-RUST_OUT = $(RUST_DIR)/src/generated/rpc
+# RUST_DIR = order-match
+# RUST_OUT = $(RUST_DIR)/src/generated/rpc
 
 PROTO_FILES := $(wildcard $(PROTO_DIR)/*.proto)
 
@@ -36,12 +36,13 @@ gen-python:
 		$(PROTO_FILES)
 	# protoc --proto_path=$(PROTO_DIR) --python_out=$(PY_OUT) --pyi_out=$(PY_OUT) $(PROTO_FILES)
 
-gen-rust:
-	@echo "Generating Rust code..."
-	@mkdir -p $(RUST_OUT)
-	@cd $(RUST_DIR) && RUST_BACKTRACE=1 cargo build
+# gen-rust:
+# 	@echo "Generating Rust code..."
+# 	@mkdir -p $(RUST_OUT)
+# 	@cd $(RUST_DIR) && RUST_BACKTRACE=1 cargo build
 
 clean:
 	rm -rf $(JAVA_OUT)/com/metawebthree/common/generated/rpc/*.java
 	rm -rf $(PY_OUT)/*_pb2.py $(PY_OUT)/*_pb2.pyi $(PY_OUT)/*_pb2_grpc.py
-	rm -rf $(RUST_DIR)/src/generated/rpc/*.rs
+# 	rm -rf $(RUST_DIR)/src/generated/rpc/*.rs
+
