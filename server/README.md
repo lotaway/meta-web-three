@@ -11,3 +11,9 @@ aws_secret_access_key=s3_secret_key
 ## Quartz Schedule Config
 
 [Quartz SQL Scripts and Example](https://www.quartz-scheduler.org/downloads)
+
+## Promotion Service
+
+Spring Boot promotion microservice (coupon) is located at `promotion-service`.  
+Default port: `10087`, Dubbo port: `20087`.  
+Database schema: `promotion-service/src/main/resources/db/init.sql`.

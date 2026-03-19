@@ -33,6 +33,11 @@ WORKDIR /app
 COPY --from=builder /build/payment-service/target/payment-service-*.jar payment-service.jar
 ENTRYPOINT ["java", "-jar", "payment-service.jar"]
 
+FROM eclipse-temurin:17-jre-jammy AS commission-service
+WORKDIR /app
+COPY --from=builder /build/commission-service/target/commission-service-*.jar commission-service.jar
+ENTRYPOINT ["java", "-jar", "commission-service.jar"]
+
 FROM eclipse-temurin:17-jre-jammy AS media-service
 WORKDIR /app
 COPY --from=builder /build/media-service/target/media-service-*.jar media-service.jar

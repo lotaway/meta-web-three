@@ -10,6 +10,9 @@ dubbo:
     name: user-service
   protocol:
     port: 20083
+commission:
+  service:
+    base-url: http://commission-service:10088
 ---
 spring:
   config:

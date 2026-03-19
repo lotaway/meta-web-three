@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./interface/ICommissionToken.sol";
 import "./interface/ICommissionRelation.sol";
 import "./struct/GoodsSpecification.sol";
@@ -13,7 +14,7 @@ import "./interface/IGoodsNFT.sol";
  * 注意保持足够的费用
  * todo 需要添加更多角色
  */
-contract GoodsNFT is IGoodsNFT, ERC721, Ownable {
+contract GoodsNFT is IGoodsNFT, ERC721, Ownable, ReentrancyGuard {
     IERC20 public metaThreeCoin;
     ICommissionToken public commissionToken;
     ICommissionRelation public commissionRelation;
@@ -79,7 +80,7 @@ contract GoodsNFT is IGoodsNFT, ERC721, Ownable {
         mint(tokenId, referrer);
     }
 
-    function mint(uint256 tokenId, address referrer) public {
+    function mint(uint256 tokenId, address referrer) public nonReentrant {
         require(_exists(tokenId), "Good does not exist");
         uint256 price = goodPrices[tokenId];
 

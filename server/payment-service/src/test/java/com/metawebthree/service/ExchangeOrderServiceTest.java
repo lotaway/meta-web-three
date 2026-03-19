@@ -1,15 +1,16 @@
 package com.metawebthree.service;
 
-import com.metawebthree.dto.ExchangeOrderRequest;
-import com.metawebthree.dto.ExchangeOrderResponse;
-import com.metawebthree.entity.ExchangeOrder;
-import com.metawebthree.entity.UserKYC;
-import com.metawebthree.repository.ExchangeOrderRepository;
-import com.metawebthree.repository.UserKYCRepository;
-import com.metawebthree.service.impl.CryptoWalletServiceImpl;
-import com.metawebthree.service.impl.ExchangeOrderServiceImpl;
-import com.metawebthree.service.impl.PriceEngineServiceImpl;
-import com.metawebthree.service.impl.RiskControlServiceImpl;
+import com.metawebthree.payment.application.dto.ExchangeOrderRequest;
+import com.metawebthree.payment.application.dto.ExchangeOrderResponse;
+import com.metawebthree.payment.domain.model.ExchangeOrder;
+import com.metawebthree.payment.domain.model.UserKYC;
+import com.metawebthree.payment.infrastructure.persistence.mapper.ExchangeOrderRepository;
+import com.metawebthree.payment.infrastructure.persistence.mapper.UserKYCRepository;
+import com.metawebthree.payment.application.CryptoWalletServiceImpl;
+import com.metawebthree.payment.application.ExchangeOrderServiceImpl;
+import com.metawebthree.payment.application.PriceEngineServiceImpl;
+import com.metawebthree.payment.application.RiskControlServiceImpl;
+import com.metawebthree.payment.application.PaymentService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

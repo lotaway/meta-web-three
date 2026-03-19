@@ -31,10 +31,14 @@ contract WETH is IERC20 {
         if (address(token) == address(0) && amount == 0) {
             balanceOf[msg.sender] += msg.value;
             emit Deposit(msg.sender, msg.value);
-        }
-        else {
+        } else {
             require(token.balanceOf(msg.sender) >= amount, "No enough balance");
-            token.transferFrom(address(token), to, amount);
+            bool isSuccess = token.transferFrom(
+                address(msg.sender),
+                to,
+                amount
+            );
+            require(isSuccess == true, "token transfer not success");
             emit Deposit(msg.sender, amount);
         }
     }
@@ -54,9 +58,16 @@ contract WETH is IERC20 {
         return true;
     }
 
-    function transferFrom(address from, address to, uint256 amount) public returns (bool) {
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) public returns (bool) {
         require(balanceOf[from] >= amount, "Insufficient balance");
-        require(allowance[from][msg.sender] >= amount, "Insufficient allowance");
+        require(
+            allowance[from][msg.sender] >= amount,
+            "Insufficient allowance"
+        );
         balanceOf[from] -= amount;
         balanceOf[to] += amount;
         allowance[from][msg.sender] -= amount;

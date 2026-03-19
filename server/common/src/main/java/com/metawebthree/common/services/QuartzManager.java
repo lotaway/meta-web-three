@@ -20,7 +20,9 @@ import org.springframework.stereotype.Service;
 import com.metawebthree.common.annotations.LogMethod;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class QuartzManager {
@@ -52,7 +54,7 @@ public class QuartzManager {
             Class<?> jobClass = tryConvertClassNameIntoClass(jobClassName);
             addJob(jobName, jobGroupName, triggerName, triggerGroupName, jobClass, cron, description, data);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new JobScheduleException(jobName, jobGroupName, e);
         }
         return this;
     }
@@ -82,7 +84,7 @@ public class QuartzManager {
                 scheduler.start();
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new JobScheduleException(jobName, jobGroupName, e);
         }
         return this;
     }
@@ -106,20 +108,20 @@ public class QuartzManager {
                 scheduler.rescheduleJob(triggerKey, trigger);
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new JobScheduleException(triggerName, triggerGroupName, e);
         }
     }
 
     @LogMethod
     public void removeJob(String jobName, String jobGroupName, String triggerName, String triggerGroupName) {
         try {
-
             TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroupName);
             scheduler.pauseTrigger(triggerKey);
             scheduler.unscheduleJob(triggerKey);
             scheduler.deleteJob(JobKey.jobKey(jobName, jobGroupName));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (SchedulerException e) {
+            log.error("Failed to remove job - jobName: {}, group: {}", jobName, jobGroupName, e);
+            throw new JobRemovalException(jobName, jobGroupName, e);
         }
     }
 
@@ -128,7 +130,8 @@ public class QuartzManager {
             TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroupName);
             scheduler.pauseTrigger(triggerKey);
         } catch (SchedulerException e) {
-            e.printStackTrace();
+            log.error("Failed to pause job - trigger: {}", triggerName, e);
+            throw new JobOperationException("pause", triggerName, e);
         }
     }
 
@@ -137,15 +140,16 @@ public class QuartzManager {
             TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroupName);
             scheduler.resumeTrigger(triggerKey);
         } catch (SchedulerException e) {
-            e.printStackTrace();
+            log.error("Failed to start job - trigger: {}", triggerName, e);
+            throw new JobOperationException("start", triggerName, e);
         }
     }
 
     public void startAllJobs() {
         try {
             scheduler.start();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (SchedulerException e) {
+            throw new JobScheduleException("all", "jobs", e);
         }
     }
 
@@ -154,8 +158,41 @@ public class QuartzManager {
             if (!scheduler.isShutdown()) {
                 scheduler.shutdown();
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (SchedulerException e) {
+            throw new JobScheduleException("all", "shutdown", e);
         }
+    }
+}
+
+class JobScheduleException extends RuntimeException {
+    private final String jobName;
+    private final String jobGroup;
+
+    public JobScheduleException(String jobName, String jobGroup, Throwable cause) {
+        super("Failed to schedule job: " + jobName, cause);
+        this.jobName = jobName;
+        this.jobGroup = jobGroup;
+    }
+}
+
+class JobRemovalException extends RuntimeException {
+    private final String jobName;
+    private final String jobGroup;
+
+    public JobRemovalException(String jobName, String jobGroup, Throwable cause) {
+        super("Failed to remove job: " + jobName, cause);
+        this.jobName = jobName;
+        this.jobGroup = jobGroup;
+    }
+}
+
+class JobOperationException extends RuntimeException {
+    private final String operation;
+    private final String triggerName;
+
+    public JobOperationException(String operation, String triggerName, Throwable cause) {
+        super("Failed to " + operation + " job: " + triggerName, cause);
+        this.operation = operation;
+        this.triggerName = triggerName;
     }
 }

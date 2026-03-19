@@ -10,7 +10,9 @@
     "deploy:sepolia": "npx hardhat run scripts/deploy.js --network sepolia",
     "deploy:verify": "npx hardhat verify --network sepolia",
     "deploy:coverage": "npx hardhat coverage",
-    "test": "npx hardhat test test/simple-test.ts"
+    "test:hardhat": "npx hardhat test",
+    "test:forge": "forge test",
+    "test": "npm run test:hardhat && npm run test:forge"
   },
   "keywords": [],
   "author": "",

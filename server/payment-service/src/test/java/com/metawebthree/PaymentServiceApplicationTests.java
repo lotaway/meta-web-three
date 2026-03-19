@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.metawebthree.service.DecisionService;
+import com.metawebthree.payment.application.DecisionService;
 
 import org.junit.Assert;
 

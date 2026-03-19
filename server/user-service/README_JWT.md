@@ -122,7 +122,7 @@ jwt:
 User表需要包含以下字段：
 ```sql
 CREATE TABLE User (
-  id INT PRIMARY KEY AUTO_INCREMENT,
+  id BIGSERIAL PRIMARY KEY,
   email VARCHAR(255) NOT NULL,
   password VARCHAR(255),
   author_id INT,
