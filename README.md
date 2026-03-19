@@ -4,7 +4,6 @@ _本项目为元宇宙 3D+区块链 AI 相关_
 
 ## Direct 目录说明
 
-- block-chain 区块链侧链
 - server 后端父项目，zk+dubbo+grpc+protobuf+spring-cloud-gateway+micro-services
 - - common 公共模块
 - - gateway 网关中心
