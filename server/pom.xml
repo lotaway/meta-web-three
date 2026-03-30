@@ -27,6 +27,7 @@
         <module>media-service</module>
         <module>promotion-service</module>
         <module>commission-service</module>
+        <module>cart-service</module>
     </modules>
 
     <properties>
