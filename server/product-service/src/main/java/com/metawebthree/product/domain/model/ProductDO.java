@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("tb_product")
 public class ProductDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Integer id;
     private String productNo;
     private String productName;

@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Data
 @TableName("tb_product_entity")
 public class ProductEntityDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Integer id;
     private Integer productId;
     private String productArtno;

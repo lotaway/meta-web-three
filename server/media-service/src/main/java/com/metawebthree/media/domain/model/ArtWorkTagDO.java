@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @TableName("\"Artwork_Tag\"")
 public class ArtWorkTagDO extends BaseDO {
-    @TableId(type=IdType.AUTO)
+    @TableId(type=IdType.ASSIGN_ID)
     Integer id;
     String tag;
 }

@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @TableName("User_Kyc")
 public class UserKYC extends BaseDO {
     
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     
     @TableField("user_id")

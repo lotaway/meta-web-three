@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @TableName("\"Artwork_Category\"")
 public class ArtWorkCategoryDO extends BaseDO {
-    @TableId(type=IdType.AUTO)
+    @TableId(type=IdType.ASSIGN_ID)
     Integer id;
     String name;
 }

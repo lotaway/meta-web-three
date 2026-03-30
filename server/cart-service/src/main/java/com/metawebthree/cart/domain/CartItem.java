@@ -11,7 +11,7 @@ import java.util.Date;
 @Data
 @TableName("oms_cart_item")
 public class CartItem implements Serializable {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Long productId;
     private Long productSkuId;

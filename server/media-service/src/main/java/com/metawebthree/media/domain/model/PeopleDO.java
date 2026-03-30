@@ -18,7 +18,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @TableName("\"People\"")
 public class PeopleDO extends BaseDO {
-    @TableId(type=IdType.AUTO)
+    @TableId(type=IdType.ASSIGN_ID)
     Integer id;
     String name;
     @TableField(typeHandler = SQLShortArrayHandler.class)

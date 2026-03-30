@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @TableName("tb_goods_gallery")
 public class ProductImageDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Integer id;
     private Integer goodsId;
     private String imageUrl;

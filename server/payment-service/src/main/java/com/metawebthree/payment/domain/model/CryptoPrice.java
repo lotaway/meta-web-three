@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @TableName("Crypto_Prices")
 public class CryptoPrice extends BaseDO {
     
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     
     @TableField("symbol")

@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @TableName("Exchange_Orders")
 public class ExchangeOrder extends BaseDO {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     @TableField("order_no")

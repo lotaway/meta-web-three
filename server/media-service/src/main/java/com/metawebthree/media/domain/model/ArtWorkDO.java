@@ -21,7 +21,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @TableName("\"Artwork\"")
 public class ArtWorkDO extends BaseDO implements Cloneable {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     Integer id;
     String series;
     String title;
