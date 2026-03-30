@@ -1,11 +1,13 @@
--- Product category table
+-- Product Service Schema (PMS + CMS relevant)
+-- Aligned with mall-admin-web and mall-app-web requirements
+
 CREATE TABLE tb_product_category (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     parent_id BIGINT DEFAULT 0,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR(64) NOT NULL,
     level INT DEFAULT 0,
     product_count INT DEFAULT 0,
-    product_unit VARCHAR(50),
+    product_unit VARCHAR(64),
     nav_status SMALLINT DEFAULT 0,
     show_status SMALLINT DEFAULT 1,
     sort INT DEFAULT 0,
@@ -14,11 +16,10 @@ CREATE TABLE tb_product_category (
     description TEXT
 );
 
--- Brand table
 CREATE TABLE tb_brand (
-    id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    first_letter VARCHAR(1) DEFAULT '',
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(64) NOT NULL,
+    first_letter VARCHAR(8),
     sort INT DEFAULT 0,
     factory_status SMALLINT DEFAULT 0,
     show_status SMALLINT DEFAULT 1,
@@ -29,19 +30,17 @@ CREATE TABLE tb_brand (
     brand_story TEXT
 );
 
--- Product attribute category table
 CREATE TABLE tb_product_attribute_category (
-    id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(64) NOT NULL,
     attribute_count INT DEFAULT 0,
     param_count INT DEFAULT 0
 );
 
--- Product attribute table
 CREATE TABLE tb_product_attribute (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     product_attribute_category_id BIGINT NOT NULL,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR(64) NOT NULL,
     select_type INT DEFAULT 0,
     input_type INT DEFAULT 0,
     input_list TEXT,
@@ -53,9 +52,8 @@ CREATE TABLE tb_product_attribute (
     type INT DEFAULT 0
 );
 
--- Product table
 CREATE TABLE tb_product (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     brand_id BIGINT,
     product_category_id BIGINT,
     feight_template_id BIGINT,
@@ -99,9 +97,8 @@ CREATE TABLE tb_product (
     product_category_name VARCHAR(255)
 );
 
--- SKU Stock table
 CREATE TABLE tb_sku_stock (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     product_id BIGINT NOT NULL,
     sku_code VARCHAR(64) NOT NULL,
     price DECIMAL(10, 2) DEFAULT 0.00,
@@ -114,55 +111,56 @@ CREATE TABLE tb_sku_stock (
     sp_data TEXT
 );
 
--- Product attribute value table
 CREATE TABLE tb_product_attribute_value (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     product_id BIGINT NOT NULL,
     product_attribute_id BIGINT NOT NULL,
     value VARCHAR(255)
 );
 
--- Member price table
-CREATE TABLE tb_member_price (
-    id BIGSERIAL PRIMARY KEY,
-    product_id BIGINT NOT NULL,
-    member_level_id BIGINT NOT NULL,
-    member_price DECIMAL(10, 2) DEFAULT 0.00,
-    member_level_name VARCHAR(100)
-);
-
--- Product ladder table
-CREATE TABLE tb_product_ladder (
-    id BIGSERIAL PRIMARY KEY,
-    product_id BIGINT NOT NULL,
-    count INT DEFAULT 0,
-    discount DECIMAL(10, 2) DEFAULT 0.00,
-    price DECIMAL(10, 2) DEFAULT 0.00
-);
-
--- Product full reduction table
-CREATE TABLE tb_product_full_reduction (
-    id BIGSERIAL PRIMARY KEY,
-    product_id BIGINT NOT NULL,
-    full_price DECIMAL(10, 2) DEFAULT 0.00,
-    reduce_price DECIMAL(10, 2) DEFAULT 0.00
-);
-
--- Product Category Attribute Relation
 CREATE TABLE tb_product_category_attribute_relation (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     product_category_id BIGINT NOT NULL,
     product_attribute_id BIGINT NOT NULL
 );
 
--- Freight template
-CREATE TABLE tb_feight_template (
-    id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    charge_type INT DEFAULT 0,
-    first_weight DECIMAL(10, 2),
-    first_fee DECIMAL(10, 2),
-    continue_weight DECIMAL(10, 2),
-    continue_fee DECIMAL(10, 2),
-    dest VARCHAR(255)
+-- CMS Related (Subjects, etc.)
+CREATE TABLE tb_subject (
+    id BIGINT PRIMARY KEY,
+    category_id BIGINT,
+    title VARCHAR(100),
+    pic VARCHAR(255),
+    product_count INT DEFAULT 0,
+    recommend_status SMALLINT DEFAULT 1,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    collect_count INT DEFAULT 0,
+    read_count INT DEFAULT 0,
+    comment_count INT DEFAULT 0,
+    album_pics VARCHAR(255),
+    description VARCHAR(255),
+    show_status SMALLINT DEFAULT 1,
+    content TEXT,
+    forward_count INT DEFAULT 0,
+    category_name VARCHAR(64)
+);
+
+CREATE TABLE tb_subject_product_relation (
+    id BIGINT PRIMARY KEY,
+    subject_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL
+);
+
+CREATE TABLE tb_prefrence_area (
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(64),
+    sub_title VARCHAR(64),
+    pic VARCHAR(255),
+    sort INT DEFAULT 0,
+    show_status SMALLINT DEFAULT 1
+);
+
+CREATE TABLE tb_prefrence_area_product_relation (
+    id BIGINT PRIMARY KEY,
+    prefrence_area_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL
 );

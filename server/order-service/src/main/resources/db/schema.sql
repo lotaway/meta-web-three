@@ -1,9 +1,11 @@
--- Order table
+-- Order Service Schema (OMS)
+-- Aligned with mall-admin-web and mall-app-web requirements
+
 CREATE TABLE tb_order (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     member_id BIGINT NOT NULL,
     coupon_id BIGINT,
-    order_sn VARCHAR(64) NOT NULL,
+    order_sn VARCHAR(64) NOT NULL UNIQUE,
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     member_username VARCHAR(64),
     total_amount DECIMAL(18, 2) DEFAULT 0.00,
@@ -47,9 +49,8 @@ CREATE TABLE tb_order (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Order item table
 CREATE TABLE tb_order_item (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     order_id BIGINT NOT NULL,
     order_sn VARCHAR(64) NOT NULL,
     product_id BIGINT NOT NULL,
@@ -72,9 +73,8 @@ CREATE TABLE tb_order_item (
     product_attr VARCHAR(500)
 );
 
--- Order return apply table
 CREATE TABLE tb_order_return_apply (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     order_id BIGINT NOT NULL,
     company_address_id BIGINT,
     product_id BIGINT,
@@ -103,9 +103,16 @@ CREATE TABLE tb_order_return_apply (
     receive_note VARCHAR(500)
 );
 
--- Order setting table
+CREATE TABLE tb_order_return_reason (
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    sort INT DEFAULT 0,
+    status SMALLINT DEFAULT 1,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE tb_order_setting (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     flash_order_overtime INT,
     normal_order_overtime INT,
     confirm_overtime INT,
@@ -113,9 +120,21 @@ CREATE TABLE tb_order_setting (
     comment_overtime INT
 );
 
--- Order operate log table
+CREATE TABLE tb_company_address (
+    id BIGINT PRIMARY KEY,
+    address_name VARCHAR(200),
+    send_status SMALLINT DEFAULT 0,
+    receive_status SMALLINT DEFAULT 0,
+    name VARCHAR(64),
+    phone VARCHAR(32),
+    province VARCHAR(64),
+    city VARCHAR(64),
+    region VARCHAR(64),
+    detail_address VARCHAR(255)
+);
+
 CREATE TABLE tb_order_operate_log (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     order_id BIGINT NOT NULL,
     operate_man VARCHAR(100),
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
