@@ -1,127 +1,168 @@
-CREATE TABLE tb_category (
-    id VARCHAR(36) PRIMARY KEY,
-    category_name VARCHAR(100) NOT NULL,
-    category_identity INT NOT NULL,
-    parent_id VARCHAR(36) DEFAULT '00000000-0000-0000-0000-000000000000',
-    parent_id_str TEXT,
-    sort_order INT DEFAULT 0
+-- Product category table
+CREATE TABLE tb_product_category (
+    id BIGSERIAL PRIMARY KEY,
+    parent_id BIGINT DEFAULT 0,
+    name VARCHAR(100) NOT NULL,
+    level INT DEFAULT 0,
+    product_count INT DEFAULT 0,
+    product_unit VARCHAR(50),
+    nav_status SMALLINT DEFAULT 0,
+    show_status SMALLINT DEFAULT 1,
+    sort INT DEFAULT 0,
+    icon VARCHAR(255),
+    keywords VARCHAR(255),
+    description TEXT
 );
 
+-- Brand table
 CREATE TABLE tb_brand (
     id BIGSERIAL PRIMARY KEY,
-    brand_name VARCHAR(100) NOT NULL,
-    language_version VARCHAR(10) DEFAULT 'zh-CN'
+    name VARCHAR(100) NOT NULL,
+    first_letter VARCHAR(1) DEFAULT '',
+    sort INT DEFAULT 0,
+    factory_status SMALLINT DEFAULT 0,
+    show_status SMALLINT DEFAULT 1,
+    product_count INT DEFAULT 0,
+    product_comment_count INT DEFAULT 0,
+    logo VARCHAR(255),
+    big_pic VARCHAR(255),
+    brand_story TEXT
 );
 
-CREATE TABLE tb_product (
+-- Product attribute category table
+CREATE TABLE tb_product_attribute_category (
     id BIGSERIAL PRIMARY KEY,
-    product_no VARCHAR(50),
-    product_name VARCHAR(200) NOT NULL,
-    creator INT,
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    product_remark TEXT,
-    is_shelves SMALLINT DEFAULT 1,
-    language_version VARCHAR(10) DEFAULT 'zh-CN'
+    name VARCHAR(100) NOT NULL,
+    attribute_count INT DEFAULT 0,
+    param_count INT DEFAULT 0
 );
 
-CREATE TABLE tb_product_marketing (
-    product_id BIGINT PRIMARY KEY,
-    is_bargain SMALLINT DEFAULT 0,
-    is_discount SMALLINT DEFAULT 0,
-    is_total_reduce SMALLINT DEFAULT 0,
-    is_gifts SMALLINT DEFAULT 0,
-    is_send_integral SMALLINT DEFAULT 0,
-    FOREIGN KEY (product_id) REFERENCES tb_product (id)
-);
-
-CREATE TABLE tb_product_shipping (
-    product_id BIGINT PRIMARY KEY,
-    is_from_freight SMALLINT DEFAULT 0,
-    freight_template INT,
-    is_order_from_freight SMALLINT DEFAULT 0,
-    FOREIGN KEY (product_id) REFERENCES tb_product (id)
-);
-
-CREATE TABLE tb_product_limits (
-    product_id BIGINT PRIMARY KEY,
-    purchase INT DEFAULT 0,
-    purchase_times INT DEFAULT 0,
-    purchase_unit VARCHAR(20),
-    FOREIGN KEY (product_id) REFERENCES tb_product (id)
-);
-
-CREATE TABLE tb_product_aftersales (
-    product_id BIGINT PRIMARY KEY,
-    is_refund_after_sd SMALLINT DEFAULT 0,
-    FOREIGN KEY (product_id) REFERENCES tb_product (id)
-);
-
-CREATE TABLE tb_product_stats (
-    product_id BIGINT PRIMARY KEY,
-    comment_number INT DEFAULT 0,
-    score_number INT DEFAULT 0,
-    scores DECIMAL(3, 1) DEFAULT 0.0,
-    FOREIGN KEY (product_id) REFERENCES tb_product (id)
-);
-
-CREATE TABLE tb_product_entity (
-    id BIGSERIAL PRIMARY KEY,
-    product_id BIGINT NOT NULL,
-    product_artno VARCHAR(50),
-    sale_price DECIMAL(18, 2) NOT NULL,
-    market_price DECIMAL(18, 2) DEFAULT 0.0,
-    inventory INT DEFAULT 0,
-    image_url VARCHAR(255),
-    is_user_discount SMALLINT DEFAULT 0,
-    cash_back DECIMAL(18, 2) DEFAULT 0.0,
-    cash_back_cycle INT DEFAULT 0,
-    cycle_unit INT DEFAULT 0,
-    FOREIGN KEY (product_id) REFERENCES tb_product (id)
-);
-
-CREATE TABLE tb_product_gallery (
-    id BIGSERIAL PRIMARY KEY,
-    product_id BIGINT NOT NULL,
-    image_url VARCHAR(255),
-    sort_order INT DEFAULT 0,
-    FOREIGN KEY (product_id) REFERENCES tb_product (id)
-);
-
-CREATE TABLE tb_product_category_mapping (
-    id BIGSERIAL PRIMARY KEY,
-    product_id BIGINT NOT NULL,
-    category_id INT NOT NULL,
-    FOREIGN KEY (product_id) REFERENCES tb_product (id)
-);
-
-CREATE TABLE tb_specifications_value (
-    id BIGSERIAL PRIMARY KEY,
-    specifications INT,
-    specifications_value_name VARCHAR(50)
-);
-
+-- Product attribute table
 CREATE TABLE tb_product_attribute (
     id BIGSERIAL PRIMARY KEY,
-    product_id BIGINT NOT NULL,
-    attribute_name VARCHAR(100),
-    attribute_input_type INT,
-    attribute_value VARCHAR(255),
-    input_value TEXT,
-    FOREIGN KEY (product_id) REFERENCES tb_product (id)
+    product_attribute_category_id BIGINT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    select_type INT DEFAULT 0,
+    input_type INT DEFAULT 0,
+    input_list TEXT,
+    sort INT DEFAULT 0,
+    filter_type INT DEFAULT 0,
+    search_type INT DEFAULT 0,
+    related_status SMALLINT DEFAULT 0,
+    hand_add_status SMALLINT DEFAULT 0,
+    type INT DEFAULT 0
 );
 
-CREATE TABLE tb_product_comment (
+-- Product table
+CREATE TABLE tb_product (
+    id BIGSERIAL PRIMARY KEY,
+    brand_id BIGINT,
+    product_category_id BIGINT,
+    feight_template_id BIGINT,
+    product_attribute_category_id BIGINT,
+    name VARCHAR(200) NOT NULL,
+    pic VARCHAR(255),
+    product_sn VARCHAR(64) NOT NULL,
+    delete_status SMALLINT DEFAULT 0,
+    publish_status SMALLINT DEFAULT 1,
+    new_status SMALLINT DEFAULT 0,
+    recommand_status SMALLINT DEFAULT 0,
+    verify_status SMALLINT DEFAULT 0,
+    sort INT DEFAULT 0,
+    sale INT DEFAULT 0,
+    price DECIMAL(10, 2) DEFAULT 0.00,
+    promotion_price DECIMAL(10, 2),
+    gift_growth INT DEFAULT 0,
+    gift_point INT DEFAULT 0,
+    use_point_limit INT,
+    sub_title VARCHAR(255),
+    description TEXT,
+    original_price DECIMAL(10, 2),
+    stock INT DEFAULT 0,
+    low_stock INT DEFAULT 0,
+    unit VARCHAR(16),
+    weight DECIMAL(10, 2),
+    preview_status SMALLINT DEFAULT 0,
+    service_ids VARCHAR(64),
+    keywords VARCHAR(255),
+    note VARCHAR(255),
+    album_pics VARCHAR(255),
+    detail_title VARCHAR(255),
+    detail_desc TEXT,
+    detail_html TEXT,
+    detail_mobile_html TEXT,
+    promotion_start_time TIMESTAMP,
+    promotion_end_time TIMESTAMP,
+    promotion_per_limit INT,
+    promotion_type INT DEFAULT 0,
+    brand_name VARCHAR(255),
+    product_category_name VARCHAR(255)
+);
+
+-- SKU Stock table
+CREATE TABLE tb_sku_stock (
     id BIGSERIAL PRIMARY KEY,
     product_id BIGINT NOT NULL,
-    user_name VARCHAR(100),
-    contact VARCHAR(100),
-    content TEXT,
-    comment_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    comment_ip VARCHAR(50),
-    user_face VARCHAR(255),
-    nick_name VARCHAR(100),
-    img_src VARCHAR(255),
-    is_show SMALLINT DEFAULT 1,
-    order_no INT DEFAULT 0,
-    FOREIGN KEY (product_id) REFERENCES tb_product (id)
+    sku_code VARCHAR(64) NOT NULL,
+    price DECIMAL(10, 2) DEFAULT 0.00,
+    stock INT DEFAULT 0,
+    low_stock INT DEFAULT 0,
+    pic VARCHAR(255),
+    sale INT DEFAULT 0,
+    promotion_price DECIMAL(10, 2),
+    lock_stock INT DEFAULT 0,
+    sp_data TEXT
+);
+
+-- Product attribute value table
+CREATE TABLE tb_product_attribute_value (
+    id BIGSERIAL PRIMARY KEY,
+    product_id BIGINT NOT NULL,
+    product_attribute_id BIGINT NOT NULL,
+    value VARCHAR(255)
+);
+
+-- Member price table
+CREATE TABLE tb_member_price (
+    id BIGSERIAL PRIMARY KEY,
+    product_id BIGINT NOT NULL,
+    member_level_id BIGINT NOT NULL,
+    member_price DECIMAL(10, 2) DEFAULT 0.00,
+    member_level_name VARCHAR(100)
+);
+
+-- Product ladder table
+CREATE TABLE tb_product_ladder (
+    id BIGSERIAL PRIMARY KEY,
+    product_id BIGINT NOT NULL,
+    count INT DEFAULT 0,
+    discount DECIMAL(10, 2) DEFAULT 0.00,
+    price DECIMAL(10, 2) DEFAULT 0.00
+);
+
+-- Product full reduction table
+CREATE TABLE tb_product_full_reduction (
+    id BIGSERIAL PRIMARY KEY,
+    product_id BIGINT NOT NULL,
+    full_price DECIMAL(10, 2) DEFAULT 0.00,
+    reduce_price DECIMAL(10, 2) DEFAULT 0.00
+);
+
+-- Product Category Attribute Relation
+CREATE TABLE tb_product_category_attribute_relation (
+    id BIGSERIAL PRIMARY KEY,
+    product_category_id BIGINT NOT NULL,
+    product_attribute_id BIGINT NOT NULL
+);
+
+-- Freight template
+CREATE TABLE tb_feight_template (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    charge_type INT DEFAULT 0,
+    first_weight DECIMAL(10, 2),
+    first_fee DECIMAL(10, 2),
+    continue_weight DECIMAL(10, 2),
+    continue_fee DECIMAL(10, 2),
+    dest VARCHAR(255)
 );
