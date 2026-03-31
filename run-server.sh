@@ -6,4 +6,6 @@ cd server/message-service && mvn spring-boot:run &
 cd server/order-service && mvn spring-boot:run &
 cd server/payment-service && mvn spring-boot:run &
 cd server/commission-service && mvn spring-boot:run &
-cd server/media-service && mvn spring-boot:run
+cd server/media-service && mvn spring-boot:run &
+cd server/cart-service && mvn spring-boot:run &
+cd server/promotion-service && mvn spring-boot:run &

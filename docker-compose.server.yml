@@ -209,6 +209,58 @@ services:
       - default
     restart: unless-stopped
 
+  cart-service:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      target: cart-service
+    container_name: meta-web-three-cart-service
+    ports:
+      - "10089:10089"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
+    volumes:
+      - cart_service_data:/server/cart
+      - ./.aws:/.aws:ro
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - meta-web-three
+      - default
+    restart: unless-stopped
+
+  promotion-service:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      target: promotion-service
+    container_name: meta-web-three-promotion-service
+    ports:
+      - "10090:10090"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
+    volumes:
+      - promotion_service_data:/server/promotion
+      - ./.aws:/.aws:ro
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - meta-web-three
+      - default
+    restart: unless-stopped
+
 volumes:
   gateway_data:
   product_service_data:
@@ -218,3 +270,5 @@ volumes:
   payment_service_data:
   commission_service_data:
   media_service_data:
+  cart_service_data:
+  promotion_service_data:
