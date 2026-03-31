@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: commission-service
+  namespace: meta-web-three
+  labels:
+    app: commission-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: commission-service
+  template:
+    metadata:
+      labels:
+        app: commission-service
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:1.35
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z postgres-service 5432; do echo waiting for postgres; sleep 2; done;",
+            ]
+        - name: wait-for-redis
+          image: busybox:1.35
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z redis-service 6379; do echo waiting for redis; sleep 2; done;",
+            ]
+        - name: wait-for-zookeeper
+          image: busybox:1.35
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z zookeeper-service 2181; do echo waiting for zookeeper; sleep 2; done;",
+            ]
+      containers:
+        - name: commission-service
+          image: meta-web-three/commission-service:latest
+          ports:
+            - containerPort: 10088
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "dev"
+            - name: SERVER_PORT
+              value: "10088"
+          volumeMounts:
+            - name: app-config
+              mountPath: /app/config
+            - name: commission-data
+              mountPath: /server/commission
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 10088
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 10088
+            initialDelaySeconds: 30
+            periodSeconds: 10
+      volumes:
+        - name: app-config
+          configMap:
+            name: app-config
+        - name: commission-data
+          persistentVolumeClaim:
+            claimName: commission-service-data-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: commission-service-data-pvc
+  namespace: meta-web-three
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-storage
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: commission-service
+  namespace: meta-web-three
+  labels:
+    app: commission-service
+spec:
+  selector:
+    app: commission-service
+  ports:
+    - port: 10088
+      targetPort: 10088
+  type: ClusterIP

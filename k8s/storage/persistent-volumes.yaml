@@ -82,10 +82,94 @@ spec:
     path: /data/server/message
   storageClassName: local-storage
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cart-service-data-pv
+  namespace: meta-web-three
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/server/cart
+  storageClassName: local-storage
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: promotion-service-data-pv
+  namespace: meta-web-three
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/server/promotion
+  storageClassName: local-storage
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: payment-service-data-pv
+  namespace: meta-web-three
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/server/payment
+  storageClassName: local-storage
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: commission-service-data-pv
+  namespace: meta-web-three
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/server/commission
+  storageClassName: local-storage
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: media-service-data-pv
+  namespace: meta-web-three
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/server/media
+  storageClassName: local-storage
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: gateway-data-pv
+  namespace: meta-web-three
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/server/gateway
+  storageClassName: local-storage
+---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: local-storage
   namespace: meta-web-three
 provisioner: kubernetes.io/no-provisioner
-volumeBindingMode: WaitForFirstConsumer 
+volumeBindingMode: WaitForFirstConsumer

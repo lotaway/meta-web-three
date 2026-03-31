@@ -255,7 +255,7 @@ build_images() {
     docker build -t meta-web-three/client:latest .
     
     # 构建后端服务镜像
-    local services=("product-service" "user-service" "order-service" "message-service")
+local services=("product-service" "user-service" "order-service" "message-service" "cart-service" "promotion-service" "payment-service" "commission-service" "media-service" "gateway")
     
     for service in "${services[@]}"; do
         log_info "构建 $service 镜像..."
