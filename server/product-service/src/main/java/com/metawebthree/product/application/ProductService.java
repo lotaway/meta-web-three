@@ -6,9 +6,9 @@ import com.metawebthree.common.dto.ProductDTO;
 import com.metawebthree.common.dto.ProductDetailDTO;
 import com.metawebthree.common.utils.RocketMQ.MQProducer;
 import com.metawebthree.image.ProductImageService;
-import com.metawebthree.product.domain.event.ProductEventType;
-import com.metawebthree.product.domain.exception.ProductDomainException;
-import com.metawebthree.product.domain.exception.ProductErrorCode;
+import com.metawebthree.product.application.event.ProductEventType;
+import com.metawebthree.product.exception.ProductDomainException;
+import com.metawebthree.product.exception.ProductErrorCode;
 import com.metawebthree.product.domain.model.*;
 import com.metawebthree.product.infrastructure.persistence.mapper.*;
 import java.math.BigDecimal;
@@ -192,7 +192,7 @@ public class ProductService {
                     null);
         } catch (Exception e) {
             throw new ProductDomainException(
-                    ProductErrorCode.PRODUCT_DELETE_FAILED,
+                    ProductErrorCode.DELETE_FAILED,
                     "Failed to send product event: " + eventType.getEventName(),
                     e);
         }

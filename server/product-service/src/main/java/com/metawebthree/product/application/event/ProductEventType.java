@@ -1,4 +1,4 @@
-package com.metawebthree.product.event;
+package com.metawebthree.product.application.event;
 
 /**
  * 产品领域事件类型枚举

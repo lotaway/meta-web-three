@@ -95,7 +95,7 @@ public class UserController {
         return ApiResponse.success();
     }
 
-    @RequestMapping("/signIn")
+    @PostMapping("/signIn")
     public ApiResponse<LoginResponseDTO> signIn(@RequestParam(defaultValue = "0", required = false) Long userRoleId,
             @RequestParam String email, @RequestParam String password,
             @RequestParam(defaultValue = "-1", required = false) Integer expiresInHours)

@@ -1,10 +1,15 @@
 package com.metawebthree.common.utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DataBucketMap<Data> {
-    private final HashMap<Data, Integer> dataMap = new HashMap<>();
-    private static Integer pos = 0;
+    private final Map<Data, Integer> dataMap = new ConcurrentHashMap<>();
+    private final AtomicInteger pos = new AtomicInteger(0);
 
     public Integer add(Data data, Integer weight) {
         return dataMap.put(data, weight);
@@ -25,64 +30,53 @@ public class DataBucketMap<Data> {
     }
 
     public Data chooseByRoundRobin() {
-        Map<Data, Integer> tempDataMap = new HashMap<>(dataMap);
-        Set<Data> keySet = tempDataMap.keySet();
-        List<Data> keyList = new ArrayList<>(keySet);
-        Data chosenData = null;
-        synchronized (pos) {
-            if (pos >= keySet.size()) {
-                pos = 0;
-            }
-            chosenData = keyList.get(pos);
-            pos++;
+        List<Data> snapshot = new ArrayList<>(dataMap.keySet());
+        if (snapshot.isEmpty()) {
+            return null;
         }
-        return chosenData;
+        int index = Math.floorMod(pos.getAndIncrement(), snapshot.size());
+        return snapshot.get(index);
     }
 
     public Data chooseByRandom() {
-        Map<Data, Integer> tempDataMap = new HashMap<>(dataMap);
-        List<Data> dataList = new ArrayList<>(tempDataMap.keySet());
-        int chosenPos = new Random().nextInt(dataList.size());
-        return dataList.get(chosenPos);
+        List<Data> snapshot = new ArrayList<>(dataMap.keySet());
+        if (snapshot.isEmpty()) {
+            return null;
+        }
+        int chosenPos = ThreadLocalRandom.current().nextInt(snapshot.size());
+        return snapshot.get(chosenPos);
     }
 
     public Data chooseByWeightRoundBin() {
-        Map<Data, Integer> tempDataMap = new HashMap<>(dataMap);
-        Set<Data> keySet = tempDataMap.keySet();
-        Iterator<Data> iterator = keySet.iterator();
-        List<Data> dataList = new ArrayList<>(keySet);
-        while (iterator.hasNext()) {
-            Data data = iterator.next();
-            int weight = tempDataMap.get(data);
-            for (int i = 0; i < weight; i++) {
-                dataList.add(data);
-            }
+        List<Data> weightedSnapshot = buildWeightedSnapshot();
+        if (weightedSnapshot.isEmpty()) {
+            return null;
         }
-        Data chosenData = null;
-        synchronized (pos) {
-            if (pos >= keySet.size()) {
-                pos = 0;
-            }
-            chosenData = dataList.get(pos);
-            pos++;
-        }
-        return chosenData;
+        int index = Math.floorMod(pos.getAndIncrement(), weightedSnapshot.size());
+        return weightedSnapshot.get(index);
     }
 
     public Data chooseByWeightRandom() {
-        Map<Data, Integer> tempDataMap = new HashMap<>(dataMap);
-        Set<Data> keySet = tempDataMap.keySet();
-        Iterator<Data> iterator = keySet.iterator();
-        List<Data> dataList = new ArrayList<>();
-        while (iterator.hasNext()) {
-            Data data = iterator.next();
-            int weight = tempDataMap.get(data);
+        List<Data> weightedSnapshot = buildWeightedSnapshot();
+        if (weightedSnapshot.isEmpty()) {
+            return null;
+        }
+        int chosenPos = ThreadLocalRandom.current().nextInt(weightedSnapshot.size());
+        return weightedSnapshot.get(chosenPos);
+    }
+
+    private List<Data> buildWeightedSnapshot() {
+        List<Data> weightedSnapshot = new ArrayList<>();
+        for (Map.Entry<Data, Integer> entry : dataMap.entrySet()) {
+            Integer weight = entry.getValue();
+            if (weight == null || weight <= 0) {
+                continue;
+            }
             for (int i = 0; i < weight; i++) {
-                dataList.add(data);
+                weightedSnapshot.add(entry.getKey());
             }
         }
-        int chosenPos = new Random().nextInt(dataList.size());
-        return dataList.get(chosenPos);
+        return weightedSnapshot;
     }
 
     // @TODO Least Connections）
