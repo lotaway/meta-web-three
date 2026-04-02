@@ -18,6 +18,9 @@ import com.metawebthree.promotion.domain.ports.CouponBatchRepository;
 import com.metawebthree.promotion.domain.ports.CouponRepository;
 import com.metawebthree.promotion.domain.ports.CouponTypeRepository;
 import com.metawebthree.promotion.domain.ports.TimeProvider;
+import com.metawebthree.promotion.domain.ports.BlockchainService;
+import com.metawebthree.promotion.domain.ports.UserWalletService;
+import com.metawebthree.promotion.domain.ports.MerkleService;
 
 public class CouponCommandServiceTest {
 
@@ -28,6 +31,9 @@ public class CouponCommandServiceTest {
         InMemoryCouponTypeRepository couponTypeRepository = new InMemoryCouponTypeRepository();
         InMemoryCouponBatchRepository batchRepository = new InMemoryCouponBatchRepository();
         CodeGenerator codeGenerator = new SequenceCodeGenerator();
+        BlockchainService blockchainService = (batchId, root) -> {};
+        UserWalletService userWalletService = (userId) -> "0x123";
+        MerkleService merkleService = null;
         CouponPolicy policy = new CouponPolicy(3, 5);
 
         CouponType type = new CouponType();
@@ -38,7 +44,7 @@ public class CouponCommandServiceTest {
         couponTypeRepository.save(type);
 
         CouponCommandService service = new CouponCommandService(couponRepository, couponTypeRepository,
-                batchRepository, codeGenerator, timeProvider, policy);
+                batchRepository, codeGenerator, timeProvider, blockchainService, userWalletService, merkleService, policy);
         service.generateBatch("B1", 1L, 2);
 
         assertEquals(2, couponRepository.items.size());

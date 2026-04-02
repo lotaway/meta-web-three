@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package com.metawebthree.common.generated.rpc;
+
+option java_multiple_files = true;
+
+service UserService {
+    rpc getWalletAddressByUserId(GetWalletAddressByUserIdRequest) returns (GetWalletAddressByUserIdResponse);
+
+    rpc getUserIdByWalletAddress(GetUserIdByWalletAddressRequest) returns (GetUserIdByWalletAddressResponse);
+}
+
+message GetWalletAddressByUserIdRequest {
+    int64 userId = 1;
+}
+
+message GetWalletAddressByUserIdResponse {
+    string walletAddress = 1;
+}
+
+message GetUserIdByWalletAddressRequest {
+    string walletAddress = 1;
+}
+
+message GetUserIdByWalletAddressResponse {
+    int64 userId = 1;
+}

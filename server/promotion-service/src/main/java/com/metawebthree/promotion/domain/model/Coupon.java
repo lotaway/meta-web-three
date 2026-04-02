@@ -1,6 +1,7 @@
 package com.metawebthree.promotion.domain.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Coupon {
     private Long id;
@@ -17,6 +18,8 @@ public class Coupon {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String batchId;
+    private String ownerWalletAddress;
+    private List<String> merkleProof;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -46,4 +49,8 @@ public class Coupon {
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     public String getBatchId() { return batchId; }
     public void setBatchId(String batchId) { this.batchId = batchId; }
+    public String getOwnerWalletAddress() { return ownerWalletAddress; }
+    public void setOwnerWalletAddress(String ownerWalletAddress) { this.ownerWalletAddress = ownerWalletAddress; }
+    public List<String> getMerkleProof() { return merkleProof; }
+    public void setMerkleProof(List<String> merkleProof) { this.merkleProof = merkleProof; }
 }

@@ -3,6 +3,7 @@ package com.metawebthree.promotion.application;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.ArrayList;
 
 import com.metawebthree.promotion.domain.enums.CouponStatus;
 import com.metawebthree.promotion.domain.exception.PromotionErrorCode;
@@ -12,30 +13,56 @@ import com.metawebthree.promotion.domain.model.CouponType;
 import com.metawebthree.promotion.domain.ports.CouponRepository;
 import com.metawebthree.promotion.domain.ports.CouponTypeRepository;
 import com.metawebthree.promotion.domain.ports.TimeProvider;
+import com.metawebthree.promotion.domain.ports.MerkleService;
 
 public class CouponQueryService {
     private final CouponRepository couponRepository;
     private final CouponTypeRepository couponTypeRepository;
     private final TimeProvider timeProvider;
+    private final MerkleService merkleService;
 
     public CouponQueryService(CouponRepository couponRepository, CouponTypeRepository couponTypeRepository,
-            TimeProvider timeProvider) {
+            TimeProvider timeProvider, MerkleService merkleService) {
         this.couponRepository = couponRepository;
         this.couponTypeRepository = couponTypeRepository;
         this.timeProvider = timeProvider;
+        this.merkleService = merkleService;
+    }
+
+    public List<String> getMerkleProof(Coupon coupon) {
+        if (coupon == null || coupon.getBatchId() == null) return null;
+        List<Coupon> batchCoupons = couponRepository.listByBatch(coupon.getBatchId());
+        CouponType type = couponTypeRepository.findById(coupon.getCouponTypeId());
+        List<byte[]> leaves = new ArrayList<>();
+        byte[] targetLeaf = null;
+        for (Coupon c : batchCoupons) {
+            byte[] leaf = computeLeaf(c, type);
+            if (leaf == null) continue;
+            leaves.add(leaf);
+            if (c.getCode().equals(coupon.getCode())) targetLeaf = leaf;
+        }
+        return (targetLeaf != null) ? merkleService.getMerkleProof(leaves, targetLeaf) : null;
+    }
+
+    private byte[] computeLeaf(Coupon c, CouponType type) {
+        String wallet = c.getOwnerWalletAddress();
+        if (wallet == null || wallet.isBlank()) return null;
+        return merkleService.computeLeaf(
+                wallet,
+                c.getCode(),
+                type.getDiscountAmount().longValue(),
+                type.getMinimumOrderAmount().longValue(),
+                type.getStartTime().toEpochSecond(java.time.ZoneOffset.UTC),
+                type.getEndTime().toEpochSecond(java.time.ZoneOffset.UTC));
     }
 
     public List<Coupon> listByOwner(Long ownerUserId, Integer useStatus) {
-        if (ownerUserId == null) {
-            throw new PromotionException(PromotionErrorCode.INVALID_REQUEST, "missing ownerUserId");
-        }
+        if (ownerUserId == null) throw new PromotionException(PromotionErrorCode.INVALID_REQUEST, "missing ownerUserId");
         return couponRepository.listByOwner(ownerUserId, useStatus);
     }
 
     public List<Coupon> listByBatch(String batchId) {
-        if (batchId == null || batchId.isBlank()) {
-            throw new PromotionException(PromotionErrorCode.INVALID_REQUEST, "missing batchId");
-        }
+        if (batchId == null || batchId.isBlank()) throw new PromotionException(PromotionErrorCode.INVALID_REQUEST, "missing batchId");
         return couponRepository.listByBatch(batchId);
     }
 
@@ -56,87 +83,46 @@ public class CouponQueryService {
     }
 
     private void validateRequest(String code, Long ownerUserId, BigDecimal orderAmount) {
-        if (code == null || code.isBlank() || ownerUserId == null || orderAmount == null) {
-            throw new PromotionException(PromotionErrorCode.INVALID_REQUEST, "invalid validate request");
-        }
-        if (orderAmount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new PromotionException(PromotionErrorCode.INVALID_REQUEST, "invalid order amount");
-        }
+        if (code == null || code.isBlank() || ownerUserId == null || orderAmount == null) throw new PromotionException(PromotionErrorCode.INVALID_REQUEST, "invalid request");
+        if (orderAmount.compareTo(BigDecimal.ZERO) < 0) throw new PromotionException(PromotionErrorCode.INVALID_REQUEST, "invalid amount");
     }
 
     private Coupon loadCoupon(String code) {
         Coupon coupon = couponRepository.findByCode(code);
-        if (coupon == null) {
-            throw new PromotionException(PromotionErrorCode.NOT_FOUND, "coupon not found");
-        }
+        if (coupon == null) throw new PromotionException(PromotionErrorCode.NOT_FOUND, "not found");
         return coupon;
     }
 
     private void ensureOwned(Coupon coupon, Long ownerUserId) {
-        if (!ownerUserId.equals(coupon.getOwnerUserId())) {
-            throw new PromotionException(PromotionErrorCode.NOT_ALLOWED, "coupon not owned");
-        }
+        if (!ownerUserId.equals(coupon.getOwnerUserId())) throw new PromotionException(PromotionErrorCode.NOT_ALLOWED, "not owned");
     }
 
     private void ensureUnused(Coupon coupon) {
-        if (coupon.getUseStatus() != CouponStatus.UNUSED.getCode()) {
-            throw new PromotionException(PromotionErrorCode.CONFLICT, "coupon already used");
-        }
+        if (coupon.getUseStatus() != CouponStatus.UNUSED.getCode()) throw new PromotionException(PromotionErrorCode.CONFLICT, "already used");
     }
 
     private CouponType loadType(Long typeId) {
         CouponType type = couponTypeRepository.findById(typeId);
-        if (type == null) {
-            throw new PromotionException(PromotionErrorCode.NOT_FOUND, "coupon type not found");
-        }
+        if (type == null) throw new PromotionException(PromotionErrorCode.NOT_FOUND, "type not found");
         return type;
     }
 
     private void ensureActive(CouponType type) {
-        if (!Boolean.TRUE.equals(type.getIsEnabled())) {
-            throw new PromotionException(PromotionErrorCode.NOT_ALLOWED, "coupon type disabled");
-        }
+        if (!Boolean.TRUE.equals(type.getIsEnabled())) throw new PromotionException(PromotionErrorCode.NOT_ALLOWED, "disabled");
         LocalDateTime now = timeProvider.now();
-        if (type.getStartTime().isAfter(now) || type.getEndTime().isBefore(now)) {
-            throw new PromotionException(PromotionErrorCode.EXPIRED, "coupon not in valid time");
-        }
+        if (type.getStartTime().isAfter(now) || type.getEndTime().isBefore(now)) throw new PromotionException(PromotionErrorCode.EXPIRED, "expired");
     }
 
     private void ensureAmount(CouponType type, BigDecimal orderAmount) {
-        if (type.getMinimumOrderAmount().compareTo(orderAmount) > 0) {
-            throw new PromotionException(PromotionErrorCode.NOT_ALLOWED, "order amount not eligible");
-        }
+        if (type.getMinimumOrderAmount().compareTo(orderAmount) > 0) throw new PromotionException(PromotionErrorCode.NOT_ALLOWED, "amount ineligible");
     }
 
     private BigDecimal computePayable(CouponType type, BigDecimal orderAmount, BigDecimal deliveryFee) {
-        BigDecimal fee = normalizeFee(deliveryFee);
-        BigDecimal payable = orderAmount.add(fee).subtract(type.getDiscountAmount());
-        return payable.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : payable;
+        BigDecimal fee = (deliveryFee == null) ? BigDecimal.ZERO : deliveryFee;
+        if (fee.compareTo(BigDecimal.ZERO) < 0) throw new PromotionException(PromotionErrorCode.INVALID_REQUEST, "invalid fee");
+        BigDecimal result = orderAmount.add(fee).subtract(type.getDiscountAmount());
+        return result.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : result;
     }
 
-    private BigDecimal normalizeFee(BigDecimal deliveryFee) {
-        if (deliveryFee == null) {
-            return BigDecimal.ZERO;
-        }
-        if (deliveryFee.compareTo(BigDecimal.ZERO) < 0) {
-            throw new PromotionException(PromotionErrorCode.INVALID_REQUEST, "invalid delivery fee");
-        }
-        return deliveryFee;
-    }
-
-    public static class CouponValidateResult {
-        private final String couponTypeName;
-        private final BigDecimal discountAmount;
-        private final BigDecimal payableAmount;
-
-        public CouponValidateResult(String couponTypeName, BigDecimal discountAmount, BigDecimal payableAmount) {
-            this.couponTypeName = couponTypeName;
-            this.discountAmount = discountAmount;
-            this.payableAmount = payableAmount;
-        }
-
-        public String getCouponTypeName() { return couponTypeName; }
-        public BigDecimal getDiscountAmount() { return discountAmount; }
-        public BigDecimal getPayableAmount() { return payableAmount; }
-    }
+    public record CouponValidateResult(String couponTypeName, BigDecimal discountAmount, BigDecimal payableAmount) {}
 }

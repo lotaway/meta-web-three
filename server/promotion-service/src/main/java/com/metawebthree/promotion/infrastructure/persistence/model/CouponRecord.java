@@ -20,9 +20,13 @@ public class CouponRecord {
     private String consumerName;
     private String operatorName;
     private String batchId;
+    private String ownerWalletAddress;
     private LocalDateTime usedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    
+    public String getOwnerWalletAddress() { return ownerWalletAddress; }
+    public void setOwnerWalletAddress(String ownerWalletAddress) { this.ownerWalletAddress = ownerWalletAddress; }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

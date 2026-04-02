@@ -30,4 +30,7 @@ public interface UserMapper extends MPJBaseMapper<UserDO> {
 
     @Select("select User.*, Web3_User.wallet_address from User, Web3_User where Web3_User.user_id = User.id and Web3_User.wallet_address = #{walletAddress} group by User.id")
     UserDTO findByWalletAddress(@Param("walletAddress") String walletAddress);
+
+    @Select("select User.*, Web3_User.wallet_address from User, Web3_User where User.id = #{id} and Web3_User.user_id = User.id")
+    UserDTO findByIdWithWallet(@Param("id") Long id);
 }

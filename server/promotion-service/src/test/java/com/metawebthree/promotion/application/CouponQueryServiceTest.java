@@ -18,6 +18,7 @@ import com.metawebthree.promotion.domain.model.CouponType;
 import com.metawebthree.promotion.domain.ports.CouponRepository;
 import com.metawebthree.promotion.domain.ports.CouponTypeRepository;
 import com.metawebthree.promotion.domain.ports.TimeProvider;
+import com.metawebthree.promotion.domain.ports.MerkleService;
 
 public class CouponQueryServiceTest {
 
@@ -44,13 +45,14 @@ public class CouponQueryServiceTest {
         coupon.setUseStatus(CouponStatus.UNUSED.getCode());
         couponRepository.save(coupon);
 
-        CouponQueryService service = new CouponQueryService(couponRepository, typeRepository, timeProvider);
+        MerkleService merkleService = null;
+        CouponQueryService service = new CouponQueryService(couponRepository, typeRepository, timeProvider, merkleService);
         CouponQueryService.CouponValidateResult result = service.validate("CODE1", 9L,
                 new BigDecimal("120"), new BigDecimal("5"));
 
         assertNotNull(result);
-        assertEquals(new BigDecimal("10"), result.getDiscountAmount());
-        assertEquals(new BigDecimal("115"), result.getPayableAmount());
+        assertEquals(new BigDecimal("10"), result.discountAmount());
+        assertEquals(new BigDecimal("115"), result.payableAmount());
     }
 
     static class InMemoryCouponTypeRepository implements CouponTypeRepository {

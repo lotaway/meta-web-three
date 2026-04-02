@@ -217,9 +217,9 @@ public class CouponController {
         CouponQueryService.CouponValidateResult result = couponQueryService.validate(
                 request.getCode(), userId, request.getOrderAmount(), request.getDeliveryFee());
         CouponValidateResponse response = new CouponValidateResponse();
-        response.setCouponTypeName(result.getCouponTypeName());
-        response.setDiscountAmount(result.getDiscountAmount());
-        response.setPayableAmount(result.getPayableAmount());
+        response.setCouponTypeName(result.couponTypeName());
+        response.setDiscountAmount(result.discountAmount());
+        response.setPayableAmount(result.payableAmount());
         return response;
     }
 

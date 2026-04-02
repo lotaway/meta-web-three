@@ -17,6 +17,10 @@ import com.metawebthree.promotion.domain.ports.CouponBatchRepository;
 import com.metawebthree.promotion.domain.ports.CouponRepository;
 import com.metawebthree.promotion.domain.ports.CouponTypeRepository;
 import com.metawebthree.promotion.domain.ports.TimeProvider;
+import com.metawebthree.promotion.domain.ports.BlockchainService;
+import com.metawebthree.promotion.domain.ports.UserWalletService;
+import com.metawebthree.promotion.domain.ports.MerkleService;
+import com.metawebthree.promotion.infrastructure.util.Web3MerkleService;
 
 @Configuration
 @EnableConfigurationProperties(PromotionProperties.class)
@@ -32,6 +36,11 @@ public class CodeGeneratorConfig {
     @Bean
     public TimeProvider timeProvider() {
         return LocalDateTime::now;
+    }
+
+    @Bean
+    public MerkleService merkleService() {
+        return new Web3MerkleService();
     }
 
     @Bean
@@ -56,15 +65,16 @@ public class CodeGeneratorConfig {
     @Bean
     public CouponCommandService couponCommandService(CouponRepository couponRepository,
             CouponTypeRepository couponTypeRepository, CouponBatchRepository couponBatchRepository,
-            CodeGenerator codeGenerator, TimeProvider timeProvider, CouponPolicy policy) {
+            CodeGenerator codeGenerator, TimeProvider timeProvider, BlockchainService blockchainService,
+            UserWalletService userWalletService, MerkleService merkleService, CouponPolicy policy) {
         return new CouponCommandService(couponRepository, couponTypeRepository, couponBatchRepository,
-                codeGenerator, timeProvider, policy);
+                codeGenerator, timeProvider, blockchainService, userWalletService, merkleService, policy);
     }
 
     @Bean
     public CouponQueryService couponQueryService(CouponRepository couponRepository,
-            CouponTypeRepository couponTypeRepository, TimeProvider timeProvider) {
-        return new CouponQueryService(couponRepository, couponTypeRepository, timeProvider);
+            CouponTypeRepository couponTypeRepository, TimeProvider timeProvider, MerkleService merkleService) {
+        return new CouponQueryService(couponRepository, couponTypeRepository, timeProvider, merkleService);
     }
 
     static class SecureCodeGenerator implements CodeGenerator {
