@@ -37,7 +37,7 @@ public class OrderReturnApplicationService {
     }
 
     private void validateApply(OrderReturnApply apply) {
-        if (apply.getOrderSn() == null || apply.getReturnName() == null) {
+        if (apply.getOrderNo() == null || apply.getReturnName() == null) {
             throw new IllegalArgumentException("Order identity and returner info are required");
         }
     }

@@ -1,5 +1,5 @@
 server:
-  port: 10087
+  port: 10089
 spring:
   application:
     name: media-service
@@ -9,7 +9,7 @@ dubbo:
   application:
     name: media-service
   protocol:
-    port: 20087
+    port: 20089
 ---
 spring:
   config:

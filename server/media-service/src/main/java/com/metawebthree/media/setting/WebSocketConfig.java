@@ -5,7 +5,7 @@ import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.metawebthree.media.DTO.DanmuMessageDTO;
+import com.metawebthree.media.application.dto.DanmuMessageDTO;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;

@@ -43,7 +43,7 @@ public class MediaController {
             File destFile = new File("/upload/file/" + fileName);
             FileUtils.writeByteArrayToFile(destFile, file.getBytes());
         } catch (IOException e) {
-            return ApiResponse.error(e.getMessage());
+            return ApiResponse.error(ResponseStatus.MEDIA_UPLOAD_FAILED, e.getMessage());
         }
         return ApiResponse.success();
     }
