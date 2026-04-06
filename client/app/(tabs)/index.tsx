@@ -14,7 +14,7 @@ import { router } from 'expo-router';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { fetchMallHomeContent, MallHomeContent } from '@/api/home';
+import { fetchMallHomeContent, MallHomeContent, AdvertiseItem, BrandItem, FlashPromotion, ProductItem } from '@/api/home';
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window');
 
@@ -98,7 +98,7 @@ export default function HomeScreen() {
   );
 }
 
-function HomeHeader({ colors }: { colors: any }) {
+function HomeHeader({ colors }: { colors: typeof Colors.light }) {
   const { t } = useTranslation();
   return (
     <View style={[styles.header, { backgroundColor: colors.background }]}>
@@ -120,7 +120,7 @@ function HomeHeader({ colors }: { colors: any }) {
   );
 }
 
-function BannerSection({ advertiseList }: { advertiseList: any[] }) {
+function BannerSection({ advertiseList }: { advertiseList: AdvertiseItem[] }) {
   return (
     <ScrollView
       horizontal
@@ -128,8 +128,8 @@ function BannerSection({ advertiseList }: { advertiseList: any[] }) {
       showsHorizontalScrollIndicator={false}
       style={styles.bannerContainer}
     >
-      {advertiseList.map((item, index) => (
-        <TouchableOpacity key={index} activeOpacity={0.9}>
+      {advertiseList.map((item) => (
+        <TouchableOpacity key={item.id} activeOpacity={0.9}>
           <Image source={{ uri: item.pic }} style={styles.bannerImage} />
         </TouchableOpacity>
       ))}
@@ -137,7 +137,7 @@ function BannerSection({ advertiseList }: { advertiseList: any[] }) {
   );
 }
 
-function CategorySection({ colors }: { colors: any }) {
+function CategorySection({ colors }: { colors: typeof Colors.light }) {
   const { t } = useTranslation();
   return (
     <View style={styles.cateSection}>
@@ -153,14 +153,14 @@ function CategorySection({ colors }: { colors: any }) {
   );
 }
 
-function BrandSection({ brandList, colors }: { brandList: any[]; colors: any }) {
+function BrandSection({ brandList, colors }: { brandList: BrandItem[]; colors: typeof Colors.light }) {
   const { t } = useTranslation();
   return (
     <>
       <SectionHeader title={t('home.sections.brand_direct')} subtitle={t('home.sections.brand_direct_subtitle')} />
       <View style={styles.brandGrid}>
-        {brandList.slice(0, 4).map((item, index) => (
-          <TouchableOpacity key={index} style={styles.brandItem}>
+        {brandList.slice(0, 4).map((item) => (
+          <TouchableOpacity key={item.id} style={styles.brandItem}>
             <Image source={{ uri: item.logo }} style={styles.brandLogo} resizeMode="contain" />
             <Text style={[styles.brandName, { color: colors.fontColorDark }]}>{item.name}</Text>
             <Text style={[styles.brandCount, { color: colors.fontColorLight }]}>
@@ -173,14 +173,14 @@ function BrandSection({ brandList, colors }: { brandList: any[]; colors: any }) 
   );
 }
 
-function FlashSection({ promotion, colors, onProductPress }: { promotion: any; colors: any; onProductPress: (id: number) => void }) {
+function FlashSection({ promotion, colors, onProductPress }: { promotion: FlashPromotion; colors: typeof Colors.light; onProductPress: (id: number) => void }) {
   const { t } = useTranslation();
   return (
     <>
       <SectionHeader title={t('home.sections.flash_sale')} subtitle={t('home.sections.flash_sale_subtitle')} />
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.flashScroll}>
-        {promotion.productList.map((item: any, index: number) => (
-          <TouchableOpacity key={index} style={styles.flashItem} onPress={() => onProductPress(item.id)}>
+        {promotion.productList.map((item) => (
+          <TouchableOpacity key={item.id} style={styles.flashItem} onPress={() => onProductPress(item.id)}>
             <Image source={{ uri: item.pic }} style={styles.flashImage} />
             <Text numberOfLines={1} style={[styles.productTitle, { color: colors.fontColorDark }]}>
               {item.name}
@@ -193,13 +193,13 @@ function FlashSection({ promotion, colors, onProductPress }: { promotion: any; c
   );
 }
 
-function ProductGridSection({ title, subtitle, productList, colors, onProductPress }: { title: string; subtitle: string; productList: any[]; colors: any; onProductPress: (id: number) => void }) {
+function ProductGridSection({ title, subtitle, productList, colors, onProductPress }: { title: string; subtitle: string; productList: ProductItem[]; colors: typeof Colors.light; onProductPress: (id: number) => void }) {
   return (
     <>
       <SectionHeader title={title} subtitle={subtitle} />
       <View style={styles.productGrid}>
-        {productList.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.productItem} onPress={() => onProductPress(item.id)}>
+        {productList.map((item) => (
+          <TouchableOpacity key={item.id} style={styles.productItem} onPress={() => onProductPress(item.id)}>
             <Image source={{ uri: item.pic }} style={styles.productImage} />
             <View style={styles.productInfo}>
               <Text numberOfLines={1} style={[styles.productTitle, { color: colors.fontColorDark }]}>

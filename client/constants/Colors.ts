@@ -38,5 +38,9 @@ export const Colors = {
     success: '#4cd964',
     warning: '#f0ad4e',
     error: '#dd524d',
+    fontColorDark: '#ECEDEE',
+    fontColorBase: '#C8C9CC',
+    fontColorLight: '#9BA1A6',
+    fontColorDisabled: '#6B6C6E',
   },
 };

@@ -3,7 +3,6 @@ import { NativeModule, requireNativeModule } from 'expo';
 import { ScannerModuleEvents } from './ScannerModule.types';
 
 declare class ScannerModule extends NativeModule<ScannerModuleEvents> {
-  PI: number;
   hello(): string;
   setValueAsync(value: string): Promise<void>;
 }

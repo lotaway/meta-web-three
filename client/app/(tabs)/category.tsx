@@ -66,8 +66,8 @@ export default function CategoryScreen() {
 
   const navigateToProductList = (subCategoryId: number) => {
     router.push({
-      pathname: '/product/list',
-      params: { fid: selectedMainCategoryId, sid: subCategoryId },
+      pathname: '/product/[id]' as any,
+      params: { id: subCategoryId },
     });
   };
 

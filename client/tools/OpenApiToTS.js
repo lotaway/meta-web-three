@@ -13,7 +13,7 @@ dotenv.config({ path: path.resolve(__dirname, "../.env.local") })
 // API Doc url
 const apiHost = process.env.NEXT_PUBLIC_BACK_API_HOST
 const apiDocsUrl = `${process.env.NEXT_PUBLIC_BACK_API_DOC_HOST ?? apiHost ?? ""
-    }/v3/api-docs`
+    }/pump/v3/api-docs`
 // TypeScript output DIR
 const outputDir = "../src/generated/api"
 const outputPath = path.join(__dirname, outputDir, "./openapi.json")
@@ -35,12 +35,14 @@ function downloadOpenApiDocs() {
                     const request_url = new URL(apiDocsUrl)
                     const configJSON = JSON.parse(chunks)
                     configJSON.servers = configJSON.servers?.map((item) => {
-                        const url = new URL(item.url)
-                        if (url.host === request_url.host) {
-                            item.url = new URL(
-                                url.pathname,
-                                request_url.origin
-                            ).toString()
+                        try {
+                            const urlStr = item.url === '/' ? request_url.origin : item.url
+                            const url = new URL(urlStr)
+                            if (url.host === request_url.host || item.url === '/') {
+                                item.url = request_url.origin
+                            }
+                        } catch (e) {
+                            item.url = request_url.origin
                         }
                         return item
                     })
@@ -65,22 +67,17 @@ function downloadOpenApiDocs() {
 }
 
 async function generateCode(inputPath) {
-    const cliPath = path.resolve(
-        __dirname,
-        '../node_modules/@openapitools/openapi-generator-cli/main.js'
-    )
-
+    const output = path.resolve(__dirname, outputDir)
     const args = [
         'generate',
         '-i', inputPath,
         '-g', 'typescript-fetch',
-        '-o', path.resolve(__dirname, outputDir),
+        '-o', output,
         '--additional-properties=useSingleRequestParameter=true',
-        '--verbose'
     ]
 
     return new Promise((resolve, reject) => {
-        const child = spawn('node', [cliPath, ...args], {
+        const child = spawn('openapi-generator', args, {
             stdio: 'inherit',
             cwd: path.resolve(__dirname, '../')
         })
@@ -88,7 +85,7 @@ async function generateCode(inputPath) {
         const timeout = setTimeout(() => {
             child.kill();
             reject(new Error("Time out"));
-        }, 60 * 1000);
+        }, 120 * 1000);
 
         child.on('close', (code) => {
             clearTimeout(timeout);
@@ -140,23 +137,31 @@ async function customizeCode() {
             "utf-8"
         ),
     ])
-    const urlIns = new URL(apiDocsUrl)
-    const url = config.servers?.find((item) =>
-        item.url.includes(urlIns.origin)
-    )?.url
-    if (!url) {
-        console.error("Can't find server url in OpenAPI config.")
-        return
+    try {
+        const urlIns = new URL(apiDocsUrl)
+        const url = config.servers?.find((item) => {
+            try {
+                return item.url.includes(urlIns.origin)
+            } catch {
+                return false
+            }
+        })?.url
+        if (!url) {
+            console.log("No server URL customization needed.")
+            return
+        }
+        const serverUrl = new URL(url)
+        const newStr = runtimeFileStr.replace(
+            `"${url}"`,
+            `\`\${process.env.NEXT_PUBLIC_BACK_API_HOST ?? "${urlIns.origin}"}${serverUrl.pathname === '/' ? '' : serverUrl.pathname}\``
+        )
+        await fs.promises.writeFile(
+            path.join(__dirname, outputDir, "runtime.ts"),
+            newStr
+        )
+    } catch (error) {
+        console.log("Skipping server URL customization:", error.message)
     }
-    const newStr = runtimeFileStr.replace(
-        `"${url}"`,
-        `\`\${process.env.NEXT_PUBLIC_BACK_API_HOST ?? ""}${new URL(url).pathname
-        }\``
-    )
-    await fs.promises.writeFile(
-        path.join(__dirname, outputDir, "runtime.ts"),
-        newStr
-    )
 }
 
 async function main() {
