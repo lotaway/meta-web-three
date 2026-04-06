@@ -143,3 +143,6 @@ vite.config.ts.timestamp-*
 
 # Android setting
 .gradle
+
+# Generated files 
+src/generated

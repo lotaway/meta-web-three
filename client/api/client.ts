@@ -4,9 +4,9 @@ import { router } from 'expo-router';
 
 export const API_BASE_URL = 'http://localhost:8085';
 
-const HTTP_STATUS = {
-  OK: 200,
-  UNAUTHORIZED: 401,
+const BUSINESS_CODE = {
+  SUCCESS: 0,
+  UNAUTHORIZED: 1001,
 };
 
 const REQUEST_TIMEOUT = 10000;
@@ -48,7 +48,7 @@ const handleSessionExpiration = () => {
       { text: '取消', style: 'cancel' },
       {
         text: '去登录',
-        onPress: () => router.push('/(tabs)' as any),
+        onPress: () => router.push('/(tabs)' as const),
       },
     ]
   );
@@ -56,13 +56,13 @@ const handleSessionExpiration = () => {
 
 const handleResponseSuccess = (response: AxiosResponse<ApiResponse>) => {
   const res = response.data;
-  if (res.code === HTTP_STATUS.OK) {
+  if (res.code === BUSINESS_CODE.SUCCESS) {
     return res;
   }
 
   Alert.alert('错误', res.message || '操作失败');
 
-  if (res.code === HTTP_STATUS.UNAUTHORIZED) {
+  if (res.code === BUSINESS_CODE.UNAUTHORIZED) {
     handleSessionExpiration();
   }
 

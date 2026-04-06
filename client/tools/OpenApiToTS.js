@@ -12,8 +12,8 @@ dotenv.config({ path: path.resolve(__dirname, "../.env.local") })
 
 // API Doc url
 const apiHost = process.env.NEXT_PUBLIC_BACK_API_HOST
-const apiDocsUrl = `${process.env.NEXT_PUBLIC_BACK_API_DOC_HOST ?? apiHost ?? ""
-    }/pump/v3/api-docs`
+const apiDocHost = process.env.NEXT_PUBLIC_BACK_API_DOC_HOST ?? apiHost ?? ""
+const apiDocsUrl = `${apiDocHost}/pump/v3/api-docs`
 // TypeScript output DIR
 const outputDir = "../src/generated/api"
 const outputPath = path.join(__dirname, outputDir, "./openapi.json")
@@ -74,6 +74,7 @@ async function generateCode(inputPath) {
         '-g', 'typescript-fetch',
         '-o', output,
         '--additional-properties=useSingleRequestParameter=true',
+        '--skip-validate-spec',
     ]
 
     return new Promise((resolve, reject) => {
