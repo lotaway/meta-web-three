@@ -12,9 +12,8 @@ dotenv.config({ path: path.resolve(__dirname, "../.env.local") })
 
 // API Doc url
 const apiHost = process.env.NEXT_PUBLIC_BACK_API_HOST
-const apiDocsUrl = `${
-    process.env.NEXT_PUBLIC_BACK_API_DOC_HOST ?? apiHost ?? ""
-}/pump/v3/api-docs`
+const apiDocsUrl = `${process.env.NEXT_PUBLIC_BACK_API_DOC_HOST ?? apiHost ?? ""
+    }/v3/api-docs`
 // TypeScript output DIR
 const outputDir = "../src/generated/api"
 const outputPath = path.join(__dirname, outputDir, "./openapi.json")
@@ -67,10 +66,10 @@ function downloadOpenApiDocs() {
 
 async function generateCode(inputPath) {
     const cliPath = path.resolve(
-        __dirname, 
+        __dirname,
         '../node_modules/@openapitools/openapi-generator-cli/main.js'
     )
-    
+
     const args = [
         'generate',
         '-i', inputPath,
@@ -85,7 +84,7 @@ async function generateCode(inputPath) {
             stdio: 'inherit',
             cwd: path.resolve(__dirname, '../')
         })
-        
+
         const timeout = setTimeout(() => {
             child.kill();
             reject(new Error("Time out"));
@@ -151,8 +150,7 @@ async function customizeCode() {
     }
     const newStr = runtimeFileStr.replace(
         `"${url}"`,
-        `\`\${process.env.NEXT_PUBLIC_BACK_API_HOST ?? ""}${
-            new URL(url).pathname
+        `\`\${process.env.NEXT_PUBLIC_BACK_API_HOST ?? ""}${new URL(url).pathname
         }\``
     )
     await fs.promises.writeFile(
