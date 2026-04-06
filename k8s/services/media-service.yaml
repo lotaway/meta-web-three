@@ -44,12 +44,12 @@ spec:
         - name: media-service
           image: meta-web-three/media-service:latest
           ports:
-            - containerPort: 10087
+            - containerPort: 10089
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "dev"
             - name: SERVER_PORT
-              value: "10087"
+              value: "10089"
           volumeMounts:
             - name: app-config
               mountPath: /app/config
@@ -65,13 +65,13 @@ spec:
           livenessProbe:
             httpGet:
               path: /actuator/health
-              port: 10087
+              port: 10089
             initialDelaySeconds: 60
             periodSeconds: 30
           readinessProbe:
             httpGet:
               path: /actuator/health
-              port: 10087
+              port: 10089
             initialDelaySeconds: 30
             periodSeconds: 10
       volumes:
@@ -106,6 +106,6 @@ spec:
   selector:
     app: media-service
   ports:
-    - port: 10087
-      targetPort: 10087
+    - port: 10089
+      targetPort: 10089
   type: ClusterIP

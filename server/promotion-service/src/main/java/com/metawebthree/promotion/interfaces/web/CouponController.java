@@ -196,7 +196,7 @@ public class CouponController {
     }
 
     private CouponView toCouponView(Coupon coupon) {
-        CouponType type = couponTypeQueryService.getCouponType(coupon.getCouponTypeId());
+        CouponType type = couponTypeQueryService.getById(coupon.getCouponTypeId());
         CouponView view = new CouponView();
         view.setCode(coupon.getCode());
         view.setCouponTypeId(coupon.getCouponTypeId());
