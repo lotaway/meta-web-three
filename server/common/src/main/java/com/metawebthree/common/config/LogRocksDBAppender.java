@@ -12,11 +12,10 @@ import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 
 public class LogRocksDBAppender extends AppenderBase<ILoggingEvent> {
+    private static final String DEFAULT_LOG_PATH = "logs/rocksdb-logs";
     private RocksDB db;
     private static long seq = 0;
     private static final String SEQ_KEY = "SystemOut";
-    // @TODO diff micro service can't use same path, it's lock
-    private String LOG_PATH = "logs/rocksdb-logs";
 
     @Override
     public void start() {
@@ -28,10 +27,11 @@ public class LogRocksDBAppender extends AppenderBase<ILoggingEvent> {
         if (serviceName == null) {
             serviceName = System.getProperty("spring.boot.project.name", "default");
         }
+        String logPath = System.getProperty("logging.data-path", DEFAULT_LOG_PATH);
         RocksDB.loadLibrary();
         try (final Options options = new Options().setCreateIfMissing(true)) {
             var sj = new StringJoiner("/");
-            sj.add(LOG_PATH).add(serviceName);
+            sj.add(logPath).add(serviceName);
             // sj.add(instanceId);
             String path = new File(sj.toString()).getAbsolutePath();
             boolean result = createDirectory(path);

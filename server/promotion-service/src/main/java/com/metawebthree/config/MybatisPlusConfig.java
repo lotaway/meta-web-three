@@ -6,6 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import com.metawebthree.common.config.MybatisPlusDefaultConfig;
 
 @Configuration
-@MapperScan("com.metawebthree")
+@MapperScan("com.metawebthree.promotion.infrastructure.persistence.mapper")
 public class MybatisPlusConfig extends MybatisPlusDefaultConfig {
 }

@@ -6,6 +6,15 @@ spring:
     name: payment-service
   profiles:
     active: dev
+  datasource:
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 0
+  quartz:
+    auto-startup: false
+    job-store-type: memory
+    jdbc:
+      initialize-schema: never
 
 # 支付配置
 payment:

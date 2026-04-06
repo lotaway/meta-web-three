@@ -3,8 +3,17 @@ server:
 spring:
   application:
     name: gateway
+  datasource:
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 0
   profiles:
     active: dev
+  quartz:
+    auto-startup: false
+    job-store-type: memory
+    jdbc:
+      initialize-schema: never
   cloud:
     gateway:
       server:

@@ -1,6 +1,7 @@
 package com.metawebthree.payment.config;
 
 import org.quartz.*;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 
 import com.metawebthree.common.services.QuartzManager;
@@ -11,6 +12,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
+@ConditionalOnProperty(prefix = "payment.quartz", name = "enabled", havingValue = "true")
 @RequiredArgsConstructor
 public class QuartzConfig {
 
