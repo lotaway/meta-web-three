@@ -27,9 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
-import com.metawebthree.media.DO.ArtWorkDO;
-import com.metawebthree.media.DO.PeopleDO;
-import com.metawebthree.media.DO.PeopleTypeDO;
+import com.metawebthree.media.application.MediaService;
+import com.metawebthree.media.domain.model.ArtWorkDO;
+import com.metawebthree.media.domain.model.PeopleDO;
+import com.metawebthree.media.domain.model.PeopleTypeDO;
+import com.metawebthree.media.infrastructure.persistence.mapper.ArtWorkMapper;
+import com.metawebthree.media.infrastructure.persistence.mapper.PeopleMapper;
+import com.metawebthree.media.infrastructure.persistence.mapper.PeopleTypeMapper;
 import com.metawebthree.media.utils.DefaultMarkdownVisitor;
 
 @RunWith(SpringRunner.class)

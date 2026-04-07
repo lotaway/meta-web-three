@@ -14,7 +14,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
-import com.metawebthree.media.DO.ArtWorkDO;
+import com.metawebthree.media.application.ExcelService;
+import com.metawebthree.media.domain.model.ArtWorkDO;
+import com.metawebthree.media.infrastructure.persistence.mapper.ArtWorkMapper;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
