@@ -84,12 +84,12 @@ async function generateCode(inputPath) {
         })
 
         const timeout = setTimeout(() => {
-            child.kill();
-            reject(new Error("Time out"));
-        }, 120 * 1000);
+            child.kill()
+            reject(new Error("Time out"))
+        }, 120 * 1000)
 
         child.on('close', (code) => {
-            clearTimeout(timeout);
+            clearTimeout(timeout)
             if (code === 0) {
                 resolve()
             } else {

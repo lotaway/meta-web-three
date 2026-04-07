@@ -20,8 +20,8 @@ mybatis-plus:
 # dubbo:
 # swagger docs
 springdoc:
-  #   api-docs:
-  #     enabled: true
+  api-docs:
+    enabled: true
   swagger-ui:
     enabled: true
 # Test configuration for Mockito

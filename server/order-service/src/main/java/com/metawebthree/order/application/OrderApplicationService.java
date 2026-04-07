@@ -132,24 +132,37 @@ public class OrderApplicationService {
     }
 
     @Data
+    @io.swagger.v3.oas.annotations.media.Schema(description = "订单商品创建")
     public static class OrderItemCreate {
+        @io.swagger.v3.oas.annotations.media.Schema(description = "商品ID")
         private Long productId;
+        @io.swagger.v3.oas.annotations.media.Schema(description = "商品名称")
         private String productName;
+        @io.swagger.v3.oas.annotations.media.Schema(description = "SKU ID")
         private Long skuId;
+        @io.swagger.v3.oas.annotations.media.Schema(description = "数量")
         private Integer quantity;
+        @io.swagger.v3.oas.annotations.media.Schema(description = "单价")
         private BigDecimal unitPrice;
+        @io.swagger.v3.oas.annotations.media.Schema(description = "图片URL")
         private String imageUrl;
     }
 
     @Data
+    @io.swagger.v3.oas.annotations.media.Schema(description = "创建订单请求")
     public static class OrderCreateRequest {
+        @io.swagger.v3.oas.annotations.media.Schema(description = "备注")
         private String remark;
+        @io.swagger.v3.oas.annotations.media.Schema(description = "商品列表")
         private List<OrderItemCreate> items;
     }
 
     @Data
+    @io.swagger.v3.oas.annotations.media.Schema(description = "订单详情(含商品)")
     public static class OrderWithItems {
+        @io.swagger.v3.oas.annotations.media.Schema(description = "订单")
         private OrderDO order;
+        @io.swagger.v3.oas.annotations.media.Schema(description = "商品列表")
         private List<OrderItemDO> items;
         public BigDecimal getTotalPrice() {
             return items.stream().map(OrderItemDO::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);

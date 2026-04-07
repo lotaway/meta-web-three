@@ -91,6 +91,7 @@ public class OpenApiConfig {
     public void cacheApiDocs() {
         Map<String, JsonNode> newCache = new HashMap<>();
         List<String> services = DiscoveryClientSupport.getServicesSafely(discoveryClient, applicationName);
+        log.info("Caching API docs for {} services: {}", services.size(), services);
         
         for (String serviceId : services) {
             if (applicationName.equalsIgnoreCase(serviceId)) {
@@ -102,11 +103,15 @@ public class OpenApiConfig {
                         serviceId,
                         applicationName);
                 if (instances.isEmpty()) {
+                    log.warn("No instances found for service: {}", serviceId);
                     continue;
                 }
                 ServiceInstance instance = instances.get(0);
                 JsonNode apiDocs = fetchApiDocs(instance);
                 if (apiDocs != null) {
+                    int schemaCount = apiDocs.has("components") && apiDocs.get("components").has("schemas") 
+                        ? apiDocs.get("components").get("schemas").size() : 0;
+                    log.info("Fetched {} schemas from service {}", schemaCount, serviceId);
                     newCache.put(serviceId, apiDocs);
                 }
             } catch (Exception e) {
@@ -116,6 +121,11 @@ public class OpenApiConfig {
         
         cachedApiDocs = newCache;
         log.info("Cached API docs for {} services", cachedApiDocs.size());
+        for (Map.Entry<String, JsonNode> entry : cachedApiDocs.entrySet()) {
+            int schemaCount = entry.getValue().has("components") && entry.getValue().get("components").has("schemas")
+                ? entry.getValue().get("components").get("schemas").size() : 0;
+            log.info("  - {}: {} schemas", entry.getKey(), schemaCount);
+        }
     }
 
     private boolean testApiDocs(ServiceInstance instance) {
@@ -156,17 +166,52 @@ public class OpenApiConfig {
 
     @Slf4j
     @RestController
-    @RequiredArgsConstructor
     public static class AggregatedApiDocsController {
         
         private final OpenApiConfig openApiConfig;
         private final ObjectMapper objectMapper;
         
+        public AggregatedApiDocsController(OpenApiConfig openApiConfig, ObjectMapper objectMapper) {
+            this.openApiConfig = openApiConfig;
+            this.objectMapper = objectMapper;
+        }
+        
         @GetMapping(value = "/pump/v3/api-docs", produces = MediaType.APPLICATION_JSON_VALUE)
         public String getAggregatedApiDocs() {
             try {
-                Map<String, JsonNode> docs = openApiConfig.cachedApiDocs;
+                List<String> services = DiscoveryClientSupport.getServicesSafely(openApiConfig.discoveryClient, openApiConfig.applicationName);
+                log.info("Found {} services: {}", services.size(), services);
+                Map<String, JsonNode> docs = new HashMap<>();
                 
+                for (String serviceId : services) {
+                    if (openApiConfig.applicationName.equalsIgnoreCase(serviceId)) continue;
+                    try {
+                        List<ServiceInstance> instances = DiscoveryClientSupport.getInstancesSafely(
+                                openApiConfig.discoveryClient, serviceId, openApiConfig.applicationName);
+                        if (instances.isEmpty()) {
+                            log.warn("No instances for service: {}", serviceId);
+                            continue;
+                        }
+                        
+                        String apiDocsUrl = instances.get(0).getUri() + "/v3/api-docs";
+                        log.info("Fetching {} for service {}", apiDocsUrl, serviceId);
+                        String response = openApiConfig.webClientBuilder.build().get()
+                                .uri(apiDocsUrl)
+                                .retrieve()
+                                .bodyToMono(String.class)
+                                .block();
+                        
+                        JsonNode doc = objectMapper.readTree(response);
+                        int schemaCount = doc.has("components") && doc.get("components").has("schemas")
+                            ? doc.get("components").get("schemas").size() : 0;
+                        log.info("Fetched {} schemas from service {}", schemaCount, serviceId);
+                        docs.put(serviceId, doc);
+                    } catch (Exception e) {
+                        log.warn("Failed to fetch API docs for service {}: {}", serviceId, e.getMessage());
+                    }
+                }
+                
+                log.info("Collected docs from {} services", docs.size());
                 if (docs.isEmpty()) {
                     return createEmptyApiDocs();
                 }
@@ -198,19 +243,29 @@ public class OpenApiConfig {
                     tag.put("name", serviceName);
                     tag.put("description", "Endpoints from " + serviceName);
                     
+                    if (serviceDocs.has("components") && serviceDocs.get("components").has("schemas")) {
+                        JsonNode serviceSchemas = serviceDocs.get("components").get("schemas");
+                        serviceSchemas.fieldNames().forEachRemaining(schemaName -> {
+                            if (!schemas.has(schemaName)) {
+                                schemas.set(schemaName, serviceSchemas.get(schemaName).deepCopy());
+                            }
+                        });
+                    }
+                    
                     if (serviceDocs.has("paths")) {
                         JsonNode servicePaths = serviceDocs.get("paths");
                         servicePaths.fieldNames().forEachRemaining(path -> {
                             if (!paths.has(path)) {
-                                JsonNode pathNode = servicePaths.get(path).deepCopy();
-                                renameSchemaRefs(pathNode, serviceName, schemas, docs);
-                                ((ObjectNode) paths).set(path, pathNode);
+                                ((ObjectNode) paths).set(path, servicePaths.get(path).deepCopy());
                             }
                         });
                     }
                 }
                 
-                return objectMapper.writeValueAsString(merged);
+                log.info("Aggregated docs: {} paths, {} schemas", paths.size(), schemas.size());
+                String result = objectMapper.writeValueAsString(merged);
+                log.info("Response size: {} bytes", result.length());
+                return result;
             } catch (Exception e) {
                 log.error("Failed to generate aggregated API docs", e);
                 return createEmptyApiDocs();
@@ -231,7 +286,8 @@ public class OpenApiConfig {
                         obj.put("$ref", "#/components/schemas/" + prefixedName);
                         
                         JsonNode originalSchema = null;
-                        for (JsonNode doc : docs.values()) {
+                        for (Map.Entry<String, JsonNode> docEntry : docs.entrySet()) {
+                            JsonNode doc = docEntry.getValue();
                             if (doc.has("components") && doc.get("components").has("schemas")) {
                                 JsonNode schema = doc.get("components").get("schemas").get(schemaName);
                                 if (schema != null) {
@@ -243,7 +299,10 @@ public class OpenApiConfig {
                         
                         if (originalSchema != null && !schemas.has(prefixedName)) {
                             schemas.set(prefixedName, originalSchema.deepCopy());
+                        } else if (originalSchema == null) {
+                            log.warn("Schema {} not found in any service", schemaName);
                         }
+                        return;
                     }
                 }
                 
@@ -267,11 +326,13 @@ public class OpenApiConfig {
                     });
                 } else if (obj.has("items")) {
                     renameSchemaRefs(obj.get("items"), serviceName, schemas, docs);
-                }
-                
-                if (obj.has("properties")) {
+                } else if (obj.has("properties")) {
                     obj.get("properties").fieldNames().forEachRemaining(prop -> {
                         renameSchemaRefs(obj.get("properties").get(prop), serviceName, schemas, docs);
+                    });
+                } else {
+                    obj.fieldNames().forEachRemaining(field -> {
+                        renameSchemaRefs(obj.get(field), serviceName, schemas, docs);
                     });
                 }
             } else if (node.isArray()) {
