@@ -1,4 +1,6 @@
-import { MallClient } from './client';
+import { categoryApi, productApi, brandApi } from './generated';
+import { ProductCategory } from '@/src/generated/api/models/ProductCategory';
+import { Brand } from '@/src/generated/api/models/Brand';
 
 export interface AdvertiseItem {
   id: number;
@@ -46,8 +48,32 @@ export interface MallHomeContent {
   subjectList: any[];
 }
 
-export function fetchMallHomeContent() {
-  return MallClient.get<MallHomeContent>('/home/content');
+function mapBrandItem(brand: Brand): BrandItem {
+  return {
+    id: brand.id ?? 0,
+    name: brand.name ?? '',
+    logo: brand.logo ?? '',
+    productCount: brand.productCount ?? 0,
+  };
+}
+
+export async function fetchMallHomeContent(): Promise<{ data: MallHomeContent }> {
+  const [brandRes] = await Promise.all([
+    brandApi.list(),
+  ]);
+  
+  const brandList = (brandRes.data ?? []).map(mapBrandItem);
+  
+  return {
+    data: {
+      advertiseList: [],
+      brandList,
+      homeFlashPromotion: null,
+      newProductList: [],
+      hotProductList: [],
+      subjectList: [],
+    },
+  };
 }
 
 export interface ProductListParams {
@@ -60,8 +86,8 @@ export interface ProductListResponse {
   total: number;
 }
 
-export function fetchRecommendMallProductList(params: ProductListParams) {
-  return MallClient.get<ProductListResponse>('/home/recommendProductList', { params });
+export function fetchRecommendMallProductList(params: ProductListParams): Promise<ProductListResponse> {
+  return Promise.resolve({ list: [], total: 0 });
 }
 
 export interface CategoryItem {
@@ -71,14 +97,42 @@ export interface CategoryItem {
   children?: CategoryItem[];
 }
 
-export function fetchProductCategoryList(parentId: number) {
-  return MallClient.get<CategoryItem[]>(`/home/productCateList/${parentId}`);
+function mapProductCategory(pc: ProductCategory): CategoryItem {
+  return {
+    id: pc.id ?? 0,
+    name: pc.name ?? '',
+    parentId: pc.parentId ?? 0,
+  };
 }
 
-export function fetchNewMallProductList(params: ProductListParams) {
-  return MallClient.get<ProductListResponse>('/home/newProductList', { params });
+export async function fetchProductCategoryList(parentId: number): Promise<{ data: CategoryItem[] }> {
+  const response = await categoryApi.viewChildren({ parentId });
+  const categories = response.data?.map(mapProductCategory) ?? [];
+  return { data: categories };
 }
 
-export function fetchHotMallProductList(params: ProductListParams) {
-  return MallClient.get<ProductListResponse>('/home/hotProductList', { params });
+export async function fetchNewMallProductList(params: ProductListParams): Promise<{ data: ProductListResponse }> {
+  const response = await productApi.listProducts({ keyword: 'new' });
+  const list = (response.data ?? []).map(p => ({
+    id: p.id ?? 0,
+    name: p.name ?? '',
+    pic: p.imageUrl ?? '',
+    price: parseFloat(p.price ?? '0'),
+    subTitle: undefined,
+    originalPrice: undefined,
+  }));
+  return { data: { list, total: list.length } };
+}
+
+export async function fetchHotMallProductList(params: ProductListParams): Promise<{ data: ProductListResponse }> {
+  const response = await productApi.listProducts({ keyword: 'hot' });
+  const list = (response.data ?? []).map(p => ({
+    id: p.id ?? 0,
+    name: p.name ?? '',
+    pic: p.imageUrl ?? '',
+    price: parseFloat(p.price ?? '0'),
+    subTitle: undefined,
+    originalPrice: undefined,
+  }));
+  return { data: { list, total: list.length } };
 }
