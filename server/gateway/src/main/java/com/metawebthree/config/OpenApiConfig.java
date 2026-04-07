@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.metawebthree.common.cloud.DiscoveryClientSupport;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -56,14 +57,17 @@ public class OpenApiConfig {
     @Scheduled(fixedRate = 30 * 1000, initialDelay = 1000)
     public void updateSwaggerUrls() {
         Set<SwaggerUiConfigProperties.SwaggerUrl> swaggerUrls = new HashSet<>();
-        List<String> services = discoveryClient.getServices();
+        List<String> services = DiscoveryClientSupport.getServicesSafely(discoveryClient, applicationName);
 
         for (String serviceId : services) {
             if (applicationName.equalsIgnoreCase(serviceId)) {
                 continue;
             }
             try {
-                List<ServiceInstance> instances = discoveryClient.getInstances(serviceId);
+                List<ServiceInstance> instances = DiscoveryClientSupport.getInstancesSafely(
+                        discoveryClient,
+                        serviceId,
+                        applicationName);
                 if (instances.isEmpty() || instances.size() == 0) {
                     continue;
                 }
@@ -86,14 +90,17 @@ public class OpenApiConfig {
     @Scheduled(fixedRate = 60 * 1000, initialDelay = 2000)
     public void cacheApiDocs() {
         Map<String, JsonNode> newCache = new HashMap<>();
-        List<String> services = discoveryClient.getServices();
+        List<String> services = DiscoveryClientSupport.getServicesSafely(discoveryClient, applicationName);
         
         for (String serviceId : services) {
             if (applicationName.equalsIgnoreCase(serviceId)) {
                 continue;
             }
             try {
-                List<ServiceInstance> instances = discoveryClient.getInstances(serviceId);
+                List<ServiceInstance> instances = DiscoveryClientSupport.getInstancesSafely(
+                        discoveryClient,
+                        serviceId,
+                        applicationName);
                 if (instances.isEmpty()) {
                     continue;
                 }

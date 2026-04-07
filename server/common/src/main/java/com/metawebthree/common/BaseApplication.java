@@ -1,5 +1,6 @@
 package com.metawebthree.common;
 
+import com.metawebthree.common.cloud.DiscoveryClientSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -25,6 +26,6 @@ public abstract class BaseApplication {
                 "After {} started, ZK connection is {}, available services: {}",
                 name,
                 zkConnected,
-                discoveryClient.getServices());
+                DiscoveryClientSupport.getServicesSafely(discoveryClient, name));
     }
 }
