@@ -1,4 +1,4 @@
-package com.metawebthree.product.exception;
+package com.metawebthree.product.domain.exception;
 
 public enum ProductErrorCode {
     NOT_FOUND("PRODUCT_001", "商品不存在"),

@@ -1,8 +1,8 @@
 package com.metawebthree.product.interfaces.web;
 
 import com.metawebthree.product.application.ProductService;
-import com.metawebthree.product.exception.ProductDomainException;
-import com.metawebthree.product.exception.ProductErrorCode;
+import com.metawebthree.product.domain.exception.ProductDomainException;
+import com.metawebthree.product.domain.exception.ProductErrorCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

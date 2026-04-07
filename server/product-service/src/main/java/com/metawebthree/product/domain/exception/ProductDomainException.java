@@ -1,4 +1,4 @@
-package com.metawebthree.product.exception;
+package com.metawebthree.product.domain.exception;
 
 public class ProductDomainException extends RuntimeException {
 
