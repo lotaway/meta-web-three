@@ -69,13 +69,21 @@ public class CommissionEndToEndTest extends PostgresTestBase {
     }
 
     private static ConfigurableApplicationContext startUserService() {
-        return startService(com.metawebthree.UserServiceApplication.class,
+        return startService(loadApplicationClass("com.metawebthree.UserServiceApplication"),
                 USER_PORT, "classpath:db/init.sql", COMMISSION_URL);
     }
 
     private static ConfigurableApplicationContext startOrderService() {
-        return startService(com.metawebthree.OrderServiceApplication.class,
+        return startService(loadApplicationClass("com.metawebthree.OrderServiceApplication"),
                 ORDER_PORT, "classpath:schema.sql", COMMISSION_URL);
+    }
+
+    private static Class<?> loadApplicationClass(String className) {
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException ex) {
+            throw new IllegalStateException("Unable to load application class: " + className, ex);
+        }
     }
 
     private static ConfigurableApplicationContext startService(Class<?> application, int port,
