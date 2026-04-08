@@ -1,7 +1,7 @@
 ### 创建兑换订单
 POST http://localhost:10086/api/v1/exchange/orders
 Content-Type: application/json
-X-User-ID: 1
+X-User-Id: 1
 
 {
   "orderType": "BUY_CRYPTO",

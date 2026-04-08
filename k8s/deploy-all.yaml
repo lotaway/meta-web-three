@@ -729,6 +729,96 @@ spec:
     targetPort: 10085
   type: ClusterIP
 
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: user-action-data-pv
+  namespace: meta-web-three
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/server/user-action
+  storageClassName: local-storage
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-action-service
+  namespace: meta-web-three
+  labels:
+    app: user-action-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-action-service
+  template:
+    metadata:
+      labels:
+        app: user-action-service
+    spec:
+      containers:
+      - name: user-action-service
+        image: meta-web-three/user-action-service:latest
+        ports:
+        - containerPort: 10091
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10091"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: user-action-data
+          mountPath: /server/user-action
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: user-action-data
+        persistentVolumeClaim:
+          claimName: user-action-data-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: user-action-data-pvc
+  namespace: meta-web-three
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-storage
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-action-service
+  namespace: meta-web-three
+spec:
+  selector:
+    app: user-action-service
+  ports:
+  - port: 10091
+    targetPort: 10091
+  type: ClusterIP
+
 # 7. 部署前端
 ---
 apiVersion: apps/v1
@@ -836,6 +926,13 @@ spec:
             name: order-service
             port:
               number: 10084
+      - path: /action
+        pathType: Prefix
+        backend:
+          service:
+            name: user-action-service
+            port:
+              number: 10091
       - path: /message
         pathType: Prefix
         backend:

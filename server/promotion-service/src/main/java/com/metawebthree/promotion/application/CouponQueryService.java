@@ -70,6 +70,15 @@ public class CouponQueryService {
         return couponTypeRepository.findById(id);
     }
 
+    public List<CouponType> listByProduct(Long productId) {
+        if (productId == null || productId <= 0) {
+            throw new PromotionException(PromotionErrorCode.INVALID_REQUEST, "missing productId");
+        }
+        // 当前实现：返回所有在有效期内且已启用的通用券种
+        // 未来可扩展为：叠加 product/category 维度的精准适配
+        return couponTypeRepository.listEnabledActive(timeProvider.now());
+    }
+
     public CouponValidateResult validate(String code, Long ownerUserId, BigDecimal orderAmount, BigDecimal deliveryFee) {
         validateRequest(code, ownerUserId, orderAmount);
         Coupon coupon = loadCoupon(code);

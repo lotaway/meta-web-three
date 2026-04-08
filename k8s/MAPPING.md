@@ -58,12 +58,48 @@ services:
   order-service:
     ports:
       - "10084:10084"
-  message-service:
+  promotion-service:
     ports:
-      - "10085:10085"
+      - "10090:10090"
+  user-action-service:
+    ports:
+      - "10091:10091"
 ```
 
 ### Kubernetes 端口配置
+
+```yaml
+# user-action-service Service 配置
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-action-service
+spec:
+  selector:
+    app: user-action-service
+  ports:
+  - port: 10091
+    targetPort: 10091
+  type: ClusterIP
+
+# user-action-service Ingress 配置
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-ingress
+spec:
+  rules:
+  - host: api.meta-web-three.local
+    http:
+      paths:
+      - path: /action
+        pathType: Prefix
+        backend:
+          service:
+            name: user-action-service
+            port:
+              number: 10091
+```
 
 ```yaml
 # Service 配置
@@ -204,6 +240,9 @@ services:
   message-service:
     volumes:
       - ${DATA_PATH}/.data/server/message:/server/message
+  user-action-service:
+    volumes:
+      - ${DATA_PATH}/.data/server/user-action:/server/user-action
 ```
 
 ### Kubernetes 存储配置
@@ -280,6 +319,8 @@ services:
   order-service:
     restart: unless-stopped
   message-service:
+    restart: unless-stopped
+  user-action-service:
     restart: unless-stopped
 ```
 
@@ -384,6 +425,10 @@ services:
     build:
       context: ./product-service
       dockerfile: Dockerfile
+  user-action-service:
+    build:
+      context: ./user-action-service
+      dockerfile: Dockerfile
 ```
 
 ### Kubernetes 镜像配置
@@ -396,6 +441,8 @@ spec:
       containers:
         - name: product-service
           image: meta-web-three/product-service:latest
+        - name: user-action-service
+          image: meta-web-three/user-action-service:latest
 ```
 
 **映射说明**：

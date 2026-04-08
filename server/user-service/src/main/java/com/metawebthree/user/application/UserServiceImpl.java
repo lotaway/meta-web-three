@@ -99,6 +99,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         return getUserList(1);
     }
 
+    @Override
+    public UserDTO getUserById(Long id) {
+        var wrapper = new MPJLambdaWrapper<UserDO>();
+        wrapper.select(UserDO::getId, UserDO::getEmail)
+                .select(AuthorDO::getUserId, AuthorDO::getRealName)
+                .select(UserRoleMappingDO::getUserRoleId)
+                .select(Web3UserDO::getWalletAddress)
+                .leftJoin(
+                        AuthorDO.class,
+                        AuthorDO::getUserId,
+                        UserDO::getId)
+                .leftJoin(
+                        Web3UserDO.class,
+                        Web3UserDO::getUserId,
+                        UserDO::getId)
+                .leftJoin(
+                        UserRoleMappingDO.class,
+                        UserRoleMappingDO::getUserId,
+                        UserDO::getId)
+                .eq(UserDO::getId, id);
+        return userMapper.selectJoinOne(UserDTO.class, wrapper);
+    }
+
     public IPage<UserDTO> getUserList(int pageNum) {
         return getUserList(pageNum, pageConfigVo.getPageSize());
     }

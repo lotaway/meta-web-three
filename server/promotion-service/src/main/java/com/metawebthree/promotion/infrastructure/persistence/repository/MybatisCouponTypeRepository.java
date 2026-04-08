@@ -1,5 +1,10 @@
 package com.metawebthree.promotion.infrastructure.persistence.repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Repository;
 
 import com.metawebthree.promotion.domain.model.CouponType;
@@ -29,6 +34,15 @@ public class MybatisCouponTypeRepository implements CouponTypeRepository {
             return null;
         }
         return toDomain(record);
+    }
+
+    @Override
+    public List<CouponType> listEnabledActive(LocalDateTime now) {
+        List<CouponTypeRecord> records = mapper.selectList(new LambdaQueryWrapper<CouponTypeRecord>()
+                .eq(CouponTypeRecord::getIsEnabled, true)
+                .le(CouponTypeRecord::getStartTime, now)
+                .ge(CouponTypeRecord::getEndTime, now));
+        return records.stream().map(this::toDomain).collect(Collectors.toList());
     }
 
     private CouponTypeRecord toRecord(CouponType couponType) {

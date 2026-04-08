@@ -1,5 +1,7 @@
 package com.metawebthree.user.interfaces.web;
 
+import com.metawebthree.common.constants.HeaderConstants;
+import com.metawebthree.common.constants.RequestHeaderKeys;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.user.application.MemberAddressApplicationService;
 import com.metawebthree.user.domain.model.MemberAddress;
@@ -27,8 +29,8 @@ public class MemberAddressController {
     }
 
     @Operation(summary = "List all member addresses")
-    @GetMapping("/member/{memberId}")
-    public ApiResponse<List<MemberAddress>> list(@PathVariable Long memberId) {
+    @GetMapping
+    public ApiResponse<List<MemberAddress>> list(@RequestHeader(HeaderConstants.USER_ID) Long memberId) {
         return ApiResponse.success(addressService.listAddresses(memberId));
     }
 

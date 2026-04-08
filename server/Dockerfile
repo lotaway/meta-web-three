@@ -42,3 +42,13 @@ FROM eclipse-temurin:17-jre-jammy AS media-service
 WORKDIR /app
 COPY --from=builder /build/media-service/target/media-service-*.jar media-service.jar
 ENTRYPOINT ["java", "-jar", "media-service.jar"]
+
+FROM eclipse-temurin:17-jre-jammy AS promotion-service
+WORKDIR /app
+COPY --from=builder /build/promotion-service/target/promotion-service-*.jar promotion-service.jar
+ENTRYPOINT ["java", "-jar", "promotion-service.jar"]
+
+FROM eclipse-temurin:17-jre-jammy AS user-action-service
+WORKDIR /app
+COPY --from=builder /build/user-action-service/target/user-action-service-*.jar user-action-service.jar
+ENTRYPOINT ["java", "-jar", "user-action-service.jar"]

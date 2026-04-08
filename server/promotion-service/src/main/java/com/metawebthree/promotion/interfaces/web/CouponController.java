@@ -37,6 +37,7 @@ import com.metawebthree.promotion.interfaces.web.dto.CouponTypeCreateRequest;
 import com.metawebthree.promotion.interfaces.web.dto.CouponValidateRequest;
 import com.metawebthree.promotion.interfaces.web.dto.CouponValidateResponse;
 import com.metawebthree.promotion.interfaces.web.dto.CouponView;
+import com.metawebthree.promotion.interfaces.web.dto.CouponTypeView;
 
 import jakarta.validation.Valid;
 
@@ -101,6 +102,28 @@ public class CouponController {
             HttpServletRequest httpRequest,
             @Valid @RequestBody CouponClaimRequest request) {
         return executeCommand(() -> couponCommandService.claim(request.getCouponTypeId(), readUserId(httpRequest)));
+    }
+
+    @GetMapping("/coupons/listByProduct/{productId}")
+    public ApiResponse<List<CouponTypeView>> listByProduct(@PathVariable Long productId) {
+        return executeQuery(() -> {
+            List<CouponType> types = couponQueryService.listByProduct(productId);
+            List<CouponTypeView> result = new ArrayList<>();
+            for (CouponType t : types) {
+                CouponTypeView v = new CouponTypeView();
+                v.setId(t.getId());
+                v.setName(t.getName());
+                v.setDescription(t.getDescription());
+                v.setImageUrl(t.getImageUrl());
+                v.setMinimumOrderAmount(t.getMinimumOrderAmount());
+                v.setDiscountAmount(t.getDiscountAmount());
+                v.setIsEnabled(t.getIsEnabled());
+                v.setStartTime(t.getStartTime());
+                v.setEndTime(t.getEndTime());
+                result.add(v);
+            }
+            return result;
+        });
     }
 
     @GetMapping("/coupons")

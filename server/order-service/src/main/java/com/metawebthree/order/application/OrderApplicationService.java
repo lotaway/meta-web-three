@@ -2,6 +2,7 @@ package com.metawebthree.order.application;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -101,6 +102,56 @@ public class OrderApplicationService {
     }
 
     @Transactional
+    public boolean deleteOrder(Long orderId, Long userId) {
+        OrderDO order = orderMapper.selectById(orderId);
+        if (order == null || !order.getUserId().equals(userId)) {
+            return false;
+        }
+        // 逻辑删除
+        order.setDeleteStatus(1);
+        return orderMapper.updateById(order) > 0;
+    }
+
+    @Transactional
+    public boolean paySuccess(Long orderId, Integer payType) {
+        OrderDO order = orderMapper.selectById(orderId);
+        if (order == null) {
+            return false;
+        }
+        order.setOrderStatus("PAID");
+        order.setPaymentTime(LocalDateTime.now());
+        order.setPaymentType(payType);
+        return orderMapper.updateById(order) > 0;
+    }
+
+    public ConfirmOrderResult generateConfirmOrder(Long userId, List<Long> cartIds) {
+        // 这里应该是从 cart-service 获取购物车项，从 user-service 获取地址和积分等
+        // 目前先返回一个简单的结果
+        ConfirmOrderResult result = new ConfirmOrderResult();
+        result.setCartPromotionItemList(Collections.emptyList());
+        result.setMemberReceiveAddressList(Collections.emptyList());
+        result.setMemberCouponList(Collections.emptyList());
+        result.setCalcAmount(new CalcAmount());
+        return result;
+    }
+
+    @Data
+    public static class ConfirmOrderResult {
+        private List<?> cartPromotionItemList;
+        private List<?> memberReceiveAddressList;
+        private List<?> memberCouponList;
+        private CalcAmount calcAmount;
+    }
+
+    @Data
+    public static class CalcAmount {
+        private BigDecimal totalAmount = BigDecimal.ZERO;
+        private BigDecimal freightAmount = BigDecimal.ZERO;
+        private BigDecimal promotionAmount = BigDecimal.ZERO;
+        private BigDecimal payAmount = BigDecimal.ZERO;
+    }
+
+    @Transactional
     public boolean confirmReceive(Long orderId, Long userId) {
         OrderDO order = orderMapper.selectById(orderId);
         if (order == null || !order.getUserId().equals(userId)) {
@@ -164,6 +215,7 @@ public class OrderApplicationService {
         private OrderDO order;
         @io.swagger.v3.oas.annotations.media.Schema(description = "商品列表")
         private List<OrderItemDO> items;
+
         public BigDecimal getTotalPrice() {
             return items.stream().map(OrderItemDO::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
         }

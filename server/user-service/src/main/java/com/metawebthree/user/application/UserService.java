@@ -26,6 +26,8 @@ public interface UserService extends IService<UserDO> {
 
     IPage<UserDTO> getUserList(Integer pageNum, MPJLambdaWrapper<UserDO> wrapper, Integer pageSize);
 
+    UserDTO getUserById(Long id);
+
     Long createUser(String email, String password) throws Exception;
 
     Long createUser(String email, String password, UserRole userRoleId) throws Exception;

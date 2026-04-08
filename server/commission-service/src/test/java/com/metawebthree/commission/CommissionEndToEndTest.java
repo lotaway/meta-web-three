@@ -193,7 +193,7 @@ public class CommissionEndToEndTest extends PostgresTestBase {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         if (userId != null) {
-            headers.add("X-User-ID", String.valueOf(userId));
+            headers.add("X-User-Id", String.valueOf(userId));
         }
         return new HttpEntity<>(body, headers);
     }
@@ -201,7 +201,7 @@ public class CommissionEndToEndTest extends PostgresTestBase {
     private HttpEntity<Void> headerEntity(Long userId) {
         HttpHeaders headers = new HttpHeaders();
         if (userId != null) {
-            headers.add("X-User-ID", String.valueOf(userId));
+            headers.add("X-User-Id", String.valueOf(userId));
         }
         return new HttpEntity<>(headers);
     }

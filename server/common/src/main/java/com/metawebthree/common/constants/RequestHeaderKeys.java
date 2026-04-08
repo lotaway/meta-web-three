@@ -1,9 +1,9 @@
 package com.metawebthree.common.constants;
 
 public enum RequestHeaderKeys {
-    USER_ID("X-User-Id"),
-    USER_ROLE("X-User-Role"),
-    USER_NAME("X-User-Name");
+    USER_ID(HeaderConstants.USER_ID),
+    USER_ROLE(HeaderConstants.USER_ROLE),
+    USER_NAME(HeaderConstants.USER_NAME);
 
     private final String value;
 

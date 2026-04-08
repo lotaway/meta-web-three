@@ -1,5 +1,7 @@
 package com.metawebthree.payment.interfaces.web;
 
+import com.metawebthree.common.constants.HeaderConstants;
+import com.metawebthree.common.constants.RequestHeaderKeys;
 import com.metawebthree.payment.application.dto.ExchangeOrderRequest;
 import com.metawebthree.payment.application.dto.ExchangeOrderResponse;
 import com.metawebthree.payment.application.ExchangeOrderServiceImpl;
@@ -27,7 +29,7 @@ public class ExchangeOrderController {
     @PostMapping("/orders")
     public ResponseEntity<ExchangeOrderResponse> createOrder(
             @Valid @RequestBody ExchangeOrderRequest request,
-            @RequestHeader("X-User-ID") Long userId) {
+            @RequestHeader(HeaderConstants.USER_ID) Long userId) {
 
         log.info("Creating exchange order for user {}: {}", userId, request);
 
@@ -39,7 +41,7 @@ public class ExchangeOrderController {
     @GetMapping("/orders/{orderNo}")
     public ResponseEntity<ExchangeOrderResponse> getOrder(
             @PathVariable String orderNo,
-            @RequestHeader("X-User-ID") Long userId) {
+            @RequestHeader(HeaderConstants.USER_ID) Long userId) {
 
         log.info("Getting order details for user {}: {}", userId, orderNo);
 
@@ -51,7 +53,7 @@ public class ExchangeOrderController {
     @GetMapping("/orders")
     @Operation(summary = "Get user order list")
     public ResponseEntity<List<ExchangeOrderResponse>> getUserOrders(
-            @RequestHeader("X-User-ID") Long userId,
+            @RequestHeader(HeaderConstants.USER_ID) Long userId,
             @RequestParam(required = false) String status) {
 
         log.info("Getting orders for user {} with status: {}", userId, status);
@@ -65,7 +67,7 @@ public class ExchangeOrderController {
     @Operation(summary = "Cancel user order")
     public ResponseEntity<Void> cancelOrder(
             @PathVariable String orderNo,
-            @RequestHeader("X-User-ID") Long userId) {
+            @RequestHeader(HeaderConstants.USER_ID) Long userId) {
 
         log.info("Cancelling order for user {}: {}", userId, orderNo);
 

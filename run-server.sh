@@ -19,6 +19,7 @@ modules=(
   media-service
   cart-service
   promotion-service
+  user-action-service
 )
 
 pids=()

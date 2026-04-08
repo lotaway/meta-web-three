@@ -12,12 +12,6 @@ aws_secret_access_key=s3_secret_key
 
 [Quartz SQL Scripts and Example](https://www.quartz-scheduler.org/downloads)
 
-## Promotion Service
-
-Spring Boot promotion microservice (coupon) is located at `promotion-service`.  
-Default port: `10087`, Dubbo port: `20087`.  
-Database schema: `promotion-service/src/main/resources/db/schema.sql`.
-
 ## Database Schema
 
 每个微服务的数据库表结构定义在 `src/main/resources/db/schema.sql`。
@@ -45,6 +39,7 @@ Database schema: `promotion-service/src/main/resources/db/schema.sql`.
 | media-service | `media-service/src/main/resources/db/schema.sql` |
 | user-service | `user-service/src/main/resources/db/schema.sql` |
 | promotion-service | `promotion-service/src/main/resources/db/schema.sql` |
+| user-action-service | `user-action-service/src/main/resources/db/schema.sql` |
 | commission-service | `commission-service/src/main/resources/db/schema.sql` |
 | payment-service | `payment-service/src/main/resources/db/schema.sql` |
 

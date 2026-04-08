@@ -28,6 +28,7 @@
         <module>promotion-service</module>
         <module>commission-service</module>
         <module>cart-service</module>
+        <module>user-action-service</module>
     </modules>
 
     <properties>

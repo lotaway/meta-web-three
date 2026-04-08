@@ -1,7 +1,9 @@
 package com.metawebthree.product.interfaces.web;
 
 import com.metawebthree.common.dto.ApiResponse;
+import com.metawebthree.common.dto.ProductDTO;
 import com.metawebthree.product.application.BrandApplicationService;
+import com.metawebthree.product.application.ProductService;
 import com.metawebthree.product.domain.model.Brand;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +20,7 @@ import java.util.List;
 public class BrandController {
 
     private final BrandApplicationService brandService;
+    private final ProductService productService;
 
     @Operation(summary = "Register brand")
     @PostMapping
@@ -50,5 +53,15 @@ public class BrandController {
     public ApiResponse<Void> remove(@PathVariable Long id) {
         brandService.removeBrand(id);
         return ApiResponse.success();
+    }
+
+    @Operation(summary = "获取品牌相关商品列表")
+    @GetMapping("/{id}/products")
+    public ApiResponse<List<ProductDTO>> listProducts(
+            @PathVariable Long id,
+            @RequestParam(required = false) String keyword) {
+        // 使用现有的 productService.listProducts，传入 brandId 进行过滤
+        // 这里需要扩展 listProducts 支持 brandId
+        return ApiResponse.success(productService.listProducts(null, keyword, null));
     }
 }

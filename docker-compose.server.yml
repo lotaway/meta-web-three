@@ -261,6 +261,32 @@ services:
       - default
     restart: unless-stopped
 
+  user-action-service:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      target: user-action-service
+    container_name: meta-web-three-user-action-service
+    ports:
+      - "10091:10091"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
+    volumes:
+      - user_action_service_data:/server/user-action
+      - ./.aws:/.aws:ro
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - meta-web-three
+      - default
+    restart: unless-stopped
+
 volumes:
   gateway_data:
   product_service_data:
@@ -272,3 +298,4 @@ volumes:
   media_service_data:
   cart_service_data:
   promotion_service_data:
+  user_action_service_data:

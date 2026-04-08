@@ -1,6 +1,7 @@
 package com.metawebthree.user.interfaces.web;
 
 import com.metawebthree.author.AuthorDO;
+import com.metawebthree.common.constants.HeaderConstants;
 import com.metawebthree.common.constants.RequestHeaderKeys;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.enums.ResponseStatus;
@@ -109,6 +110,15 @@ public class UserController {
         String token = generateToken(user.getId().toString(), claims, expiresInHours);
 
         return ApiResponse.success(new LoginResponseDTO(token, user, null, "email"));
+    }
+
+    @GetMapping("/info")
+    public ApiResponse<UserDTO> info(@RequestHeader(HeaderConstants.USER_ID) Long userId) {
+        UserDTO user = userService.getUserById(userId);
+        if (user == null) {
+            return ApiResponse.error(ResponseStatus.USER_NOT_FOUND);
+        }
+        return ApiResponse.success(user);
     }
 
     private Map<String, Object> buildClaims(UserDTO user) {

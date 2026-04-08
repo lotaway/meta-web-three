@@ -166,6 +166,20 @@ spec:
     path: /data/server/gateway
   storageClassName: local-storage
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: user-action-data-pv
+  namespace: meta-web-three
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/server/user-action
+  storageClassName: local-storage
+---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:

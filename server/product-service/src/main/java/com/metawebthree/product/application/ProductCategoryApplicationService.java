@@ -2,9 +2,11 @@ package com.metawebthree.product.application;
 
 import com.metawebthree.product.domain.model.ProductCategory;
 import com.metawebthree.product.domain.repository.ProductCategoryRepository;
+import com.metawebthree.product.interfaces.web.dto.ProductCategoryNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +21,25 @@ public class ProductCategoryApplicationService {
 
     public List<ProductCategory> findSubCategories(Long parentId) {
         return productCategoryRepository.findByParentId(parentId);
+    }
+
+    public List<ProductCategoryNode> categoryTreeList() {
+        // 获取所有分类，并构造成树形结构
+        List<ProductCategory> allCategories = productCategoryRepository.findAll();
+        return allCategories.stream()
+                .filter(ProductCategory::isRoot)
+                .map(category -> buildNode(category, allCategories))
+                .collect(Collectors.toList());
+    }
+
+    private ProductCategoryNode buildNode(ProductCategory category, List<ProductCategory> all) {
+        ProductCategoryNode node = new ProductCategoryNode(category);
+        List<ProductCategoryNode> children = all.stream()
+                .filter(c -> category.getId().equals(c.getParentId()))
+                .map(c -> buildNode(c, all))
+                .collect(Collectors.toList());
+        node.setChildren(children);
+        return node;
     }
 
     public void updateCategory(ProductCategory category) {

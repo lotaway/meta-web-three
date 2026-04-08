@@ -3,6 +3,7 @@ package com.metawebthree.product.interfaces.web;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.product.application.ProductCategoryApplicationService;
 import com.metawebthree.product.domain.model.ProductCategory;
+import com.metawebthree.product.interfaces.web.dto.ProductCategoryNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,12 @@ public class ProductCategoryController {
     @GetMapping("/children/{parentId}")
     public ApiResponse<List<ProductCategory>> viewChildren(@PathVariable Long parentId) {
         return ApiResponse.success(categoryService.findSubCategories(parentId));
+    }
+
+    @Operation(summary = "以树形结构获取所有商品分类")
+    @GetMapping("/tree")
+    public ApiResponse<List<ProductCategoryNode>> categoryTreeList() {
+        return ApiResponse.success(categoryService.categoryTreeList());
     }
 
     @Operation(summary = "Update category")
