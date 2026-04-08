@@ -1,4 +1,4 @@
-import { categoryApi, productApi, brandApi } from './generated';
+import { categoryApi, productApi, brandApi, API_BASE_URL } from './generated';
 import { ProductCategory } from '@/src/generated/api/models/ProductCategory';
 import { Brand } from '@/src/generated/api/models/Brand';
 
@@ -58,15 +58,25 @@ function mapBrandItem(brand: Brand): BrandItem {
 }
 
 export async function fetchMallHomeContent(): Promise<{ data: MallHomeContent }> {
-  const [brandRes] = await Promise.all([
+  const [brandRes, advertiseRes] = await Promise.all([
     brandApi.list(),
+    fetch(`${API_BASE_URL}/v1/promotion/advertises/available?type=1`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    }).then(r => r.json()).catch(() => ({ code: -1, data: [] })),
   ]);
-  
+
   const brandList = (brandRes.data ?? []).map(mapBrandItem);
-  
+  const advertiseList: AdvertiseItem[] = (advertiseRes?.data ?? []).map((a: any) => ({
+    id: a.id ?? 0,
+    name: a.name ?? '',
+    pic: a.pic ?? '',
+    link: a.url ?? undefined,
+  }));
+
   return {
     data: {
-      advertiseList: [],
+      advertiseList,
       brandList,
       homeFlashPromotion: null,
       newProductList: [],
