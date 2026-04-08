@@ -1,4 +1,4 @@
-package com.metawebthree.common.dto;
+package com.metawebthree.product.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

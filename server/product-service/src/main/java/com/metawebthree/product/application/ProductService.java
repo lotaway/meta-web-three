@@ -2,8 +2,8 @@ package com.metawebthree.product.application;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
-import com.metawebthree.common.dto.ProductDTO;
-import com.metawebthree.common.dto.ProductDetailDTO;
+import com.metawebthree.product.dto.ProductDTO;
+import com.metawebthree.product.dto.ProductDetailDTO;
 import com.metawebthree.common.utils.RocketMQ.MQProducer;
 import com.metawebthree.image.ProductImageService;
 import com.metawebthree.product.application.event.ProductEventType;

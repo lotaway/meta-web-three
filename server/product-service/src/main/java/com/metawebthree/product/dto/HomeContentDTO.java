@@ -1,4 +1,4 @@
-package com.metawebthree.common.dto;
+package com.metawebthree.product.dto;
 
 import lombok.Builder;
 import lombok.Getter;

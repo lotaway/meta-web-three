@@ -1,8 +1,8 @@
 package com.metawebthree.product.interfaces.web;
 
 import com.metawebthree.common.dto.ApiResponse;
-import com.metawebthree.common.dto.HomeContentDTO;
-import com.metawebthree.common.dto.ProductDTO;
+import com.metawebthree.product.dto.HomeContentDTO;
+import com.metawebthree.product.dto.ProductDTO;
 import com.metawebthree.product.application.BrandApplicationService;
 import com.metawebthree.product.application.ProductService;
 import io.swagger.v3.oas.annotations.Operation;

@@ -3,7 +3,7 @@ package com.metawebthree.cart.application;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.cart.domain.CartItem;
 import com.metawebthree.cart.infrastructure.CartItemMapper;
-import com.metawebthree.common.dto.CartItemDTO;
+import com.metawebthree.cart.dto.CartItemDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;

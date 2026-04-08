@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.metawebthree.common.dto.ApiResponse;
-import com.metawebthree.common.dto.ProductDTO;
-import com.metawebthree.common.dto.ProductDetailDTO;
+import com.metawebthree.product.dto.ProductDTO;
+import com.metawebthree.product.dto.ProductDetailDTO;
 import java.util.List;
 
 @Validated

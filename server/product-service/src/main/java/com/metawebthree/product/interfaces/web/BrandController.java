@@ -1,7 +1,7 @@
 package com.metawebthree.product.interfaces.web;
 
 import com.metawebthree.common.dto.ApiResponse;
-import com.metawebthree.common.dto.ProductDTO;
+import com.metawebthree.product.dto.ProductDTO;
 import com.metawebthree.product.application.BrandApplicationService;
 import com.metawebthree.product.application.ProductService;
 import com.metawebthree.product.domain.model.Brand;

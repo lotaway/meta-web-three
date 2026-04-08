@@ -1,6 +1,6 @@
 package com.metawebthree.cart.application;
 
-import com.metawebthree.common.dto.CartItemDTO;
+import com.metawebthree.cart.dto.CartItemDTO;
 import java.util.List;
 
 public interface CartService {
