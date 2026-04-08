@@ -1,8 +1,9 @@
 package com.metawebthree.user.interfaces.web;
 
 import com.metawebthree.common.dto.ApiResponse;
-import com.metawebthree.common.dto.UserRiskProfileUpdateDTO;
-import com.metawebthree.common.rpc.UserRiskProfileService;
+import com.metawebthree.common.generated.rpc.UserRiskProfileService;
+import com.metawebthree.common.generated.rpc.UpdateRiskProfileRequest;
+import com.metawebthree.common.enums.ResponseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,14 +20,14 @@ public class UserRiskProfileController {
     private final UserRiskProfileService userRiskProfileService;
 
     @PostMapping("/update")
-    public ApiResponse<Void> updateRiskProfile(@RequestBody UserRiskProfileUpdateDTO updateDTO) {
-        log.info("Received request to update risk profile for user: {}", updateDTO.getUserId());
+    public ApiResponse<Void> updateRiskProfile(@RequestBody UpdateRiskProfileRequest request) {
+        log.info("Received request to update risk profile for user: {}", request.getUserId());
         try {
-            userRiskProfileService.updateRiskProfile(updateDTO);
+            userRiskProfileService.updateRiskProfile(request);
             return ApiResponse.success();
         } catch (Exception e) {
             log.error("Failed to update risk profile", e);
-            return ApiResponse.error(com.metawebthree.common.enums.ResponseStatus.SYSTEM_ERROR, e.getMessage());
+            return ApiResponse.error(ResponseStatus.SYSTEM_ERROR, e.getMessage());
         }
     }
 }

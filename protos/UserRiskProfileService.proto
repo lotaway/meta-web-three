@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package com.metawebthree.common.generated.rpc;
+
+option java_multiple_files = true;
+option java_outer_classname = "UserRiskProfileServiceProto";
+
+import "DeviceRiskTag.proto";
+
+service UserRiskProfileService {
+    rpc getUserRiskProfile (GetUserRiskProfileRequest) returns (GetUserRiskProfileResponse);
+
+    rpc updateRiskProfile (UpdateRiskProfileRequest) returns (UpdateRiskProfileResponse);
+}
+
+message GetUserRiskProfileRequest {
+    int64 userId = 1;
+}
+
+message GetUserRiskProfileResponse {
+    UserRiskProfile profile = 1;
+}
+
+message UserRiskProfile {
+    int64 userId = 1;
+    int32 age = 2;
+    float externalDebtRatio = 3;
+    float gpsStability = 4;
+    int32 deviceSharedDegree = 5;
+    DeviceRiskTag deviceRiskTag = 6;
+}
+
+message UpdateRiskProfileRequest {
+    int64 userId = 1;
+    int32 age = 2;
+    float externalDebtRatio = 3;
+    float gpsStability = 4;
+    int32 deviceSharedDegree = 5;
+    DeviceRiskTag deviceRiskTag = 6;
+}
+
+message UpdateRiskProfileResponse {
+    bool success = 1;
+}

@@ -3,6 +3,10 @@ package com.metawebthree.payment.application;
 import com.metawebthree.common.generated.rpc.RiskScorerService;
 import com.metawebthree.common.generated.rpc.ScoreRequest;
 import com.metawebthree.common.generated.rpc.ScoreResponse;
+import com.metawebthree.common.generated.rpc.UserRiskProfileService;
+import com.metawebthree.common.generated.rpc.UserRiskProfile;
+import com.metawebthree.common.generated.rpc.GetUserRiskProfileRequest;
+import com.metawebthree.common.generated.rpc.GetUserRiskProfileResponse;
 import com.metawebthree.payment.infrastructure.persistence.mapper.ExchangeOrderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,9 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-
-import com.metawebthree.common.dto.UserRiskProfileDTO;
-import com.metawebthree.common.rpc.UserRiskProfileService;
 
 @ExtendWith(MockitoExtension.class)
 class RiskControlServiceImplTest {
@@ -44,47 +45,54 @@ class RiskControlServiceImplTest {
                 ReflectionTestUtils.setField(riskControlService, "dailyLimitUSD", new BigDecimal("50000"));
                 ReflectionTestUtils.setField(riskControlService, "hourlyOrderLimit", 100);
 
-                // We need to inject the mock into the private field annotated with
-                // @DubboReference
-                // @InjectMocks might miss it or we want to be explicit.
-                // Actually @InjectMocks usually injects by type into fields.
-                // But let's be safe.
                 ReflectionTestUtils.setField(riskControlService, "riskScorerService", riskScorerService);
                 ReflectionTestUtils.setField(riskControlService, "userRiskProfileService", userRiskProfileService);
         }
 
         @Test
         void testValidateOrder_HighRiskScore_ShouldThrowException() {
-                // Given
                 ScoreResponse lowScoreResponse = ScoreResponse.newBuilder()
-                                .setScore(500) // Below 600
+                                .setScore(500)
                                 .setDecision("REJECT")
                                 .build();
                 when(riskScorerService.score(any(ScoreRequest.class))).thenReturn(lowScoreResponse);
-                when(userRiskProfileService.getUserRiskProfile(any())).thenReturn(UserRiskProfileDTO.builder().build());
+                
+                UserRiskProfile profile = UserRiskProfile.newBuilder()
+                                .setUserId(1L)
+                                .setAge(30)
+                                .setExternalDebtRatio(0.1f)
+                                .setGpsStability(0.9f)
+                                .setDeviceSharedDegree(1)
+                                .build();
+                GetUserRiskProfileResponse profileResponse = GetUserRiskProfileResponse.newBuilder()
+                                .setProfile(profile)
+                                .build();
+                when(userRiskProfileService.getUserRiskProfile(any(GetUserRiskProfileRequest.class))).thenReturn(profileResponse);
 
-                // When/Then
                 assertThrows(RuntimeException.class,
                                 () -> riskControlService.validateOrder(1L, new BigDecimal("100"), "USD"));
         }
 
         @Test
         void testValidateOrder_GoodRiskScore_ShouldPass() {
-                // Given
                 ScoreResponse highScoreResponse = ScoreResponse.newBuilder()
-                                .setScore(700) // Above 600
+                                .setScore(700)
                                 .setDecision("APPROVE")
                                 .build();
                 when(riskScorerService.score(any(ScoreRequest.class))).thenReturn(highScoreResponse);
-                when(userRiskProfileService.getUserRiskProfile(any())).thenReturn(UserRiskProfileDTO.builder().build());
+                
+                UserRiskProfile profile = UserRiskProfile.newBuilder()
+                                .setUserId(1L)
+                                .setAge(30)
+                                .setExternalDebtRatio(0.1f)
+                                .setGpsStability(0.9f)
+                                .setDeviceSharedDegree(1)
+                                .build();
+                GetUserRiskProfileResponse profileResponse = GetUserRiskProfileResponse.newBuilder()
+                                .setProfile(profile)
+                                .build();
+                when(userRiskProfileService.getUserRiskProfile(any(GetUserRiskProfileRequest.class))).thenReturn(profileResponse);
 
-                // Also mock other validations to pass
-                // validateSingleLimit, etc. depend on @Value fields which are set.
-                // validateDailyLimit calls exchangeOrderRepository
-                // validateFrequency calls exchangeOrderRepository
-                // validateAbnormalBehavior calls exchangeOrderRepository
-
-                // Mocking repo calls to return "safe" values
                 when(exchangeOrderRepository.getTotalCompletedAmountByUserIdAndDateRange(any(), any()))
                                 .thenReturn(BigDecimal.ZERO);
                 when(exchangeOrderRepository.getCompletedOrderCountByUserIdAndDateRange(any(), any()))
@@ -92,7 +100,6 @@ class RiskControlServiceImplTest {
                 when(exchangeOrderRepository.findByUserIdAndStatus(any(), any()))
                                 .thenReturn(java.util.Collections.emptyList());
 
-                // When/Then
                 assertDoesNotThrow(() -> riskControlService.validateOrder(1L, new BigDecimal("100"), "USD"));
         }
 }

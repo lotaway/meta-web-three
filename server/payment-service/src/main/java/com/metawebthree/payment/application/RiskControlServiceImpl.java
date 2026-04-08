@@ -9,11 +9,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.metawebthree.common.generated.rpc.RiskScorerService;
-import com.metawebthree.common.rpc.UserRiskProfileService;
-import com.metawebthree.common.dto.UserRiskProfileDTO;
+import com.metawebthree.common.generated.rpc.UserRiskProfileService;
+import com.metawebthree.common.generated.rpc.UserRiskProfile;
+import com.metawebthree.common.generated.rpc.GetUserRiskProfileRequest;
+import com.metawebthree.common.generated.rpc.GetUserRiskProfileResponse;
 import com.metawebthree.common.generated.rpc.ScoreRequest;
 import com.metawebthree.common.generated.rpc.ScoreResponse;
 import com.metawebthree.common.generated.rpc.Feature;
+import com.metawebthree.common.generated.rpc.DeviceRiskTag;
 import org.apache.dubbo.config.annotation.DubboReference;
 
 import java.math.BigDecimal;
@@ -23,18 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 风控服务
- * 
- * TODO: 需要添加 @/risk-scorer 程序进行处理，其次如需接入第三方风控服务（如Chainalysis、Elliptic等），请在
- * validateOrder、validateWalletAddress 等方法中
- * 调用外部API进行合规校验、地址风险识别、异常行为检测等。
- * 推荐将第三方API调用、风控规则配置等逻辑封装为独立方法或类，便于后续维护和切换。
- *
- * 示例：
- * 1. 在 validateOrder 中调用外部风控API
- * 2. 在 validateWalletAddress 中集成地址黑名单/合规检查
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -63,9 +54,6 @@ public class RiskControlServiceImpl {
     @Value("${payment.risk-control.min-score:600}")
     private int minScore;
 
-    /**
-     * @TODO Add external risk control service integration.
-     */
     @LogMethod
     public void validateOrder(Long userId, BigDecimal amount, String fiatCurrency) {
         checkRiskScore(userId, amount, fiatCurrency);
@@ -77,54 +65,51 @@ public class RiskControlServiceImpl {
 
     private void checkRiskScore(Long userId, BigDecimal amount, String fiatCurrency) {
         try {
-            // Fetch user risk profile from user-service
-            UserRiskProfileDTO userProfile = userRiskProfileService.getUserRiskProfile(userId);
+            GetUserRiskProfileRequest request = GetUserRiskProfileRequest.newBuilder()
+                    .setUserId(userId)
+                    .build();
+            GetUserRiskProfileResponse response = userRiskProfileService.getUserRiskProfile(request);
+            UserRiskProfile userProfile = response.getProfile();
 
             Map<String, Feature> features = new HashMap<>();
 
-            // Populate features from user profile
-            if (userProfile.getAge() != null) {
+            if (userProfile.getAge() != 0) {
                 features.put("age", Feature.newBuilder().setAge(userProfile.getAge()).build());
             }
-            if (userProfile.getExternalDebtRatio() != null) {
+            if (userProfile.getExternalDebtRatio() != 0.0f) {
                 features.put("external_debt_ratio",
                         Feature.newBuilder().setExternalDebtRatio(userProfile.getExternalDebtRatio()).build());
             }
-            if (userProfile.getGpsStability() != null) {
+            if (userProfile.getGpsStability() != 0.0f) {
                 features.put("gps_stability",
                         Feature.newBuilder().setGpsStability(userProfile.getGpsStability()).build());
             }
-            if (userProfile.getDeviceSharedDegree() != null) {
+            if (userProfile.getDeviceSharedDegree() != 0) {
                 features.put("device_shared_degree",
                         Feature.newBuilder().setDeviceSharedDegree(userProfile.getDeviceSharedDegree()).build());
             }
-            // device_risk_tag handling - assuming string maps to enum or used as is, but
-            // Feature has DeviceRiskTag enum
-            // For now, skipping complex enum mapping unless defined in DTO, or if generated
-            // proto has the enum.
-            // Assuming DeviceRiskTag is an enum in Proto.
+            if (userProfile.getDeviceRiskTag() != DeviceRiskTag.UNKNOWN) {
+                features.put("device_risk_tag",
+                        Feature.newBuilder().setDeviceRiskTag(userProfile.getDeviceRiskTag()).build());
+            }
 
-            // Other dynamic features
-            features.put("first_order", Feature.newBuilder().setFirstOrder(false).build()); // Still mock/logic needed
-                                                                                            // for this
+            features.put("first_order", Feature.newBuilder().setFirstOrder(false).build());
 
-            ScoreRequest request = ScoreRequest.newBuilder()
+            ScoreRequest scoreRequest = ScoreRequest.newBuilder()
                     .setScene("payment_execution")
                     .putAllFeatures(features)
                     .build();
 
-            ScoreResponse response = riskScorerService.score(request);
-            log.info("Risk score for user {}: score={}, decision={}", userId, response.getScore(),
-                    response.getDecision());
+            ScoreResponse scoreResponse = riskScorerService.score(scoreRequest);
+            log.info("Risk score for user {}: score={}, decision={}", userId, scoreResponse.getScore(),
+                    scoreResponse.getDecision());
 
-            if (response.getScore() < minScore) {
-                throw new RuntimeException("Risk score too low: " + response.getScore() +
-                        " (Required: " + minScore + "). Decision: " + response.getDecision());
+            if (scoreResponse.getScore() < minScore) {
+                throw new RuntimeException("Risk score too low: " + scoreResponse.getScore() +
+                        " (Required: " + minScore + "). Decision: " + scoreResponse.getDecision());
             }
         } catch (Exception e) {
             log.error("Risk score check failed for user {}", userId, e);
-            // In production, you might want to configure whether to fail-open or
-            // fail-closed
             throw new RuntimeException("Risk assessment failed: " + e.getMessage());
         }
     }
@@ -173,7 +158,6 @@ public class RiskControlServiceImpl {
         if (failedOrders.size() > 5) {
             throw new RuntimeException("Too many failed orders. Failed count: " + failedOrders.size());
         }
-        // @TODO check for abnormal order patterns, such as order amount, time intervals
     }
 
     public void validateSlippage(BigDecimal expectedRate, BigDecimal actualRate) {
@@ -187,18 +171,6 @@ public class RiskControlServiceImpl {
         }
     }
 
-    private BigDecimal convertToUSD(BigDecimal amount, String currency) {
-        return switch (currency) {
-            case "USD" -> amount;
-            case "CNY" -> amount.divide(new BigDecimal("7.0"), 2, java.math.RoundingMode.HALF_UP);
-            case "EUR" -> amount.multiply(new BigDecimal("1.1"));
-            default -> amount;
-        };
-    }
-
-    /**
-     * @TODO Integration with third-party address risk identification service
-     */
     public void validateWalletAddress(String walletAddress) {
         if (isBlacklistedAddress(walletAddress)) {
             throw new RuntimeException("Wallet address is blacklisted");
@@ -208,23 +180,26 @@ public class RiskControlServiceImpl {
         }
     }
 
-    /**
-     * @TODO check black list of wallet address
-     */
     private boolean isBlacklistedAddress(String walletAddress) {
         return false;
     }
 
     private boolean isValidAddressFormat(String walletAddress) {
-        // BTC address
         if (walletAddress.matches("^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$")) {
             return true;
         }
-        // ETH address
         if (walletAddress.matches("^0x[a-fA-F0-9]{40}$")) {
             return true;
         }
         return false;
     }
 
+    private BigDecimal convertToUSD(BigDecimal amount, String currency) {
+        return switch (currency) {
+            case "USD" -> amount;
+            case "CNY" -> amount.divide(new BigDecimal("7.0"), 2, java.math.RoundingMode.HALF_UP);
+            case "EUR" -> amount.multiply(new BigDecimal("1.1"));
+            default -> amount;
+        };
+    }
 }
