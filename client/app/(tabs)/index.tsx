@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -14,7 +14,8 @@ import { router } from 'expo-router';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { fetchMallHomeContent, MallHomeContent, AdvertiseItem, BrandItem, FlashPromotion, ProductItem } from '@/api/home';
+import { AdvertiseItem, BrandItem, FlashPromotion, ProductItem } from '@/adapters/homeAdapter';
+import { HomeContainer } from '@/containers/home/HomeContainer';
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window');
 
@@ -29,72 +30,61 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
-  
-  const [mallHomeData, setMallHomeData] = useState<MallHomeContent | null>(null);
-  const [isDataLoaded, setIsDataLoaded] = useState(false);
-
-  const loadMallContent = useCallback(async () => {
-    try {
-      const response = await fetchMallHomeContent();
-      setMallHomeData(response.data);
-      setIsDataLoaded(true);
-    } catch {
-      // Error handled by interceptor
-    }
-  }, []);
-
-  useEffect(() => {
-    loadMallContent();
-  }, [loadMallContent]);
 
   const navigateToProductDetail = (productId: number) => {
     router.push({ pathname: '/product/[id]', params: { id: productId } });
   };
 
-  if (!isDataLoaded) {
-    return (
-      <View style={[styles.container, styles.center]}>
-        <Text>{t('common.loading')}</Text>
-      </View>
-    );
-  }
-
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView stickyHeaderIndices={[0]} showsVerticalScrollIndicator={false}>
-        <HomeHeader colors={colors} />
-        
-        <BannerSection advertiseList={mallHomeData?.advertiseList || []} />
-        
-        <CategorySection colors={colors} />
+    <HomeContainer>
+      {({ mallHomeData, isDataLoaded }) => {
+        if (!isDataLoaded) {
+          return (
+            <View style={[styles.container, styles.center]}>
+              <Text>{t('common.loading')}</Text>
+            </View>
+          );
+        }
 
-        {mallHomeData?.brandList && (
-          <BrandSection brandList={mallHomeData.brandList} colors={colors} />
-        )}
+        return (
+          <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+            <ScrollView stickyHeaderIndices={[0]} showsVerticalScrollIndicator={false}>
+              <HomeHeader colors={colors} />
 
-        {mallHomeData?.homeFlashPromotion && (
-          <FlashSection promotion={mallHomeData.homeFlashPromotion} colors={colors} onProductPress={navigateToProductDetail} />
-        )}
+              <BannerSection advertiseList={mallHomeData?.advertiseList || []} />
 
-        <ProductGridSection 
-          title={t('home.sections.new_products')} 
-          subtitle={t('home.sections.new_products_subtitle')} 
-          productList={mallHomeData?.newProductList || []} 
-          colors={colors} 
-          onProductPress={navigateToProductDetail} 
-        />
+              <CategorySection colors={colors} />
 
-        <ProductGridSection 
-          title={t('home.sections.hot_recommend')} 
-          subtitle={t('home.sections.hot_recommend_subtitle')} 
-          productList={mallHomeData?.hotProductList || []} 
-          colors={colors} 
-          onProductPress={navigateToProductDetail} 
-        />
+              {mallHomeData?.brandList && (
+                <BrandSection brandList={mallHomeData.brandList} colors={colors} />
+              )}
 
-        <View style={styles.footerSpacer} />
-      </ScrollView>
-    </SafeAreaView>
+              {mallHomeData?.homeFlashPromotion && (
+                <FlashSection promotion={mallHomeData.homeFlashPromotion} colors={colors} onProductPress={navigateToProductDetail} />
+              )}
+
+              <ProductGridSection
+                title={t('home.sections.new_products')}
+                subtitle={t('home.sections.new_products_subtitle')}
+                productList={mallHomeData?.newProductList || []}
+                colors={colors}
+                onProductPress={navigateToProductDetail}
+              />
+
+              <ProductGridSection
+                title={t('home.sections.hot_recommend')}
+                subtitle={t('home.sections.hot_recommend_subtitle')}
+                productList={mallHomeData?.hotProductList || []}
+                colors={colors}
+                onProductPress={navigateToProductDetail}
+              />
+
+              <View style={styles.footerSpacer} />
+            </ScrollView>
+          </SafeAreaView>
+        );
+      }}
+    </HomeContainer>
   );
 }
 

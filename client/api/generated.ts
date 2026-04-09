@@ -19,10 +19,3 @@ export const categoryApi = new ProductCategoryManagementApi(apiConfig);
 export const brandApi = new ProductBrandManagementApi(apiConfig);
 export const orderApi = new OrderControllerApi(apiConfig);
 export const cartApi = new CartManagementApi(apiConfig);
-
-export const BUSINESS_CODE = {
-  SUCCESS: 0,
-  UNAUTHORIZED: 1001,
-};
-
-export const REQUEST_TIMEOUT = 10000;

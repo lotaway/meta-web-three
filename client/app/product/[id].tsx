@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -15,7 +15,7 @@ import { useLocalSearchParams, router, Stack } from 'expo-router';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { fetchProductDetail } from '@/api/product';
+import { ProductDetailContainer } from '@/containers/product/ProductDetailContainer';
 import RenderHTML from 'react-native-render-html';
 
 const { width: PAGE_WIDTH } = Dimensions.get('window');
@@ -40,45 +40,28 @@ export default function ProductDetailScreen() {
   const colors = Colors[colorScheme];
   const { width: contentWidth } = useWindowDimensions();
 
-  const [productDetails, setProductDetails] = useState<MallProduct | null>(null);
-  const [isPageLoading, setIsPageLoading] = useState(true);
-
-  const productImages = useMemo(() => {
-    if (!productDetails) return [];
-    const albumPics = productDetails.albumPics ? productDetails.albumPics.split(',') : [];
-    return [productDetails.pic, ...albumPics].filter(url => url);
-  }, [productDetails]);
-
-  const loadProductInfo = useCallback(async (productId: number) => {
-    try {
-      const response = await fetchProductDetail(productId);
-      setProductDetails(response.data.product);
-    } catch {
-      // Error handled by interceptor
-    } finally {
-      setIsPageLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (id) {
-      loadProductInfo(Number(id));
-    }
-  }, [id, loadProductInfo]);
-
-  if (isPageLoading || !productDetails) {
-    return (
-      <View style={[styles.container, styles.center]}>
-        <Text>{t('common.loading')}</Text>
-      </View>
-    );
-  }
-
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <Stack.Screen options={{ title: t('home.product.detail_title'), headerTransparent: true, headerTitle: '' }} />
-      
-      <ScrollView showsVerticalScrollIndicator={false}>
+    <ProductDetailContainer productId={id ? Number(id) : null}>
+      {({ productDetails, isPageLoading }) => {
+        const productImages = useMemo(() => {
+          if (!productDetails) return [];
+          const albumPics = productDetails.albumPics ? productDetails.albumPics.split(',') : [];
+          return [productDetails.pic, ...albumPics].filter((url) => url);
+        }, [productDetails]);
+
+        if (isPageLoading || !productDetails) {
+          return (
+            <View style={[styles.container, styles.center]}>
+              <Text>{t('common.loading')}</Text>
+            </View>
+          );
+        }
+
+        return (
+          <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+            <Stack.Screen options={{ title: t('home.product.detail_title'), headerTransparent: true, headerTitle: '' }} />
+
+            <ScrollView showsVerticalScrollIndicator={false}>
         <ScrollView
           horizontal
           pagingEnabled
@@ -137,10 +120,13 @@ export default function ProductDetailScreen() {
         </View>
 
         <View style={styles.footerSpacer} />
-      </ScrollView>
+            </ScrollView>
 
-      <ProductInteractionBar colors={colors} />
-    </SafeAreaView>
+            <ProductInteractionBar colors={colors} />
+          </SafeAreaView>
+        );
+      }}
+    </ProductDetailContainer>
   );
 }
 
