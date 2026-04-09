@@ -33,6 +33,19 @@ spring:
         service-name: ${spring.application.name}
   main:
     web-application-type: reactive
+gateway:
+  auth:
+    authorization-header: Authorization
+    token-prefix: "Bearer "
+    protected-path-prefix: /user-service/
+    excluded-path-prefixes:
+      - /user-service/user/signIn
+      - /user-service/user/create
+      - /user-service/user/checkWeb3SignerMessage
+      - /actuator
+    excluded-path-keywords:
+      - /v3/api-docs
+      - /swagger-ui
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

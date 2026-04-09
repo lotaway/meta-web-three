@@ -1,103 +1,104 @@
 package com.metawebthree.Filters;
 
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.Map;
 
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
 import com.metawebthree.common.constants.RequestHeaderKeys;
-import com.metawebthree.common.utils.UserJwtUtil;
+import com.metawebthree.gateway.auth.GatewayAuthProperties;
+import com.metawebthree.gateway.auth.UserTokenClaims;
+import com.metawebthree.gateway.auth.UserTokenValidator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.jsonwebtoken.Claims;
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-@Slf4j
 @Component
 public class UserAuthFilter implements GlobalFilter, Ordered {
 
-    private static final String AUTH_HEADER = "Bearer ";
+    private final UserTokenValidator tokenValidator;
+    private final GatewayAuthProperties authProperties;
+    private final ObjectMapper objectMapper;
 
-    private final UserJwtUtil userJwtUtil;
-
-    UserAuthFilter(UserJwtUtil userJwtUtil) {
-        this.userJwtUtil = userJwtUtil;
+    UserAuthFilter(UserTokenValidator tokenValidator, GatewayAuthProperties authProperties, ObjectMapper objectMapper) {
+        this.tokenValidator = tokenValidator;
+        this.authProperties = authProperties;
+        this.objectMapper = objectMapper;
     }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        ServerHttpRequest request = exchange.getRequest();
-        String path = request.getPath().value();
-
-        if (isExcludedPath(path)) {
+        if (shouldSkipAuthentication(exchange.getRequest().getPath().value())) {
             return chain.filter(exchange);
         }
-
-        String authHeader = request.getHeaders().getFirst("Authorization");
-        if (authHeader == null || !authHeader.startsWith(AUTH_HEADER)) {
-            ServerHttpResponse response = exchange.getResponse();
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-            return response.setComplete();
+        String authHeader = exchange.getRequest().getHeaders().getFirst(authProperties.authorizationHeader());
+        String token = resolveToken(authHeader);
+        if (token == null) {
+            return writeUnauthorized(exchange, "AUTH_HEADER_INVALID");
         }
-
-        String token = authHeader.substring(AUTH_HEADER.length());
-        ValidateTokenResult validResult = validateToken(token);
-
-        if (!validResult.isValid) {
-            ServerHttpResponse response = exchange.getResponse();
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-            return response.setComplete();
+        UserTokenClaims tokenClaims = tokenValidator.validate(token);
+        if (tokenClaims == null) {
+            return writeUnauthorized(exchange, "AUTH_TOKEN_INVALID");
         }
-
-        ServerWebExchange _exchange = exchange.mutate()
-                .request(
-                        exchange.getRequest().mutate()
-                                .header(RequestHeaderKeys.USER_ID.getValue(),
-                                        userJwtUtil.getUserId(validResult.claims).toString())
-                                .header(RequestHeaderKeys.USER_NAME.getValue(),
-                                        userJwtUtil.getUserName(validResult.claims).toString())
-                                .header(RequestHeaderKeys.USER_ROLE.getValue(),
-                                        userJwtUtil.getUserRole(validResult.claims).toString())
-                                .build())
-                .build();
-        return chain.filter(_exchange);
+        return chain.filter(addUserHeaders(exchange, tokenClaims));
     }
 
-    private boolean isExcludedPath(String path) {
-        return path.contains("/v3/api-docs")
-                || path.contains("/swagger-ui")
-                || !path.startsWith("/user-service/")
-                || path.startsWith("/user-service/user/signIn")
-                || path.startsWith("/user-service/user/create")
-                || path.startsWith("/user-service/user/checkWeb3SignerMessage")
-                || path.startsWith("/actuator");
+    private boolean shouldSkipAuthentication(String path) {
+        if (!path.startsWith(authProperties.protectedPathPrefix())) {
+            return true;
+        }
+        return authProperties.excludedPathPrefixes().stream().anyMatch(path::startsWith)
+                || authProperties.excludedPathKeywords().stream().anyMatch(path::contains);
     }
 
-    private ValidateTokenResult validateToken(String token) {
-        Optional<Claims> oClaims = userJwtUtil.tryDecode(token);
-        var response = new ValidateTokenResult();
-        response.isValid = false;
-        if (oClaims.isEmpty()) {
-            return response;
+    private String resolveToken(String authHeader) {
+        if (authHeader == null) {
+            return null;
         }
-        response.claims = oClaims.get();
-        Long userId = userJwtUtil.getUserId(response.claims);
-        if (userId == null || userJwtUtil.isTokenExpired(response.claims.getExpiration())) {
-            return response;
+        String tokenPrefix = authProperties.tokenPrefix();
+        if (!authHeader.startsWith(tokenPrefix)) {
+            return null;
         }
-        response.isValid = true;
-        return response;
+        return authHeader.substring(tokenPrefix.length());
     }
 
-    static class ValidateTokenResult {
-        public boolean isValid;
-        public Claims claims;
+    private ServerWebExchange addUserHeaders(ServerWebExchange exchange, UserTokenClaims tokenClaims) {
+        return exchange.mutate().request(exchange.getRequest().mutate()
+                .header(RequestHeaderKeys.USER_ID.getValue(), String.valueOf(tokenClaims.userId()))
+                .header(RequestHeaderKeys.USER_NAME.getValue(), tokenClaims.userName())
+                .header(RequestHeaderKeys.USER_ROLE.getValue(), tokenClaims.userRole())
+                .build()).build();
+    }
+
+    private Mono<Void> writeUnauthorized(ServerWebExchange exchange, String errorCode) {
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+        String payload = toJson(Map.of(
+                "code", errorCode,
+                "message", "Authentication failed",
+                "path", exchange.getRequest().getPath().value(),
+                "timestamp", Instant.now().toString()));
+        DataBuffer buffer = response.bufferFactory().wrap(payload.getBytes(StandardCharsets.UTF_8));
+        return response.writeWith(Mono.just(buffer));
+    }
+
+    private String toJson(Map<String, String> payload) {
+        try {
+            return objectMapper.writeValueAsString(payload);
+        } catch (JsonProcessingException exception) {
+            return "{\"code\":\"AUTH_RESPONSE_SERIALIZATION_ERROR\",\"message\":\"Authentication failed\"}";
+        }
     }
 
     @Override
