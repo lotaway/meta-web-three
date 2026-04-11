@@ -1,6 +1,7 @@
 package com.metawebthree.cart.interfaces.web;
 
 import com.metawebthree.cart.application.CartService;
+import com.metawebthree.common.constants.HeaderConstants;
 import com.metawebthree.common.constants.RequestHeaderKeys;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.cart.dto.CartItemDTO;
@@ -24,36 +25,36 @@ public class CartController {
 
     @Operation(summary = "Add item to cart")
     @PostMapping("/add")
-    public ApiResponse<Integer> add(@RequestHeader(RequestHeaderKeys.USER_ID_VALUE) Long userId,
-                                @RequestBody CartItemDTO cartItem) {
+    public ApiResponse<Integer> add(@RequestHeader(HeaderConstants.USER_ID) Long userId,
+            @RequestBody CartItemDTO cartItem) {
         cartItem.setMemberId(userId);
         return ApiResponse.success(cartService.add(cartItem));
     }
 
     @Operation(summary = "List current user's cart items")
     @GetMapping("/list")
-    public ApiResponse<List<CartItemDTO>> list(@RequestHeader(RequestHeaderKeys.USER_ID_VALUE) Long userId) {
+    public ApiResponse<List<CartItemDTO>> list(@RequestHeader(HeaderConstants.USER_ID) Long userId) {
         return ApiResponse.success(cartService.list(userId));
     }
 
     @Operation(summary = "Update cart item quantity")
     @PutMapping("/update/quantity")
-    public ApiResponse<Integer> updateQuantity(@RequestHeader(RequestHeaderKeys.USER_ID_VALUE) Long userId,
-                                             @RequestParam Long id,
-                                             @RequestParam Integer quantity) {
+    public ApiResponse<Integer> updateQuantity(@RequestHeader(HeaderConstants.USER_ID) Long userId,
+            @RequestParam Long id,
+            @RequestParam Integer quantity) {
         return ApiResponse.success(cartService.updateQuantity(userId, id, quantity));
     }
 
     @Operation(summary = "Remove items from cart")
     @DeleteMapping("/delete")
-    public ApiResponse<Integer> delete(@RequestHeader(RequestHeaderKeys.USER_ID_VALUE) Long userId,
-                                     @RequestParam("ids") List<Long> ids) {
+    public ApiResponse<Integer> delete(@RequestHeader(HeaderConstants.USER_ID) Long userId,
+            @RequestParam("ids") List<Long> ids) {
         return ApiResponse.success(cartService.delete(userId, ids));
     }
 
     @Operation(summary = "Clear current user's cart")
     @PostMapping("/clear")
-    public ApiResponse<Integer> clear(@RequestHeader(RequestHeaderKeys.USER_ID_VALUE) Long userId) {
+    public ApiResponse<Integer> clear(@RequestHeader(HeaderConstants.USER_ID) Long userId) {
         return ApiResponse.success(cartService.clear(userId));
     }
 }

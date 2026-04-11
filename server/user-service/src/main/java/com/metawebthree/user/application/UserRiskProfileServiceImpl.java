@@ -12,6 +12,9 @@ import com.metawebthree.user.domain.model.UserProfileDO;
 import com.metawebthree.user.infrastructure.persistence.mapper.UserProfileMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.CompletableFuture;
+
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,10 +31,9 @@ public class UserRiskProfileServiceImpl implements UserRiskProfileService {
     public GetUserRiskProfileResponse getUserRiskProfile(GetUserRiskProfileRequest request) {
         Long userId = request.getUserId();
         log.info("Fetching risk profile for user: {}", userId);
-        
+
         UserProfileDO profileDO = userProfileMapper.selectOne(
-                new LambdaQueryWrapper<UserProfileDO>().eq(UserProfileDO::getUserId, userId)
-        );
+                new LambdaQueryWrapper<UserProfileDO>().eq(UserProfileDO::getUserId, userId));
 
         UserRiskProfile profile;
         if (profileDO == null) {
@@ -48,9 +50,11 @@ public class UserRiskProfileServiceImpl implements UserRiskProfileService {
             profile = UserRiskProfile.newBuilder()
                     .setUserId(profileDO.getUserId())
                     .setAge(profileDO.getAge() != null ? profileDO.getAge() : 0)
-                    .setExternalDebtRatio(profileDO.getExternalDebtRatio() != null ? profileDO.getExternalDebtRatio() : 0.0f)
+                    .setExternalDebtRatio(
+                            profileDO.getExternalDebtRatio() != null ? profileDO.getExternalDebtRatio() : 0.0f)
                     .setGpsStability(profileDO.getGpsStability() != null ? profileDO.getGpsStability() : 0.0f)
-                    .setDeviceSharedDegree(profileDO.getDeviceSharedDegree() != null ? profileDO.getDeviceSharedDegree() : 0)
+                    .setDeviceSharedDegree(
+                            profileDO.getDeviceSharedDegree() != null ? profileDO.getDeviceSharedDegree() : 0)
                     .setDeviceRiskTag(parseDeviceRiskTag(profileDO.getDeviceRiskTag()))
                     .build();
         }
@@ -68,10 +72,9 @@ public class UserRiskProfileServiceImpl implements UserRiskProfileService {
         }
 
         log.info("Updating risk profile for user: {}", userId);
-        
+
         UserProfileDO existingProfile = userProfileMapper.selectOne(
-                new LambdaQueryWrapper<UserProfileDO>().eq(UserProfileDO::getUserId, userId)
-        );
+                new LambdaQueryWrapper<UserProfileDO>().eq(UserProfileDO::getUserId, userId));
 
         if (existingProfile == null) {
             UserProfileDO newProfile = UserProfileDO.builder()
@@ -84,15 +87,20 @@ public class UserRiskProfileServiceImpl implements UserRiskProfileService {
                     .build();
             userProfileMapper.insert(newProfile);
         } else {
-            if (request.getAge() != 0) existingProfile.setAge(request.getAge());
-            if (request.getExternalDebtRatio() != 0.0f) existingProfile.setExternalDebtRatio(request.getExternalDebtRatio());
-            if (request.getGpsStability() != 0.0f) existingProfile.setGpsStability(request.getGpsStability());
-            if (request.getDeviceSharedDegree() != 0) existingProfile.setDeviceSharedDegree(request.getDeviceSharedDegree());
-            if (request.getDeviceRiskTag() != DeviceRiskTag.UNKNOWN) existingProfile.setDeviceRiskTag(request.getDeviceRiskTag().name());
-            
+            if (request.getAge() != 0)
+                existingProfile.setAge(request.getAge());
+            if (request.getExternalDebtRatio() != 0.0f)
+                existingProfile.setExternalDebtRatio(request.getExternalDebtRatio());
+            if (request.getGpsStability() != 0.0f)
+                existingProfile.setGpsStability(request.getGpsStability());
+            if (request.getDeviceSharedDegree() != 0)
+                existingProfile.setDeviceSharedDegree(request.getDeviceSharedDegree());
+            if (request.getDeviceRiskTag() != DeviceRiskTag.UNKNOWN)
+                existingProfile.setDeviceRiskTag(request.getDeviceRiskTag().name());
+
             userProfileMapper.updateById(existingProfile);
         }
-        
+
         return UpdateRiskProfileResponse.newBuilder().setSuccess(true).build();
     }
 
@@ -105,5 +113,15 @@ public class UserRiskProfileServiceImpl implements UserRiskProfileService {
         } catch (IllegalArgumentException e) {
             return DeviceRiskTag.UNKNOWN;
         }
+    }
+
+    @Override
+    public CompletableFuture<GetUserRiskProfileResponse> getUserRiskProfileAsync(GetUserRiskProfileRequest request) {
+        return CompletableFuture.supplyAsync(() -> getUserRiskProfile(request));
+    }
+
+    @Override
+    public CompletableFuture<UpdateRiskProfileResponse> updateRiskProfileAsync(UpdateRiskProfileRequest request) {
+        return CompletableFuture.supplyAsync(() -> updateRiskProfile(request));
     }
 }

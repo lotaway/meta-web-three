@@ -2,6 +2,9 @@ package com.metawebthree.product.controller;
 
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.product.service.ProductQueryService;
+
+import java.util.Map;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
