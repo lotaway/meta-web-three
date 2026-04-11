@@ -22,7 +22,7 @@ public class MemberAddressApplicationService {
         validateId(address.getId());
         validateAddress(address);
         handleDefaultLogic(address);
-        addressRepository.update(address);
+        addressRepository.save(address);
     }
 
     public List<MemberAddress> listAddresses(Long memberId) {
@@ -32,7 +32,7 @@ public class MemberAddressApplicationService {
 
     public void removeAddress(Long id) {
         validateId(id);
-        addressRepository.delete(id);
+        addressRepository.deleteById(id);
     }
 
     private void handleDefaultLogic(MemberAddress address) {

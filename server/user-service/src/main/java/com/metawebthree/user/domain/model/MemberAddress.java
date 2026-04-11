@@ -2,18 +2,20 @@ package com.metawebthree.user.domain.model;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Builder
 public class MemberAddress {
-    private final Long id;
-    private final Long memberId;
-    private final String name;
-    private final String phoneNumber;
-    private final boolean defaultStatus;
-    private final String postCode;
-    private final String province;
-    private final String city;
-    private final String region;
-    private final String detailAddress;
+    private Long id;
+    private Long memberId;
+    private String name;
+    private String phoneNumber;
+    private boolean defaultStatus;
+    private String postCode;
+    private String province;
+    private String city;
+    private String region;
+    private String detailAddress;
 }
