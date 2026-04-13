@@ -1,6 +1,6 @@
 {
   "name": "react-native-appsdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "App SDK in Turbo Module",
   "scripts": {
     "example": "yarn workspace react-native-appsdk-example",
