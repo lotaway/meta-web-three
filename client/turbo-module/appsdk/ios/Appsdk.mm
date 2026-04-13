@@ -12,13 +12,7 @@ RCT_EXPORT_MODULE()
   return dispatch_get_main_queue();
 }
 
-- (NSNumber *)multiply:(double)a b:(double)b {
-  return @(a * b);
-}
 
-- (void)add:(double)a b:(double)b resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
-  resolve(@(a + b));
-}
 
 - (NSString *)generateRequestSignature:(NSDictionary *)params secretKey:(NSString *)secretKey {
   NSArray *sortedKeys = [[params allKeys] sortedArrayUsingSelector:@selector(compare:)];

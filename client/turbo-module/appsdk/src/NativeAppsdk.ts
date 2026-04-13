@@ -9,10 +9,9 @@ export interface Spec extends TurboModule {
   createNonce(): Promise<string>
   systemTimestampMs(): Promise<number>
 
-  // Passkey methods
-  createPasskey(rpId: string, userName: string): Promise<string> // 返回 credentialId
-  getPasskeyList(): Promise<Array<string>> // 列出可用 Passkeys
-  authenticatePasskey(challenge: string): Promise<boolean> // 验证，使用 challenge 防重放
+  createPasskey(rpId: string, userName: string): Promise<string>
+  getPasskeyList(): Promise<Array<string>>
+  authenticatePasskey(challenge: string): Promise<boolean>
   deletePasskey(credentialId: string): Promise<void>
 }
 
