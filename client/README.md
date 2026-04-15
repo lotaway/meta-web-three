@@ -49,6 +49,10 @@ Join our community of developers creating universal apps.
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
 
+## ios module generate
+
+If want to edit ios directory or ios turbo module code, need to use `npm run pod` in project root or use `pod install` inside ios directory to link, generate relative libs and framework, base code.
+
 ## 获取iOS设备UDID用于预览应用
 
 [https://www.betaqr.com.cn/udid](https://www.betaqr.com.cn/udid)

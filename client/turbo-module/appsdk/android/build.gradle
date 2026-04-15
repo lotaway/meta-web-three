@@ -74,6 +74,14 @@ def kotlin_version = getExtOrDefault("kotlinVersion")
 dependencies {
   implementation "com.facebook.react:react-android"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+  // Add Passkey dependencies
+  implementation "androidx.credentials:credentials:1.2.2"
+  implementation "androidx.credentials:credentials-play-services-auth:1.2.2"
+  implementation "com.google.android.libraries.identity.googleid:googleid:1.1.1"
+
+  // For Coroutines
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
 }
 
 react {

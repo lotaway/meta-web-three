@@ -29,6 +29,7 @@
     "lint": "npx expo lint",
     "update:sdk": "yarn upgrade react-native-appsdk",
     "open:AndroidStudio": "open -a '/Applications/Android Studio.app' ./android",
+    "build:android": "cd android && ./gradlew :app:generateDebugSources",
     "edit:ios": "opeopen netawebthreeapp.xcworkspace",
     "edit:ios:module": "opeopen ./turbo-module/appsdk/ios/AppdkExample.xcworkspace",
     "check:config": "npx react-native config",

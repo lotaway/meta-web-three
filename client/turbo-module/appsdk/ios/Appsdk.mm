@@ -41,9 +41,9 @@ RCT_EXPORT_MODULE()
   return sum.stringValue;
 }
 
-- (NSString *)computeOrderTotal:(NSString *)unitPrice quantity:(NSInteger)quantity discountAmount:(NSString *)discountAmount shippingFee:(NSString *)shippingFee {
+- (NSString *)computeOrderTotal:(NSString *)unitPrice quantity:(double)quantity discountAmount:(NSString *)discountAmount shippingFee:(NSString *)shippingFee {
   NSDecimalNumber *price = [NSDecimalNumber decimalNumberWithString:unitPrice];
-  NSDecimalNumber *subtotal = [price decimalNumberByMultiplyingBy: [NSDecimalNumber decimalNumberWithMantissa:quantity]];
+  NSDecimalNumber *subtotal = [price decimalNumberByMultiplyingBy: [NSDecimalNumber decimalNumberWithMantissa:quantity exponent:0 isNegative:YES]];
   NSDecimalNumber *discount = [NSDecimalNumber decimalNumberWithString:discountAmount];
   NSDecimalNumber *shipping = [NSDecimalNumber decimalNumberWithString:shippingFee];
   NSDecimalNumber *total = [[subtotal decimalNumberBySubtracting:discount] decimalNumberByAdding:shipping];
@@ -77,16 +77,17 @@ RCT_EXPORT_MODULE()
   return @([[NSDate date] timeIntervalSince1970] * 1000);
 }
 
-- (NSString *)createPasskey:(NSString *)rpId userName:(NSString *)userName {
-  return [NSString stringWithFormat:@"passkey-%@", [self createNonce]];
+- (void)createPasskey:(NSString *)rpId userName:(NSString *)userName resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
+  NSString *passkey = [NSString stringWithFormat:@"passkey-%@", [self createNonce]];
+  resolve(passkey);
 }
 
 - (NSArray *)getPasskeyList {
   return @[@"passkey-1", @"passkey-2"];
 }
 
-- (NSNumber *)authenticatePasskey:(NSString *)challenge {
-  return @YES;
+- (void)authenticatePasskey:(NSString *)challenge resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
+  resolve(@YES);
 }
 
 - (void)deletePasskey:(NSString *)credentialId {
