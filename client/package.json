@@ -30,6 +30,7 @@
     "update:sdk": "yarn upgrade react-native-appsdk",
     "open:AndroidStudio": "open -a '/Applications/Android Studio.app' ./android",
     "build:android": "cd android && ./gradlew :app:generateDebugSources",
+    "build:ios": "npm run pod",
     "edit:ios": "opeopen netawebthreeapp.xcworkspace",
     "edit:ios:module": "opeopen ./turbo-module/appsdk/ios/AppdkExample.xcworkspace",
     "check:config": "npx react-native config",
@@ -45,9 +46,11 @@
     "ios:upload": "eas submit --platform ios --profile production",
     "android:upload": "eas submit --platform android --profile production"
   },
-  "workspaces": [
-    "turbo-module/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "turbo-module/*"
+    ]
+  },
   "dependencies": {
     "@expo/plist": "^0.3.5",
     "@expo/vector-icons": "^15.0.3",
@@ -76,7 +79,7 @@
     "react-dom": "19.1.0",
     "react-i18next": "^17.0.2",
     "react-native": "0.81.5",
-    "react-native-appsdk": "*",
+    "react-native-appsdk": "workspace:*",
     "react-native-gesture-handler": "~2.28.0",
     "react-native-reanimated": "~4.1.1",
     "react-native-render-html": "^6.3.4",

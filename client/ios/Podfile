@@ -52,9 +52,7 @@ use_react_native!(
     :privacy_file_aggregation_enabled => podfile_properties['apple.privacyManifestAggregationEnabled'] != 'false',
   )
 
-  pod 'AuthenticationServices', '~> 1.0'
-
-  post_install do |installer|
+  post_install do |installer| 
     react_native_post_install(
       installer,
       config[:reactNativePath],
