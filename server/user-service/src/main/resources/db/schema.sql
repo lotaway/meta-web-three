@@ -196,3 +196,20 @@ CREATE TABLE tb_token_mapping (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Passkey Credential (WebAuthn)
+CREATE TABLE tb_passkey_credential (
+    id BIGINT PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES tb_user(id),
+    credential_id VARCHAR(255) NOT NULL,
+    public_key VARCHAR(4096) NOT NULL,
+    rp_id VARCHAR(255) NOT NULL,
+    counter BIGINT DEFAULT 0,
+    device_type VARCHAR(32) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_used_at TIMESTAMP,
+    is_revoked BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE INDEX idx_passkey_user_id ON tb_passkey_credential(user_id);
+CREATE UNIQUE INDEX idx_passkey_credential_id ON tb_passkey_credential(credential_id);
