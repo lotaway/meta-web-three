@@ -207,7 +207,15 @@ didCompleteWithError:(NSError *)error API_AVAILABLE(ios(16.0))
 
 - (ASPresentationAnchor)presentationAnchorForController:(ASAuthorizationController *)controller {
   UIViewController *vc = RCTPresentedViewController();
-  return vc.view.window ?: UIApplication.sharedApplication.keyWindow;
+  if (vc.view.window) {
+    return vc.view.window;
+  }
+  for (UIWindow *window in UIApplication.sharedApplication.windows) {
+    if (window.isKeyWindow) {
+      return window;
+    }
+  }
+  return nil;
 }
 
 @end

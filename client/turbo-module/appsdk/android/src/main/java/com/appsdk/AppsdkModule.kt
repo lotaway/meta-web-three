@@ -139,18 +139,17 @@ class AppsdkModule(reactContext: ReactApplicationContext) : NativeAppsdkSpec(rea
     return Arguments.createArray()
   }
 
-  override fun authenticatePasskey(challenge: String, promise: Promise) {
+  override fun authenticatePasskey(rpId: String, challenge: String, promise: Promise) {
     val activity = reactApplicationContext.getCurrentActivity()
     if (activity == null) {
       promise.reject("ACTIVITY_NOT_FOUND", "Cannot find current activity")
       return
     }
 
-    // @TODO 这里的 challenge 应该是后端发来的 URL-Safe Base64 字符串
     val requestJson = """
       {
         "challenge": "$challenge",
-        "rpId": "$challenge",
+        "rpId": "$rpId",
         "userVerification": "required"
       }
     """.trimIndent()

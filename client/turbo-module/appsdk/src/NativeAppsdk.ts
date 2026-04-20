@@ -11,7 +11,7 @@ export interface Spec extends TurboModule {
 
   createPasskey(rpId: string, userName: string): Promise<string>
   getPasskeyList(): Array<string>
-  authenticatePasskey(challenge: string): Promise<boolean>
+  authenticatePasskey(rpId: string, challenge: string): Promise<string>
   deletePasskey(credentialId: string): boolean
 }
 
