@@ -129,6 +129,19 @@ public class CouponCommandServiceTest {
         public CouponType findById(Long id) {
             return items.get(id);
         }
+
+        @Override
+        public List<CouponType> listEnabledActive(LocalDateTime now) {
+            List<CouponType> result = new ArrayList<>();
+            for (CouponType type : items.values()) {
+                if (Boolean.TRUE.equals(type.getIsEnabled()) &&
+                        (type.getStartTime() == null || !type.getStartTime().isAfter(now)) &&
+                        (type.getEndTime() == null || !type.getEndTime().isBefore(now))) {
+                    result.add(type);
+                }
+            }
+            return result;
+        }
     }
 
     static class InMemoryCouponBatchRepository implements CouponBatchRepository {

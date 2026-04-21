@@ -67,6 +67,19 @@ public class CouponQueryServiceTest {
         public CouponType findById(Long id) {
             return store.get(id);
         }
+
+        @Override
+        public List<CouponType> listEnabledActive(LocalDateTime now) {
+            List<CouponType> result = new ArrayList<>();
+            for (CouponType type : store.values()) {
+                if (Boolean.TRUE.equals(type.getIsEnabled()) &&
+                        (type.getStartTime() == null || !type.getStartTime().isAfter(now)) &&
+                        (type.getEndTime() == null || !type.getEndTime().isBefore(now))) {
+                    result.add(type);
+                }
+            }
+            return result;
+        }
     }
 
     static class InMemoryCouponRepository implements CouponRepository {
