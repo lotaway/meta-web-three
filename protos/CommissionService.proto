@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package com.metawebthree.common.generated.rpc;
+
+option java_multiple_files = true;
+option java_outer_classname = "CommissionServiceProto";
+
+service CommissionService {
+    rpc calculate(CalculateRequest) returns (CalculateResponse);
+    rpc cancel(CancelRequest) returns (CancelResponse);
+    rpc bind(BindRequest) returns (BindResponse);
+}
+
+message CalculateRequest {
+    int64 orderId = 1;
+    int64 userId = 2;
+    string payAmount = 3; // BigDecimal as string
+    int64 availableAt = 4; // LocalDateTime as millis timestamp
+}
+
+message CalculateResponse {
+    bool success = 1;
+}
+
+message CancelRequest {
+    int64 orderId = 1;
+}
+
+message CancelResponse {
+    bool success = 1;
+}
+
+message BindRequest {
+    int64 userId = 1;
+    int64 parentUserId = 2;
+}
+
+message BindResponse {
+    bool success = 1;
+}

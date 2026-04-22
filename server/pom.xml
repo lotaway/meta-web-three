@@ -380,6 +380,13 @@
     </dependencies>
 
     <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.7.1</version>
+            </extension>
+        </extensions>
         <!-- <sourceDirectory>${project.basedir}/src/main</sourceDirectory> -->
         <!-- <testSourceDirectory>${project.basedir}/src/test</testSourceDirectory> -->
         <plugins>
@@ -451,4 +458,5 @@
             </plugin> -->
         </plugins>
     </build>
+
 </project>

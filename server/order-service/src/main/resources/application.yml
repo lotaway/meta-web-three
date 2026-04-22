@@ -11,8 +11,6 @@ dubbo:
   protocol:
     port: 20084
 commission:
-  service:
-    base-url: http://commission-service:10088
   return-window-days: 7
 ---
 spring:

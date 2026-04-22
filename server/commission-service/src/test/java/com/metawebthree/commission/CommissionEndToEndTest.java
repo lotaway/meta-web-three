@@ -65,17 +65,17 @@ public class CommissionEndToEndTest extends PostgresTestBase {
 
     private static ConfigurableApplicationContext startCommissionService() {
         return startService(com.metawebthree.CommissionServiceApplication.class,
-                COMMISSION_PORT, "classpath:db/init.sql", null);
+                COMMISSION_PORT, "classpath:db/init.sql");
     }
 
     private static ConfigurableApplicationContext startUserService() {
         return startService(loadApplicationClass("com.metawebthree.UserServiceApplication"),
-                USER_PORT, "classpath:db/init.sql", COMMISSION_URL);
+                USER_PORT, "classpath:db/init.sql");
     }
 
     private static ConfigurableApplicationContext startOrderService() {
         return startService(loadApplicationClass("com.metawebthree.OrderServiceApplication"),
-                ORDER_PORT, "classpath:schema.sql", COMMISSION_URL);
+                ORDER_PORT, "classpath:schema.sql");
     }
 
     private static Class<?> loadApplicationClass(String className) {
@@ -87,18 +87,15 @@ public class CommissionEndToEndTest extends PostgresTestBase {
     }
 
     private static ConfigurableApplicationContext startService(Class<?> application, int port,
-            String schemaLocation, String commissionBaseUrl) {
+            String schemaLocation) {
         SpringApplication app = new SpringApplication(application);
-        app.setDefaultProperties(buildProperties(port, schemaLocation, commissionBaseUrl));
+        app.setDefaultProperties(buildProperties(port, schemaLocation));
         return app.run();
     }
 
-    private static Map<String, Object> buildProperties(int port, String schemaLocation, String commissionBaseUrl) {
+    private static Map<String, Object> buildProperties(int port, String schemaLocation) {
         Map<String, Object> props = baseProperties(port, schemaLocation);
-        if (commissionBaseUrl != null) {
-            props.put("commission.service.base-url", commissionBaseUrl);
-            props.put("commission.return-window-days", "0");
-        }
+        props.put("commission.return-window-days", "0");
         return props;
     }
 
