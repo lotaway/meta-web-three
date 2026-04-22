@@ -56,4 +56,10 @@ public class ExcelController {
         excelService.processExcelFile(file);
         return ApiResponse.success();
     }
+
+    @GetMapping("/export")
+    @Operation(summary = "Export ArtWorks to Excel")
+    public ApiResponse<String> exportExcel() {
+        return ApiResponse.success(excelService.exportArtWorks());
+    }
 }

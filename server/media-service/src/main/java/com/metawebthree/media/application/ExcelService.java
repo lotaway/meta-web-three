@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -343,6 +344,77 @@ public class ExcelService {
         } catch (Exception e) {
             log.error("Failed to generate Excel template", e);
             throw new RuntimeException("Failed to generate Excel template", e);
+        }
+    }
+
+    public String exportArtWorks() {
+        try {
+            List<ArtWorkDO> artworks = artworkMapper.selectList(null);
+
+            // Build lookup maps for Categories, Tags, and People
+            Map<Integer, String> categoryMap = artworkCategoryMapper.selectList(null).stream()
+                    .filter(c -> c.getId() != null)
+                    .collect(Collectors.toMap(ArtWorkCategoryDO::getId, ArtWorkCategoryDO::getName, (a, b) -> a));
+            Map<Integer, String> tagMap = artworkTagMapper.selectList(null).stream()
+                    .filter(t -> t.getId() != null)
+                    .collect(Collectors.toMap(ArtWorkTagDO::getId, ArtWorkTagDO::getTag, (a, b) -> a));
+            Map<Integer, String> peopleMap = peopleMapper.selectList(null).stream()
+                    .filter(p -> p.getId() != null)
+                    .collect(Collectors.toMap(PeopleDO::getId, PeopleDO::getName, (a, b) -> a));
+
+            List<List<Object>> rows = new ArrayList<>();
+            for (ArtWorkDO artwork : artworks) {
+                List<Object> row = new ArrayList<>();
+                row.add(artwork.getId() != null ? artwork.getId().toString() : "");
+                row.add(artwork.getTitle());
+                row.add(artwork.getSubtitle());
+                row.add(artwork.getSeason() != null ? artwork.getSeason().toString() : "");
+                row.add(artwork.getEpisode() != null ? artwork.getEpisode().toString() : "");
+
+                row.add(categoryMap.getOrDefault(artwork.getCategoryId(), ""));
+
+                String tags = "";
+                if (artwork.getTags() != null) {
+                    tags = String.join(",", Arrays.stream(artwork.getTags())
+                            .map(tagMap::get)
+                            .filter(Objects::nonNull)
+                            .toList());
+                }
+                row.add(tags);
+
+                row.add(artwork.getYearTag() != null ? artwork.getYearTag().toString() : "");
+
+                String acts = "";
+                if (artwork.getActs() != null) {
+                    acts = String.join(",", Arrays.stream(artwork.getActs())
+                            .map(peopleMap::get)
+                            .filter(Objects::nonNull)
+                            .toList());
+                }
+                row.add(acts);
+
+                row.add(peopleMap.getOrDefault(artwork.getDirector(), ""));
+                row.add(artwork.getCover());
+                row.add(artwork.getLink());
+
+                rows.add(row);
+            }
+
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                List<String> headers = new ArrayList<>(FIELD_SETTERS.keySet());
+                EasyExcel.write(outputStream)
+                        .head(headers.stream().map(Collections::singletonList).toList())
+                        .sheet("ArtWorks")
+                        .doWrite(rows);
+
+                byte[] fileContent = outputStream.toByteArray();
+                String fileName = URLEncoder.encode("artworks_export.xlsx", StandardCharsets.UTF_8.toString())
+                        .replaceAll("\\+", "%20");
+                return s3Service.uploadExcel(s3Config.getName(), fileContent, fileName, true);
+            }
+        } catch (Exception e) {
+            log.error("Failed to export ArtWorks to Excel", e);
+            throw new RuntimeException("Failed to export ArtWorks to Excel", e);
         }
     }
 
