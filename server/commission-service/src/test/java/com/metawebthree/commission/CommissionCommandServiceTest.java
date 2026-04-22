@@ -1,5 +1,7 @@
 package com.metawebthree.commission;
 
+import com.metawebthree.CommissionServiceApplication;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;

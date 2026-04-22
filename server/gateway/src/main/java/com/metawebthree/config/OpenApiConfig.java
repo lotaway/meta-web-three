@@ -43,7 +43,7 @@ public class OpenApiConfig {
     private final SwaggerUiConfigProperties swaggerUiConfigProperties;
     private final WebClient.Builder webClientBuilder;
     private final ObjectMapper objectMapper;
-    
+
     private volatile Map<String, JsonNode> cachedApiDocs = new HashMap<>();
 
     @Bean
@@ -92,7 +92,7 @@ public class OpenApiConfig {
         Map<String, JsonNode> newCache = new HashMap<>();
         List<String> services = DiscoveryClientSupport.getServicesSafely(discoveryClient, applicationName);
         log.info("Caching API docs for {} services: {}", services.size(), services);
-        
+
         for (String serviceId : services) {
             if (applicationName.equalsIgnoreCase(serviceId)) {
                 continue;
@@ -109,8 +109,9 @@ public class OpenApiConfig {
                 ServiceInstance instance = instances.get(0);
                 JsonNode apiDocs = fetchApiDocs(instance);
                 if (apiDocs != null) {
-                    int schemaCount = apiDocs.has("components") && apiDocs.get("components").has("schemas") 
-                        ? apiDocs.get("components").get("schemas").size() : 0;
+                    int schemaCount = apiDocs.has("components") && apiDocs.get("components").has("schemas")
+                            ? apiDocs.get("components").get("schemas").size()
+                            : 0;
                     log.info("Fetched {} schemas from service {}", schemaCount, serviceId);
                     newCache.put(serviceId, apiDocs);
                 }
@@ -118,12 +119,13 @@ public class OpenApiConfig {
                 log.warn("Failed to fetch API docs for service: {}", serviceId, e);
             }
         }
-        
+
         cachedApiDocs = newCache;
         log.info("Cached API docs for {} services", cachedApiDocs.size());
         for (Map.Entry<String, JsonNode> entry : cachedApiDocs.entrySet()) {
             int schemaCount = entry.getValue().has("components") && entry.getValue().get("components").has("schemas")
-                ? entry.getValue().get("components").get("schemas").size() : 0;
+                    ? entry.getValue().get("components").get("schemas").size()
+                    : 0;
             log.info("  - {}: {} schemas", entry.getKey(), schemaCount);
         }
     }
@@ -167,24 +169,26 @@ public class OpenApiConfig {
     @Slf4j
     @RestController
     public static class AggregatedApiDocsController {
-        
+
         private final OpenApiConfig openApiConfig;
         private final ObjectMapper objectMapper;
-        
+
         public AggregatedApiDocsController(OpenApiConfig openApiConfig, ObjectMapper objectMapper) {
             this.openApiConfig = openApiConfig;
             this.objectMapper = objectMapper;
         }
-        
-        @GetMapping(value = "/pump/v3/api-docs", produces = MediaType.APPLICATION_JSON_VALUE)
+
+        @GetMapping(value = "/meta/v3/api-docs", produces = MediaType.APPLICATION_JSON_VALUE)
         public String getAggregatedApiDocs() {
             try {
-                List<String> services = DiscoveryClientSupport.getServicesSafely(openApiConfig.discoveryClient, openApiConfig.applicationName);
+                List<String> services = DiscoveryClientSupport.getServicesSafely(openApiConfig.discoveryClient,
+                        openApiConfig.applicationName);
                 log.info("Found {} services: {}", services.size(), services);
                 Map<String, JsonNode> docs = new HashMap<>();
-                
+
                 for (String serviceId : services) {
-                    if (openApiConfig.applicationName.equalsIgnoreCase(serviceId)) continue;
+                    if (openApiConfig.applicationName.equalsIgnoreCase(serviceId))
+                        continue;
                     try {
                         List<ServiceInstance> instances = DiscoveryClientSupport.getInstancesSafely(
                                 openApiConfig.discoveryClient, serviceId, openApiConfig.applicationName);
@@ -192,7 +196,7 @@ public class OpenApiConfig {
                             log.warn("No instances for service: {}", serviceId);
                             continue;
                         }
-                        
+
                         String apiDocsUrl = instances.get(0).getUri() + "/v3/api-docs";
                         log.info("Fetching {} for service {}", apiDocsUrl, serviceId);
                         String response = openApiConfig.webClientBuilder.build().get()
@@ -200,49 +204,50 @@ public class OpenApiConfig {
                                 .retrieve()
                                 .bodyToMono(String.class)
                                 .block();
-                        
+
                         JsonNode doc = objectMapper.readTree(response);
                         int schemaCount = doc.has("components") && doc.get("components").has("schemas")
-                            ? doc.get("components").get("schemas").size() : 0;
+                                ? doc.get("components").get("schemas").size()
+                                : 0;
                         log.info("Fetched {} schemas from service {}", schemaCount, serviceId);
                         docs.put(serviceId, doc);
                     } catch (Exception e) {
                         log.warn("Failed to fetch API docs for service {}: {}", serviceId, e.getMessage());
                     }
                 }
-                
+
                 log.info("Collected docs from {} services", docs.size());
                 if (docs.isEmpty()) {
                     return createEmptyApiDocs();
                 }
-                
+
                 ObjectNode merged = objectMapper.createObjectNode();
                 merged.put("openapi", "3.1.0");
-                
+
                 ObjectNode info = merged.putObject("info");
                 info.put("title", "Meta Web Three - Aggregated API");
                 info.put("description", "Aggregated API documentation from all microservices");
                 info.put("version", "1.0.0");
-                
+
                 ArrayNode servers = merged.putArray("servers");
                 ObjectNode server = servers.addObject();
                 server.put("url", "/");
                 server.put("description", "Gateway");
-                
+
                 ObjectNode paths = merged.putObject("paths");
                 ObjectNode components = merged.putObject("components");
                 ObjectNode schemas = components.putObject("schemas");
-                
+
                 ArrayNode tags = merged.putArray("tags");
-                
+
                 for (Map.Entry<String, JsonNode> entry : docs.entrySet()) {
                     String serviceName = entry.getKey();
                     JsonNode serviceDocs = entry.getValue();
-                    
+
                     ObjectNode tag = tags.addObject();
                     tag.put("name", serviceName);
                     tag.put("description", "Endpoints from " + serviceName);
-                    
+
                     if (serviceDocs.has("components") && serviceDocs.get("components").has("schemas")) {
                         JsonNode serviceSchemas = serviceDocs.get("components").get("schemas");
                         serviceSchemas.fieldNames().forEachRemaining(schemaName -> {
@@ -251,7 +256,7 @@ public class OpenApiConfig {
                             }
                         });
                     }
-                    
+
                     if (serviceDocs.has("paths")) {
                         JsonNode servicePaths = serviceDocs.get("paths");
                         servicePaths.fieldNames().forEachRemaining(path -> {
@@ -261,7 +266,7 @@ public class OpenApiConfig {
                         });
                     }
                 }
-                
+
                 log.info("Aggregated docs: {} paths, {} schemas", paths.size(), schemas.size());
                 String result = objectMapper.writeValueAsString(merged);
                 log.info("Response size: {} bytes", result.length());
@@ -271,20 +276,22 @@ public class OpenApiConfig {
                 return createEmptyApiDocs();
             }
         }
-        
-        private void renameSchemaRefs(JsonNode node, String serviceName, ObjectNode schemas, Map<String, JsonNode> docs) {
-            if (node == null) return;
-            
+
+        private void renameSchemaRefs(JsonNode node, String serviceName, ObjectNode schemas,
+                Map<String, JsonNode> docs) {
+            if (node == null)
+                return;
+
             if (node.isObject()) {
                 ObjectNode obj = (ObjectNode) node;
-                
+
                 if (obj.has("$ref")) {
                     String ref = obj.get("$ref").asText();
                     if (ref.startsWith("#/components/schemas/")) {
                         String schemaName = ref.substring("#/components/schemas/".length());
                         String prefixedName = serviceName + "_" + schemaName;
                         obj.put("$ref", "#/components/schemas/" + prefixedName);
-                        
+
                         JsonNode originalSchema = null;
                         for (Map.Entry<String, JsonNode> docEntry : docs.entrySet()) {
                             JsonNode doc = docEntry.getValue();
@@ -296,7 +303,7 @@ public class OpenApiConfig {
                                 }
                             }
                         }
-                        
+
                         if (originalSchema != null && !schemas.has(prefixedName)) {
                             schemas.set(prefixedName, originalSchema.deepCopy());
                         } else if (originalSchema == null) {
@@ -305,7 +312,7 @@ public class OpenApiConfig {
                         return;
                     }
                 }
-                
+
                 if (obj.has("allOf")) {
                     obj.fieldNames().forEachRemaining(field -> {
                         if (!"$ref".equals(field)) {
@@ -341,7 +348,7 @@ public class OpenApiConfig {
                 }
             }
         }
-        
+
         private String createEmptyApiDocs() {
             try {
                 ObjectNode empty = objectMapper.createObjectNode();

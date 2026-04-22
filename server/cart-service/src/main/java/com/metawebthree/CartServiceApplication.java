@@ -1,20 +1,17 @@
-package com.metawebthree.payment;
-
+package com.metawebthree;
+ 
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.scheduling.annotation.EnableAsync;
 
 import com.metawebthree.common.BaseApplication;
 
-@SpringBootApplication(exclude = QuartzAutoConfiguration.class)
+@SpringBootApplication
 @EnableDiscoveryClient
-@EnableAsync
 @EnableDubbo
-public class PaymentServiceApplication extends BaseApplication {
+public class CartServiceApplication extends BaseApplication {
     public static void main(String[] args) {
-        SpringApplication.run(PaymentServiceApplication.class, args);
+        SpringApplication.run(CartServiceApplication.class, args);
     }
 }

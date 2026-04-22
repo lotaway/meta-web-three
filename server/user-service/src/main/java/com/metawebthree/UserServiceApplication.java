@@ -1,13 +1,16 @@
-package com.metawebthree.product;
+package com.metawebthree;
 
+import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import com.metawebthree.common.BaseApplication;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-public class ProductServiceApplication {
+@EnableDubbo
+public class UserServiceApplication extends BaseApplication {
     public static void main(String[] args) {
-        SpringApplication.run(ProductServiceApplication.class, args);
+        SpringApplication.run(UserServiceApplication.class, args);
     }
 }

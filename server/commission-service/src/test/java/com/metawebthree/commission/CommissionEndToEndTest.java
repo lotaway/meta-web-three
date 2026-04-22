@@ -64,7 +64,7 @@ public class CommissionEndToEndTest extends PostgresTestBase {
     }
 
     private static ConfigurableApplicationContext startCommissionService() {
-        return startService(com.metawebthree.commission.CommissionServiceApplication.class,
+        return startService(com.metawebthree.CommissionServiceApplication.class,
                 COMMISSION_PORT, "classpath:db/init.sql", null);
     }
 

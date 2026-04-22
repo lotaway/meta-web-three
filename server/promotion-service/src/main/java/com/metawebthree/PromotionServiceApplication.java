@@ -1,20 +1,18 @@
-package com.metawebthree.commission;
+package com.metawebthree;
 
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.metawebthree.common.BaseApplication;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = QuartzAutoConfiguration.class)
 @EnableDiscoveryClient
 @EnableDubbo
-@EnableScheduling
-public class CommissionServiceApplication extends BaseApplication {
-
+public class PromotionServiceApplication extends BaseApplication {
     public static void main(String[] args) {
-        SpringApplication.run(CommissionServiceApplication.class, args);
+        SpringApplication.run(PromotionServiceApplication.class, args);
     }
 }
