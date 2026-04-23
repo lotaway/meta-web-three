@@ -12,15 +12,18 @@ END;
 
 $$ LANGUAGE plpgsql;
 
-
 DROP TABLE IF EXISTS "Artwork";
+
 DROP TABLE IF EXISTS "People_Type";
+
 DROP TABLE IF EXISTS "People";
+
 DROP TABLE IF EXISTS "Artwork_Tag";
+
 DROP TABLE IF EXISTS "Artwork_Category";
 
 CREATE TABLE IF NOT EXISTS "Artwork_Category" (
-    "id" SERIAL PRIMARY KEY,
+    "id" BIGSERIAL PRIMARY KEY,
     "name" VARCHAR NOT NULL,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -32,14 +35,14 @@ FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TABLE IF NOT EXISTS "Artwork_Tag" (
-    "id" SERIAL PRIMARY KEY,
+    "id" BIGSERIAL PRIMARY KEY,
     "tag" VARCHAR NOT NULL,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS "People" (
-    "id" SERIAL PRIMARY KEY,
+    "id" BIGSERIAL PRIMARY KEY,
     "name" VARCHAR NOT NULL,
     "types" SMALLINT[] DEFAULT '{}', -- List of Table People_Type IDs
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -47,14 +50,14 @@ CREATE TABLE IF NOT EXISTS "People" (
 );
 
 CREATE TABLE IF NOT EXISTS "People_Type" (
-    "id" SERIAL PRIMARY KEY,
+    "id" BIGSERIAL PRIMARY KEY,
     "type" VARCHAR NOT NULL UNIQUE, -- Such as Director, Editor, Actor, Voicer
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS "Artwork" (
-    "id" SERIAL PRIMARY KEY,
+    "id" BIGSERIAL PRIMARY KEY,
     "series" VARCHAR(255) DEFAULT '', -- Batman Prequel
     "title" VARCHAR NOT NULL, -- Batman Begins
     "cover" VARCHAR(255) DEFAULT '', -- cover image URL

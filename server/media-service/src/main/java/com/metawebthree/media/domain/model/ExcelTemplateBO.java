@@ -69,7 +69,7 @@ public class ExcelTemplateBO {
         directorName = getCleanName(name);
     }
 
-    public Integer updateCategoryNameToCategoryId(MPJBaseMapper<ArtWorkCategoryDO> artworkCategoryMapper) {
+    public Long updateCategoryNameToCategoryId(MPJBaseMapper<ArtWorkCategoryDO> artworkCategoryMapper) {
         if (categoryName == null || categoryName.isEmpty()) {
             return null;
         }
@@ -84,7 +84,7 @@ public class ExcelTemplateBO {
         return categoryDO.getId();
     }
 
-    public List<Integer> updateTagNamesToTagIds(ArtWorkTagMapper artworkTagMapper) {
+    public List<Long> updateTagNamesToTagIds(ArtWorkTagMapper artworkTagMapper) {
         if (tagNames == null || tagNames.isEmpty()) {
             return new ArrayList<>();
         }
@@ -93,7 +93,7 @@ public class ExcelTemplateBO {
         wrapper.select(ArtWorkTagDO::getId, ArtWorkTagDO::getTag).in(ArtWorkTagDO::getTag, nameList);
         List<ArtWorkTagDO> existingDOs = artworkTagMapper.selectList(wrapper);
         var missingNames = new ArrayList<String>();
-        var idList = new ArrayList<Integer>();
+        var idList = new ArrayList<Long>();
         nameList.forEach((String name) -> {
             Stream<ArtWorkTagDO> stream = existingDOs.stream();
             ArtWorkTagDO artWorkTagDO = stream.filter(existingDO -> existingDO.getTag().equals(name)).findFirst()
@@ -107,12 +107,12 @@ public class ExcelTemplateBO {
         if (missingNames.isEmpty()) {
             return idList;
         }
-        List<Integer> newIds = artworkTagMapper.insertBatchThenReturnIds(missingNames);
+        List<Long> newIds = artworkTagMapper.insertBatchThenReturnIds(missingNames);
         idList.addAll(newIds);
         return idList;
     }
 
-    public List<Integer> updateActNamesToActIds(PeopleMapper peopleMapper,
+    public List<Long> updateActNamesToActIds(PeopleMapper peopleMapper,
             MPJBaseMapper<PeopleTypeDO> peopleTypeMapper) {
         if (actNames == null || actNames.isEmpty()) {
             return new ArrayList<>();
@@ -131,7 +131,7 @@ public class ExcelTemplateBO {
                 .select(PeopleTypeDO::getId).eq(PeopleTypeDO::getType, PEOPLE_TYPE));
 
         var missingPeopleDOs = new ArrayList<PeopleDO>();
-        var idList = new ArrayList<Integer>();
+        var idList = new ArrayList<Long>();
 
         if (!existingDOs.isEmpty()) {
             nameList.forEach(name -> {
@@ -140,22 +140,22 @@ public class ExcelTemplateBO {
                         .orElse(null);
                 if (peopleDO == null) {
                     missingPeopleDOs
-                            .add(PeopleDO.builder().name(name).types(new Short[] { typeDOs.get(0).getId() }).build());
+                            .add(PeopleDO.builder().name(name).types(new Long[] { typeDOs.get(0).getId() }).build());
                     return;
                 }
                 idList.add(peopleDO.getId());
             });
         }
         if (!missingPeopleDOs.isEmpty()) {
-            List<Integer> newIds = Arrays.asList(Arrays.stream(peopleMapper.insertBatchThenReturnIds(missingPeopleDOs))
-                    .boxed().toArray(Integer[]::new));
+            List<Long> newIds = Arrays.asList(Arrays.stream(peopleMapper.insertBatchThenReturnIds(missingPeopleDOs))
+                    .boxed().toArray(Long[]::new));
             log.info("newIds: {}", newIds);
             idList.addAll(newIds);
         }
         return idList;
     }
 
-    public Integer updateDirectorNameToDirectorId(MPJBaseMapper<PeopleDO> peopleMapper,
+    public Long updateDirectorNameToDirectorId(MPJBaseMapper<PeopleDO> peopleMapper,
             MPJBaseMapper<PeopleTypeDO> peopleTypeMapper) {
         if (directorName == null || directorName.isEmpty()) {
             return null;
@@ -169,7 +169,7 @@ public class ExcelTemplateBO {
         if (result == null || result.isEmpty()) {
             List<PeopleTypeDO> typeDOs = peopleTypeMapper.selectList(new MPJLambdaWrapper<PeopleTypeDO>()
                     .select(PeopleTypeDO::getId).eq(PeopleTypeDO::getType, directorName));
-            peopleDO = PeopleDO.builder().name(directorName).types(new Short[] { typeDOs.get(0).getId() }).build();
+            peopleDO = PeopleDO.builder().name(directorName).types(new Long[] { typeDOs.get(0).getId() }).build();
             peopleMapper.insert(peopleDO);
         } else {
             peopleDO = result.get(0);

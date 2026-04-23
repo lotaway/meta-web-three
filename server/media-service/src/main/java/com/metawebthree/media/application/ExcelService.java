@@ -1,4 +1,5 @@
 package com.metawebthree.media.application;
+
 import com.metawebthree.media.domain.model.*;
 import com.metawebthree.media.application.dto.*;
 import com.metawebthree.media.infrastructure.persistence.mapper.*;
@@ -10,8 +11,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metawebthree.common.cloud.DefaultS3Config;
 import com.metawebthree.common.cloud.DefaultS3Service;
-import com.metawebthree.media.domain.model.ExcelTemplateBO;
-import com.metawebthree.media.domain.model.ArtWorkDO;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -352,13 +351,13 @@ public class ExcelService {
             List<ArtWorkDO> artworks = artworkMapper.selectList(null);
 
             // Build lookup maps for Categories, Tags, and People
-            Map<Integer, String> categoryMap = artworkCategoryMapper.selectList(null).stream()
+            Map<Long, String> categoryMap = artworkCategoryMapper.selectList(null).stream()
                     .filter(c -> c.getId() != null)
                     .collect(Collectors.toMap(ArtWorkCategoryDO::getId, ArtWorkCategoryDO::getName, (a, b) -> a));
-            Map<Integer, String> tagMap = artworkTagMapper.selectList(null).stream()
+            Map<Long, String> tagMap = artworkTagMapper.selectList(null).stream()
                     .filter(t -> t.getId() != null)
                     .collect(Collectors.toMap(ArtWorkTagDO::getId, ArtWorkTagDO::getTag, (a, b) -> a));
-            Map<Integer, String> peopleMap = peopleMapper.selectList(null).stream()
+            Map<Long, String> peopleMap = peopleMapper.selectList(null).stream()
                     .filter(p -> p.getId() != null)
                     .collect(Collectors.toMap(PeopleDO::getId, PeopleDO::getName, (a, b) -> a));
 

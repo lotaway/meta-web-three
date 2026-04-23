@@ -22,7 +22,7 @@ public abstract class MybatisPlusDefaultConfig {
     }
 
     protected DbType getInterceptorParams() {
-        return DbType.MYSQL;
+        return DbType.POSTGRE_SQL;
     }
 
     @Bean
@@ -36,14 +36,14 @@ public abstract class MybatisPlusDefaultConfig {
             @Override
             public void insertFill(MetaObject metaObject) {
                 this.strictInsertFill(metaObject, "id", Long.class, IdWorker.getId());
-                
+
                 Timestamp ts = Timestamp.valueOf(LocalDateTime.now());
                 this.strictInsertFill(metaObject, "createdAt", Timestamp.class, ts);
                 this.strictInsertFill(metaObject, "createTime", Timestamp.class, ts);
                 this.strictInsertFill(metaObject, "updatedAt", Timestamp.class, ts);
                 this.strictInsertFill(metaObject, "updateTime", Timestamp.class, ts);
             }
-            
+
             @Override
             public void updateFill(MetaObject metaObject) {
                 Timestamp ts = Timestamp.valueOf(LocalDateTime.now());

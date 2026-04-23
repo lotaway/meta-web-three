@@ -22,7 +22,7 @@ import lombok.experimental.SuperBuilder;
 @TableName("\"Artwork\"")
 public class ArtWorkDO extends BaseDO implements Cloneable {
     @TableId(type = IdType.ASSIGN_ID)
-    Integer id;
+    Long id;
     String series;
     String title;
     String cover;
@@ -30,7 +30,7 @@ public class ArtWorkDO extends BaseDO implements Cloneable {
     String subtitle;
     Integer season;
     Integer episode;
-    Integer categoryId;
+    Long categoryId;
     @TableField(typeHandler = SQLIntegerArrayHandler.class)
     Integer[] tags;
     Integer yearTag;

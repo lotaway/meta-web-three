@@ -13,13 +13,13 @@ import org.apache.ibatis.annotations.Select;
 @Mapper
 public interface ArtWorkTagMapper extends MPJBaseMapper<ArtWorkTagDO> {
     @Select({
-        "<script>",
-        "INSERT INTO \"Artwork_Tag\" (tag)",
-        "<foreach collection='tagNames' item='tag' separator=',' open='VALUES' close=''>",
-        "(#{tag})",
-        "</foreach>",
-        "RETURNING id",
-        "</script>"
+            "<script>",
+            "INSERT INTO \"Artwork_Tag\" (tag)",
+            "<foreach collection='tagNames' item='tag' separator=',' open='VALUES' close=''>",
+            "(#{tag})",
+            "</foreach>",
+            "RETURNING id",
+            "</script>"
     })
-    List<Integer> insertBatchThenReturnIds(@Param("tagNames") Collection<String> tagNames);
+    List<Long> insertBatchThenReturnIds(@Param("tagNames") Collection<String> tagNames);
 }
