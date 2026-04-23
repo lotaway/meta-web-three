@@ -2,7 +2,7 @@
 -- Aligned with mall-admin-web and mall-app-web requirements
 
 -- Base users (unified for now or keeping separation if needed)
-CREATE TABLE tb_user (
+CREATE TABLE IF NOT EXISTS tb_user (
     id BIGINT PRIMARY KEY,
     username VARCHAR(64) NOT NULL UNIQUE,
     password VARCHAR(64) NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE tb_user (
 );
 
 -- Admin RBAC
-CREATE TABLE tb_admin (
+CREATE TABLE IF NOT EXISTS tb_admin (
     id BIGINT PRIMARY KEY,
     username VARCHAR(64) NOT NULL UNIQUE,
     password VARCHAR(64) NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE tb_admin (
     status SMALLINT DEFAULT 1
 );
 
-CREATE TABLE tb_role (
+CREATE TABLE IF NOT EXISTS tb_role (
     id BIGINT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description VARCHAR(500),
@@ -48,7 +48,7 @@ CREATE TABLE tb_role (
     sort INT DEFAULT 0
 );
 
-CREATE TABLE tb_menu (
+CREATE TABLE IF NOT EXISTS tb_menu (
     id BIGINT PRIMARY KEY,
     parent_id BIGINT DEFAULT 0,
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -60,7 +60,7 @@ CREATE TABLE tb_menu (
     hidden SMALLINT DEFAULT 0
 );
 
-CREATE TABLE tb_resource (
+CREATE TABLE IF NOT EXISTS tb_resource (
     id BIGINT PRIMARY KEY,
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     name VARCHAR(200),
@@ -69,26 +69,26 @@ CREATE TABLE tb_resource (
     category_id BIGINT
 );
 
-CREATE TABLE tb_admin_role_relation (
+CREATE TABLE IF NOT EXISTS tb_admin_role_relation (
     id BIGINT PRIMARY KEY,
     admin_id BIGINT NOT NULL,
     role_id BIGINT NOT NULL
 );
 
-CREATE TABLE tb_role_menu_relation (
+CREATE TABLE IF NOT EXISTS tb_role_menu_relation (
     id BIGINT PRIMARY KEY,
     role_id BIGINT NOT NULL,
     menu_id BIGINT NOT NULL
 );
 
-CREATE TABLE tb_role_resource_relation (
+CREATE TABLE IF NOT EXISTS tb_role_resource_relation (
     id BIGINT PRIMARY KEY,
     role_id BIGINT NOT NULL,
     resource_id BIGINT NOT NULL
 );
 
 -- Member management
-CREATE TABLE tb_member_level (
+CREATE TABLE IF NOT EXISTS tb_member_level (
     id BIGINT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     growth_point INT DEFAULT 0,
@@ -104,7 +104,7 @@ CREATE TABLE tb_member_level (
     note VARCHAR(255)
 );
 
-CREATE TABLE tb_member_receive_address (
+CREATE TABLE IF NOT EXISTS tb_member_receive_address (
     id BIGINT PRIMARY KEY,
     member_id BIGINT NOT NULL,
     name VARCHAR(100),
@@ -117,7 +117,7 @@ CREATE TABLE tb_member_receive_address (
     detail_address VARCHAR(255)
 );
 
-CREATE TABLE tb_member_login_log (
+CREATE TABLE IF NOT EXISTS tb_member_login_log (
     id BIGINT PRIMARY KEY,
     member_id BIGINT NOT NULL,
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -128,7 +128,7 @@ CREATE TABLE tb_member_login_log (
 );
 
 -- Point / Growth Logic
-CREATE TABLE tb_integration_consume_setting (
+CREATE TABLE IF NOT EXISTS tb_integration_consume_setting (
     id BIGINT PRIMARY KEY,
     deduction_per_amount INT,
     max_percent_per_order INT,
@@ -136,7 +136,7 @@ CREATE TABLE tb_integration_consume_setting (
     coupon_status SMALLINT
 );
 
-CREATE TABLE tb_growth_change_history (
+CREATE TABLE IF NOT EXISTS tb_growth_change_history (
     id BIGINT PRIMARY KEY,
     member_id BIGINT NOT NULL,
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -147,7 +147,7 @@ CREATE TABLE tb_growth_change_history (
     source_type INT
 );
 
-CREATE TABLE tb_integration_change_history (
+CREATE TABLE IF NOT EXISTS tb_integration_change_history (
     id BIGINT PRIMARY KEY,
     member_id BIGINT NOT NULL,
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -159,7 +159,7 @@ CREATE TABLE tb_integration_change_history (
 );
 
 -- Existing Web3 and Auth specific tables from previous project usage
-CREATE TABLE tb_web3_user (
+CREATE TABLE IF NOT EXISTS tb_web3_user (
     id BIGINT PRIMARY KEY,
     user_id BIGINT NOT NULL REFERENCES tb_user(id),
     wallet_address VARCHAR(255) NOT NULL UNIQUE,
@@ -169,7 +169,7 @@ CREATE TABLE tb_web3_user (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE tb_author (
+CREATE TABLE IF NOT EXISTS tb_author (
     id BIGINT PRIMARY KEY,
     real_name VARCHAR(64) NOT NULL,
     is_enable BOOLEAN NOT NULL DEFAULT TRUE,
@@ -177,7 +177,7 @@ CREATE TABLE tb_author (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE tb_author_user_mapping (
+CREATE TABLE IF NOT EXISTS tb_author_user_mapping (
     id BIGINT PRIMARY KEY,
     author_id BIGINT NOT NULL REFERENCES tb_author(id),
     user_id BIGINT NOT NULL REFERENCES tb_user(id),
@@ -185,7 +185,7 @@ CREATE TABLE tb_author_user_mapping (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE tb_token_mapping (
+CREATE TABLE IF NOT EXISTS tb_token_mapping (
     id BIGINT PRIMARY KEY,
     parent_token VARCHAR(512) NOT NULL,
     child_token VARCHAR(512) NOT NULL UNIQUE,
@@ -198,7 +198,7 @@ CREATE TABLE tb_token_mapping (
 );
 
 -- Passkey Credential (WebAuthn)
-CREATE TABLE tb_passkey_credential (
+CREATE TABLE IF NOT EXISTS tb_passkey_credential (
     id BIGINT PRIMARY KEY,
     user_id BIGINT NOT NULL REFERENCES tb_user(id),
     credential_id VARCHAR(255) NOT NULL,
@@ -211,5 +211,5 @@ CREATE TABLE tb_passkey_credential (
     is_revoked BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-CREATE INDEX idx_passkey_user_id ON tb_passkey_credential(user_id);
-CREATE UNIQUE INDEX idx_passkey_credential_id ON tb_passkey_credential(credential_id);
+CREATE INDEX IF NOT EXISTS idx_passkey_user_id ON tb_passkey_credential(user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_passkey_credential_id ON tb_passkey_credential(credential_id);

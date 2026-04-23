@@ -1,9 +1,7 @@
-CREATE DATABASE payment_service 
-WITH ENCODING 'UTF8' 
-LC_COLLATE = 'en_US.UTF-8' 
-LC_CTYPE = 'en_US.UTF-8';
+-- Payment Service Schema
 
-CREATE TABLE Exchange_Orders (
+
+CREATE TABLE IF NOT EXISTS Exchange_Orders (
     id BIGSERIAL PRIMARY KEY,
     order_no VARCHAR(64) NOT NULL UNIQUE,
     user_id BIGINT NOT NULL,
@@ -38,14 +36,14 @@ COMMENT ON COLUMN Exchange_Orders.fiat_currency IS 'Fiat currency: USD, CNY, EUR
 COMMENT ON COLUMN Exchange_Orders.crypto_currency IS 'Cryptocurrency: BTC, ETH, USDT, USDC';
 COMMENT ON COLUMN Exchange_Orders.payment_method IS 'Payment method: ALIPAY, WECHAT, BANK_TRANSFER, APPLE_PAY, GOOGLE_PAY';
 
-CREATE INDEX idx_user_id ON Exchange_Orders (user_id);
-CREATE INDEX idx_order_no ON Exchange_Orders (order_no);
-CREATE INDEX idx_status ON Exchange_Orders (status);
-CREATE INDEX idx_created_at ON Exchange_Orders (created_at);
-CREATE INDEX idx_payment_order_no ON Exchange_Orders (payment_order_no);
-CREATE INDEX idx_crypto_transaction_hash ON Exchange_Orders (crypto_transaction_hash);
+CREATE INDEX IF NOT EXISTS idx_user_id ON Exchange_Orders (user_id);
+CREATE INDEX IF NOT EXISTS idx_order_no ON Exchange_Orders (order_no);
+CREATE INDEX IF NOT EXISTS idx_status ON Exchange_Orders (status);
+CREATE INDEX IF NOT EXISTS idx_created_at ON Exchange_Orders (created_at);
+CREATE INDEX IF NOT EXISTS idx_payment_order_no ON Exchange_Orders (payment_order_no);
+CREATE INDEX IF NOT EXISTS idx_crypto_transaction_hash ON Exchange_Orders (crypto_transaction_hash);
 
-CREATE TABLE Crypto_Prices (
+CREATE TABLE IF NOT EXISTS Crypto_Prices (
     id BIGSERIAL PRIMARY KEY,
     symbol VARCHAR(20) NOT NULL,
     base_currency VARCHAR(10) NOT NULL,
@@ -66,7 +64,7 @@ COMMENT ON COLUMN Crypto_Prices.base_currency IS 'Base currency: BTC, ETH, USDT'
 COMMENT ON COLUMN Crypto_Prices.quote_currency IS 'Quote currency: USD, CNY, EUR';
 COMMENT ON COLUMN Crypto_Prices.source IS 'Price source: binance, coinbase, okx';
 
-CREATE TABLE User_Kyc (
+CREATE TABLE IF NOT EXISTS User_Kyc (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
     level VARCHAR(10) NOT NULL,
@@ -119,13 +117,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS user_kyc_updated ON User_Kyc;
 CREATE TRIGGER user_kyc_updated
 BEFORE UPDATE ON User_Kyc
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at();
 
 -- Risk control tables
-CREATE TABLE Risk_Decision_Log (
+CREATE TABLE IF NOT EXISTS Risk_Decision_Log (
   id BIGSERIAL PRIMARY KEY,
   biz_order_id VARCHAR(64),
   user_id BIGINT NOT NULL,
@@ -146,11 +145,11 @@ COMMENT ON COLUMN Risk_Decision_Log.score IS 'Risk score';
 COMMENT ON COLUMN Risk_Decision_Log.reasons IS 'JSON array of reason codes';
 COMMENT ON COLUMN Risk_Decision_Log.features IS 'JSON object of features used in decision';
 
-CREATE INDEX idx_Risk_Decision_Log_user_id ON Risk_Decision_Log (user_id);
-CREATE INDEX idx_Risk_Decision_Log_device_id ON Risk_Decision_Log (device_id);
-CREATE INDEX idx_Risk_Decision_Log_ts ON Risk_Decision_Log (ts);
+CREATE INDEX IF NOT EXISTS idx_Risk_Decision_Log_user_id ON Risk_Decision_Log (user_id);
+CREATE INDEX IF NOT EXISTS idx_Risk_Decision_Log_device_id ON Risk_Decision_Log (device_id);
+CREATE INDEX IF NOT EXISTS idx_Risk_Decision_Log_ts ON Risk_Decision_Log (ts);
 
-CREATE TABLE Risk_Rules (
+CREATE TABLE IF NOT EXISTS Risk_Rules (
   id BIGSERIAL PRIMARY KEY,
   scene VARCHAR(32) NOT NULL,
   rule_code VARCHAR(32) NOT NULL,
@@ -168,10 +167,10 @@ COMMENT ON COLUMN Risk_Rules.expr IS 'Rule expression';
 COMMENT ON COLUMN Risk_Rules.priority IS 'Execution priority';
 COMMENT ON COLUMN Risk_Rules.status IS 'Rule status: 1-active, 0-inactive';
 
-CREATE INDEX idx_risk_rules_scene ON Risk_Rules (scene);
-CREATE INDEX idx_risk_rules_status ON Risk_Rules (status);
+CREATE INDEX IF NOT EXISTS idx_risk_rules_scene ON Risk_Rules (scene);
+CREATE INDEX IF NOT EXISTS idx_risk_rules_status ON Risk_Rules (status);
 
-CREATE TABLE Credit_Profile (
+CREATE TABLE IF NOT EXISTS Credit_Profile (
   user_id BIGINT PRIMARY KEY,
   base_credit_limit INT NOT NULL DEFAULT 10000,
   current_credit_limit INT NOT NULL DEFAULT 10000,

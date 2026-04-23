@@ -1,4 +1,4 @@
-CREATE TABLE commission_relation (
+CREATE TABLE IF NOT EXISTS commission_relation (
     id BIGINT PRIMARY KEY,
     user_id BIGINT NOT NULL,
     parent_user_id BIGINT NOT NULL,
@@ -8,9 +8,9 @@ CREATE TABLE commission_relation (
     CONSTRAINT uk_commission_relation_user UNIQUE (user_id)
 );
 
-CREATE INDEX idx_commission_relation_parent ON commission_relation(parent_user_id);
+CREATE INDEX IF NOT EXISTS idx_commission_relation_parent ON commission_relation(parent_user_id);
 
-CREATE TABLE commission_config (
+CREATE TABLE IF NOT EXISTS commission_config (
     id BIGINT PRIMARY KEY,
     buy_rate DECIMAL(10,4) NOT NULL,
     level_rates VARCHAR(255) NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE commission_config (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE commission_record (
+CREATE TABLE IF NOT EXISTS commission_record (
     id BIGINT PRIMARY KEY,
     order_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
@@ -33,11 +33,11 @@ CREATE TABLE commission_record (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_commission_record_order ON commission_record(order_id);
-CREATE INDEX idx_commission_record_user ON commission_record(user_id);
-CREATE INDEX idx_commission_record_available ON commission_record(available_at);
+CREATE INDEX IF NOT EXISTS idx_commission_record_order ON commission_record(order_id);
+CREATE INDEX IF NOT EXISTS idx_commission_record_user ON commission_record(user_id);
+CREATE INDEX IF NOT EXISTS idx_commission_record_available ON commission_record(available_at);
 
-CREATE TABLE commission_main (
+CREATE TABLE IF NOT EXISTS commission_main (
     id BIGINT PRIMARY KEY,
     user_id BIGINT NOT NULL,
     total_amount DECIMAL(18,4) NOT NULL DEFAULT 0,

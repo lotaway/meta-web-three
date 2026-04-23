@@ -19,7 +19,7 @@ DROP TABLE IF EXISTS "People";
 DROP TABLE IF EXISTS "Artwork_Tag";
 DROP TABLE IF EXISTS "Artwork_Category";
 
-CREATE TABLE "Artwork_Category" (
+CREATE TABLE IF NOT EXISTS "Artwork_Category" (
     "id" SERIAL PRIMARY KEY,
     "name" VARCHAR NOT NULL,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -31,14 +31,14 @@ BEFORE UPDATE ON "Artwork_Category"
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TABLE "Artwork_Tag" (
+CREATE TABLE IF NOT EXISTS "Artwork_Tag" (
     "id" SERIAL PRIMARY KEY,
     "tag" VARCHAR NOT NULL,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE "People" (
+CREATE TABLE IF NOT EXISTS "People" (
     "id" SERIAL PRIMARY KEY,
     "name" VARCHAR NOT NULL,
     "types" SMALLINT[] DEFAULT '{}', -- List of Table People_Type IDs
@@ -46,14 +46,14 @@ CREATE TABLE "People" (
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE "People_Type" (
+CREATE TABLE IF NOT EXISTS "People_Type" (
     "id" SERIAL PRIMARY KEY,
     "type" VARCHAR NOT NULL UNIQUE, -- Such as Director, Editor, Actor, Voicer
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE "Artwork" (
+CREATE TABLE IF NOT EXISTS "Artwork" (
     "id" SERIAL PRIMARY KEY,
     "series" VARCHAR(255) DEFAULT '', -- Batman Prequel
     "title" VARCHAR NOT NULL, -- Batman Begins
@@ -92,6 +92,6 @@ BEFORE INSERT ON "Artwork"
 FOR EACH ROW
 EXECUTE FUNCTION update_year_tag_column();
 
-CREATE INDEX idx_Artwork_updated_at ON "Artwork" ("updated_at");
+CREATE INDEX IF NOT EXISTS idx_Artwork_updated_at ON "Artwork" ("updated_at");
 
-CREATE INDEX idx_video_tags ON "Artwork" USING GIN (tags);
+CREATE INDEX IF NOT EXISTS idx_video_tags ON "Artwork" USING GIN (tags);

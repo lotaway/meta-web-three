@@ -1,7 +1,7 @@
 -- Order Service Schema (OMS)
 -- Aligned with mall-admin-web and mall-app-web requirements
 
-CREATE TABLE tb_order (
+CREATE TABLE IF NOT EXISTS tb_order (
     id BIGINT PRIMARY KEY,
     member_id BIGINT NOT NULL,
     coupon_id BIGINT,
@@ -49,7 +49,7 @@ CREATE TABLE tb_order (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE tb_order_item (
+CREATE TABLE IF NOT EXISTS tb_order_item (
     id BIGINT PRIMARY KEY,
     order_id BIGINT NOT NULL,
     order_sn VARCHAR(64) NOT NULL,
@@ -73,7 +73,7 @@ CREATE TABLE tb_order_item (
     product_attr VARCHAR(500)
 );
 
-CREATE TABLE tb_order_return_apply (
+CREATE TABLE IF NOT EXISTS tb_order_return_apply (
     id BIGINT PRIMARY KEY,
     order_id BIGINT NOT NULL,
     company_address_id BIGINT,
@@ -103,7 +103,7 @@ CREATE TABLE tb_order_return_apply (
     receive_note VARCHAR(500)
 );
 
-CREATE TABLE tb_order_return_reason (
+CREATE TABLE IF NOT EXISTS tb_order_return_reason (
     id BIGINT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     sort INT DEFAULT 0,
@@ -111,7 +111,7 @@ CREATE TABLE tb_order_return_reason (
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE tb_order_setting (
+CREATE TABLE IF NOT EXISTS tb_order_setting (
     id BIGINT PRIMARY KEY,
     flash_order_overtime INT,
     normal_order_overtime INT,
@@ -120,7 +120,7 @@ CREATE TABLE tb_order_setting (
     comment_overtime INT
 );
 
-CREATE TABLE tb_company_address (
+CREATE TABLE IF NOT EXISTS tb_company_address (
     id BIGINT PRIMARY KEY,
     address_name VARCHAR(200),
     send_status SMALLINT DEFAULT 0,
@@ -133,7 +133,7 @@ CREATE TABLE tb_company_address (
     detail_address VARCHAR(255)
 );
 
-CREATE TABLE tb_order_operate_log (
+CREATE TABLE IF NOT EXISTS tb_order_operate_log (
     id BIGINT PRIMARY KEY,
     order_id BIGINT NOT NULL,
     operate_man VARCHAR(100),

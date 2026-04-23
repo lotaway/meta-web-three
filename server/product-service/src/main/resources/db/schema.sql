@@ -1,7 +1,7 @@
 -- Product Service Schema (PMS + CMS relevant)
 -- Aligned with mall-admin-web and mall-app-web requirements
 
-CREATE TABLE tb_product_category (
+CREATE TABLE IF NOT EXISTS tb_product_category (
     id BIGINT PRIMARY KEY,
     parent_id BIGINT DEFAULT 0,
     name VARCHAR(64) NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE tb_product_category (
     description TEXT
 );
 
-CREATE TABLE tb_brand (
+CREATE TABLE IF NOT EXISTS tb_brand (
     id BIGINT PRIMARY KEY,
     name VARCHAR(64) NOT NULL,
     first_letter VARCHAR(8),
@@ -30,14 +30,14 @@ CREATE TABLE tb_brand (
     brand_story TEXT
 );
 
-CREATE TABLE tb_product_attribute_category (
+CREATE TABLE IF NOT EXISTS tb_product_attribute_category (
     id BIGINT PRIMARY KEY,
     name VARCHAR(64) NOT NULL,
     attribute_count INT DEFAULT 0,
     param_count INT DEFAULT 0
 );
 
-CREATE TABLE tb_product_attribute (
+CREATE TABLE IF NOT EXISTS tb_product_attribute (
     id BIGINT PRIMARY KEY,
     product_attribute_category_id BIGINT NOT NULL,
     name VARCHAR(64) NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE tb_product_attribute (
     type INT DEFAULT 0
 );
 
-CREATE TABLE tb_product (
+CREATE TABLE IF NOT EXISTS tb_product (
     id BIGINT PRIMARY KEY,
     brand_id BIGINT,
     product_category_id BIGINT,
@@ -97,7 +97,7 @@ CREATE TABLE tb_product (
     product_category_name VARCHAR(255)
 );
 
-CREATE TABLE tb_sku_stock (
+CREATE TABLE IF NOT EXISTS tb_sku_stock (
     id BIGINT PRIMARY KEY,
     product_id BIGINT NOT NULL,
     sku_code VARCHAR(64) NOT NULL,
@@ -111,21 +111,21 @@ CREATE TABLE tb_sku_stock (
     sp_data TEXT
 );
 
-CREATE TABLE tb_product_attribute_value (
+CREATE TABLE IF NOT EXISTS tb_product_attribute_value (
     id BIGINT PRIMARY KEY,
     product_id BIGINT NOT NULL,
     product_attribute_id BIGINT NOT NULL,
     value VARCHAR(255)
 );
 
-CREATE TABLE tb_product_category_attribute_relation (
+CREATE TABLE IF NOT EXISTS tb_product_category_attribute_relation (
     id BIGINT PRIMARY KEY,
     product_category_id BIGINT NOT NULL,
     product_attribute_id BIGINT NOT NULL
 );
 
 -- CMS Related (Subjects, etc.)
-CREATE TABLE tb_subject (
+CREATE TABLE IF NOT EXISTS tb_subject (
     id BIGINT PRIMARY KEY,
     category_id BIGINT,
     title VARCHAR(100),
@@ -144,13 +144,13 @@ CREATE TABLE tb_subject (
     category_name VARCHAR(64)
 );
 
-CREATE TABLE tb_subject_product_relation (
+CREATE TABLE IF NOT EXISTS tb_subject_product_relation (
     id BIGINT PRIMARY KEY,
     subject_id BIGINT NOT NULL,
     product_id BIGINT NOT NULL
 );
 
-CREATE TABLE tb_prefrence_area (
+CREATE TABLE IF NOT EXISTS tb_prefrence_area (
     id BIGINT PRIMARY KEY,
     name VARCHAR(64),
     sub_title VARCHAR(64),
@@ -159,7 +159,7 @@ CREATE TABLE tb_prefrence_area (
     show_status SMALLINT DEFAULT 1
 );
 
-CREATE TABLE tb_prefrence_area_product_relation (
+CREATE TABLE IF NOT EXISTS tb_prefrence_area_product_relation (
     id BIGINT PRIMARY KEY,
     prefrence_area_id BIGINT NOT NULL,
     product_id BIGINT NOT NULL

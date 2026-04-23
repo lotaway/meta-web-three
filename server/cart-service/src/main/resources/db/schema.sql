@@ -1,6 +1,6 @@
 -- Cart service schema
 
-CREATE TABLE oms_cart_item (
+CREATE TABLE IF NOT EXISTS oms_cart_item (
     id BIGINT PRIMARY KEY,
     product_id BIGINT NOT NULL,
     product_sku_id BIGINT,
@@ -21,6 +21,6 @@ CREATE TABLE oms_cart_item (
     product_attr VARCHAR(500)
 );
 
-CREATE INDEX idx_cart_member_id ON oms_cart_item (member_id);
-CREATE INDEX idx_cart_product_id ON oms_cart_item (product_id);
-CREATE INDEX idx_cart_product_sku_id ON oms_cart_item (product_sku_id);
+CREATE INDEX IF NOT EXISTS idx_cart_member_id ON oms_cart_item (member_id);
+CREATE INDEX IF NOT EXISTS idx_cart_product_id ON oms_cart_item (product_id);
+CREATE INDEX IF NOT EXISTS idx_cart_product_sku_id ON oms_cart_item (product_sku_id);

@@ -1,7 +1,7 @@
 -- Promotion Service Schema (SMS)
 -- Aligned with mall-admin-web and mall-app-web requirements
 
-CREATE TABLE tb_coupon (
+CREATE TABLE IF NOT EXISTS tb_coupon (
     id BIGINT PRIMARY KEY,
     type INT DEFAULT 0, -- 0->all, 1->member, 2->buy, 3->register
     name VARCHAR(100) NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE tb_coupon (
     member_level INT DEFAULT 0
 );
 
-CREATE TABLE tb_coupon_history (
+CREATE TABLE IF NOT EXISTS tb_coupon_history (
     id BIGINT PRIMARY KEY,
     coupon_id BIGINT NOT NULL,
     member_id BIGINT NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE tb_coupon_history (
     order_sn VARCHAR(64)
 );
 
-CREATE TABLE tb_coupon_product_relation (
+CREATE TABLE IF NOT EXISTS tb_coupon_product_relation (
     id BIGINT PRIMARY KEY,
     coupon_id BIGINT NOT NULL,
     product_id BIGINT NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE tb_coupon_product_relation (
     product_sn VARCHAR(64)
 );
 
-CREATE TABLE tb_coupon_product_category_relation (
+CREATE TABLE IF NOT EXISTS tb_coupon_product_category_relation (
     id BIGINT PRIMARY KEY,
     coupon_id BIGINT NOT NULL,
     product_category_id BIGINT NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE tb_coupon_product_category_relation (
     parent_category_name VARCHAR(200)
 );
 
-CREATE TABLE tb_flash_promotion (
+CREATE TABLE IF NOT EXISTS tb_flash_promotion (
     id BIGINT PRIMARY KEY,
     title VARCHAR(200),
     start_date DATE,
@@ -61,7 +61,7 @@ CREATE TABLE tb_flash_promotion (
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE tb_flash_promotion_session (
+CREATE TABLE IF NOT EXISTS tb_flash_promotion_session (
     id BIGINT PRIMARY KEY,
     name VARCHAR(100),
     start_time TIME,
@@ -70,7 +70,7 @@ CREATE TABLE tb_flash_promotion_session (
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE tb_flash_promotion_product_relation (
+CREATE TABLE IF NOT EXISTS tb_flash_promotion_product_relation (
     id BIGINT PRIMARY KEY,
     flash_promotion_id BIGINT NOT NULL,
     flash_promotion_session_id BIGINT NOT NULL,
@@ -81,7 +81,7 @@ CREATE TABLE tb_flash_promotion_product_relation (
     sort INT DEFAULT 0
 );
 
-CREATE TABLE tb_flash_promotion_log (
+CREATE TABLE IF NOT EXISTS tb_flash_promotion_log (
     id BIGINT PRIMARY KEY,
     member_id BIGINT NOT NULL,
     product_id BIGINT NOT NULL,
@@ -91,7 +91,7 @@ CREATE TABLE tb_flash_promotion_log (
     send_time TIMESTAMP
 );
 
-CREATE TABLE tb_home_advertise (
+CREATE TABLE IF NOT EXISTS tb_home_advertise (
     id BIGINT PRIMARY KEY,
     name VARCHAR(100),
     type INT DEFAULT 0, -- 0->pc, 1->app
@@ -106,7 +106,7 @@ CREATE TABLE tb_home_advertise (
     sort INT DEFAULT 0
 );
 
-CREATE TABLE tb_home_brand (
+CREATE TABLE IF NOT EXISTS tb_home_brand (
     id BIGINT PRIMARY KEY,
     brand_id BIGINT NOT NULL,
     brand_name VARCHAR(100),
@@ -114,7 +114,7 @@ CREATE TABLE tb_home_brand (
     sort INT DEFAULT 0
 );
 
-CREATE TABLE tb_home_new_product (
+CREATE TABLE IF NOT EXISTS tb_home_new_product (
     id BIGINT PRIMARY KEY,
     product_id BIGINT NOT NULL,
     product_name VARCHAR(200),
@@ -122,7 +122,7 @@ CREATE TABLE tb_home_new_product (
     sort INT DEFAULT 0
 );
 
-CREATE TABLE tb_home_recommend_product (
+CREATE TABLE IF NOT EXISTS tb_home_recommend_product (
     id BIGINT PRIMARY KEY,
     product_id BIGINT NOT NULL,
     product_name VARCHAR(200),
@@ -130,7 +130,7 @@ CREATE TABLE tb_home_recommend_product (
     sort INT DEFAULT 0
 );
 
-CREATE TABLE tb_home_recommend_subject (
+CREATE TABLE IF NOT EXISTS tb_home_recommend_subject (
     id BIGINT PRIMARY KEY,
     subject_id BIGINT NOT NULL,
     subject_name VARCHAR(200),
