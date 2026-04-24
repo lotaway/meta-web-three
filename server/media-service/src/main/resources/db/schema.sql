@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS "Artwork_Tag" (
 CREATE TABLE IF NOT EXISTS "People" (
     "id" BIGSERIAL PRIMARY KEY,
     "name" VARCHAR NOT NULL,
-    "types" SMALLINT[] DEFAULT '{}', -- List of Table People_Type IDs
+    "types" BIGINT[] DEFAULT '{}', -- List of Table People_Type IDs
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -65,11 +65,11 @@ CREATE TABLE IF NOT EXISTS "Artwork" (
     "subtitle" VARCHAR(255) DEFAULT '', -- Behind the scenes
     "season" SMALLINT DEFAULT 1,
     "episode" SMALLINT DEFAULT 1,
-    "category_id" INTEGER REFERENCES "Artwork_Category" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    "tags" INTEGER[] DEFAULT '{}', -- List of Table Tag IDs
+    "category_id" BIGINT REFERENCES "Artwork_Category" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    "tags" BIGINT[] DEFAULT '{}', -- List of Table Tag IDs
     "year_tag" SMALLINT DEFAULT 0,
-    "acts" INTEGER[] DEFAULT '{}', -- List of Table People_Type type=Actor IDs
-    "director" INTEGER REFERENCES "People" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    "acts" BIGINT[] DEFAULT '{}', -- List of Table People_Type type=Actor IDs
+    "director" BIGINT REFERENCES "People" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
