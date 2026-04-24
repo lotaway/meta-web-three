@@ -11,9 +11,12 @@ import {
   SafeAreaView,
   Alert,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import PasskeyAuthDemo from '@/components/PasskeyAuthDemo';
+import { FEATURE_PASSKEY_ENABLED } from '@/constants/Features';
 
 interface MallUserAccount {
   nickname: string;
@@ -27,6 +30,7 @@ export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
+  const router = useRouter();
 
   const changeLanguage = () => {
     Alert.alert(
@@ -69,6 +73,18 @@ export default function ProfileScreen() {
         
         <UserStatsSection user={currentMallUser} colors={colors} />
 
+        {/* ── Passkey 安全验证区块（功能开关控制，默认隐藏）── */}
+        {FEATURE_PASSKEY_ENABLED && (
+          <PasskeyAuthDemo
+            userId={undefined}   /* 已登录时传入真实 userId，如 userId={currentUser.id} */
+            userName={currentMallUser.nickname}
+            onLoginSuccess={(token) => {
+              Alert.alert('Passkey 登录成功', '已获取授权 Token');
+              // TODO: 将 token 存入全局 auth state / AsyncStorage
+            }}
+          />
+        )}
+
         <OrderQuickLinksSection colors={colors} />
 
         <View style={styles.menuSection}>
@@ -78,6 +94,14 @@ export default function ProfileScreen() {
           <ProfileMenuCell icon="heart.fill" title={t('profile.menu.favorite')} color="#54b4ef" />
           <ProfileMenuCell icon="star.bubble.fill" title={t('profile.menu.comment')} color="#ee883b" />
           <ProfileMenuCell icon="globe" title={t('profile.menu.language')} color="#4a90e2" onPress={changeLanguage} />
+          {FEATURE_PASSKEY_ENABLED && (
+            <ProfileMenuCell
+              icon="faceid"
+              title="Passkey 安全认证"
+              color="#fa436a"
+              onPress={() => router.push('/passkey-demo' as any)}
+            />
+          )}
           <ProfileMenuCell icon="gearshape.fill" title={t('profile.menu.settings')} color="#e07472" showBorder={false} />
         </View>
 
