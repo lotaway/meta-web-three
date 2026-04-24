@@ -159,7 +159,6 @@ public class ExcelService {
         private static final String END_MARKER = "__END__";
         private final ObjectMapper objectMapper = new ObjectMapper();
         
-        private final String queueKey = IMPORT_EXCEL_QUEUE_KEY + ":" + UUID.randomUUID().toString();
         private final List<CompletableFuture<Void>> batchFutures = new ArrayList<>();
 
         public boolean checkIsEnd(List<?> datas) {
@@ -167,7 +166,7 @@ public class ExcelService {
         }
 
         public List<String> getWaitingListDatas(StringRedisTemplate redisTemplate) {
-            return redisTemplate.opsForList().leftPop(queueKey, batchSize);
+            return redisTemplate.opsForList().leftPop(IMPORT_EXCEL_QUEUE_KEY, batchSize);
         }
 
         public CustomExcelListener(int batchSize) {
@@ -202,7 +201,6 @@ public class ExcelService {
                 log.error("Error in handleWaitingList", e);
             } finally {
                 completionLatch.countDown();
-                redisTemplate.delete(queueKey);
             }
         }
 
@@ -284,7 +282,7 @@ public class ExcelService {
                 }).filter(Objects::nonNull).toList();
                 
                 if (!toPush.isEmpty()) {
-                    redisTemplate.opsForList().rightPushAll(queueKey, toPush);
+                    redisTemplate.opsForList().rightPushAll(IMPORT_EXCEL_QUEUE_KEY, toPush);
                 }
             }, processingExecutor);
             batchFutures.add(future);
@@ -299,7 +297,7 @@ public class ExcelService {
             // Wait for all processing to complete before pushing END_MARKER
             CompletableFuture.allOf(batchFutures.toArray(new CompletableFuture[0])).join();
             
-            redisTemplate.opsForList().rightPush(queueKey, END_MARKER);
+            redisTemplate.opsForList().rightPush(IMPORT_EXCEL_QUEUE_KEY, END_MARKER);
             insertionExecutor.execute(this::handleWaitingList);
         }
     }
