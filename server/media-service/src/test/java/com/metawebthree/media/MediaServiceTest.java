@@ -69,7 +69,7 @@ public class MediaServiceTest {
         PeopleTypeDO targetPeopleTypeDO = PeopleTypeDO.builder().type(type).build();
         PeopleTypeDO matchPeopleTypeDO = getOrCreatePeopleType(targetPeopleTypeDO);
 
-        PeopleDO targetPeopleDO = PeopleDO.builder().name(directorName).types(new Short[] { matchPeopleTypeDO.getId() })
+        PeopleDO targetPeopleDO = PeopleDO.builder().name(directorName).types(new Long[] { matchPeopleTypeDO.getId() })
                 .build();
         PeopleDO matchPeopleDO = getOrCreatePeople(targetPeopleDO);
 
