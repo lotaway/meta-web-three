@@ -1,0 +1,40 @@
+{
+  "name": "@app/payment-core",
+  "version": "1.0.0",
+  "description": "Payment Core - Unified Payment Entry",
+  "main": "./lib/module/index.js",
+  "types": "./lib/typescript/src/index.d.ts",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./lib/typescript/src/index.d.ts",
+      "require": "./lib/module/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "lib",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*"
+  ],
+  "keywords": [
+    "react-native",
+    "payment",
+    "wechat",
+    "alipay",
+    "stripe"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "typescript": "^5.8.3"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "private": true
+}
