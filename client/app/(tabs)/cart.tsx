@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -20,6 +21,14 @@ interface ShoppingCartItem {
   quantity: number;
   checked: boolean;
   spDataStr: string;
+}
+
+interface CheckoutItemParam {
+  id: number;
+  productName: string;
+  productPic: string;
+  price: number;
+  quantity: number;
 }
 
 export default function CartScreen() {
@@ -82,6 +91,19 @@ export default function CartScreen() {
   }, [shoppingCartItems]);
 
   const isAllItemSelected = shoppingCartItems.length > 0 && shoppingCartItems.every((item) => item.checked);
+  const selectedItems = useMemo<CheckoutItemParam[]>(
+    () =>
+      shoppingCartItems
+        .filter((item) => item.checked)
+        .map((item) => ({
+          id: item.id,
+          productName: item.productName,
+          productPic: item.productPic,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+    [shoppingCartItems],
+  );
 
   if (shoppingCartItems.length === 0) {
     return (
@@ -113,6 +135,7 @@ export default function CartScreen() {
       </ScrollView>
 
       <CartActionBar 
+        selectedItems={selectedItems}
         selectedTotal={selectedTotalPrice} 
         isAllSelected={isAllItemSelected} 
         colors={colors} 
@@ -158,7 +181,19 @@ function CartItemRow({ item, index, colors, onToggleCheck, onUpdateQuantity, onR
   );
 }
 
-function CartActionBar({ selectedTotal, isAllSelected, colors, onToggleAll }: any) {
+function CartActionBar({ selectedItems, selectedTotal, isAllSelected, colors, onToggleAll }: any) {
+  const goToCheckout = () => {
+    if (selectedItems.length === 0) {
+      return;
+    }
+    router.push({
+      pathname: '/checkout' as any,
+      params: {
+        items: JSON.stringify(selectedItems),
+      },
+    });
+  };
+
   return (
     <View style={styles.actionSection}>
       <TouchableOpacity onPress={onToggleAll} style={styles.allCheck}>
@@ -174,7 +209,10 @@ function CartActionBar({ selectedTotal, isAllSelected, colors, onToggleAll }: an
           合计: <Text style={[styles.totalPrice, { color: colors.primary }]}>¥{selectedTotal}</Text>
         </Text>
       </View>
-      <TouchableOpacity style={[styles.confirmBtn, { backgroundColor: colors.primary }]}>
+      <TouchableOpacity
+        style={[styles.confirmBtn, { backgroundColor: colors.primary }]}
+        onPress={goToCheckout}
+      >
         <Text style={styles.confirmBtnText}>结算</Text>
       </TouchableOpacity>
     </View>

@@ -146,18 +146,24 @@ yarn generate:contract:abi
 
 ### 支付方式
 
-项目包含三种支付方式，均通过 TurboModule 实现：
+项目包含三种支付方式：
 
 | 模块 | 说明 | 目录 |
 |------|------|------|
 | 微信支付 | TurboModule | `turbo-module/wechat-pay/` |
 | 支付宝 | TurboModule | `turbo-module/alipay/` |
-| Stripe | 官方 RN SDK | 需安装 `@stripe/stripe-react-native` |
-| 统一入口 | 统一调用接口 | `turbo-module/payment-core/` |
+| Stripe | 官方 RN SDK | `@stripe/stripe-react-native` |
+| 统一入口 | 统一调用接口 | `app/lib/payment/` |
 
 ### 配置步骤
 
-#### 1. app.json 插件配置
+#### 1. 安装依赖
+
+```bash
+npm install @stripe/stripe-react-native
+```
+
+#### 2. app.json 插件配置
 
 在 `app.json` 的 `expo.plugins` 中添加支付插件：
 
@@ -174,7 +180,7 @@ yarn generate:contract:abi
 }
 ```
 
-#### 2. iOS SDK 配置
+#### 3. iOS SDK 配置
 
 iOS 需要放置官方 SDK 的 `.xcframework` 文件到对应目录：
 
@@ -183,46 +189,31 @@ iOS 需要放置官方 SDK 的 `.xcframework` 文件到对应目录：
 | 微信支付 | `turbo-module/wechat-pay/ios/WeChatOpenSDK.xcframework` | [微信开放平台](https://open.weixin.qq.com/) 下载 |
 | 支付宝 | `turbo-module/alipay/ios/AlipaySDKCore.xcframework` | [支付宝开放平台](https://open.alipay.com/) 下载 |
 
-#### 3. 后端配置（必需）
+#### 4. 后端接口（必需）
 
-各支付方式需要后端提供支付参数：
+前端调用以下接口获取支付参数：
 
-| 支付方式 | 后端接口 |
-|---------|----------|
-| 微信支付 | `/api/pay/wechat/prepay` 返回 `partnerId, prepayId, nonceStr, timeStamp, packageValue, sign` |
-| 支付宝 | `/api/pay/alipay/order` 返回 `orderString` |
-| Stripe | `/api/pay/stripe/create-payment-intent` 返回 `clientSecret` |
+| 接口 | 方法 | 说明 | 返回格式 |
+|------|------|------|------|
+| `/api/order/create` | POST | 创建订单，返回订单信息 | `{ orderId, amount, items: [{ name, price, quantity }] }` |
+| `/api/pay/wechat/params` | POST | 获取微信支付参数 | `{ partnerId, prepayId, nonceStr, timeStamp, packageValue, sign }` |
+| `/api/pay/alipay/params` | POST | 获取支付宝订单 | `{ orderString }` |
+| `/api/pay/stripe/params` | POST | 获取Stripe支付参数 | `{ clientSecret, returnURL }` |
+| `/api/pay/verify` | POST | 验证支付结果 | `{ valid: boolean }` |
 
-### 前端调用示例
+### 支付页面
 
-```ts
-import { pay, type PayResult } from '@app/payment-core'
+支付入口页面：`app/checkout.tsx`
 
-// 微信支付
-const wechatParams = await fetch('/api/pay/wechat/prepay').then(r => r.json())
-const result1 = await pay('wechat', wechatParams)
-
-// 支付宝
-const alipayOrder = await fetch('/api/pay/alipay/order').then(r => r.json())
-const result2 = await pay('alipay', alipayOrder.orderString)
-
-// Stripe
-const stripeParams = await fetch('/api/pay/stripe/create-payment-intent').then(r => r.json())
-const result3 = await pay('stripe', stripeParams)
+流程：
 ```
-
-### 支付结果类型
-
-```ts
-type PayResult =
-  | { status: 'success'; type: 'wechat' | 'alipay' | 'stripe'; transactionId?: string }
-  | { status: 'cancel'; type: 'wechat' | 'alipay' | 'stripe' }
-  | { status: 'fail'; type: 'wechat' | 'alipay' | 'stripe'; code?: string; message?: string }
+购物车 → 结算页(/checkout) → 选择支付方式 → 获取支付参数 → 调起支付 → 验证结果
 ```
 
 ### 注意事项
 
-1. **支付结果必须验证**：客户端收到支付成功回调后，必须通知后端验证支付结果
-2. **iOS URL Scheme**：微信 `wx` + AppID，支付宝 `alipay` + AppID
-3. **Android 回调 Activity**：微信支付需要 `WXPayEntryActivity`，支付宝自动处理
-4. **Universal Link**：微信支付需要配置应用关联的 Universal Link
+1. **接口必需**：后端必须实现上述接口，否则无法完成支付
+2. **支付结果必须验证**：客户端收到支付成功回调后，必须调用 `/api/pay/verify` 验证
+3. **iOS URL Scheme**：微信 `wx` + AppID，支付宝 `alipay` + AppID
+4. **Android 回调 Activity**：微信支付需要 `WXPayEntryActivity`，支付宝自动处理
+5. **Universal Link**：微信支付需要配置应用关联的 Universal Link

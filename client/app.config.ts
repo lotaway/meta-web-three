@@ -1,4 +1,5 @@
 import withNativeBuildConfig from './plugins/with-native-build-config'
+import withPayment from './plugins/with-payment'
 
 export default {
   "expo": {
@@ -29,6 +30,13 @@ export default {
     },
     "plugins": [
       withNativeBuildConfig,
+      [
+        withPayment,
+        {
+          wechatAppId: process.env.EXPO_PUBLIC_WECHAT_APP_ID,
+          alipayAppId: process.env.EXPO_PUBLIC_ALIPAY_APP_ID,
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",

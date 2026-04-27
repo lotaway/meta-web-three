@@ -1,5 +1,7 @@
 import { NativeWechatPay, WechatPayParams } from '@app/wechat-pay'
-import { NativeAlipay, AlipayParams } from '@app/alipay'
+import { NativeAlipay } from '@app/alipay'
+import { confirmPayment } from '@stripe/stripe-react-native'
+import { ALIPAY_APP_ID, WECHAT_APP_ID } from '@/api/generated'
 
 export type PayType = 'wechat' | 'alipay' | 'stripe'
 
@@ -40,9 +42,11 @@ export interface PayFailResult {
 
 export type PayResult = PaySuccessResult | PayCancelResult | PayFailResult
 
+type WechatRuntimeParams = WechatPayParams & { appId?: string }
+
 export async function pay(
   type: PayType,
-  params: WechatPayParams | string
+  params: WechatPayParams | string | { clientSecret: string; returnURL: string }
 ): Promise<PayResult> {
   switch (type) {
     case 'wechat':
@@ -52,7 +56,7 @@ export async function pay(
       return alipayPay(params as string)
 
     case 'stripe':
-      return Promise.reject(new Error('Stripe not implemented yet'))
+      return stripePay(params as { clientSecret: string; returnURL: string })
   }
 }
 
@@ -60,8 +64,14 @@ async function wechatPay(
   params: WechatPayParams
 ): Promise<PaySuccessResult | PayCancelResult | PayFailResult> {
   try {
-    await NativeWechatPay.pay(params)
-    return { status: 'success', type: 'wechat' }
+    const runtimeParams = params as WechatRuntimeParams
+    const appId = runtimeParams.appId || WECHAT_APP_ID
+    if (!appId) {
+      return { status: 'fail', type: 'wechat', code: 'APP_ID_MISSING', message: '微信 App ID 未配置' }
+    }
+    NativeWechatPay.init(appId)
+    await NativeWechatPay.pay(runtimeParams)
+    return { status: 'success', type: 'wechat', transactionId: runtimeParams.prepayId }
   } catch (error: any) {
     if (error?.code === 'USER_CANCEL') {
       return { status: 'cancel', type: 'wechat' }
@@ -79,6 +89,9 @@ async function alipayPay(
   orderString: string
 ): Promise<PaySuccessResult | PayCancelResult | PayFailResult> {
   try {
+    if (ALIPAY_APP_ID) {
+      NativeAlipay.init(ALIPAY_APP_ID)
+    }
     const result = await NativeAlipay.pay({ orderString })
     return { status: 'success', type: 'alipay', transactionId: result }
   } catch (error: any) {
@@ -88,6 +101,47 @@ async function alipayPay(
     return {
       status: 'fail',
       type: 'alipay',
+      code: error?.code,
+      message: error?.message
+    }
+  }
+}
+
+async function stripePay(
+  params: { clientSecret: string; returnURL: string }
+): Promise<PaySuccessResult | PayCancelResult | PayFailResult> {
+  try {
+    const { paymentIntent, error } = await confirmPayment({
+      clientSecret: params.clientSecret,
+      returnURL: params.returnURL
+    })
+
+    if (error) {
+      if (error.code === 'cancelled') {
+        return { status: 'cancel', type: 'stripe' }
+      }
+      return {
+        status: 'fail',
+        type: 'stripe',
+        code: error.code,
+        message: error.message
+      }
+    }
+
+    if (paymentIntent?.status === 'succeeded') {
+      return { status: 'success', type: 'stripe', transactionId: paymentIntent.id }
+    }
+
+    return {
+      status: 'fail',
+      type: 'stripe',
+      code: paymentIntent?.status,
+      message: 'Payment not completed'
+    }
+  } catch (error: any) {
+    return {
+      status: 'fail',
+      type: 'stripe',
       code: error?.code,
       message: error?.message
     }
