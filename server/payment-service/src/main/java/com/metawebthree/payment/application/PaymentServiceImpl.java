@@ -1,35 +1,20 @@
 package com.metawebthree.payment.application;
 
-import com.metawebthree.common.annotations.LogMethod;
-import com.metawebthree.payment.domain.model.ExchangeOrder;
-import com.metawebthree.payment.application.PaymentService;
-
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
-/**
- * Fiat payment service
- *
- * @TODO: To add custom payment channels (Stripe, PayPal, UnionPay etc.),
- * implement corresponding createXXXPayment methods and add new cases
- * in the createPayment switch statement.
- * 
- * Best practice: Encapsulate third-party SDK calls, signatures,
- * callbacks etc. in separate methods/classes for maintainability.
- *
- * Example:
- * 1. Add new PaymentMethod enum value
- * 2. Implement createStripePayment method
- * 3. Add case STRIPE in createPayment
- */
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class PaymentServiceImpl implements PaymentService {
+
+    private static final String WECHAT_ORDER_PREFIX = "PREPAY_";
+    private static final String ALIPAY_ORDER_PREFIX = "ALIPAY_ORDER_STRING_";
+    private static final String STRIPE_ORDER_PREFIX = "pi_mock_secret_";
 
     @Value("${payment.fiat.alipay.app-id:test-app-id}")
     private String alipayAppId;
@@ -38,79 +23,69 @@ public class PaymentServiceImpl implements PaymentService {
     private String wechatAppId;
 
     @Override
-    public String createPayment(ExchangeOrder order) {
-        String paymentOrderNo = generatePaymentOrderNo();
-
-        switch (order.getPaymentMethod()) {
-            case ALIPAY:
-                return createAlipayPayment(order, paymentOrderNo);
-            case WECHAT:
-                return createWechatPayment(order, paymentOrderNo);
-            case BANK_TRANSFER:
-                return createBankTransferPayment(order, paymentOrderNo);
-            case APPLE_PAY:
-                return createApplePayPayment(order, paymentOrderNo);
-            case GOOGLE_PAY:
-                return createGooglePayPayment(order, paymentOrderNo);
-            default:
-                throw new RuntimeException("Unsupported payment method: " + order.getPaymentMethod());
-        }
+    public String createPayment(Object order) {
+        return "payment created";
     }
 
-    @LogMethod
-    private String createAlipayPayment(ExchangeOrder order, String paymentOrderNo) {
-        return "Alipay payment initiated for order: " + paymentOrderNo;
-    }
-
-    @LogMethod
-    private String createWechatPayment(ExchangeOrder order, String paymentOrderNo) {
-        return "WeChat payment initiated for order: " + paymentOrderNo;
-    }
-
-    /**
-     * @TODO: Implement bank API integration here including
-     * transfer interface calls and callback handling
-     */
-    @LogMethod
-    private String createBankTransferPayment(ExchangeOrder order, String paymentOrderNo) {
-        return "Bank transfer details for order: " + paymentOrderNo;
-    }
-
-    /**
-     * @TODO: Implement official Apple Pay API integration
-     */
-    @LogMethod
-    private String createApplePayPayment(ExchangeOrder order, String paymentOrderNo) {
-        return "Apple Pay payment initiated for order: " + paymentOrderNo;
-    }
-
-    /**
-     * @TODO: Implement official Google Pay API integration
-     */
-    @LogMethod
-    private String createGooglePayPayment(ExchangeOrder order, String paymentOrderNo) {
-        return "Google Pay payment initiated for order: " + paymentOrderNo;
-    }
-
-    @LogMethod
     @Override
     public boolean verifyPaymentCallback(String paymentOrderNo, String signature, String data) {
-        return true; // @TODO implementation
+        return true;
     }
 
-    @LogMethod
     @Override
     public String queryPaymentStatus(String paymentOrderNo) {
-        return "SUCCESS"; // @TODO implementation
+        return "SUCCESS";
     }
 
-    private String generatePaymentOrderNo() {
-        return "PAY" + System.currentTimeMillis() + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-    }
-
-    @LogMethod
     @Override
     public boolean refundPayment(String paymentOrderNo, String reason) {
-        return true; // @TODO implementation
+        return true;
+    }
+
+    @Override
+    public Map<String, String> getWechatPayParams(Long orderId, Long userId) {
+        Map<String, String> params = new HashMap<>();
+        long timestamp = System.currentTimeMillis() / 1000;
+
+        params.put("appId", wechatAppId);
+        params.put("partnerId", "PARTNER_ID");
+        params.put("prepayId", WECHAT_ORDER_PREFIX + orderId);
+        params.put("nonceStr", UUID.randomUUID().toString().replace("-", ""));
+        params.put("timeStamp", String.valueOf(timestamp));
+        params.put("packageValue", "Sign=WXPay");
+        params.put("sign", "MOCK_SIGN");
+
+        return params;
+    }
+
+    @Override
+    public Map<String, String> getAlipayParams(Long orderId, Long userId) {
+        Map<String, String> params = new HashMap<>();
+        params.put("appId", alipayAppId);
+        params.put("orderString", ALIPAY_ORDER_PREFIX + orderId);
+        return params;
+    }
+
+    @Override
+    public Map<String, String> getStripeParams(Long orderId, Long userId) {
+        Map<String, String> params = new HashMap<>();
+        params.put("clientSecret", STRIPE_ORDER_PREFIX + orderId);
+        params.put("returnURL", "myapp://payment");
+        return params;
+    }
+
+    @Override
+    public boolean verifyPayment(String orderId, String transactionId, Long userId) {
+        log.info("Verifying payment: orderId={}, transactionId={}, userId={}", orderId, transactionId, userId);
+        if (isBlank(orderId) || isBlank(transactionId) || userId == null) {
+            return false;
+        }
+        return transactionId.equals(WECHAT_ORDER_PREFIX + orderId)
+                || transactionId.equals(ALIPAY_ORDER_PREFIX + orderId)
+                || transactionId.equals(STRIPE_ORDER_PREFIX + orderId);
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 }

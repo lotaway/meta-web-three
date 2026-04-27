@@ -1,13 +1,14 @@
 package com.metawebthree.payment.application;
-import com.metawebthree.payment.domain.model.ExchangeOrder;
- 
+
+import java.util.Map;
+
 public interface PaymentService {
-    
-    public String createPayment(ExchangeOrder order);
-    
-    public boolean verifyPaymentCallback(String paymentOrderNo, String signature, String data);
-    
-    public String queryPaymentStatus(String paymentOrderNo);
-    
-    public boolean refundPayment(String paymentOrderNo, String reason);
-} 
+    String createPayment(Object order);
+    boolean verifyPaymentCallback(String paymentOrderNo, String signature, String data);
+    String queryPaymentStatus(String paymentOrderNo);
+    boolean refundPayment(String paymentOrderNo, String reason);
+    Map<String, String> getWechatPayParams(Long orderId, Long userId);
+    Map<String, String> getAlipayParams(Long orderId, Long userId);
+    Map<String, String> getStripeParams(Long orderId, Long userId);
+    boolean verifyPayment(String orderId, String transactionId, Long userId);
+}
