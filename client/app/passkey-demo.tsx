@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import {
   Alert,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import PasskeyAuthBeta from '@/components/PasskeyAuthBeta'
 import PasskeyAuthDemo from '@/components/PasskeyAuthDemo'
 import { IconSymbol } from '@/components/ui/IconSymbol'
