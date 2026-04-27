@@ -23,6 +23,11 @@ WORKDIR /app
 COPY --from=builder /build/order-service/target/order-service-*.jar order-service.jar
 ENTRYPOINT ["java", "-jar", "order-service.jar"]
 
+FROM eclipse-temurin:17-jre-jammy AS cart-service
+WORKDIR /app
+COPY --from=builder /build/cart-service/target/cart-service-*.jar cart-service.jar
+ENTRYPOINT ["java", "-jar", "cart-service.jar"]
+
 FROM eclipse-temurin:17-jre-jammy AS message-service
 WORKDIR /app
 COPY --from=builder /build/message-service/target/message-service-*.jar message-service.jar
