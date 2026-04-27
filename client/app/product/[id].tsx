@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -20,17 +20,16 @@ import RenderHTML from 'react-native-render-html';
 
 const { width: PAGE_WIDTH } = Dimensions.get('window');
 
-interface MallProduct {
-  id: number;
-  name: string;
-  subTitle: string;
-  pic: string;
-  albumPics: string;
-  price: number;
-  originalPrice: number;
-  sale: number;
-  stock: number;
-  detailMobileHtml: string;
+function getProductImages(productDetails: {
+  pic?: string;
+  albumPics?: string;
+} | null) {
+  if (!productDetails) {
+    return [];
+  }
+
+  const albumPics = productDetails.albumPics ? productDetails.albumPics.split(',') : [];
+  return [productDetails.pic, ...albumPics].filter(Boolean);
 }
 
 export default function ProductDetailScreen() {
@@ -43,11 +42,7 @@ export default function ProductDetailScreen() {
   return (
     <ProductDetailContainer productId={id ? Number(id) : null}>
       {({ productDetails, isPageLoading }) => {
-        const productImages = useMemo(() => {
-          if (!productDetails) return [];
-          const albumPics = productDetails.albumPics ? productDetails.albumPics.split(',') : [];
-          return [productDetails.pic, ...albumPics].filter((url) => url);
-        }, [productDetails]);
+        const productImages = getProductImages(productDetails);
 
         if (isPageLoading || !productDetails) {
           return (
