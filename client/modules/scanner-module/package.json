@@ -28,7 +28,9 @@
   "author": "lotaway <576696294@qq.com> (https://github.com/lotaway)",
   "license": "MIT",
   "homepage": "https://github.com/lotaway/scanner-module#readme",
-  "dependencies": {},
+  "dependencies": {
+    "jsqr": "1.4.0"
+  },
   "devDependencies": {
     "@types/react": "~19.1.1",
     "expo-module-scripts": "^55.0.2",

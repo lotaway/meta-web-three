@@ -1,4 +1,5 @@
 import ExpoModulesCore
+import AVFoundation
 
 public class ScannerModule: Module {
   public func definition() -> ModuleDefinition {
@@ -7,13 +8,15 @@ public class ScannerModule: Module {
     Events("onScanSuccess", "onError")
 
     AsyncFunction("requestCameraPermissionAsync") { () -> Bool in
-      return true
-    }
-
-    Function("startScanning") {
-    }
-
-    Function("stopScanning") {
+      let status = AVCaptureDevice.authorizationStatus(for: .video)
+      switch status {
+      case .authorized:
+        return true
+      case .notDetermined:
+        return await AVCaptureDevice.requestAccess(for: .video)
+      default:
+        return false
+      }
     }
 
     View(ScannerModuleView.self) {
