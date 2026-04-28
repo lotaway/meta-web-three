@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,12 +6,14 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useCart } from '@/hooks/useCart';
 
 interface ShoppingCartItem {
   id: number;
@@ -34,54 +36,63 @@ interface CheckoutItemParam {
 export default function CartScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
-  
-  const [shoppingCartItems, setShoppingCartItems] = useState<ShoppingCartItem[]>([
-    {
-      id: 1,
-      productName: '示例商品 1',
-      productPic: 'https://via.placeholder.com/230',
-      price: 199.0,
-      quantity: 1,
-      checked: true,
-      spDataStr: '颜色:白色;尺寸:M',
-    },
-    {
-      id: 2,
-      productName: '示例商品 2',
-      productPic: 'https://via.placeholder.com/230',
-      price: 299.0,
-      quantity: 2,
-      checked: false,
-      spDataStr: '颜色:黑色;尺寸:L',
-    },
-  ]);
+  const { items: cartItems, loading, error, fetchCart, removeItems, updateQuantity } = useCart();
 
-  const toggleItemCheck = (index: number) => {
-    const updatedItems = [...shoppingCartItems];
-    updatedItems[index].checked = !updatedItems[index].checked;
-    setShoppingCartItems(updatedItems);
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
+
+  const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
+
+  const toggleItemCheck = (itemId: number) => {
+    const newChecked = new Set(checkedItems);
+    if (newChecked.has(itemId)) {
+      newChecked.delete(itemId);
+    } else {
+      newChecked.add(itemId);
+    }
+    setCheckedItems(newChecked);
   };
 
   const toggleAllSelection = () => {
-    const isAllCurrentlySelected = shoppingCartItems.every((item) => item.checked);
-    const updatedItems = shoppingCartItems.map((item) => ({ ...item, checked: !isAllCurrentlySelected }));
-    setShoppingCartItems(updatedItems);
-  };
-
-  const updateItemQuantity = (index: number, delta: number) => {
-    const updatedItems = [...shoppingCartItems];
-    const newQuantity = updatedItems[index].quantity + delta;
-    if (newQuantity >= 1) {
-      updatedItems[index].quantity = newQuantity;
-      setShoppingCartItems(updatedItems);
+    if (cartItems.length === 0) return;
+    if (checkedItems.size === cartItems.length) {
+      setCheckedItems(new Set());
+    } else {
+      setCheckedItems(new Set(cartItems.map((item) => item.id)));
     }
   };
 
-  const removeShoppingCartItem = (index: number) => {
-    const updatedItems = [...shoppingCartItems];
-    updatedItems.splice(index, 1);
-    setShoppingCartItems(updatedItems);
+  const handleUpdateQuantity = async (id: number, delta: number) => {
+    const item = cartItems.find((i) => i.id === id);
+    if (!item) return;
+    const newQty = item.quantity + delta;
+    if (newQty < 1) {
+      await handleRemove([id]);
+    } else {
+      await updateQuantity(id, newQty);
+    }
   };
+
+  const handleRemove = async (ids: number[]) => {
+    try {
+      await removeItems(ids);
+    } catch (e) {
+      Alert.alert('错误', '删除失败');
+    }
+  };
+
+  const shoppingCartItems = useMemo(() => {
+    return cartItems.map((item) => ({
+      id: item.id,
+      productName: item.productName || '商品',
+      productPic: item.imageUrl || '',
+      price: Number(item.price || 0),
+      quantity: item.quantity,
+      checked: checkedItems.has(item.id),
+      spDataStr: item.skuSpec || '',
+    }));
+  }, [cartItems, checkedItems]);
 
   const selectedTotalPrice = useMemo(() => {
     return shoppingCartItems
@@ -105,6 +116,14 @@ export default function CartScreen() {
     [shoppingCartItems],
   );
 
+  if (loading && cartItems.length === 0) {
+    return (
+      <View style={[styles.container, styles.empty, { backgroundColor: colors.background }]}>
+        <Text style={[styles.emptyText, { color: colors.fontColorDisabled }]}>加载中...</Text>
+      </View>
+    );
+  }
+
   if (shoppingCartItems.length === 0) {
     return (
       <View style={[styles.container, styles.empty, { backgroundColor: colors.background }]}>
@@ -120,15 +139,14 @@ export default function CartScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView style={styles.cartList} showsVerticalScrollIndicator={false}>
-        {shoppingCartItems.map((item, index) => (
+        {shoppingCartItems.map((item) => (
           <CartItemRow 
             key={item.id} 
             item={item} 
-            index={index} 
             colors={colors} 
             onToggleCheck={toggleItemCheck} 
-            onUpdateQuantity={updateItemQuantity} 
-            onRemove={removeShoppingCartItem} 
+            onUpdateQuantity={handleUpdateQuantity} 
+            onRemove={handleRemove} 
           />
         ))}
         <View style={styles.footerSpacer} />
@@ -145,10 +163,10 @@ export default function CartScreen() {
   );
 }
 
-function CartItemRow({ item, index, colors, onToggleCheck, onUpdateQuantity, onRemove }: any) {
+function CartItemRow({ item, colors, onToggleCheck, onUpdateQuantity, onRemove }: any) {
   return (
     <View style={styles.cartItem}>
-      <TouchableOpacity onPress={() => onToggleCheck(index)} style={styles.checkbox}>
+      <TouchableOpacity onPress={() => onToggleCheck(item.id)} style={styles.checkbox}>
         <IconSymbol
           name={item.checked ? 'checkmark.circle.fill' : 'circle'}
           size={24}
@@ -164,17 +182,17 @@ function CartItemRow({ item, index, colors, onToggleCheck, onUpdateQuantity, onR
         <View style={styles.priceRow}>
           <Text style={[styles.price, { color: colors.primary }]}>¥{item.price}</Text>
           <View style={styles.stepBox}>
-            <TouchableOpacity onPress={() => onUpdateQuantity(index, -1)} style={styles.stepBtn}>
+            <TouchableOpacity onPress={() => onUpdateQuantity(item.id, -1)} style={styles.stepBtn}>
               <Text style={styles.stepText}>-</Text>
             </TouchableOpacity>
             <Text style={styles.stepVal}>{item.quantity}</Text>
-            <TouchableOpacity onPress={() => onUpdateQuantity(index, 1)} style={styles.stepBtn}>
+            <TouchableOpacity onPress={() => onUpdateQuantity(item.id, 1)} style={styles.stepBtn}>
               <Text style={styles.stepText}>+</Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
-      <TouchableOpacity onPress={() => onRemove(index)} style={styles.delBtn}>
+      <TouchableOpacity onPress={() => onRemove([item.id])} style={styles.delBtn}>
         <IconSymbol name="xmark" size={16} color={colors.fontColorLight} />
       </TouchableOpacity>
     </View>
