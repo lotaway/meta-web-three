@@ -3,9 +3,9 @@ import { NativeModule, requireNativeModule } from 'expo';
 import { ScannerModuleEvents } from './ScannerModule.types';
 
 declare class ScannerModule extends NativeModule<ScannerModuleEvents> {
-  hello(): string;
-  setValueAsync(value: string): Promise<void>;
+  requestCameraPermissionAsync(): Promise<boolean>;
+  startScanning(): void;
+  stopScanning(): void;
 }
 
-// This call loads the native module object from the JSI.
 export default requireNativeModule<ScannerModule>('ScannerModule');

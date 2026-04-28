@@ -1,0 +1,10 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "scanner-module": ["../src/index"],
+      "scanner-module/*": ["../src/*"]
+    }
+  }
+}

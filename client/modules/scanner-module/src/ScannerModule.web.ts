@@ -1,10 +1,6 @@
 import { registerWebModule, NativeModule } from 'expo';
 
-import { ChangeEventPayload } from './ScannerModule.types';
-
-type ScannerModuleEvents = {
-  onChange: (params: ChangeEventPayload) => void;
-}
+import { ScannerModuleEvents } from './ScannerModule.types';
 
 class ScannerModule extends NativeModule<ScannerModuleEvents> {
   PI = Math.PI;
@@ -14,6 +10,6 @@ class ScannerModule extends NativeModule<ScannerModuleEvents> {
   hello() {
     return 'Hello world! 👋';
   }
-};
+}
 
 export default registerWebModule(ScannerModule, 'ScannerModule');

@@ -4,12 +4,8 @@ import { ScannerModuleViewProps } from './ScannerModule.types';
 
 export default function ScannerModuleView(props: ScannerModuleViewProps) {
   return (
-    <div>
-      <iframe
-        style={{ flex: 1 }}
-        src={props.url}
-        onLoad={() => props.onLoad({ nativeEvent: { url: props.url } })}
-      />
+    <div style={{ width: '100%', height: '100%', background: '#000' }}>
+      <p>Scanner is not supported on web</p>
     </div>
   );
 }
