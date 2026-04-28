@@ -18,32 +18,24 @@
             <version>1.0.0</version>
         </dependency>
 
-        <!-- OkHttp for HTTP client -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>4.11.0</version>
         </dependency>
-        <!-- alipay v2：https://mvnrepository.com/artifact/com.alipay.sdk/alipay-sdk-java -->
+
         <dependency>
             <groupId>com.alipay.sdk</groupId>
             <artifactId>alipay-sdk-java</artifactId>
             <version>4.40.393.ALL</version>
         </dependency>
-        <!-- alipay v3: https://mvnrepository.com/artifact/com.alipay.sdk/alipay-sdk-java-v3 -->
-        <!-- <dependency>
-            <groupId>com.alipay.sdk</groupId>
-            <artifactId>alipay-sdk-java-v3</artifactId>
-            <version>3.1.52.ALL</version>
-        </dependency> -->
-        <!-- https://mvnrepository.com/artifact/com.github.wechatpay-apiv3/wechatpay-java -->
+
         <dependency>
-            <groupId>com.github.wechatpay-apiv3</groupId>
-            <artifactId>wechatpay-java</artifactId>
-            <version>0.2.17</version>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>24.0.0</version>
         </dependency>
 
-        <!-- ScriptEngine https://mvnrepository.com/artifact/org.mozilla/rhino -->
         <dependency>
             <groupId>org.mozilla</groupId>
             <artifactId>rhino</artifactId>
@@ -68,4 +60,4 @@
             </plugin>
         </plugins>
     </build>
-</project> 
+</project>

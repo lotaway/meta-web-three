@@ -180,26 +180,58 @@ npm install @stripe/stripe-react-native
 }
 ```
 
-#### 3. iOS SDK 配置
+#### 3. iOS SDK 配置（必需）
 
-iOS 需要放置官方 SDK 的 `.xcframework` 文件到对应目录：
+iOS 官方 SDK（微信、支付宝）**已改为自动下载管理**，通过 `scripts/download-ios-sdks.js` 锁定版本号并统一分发，避免手动下载导致的版本不一致问题。
 
-| 支付方式 | 放置位置 | SDK 来源 |
-|---------|---------|----------|
-| 微信支付 | `turbo-module/wechat-pay/ios/WeChatOpenSDK.xcframework` | [微信开放平台](https://open.weixin.qq.com/) 下载 |
-| 支付宝 | `turbo-module/alipay/ios/AlipaySDKCore.xcframework` | [支付宝开放平台](https://open.alipay.com/) 下载 |
+**自动下载 SDK**
+```bash
+# 运行脚本自动下载、校验、放置 SDK
+yarn setup:ios-sdks
+```
 
-#### 4. 后端接口（必需）
+脚本行为：
+1. 读取 `scripts/download-ios-sdks.js` 中锁定的版本号和下载地址
+2. 下载 SDK 压缩包并缓存到 `.ios-sdk-cache/`（避免重复下载）
+3. 校验 SHA256（如已配置）
+4. 解压并放置 `.xcframework` 到对应 `turbo-module/*/ios/` 目录
 
-前端调用以下接口获取支付参数：
+> ⚠️ **注意**：微信/支付宝官方不提供直链下载，首次使用前请联系运维/管理员配置内部 CDN 地址。可通过环境变量覆盖：
+> ```bash
+> WECHAT_SDK_URL=https://your-cdn.com/WeChatOpenSDK.zip \
+> ALIPAY_SDK_URL=https://your-cdn.com/AlipaySDK.zip \
+>   yarn setup:ios-sdks
+> ```
 
-| 接口 | 方法 | 说明 | 返回格式 |
-|------|------|------|------|
-| `/api/order/create` | POST | 创建订单，返回订单信息 | `{ orderId, amount, items: [{ name, price, quantity }] }` |
-| `/api/pay/wechat/params` | POST | 获取微信支付参数 | `{ partnerId, prepayId, nonceStr, timeStamp, packageValue, sign }` |
-| `/api/pay/alipay/params` | POST | 获取支付宝订单 | `{ orderString }` |
-| `/api/pay/stripe/params` | POST | 获取Stripe支付参数 | `{ clientSecret, returnURL }` |
-| `/api/pay/verify` | POST | 验证支付结果 | `{ valid: boolean }` |
+**重新安装依赖**
+```bash
+cd ios && pod install && cd ..
+```
+
+**Stripe SDK** 已通过 npm 安装，无需额外配置。
+
+**为什么不像 Android 一样用包管理器？**
+
+| 平台 | 管理方式 | 原因 |
+|------|----------|------|
+| Android | Gradle 自动依赖 | Maven Central 上有官方发布的 AAR |
+| iOS | 脚本自动下载 | 微信/支付宝未发布到 CocoaPods/SPM，仅提供官网下载 |
+
+**为什么 SDK 不提交到 Git？**
+1. **版权限制**：闭源 SDK 的许可证通常禁止二次分发
+2. **仓库体积**：`.xcframework` 体积较大，会急剧膨胀 Git 仓库
+3. **版本锁定**：通过脚本中的 `version` + `sha256` 字段，比提交二进制文件更能精确控制版本
+
+#### 4. Android SDK 配置
+
+Android SDK 通过 Gradle 自动下载依赖，无需手动配置：
+
+| 支付方式 | Gradle 依赖 |
+|---------|------------|
+| 微信支付 | `com.tencent.mm.opensdk:wechat-sdk-android:6.8.0` |
+| 支付宝 | `com.alipay.sdk:alipaysdk:15.8.0` |
+
+如需更新版本，修改对应模块的 `build.gradle` 文件。
 
 ### 支付页面
 

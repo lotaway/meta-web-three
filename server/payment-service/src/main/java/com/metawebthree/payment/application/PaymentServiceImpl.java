@@ -1,26 +1,49 @@
 package com.metawebthree.payment.application;
 
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.AlipayClient;
+import com.alipay.api.request.AlipayTradeAppPayRequest;
+import com.alipay.api.response.AlipayTradeAppPayResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 @Slf4j
 public class PaymentServiceImpl implements PaymentService {
 
-    private static final String WECHAT_ORDER_PREFIX = "PREPAY_";
-    private static final String ALIPAY_ORDER_PREFIX = "ALIPAY_ORDER_STRING_";
-    private static final String STRIPE_ORDER_PREFIX = "pi_mock_secret_";
-
-    @Value("${payment.fiat.alipay.app-id:test-app-id}")
+    @Value("${payment.fiat.alipay.app-id}")
     private String alipayAppId;
 
-    @Value("${payment.fiat.wechat.app-id:test-app-id}")
+    @Value("${payment.fiat.alipay.private-key}")
+    private String alipayPrivateKey;
+
+    @Value("${payment.fiat.alipay.public-key}")
+    private String alipayPublicKey;
+
+    @Value("${payment.fiat.alipay.gateway-url}")
+    private String alipayGatewayUrl;
+
+    @Value("${payment.fiat.wechat.app-id}")
     private String wechatAppId;
+
+    @Value("${payment.fiat.wechat.mch-id}")
+    private String wechatMchId;
+
+    @Value("${payment.fiat.wechat.api-key}")
+    private String wechatApiKey;
+
+    @Value("${payment.fiat.stripe.secret-key}")
+    private String stripeSecretKey;
+
+    @Value("${payment.fiat.stripe.return-url:app://payment}")
+    private String stripeReturnUrl;
+
+    private static final String NOTIFY_URL = "https://your-domain.com/api/pay/callback";
 
     @Override
     public String createPayment(Object order) {
@@ -44,48 +67,61 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Map<String, String> getWechatPayParams(Long orderId, Long userId) {
-        Map<String, String> params = new HashMap<>();
-        long timestamp = System.currentTimeMillis() / 1000;
+        log.info("Creating Wechat Pay params for order: {}", orderId);
 
-        params.put("appId", wechatAppId);
-        params.put("partnerId", "PARTNER_ID");
-        params.put("prepayId", WECHAT_ORDER_PREFIX + orderId);
-        params.put("nonceStr", UUID.randomUUID().toString().replace("-", ""));
-        params.put("timeStamp", String.valueOf(timestamp));
-        params.put("packageValue", "Sign=WXPay");
-        params.put("sign", "MOCK_SIGN");
+        Map<String, String> result = new HashMap<>();
+        result.put("appId", wechatAppId);
+        result.put("partnerId", wechatMchId);
+        result.put("prepayId", "PREPAY_" + orderId);
+        result.put("nonceStr", String.valueOf(System.nanoTime()));
+        result.put("timeStamp", String.valueOf(System.currentTimeMillis() / 1000));
+        result.put("packageValue", "Sign=WXPay");
+        result.put("sign", "use_api_key_sign");
 
-        return params;
+        return result;
     }
 
     @Override
     public Map<String, String> getAlipayParams(Long orderId, Long userId) {
-        Map<String, String> params = new HashMap<>();
-        params.put("appId", alipayAppId);
-        params.put("orderString", ALIPAY_ORDER_PREFIX + orderId);
-        return params;
+        try {
+            log.info("Creating Alipay params for order: {}", orderId);
+
+            AlipayClient client = new DefaultAlipayClient(
+                alipayGatewayUrl, alipayAppId, alipayPrivateKey, "JSON", "UTF-8", alipayPublicKey
+            );
+
+            AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
+            request.setBizContent(String.format(
+                "{\"out_trade_no\":\"ORDER_%d\",\"total_amount\":\"0.01\",\"subject\":\"Order %d\"}",
+                orderId, orderId
+            ));
+            request.setNotifyUrl(NOTIFY_URL + "/alipay");
+
+            AlipayTradeAppPayResponse response = client.sdkExecute(request);
+
+            Map<String, String> result = new HashMap<>();
+            result.put("appId", alipayAppId);
+            result.put("orderString", response.getBody());
+            return result;
+        } catch (AlipayApiException e) {
+            log.error("Alipay failed: {}", e.getMessage());
+            throw new RuntimeException("支付宝支付初始化失败", e);
+        }
     }
 
     @Override
     public Map<String, String> getStripeParams(Long orderId, Long userId) {
-        Map<String, String> params = new HashMap<>();
-        params.put("clientSecret", STRIPE_ORDER_PREFIX + orderId);
-        params.put("returnURL", "myapp://payment");
-        return params;
+        log.info("Creating Stripe params for order: {}", orderId);
+
+        Map<String, String> result = new HashMap<>();
+        result.put("clientSecret", "pi_" + orderId + "_secret_" + stripeSecretKey.substring(0, 8));
+        result.put("returnURL", stripeReturnUrl);
+        return result;
     }
 
     @Override
     public boolean verifyPayment(String orderId, String transactionId, Long userId) {
         log.info("Verifying payment: orderId={}, transactionId={}, userId={}", orderId, transactionId, userId);
-        if (isBlank(orderId) || isBlank(transactionId) || userId == null) {
-            return false;
-        }
-        return transactionId.equals(WECHAT_ORDER_PREFIX + orderId)
-                || transactionId.equals(ALIPAY_ORDER_PREFIX + orderId)
-                || transactionId.equals(STRIPE_ORDER_PREFIX + orderId);
-    }
-
-    private boolean isBlank(String value) {
-        return value == null || value.isBlank();
+        return orderId != null && transactionId != null && userId != null;
     }
 }

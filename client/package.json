@@ -12,6 +12,7 @@
     "pkg": "node tools/PackageOutput.js",
     "package": "yarn build && yarn pkg",
     "skip-postinstall": "cd ./turbo-module/appsdk && yarn install",
+    "setup:ios-sdks": "node scripts/download-ios-sdks.js",
     "start": "npx expo start --dev-client",
     "reset-project": "node ./scripts/reset-project.js",
     "eandroid": "npx expo start --android",
