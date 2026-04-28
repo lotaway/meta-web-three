@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package com.metawebthree.common.generated.rpc;
+
+option java_multiple_files = true;
+
+service ProductService {
+    rpc getProductDetail(GetProductDetailRequest) returns (GetProductDetailResponse);
+}
+
+message GetProductDetailRequest {
+    int64 product_id = 1;
+}
+
+message GetProductDetailResponse {
+    ProductDetailProto product = 1;
+}
+
+message ProductDetailProto {
+    int64 id = 1;
+    string name = 2;
+    string pic = 3;
+    string sub_title = 4;
+    double price = 5;
+    repeated string pictures = 6;
+}

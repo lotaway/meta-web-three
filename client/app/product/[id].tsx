@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -9,12 +9,14 @@ import {
   TouchableOpacity,
   Dimensions,
   useWindowDimensions,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router, Stack } from 'expo-router';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useCart } from '@/hooks/useCart';
 import { ProductDetailContainer } from '@/containers/product/ProductDetailContainer';
 import RenderHTML from 'react-native-render-html';
 
@@ -117,7 +119,7 @@ export default function ProductDetailScreen() {
         <View style={styles.footerSpacer} />
             </ScrollView>
 
-            <ProductInteractionBar colors={colors} />
+            <ProductInteractionBar colors={colors} productDetails={productDetails} />
           </SafeAreaView>
         );
       }}
@@ -137,8 +139,22 @@ function ProductInfoRow({ title, content, showArrow, colors, contentStyle }: any
   );
 }
 
-function ProductInteractionBar({ colors }: { colors: any }) {
+function ProductInteractionBar({ colors, productDetails }: { colors: any; productDetails: any }) {
   const { t } = useTranslation();
+  const { addItem } = useCart();
+
+  const handleAddToCart = useCallback(async () => {
+    try {
+      await addItem({
+        productId: productDetails.id,
+        quantity: 1,
+      });
+      Alert.alert(t('common.success'), t('home.product.added_to_cart'));
+    } catch (error) {
+      Alert.alert(t('common.error'), t('home.product.add_to_cart_failed'));
+    }
+  }, [addItem, productDetails, t]);
+
   return (
     <View style={[styles.bottomBar, { backgroundColor: colors.background }]}>
       <View style={styles.bottomLeft}>
@@ -156,7 +172,10 @@ function ProductInteractionBar({ colors }: { colors: any }) {
         </TouchableOpacity>
       </View>
       <View style={styles.bottomRight}>
-        <TouchableOpacity style={[styles.actionBtn, styles.cartBtn]}>
+        <TouchableOpacity 
+          style={[styles.actionBtn, styles.cartBtn]}
+          onPress={handleAddToCart}
+        >
           <Text style={styles.actionBtnText}>{t('home.product.add_to_cart')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.actionBtn, styles.buyBtn, { backgroundColor: colors.primary }]}>

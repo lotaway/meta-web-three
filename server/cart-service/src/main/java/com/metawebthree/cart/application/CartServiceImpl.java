@@ -2,9 +2,12 @@ package com.metawebthree.cart.application;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.cart.domain.CartItem;
+import com.metawebthree.cart.domain.ProductInfo;
 import com.metawebthree.cart.infrastructure.CartItemMapper;
+import com.metawebthree.cart.infrastructure.client.ProductClient;
 import com.metawebthree.cart.dto.CartItemDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -14,13 +17,16 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CartServiceImpl implements CartService {
 
     private final CartItemMapper cartItemMapper;
+    private final ProductClient productClient;
 
     @Override
     public int add(CartItemDTO cartItemDTO) {
-        // Check if item already exists in cart for this member and SKU
+        enrichProductInfo(cartItemDTO);
+
         LambdaQueryWrapper<CartItem> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(CartItem::getMemberId, cartItemDTO.getMemberId())
                 .eq(CartItem::getProductId, cartItemDTO.getProductId())
@@ -42,6 +48,21 @@ public class CartServiceImpl implements CartService {
             existingItem.setQuantity(existingItem.getQuantity() + cartItemDTO.getQuantity());
             existingItem.setModifyDate(new Date());
             return cartItemMapper.updateById(existingItem);
+        }
+    }
+
+    private void enrichProductInfo(CartItemDTO cartItemDTO) {
+        try {
+            ProductInfo product = productClient.getProductInfo(cartItemDTO.getProductId());
+            
+            if (product != null) {
+                cartItemDTO.setProductName(product.getName());
+                cartItemDTO.setProductPic(product.getPic());
+                cartItemDTO.setProductSubTitle(product.getSubTitle());
+                cartItemDTO.setPrice(product.getPrice());
+            }
+        } catch (Exception e) {
+            log.warn("Failed to enrich product info for productId: {}, error: {}", cartItemDTO.getProductId(), e.getMessage());
         }
     }
 

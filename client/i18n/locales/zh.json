@@ -4,6 +4,8 @@
     "search_placeholder": "请输入商品 如：手机",
     "save": "保存",
     "cancel": "取消",
+    "success": "成功",
+    "error": "错误",
     "tabs": {
       "home": "首页",
       "category": "分类",
@@ -45,7 +47,9 @@
       "graph_detail": "图文详情",
       "no_detail": "暂无详情",
       "add_to_cart": "加入购物车",
-      "buy_now": "立即购买"
+      "buy_now": "立即购买",
+      "added_to_cart": "已加入购物车",
+      "add_to_cart_failed": "加入购物车失败"
     }
   },
   "profile": {

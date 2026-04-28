@@ -4,6 +4,8 @@
     "search_placeholder": "Search products like: phone",
     "save": "Save",
     "cancel": "Cancel",
+    "success": "Success",
+    "error": "Error",
     "tabs": {
       "home": "Home",
       "category": "Category",
@@ -45,7 +47,9 @@
       "graph_detail": "Graph Detail",
       "no_detail": "No detail available",
       "add_to_cart": "Add to Cart",
-      "buy_now": "Buy Now"
+      "buy_now": "Buy Now",
+      "added_to_cart": "Added to Cart",
+      "add_to_cart_failed": "Failed to Add to Cart"
     }
   },
   "profile": {
