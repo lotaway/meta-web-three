@@ -34,9 +34,12 @@
     "expo": "^55.0.18",
     "react-native": "0.82.1"
   },
-  "peerDependencies": {
-    "expo": "*",
-    "react": "*",
-    "react-native": "*"
-  }
+"peerDependencies": {
+        "expo": "*",
+        "react": "*",
+        "react-native": "*"
+    },
+    "dependencies": {
+        "expo-modules-core": "*"
+    }
 }

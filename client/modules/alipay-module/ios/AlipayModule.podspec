@@ -1,5 +1,5 @@
 Pod::Spec.new do |s|
-  s.name           = 'alipay-module'
+  s.name           = 'AlipayModule'
   s.version        = '1.0.0'
   s.summary        = 'Alipay Expo Module'
   s.description    = 'Expo module for Alipay integration'

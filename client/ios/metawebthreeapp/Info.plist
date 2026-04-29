@@ -75,8 +75,6 @@
     </array>
     <key>UIUserInterfaceStyle</key>
     <string>Automatic</string>
-    <key>NSCameraUsageDescription</key>
-    <string>需要使用相机扫描二维码</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
   </dict>

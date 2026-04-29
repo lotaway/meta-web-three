@@ -8,7 +8,7 @@
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
-    "postinstall": "bob build",
+    "postinstall": "[ -d lib ] || bob build",
     "build": "bob build",
     "deploy": "npm pack && mv react-native-appsdk-*.tgz ../app/react-native-appsdk.tgz"
   },

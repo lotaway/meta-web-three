@@ -1,27 +1,14 @@
 #import "Appsdk.h"
 
 #import <React/RCTUtils.h>
-#import <ReactCommon/RCTTurboModule.h>
-#import <react/bridging/Bridging.h>
-
 #import <AuthenticationServices/AuthenticationServices.h>
-
-#import <memory>
-
-using namespace facebook;
 
 @implementation Appsdk {
   RCTPromiseResolveBlock _resolve;
   RCTPromiseRejectBlock _reject;
 }
 
-#pragma mark - TurboModule
-
-- (std::shared_ptr<react::TurboModule>)getTurboModule:
-  (const react::ObjCTurboModule::InitParams &)params
-{
-  return std::make_shared<react::NativeAppsdkSpecJSI>(params);
-}
+RCT_EXPORT_MODULE();
 
 #pragma mark - Utils
 
@@ -56,10 +43,10 @@ using namespace facebook;
 
 #pragma mark - Passkey Create
 
-- (void)createPasskey:(NSString *)rpId
-             userName:(NSString *)userName
-              resolve:(RCTPromiseResolveBlock)resolve
-               reject:(RCTPromiseRejectBlock)reject
+RCT_EXPORT_METHOD(createPasskey:(NSString *)rpId
+                  userName:(NSString *)userName
+                   resolve:(RCTPromiseResolveBlock)resolve
+                    reject:(RCTPromiseRejectBlock)reject)
 {
   if (@available(iOS 16.0, *)) {
 
@@ -100,10 +87,10 @@ using namespace facebook;
 
 #pragma mark - Passkey Auth
 
-- (void)authenticatePasskey:(NSString *)rpId
-                  challenge:(NSString *)challenge
-                   resolve:(RCTPromiseResolveBlock)resolve
-                    reject:(RCTPromiseRejectBlock)reject
+RCT_EXPORT_METHOD(authenticatePasskey:(NSString *)rpId
+                      challenge:(NSString *)challenge
+                       resolve:(RCTPromiseResolveBlock)resolve
+                        reject:(RCTPromiseRejectBlock)reject)
 {
   if (@available(iOS 16.0, *)) {
 

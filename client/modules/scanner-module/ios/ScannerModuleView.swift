@@ -92,8 +92,7 @@ class ScannerModuleView: ExpoView, AVCaptureMetadataOutputObjectsDelegate {
     onScanSuccess(["data": value])
   }
 
-  override func onDetachedFromWindow() {
-    super.onDetachedFromWindow()
+  deinit {
     stopCamera()
   }
 }

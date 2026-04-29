@@ -1,5 +1,5 @@
 Pod::Spec.new do |s|
-  s.name           = 'wechat-pay-module'
+  s.name           = 'WechatPayModule'
   s.version        = '1.0.0'
   s.summary        = 'Wechat Pay Expo Module'
   s.description    = 'Expo module for Wechat Pay integration'
