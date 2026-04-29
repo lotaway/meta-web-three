@@ -25,7 +25,7 @@ function toCategoryVM(pc: ProductCategory): CategoryVM {
   return {
     id: pc.id ?? 0,
     name: pc.name ?? '',
-    icon: undefined,
+    icon: pc.icon ?? undefined,
     parentId: pc.parentId ?? 0,
   };
 }

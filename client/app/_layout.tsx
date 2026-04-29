@@ -9,6 +9,7 @@ import './../i18n';
 
 import { STRIPE_PUBLISHABLE_KEY } from '@/api/generated';
 import { useColorScheme } from '../hooks/useColorScheme';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 function PaymentProviders({ children }: { children: ReactNode }) {
   if (!STRIPE_PUBLISHABLE_KEY) {
@@ -33,14 +34,16 @@ export default function RootLayout() {
   }
 
   return (
-    <PaymentProviders>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
-    </PaymentProviders>
+    <AuthProvider>
+      <PaymentProviders>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </PaymentProviders>
+    </AuthProvider>
   );
 }

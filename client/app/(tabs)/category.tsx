@@ -63,7 +63,7 @@ export default function CategoryScreen() {
                     onPress={() => navigateToProductList(subCategory.id)}
                   >
                     <Image
-                      source={{ uri: subCategory.icon || 'https://via.placeholder.com/140' }}
+                      source={{ uri: subCategory.icon || 'https://via.placeholder.com/70' }}
                       style={styles.sImage}
                     />
                     <Text style={[styles.sItemText, { color: colors.fontColorBase }]}>
