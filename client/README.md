@@ -150,8 +150,8 @@ yarn generate:contract:abi
 
 | 模块 | 说明 | 目录 |
 |------|------|------|
-| 微信支付 | TurboModule | `turbo-module/wechat-pay/` |
-| 支付宝 | TurboModule | `turbo-module/alipay/` |
+| 微信支付 | Expo Module | `modules/wechat-pay-module/` |
+| 支付宝 | Expo Module | `modules/alipay-module/` |
 | Stripe | 官方 RN SDK | `@stripe/stripe-react-native` |
 | 统一入口 | 统一调用接口 | `app/lib/payment/` |
 
