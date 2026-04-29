@@ -21,6 +21,7 @@
     "eios": "npx expo start --ios",
     "ios": "npx expo run:ios",
     "ios:cache": "npx expo run:ios --no-build",
+    "clean": "npx react-native clean",
     "rebuild": "npx expo prebuild --clean",
     "check:expo": "npx expo install --check",
     "fix:expo": "npx expo install --fix",
@@ -92,6 +93,7 @@
     "react-native-worklets": "0.5.1"
   },
   "devDependencies": {
+    "@react-native-community/cli": "latest",
     "@babel/core": "^7.25.2",
     "@types/react": "~19.1.10",
     "eas-cli": "^16.14.1",
