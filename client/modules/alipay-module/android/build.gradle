@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     namespace 'expo.modules.alipaymodule'
@@ -13,13 +14,23 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+}
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+kotlin {
+    jvmToolchain(17)
+}
+
+repositories {
+    google()
+    mavenCentral()
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
     implementation project(':expo-modules-core')
-    implementation 'com.alipay.sdk:alipaysdk:15.8.0'
+    // 支付宝Android SDK需要从官方下载后作为本地依赖
+    // 请从 https://opendocs.alipay.com/open/54/104509 下载SDK
+    // 然后将 alipaysdk-xxx.aar 放入 libs 目录并取消注释下面的依赖
+    // implementation fileTree(dir: 'libs', include: ['*.aar'])
 }

@@ -27,22 +27,27 @@ const SDK_CONFIG = {
     wechat: {
         name: 'WeChatOpenSDK',
         version: '2.0.5',
-        // Official download page: https://developers.weixin.qq.com/doc/oplatform/Mobile_App/Downloads/iOS_Resource.html
-        // Note: WeChat official does not provide direct download links. Replace with internal CDN or reliable mirror.
-        url: process.env.WECHAT_SDK_URL || 'https://dldir1.qq.com/WechatWebDev/opensdk/XCFramework/OpenSDK2.0.5.zip',
+        // Official download page: https://developers.weixin.qq.com/doc/oplatform/Downloads/iOS_Resource
+        // Direct download links (with payment):
+        //   https://dldir1.qq.com/WechatWebDev/opensdk/OpenSDK2.0.5.zip
+        //   https://dldir1.qq.com/WechatWebDev/opensdk/OpenSDK2.0.5_NoPay.zip (without payment)
+        url: process.env.WECHAT_SDK_URL || 'https://dldir1.qq.com/WechatWebDev/opensdk/OpenSDK2.0.5.zip',
         sha256: process.env.WECHAT_SDK_SHA256 || '', // Fill in actual SHA256
         targetDir: path.join(__dirname, '../turbo-module/wechat-pay/ios'),
         frameworkName: 'WeChatOpenSDK.xcframework',
     },
     alipay: {
-        name: 'AlipaySDKCore',
-        version: '15.8.16',
-        // Official download page: https://opendocs.alipay.com/open/204/105295/
-        // Note: Alipay official does not provide direct download links. Replace with internal CDN or reliable mirror.
-        url: process.env.ALIPAY_SDK_URL || 'https://github.com/alipay/alipay-sdk-ios/releases/download/15.8.16/AlipaySDK-iOS-15.8.16.zip',
+        name: 'AlipaySDK',
+        version: '15.8.40',
+        // Official download page: https://opendocs.alipay.com/open/54/104509
+        // Note: Alipay official does not provide direct download links.
+        // Please download manually from: https://opendocs.alipay.com/open/54/104509
+        // Or use CocoaPods: pod 'AlipaySDK-iOS'
+        // If you have a custom CDN, set ALIPAY_SDK_URL environment variable
+        url: process.env.ALIPAY_SDK_URL || '',
         sha256: process.env.ALIPAY_SDK_SHA256 || '', // Fill in actual SHA256
         targetDir: path.join(__dirname, '../turbo-module/alipay/ios'),
-        frameworkName: 'AlipaySDKCore.xcframework',
+        frameworkName: 'AlipaySDK.xcframework',
     },
 }
 
@@ -135,28 +140,41 @@ async function downloadSDK(key, config) {
         return
     }
 
-    // 2. Prepare cache
+    // 2. Check if URL is configured
+    if (!config.url) {
+        console.log(`  ⚠️  No download URL configured for ${config.name}`)
+        console.log(`  💡 Please download manually from:`)
+        if (key === 'alipay') {
+            console.log(`     https://opendocs.alipay.com/open/54/104509`)
+            console.log(`     Or use CocoaPods: pod 'AlipaySDK-iOS'`)
+        } else if (key === 'wechat') {
+            console.log(`     https://developers.weixin.qq.com/doc/oplatform/Downloads/iOS_Resource`)
+        }
+        console.log(`     Then extract and place ${config.frameworkName} to: ${config.targetDir}`)
+        return
+    }
+
+    // 3. Prepare cache
     ensureDir(CACHE_DIR)
     const zipName = `${key}-${config.version}.zip`
     const cachePath = path.join(CACHE_DIR, zipName)
 
-    // 3. Download (if cache does not exist)
+    // 4. Download (if cache does not exist)
     if (!fs.existsSync(cachePath)) {
         console.log(`  ⬇️  Downloading SDK...`)
         try {
             await downloadFile(config.url, cachePath)
         } catch (err) {
             console.error(`  ❌ Download failed: ${err.message}`)
-            console.error(`\n💡 Tip: WeChat/Alipay official do not provide direct download links.`)
-            console.error(`   Please manually download SDK to: ${cachePath}`)
-            console.error(`   Or set env var ${key.toUpperCase()}_SDK_URL to internal CDN.`)
+            console.error(`\n💡 Tip: Please download SDK manually from official website`)
+            console.error(`   Then place the zip file at: ${cachePath}`)
             throw err
         }
     } else {
         console.log(`  📋 Using cache: ${cachePath}`)
     }
 
-    // 4. Verify SHA256 (if configured)
+    // 5. Verify SHA256 (if configured)
     if (config.sha256) {
         const actual = sha256File(cachePath)
         if (actual !== config.sha256) {
@@ -170,25 +188,25 @@ async function downloadSDK(key, config) {
         console.log(`     Suggestion: Write the above value to SDK_CONFIG.${key}.sha256 to enable verification`)
     }
 
-    // 5. Extract
+    // 6. Extract
     const extractDir = path.join(CACHE_DIR, `${key}-${config.version}-extracted`)
     console.log(`  📂 Extracting to: ${extractDir}`)
     unzip(cachePath, extractDir)
 
-    // 6. Find .xcframework
+    // 7. Find .xcframework
     const foundFramework = findFramework(extractDir, config.frameworkName)
     if (!foundFramework) {
         throw new Error(`Could not find ${config.frameworkName} in extracted directory`)
     }
 
-    // 7. Move to target directory
+    // 8. Move to target directory
     ensureDir(config.targetDir)
     const destFramework = path.join(config.targetDir, config.frameworkName)
     // Use cp -R to preserve symlinks (xcframework contains symlinks internally)
     execSync(`cp -R "${foundFramework}" "${destFramework}"`)
     console.log(`  ✅ Placed at: ${destFramework}`)
 
-    // 8. Clean up temporary extracted directory
+    // 9. Clean up temporary extracted directory
     execSync(`rm -rf "${extractDir}"`)
 }
 
@@ -212,5 +230,4 @@ async function main() {
 main().catch((err) => {
     console.error('\n❌ Error:', err.message)
     process.exit(1)
-});
-
+})

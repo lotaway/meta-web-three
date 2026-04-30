@@ -4,7 +4,9 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Size
-import android.view.View
+import android.view.SurfaceHolder
+import android.view.SurfaceView
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.annotation.OptIn
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
@@ -23,16 +25,37 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class ScannerModuleView(
-  private val context: Context,
-  private val appContext: AppContext
-) : ExpoView(context, appContext) {
+  context: Context,
+  appContext: AppContext
+) : ExpoView(context, appContext), SurfaceHolder.Callback {
 
   private var cameraExecutor: ExecutorService? = null
   private var cameraProvider: ProcessCameraProvider? = null
   private var isScanning = false
+  private lateinit var surfaceView: SurfaceView
 
-  private val onScanSuccess = EventDispatcher<Map<String, Any>>()
-  private val onError = EventDispatcher<Map<String, Any>>()
+  private val onScanSuccess by EventDispatcher<Map<String, Any>>()
+  private val onError by EventDispatcher<Map<String, Any>>()
+
+  init {
+    surfaceView = SurfaceView(context)
+    surfaceView.holder.addCallback(this)
+    surfaceView.layoutParams = LayoutParams(MATCH_PARENT, MATCH_PARENT)
+    addView(surfaceView)
+  }
+
+  override fun surfaceCreated(holder: SurfaceHolder) {
+    if (isScanning) {
+      startCamera()
+    }
+  }
+
+  override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+  }
+
+  override fun surfaceDestroyed(holder: SurfaceHolder) {
+    stopCamera()
+  }
 
   fun startCamera() {
     if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
@@ -53,7 +76,12 @@ class ScannerModuleView(
         cameraProvider = cameraProviderFuture.get()
 
         val preview = Preview.Builder().build().also {
-          it.surfaceProvider = surfaceProvider
+          it.setSurfaceProvider(Preview.SurfaceProvider { request ->
+            val surface = surfaceView.holder.surface
+            if (surface.isValid) {
+              request.provideSurface(surface, ContextCompat.getMainExecutor(context)) {}
+            }
+          })
         }
 
         val imageAnalysis = ImageAnalysis.Builder()

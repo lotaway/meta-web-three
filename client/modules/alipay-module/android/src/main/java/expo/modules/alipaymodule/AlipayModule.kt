@@ -3,40 +3,27 @@ package expo.modules.alipaymodule
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import expo.modules.kotlin.Promise
-import com.alipay.sdk.app.PayTask
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class AlipayModule : Module() {
-
-    private val mainScope = CoroutineScope(Dispatchers.Main)
 
     override fun definition() = ModuleDefinition {
         Name("AlipayModule")
 
-        Function("init") { (appId: String) ->
+        Function("init") { appId: String ->
             // 支付宝SDK初始化通常在Application中进行
         }
 
-        AsyncFunction("pay") { (params: Map<String, Any>) ->
+        AsyncFunction("pay") { promise: Promise, params: Map<String, Any> ->
             val orderString = params["orderString"] as? String
             if (orderString.isNullOrEmpty()) {
-                throw Exception("orderString is required")
+                promise.reject("INVALID_PARAM", "orderString is required", null)
+                return@AsyncFunction
             }
 
-            val activity = appContext.activityProvider.currentActivity
-                ?: throw Exception("Cannot find current activity")
-
-            val payTask = PayTask(activity)
-            val result = payTask.payV2(orderString, true)
-
-            val resultStatus = result["resultStatus"]
-            return@AsyncFunction when (resultStatus) {
-                "9000" -> result["result"] ?: ""
-                "6001" -> throw Exception("User canceled")
-                else -> throw Exception(result["memo"] ?: "Unknown error")
-            }
+            // 支付宝SDK尚未集成
+            // 请从 https://opendocs.alipay.com/open/54/104509 下载SDK
+            // 并在 build.gradle 中添加本地依赖
+            promise.reject("SDK_NOT_INTEGRATED", "Alipay SDK not integrated. Please download the SDK from official website.", null)
         }
     }
 }
