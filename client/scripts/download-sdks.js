@@ -46,11 +46,11 @@ const SDK_CONFIG = {
         alipay: {
             name: 'AlipaySDK',
             version: '15.8.40',
-            url: process.env.ALIPAY_IOS_SDK_URL || '',
+            url: process.env.ALIPAY_IOS_SDK_URL || 'https://mdn.alipayobjects.com/portal_mdssth/afts/file/A*uSEbRIcKuJMAAAAAgcAAAAgAAQAAAQ/AlipaySDK-standard-15.8.40.1.zip',
             sha256: process.env.ALIPAY_IOS_SHA256 || '',
             targetDir: path.join(__dirname, '../turbo-module/alipay/ios'),
             frameworkName: 'AlipaySDK.xcframework',
-            downloadType: 'manual', // direct, cocoapods, manual
+            downloadType: 'direct', // direct, cocoapods, manual
             cocoapodName: 'AlipaySDK-iOS',
         },
     },
@@ -193,13 +193,8 @@ async function downloadIOSSDK(key, config) {
             break
         case 'manual':
             console.log(`  ⚠️  No download URL configured for ${config.name}`)
-            console.log(`  💡 Please download manually from:`)
-            if (key === 'alipay') {
-                console.log(`     https://opendocs.alipay.com/open/54/104509`)
-                console.log(`     Or use CocoaPods: pod '${config.cocoapodName}'`)
-            } else if (key === 'wechat') {
-                console.log(`     https://developers.weixin.qq.com/doc/oplatform/Downloads/iOS_Resource`)
-            }
+            console.log(`  💡 Please download manually, see README.md for instructions:`)
+            console.log(`     https://github.com/your-org/meta-web-three/blob/main/client/README.md`)
             console.log(`     Then place ${config.frameworkName} to: ${config.targetDir}`)
             break
     }
@@ -224,20 +219,12 @@ async function downloadAndroidSDK(key, config) {
         case 'maven':
             console.log(`  ⚠️  Recommended: Use Maven dependency in build.gradle`)
             console.log(`     implementation '${config.mavenDependency}'`)
-            console.log(`\n  💡 Alternatively, download manually from:`)
-            if (key === 'alipay') {
-                console.log(`     https://opendocs.alipay.com/open/54/104509`)
-                console.log(`     Then place ${config.fileName} to: ${config.targetDir}`)
-            }
+            console.log(`\n  💡 Alternatively, download manually, see README.md:`)
+            console.log(`     Then place ${config.fileName} to: ${config.targetDir}`)
             break
         case 'manual':
             console.log(`  ⚠️  No download URL configured for ${config.name}`)
-            console.log(`  💡 Please download manually from:`)
-            if (key === 'wechat') {
-                console.log(`     https://developers.weixin.qq.com/doc/oplatform/Downloads/Android_Resource`)
-            } else if (key === 'alipay') {
-                console.log(`     https://opendocs.alipay.com/open/54/104509`)
-            }
+            console.log(`  💡 Please download manually, see README.md for instructions:`)
             console.log(`     Then place ${config.fileName} to: ${config.targetDir}`)
             break
     }

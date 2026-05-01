@@ -145,7 +145,7 @@ vite.config.ts.timestamp-*
 # Android setting
 .gradle
 
-# iOS SDK frameworks (auto-downloaded by scripts/download-ios-sdks.js)
+# iOS SDK frameworks (auto-downloaded by scripts/download-sdks.js)
 turbo-module/wechat-pay/ios/WeChatOpenSDK.xcframework
 turbo-module/alipay/ios/AlipaySDKCore.xcframework
 .ios-sdk-cache/

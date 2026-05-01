@@ -30,7 +30,7 @@ repositories {
 dependencies {
     implementation project(':expo-modules-core')
     // 支付宝Android SDK需要从官方下载后作为本地依赖
-    // 请从 https://opendocs.alipay.com/open/54/104509 下载SDK
+    // 如需本地AAR文件，请参考 README.md 中的支付模块配置说明
     // 然后将 alipaysdk-xxx.aar 放入 libs 目录并取消注释下面的依赖
     // implementation fileTree(dir: 'libs', include: ['*.aar'])
 }

@@ -182,7 +182,7 @@ npm install @stripe/stripe-react-native
 
 #### 3. iOS SDK 配置（必需）
 
-iOS 官方 SDK（微信、支付宝）**已改为自动下载管理**，通过 `scripts/download-ios-sdks.js` 锁定版本号并统一分发，避免手动下载导致的版本不一致问题。
+iOS 官方 SDK（微信、支付宝）**已改为自动下载管理**，通过 `scripts/download-sdks.js` 锁定版本号并统一分发，避免手动下载导致的版本不一致问题。
 
 **自动下载 SDK**
 ```bash
@@ -191,7 +191,7 @@ yarn setup:ios-sdks
 ```
 
 脚本行为：
-1. 读取 `scripts/download-ios-sdks.js` 中锁定的版本号和下载地址
+1. 读取 `scripts/download-sdks.js` 中锁定的版本号和下载地址
 2. 下载 SDK 压缩包并缓存到 `.ios-sdk-cache/`（避免重复下载）
 3. 校验 SHA256（如已配置）
 4. 解压并放置 `.xcframework` 到对应 `turbo-module/*/ios/` 目录

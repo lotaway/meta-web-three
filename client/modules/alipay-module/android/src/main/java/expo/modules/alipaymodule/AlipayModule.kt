@@ -21,7 +21,7 @@ class AlipayModule : Module() {
             }
 
             // 支付宝SDK尚未集成
-            // 请从 https://opendocs.alipay.com/open/54/104509 下载SDK
+            // 如需本地AAR文件，请参考 README.md 中的支付模块配置说明
             // 并在 build.gradle 中添加本地依赖
             promise.reject("SDK_NOT_INTEGRATED", "Alipay SDK not integrated. Please download the SDK from official website.", null)
         }
