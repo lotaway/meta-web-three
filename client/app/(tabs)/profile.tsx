@@ -19,7 +19,7 @@ import { useColorScheme } from '@/hooks/useColorScheme'
 import { useAuth } from '@/contexts/AuthContext'
 import PasskeyAuthDemo from '@/components/PasskeyAuthDemo'
 import { FEATURE_PASSKEY_ENABLED } from '@/constants/Features'
-import { userApi, DEFAULT_USER_ID } from '@/api/generated'
+import { userApi, notificationApi, DEFAULT_USER_ID } from '@/api/generated'
 import type { UserDTO } from '@/src/generated/api/models'
 
 interface MallUserAccount {
@@ -47,6 +47,7 @@ export default function ProfileScreen() {
   const { isAuthenticated, userId, login, refreshUser } = useAuth()
   const [isLoading, setIsLoading] = useState(true)
   const [currentUser, setCurrentUser] = useState<MallUserAccount | null>(null)
+  const [unreadNotifications, setUnreadNotifications] = useState(0)
 
   useEffect(() => {
     loadUserProfile()
@@ -68,6 +69,7 @@ export default function ProfileScreen() {
             couponCount: 0,
           })
         }
+        loadUnreadCount()
       } else {
         setCurrentUser({
           nickname: t('profile.nickname_guest'),
@@ -86,6 +88,17 @@ export default function ProfileScreen() {
       })
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  async function loadUnreadCount() {
+    try {
+      const response = await notificationApi.unreadCount({ xUserId: DEFAULT_USER_ID })
+      if (response.data != null) {
+        setUnreadNotifications(response.data as number)
+      }
+    } catch (error) {
+      console.error('Failed to load unread count:', error)
     }
   }
 
@@ -146,6 +159,8 @@ export default function ProfileScreen() {
             <OrderQuickLinksSection colors={colors} isAuthenticated={isAuthenticated} router={router} />
 
             <View style={styles.menuSection}>
+              <ProfileMenuCell icon="bell.fill" title={t('profile.menu.notification')} color="#FF6B35" onPress={() => requireAuth(isAuthenticated, router, () => router.push('/notifications'))} badge={unreadNotifications > 0 ? unreadNotifications : undefined} />
+              <ProfileMenuCell icon="ticket.fill" title={t('profile.menu.coupon')} color="#FF3B30" onPress={() => requireAuth(isAuthenticated, router, () => router.push('/coupons'))} />
               <ProfileMenuCell icon="mappin.and.ellipse" title={t('profile.menu.address')} color="#5fcda2" onPress={() => requireAuth(isAuthenticated, router, () => router.push('/address/list'))} />
               <ProfileMenuCell icon="clock.fill" title={t('profile.menu.history')} color="#e07472" />
               <ProfileMenuCell icon="star.fill" title={t('profile.menu.following')} color="#5fcda2" />
@@ -255,7 +270,7 @@ function OrderQuickLinksSection({ colors, isAuthenticated, router }: { colors: a
   )
 }
 
-function ProfileMenuCell({ icon, title, color, onPress, showBorder = true }: any) {
+function ProfileMenuCell({ icon, title, color, onPress, showBorder = true, badge }: any) {
   const colorScheme = useColorScheme() ?? 'light'
   const colors = Colors[colorScheme]
   return (
@@ -263,6 +278,11 @@ function ProfileMenuCell({ icon, title, color, onPress, showBorder = true }: any
       <View style={styles.menuLeft}>
         <IconSymbol name={icon} size={20} color={color} />
         <Text style={[styles.menuTitle, { color: colors.fontColorDark }]}>{title}</Text>
+        {badge != null && badge > 0 && (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{badge > 99 ? '99+' : badge}</Text>
+          </View>
+        )}
       </View>
       <IconSymbol name="chevron.right" size={16} color={colors.fontColorLight} />
     </TouchableOpacity>
@@ -440,6 +460,21 @@ const styles = StyleSheet.create({
   menuTitle: {
     fontSize: 15,
     marginLeft: 15,
+  },
+  badge: {
+    backgroundColor: '#FF3B30',
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+    paddingHorizontal: 6,
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '600',
   },
   bottomSpacer: {
     height: 40,

@@ -447,6 +447,392 @@ export class CouponApi extends BaseAPI {
 
 export const couponApi = new CouponApi(apiConfig)
 
+export interface CommentCreateRequest {
+  xUserId: number
+  nickName?: string
+  productId: number
+  productName: string
+  star: number
+  content: string
+  pics?: string
+  productAttribute?: string
+}
+
+export interface CommentListByProductRequest {
+  productId: number
+}
+
+export interface CommentDetailRequest {
+  commentId: number
+}
+
+export interface CommentLikeRequest {
+  commentId: number
+}
+
+export interface CommentListByUserRequest {
+  xUserId: number
+}
+
+export interface ProductCommentDTO {
+  id: number
+  productId: number
+  userId: number
+  memberNickName: string
+  productName: string
+  star: number
+  content: string
+  pics: string
+  productAttribute: string
+  showStatus: number
+  collectCount: number
+  readCount: number
+  replayCount: number
+  createTime: string
+}
+
+export class CommentApi extends BaseAPI {
+  async createRaw(requestParameters: CommentCreateRequest, initOverrides?: RequestInit) {
+    if (requestParameters['xUserId'] == null) {
+      throw new Error('Required parameter "xUserId" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    const headerParameters: HTTPHeaders = {}
+
+    headerParameters['X-User-Id'] = String(requestParameters['xUserId'])
+    if (requestParameters['nickName'] != null) {
+      queryParameters['nickName'] = requestParameters['nickName']
+    }
+
+    const response = await this.request({
+      path: `/action/comment/create`,
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+      body: {
+        productId: requestParameters.productId,
+        productName: requestParameters.productName,
+        star: requestParameters.star,
+        content: requestParameters.content,
+        pics: requestParameters.pics,
+        productAttribute: requestParameters.productAttribute,
+      },
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async create(requestParameters: CommentCreateRequest, initOverrides?: RequestInit): Promise<ApiResponseVoid> {
+    const response = await this.createRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
+
+  async listByProductRaw(requestParameters: CommentListByProductRequest, initOverrides?: RequestInit) {
+    if (requestParameters['productId'] == null) {
+      throw new Error('Required parameter "productId" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    queryParameters['productId'] = requestParameters['productId']
+
+    const response = await this.request({
+      path: `/action/comment/listByProduct`,
+      method: 'GET',
+      query: queryParameters,
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async listByProduct(requestParameters: CommentListByProductRequest, initOverrides?: RequestInit) {
+    const response = await this.listByProductRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
+
+  async detailRaw(requestParameters: CommentDetailRequest, initOverrides?: RequestInit) {
+    if (requestParameters['commentId'] == null) {
+      throw new Error('Required parameter "commentId" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    queryParameters['commentId'] = requestParameters['commentId']
+
+    const response = await this.request({
+      path: `/action/comment/detail`,
+      method: 'GET',
+      query: queryParameters,
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async detail(requestParameters: CommentDetailRequest, initOverrides?: RequestInit) {
+    const response = await this.detailRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
+
+  async likeRaw(requestParameters: CommentLikeRequest, initOverrides?: RequestInit) {
+    if (requestParameters['commentId'] == null) {
+      throw new Error('Required parameter "commentId" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    queryParameters['commentId'] = requestParameters['commentId']
+
+    const response = await this.request({
+      path: `/action/comment/like`,
+      method: 'POST',
+      query: queryParameters,
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async like(requestParameters: CommentLikeRequest, initOverrides?: RequestInit): Promise<ApiResponseVoid> {
+    const response = await this.likeRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
+
+  async listByUserRaw(requestParameters: CommentListByUserRequest, initOverrides?: RequestInit) {
+    if (requestParameters['xUserId'] == null) {
+      throw new Error('Required parameter "xUserId" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    const headerParameters: HTTPHeaders = {}
+
+    headerParameters['X-User-Id'] = String(requestParameters['xUserId'])
+
+    const response = await this.request({
+      path: `/action/comment/listByUser`,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async listByUser(requestParameters: CommentListByUserRequest, initOverrides?: RequestInit) {
+    const response = await this.listByUserRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
+}
+
+export const commentApi = new CommentApi(apiConfig)
+
+export interface NotificationSendRequest {
+  xUserId: number
+  title: string
+  content: string
+  type: string
+  relatedId?: string
+  icon?: string
+  imageUrl?: string
+}
+
+export interface NotificationListRequest {
+  xUserId: number
+  type?: string
+}
+
+export interface NotificationReadRequest {
+  xUserId: number
+  notificationId: number
+}
+
+export interface NotificationDeleteRequest {
+  xUserId: number
+  notificationId: number
+}
+
+export interface NotificationDTO {
+  id: number
+  userId: number
+  title: string
+  content: string
+  icon: string
+  imageUrl: string
+  type: string
+  relatedId: string
+  readStatus: number
+  createTime: string
+}
+
+export class NotificationApi extends BaseAPI {
+  async listRaw(requestParameters: NotificationListRequest, initOverrides?: RequestInit) {
+    if (requestParameters['xUserId'] == null) {
+      throw new Error('Required parameter "xUserId" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    const headerParameters: HTTPHeaders = {}
+
+    headerParameters['X-User-Id'] = String(requestParameters['xUserId'])
+    if (requestParameters['type'] != null) {
+      queryParameters['type'] = requestParameters['type']
+    }
+
+    const response = await this.request({
+      path: `/notification/list`,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async list(requestParameters: NotificationListRequest, initOverrides?: RequestInit) {
+    const response = await this.listRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
+
+  async markReadRaw(requestParameters: NotificationReadRequest, initOverrides?: RequestInit) {
+    if (requestParameters['xUserId'] == null) {
+      throw new Error('Required parameter "xUserId" was null or undefined')
+    }
+    if (requestParameters['notificationId'] == null) {
+      throw new Error('Required parameter "notificationId" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    const headerParameters: HTTPHeaders = {}
+
+    headerParameters['X-User-Id'] = String(requestParameters['xUserId'])
+    queryParameters['notificationId'] = requestParameters['notificationId']
+
+    const response = await this.request({
+      path: `/notification/read`,
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async markRead(requestParameters: NotificationReadRequest, initOverrides?: RequestInit): Promise<ApiResponseVoid> {
+    const response = await this.markReadRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
+
+  async markAllReadRaw(requestParameters: { xUserId: number }, initOverrides?: RequestInit) {
+    if (requestParameters['xUserId'] == null) {
+      throw new Error('Required parameter "xUserId" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    const headerParameters: HTTPHeaders = {}
+
+    headerParameters['X-User-Id'] = String(requestParameters['xUserId'])
+
+    const response = await this.request({
+      path: `/notification/readAll`,
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async markAllRead(requestParameters: { xUserId: number }, initOverrides?: RequestInit): Promise<ApiResponseVoid> {
+    const response = await this.markAllReadRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
+
+  async deleteRaw(requestParameters: NotificationDeleteRequest, initOverrides?: RequestInit) {
+    if (requestParameters['xUserId'] == null) {
+      throw new Error('Required parameter "xUserId" was null or undefined')
+    }
+    if (requestParameters['notificationId'] == null) {
+      throw new Error('Required parameter "notificationId" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    const headerParameters: HTTPHeaders = {}
+
+    headerParameters['X-User-Id'] = String(requestParameters['xUserId'])
+    queryParameters['notificationId'] = requestParameters['notificationId']
+
+    const response = await this.request({
+      path: `/notification/delete`,
+      method: 'DELETE',
+      headers: headerParameters,
+      query: queryParameters,
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async delete(requestParameters: NotificationDeleteRequest, initOverrides?: RequestInit): Promise<ApiResponseVoid> {
+    const response = await this.deleteRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
+
+  async unreadCountRaw(requestParameters: { xUserId: number }, initOverrides?: RequestInit) {
+    if (requestParameters['xUserId'] == null) {
+      throw new Error('Required parameter "xUserId" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    const headerParameters: HTTPHeaders = {}
+
+    headerParameters['X-User-Id'] = String(requestParameters['xUserId'])
+
+    const response = await this.request({
+      path: `/notification/unreadCount`,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async unreadCount(requestParameters: { xUserId: number }, initOverrides?: RequestInit) {
+    const response = await this.unreadCountRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
+
+  async sendRaw(requestParameters: NotificationSendRequest, initOverrides?: RequestInit) {
+    if (requestParameters['xUserId'] == null) {
+      throw new Error('Required parameter "xUserId" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    const headerParameters: HTTPHeaders = {}
+
+    headerParameters['X-User-Id'] = String(requestParameters['xUserId'])
+
+    const response = await this.request({
+      path: `/notification/send`,
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+      body: {
+        title: requestParameters.title,
+        content: requestParameters.content,
+        type: requestParameters.type,
+        relatedId: requestParameters.relatedId,
+        icon: requestParameters.icon,
+        imageUrl: requestParameters.imageUrl,
+      },
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async send(requestParameters: NotificationSendRequest, initOverrides?: RequestInit): Promise<ApiResponseVoid> {
+    const response = await this.sendRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
+}
+
+export const notificationApi = new NotificationApi(apiConfig)
+
 /**
  * Relying Party ID — 应与后端配置及 iOS associated domains 保持一致。
  * 开发期间可使用 localhost；生产环境改为实际域名（如 "example.com"）。

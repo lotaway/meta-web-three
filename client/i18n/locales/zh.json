@@ -257,6 +257,8 @@
       "see_all": "查看全部"
     },
     "menu": {
+      "notification": "消息通知",
+      "coupon": "优惠券",
       "address": "地址管理",
       "history": "我的足迹",
       "following": "我的关注",

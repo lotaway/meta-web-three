@@ -129,6 +129,18 @@ export default function OrderDetailScreen() {
     router.push({ pathname: '/orders/[id]/refund', params: { id: orderId } })
   }
 
+  const handleReview = (item: any) => {
+    router.push({
+      pathname: '/orders/[id]/review',
+      params: {
+        id: orderId,
+        productId: item.productId,
+        productName: item.productName,
+        productPic: item.productPic,
+      },
+    })
+  }
+
   const handleContactDelivery = () => {
     if (order?.deliveryCompanyPhone) {
       Linking.openURL(`tel:${order.deliveryCompanyPhone}`)
@@ -230,6 +242,15 @@ export default function OrderDetailScreen() {
                   </View>
                 </View>
               </TouchableOpacity>
+              {order.status === 3 && (
+                <TouchableOpacity
+                  style={styles.reviewItemBtn}
+                  onPress={() => handleReview(item)}
+                >
+                  <IconSymbol name="pencil" size={16} color={colors.primary} />
+                  <Text style={[styles.reviewItemText, { color: colors.primary }]}>评价</Text>
+                </TouchableOpacity>
+              )}
             </View>
           ))}
         </View>
@@ -298,7 +319,7 @@ export default function OrderDetailScreen() {
       </ScrollView>
 
       {/* 底部操作栏 */}
-      {order.status !== 3 && order.status !== 4 && (
+      {order.status !== 4 && (
         <View style={[styles.bottomBar, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
           {order.status === 0 && (
             <>
@@ -327,6 +348,19 @@ export default function OrderDetailScreen() {
               </TouchableOpacity>
               <TouchableOpacity style={[styles.bottomBtn, styles.confirmBottomBtn, { backgroundColor: colors.primary }]} onPress={handleConfirmReceive}>
                 <Text style={styles.confirmBottomBtnText}>{t('orders.confirm_receive')}</Text>
+              </TouchableOpacity>
+            </>
+          )}
+          {order.status === 3 && (
+            <>
+              <TouchableOpacity style={[styles.bottomBtn, { borderColor: colors.border }]} onPress={() => router.push({ pathname: '/orders/[id]/refund', params: { id: orderId } })}>
+                <Text style={[styles.bottomBtnText, { color: colors.text }]}>{t('orders.refund')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.bottomBtn, styles.confirmBottomBtn, { backgroundColor: colors.primary }]} onPress={() => {
+                const item = order.orderItems?.[0]
+                if (item) handleReview(item)
+              }}>
+                <Text style={styles.confirmBottomBtnText}>评价商品</Text>
               </TouchableOpacity>
             </>
           )}
@@ -401,7 +435,23 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
   },
-  productRowContent: { flexDirection: 'row' },
+  productRowContent: { flexDirection: 'row', flex: 1 },
+  reviewItemBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#eee',
+    backgroundColor: '#fff',
+    alignSelf: 'center',
+    gap: 4,
+  },
+  reviewItemText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
   productImage: {
     width: 80,
     height: 80,

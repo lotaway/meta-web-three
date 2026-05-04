@@ -1,6 +1,7 @@
 package com.metawebthree.action.interfaces.web;
 
 import com.metawebthree.action.application.UserActionService;
+import com.metawebthree.action.domain.model.ProductComment;
 import com.metawebthree.common.constants.HeaderConstants;
 import com.metawebthree.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/action")
 @RequiredArgsConstructor
-@Tag(name = "User Action Controller", description = "用户行为接口 (收藏、足迹、关注)")
+@Tag(name = "User Action Controller", description = "用户行为接口 (收藏、足迹、关注、评论)")
 public class UserActionController {
 
     private final UserActionService userActionService;
@@ -84,5 +85,50 @@ public class UserActionController {
         private Long brandId;
         private String brandName;
         private String brandLogo;
+    }
+
+    @Operation(summary = "发表评论")
+    @PostMapping("/comment/create")
+    public ApiResponse<Void> addComment(@RequestHeader(HeaderConstants.USER_ID) Long userId,
+            @RequestParam(required = false) String nickName,
+            @RequestBody CommentParam param) {
+        userActionService.addComment(userId, nickName, param.getProductId(), param.getProductName(),
+                param.getStar(), param.getContent(), param.getPics(), param.getProductAttribute());
+        return ApiResponse.success();
+    }
+
+    @Operation(summary = "商品评论列表")
+    @GetMapping("/comment/listByProduct")
+    public ApiResponse<List<ProductComment>> listCommentsByProduct(@RequestParam Long productId) {
+        return ApiResponse.success(userActionService.listCommentsByProduct(productId));
+    }
+
+    @Operation(summary = "评论详情")
+    @GetMapping("/comment/detail")
+    public ApiResponse<ProductComment> getCommentDetail(@RequestParam Long commentId) {
+        return ApiResponse.success(userActionService.getCommentDetail(commentId));
+    }
+
+    @Operation(summary = "点赞评论")
+    @PostMapping("/comment/like")
+    public ApiResponse<Void> likeComment(@RequestParam Long commentId) {
+        userActionService.likeComment(commentId);
+        return ApiResponse.success();
+    }
+
+    @Operation(summary = "我的评论列表")
+    @GetMapping("/comment/listByUser")
+    public ApiResponse<List<ProductComment>> listCommentsByUser(@RequestHeader(HeaderConstants.USER_ID) Long userId) {
+        return ApiResponse.success(userActionService.listCommentsByUser(userId));
+    }
+
+    @Getter
+    public static class CommentParam {
+        private Long productId;
+        private String productName;
+        private Integer star;
+        private String content;
+        private String pics;
+        private String productAttribute;
     }
 }

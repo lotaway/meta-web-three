@@ -257,6 +257,8 @@
       "see_all": "See All"
     },
     "menu": {
+      "notification": "Notifications",
+      "coupon": "Coupons",
       "address": "Address Management",
       "history": "Browsing History",
       "following": "My Following",
