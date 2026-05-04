@@ -4,17 +4,7 @@ _本项目为元宇宙 3D+区块链 AI 相关_
 
 ## Direct 目录说明
 
-- server 后端父项目，zk+dubbo+grpc+protobuf+spring-cloud-gateway+micro-services
-- - common 公共模块
-- - gateway 网关中心
-- — user-service 用户微服务
-- - order-service 订单微服务
-- - product-service 商品微服务
-- - payment-service 支付微服务
-- - message-service 消息微服务
-- - media-service 多媒体微服务
-- - cart-service 购物车微服务
-- - promotion-service 营销微服务
+- server 后端
 - protos protobuf RPC消息格式，提供给各个微服务使用
 
 - risk-scorer 风险AI评分微服务
