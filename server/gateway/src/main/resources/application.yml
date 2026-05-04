@@ -43,6 +43,7 @@ gateway:
       - /user-service/user/create
       - /user-service/user/checkWeb3SignerMessage
       - /user-service/sso/login
+      - /user-service/sso/loginByPhone
       - /user-service/sso/register
       - /user-service/sso/getAuthCode
       - /user-service/sso/updatePassword

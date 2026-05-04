@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -20,6 +20,7 @@ import { useCart } from '@/hooks/useCart';
 import { ProductDetailContainer } from '@/containers/product/ProductDetailContainer';
 import RenderHTML from 'react-native-render-html';
 import SKUSelector, { SpecGroup, SKUInfo } from '@/components/product/SKUSelector';
+import { productCollectionApi, DEFAULT_USER_ID } from '@/api/generated';
 
 const { width: PAGE_WIDTH } = Dimensions.get('window');
 
@@ -221,6 +222,48 @@ function ProductInfoRow({ title, content, showArrow, colors, contentStyle, onPre
 function ProductInteractionBar({ colors, productDetails, onOpenSKU }: { colors: any; productDetails: any; onOpenSKU: (type: 'cart' | 'buy') => void }) {
   const { t } = useTranslation();
   const { addItem } = useCart();
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  useEffect(() => {
+    loadFavoriteStatus();
+  }, [productDetails?.id]);
+
+  const loadFavoriteStatus = async () => {
+    try {
+      const response = await productCollectionApi.detail({
+        xUserId: DEFAULT_USER_ID,
+        productId: productDetails?.id,
+      });
+      setIsFavorite(response.data != null);
+    } catch (error) {
+      console.error('Failed to load favorite status:', error);
+    }
+  };
+
+  const handleToggleFavorite = async () => {
+    try {
+      if (isFavorite) {
+        await productCollectionApi.delete({
+          xUserId: DEFAULT_USER_ID,
+          productId: productDetails.id,
+        });
+        setIsFavorite(false);
+        Alert.alert(t('common.success'), '取消收藏成功');
+      } else {
+        await productCollectionApi.add({
+          productId: productDetails.id,
+          productName: productDetails.name,
+          productPic: productDetails.pic,
+          productPrice: productDetails.price,
+          productSubTitle: productDetails.subTitle,
+        });
+        setIsFavorite(true);
+        Alert.alert(t('common.success'), '收藏成功');
+      }
+    } catch (error) {
+      Alert.alert(t('common.error'), '操作失败');
+    }
+  };
 
   const handleAddToCart = useCallback(async () => {
     try {
@@ -258,9 +301,13 @@ function ProductInteractionBar({ colors, productDetails, onOpenSKU }: { colors: 
           <IconSymbol name="cart" size={24} color={colors.fontColorBase} />
           <Text style={[styles.bottomIconText, { color: colors.fontColorBase }]}>{t('common.tabs.cart')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomIconBtn}>
-          <IconSymbol name="heart" size={24} color={colors.fontColorBase} />
-          <Text style={[styles.bottomIconText, { color: colors.fontColorBase }]}>{t('profile.menu.favorite')}</Text>
+        <TouchableOpacity style={styles.bottomIconBtn} onPress={handleToggleFavorite}>
+          <IconSymbol 
+            name={isFavorite ? 'heart.fill' : 'heart'} 
+            size={24} 
+            color={isFavorite ? colors.primary : colors.fontColorBase} 
+          />
+          <Text style={[styles.bottomIconText, { color: isFavorite ? colors.primary : colors.fontColorBase }]}>{t('profile.menu.favorite')}</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.bottomRight}>

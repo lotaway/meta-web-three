@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Modal,
   FlatList,
+  Image,
 } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -17,6 +18,7 @@ import { useTranslation } from 'react-i18next'
 import { Colors } from '@/constants/Colors'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { IconSymbol } from '@/components/ui/IconSymbol'
+import * as ImagePicker from 'expo-image-picker'
 
 const REFUND_TYPES = [
   { value: 1, label: '退款退货' },
@@ -60,6 +62,8 @@ export default function RefundScreen() {
   const [showHistory, setShowHistory] = useState(false)
   const [refundHistory, setRefundHistory] = useState<any[]>([])
 
+  const [proofImages, setProofImages] = useState<string[]>([])
+
   useEffect(() => {
     loadOrder()
     loadRefundHistory()
@@ -93,6 +97,33 @@ export default function RefundScreen() {
     } catch (error) {
       console.error('Failed to load refund history:', error)
     }
+  }
+
+  const handlePickImage = async () => {
+    if (proofImages.length >= 5) {
+      Alert.alert(t('common.error'), '最多只能上传5张图片')
+      return
+    }
+
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
+    if (!permissionResult.granted) {
+      Alert.alert(t('common.error'), '需要相册权限才能选择图片')
+      return
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: false,
+      quality: 0.8,
+    })
+
+    if (!result.canceled && result.assets.length > 0) {
+      setProofImages(prev => [...prev, result.assets[0].uri])
+    }
+  }
+
+  const handleRemoveImage = (index: number) => {
+    setProofImages(prev => prev.filter((_, i) => i !== index))
   }
 
   const handleSubmit = async () => {
@@ -230,6 +261,33 @@ export default function RefundScreen() {
             numberOfLines={4}
             textAlignVertical="top"
           />
+        </View>
+
+        {/* 退款凭证 */}
+        <View style={[styles.section, { backgroundColor: colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>退款凭证（可选）</Text>
+          <View style={styles.proofGrid}>
+            {proofImages.map((uri, index) => (
+              <View key={index} style={styles.proofImageContainer}>
+                <Image source={{ uri }} style={styles.proofImage} />
+                <TouchableOpacity
+                  style={styles.removeImageBtn}
+                  onPress={() => handleRemoveImage(index)}
+                >
+                  <IconSymbol name="xmark.circle.fill" size={24} color="#FF3B30" />
+                </TouchableOpacity>
+              </View>
+            ))}
+            {proofImages.length < 5 && (
+              <TouchableOpacity style={[styles.addImageBtn, { borderColor: colors.border }]} onPress={handlePickImage}>
+                <IconSymbol name="plus" size={32} color={colors.textSecondary} />
+                <Text style={[styles.addImageText, { color: colors.textSecondary }]}>添加图片</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <Text style={[styles.proofHint, { color: colors.textSecondary }]}>
+            最多可上传5张图片，支持jpg/png格式
+          </Text>
         </View>
 
         {/* 提交按钮 */}
@@ -382,6 +440,45 @@ const styles = StyleSheet.create({
     padding: 12,
     minHeight: 100,
     fontSize: 14,
+  },
+  proofGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  proofImageContainer: {
+    width: 90,
+    height: 90,
+    borderRadius: 8,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  proofImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  removeImageBtn: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+  },
+  addImageBtn: {
+    width: 90,
+    height: 90,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addImageText: {
+    fontSize: 12,
+    marginTop: 4,
+  },
+  proofHint: {
+    fontSize: 12,
+    marginTop: 8,
   },
   submitBtn: {
     marginHorizontal: 16,

@@ -86,6 +86,24 @@ public class SsoController {
         }
     }
 
+    @PostMapping("/loginByPhone")
+    public ApiResponse<SsoLoginResponseDTO> loginByPhone(@RequestParam String telephone,
+                                                           @RequestParam String authCode) throws NoSuchAlgorithmException {
+        UserDTO user = userService.validateUserByPhone(telephone, authCode);
+        if (user == null) {
+            return ApiResponse.error(ResponseStatus.USER_PASSWORD_ERROR, "手机号或验证码错误");
+        }
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getId());
+        claims.put("name", user.getNickname() != null ? user.getNickname() : user.getUsername());
+        claims.put("role", "USER");
+
+        String token = jwtUtil.generate(user.getId().toString(), claims);
+
+        return ApiResponse.success(new SsoLoginResponseDTO(token, tokenHead));
+    }
+
     @PostMapping("/updatePassword")
     public ApiResponse<Void> updatePassword(@RequestParam String telephone,
                                              @RequestParam String password,

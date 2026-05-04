@@ -24,7 +24,7 @@ export default function LoginScreen() {
   const router = useRouter()
   const colorScheme = useColorScheme() ?? 'light'
   const colors = Colors[colorScheme]
-  const { loginWithCredentials, loginWithSso } = useAuth()
+  const { loginWithCredentials, loginWithSso, loginWithPhone, getAuthCode } = useAuth()
 
   const [loginType, setLoginType] = useState<'phone' | 'password'>('phone')
   const [phone, setPhone] = useState('')
@@ -42,8 +42,7 @@ export default function LoginScreen() {
 
     setLoading(true)
     try {
-      // TODO: 调用发送验证码API
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await getAuthCode(phone)
       
       setCountdown(60)
       const timer = setInterval(() => {
@@ -66,7 +65,6 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (loginType === 'phone') {
-      // 手机号登录暂时使用邮箱字段输入，后续可扩展
       if (!phone || phone.length < 11) {
         Alert.alert(t('auth.error'), t('auth.phone_invalid'))
         return
@@ -75,9 +73,19 @@ export default function LoginScreen() {
         Alert.alert(t('auth.error'), t('auth.code_invalid'))
         return
       }
-      // TODO: 实现手机验证码登录
-      Alert.alert(t('auth.error'), '手机验证码登录暂未实现，请使用账号密码登录')
-      return
+
+      setLoading(true)
+      try {
+        await loginWithPhone(phone, verificationCode)
+        Alert.alert(t('auth.success'), t('auth.login_success'), [
+          { text: 'OK', onPress: () => router.replace('/(tabs)') }
+        ])
+      } catch (error: any) {
+        const message = error?.message || t('auth.login_failed')
+        Alert.alert(t('auth.error'), message)
+      } finally {
+        setLoading(false)
+      }
     } else {
       if (!username) {
         Alert.alert(t('auth.error'), t('auth.username_required'))
@@ -87,19 +95,19 @@ export default function LoginScreen() {
         Alert.alert(t('auth.error'), t('auth.password_invalid'))
         return
       }
-    }
 
-    setLoading(true)
-    try {
-      await loginWithSso(username, password)
-      Alert.alert(t('auth.success'), t('auth.login_success'), [
-        { text: 'OK', onPress: () => router.replace('/(tabs)') }
-      ])
-    } catch (error: any) {
-      const message = error?.message || t('auth.login_failed')
-      Alert.alert(t('auth.error'), message)
-    } finally {
-      setLoading(false)
+      setLoading(true)
+      try {
+        await loginWithSso(username, password)
+        Alert.alert(t('auth.success'), t('auth.login_success'), [
+          { text: 'OK', onPress: () => router.replace('/(tabs)') }
+        ])
+      } catch (error: any) {
+        const message = error?.message || t('auth.login_failed')
+        Alert.alert(t('auth.error'), message)
+      } finally {
+        setLoading(false)
+      }
     }
   }
 
@@ -231,7 +239,10 @@ export default function LoginScreen() {
                   />
                 </View>
 
-                <TouchableOpacity style={styles.forgotLink}>
+                <TouchableOpacity 
+                  style={styles.forgotLink}
+                  onPress={() => router.push('/auth/forgot-password')}
+                >
                   <Text style={[styles.forgotText, { color: colors.primary }]}>
                     {t('auth.forgot_password')}
                   </Text>

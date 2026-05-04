@@ -382,4 +382,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             return null;
         }
     }
+
+    @Override
+    public UserDTO validateUserByPhone(String telephone, String authCode) {
+        UserDO user = userMapper.selectByTelephone(telephone);
+        if (user == null) {
+            log.warn("用户不存在 - 手机号: {}", telephone);
+            return null;
+        }
+        
+        String generatedCode = generateAuthCode(telephone);
+        if (!generatedCode.equals(authCode)) {
+            log.warn("验证码错误 - 手机号: {}, 输入: {}, 预期: {}", telephone, authCode, generatedCode);
+            return null;
+        }
+        
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setTypeId(user.getTypeId());
+        return dto;
+    }
 }

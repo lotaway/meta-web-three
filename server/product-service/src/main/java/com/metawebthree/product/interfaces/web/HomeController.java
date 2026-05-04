@@ -109,4 +109,14 @@ public class HomeController {
             @RequestParam(defaultValue = "10") Integer pageSize) {
         return ApiResponse.success(productService.listProducts(null, "new", null));
     }
+
+    @Operation(summary = "根据分类分页获取专题")
+    @GetMapping("/subjectList")
+    public ApiResponse<List<HomeContentDTO.SubjectDTO>> subjectList(
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+        // TODO: 接入专题服务后返回真实数据
+        return ApiResponse.success(Collections.emptyList());
+    }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   View,
   Text,
@@ -8,13 +8,13 @@ import {
   Alert,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { router, useLocalSearchParams } from 'expo-router'
+import { router, useLocalSearchParams, useFocusEffect } from 'expo-router'
 import { IconSymbol } from '@/components/ui/IconSymbol'
-import { DEFAULT_USER_ID, orderApi, payApi } from '@/api/generated'
+import { DEFAULT_USER_ID, orderApi, payApi, addressApi } from '@/api/generated'
 import { Colors } from '@/constants/Colors'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { pay, type PayResult } from '@/app/lib/payment'
-import type { ApiResponseLong, ApiResponseMapStringObject, ApiResponseMapStringString, OrderItemCreate } from '@/src/generated/api/models'
+import type { ApiResponseLong, ApiResponseMapStringObject, ApiResponseMapStringString, OrderItemCreate, MemberReceiveAddressDTO } from '@/src/generated/api/models'
 
 type PayMethod = 'wechat' | 'alipay' | 'stripe'
 
@@ -138,10 +138,29 @@ export default function CheckoutScreen() {
   const [selectedMethod, setSelectedMethod] = useState<PayMethod>('wechat')
   const [paying, setPaying] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [selectedAddress, setSelectedAddress] = useState<MemberReceiveAddressDTO | null>(null)
 
   useEffect(() => {
     loadOrder()
   }, [])
+
+  useFocusEffect(
+    useCallback(() => {
+      loadDefaultAddress()
+    }, [])
+  )
+
+  const loadDefaultAddress = async () => {
+    try {
+      const response = await addressApi.list({ xUserId: DEFAULT_USER_ID })
+      if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+        const defaultAddr = response.data.find((addr) => addr.defaultStatus === 1)
+        setSelectedAddress(defaultAddr ?? response.data[0])
+      }
+    } catch (error) {
+      console.error('Failed to load address:', error)
+    }
+  }
 
   const loadOrder = async () => {
     try {
@@ -264,6 +283,39 @@ export default function CheckoutScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView style={styles.content}>
+        <TouchableOpacity
+          style={[styles.addressSection, { backgroundColor: colors.background }]}
+          onPress={() => router.push('/address/list?source=checkout')}
+        >
+          {selectedAddress ? (
+            <View style={styles.addressContent}>
+              <IconSymbol name="location.fill" size={24} color={colors.primary} />
+              <View style={styles.addressInfo}>
+                <View style={styles.addressTop}>
+                  <Text style={[styles.addressName, { color: colors.fontColorDark }]}>
+                    {selectedAddress.name}
+                  </Text>
+                  <Text style={[styles.addressPhone, { color: colors.fontColorBase }]}>
+                    {selectedAddress.phoneNumber}
+                  </Text>
+                </View>
+                <Text style={[styles.addressDetail, { color: colors.fontColorLight }]}>
+                  {selectedAddress.province} {selectedAddress.city} {selectedAddress.region} {selectedAddress.detailAddress}
+                </Text>
+              </View>
+              <IconSymbol name="chevron.right" size={20} color={colors.fontColorDisabled} />
+            </View>
+          ) : (
+            <View style={styles.addressContent}>
+              <IconSymbol name="location" size={24} color={colors.fontColorDisabled} />
+              <Text style={[styles.addressPlaceholder, { color: colors.fontColorDisabled }]}>
+                请选择收货地址
+              </Text>
+              <IconSymbol name="chevron.right" size={20} color={colors.fontColorDisabled} />
+            </View>
+          )}
+        </TouchableOpacity>
+
         <View style={[styles.section, { backgroundColor: colors.background }]}>
           <Text style={[styles.sectionTitle, { color: colors.fontColorDark }]}>
             订单信息
@@ -370,6 +422,38 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 16,
+  },
+  addressSection: {
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+  },
+  addressContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  addressInfo: {
+    flex: 1,
+  },
+  addressTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  addressName: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  addressPhone: {
+    fontSize: 14,
+  },
+  addressDetail: {
+    fontSize: 13,
+  },
+  addressPlaceholder: {
+    flex: 1,
+    fontSize: 15,
   },
   section: {
     borderRadius: 12,

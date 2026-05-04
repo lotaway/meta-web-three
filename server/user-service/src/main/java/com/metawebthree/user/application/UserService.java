@@ -58,4 +58,6 @@ public interface UserService extends IService<UserDO> {
     void updatePassword(String telephone, String password, String authCode);
 
     String refreshToken(String oldToken);
+
+    UserDTO validateUserByPhone(String telephone, String authCode);
 }

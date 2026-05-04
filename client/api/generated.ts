@@ -146,9 +146,306 @@ export class SsoApi extends BaseAPI {
     const result = await response.value()
     return result as ApiResponseUserDTO
   }
+
+  async getAuthCodeRaw(requestParameters: { telephone: string }, initOverrides?: RequestInit) {
+    if (requestParameters['telephone'] == null) {
+      throw new Error('Required parameter "telephone" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    const headerParameters: HTTPHeaders = {}
+
+    queryParameters['telephone'] = requestParameters['telephone']
+
+    const response = await this.request({
+      path: `/sso/getAuthCode`,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async getAuthCode(requestParameters: { telephone: string }, initOverrides?: RequestInit) {
+    const response = await this.getAuthCodeRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
+
+  async loginByPhoneRaw(requestParameters: { telephone: string; authCode: string }, initOverrides?: RequestInit) {
+    if (requestParameters['telephone'] == null) {
+      throw new Error('Required parameter "telephone" was null or undefined')
+    }
+    if (requestParameters['authCode'] == null) {
+      throw new Error('Required parameter "authCode" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    const headerParameters: HTTPHeaders = {}
+
+    queryParameters['telephone'] = requestParameters['telephone']
+    queryParameters['authCode'] = requestParameters['authCode']
+
+    const response = await this.request({
+      path: `/sso/loginByPhone`,
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async loginByPhone(requestParameters: { telephone: string; authCode: string }, initOverrides?: RequestInit): Promise<SsoLoginResponse> {
+    const response = await this.loginByPhoneRaw(requestParameters, initOverrides)
+    const result = await response.value()
+    return result.data as SsoLoginResponse
+  }
+
+  async updatePasswordRaw(requestParameters: { telephone: string; password: string; authCode: string }, initOverrides?: RequestInit) {
+    if (requestParameters['telephone'] == null) {
+      throw new Error('Required parameter "telephone" was null or undefined')
+    }
+    if (requestParameters['password'] == null) {
+      throw new Error('Required parameter "password" was null or undefined')
+    }
+    if (requestParameters['authCode'] == null) {
+      throw new Error('Required parameter "authCode" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    const headerParameters: HTTPHeaders = {}
+
+    queryParameters['telephone'] = requestParameters['telephone']
+    queryParameters['password'] = requestParameters['password']
+    queryParameters['authCode'] = requestParameters['authCode']
+
+    const response = await this.request({
+      path: `/sso/updatePassword`,
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async updatePassword(requestParameters: { telephone: string; password: string; authCode: string }, initOverrides?: RequestInit): Promise<ApiResponseVoid> {
+    const response = await this.updatePasswordRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
 }
 
 export const ssoApi = new SsoApi(apiConfig)
+
+export interface ProductCollectionAddRequest {
+  productId: number
+  productName: string
+  productPic: string
+  productPrice?: number
+  productSubTitle?: string
+}
+
+export interface ProductCollectionDetailRequest {
+  xUserId: number
+  productId: number
+}
+
+export interface ProductCollectionDeleteRequest {
+  xUserId: number
+  productId: number
+}
+
+export interface ProductCollectionListRequest {
+  xUserId: number
+  pageNum?: number
+  pageSize?: number
+}
+
+export class ProductCollectionApi extends BaseAPI {
+  async addRaw(requestParameters: ProductCollectionAddRequest, initOverrides?: RequestInit) {
+    if (requestParameters['productId'] == null) {
+      throw new Error('Required parameter "productId" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    const headerParameters: HTTPHeaders = {}
+
+    const response = await this.request({
+      path: `/member/productCollection/add`,
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+      body: requestParameters,
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async add(requestParameters: ProductCollectionAddRequest, initOverrides?: RequestInit): Promise<ApiResponseVoid> {
+    const response = await this.addRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
+
+  async detailRaw(requestParameters: ProductCollectionDetailRequest, initOverrides?: RequestInit) {
+    if (requestParameters['xUserId'] == null) {
+      throw new Error('Required parameter "xUserId" was null or undefined')
+    }
+    if (requestParameters['productId'] == null) {
+      throw new Error('Required parameter "productId" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    const headerParameters: HTTPHeaders = {}
+
+    headerParameters['X-User-Id'] = String(requestParameters['xUserId'])
+    queryParameters['productId'] = requestParameters['productId']
+
+    const response = await this.request({
+      path: `/member/productCollection/detail`,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async detail(requestParameters: ProductCollectionDetailRequest, initOverrides?: RequestInit) {
+    const response = await this.detailRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
+
+  async deleteRaw(requestParameters: ProductCollectionDeleteRequest, initOverrides?: RequestInit) {
+    if (requestParameters['xUserId'] == null) {
+      throw new Error('Required parameter "xUserId" was null or undefined')
+    }
+    if (requestParameters['productId'] == null) {
+      throw new Error('Required parameter "productId" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    const headerParameters: HTTPHeaders = {}
+
+    headerParameters['X-User-Id'] = String(requestParameters['xUserId'])
+    queryParameters['productId'] = requestParameters['productId']
+
+    const response = await this.request({
+      path: `/member/productCollection`,
+      method: 'DELETE',
+      headers: headerParameters,
+      query: queryParameters,
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async delete(requestParameters: ProductCollectionDeleteRequest, initOverrides?: RequestInit): Promise<ApiResponseVoid> {
+    const response = await this.deleteRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
+
+  async listRaw(requestParameters: ProductCollectionListRequest, initOverrides?: RequestInit) {
+    if (requestParameters['xUserId'] == null) {
+      throw new Error('Required parameter "xUserId" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    const headerParameters: HTTPHeaders = {}
+
+    headerParameters['X-User-Id'] = String(requestParameters['xUserId'])
+    if (requestParameters['pageNum'] != null) {
+      queryParameters['pageNum'] = requestParameters['pageNum']
+    }
+    if (requestParameters['pageSize'] != null) {
+      queryParameters['pageSize'] = requestParameters['pageSize']
+    }
+
+    const response = await this.request({
+      path: `/member/productCollection/list`,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async list(requestParameters: ProductCollectionListRequest, initOverrides?: RequestInit) {
+    const response = await this.listRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
+}
+
+export const productCollectionApi = new ProductCollectionApi(apiConfig)
+
+export interface CouponListRequest {
+  xUserId: number
+  useStatus?: number
+}
+
+export interface CouponClaimRequest {
+  xUserId: number
+  couponTypeId: number
+}
+
+export class CouponApi extends BaseAPI {
+  async listRaw(requestParameters: CouponListRequest, initOverrides?: RequestInit) {
+    if (requestParameters['xUserId'] == null) {
+      throw new Error('Required parameter "xUserId" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    const headerParameters: HTTPHeaders = {}
+
+    headerParameters['X-User-Id'] = String(requestParameters['xUserId'])
+    if (requestParameters['useStatus'] != null) {
+      queryParameters['useStatus'] = requestParameters['useStatus']
+    }
+
+    const response = await this.request({
+      path: `/member/coupon/coupons`,
+      method: 'GET',
+      headers: headerParameters,
+      query: queryParameters,
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async list(requestParameters: CouponListRequest, initOverrides?: RequestInit) {
+    const response = await this.listRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
+
+  async claimRaw(requestParameters: CouponClaimRequest, initOverrides?: RequestInit) {
+    if (requestParameters['xUserId'] == null) {
+      throw new Error('Required parameter "xUserId" was null or undefined')
+    }
+
+    const queryParameters: QueryParameter = {}
+    const headerParameters: HTTPHeaders = {}
+
+    headerParameters['X-User-Id'] = String(requestParameters['xUserId'])
+
+    const response = await this.request({
+      path: `/member/coupon/coupons/claim`,
+      method: 'POST',
+      headers: headerParameters,
+      query: queryParameters,
+      body: { couponTypeId: requestParameters.couponTypeId },
+    }, initOverrides)
+
+    return new runtime.JSONApiResponse<any>(response)
+  }
+
+  async claim(requestParameters: CouponClaimRequest, initOverrides?: RequestInit): Promise<ApiResponseVoid> {
+    const response = await this.claimRaw(requestParameters, initOverrides)
+    return await response.value()
+  }
+}
+
+export const couponApi = new CouponApi(apiConfig)
 
 /**
  * Relying Party ID — 应与后端配置及 iOS associated domains 保持一致。

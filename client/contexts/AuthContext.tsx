@@ -16,6 +16,9 @@ interface AuthContextType {
   login: (token: string, userId: number, userData?: UserDTO) => Promise<void>;
   loginWithCredentials: (email: string, password: string) => Promise<LoginResponseDTO>;
   loginWithSso: (username: string, password: string) => Promise<{ token: string; tokenHead: string }>;
+  loginWithPhone: (phone: string, authCode: string) => Promise<void>;
+  forgotPassword: (telephone: string, password: string, authCode: string) => Promise<void>;
+  getAuthCode: (telephone: string) => Promise<void>;
   register: (email: string, password: string, referrerId?: number) => Promise<void>;
   registerWithSso: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -227,6 +230,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function loginWithPhone(phone: string, authCode: string) {
+    try {
+      const response = await ssoApi.loginByPhone({ telephone: phone, authCode });
+      const { token: newToken, tokenHead } = response;
+      
+      const fullToken = tokenHead + newToken;
+      
+      const infoResponse = await ssoApi.info({ xUserId: 0 });
+      let uid = 0;
+      let userData: UserDTO | undefined;
+      
+      if (infoResponse.data) {
+        userData = infoResponse.data;
+        uid = userData.id ?? 0;
+        
+        await Promise.all([
+          AsyncStorage.setItem(AUTH_TOKEN_KEY, fullToken),
+          AsyncStorage.setItem(USER_ID_KEY, uid.toString()),
+          AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(userData)),
+        ]);
+
+        setToken(fullToken);
+        setUserId(uid);
+        setUser(userData);
+        setIsAuthenticated(true);
+      }
+    } catch (error) {
+      console.error('Failed to login with phone:', error);
+      throw error;
+    }
+  }
+
+  async function getAuthCode(telephone: string) {
+    try {
+      await ssoApi.getAuthCode({ telephone });
+    } catch (error) {
+      console.error('Failed to get auth code:', error);
+      throw error;
+    }
+  }
+
+  async function forgotPassword(telephone: string, password: string, authCode: string) {
+    try {
+      await ssoApi.updatePassword({ telephone, password, authCode });
+    } catch (error) {
+      console.error('Failed to update password:', error);
+      throw error;
+    }
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -238,6 +291,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         loginWithCredentials,
         loginWithSso,
+        loginWithPhone,
+        getAuthCode,
+        forgotPassword,
         register,
         registerWithSso,
         logout,
