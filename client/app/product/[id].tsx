@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -19,6 +19,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useCart } from '@/hooks/useCart';
 import { ProductDetailContainer } from '@/containers/product/ProductDetailContainer';
 import RenderHTML from 'react-native-render-html';
+import SKUSelector, { SpecGroup, SKUInfo } from '@/components/product/SKUSelector';
 
 const { width: PAGE_WIDTH } = Dimensions.get('window');
 
@@ -40,11 +41,72 @@ export default function ProductDetailScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
   const { width: contentWidth } = useWindowDimensions();
+  
+  const [skuSelectorVisible, setSkuSelectorVisible] = useState(false);
+  const [skuActionType, setSkuActionType] = useState<'cart' | 'buy'>('cart');
 
   return (
     <ProductDetailContainer productId={id ? Number(id) : null}>
       {({ productDetails, isPageLoading }) => {
         const productImages = getProductImages(productDetails);
+        
+        const mockSpecs: SpecGroup[] = productDetails?.specs || [
+          {
+            id: 'color',
+            name: '颜色',
+            options: [
+              { id: 'black', name: '黑色' },
+              { id: 'white', name: '白色' },
+              { id: 'blue', name: '蓝色' },
+            ],
+          },
+          {
+            id: 'size',
+            name: '尺寸',
+            options: [
+              { id: 's', name: 'S' },
+              { id: 'm', name: 'M' },
+              { id: 'l', name: 'L' },
+            ],
+          },
+        ];
+        
+        const mockSKUs: SKUInfo[] = productDetails?.skus || [];
+
+        const handleOpenSKU = (actionType: 'cart' | 'buy') => {
+          setSkuActionType(actionType);
+          setSkuSelectorVisible(true);
+        };
+
+        const handleSKUConfirm = (selectedSpecs: any, sku: SKUInfo | null, quantity: number) => {
+          setSkuSelectorVisible(false);
+          
+          if (skuActionType === 'cart') {
+            handleAddToCartWithSKU(sku || productDetails, quantity);
+          } else {
+            router.push({
+              pathname: '/checkout',
+              params: {
+                productId: productDetails?.id,
+                quantity,
+                skuId: sku?.skuId,
+              },
+            });
+          }
+        };
+
+        const handleAddToCartWithSKU = async (product: any, quantity: number) => {
+          try {
+            await (useCart as any).addItem({
+              productId: product.id || productDetails.id,
+              quantity,
+              skuId: product.skuId,
+            });
+            Alert.alert(t('common.success'), t('home.product.added_to_cart'));
+          } catch (error) {
+            Alert.alert(t('common.error'), t('home.product.add_to_cart_failed'));
+          }
+        };
 
         if (isPageLoading || !productDetails) {
           return (
@@ -86,7 +148,7 @@ export default function ProductDetailScreen() {
         </View>
 
         <View style={styles.cList}>
-          <ProductInfoRow title={t('home.product.buy_type')} content={t('home.product.select_specs')} showArrow colors={colors} />
+          <ProductInfoRow title={t('home.product.buy_type')} content={t('home.product.select_specs')} showArrow colors={colors} onPress={() => handleOpenSKU('cart')} />
           <ProductInfoRow title={t('home.product.params')} content={t('home.product.view')} showArrow colors={colors} />
           <ProductInfoRow 
             title={t('home.product.coupons')} 
@@ -119,7 +181,24 @@ export default function ProductDetailScreen() {
         <View style={styles.footerSpacer} />
             </ScrollView>
 
-            <ProductInteractionBar colors={colors} productDetails={productDetails} />
+            <ProductInteractionBar
+              colors={colors}
+              productDetails={productDetails}
+              onOpenSKU={handleOpenSKU}
+            />
+
+            <SKUSelector
+              visible={skuSelectorVisible}
+              productImage={productImages[0]}
+              productName={productDetails?.name}
+              productPrice={productDetails?.price}
+              productOriginalPrice={productDetails?.originalPrice}
+              specs={mockSpecs}
+              skus={mockSKUs}
+              onClose={() => setSkuSelectorVisible(false)}
+              onConfirm={handleSKUConfirm}
+              actionType={skuActionType}
+            />
           </SafeAreaView>
         );
       }}
@@ -127,9 +206,9 @@ export default function ProductDetailScreen() {
   );
 }
 
-function ProductInfoRow({ title, content, showArrow, colors, contentStyle }: any) {
+function ProductInfoRow({ title, content, showArrow, colors, contentStyle, onPress }: any) {
   return (
-    <TouchableOpacity style={styles.infoRow}>
+    <TouchableOpacity style={styles.infoRow} onPress={onPress}>
       <Text style={[styles.rowTitle, { color: colors.fontColorLight }]}>{title}</Text>
       <Text numberOfLines={1} style={[styles.rowContent, { color: colors.fontColorDark }, contentStyle]}>
         {content}
@@ -139,7 +218,7 @@ function ProductInfoRow({ title, content, showArrow, colors, contentStyle }: any
   );
 }
 
-function ProductInteractionBar({ colors, productDetails }: { colors: any; productDetails: any }) {
+function ProductInteractionBar({ colors, productDetails, onOpenSKU }: { colors: any; productDetails: any; onOpenSKU: (type: 'cart' | 'buy') => void }) {
   const { t } = useTranslation();
   const { addItem } = useCart();
 
@@ -148,6 +227,19 @@ function ProductInteractionBar({ colors, productDetails }: { colors: any; produc
       await addItem({
         productId: productDetails.id,
         quantity: 1,
+      });
+      Alert.alert(t('common.success'), t('home.product.added_to_cart'));
+    } catch (error) {
+      Alert.alert(t('common.error'), t('home.product.add_to_cart_failed'));
+    }
+  }, [addItem, productDetails, t]);
+
+  const handleAddToCartWithSKU = useCallback(async (product: any, quantity: number) => {
+    try {
+      await addItem({
+        productId: product.id || productDetails.id,
+        quantity,
+        skuId: product.skuId,
       });
       Alert.alert(t('common.success'), t('home.product.added_to_cart'));
     } catch (error) {
@@ -174,11 +266,14 @@ function ProductInteractionBar({ colors, productDetails }: { colors: any; produc
       <View style={styles.bottomRight}>
         <TouchableOpacity 
           style={[styles.actionBtn, styles.cartBtn]}
-          onPress={handleAddToCart}
+          onPress={() => onOpenSKU('cart')}
         >
           <Text style={styles.actionBtnText}>{t('home.product.add_to_cart')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionBtn, styles.buyBtn, { backgroundColor: colors.primary }]}>
+        <TouchableOpacity 
+          style={[styles.actionBtn, styles.buyBtn, { backgroundColor: colors.primary }]}
+          onPress={() => onOpenSKU('buy')}
+        >
           <Text style={styles.actionBtnText}>{t('home.product.buy_now')}</Text>
         </TouchableOpacity>
       </View>

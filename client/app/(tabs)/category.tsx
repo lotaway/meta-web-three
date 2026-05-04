@@ -17,10 +17,10 @@ export default function CategoryScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
 
-  const navigateToProductList = (subCategoryId: number) => {
+  const navigateToProductList = (subCategoryId: number, subCategoryName: string) => {
     router.push({
-      pathname: '/product/[id]' as any,
-      params: { id: subCategoryId },
+      pathname: '/category/[id]',
+      params: { id: subCategoryId, name: subCategoryName },
     });
   };
 
@@ -60,7 +60,7 @@ export default function CategoryScreen() {
                   <TouchableOpacity
                     key={subCategory.id}
                     style={styles.sItem}
-                    onPress={() => navigateToProductList(subCategory.id)}
+                    onPress={() => navigateToProductList(subCategory.id, subCategory.name)}
                   >
                     <Image
                       source={{ uri: subCategory.icon || 'https://via.placeholder.com/70' }}

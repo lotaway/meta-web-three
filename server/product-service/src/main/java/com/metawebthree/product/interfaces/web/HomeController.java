@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/v1/home")
+@RequestMapping("/home")
 @RequiredArgsConstructor
 @Tag(name = "Home Controller", description = "首页内容接口")
 public class HomeController {
@@ -84,5 +84,29 @@ public class HomeController {
             @RequestParam(defaultValue = "10") Integer pageSize) {
         // 简单实现：按推荐关键字搜索
         return ApiResponse.success(productService.listProducts(null, "recommend", null));
+    }
+
+    @Operation(summary = "获取首页商品分类")
+    @GetMapping("/productCateList")
+    public ApiResponse<List<HomeContentDTO.CategoryDTO>> productCateList(
+            @RequestParam(defaultValue = "0") Long parentId) {
+        // TODO: 实现分类树形结构
+        return ApiResponse.success(Collections.emptyList());
+    }
+
+    @Operation(summary = "分页获取人气推荐商品")
+    @GetMapping("/hotProductList")
+    public ApiResponse<List<ProductDTO>> hotProductList(
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+        return ApiResponse.success(productService.listProducts(null, "hot", null));
+    }
+
+    @Operation(summary = "分页获取新品推荐商品")
+    @GetMapping("/newProductList")
+    public ApiResponse<List<ProductDTO>> newProductList(
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+        return ApiResponse.success(productService.listProducts(null, "new", null));
     }
 }

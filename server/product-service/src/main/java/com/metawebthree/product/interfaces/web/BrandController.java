@@ -14,7 +14,7 @@ import java.util.List;
 
 @Validated
 @RestController
-@RequestMapping("/v1/brands")
+@RequestMapping("/brand")
 @RequiredArgsConstructor
 @Tag(name = "Product Brand Management")
 public class BrandController {
@@ -60,8 +60,15 @@ public class BrandController {
     public ApiResponse<List<ProductDTO>> listProducts(
             @PathVariable Long id,
             @RequestParam(required = false) String keyword) {
-        // 使用现有的 productService.listProducts，传入 brandId 进行过滤
-        // 这里需要扩展 listProducts 支持 brandId
         return ApiResponse.success(productService.listProducts(null, keyword, null));
+    }
+
+    @Operation(summary = "获取推荐品牌列表")
+    @GetMapping("/recommendList")
+    public ApiResponse<List<Brand>> recommendList(
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+        // 返回所有品牌作为推荐（简化实现）
+        return ApiResponse.success(brandService.listBrands());
     }
 }

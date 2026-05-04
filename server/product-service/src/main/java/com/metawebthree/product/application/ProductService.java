@@ -215,4 +215,78 @@ public class ProductService {
         }
         return convertToProductDTO(product);
     }
+
+    public List<ProductDTO> searchProducts(String keyword, Integer categoryId, Integer brandId, Integer sort, Integer pageNum, Integer pageSize) {
+        QueryWrapper<ProductDO> query = new QueryWrapper<>();
+        
+        if (keyword != null && !keyword.isEmpty()) {
+            query.and(wrapper -> wrapper
+                    .like("product_name", keyword)
+                    .or()
+                    .like("product_no", keyword)
+                    .or()
+                    .like("product_remark", keyword));
+        }
+        
+        if (brandId != null) {
+            query.eq("brand_id", brandId);
+        }
+        
+        // 排序逻辑
+        switch (sort) {
+            case 1: // 销量
+                query.orderByDesc("sale_count");
+                break;
+            case 2: // 价格升序
+                query.orderByAsc("sale_price");
+                break;
+            case 3: // 价格降序
+                query.orderByDesc("sale_price");
+                break;
+            default: // 综合
+                query.orderByDesc("create_time");
+                break;
+        }
+        
+        // 分页
+        int offset = (pageNum - 1) * pageSize;
+        query.last("LIMIT " + pageSize + " OFFSET " + offset);
+        
+        List<ProductDO> items = productMapper.selectList(query);
+        return items.stream()
+                .map(this::convertToProductDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductDTO> simpleSearch(String keyword, Integer limit) {
+        QueryWrapper<ProductDO> query = new QueryWrapper<>();
+        query.and(wrapper -> wrapper
+                .like("product_name", keyword)
+                .or()
+                .like("product_no", keyword));
+        query.last("LIMIT " + limit);
+        
+        List<ProductDO> items = productMapper.selectList(query);
+        return items.stream()
+                .map(this::convertToProductDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductDTO> recommendProducts(Integer productId, Integer limit) {
+        ProductDO product = productMapper.selectById(productId);
+        if (product == null) {
+            return new ArrayList<>();
+        }
+        
+        // 基于产品名称前缀推荐（简化实现）
+        QueryWrapper<ProductDO> query = new QueryWrapper<>();
+        query.ne("id", productId)
+                .orderByDesc("create_time")
+                .last("LIMIT " + limit);
+        
+        List<ProductDO> items = productMapper.selectList(query);
+        return items.stream()
+                .map(this::convertToProductDTO)
+                .collect(Collectors.toList());
+    }
 }

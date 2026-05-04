@@ -25,7 +25,7 @@ import com.metawebthree.commission.interfaces.web.dto.CommissionRecordView;
 import com.metawebthree.commission.interfaces.web.dto.CommissionSettleRequest;
 
 @RestController
-@RequestMapping("/v1/commission")
+@RequestMapping("/commission")
 public class CommissionController {
     private final CommissionCommandService commandService;
     private final CommissionQueryService queryService;

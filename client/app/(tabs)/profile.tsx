@@ -31,6 +31,14 @@ interface MallUserAccount {
   couponCount: number
 }
 
+function requireAuth(authenticated: boolean, router: any, callback: () => void) {
+  if (!authenticated) {
+    router.push('/auth/login')
+    return
+  }
+  callback()
+}
+
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation()
   const colorScheme = useColorScheme() ?? 'light'
@@ -135,13 +143,13 @@ export default function ProfileScreen() {
               />
             )}
 
-            <OrderQuickLinksSection colors={colors} />
+            <OrderQuickLinksSection colors={colors} isAuthenticated={isAuthenticated} router={router} />
 
             <View style={styles.menuSection}>
-              <ProfileMenuCell icon="mappin.and.ellipse" title={t('profile.menu.address')} color="#5fcda2" />
+              <ProfileMenuCell icon="mappin.and.ellipse" title={t('profile.menu.address')} color="#5fcda2" onPress={() => requireAuth(isAuthenticated, router, () => router.push('/address/list'))} />
               <ProfileMenuCell icon="clock.fill" title={t('profile.menu.history')} color="#e07472" />
               <ProfileMenuCell icon="star.fill" title={t('profile.menu.following')} color="#5fcda2" />
-              <ProfileMenuCell icon="heart.fill" title={t('profile.menu.favorite')} color="#54b4ef" />
+              <ProfileMenuCell icon="heart.fill" title={t('profile.menu.favorite')} color="#54b4ef" onPress={() => requireAuth(isAuthenticated, router, () => router.push('/favorites'))} />
               <ProfileMenuCell icon="star.bubble.fill" title={t('profile.menu.comment')} color="#ee883b" />
               <ProfileMenuCell icon="globe" title={t('profile.menu.language')} color="#4a90e2" onPress={changeLanguage} />
               {FEATURE_PASSKEY_ENABLED && (
@@ -217,27 +225,27 @@ function UserStatsSection({ user, colors }: { user: MallUserAccount; colors: any
   )
 }
 
-function OrderQuickLinksSection({ colors }: { colors: any }) {
+function OrderQuickLinksSection({ colors, isAuthenticated, router }: { colors: any; isAuthenticated: boolean; router: any }) {
   const { t } = useTranslation()
   const ORDER_STATUS_LINKS = [
-    { label: t('profile.orders.all'), icon: 'list.bullet.rectangle' },
-    { label: t('profile.orders.unpaid'), icon: 'creditcard' },
-    { label: t('profile.orders.undelivered'), icon: 'shippingbox' },
-    { label: t('profile.orders.refund'), icon: 'arrow.counterclockwise' },
+    { label: t('profile.orders.all'), icon: 'list.bullet.rectangle', action: () => requireAuth(isAuthenticated, router, () => router.push('/orders')) },
+    { label: t('profile.orders.unpaid'), icon: 'creditcard', action: () => requireAuth(isAuthenticated, router, () => router.push('/orders?status=unpaid')) },
+    { label: t('profile.orders.undelivered'), icon: 'shippingbox', action: () => requireAuth(isAuthenticated, router, () => router.push('/orders?status=undelivered')) },
+    { label: t('profile.orders.refund'), icon: 'arrow.counterclockwise', action: () => requireAuth(isAuthenticated, router, () => router.push('/orders?status=refund')) },
   ]
 
   return (
     <View style={styles.orderSection}>
       <View style={styles.orderHeader}>
         <Text style={[styles.orderTitle, { color: colors.fontColorDark }]}>{t('profile.orders.title')}</Text>
-        <TouchableOpacity style={styles.seeAll}>
+        <TouchableOpacity style={styles.seeAll} onPress={() => requireAuth(isAuthenticated, router, () => router.push('/orders'))}>
           <Text style={{ color: colors.fontColorLight }}>{t('profile.orders.see_all')}</Text>
           <IconSymbol name="chevron.right" size={12} color={colors.fontColorLight} />
         </TouchableOpacity>
       </View>
       <View style={styles.orderGrid}>
         {ORDER_STATUS_LINKS.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.orderItem}>
+          <TouchableOpacity key={index} style={styles.orderItem} onPress={item.action}>
             <IconSymbol name={item.icon as any} size={28} color={colors.primary} />
             <Text style={[styles.orderLabel, { color: colors.fontColorDark }]}>{item.label}</Text>
           </TouchableOpacity>

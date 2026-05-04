@@ -52,4 +52,10 @@ public interface UserService extends IService<UserDO> {
     UserDTO validateUser(String email, String password, Long userRoleId) throws NoSuchAlgorithmException;
 
     UserDTO findOrCreateUserByWallet(String walletAddress);
+
+    String generateAuthCode(String telephone);
+
+    void updatePassword(String telephone, String password, String authCode);
+
+    String refreshToken(String oldToken);
 }

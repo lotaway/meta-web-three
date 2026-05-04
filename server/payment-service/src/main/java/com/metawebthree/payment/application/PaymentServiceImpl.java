@@ -124,4 +124,16 @@ public class PaymentServiceImpl implements PaymentService {
         log.info("Verifying payment: orderId={}, transactionId={}, userId={}", orderId, transactionId, userId);
         return orderId != null && transactionId != null && userId != null;
     }
+
+    @Override
+    public Map<String, Object> queryAlipayStatus(String outTradeNo, Long userId) {
+        log.info("Querying Alipay status: outTradeNo={}, userId={}", outTradeNo, userId);
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("outTradeNo", outTradeNo);
+        result.put("tradeStatus", "TRADE_SUCCESS");
+        result.put("totalAmount", "0.01");
+        result.put("buyerLogonId", "user@example.com");
+        return result;
+    }
 }

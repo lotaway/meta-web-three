@@ -108,4 +108,48 @@ public class CartServiceImpl implements CartService {
         queryWrapper.eq(CartItem::getMemberId, memberId);
         return cartItemMapper.update(cartItem, queryWrapper);
     }
+
+    @Override
+    public List<CartItemDTO> listWithPromotion(Long memberId) {
+        // 获取购物车列表
+        List<CartItemDTO> cartItems = list(memberId);
+        
+        // TODO: 查询促销信息并附加到购物车项
+        // 这里可以调用 promotion-service 获取促销规则
+        
+        return cartItems;
+    }
+
+    @Override
+    public void updateAttributes(Long memberId, Long id, CartItemDTO cartItem) {
+        CartItem item = new CartItem();
+        item.setId(id);
+        if (cartItem.getProductSkuId() != null) {
+            item.setProductSkuId(cartItem.getProductSkuId());
+        }
+        item.setModifyDate(new Date());
+        
+        LambdaQueryWrapper<CartItem> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(CartItem::getMemberId, memberId).eq(CartItem::getId, id);
+        cartItemMapper.update(item, queryWrapper);
+    }
+
+    @Override
+    public CartItemDTO getProductOptions(Long memberId, Long productId) {
+        CartItemDTO dto = new CartItemDTO();
+        dto.setProductId(productId);
+        
+        try {
+            ProductInfo product = productClient.getProductInfo(productId);
+            if (product != null) {
+                dto.setProductName(product.getName());
+                dto.setProductPic(product.getPic());
+                dto.setPrice(product.getPrice());
+            }
+        } catch (Exception e) {
+            log.warn("Failed to get product info for productId: {}, error: {}", productId, e.getMessage());
+        }
+        
+        return dto;
+    }
 }

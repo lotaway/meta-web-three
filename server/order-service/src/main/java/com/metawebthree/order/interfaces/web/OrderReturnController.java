@@ -12,7 +12,7 @@ import java.util.List;
 
 @Validated
 @RestController
-@RequestMapping("/v1/order-returns")
+@RequestMapping("/returnApply")
 @RequiredArgsConstructor
 @Tag(name = "Order Return Management")
 public class OrderReturnController {

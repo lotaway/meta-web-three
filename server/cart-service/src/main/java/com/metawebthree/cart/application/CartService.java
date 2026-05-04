@@ -9,4 +9,8 @@ public interface CartService {
     int updateQuantity(Long memberId, Long id, Integer quantity);
     int delete(Long memberId, List<Long> ids);
     int clear(Long memberId);
+    
+    List<CartItemDTO> listWithPromotion(Long memberId);
+    void updateAttributes(Long memberId, Long id, CartItemDTO cartItem);
+    CartItemDTO getProductOptions(Long memberId, Long productId);
 }

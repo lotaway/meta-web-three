@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v1/action")
+@RequestMapping("/action")
 @RequiredArgsConstructor
 @Tag(name = "User Action Controller", description = "用户行为接口 (收藏、足迹、关注)")
 public class UserActionController {

@@ -95,4 +95,22 @@ public class PayController {
             return ApiResponse.error(ResponseStatus.SYSTEM_ERROR);
         }
     }
+
+    @GetMapping("/alipay/query")
+    public ApiResponse<Map<String, Object>> queryAlipayStatus(
+            @RequestHeader(HeaderConstants.USER_ID) Long userId,
+            @RequestParam String outTradeNo) {
+        
+        if (outTradeNo == null) {
+            return ApiResponse.error(ResponseStatus.PARAM_MISSING_ERROR);
+        }
+
+        try {
+            Map<String, Object> result = paymentService.queryAlipayStatus(outTradeNo, userId);
+            return ApiResponse.success(result);
+        } catch (Exception e) {
+            log.error("Query alipay status failed", e);
+            return ApiResponse.error(ResponseStatus.SYSTEM_ERROR);
+        }
+    }
 }

@@ -47,4 +47,14 @@ public class HomeContentDTO {
         private String endTime;
         private List<ProductDTO> productList;
     }
+
+    @Getter
+    @Builder
+    public static class CategoryDTO {
+        private Long id;
+        private String name;
+        private Long parentId;
+        private Integer level;
+        private String icon;
+    }
 }

@@ -43,7 +43,7 @@ import jakarta.validation.Valid;
 
 @Validated
 @RestController
-@RequestMapping("/v1/promotion")
+@RequestMapping("/member/coupon")
 public class CouponController {
     private final CouponTypeCommandService couponTypeCommandService;
     private final CouponTypeQueryService couponTypeQueryService;
@@ -102,6 +102,28 @@ public class CouponController {
             HttpServletRequest httpRequest,
             @Valid @RequestBody CouponClaimRequest request) {
         return executeCommand(() -> couponCommandService.claim(request.getCouponTypeId(), readUserId(httpRequest)));
+    }
+
+    @PostMapping("/add/{couponId}")
+    public ApiResponse<Void> addCoupon(
+            HttpServletRequest httpRequest,
+            @PathVariable Long couponId) {
+        return executeCommand(() -> couponCommandService.claim(couponId, readUserId(httpRequest)));
+    }
+
+    @GetMapping("/listHistory")
+    public ApiResponse<List<CouponView>> listHistory(
+            HttpServletRequest httpRequest,
+            @RequestParam(defaultValue = "0") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+        return executeQuery(() -> toCouponViews(readUserId(httpRequest), null));
+    }
+
+    @GetMapping("/list/cart/{type}")
+    public ApiResponse<List<CouponView>> listByCartType(
+            HttpServletRequest httpRequest,
+            @PathVariable Integer type) {
+        return executeQuery(() -> toCouponViews(readUserId(httpRequest), null));
     }
 
     @GetMapping("/coupons/listByProduct/{productId}")
@@ -177,6 +199,13 @@ public class CouponController {
             @Valid @RequestBody CouponTransferRequest request) {
         return executeCommand(() -> couponCommandService.claimTransfer(request.getCode(),
                 readUserId(httpRequest)));
+    }
+
+    @GetMapping("/coupons/listByCart")
+    public ApiResponse<List<CouponView>> listByCart(
+            HttpServletRequest httpRequest,
+            @RequestParam(required = false) Integer type) {
+        return executeQuery(() -> toCouponViews(readUserId(httpRequest), 0));
     }
 
     private CouponType toCouponType(CouponTypeCreateRequest request, Long userId) {

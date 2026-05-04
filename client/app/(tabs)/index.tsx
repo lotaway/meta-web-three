@@ -92,7 +92,7 @@ function HomeHeader({ colors }: { colors: typeof Colors.light }) {
   const { t } = useTranslation();
   return (
     <View style={[styles.header, { backgroundColor: colors.background }]}>
-      <TouchableOpacity style={styles.searchBox}>
+      <TouchableOpacity style={styles.searchBox} onPress={() => router.push('/search')}>
         <IconSymbol name="magnifyingglass" size={20} color={colors.fontColorLight} />
         <Text style={[styles.searchText, { color: colors.fontColorLight }]}>
           {t('common.search_placeholder')}

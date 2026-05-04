@@ -16,7 +16,7 @@ import java.util.List;
 
 @Validated
 @RestController
-@RequestMapping("/v1/cart")
+@RequestMapping("/cart")
 @RequiredArgsConstructor
 @Tag(name = "Cart Management", description = "Endpoints for shopping cart lifecycle and management")
 public class CartController {
@@ -38,7 +38,7 @@ public class CartController {
     }
 
     @Operation(summary = "Update cart item quantity")
-    @PutMapping("/update/quantity")
+    @GetMapping("/update/quantity")
     public ApiResponse<Integer> updateQuantity(@RequestHeader(HeaderConstants.USER_ID) Long userId,
             @RequestParam Long id,
             @RequestParam Integer quantity) {
@@ -46,7 +46,7 @@ public class CartController {
     }
 
     @Operation(summary = "Remove items from cart")
-    @DeleteMapping("/delete")
+    @PostMapping("/delete")
     public ApiResponse<Integer> delete(@RequestHeader(HeaderConstants.USER_ID) Long userId,
             @RequestParam("ids") List<Long> ids) {
         return ApiResponse.success(cartService.delete(userId, ids));
@@ -56,5 +56,27 @@ public class CartController {
     @PostMapping("/clear")
     public ApiResponse<Integer> clear(@RequestHeader(HeaderConstants.USER_ID) Long userId) {
         return ApiResponse.success(cartService.clear(userId));
+    }
+
+    @Operation(summary = "List cart items with promotion info")
+    @GetMapping("/list/promotion")
+    public ApiResponse<List<CartItemDTO>> listWithPromotion(@RequestHeader(HeaderConstants.USER_ID) Long userId) {
+        return ApiResponse.success(cartService.listWithPromotion(userId));
+    }
+
+    @Operation(summary = "Update cart item attributes/SKU")
+    @PostMapping("/update/attr")
+    public ApiResponse<Void> updateAttributes(@RequestHeader(HeaderConstants.USER_ID) Long userId,
+            @RequestParam Long id,
+            @RequestBody CartItemDTO cartItem) {
+        cartService.updateAttributes(userId, id, cartItem);
+        return ApiResponse.success();
+    }
+
+    @Operation(summary = "Get product SKU options for cart")
+    @GetMapping("/getProduct/{productId}")
+    public ApiResponse<CartItemDTO> getProduct(@RequestHeader(HeaderConstants.USER_ID) Long userId,
+            @PathVariable Long productId) {
+        return ApiResponse.success(cartService.getProductOptions(userId, productId));
     }
 }
