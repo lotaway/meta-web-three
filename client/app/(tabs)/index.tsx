@@ -99,10 +99,10 @@ function HomeHeader({ colors }: { colors: typeof Colors.light }) {
         </Text>
       </TouchableOpacity>
       <View style={styles.headerIcons}>
-        <TouchableOpacity style={styles.headerIcon}>
+        <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/scanner')}>
           <IconSymbol name="qrcode.viewfinder" size={24} color={colors.fontColorDark} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.headerIcon}>
+        <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/notifications')}>
           <IconSymbol name="bell" size={24} color={colors.fontColorDark} />
         </TouchableOpacity>
       </View>

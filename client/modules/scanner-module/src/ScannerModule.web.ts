@@ -12,8 +12,6 @@ class ScannerModule extends NativeModule<ScannerModuleEvents> {
       return false;
     }
   }
-}
-  }
 
   startScanning() {}
   stopScanning() {}
