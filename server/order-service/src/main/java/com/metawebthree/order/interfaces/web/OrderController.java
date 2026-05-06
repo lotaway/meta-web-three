@@ -102,8 +102,21 @@ public class OrderController {
         return ApiResponse.error(ResponseStatus.ORDER_STATUS_INVALID);
     }
 
-    @GetMapping("/micro-service-test")
+     @GetMapping("/micro-service-test")
     public String microServiceTest() {
         return "Order service is running";
+    }
+
+    /**
+     * 自动取消超时订单
+     * 可由定时任务或管理后台调用
+     */
+    @Operation(summary = "自动取消超时订单", description = "取消超过指定时间未支付的订单")
+    @PostMapping("/cancelTimeOutOrder")
+    public ApiResponse<Integer> cancelTimeOutOrder(
+            @Parameter(description = "超时时间（分钟），默认30分钟") 
+            @RequestParam(defaultValue = "30") Integer timeoutMinutes) {
+        int count = orderService.cancelTimeOutOrder(timeoutMinutes);
+        return ApiResponse.success(count);
     }
 }

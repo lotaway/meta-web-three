@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -111,6 +113,32 @@ public class PayController {
         } catch (Exception e) {
             log.error("Query alipay status failed", e);
             return ApiResponse.error(ResponseStatus.SYSTEM_ERROR);
+        }
+    }
+
+    /**
+     * 支付宝异步回调接口
+     * 必须为POST请求
+     * 支付宝文档：https://opendocs.alipay.com/open/270/105902
+     */
+    @Operation(summary = "支付宝异步回调", description = "处理支付宝支付异步通知回调")
+    @PostMapping("/alipay/callback")
+    public String alipayCallback(HttpServletRequest request) {
+        // 获取所有请求参数
+        Map<String, String> params = new HashMap<>();
+        Map<String, String[]> requestParams = request.getParameterMap();
+        for (String name : requestParams.keySet()) {
+            params.put(name, request.getParameter(name));
+        }
+        
+        log.info("Alipay callback received: {}", params);
+        
+        try {
+            String result = paymentService.handleAlipayCallback(params);
+            return result;
+        } catch (Exception e) {
+            log.error("Alipay callback processing failed", e);
+            return "failure";
         }
     }
 }

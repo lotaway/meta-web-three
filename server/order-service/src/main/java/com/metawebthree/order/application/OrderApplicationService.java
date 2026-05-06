@@ -186,6 +186,43 @@ public class OrderApplicationService {
         return updated;
     }
 
+    /**
+     * 自动取消超时订单
+     * 查询超时未支付的订单（状态为CREATED），并更新状态为CANCELED
+     * 
+     * @param timeoutMinutes 超时时间（分钟）
+     * @return 取消的订单数量
+     */
+    @Transactional
+    public int cancelTimeOutOrder(int timeoutMinutes) {
+        // 查询超时未支付订单
+        LocalDateTime timeoutTime = LocalDateTime.now().minusMinutes(timeoutMinutes);
+        List<OrderDO> timeoutOrders = orderMapper.selectList(
+                new LambdaQueryWrapper<OrderDO>()
+                        .eq(OrderDO::getOrderStatus, "CREATED")
+                        .lt(OrderDO::getCreatedAt, timeoutTime)
+        );
+
+        if (timeoutOrders.isEmpty()) {
+            return 0;
+        }
+
+        // 批量更新订单状态为CANCELED
+        List<Long> orderIds = timeoutOrders.stream()
+                .map(OrderDO::getId)
+                .collect(Collectors.toList());
+
+        for (OrderDO order : timeoutOrders) {
+            order.setOrderStatus("CANCELED");
+            orderMapper.updateById(order);
+        }
+
+        // TODO: 恢复库存锁定、返还优惠券、返还积分等操作
+        // 参考 temp/mall 的实现
+
+        return timeoutOrders.size();
+    }
+
     @Data
     @io.swagger.v3.oas.annotations.media.Schema(description = "订单商品创建")
     public static class OrderItemCreate {

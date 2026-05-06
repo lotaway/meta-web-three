@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,104 +7,140 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
-  Alert,
-} from 'react-native'
-import { useRouter } from 'expo-router'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useTranslation } from 'react-i18next'
-import { useFocusEffect } from '@react-navigation/native'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { Colors } from '@/constants/Colors'
-import { useColorScheme } from '@/hooks/useColorScheme'
-import { IconSymbol } from '@/components/ui/IconSymbol'
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
+import { useFocusEffect } from '@react-navigation/native';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { productCollectionApi, DEFAULT_USER_ID } from '@/api/generated';
+import type { ProductDTO } from '@/src/generated/api/models';
 
-const FAVORITES_KEY = '@meta_web_three:favorites'
-
-interface FavoriteProduct {
-  id: number
-  name: string
-  pic: string
-  price: number
-  originalPrice?: number
-  addedAt: string
-}
+const PAGE_SIZE = 10;
 
 export default function FavoritesScreen() {
-  const { t } = useTranslation()
-  const router = useRouter()
-  const colorScheme = useColorScheme() ?? 'light'
-  const colors = Colors[colorScheme]
+  const { t } = useTranslation();
+  const router = useRouter();
+  const colorScheme = useColorScheme() ?? 'light';
+  const colors = Colors[colorScheme];
 
-  const [favorites, setFavorites] = useState<FavoriteProduct[]>([])
-  const [loading, setLoading] = useState(true)
+  const [favorites, setFavorites] = useState<ProductDTO[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const pageNumRef = useRef(1);
 
-  const loadFavorites = useCallback(async () => {
-    setLoading(true)
-    try {
-      const data = await AsyncStorage.getItem(FAVORITES_KEY)
-      if (data) {
-        setFavorites(JSON.parse(data))
-      } else {
-        setFavorites([])
-      }
-    } catch {
-      setFavorites([])
-    } finally {
-      setLoading(false)
+  const loadFavorites = useCallback(async (isRefresh = false) => {
+    if (loading || loadingMore) return;
+
+    if (isRefresh) {
+      setLoading(true);
+      pageNumRef.current = 1;
+    } else {
+      if (!hasMore) return;
+      setLoadingMore(true);
     }
-  }, [])
+
+    try {
+      const response = await productCollectionApi.list({
+        xUserId: DEFAULT_USER_ID,
+        pageNum: pageNumRef.current,
+        pageSize: PAGE_SIZE,
+      });
+
+      if (response.data) {
+        const newItems = response.data as ProductDTO[];
+        if (isRefresh) {
+          setFavorites(newItems);
+        } else {
+          setFavorites(prev => [...prev, ...newItems]);
+        }
+        setHasMore(newItems.length >= PAGE_SIZE);
+        pageNumRef.current += 1;
+      }
+    } catch (error) {
+      console.error('Load favorites failed:', error);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, [loading, loadingMore, hasMore]);
 
   useFocusEffect(
     useCallback(() => {
-      loadFavorites()
+      loadFavorites(true);
     }, [loadFavorites])
-  )
+  );
 
-  const handleRemove = async (id: number) => {
-    const updated = favorites.filter(f => f.id !== id)
-    setFavorites(updated)
+  const handleRemove = async (productId: number) => {
     try {
-      await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(updated))
-    } catch {
-      Alert.alert(t('common.error'), t('favorites.remove_failed'))
+      await productCollectionApi.delete({
+        xUserId: DEFAULT_USER_ID,
+        productId,
+      });
+      setFavorites(prev => prev.filter(item => item.id !== productId));
+    } catch (error) {
+      console.error('Remove favorite failed:', error);
     }
-  }
+  };
 
   const handleProductPress = (id: number) => {
-    router.push({ pathname: '/product/[id]', params: { id } })
-  }
+    router.push({ pathname: '/product/[id]', params: { id } });
+  };
 
-  const renderProductItem = ({ item }: { item: FavoriteProduct }) => (
-    <TouchableOpacity style={styles.productCard} onPress={() => handleProductPress(item.id)}>
-      <Image source={{ uri: item.pic }} style={styles.productImage} />
+  const renderProductItem = ({ item }: { item: ProductDTO }) => (
+    <TouchableOpacity
+      style={[styles.productCard, { backgroundColor: colors.card }]}
+      onPress={() => handleProductPress(item.id!)}
+    >
+      <Image
+        source={{ uri: item.pic || 'https://via.placeholder.com/90' }}
+        style={styles.productImage}
+      />
       <View style={styles.productInfo}>
         <Text numberOfLines={2} style={[styles.productName, { color: colors.text }]}>
           {item.name}
         </Text>
+        {item.subTitle && (
+          <Text numberOfLines={1} style={[styles.subTitle, { color: colors.textSecondary }]}>
+            {item.subTitle}
+          </Text>
+        )}
         <View style={styles.priceRow}>
-          <Text style={[styles.price, { color: colors.primary }]}>¥{item.price}</Text>
-          {item.originalPrice && item.originalPrice > item.price && (
-            <Text style={[styles.originalPrice, { color: colors.textSecondary }]}>
-              ¥{item.originalPrice}
-            </Text>
-          )}
+          <Text style={[styles.price, { color: colors.tint }]}>¥{item.price}</Text>
         </View>
-        <Text style={[styles.addedAt, { color: colors.textSecondary }]}>
-          {t('favorites.added_at')}: {new Date(item.addedAt).toLocaleDateString()}
-        </Text>
       </View>
       <TouchableOpacity
         style={styles.removeBtn}
-        onPress={() => handleRemove(item.id)}
+        onPress={() => handleRemove(item.id!)}
       >
         <IconSymbol name="heart.fill" size={20} color="#FF3B30" />
       </TouchableOpacity>
     </TouchableOpacity>
-  )
+  );
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+            <IconSymbol name="chevron.left" size={24} color={colors.text} />
+          </TouchableOpacity>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>{t('favorites.title')}</Text>
+          <View style={styles.headerRight} />
+        </View>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.tint} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <IconSymbol name="chevron.left" size={24} color={colors.text} />
         </TouchableOpacity>
@@ -112,15 +148,14 @@ export default function FavoritesScreen() {
         <View style={styles.headerRight} />
       </View>
 
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      ) : favorites.length === 0 ? (
+      {favorites.length === 0 ? (
         <View style={styles.emptyContainer}>
           <IconSymbol name="heart" size={60} color={colors.textSecondary} />
           <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{t('favorites.empty')}</Text>
-          <TouchableOpacity style={[styles.goShoppingBtn, { backgroundColor: colors.primary }]} onPress={() => router.replace('/(tabs)')}>
+          <TouchableOpacity
+            style={[styles.goShoppingBtn, { backgroundColor: colors.tint }]}
+            onPress={() => router.replace('/(tabs)')}
+          >
             <Text style={styles.goShoppingBtnText}>{t('favorites.go_shopping')}</Text>
           </TouchableOpacity>
         </View>
@@ -130,10 +165,23 @@ export default function FavoritesScreen() {
           keyExtractor={(item) => String(item.id)}
           renderItem={renderProductItem}
           contentContainerStyle={styles.listContent}
+          onEndReached={() => loadFavorites(false)}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            loadingMore ? (
+              <View style={styles.footer}>
+                <ActivityIndicator size="small" color={colors.tint} />
+              </View>
+            ) : !hasMore && favorites.length > 0 ? (
+              <View style={styles.footer}>
+                <Text style={{ color: colors.textSecondary }}>{t('common.no_more_data')}</Text>
+              </View>
+            ) : null
+          }
         />
       )}
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -143,7 +191,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 12,
-    borderBottomWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   backBtn: { padding: 8 },
   headerTitle: {
@@ -175,7 +223,6 @@ const styles = StyleSheet.create({
   listContent: { padding: 12 },
   productCard: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
@@ -193,26 +240,26 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: 14,
     lineHeight: 20,
+    marginBottom: 4,
+  },
+  subTitle: {
+    fontSize: 12,
     marginBottom: 8,
   },
   priceRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
     gap: 8,
-    marginBottom: 4,
   },
   price: {
     fontSize: 18,
     fontWeight: 'bold',
   },
-  originalPrice: {
-    fontSize: 13,
-    textDecorationLine: 'line-through',
-  },
-  addedAt: {
-    fontSize: 12,
-  },
   removeBtn: {
     padding: 8,
   },
-})
+  footer: {
+    padding: 16,
+    alignItems: 'center',
+  },
+});

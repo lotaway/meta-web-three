@@ -13,4 +13,12 @@ public interface PaymentService {
     boolean verifyPayment(String orderId, String transactionId, Long userId);
     
     Map<String, Object> queryAlipayStatus(String outTradeNo, Long userId);
+    
+    /**
+     * 处理支付宝异步回调
+     * 
+     * @param params 回调参数
+     * @return "success" 表示处理成功，"failure" 表示处理失败
+     */
+    String handleAlipayCallback(Map<String, String> params);
 }

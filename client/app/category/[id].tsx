@@ -1,361 +1,433 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
-  Image,
   TouchableOpacity,
+  Image,
   ActivityIndicator,
-} from 'react-native'
-import { useRouter, useLocalSearchParams } from 'expo-router'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useTranslation } from 'react-i18next'
-import { Colors } from '@/constants/Colors'
-import { useColorScheme } from '@/hooks/useColorScheme'
-import { IconSymbol } from '@/components/ui/IconSymbol'
-import { productApi, categoryApi } from '@/api/generated'
-import type { ProductDTO } from '@/src/generated/api/models'
+  Dimensions,
+} from 'react-native';
+import { useLocalSearchParams, router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import { productApi, categoryApi } from '@/api/generated';
+import type { ProductDTO } from '@/src/generated/api/models';
 
-type SortType = 'default' | 'price_asc' | 'price_desc' | 'sales'
+const { width: WINDOW_WIDTH } = Dimensions.get('window');
+const PRODUCT_WIDTH = (WINDOW_WIDTH - 24 - 12) / 2; // 2列，24是padding，12是间距
 
-export default function CategoryProductListScreen() {
-  const { t } = useTranslation()
-  const router = useRouter()
-  const colorScheme = useColorScheme() ?? 'light'
-  const colors = Colors[colorScheme]
-  const params = useLocalSearchParams()
+type SortType = 'comprehensive' | 'sales' | 'price-asc' | 'price-desc';
+
+export default function CategoryListScreen() {
+  const { t } = useTranslation();
+  const { id } = useLocalSearchParams();
+  const colorScheme = useColorScheme() ?? 'light';
+  const colors = Colors[colorScheme];
   
-  const categoryId = params.id ? parseInt(params.id as string, 10) : 0
-  const categoryName = params.name as string || ''
+  const [products, setProducts] = useState<ProductDTO[]>([]);
+  const [cateList, setCateList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [sortType, setSortType] = useState<SortType>('comprehensive');
+  const [priceOrder, setPriceOrder] = useState<'asc' | 'desc'>('asc');
+  const [cateMaskVisible, setCateMaskVisible] = useState(false);
+  const [selectedCateId, setSelectedCateId] = useState<number | null>(
+    id ? Number(id) : null
+  );
+  
+  const pageNumRef = useRef(1);
+  const pageSize = 10;
 
-  const [products, setProducts] = useState<ProductDTO[]>([])
-  const [loading, setLoading] = useState(true)
-  const [sortType, setSortType] = useState<SortType>('default')
-  const [viewType, setViewType] = useState<'grid' | 'list'>('grid')
-
-  const loadProducts = useCallback(async () => {
-    setLoading(true)
-    try {
-      const response = await productApi.listProducts({ categoryId })
-      let result = response.data || []
-      
-      switch (sortType) {
-        case 'price_asc':
-          result = [...result].sort((a, b) => (a.price || 0) - (b.price || 0))
-          break
-        case 'price_desc':
-          result = [...result].sort((a, b) => (b.price || 0) - (a.price || 0))
-          break
-        case 'sales':
-          result = [...result].sort((a, b) => (b.sale || 0) - (a.sale || 0))
-          break
-      }
-      
-      setProducts(result)
-    } catch (error) {
-      console.error('Failed to load products:', error)
-    } finally {
-      setLoading(false)
+  // 排序映射
+  const getSortParam = (): number => {
+    switch (sortType) {
+      case 'comprehensive': return 0;
+      case 'sales': return 2;
+      case 'price-asc': return 3;
+      case 'price-desc': return 4;
+      default: return 0;
     }
-  }, [categoryId, sortType])
+  };
 
+  // 加载分类列表
+  const loadCateList = useCallback(async () => {
+    try {
+      const parentId = id ? Math.floor(Number(id) / 100) * 100 : 0; // 简单估算父ID
+      const response = await categoryApi.viewChildren({ parentId });
+      if (response.data) {
+        setCateList(response.data as any[]);
+      }
+    } catch (error) {
+      console.error('Load category list failed:', error);
+    }
+  }, [id]);
+
+  // 加载商品
+  const loadProducts = useCallback(async (isRefresh = false) => {
+    if (loading || loadingMore) return;
+    
+    if (isRefresh) {
+      setLoading(true);
+      pageNumRef.current = 1;
+    } else {
+      if (!hasMore) return;
+      setLoadingMore(true);
+    }
+
+    try {
+      const response = await productApi.listProducts({
+        productCategoryId: selectedCateId || undefined,
+        pageNum: pageNumRef.current,
+        pageSize,
+        sort: getSortParam(),
+      });
+
+      if (response.data) {
+        const newProducts = response.data as ProductDTO[];
+        if (isRefresh) {
+          setProducts(newProducts);
+        } else {
+          setProducts(prev => [...prev, ...newProducts]);
+        }
+        setHasMore(newProducts.length >= pageSize);
+        pageNumRef.current += 1;
+      }
+    } catch (error) {
+      console.error('Load products failed:', error);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, [selectedCateId, sortType, loading, loadingMore, hasMore]);
+
+  // 初始加载
   React.useEffect(() => {
-    loadProducts()
-  }, [loadProducts])
+    loadCateList();
+    loadProducts(true);
+  }, []);
 
-  const handleSort = (type: SortType) => {
-    setSortType(type)
-  }
+  // 切换分类
+  const handleCateChange = (cateId: number) => {
+    setSelectedCateId(cateId);
+    setCateMaskVisible(false);
+    setProducts([]);
+    pageNumRef.current = 1;
+    loadProducts(true);
+  };
 
+  // 切换排序
+  const handleSortChange = (type: SortType) => {
+    if (type === 'price-asc' || type === 'price-desc') {
+      if (sortType === 'price-asc') {
+        setSortType('price-desc');
+      } else if (sortType === 'price-desc') {
+        setSortType('price-asc');
+      } else {
+        setSortType(type);
+      }
+    } else {
+      setSortType(type);
+    }
+    setProducts([]);
+    pageNumRef.current = 1;
+    loadProducts(true);
+  };
+
+  // 查看商品详情
   const handleProductPress = (productId: number) => {
-    router.push({ pathname: '/product/[id]', params: { id: productId } })
-  }
+    router.push({ pathname: '/product/[id]', params: { id: productId } });
+  };
 
-  const renderHeader = () => (
-    <View style={[styles.header, { backgroundColor: colors.background }]}>
-      <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-        <IconSymbol name="chevron.left" size={24} color={colors.text} />
-      </TouchableOpacity>
-      <Text style={[styles.headerTitle, { color: colors.text }]}>
-        {categoryName || t('category.title')}
-      </Text>
-      <View style={styles.headerRight}>
-        <TouchableOpacity onPress={() => setViewType(viewType === 'grid' ? 'list' : 'grid')}>
-          <IconSymbol
-            name={viewType === 'grid' ? 'square.grid.2x2' : 'list.bullet'}
-            size={24}
-            color={colors.text}
-          />
-        </TouchableOpacity>
+  // 渲染商品项
+  const renderProductItem = ({ item }: { item: ProductDTO }) => (
+    <TouchableOpacity
+      style={[styles.productItem, { backgroundColor: colors.card }]}
+      onPress={() => handleProductPress(item.id!)}
+    >
+      <Image
+        source={{ uri: item.pic || 'https://via.placeholder.com/150' }}
+        style={styles.productImage}
+        resizeMode="cover"
+      />
+      <View style={styles.productInfo}>
+        <Text style={[styles.productName, { color: colors.text }]} numberOfLines={2}>
+          {item.name}
+        </Text>
+        <Text style={[styles.productSubtitle, { color: colors.textSecondary }]} numberOfLines={1}>
+          {item.subTitle}
+        </Text>
+        <View style={styles.priceRow}>
+          <Text style={[styles.price, { color: colors.tint }]}>
+            ¥{item.price}
+          </Text>
+          <Text style={[styles.sales, { color: colors.textSecondary }]}>
+            {t('product.sold')} {item.sale || 0}
+          </Text>
+        </View>
       </View>
-    </View>
-  )
+    </TouchableOpacity>
+  );
 
+  // 渲染排序栏
   const renderSortBar = () => (
     <View style={[styles.sortBar, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
       <TouchableOpacity
-        style={[styles.sortItem, sortType === 'default' && styles.sortItemActive]}
-        onPress={() => handleSort('default')}
+        style={[styles.sortItem, sortType === 'comprehensive' && styles.sortItemActive]}
+        onPress={() => handleSortChange('comprehensive')}
       >
-        <Text style={[styles.sortText, { color: sortType === 'default' ? colors.primary : colors.text }]}>
-          {t('category.sort_default')}
+        <Text style={[styles.sortText, sortType === 'comprehensive' && styles.sortTextActive]}>
+          {t('search.sort.comprehensive')}
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.sortItem, sortType === 'price_asc' && styles.sortItemActive]}
-        onPress={() => handleSort('price_asc')}
-      >
-        <Text style={[styles.sortText, { color: sortType === 'price_asc' ? colors.primary : colors.text }]}>
-          {t('category.sort_price')}
-        </Text>
-        <IconSymbol
-          name={sortType === 'price_asc' ? 'arrow.up' : 'arrow.up.arrow.down'}
-          size={12}
-          color={sortType === 'price_asc' ? colors.primary : colors.textSecondary}
-        />
-      </TouchableOpacity>
+      
       <TouchableOpacity
         style={[styles.sortItem, sortType === 'sales' && styles.sortItemActive]}
-        onPress={() => handleSort('sales')}
+        onPress={() => handleSortChange('sales')}
       >
-        <Text style={[styles.sortText, { color: sortType === 'sales' ? colors.primary : colors.text }]}>
-          {t('category.sort_sales')}
+        <Text style={[styles.sortText, sortType === 'sales' && styles.sortTextActive]}>
+          {t('search.sort.sales')}
         </Text>
       </TouchableOpacity>
-    </View>
-  )
-
-  const renderProductCard = ({ item }: { item: ProductDTO }) => {
-    if (viewType === 'grid') {
-      return (
-        <TouchableOpacity style={styles.gridProductCard} onPress={() => handleProductPress(item.id!)}>
-          <Image
-            source={{ uri: item.pic || item.album?.[0] || '' }}
-            style={styles.gridProductImage}
+      
+      <TouchableOpacity
+        style={[styles.sortItem, (sortType === 'price-asc' || sortType === 'price-desc') && styles.sortItemActive]}
+        onPress={() => handleSortChange('price-asc')}
+      >
+        <Text style={[styles.sortText, (sortType === 'price-asc' || sortType === 'price-desc') && styles.sortTextActive]}>
+          {t('search.sort.price')}
+        </Text>
+        <View style={styles.priceOrderIcons}>
+          <IconSymbol
+            name="chevron.up"
+            size={12}
+            color={sortType === 'price-asc' ? colors.tint : colors.textSecondary}
           />
-          <View style={styles.gridProductInfo}>
-            <Text numberOfLines={2} style={[styles.gridProductName, { color: colors.text }]}>
-              {item.name}
-            </Text>
-            <View style={styles.priceRow}>
-              <Text style={[styles.gridProductPrice, { color: colors.primary }]}>
-                ¥{item.price}
-              </Text>
-              {item.originalPrice && item.originalPrice > (item.price || 0) && (
-                <Text style={[styles.originalPrice, { color: colors.textSecondary }]}>
-                  ¥{item.originalPrice}
-                </Text>
-              )}
-            </View>
-          </View>
-        </TouchableOpacity>
-      )
-    }
-
-    return (
-      <TouchableOpacity style={styles.listProductCard} onPress={() => handleProductPress(item.id!)}>
-        <Image
-          source={{ uri: item.pic || item.album?.[0] || '' }}
-          style={styles.listProductImage}
-        />
-        <View style={styles.listProductInfo}>
-          <Text numberOfLines={2} style={[styles.listProductName, { color: colors.text }]}>
-            {item.name}
-          </Text>
-          <Text numberOfLines={1} style={[styles.listProductSubtitle, { color: colors.textSecondary }]}>
-            {item.subTitle || ''}
-          </Text>
-          <View style={styles.listPriceRow}>
-            <Text style={[styles.listProductPrice, { color: colors.primary }]}>
-              ¥{item.price}
-            </Text>
-            {item.sale && item.sale > 0 && (
-              <Text style={[styles.salesText, { color: colors.textSecondary }]}>
-                {t('category.sales')}: {item.sale}
-              </Text>
-            )}
-          </View>
+          <IconSymbol
+            name="chevron.down"
+            size={12}
+            color={sortType === 'price-desc' ? colors.tint : colors.textSecondary}
+          />
         </View>
       </TouchableOpacity>
-    )
+      
+      <TouchableOpacity
+        style={styles.cateButton}
+        onPress={() => setCateMaskVisible(true)}
+      >
+        <IconSymbol name="line.3.horizontal.decrease.circle" size={20} color={colors.text} />
+      </TouchableOpacity>
+    </View>
+  );
+
+  // 渲染分类筛选面板
+  const renderCateMask = () => (
+    <View style={[styles.cateMask, { backgroundColor: 'rgba(0,0,0,0.4)' }]}
+      pointerEvents={cateMaskVisible ? 'auto' : 'none'}
+      style={cateMaskVisible ? styles.cateMaskVisible : styles.cateMaskHidden}
+    >
+      <TouchableOpacity
+        style={styles.cateMaskOverlay}
+        onPress={() => setCateMaskVisible(false)}
+      />
+      <View style={[styles.catePanel, { backgroundColor: colors.background }]}>
+        <FlatList
+          data={cateList}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[
+                styles.cateItem,
+                selectedCateId === item.id && styles.cateItemSelected
+              ]}
+              onPress={() => handleCateChange(item.id)}
+            >
+              <Text style={[
+                styles.cateItemText,
+                { color: selectedCateId === item.id ? colors.tint : colors.text }
+              ]}>
+                {item.name}
+              </Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.tint} />
+      </SafeAreaView>
+    );
   }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      {renderHeader()}
       {renderSortBar()}
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      ) : products.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <IconSymbol name="shippingbox" size={60} color={colors.textSecondary} />
-          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-            {t('category.no_products')}
-          </Text>
-        </View>
-      ) : viewType === 'grid' ? (
-        <FlatList
-          data={products}
-          keyExtractor={(item) => String(item.id)}
-          numColumns={2}
-          columnWrapperStyle={styles.gridRow}
-          contentContainerStyle={styles.gridContent}
-          renderItem={renderProductCard}
-        />
-      ) : (
-        <FlatList
-          data={products}
-          keyExtractor={(item) => String(item.id)}
-          contentContainerStyle={styles.listContent}
-          renderItem={renderProductCard}
-          ItemSeparatorComponent={() => <View style={styles.listSeparator} />}
-        />
-      )}
+      
+      <FlatList
+        data={products}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={renderProductItem}
+        numColumns={2}
+        columnWrapperStyle={styles.productRow}
+        contentContainerStyle={styles.productList}
+        onEndReached={() => loadProducts(false)}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={
+          loadingMore ? (
+            <View style={styles.footer}>
+              <ActivityIndicator size="small" color={colors.tint} />
+            </View>
+          ) : !hasMore && products.length > 0 ? (
+            <View style={styles.footer}>
+              <Text style={{ color: colors.textSecondary }}>{t('common.no_more_data')}</Text>
+            </View>
+          ) : null
+        }
+        ListEmptyComponent={
+          !loading && products.length === 0 ? (
+            <View style={styles.empty}>
+              <Text style={{ color: colors.textSecondary }}>{t('common.no_data')}</Text>
+            </View>
+          ) : null
+        }
+      />
+      
+      {renderCateMask()}
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  backBtn: { padding: 8 },
-  headerTitle: {
+  container: {
     flex: 1,
-    fontSize: 18,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginRight: 40,
-  },
-  headerRight: {
-    position: 'absolute',
-    right: 12,
   },
   sortBar: {
     flexDirection: 'row',
-    borderBottomWidth: 1,
-    paddingHorizontal: 8,
+    alignItems: 'center',
+    height: 44,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    paddingHorizontal: 12,
   },
   sortItem: {
     flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    gap: 4,
+    height: '100%',
   },
   sortItemActive: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#333',
+    // 激活状态样式
   },
   sortText: {
     fontSize: 14,
+    color: '#666',
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  sortTextActive: {
+    color: '#007AFF',
+    fontWeight: '600',
   },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  priceOrderIcons: {
+    marginLeft: 4,
   },
-  emptyText: {
-    marginTop: 12,
-    fontSize: 14,
-  },
-  gridContent: {
+  cateButton: {
     padding: 8,
   },
-  gridRow: {
-    justifyContent: 'space-between',
-    marginBottom: 8,
+  productList: {
+    padding: 12,
   },
-  gridProductCard: {
-    width: '48%',
+  productRow: {
+    justifyContent: 'space-between',
+  },
+  productItem: {
+    width: PRODUCT_WIDTH,
+    marginBottom: 12,
     borderRadius: 8,
     overflow: 'hidden',
-    backgroundColor: '#fff',
   },
-  gridProductImage: {
+  productImage: {
     width: '100%',
-    aspectRatio: 1,
-    borderRadius: 8,
+    height: PRODUCT_WIDTH,
   },
-  gridProductInfo: {
+  productInfo: {
     padding: 8,
   },
-  gridProductName: {
+  productName: {
     fontSize: 14,
-    lineHeight: 20,
+    fontWeight: '500',
     marginBottom: 4,
+  },
+  productSubtitle: {
+    fontSize: 12,
+    marginBottom: 8,
   },
   priceRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 8,
   },
-  gridProductPrice: {
+  price: {
     fontSize: 16,
     fontWeight: 'bold',
   },
-  originalPrice: {
+  sales: {
     fontSize: 12,
-    textDecorationLine: 'line-through',
   },
-  listContent: {
-    padding: 8,
+  cateMask: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 100,
   },
-  listSeparator: {
-    height: 8,
+  cateMaskVisible: {
+    display: 'flex',
   },
-  listProductCard: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    overflow: 'hidden',
-    padding: 12,
+  cateMaskHidden: {
+    display: 'none',
   },
-  listProductImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 8,
-  },
-  listProductInfo: {
+  cateMaskOverlay: {
     flex: 1,
-    marginLeft: 12,
-    justifyContent: 'space-between',
   },
-  listProductName: {
-    fontSize: 16,
-    fontWeight: '500',
-    lineHeight: 22,
+  catePanel: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: 200,
+    padding: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: -2, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
   },
-  listProductSubtitle: {
-    fontSize: 13,
-    marginTop: 4,
+  cateItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#eee',
   },
-  listPriceRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  cateItemSelected: {
+    backgroundColor: '#f0f0f0',
+  },
+  cateItemText: {
+    fontSize: 14,
+  },
+  footer: {
+    padding: 16,
     alignItems: 'center',
-    marginTop: 8,
   },
-  listProductPrice: {
-    fontSize: 18,
-    fontWeight: 'bold',
+  empty: {
+    padding: 40,
+    alignItems: 'center',
   },
-  salesText: {
-    fontSize: 12,
-  },
-})
+});

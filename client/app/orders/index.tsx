@@ -50,24 +50,51 @@ export default function OrdersScreen() {
   const [activeTab, setActiveTab] = useState<OrderStatus>(initialStatus)
   const [orders, setOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const pageNumRef = useRef(1)
+  const PAGE_SIZE = 10
 
-  const loadOrders = useCallback(async () => {
-    if (!userId) return
-    setLoading(true)
+  const loadOrders = useCallback(async (isRefresh = false) => {
+    if (!userId || loading || loadingMore) return
+
+    if (isRefresh) {
+      setLoading(true)
+      pageNumRef.current = 1
+    } else {
+      if (!hasMore) return
+      setLoadingMore(true)
+    }
+
     try {
       const response = await orderApi.listByUserId({
         userId,
         status: STATUS_MAP[activeTab],
+        pageNum: pageNumRef.current,
+        pageSize: PAGE_SIZE,
       } as any)
       if (response.data) {
-        setOrders(response.data)
+        const newOrders = response.data as any[]
+        if (isRefresh) {
+          setOrders(newOrders)
+        } else {
+          setOrders(prev => [...prev, ...newOrders])
+        }
+        setHasMore(newOrders.length >= PAGE_SIZE)
+        pageNumRef.current += 1
       }
     } catch (error) {
       console.error('Failed to load orders:', error)
     } finally {
       setLoading(false)
+      setLoadingMore(false)
     }
-  }, [userId, activeTab])
+  }, [userId, activeTab, loading, loadingMore, hasMore])
+
+  // 切换tab时刷新
+  React.useEffect(() => {
+    loadOrders(true)
+  }, [activeTab])
 
   useFocusEffect(
     useCallback(() => {
@@ -227,6 +254,19 @@ export default function OrdersScreen() {
           keyExtractor={(item) => String(item.id)}
           renderItem={renderOrderItem}
           contentContainerStyle={styles.listContent}
+          onEndReached={() => loadOrders(false)}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            loadingMore ? (
+              <View style={styles.footer}>
+                <ActivityIndicator size="small" color={colors.primary} />
+              </View>
+            ) : !hasMore && orders.length > 0 ? (
+              <View style={styles.footer}>
+                <Text style={{ color: colors.textSecondary }}>{t('common.no_more_data')}</Text>
+              </View>
+            ) : null
+          }
         />
       )}
     </SafeAreaView>
