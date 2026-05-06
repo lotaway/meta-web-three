@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   }
   s.swift_version  = '5.9'
   s.source         = { git: 'https://github.com/lotaway/scanner-module' }
-  s.static_framework = true
+  s.static_framework = false
 
   s.dependency 'ExpoModulesCore'
 

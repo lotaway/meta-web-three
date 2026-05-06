@@ -1,36 +1,106 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  Image,
   TouchableOpacity,
   Alert,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import PasskeyAuthDemo from '@/components/PasskeyAuthDemo';
-import { FEATURE_PASSKEY_ENABLED } from '@/constants/Features';
+  ActivityIndicator,
+} from 'react-native'
+import { LinearGradient } from 'expo-linear-gradient'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { useRouter } from 'expo-router'
+import { IconSymbol } from '@/components/ui/IconSymbol'
+import { Colors } from '@/constants/Colors'
+import { useColorScheme } from '@/hooks/useColorScheme'
+import { useAuth } from '@/contexts/AuthContext'
+import PasskeyAuthDemo from '@/components/PasskeyAuthDemo'
+import { FEATURE_PASSKEY_ENABLED } from '@/constants/Features'
+import { userApi, notificationApi, DEFAULT_USER_ID } from '@/api/generated'
+import type { UserDTO } from '@/src/generated/api/models'
 
 interface MallUserAccount {
-  nickname: string;
-  integration: number;
-  growth: number;
-  couponCount: number;
+  id?: number
+  nickname: string
+  avatar?: string
+  integration: number
+  growth: number
+  couponCount: number
 }
 
+function requireAuth(authenticated: boolean, router: any, callback: () => void) {
+  if (!authenticated) {
+    router.push('/auth/login')
+    return
+  }
+  callback()
+}
 
 export default function ProfileScreen() {
-  const { t, i18n } = useTranslation();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
-  const router = useRouter();
+  const { t, i18n } = useTranslation()
+  const colorScheme = useColorScheme() ?? 'light'
+  const colors = Colors[colorScheme]
+  const router = useRouter()
+  const { isAuthenticated, userId, login, refreshUser } = useAuth()
+  const [isLoading, setIsLoading] = useState(true)
+  const [currentUser, setCurrentUser] = useState<MallUserAccount | null>(null)
+  const [unreadNotifications, setUnreadNotifications] = useState(0)
+
+  useEffect(() => {
+    loadUserProfile()
+  }, [isAuthenticated, userId])
+
+  async function loadUserProfile() {
+    setIsLoading(true)
+    try {
+      if (isAuthenticated && userId) {
+        const response = await userApi.info({ xUserId: userId })
+        if (response.data) {
+          const user = response.data
+          setCurrentUser({
+            id: user.id,
+            nickname: user.nickname || user.username || t('profile.nickname_guest'),
+            avatar: user.avatar,
+            integration: 0,
+            growth: 0,
+            couponCount: 0,
+          })
+        }
+        loadUnreadCount()
+      } else {
+        setCurrentUser({
+          nickname: t('profile.nickname_guest'),
+          integration: 0,
+          growth: 0,
+          couponCount: 0,
+        })
+      }
+    } catch (error) {
+      console.error('Failed to load user profile:', error)
+      setCurrentUser({
+        nickname: t('profile.nickname_guest'),
+        integration: 0,
+        growth: 0,
+        couponCount: 0,
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  async function loadUnreadCount() {
+    try {
+      const response = await notificationApi.unreadCount({ xUserId: DEFAULT_USER_ID })
+      if (response.data != null) {
+        setUnreadNotifications(response.data as number)
+      }
+    } catch (error) {
+      console.error('Failed to load unread count:', error)
+    }
+  }
 
   const changeLanguage = () => {
     Alert.alert(
@@ -40,15 +110,15 @@ export default function ProfileScreen() {
         {
           text: t('settings.zh'),
           onPress: async () => {
-            await i18n.changeLanguage('zh');
-            await AsyncStorage.setItem('user-language', 'zh');
+            await i18n.changeLanguage('zh')
+            await AsyncStorage.setItem('user-language', 'zh')
           },
         },
         {
           text: t('settings.en'),
           onPress: async () => {
-            await i18n.changeLanguage('en');
-            await AsyncStorage.setItem('user-language', 'en');
+            await i18n.changeLanguage('en')
+            await AsyncStorage.setItem('user-language', 'en')
           },
         },
         {
@@ -56,68 +126,75 @@ export default function ProfileScreen() {
           style: 'cancel',
         },
       ],
-    );
-  };
-
-  const currentMallUser: MallUserAccount = {
-    nickname: t('profile.nickname_guest'),
-    integration: 0,
-    growth: 0,
-    couponCount: 0,
-  };
+    )
+  }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <ProfileHeader user={currentMallUser} colors={colors} />
-        
-        <UserStatsSection user={currentMallUser} colors={colors} />
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        ) : (
+          <>
+            <ProfileHeader user={currentUser!} colors={colors} />
 
-        {/* ── Passkey 安全验证区块（功能开关控制，默认隐藏）── */}
-        {FEATURE_PASSKEY_ENABLED && (
-          <PasskeyAuthDemo
-            userId={undefined}   /* 已登录时传入真实 userId，如 userId={currentUser.id} */
-            userName={currentMallUser.nickname}
-            onLoginSuccess={(token) => {
-              Alert.alert('Passkey 登录成功', '已获取授权 Token');
-              // TODO: 将 token 存入全局 auth state / AsyncStorage
-            }}
-          />
+            <UserStatsSection user={currentUser!} colors={colors} />
+
+            {FEATURE_PASSKEY_ENABLED && (
+              <PasskeyAuthDemo
+                userId={isAuthenticated ? userId! : undefined}
+                userName={currentUser?.nickname}
+                onLoginSuccess={async (token) => {
+                  if (userId) {
+                    await login(token, userId)
+                    await refreshUser()
+                    Alert.alert('Passkey 登录成功', 'Token 已保存')
+                  }
+                }}
+              />
+            )}
+
+            <OrderQuickLinksSection colors={colors} isAuthenticated={isAuthenticated} router={router} />
+
+            <View style={styles.menuSection}>
+              <ProfileMenuCell icon="bell.fill" title={t('profile.menu.notification')} color="#FF6B35" onPress={() => requireAuth(isAuthenticated, router, () => router.push('/notifications'))} badge={unreadNotifications > 0 ? unreadNotifications : undefined} />
+              <ProfileMenuCell icon="ticket.fill" title={t('profile.menu.coupon')} color="#FF3B30" onPress={() => requireAuth(isAuthenticated, router, () => router.push('/coupons'))} />
+              <ProfileMenuCell icon="mappin.and.ellipse" title={t('profile.menu.address')} color="#5fcda2" onPress={() => requireAuth(isAuthenticated, router, () => router.push('/address/list'))} />
+              <ProfileMenuCell icon="clock.fill" title={t('profile.menu.history')} color="#e07472" />
+              <ProfileMenuCell icon="star.fill" title={t('profile.menu.following')} color="#5fcda2" />
+              <ProfileMenuCell icon="heart.fill" title={t('profile.menu.favorite')} color="#54b4ef" onPress={() => requireAuth(isAuthenticated, router, () => router.push('/favorites'))} />
+              <ProfileMenuCell icon="star.bubble.fill" title={t('profile.menu.comment')} color="#ee883b" />
+              <ProfileMenuCell icon="globe" title={t('profile.menu.language')} color="#4a90e2" onPress={changeLanguage} />
+              {FEATURE_PASSKEY_ENABLED && (
+                <ProfileMenuCell
+                  icon="faceid"
+                  title="Passkey 安全认证"
+                  color="#fa436a"
+                  onPress={() => router.push('/passkey-demo' as any)}
+                />
+              )}
+              <ProfileMenuCell icon="gearshape.fill" title={t('profile.menu.settings')} color="#e07472" showBorder={false} />
+            </View>
+          </>
         )}
-
-        <OrderQuickLinksSection colors={colors} />
-
-        <View style={styles.menuSection}>
-          <ProfileMenuCell icon="mappin.and.ellipse" title={t('profile.menu.address')} color="#5fcda2" />
-          <ProfileMenuCell icon="clock.fill" title={t('profile.menu.history')} color="#e07472" />
-          <ProfileMenuCell icon="star.fill" title={t('profile.menu.following')} color="#5fcda2" />
-          <ProfileMenuCell icon="heart.fill" title={t('profile.menu.favorite')} color="#54b4ef" />
-          <ProfileMenuCell icon="star.bubble.fill" title={t('profile.menu.comment')} color="#ee883b" />
-          <ProfileMenuCell icon="globe" title={t('profile.menu.language')} color="#4a90e2" onPress={changeLanguage} />
-          {FEATURE_PASSKEY_ENABLED && (
-            <ProfileMenuCell
-              icon="faceid"
-              title="Passkey 安全认证"
-              color="#fa436a"
-              onPress={() => router.push('/passkey-demo' as any)}
-            />
-          )}
-          <ProfileMenuCell icon="gearshape.fill" title={t('profile.menu.settings')} color="#e07472" showBorder={false} />
-        </View>
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
     </SafeAreaView>
-  );
+  )
 }
 
 function ProfileHeader({ user, colors }: { user: MallUserAccount; colors: any }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   return (
     <View style={styles.userSection}>
-      <Image
-        source={{ uri: 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2000' }}
-        style={styles.bgImage}
+      <LinearGradient
+        colors={['#2fbfc7', '#306996', '#31337a', '#30176a']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.bgGradient}
       />
       <View style={styles.userInfoBox}>
         <View style={styles.portraitBox}>
@@ -125,7 +202,7 @@ function ProfileHeader({ user, colors }: { user: MallUserAccount; colors: any })
         </View>
         <Text style={styles.username}>{user.nickname}</Text>
       </View>
-      
+
       <View style={styles.vipCardBox}>
         <View style={styles.vipHeader}>
           <View style={styles.vipTitleLine}>
@@ -140,11 +217,11 @@ function ProfileHeader({ user, colors }: { user: MallUserAccount; colors: any })
         <Text style={styles.vipFootnote}>{t('profile.vip_note')}</Text>
       </View>
     </View>
-  );
+  )
 }
 
 function UserStatsSection({ user, colors }: { user: MallUserAccount; colors: any }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   return (
     <View style={styles.statsSection}>
       <View style={styles.statItem}>
@@ -160,56 +237,67 @@ function UserStatsSection({ user, colors }: { user: MallUserAccount; colors: any
         <Text style={[styles.statLabel, { color: colors.fontColorLight }]}>{t('profile.stats.coupon')}</Text>
       </View>
     </View>
-  );
+  )
 }
 
-function OrderQuickLinksSection({ colors }: { colors: any }) {
-  const { t } = useTranslation();
+function OrderQuickLinksSection({ colors, isAuthenticated, router }: { colors: any; isAuthenticated: boolean; router: any }) {
+  const { t } = useTranslation()
   const ORDER_STATUS_LINKS = [
-    { label: t('profile.orders.all'), icon: 'list.bullet.rectangle' },
-    { label: t('profile.orders.unpaid'), icon: 'creditcard' },
-    { label: t('profile.orders.undelivered'), icon: 'shippingbox' },
-    { label: t('profile.orders.refund'), icon: 'arrow.counterclockwise' },
-  ];
+    { label: t('profile.orders.all'), icon: 'list.bullet.rectangle', action: () => requireAuth(isAuthenticated, router, () => router.push('/orders')) },
+    { label: t('profile.orders.unpaid'), icon: 'creditcard', action: () => requireAuth(isAuthenticated, router, () => router.push('/orders?status=unpaid')) },
+    { label: t('profile.orders.undelivered'), icon: 'shippingbox', action: () => requireAuth(isAuthenticated, router, () => router.push('/orders?status=undelivered')) },
+    { label: t('profile.orders.refund'), icon: 'arrow.counterclockwise', action: () => requireAuth(isAuthenticated, router, () => router.push('/orders?status=refund')) },
+  ]
 
   return (
     <View style={styles.orderSection}>
       <View style={styles.orderHeader}>
         <Text style={[styles.orderTitle, { color: colors.fontColorDark }]}>{t('profile.orders.title')}</Text>
-        <TouchableOpacity style={styles.seeAll}>
+        <TouchableOpacity style={styles.seeAll} onPress={() => requireAuth(isAuthenticated, router, () => router.push('/orders'))}>
           <Text style={{ color: colors.fontColorLight }}>{t('profile.orders.see_all')}</Text>
           <IconSymbol name="chevron.right" size={12} color={colors.fontColorLight} />
         </TouchableOpacity>
       </View>
       <View style={styles.orderGrid}>
         {ORDER_STATUS_LINKS.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.orderItem}>
+          <TouchableOpacity key={index} style={styles.orderItem} onPress={item.action}>
             <IconSymbol name={item.icon as any} size={28} color={colors.primary} />
             <Text style={[styles.orderLabel, { color: colors.fontColorDark }]}>{item.label}</Text>
           </TouchableOpacity>
         ))}
       </View>
     </View>
-  );
+  )
 }
 
-function ProfileMenuCell({ icon, title, color, onPress, showBorder = true }: any) {
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+function ProfileMenuCell({ icon, title, color, onPress, showBorder = true, badge }: any) {
+  const colorScheme = useColorScheme() ?? 'light'
+  const colors = Colors[colorScheme]
   return (
     <TouchableOpacity style={[styles.menuCell, showBorder && styles.bottomBorder]} onPress={onPress}>
       <View style={styles.menuLeft}>
         <IconSymbol name={icon} size={20} color={color} />
         <Text style={[styles.menuTitle, { color: colors.fontColorDark }]}>{title}</Text>
+        {badge != null && badge > 0 && (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{badge > 99 ? '99+' : badge}</Text>
+          </View>
+        )}
       </View>
       <IconSymbol name="chevron.right" size={16} color={colors.fontColorLight} />
     </TouchableOpacity>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 100,
   },
   userSection: {
     height: 260,
@@ -217,13 +305,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     position: 'relative',
   },
-  bgImage: {
+  bgGradient: {
     position: 'absolute',
     left: 0,
     top: 0,
     right: 0,
     bottom: 0,
-    opacity: 0.8,
   },
   userInfoBox: {
     flexDirection: 'row',
@@ -374,7 +461,22 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginLeft: 15,
   },
+  badge: {
+    backgroundColor: '#FF3B30',
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+    paddingHorizontal: 6,
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '600',
+  },
   bottomSpacer: {
     height: 40,
   },
-});
+})

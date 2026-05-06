@@ -25,7 +25,8 @@ public class OrderController {
     @PostMapping("/create")
     public ApiResponse<Long> create(@RequestHeader(HeaderConstants.USER_ID) Long userId,
             @RequestBody OrderCreateRequest request) {
-        Long orderId = orderService.createOrder(userId, request.getRemark(), request.getItems());
+        Long orderId = orderService.createOrder(userId, request.getRemark(), request.getItems(),
+                request.getMemberReceiveAddressId(), request.getCouponId(), request.getUseIntegration());
         return ApiResponse.success(orderId);
     }
 

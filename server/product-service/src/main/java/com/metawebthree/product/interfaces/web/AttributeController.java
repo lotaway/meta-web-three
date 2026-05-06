@@ -12,7 +12,7 @@ import java.util.List;
 
 @Validated
 @RestController
-@RequestMapping("/v1/attributes")
+@RequestMapping("/attribute")
 @RequiredArgsConstructor
 @Tag(name = "Product Attribute Management")
 public class AttributeController {

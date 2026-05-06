@@ -14,7 +14,7 @@ import java.util.List;
 
 @Validated
 @RestController
-@RequestMapping("/v1/addresses")
+@RequestMapping("/member/address")
 @RequiredArgsConstructor
 @Tag(name = "Member Address Management")
 public class MemberAddressController {
@@ -34,15 +34,22 @@ public class MemberAddressController {
         return ApiResponse.success(addressService.listAddresses(memberId));
     }
 
+    @Operation(summary = "Get address by ID")
+    @GetMapping("/{id}")
+    public ApiResponse<MemberAddress> getById(@PathVariable Long id) {
+        return ApiResponse.success(addressService.getAddressById(id));
+    }
+
     @Operation(summary = "Update address")
-    @PutMapping("/{id}")
+    @PostMapping("/update/{id}")
     public ApiResponse<Void> update(@PathVariable Long id, @RequestBody MemberAddress address) {
+        address.setId(id);
         addressService.updateAddress(address);
         return ApiResponse.success();
     }
 
     @Operation(summary = "Remove address")
-    @DeleteMapping("/{id}")
+    @PostMapping("/delete/{id}")
     public ApiResponse<Void> remove(@PathVariable Long id) {
         addressService.removeAddress(id);
         return ApiResponse.success();

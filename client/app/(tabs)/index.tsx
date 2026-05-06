@@ -92,17 +92,17 @@ function HomeHeader({ colors }: { colors: typeof Colors.light }) {
   const { t } = useTranslation();
   return (
     <View style={[styles.header, { backgroundColor: colors.background }]}>
-      <TouchableOpacity style={styles.searchBox}>
+      <TouchableOpacity style={styles.searchBox} onPress={() => router.push('/search')}>
         <IconSymbol name="magnifyingglass" size={20} color={colors.fontColorLight} />
         <Text style={[styles.searchText, { color: colors.fontColorLight }]}>
           {t('common.search_placeholder')}
         </Text>
       </TouchableOpacity>
       <View style={styles.headerIcons}>
-        <TouchableOpacity style={styles.headerIcon}>
+        <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/scanner')}>
           <IconSymbol name="qrcode.viewfinder" size={24} color={colors.fontColorDark} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.headerIcon}>
+        <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/notifications')}>
           <IconSymbol name="bell" size={24} color={colors.fontColorDark} />
         </TouchableOpacity>
       </View>

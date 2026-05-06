@@ -1,5 +1,6 @@
 {
   "name": "meta-web-three-app",
+  "private": true,
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
@@ -11,8 +12,10 @@
     "generate:contract:abi": "node tools/CopyContractABIToTs.js",
     "pkg": "node tools/PackageOutput.js",
     "package": "yarn build && yarn pkg",
-    "skip-postinstall": "cd ./turbo-module/appsdk && yarn install",
-    "setup:ios-sdks": "node scripts/download-ios-sdks.js",
+    "preinstall": "cd ./turbo-module/appsdk && yarn install",
+    "setup:sdks": "node scripts/download-sdks.js",
+    "setup:ios-sdks": "node scripts/download-sdks.js --ios",
+    "setup:android-sdks": "node scripts/download-sdks.js --android",
     "start": "npx expo start --dev-client",
     "reset-project": "node ./scripts/reset-project.js",
     "eandroid": "npx expo start --android",
@@ -21,6 +24,7 @@
     "eios": "npx expo start --ios",
     "ios": "npx expo run:ios",
     "ios:cache": "npx expo run:ios --no-build",
+    "clean": "npx react-native clean",
     "rebuild": "npx expo prebuild --clean",
     "check:expo": "npx expo install --check",
     "fix:expo": "npx expo install --fix",
@@ -32,7 +36,7 @@
     "open:AndroidStudio": "open -a '/Applications/Android Studio.app' ./android",
     "build:android": "cd android && ./gradlew :app:generateDebugSources",
     "build:ios": "npm run pod",
-    "edit:ios": "opeopen netawebthreeapp.xcworkspace",
+    "edit:ios": "open ios/metawebthreeapp.xcworkspace",
     "edit:ios:module": "opeopen ./turbo-module/appsdk/ios/AppdkExample.xcworkspace",
     "check:config": "npx react-native config",
     "deploy:config": "eas build:configure",
@@ -49,7 +53,8 @@
   },
   "workspaces": {
     "packages": [
-      "turbo-module/*"
+      "turbo-module/*",
+      "modules/*"
     ]
   },
   "dependencies": {
@@ -59,7 +64,7 @@
     "@react-navigation/bottom-tabs": "^7.3.10",
     "@react-navigation/elements": "^2.3.8",
     "@react-navigation/native": "^7.1.6",
-    "@stripe/stripe-react-native": "^0.46.0",
+    "@stripe/stripe-react-native": "0.64.0",
     "axios": "^1.14.0",
     "expo": "^54.0.0",
     "expo-blur": "~15.0.8",
@@ -81,7 +86,7 @@
     "react-dom": "19.1.0",
     "react-i18next": "^17.0.2",
     "react-native": "0.81.5",
-    "react-native-appsdk": "workspace:*",
+    "react-native-appsdk": "file:turbo-module/appsdk",
     "react-native-gesture-handler": "~2.28.0",
     "react-native-reanimated": "~4.1.1",
     "react-native-render-html": "^6.3.4",
@@ -89,9 +94,11 @@
     "react-native-screens": "~4.16.0",
     "react-native-web": "^0.21.0",
     "react-native-webview": "13.15.0",
-    "react-native-worklets": "0.5.1"
+    "react-native-worklets": "0.5.1",
+    "scanner-module": "file:modules/scanner-module"
   },
   "devDependencies": {
+    "@react-native-community/cli": "latest",
     "@babel/core": "^7.25.2",
     "@types/react": "~19.1.10",
     "eas-cli": "^16.14.1",
@@ -99,6 +106,5 @@
     "eslint-config-expo": "~10.0.0",
     "react-native-monorepo-config": "^0.1.9",
     "typescript": "~5.9.2"
-  },
-  "private": true
+  }
 }

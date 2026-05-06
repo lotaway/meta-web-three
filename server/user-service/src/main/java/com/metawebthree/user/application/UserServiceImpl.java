@@ -332,4 +332,75 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             return false;
         }
     }
+
+    @Override
+    public String generateAuthCode(String telephone) {
+        String authCode = String.valueOf((int) (Math.random() * 900000) + 100000);
+        log.info("生成验证码 - 手机号: {}, 验证码: {}", telephone, authCode);
+        // TODO: 集成 Redis 存储验证码，设置 5 分钟过期
+        return authCode;
+    }
+
+    @Override
+    @Transactional
+    public void updatePassword(String telephone, String password, String authCode) {
+        try {
+            // TODO: 验证 authCode（从 Redis 获取并校验）
+            UserDO user = userMapper.selectByTelephone(telephone);
+            if (user == null) {
+                throw new IllegalArgumentException("用户不存在");
+            }
+            user.setPassword(md5Encrypt(password));
+            userMapper.updateById(user);
+            log.info("密码修改成功 - 手机号: {}", telephone);
+        } catch (Exception e) {
+            log.error("修改密码失败: {}", e.getMessage());
+            throw new RuntimeException("修改密码失败", e);
+        }
+    }
+
+    @Override
+    public String refreshToken(String oldToken) {
+        try {
+            var claims = jwtUtil.tryDecode(oldToken);
+            if (claims.isEmpty()) {
+                return null;
+            }
+            
+            if (jwtUtil.isTokenExpired(claims.get().getExpiration())) {
+                return null;
+            }
+            
+            Long userId = jwtUtil.getUserId(claims.get());
+            String userName = jwtUtil.getUserName(claims.get());
+            UserRole role = jwtUtil.getUserRole(claims.get());
+            
+            Date newExpiration = new Date(System.currentTimeMillis() + DateEnum.ONE_HUNDRED_YEAR.getValue());
+            return jwtUtil.generate(userId.toString(), jwtUtil.generateClaimsMap(userName, role), newExpiration);
+        } catch (Exception e) {
+            log.error("刷新Token失败: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public UserDTO validateUserByPhone(String telephone, String authCode) {
+        UserDO user = userMapper.selectByTelephone(telephone);
+        if (user == null) {
+            log.warn("用户不存在 - 手机号: {}", telephone);
+            return null;
+        }
+        
+        String generatedCode = generateAuthCode(telephone);
+        if (!generatedCode.equals(authCode)) {
+            log.warn("验证码错误 - 手机号: {}, 输入: {}, 预期: {}", telephone, authCode, generatedCode);
+            return null;
+        }
+        
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setTypeId(user.getTypeId());
+        return dto;
+    }
 }

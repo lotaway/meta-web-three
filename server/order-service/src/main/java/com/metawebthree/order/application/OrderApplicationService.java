@@ -38,7 +38,8 @@ public class OrderApplicationService {
     }
 
     @Transactional
-    public Long createOrder(Long userId, String remark, List<OrderItemCreate> items) {
+    public Long createOrder(Long userId, String remark, List<OrderItemCreate> items,
+            Long memberReceiveAddressId, Long couponId, Integer useIntegration) {
         BigDecimal total = items.stream()
                 .map(i -> i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -52,6 +53,9 @@ public class OrderApplicationService {
                 .orderType("NORMAL")
                 .orderAmount(total)
                 .orderRemark(remark)
+                .memberReceiveAddressId(memberReceiveAddressId)
+                .couponId(couponId)
+                .useIntegration(useIntegration)
                 .build();
         orderMapper.insert(order);
         for (OrderItemCreate i : items) {
@@ -206,6 +210,12 @@ public class OrderApplicationService {
         private String remark;
         @io.swagger.v3.oas.annotations.media.Schema(description = "商品列表")
         private List<OrderItemCreate> items;
+        @io.swagger.v3.oas.annotations.media.Schema(description = "收货地址ID")
+        private Long memberReceiveAddressId;
+        @io.swagger.v3.oas.annotations.media.Schema(description = "优惠券ID")
+        private Long couponId;
+        @io.swagger.v3.oas.annotations.media.Schema(description = "使用积分数量")
+        private Integer useIntegration;
     }
 
     @Data

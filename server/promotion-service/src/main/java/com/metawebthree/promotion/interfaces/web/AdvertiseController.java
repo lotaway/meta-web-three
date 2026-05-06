@@ -13,7 +13,7 @@ import java.util.List;
 
 @Validated
 @RestController
-@RequestMapping("/v1/promotion/advertises")
+@RequestMapping("/advertise")
 @RequiredArgsConstructor
 @Tag(name = "Advertise Management", description = "广告管理接口")
 public class AdvertiseController {

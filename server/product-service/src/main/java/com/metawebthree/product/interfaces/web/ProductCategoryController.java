@@ -13,7 +13,7 @@ import java.util.List;
 
 @Validated
 @RestController
-@RequestMapping("/v1/product-categories")
+@RequestMapping("/product-category")
 @RequiredArgsConstructor
 @Tag(name = "Product Category Management")
 public class ProductCategoryController {

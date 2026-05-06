@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS tb_order (
     note VARCHAR(500),
     confirm_status SMALLINT,
     delete_status SMALLINT DEFAULT 0,
+    member_receive_address_id BIGINT,
     use_integration INT,
     payment_time TIMESTAMP,
     delivery_time TIMESTAMP,

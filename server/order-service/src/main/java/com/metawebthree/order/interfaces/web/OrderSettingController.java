@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Validated
 @RestController
-@RequestMapping("/v1/order-settings")
+@RequestMapping("/orderSetting")
 @RequiredArgsConstructor
 @Tag(name = "Order Setting Management")
 public class OrderSettingController {

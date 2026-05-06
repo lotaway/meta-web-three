@@ -9,14 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.metawebthree.common.generated.rpc.GetProductDetailRequest;
 import com.metawebthree.common.generated.rpc.GetProductDetailResponse;
 import com.metawebthree.common.generated.rpc.ProductDetailProto;
-import com.metawebthree.common.generated.rpc.ProductService;
 import com.metawebthree.product.dto.ProductDetailDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @DubboService
-public class ProductServiceRpcImpl implements ProductService {
+public class ProductServiceRpcImpl implements com.metawebthree.common.generated.rpc.ProductService {
 
     @Autowired
     private ProductService productService;
@@ -25,7 +24,7 @@ public class ProductServiceRpcImpl implements ProductService {
     public GetProductDetailResponse getProductDetail(GetProductDetailRequest request) {
         log.info("Dubbo RPC: getProductDetail called with productId: {}", request.getProductId());
         
-        ProductDetailDTO detail = productService.getProductDetail(request.getProductId().intValue());
+        ProductDetailDTO detail = productService.getProductDetail((int) request.getProductId());
         
         if (detail == null) {
             return GetProductDetailResponse.newBuilder().build();

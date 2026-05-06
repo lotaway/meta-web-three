@@ -38,10 +38,6 @@ public class AppDelegate: ExpoAppDelegate {
     open url: URL,
     options: [UIApplication.OpenURLOptionsKey: Any] = [:]
   ) -> Bool {
-    // Handle Wechat URL callback
-    if url.scheme?.hasPrefix("wx") == true {
-      // Wechat Pay callback will be handled by native module
-    }
     return super.application(app, open: url, options: options) || RCTLinkingManager.application(app, open: url, options: options)
   }
 

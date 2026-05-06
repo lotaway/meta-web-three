@@ -19,7 +19,7 @@ import java.util.List;
 
 @Validated
 @RestController
-@RequestMapping("/v1/products")
+@RequestMapping("/product")
 @Tag(name = "Product Management", description = "Endpoints for product lifecycle and management")
 public class ProductController {
 
@@ -86,5 +86,33 @@ public class ProductController {
             @Parameter(description = "Image file") @RequestParam MultipartFile file) {
         productService.uploadImage(Long.valueOf(id), file);
         return ApiResponse.success();
+    }
+
+    @Operation(summary = "Search products", description = "Comprehensive product search with filters and sorting")
+    @GetMapping("/search")
+    public ApiResponse<List<ProductDTO>> searchProducts(
+            @Parameter(description = "Search keyword") @RequestParam(required = false) String keyword,
+            @Parameter(description = "Category ID") @RequestParam(required = false) Integer categoryId,
+            @Parameter(description = "Brand ID") @RequestParam(required = false) Integer brandId,
+            @Parameter(description = "Sort type: 0-综合, 1-销量, 2-价格升序, 3-价格降序") @RequestParam(defaultValue = "0") Integer sort,
+            @Parameter(description = "Page number") @RequestParam(defaultValue = "1") Integer pageNum,
+            @Parameter(description = "Page size") @RequestParam(defaultValue = "20") Integer pageSize) {
+        return ApiResponse.success(productService.searchProducts(keyword, categoryId, brandId, sort, pageNum, pageSize));
+    }
+
+    @Operation(summary = "Simple search", description = "Simple product search by keyword")
+    @GetMapping("/search/simple")
+    public ApiResponse<List<ProductDTO>> simpleSearch(
+            @Parameter(description = "Search keyword") @RequestParam String keyword,
+            @Parameter(description = "Limit") @RequestParam(defaultValue = "10") Integer limit) {
+        return ApiResponse.success(productService.simpleSearch(keyword, limit));
+    }
+
+    @Operation(summary = "Recommend products", description = "Recommend products based on product ID")
+    @GetMapping("/recommend/{id}")
+    public ApiResponse<List<ProductDTO>> recommendProducts(
+            @Parameter(description = "Product ID") @PathVariable Integer id,
+            @Parameter(description = "Limit") @RequestParam(defaultValue = "5") Integer limit) {
+        return ApiResponse.success(productService.recommendProducts(id, limit));
     }
 }

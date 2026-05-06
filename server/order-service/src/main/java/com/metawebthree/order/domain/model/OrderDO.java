@@ -42,6 +42,12 @@ public class OrderDO {
     private BigDecimal orderAmount;
     @Schema(description = "订单备注")
     private String orderRemark;
+    @Schema(description = "收货地址ID")
+    private Long memberReceiveAddressId;
+    @Schema(description = "优惠券ID")
+    private Long couponId;
+    @Schema(description = "使用积分数量")
+    private Integer useIntegration;
     @Schema(description = "创建时间")
     private Timestamp createdAt;
     @Schema(description = "更新时间")

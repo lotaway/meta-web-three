@@ -1,11 +1,6 @@
 #import <Foundation/Foundation.h>
-#import <AppsdkSpec/AppsdkSpec.h>
+#import <React/RCTBridgeModule.h>
 #import <AuthenticationServices/AuthenticationServices.h>
 
-@interface Appsdk : NSObject <
-AppsdkSpec,
-ASAuthorizationControllerDelegate,
-ASAuthorizationControllerPresentationContextProviding
->
-
+@interface Appsdk : NSObject <RCTBridgeModule, ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding>
 @end

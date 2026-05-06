@@ -1,3 +1,24 @@
+# 后端 Server
+
+此项目是zk+dubbo+grpc+protobuf+spring-cloud-gateway的micro-services
+
+## Directory 目录结构
+
+- - common 公共模块
+- - gateway 网关中心
+- — user-service 用户微服务
+- - order-service 订单微服务
+- - product-service 商品微服务
+- - payment-service 支付微服务
+- - message-service 消息微服务
+- - media-service 多媒体微服务
+- - cart-service 购物车微服务
+- - promotion-service 营销微服务
+
+## 通讯方式
+
+结合`../protos`里的消息结构使用dubbo+grpc+protobuf进行通讯，借助`../Makefile`脚本生成胶水代码，再使用`@DubboReference`来跨服务调用方法体。protobuf的使用参考monorepo根目录的`../README.md`
+
 ## AWS S3 Configuration
 
 To use AWS S3, you need to configure the following properties in `.aws/credentials` file in the root directory of your project:

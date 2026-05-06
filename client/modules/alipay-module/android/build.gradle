@@ -1,0 +1,36 @@
+apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
+
+android {
+    namespace 'expo.modules.alipaymodule'
+    compileSdkVersion 35
+
+    defaultConfig {
+        minSdkVersion 24
+        targetSdkVersion 35
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+kotlin {
+    jvmToolchain(17)
+}
+
+repositories {
+    google()
+    mavenCentral()
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation project(':expo-modules-core')
+    // 支付宝Android SDK需要从官方下载后作为本地依赖
+    // 如需本地AAR文件，请参考 README.md 中的支付模块配置说明
+    // 然后将 alipaysdk-xxx.aar 放入 libs 目录并取消注释下面的依赖
+    // implementation fileTree(dir: 'libs', include: ['*.aar'])
+}

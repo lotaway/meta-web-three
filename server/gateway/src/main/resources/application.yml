@@ -42,6 +42,16 @@ gateway:
       - /user-service/user/signIn
       - /user-service/user/create
       - /user-service/user/checkWeb3SignerMessage
+      - /user-service/sso/login
+      - /user-service/sso/loginByPhone
+      - /user-service/sso/register
+      - /user-service/sso/getAuthCode
+      - /user-service/sso/updatePassword
+      - /user-service/sso/refreshToken
+      - /user-service/member/readHistory
+      - /user-service/member/productCollection
+      - /user-service/member/attention
+      - /user-service/member/address
       - /actuator
     excluded-path-keywords:
       - /v3/api-docs

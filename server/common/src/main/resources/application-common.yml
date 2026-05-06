@@ -63,6 +63,7 @@ rocketmq:
     appliaction-topic: "MetaWebThree"
 jwt:
   secret: mwt123123
+  tokenHead: "Bearer "
 dubbo:
   application:
     name: ${spring.application.name}

@@ -1,0 +1,19 @@
+# Build
+build/
+lib/
+
+# IDE
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Testing
+coverage/

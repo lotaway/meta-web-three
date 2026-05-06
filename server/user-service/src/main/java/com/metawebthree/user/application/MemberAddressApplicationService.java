@@ -30,6 +30,11 @@ public class MemberAddressApplicationService {
         return addressRepository.findByMemberId(memberId);
     }
 
+    public MemberAddress getAddressById(Long id) {
+        validateId(id);
+        return addressRepository.findById(id).orElse(null);
+    }
+
     public void removeAddress(Long id) {
         validateId(id);
         addressRepository.deleteById(id);

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -19,6 +19,8 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useCart } from '@/hooks/useCart';
 import { ProductDetailContainer } from '@/containers/product/ProductDetailContainer';
 import RenderHTML from 'react-native-render-html';
+import SKUSelector, { SpecGroup, SKUInfo } from '@/components/product/SKUSelector';
+import { productCollectionApi, commentApi, DEFAULT_USER_ID } from '@/api/generated';
 
 const { width: PAGE_WIDTH } = Dimensions.get('window');
 
@@ -40,11 +42,72 @@ export default function ProductDetailScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
   const { width: contentWidth } = useWindowDimensions();
+  
+  const [skuSelectorVisible, setSkuSelectorVisible] = useState(false);
+  const [skuActionType, setSkuActionType] = useState<'cart' | 'buy'>('cart');
 
   return (
     <ProductDetailContainer productId={id ? Number(id) : null}>
       {({ productDetails, isPageLoading }) => {
         const productImages = getProductImages(productDetails);
+        
+        const mockSpecs: SpecGroup[] = productDetails?.specs || [
+          {
+            id: 'color',
+            name: '颜色',
+            options: [
+              { id: 'black', name: '黑色' },
+              { id: 'white', name: '白色' },
+              { id: 'blue', name: '蓝色' },
+            ],
+          },
+          {
+            id: 'size',
+            name: '尺寸',
+            options: [
+              { id: 's', name: 'S' },
+              { id: 'm', name: 'M' },
+              { id: 'l', name: 'L' },
+            ],
+          },
+        ];
+        
+        const mockSKUs: SKUInfo[] = productDetails?.skus || [];
+
+        const handleOpenSKU = (actionType: 'cart' | 'buy') => {
+          setSkuActionType(actionType);
+          setSkuSelectorVisible(true);
+        };
+
+        const handleSKUConfirm = (selectedSpecs: any, sku: SKUInfo | null, quantity: number) => {
+          setSkuSelectorVisible(false);
+          
+          if (skuActionType === 'cart') {
+            handleAddToCartWithSKU(sku || productDetails, quantity);
+          } else {
+            router.push({
+              pathname: '/checkout',
+              params: {
+                productId: productDetails?.id,
+                quantity,
+                skuId: sku?.skuId,
+              },
+            });
+          }
+        };
+
+        const handleAddToCartWithSKU = async (product: any, quantity: number) => {
+          try {
+            await (useCart as any).addItem({
+              productId: product.id || productDetails.id,
+              quantity,
+              skuId: product.skuId,
+            });
+            Alert.alert(t('common.success'), t('home.product.added_to_cart'));
+          } catch (error) {
+            Alert.alert(t('common.error'), t('home.product.add_to_cart_failed'));
+          }
+        };
 
         if (isPageLoading || !productDetails) {
           return (
@@ -86,7 +149,7 @@ export default function ProductDetailScreen() {
         </View>
 
         <View style={styles.cList}>
-          <ProductInfoRow title={t('home.product.buy_type')} content={t('home.product.select_specs')} showArrow colors={colors} />
+          <ProductInfoRow title={t('home.product.buy_type')} content={t('home.product.select_specs')} showArrow colors={colors} onPress={() => handleOpenSKU('cart')} />
           <ProductInfoRow title={t('home.product.params')} content={t('home.product.view')} showArrow colors={colors} />
           <ProductInfoRow 
             title={t('home.product.coupons')} 
@@ -97,6 +160,13 @@ export default function ProductDetailScreen() {
           />
           <ProductInfoRow title={t('home.product.service')} content={t('home.product.service_content')} colors={colors} />
         </View>
+
+        {/* 评价预览 */}
+        <CommentPreview 
+          productId={productDetails?.id} 
+          productName={productDetails?.name}
+          colors={colors}
+        />
 
         <View style={styles.detailDesc}>
           <View style={styles.detailHeader}>
@@ -119,7 +189,24 @@ export default function ProductDetailScreen() {
         <View style={styles.footerSpacer} />
             </ScrollView>
 
-            <ProductInteractionBar colors={colors} productDetails={productDetails} />
+            <ProductInteractionBar
+              colors={colors}
+              productDetails={productDetails}
+              onOpenSKU={handleOpenSKU}
+            />
+
+            <SKUSelector
+              visible={skuSelectorVisible}
+              productImage={productImages[0]}
+              productName={productDetails?.name}
+              productPrice={productDetails?.price}
+              productOriginalPrice={productDetails?.originalPrice}
+              specs={mockSpecs}
+              skus={mockSKUs}
+              onClose={() => setSkuSelectorVisible(false)}
+              onConfirm={handleSKUConfirm}
+              actionType={skuActionType}
+            />
           </SafeAreaView>
         );
       }}
@@ -127,9 +214,9 @@ export default function ProductDetailScreen() {
   );
 }
 
-function ProductInfoRow({ title, content, showArrow, colors, contentStyle }: any) {
+function ProductInfoRow({ title, content, showArrow, colors, contentStyle, onPress }: any) {
   return (
-    <TouchableOpacity style={styles.infoRow}>
+    <TouchableOpacity style={styles.infoRow} onPress={onPress}>
       <Text style={[styles.rowTitle, { color: colors.fontColorLight }]}>{title}</Text>
       <Text numberOfLines={1} style={[styles.rowContent, { color: colors.fontColorDark }, contentStyle]}>
         {content}
@@ -139,15 +226,155 @@ function ProductInfoRow({ title, content, showArrow, colors, contentStyle }: any
   );
 }
 
-function ProductInteractionBar({ colors, productDetails }: { colors: any; productDetails: any }) {
+function CommentPreview({ productId, productName, colors }: { productId: number; productName: string; colors: any }) {
+  const [comments, setComments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadComments();
+  }, [productId]);
+
+  const loadComments = async () => {
+    try {
+      const response = await commentApi.listByProduct({ productId });
+      if (response.data && Array.isArray(response.data)) {
+        setComments(response.data.slice(0, 3));
+      }
+    } catch (error) {
+      console.error('Failed to load comments:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return null;
+  if (comments.length === 0) {
+    return (
+      <View style={[styles.commentSection, { backgroundColor: '#fff' }]}>
+        <View style={styles.commentHeader}>
+          <Text style={[styles.commentTitle, { color: colors.fontColorDark }]}>商品评价</Text>
+          <Text style={[styles.commentCount, { color: colors.fontColorLight }]}>暂无评价</Text>
+        </View>
+        <View style={styles.commentEmpty}>
+          <IconSymbol name="chatbubble" size={40} color={colors.fontColorDisabled} />
+          <Text style={[styles.commentEmptyText, { color: colors.fontColorDisabled }]}>
+            暂无用户评价
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={[styles.commentSection, { backgroundColor: '#fff' }]}>
+      <View style={styles.commentHeader}>
+        <Text style={[styles.commentTitle, { color: colors.fontColorDark }]}>商品评价</Text>
+        <Text style={[styles.commentCount, { color: colors.fontColorLight }]}>
+          {comments.length} 条评价
+        </Text>
+      </View>
+      {comments.map((comment) => (
+        <View key={comment.id} style={styles.commentItem}>
+          <View style={styles.commentUserRow}>
+            <View style={[styles.commentAvatar, { backgroundColor: colors.primary }]}>
+              <Text style={styles.commentAvatarText}>
+                {comment.memberNickName ? comment.memberNickName.charAt(0) : 'U'}
+              </Text>
+            </View>
+            <View style={styles.commentUserInfo}>
+              <Text style={[styles.commentUserName, { color: colors.fontColorDark }]}>
+                {comment.memberNickName || '匿名用户'}
+              </Text>
+              <View style={styles.commentStars}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <IconSymbol
+                    key={star}
+                    name={star <= comment.star ? 'star.fill' : 'star'}
+                    size={12}
+                    color={star <= comment.star ? '#FFD700' : colors.fontColorDisabled}
+                  />
+                ))}
+              </View>
+            </View>
+          </View>
+          <Text style={[styles.commentContent, { color: colors.fontColorDark }]} numberOfLines={2}>
+            {comment.content}
+          </Text>
+          {comment.productAttribute && (
+            <Text style={[styles.commentAttr, { color: colors.fontColorLight }]}>
+              {comment.productAttribute}
+            </Text>
+          )}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function ProductInteractionBar({ colors, productDetails, onOpenSKU }: { colors: any; productDetails: any; onOpenSKU: (type: 'cart' | 'buy') => void }) {
   const { t } = useTranslation();
   const { addItem } = useCart();
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  useEffect(() => {
+    loadFavoriteStatus();
+  }, [productDetails?.id]);
+
+  const loadFavoriteStatus = async () => {
+    try {
+      const response = await productCollectionApi.detail({
+        xUserId: DEFAULT_USER_ID,
+        productId: productDetails?.id,
+      });
+      setIsFavorite(response.data != null);
+    } catch (error) {
+      console.error('Failed to load favorite status:', error);
+    }
+  };
+
+  const handleToggleFavorite = async () => {
+    try {
+      if (isFavorite) {
+        await productCollectionApi.delete({
+          xUserId: DEFAULT_USER_ID,
+          productId: productDetails.id,
+        });
+        setIsFavorite(false);
+        Alert.alert(t('common.success'), '取消收藏成功');
+      } else {
+        await productCollectionApi.add({
+          productId: productDetails.id,
+          productName: productDetails.name,
+          productPic: productDetails.pic,
+          productPrice: productDetails.price,
+          productSubTitle: productDetails.subTitle,
+        });
+        setIsFavorite(true);
+        Alert.alert(t('common.success'), '收藏成功');
+      }
+    } catch (error) {
+      Alert.alert(t('common.error'), '操作失败');
+    }
+  };
 
   const handleAddToCart = useCallback(async () => {
     try {
       await addItem({
         productId: productDetails.id,
         quantity: 1,
+      });
+      Alert.alert(t('common.success'), t('home.product.added_to_cart'));
+    } catch (error) {
+      Alert.alert(t('common.error'), t('home.product.add_to_cart_failed'));
+    }
+  }, [addItem, productDetails, t]);
+
+  const handleAddToCartWithSKU = useCallback(async (product: any, quantity: number) => {
+    try {
+      await addItem({
+        productId: product.id || productDetails.id,
+        quantity,
+        skuId: product.skuId,
       });
       Alert.alert(t('common.success'), t('home.product.added_to_cart'));
     } catch (error) {
@@ -166,19 +393,26 @@ function ProductInteractionBar({ colors, productDetails }: { colors: any; produc
           <IconSymbol name="cart" size={24} color={colors.fontColorBase} />
           <Text style={[styles.bottomIconText, { color: colors.fontColorBase }]}>{t('common.tabs.cart')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomIconBtn}>
-          <IconSymbol name="heart" size={24} color={colors.fontColorBase} />
-          <Text style={[styles.bottomIconText, { color: colors.fontColorBase }]}>{t('profile.menu.favorite')}</Text>
+        <TouchableOpacity style={styles.bottomIconBtn} onPress={handleToggleFavorite}>
+          <IconSymbol 
+            name={isFavorite ? 'heart.fill' : 'heart'} 
+            size={24} 
+            color={isFavorite ? colors.primary : colors.fontColorBase} 
+          />
+          <Text style={[styles.bottomIconText, { color: isFavorite ? colors.primary : colors.fontColorBase }]}>{t('profile.menu.favorite')}</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.bottomRight}>
         <TouchableOpacity 
           style={[styles.actionBtn, styles.cartBtn]}
-          onPress={handleAddToCart}
+          onPress={() => onOpenSKU('cart')}
         >
           <Text style={styles.actionBtnText}>{t('home.product.add_to_cart')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionBtn, styles.buyBtn, { backgroundColor: colors.primary }]}>
+        <TouchableOpacity 
+          style={[styles.actionBtn, styles.buyBtn, { backgroundColor: colors.primary }]}
+          onPress={() => onOpenSKU('buy')}
+        >
           <Text style={styles.actionBtnText}>{t('home.product.buy_now')}</Text>
         </TouchableOpacity>
       </View>
@@ -255,6 +489,74 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: '#f9f9f9',
+  },
+  commentSection: {
+    marginTop: 15,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  commentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  commentTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  commentCount: {
+    fontSize: 12,
+  },
+  commentEmpty: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  commentEmptyText: {
+    fontSize: 14,
+    marginTop: 8,
+  },
+  commentItem: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f5f5f5',
+  },
+  commentUserRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  commentAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  commentAvatarText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  commentUserInfo: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  commentUserName: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 2,
+  },
+  commentStars: {
+    flexDirection: 'row',
+  },
+  commentContent: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 4,
+  },
+  commentAttr: {
+    fontSize: 12,
   },
   rowTitle: {
     width: 80,

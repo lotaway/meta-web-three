@@ -11,4 +11,6 @@ public interface PaymentService {
     Map<String, String> getAlipayParams(Long orderId, Long userId);
     Map<String, String> getStripeParams(Long orderId, Long userId);
     boolean verifyPayment(String orderId, String transactionId, Long userId);
+    
+    Map<String, Object> queryAlipayStatus(String outTradeNo, Long userId);
 }
