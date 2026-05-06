@@ -60,8 +60,8 @@ export default function SearchScreen() {
       if (history) {
         setSearchHistory(JSON.parse(history))
       }
-    } catch {
-      // ignore
+    } catch (e) {
+      setSearchHistory([])
     }
   }
 
@@ -72,8 +72,8 @@ export default function SearchScreen() {
     setSearchHistory(updated)
     try {
       await AsyncStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(updated))
-    } catch {
-      // ignore
+    } catch (e) {
+      console.error('Save search history failed:', e)
     }
   }
 
@@ -81,8 +81,8 @@ export default function SearchScreen() {
     setSearchHistory([])
     try {
       await AsyncStorage.removeItem(SEARCH_HISTORY_KEY)
-    } catch {
-      // ignore
+    } catch (e) {
+      console.error('Clear search history failed:', e)
     }
   }
 

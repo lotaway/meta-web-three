@@ -65,12 +65,12 @@ export default function CouponListScreen() {
     }
   }
 
-  const handleClaimCoupon = async (couponCode: string) => {
-    setClaiming(couponCode)
+  const handleClaimCoupon = async (couponTypeId: number) => {
+    setClaiming(couponTypeId.toString())
     try {
-      await couponApi.claim({
+      await couponApi.claimCoupon({
         xUserId: DEFAULT_USER_ID,
-        couponTypeId: 1,
+        couponTypeId,
       })
       Alert.alert(t('common.success'), '领取成功')
       loadCoupons()
@@ -82,7 +82,13 @@ export default function CouponListScreen() {
   }
 
   const renderCouponItem = ({ item }: { item: CouponItem }) => (
-    <View style={[styles.couponItem, { borderColor: colors.border }]}>
+    <TouchableOpacity
+      style={[styles.couponItem, { borderColor: colors.border }]}
+      onPress={() => router.push({
+        pathname: '/favorite-detail',
+        params: { id: item.couponTypeId }
+      })}
+    >
       <View style={styles.couponLeft}>
         <Text style={[styles.couponAmount, { color: colors.primary }]}>
           ¥{item.discountAmount}

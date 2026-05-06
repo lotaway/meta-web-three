@@ -48,6 +48,7 @@ export default function ProfileScreen() {
   const [isLoading, setIsLoading] = useState(true)
   const [currentUser, setCurrentUser] = useState<MallUserAccount | null>(null)
   const [unreadNotifications, setUnreadNotifications] = useState(0)
+  const [couponCount, setCouponCount] = useState(0)
 
   useEffect(() => {
     loadUserProfile()
@@ -64,12 +65,13 @@ export default function ProfileScreen() {
             id: user.id,
             nickname: user.nickname || user.username || t('profile.nickname_guest'),
             avatar: user.avatar,
-            integration: 0,
+            integration: user.integration || 0,
             growth: 0,
             couponCount: 0,
           })
         }
         loadUnreadCount()
+        loadCouponCount()
       } else {
         setCurrentUser({
           nickname: t('profile.nickname_guest'),
@@ -99,6 +101,17 @@ export default function ProfileScreen() {
       }
     } catch (error) {
       console.error('Failed to load unread count:', error)
+    }
+  }
+
+  async function loadCouponCount() {
+    try {
+      const response = await couponApi.list({ xUserId: DEFAULT_USER_ID })
+      if (response.data) {
+        setCouponCount((response.data as any[]).length)
+      }
+    } catch (error) {
+      console.error('Failed to load coupon count:', error)
     }
   }
 

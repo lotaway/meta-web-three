@@ -65,12 +65,12 @@ export default function LogisticsScreen() {
   const params = useLocalSearchParams()
   const orderId = params.id
 
-  const [traces, setTraces] = useState<LogisticsTrace[]>([])
+  const [traces, setTraces] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [logisticsInfo, setLogisticsInfo] = useState({
-    company: '顺丰速运',
-    trackingNo: 'SF1234567890',
-    phone: '95338',
+    company: '',
+    trackingNo: '',
+    phone: '',
   })
 
   useEffect(() => {
@@ -78,12 +78,18 @@ export default function LogisticsScreen() {
   }, [orderId])
 
   const loadLogistics = async () => {
+    if (!orderId) return
     setLoading(true)
     try {
-      // TODO: 调用物流API
-      // const response = await orderApi.getLogistics({ id: orderId })
-      await new Promise(resolve => setTimeout(resolve, 800))
-      setTraces(MOCK_LOGISTICS)
+      const response = await orderApi.getLogistics({ id: Number(orderId) })
+      if (response.data) {
+        setLogisticsInfo({
+          company: response.data.company || '',
+          trackingNo: response.data.trackingNo || '',
+          phone: response.data.phone || '',
+        })
+        setTraces(response.data.traces || [])
+      }
     } catch (error) {
       console.error('Failed to load logistics:', error)
     } finally {
@@ -92,12 +98,10 @@ export default function LogisticsScreen() {
   }
 
   const handleCallDelivery = () => {
-    // TODO: 调用电话
     console.log('Call:', logisticsInfo.phone)
   }
 
   const handleCopyTrackingNo = () => {
-    // TODO: 复制到剪贴板
     console.log('Copy:', logisticsInfo.trackingNo)
   }
 

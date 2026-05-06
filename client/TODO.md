@@ -25,6 +25,8 @@
 - [ ] 17.4 `POST /esProduct/importAll` - 导入商品到 ES（待 ES 服务）
 - [ ] 17.5 `POST /esProduct/create/{id}` - 同步商品到 ES（待 ES 服务）
 
+> **参考**: `temp/mall/mall-search/src/main/java/com/macro/mall/search/controller/EsProductController.java`
+
 ### 18. 首页模块接口补全
 - [x] 18.1 `GET /v1/home/productCateList` - 首页商品分类
 - [x] 18.2 `GET /v1/home/hotProductList` - 人气推荐商品
@@ -71,9 +73,27 @@
 ### 缺失接口补全状态
 - [x] `/pay/alipay/query` - 支付宝支付状态查询
 - [x] `GET /v1/addresses/{id}` - 单个地址详情
-- [x] `GET /v1/member-attentions/detail` - 品牌关注详情
-- [x] `GET /v1/product-collections/detail` - 商品收藏详情
+- [x] `GET /v1/member-attentions/detail` - 品牌关注详情（后端已实现）
+- [x] `GET /v1/product-collections/detail` - 商品收藏详情（后端已实现）
 - [x] `GET /v1/brands/recommendList` - 品牌推荐列表
+
+### 后端待实现接口
+- [ ] `POST /esProduct/importAll` - 导入商品到 ES（待 ES 服务）
+- [ ] `POST /esProduct/create/{id}` - 同步商品到 ES（待 ES 服务）
+- [ ] `GET /home/subjectList` - 首页专题内容（返回空列表，需完善后端实现）
+- [ ] `GET /order/{id}/logistics` - 物流信息查询（需新增）
+- [ ] `POST /order/{id}/refund` - 退款申请（需新增）
+- [ ] `GET /order/{id}/refund/status` - 退款状态查询（需新增）
+
+### 前端待完善功能
+- [x] `app/category/[id].tsx` - 商品分类列表页（已完成）
+- [x] `app/favorites.tsx` - 收藏列表页改用后端 API（已完成）
+- [x] `app/orders/index.tsx` - 订单列表分页（前端已完成）
+- [ ] `app/orders/[id]/logistics.tsx` - 物流信息页（使用 MOCK 数据，需接入真实 API）
+- [ ] `app/orders/[id]/refund.tsx` - 退款申请页（使用 MOCK 数据，需接入真实 API）
+- [ ] `app/orders/[id]/review.tsx` - 评价页面（需完善）
+- [ ] `app/notifications.tsx` - 消息中心（需完善未读徽标）
+- [ ] `app/coupons.tsx` - 优惠券列表（需完善领取功能）
 
 ---
 
@@ -260,6 +280,22 @@
 - [x] 15.4.1 `HomeHeader` 添加扫码图标入口
 - [x] 15.4.2 首页导航到 `/scanner`
 
+### Phase 9: 后端接口补全 ⚠️ 进行中
+- [x] 9.1 订单自动取消超时 `POST /order/cancelTimeOutOrder` ✅
+- [x] 9.2 支付宝回调接口 `POST /pay/alipay/callback` ✅
+- [ ] 9.3 首页专题内容 `GET /home/subjectList`（返回空列表，需完善）
+- [ ] 9.4 物流信息查询 `GET /order/{id}/logistics`（需新增）
+- [ ] 9.5 退款申请接口 `POST /order/{id}/refund`（需新增）
+- [ ] 9.6 退款状态查询 `GET /order/{id}/refund/status`（需新增）
+
+### Phase 10: 前端页面完善 ⚠️ 进行中
+- [x] 10.1 商品分类列表页 `app/category/[id].tsx` ✅
+- [x] 10.2 收藏列表页改用后端 API `app/favorites.tsx` ✅
+- [x] 10.3 订单列表页添加分页 `app/orders/index.tsx` ✅
+- [ ] 10.4 物流信息页接入真实 API `app/orders/[id]/logistics.tsx`
+- [ ] 10.5 退款申请页接入真实 API `app/orders/[id]/refund.tsx`
+- [ ] 10.6 个人中心优惠券入口集成
+
 ---
 
 ## 功能检测清单
@@ -276,6 +312,7 @@
 - [ ] 1.2 注册页新增账户，验证入库
 - [ ] 1.3 手机验证码登录（需后端 `/sso/getAuthCode` 正常）
 - [ ] 1.4 忘记密码页面提交，验证密码更新
+- [ ] 1.5 第三方登录（微信/Apple）- **待实现**
 - [ ] 2.1 结算页点击地址区块，跳转 `/address/list`
 - [ ] 2.2 选中地址返回结算页，显示地址信息
 - [ ] 2.3 创建订单后检查 `memberReceiveAddressId` 是否传入
@@ -330,24 +367,53 @@
 
 ---
 
+### 前端待完善页面（需接入真实 API）
+- [ ] **物流信息页** `app/orders/[id]/logistics.tsx` - 当前使用 MOCK 数据
+  - 需后端新增：`GET /order/{id}/logistics` - 物流信息查询接口
+  - 参考：`temp/mall-app-web/pages/order/orderDetail.vue`（仅有入口，无实现）
+  
+- [ ] **退款申请页** `app/orders/[id]/refund.tsx` - 当前使用 MOCK 数据
+  - 需后端新增：`POST /order/{id}/refund` - 退款申请接口
+  - 需后端新增：`GET /order/{id}/refund/status` - 退款状态查询接口
+  - 参考：`temp/mall-app-web/pages/order/orderDetail.vue`（仅有入口，无实现）
+
+---
+
 ### 全局检测
 - [ ] G.1 底部 Tab 导航正常（首页/分类/购物车/我的）
 - [ ] G.2 深色/浅色模式切换正常
 - [ ] G.3 网络错误时显示友好提示
 - [ ] G.4 页面返回手势/按钮正常
 - [ ] G.5 所有新增路由在 `_sitemap` 中可见
+- [x] G.6 `app/category/[id].tsx` 路由已添加
+- [x] G.7 `app/favorites.tsx` 集成后端 API
+- [x] G.8 `app/orders/index.tsx` 分页功能已添加
 
 ---
 
 ## 技术债务
 
-- [ ] 统一错误处理
-- [ ] 网络请求拦截器优化
-- [ ] 图片缓存优化
-- [ ] 性能优化（FlatList优化/内存优化）
-- [ ] 离线缓存策略
-- [ ] 单元测试补充
-- [ ] E2E测试补充
+### 后端技术债务
+- [ ] 统一错误处理（全局异常处理器）
+- [ ] 服务间调用优化（RestTemplate → WebClient）
+- [ ] 商品 ES 搜索实现（待 ES 服务）
+- [ ] 首页专题内容 `GET /home/subjectList` 完善
+- [ ] 物流查询接口新增
+- [ ] 退款申请接口新增
+- [ ] 订单自动取消定时任务（Quartz/Spring Scheduled）
+- [ ] 支付宝异步回调完整实现（生产环境配置）
+
+### 前端技术债务
+- [ ] 统一错误处理（API 调用错误拦截）
+- [ ] 网络请求拦截器优化（Axios 拦截器）
+- [ ] 图片缓存优化（react-native-fast-image）
+- [ ] 性能优化（FlatList 优化/内存优化）
+- [ ] 离线缓存策略（React Query/Apollo Cache）
+- [ ] 单元测试补充（Jest/React Native Testing Library）
+- [ ] E2E 测试补充（Detox/Appium）
+- [x] `api/generated.ts` 使用 OpenAPI 代码生成
+- [x] `app/category/[id].tsx` 商品分类列表页已完成
+- [x] `app/favorites.tsx` 已改用后端 API
 
 ---
 
@@ -359,15 +425,22 @@
 
 ## 预计完成顺序
 
-1. 用户注册/登录页面 (P0-1)
-2. 商品搜索页面 (P0-2)
-3. 商品列表页 (P0-3)
-4. 商品规格/SKU选择 (P0-4)
-5. 收货地址管理 (P0-5)
-6. 订单列表页 (P0-6)
-7. 订单详情页 (P0-7)
-8. 物流信息 (P1-8)
-9. 确认收货 (P1-9)
-10. 退货/退款申请 (P1-10)
-11. 收藏功能 (P1-11)
-12. 其他次要功能 (P2)
+1. ~~用户注册/登录页面 (P0-1)~~ ✅
+2. ~~商品搜索页面 (P0-2)~~ ✅
+3. ~~商品列表页 (P0-3)~~ ✅
+4. ~~商品规格/SKU选择 (P0-4)~~ ✅
+5. ~~收货地址管理 (P0-5)~~ ✅
+6. ~~订单列表页 (P0-6)~~ ✅
+7. ~~订单详情页 (P0-7)~~ ✅
+8. ~~物流信息页面 (P1-8)~~ ✅（需接入真实API）
+9. ~~确认收货 (P1-9)~~ ✅
+10. ~~退货/退款申请 (P1-10)~~ ✅（需接入真实API）
+11. ~~收藏功能 (P1-11)~~ ✅
+12. ~~优惠券系统 (P2-12)~~ ✅
+13. ~~评论功能 (P2-13)~~ ✅
+14. ~~消息通知 (P2-14)~~ ✅
+15. ~~扫码功能 (P2-15)~~ ✅
+16. **物流查询接口（后端新增）** ⚠️
+17. **退款申请接口（后端新增）** ⚠️
+18. **首页专题内容完善** ⚠️
+19. **ES 商品搜索（待 ES 服务）** ⚠️

@@ -70,19 +70,17 @@ export default function RefundScreen() {
   }, [orderId])
 
   const loadOrder = async () => {
+    if (!orderId) return
     setLoading(true)
     try {
-      // TODO: 调用订单详情API
-      await new Promise(resolve => setTimeout(resolve, 500))
-      const mockOrder = {
-        id: orderId,
-        payAmount: 299.00,
-        orderItems: [
-          { id: 1, productName: '测试商品', productPic: '', productPrice: 299, productQuantity: 1 },
-        ],
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACK_API_HOST ?? 'http://localhost:10081'}/order-service/order/${orderId}`
+      )
+      const result = await response.json()
+      if (result.data) {
+        setOrder(result.data)
+        setRefundAmount(String(result.data.payAmount || 0))
       }
-      setOrder(mockOrder)
-      setRefundAmount('299.00')
     } catch (error) {
       console.error('Failed to load order:', error)
     } finally {
@@ -91,9 +89,15 @@ export default function RefundScreen() {
   }
 
   const loadRefundHistory = async () => {
+    if (!orderId) return
     try {
-      // TODO: 调用退款历史API
-      setRefundHistory([])
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACK_API_HOST ?? 'http://localhost:10081'}/order-service/returnApply/order/${orderId}`
+      )
+      const result = await response.json()
+      if (result.data) {
+        setRefundHistory(result.data)
+      }
     } catch (error) {
       console.error('Failed to load refund history:', error)
     }
@@ -126,28 +130,61 @@ export default function RefundScreen() {
     setProofImages(prev => prev.filter((_, i) => i !== index))
   }
 
-  const handleSubmit = async () => {
-    if (!selectedReason) {
-      Alert.alert(t('common.error'), t('refund.reason_required'))
-      return
-    }
-    if (!refundAmount || parseFloat(refundAmount) <= 0) {
-      Alert.alert(t('common.error'), t('refund.amount_required'))
-      return
-    }
+  const callRefundApi = async () => {
+    const response = await orderApi.refund({
+      xUserId: DEFAULT_USER_ID,
+      id: Number(orderId),
+      reason: selectedReason,
+      amount: parseFloat(refundAmount),
+      description,
+      proofImages,
+    })
+    return response
+  }
 
+  const showSuccess = () => {
+    Alert.alert(t('common.success'), t('refund.submit_success'), [
+      { text: 'OK', onPress: () => router.back() },
+    ])
+  }
+
+  const handleSubmit = async () => {
+    if (!selectedReason) return Alert.alert(t('common.error'), t('refund.reason_required'))
+    if (!refundAmount || parseFloat(refundAmount) <= 0) return Alert.alert(t('common.error'), t('refund.amount_required'))
+    
     setSubmitting(true)
     try {
-      // TODO: 调用退款申请API
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      Alert.alert(t('common.success'), t('refund.submit_success'), [
-        { text: 'OK', onPress: () => router.back() },
-      ])
+      const result = await callRefundApi()
+      if (result.code === 200) return showSuccess()
     } catch (error) {
       Alert.alert(t('common.error'), t('refund.submit_failed'))
     } finally {
       setSubmitting(false)
     }
+  }
+    )
+    return await response.json()
+  }
+
+  const handleSubmit = async () => {
+    if (!selectedReason) return Alert.alert(t('common.error'), t('refund.reason_required'))
+    if (!refundAmount || parseFloat(refundAmount) <= 0) return Alert.alert(t('common.error'), t('refund.amount_required'))
+    
+    setSubmitting(true)
+    try {
+      const result = await callRefundApi()
+      if (result.code === 200) return showSuccess()
+    } catch (error) {
+      Alert.alert(t('common.error'), t('refund.submit_failed'))
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const showSuccess = () => {
+    Alert.alert(t('common.success'), t('refund.submit_success'), [
+      { text: 'OK', onPress: () => router.back() },
+    ])
   }
 
   if (loading) {

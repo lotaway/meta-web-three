@@ -91,7 +91,6 @@ export default function OrdersScreen() {
     }
   }, [userId, activeTab, loading, loadingMore, hasMore])
 
-  // 切换tab时刷新
   React.useEffect(() => {
     loadOrders(true)
   }, [activeTab])

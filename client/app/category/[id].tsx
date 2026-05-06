@@ -19,7 +19,7 @@ import { productApi, categoryApi } from '@/api/generated';
 import type { ProductDTO } from '@/src/generated/api/models';
 
 const { width: WINDOW_WIDTH } = Dimensions.get('window');
-const PRODUCT_WIDTH = (WINDOW_WIDTH - 24 - 12) / 2; // 2列，24是padding，12是间距
+const PRODUCT_WIDTH = (WINDOW_WIDTH - 24 - 12) / 2;
 
 type SortType = 'comprehensive' | 'sales' | 'price-asc' | 'price-desc';
 
@@ -44,7 +44,6 @@ export default function CategoryListScreen() {
   const pageNumRef = useRef(1);
   const pageSize = 10;
 
-  // 排序映射
   const getSortParam = (): number => {
     switch (sortType) {
       case 'comprehensive': return 0;
@@ -55,10 +54,9 @@ export default function CategoryListScreen() {
     }
   };
 
-  // 加载分类列表
   const loadCateList = useCallback(async () => {
     try {
-      const parentId = id ? Math.floor(Number(id) / 100) * 100 : 0; // 简单估算父ID
+      const parentId = id ? Math.floor(Number(id) / 100) * 100 : 0;
       const response = await categoryApi.viewChildren({ parentId });
       if (response.data) {
         setCateList(response.data as any[]);
@@ -68,47 +66,42 @@ export default function CategoryListScreen() {
     }
   }, [id]);
 
-  // 加载商品
+  const fetchProducts = useCallback(async () => {
+    const response = await productApi.listProducts({
+      productCategoryId: selectedCateId || undefined,
+      pageNum: pageNumRef.current,
+      pageSize,
+      sort: getSortParam(),
+    });
+    return response.data as ProductDTO[] | null;
+  }, [selectedCateId, sortType]);
+
+  const updateProductState = useCallback((newProducts: ProductDTO[], isRefresh: boolean) => {
+    if (isRefresh) {
+      setProducts(newProducts);
+    } else {
+      setProducts(prev => [...prev, ...newProducts]);
+    }
+    setHasMore(newProducts.length >= pageSize);
+    pageNumRef.current += 1;
+  }, []);
+
   const loadProducts = useCallback(async (isRefresh = false) => {
     if (loading || loadingMore) return;
-    
-    if (isRefresh) {
-      setLoading(true);
-      pageNumRef.current = 1;
-    } else {
-      if (!hasMore) return;
-      setLoadingMore(true);
-    }
-
+    if (isRefresh) { setLoading(true); pageNumRef.current = 1; }
+    else { if (!hasMore) return; setLoadingMore(true); }
     try {
-      const response = await productApi.listProducts({
-        productCategoryId: selectedCateId || undefined,
-        pageNum: pageNumRef.current,
-        pageSize,
-        sort: getSortParam(),
-      });
-
-      if (response.data) {
-        const newProducts = response.data as ProductDTO[];
-        if (isRefresh) {
-          setProducts(newProducts);
-        } else {
-          setProducts(prev => [...prev, ...newProducts]);
-        }
-        setHasMore(newProducts.length >= pageSize);
-        pageNumRef.current += 1;
-      }
+      const newProducts = await fetchProducts();
+      if (newProducts) updateProductState(newProducts, isRefresh);
     } catch (error) {
       console.error('Load products failed:', error);
     } finally {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [selectedCateId, sortType, loading, loadingMore, hasMore]);
+  }, [selectedCateId, sortType, loading, loadingMore, hasMore, fetchProducts, updateProductState]);
 
-  // 初始加载
   React.useEffect(() => {
-    loadCateList();
     loadProducts(true);
   }, []);
 
@@ -156,25 +149,21 @@ export default function CategoryListScreen() {
         resizeMode="cover"
       />
       <View style={styles.productInfo}>
-        <Text style={[styles.productName, { color: colors.text }]} numberOfLines={2}>
+        <Text numberOfLines={2} style={[styles.productName, { color: colors.text }]}>
           {item.name}
         </Text>
-        <Text style={[styles.productSubtitle, { color: colors.textSecondary }]} numberOfLines={1}>
-          {item.subTitle}
-        </Text>
+        {item.subTitle && (
+          <Text numberOfLines={1} style={[styles.subTitle, { color: colors.textSecondary }]}>
+            {item.subTitle}
+          </Text>
+        )}
         <View style={styles.priceRow}>
-          <Text style={[styles.price, { color: colors.tint }]}>
-            ¥{item.price}
-          </Text>
-          <Text style={[styles.sales, { color: colors.textSecondary }]}>
-            {t('product.sold')} {item.sale || 0}
-          </Text>
+          <Text style={[styles.price, { color: colors.tint }]}>¥{item.price}</Text>
         </View>
       </View>
     </TouchableOpacity>
-  );
+  )
 
-  // 渲染排序栏
   const renderSortBar = () => (
     <View style={[styles.sortBar, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
       <TouchableOpacity
