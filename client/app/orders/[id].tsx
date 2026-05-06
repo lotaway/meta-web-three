@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  Image,
   Alert,
   Linking,
 } from 'react-native'
@@ -18,6 +17,11 @@ import { useColorScheme } from '@/hooks/useColorScheme'
 import { IconSymbol } from '@/components/ui/IconSymbol'
 import { orderApi } from '@/api/generated'
 import { useAuth } from '@/contexts/AuthContext'
+import { OrderInfo } from '@/components/order/OrderInfo'
+import { ProductList } from '@/components/order/ProductList'
+import { AddressInfo } from '@/components/order/AddressInfo'
+import { PaymentInfo } from '@/components/order/PaymentInfo'
+import { ActionButtons } from '@/components/order/ActionButtons'
 
 export default function OrderDetailScreen() {
   const { t } = useTranslation()
@@ -72,8 +76,14 @@ export default function OrderDetailScreen() {
     return statusColors[status] || colors.textSecondary
   }
 
-  const handlePay = async () => {
-    router.push({ pathname: '/checkout', params: { orderId } })
+  const executeCancel = async () => {
+    try {
+      await orderApi.cancel({ id: orderId } as any)
+      Alert.alert(t('common.success'), t('orders.cancel_success'))
+      loadOrder()
+    } catch (error) {
+      Alert.alert(t('common.error'), t('orders.cancel_failed'))
+    }
   }
 
   const handleCancel = () => {
@@ -85,18 +95,20 @@ export default function OrderDetailScreen() {
         {
           text: t('orders.confirm'),
           style: 'destructive',
-          onPress: async () => {
-            try {
-              await orderApi.cancel({ id: orderId } as any)
-              Alert.alert(t('common.success'), t('orders.cancel_success'))
-              loadOrder()
-            } catch (error) {
-              Alert.alert(t('common.error'), t('orders.cancel_failed'))
-            }
-          },
+          onPress: executeCancel,
         },
       ]
     )
+  }
+
+  const executeConfirmReceive = async () => {
+    try {
+      await orderApi.confirmReceive({ id: orderId } as any)
+      Alert.alert(t('common.success'), t('orders.confirm_receive_success'))
+      loadOrder()
+    } catch (error) {
+      Alert.alert(t('common.error'), t('orders.confirm_receive_failed'))
+    }
   }
 
   const handleConfirmReceive = () => {
@@ -107,18 +119,14 @@ export default function OrderDetailScreen() {
         { text: t('common.cancel'), style: 'cancel' },
         {
           text: t('orders.confirm'),
-          onPress: async () => {
-            try {
-              await orderApi.confirmReceive({ id: orderId } as any)
-              Alert.alert(t('common.success'), t('orders.confirm_receive_success'))
-              loadOrder()
-            } catch (error) {
-              Alert.alert(t('common.error'), t('orders.confirm_receive_failed'))
-            }
-          },
+          onPress: executeConfirmReceive,
         },
       ]
     )
+  }
+
+  const handlePay = () => {
+    router.push({ pathname: '/checkout', params: { orderId } })
   }
 
   const handleViewLogistics = () => {
@@ -145,6 +153,11 @@ export default function OrderDetailScreen() {
     if (order?.deliveryCompanyPhone) {
       Linking.openURL(`tel:${order.deliveryCompanyPhone}`)
     }
+  }
+
+  const handleReviewItem = () => {
+    const item = order.orderItems?.[0]
+    if (item) handleReview(item)
   }
 
   if (loading) {
@@ -184,7 +197,6 @@ export default function OrderDetailScreen() {
       </View>
 
       <ScrollView style={styles.content}>
-        {/* 订单状态 */}
         <View style={[styles.statusSection, { backgroundColor: colors.card }]}>
           <IconSymbol
             name={order.status === 0 ? 'creditcard' : order.status === 3 ? 'checkmark.seal.fill' : 'shippingbox'}
@@ -204,167 +216,45 @@ export default function OrderDetailScreen() {
           )}
         </View>
 
-        {/* 收货地址 */}
         {order.receiverName && (
-          <View style={[styles.section, { backgroundColor: colors.card }]}>
-            <View style={styles.addressHeader}>
-              <IconSymbol name="location.fill" size={18} color={colors.primary} />
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('orders.address_title')}</Text>
-            </View>
-            <View style={styles.addressContent}>
-              <Text style={[styles.addressName, { color: colors.text }]}>
-                {order.receiverName} {order.receiverPhone}
-              </Text>
-              <Text style={[styles.addressDetail, { color: colors.textSecondary }]}>
-                {order.receiverProvince}{order.receiverCity}{order.receiverRegion}{order.receiverDetailAddress}
-              </Text>
-            </View>
-          </View>
+          <AddressInfo
+            receiverName={order.receiverName}
+            receiverPhone={order.receiverPhone}
+            receiverProvince={order.receiverProvince}
+            receiverCity={order.receiverCity}
+            receiverRegion={order.receiverRegion}
+            receiverDetailAddress={order.receiverDetailAddress}
+          />
         )}
 
-        {/* 商品信息 */}
-        <View style={[styles.section, { backgroundColor: colors.card }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('orders.products_title')}</Text>
-          {order.orderItems?.map((item: any, index: number) => (
-            <View key={index} style={[styles.productRow, { borderBottomColor: colors.border }]}>
-              <TouchableOpacity
-                style={styles.productRowContent}
-                onPress={() => router.push({ pathname: '/product/[id]', params: { id: item.productId } })}
-              >
-                <Image source={{ uri: item.productPic || '' }} style={styles.productImage} />
-                <View style={styles.productInfo}>
-                  <Text numberOfLines={2} style={[styles.productName, { color: colors.text }]}>
-                    {item.productName}
-                  </Text>
-                  <View style={styles.productFooter}>
-                    <Text style={[styles.productPrice, { color: colors.primary }]}>¥{item.productPrice}</Text>
-                    <Text style={[styles.productQty, { color: colors.textSecondary }]}>x{item.productQuantity}</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-              {order.status === 3 && (
-                <TouchableOpacity
-                  style={styles.reviewItemBtn}
-                  onPress={() => handleReview(item)}
-                >
-                  <IconSymbol name="pencil" size={16} color={colors.primary} />
-                  <Text style={[styles.reviewItemText, { color: colors.primary }]}>评价</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          ))}
-        </View>
+        <ProductList
+          orderItems={order.orderItems}
+          status={order.status}
+          onReview={handleReview}
+        />
 
-        {/* 订单信息 */}
-        <View style={[styles.section, { backgroundColor: colors.card }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('orders.info_title')}</Text>
-          <View style={styles.infoRow}>
-            <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{t('orders.order_no')}</Text>
-            <Text style={[styles.infoValue, { color: colors.text }]}>{order.orderSn || order.id}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{t('orders.create_time')}</Text>
-            <Text style={[styles.infoValue, { color: colors.text }]}>
-              {order.createTime ? new Date(order.createTime).toLocaleString() : '-'}
-            </Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{t('orders.pay_time')}</Text>
-            <Text style={[styles.infoValue, { color: colors.text }]}>
-              {order.paymentTime ? new Date(order.paymentTime).toLocaleString() : '-'}
-            </Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{t('orders.pay_type')}</Text>
-            <Text style={[styles.infoValue, { color: colors.text }]}>
-              {order.payType === 0 ? t('orders.pay_type_wechat') :
-               order.payType === 1 ? t('orders.pay_type_alipay') :
-               order.payType === 2 ? t('orders.pay_type_stripe') : '-'}
-            </Text>
-          </View>
-          {order.note && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{t('orders.note')}</Text>
-              <Text style={[styles.infoValue, { color: colors.text }]}>{order.note}</Text>
-            </View>
-          )}
-        </View>
+        <OrderInfo order={order} />
 
-        {/* 费用明细 */}
-        <View style={[styles.section, { backgroundColor: colors.card }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('orders.amount_title')}</Text>
-          <View style={styles.infoRow}>
-            <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{t('orders.product_amount')}</Text>
-            <Text style={[styles.infoValue, { color: colors.text }]}>¥{order.totalAmount}</Text>
-          </View>
-          {order.freightAmount > 0 && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{t('orders.freight')}</Text>
-              <Text style={[styles.infoValue, { color: colors.text }]}>¥{order.freightAmount}</Text>
-            </View>
-          )}
-          {order.couponAmount > 0 && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{t('orders.coupon')}</Text>
-              <Text style={[styles.infoValue, { color: '#FF3B30' }]}>-¥{order.couponAmount}</Text>
-            </View>
-          )}
-          <View style={[styles.infoRow, styles.totalRow, { borderTopColor: colors.border }]}>
-            <Text style={[styles.totalLabel, { color: colors.text }]}>{t('orders.pay_amount')}</Text>
-            <Text style={[styles.totalValue, { color: colors.primary }]}>¥{order.payAmount}</Text>
-          </View>
-        </View>
+        <PaymentInfo
+          totalAmount={order.totalAmount}
+          freightAmount={order.freightAmount}
+          couponAmount={order.couponAmount}
+          payAmount={order.payAmount}
+        />
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
 
-      {/* 底部操作栏 */}
       {order.status !== 4 && (
-        <View style={[styles.bottomBar, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
-          {order.status === 0 && (
-            <>
-              <TouchableOpacity style={[styles.bottomBtn, { borderColor: colors.border }]} onPress={handleCancel}>
-                <Text style={[styles.bottomBtnText, { color: colors.text }]}>{t('orders.cancel')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.bottomBtn, styles.payBottomBtn, { backgroundColor: colors.primary }]} onPress={handlePay}>
-                <Text style={styles.payBottomBtnText}>{t('orders.pay')}</Text>
-              </TouchableOpacity>
-            </>
-          )}
-          {order.status === 1 && (
-            <>
-              <TouchableOpacity style={[styles.bottomBtn, { borderColor: colors.border }]} onPress={handleRefund}>
-                <Text style={[styles.bottomBtnText, { color: colors.text }]}>{t('orders.refund')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.bottomBtn, { borderColor: colors.border }]} onPress={handleContactDelivery}>
-                <Text style={[styles.bottomBtnText, { color: colors.text }]}>{t('orders.contact_delivery')}</Text>
-              </TouchableOpacity>
-            </>
-          )}
-          {order.status === 2 && (
-            <>
-              <TouchableOpacity style={[styles.bottomBtn, { borderColor: colors.border }]} onPress={handleRefund}>
-                <Text style={[styles.bottomBtnText, { color: colors.text }]}>{t('orders.refund')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.bottomBtn, styles.confirmBottomBtn, { backgroundColor: colors.primary }]} onPress={handleConfirmReceive}>
-                <Text style={styles.confirmBottomBtnText}>{t('orders.confirm_receive')}</Text>
-              </TouchableOpacity>
-            </>
-          )}
-          {order.status === 3 && (
-            <>
-              <TouchableOpacity style={[styles.bottomBtn, { borderColor: colors.border }]} onPress={() => router.push({ pathname: '/orders/[id]/refund', params: { id: orderId } })}>
-                <Text style={[styles.bottomBtnText, { color: colors.text }]}>{t('orders.refund')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.bottomBtn, styles.confirmBottomBtn, { backgroundColor: colors.primary }]} onPress={() => {
-                const item = order.orderItems?.[0]
-                if (item) handleReview(item)
-              }}>
-                <Text style={styles.confirmBottomBtnText}>评价商品</Text>
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
+        <ActionButtons
+          status={order.status}
+          onPay={handlePay}
+          onCancel={handleCancel}
+          onConfirmReceive={handleConfirmReceive}
+          onRefund={handleRefund}
+          onContactDelivery={handleContactDelivery}
+          onReview={handleReviewItem}
+        />
       )}
     </SafeAreaView>
   )
@@ -413,100 +303,5 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   logisticsBtnText: { color: '#fff', fontSize: 14 },
-  section: {
-    marginBottom: 10,
-    padding: 16,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-  addressHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 8,
-  },
-  addressContent: { paddingLeft: 26 },
-  addressName: { fontSize: 16, fontWeight: '500' },
-  addressDetail: { fontSize: 14, marginTop: 4, lineHeight: 20 },
-  productRow: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-  },
-  productRowContent: { flexDirection: 'row', flex: 1 },
-  reviewItemBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#eee',
-    backgroundColor: '#fff',
-    alignSelf: 'center',
-    gap: 4,
-  },
-  reviewItemText: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  productImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
-  },
-  productInfo: {
-    flex: 1,
-    marginLeft: 12,
-    justifyContent: 'space-between',
-  },
-  productName: { fontSize: 14, lineHeight: 20 },
-  productFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  productPrice: { fontSize: 16, fontWeight: 'bold' },
-  productQty: { fontSize: 14 },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-  },
-  infoLabel: { fontSize: 14 },
-  infoValue: { fontSize: 14 },
-  totalRow: {
-    paddingTop: 12,
-    marginTop: 4,
-    borderTopWidth: 1,
-  },
-  totalLabel: { fontSize: 14, fontWeight: '600' },
-  totalValue: { fontSize: 18, fontWeight: 'bold' },
   bottomSpacer: { height: 80 },
-  bottomBar: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    gap: 12,
-  },
-  bottomBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1,
-  },
-  bottomBtnText: { fontSize: 14 },
-  payBottomBtn: {
-    borderWidth: 0,
-  },
-  payBottomBtnText: { color: '#fff', fontSize: 14, fontWeight: '600' },
-  confirmBottomBtn: {
-    borderWidth: 0,
-  },
-  confirmBottomBtnText: { color: '#fff', fontSize: 14, fontWeight: '600' },
 })

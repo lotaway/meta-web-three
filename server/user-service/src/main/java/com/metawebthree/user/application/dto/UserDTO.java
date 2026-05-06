@@ -21,4 +21,5 @@ public class UserDTO {
     private String password;
     private UserRole userRoleId;
     private String walletAddress;
+    private Long typeId;
 }

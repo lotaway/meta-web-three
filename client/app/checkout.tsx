@@ -2,21 +2,22 @@ import React, { useState, useEffect, useCallback } from 'react'
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
-  TouchableOpacity,
   Alert,
-  Modal,
-  FlatList,
+  StyleSheet,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router, useLocalSearchParams, useFocusEffect } from 'expo-router'
-import { IconSymbol } from '@/components/ui/IconSymbol'
-import { DEFAULT_USER_ID, orderApi, payApi, addressApi, couponApi } from '@/api/generated'
 import { Colors } from '@/constants/Colors'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { pay, type PayResult } from '@/app/lib/payment'
+import { DEFAULT_USER_ID, orderApi, payApi, addressApi, couponApi } from '@/api/generated'
 import type { ApiResponseLong, ApiResponseMapStringObject, ApiResponseMapStringString, OrderItemCreate, MemberReceiveAddressDTO } from '@/src/generated/api/models'
+import AddressSection from './components/checkout/AddressSection'
+import ProductListSection from './components/checkout/ProductListSection'
+import CouponSection from './components/checkout/CouponSection'
+import PaymentSection from './components/checkout/PaymentSection'
+import SummarySection from './components/checkout/SummarySection'
 
 type PayMethod = 'wechat' | 'alipay' | 'stripe'
 
@@ -209,32 +210,40 @@ export default function CheckoutScreen() {
     setSelectedCoupon(null)
   }
 
+  const loadOrderBase = async () => {
+    if (checkoutItems.length === 0) {
+      throw new Error('未找到可结算商品')
+    }
+    const orderResponse = await createOrder(checkoutItems, selectedAddress?.id)
+    if (!isSuccessCode(orderResponse.code) || !orderResponse.data) {
+      throw new Error(orderResponse.message || '创建订单失败')
+    }
+    return orderResponse.data
+  }
+
+  const loadOrderDetail = async (orderId: number) => {
+    const detailResponse = await orderApi.detail({
+      xUserId: DEFAULT_USER_ID,
+      id: orderId,
+    })
+    const detail = detailResponse.data
+    setOrderInfo({
+      orderId,
+      amount: Number(detail?.order?.orderAmount ?? 0),
+      couponDiscount: 0,
+      payAmount: Number(detail?.order?.orderAmount ?? 0),
+      items: detail?.items?.map((item) => ({
+        name: item.productName ?? '',
+        price: Number(item.unitPrice ?? 0),
+        quantity: item.quantity ?? 0,
+      })) ?? mapItemsForView(checkoutItems),
+    })
+  }
+
   const loadOrder = async () => {
     try {
-      if (checkoutItems.length === 0) {
-        throw new Error('未找到可结算商品')
-      }
-      const orderResponse = await createOrder(checkoutItems, selectedAddress?.id)
-      if (!isSuccessCode(orderResponse.code) || !orderResponse.data) {
-        throw new Error(orderResponse.message || '创建订单失败')
-      }
-      const orderId = orderResponse.data
-      const detailResponse = await orderApi.detail({
-        xUserId: DEFAULT_USER_ID,
-        id: orderId,
-      })
-      const detail = detailResponse.data
-      setOrderInfo({
-        orderId,
-        amount: Number(detail?.order?.orderAmount ?? 0),
-        couponDiscount: 0,
-        payAmount: Number(detail?.order?.orderAmount ?? 0),
-        items: detail?.items?.map((item) => ({
-          name: item.productName ?? '',
-          price: Number(item.unitPrice ?? 0),
-          quantity: item.quantity ?? 0,
-        })) ?? mapItemsForView(checkoutItems),
-      })
+      const orderId = await loadOrderBase()
+      await loadOrderDetail(orderId)
     } catch (error) {
       Alert.alert('错误', '加载订单失败')
       router.back()
@@ -246,11 +255,9 @@ export default function CheckoutScreen() {
   const handlePay = async () => {
     if (!orderInfo || paying) return
     setPaying(true)
-
     try {
       const finalAmount = orderInfo.amount - (selectedCoupon?.amount ?? 0)
       const payResult = await handlePaymentWithOrder(finalAmount)
-
       handlePayResult(payResult, orderInfo.orderId)
     } catch (error: any) {
       Alert.alert('支付异常', error.message || '请稍后重试')
@@ -259,59 +266,55 @@ export default function CheckoutScreen() {
     }
   }
 
-  const handlePaymentWithOrder = async (finalAmount: number): Promise<PayResult> => {
-    let currentOrderId = orderInfo!.orderId
-
-    if (selectedCoupon) {
-      const orderResponse = await createOrder(
-        checkoutItems,
-        selectedAddress?.id,
-        selectedCoupon.id,
-        orderRemark
-      )
-      if (!isSuccessCode(orderResponse.code) || !orderResponse.data) {
-        throw new Error(orderResponse.message || '创建订单失败')
-      }
-      currentOrderId = orderResponse.data
+  const createOrderWithCoupon = async (): Promise<number> => {
+    const orderResponse = await createOrder(
+      checkoutItems,
+      selectedAddress?.id,
+      selectedCoupon?.id,
+      orderRemark
+    )
+    if (!isSuccessCode(orderResponse.code) || !orderResponse.data) {
+      throw new Error(orderResponse.message || '创建订单失败')
     }
+    return orderResponse.data
+  }
 
-    const params = await getPaymentParams(currentOrderId, selectedMethod)
+  const processPaymentAndVerify = async (orderId: number): Promise<PayResult> => {
+    const params = await getPaymentParams(orderId, selectedMethod)
     const result = await processPayment(selectedMethod, params)
-
     if (result.status === 'success') {
       if (!result.transactionId) {
         throw new Error('支付结果缺少交易凭证')
       }
-      const verification = await verifyPayment(currentOrderId, result.transactionId)
+      const verification = await verifyPayment(orderId, result.transactionId)
       const valid = verification.data?.valid === true
       if (!valid) {
         throw new Error('支付校验失败')
       }
-      await markOrderPaid(currentOrderId, selectedMethod)
+      await markOrderPaid(orderId, selectedMethod)
     }
-
     return result
   }
 
-  const processPayment = async (
-    method: PayMethod,
-    params: PaymentParams
-  ): Promise<PayResult> => {
+  const handlePaymentWithOrder = async (finalAmount: number): Promise<PayResult> => {
+    let currentOrderId = orderInfo!.orderId
+    if (selectedCoupon) {
+      currentOrderId = await createOrderWithCoupon()
+    }
+    return await processPaymentAndVerify(currentOrderId)
+  }
+
+  const processPayment = async (method: PayMethod, params: PaymentParams): Promise<PayResult> => {
     switch (method) {
       case 'wechat':
         if (!params) throw new Error('微信支付参数获取失败')
         return await pay('wechat', params as any)
-
       case 'alipay':
         if (!params?.orderString) throw new Error('支付宝支付参数获取失败')
         return await pay('alipay', params.orderString)
-
       case 'stripe':
         if (!params?.clientSecret) throw new Error('银行卡支付参数获取失败')
-        return await pay('stripe', {
-          clientSecret: params.clientSecret,
-          returnURL: params.returnURL || 'app://payment',
-        })
+        return await pay('stripe', { clientSecret: params.clientSecret, returnURL: params.returnURL || 'app://payment' })
     }
   }
 
@@ -329,6 +332,11 @@ export default function CheckoutScreen() {
         Alert.alert('支付失败', result.message || '支付失败，请重试')
         break
     }
+  }
+
+  const handleOpenCouponSelector = () => {
+    loadAvailableCoupons()
+    setCouponModalVisible(true)
   }
 
   if (loading) {
@@ -354,229 +362,40 @@ export default function CheckoutScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView style={styles.content}>
-        <TouchableOpacity
-          style={[styles.addressSection, { backgroundColor: colors.background }]}
+        <AddressSection
+          selectedAddress={selectedAddress}
+          colors={colors}
           onPress={() => router.push('/address/list?source=checkout')}
-        >
-          {selectedAddress ? (
-            <View style={styles.addressContent}>
-              <IconSymbol name="location.fill" size={24} color={colors.primary} />
-              <View style={styles.addressInfo}>
-                <View style={styles.addressTop}>
-                  <Text style={[styles.addressName, { color: colors.fontColorDark }]}>
-                    {selectedAddress.name}
-                  </Text>
-                  <Text style={[styles.addressPhone, { color: colors.fontColorBase }]}>
-                    {selectedAddress.phoneNumber}
-                  </Text>
-                </View>
-                <Text style={[styles.addressDetail, { color: colors.fontColorLight }]}>
-                  {selectedAddress.province} {selectedAddress.city} {selectedAddress.region} {selectedAddress.detailAddress}
-                </Text>
-              </View>
-              <IconSymbol name="chevron.right" size={20} color={colors.fontColorDisabled} />
-            </View>
-          ) : (
-            <View style={styles.addressContent}>
-              <IconSymbol name="location" size={24} color={colors.fontColorDisabled} />
-              <Text style={[styles.addressPlaceholder, { color: colors.fontColorDisabled }]}>
-                请选择收货地址
-              </Text>
-              <IconSymbol name="chevron.right" size={20} color={colors.fontColorDisabled} />
-            </View>
-          )}
-        </TouchableOpacity>
+        />
 
-        <View style={[styles.section, { backgroundColor: colors.background }]}>
-          <Text style={[styles.sectionTitle, { color: colors.fontColorDark }]}>
-            订单信息
-          </Text>
-          <View style={styles.orderInfo}>
-            <Text style={[styles.orderId, { color: colors.fontColorBase }]}>
-              订单号: {orderInfo.orderId}
-            </Text>
-            <Text style={[styles.orderItems, { color: colors.fontColorLight }]}>
-              {orderInfo.items.map((item) => `${item.name} x${item.quantity}`).join(', ')}
-            </Text>
-          </View>
-        </View>
+        <ProductListSection orderInfo={orderInfo} colors={colors} />
 
-        <TouchableOpacity
-          style={[styles.section, { backgroundColor: colors.background }]}
-          onPress={() => {
-            loadAvailableCoupons()
-            setCouponModalVisible(true)
-          }}
-        >
-          <View style={styles.couponRow}>
-            <IconSymbol name="ticket" size={20} color={colors.primary} />
-            <Text style={[styles.sectionTitle, { color: colors.fontColorDark, flex: 1 }]}>
-              优惠券
-            </Text>
-            {selectedCoupon ? (
-              <View style={styles.couponSelected}>
-                <Text style={[styles.couponSelectedText, { color: colors.primary }]}>
-                  -¥{selectedCoupon.amount}
-                </Text>
-                <TouchableOpacity onPress={handleClearCoupon} style={styles.clearCouponBtn}>
-                  <IconSymbol name="xmark.circle.fill" size={18} color={colors.fontColorDisabled} />
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={styles.couponPlaceholder}>
-                <Text style={[styles.couponPlaceholderText, { color: colors.fontColorDisabled }]}>
-                  选择优惠券
-                </Text>
-                <IconSymbol name="chevron.right" size={16} color={colors.fontColorDisabled} />
-              </View>
-            )}
-          </View>
-        </TouchableOpacity>
+        <CouponSection
+          selectedCoupon={selectedCoupon}
+          colors={colors}
+          couponModalVisible={couponModalVisible}
+          availableCoupons={availableCoupons}
+          loadingCoupons={loadingCoupons}
+          onOpenCouponSelector={handleOpenCouponSelector}
+          onSelectCoupon={handleSelectCoupon}
+          onClearCoupon={handleClearCoupon}
+          onCloseModal={() => setCouponModalVisible(false)}
+        />
 
-        <View style={[styles.section, { backgroundColor: colors.background }]}>
-          <Text style={[styles.sectionTitle, { color: colors.fontColorDark }]}>
-            支付方式
-          </Text>
-          {PAY_METHODS.map((method) => (
-            <TouchableOpacity
-              key={method.id}
-              style={[
-                styles.methodItem,
-                selectedMethod === method.id && {
-                  borderColor: colors.primary,
-                  borderWidth: 2,
-                },
-              ]}
-              onPress={() => setSelectedMethod(method.id)}
-            >
-              <View style={styles.methodLeft}>
-                <IconSymbol
-                  name={method.icon as any}
-                  size={24}
-                  color={
-                    selectedMethod === method.id
-                      ? colors.primary
-                      : colors.fontColorBase
-                  }
-                />
-                <Text
-                  style={[
-                    styles.methodName,
-                    { color: colors.fontColorDark },
-                    selectedMethod === method.id && { color: colors.primary },
-                  ]}
-                >
-                  {method.name}
-                </Text>
-              </View>
-              <IconSymbol
-                name={
-                  selectedMethod === method.id
-                    ? 'checkmark.circle.fill'
-                    : 'circle'
-                }
-                size={24}
-                color={
-                  selectedMethod === method.id
-                    ? colors.primary
-                    : colors.fontColorDisabled
-                }
-              />
-            </TouchableOpacity>
-          ))}
-        </View>
+        <PaymentSection
+          selectedMethod={selectedMethod}
+          colors={colors}
+          onSelectMethod={setSelectedMethod}
+        />
       </ScrollView>
 
-      <View style={[styles.footer, { backgroundColor: colors.background }]}>
-        <View style={styles.footerTotal}>
-          {selectedCoupon && (
-            <Text style={[styles.footerDiscount, { color: colors.fontColorDisabled }]}>
-              ¥{orderInfo.amount.toFixed(2)} - ¥{selectedCoupon.amount.toFixed(2)}
-            </Text>
-          )}
-          <Text style={[styles.footerLabel, { color: colors.fontColorDark }]}>
-            实付:
-          </Text>
-          <Text style={[styles.footerAmount, { color: colors.primary }]}>
-            ¥{(orderInfo.amount - (selectedCoupon?.amount ?? 0)).toFixed(2)}
-          </Text>
-        </View>
-        <TouchableOpacity
-          style={[
-            styles.payButton,
-            { backgroundColor: paying ? colors.fontColorDisabled : colors.primary },
-          ]}
-          onPress={handlePay}
-          disabled={paying}
-        >
-          <Text style={styles.payButtonText}>
-            {paying ? '支付中...' : `立即支付`}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* 优惠券选择弹窗 */}
-      <Modal
-        visible={couponModalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setCouponModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
-            <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-              <Text style={[styles.modalTitle, { color: colors.fontColorDark }]}>
-                选择优惠券
-              </Text>
-              <TouchableOpacity onPress={() => setCouponModalVisible(false)}>
-                <IconSymbol name="xmark" size={24} color={colors.fontColorBase} />
-              </TouchableOpacity>
-            </View>
-            {loadingCoupons ? (
-              <View style={styles.modalLoading}>
-                <Text style={{ color: colors.fontColorBase }}>加载中...</Text>
-              </View>
-            ) : availableCoupons.length === 0 ? (
-              <View style={styles.modalLoading}>
-                <Text style={{ color: colors.fontColorDisabled }}>暂无可用优惠券</Text>
-              </View>
-            ) : (
-              <FlatList
-                data={availableCoupons}
-                keyExtractor={(item) => String(item.id)}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={[styles.couponItem, { borderColor: colors.border }]}
-                    onPress={() => handleSelectCoupon(item)}
-                  >
-                    <View style={styles.couponItemLeft}>
-                      <Text style={[styles.couponItemAmount, { color: colors.primary }]}>
-                        ¥{item.amount}
-                      </Text>
-                      <Text style={[styles.couponItemCondition, { color: colors.fontColorDisabled }]}>
-                        满¥{item.minPoint}可用
-                      </Text>
-                    </View>
-                    <View style={[styles.couponItemDivider, { backgroundColor: colors.border }]} />
-                    <View style={styles.couponItemRight}>
-                      <Text style={[styles.couponItemName, { color: colors.fontColorDark }]} numberOfLines={1}>
-                        {item.name}
-                      </Text>
-                      <Text style={[styles.couponItemTime, { color: colors.fontColorLight }]}>
-                        有效期至 {item.endTime}
-                      </Text>
-                      <Text style={[styles.couponItemUseType, { color: colors.fontColorLight }]}>
-                        {item.useType === 0 ? '全场通用' : item.useType === 1 ? '指定分类可用' : '指定商品可用'}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-                contentContainerStyle={styles.couponListContent}
-              />
-            )}
-          </View>
-        </View>
-      </Modal>
+      <SummarySection
+        orderInfo={orderInfo}
+        selectedCoupon={selectedCoupon}
+        paying={paying}
+        colors={colors}
+        onSubmit={handlePay}
+      />
     </SafeAreaView>
   )
 }
@@ -593,204 +412,5 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 16,
-  },
-  addressSection: {
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-  },
-  addressContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  addressInfo: {
-    flex: 1,
-  },
-  addressTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
-  addressName: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  addressPhone: {
-    fontSize: 14,
-  },
-  addressDetail: {
-    fontSize: 13,
-  },
-  addressPlaceholder: {
-    flex: 1,
-    fontSize: 15,
-  },
-  section: {
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-  orderInfo: {
-    gap: 4,
-  },
-  orderId: {
-    fontSize: 14,
-  },
-  orderItems: {
-    fontSize: 12,
-  },
-  couponRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  couponSelected: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  couponSelectedText: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginRight: 8,
-  },
-  clearCouponBtn: {
-    padding: 2,
-  },
-  couponPlaceholder: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  couponPlaceholderText: {
-    fontSize: 14,
-    marginRight: 4,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    maxHeight: '70%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    borderBottomWidth: 1,
-  },
-  modalTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  modalLoading: {
-    padding: 32,
-    alignItems: 'center',
-  },
-  couponListContent: {
-    paddingBottom: 16,
-  },
-  couponItem: {
-    flexDirection: 'row',
-    marginHorizontal: 16,
-    marginTop: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    overflow: 'hidden',
-    backgroundColor: '#fff',
-  },
-  couponItemLeft: {
-    width: 90,
-    padding: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  couponItemAmount: {
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  couponItemCondition: {
-    fontSize: 11,
-    marginTop: 4,
-  },
-  couponItemDivider: {
-    width: 1,
-  },
-  couponItemRight: {
-    flex: 1,
-    padding: 12,
-    justifyContent: 'space-between',
-  },
-  couponItemName: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  couponItemTime: {
-    fontSize: 11,
-    marginTop: 4,
-  },
-  couponItemUseType: {
-    fontSize: 11,
-    marginTop: 2,
-  },
-  footerDiscount: {
-    fontSize: 12,
-    marginRight: 8,
-    textDecorationLine: 'line-through',
-  },
-  methodItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    marginBottom: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#eee',
-  },
-  methodLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  methodName: {
-    fontSize: 15,
-  },
-  footer: {
-    padding: 16,
-    paddingBottom: 34,
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-  },
-  footerTotal: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    marginBottom: 12,
-  },
-  footerLabel: {
-    fontSize: 14,
-  },
-  footerAmount: {
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  payButton: {
-    paddingVertical: 14,
-    borderRadius: 25,
-    alignItems: 'center',
-  },
-  payButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
 })

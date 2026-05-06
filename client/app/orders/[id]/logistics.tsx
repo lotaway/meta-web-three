@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next'
 import { Colors } from '@/constants/Colors'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { IconSymbol } from '@/components/ui/IconSymbol'
+import { API_BASE_URL } from '@/api/generated'
 
 interface LogisticsTrace {
   id: number
@@ -20,42 +21,6 @@ interface LogisticsTrace {
   content: string
   status?: number
 }
-
-const MOCK_LOGISTICS: LogisticsTrace[] = [
-  {
-    id: 1,
-    time: '2024-01-15 14:30:00',
-    content: '已签收，签收人：本人，感谢使用顺丰速运，期待再次为您服务',
-    status: 3,
-  },
-  {
-    id: 2,
-    time: '2024-01-15 08:20:00',
-    content: '快件已到达成都高新站，正在派送中，快递员：张三，电话：13800138000',
-    status: 2,
-  },
-  {
-    id: 3,
-    time: '2024-01-14 22:15:00',
-    content: '快件已到达成都转运中心，准备发往成都高新站',
-  },
-  {
-    id: 4,
-    time: '2024-01-14 10:00:00',
-    content: '快件已从深圳宝安站发出，发往成都转运中心',
-  },
-  {
-    id: 5,
-    time: '2024-01-13 18:30:00',
-    content: '快件已到达深圳宝安站',
-  },
-  {
-    id: 6,
-    time: '2024-01-13 15:00:00',
-    content: '卖家已发货，快递公司：顺丰速运，运单号：SF1234567890',
-    status: 1,
-  },
-]
 
 export default function LogisticsScreen() {
   const { t } = useTranslation()
@@ -81,14 +46,15 @@ export default function LogisticsScreen() {
     if (!orderId) return
     setLoading(true)
     try {
-      const response = await orderApi.getLogistics({ id: Number(orderId) })
-      if (response.data) {
+      const response = await fetch(`${API_BASE_URL}/order-service/order/${orderId}/logistics`)
+      const result = await response.json()
+      if (result.data) {
         setLogisticsInfo({
-          company: response.data.company || '',
-          trackingNo: response.data.trackingNo || '',
-          phone: response.data.phone || '',
+          company: result.data.company || '',
+          trackingNo: result.data.trackingNo || '',
+          phone: result.data.phone || '',
         })
-        setTraces(response.data.traces || [])
+        setTraces(result.data.traces || [])
       }
     } catch (error) {
       console.error('Failed to load logistics:', error)

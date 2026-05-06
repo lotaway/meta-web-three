@@ -19,8 +19,12 @@ import { useColorScheme } from '@/hooks/useColorScheme'
 import { useAuth } from '@/contexts/AuthContext'
 import PasskeyAuthDemo from '@/components/PasskeyAuthDemo'
 import { FEATURE_PASSKEY_ENABLED } from '@/constants/Features'
-import { userApi, notificationApi, DEFAULT_USER_ID } from '@/api/generated'
+import { userApi, notificationApi, couponApi, DEFAULT_USER_ID } from '@/api/generated'
 import type { UserDTO } from '@/src/generated/api/models'
+import ProfileHeader from '@/components/profile/ProfileHeader'
+import UserStatsSection from '@/components/profile/UserStatsSection'
+import OrderQuickLinksSection from '@/components/profile/OrderQuickLinksSection'
+import ProfileMenuCell from '@/components/profile/ProfileMenuCell'
 
 interface MallUserAccount {
   id?: number
@@ -199,109 +203,6 @@ export default function ProfileScreen() {
   )
 }
 
-function ProfileHeader({ user, colors }: { user: MallUserAccount; colors: any }) {
-  const { t } = useTranslation()
-  return (
-    <View style={styles.userSection}>
-      <LinearGradient
-        colors={['#2fbfc7', '#306996', '#31337a', '#30176a']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.bgGradient}
-      />
-      <View style={styles.userInfoBox}>
-        <View style={styles.portraitBox}>
-          <IconSymbol name="person.circle.fill" size={60} color="#fff" />
-        </View>
-        <Text style={styles.username}>{user.nickname}</Text>
-      </View>
-
-      <View style={styles.vipCardBox}>
-        <View style={styles.vipHeader}>
-          <View style={styles.vipTitleLine}>
-            <IconSymbol name="crown.fill" size={16} color="#f7d680" />
-            <Text style={styles.vipTitle}>{t('profile.vip_gold')}</Text>
-          </View>
-          <TouchableOpacity style={styles.vipBtn}>
-            <Text style={styles.vipBtnText}>{t('profile.vip_open_now')}</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.vipDesc}>{t('profile.vip_slogan')}</Text>
-        <Text style={styles.vipFootnote}>{t('profile.vip_note')}</Text>
-      </View>
-    </View>
-  )
-}
-
-function UserStatsSection({ user, colors }: { user: MallUserAccount; colors: any }) {
-  const { t } = useTranslation()
-  return (
-    <View style={styles.statsSection}>
-      <View style={styles.statItem}>
-        <Text style={[styles.statNum, { color: colors.fontColorDark }]}>{user.integration}</Text>
-        <Text style={[styles.statLabel, { color: colors.fontColorLight }]}>{t('profile.stats.integration')}</Text>
-      </View>
-      <View style={styles.statItem}>
-        <Text style={[styles.statNum, { color: colors.fontColorDark }]}>{user.growth}</Text>
-        <Text style={[styles.statLabel, { color: colors.fontColorLight }]}>{t('profile.stats.growth')}</Text>
-      </View>
-      <View style={styles.statItem}>
-        <Text style={[styles.statNum, { color: colors.fontColorDark }]}>{user.couponCount}</Text>
-        <Text style={[styles.statLabel, { color: colors.fontColorLight }]}>{t('profile.stats.coupon')}</Text>
-      </View>
-    </View>
-  )
-}
-
-function OrderQuickLinksSection({ colors, isAuthenticated, router }: { colors: any; isAuthenticated: boolean; router: any }) {
-  const { t } = useTranslation()
-  const ORDER_STATUS_LINKS = [
-    { label: t('profile.orders.all'), icon: 'list.bullet.rectangle', action: () => requireAuth(isAuthenticated, router, () => router.push('/orders')) },
-    { label: t('profile.orders.unpaid'), icon: 'creditcard', action: () => requireAuth(isAuthenticated, router, () => router.push('/orders?status=unpaid')) },
-    { label: t('profile.orders.undelivered'), icon: 'shippingbox', action: () => requireAuth(isAuthenticated, router, () => router.push('/orders?status=undelivered')) },
-    { label: t('profile.orders.refund'), icon: 'arrow.counterclockwise', action: () => requireAuth(isAuthenticated, router, () => router.push('/orders?status=refund')) },
-  ]
-
-  return (
-    <View style={styles.orderSection}>
-      <View style={styles.orderHeader}>
-        <Text style={[styles.orderTitle, { color: colors.fontColorDark }]}>{t('profile.orders.title')}</Text>
-        <TouchableOpacity style={styles.seeAll} onPress={() => requireAuth(isAuthenticated, router, () => router.push('/orders'))}>
-          <Text style={{ color: colors.fontColorLight }}>{t('profile.orders.see_all')}</Text>
-          <IconSymbol name="chevron.right" size={12} color={colors.fontColorLight} />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.orderGrid}>
-        {ORDER_STATUS_LINKS.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.orderItem} onPress={item.action}>
-            <IconSymbol name={item.icon as any} size={28} color={colors.primary} />
-            <Text style={[styles.orderLabel, { color: colors.fontColorDark }]}>{item.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </View>
-  )
-}
-
-function ProfileMenuCell({ icon, title, color, onPress, showBorder = true, badge }: any) {
-  const colorScheme = useColorScheme() ?? 'light'
-  const colors = Colors[colorScheme]
-  return (
-    <TouchableOpacity style={[styles.menuCell, showBorder && styles.bottomBorder]} onPress={onPress}>
-      <View style={styles.menuLeft}>
-        <IconSymbol name={icon} size={20} color={color} />
-        <Text style={[styles.menuTitle, { color: colors.fontColorDark }]}>{title}</Text>
-        {badge != null && badge > 0 && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{badge > 99 ? '99+' : badge}</Text>
-          </View>
-        )}
-      </View>
-      <IconSymbol name="chevron.right" size={16} color={colors.fontColorLight} />
-    </TouchableOpacity>
-  )
-}
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -312,182 +213,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 100,
   },
-  userSection: {
-    height: 260,
-    paddingTop: 50,
-    paddingHorizontal: 20,
-    position: 'relative',
-  },
-  bgGradient: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
-  },
-  userInfoBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  portraitBox: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    borderWidth: 2,
-    borderColor: '#fff',
-    overflow: 'hidden',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  username: {
-    marginLeft: 15,
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  vipCardBox: {
-    marginTop: 30,
-    height: 120,
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    borderRadius: 12,
-    padding: 15,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  vipHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  vipTitleLine: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  vipTitle: {
-    color: '#f7d680',
-    fontSize: 16,
-    fontWeight: '500',
-    marginLeft: 8,
-  },
-  vipBtn: {
-    backgroundColor: '#f7d680',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  vipBtnText: {
-    color: '#303133',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  vipDesc: {
-    color: '#f7d680',
-    fontSize: 14,
-    marginTop: 10,
-  },
-  vipFootnote: {
-    color: '#d8cba9',
-    fontSize: 11,
-    marginTop: 4,
-  },
-  statsSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: '#fff',
-    paddingVertical: 20,
-    marginHorizontal: 15,
-    borderRadius: 8,
-    marginTop: -20,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    zIndex: 10,
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statNum: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  statLabel: {
-    fontSize: 12,
-    marginTop: 4,
-  },
-  orderSection: {
-    backgroundColor: '#fff',
-    marginHorizontal: 15,
-    marginTop: 15,
-    borderRadius: 8,
-    padding: 15,
-  },
-  orderHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  orderTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  seeAll: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  orderGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  orderItem: {
-    alignItems: 'center',
-  },
-  orderLabel: {
-    fontSize: 12,
-    marginTop: 8,
-  },
   menuSection: {
     backgroundColor: '#fff',
     marginHorizontal: 15,
     marginTop: 15,
     borderRadius: 8,
     paddingVertical: 5,
-  },
-  menuCell: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 15,
-    paddingHorizontal: 15,
-  },
-  bottomBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  menuLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  menuTitle: {
-    fontSize: 15,
-    marginLeft: 15,
-  },
-  badge: {
-    backgroundColor: '#FF3B30',
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 8,
-    paddingHorizontal: 6,
-  },
-  badgeText: {
-    color: '#fff',
-    fontSize: 11,
-    fontWeight: '600',
   },
   bottomSpacer: {
     height: 40,

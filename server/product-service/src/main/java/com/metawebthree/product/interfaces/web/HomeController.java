@@ -117,6 +117,20 @@ public class HomeController {
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize) {
         // TODO: 接入专题服务后返回真实数据
-        return ApiResponse.success(Collections.emptyList());
+        // 暂时返回模拟数据
+        List<HomeContentDTO.SubjectDTO> mockList = new java.util.ArrayList<>();
+        mockList.add(HomeContentDTO.SubjectDTO.builder()
+                .id(1L)
+                .title("夏季清仓特惠")
+                .pic("https://via.placeholder.com/400x200/FF6B35/fff?text=Summer+Sale")
+                .categoryId(categoryId)
+                .build());
+        mockList.add(HomeContentDTO.SubjectDTO.builder()
+                .id(2L)
+                .title("新品首发专场")
+                .pic("https://via.placeholder.com/400x200/4A90E2/fff?text=New+Arrival")
+                .categoryId(categoryId)
+                .build());
+        return ApiResponse.success(mockList);
     }
 }

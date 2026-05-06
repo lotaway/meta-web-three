@@ -8,9 +8,6 @@ import {
   TextInput,
   Alert,
   ActivityIndicator,
-  Modal,
-  FlatList,
-  Image,
 } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -19,28 +16,11 @@ import { Colors } from '@/constants/Colors'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { IconSymbol } from '@/components/ui/IconSymbol'
 import * as ImagePicker from 'expo-image-picker'
-
-const REFUND_TYPES = [
-  { value: 1, label: '退款退货' },
-  { value: 2, label: '仅退款' },
-]
-
-const REFUND_REASONS = [
-  { value: 1, label: '不想要了' },
-  { value: 2, label: '商品损坏' },
-  { value: 3, label: '与描述不符' },
-  { value: 4, label: '质量问题' },
-  { value: 5, label: '发错货' },
-  { value: 6, label: '其他原因' },
-]
-
-const REFUND_STATUS_MAP: Record<number, { text: string; color: string }> = {
-  0: { text: '待处理', color: '#FF6B35' },
-  1: { text: '商家已同意', color: '#5fcda2' },
-  2: { text: '商家已拒绝', color: '#FF3B30' },
-  3: { text: '退款成功', color: '#4A90E2' },
-  4: { text: '已取消', color: '#8E8E93' },
-}
+import { RefundTypeSelector } from '@/app/components/refund/RefundTypeSelector'
+import { ReasonSelector } from '@/app/components/refund/ReasonSelector'
+import { ProofImageUploader } from '@/app/components/refund/ProofImageUploader'
+import { RefundHistoryList } from '@/app/components/refund/RefundHistoryList'
+import { orderApi, API_BASE_URL, DEFAULT_USER_ID } from '@/api/generated'
 
 export default function RefundScreen() {
   const { t } = useTranslation()
@@ -53,15 +33,12 @@ export default function RefundScreen() {
   const [order, setOrder] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-
   const [refundType, setRefundType] = useState(1)
   const [refundAmount, setRefundAmount] = useState('')
   const [selectedReason, setSelectedReason] = useState<number | null>(null)
   const [description, setDescription] = useState('')
-
   const [showHistory, setShowHistory] = useState(false)
   const [refundHistory, setRefundHistory] = useState<any[]>([])
-
   const [proofImages, setProofImages] = useState<string[]>([])
 
   useEffect(() => {
@@ -73,13 +50,13 @@ export default function RefundScreen() {
     if (!orderId) return
     setLoading(true)
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_API_HOST ?? 'http://localhost:10081'}/order-service/order/${orderId}`
-      )
-      const result = await response.json()
-      if (result.data) {
-        setOrder(result.data)
-        setRefundAmount(String(result.data.payAmount || 0))
+      const response = await orderApi.detail({
+        xUserId: DEFAULT_USER_ID,
+        id: Number(orderId),
+      })
+      if (response.data) {
+        setOrder(response.data)
+        setRefundAmount(String(response.data.payAmount || 0))
       }
     } catch (error) {
       console.error('Failed to load order:', error)
@@ -91,9 +68,7 @@ export default function RefundScreen() {
   const loadRefundHistory = async () => {
     if (!orderId) return
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACK_API_HOST ?? 'http://localhost:10081'}/order-service/returnApply/order/${orderId}`
-      )
+      const response = await fetch(`${API_BASE_URL}/order-service/returnApply/order/${orderId}`)
       const result = await response.json()
       if (result.data) {
         setRefundHistory(result.data)
@@ -108,19 +83,16 @@ export default function RefundScreen() {
       Alert.alert(t('common.error'), '最多只能上传5张图片')
       return
     }
-
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
     if (!permissionResult.granted) {
       Alert.alert(t('common.error'), '需要相册权限才能选择图片')
       return
     }
-
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: false,
       quality: 0.8,
     })
-
     if (!result.canceled && result.assets.length > 0) {
       setProofImages(prev => [...prev, result.assets[0].uri])
     }
@@ -130,28 +102,9 @@ export default function RefundScreen() {
     setProofImages(prev => prev.filter((_, i) => i !== index))
   }
 
-  const callRefundApi = async () => {
-    const response = await orderApi.refund({
-      xUserId: DEFAULT_USER_ID,
-      id: Number(orderId),
-      reason: selectedReason,
-      amount: parseFloat(refundAmount),
-      description,
-      proofImages,
-    })
-    return response
-  }
-
-  const showSuccess = () => {
-    Alert.alert(t('common.success'), t('refund.submit_success'), [
-      { text: 'OK', onPress: () => router.back() },
-    ])
-  }
-
   const handleSubmit = async () => {
     if (!selectedReason) return Alert.alert(t('common.error'), t('refund.reason_required'))
     if (!refundAmount || parseFloat(refundAmount) <= 0) return Alert.alert(t('common.error'), t('refund.amount_required'))
-    
     setSubmitting(true)
     try {
       const result = await callRefundApi()
@@ -162,23 +115,32 @@ export default function RefundScreen() {
       setSubmitting(false)
     }
   }
+
+  const callRefundApi = async () => {
+    const response = await fetch(
+      `${API_BASE_URL}/order-service/order/${orderId}/refund`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': String(DEFAULT_USER_ID),
+        },
+        body: JSON.stringify({
+          orderId: Number(orderId),
+          reason: getReasonText(selectedReason),
+          returnAmount: parseFloat(refundAmount),
+          description,
+          proofPics: proofImages.join(','),
+          refundType,
+        }),
+      }
     )
     return await response.json()
   }
 
-  const handleSubmit = async () => {
-    if (!selectedReason) return Alert.alert(t('common.error'), t('refund.reason_required'))
-    if (!refundAmount || parseFloat(refundAmount) <= 0) return Alert.alert(t('common.error'), t('refund.amount_required'))
-    
-    setSubmitting(true)
-    try {
-      const result = await callRefundApi()
-      if (result.code === 200) return showSuccess()
-    } catch (error) {
-      Alert.alert(t('common.error'), t('refund.submit_failed'))
-    } finally {
-      setSubmitting(false)
-    }
+  const getReasonText = (reasonId: number | null) => {
+    const reasons = ['质量问题', '商品不符', '发货太慢', '七天无理由', '其他']
+    return reasonId != null ? reasons[reasonId] || '其他' : '其他'
   }
 
   const showSuccess = () => {
@@ -210,63 +172,10 @@ export default function RefundScreen() {
       </View>
 
       <ScrollView style={styles.content}>
-        {/* 退款类型 */}
-        <View style={[styles.section, { backgroundColor: colors.card }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('refund.type_title')}</Text>
-          <View style={styles.typeRow}>
-            {REFUND_TYPES.map(type => (
-              <TouchableOpacity
-                key={type.value}
-                style={[
-                  styles.typeBtn,
-                  { borderColor: refundType === type.value ? colors.primary : colors.border },
-                  refundType === type.value && { backgroundColor: colors.primary + '10' },
-                ]}
-                onPress={() => setRefundType(type.value)}
-              >
-                <Text
-                  style={[
-                    styles.typeBtnText,
-                    { color: refundType === type.value ? colors.primary : colors.textSecondary },
-                  ]}
-                >
-                  {type.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+        <RefundTypeSelector refundType={refundType} setRefundType={setRefundType} />
 
-        {/* 退款原因 */}
-        <View style={[styles.section, { backgroundColor: colors.card }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('refund.reason_title')}</Text>
-          <View style={styles.reasonGrid}>
-            {REFUND_REASONS.map(reason => (
-              <TouchableOpacity
-                key={reason.value}
-                style={[
-                  styles.reasonBtn,
-                  {
-                    borderColor: selectedReason === reason.value ? colors.primary : colors.border,
-                    backgroundColor: selectedReason === reason.value ? colors.primary + '10' : 'transparent',
-                  },
-                ]}
-                onPress={() => setSelectedReason(reason.value)}
-              >
-                <Text
-                  style={[
-                    styles.reasonBtnText,
-                    { color: selectedReason === reason.value ? colors.primary : colors.text },
-                  ]}
-                >
-                  {reason.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+        <ReasonSelector selectedReason={selectedReason} setSelectedReason={setSelectedReason} />
 
-        {/* 退款金额 */}
         <View style={[styles.section, { backgroundColor: colors.card }]}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('refund.amount_title')}</Text>
           <View style={styles.amountRow}>
@@ -285,7 +194,6 @@ export default function RefundScreen() {
           </Text>
         </View>
 
-        {/* 退款说明 */}
         <View style={[styles.section, { backgroundColor: colors.card }]}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('refund.description_title')}</Text>
           <TextInput
@@ -300,34 +208,12 @@ export default function RefundScreen() {
           />
         </View>
 
-        {/* 退款凭证 */}
-        <View style={[styles.section, { backgroundColor: colors.card }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>退款凭证（可选）</Text>
-          <View style={styles.proofGrid}>
-            {proofImages.map((uri, index) => (
-              <View key={index} style={styles.proofImageContainer}>
-                <Image source={{ uri }} style={styles.proofImage} />
-                <TouchableOpacity
-                  style={styles.removeImageBtn}
-                  onPress={() => handleRemoveImage(index)}
-                >
-                  <IconSymbol name="xmark.circle.fill" size={24} color="#FF3B30" />
-                </TouchableOpacity>
-              </View>
-            ))}
-            {proofImages.length < 5 && (
-              <TouchableOpacity style={[styles.addImageBtn, { borderColor: colors.border }]} onPress={handlePickImage}>
-                <IconSymbol name="plus" size={32} color={colors.textSecondary} />
-                <Text style={[styles.addImageText, { color: colors.textSecondary }]}>添加图片</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-          <Text style={[styles.proofHint, { color: colors.textSecondary }]}>
-            最多可上传5张图片，支持jpg/png格式
-          </Text>
-        </View>
+        <ProofImageUploader
+          proofImages={proofImages}
+          onRemoveImage={handleRemoveImage}
+          onPickImage={handlePickImage}
+        />
 
-        {/* 提交按钮 */}
         <TouchableOpacity
           style={[styles.submitBtn, { backgroundColor: colors.primary }]}
           onPress={handleSubmit}
@@ -343,55 +229,11 @@ export default function RefundScreen() {
         <View style={styles.bottomSpacer} />
       </ScrollView>
 
-      {/* 退款历史弹窗 */}
-      <Modal
+      <RefundHistoryList
         visible={showHistory}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowHistory(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <TouchableOpacity style={styles.modalBg} onPress={() => setShowHistory(false)} />
-          <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
-            <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>{t('refund.history_title')}</Text>
-              <TouchableOpacity onPress={() => setShowHistory(false)}>
-                <IconSymbol name="xmark" size={24} color={colors.textSecondary} />
-              </TouchableOpacity>
-            </View>
-            {refundHistory.length === 0 ? (
-              <View style={styles.emptyHistory}>
-                <Text style={[styles.emptyHistoryText, { color: colors.textSecondary }]}>
-                  {t('refund.no_history')}
-                </Text>
-              </View>
-            ) : (
-              <FlatList
-                data={refundHistory}
-                keyExtractor={(item) => String(item.id)}
-                renderItem={({ item }) => {
-                  const statusInfo = REFUND_STATUS_MAP[item.status] || { text: '-', color: colors.textSecondary }
-                  return (
-                    <View style={[styles.historyItem, { borderBottomColor: colors.border }]}>
-                      <View style={styles.historyItemHeader}>
-                        <Text style={[styles.historyItemTime, { color: colors.textSecondary }]}>
-                          {new Date(item.createTime).toLocaleString()}
-                        </Text>
-                        <Text style={[styles.historyItemStatus, { color: statusInfo.color }]}>
-                          {statusInfo.text}
-                        </Text>
-                      </View>
-                      <Text style={[styles.historyItemAmount, { color: colors.primary }]}>
-                        ¥{item.refundAmount}
-                      </Text>
-                    </View>
-                  )
-                }}
-              />
-            )}
-          </View>
-        </View>
-      </Modal>
+        onClose={() => setShowHistory(false)}
+        refundHistory={refundHistory}
+      />
     </SafeAreaView>
   )
 }
@@ -425,34 +267,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 12,
   },
-  typeRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  typeBtn: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    alignItems: 'center',
-  },
-  typeBtnText: {
-    fontSize: 14,
-  },
-  reasonGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  reasonBtn: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-  },
-  reasonBtnText: {
-    fontSize: 14,
-  },
   amountRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
@@ -478,45 +292,6 @@ const styles = StyleSheet.create({
     minHeight: 100,
     fontSize: 14,
   },
-  proofGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  proofImageContainer: {
-    width: 90,
-    height: 90,
-    borderRadius: 8,
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  proofImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  removeImageBtn: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-  },
-  addImageBtn: {
-    width: 90,
-    height: 90,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  addImageText: {
-    fontSize: 12,
-    marginTop: 4,
-  },
-  proofHint: {
-    fontSize: 12,
-    marginTop: 8,
-  },
   submitBtn: {
     marginHorizontal: 16,
     marginTop: 24,
@@ -530,56 +305,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   bottomSpacer: { height: 40 },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalBg: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  modalContent: {
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    maxHeight: '60%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  emptyHistory: {
-    padding: 40,
-    alignItems: 'center',
-  },
-  emptyHistoryText: {
-    fontSize: 14,
-  },
-  historyItem: {
-    padding: 16,
-    borderBottomWidth: 1,
-  },
-  historyItemHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  historyItemTime: {
-    fontSize: 12,
-  },
-  historyItemStatus: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  historyItemAmount: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
 })

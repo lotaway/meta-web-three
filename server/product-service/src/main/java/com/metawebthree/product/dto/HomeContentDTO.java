@@ -38,6 +38,7 @@ public class HomeContentDTO {
         private Long id;
         private String title;
         private String pic;
+        private Long categoryId;
     }
 
     @Getter
