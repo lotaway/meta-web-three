@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.web.reactive.function.client.WebClient;
 
 class PaymentServiceImplTest {
 
@@ -16,7 +17,8 @@ class PaymentServiceImplTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        paymentService = new PaymentServiceImpl();
+        WebClient webClient = WebClient.builder().build();
+        paymentService = new PaymentServiceImpl(webClient);
         setField("alipayAppId", "alipay-test-app");
         setField("wechatAppId", "wx-test-app");
     }
