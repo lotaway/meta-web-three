@@ -1,28 +1,10 @@
-# 电商App功能补全 TODO
+# 检查项
 
-## 前端所需功能补全（对比 directory:/temp/mall-app-web/ 缺失项）
+## 前端 @directory:/client/ 是否按照 @directory:/temp/mall-app-web/ 完成所有功能迁移
 
-### 搜索模块接口补全（整个模块缺失）
-- [x] 17.4 `POST /esProduct/importAll` - 导入商品到 ES
-- [x] 17.5 `POST /esProduct/create/{id}` - 同步商品到 ES
+## 后端 @directory:/server/ 是否按照 @directory:/temp/mall/ 完成所有功能迁移
 
----
-
-## 后端接口补全（对比 directory:/temp/mall/ 缺失项）
-
-### 搜索接口
-
-- [x] `POST /esProduct/importAll` - 导入商品到 ES
-- [x] `POST /esProduct/create/{id}` - 同步商品到 ES
-
----
-
-## P0 - 核心功能（必须完成）
-
-### 1. 用户注册/登录页面
-- [ ] 1.6 第三方登录（微信/Apple）
-
----
+## 检查后台 @directory:/temp/mall-admin-web 是否对接了后端 @directory:/server/ 所需的管理功能
 
 ## 技术债务
 
