@@ -35,7 +35,7 @@ spring:
             class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
             driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
           threadPool:
-            class: org.quartz.simpl.SimpleThreadPool
+            class: org.quartz.impl.SimpleThreadPool
             threadCount: 5
             threadPriority: 5
 name: "meta-web-three"
@@ -81,3 +81,5 @@ dubbo:
 logging:
   expire-time: 2592000000 # 30 days
   data-path: logs/rocksdb-data/${spring.application.name}
+elasticsearch:
+  hosts: ${ELASTICSEARCH_HOST:elasticsearch:9200}

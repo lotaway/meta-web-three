@@ -11,6 +11,7 @@ import { UserControllerApi } from '@/src/generated/api/apis/UserControllerApi'
 import { MemberAddressManagementApi } from '@/src/generated/api/apis/MemberAddressManagementApi'
 import { AdvertiseManagementApi } from '@/src/generated/api/apis/AdvertiseManagementApi'
 import { ApiResponseUserDTO, ApiResponseVoid } from '@/src/generated/api/models'
+import { EsProductApi } from "@/src/generated/api/apis/EsProductApi"
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_BACK_API_HOST ?? 'http://localhost:10081'
 export const DEFAULT_USER_ID = Number(process.env.EXPO_PUBLIC_DEFAULT_USER_ID ?? 1)
@@ -33,6 +34,7 @@ export const payApi = new PayControllerApi(apiConfig)
 export const userApi = new UserControllerApi(apiConfig)
 export const addressApi = new MemberAddressManagementApi(apiConfig)
 export const advertiseApi = new AdvertiseManagementApi(apiConfig)
+export const esProductApi = new EsProductApi(apiConfig)
 
 export interface SsoLoginRequest {
   username: string

@@ -55,6 +55,7 @@
         <dubbo.version>3.3.5</dubbo.version>
         <grpc.version>1.75.0</grpc.version>
         <protobuf.version>4.32.1</protobuf.version>
+        <elasticsearch-java.version>9.2.2</elasticsearch-java.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -102,6 +103,12 @@
                 <groupId>org.web3j</groupId>
                 <artifactId>core</artifactId>
                 <version>5.0.0</version>
+            </dependency>
+            <!-- Elasticsearch Java Client -->
+            <dependency>
+                <groupId>co.elastic.clients</groupId>
+                <artifactId>elasticsearch-java</artifactId>
+                <version>${elasticsearch-java.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

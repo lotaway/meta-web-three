@@ -1,3 +1,7 @@
 # ApplicationContextInitializer for LocalConfig
 org.springframework.context.ApplicationContextInitializer=\
 com.metawebthree.common.config.LocalConfig
+
+# Auto-configuration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.metawebthree.common.elasticsearch.ElasticsearchConfig
