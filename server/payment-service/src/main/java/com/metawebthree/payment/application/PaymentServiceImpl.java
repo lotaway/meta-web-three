@@ -16,12 +16,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Iterator;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
+
+    private final WebClient webClient;
 
     @Value("${payment.fiat.alipay.app-id}")
     private String alipayAppId;
@@ -49,8 +51,6 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Value("${payment.fiat.stripe.return-url:app://payment}")
     private String stripeReturnUrl;
-
-    private final WebClient webClient;
 
     private static final String NOTIFY_URL = "https://your-domain.com/api/pay/callback";
 

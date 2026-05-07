@@ -15,6 +15,11 @@
   <packaging>jar</packaging>
 
   <dependencies>
+    <!-- Spring WebFlux for WebClient (non-blocking HTTP client) -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webflux</artifactId>
+    </dependency>
     <!-- Elasticsearch Java Client -->
     <dependency>
       <groupId>co.elastic.clients</groupId>

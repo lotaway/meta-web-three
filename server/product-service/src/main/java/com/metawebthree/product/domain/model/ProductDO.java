@@ -19,4 +19,6 @@ public class ProductDO {
     private String productRemark;
     private Boolean shelved;
     private String languageVersion;
+    private Long brandId;
+    private Long categoryId;
 }
