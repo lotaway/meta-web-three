@@ -8,25 +8,29 @@ import com.metawebthree.product.application.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestController
+@Controller
 @RequestMapping("/home")
 @RequiredArgsConstructor
 @Tag(name = "Home Controller", description = "首页内容接口")
+@Slf4j
 public class HomeController {
 
     private final ProductService productService;
     private final BrandApplicationService brandService;
-    private final RestTemplate restTemplate;
+    private final WebClient webClient;
 
     @Operation(summary = "首页内容展示")
     @GetMapping("/content")
+    @ResponseBody
     public ApiResponse<HomeContentDTO> content() {
         List<ProductDTO> newProducts = productService.listProducts(null, "new", null);
         List<ProductDTO> hotProducts = productService.listProducts(null, "hot", null);
@@ -39,12 +43,15 @@ public class HomeController {
                         .build())
                 .collect(Collectors.toList());
 
-        // 通过 RestTemplate 调用 promotion-service 获取广告
-        // 实际生产中建议使用 Dubbo 或 OpenFeign
         String advertiseUrl = "http://promotion-service/v1/promotion/advertises/available?type=1";
         List<HomeContentDTO.AdvertiseDTO> advertiseList = Collections.emptyList();
         try {
-            ApiResponse<?> response = restTemplate.getForObject(advertiseUrl, ApiResponse.class);
+            ApiResponse<?> response = webClient.get()
+                    .uri(advertiseUrl)
+                    .retrieve()
+                    .bodyToMono(ApiResponse.class)
+                    .block();
+
             Object data = response != null ? response.getData() : null;
             if (data instanceof List<?> list) {
                 advertiseList = list.stream().map(obj -> {
@@ -60,8 +67,9 @@ public class HomeController {
                             .link(url == null ? null : String.valueOf(url))
                             .build();
                 }).collect(Collectors.toList());
-            } 
+            }
         } catch (Exception e) {
+            log.warn("获取广告失败: {}", e.getMessage());
             advertiseList = Collections.emptyList();
         }
 
@@ -70,8 +78,8 @@ public class HomeController {
                 .hotProductList(hotProducts)
                 .brandList(brands)
                 .advertiseList(advertiseList)
-                .subjectList(Collections.emptyList())   
-                .homeFlashPromotion(null)               
+                .subjectList(Collections.emptyList())
+                .homeFlashPromotion(null)
                 .build();
 
         return ApiResponse.success(content);
@@ -79,23 +87,24 @@ public class HomeController {
 
     @Operation(summary = "分页获取推荐商品")
     @GetMapping("/recommendProductList")
+    @ResponseBody
     public ApiResponse<List<ProductDTO>> recommendProductList(
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize) {
-        // 简单实现：按推荐关键字搜索
         return ApiResponse.success(productService.listProducts(null, "recommend", null));
     }
 
     @Operation(summary = "获取首页商品分类")
     @GetMapping("/productCateList")
+    @ResponseBody
     public ApiResponse<List<HomeContentDTO.CategoryDTO>> productCateList(
             @RequestParam(defaultValue = "0") Long parentId) {
-        // TODO: 实现分类树形结构
         return ApiResponse.success(Collections.emptyList());
     }
 
     @Operation(summary = "分页获取人气推荐商品")
     @GetMapping("/hotProductList")
+    @ResponseBody
     public ApiResponse<List<ProductDTO>> hotProductList(
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize) {
@@ -104,6 +113,7 @@ public class HomeController {
 
     @Operation(summary = "分页获取新品推荐商品")
     @GetMapping("/newProductList")
+    @ResponseBody
     public ApiResponse<List<ProductDTO>> newProductList(
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize) {
@@ -112,12 +122,11 @@ public class HomeController {
 
     @Operation(summary = "根据分类分页获取专题")
     @GetMapping("/subjectList")
+    @ResponseBody
     public ApiResponse<List<HomeContentDTO.SubjectDTO>> subjectList(
             @RequestParam(required = false) Long categoryId,
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize) {
-        // TODO: 接入专题服务后返回真实数据
-        // 暂时返回模拟数据
         List<HomeContentDTO.SubjectDTO> mockList = new java.util.ArrayList<>();
         mockList.add(HomeContentDTO.SubjectDTO.builder()
                 .id(1L)

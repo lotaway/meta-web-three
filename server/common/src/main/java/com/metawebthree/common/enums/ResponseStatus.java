@@ -33,6 +33,11 @@ public enum ResponseStatus {
     MEDIA_UPLOAD_FAILED("6002", "文件上传失败"),
     MEDIA_DELETE_FAILED("6003", "文件删除失败"),
 
+    PARAM_ERROR("1000", "参数错误"),
+    METHOD_NOT_ALLOWED("1004", "不支持的请求方法"),
+    NOT_FOUND("1005", "资源不存在"),
+    FILE_TOO_LARGE("1006", "文件大小超出限制"),
+
     SYSTEM_ERROR("9999", "系统错误");
 
     private final String code;
