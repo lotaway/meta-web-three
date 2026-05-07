@@ -3,6 +3,7 @@ package com.metawebthree.product.application;
 import com.metawebthree.common.elasticsearch.ElasticsearchOperations;
 import com.metawebthree.product.domain.model.ProductDO;
 import com.metawebthree.product.infrastructure.persistence.mapper.ProductMapper;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -17,7 +18,9 @@ public class EsProductApplicationService {
     private final ElasticsearchOperations esOperations;
     private final ProductMapper productMapper;
 
-    public EsProductApplicationService(ElasticsearchOperations esOperations, ProductMapper productMapper) {
+    public EsProductApplicationService(
+            @Qualifier("elasticsearchService") ElasticsearchOperations esOperations,
+            ProductMapper productMapper) {
         this.esOperations = esOperations;
         this.productMapper = productMapper;
     }
