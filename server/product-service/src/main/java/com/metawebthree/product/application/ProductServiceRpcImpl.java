@@ -23,9 +23,9 @@ public class ProductServiceRpcImpl implements com.metawebthree.common.generated.
     @Override
     public GetProductDetailResponse getProductDetail(GetProductDetailRequest request) {
         log.info("Dubbo RPC: getProductDetail called with productId: {}", request.getProductId());
-        
+
         ProductDetailDTO detail = productService.getProductDetail((int) request.getProductId());
-        
+
         if (detail == null) {
             return GetProductDetailResponse.newBuilder().build();
         }

@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.enums.ResponseStatus;
 import com.metawebthree.product.domain.ProductDetail;
-import com.metawebthree.product.mapper.ProductMapper;
+import com.metawebthree.product.mapper.ProductDetailMapper;
 import com.metawebthree.product.service.ProductQueryService;
 import org.springframework.stereotype.Service;
 import java.util.Map;
@@ -13,9 +13,9 @@ import java.util.HashMap;
 @Service
 public class ProductQueryServiceImpl implements ProductQueryService {
 
-    private final ProductMapper productMapper;
+    private final ProductDetailMapper productMapper;
 
-    public ProductQueryServiceImpl(ProductMapper productMapper) {
+    public ProductQueryServiceImpl(ProductDetailMapper productMapper) {
         this.productMapper = productMapper;
     }
 

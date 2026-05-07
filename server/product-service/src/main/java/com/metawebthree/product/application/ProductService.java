@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-@Service
+@Service("productAppService")
 @Slf4j
 public class ProductService {
     private static final String PRODUCT_EVENT_TOPIC = "product-events";

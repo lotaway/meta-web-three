@@ -5,5 +5,5 @@ import com.metawebthree.product.domain.ProductDetail;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface ProductMapper extends BaseMapper<ProductDetail> {
+public interface ProductDetailMapper extends BaseMapper<ProductDetail> {
 }
