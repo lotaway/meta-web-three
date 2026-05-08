@@ -1,5 +1,8 @@
 package com.metawebthree.order.interfaces.web;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
@@ -13,12 +16,16 @@ import com.metawebthree.order.application.OrderApplicationService;
 import com.metawebthree.order.application.OrderApplicationService.OrderCreateRequest;
 import com.metawebthree.order.application.OrderApplicationService.OrderWithItems;
 import com.metawebthree.order.application.OrderReturnApplicationService;
+import com.metawebthree.order.domain.model.AdminOrderDO;
 import com.metawebthree.order.domain.model.OrderReturnApply;
+import com.metawebthree.order.infrastructure.persistence.mapper.AdminOrderMapper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -30,6 +37,9 @@ public class OrderController {
 
     @Autowired
     private OrderReturnApplicationService returnService;
+
+    @Autowired
+    private AdminOrderMapper adminOrderMapper;
 
     @PostMapping({"/create", "/generateOrder"})
     public ApiResponse<Long> create(@RequestHeader(HeaderConstants.USER_ID) Long userId,
@@ -48,11 +58,39 @@ public class OrderController {
     }
 
     @GetMapping("/list")
-    public ApiResponse<?> list(@RequestHeader(HeaderConstants.USER_ID) Long userId,
+    public ApiResponse<?> list(
+            @RequestHeader(name = HeaderConstants.USER_ID, required = false) Long userId,
             @RequestParam(defaultValue = "1") Integer pageNum,
-            @RequestParam(defaultValue = "10") Integer pageSize) {
-        var orders = orderService.listOrdersByUser(userId, pageNum, pageSize);
-        return ApiResponse.success(orders);
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false) String orderSn,
+            @RequestParam(required = false) String receiverKeyword,
+            @RequestParam(required = false) Integer status,
+            @RequestParam(required = false) Integer orderType,
+            @RequestParam(required = false) Integer sourceType,
+            @RequestParam(required = false) String createTime) {
+        if (userId != null) {
+            var orders = orderService.listOrdersByUser(userId, pageNum, pageSize);
+            return ApiResponse.success(orders);
+        }
+        LambdaQueryWrapper<AdminOrderDO> wrapper = new LambdaQueryWrapper<>();
+        if (orderSn != null && !orderSn.isEmpty()) {
+            wrapper.eq(AdminOrderDO::getOrderSn, orderSn);
+        }
+        if (receiverKeyword != null && !receiverKeyword.isEmpty()) {
+            wrapper.and(w -> w.like(AdminOrderDO::getReceiverName, receiverKeyword)
+                    .or().like(AdminOrderDO::getReceiverPhone, receiverKeyword));
+        }
+        if (status != null) {
+            wrapper.eq(AdminOrderDO::getStatus, status);
+        }
+        if (orderType != null) {
+            wrapper.eq(AdminOrderDO::getOrderType, orderType);
+        }
+        if (sourceType != null) {
+            wrapper.eq(AdminOrderDO::getSourceType, sourceType);
+        }
+        wrapper.orderByDesc(AdminOrderDO::getId);
+        return ApiResponse.success(adminOrderMapper.selectPage(new Page<>(pageNum, pageSize), wrapper));
     }
 
     @PostMapping("/cancel/{id}")
@@ -189,5 +227,82 @@ public class OrderController {
     @GetMapping("/micro-service-test")
     public String microServiceTest() {
         return "Order service is running";
+    }
+
+    // === Admin endpoints ===
+
+    @Operation(summary = "批量发货")
+    @PostMapping("/update/delivery")
+    public ApiResponse<Void> updateDelivery(@RequestBody List<Map<String, Object>> deliveryList) {
+        for (Map<String, Object> item : deliveryList) {
+            Long orderId = Long.valueOf(String.valueOf(item.get("orderId")));
+            String company = (String) item.get("deliveryCompany");
+            String sn = (String) item.get("deliverySn");
+            adminOrderMapper.update(null, new UpdateWrapper<AdminOrderDO>()
+                    .eq("id", orderId)
+                    .set("delivery_company", company)
+                    .set("delivery_sn", sn)
+                    .set("status", 2));
+        }
+        return ApiResponse.success();
+    }
+
+    @Operation(summary = "批量关闭订单")
+    @PostMapping("/update/close")
+    public ApiResponse<Void> updateClose(@RequestParam String ids, @RequestParam String note) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim).map(Long::parseLong).collect(Collectors.toList());
+        adminOrderMapper.update(null, new UpdateWrapper<AdminOrderDO>()
+                .in("id", idList).set("status", 4).set("note", note));
+        return ApiResponse.success();
+    }
+
+    @Operation(summary = "修改收货人信息")
+    @PostMapping("/update/receiverInfo")
+    public ApiResponse<Void> updateReceiverInfo(@RequestBody Map<String, Object> params) {
+        Long orderId = Long.valueOf(String.valueOf(params.get("orderId")));
+        UpdateWrapper<AdminOrderDO> wrapper = new UpdateWrapper<AdminOrderDO>().eq("id", orderId);
+        if (params.containsKey("receiverName")) wrapper.set("receiver_name", params.get("receiverName"));
+        if (params.containsKey("receiverPhone")) wrapper.set("receiver_phone", params.get("receiverPhone"));
+        if (params.containsKey("receiverPostCode")) wrapper.set("receiver_post_code", params.get("receiverPostCode"));
+        if (params.containsKey("receiverDetailAddress")) wrapper.set("receiver_detail_address", params.get("receiverDetailAddress"));
+        if (params.containsKey("receiverProvince")) wrapper.set("receiver_province", params.get("receiverProvince"));
+        if (params.containsKey("receiverCity")) wrapper.set("receiver_city", params.get("receiverCity"));
+        if (params.containsKey("receiverRegion")) wrapper.set("receiver_region", params.get("receiverRegion"));
+        if (params.containsKey("status")) wrapper.set("status", params.get("status"));
+        adminOrderMapper.update(null, wrapper);
+        return ApiResponse.success();
+    }
+
+    @Operation(summary = "修改订单费用信息")
+    @PostMapping("/update/moneyInfo")
+    public ApiResponse<Void> updateMoneyInfo(@RequestBody Map<String, Object> params) {
+        Long orderId = Long.valueOf(String.valueOf(params.get("orderId")));
+        UpdateWrapper<AdminOrderDO> wrapper = new UpdateWrapper<AdminOrderDO>().eq("id", orderId);
+        if (params.containsKey("freightAmount")) wrapper.set("freight_amount", params.get("freightAmount"));
+        if (params.containsKey("discountAmount")) wrapper.set("discount_amount", params.get("discountAmount"));
+        if (params.containsKey("status")) wrapper.set("status", params.get("status"));
+        adminOrderMapper.update(null, wrapper);
+        return ApiResponse.success();
+    }
+
+    @Operation(summary = "备注订单")
+    @PostMapping("/update/note")
+    public ApiResponse<Void> updateNote(@RequestParam Long id, @RequestParam String note,
+                                        @RequestParam(required = false) Integer status) {
+        UpdateWrapper<AdminOrderDO> wrapper = new UpdateWrapper<AdminOrderDO>().eq("id", id).set("note", note);
+        if (status != null) wrapper.set("status", status);
+        adminOrderMapper.update(null, wrapper);
+        return ApiResponse.success();
+    }
+
+    @Operation(summary = "批量删除订单")
+    @PostMapping("/delete")
+    public ApiResponse<Void> deleteOrders(@RequestParam String ids) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim).map(Long::parseLong).collect(Collectors.toList());
+        adminOrderMapper.update(null, new UpdateWrapper<AdminOrderDO>()
+                .in("id", idList).set("delete_status", 1));
+        return ApiResponse.success();
     }
 }
