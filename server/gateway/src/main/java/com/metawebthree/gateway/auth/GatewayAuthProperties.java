@@ -9,6 +9,6 @@ public record GatewayAuthProperties(
         String authorizationHeader,
         String tokenPrefix,
         String protectedPathPrefix,
-        List<String> excludedPathPrefixes,
+        List<String> excludedPathPatterns,
         List<String> excludedPathKeywords) {
 }

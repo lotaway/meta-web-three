@@ -38,18 +38,28 @@ gateway:
     authorization-header: Authorization
     token-prefix: "Bearer "
     protected-path-prefix: /user-service/
-    excluded-path-prefixes:
+    excluded-path-patterns:
+      # User — login/register
       - /user-service/user/signIn
+      - /user-service/user/signInWithWallet
       - /user-service/user/create
       - /user-service/user/checkWeb3SignerMessage
+      - /user-service/user/checkBitcoinSignature
+      - /user-service/user/checkOAuth1
+      # Passkey — login steps (register needs auth)
+      - /user-service/user/passkey/login/options
+      - /user-service/user/passkey/login/verify
+      # SSO — login/register/public ops
       - /user-service/sso/login
       - /user-service/sso/loginByPhone
       - /user-service/sso/register
       - /user-service/sso/getAuthCode
       - /user-service/sso/updatePassword
       - /user-service/sso/refreshToken
-      - /user-service/member/address
-      - /actuator
+      # Admin — login only
+      - /user-service/admin/login
+      # Actuator
+      - /actuator/**
     excluded-path-keywords:
       - /v3/api-docs
       - /swagger-ui
