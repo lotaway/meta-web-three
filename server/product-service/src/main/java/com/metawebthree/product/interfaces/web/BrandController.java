@@ -30,7 +30,7 @@ public class BrandController {
     }
 
     @Operation(summary = "Get brand details")
-    @GetMapping("/{id}")
+    @GetMapping({"/{id}", "/detail/{id}"})
     public ApiResponse<Brand> details(@PathVariable Long id) {
         return ApiResponse.success(brandService.getBrand(id));
     }
@@ -59,6 +59,14 @@ public class BrandController {
     @GetMapping("/{id}/products")
     public ApiResponse<List<ProductDTO>> listProducts(
             @PathVariable Long id,
+            @RequestParam(required = false) String keyword) {
+        return ApiResponse.success(productService.listProducts(null, keyword, null));
+    }
+
+    @Operation(summary = "获取品牌相关商品列表（别名）")
+    @GetMapping("/productList")
+    public ApiResponse<List<ProductDTO>> listProductsByBrand(
+            @RequestParam(required = false) Long brandId,
             @RequestParam(required = false) String keyword) {
         return ApiResponse.success(productService.listProducts(null, keyword, null));
     }

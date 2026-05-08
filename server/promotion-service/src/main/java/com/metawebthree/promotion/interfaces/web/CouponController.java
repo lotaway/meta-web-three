@@ -126,7 +126,7 @@ public class CouponController {
         return executeQuery(() -> toCouponViews(readUserId(httpRequest), null));
     }
 
-    @GetMapping("/coupons/listByProduct/{productId}")
+    @GetMapping({"/coupons/listByProduct/{productId}", "/listByProduct/{productId}"})
     public ApiResponse<List<CouponTypeView>> listByProduct(@PathVariable Long productId) {
         return executeQuery(() -> {
             List<CouponType> types = couponQueryService.listByProduct(productId);

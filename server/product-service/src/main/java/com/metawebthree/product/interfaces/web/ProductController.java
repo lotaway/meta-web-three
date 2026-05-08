@@ -15,6 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.product.dto.ProductDTO;
 import com.metawebthree.product.dto.ProductDetailDTO;
+import com.metawebthree.product.application.ProductCategoryApplicationService;
+import com.metawebthree.product.domain.model.ProductCategory;
+import com.metawebthree.product.interfaces.web.dto.ProductCategoryNode;
 import java.util.List;
 
 @Validated
@@ -24,9 +27,11 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final ProductCategoryApplicationService categoryService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, ProductCategoryApplicationService categoryService) {
         this.productService = productService;
+        this.categoryService = categoryService;
     }
 
     @Operation(summary = "Check service status", description = "Basic health check for product service")
@@ -51,8 +56,8 @@ public class ProductController {
         return ApiResponse.success(productService.listProducts(categoryId, keyword, priceRange));
     }
 
-    @Operation(summary = "Get detailed product info by ID")
-    @GetMapping("/{id}")
+    @Operation(summary = "Get detailed product info by ID (alias /detail/{id})")
+    @GetMapping({"/{id}", "/detail/{id}"})
     public ApiResponse<ProductDetailDTO> getProduct(
             @Parameter(description = "Product ID") @PathVariable @NotNull Integer id) {
         ProductDetailDTO detail = productService.getProductDetail(id);
@@ -114,5 +119,11 @@ public class ProductController {
             @Parameter(description = "Product ID") @PathVariable Integer id,
             @Parameter(description = "Limit") @RequestParam(defaultValue = "5") Integer limit) {
         return ApiResponse.success(productService.recommendProducts(id, limit));
+    }
+
+    @Operation(summary = "Get category tree list (alias)")
+    @GetMapping("/categoryTreeList")
+    public ApiResponse<List<ProductCategoryNode>> categoryTreeList() {
+        return ApiResponse.success(categoryService.categoryTreeList());
     }
 }

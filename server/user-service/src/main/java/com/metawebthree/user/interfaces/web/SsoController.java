@@ -71,6 +71,7 @@ public class SsoController {
         }
     }
 
+    @Operation(summary = "Get User Info", description = "Get current authenticated user information")
     @GetMapping("/info")
     public ApiResponse<UserDTO> info(@RequestHeader(HeaderConstants.USER_ID) Long userId) {
         UserDTO user = userService.getUserById(userId);
@@ -80,6 +81,7 @@ public class SsoController {
         return ApiResponse.success(user);
     }
 
+    @Operation(summary = "Get Auth Code", description = "Generate and send an authentication code to the specified telephone number")
     @GetMapping("/getAuthCode")
     public ApiResponse<String> getAuthCode(@RequestParam String telephone) {
         try {
@@ -91,6 +93,7 @@ public class SsoController {
         }
     }
 
+    @Operation(summary = "Login by Phone", description = "Authenticate user using telephone number and authentication code")
     @PostMapping("/loginByPhone")
     public ApiResponse<SsoLoginResponseDTO> loginByPhone(@RequestParam String telephone,
                                                            @RequestParam String authCode) throws NoSuchAlgorithmException {
@@ -109,6 +112,7 @@ public class SsoController {
         return ApiResponse.success(new SsoLoginResponseDTO(token, tokenHead));
     }
 
+    @Operation(summary = "Update Password", description = "Update user password using telephone number and authentication code")
     @PostMapping("/updatePassword")
     public ApiResponse<Void> updatePassword(@RequestParam String telephone,
                                              @RequestParam String password,
@@ -122,6 +126,7 @@ public class SsoController {
         }
     }
 
+    @Operation(summary = "Refresh Token", description = "Refresh the authentication token")
     @GetMapping("/refreshToken")
     public ApiResponse<SsoLoginResponseDTO> refreshToken(@RequestHeader(value = "Authorization", required = false) String authorization) {
         if (authorization == null || authorization.isEmpty()) {

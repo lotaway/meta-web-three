@@ -31,7 +31,7 @@ public class OrderController {
     @Autowired
     private OrderReturnApplicationService returnService;
 
-    @PostMapping("/create")
+    @PostMapping({"/create", "/generateOrder"})
     public ApiResponse<Long> create(@RequestHeader(HeaderConstants.USER_ID) Long userId,
             @RequestBody OrderCreateRequest request) {
         Long orderId = orderService.createOrder(userId, request.getRemark(), request.getItems(),
@@ -39,7 +39,7 @@ public class OrderController {
         return ApiResponse.success(orderId);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping({"/{id}", "/detail/{orderId}"})
     public ApiResponse<OrderWithItems> detail(@RequestHeader(HeaderConstants.USER_ID) Long userId,
             @PathVariable("id") Long id) {
         return orderService.getOrderDetail(id, userId)

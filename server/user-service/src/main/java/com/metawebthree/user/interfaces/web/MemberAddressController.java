@@ -29,13 +29,19 @@ public class MemberAddressController {
     }
 
     @Operation(summary = "List all member addresses")
-    @GetMapping
+    @GetMapping({"/list"})
     public ApiResponse<List<MemberAddress>> list(@RequestHeader(HeaderConstants.USER_ID) Long memberId) {
         return ApiResponse.success(addressService.listAddresses(memberId));
     }
 
+    @Operation(summary = "List all member addresses (original path)")
+    @GetMapping
+    public ApiResponse<List<MemberAddress>> listAll(@RequestHeader(HeaderConstants.USER_ID) Long memberId) {
+        return ApiResponse.success(addressService.listAddresses(memberId));
+    }
+
     @Operation(summary = "Get address by ID")
-    @GetMapping("/{id}")
+    @GetMapping({"/{id}", "/detail/{id}"})
     public ApiResponse<MemberAddress> getById(@PathVariable Long id) {
         return ApiResponse.success(addressService.getAddressById(id));
     }

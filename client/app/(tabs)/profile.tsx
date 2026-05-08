@@ -10,17 +10,14 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native'
-import { LinearGradient } from 'expo-linear-gradient'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
-import { IconSymbol } from '@/components/ui/IconSymbol'
 import { Colors } from '@/constants/Colors'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { useAuth } from '@/contexts/AuthContext'
 import PasskeyAuthDemo from '@/components/PasskeyAuthDemo'
 import { FEATURE_PASSKEY_ENABLED } from '@/constants/Features'
 import { userApi, notificationApi, couponApi, DEFAULT_USER_ID } from '@/api/generated'
-import type { UserDTO } from '@/src/generated/api/models'
 import ProfileHeader from '@/components/profile/ProfileHeader'
 import UserStatsSection from '@/components/profile/UserStatsSection'
 import OrderQuickLinksSection from '@/components/profile/OrderQuickLinksSection'

@@ -48,9 +48,6 @@ gateway:
       - /user-service/sso/getAuthCode
       - /user-service/sso/updatePassword
       - /user-service/sso/refreshToken
-      - /user-service/member/readHistory
-      - /user-service/member/productCollection
-      - /user-service/member/attention
       - /user-service/member/address
       - /actuator
     excluded-path-keywords:
