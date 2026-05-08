@@ -12,13 +12,21 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.product.dto.ProductDTO;
 import com.metawebthree.product.dto.ProductDetailDTO;
 import com.metawebthree.product.application.ProductCategoryApplicationService;
+import com.metawebthree.product.domain.model.AdminProductDO;
 import com.metawebthree.product.domain.model.ProductCategory;
+import com.metawebthree.product.infrastructure.persistence.mapper.AdminProductMapper;
+import com.metawebthree.product.infrastructure.persistence.mapper.ProductMapper;
 import com.metawebthree.product.interfaces.web.dto.ProductCategoryNode;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Validated
 @RestController
@@ -28,10 +36,15 @@ public class ProductController {
 
     private final ProductService productService;
     private final ProductCategoryApplicationService categoryService;
+    private final AdminProductMapper adminProductMapper;
+    private final ProductMapper productMapper;
 
-    public ProductController(ProductService productService, ProductCategoryApplicationService categoryService) {
+    public ProductController(ProductService productService, ProductCategoryApplicationService categoryService,
+                             AdminProductMapper adminProductMapper, ProductMapper productMapper) {
         this.productService = productService;
         this.categoryService = categoryService;
+        this.adminProductMapper = adminProductMapper;
+        this.productMapper = productMapper;
     }
 
     @Operation(summary = "Check service status", description = "Basic health check for product service")
@@ -125,5 +138,127 @@ public class ProductController {
     @GetMapping("/categoryTreeList")
     public ApiResponse<List<ProductCategoryNode>> categoryTreeList() {
         return ApiResponse.success(categoryService.categoryTreeList());
+    }
+
+    // === Admin endpoints ===
+
+    @Operation(summary = "商品简单列表(用于选择)")
+    @GetMapping("/simpleList")
+    public ApiResponse<List<AdminProductDO>> simpleList() {
+        LambdaQueryWrapper<AdminProductDO> wrapper = new LambdaQueryWrapper<AdminProductDO>()
+                .select(AdminProductDO::getId, AdminProductDO::getName);
+        return ApiResponse.success(adminProductMapper.selectList(wrapper));
+    }
+
+    @Operation(summary = "分页查询商品列表")
+    @GetMapping("/list")
+    public ApiResponse<Page<AdminProductDO>> list(
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long brandId,
+            @RequestParam(required = false) Long productCategoryId,
+            @RequestParam(required = false) Integer publishStatus,
+            @RequestParam(required = false) Integer verifyStatus) {
+        LambdaQueryWrapper<AdminProductDO> wrapper = new LambdaQueryWrapper<>();
+        if (keyword != null && !keyword.isEmpty()) {
+            wrapper.like(AdminProductDO::getName, keyword);
+        }
+        if (brandId != null) {
+            wrapper.eq(AdminProductDO::getBrandId, brandId);
+        }
+        if (productCategoryId != null) {
+            wrapper.eq(AdminProductDO::getProductCategoryId, productCategoryId);
+        }
+        if (publishStatus != null) {
+            wrapper.eq(AdminProductDO::getPublishStatus, publishStatus);
+        }
+        if (verifyStatus != null) {
+            wrapper.eq(AdminProductDO::getVerifyStatus, verifyStatus);
+        }
+        wrapper.orderByDesc(AdminProductDO::getId);
+        return ApiResponse.success(adminProductMapper.selectPage(new Page<>(pageNum, pageSize), wrapper));
+    }
+
+    @Operation(summary = "批量修改删除状态")
+    @PostMapping("/update/deleteStatus")
+    public ApiResponse<Void> updateDeleteStatus(
+            @RequestParam String ids,
+            @RequestParam Integer deleteStatus) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim).map(Long::parseLong).collect(Collectors.toList());
+        adminProductMapper.update(null, new UpdateWrapper<AdminProductDO>()
+                .in("id", idList).set("delete_status", deleteStatus));
+        return ApiResponse.success();
+    }
+
+    @Operation(summary = "批量设为新品")
+    @PostMapping("/update/newStatus")
+    public ApiResponse<Void> updateNewStatus(
+            @RequestParam String ids,
+            @RequestParam Integer newStatus) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim).map(Long::parseLong).collect(Collectors.toList());
+        adminProductMapper.update(null, new UpdateWrapper<AdminProductDO>()
+                .in("id", idList).set("new_status", newStatus));
+        return ApiResponse.success();
+    }
+
+    @Operation(summary = "批量推荐商品")
+    @PostMapping("/update/recommendStatus")
+    public ApiResponse<Void> updateRecommendStatus(
+            @RequestParam String ids,
+            @RequestParam Integer recommendStatus) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim).map(Long::parseLong).collect(Collectors.toList());
+        adminProductMapper.update(null, new UpdateWrapper<AdminProductDO>()
+                .in("id", idList).set("recommand_status", recommendStatus));
+        return ApiResponse.success();
+    }
+
+    @Operation(summary = "批量上下架商品")
+    @PostMapping("/update/publishStatus")
+    public ApiResponse<Void> updatePublishStatus(
+            @RequestParam String ids,
+            @RequestParam Integer publishStatus) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim).map(Long::parseLong).collect(Collectors.toList());
+        adminProductMapper.update(null, new UpdateWrapper<AdminProductDO>()
+                .in("id", idList).set("publish_status", publishStatus));
+        return ApiResponse.success();
+    }
+
+    @Operation(summary = "批量审核商品")
+    @PostMapping("/update/verifyStatus")
+    public ApiResponse<Void> updateVerifyStatus(
+            @RequestParam String ids,
+            @RequestParam Integer verifyStatus) {
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(String::trim).map(Long::parseLong).collect(Collectors.toList());
+        adminProductMapper.update(null, new UpdateWrapper<AdminProductDO>()
+                .in("id", idList).set("verify_status", verifyStatus));
+        return ApiResponse.success();
+    }
+
+    @Operation(summary = "创建商品")
+    @PostMapping("/create")
+    public ApiResponse<Void> create(@RequestBody AdminProductDO product) {
+        adminProductMapper.insert(product);
+        return ApiResponse.success();
+    }
+
+    @Operation(summary = "根据ID修改商品信息")
+    @PostMapping("/update/{id}")
+    public ApiResponse<Void> updateById(@PathVariable Long id, @RequestBody AdminProductDO product) {
+        product.setId(id);
+        adminProductMapper.updateById(product);
+        return ApiResponse.success();
+    }
+
+    @Operation(summary = "根据商品id获取商品编辑信息")
+    @GetMapping("/updateInfo/{id}")
+    public ApiResponse<AdminProductDO> updateInfo(@PathVariable Long id) {
+        AdminProductDO product = adminProductMapper.selectById(id);
+        return ApiResponse.success(product);
     }
 }
