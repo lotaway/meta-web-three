@@ -35,7 +35,7 @@ spring:
             class: org.springframework.scheduling.quartz.LocalDataSourceJobStore
             driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
           threadPool:
-            class: org.quartz.impl.SimpleThreadPool
+            class: org.quartz.simpl.SimpleThreadPool
             threadCount: 5
             threadPriority: 5
 name: "meta-web-three"
