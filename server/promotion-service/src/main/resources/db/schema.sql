@@ -137,3 +137,40 @@ CREATE TABLE IF NOT EXISTS tb_home_recommend_subject (
     recommend_status SMALLINT DEFAULT 1,
     sort INT DEFAULT 0
 );
+
+CREATE TABLE IF NOT EXISTS tb_cms_subject (
+    id BIGINT PRIMARY KEY,
+    category_id BIGINT,
+    title VARCHAR(200),
+    pic VARCHAR(500),
+    product_count INT DEFAULT 0,
+    recommend_status SMALLINT DEFAULT 0,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    collect_count INT DEFAULT 0,
+    read_count INT DEFAULT 0,
+    comment_count INT DEFAULT 0,
+    album_pics JSON,
+    description TEXT,
+    show_status SMALLINT DEFAULT 1,
+    forward_count INT DEFAULT 0,
+    category_name VARCHAR(100),
+    content LONGTEXT
+);
+
+CREATE TABLE IF NOT EXISTS tb_cms_subject_category (
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(100),
+    icon VARCHAR(500),
+    subject_count INT DEFAULT 0,
+    show_status SMALLINT DEFAULT 1,
+    sort INT DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS tb_cms_prefrence_area (
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(100),
+    sub_title VARCHAR(200),
+    sort INT DEFAULT 0,
+    show_status SMALLINT DEFAULT 1,
+    pic BLOB
+);
