@@ -66,8 +66,8 @@ export const usePermissionStore = defineStore('permission', () => {
   const routers = shallowRef(constantRouterMap)
   // 有权限访问的动态路由
   const addRouters = shallowRef<RouteRecordExt[]>([])
-  // 是否为测试模式
-  const testMode = false
+  // 是否为测试模式（开发阶段启用，返回所有动态路由）
+  const testMode = true
 
   // 生成可访问的路由表
   const generateRoutes = (data: { menus: UmsMenu[]; username: string }) => {
