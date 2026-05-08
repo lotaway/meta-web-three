@@ -147,10 +147,18 @@ function BrandSection({ brandList, colors }: { brandList: BrandItem[]; colors: t
   const { t } = useTranslation();
   return (
     <>
-      <SectionHeader title={t('home.sections.brand_direct')} subtitle={t('home.sections.brand_direct_subtitle')} />
+      <SectionHeader
+        title={t('home.sections.brand_direct')}
+        subtitle={t('home.sections.brand_direct_subtitle')}
+        onMorePress={() => router.push('/brand')}
+      />
       <View style={styles.brandGrid}>
         {brandList.slice(0, 4).map((item) => (
-          <TouchableOpacity key={item.id} style={styles.brandItem}>
+          <TouchableOpacity
+            key={item.id}
+            style={styles.brandItem}
+            onPress={() => router.push({ pathname: '/brand/[id]', params: { id: item.id } })}
+          >
             <Image source={{ uri: item.logo }} style={styles.brandLogo} resizeMode="contain" />
             <Text style={[styles.brandName, { color: colors.fontColorDark }]}>{item.name}</Text>
             <Text style={[styles.brandCount, { color: colors.fontColorLight }]}>
@@ -207,16 +215,19 @@ function ProductGridSection({ title, subtitle, productList, colors, onProductPre
   );
 }
 
-function SectionHeader({ title, subtitle }: { title: string; subtitle: string }) {
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+function SectionHeader({ title, subtitle, onMorePress }: { title: string; subtitle: string; onMorePress?: () => void }) {
   return (
     <View style={styles.sectionHeader}>
       <View style={styles.sectionTitleBox}>
         <Text style={[styles.sectionTitle, { color: colors.fontColorDark }]}>{title}</Text>
         <Text style={[styles.sectionSubtitle, { color: colors.fontColorLight }]}>{subtitle}</Text>
       </View>
-      <IconSymbol name="chevron.right" size={20} color={colors.fontColorLight} />
+      {onMorePress && (
+        <TouchableOpacity onPress={onMorePress} style={styles.moreBtn}>
+          <Text style={[styles.moreText, { color: colors.fontColorLight }]}>查看更多</Text>
+          <IconSymbol name="chevron.right" size={14} color={colors.fontColorLight} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -295,6 +306,16 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     marginTop: 10,
     backgroundColor: '#fff',
+  },
+  moreBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 4,
+    paddingLeft: 12,
+  },
+  moreText: {
+    fontSize: 13,
+    marginRight: 2,
   },
   sectionTitleBox: {
     flex: 1,

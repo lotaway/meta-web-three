@@ -14,6 +14,8 @@ import { CouponControllerApi } from '@/src/generated/api/apis/CouponControllerAp
 import { UserActionControllerApi } from '@/src/generated/api/apis/UserActionControllerApi'
 import { NotificationControllerApi } from '@/src/generated/api/apis/NotificationControllerApi'
 import { SsoControllerApi } from '@/src/generated/api/apis/SsoControllerApi'
+import { CommissionControllerApi } from '@/src/generated/api/apis/CommissionControllerApi'
+import { ExchangeApi } from '@/src/generated/api/apis/ExchangeApi'
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_BACK_API_HOST ?? 'http://localhost:10081'
 export const DEFAULT_USER_ID = Number(process.env.EXPO_PUBLIC_DEFAULT_USER_ID ?? 1)
@@ -42,5 +44,7 @@ export const productCollectionApi = new UserActionControllerApi(apiConfig)
 export const commentApi = new UserActionControllerApi(apiConfig)
 export const notificationApi = new NotificationControllerApi(apiConfig)
 export const ssoApi = new SsoControllerApi(apiConfig)
+export const commissionApi = new CommissionControllerApi(apiConfig)
+export const exchangeApi = new ExchangeApi(apiConfig)
 
 export const stripeKey = STRIPE_PUBLISHABLE_KEY

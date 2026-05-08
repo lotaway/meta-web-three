@@ -174,6 +174,7 @@ export default function ProfileScreen() {
 
             <View style={styles.menuSection}>
               <ProfileMenuCell icon="bell.fill" title={t('profile.menu.notification')} color="#FF6B35" onPress={() => requireAuth(isAuthenticated, router, () => router.push('/notifications'))} badge={unreadNotifications > 0 ? unreadNotifications : undefined} />
+              <ProfileMenuCell icon="wallet.pass.fill" title={t('profile.menu.wallet')} color="#FFB300" onPress={() => requireAuth(isAuthenticated, router, () => router.push('/wallet'))} />
               <ProfileMenuCell icon="ticket.fill" title={t('profile.menu.coupon')} color="#FF3B30" onPress={() => requireAuth(isAuthenticated, router, () => router.push('/coupons'))} />
               <ProfileMenuCell icon="mappin.and.ellipse" title={t('profile.menu.address')} color="#5fcda2" onPress={() => requireAuth(isAuthenticated, router, () => router.push('/address/list'))} />
               <ProfileMenuCell icon="clock.fill" title={t('profile.menu.history')} color="#e07472" />
@@ -189,7 +190,7 @@ export default function ProfileScreen() {
                   onPress={() => router.push('/passkey-demo' as any)}
                 />
               )}
-              <ProfileMenuCell icon="gearshape.fill" title={t('profile.menu.settings')} color="#e07472" showBorder={false} />
+              <ProfileMenuCell icon="gearshape.fill" title={t('profile.menu.settings')} color="#e07472" showBorder={false} onPress={() => router.push('/settings')} />
             </View>
           </>
         )}
