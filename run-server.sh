@@ -56,20 +56,32 @@ sleep 60  # 初始等待
 
 # 检查启动日志 (Started Application)
 echo "检查服务启动状态..."
+
 for module in "${modules[@]}"; do
   log_file="$LOG_DIR/${module}.log"
-  if timeout 300 tail -f "$log_file" 2>/dev/null | grep -q "Started ${module//-}Application in"; then
-    echo "✓ $module 启动成功"
-  else
+
+  started=false
+
+  for _ in {1..60}; do
+    if grep -q "Started .*Application in" "$log_file" 2>/dev/null; then
+      echo "✓ $module 启动成功"
+      started=true
+      break
+    fi
+
+    sleep 5
+  done
+
+  if [ "$started" = false ]; then
     echo "⚠ $module 启动中或失败 (检查 $log_file)"
   fi
-done 2>/dev/null || true
+done
 
 echo "==> 开始监控服务存活状态 (每10s 检查)..."
 
 trap 'echo "==> 关闭服务中..."; for pid in "${pids[@]}"; do
   if kill -0 "$pid" 2>/dev/null; then
-    kill "$pid" 2>/dev/null
+    kill -TERM "$pid" 2>/dev/null
     wait "$pid" 2>/dev/null || true
   fi
 done
