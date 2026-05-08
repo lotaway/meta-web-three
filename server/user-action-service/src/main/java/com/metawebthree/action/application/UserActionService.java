@@ -44,6 +44,17 @@ public class UserActionService {
                 .eq(ProductCollection::getProductId, productId));
     }
 
+    public ProductCollection getCollectionDetail(Long userId, Long productId) {
+        return collectionMapper.selectOne(new LambdaQueryWrapper<ProductCollection>()
+                .eq(ProductCollection::getUserId, userId)
+                .eq(ProductCollection::getProductId, productId));
+    }
+
+    public void clearCollections(Long userId) {
+        collectionMapper.delete(new LambdaQueryWrapper<ProductCollection>()
+                .eq(ProductCollection::getUserId, userId));
+    }
+
     public void addHistory(Long userId, Long productId, String productName, String productPic) {
         ReadHistory history = ReadHistory.builder()
                 .userId(userId)
@@ -59,6 +70,17 @@ public class UserActionService {
         return historyMapper.selectList(new LambdaQueryWrapper<ReadHistory>().eq(ReadHistory::getUserId, userId));
     }
 
+    public void deleteHistory(Long userId, Long productId) {
+        historyMapper.delete(new LambdaQueryWrapper<ReadHistory>()
+                .eq(ReadHistory::getUserId, userId)
+                .eq(ReadHistory::getProductId, productId));
+    }
+
+    public void clearHistory(Long userId) {
+        historyMapper.delete(new LambdaQueryWrapper<ReadHistory>()
+                .eq(ReadHistory::getUserId, userId));
+    }
+
     public void addAttention(Long userId, Long brandId, String brandName, String brandLogo) {
         BrandAttention attention = BrandAttention.builder()
                 .userId(userId)
@@ -72,6 +94,23 @@ public class UserActionService {
 
     public List<BrandAttention> listAttentions(Long userId) {
         return attentionMapper.selectList(new LambdaQueryWrapper<BrandAttention>().eq(BrandAttention::getUserId, userId));
+    }
+
+    public void deleteAttention(Long userId, Long brandId) {
+        attentionMapper.delete(new LambdaQueryWrapper<BrandAttention>()
+                .eq(BrandAttention::getUserId, userId)
+                .eq(BrandAttention::getBrandId, brandId));
+    }
+
+    public BrandAttention getAttentionDetail(Long userId, Long brandId) {
+        return attentionMapper.selectOne(new LambdaQueryWrapper<BrandAttention>()
+                .eq(BrandAttention::getUserId, userId)
+                .eq(BrandAttention::getBrandId, brandId));
+    }
+
+    public void clearAttentions(Long userId) {
+        attentionMapper.delete(new LambdaQueryWrapper<BrandAttention>()
+                .eq(BrandAttention::getUserId, userId));
     }
 
     public void addComment(Long userId, String nickName, Long productId, String productName,

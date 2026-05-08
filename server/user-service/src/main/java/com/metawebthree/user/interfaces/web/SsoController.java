@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -20,6 +22,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/sso")
+@Tag(name = "Sso Controller", description = "Authentication and Session Management")
 public class SsoController {
 
     private final UserService userService;
@@ -33,6 +36,7 @@ public class SsoController {
         this.jwtUtil = jwtUtil;
     }
 
+    @Operation(summary = "User Login", description = "Authenticate user and return session information")
     @PostMapping("/login")
     public ApiResponse<SsoLoginResponseDTO> login(@RequestParam String username,
                                                    @RequestParam String password) throws NoSuchAlgorithmException {
@@ -51,6 +55,7 @@ public class SsoController {
         return ApiResponse.success(new SsoLoginResponseDTO(token, tokenHead));
     }
 
+    @Operation(summary = "User Registration", description = "Create a new user account")
     @PostMapping("/register")
     public ApiResponse<Void> register(@RequestParam String username,
                                        @RequestParam String password,
