@@ -1,9 +1,7 @@
 package com.metawebthree.promotion.interfaces.web;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.metawebthree.common.dto.ApiResponse;
-import com.metawebthree.promotion.infrastructure.persistence.mapper.FlashPromotionSessionMapper;
+import com.metawebthree.promotion.application.service.FlashPromotionSessionService;
 import com.metawebthree.promotion.infrastructure.persistence.model.FlashPromotionSessionDO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,46 +17,45 @@ import java.util.List;
 @Tag(name = "Flash Promotion Session Admin")
 public class FlashPromotionSessionController {
 
-    private final FlashPromotionSessionMapper sessionMapper;
+    private final FlashPromotionSessionService sessionService;
 
     @Operation(summary = "获取全部场次")
     @GetMapping("/list")
     public ApiResponse<List<FlashPromotionSessionDO>> list() {
-        return ApiResponse.success(sessionMapper.selectList(null));
+        return ApiResponse.success(sessionService.list());
     }
 
     @Operation(summary = "获取全部可选场次及其数量")
     @GetMapping("/selectList")
     public ApiResponse<List<FlashPromotionSessionDO>> selectList(@RequestParam(required = false) Long flashPromotionId) {
-        return ApiResponse.success(sessionMapper.selectList(null));
+        return ApiResponse.success(sessionService.selectList(flashPromotionId));
     }
 
     @Operation(summary = "修改场次启用状态")
     @PostMapping("/update/status/{id}")
     public ApiResponse<Void> updateStatus(@PathVariable Long id, @RequestParam Integer status) {
-        sessionMapper.update(null, new UpdateWrapper<FlashPromotionSessionDO>().eq("id", id).set("status", status));
+        sessionService.updateStatus(id, status);
         return ApiResponse.success();
     }
 
     @Operation(summary = "删除场次")
     @PostMapping("/delete/{id}")
     public ApiResponse<Void> delete(@PathVariable Long id) {
-        sessionMapper.deleteById(id);
+        sessionService.delete(id);
         return ApiResponse.success();
     }
 
     @Operation(summary = "添加场次")
     @PostMapping("/create")
     public ApiResponse<Void> create(@RequestBody FlashPromotionSessionDO session) {
-        sessionMapper.insert(session);
+        sessionService.create(session);
         return ApiResponse.success();
     }
 
     @Operation(summary = "修改场次")
     @PostMapping("/update/{id}")
     public ApiResponse<Void> update(@PathVariable Long id, @RequestBody FlashPromotionSessionDO session) {
-        session.setId(id);
-        sessionMapper.updateById(session);
+        sessionService.update(id, session);
         return ApiResponse.success();
     }
 }
