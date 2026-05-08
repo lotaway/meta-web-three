@@ -13,6 +13,7 @@ import com.metawebthree.user.application.dto.LoginResponseDTO;
 import com.metawebthree.user.application.dto.SubTokenDTO;
 import com.metawebthree.user.application.dto.UserDTO;
 import com.metawebthree.user.application.UserService;
+import com.metawebthree.user.domain.model.UserDO;
 import com.metawebthree.common.utils.DateEnum;
 import com.metawebthree.common.utils.OAuth1Utils;
 import com.metawebthree.common.utils.UserJwtUtil;
@@ -119,6 +120,21 @@ public class UserController {
             return ApiResponse.error(ResponseStatus.USER_NOT_FOUND);
         }
         return ApiResponse.success(user);
+    }
+
+    @PutMapping("/info")
+    public ApiResponse<Void> updateInfo(@RequestHeader(HeaderConstants.USER_ID) Long userId,
+                                         @RequestBody Map<String, Object> params) {
+        UserDO user = new UserDO();
+        user.setId(userId);
+        if (params.containsKey("nickname")) {
+            user.setNickname(String.valueOf(params.get("nickname")));
+        }
+        if (params.containsKey("avatar")) {
+            user.setAvatar(String.valueOf(params.get("avatar")));
+        }
+        userService.getBaseMapper().updateById(user);
+        return ApiResponse.success();
     }
 
     private Map<String, Object> buildClaims(UserDTO user) {
