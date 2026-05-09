@@ -1,6 +1,7 @@
 package com.metawebthree.user.interfaces.web;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.metawebthree.common.annotations.RequirePermission;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.user.application.AdminRoleService;
 import com.metawebthree.user.domain.model.MenuDO;
@@ -36,6 +37,7 @@ public class RoleController {
         return ApiResponse.success(adminRoleService.listAll());
     }
 
+    @RequirePermission("ums:role:read")
     @Operation(summary = "分页获取角色列表")
     @GetMapping("/list")
     public ApiResponse<Page<RoleDO>> list(
@@ -45,6 +47,7 @@ public class RoleController {
         return ApiResponse.success(adminRoleService.listRoles(pageNum, pageSize, keyword));
     }
 
+    @RequirePermission("ums:role:create")
     @Operation(summary = "添加角色")
     @PostMapping("/create")
     public ApiResponse<Void> create(@RequestBody RoleDO role) {
@@ -52,6 +55,7 @@ public class RoleController {
         return ApiResponse.success();
     }
 
+    @RequirePermission("ums:role:update")
     @Operation(summary = "修改角色")
     @PostMapping("/update/{id}")
     public ApiResponse<Void> update(@PathVariable Long id, @RequestBody RoleDO role) {
@@ -60,6 +64,7 @@ public class RoleController {
         return ApiResponse.success();
     }
 
+    @RequirePermission("ums:role:update")
     @Operation(summary = "修改角色状态")
     @PostMapping("/updateStatus/{id}")
     public ApiResponse<Void> updateStatus(@PathVariable Long id, @RequestParam Integer status) {
@@ -70,6 +75,7 @@ public class RoleController {
         return ApiResponse.success();
     }
 
+    @RequirePermission("ums:role:delete")
     @Operation(summary = "批量删除角色")
     @PostMapping("/delete")
     public ApiResponse<Void> delete(@RequestParam String ids) {
@@ -92,6 +98,7 @@ public class RoleController {
         return ApiResponse.success(menuService.listByIds(menuIds));
     }
 
+    @RequirePermission("ums:role:update")
     @Operation(summary = "分配菜单")
     @PostMapping("/allocMenu")
     public ApiResponse<Void> allocMenu(@RequestParam Long roleId, @RequestParam String menuIds) {
@@ -114,6 +121,7 @@ public class RoleController {
         return ApiResponse.success(resourceService.listByIds(resourceIds));
     }
 
+    @RequirePermission("ums:role:update")
     @Operation(summary = "分配资源")
     @PostMapping("/allocResource")
     public ApiResponse<Void> allocResource(@RequestParam Long roleId, @RequestParam String resourceIds) {

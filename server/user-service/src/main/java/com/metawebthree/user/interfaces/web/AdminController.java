@@ -1,6 +1,7 @@
 package com.metawebthree.user.interfaces.web;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.metawebthree.common.annotations.RequirePermission;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.utils.UserJwtUtil;
 import com.metawebthree.common.utils.UserRole;
@@ -138,6 +139,7 @@ public class AdminController {
         return ApiResponse.success();
     }
 
+    @RequirePermission("ums:admin:read")
     @Operation(summary = "分页获取管理员列表")
     @GetMapping("/list")
     public ApiResponse<Page<AdminDO>> list(
@@ -147,6 +149,7 @@ public class AdminController {
         return ApiResponse.success(adminService.listAdmins(pageNum, pageSize, keyword));
     }
 
+    @RequirePermission("ums:admin:update")
     @Operation(summary = "修改管理员")
     @PostMapping("/update/{id}")
     public ApiResponse<Void> update(@PathVariable Long id, @RequestBody AdminDO admin) {
@@ -155,6 +158,7 @@ public class AdminController {
         return ApiResponse.success();
     }
 
+    @RequirePermission("ums:admin:update")
     @Operation(summary = "修改管理员状态")
     @PostMapping("/updateStatus/{id}")
     public ApiResponse<Void> updateStatus(@PathVariable Long id, @RequestParam Integer status) {
@@ -165,6 +169,7 @@ public class AdminController {
         return ApiResponse.success();
     }
 
+    @RequirePermission("ums:admin:delete")
     @Operation(summary = "删除管理员")
     @PostMapping("/delete/{id}")
     public ApiResponse<Void> delete(@PathVariable Long id) {
@@ -172,6 +177,7 @@ public class AdminController {
         return ApiResponse.success();
     }
 
+    @RequirePermission("ums:admin:read")
     @Operation(summary = "获取管理员角色")
     @GetMapping("/role/{adminId}")
     public ApiResponse<List<RoleDO>> getRole(@PathVariable Long adminId) {
@@ -184,6 +190,7 @@ public class AdminController {
         return ApiResponse.success(roles);
     }
 
+    @RequirePermission("ums:admin:update")
     @Operation(summary = "分配管理员角色")
     @PostMapping("/role/update")
     public ApiResponse<Void> updateRole(@RequestParam Long adminId, @RequestParam String roleIds) {
