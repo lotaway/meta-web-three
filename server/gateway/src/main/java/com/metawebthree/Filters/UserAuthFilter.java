@@ -17,6 +17,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 
 import com.metawebthree.common.constants.RequestHeaderKeys;
+import com.metawebthree.common.utils.InternalTokenUtil;
 import com.metawebthree.gateway.auth.GatewayAuthProperties;
 import com.metawebthree.gateway.auth.UserTokenClaims;
 import com.metawebthree.gateway.auth.UserTokenValidator;
@@ -32,18 +33,20 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
     private final GatewayAuthProperties authProperties;
     private final ObjectMapper objectMapper;
     private final AntPathMatcher pathMatcher;
+    private final InternalTokenUtil internalTokenUtil;
 
-    UserAuthFilter(UserTokenValidator tokenValidator, GatewayAuthProperties authProperties, ObjectMapper objectMapper) {
+    UserAuthFilter(UserTokenValidator tokenValidator, GatewayAuthProperties authProperties, ObjectMapper objectMapper, InternalTokenUtil internalTokenUtil) {
         this.tokenValidator = tokenValidator;
         this.authProperties = authProperties;
         this.objectMapper = objectMapper;
         this.pathMatcher = new AntPathMatcher();
+        this.internalTokenUtil = internalTokenUtil;
     }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         if (shouldSkipAuthentication(exchange.getRequest().getPath().value())) {
-            return chain.filter(exchange);
+            return chain.filter(addInternalToken(exchange));
         }
         String authHeader = exchange.getRequest().getHeaders().getFirst(authProperties.authorizationHeader());
         String token = resolveToken(authHeader);
@@ -54,7 +57,7 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
         if (tokenClaims == null) {
             return writeUnauthorized(exchange, "AUTH_TOKEN_INVALID");
         }
-        return chain.filter(addUserHeaders(exchange, tokenClaims));
+        return chain.filter(addInternalToken(addUserHeaders(exchange, tokenClaims)));
     }
 
     private boolean shouldSkipAuthentication(String path) {
@@ -74,6 +77,14 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
             return null;
         }
         return authHeader.substring(tokenPrefix.length());
+    }
+
+    private ServerWebExchange addInternalToken(ServerWebExchange exchange) {
+        String token = internalTokenUtil.generate();
+        return exchange.mutate().request(exchange.getRequest().mutate()
+                .header("X-Internal-Token", token)
+                .headers(h -> h.remove("Authorization"))
+                .build()).build();
     }
 
     private ServerWebExchange addUserHeaders(ServerWebExchange exchange, UserTokenClaims tokenClaims) {

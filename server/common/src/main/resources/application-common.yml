@@ -64,6 +64,9 @@ rocketmq:
 jwt:
   secret: mwt123123
   tokenHead: "Bearer "
+internal-token:
+  secret: mwt-internal-secret-2024
+  timeout-seconds: 5
 dubbo:
   application:
     name: ${spring.application.name}
