@@ -73,7 +73,8 @@ CREATE TABLE IF NOT EXISTS tb_resource (
     name VARCHAR(200),
     url VARCHAR(200),
     description VARCHAR(500),
-    category_id BIGINT
+    category_id BIGINT,
+    value VARCHAR(200)
 );
 
 CREATE TABLE IF NOT EXISTS tb_admin_role_relation (

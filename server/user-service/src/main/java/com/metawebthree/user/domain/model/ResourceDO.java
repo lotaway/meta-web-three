@@ -16,4 +16,5 @@ public class ResourceDO {
     private String url;
     private String description;
     private Long categoryId;
+    private String value;
 }

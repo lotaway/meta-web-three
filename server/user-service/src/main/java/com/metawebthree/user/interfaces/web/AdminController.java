@@ -6,9 +6,12 @@ import com.metawebthree.common.utils.UserJwtUtil;
 import com.metawebthree.common.utils.UserRole;
 import com.metawebthree.user.application.AdminRoleService;
 import com.metawebthree.user.application.AdminService;
+import com.metawebthree.user.application.MenuService;
 import com.metawebthree.user.domain.model.AdminDO;
 import com.metawebthree.user.domain.model.AdminRoleRelationDO;
+import com.metawebthree.user.domain.model.MenuDO;
 import com.metawebthree.user.domain.model.RoleDO;
+import com.metawebthree.user.domain.model.RoleMenuRelationDO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,7 @@ public class AdminController {
 
     private final AdminService adminService;
     private final AdminRoleService adminRoleService;
+    private final MenuService menuService;
     private final UserJwtUtil userJwtUtil;
 
     @Operation(summary = "管理员登录")
@@ -63,10 +67,12 @@ public class AdminController {
         }
         List<AdminRoleRelationDO> relations = adminService.getRoleRelations(userId);
         List<String> roleNames;
+        List<Long> roleIds;
         if (relations.isEmpty()) {
             roleNames = Collections.singletonList("超级管理员");
+            roleIds = Collections.emptyList();
         } else {
-            List<Long> roleIds = relations.stream().map(AdminRoleRelationDO::getRoleId).collect(Collectors.toList());
+            roleIds = relations.stream().map(AdminRoleRelationDO::getRoleId).collect(Collectors.toList());
             roleNames = adminRoleService.listByIds(roleIds).stream()
                     .map(RoleDO::getName).collect(Collectors.toList());
         }
@@ -74,30 +80,48 @@ public class AdminController {
         result.put("username", admin.getUsername());
         result.put("icon", admin.getIcon() != null ? admin.getIcon() : "");
         result.put("roles", roleNames);
-        result.put("menus", buildDefaultMenus());
+        result.put("menus", buildMenusByRoles(roleIds));
         return ApiResponse.success(result);
     }
 
-    private List<Map<String, Object>> buildDefaultMenus() {
-        List<Map<String, Object>> menus = new ArrayList<>();
-        menus.add(Map.of("name", "pms", "title", "商品管理", "icon", "product",
-                "children", List.of(
-                        Map.of("name", "pmsProduct", "title", "商品列表", "icon", "product", "children", null),
-                        Map.of("name", "pmsProductCategory", "title", "商品分类", "icon", "product-category", "children", null),
-                        Map.of("name", "pmsBrand", "title", "品牌管理", "icon", "brand", "children", null))));
-        menus.add(Map.of("name", "oms", "title", "订单管理", "icon", "order",
-                "children", List.of(
-                        Map.of("name", "omsOrder", "title", "订单列表", "icon", "order", "children", null),
-                        Map.of("name", "omsOrderReturn", "title", "退货申请处理", "icon", "return", "children", null))));
-        menus.add(Map.of("name", "ums", "title", "用户管理", "icon", "user",
-                "children", List.of(
-                        Map.of("name", "umsUser", "title", "用户列表", "icon", "user", "children", null),
-                        Map.of("name", "umsAdmin", "title", "管理员列表", "icon", "admin", "children", null))));
-        menus.add(Map.of("name", "sms", "title", "营销管理", "icon", "sms",
-                "children", List.of(
-                        Map.of("name", "smsCoupon", "title", "优惠券管理", "icon", "coupon", "children", null),
-                        Map.of("name", "smsFlashPromotion", "title", "秒杀活动", "icon", "flash", "children", null))));
-        return menus;
+    private List<Map<String, Object>> buildMenusByRoles(List<Long> roleIds) {
+        Set<Long> menuIds = new HashSet<>();
+        if (roleIds.isEmpty()) {
+            menuIds.addAll(adminRoleService.listAll().stream()
+                    .flatMap(r -> adminRoleService.getMenuRelations(r.getId()).stream())
+                    .map(RoleMenuRelationDO::getMenuId)
+                    .collect(Collectors.toSet()));
+        } else {
+            for (Long roleId : roleIds) {
+                menuIds.addAll(adminRoleService.getMenuRelations(roleId).stream()
+                        .map(RoleMenuRelationDO::getMenuId)
+                        .collect(Collectors.toSet()));
+            }
+        }
+        if (menuIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<MenuDO> allMenus = menuService.listByIds(menuIds);
+        Map<Long, List<MenuDO>> parentMap = allMenus.stream()
+                .collect(Collectors.groupingBy(m -> m.getParentId() != null ? m.getParentId() : 0L));
+        return buildMenuTree(0L, parentMap);
+    }
+
+    private List<Map<String, Object>> buildMenuTree(Long parentId, Map<Long, List<MenuDO>> parentMap) {
+        List<MenuDO> children = parentMap.getOrDefault(parentId, Collections.emptyList());
+        children.sort(Comparator.comparingInt(MenuDO::getSort));
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (MenuDO menu : children) {
+            Map<String, Object> node = new HashMap<>();
+            node.put("name", menu.getName());
+            node.put("title", menu.getTitle());
+            node.put("icon", menu.getIcon());
+            node.put("hidden", menu.getHidden());
+            List<Map<String, Object>> subChildren = buildMenuTree(menu.getId(), parentMap);
+            node.put("children", subChildren.isEmpty() ? null : subChildren);
+            result.add(node);
+        }
+        return result;
     }
 
     @Operation(summary = "管理员注册")

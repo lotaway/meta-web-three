@@ -39,12 +39,17 @@ public class AdminService extends ServiceImpl<AdminMapper, AdminDO> {
             return;
         }
         AdminDO defaultAdmin = new AdminDO();
+        defaultAdmin.setId(1L);
         defaultAdmin.setUsername("admin");
         defaultAdmin.setPassword("123456");
         defaultAdmin.setNickName("超级管理员");
         defaultAdmin.setStatus(1);
         defaultAdmin.setCreateTime(java.time.LocalDateTime.now());
         adminMapper.insert(defaultAdmin);
+        AdminRoleRelationDO rel = new AdminRoleRelationDO();
+        rel.setAdminId(1L);
+        rel.setRoleId(3001L);
+        adminRoleRelationMapper.insert(rel);
     }
 
     public AdminDO login(String username, String password) {
