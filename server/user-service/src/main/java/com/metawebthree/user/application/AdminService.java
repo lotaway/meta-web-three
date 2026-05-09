@@ -30,6 +30,23 @@ public class AdminService extends ServiceImpl<AdminMapper, AdminDO> {
         return adminMapper.selectPage(page, wrapper);
     }
 
+    public long countAdmins() {
+        return adminMapper.selectCount(new LambdaQueryWrapper<>());
+    }
+
+    public void ensureDefaultAdmin() {
+        if (countAdmins() > 0) {
+            return;
+        }
+        AdminDO defaultAdmin = new AdminDO();
+        defaultAdmin.setUsername("admin");
+        defaultAdmin.setPassword("123456");
+        defaultAdmin.setNickName("超级管理员");
+        defaultAdmin.setStatus(1);
+        defaultAdmin.setCreateTime(java.time.LocalDateTime.now());
+        adminMapper.insert(defaultAdmin);
+    }
+
     public AdminDO login(String username, String password) {
         LambdaQueryWrapper<AdminDO> wrapper = new LambdaQueryWrapper<AdminDO>()
                 .eq(AdminDO::getUsername, username)

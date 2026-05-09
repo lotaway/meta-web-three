@@ -37,7 +37,7 @@ gateway:
   auth:
     authorization-header: Authorization
     token-prefix: "Bearer "
-    protected-path-prefix: /user-service/
+    protected-path-prefix: /
     excluded-path-patterns:
       # User — login/register
       - /user-service/user/signIn

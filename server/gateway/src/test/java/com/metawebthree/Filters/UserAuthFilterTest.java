@@ -22,11 +22,11 @@ import reactor.core.publisher.Mono;
 public class UserAuthFilterTest {
 
     @Test
-    public void shouldSkipAuthenticationWhenPathOutsideProtectedPrefix() {
+    public void shouldSkipAuthenticationWhenPathIsExcluded() {
         UserTokenValidator tokenValidator = Mockito.mock(UserTokenValidator.class);
         UserAuthFilter filter = new UserAuthFilter(tokenValidator, defaultProperties(), new ObjectMapper());
         GatewayFilterChain chain = Mockito.mock(GatewayFilterChain.class);
-        ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/product-service/product/list").build());
+        ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/user-service/user/signIn").build());
         Mockito.when(chain.filter(exchange)).thenReturn(Mono.empty());
 
         filter.filter(exchange, chain).block();
@@ -74,11 +74,12 @@ public class UserAuthFilterTest {
         return new GatewayAuthProperties(
                 "Authorization",
                 "Bearer ",
-                "/user-service/",
+                "/",
                 java.util.List.of(
                         "/user-service/user/signIn",
                         "/user-service/user/create",
                         "/user-service/user/checkWeb3SignerMessage",
+                        "/user-service/admin/login",
                         "/actuator"),
                 java.util.List.of("/v3/api-docs", "/swagger-ui"));
     }
