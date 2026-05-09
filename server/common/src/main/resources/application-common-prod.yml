@@ -1,9 +1,15 @@
 spring:
   cloud:
     zookeeper:
-        discovery:
-            root: /prod/metawebthree
+      discovery:
+        root: /prod/metawebthree
 spring.quartz.jdbc.initialize-schema: never
+minio:
+  endpoint: http://localhost:9000
+  bucket-name: metawebthree
+  access-key: minioadmin
+  secret-key: minioadmin
+
 logging:
   level:
     com.metawebthree: ERROR
