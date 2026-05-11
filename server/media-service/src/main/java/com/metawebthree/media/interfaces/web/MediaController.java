@@ -1,18 +1,13 @@
 package com.metawebthree.media.interfaces.web;
 
-import com.metawebthree.media.application.*;
-import com.metawebthree.media.application.dto.*;
-
+import com.metawebthree.common.cloud.StorageService;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.enums.ResponseStatus;
+import com.metawebthree.media.application.*;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,39 +17,52 @@ import org.springframework.web.multipart.MultipartFile;
 public class MediaController {
 
     private final MediaService mediaService;
+    private final StorageService storageService;
 
-    @Value("${upload.path:/upload/file/}")
-    private String uploadPath;
-
-    public MediaController(MediaService mediaService) {
+    public MediaController(MediaService mediaService, StorageService storageService) {
         this.mediaService = mediaService;
+        this.storageService = storageService;
     }
 
+    @Operation(summary = "文件上传", description = "使用配置的存储服务上传文件(支持本地存储/MinIO/S3)")
     @PostMapping
-    public String uploadMedia(@RequestParam("file") MultipartFile file) {
-        return mediaService.uploadFile(file);
-    }
-
-    @PostMapping("/upload/file")
-    public ApiResponse<Void> file(@RequestParam("file") MultipartFile file) {
-        String fileName = file.getOriginalFilename();
+    public ApiResponse<String> uploadMedia(@RequestParam("file") MultipartFile file) {
         try {
-            // TODO: Avoid hardcoded paths
-            File destFile = new File("/upload/file/" + fileName);
-            FileUtils.writeByteArrayToFile(destFile, file.getBytes());
-        } catch (IOException e) {
+            String url = storageService.uploadFile(file);
+            return ApiResponse.success(url);
+        } catch (Exception e) {
             return ApiResponse.error(ResponseStatus.MEDIA_UPLOAD_FAILED, e.getMessage());
         }
-        return ApiResponse.success();
     }
 
+    @Operation(summary = "文件删除", description = "使用配置的存储服务删除文件")
+    @DeleteMapping("/{key}")
+    public ApiResponse<Void> deleteMedia(@PathVariable String key) {
+        try {
+            storageService.deleteFile(key);
+            return ApiResponse.success();
+        } catch (Exception e) {
+            return ApiResponse.error(ResponseStatus.MEDIA_DELETE_FAILED, e.getMessage());
+        }
+    }
+
+    @Operation(summary = "获取文件", description = "获取文件内容")
     @GetMapping("/{key}")
     public byte[] getMedia(@PathVariable String key) {
         return mediaService.getMedia(key).orElse(new byte[] {});
     }
 
-    @DeleteMapping("/{key}")
-    public void deleteMedia(@PathVariable String key) {
-        mediaService.deleteMedia(key);
+    @Operation(summary = "获取文件访问URL", description = "获取文件的访问URL")
+    @GetMapping("/url/{key}")
+    public ApiResponse<String> getMediaUrl(@PathVariable String key) {
+        String url = storageService.getFileUrl(key);
+        return ApiResponse.success(url);
+    }
+
+    @Operation(summary = "检查文件是否存在", description = "检查存储服务中是否存在指定文件")
+    @GetMapping("/exists/{key}")
+    public ApiResponse<Boolean> exists(@PathVariable String key) {
+        boolean exists = storageService.fileExists(key);
+        return ApiResponse.success(exists);
     }
 }

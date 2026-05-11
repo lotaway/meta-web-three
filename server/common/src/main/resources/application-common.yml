@@ -86,3 +86,7 @@ logging:
   data-path: logs/rocksdb-data/${spring.application.name}
 elasticsearch:
   hosts: ${ELASTICSEARCH_HOST:elasticsearch:9200}
+
+# Storage type: local / minio / s3
+storage:
+  type: local

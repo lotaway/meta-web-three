@@ -1,42 +1,23 @@
 spring:
-  cloud:
-    zookeeper:
-      connect-string: localhost:2181
-      discovery:
-        root: /dev/metawebthree/spring-cloud
   datasource:
     url: jdbc:postgresql://192.168.1.194:5432/metawebthree?useUnicode=true&characterEncoding=utf-8
     username: admin
     password: 123123
   data:
     redis:
+      host: 192.168.1.194
       password: 123123
   quartz:
     jdbc:
-      initialize-schema: always # auto init database tables
-mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-# dubbo:
-# swagger docs
+      initialize-schema: always
+
 springdoc:
   api-docs:
     enabled: true
   swagger-ui:
     enabled: true
-# Test configuration for Mockito
-mockito:
-  inline:
-    enabled: false
-minio:
-  endpoint: http://192.168.1.194:9000
-  bucket-name: metawebthree
-  access-key: minioadmin
-  secret-key: minioadmin
+
 logging:
   level:
     com.metawebthree: DEBUG
     org.springframework.web: INFO
-  pattern:
-    # console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"
