@@ -18,22 +18,18 @@ import type { PmsProduct, ProductQueryParam } from '@/types/product'
 import type { ElCascaderDataVo, ElSelectDataVo } from '@/types/common'
 import type { PmsSkuStock } from '@/types/skuStock'
 import type { PmsProductAttribute } from '@/types/productAttr'
+import { MESSAGE_DURATION_SHORT, DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '@/constants'
+import { t } from '@/locales'
 
-// 获取路由
 const router = useRouter()
 
-// 列表查询参数
 const listQuery = ref<ProductQueryParam>({
   pageNum: 1,
-  pageSize: 10
+  pageSize: DEFAULT_PAGE_SIZE
 })
-// 列表数据
 const list = ref<PmsProduct[]>([])
-// 总条数
 const total = ref(0)
-// 加载状态
 const listLoading = ref(true)
-// 获取列表数据
 const getList = async () => {
   listLoading.value = true
   try {
@@ -41,23 +37,17 @@ const getList = async () => {
     listLoading.value = false
     list.value = response.data.list
     total.value = response.data.total
-  } catch (error) {
+  } catch {
     listLoading.value = false
-    console.error(error)
   }
 }
-// 筛选搜索中的品牌数据
 const brandOptions = ref<ElSelectDataVo[]>([])
-// 获取品牌列表数据
 const getBrandList = async () => {
   const res = await getBrandListAPI({ pageNum: 1, pageSize: 100 })
   brandOptions.value = res.data.list.map(item => ({ label: item.name, value: item.id!.toString() }))
 }
-// 筛选搜索中的商品分类数据
 const productCateOptions = ref<ElCascaderDataVo[]>([])
-// 筛选搜索中当前选中的商品分类，结构为：[父分类ID,分类ID]
 const selectProductCateValue = ref([])
-// 获取商品分类列表数据
 const getProductCateList = async () => {
   const res = await getProductCategoryListWithChildrenAPI()
   const list = res.data
@@ -67,30 +57,15 @@ const getProductCateList = async () => {
     children: item.children?.map(it => ({ label: it.name, value: it.id! }))
   }))
 }
-// 筛选搜索中的上下架状态
 const publishStatusOptions = ref([
-  {
-    value: 1,
-    label: '上架'
-  },
-  {
-    value: 0,
-    label: '下架'
-  }
+  { value: 1, label: t('product.onSale') },
+  { value: 0, label: t('product.offSale') }
 ])
-// 筛选搜索中的审核状态
 const verifyStatusOptions = ref([
-  {
-    value: 1,
-    label: '审核通过'
-  },
-  {
-    value: 0,
-    label: '未审核'
-  }
+  { value: 1, label: t('product.verifyPassed') },
+  { value: 0, label: t('product.notVerified') }
 ])
 
-// 监听改变，通过修改列表查询中的productCategoryId数据
 watch(selectProductCateValue, (newValue) => {
   if (newValue != null && newValue.length == 2) {
     listQuery.value.productCategoryId = newValue[1]
@@ -99,54 +74,25 @@ watch(selectProductCateValue, (newValue) => {
   }
 }, { immediate: true })
 
-// 组件挂载后执行
 onMounted(() => {
   getList()
   getBrandList()
   getProductCateList()
 })
 
-// 批量操作类型
 const operates = ref([
-  {
-    label: "商品上架",
-    value: "publishOn"
-  },
-  {
-    label: "商品下架",
-    value: "publishOff"
-  },
-  {
-    label: "设为推荐",
-    value: "recommendOn"
-  },
-  {
-    label: "取消推荐",
-    value: "recommendOff"
-  },
-  {
-    label: "设为新品",
-    value: "newOn"
-  },
-  {
-    label: "取消新品",
-    value: "newOff"
-  },
-  {
-    label: "移入回收站",
-    value: "recycle"
-  },
-  {
-    label: "转移到分类",
-    value: "transferCategory"
-  }
+  { label: t('product.productOnSale'), value: 'publishOn' },
+  { label: t('product.productOffSale'), value: 'publishOff' },
+  { label: t('product.setRecommend'), value: 'recommendOn' },
+  { label: t('product.cancelRecommend'), value: 'recommendOff' },
+  { label: t('product.setNew'), value: 'newOn' },
+  { label: t('product.cancelNew'), value: 'newOff' },
+  { label: t('product.moveToRecycleBin'), value: 'recycle' },
+  { label: t('product.transferCategory'), value: 'transferCategory' }
 ])
-// 当前批量操作
 const operateType = ref<string>()
-// 当前选中的条目
 const multipleSelection = ref<PmsProduct[]>([])
 
-// SKU库存弹框数据
 const editSkuInfo = reactive({
   dialogVisible: false,
   productId: 0,
@@ -157,7 +103,6 @@ const editSkuInfo = reactive({
   keyword: undefined
 })
 
-// 从PmsSkuStock的spData中获取规格对应的值
 const getProductSkuSp = (row: PmsSkuStock, index: number) => {
   const spData = JSON.parse(row.spData!)
   if (spData && index < spData.length) {
@@ -189,22 +134,22 @@ const handleSearchEditSku = async () => {
 const handleEditSkuConfirm = async () => {
   if (!editSkuInfo.stockList || editSkuInfo.stockList.length <= 0) {
     ElMessage({
-      message: '暂无sku信息',
+      message: t('message.noSkuInfo'),
       type: 'warning',
-      duration: 1000
+      duration: MESSAGE_DURATION_SHORT
     })
     return
   }
-  await ElMessageBox.confirm('是否要进行修改', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('message.confirmModify'), t('common.warning'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning'
   })
   await skuUpdateByPidAPI(editSkuInfo.productId, editSkuInfo.stockList)
   ElMessage({
-    message: '修改成功',
+    message: t('message.modifySuccess'),
     type: 'success',
-    duration: 1000
+    duration: MESSAGE_DURATION_SHORT
   })
   editSkuInfo.dialogVisible = false
 }
@@ -221,23 +166,23 @@ const handleAddProduct = () => {
 const handleBatchOperate = async () => {
   if (!operateType.value) {
     ElMessage({
-      message: '请选择操作类型',
+      message: t('message.selectOperationType'),
       type: 'warning',
-      duration: 1000
+      duration: MESSAGE_DURATION_SHORT
     })
     return
   }
   if (!multipleSelection.value || multipleSelection.value.length < 1) {
     ElMessage({
-      message: '请选择要操作的商品',
+      message: t('message.selectOperateProduct'),
       type: 'warning',
-      duration: 1000
+      duration: MESSAGE_DURATION_SHORT
     })
     return
   }
-  await ElMessageBox.confirm('是否要进行该批量操作?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('message.confirmBatchOperation'), t('common.warning'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning'
   })
   const ids = multipleSelection.value.map(item => item.id!)
@@ -300,7 +245,7 @@ const handleRecommendStatusChange = async (index: number, row: PmsProduct) => {
 
 const handleResetSearch = () => {
   selectProductCateValue.value = []
-  listQuery.value = { pageNum: 1, pageSize: 10 }
+  listQuery.value = { pageNum: 1, pageSize: DEFAULT_PAGE_SIZE }
 }
 
 const handleDelete = async (index: number, row: PmsProduct) => {
@@ -312,60 +257,56 @@ const handleUpdateProduct = (index: number, row: PmsProduct) => {
 }
 
 const handleShowProduct = (index: number, row: PmsProduct) => {
-  console.log("handleShowProduct", row)
 }
 
 const handleShowVerifyDetail = (index: number, row: PmsProduct) => {
-  console.log("handleShowVerifyDetail", row)
 }
 
 const handleShowLog = (index: number, row: PmsProduct) => {
-  console.log("handleShowLog", row)
 }
 
 const updatePublishStatus = async (publishStatus: number, ids: number[]) => {
   await productUpdatePublishStatusAPI({ ids: ids.join(','), publishStatus: publishStatus })
   ElMessage({
-    message: '修改成功',
+    message: t('message.modifySuccess'),
     type: 'success',
-    duration: 1000
+    duration: MESSAGE_DURATION_SHORT
   })
 }
 
 const updateNewStatus = async (newStatus: number, ids: number[]) => {
   await productUpdateNewStatusAPI({ ids: ids.join(','), newStatus: newStatus })
   ElMessage({
-    message: '修改成功',
+    message: t('message.modifySuccess'),
     type: 'success',
-    duration: 1000
+    duration: MESSAGE_DURATION_SHORT
   })
 }
 
 const updateRecommendStatus = async (recommendStatus: number, ids: number[]) => {
   await productUpdateRecommendStatusAPI({ ids: ids.join(','), recommendStatus: recommendStatus })
   ElMessage({
-    message: '修改成功',
+    message: t('message.modifySuccess'),
     type: 'success',
-    duration: 1000
+    duration: MESSAGE_DURATION_SHORT
   })
 }
 
 const updateDeleteStatus = async (deleteStatus: number, ids: number[]) => {
   await productUpdateDeleteStatusAPI({ ids: ids.join(','), deleteStatus: deleteStatus })
   ElMessage({
-    message: '删除成功',
+    message: t('message.deleteSuccess'),
     type: 'success',
-    duration: 1000
+    duration: MESSAGE_DURATION_SHORT
   })
   getList()
 }
 
-// 过滤器函数
 const verifyStatusFilter = (value: number) => {
   if (value === 1) {
-    return '审核通过'
+    return t('product.verifyPassed')
   } else {
-    return '未审核'
+    return t('product.notVerified')
   }
 }
 </script>
@@ -377,40 +318,40 @@ const verifyStatusFilter = (value: number) => {
         <el-icon class="el-icon-middle">
           <Search />
         </el-icon>
-        <span>筛选搜索</span>
+        <span>{{ t('product.filterSearch') }}</span>
         <el-button style="float: right" @click="handleSearchList()" type="primary">
-          查询结果
+          {{ t('product.queryResult') }}
         </el-button>
         <el-button style="float: right;margin-right: 15px" @click="handleResetSearch()">
-          重置
+          {{ t('product.reset') }}
         </el-button>
       </div>
       <div style="margin-top: 20px">
         <el-form :inline="true" :model="listQuery" label-width="140px">
-          <el-form-item label="输入搜索：">
-            <el-input style="width: 203px" v-model="listQuery.keyword" placeholder="商品名称"></el-input>
+          <el-form-item :label="t('product.productName') + '：'">
+            <el-input style="width: 203px" v-model="listQuery.keyword" :placeholder="t('product.productName')"></el-input>
           </el-form-item>
-          <el-form-item label="商品货号：">
-            <el-input style="width: 203px" v-model="listQuery.productSn" placeholder="商品货号"></el-input>
+          <el-form-item :label="t('product.productSn') + '：'">
+            <el-input style="width: 203px" v-model="listQuery.productSn" :placeholder="t('product.productSn')"></el-input>
           </el-form-item>
-          <el-form-item label="商品分类：">
+          <el-form-item :label="t('product.productCategory') + '：'">
             <el-cascader clearable v-model="selectProductCateValue" :options="productCateOptions">
             </el-cascader>
           </el-form-item>
-          <el-form-item label="商品品牌：">
-            <el-select v-model="listQuery.brandId" placeholder="请选择品牌" clearable style="width: 203px;">
+          <el-form-item :label="t('product.brand') + '：'">
+            <el-select v-model="listQuery.brandId" :placeholder="t('product.selectBrand')" clearable style="width: 203px;">
               <el-option v-for="item in brandOptions" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="上架状态：">
-            <el-select v-model="listQuery.publishStatus" placeholder="全部" clearable style="width: 203px;">
+          <el-form-item :label="t('product.onSale') + '：'">
+            <el-select v-model="listQuery.publishStatus" :placeholder="t('product.all')" clearable style="width: 203px;">
               <el-option v-for="item in publishStatusOptions" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="审核状态：">
-            <el-select v-model="listQuery.verifyStatus" placeholder="全部" clearable style="width: 203px;">
+          <el-form-item :label="t('product.verifyStatus') + '：'">
+            <el-select v-model="listQuery.verifyStatus" :placeholder="t('product.all')" clearable style="width: 203px;">
               <el-option v-for="item in verifyStatusOptions" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
@@ -422,85 +363,90 @@ const verifyStatusFilter = (value: number) => {
       <el-icon class="el-icon-middle">
         <Tickets />
       </el-icon>
-      <span>数据列表</span>
+      <span>{{ t('product.dataList') }}</span>
       <el-button class="btn-add" @click="handleAddProduct()">
-        添加
+        {{ t('common.add') }}
       </el-button>
     </el-card>
     <div class="table-container">
       <el-table ref="productTable" :data="list" style="width: 100%" @selection-change="handleSelectionChange"
         v-loading="listLoading" border>
         <el-table-column type="selection" width="60" align="center"></el-table-column>
-        <el-table-column label="编号" width="100" align="center">
+        <el-table-column :label="t('common.id')" width="100" align="center">
           <template #default="scope">{{ scope.row.id }}</template>
         </el-table-column>
-        <el-table-column label="商品图片" width="120" align="center">
-          <template #default="scope"><img style="height: 80px" :src="scope.row.pic"></template>
+        <el-table-column :label="t('product.productImage')" width="120" align="center">
+          <template #default="scope"><img style="height: 80px" :src="scope.row.pic" :alt="scope.row.name"></template>
         </el-table-column>
-        <el-table-column label="商品名称" align="center">
+        <el-table-column :label="t('product.productName')" align="center">
           <template #default="scope">
             <p>{{ scope.row.name }}</p>
-            <p>品牌：{{ scope.row.brandName }}</p>
+            <p>{{ t('product.brand') }}：{{ scope.row.brandName }}</p>
           </template>
         </el-table-column>
-        <el-table-column label="价格/货号" width="120" align="center">
+        <el-table-column :label="t('product.priceSn')" width="120" align="center">
           <template #default="scope">
-            <p>价格：￥{{ scope.row.price }}</p>
-            <p>货号：{{ scope.row.productSn }}</p>
+            <p>{{ t('product.price') }}：￥{{ scope.row.price }}</p>
+            <p>{{ t('product.sn') }}：{{ scope.row.productSn }}</p>
           </template>
         </el-table-column>
-        <el-table-column label="标签" width="140" align="center">
+        <el-table-column :label="t('product.tag')" width="140" align="center">
           <template #default="scope">
-            <p style="margin: 6px 0px;">上架：
+            <p style="margin: 6px 0px;">{{ t('product.onSale') }}：
               <el-switch @change="handlePublishStatusChange(scope.$index, scope.row)" :active-value="1"
                 :inactive-value="0" v-model="scope.row.publishStatus">
               </el-switch>
             </p>
-            <p style="margin: 6px 0px;">新品：
+            <p style="margin: 6px 0px;">{{ t('product.new') }}：
               <el-switch @change="handleNewStatusChange(scope.$index, scope.row)" :active-value="1" :inactive-value="0"
                 v-model="scope.row.newStatus">
               </el-switch>
             </p>
-            <p style="margin: 6px 0px;">推荐：
+            <p style="margin: 6px 0px;">{{ t('product.recommended') }}：
               <el-switch @change="handleRecommendStatusChange(scope.$index, scope.row)" :active-value="1"
                 :inactive-value="0" v-model="scope.row.recommandStatus">
               </el-switch>
             </p>
           </template>
         </el-table-column>
-        <el-table-column label="排序" width="100" align="center">
+        <el-table-column :label="t('product.sort')" width="100" align="center">
           <template #default="scope">{{ scope.row.sort }}</template>
         </el-table-column>
-        <el-table-column label="SKU库存" width="100" align="center">
+        <el-table-column :label="t('product.skuStock')" width="100" align="center">
           <template #default="scope">
             <el-button type="primary" :icon="Edit" size="large"
               @click="handleShowSkuEditDialog(scope.$index, scope.row)" circle></el-button>
           </template>
         </el-table-column>
-        <el-table-column label="销量" width="100" align="center">
+        <el-table-column :label="t('product.sales')" width="100" align="center">
           <template #default="scope">{{ scope.row.sale }}</template>
         </el-table-column>
-        <el-table-column label="审核状态" width="100" align="center">
+        <el-table-column :label="t('product.verifyStatus')" width="100" align="center">
           <template #default="scope">
             <p>{{ verifyStatusFilter(scope.row.verifyStatus) }}</p>
             <p>
-              <el-button type="primary" link @click="handleShowVerifyDetail(scope.$index, scope.row)">审核详情
+              <el-button type="primary" link @click="handleShowVerifyDetail(scope.$index, scope.row)">
+                {{ t('product.verifyDetail') }}
               </el-button>
             </p>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="160" align="center">
+        <el-table-column :label="t('product.operation')" width="160" align="center">
           <template #default="scope">
             <p>
-              <el-button size="small" @click="handleShowProduct(scope.$index, scope.row)">查看
+              <el-button size="small" @click="handleShowProduct(scope.$index, scope.row)">
+                {{ t('product.view') }}
               </el-button>
-              <el-button size="small" @click="handleUpdateProduct(scope.$index, scope.row)">编辑
+              <el-button size="small" @click="handleUpdateProduct(scope.$index, scope.row)">
+                {{ t('common.edit') }}
               </el-button>
             </p>
             <p>
-              <el-button size="small" @click="handleShowLog(scope.$index, scope.row)">日志
+              <el-button size="small" @click="handleShowLog(scope.$index, scope.row)">
+                {{ t('product.log') }}
               </el-button>
-              <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">删除
+              <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">
+                {{ t('common.delete') }}
               </el-button>
             </p>
           </template>
@@ -508,30 +454,30 @@ const verifyStatusFilter = (value: number) => {
       </el-table>
     </div>
     <div class="batch-operate-container">
-      <el-select v-model="operateType" placeholder="批量操作">
+      <el-select v-model="operateType" :placeholder="t('product.batchOperate')">
         <el-option v-for="item in operates" :key="item.value" :label="item.label" :value="item.value">
         </el-option>
       </el-select>
       <el-button style="margin-left: 20px" class="search-button" @click="handleBatchOperate()" type="primary">
-        确定
+        {{ t('common.confirm') }}
       </el-button>
     </div>
     <div class="pagination-container">
       <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange"
-        layout="total, sizes,prev, pager, next,jumper" :page-size="listQuery.pageSize" :page-sizes="[5, 10, 15]"
+        layout="total, sizes,prev, pager, next,jumper" :page-size="listQuery.pageSize" :page-sizes="PAGE_SIZE_OPTIONS"
         v-model:current-page="listQuery.pageNum" :total="total">
       </el-pagination>
     </div>
-    <el-dialog title="编辑货品信息" v-model="editSkuInfo.dialogVisible" width="40%">
-      <span>商品货号：</span>
+    <el-dialog :title="t('dialog.editProductInfo')" v-model="editSkuInfo.dialogVisible" width="40%">
+      <span>{{ t('dialog.productSn') }}：</span>
       <span>{{ editSkuInfo.productSn }}</span>
-      <el-input placeholder="按sku编号搜索" v-model="editSkuInfo.keyword" style="width: 60%;margin-left: 20px">
+      <el-input :placeholder="t('dialog.searchBySkuCode')" v-model="editSkuInfo.keyword" style="width: 60%;margin-left: 20px">
         <template #append>
           <el-button :icon="Search" @click="handleSearchEditSku"></el-button>
         </template>
       </el-input>
       <el-table style="width: 100%;margin-top: 20px" :data="editSkuInfo.stockList" border>
-        <el-table-column label="SKU编号" align="center">
+        <el-table-column :label="t('dialog.skuCode')" align="center">
           <template #default="scope">
             <el-input v-model="scope.row.skuCode"></el-input>
           </template>
@@ -542,17 +488,17 @@ const verifyStatusFilter = (value: number) => {
             {{ getProductSkuSp(scope.row, index) }}
           </template>
         </el-table-column>
-        <el-table-column label="销售价格" width="80" align="center">
+        <el-table-column :label="t('dialog.salePrice')" width="80" align="center">
           <template #default="scope">
             <el-input v-model="scope.row.price"></el-input>
           </template>
         </el-table-column>
-        <el-table-column label="商品库存" width="80" align="center">
+        <el-table-column :label="t('dialog.productStock')" width="80" align="center">
           <template #default="scope">
             <el-input v-model="scope.row.stock"></el-input>
           </template>
         </el-table-column>
-        <el-table-column label="库存预警值" width="100" align="center">
+        <el-table-column :label="t('dialog.lowStockWarning')" width="100" align="center">
           <template #default="scope">
             <el-input v-model="scope.row.lowStock"></el-input>
           </template>
@@ -560,12 +506,10 @@ const verifyStatusFilter = (value: number) => {
       </el-table>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="editSkuInfo.dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="handleEditSkuConfirm">确 定</el-button>
+          <el-button @click="editSkuInfo.dialogVisible = false">{{ t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="handleEditSkuConfirm">{{ t('common.confirm') }}</el-button>
         </span>
       </template>
     </el-dialog>
   </div>
 </template>
-
-<style></style>

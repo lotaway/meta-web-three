@@ -9,8 +9,7 @@
 import { ref, watch } from 'vue'
 import Editor from '@tinymce/tinymce-vue'
 
-// minio上传路径
-const minioUploadUrl = import.meta.env.VITE_BASE_SERVER_URL + import.meta.env.VITE_MINIO_UPLOAD_URL
+const uploadUrl = import.meta.env.VITE_BASE_SERVER_URL + import.meta.env.VITE_UPLOAD_URL
 
 interface Props {
   modelValue: string
@@ -93,7 +92,7 @@ const initOptions = {
   images_upload_handler: (blobInfo: BlobInfo, progress: UploadProgressCallback) => new Promise((resolve, reject) => {
     // 发起请求上传图片（目前仅支持minio上传）
     const xhr = new XMLHttpRequest()
-    xhr.open('POST', minioUploadUrl)
+    xhr.open('POST', uploadUrl)
     // 上传进度回调
     xhr.upload.onprogress = (e) => {
       progress(e.loaded / e.total * 100)

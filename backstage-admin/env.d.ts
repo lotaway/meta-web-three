@@ -3,12 +3,8 @@
 interface ImportMetaEnv {
   /** 后端API基础路径 */
   readonly VITE_BASE_SERVER_URL: string
-  /** 是否使用OSS对象存储 */
-  readonly VITE_USE_OSS: string
-  /** OSS上传路径 */
-  readonly VITE_OSS_UPLOAD_URL: string
-  /** Minio上传相对路径 */
-  readonly VITE_MINIO_UPLOAD_URL: string
+  /** 文件上传端点路径 */
+  readonly VITE_UPLOAD_URL: string
 }
 /** 扩展import.meta对象类型 */
 interface ImportMeta {
