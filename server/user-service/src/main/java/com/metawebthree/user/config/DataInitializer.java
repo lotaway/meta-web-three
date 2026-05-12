@@ -1,5 +1,6 @@
 package com.metawebthree.user.config;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.user.domain.model.*;
 import com.metawebthree.user.infrastructure.persistence.mapper.*;
 import lombok.RequiredArgsConstructor;
@@ -107,7 +108,22 @@ public class DataInitializer implements CommandLineRunner {
                 resource(407L, "编辑秒杀活动", "/flash/update/*", "sms:flash:update", 4L),
                 resource(408L, "删除秒杀活动", "/flash/delete/*", "sms:flash:delete", 4L),
                 resource(409L, "查看秒杀场次", "/flashSession/list", "sms:flashSession:read", 4L),
-                resource(410L, "编辑秒杀场次", "/flashSession/update/*", "sms:flashSession:update", 4L));
+                resource(410L, "编辑秒杀场次", "/flashSession/update/*", "sms:flashSession:update", 4L),
+                // 菜单管理 (categoryId=3)
+                resource(311L, "查看菜单", "/menu/treeList", "ums:menu:read", 3L),
+                resource(312L, "新增菜单", "/menu/create", "ums:menu:create", 3L),
+                resource(313L, "修改菜单", "/menu/update/*", "ums:menu:update", 3L),
+                resource(314L, "删除菜单", "/menu/delete/*", "ums:menu:delete", 3L),
+                // 资源管理 (categoryId=3)
+                resource(315L, "查看资源", "/resource/list", "ums:resource:read", 3L),
+                resource(316L, "新增资源", "/resource/create", "ums:resource:create", 3L),
+                resource(317L, "修改资源", "/resource/update/*", "ums:resource:update", 3L),
+                resource(318L, "删除资源", "/resource/delete/*", "ums:resource:delete", 3L),
+                // 资源分类管理 (categoryId=3)
+                resource(319L, "查看资源分类", "/resourceCategory/listAll", "ums:resourceCategory:read", 3L),
+                resource(320L, "新增资源分类", "/resourceCategory/create", "ums:resourceCategory:create", 3L),
+                resource(321L, "修改资源分类", "/resourceCategory/update/*", "ums:resourceCategory:update", 3L),
+                resource(322L, "删除资源分类", "/resourceCategory/delete/*", "ums:resourceCategory:delete", 3L));
         for (ResourceDO r : resources) {
             resourceMapper.insert(r);
         }
@@ -261,23 +277,30 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initDefaultAdmin() {
-        long adminCount = adminMapper.selectCount(null);
-        if (adminCount > 0) {
-            log.info("Admin already exists, skipping default admin creation in DataInitializer.");
-            return;
+        AdminDO admin = adminMapper.selectById(1L);
+        if (admin == null) {
+            admin = new AdminDO();
+            admin.setId(1L);
+            admin.setUsername("admin");
+            admin.setPassword("123456");
+            admin.setNickName("超级管理员");
+            admin.setStatus(1);
+            admin.setCreateTime(LocalDateTime.now());
+            adminMapper.insert(admin);
+            log.info("Default admin (admin/123456) created.");
+        } else {
+            log.info("Default admin already exists, skipping creation.");
         }
-        AdminDO admin = new AdminDO();
-        admin.setId(1L);
-        admin.setUsername("admin");
-        admin.setPassword("123456");
-        admin.setNickName("超级管理员");
-        admin.setStatus(1);
-        admin.setCreateTime(LocalDateTime.now());
-        adminMapper.insert(admin);
-        AdminRoleRelationDO rel = new AdminRoleRelationDO();
-        rel.setAdminId(1L);
-        rel.setRoleId(3001L);
-        adminRoleRelationMapper.insert(rel);
-        log.info("Default admin (admin/123456) created with super admin role.");
+        long roleRelationCount = adminRoleRelationMapper.selectCount(
+                new LambdaQueryWrapper<AdminRoleRelationDO>()
+                        .eq(AdminRoleRelationDO::getAdminId, 1L)
+                        .eq(AdminRoleRelationDO::getRoleId, 3001L));
+        if (roleRelationCount == 0) {
+            AdminRoleRelationDO rel = new AdminRoleRelationDO();
+            rel.setAdminId(1L);
+            rel.setRoleId(3001L);
+            adminRoleRelationMapper.insert(rel);
+            log.info("Default admin role relation ensured.");
+        }
     }
 }

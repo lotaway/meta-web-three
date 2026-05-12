@@ -1,4 +1,7 @@
 export const HTTP_TIMEOUT = 5000
+export const HTTP_CODE_SUCCESS = '200'
+export const HTTP_CODE_UNAUTHORIZED = '401'
+export const HTTP_CODE_SERVER_ERROR = 500
 
 export const MESSAGE_DURATION = 3000
 export const MESSAGE_DURATION_SHORT = 1000
@@ -6,6 +9,18 @@ export const MESSAGE_DURATION_SHORT = 1000
 export const DEFAULT_PAGE_SIZE = 10
 export const PAGE_SIZE_OPTIONS = [5, 10, 15]
 
-export const API_TIMEOUT = 5000
-export const UPLOAD_MAX_SIZE = 10 * 1024 * 1024 // 10MB
-export const ALLOWED_IMAGE_TYPES = ['jpg', 'png']
+export const DEFAULT_BRAND_PAGE_SIZE = 100
+export const DEFAULT_SKU_PAGE_SIZE = 10
+
+export const CASCADER_DEPTH = 2
+
+export const PUBLISH_ON = 1
+export const PUBLISH_OFF = 0
+export const RECOMMEND_ON = 1
+export const RECOMMEND_OFF = 0
+export const NEW_ON = 1
+export const NEW_OFF = 0
+export const DELETE_ON = 1
+export const DELETE_OFF = 0
+
+export const ATTR_TYPE_SPEC = 0

@@ -1,6 +1,7 @@
 package com.metawebthree.user.interfaces.web;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.metawebthree.common.annotations.RequirePermission;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.user.application.MenuService;
 import com.metawebthree.user.domain.model.MenuDO;
@@ -23,6 +24,7 @@ public class MenuController {
 
     @Operation(summary = "树形结构返回所有菜单")
     @GetMapping("/treeList")
+    @RequirePermission("ums:menu:read")
     public ApiResponse<List<Map<String, Object>>> treeList() {
         List<MenuDO> allMenus = menuService.treeList();
         Map<Long, List<MenuDO>> parentMap = allMenus.stream()
@@ -53,12 +55,14 @@ public class MenuController {
 
     @Operation(summary = "根据父ID分页查询菜单")
     @GetMapping("/list/{parentId}")
+    @RequirePermission("ums:menu:read")
     public ApiResponse<List<MenuDO>> listByParent(@PathVariable Long parentId) {
         return ApiResponse.success(menuService.listByParentId(parentId));
     }
 
     @Operation(summary = "根据ID删除菜单")
     @PostMapping("/delete/{id}")
+    @RequirePermission("ums:menu:delete")
     public ApiResponse<Void> delete(@PathVariable Long id) {
         menuService.removeById(id);
         return ApiResponse.success();
@@ -66,6 +70,7 @@ public class MenuController {
 
     @Operation(summary = "添加菜单")
     @PostMapping("/create")
+    @RequirePermission("ums:menu:create")
     public ApiResponse<Void> create(@RequestBody MenuDO menu) {
         menu.setCreateTime(LocalDateTime.now());
         menuService.save(menu);
@@ -74,6 +79,7 @@ public class MenuController {
 
     @Operation(summary = "修改菜单")
     @PostMapping("/update/{id}")
+    @RequirePermission("ums:menu:update")
     public ApiResponse<Void> update(@PathVariable Long id, @RequestBody MenuDO menu) {
         menu.setId(id);
         menuService.updateById(menu);
@@ -82,12 +88,14 @@ public class MenuController {
 
     @Operation(summary = "根据ID获取菜单")
     @GetMapping("/{id}")
+    @RequirePermission("ums:menu:read")
     public ApiResponse<MenuDO> getById(@PathVariable Long id) {
         return ApiResponse.success(menuService.getById(id));
     }
 
     @Operation(summary = "修改菜单显示状态")
     @PostMapping("/updateHidden/{id}")
+    @RequirePermission("ums:menu:update")
     public ApiResponse<Void> updateHidden(@PathVariable Long id, @RequestParam Integer hidden) {
         MenuDO menu = new MenuDO();
         menu.setId(id);

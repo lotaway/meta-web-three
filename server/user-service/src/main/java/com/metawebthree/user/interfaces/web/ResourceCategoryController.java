@@ -1,5 +1,6 @@
 package com.metawebthree.user.interfaces.web;
 
+import com.metawebthree.common.annotations.RequirePermission;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.user.application.ResourceCategoryService;
 import com.metawebthree.user.domain.model.ResourceCategoryDO;
@@ -21,12 +22,14 @@ public class ResourceCategoryController {
 
     @Operation(summary = "查询所有资源分类")
     @GetMapping("/listAll")
+    @RequirePermission("ums:resourceCategory:read")
     public ApiResponse<List<ResourceCategoryDO>> listAll() {
         return ApiResponse.success(resourceCategoryService.listAll());
     }
 
     @Operation(summary = "添加资源分类")
     @PostMapping("/create")
+    @RequirePermission("ums:resourceCategory:create")
     public ApiResponse<Void> create(@RequestBody ResourceCategoryDO category) {
         category.setCreateTime(LocalDateTime.now());
         resourceCategoryService.save(category);
@@ -35,6 +38,7 @@ public class ResourceCategoryController {
 
     @Operation(summary = "修改资源分类")
     @PostMapping("/update/{id}")
+    @RequirePermission("ums:resourceCategory:update")
     public ApiResponse<Void> update(@PathVariable Long id, @RequestBody ResourceCategoryDO category) {
         category.setId(id);
         resourceCategoryService.updateById(category);
@@ -43,6 +47,7 @@ public class ResourceCategoryController {
 
     @Operation(summary = "删除资源分类")
     @PostMapping("/delete/{id}")
+    @RequirePermission("ums:resourceCategory:delete")
     public ApiResponse<Void> delete(@PathVariable Long id) {
         resourceCategoryService.removeById(id);
         return ApiResponse.success();
