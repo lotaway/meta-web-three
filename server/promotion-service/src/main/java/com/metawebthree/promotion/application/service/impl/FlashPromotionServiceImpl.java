@@ -1,5 +1,6 @@
 package com.metawebthree.promotion.application.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.metawebthree.promotion.application.service.FlashPromotionService;
@@ -16,7 +17,10 @@ public class FlashPromotionServiceImpl implements FlashPromotionService {
 
     @Override
     public Page<FlashPromotionDO> list(Integer pageNum, Integer pageSize, String keyword) {
-        return mapper.selectPage(new Page<>(pageNum, pageSize), null);
+        LambdaQueryWrapper<FlashPromotionDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.like(keyword != null && !keyword.isBlank(), FlashPromotionDO::getTitle, keyword);
+        wrapper.orderByDesc(FlashPromotionDO::getCreateTime);
+        return mapper.selectPage(new Page<>(pageNum, pageSize), wrapper);
     }
 
     @Override

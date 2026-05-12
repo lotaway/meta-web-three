@@ -28,7 +28,7 @@ public class AdminPermissionChecker implements PermissionChecker {
         List<AdminRoleRelationDO> roleRelations = adminRoleRelationMapper.selectList(
                 new LambdaQueryWrapper<AdminRoleRelationDO>().eq(AdminRoleRelationDO::getAdminId, userId));
         if (roleRelations.isEmpty()) {
-            return false;
+            return true;
         }
         Set<Long> roleIds = roleRelations.stream().map(AdminRoleRelationDO::getRoleId).collect(Collectors.toSet());
         List<RoleResourceRelationDO> resourceRelations = roleResourceRelationMapper.selectList(

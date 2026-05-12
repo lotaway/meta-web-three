@@ -3,6 +3,10 @@ server:
 spring:
   application:
     name: media-service
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 512MB
   profiles:
     active: dev
 dubbo:

@@ -29,7 +29,7 @@ public enum ResponseStatus {
     PAYMENT_EXCHANGE_FAILED("5002", "兑换失败"),
     PAYMENT_PRICE_NOT_FOUND("5003", "价格不存在"),
 
-    MEDIA_FILE_NOT_FOUND("6001", "文件不存在"),
+    MEDIA_NOT_FOUND("6001", "文件不存在"),
     MEDIA_UPLOAD_FAILED("6002", "文件上传失败"),
     MEDIA_DELETE_FAILED("6003", "文件删除失败"),
 
