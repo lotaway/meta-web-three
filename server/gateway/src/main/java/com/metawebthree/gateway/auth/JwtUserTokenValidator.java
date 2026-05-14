@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
+import com.metawebthree.common.auth.TokenBlacklistService;
 import com.metawebthree.common.utils.UserJwtUtil;
 
 import io.jsonwebtoken.Claims;
@@ -12,15 +13,20 @@ import io.jsonwebtoken.Claims;
 public class JwtUserTokenValidator implements UserTokenValidator {
 
     private final UserJwtUtil userJwtUtil;
+    private final TokenBlacklistService tokenBlacklistService;
 
-    public JwtUserTokenValidator(UserJwtUtil userJwtUtil) {
+    public JwtUserTokenValidator(UserJwtUtil userJwtUtil, TokenBlacklistService tokenBlacklistService) {
         this.userJwtUtil = userJwtUtil;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
 
     @Override
     public UserTokenClaims validate(String token) {
         Optional<Claims> claimsCandidate = userJwtUtil.tryDecode(token);
         if (claimsCandidate.isEmpty()) {
+            return null;
+        }
+        if (tokenBlacklistService.isBlacklisted(token)) {
             return null;
         }
         Claims claims = claimsCandidate.get();
