@@ -6,25 +6,19 @@ import { Tickets } from '@element-plus/icons-vue'
 import { getMenuListByParentIdAPI, deleteMenuByIdAPI, menuUpdateHiddenByIdAPI } from '@/apis/menu.ts'
 import type { UmsMenu } from '@/types/menu'
 import type { PageParam } from '@/types/common'
+import { t } from '@/locales'
 
-// 获取路由对象
 const router = useRouter()
 const route = useRoute()
 
-// 菜单列表查询参数
 const listQuery = ref<PageParam>({
   pageNum: 1,
   pageSize: 10
 })
-// 菜单列表数据
 const list = ref<UmsMenu[]>([])
-// 父级菜单ID
 const parentId = ref(0)
-// 分页总数
 const total = ref<number>()
-// 表格加载状态
 const listLoading = ref(true)
-// 重置父ID
 const resetParentId = () => {
   listQuery.value.pageNum = 1
   if (route.query.parentId) {
@@ -33,7 +27,6 @@ const resetParentId = () => {
     parentId.value = 0
   }
 }
-// 获取菜单列表
 const getList = async () => {
   listLoading.value = true
   try {
@@ -47,31 +40,26 @@ const getList = async () => {
   }
 }
 
-// 组件挂载后执行
 onMounted(() => {
   resetParentId()
   getList()
 })
 
-// 处理添加菜单
 const handleAddMenu = () => {
   router.push('/ums/addMenu')
 }
 
-// 处理每页条数变化
 const handleSizeChange = (val: number) => {
   listQuery.value.pageNum = 1
   listQuery.value.pageSize = val
   getList()
 }
 
-// 处理当前页变化
 const handleCurrentChange = (val: number) => {
   listQuery.value.pageNum = val
   getList()
 }
 
-// 处理隐藏状态变化
 const handleHiddenChange = async (index: number, row: UmsMenu) => {
   await menuUpdateHiddenByIdAPI(row.id!, { hidden: row.hidden })
   ElMessage({
@@ -81,17 +69,14 @@ const handleHiddenChange = async (index: number, row: UmsMenu) => {
   })
 }
 
-// 处理显示下级
 const handleShowNextLevel = (index: number, row: UmsMenu) => {
   router.push({ path: '/ums/menu', query: { parentId: row.id } })
 }
 
-// 处理更新
 const handleUpdate = (index: number, row: UmsMenu) => {
   router.push({ path: '/ums/updateMenu', query: { id: row.id } })
 }
 
-// 处理删除
 const handleDelete = async (index: number, row: UmsMenu) => {
   await ElMessageBox.confirm('是否要删除该菜单', '提示', {
     confirmButtonText: '确定',
@@ -111,13 +96,15 @@ const handleDelete = async (index: number, row: UmsMenu) => {
   }
 }
 
-// 监听路由变化
 watch(() => route, () => {
   resetParentId()
   getList()
 }, { deep: true })
 
-// 级别过滤器
+const getMenuTitle = (title: string) => {
+  return t(`menu.${title}`) || title
+}
+
 const levelFilter = (value: number) => {
   if (value === 0) {
     return '一级'
@@ -127,7 +114,6 @@ const levelFilter = (value: number) => {
   return ''
 }
 
-// 禁用下级过滤器
 const disableNextLevel = (value: number) => {
   if (value === 0) {
     return false
@@ -154,7 +140,7 @@ const disableNextLevel = (value: number) => {
           <template #default="scope">{{ scope.row.id }}</template>
         </el-table-column>
         <el-table-column label="菜单名称" align="center">
-          <template #default="scope">{{ scope.row.title }}</template>
+          <template #default="scope">{{ getMenuTitle(scope.row.title) }}</template>
         </el-table-column>
         <el-table-column label="菜单级数" width="100" align="center">
           <template #default="scope">{{ levelFilter(scope.row.level) }}</template>

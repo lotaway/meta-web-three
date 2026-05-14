@@ -3,15 +3,16 @@ import { shallowRef } from 'vue'
 import { asyncRouterMap, constantRouterMap } from '@/router/index'
 import type { UmsMenu } from '@/types/menu'
 import type { RouteRecordExt } from '@/types/router'
+import i18n from '@/locales'
 
-//判断是否有权限访问该菜单
+const { t } = i18n.global
+
 function hasPermission(menus: UmsMenu[], route: RouteRecordExt) {
   if (route.name) {
     const currMenu = getMenu(route.name as string, menus)
     if (currMenu != null) {
-      //设置菜单的标题、图标和可见性
       if (currMenu.title != null && currMenu.title !== '') {
-        route.meta!.title = currMenu.title
+        route.meta!.title = t(`menu.${currMenu.title}`) || currMenu.title
       }
       if (currMenu.icon != null && currMenu.title !== '') {
         route.meta!.icon = currMenu.icon

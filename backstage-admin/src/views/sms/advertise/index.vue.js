@@ -1,0 +1,914 @@
+/// <reference types="../../../../../../../.npm/_npx/2db181330ea4b15b/node_modules/@vue/language-core/types/template-helpers.d.ts" />
+/// <reference types="../../../../../../../.npm/_npx/2db181330ea4b15b/node_modules/@vue/language-core/types/props-fallback.d.ts" />
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Search, Tickets } from '@element-plus/icons-vue';
+import { getHomeAdvertiseListAPI, homeAdvertiseUpdateStatusAPI, deleteHomeAdvertiseAPI } from '@/apis/homeAdvertise';
+import { formatDateTime } from '@/utils/datetime';
+// 获取路由
+const router = useRouter();
+// 列表查询参数
+const listQuery = ref({
+    pageNum: 1,
+    pageSize: 10
+});
+// 轮播位置选项
+const typeOptions = ref([
+    {
+        label: 'PC首页轮播',
+        value: 0
+    },
+    {
+        label: 'APP首页轮播',
+        value: 1
+    }
+]);
+// 列表数据
+const list = ref([]);
+// 总条数
+const total = ref(0);
+// 加载状态
+const listLoading = ref(false);
+// 获取列表数据
+const getList = async () => {
+    listLoading.value = true;
+    const res = await getHomeAdvertiseListAPI(listQuery.value);
+    listLoading.value = false;
+    list.value = res.data.list;
+    total.value = res.data.total;
+};
+// 组件挂载后执行
+onMounted(() => {
+    getList();
+});
+// 选中的条目
+const multipleSelection = ref([]);
+// 批量操作类型
+const operates = ref([
+    {
+        label: "删除",
+        value: 0
+    }
+]);
+// 档期批量操作类型
+const operateType = ref();
+// 重置搜索
+const handleResetSearch = () => {
+    listQuery.value = { pageNum: 1, pageSize: 10 };
+};
+// 搜索列表
+const handleSearchList = () => {
+    listQuery.value.pageNum = 1;
+    getList();
+};
+// 处理表格选择变化
+const handleSelectionChange = (val) => {
+    multipleSelection.value = val;
+};
+// 处理分页大小变化
+const handleSizeChange = (val) => {
+    listQuery.value.pageNum = 1;
+    listQuery.value.pageSize = val;
+    getList();
+};
+// 处理当前页变化
+const handleCurrentChange = (val) => {
+    listQuery.value.pageNum = val;
+    getList();
+};
+// 处理状态更新
+const handleUpdateStatus = async (index, row) => {
+    try {
+        await ElMessageBox.confirm('是否要修改上线/下线状态?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+        });
+        await homeAdvertiseUpdateStatusAPI({ id: row.id, status: row.status });
+        getList();
+        ElMessage.success({
+            type: 'success',
+            message: '修改成功!'
+        });
+    }
+    catch {
+        getList();
+    }
+};
+// 删除广告
+const deleteHomeAdvertise = async (ids) => {
+    await ElMessageBox.confirm('是否要删除该广告?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+    });
+    await deleteHomeAdvertiseAPI({ ids: ids.join(',') });
+    getList();
+    ElMessage.success({
+        type: 'success',
+        message: '删除成功!'
+    });
+};
+// 处理删除
+const handleDelete = async (index, row) => {
+    await deleteHomeAdvertise([row.id]);
+};
+// 处理批量操作
+const handleBatchOperate = async () => {
+    if (multipleSelection.value.length < 1) {
+        ElMessage.warning({
+            message: '请选择一条记录',
+            duration: 1000
+        });
+        return;
+    }
+    if (operateType.value === 0) {
+        //删除
+        await deleteHomeAdvertise(multipleSelection.value.map(item => item.id));
+    }
+    else {
+        ElMessage.warning({
+            message: '请选择批量操作类型',
+            duration: 1000
+        });
+    }
+};
+// 处理添加
+const handleAdd = () => {
+    router.push({ path: '/sms/addAdvertise' });
+};
+// 处理更新
+const handleUpdate = (index, row) => {
+    router.push({ path: '/sms/updateAdvertise', query: { id: row.id } });
+};
+// 格式化类型
+const formatType = (type) => {
+    if (type === 1) {
+        return 'APP首页轮播';
+    }
+    else {
+        return 'PC首页轮播';
+    }
+};
+const __VLS_ctx = {
+    ...{},
+    ...{},
+};
+let __VLS_components;
+let __VLS_intrinsics;
+let __VLS_directives;
+__VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
+    ...{ class: "app-container" },
+});
+/** @type {__VLS_StyleScopedClasses['app-container']} */ ;
+let __VLS_0;
+/** @ts-ignore @type { | typeof __VLS_components.elCard | typeof __VLS_components.ElCard | typeof __VLS_components['el-card'] | typeof __VLS_components.elCard | typeof __VLS_components.ElCard | typeof __VLS_components['el-card']} */
+elCard;
+// @ts-ignore
+const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
+    ...{ class: "filter-container" },
+    shadow: "never",
+}));
+const __VLS_2 = __VLS_1({
+    ...{ class: "filter-container" },
+    shadow: "never",
+}, ...__VLS_functionalComponentArgsRest(__VLS_1));
+/** @type {__VLS_StyleScopedClasses['filter-container']} */ ;
+const { default: __VLS_5 } = __VLS_3.slots;
+__VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
+let __VLS_6;
+/** @ts-ignore @type { | typeof __VLS_components.elIcon | typeof __VLS_components.ElIcon | typeof __VLS_components['el-icon'] | typeof __VLS_components.elIcon | typeof __VLS_components.ElIcon | typeof __VLS_components['el-icon']} */
+elIcon;
+// @ts-ignore
+const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
+    ...{ class: "el-icon-middle" },
+}));
+const __VLS_8 = __VLS_7({
+    ...{ class: "el-icon-middle" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_7));
+/** @type {__VLS_StyleScopedClasses['el-icon-middle']} */ ;
+const { default: __VLS_11 } = __VLS_9.slots;
+let __VLS_12;
+/** @ts-ignore @type { | typeof __VLS_components.Search} */
+Search;
+// @ts-ignore
+const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({}));
+const __VLS_14 = __VLS_13({}, ...__VLS_functionalComponentArgsRest(__VLS_13));
+var __VLS_9;
+__VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({});
+let __VLS_17;
+/** @ts-ignore @type { | typeof __VLS_components.elButton | typeof __VLS_components.ElButton | typeof __VLS_components['el-button'] | typeof __VLS_components.elButton | typeof __VLS_components.ElButton | typeof __VLS_components['el-button']} */
+elButton;
+// @ts-ignore
+const __VLS_18 = __VLS_asFunctionalComponent1(__VLS_17, new __VLS_17({
+    ...{ 'onClick': {} },
+    ...{ style: {} },
+    type: "primary",
+}));
+const __VLS_19 = __VLS_18({
+    ...{ 'onClick': {} },
+    ...{ style: {} },
+    type: "primary",
+}, ...__VLS_functionalComponentArgsRest(__VLS_18));
+let __VLS_22;
+const __VLS_23 = ({ click: {} },
+    { onClick: (...[$event]) => {
+            __VLS_ctx.handleSearchList();
+            // @ts-ignore
+            [handleSearchList,];
+        } });
+const { default: __VLS_24 } = __VLS_20.slots;
+// @ts-ignore
+[];
+var __VLS_20;
+var __VLS_21;
+let __VLS_25;
+/** @ts-ignore @type { | typeof __VLS_components.elButton | typeof __VLS_components.ElButton | typeof __VLS_components['el-button'] | typeof __VLS_components.elButton | typeof __VLS_components.ElButton | typeof __VLS_components['el-button']} */
+elButton;
+// @ts-ignore
+const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({
+    ...{ 'onClick': {} },
+    ...{ style: {} },
+}));
+const __VLS_27 = __VLS_26({
+    ...{ 'onClick': {} },
+    ...{ style: {} },
+}, ...__VLS_functionalComponentArgsRest(__VLS_26));
+let __VLS_30;
+const __VLS_31 = ({ click: {} },
+    { onClick: (...[$event]) => {
+            __VLS_ctx.handleResetSearch();
+            // @ts-ignore
+            [handleResetSearch,];
+        } });
+const { default: __VLS_32 } = __VLS_28.slots;
+// @ts-ignore
+[];
+var __VLS_28;
+var __VLS_29;
+__VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
+    ...{ style: {} },
+});
+let __VLS_33;
+/** @ts-ignore @type { | typeof __VLS_components.elForm | typeof __VLS_components.ElForm | typeof __VLS_components['el-form'] | typeof __VLS_components.elForm | typeof __VLS_components.ElForm | typeof __VLS_components['el-form']} */
+elForm;
+// @ts-ignore
+const __VLS_34 = __VLS_asFunctionalComponent1(__VLS_33, new __VLS_33({
+    inline: (true),
+    model: (__VLS_ctx.listQuery),
+    labelWidth: "140px",
+}));
+const __VLS_35 = __VLS_34({
+    inline: (true),
+    model: (__VLS_ctx.listQuery),
+    labelWidth: "140px",
+}, ...__VLS_functionalComponentArgsRest(__VLS_34));
+const { default: __VLS_38 } = __VLS_36.slots;
+let __VLS_39;
+/** @ts-ignore @type { | typeof __VLS_components.elFormItem | typeof __VLS_components.ElFormItem | typeof __VLS_components['el-form-item'] | typeof __VLS_components.elFormItem | typeof __VLS_components.ElFormItem | typeof __VLS_components['el-form-item']} */
+elFormItem;
+// @ts-ignore
+const __VLS_40 = __VLS_asFunctionalComponent1(__VLS_39, new __VLS_39({
+    label: "广告名称：",
+}));
+const __VLS_41 = __VLS_40({
+    label: "广告名称：",
+}, ...__VLS_functionalComponentArgsRest(__VLS_40));
+const { default: __VLS_44 } = __VLS_42.slots;
+let __VLS_45;
+/** @ts-ignore @type { | typeof __VLS_components.elInput | typeof __VLS_components.ElInput | typeof __VLS_components['el-input'] | typeof __VLS_components.elInput | typeof __VLS_components.ElInput | typeof __VLS_components['el-input']} */
+elInput;
+// @ts-ignore
+const __VLS_46 = __VLS_asFunctionalComponent1(__VLS_45, new __VLS_45({
+    modelValue: (__VLS_ctx.listQuery.name),
+    ...{ class: "input-width" },
+    placeholder: "广告名称",
+}));
+const __VLS_47 = __VLS_46({
+    modelValue: (__VLS_ctx.listQuery.name),
+    ...{ class: "input-width" },
+    placeholder: "广告名称",
+}, ...__VLS_functionalComponentArgsRest(__VLS_46));
+/** @type {__VLS_StyleScopedClasses['input-width']} */ ;
+// @ts-ignore
+[listQuery, listQuery,];
+var __VLS_42;
+let __VLS_50;
+/** @ts-ignore @type { | typeof __VLS_components.elFormItem | typeof __VLS_components.ElFormItem | typeof __VLS_components['el-form-item'] | typeof __VLS_components.elFormItem | typeof __VLS_components.ElFormItem | typeof __VLS_components['el-form-item']} */
+elFormItem;
+// @ts-ignore
+const __VLS_51 = __VLS_asFunctionalComponent1(__VLS_50, new __VLS_50({
+    label: "广告位置：",
+}));
+const __VLS_52 = __VLS_51({
+    label: "广告位置：",
+}, ...__VLS_functionalComponentArgsRest(__VLS_51));
+const { default: __VLS_55 } = __VLS_53.slots;
+let __VLS_56;
+/** @ts-ignore @type { | typeof __VLS_components.elSelect | typeof __VLS_components.ElSelect | typeof __VLS_components['el-select'] | typeof __VLS_components.elSelect | typeof __VLS_components.ElSelect | typeof __VLS_components['el-select']} */
+elSelect;
+// @ts-ignore
+const __VLS_57 = __VLS_asFunctionalComponent1(__VLS_56, new __VLS_56({
+    modelValue: (__VLS_ctx.listQuery.type),
+    placeholder: "全部",
+    clearable: true,
+    ...{ class: "input-width" },
+}));
+const __VLS_58 = __VLS_57({
+    modelValue: (__VLS_ctx.listQuery.type),
+    placeholder: "全部",
+    clearable: true,
+    ...{ class: "input-width" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_57));
+/** @type {__VLS_StyleScopedClasses['input-width']} */ ;
+const { default: __VLS_61 } = __VLS_59.slots;
+for (const [item] of __VLS_vFor((__VLS_ctx.typeOptions))) {
+    let __VLS_62;
+    /** @ts-ignore @type { | typeof __VLS_components.elOption | typeof __VLS_components.ElOption | typeof __VLS_components['el-option'] | typeof __VLS_components.elOption | typeof __VLS_components.ElOption | typeof __VLS_components['el-option']} */
+    elOption;
+    // @ts-ignore
+    const __VLS_63 = __VLS_asFunctionalComponent1(__VLS_62, new __VLS_62({
+        key: (item.value),
+        label: (item.label),
+        value: (item.value),
+    }));
+    const __VLS_64 = __VLS_63({
+        key: (item.value),
+        label: (item.label),
+        value: (item.value),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_63));
+    // @ts-ignore
+    [listQuery, typeOptions,];
+}
+// @ts-ignore
+[];
+var __VLS_59;
+// @ts-ignore
+[];
+var __VLS_53;
+let __VLS_67;
+/** @ts-ignore @type { | typeof __VLS_components.elFormItem | typeof __VLS_components.ElFormItem | typeof __VLS_components['el-form-item'] | typeof __VLS_components.elFormItem | typeof __VLS_components.ElFormItem | typeof __VLS_components['el-form-item']} */
+elFormItem;
+// @ts-ignore
+const __VLS_68 = __VLS_asFunctionalComponent1(__VLS_67, new __VLS_67({
+    label: "到期时间：",
+}));
+const __VLS_69 = __VLS_68({
+    label: "到期时间：",
+}, ...__VLS_functionalComponentArgsRest(__VLS_68));
+const { default: __VLS_72 } = __VLS_70.slots;
+let __VLS_73;
+/** @ts-ignore @type { | typeof __VLS_components.elDatePicker | typeof __VLS_components.ElDatePicker | typeof __VLS_components['el-date-picker'] | typeof __VLS_components.elDatePicker | typeof __VLS_components.ElDatePicker | typeof __VLS_components['el-date-picker']} */
+elDatePicker;
+// @ts-ignore
+const __VLS_74 = __VLS_asFunctionalComponent1(__VLS_73, new __VLS_73({
+    ...{ class: "input-width" },
+    modelValue: (__VLS_ctx.listQuery.endTime),
+    valueFormat: "yyyy-MM-dd",
+    type: "date",
+    placeholder: "请选择时间",
+}));
+const __VLS_75 = __VLS_74({
+    ...{ class: "input-width" },
+    modelValue: (__VLS_ctx.listQuery.endTime),
+    valueFormat: "yyyy-MM-dd",
+    type: "date",
+    placeholder: "请选择时间",
+}, ...__VLS_functionalComponentArgsRest(__VLS_74));
+/** @type {__VLS_StyleScopedClasses['input-width']} */ ;
+// @ts-ignore
+[listQuery,];
+var __VLS_70;
+// @ts-ignore
+[];
+var __VLS_36;
+// @ts-ignore
+[];
+var __VLS_3;
+let __VLS_78;
+/** @ts-ignore @type { | typeof __VLS_components.elCard | typeof __VLS_components.ElCard | typeof __VLS_components['el-card'] | typeof __VLS_components.elCard | typeof __VLS_components.ElCard | typeof __VLS_components['el-card']} */
+elCard;
+// @ts-ignore
+const __VLS_79 = __VLS_asFunctionalComponent1(__VLS_78, new __VLS_78({
+    ...{ class: "operate-container" },
+    shadow: "never",
+}));
+const __VLS_80 = __VLS_79({
+    ...{ class: "operate-container" },
+    shadow: "never",
+}, ...__VLS_functionalComponentArgsRest(__VLS_79));
+/** @type {__VLS_StyleScopedClasses['operate-container']} */ ;
+const { default: __VLS_83 } = __VLS_81.slots;
+let __VLS_84;
+/** @ts-ignore @type { | typeof __VLS_components.elIcon | typeof __VLS_components.ElIcon | typeof __VLS_components['el-icon'] | typeof __VLS_components.elIcon | typeof __VLS_components.ElIcon | typeof __VLS_components['el-icon']} */
+elIcon;
+// @ts-ignore
+const __VLS_85 = __VLS_asFunctionalComponent1(__VLS_84, new __VLS_84({
+    ...{ class: "el-icon-middle" },
+}));
+const __VLS_86 = __VLS_85({
+    ...{ class: "el-icon-middle" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_85));
+/** @type {__VLS_StyleScopedClasses['el-icon-middle']} */ ;
+const { default: __VLS_89 } = __VLS_87.slots;
+let __VLS_90;
+/** @ts-ignore @type { | typeof __VLS_components.Tickets} */
+Tickets;
+// @ts-ignore
+const __VLS_91 = __VLS_asFunctionalComponent1(__VLS_90, new __VLS_90({}));
+const __VLS_92 = __VLS_91({}, ...__VLS_functionalComponentArgsRest(__VLS_91));
+// @ts-ignore
+[];
+var __VLS_87;
+__VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({});
+let __VLS_95;
+/** @ts-ignore @type { | typeof __VLS_components.elButton | typeof __VLS_components.ElButton | typeof __VLS_components['el-button'] | typeof __VLS_components.elButton | typeof __VLS_components.ElButton | typeof __VLS_components['el-button']} */
+elButton;
+// @ts-ignore
+const __VLS_96 = __VLS_asFunctionalComponent1(__VLS_95, new __VLS_95({
+    ...{ 'onClick': {} },
+    ...{ class: "btn-add" },
+}));
+const __VLS_97 = __VLS_96({
+    ...{ 'onClick': {} },
+    ...{ class: "btn-add" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_96));
+let __VLS_100;
+const __VLS_101 = ({ click: {} },
+    { onClick: (...[$event]) => {
+            __VLS_ctx.handleAdd();
+            // @ts-ignore
+            [handleAdd,];
+        } });
+/** @type {__VLS_StyleScopedClasses['btn-add']} */ ;
+const { default: __VLS_102 } = __VLS_98.slots;
+// @ts-ignore
+[];
+var __VLS_98;
+var __VLS_99;
+// @ts-ignore
+[];
+var __VLS_81;
+__VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
+    ...{ class: "table-container" },
+});
+/** @type {__VLS_StyleScopedClasses['table-container']} */ ;
+let __VLS_103;
+/** @ts-ignore @type { | typeof __VLS_components.elTable | typeof __VLS_components.ElTable | typeof __VLS_components['el-table'] | typeof __VLS_components.elTable | typeof __VLS_components.ElTable | typeof __VLS_components['el-table']} */
+elTable;
+// @ts-ignore
+const __VLS_104 = __VLS_asFunctionalComponent1(__VLS_103, new __VLS_103({
+    ...{ 'onSelectionChange': {} },
+    ref: "homeAdvertiseTable",
+    data: (__VLS_ctx.list),
+    ...{ style: {} },
+    border: true,
+}));
+const __VLS_105 = __VLS_104({
+    ...{ 'onSelectionChange': {} },
+    ref: "homeAdvertiseTable",
+    data: (__VLS_ctx.list),
+    ...{ style: {} },
+    border: true,
+}, ...__VLS_functionalComponentArgsRest(__VLS_104));
+let __VLS_108;
+const __VLS_109 = ({ selectionChange: {} },
+    { onSelectionChange: (__VLS_ctx.handleSelectionChange) });
+__VLS_asFunctionalDirective(__VLS_directives.vLoading, {})(null, { ...__VLS_directiveBindingRestFields, value: (__VLS_ctx.listLoading) }, null, null);
+var __VLS_110 = {};
+const { default: __VLS_112 } = __VLS_106.slots;
+let __VLS_113;
+/** @ts-ignore @type { | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column'] | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column']} */
+elTableColumn;
+// @ts-ignore
+const __VLS_114 = __VLS_asFunctionalComponent1(__VLS_113, new __VLS_113({
+    type: "selection",
+    width: "60",
+    align: "center",
+}));
+const __VLS_115 = __VLS_114({
+    type: "selection",
+    width: "60",
+    align: "center",
+}, ...__VLS_functionalComponentArgsRest(__VLS_114));
+let __VLS_118;
+/** @ts-ignore @type { | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column'] | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column']} */
+elTableColumn;
+// @ts-ignore
+const __VLS_119 = __VLS_asFunctionalComponent1(__VLS_118, new __VLS_118({
+    label: "编号",
+    width: "100",
+    align: "center",
+}));
+const __VLS_120 = __VLS_119({
+    label: "编号",
+    width: "100",
+    align: "center",
+}, ...__VLS_functionalComponentArgsRest(__VLS_119));
+const { default: __VLS_123 } = __VLS_121.slots;
+{
+    const { default: __VLS_124 } = __VLS_121.slots;
+    const [scope] = __VLS_vSlot(__VLS_124);
+    (scope.row.id);
+    // @ts-ignore
+    [list, handleSelectionChange, vLoading, listLoading,];
+}
+// @ts-ignore
+[];
+var __VLS_121;
+let __VLS_125;
+/** @ts-ignore @type { | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column'] | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column']} */
+elTableColumn;
+// @ts-ignore
+const __VLS_126 = __VLS_asFunctionalComponent1(__VLS_125, new __VLS_125({
+    label: "广告名称",
+    align: "center",
+}));
+const __VLS_127 = __VLS_126({
+    label: "广告名称",
+    align: "center",
+}, ...__VLS_functionalComponentArgsRest(__VLS_126));
+const { default: __VLS_130 } = __VLS_128.slots;
+{
+    const { default: __VLS_131 } = __VLS_128.slots;
+    const [scope] = __VLS_vSlot(__VLS_131);
+    (scope.row.name);
+    // @ts-ignore
+    [];
+}
+// @ts-ignore
+[];
+var __VLS_128;
+let __VLS_132;
+/** @ts-ignore @type { | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column'] | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column']} */
+elTableColumn;
+// @ts-ignore
+const __VLS_133 = __VLS_asFunctionalComponent1(__VLS_132, new __VLS_132({
+    label: "广告位置",
+    width: "120",
+    align: "center",
+}));
+const __VLS_134 = __VLS_133({
+    label: "广告位置",
+    width: "120",
+    align: "center",
+}, ...__VLS_functionalComponentArgsRest(__VLS_133));
+const { default: __VLS_137 } = __VLS_135.slots;
+{
+    const { default: __VLS_138 } = __VLS_135.slots;
+    const [scope] = __VLS_vSlot(__VLS_138);
+    (__VLS_ctx.formatType(scope.row.type));
+    // @ts-ignore
+    [formatType,];
+}
+// @ts-ignore
+[];
+var __VLS_135;
+let __VLS_139;
+/** @ts-ignore @type { | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column'] | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column']} */
+elTableColumn;
+// @ts-ignore
+const __VLS_140 = __VLS_asFunctionalComponent1(__VLS_139, new __VLS_139({
+    label: "广告图片",
+    width: "180",
+    align: "center",
+}));
+const __VLS_141 = __VLS_140({
+    label: "广告图片",
+    width: "180",
+    align: "center",
+}, ...__VLS_functionalComponentArgsRest(__VLS_140));
+const { default: __VLS_144 } = __VLS_142.slots;
+{
+    const { default: __VLS_145 } = __VLS_142.slots;
+    const [scope] = __VLS_vSlot(__VLS_145);
+    __VLS_asFunctionalElement1(__VLS_intrinsics.img)({
+        ...{ style: {} },
+        src: (scope.row.pic),
+    });
+    // @ts-ignore
+    [];
+}
+// @ts-ignore
+[];
+var __VLS_142;
+let __VLS_146;
+/** @ts-ignore @type { | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column'] | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column']} */
+elTableColumn;
+// @ts-ignore
+const __VLS_147 = __VLS_asFunctionalComponent1(__VLS_146, new __VLS_146({
+    label: "时间",
+    width: "240",
+    align: "center",
+}));
+const __VLS_148 = __VLS_147({
+    label: "时间",
+    width: "240",
+    align: "center",
+}, ...__VLS_functionalComponentArgsRest(__VLS_147));
+const { default: __VLS_151 } = __VLS_149.slots;
+{
+    const { default: __VLS_152 } = __VLS_149.slots;
+    const [scope] = __VLS_vSlot(__VLS_152);
+    __VLS_asFunctionalElement1(__VLS_intrinsics.p, __VLS_intrinsics.p)({});
+    (__VLS_ctx.formatDateTime(scope.row.startTime));
+    __VLS_asFunctionalElement1(__VLS_intrinsics.p, __VLS_intrinsics.p)({});
+    (__VLS_ctx.formatDateTime(scope.row.endTime));
+    // @ts-ignore
+    [formatDateTime, formatDateTime,];
+}
+// @ts-ignore
+[];
+var __VLS_149;
+let __VLS_153;
+/** @ts-ignore @type { | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column'] | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column']} */
+elTableColumn;
+// @ts-ignore
+const __VLS_154 = __VLS_asFunctionalComponent1(__VLS_153, new __VLS_153({
+    label: "上线/下线",
+    width: "100",
+    align: "center",
+}));
+const __VLS_155 = __VLS_154({
+    label: "上线/下线",
+    width: "100",
+    align: "center",
+}, ...__VLS_functionalComponentArgsRest(__VLS_154));
+const { default: __VLS_158 } = __VLS_156.slots;
+{
+    const { default: __VLS_159 } = __VLS_156.slots;
+    const [scope] = __VLS_vSlot(__VLS_159);
+    let __VLS_160;
+    /** @ts-ignore @type { | typeof __VLS_components.elSwitch | typeof __VLS_components.ElSwitch | typeof __VLS_components['el-switch'] | typeof __VLS_components.elSwitch | typeof __VLS_components.ElSwitch | typeof __VLS_components['el-switch']} */
+    elSwitch;
+    // @ts-ignore
+    const __VLS_161 = __VLS_asFunctionalComponent1(__VLS_160, new __VLS_160({
+        ...{ 'onChange': {} },
+        activeValue: (1),
+        inactiveValue: (0),
+        modelValue: (scope.row.status),
+    }));
+    const __VLS_162 = __VLS_161({
+        ...{ 'onChange': {} },
+        activeValue: (1),
+        inactiveValue: (0),
+        modelValue: (scope.row.status),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_161));
+    let __VLS_165;
+    const __VLS_166 = ({ change: {} },
+        { onChange: (...[$event]) => {
+                __VLS_ctx.handleUpdateStatus(scope.$index, scope.row);
+                // @ts-ignore
+                [handleUpdateStatus,];
+            } });
+    var __VLS_163;
+    var __VLS_164;
+    // @ts-ignore
+    [];
+}
+// @ts-ignore
+[];
+var __VLS_156;
+let __VLS_167;
+/** @ts-ignore @type { | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column'] | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column']} */
+elTableColumn;
+// @ts-ignore
+const __VLS_168 = __VLS_asFunctionalComponent1(__VLS_167, new __VLS_167({
+    label: "点击次数",
+    width: "100",
+    align: "center",
+}));
+const __VLS_169 = __VLS_168({
+    label: "点击次数",
+    width: "100",
+    align: "center",
+}, ...__VLS_functionalComponentArgsRest(__VLS_168));
+const { default: __VLS_172 } = __VLS_170.slots;
+{
+    const { default: __VLS_173 } = __VLS_170.slots;
+    const [scope] = __VLS_vSlot(__VLS_173);
+    (scope.row.clickCount);
+    // @ts-ignore
+    [];
+}
+// @ts-ignore
+[];
+var __VLS_170;
+let __VLS_174;
+/** @ts-ignore @type { | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column'] | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column']} */
+elTableColumn;
+// @ts-ignore
+const __VLS_175 = __VLS_asFunctionalComponent1(__VLS_174, new __VLS_174({
+    label: "生成订单",
+    width: "100",
+    align: "center",
+}));
+const __VLS_176 = __VLS_175({
+    label: "生成订单",
+    width: "100",
+    align: "center",
+}, ...__VLS_functionalComponentArgsRest(__VLS_175));
+const { default: __VLS_179 } = __VLS_177.slots;
+{
+    const { default: __VLS_180 } = __VLS_177.slots;
+    const [scope] = __VLS_vSlot(__VLS_180);
+    (scope.row.orderCount);
+    // @ts-ignore
+    [];
+}
+// @ts-ignore
+[];
+var __VLS_177;
+let __VLS_181;
+/** @ts-ignore @type { | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column'] | typeof __VLS_components.elTableColumn | typeof __VLS_components.ElTableColumn | typeof __VLS_components['el-table-column']} */
+elTableColumn;
+// @ts-ignore
+const __VLS_182 = __VLS_asFunctionalComponent1(__VLS_181, new __VLS_181({
+    label: "操作",
+    width: "120",
+    align: "center",
+}));
+const __VLS_183 = __VLS_182({
+    label: "操作",
+    width: "120",
+    align: "center",
+}, ...__VLS_functionalComponentArgsRest(__VLS_182));
+const { default: __VLS_186 } = __VLS_184.slots;
+{
+    const { default: __VLS_187 } = __VLS_184.slots;
+    const [scope] = __VLS_vSlot(__VLS_187);
+    let __VLS_188;
+    /** @ts-ignore @type { | typeof __VLS_components.elButton | typeof __VLS_components.ElButton | typeof __VLS_components['el-button'] | typeof __VLS_components.elButton | typeof __VLS_components.ElButton | typeof __VLS_components['el-button']} */
+    elButton;
+    // @ts-ignore
+    const __VLS_189 = __VLS_asFunctionalComponent1(__VLS_188, new __VLS_188({
+        ...{ 'onClick': {} },
+        size: "small",
+        type: "primary",
+        link: true,
+    }));
+    const __VLS_190 = __VLS_189({
+        ...{ 'onClick': {} },
+        size: "small",
+        type: "primary",
+        link: true,
+    }, ...__VLS_functionalComponentArgsRest(__VLS_189));
+    let __VLS_193;
+    const __VLS_194 = ({ click: {} },
+        { onClick: (...[$event]) => {
+                __VLS_ctx.handleUpdate(scope.$index, scope.row);
+                // @ts-ignore
+                [handleUpdate,];
+            } });
+    const { default: __VLS_195 } = __VLS_191.slots;
+    // @ts-ignore
+    [];
+    var __VLS_191;
+    var __VLS_192;
+    let __VLS_196;
+    /** @ts-ignore @type { | typeof __VLS_components.elButton | typeof __VLS_components.ElButton | typeof __VLS_components['el-button'] | typeof __VLS_components.elButton | typeof __VLS_components.ElButton | typeof __VLS_components['el-button']} */
+    elButton;
+    // @ts-ignore
+    const __VLS_197 = __VLS_asFunctionalComponent1(__VLS_196, new __VLS_196({
+        ...{ 'onClick': {} },
+        size: "small",
+        type: "primary",
+        link: true,
+    }));
+    const __VLS_198 = __VLS_197({
+        ...{ 'onClick': {} },
+        size: "small",
+        type: "primary",
+        link: true,
+    }, ...__VLS_functionalComponentArgsRest(__VLS_197));
+    let __VLS_201;
+    const __VLS_202 = ({ click: {} },
+        { onClick: (...[$event]) => {
+                __VLS_ctx.handleDelete(scope.$index, scope.row);
+                // @ts-ignore
+                [handleDelete,];
+            } });
+    const { default: __VLS_203 } = __VLS_199.slots;
+    // @ts-ignore
+    [];
+    var __VLS_199;
+    var __VLS_200;
+    // @ts-ignore
+    [];
+}
+// @ts-ignore
+[];
+var __VLS_184;
+// @ts-ignore
+[];
+var __VLS_106;
+var __VLS_107;
+__VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
+    ...{ class: "batch-operate-container" },
+});
+/** @type {__VLS_StyleScopedClasses['batch-operate-container']} */ ;
+let __VLS_204;
+/** @ts-ignore @type { | typeof __VLS_components.elSelect | typeof __VLS_components.ElSelect | typeof __VLS_components['el-select'] | typeof __VLS_components.elSelect | typeof __VLS_components.ElSelect | typeof __VLS_components['el-select']} */
+elSelect;
+// @ts-ignore
+const __VLS_205 = __VLS_asFunctionalComponent1(__VLS_204, new __VLS_204({
+    modelValue: (__VLS_ctx.operateType),
+    placeholder: "批量操作",
+}));
+const __VLS_206 = __VLS_205({
+    modelValue: (__VLS_ctx.operateType),
+    placeholder: "批量操作",
+}, ...__VLS_functionalComponentArgsRest(__VLS_205));
+const { default: __VLS_209 } = __VLS_207.slots;
+for (const [item] of __VLS_vFor((__VLS_ctx.operates))) {
+    let __VLS_210;
+    /** @ts-ignore @type { | typeof __VLS_components.elOption | typeof __VLS_components.ElOption | typeof __VLS_components['el-option'] | typeof __VLS_components.elOption | typeof __VLS_components.ElOption | typeof __VLS_components['el-option']} */
+    elOption;
+    // @ts-ignore
+    const __VLS_211 = __VLS_asFunctionalComponent1(__VLS_210, new __VLS_210({
+        key: (item.value),
+        label: (item.label),
+        value: (item.value),
+    }));
+    const __VLS_212 = __VLS_211({
+        key: (item.value),
+        label: (item.label),
+        value: (item.value),
+    }, ...__VLS_functionalComponentArgsRest(__VLS_211));
+    // @ts-ignore
+    [operateType, operates,];
+}
+// @ts-ignore
+[];
+var __VLS_207;
+let __VLS_215;
+/** @ts-ignore @type { | typeof __VLS_components.elButton | typeof __VLS_components.ElButton | typeof __VLS_components['el-button'] | typeof __VLS_components.elButton | typeof __VLS_components.ElButton | typeof __VLS_components['el-button']} */
+elButton;
+// @ts-ignore
+const __VLS_216 = __VLS_asFunctionalComponent1(__VLS_215, new __VLS_215({
+    ...{ 'onClick': {} },
+    ...{ style: {} },
+    ...{ class: "search-button" },
+    type: "primary",
+}));
+const __VLS_217 = __VLS_216({
+    ...{ 'onClick': {} },
+    ...{ style: {} },
+    ...{ class: "search-button" },
+    type: "primary",
+}, ...__VLS_functionalComponentArgsRest(__VLS_216));
+let __VLS_220;
+const __VLS_221 = ({ click: {} },
+    { onClick: (...[$event]) => {
+            __VLS_ctx.handleBatchOperate();
+            // @ts-ignore
+            [handleBatchOperate,];
+        } });
+/** @type {__VLS_StyleScopedClasses['search-button']} */ ;
+const { default: __VLS_222 } = __VLS_218.slots;
+// @ts-ignore
+[];
+var __VLS_218;
+var __VLS_219;
+__VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
+    ...{ class: "pagination-container" },
+});
+/** @type {__VLS_StyleScopedClasses['pagination-container']} */ ;
+let __VLS_223;
+/** @ts-ignore @type { | typeof __VLS_components.elPagination | typeof __VLS_components.ElPagination | typeof __VLS_components['el-pagination'] | typeof __VLS_components.elPagination | typeof __VLS_components.ElPagination | typeof __VLS_components['el-pagination']} */
+elPagination;
+// @ts-ignore
+const __VLS_224 = __VLS_asFunctionalComponent1(__VLS_223, new __VLS_223({
+    ...{ 'onSizeChange': {} },
+    ...{ 'onCurrentChange': {} },
+    background: true,
+    layout: "total, sizes,prev, pager, next,jumper",
+    pageSize: (__VLS_ctx.listQuery.pageSize),
+    pageSizes: ([5, 10, 15]),
+    currentPage: (__VLS_ctx.listQuery.pageNum),
+    total: (__VLS_ctx.total),
+}));
+const __VLS_225 = __VLS_224({
+    ...{ 'onSizeChange': {} },
+    ...{ 'onCurrentChange': {} },
+    background: true,
+    layout: "total, sizes,prev, pager, next,jumper",
+    pageSize: (__VLS_ctx.listQuery.pageSize),
+    pageSizes: ([5, 10, 15]),
+    currentPage: (__VLS_ctx.listQuery.pageNum),
+    total: (__VLS_ctx.total),
+}, ...__VLS_functionalComponentArgsRest(__VLS_224));
+let __VLS_228;
+const __VLS_229 = ({ sizeChange: {} },
+    { onSizeChange: (__VLS_ctx.handleSizeChange) });
+const __VLS_230 = ({ currentChange: {} },
+    { onCurrentChange: (__VLS_ctx.handleCurrentChange) });
+var __VLS_226;
+var __VLS_227;
+// @ts-ignore
+var __VLS_111 = __VLS_110;
+// @ts-ignore
+[listQuery, listQuery, total, handleSizeChange, handleCurrentChange,];
+const __VLS_export = (await import('vue')).defineComponent({});
+export default {};

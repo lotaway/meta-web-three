@@ -6,23 +6,18 @@ import { Search, Tickets } from '@element-plus/icons-vue'
 import { getRoleListAPI, roleCreateAPI, roleUpdateByIdAPI, roleUpdateStatusAPI, roleDeleteByIdsAPI } from '@/apis/role'
 import type { UmsRole } from '@/types/role'
 import type { PageParam } from '@/types/common'
+import { t } from '@/locales'
 
-// 获取路由对象
 const router = useRouter()
 
-// 列表查询参数
 const listQuery = ref<PageParam>({
   pageNum: 1,
   pageSize: 10,
   keyword: ''
 })
-// 角色列表数据
 const list = ref<UmsRole[]>([])
-// 表格加载状态
 const listLoading = ref(false)
-// 分页总数
 const total = ref(0)
-// 获取角色列表
 const getList = async () => {
   listLoading.value = true
   try {
@@ -36,48 +31,39 @@ const getList = async () => {
   }
 }
 
-// 组件挂载后初始化数据
 onMounted(() => {
   getList()
 })
 
-// 当前操作的角色对象
 const role = ref<UmsRole>({
   name: '',
   adminCount: 0,
   status: 1
 })
-// 编辑对话框是否可见
 const dialogVisible = ref(false)
-// 是否编辑状态
 const isEdit = ref(false)
 
-// 重置搜索条件
 const handleResetSearch = () => {
   listQuery.value.pageNum = 1
   listQuery.value.keyword = ''
 }
 
-// 处理搜索
 const handleSearchList = () => {
   listQuery.value.pageNum = 1
   getList()
 }
 
-// 每页大小变化
 const handleSizeChange = (val: number) => {
   listQuery.value.pageNum = 1
   listQuery.value.pageSize = val
   getList()
 }
 
-// 当前页变化
 const handleCurrentChange = (val: number) => {
   listQuery.value.pageNum = val
   getList()
 }
 
-// 处理添加角色
 const handleAdd = () => {
   dialogVisible.value = true
   isEdit.value = false
@@ -88,7 +74,6 @@ const handleAdd = () => {
   }
 }
 
-// 处理状态变化
 const handleStatusChange = async (index: number, row: UmsRole) => {
   try {
     await ElMessageBox.confirm('是否要修改该状态?', '提示', {
@@ -101,13 +86,11 @@ const handleStatusChange = async (index: number, row: UmsRole) => {
   } catch (error) {
     if (error !== 'cancel') {
       console.error('更新状态失败:', error)
-      // 如果取消或失败，重新获取列表以恢复状态
       getList()
     }
   }
 }
 
-// 处理删除
 const handleDelete = async (index: number, row: UmsRole) => {
   try {
     await ElMessageBox.confirm('是否要删除该角色?', '提示', {
@@ -127,15 +110,12 @@ const handleDelete = async (index: number, row: UmsRole) => {
   }
 }
 
-// 处理更新
 const handleUpdate = (index: number, row: UmsRole) => {
   dialogVisible.value = true
   isEdit.value = true
-  // 深拷贝row对象，避免直接修改原始数据
   role.value = { ...row }
 }
 
-// 处理对话框确认
 const handleDialogConfirm = async () => {
   try {
     await ElMessageBox.confirm('是否要确认?', '提示', {
@@ -159,22 +139,27 @@ const handleDialogConfirm = async () => {
   }
 }
 
-// 处理选择菜单
 const handleSelectMenu = (index: number, row: UmsRole) => {
   router.push({ path: '/ums/allocMenu', query: { roleId: row.id } })
 }
 
-// 处理选择资源
 const handleSelectResource = (index: number, row: UmsRole) => {
   router.push({ path: '/ums/allocResource', query: { roleId: row.id } })
 }
 
-// 日期格式化函数
 const formatDateTime = (time: string) => {
   if (!time) {
     return 'N/A'
   }
   return dayjs(time).format('YYYY-MM-DD HH:mm:ss')
+}
+
+const getRoleName = (name: string) => {
+  return t(`role.${name}`) || name
+}
+
+const getRoleDescription = (description: string) => {
+  return t(`role.${description}`) || description
 }
 </script>
 
@@ -214,10 +199,10 @@ const formatDateTime = (time: string) => {
           <template #default="scope">{{ scope.row.id }}</template>
         </el-table-column>
         <el-table-column label="角色名称" align="center">
-          <template #default="scope">{{ scope.row.name }}</template>
+          <template #default="scope">{{ getRoleName(scope.row.name) }}</template>
         </el-table-column>
         <el-table-column label="描述" align="center">
-          <template #default="scope">{{ scope.row.description }}</template>
+          <template #default="scope">{{ getRoleDescription(scope.row.description) }}</template>
         </el-table-column>
         <el-table-column label="用户数" width="100" align="center">
           <template #default="scope">{{ scope.row.adminCount }}</template>
