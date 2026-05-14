@@ -11,10 +11,11 @@ import { router } from 'expo-router';
 interface ActionButtonsProps {
   colors: any;
   productDetails: any;
+  flashInfo?: any;
   onOpenSKU: (type: 'cart' | 'buy') => void;
 }
 
-export function ActionButtons({ colors, productDetails, onOpenSKU }: ActionButtonsProps) {
+export function ActionButtons({ colors, productDetails, flashInfo, onOpenSKU }: ActionButtonsProps) {
   const { t } = useTranslation();
   const { addItem } = useCart();
   const [isFavorite, setIsFavorite] = useState(false);
@@ -95,18 +96,30 @@ export function ActionButtons({ colors, productDetails, onOpenSKU }: ActionButto
         </TouchableOpacity>
       </View>
       <View style={styles.bottomRight}>
-        <TouchableOpacity 
-          style={[styles.actionBtn, styles.cartBtn]}
-          onPress={() => onOpenSKU('cart')}
-        >
-          <Text style={styles.actionBtnText}>{t('home.product.add_to_cart')}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.actionBtn, styles.buyBtn, { backgroundColor: themeColors.primary }]}
-          onPress={() => onOpenSKU('buy')}
-        >
-          <Text style={styles.actionBtnText}>{t('home.product.buy_now')}</Text>
-        </TouchableOpacity>
+        {flashInfo ? (
+          <TouchableOpacity 
+            style={[styles.actionBtn, styles.flashBuyBtn]}
+            onPress={() => onOpenSKU('buy')}
+          >
+            <Text style={styles.actionBtnFlashPrice}>￥{flashInfo.flashPrice}</Text>
+            <Text style={styles.actionBtnText}>闪购价购买</Text>
+          </TouchableOpacity>
+        ) : (
+          <>
+            <TouchableOpacity 
+              style={[styles.actionBtn, styles.cartBtn]}
+              onPress={() => onOpenSKU('cart')}
+            >
+              <Text style={styles.actionBtnText}>{t('home.product.add_to_cart')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.actionBtn, styles.buyBtn, { backgroundColor: themeColors.primary }]}
+              onPress={() => onOpenSKU('buy')}
+            >
+              <Text style={styles.actionBtnText}>{t('home.product.buy_now')}</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
     </View>
   );
@@ -159,6 +172,22 @@ const styles = StyleSheet.create({
   buyBtn: {
     borderTopRightRadius: 22,
     borderBottomRightRadius: 22,
+  },
+  flashBuyBtn: {
+    flex: 1,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 22,
+    backgroundColor: '#ff2d2d',
+    flexDirection: 'row',
+    gap: 4,
+  },
+  actionBtnFlashPrice: {
+    color: '#fff',
+    fontSize: 12,
+    textDecorationLine: 'line-through',
+    opacity: 0.8,
   },
   actionBtnText: {
     color: '#fff',

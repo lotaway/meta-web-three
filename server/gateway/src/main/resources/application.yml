@@ -59,6 +59,9 @@ gateway:
       # Admin — login + refresh
       - /user-service/admin/login
       - /user-service/admin/refreshToken
+      # Flash Sale — consumer-facing
+      - /promotion-service/flash/current/**
+      - /promotion-service/flash/product/**
       # Actuator
       - /actuator/**
     excluded-path-keywords:

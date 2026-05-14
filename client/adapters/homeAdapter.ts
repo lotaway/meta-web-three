@@ -26,6 +26,7 @@ export interface ProductItem {
 
 export interface FlashProductItem {
   id: number;
+  productId: number;
   name: string;
   pic: string;
   price: number;

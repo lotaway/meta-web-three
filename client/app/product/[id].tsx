@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -15,6 +15,7 @@ import { useLocalSearchParams, router, Stack } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useCart } from '@/hooks/useCart';
+import { API_BASE_URL } from '@/api/generated';
 import { ProductDetailContainer } from '@/containers/product/ProductDetailContainer';
 import RenderHTML from 'react-native-render-html';
 import { SkuSelector, SpecGroup, SKUInfo } from '@/components/product/SkuSelector';
@@ -88,10 +89,10 @@ function ProductDetailBody({ productDetails, colors, t, contentWidth, productIma
   );
 }
 
-function ProductDetailFooter({ colors, productDetails, onOpenSKU, skuSelectorVisible, skuActionType, productImages, mockSpecs, mockSKUs, onSKUConfirm }: any) {
+function ProductDetailFooter({ colors, productDetails, flashInfo, onOpenSKU, skuSelectorVisible, skuActionType, productImages, mockSpecs, mockSKUs, onSKUConfirm }: any) {
   return (
     <>
-      <ActionButtons colors={colors} productDetails={productDetails} onOpenSKU={onOpenSKU} />
+      <ActionButtons colors={colors} productDetails={productDetails} flashInfo={flashInfo} onOpenSKU={onOpenSKU} />
       <SkuSelector
         visible={skuSelectorVisible}
         productImage={productImages[0]}
@@ -115,6 +116,19 @@ function useProductDetailLogic(t: any, id: any) {
   const { addItem } = useCart();  
   const [skuSelectorVisible, setSkuSelectorVisible] = useState(false);
   const [skuActionType, setSkuActionType] = useState<'cart' | 'buy'>('cart');
+  const [flashInfo, setFlashInfo] = useState<any>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/promotion-service/flash/product/${id}`)
+        const data = await res.json()
+        if (data?.data?.inFlash) {
+          setFlashInfo(data.data)
+        }
+      } catch {}
+    })()
+  }, [id])
 
   const handleOpenSKU = (actionType: 'cart' | 'buy') => {
     setSkuActionType(actionType);
@@ -127,18 +141,31 @@ function useProductDetailLogic(t: any, id: any) {
     if (skuActionType === 'cart') {
       addItem({ productId: (sku || {}).id, quantity, skuId: (sku || {}).skuId });
       Alert.alert(t('common.success'), t('home.product.added_to_cart'));
+    } else if (skuActionType === 'buy' && flashInfo) {
+      router.push({
+        pathname: '/flash/checkout',
+        params: {
+          sessionId: flashInfo.sessionId,
+          productId: id,
+          skuId: sku?.skuId ?? id,
+          productName: '',
+          productPic: '',
+          quantity,
+          flashPrice: flashInfo.flashPrice,
+        },
+      });
     } else {
       router.push({ pathname: '/checkout', params: { productId: id, quantity, skuId: sku?.skuId } });
     }
   };
 
-  return { colors, contentWidth, skuSelectorVisible, skuActionType, handleOpenSKU, handleSKUConfirm };
+  return { colors, contentWidth, skuSelectorVisible, skuActionType, flashInfo, handleOpenSKU, handleSKUConfirm };
 }
 
 export default function ProductDetailScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams();
-  const { colors, contentWidth, skuSelectorVisible, skuActionType, handleOpenSKU, handleSKUConfirm } = useProductDetailLogic(t, id);
+  const { colors, contentWidth, skuSelectorVisible, skuActionType, flashInfo, handleOpenSKU, handleSKUConfirm } = useProductDetailLogic(t, id);
 
   return (
     <ProductDetailContainer productId={id ? Number(id) : null}>
@@ -151,7 +178,7 @@ export default function ProductDetailScreen() {
           <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen options={{ title: t('home.product.detail_title'), headerTransparent: true, headerTitle: '' }} />
             <ProductDetailBody productDetails={productDetails} colors={colors} t={t} contentWidth={contentWidth} productImages={productImages} />
-            <ProductDetailFooter colors={colors} productDetails={productDetails} onOpenSKU={handleOpenSKU} skuSelectorVisible={skuSelectorVisible} skuActionType={skuActionType} productImages={productImages} mockSpecs={mockSpecs} mockSKUs={mockSKUs} onSKUConfirm={handleSKUConfirm} />
+            <ProductDetailFooter colors={colors} productDetails={productDetails} flashInfo={flashInfo} onOpenSKU={handleOpenSKU} skuSelectorVisible={skuSelectorVisible} skuActionType={skuActionType} productImages={productImages} mockSpecs={mockSpecs} mockSKUs={mockSKUs} onSKUConfirm={handleSKUConfirm} />
           </SafeAreaView>
         );
       }}
