@@ -80,10 +80,16 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
     }
 
     private ServerWebExchange addInternalToken(ServerWebExchange exchange) {
-        String token = internalTokenUtil.generate();
+        String internalToken = internalTokenUtil.generate();
         return exchange.mutate().request(exchange.getRequest().mutate()
-                .header("X-Internal-Token", token)
-                .headers(h -> h.remove("Authorization"))
+                .header("X-Internal-Token", internalToken)
+                .headers(h -> {
+                    String auth = h.getFirst(authProperties.authorizationHeader());
+                    if (auth != null) {
+                        h.set("X-Original-Token", auth);
+                    }
+                    h.remove(authProperties.authorizationHeader());
+                })
                 .build()).build();
     }
 

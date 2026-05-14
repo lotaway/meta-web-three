@@ -375,8 +375,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             String userName = jwtUtil.getUserName(claims.get());
             UserRole role = jwtUtil.getUserRole(claims.get());
             
-            Date newExpiration = new Date(System.currentTimeMillis() + DateEnum.ONE_HUNDRED_YEAR.getValue());
-            return jwtUtil.generate(userId.toString(), jwtUtil.generateClaimsMap(userName, role), newExpiration);
+            return jwtUtil.generate(userId.toString(), jwtUtil.generateClaimsMap(userName, role));
         } catch (Exception e) {
             log.error("刷新Token失败: {}", e.getMessage());
             return null;

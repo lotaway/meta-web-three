@@ -2,6 +2,7 @@ package com.metawebthree.user.interfaces.web;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.metawebthree.common.annotations.RequirePermission;
+import com.metawebthree.common.auth.TokenBlacklistService;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.utils.UserJwtUtil;
 import com.metawebthree.common.utils.UserRole;
@@ -13,6 +14,7 @@ import com.metawebthree.user.domain.model.AdminRoleRelationDO;
 import com.metawebthree.user.domain.model.MenuDO;
 import com.metawebthree.user.domain.model.RoleDO;
 import com.metawebthree.user.domain.model.RoleMenuRelationDO;
+import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ public class AdminController {
     private final MenuService menuService;
     private final UserJwtUtil userJwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Operation(summary = "管理员登录")
     @PostMapping("/login")
@@ -56,8 +59,42 @@ public class AdminController {
 
     @Operation(summary = "管理员登出")
     @PostMapping("/logout")
-    public ApiResponse<Void> logout() {
+    public ApiResponse<Void> logout(@RequestHeader("X-Original-Token") String originalToken) {
+        try {
+            Claims claims = userJwtUtil.tryDecode(originalToken.replace("Bearer ", "")).orElse(null);
+            if (claims != null && claims.getExpiration() != null) {
+                long ttl = (claims.getExpiration().getTime() - System.currentTimeMillis()) / 1000;
+                if (ttl > 0) {
+                    tokenBlacklistService.blacklist(originalToken, ttl);
+                }
+            }
+        } catch (Exception e) {
+            // blacklist best-effort
+        }
         return ApiResponse.success();
+    }
+
+    @Operation(summary = "管理员刷新Token")
+    @PostMapping("/refreshToken")
+    public ApiResponse<Map<String, Object>> refreshToken(@RequestHeader("X-Original-Token") String originalToken) {
+        try {
+            String token = originalToken.replace("Bearer ", "");
+            if (tokenBlacklistService.isBlacklisted(token)) {
+                return ApiResponse.error(com.metawebthree.common.enums.ResponseStatus.USER_TOKEN_EXPIRED, "token已失效");
+            }
+            Claims claims = userJwtUtil.tryDecode(token).orElse(null);
+            if (claims == null || userJwtUtil.isTokenExpired(claims.getExpiration())) {
+                return ApiResponse.error(com.metawebthree.common.enums.ResponseStatus.USER_TOKEN_EXPIRED, "token已过期");
+            }
+            tokenBlacklistService.blacklist(token, Math.max(1, (claims.getExpiration().getTime() - System.currentTimeMillis()) / 1000));
+            String newToken = userJwtUtil.generate(claims.getSubject(), claims);
+            Map<String, Object> result = new HashMap<>();
+            result.put("tokenHead", "Bearer ");
+            result.put("token", newToken);
+            return ApiResponse.success(result);
+        } catch (Exception e) {
+            return ApiResponse.error(com.metawebthree.common.enums.ResponseStatus.USER_TOKEN_EXPIRED, "token刷新失败");
+        }
     }
 
     @Operation(summary = "管理员修改密码")

@@ -1,5 +1,6 @@
 package com.metawebthree.user.interfaces.web;
 
+import com.metawebthree.common.auth.TokenBlacklistService;
 import com.metawebthree.common.constants.HeaderConstants;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.enums.ResponseStatus;
@@ -8,6 +9,7 @@ import com.metawebthree.user.application.UserService;
 import com.metawebthree.user.application.dto.SsoLoginResponseDTO;
 import com.metawebthree.user.application.dto.UserDTO;
 
+import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -27,13 +29,15 @@ public class SsoController {
 
     private final UserService userService;
     private final UserJwtUtil jwtUtil;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Value("${jwt.tokenHead:Bearer }")
     private String tokenHead;
 
-    public SsoController(UserService userService, UserJwtUtil jwtUtil) {
+    public SsoController(UserService userService, UserJwtUtil jwtUtil, TokenBlacklistService tokenBlacklistService) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
 
     @Operation(summary = "User Login", description = "Authenticate user and return session information")
@@ -112,6 +116,24 @@ public class SsoController {
         return ApiResponse.success(new SsoLoginResponseDTO(token, tokenHead));
     }
 
+    @Operation(summary = "User Logout", description = "Logout and invalidate the current token")
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout(@RequestHeader("X-Original-Token") String originalToken) {
+        try {
+            String token = originalToken.replace("Bearer ", "").replace(tokenHead, "");
+            Claims claims = jwtUtil.tryDecode(token).orElse(null);
+            if (claims != null && claims.getExpiration() != null) {
+                long ttl = (claims.getExpiration().getTime() - System.currentTimeMillis()) / 1000;
+                if (ttl > 0) {
+                    tokenBlacklistService.blacklist(originalToken, ttl);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Logout blacklist failed: {}", e.getMessage());
+        }
+        return ApiResponse.success();
+    }
+
     @Operation(summary = "Update Password", description = "Update user password using telephone number and authentication code")
     @PostMapping("/updatePassword")
     public ApiResponse<Void> updatePassword(@RequestParam String telephone,
@@ -127,19 +149,20 @@ public class SsoController {
     }
 
     @Operation(summary = "Refresh Token", description = "Refresh the authentication token")
-    @GetMapping("/refreshToken")
-    public ApiResponse<SsoLoginResponseDTO> refreshToken(@RequestHeader(value = "Authorization", required = false) String authorization) {
-        if (authorization == null || authorization.isEmpty()) {
-            return ApiResponse.error(ResponseStatus.USER_TOKEN_EXPIRED, "token不能为空");
-        }
-        
-        String token = authorization.replace("Bearer ", "").replace(tokenHead, "");
-        
+    @PostMapping("/refreshToken")
+    public ApiResponse<SsoLoginResponseDTO> refreshToken(@RequestHeader("X-Original-Token") String originalToken) {
         try {
-            String newToken = userService.refreshToken(token);
-            if (newToken == null) {
-                return ApiResponse.error(ResponseStatus.USER_TOKEN_EXPIRED, "token已经过期");
+            String token = originalToken.replace("Bearer ", "").replace(tokenHead, "");
+            if (tokenBlacklistService.isBlacklisted(token)) {
+                return ApiResponse.error(ResponseStatus.USER_TOKEN_EXPIRED, "token已失效");
             }
+            Claims claims = jwtUtil.tryDecode(token).orElse(null);
+            if (claims == null || jwtUtil.isTokenExpired(claims.getExpiration())) {
+                return ApiResponse.error(ResponseStatus.USER_TOKEN_EXPIRED, "token已过期");
+            }
+            String newToken = jwtUtil.generate(claims.getSubject(), claims);
+            long ttl = Math.max(1, (claims.getExpiration().getTime() - System.currentTimeMillis()) / 1000);
+            tokenBlacklistService.blacklist(token, ttl);
             return ApiResponse.success(new SsoLoginResponseDTO(newToken, tokenHead));
         } catch (Exception e) {
             log.error("刷新Token失败: {}", e.getMessage());

@@ -1,5 +1,6 @@
 package com.metawebthree.common.annotations;
 
+import com.metawebthree.common.auth.TokenBlacklistService;
 import com.metawebthree.common.constants.HeaderConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -23,6 +24,9 @@ public class RequirePermissionAspect {
     @Autowired(required = false)
     private PermissionChecker permissionChecker;
 
+    @Autowired(required = false)
+    private TokenBlacklistService tokenBlacklistService;
+
     @Pointcut("@annotation(com.metawebthree.common.annotations.RequirePermission)")
     public void permissionPointcut() {
     }
@@ -31,6 +35,12 @@ public class RequirePermissionAspect {
     public Object checkPermission(ProceedingJoinPoint joinPoint) throws Throwable {
         if (permissionChecker == null) {
             return joinPoint.proceed();
+        }
+        if (tokenBlacklistService != null) {
+            String originalToken = getRequestHeader("X-Original-Token");
+            if (originalToken != null && tokenBlacklistService.isBlacklisted(originalToken)) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token has been revoked");
+            }
         }
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
@@ -43,6 +53,14 @@ public class RequirePermissionAspect {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Permission denied: " + annotation.value());
         }
         return joinPoint.proceed();
+    }
+
+    private String getRequestHeader(String name) {
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attrs == null) {
+            return null;
+        }
+        return attrs.getRequest().getHeader(name);
     }
 
     private Long getUserIdFromRequest() {

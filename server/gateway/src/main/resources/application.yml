@@ -56,8 +56,9 @@ gateway:
       - /user-service/sso/getAuthCode
       - /user-service/sso/updatePassword
       - /user-service/sso/refreshToken
-      # Admin — login only
+      # Admin — login + refresh
       - /user-service/admin/login
+      - /user-service/admin/refreshToken
       # Actuator
       - /actuator/**
     excluded-path-keywords:
