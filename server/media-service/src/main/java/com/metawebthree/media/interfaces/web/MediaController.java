@@ -1,6 +1,7 @@
 package com.metawebthree.media.interfaces.web;
 
 import com.metawebthree.common.cloud.StorageService;
+import com.metawebthree.common.constants.HeaderConstants;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.enums.ResponseStatus;
 import com.metawebthree.media.application.*;
@@ -18,18 +19,27 @@ public class MediaController {
 
     private final MediaService mediaService;
     private final StorageService storageService;
+    private final UploadQuotaService uploadQuotaService;
 
-    public MediaController(MediaService mediaService, StorageService storageService) {
+    public MediaController(MediaService mediaService, StorageService storageService, UploadQuotaService uploadQuotaService) {
         this.mediaService = mediaService;
         this.storageService = storageService;
+        this.uploadQuotaService = uploadQuotaService;
     }
 
     @Operation(summary = "文件上传", description = "使用配置的存储服务上传文件(支持本地存储/MinIO/S3)")
     @PostMapping
-    public ApiResponse<String> uploadMedia(@RequestParam("file") MultipartFile file) {
+    public ApiResponse<String> uploadMedia(
+            @RequestParam("file") MultipartFile file,
+            @RequestHeader(HeaderConstants.USER_ROLE) String userRole,
+            @RequestHeader(value = HeaderConstants.USER_ID, required = false) Long userId) {
         try {
+            uploadQuotaService.checkQuota(userRole, file.getSize(), userId);
             String url = storageService.uploadFile(file);
+            uploadQuotaService.trackUpload(userId, file.getSize());
             return ApiResponse.success(url);
+        } catch (IllegalArgumentException e) {
+            return ApiResponse.error(ResponseStatus.MEDIA_UPLOAD_FAILED, e.getMessage());
         } catch (Exception e) {
             return ApiResponse.error(ResponseStatus.MEDIA_UPLOAD_FAILED, e.getMessage());
         }

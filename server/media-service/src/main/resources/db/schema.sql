@@ -98,3 +98,13 @@ EXECUTE FUNCTION update_year_tag_column();
 CREATE INDEX IF NOT EXISTS idx_Artwork_updated_at ON "Artwork" ("updated_at");
 
 CREATE INDEX IF NOT EXISTS idx_video_tags ON "Artwork" USING GIN (tags);
+
+CREATE TABLE IF NOT EXISTS tb_user_storage (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL UNIQUE,
+    total_used BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_storage_user_id ON tb_user_storage (user_id);
