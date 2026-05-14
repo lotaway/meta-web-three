@@ -1,3 +1,18 @@
+seed-data:
+  super-admin-role-id: 3001
+  default-admin-id: 1
+  resource:
+    start-id: 101
+    end-id: 410
+  menu:
+    start-id: 2001
+    end-id: 2042
+
+default-admin:
+  username: admin
+  password: "123456"
+  nickname: 超级管理员
+
 server:
   port: 10083
 spring:

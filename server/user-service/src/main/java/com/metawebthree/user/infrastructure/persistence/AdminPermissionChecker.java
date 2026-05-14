@@ -5,6 +5,7 @@ import com.metawebthree.common.annotations.PermissionChecker;
 import com.metawebthree.user.domain.model.AdminRoleRelationDO;
 import com.metawebthree.user.domain.model.ResourceDO;
 import com.metawebthree.user.domain.model.RoleResourceRelationDO;
+import com.metawebthree.user.infrastructure.config.SeedDataProperties;
 import com.metawebthree.user.infrastructure.persistence.mapper.AdminRoleRelationMapper;
 import com.metawebthree.user.infrastructure.persistence.mapper.ResourceMapper;
 import com.metawebthree.user.infrastructure.persistence.mapper.RoleResourceRelationMapper;
@@ -22,6 +23,7 @@ public class AdminPermissionChecker implements PermissionChecker {
     private final AdminRoleRelationMapper adminRoleRelationMapper;
     private final RoleResourceRelationMapper roleResourceRelationMapper;
     private final ResourceMapper resourceMapper;
+    private final SeedDataProperties seedDataProperties;
 
     @Override
     public boolean hasPermission(Long userId, String permission) {
@@ -31,7 +33,7 @@ public class AdminPermissionChecker implements PermissionChecker {
             return false;
         }
         Set<Long> roleIds = roleRelations.stream().map(AdminRoleRelationDO::getRoleId).collect(Collectors.toSet());
-        if (roleIds.contains(3001L)) {
+        if (roleIds.contains(seedDataProperties.getSuperAdminRoleId())) {
             return true;
         }
         List<RoleResourceRelationDO> resourceRelations = roleResourceRelationMapper.selectList(

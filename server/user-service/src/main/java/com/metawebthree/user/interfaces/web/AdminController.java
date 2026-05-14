@@ -16,6 +16,7 @@ import com.metawebthree.user.domain.model.RoleMenuRelationDO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -32,6 +33,7 @@ public class AdminController {
     private final AdminRoleService adminRoleService;
     private final MenuService menuService;
     private final UserJwtUtil userJwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
     @Operation(summary = "管理员登录")
     @PostMapping("/login")
@@ -56,6 +58,20 @@ public class AdminController {
     @PostMapping("/logout")
     public ApiResponse<Void> logout() {
         return ApiResponse.success();
+    }
+
+    @Operation(summary = "管理员修改密码")
+    @PostMapping("/changePassword")
+    public ApiResponse<Void> changePassword(
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestParam String oldPassword,
+            @RequestParam String newPassword) {
+        try {
+            adminService.changePassword(userId, oldPassword, newPassword);
+            return ApiResponse.success();
+        } catch (IllegalArgumentException e) {
+            return ApiResponse.error(com.metawebthree.common.enums.ResponseStatus.USER_PASSWORD_ERROR, e.getMessage());
+        }
     }
 
     @Operation(summary = "获取当前管理员信息")
@@ -135,6 +151,7 @@ public class AdminController {
         }
         admin.setCreateTime(LocalDateTime.now());
         admin.setStatus(1);
+        admin.setPassword(passwordEncoder.encode(admin.getPassword()));
         adminService.save(admin);
         return ApiResponse.success();
     }

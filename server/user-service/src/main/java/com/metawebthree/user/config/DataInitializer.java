@@ -1,8 +1,9 @@
 package com.metawebthree.user.config;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.user.domain.model.*;
+import com.metawebthree.user.infrastructure.config.SeedDataProperties;
 import com.metawebthree.user.infrastructure.persistence.mapper.*;
+import com.metawebthree.user.application.AdminService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -25,8 +26,8 @@ public class DataInitializer implements CommandLineRunner {
     private final RoleMapper roleMapper;
     private final RoleResourceRelationMapper roleResourceRelationMapper;
     private final RoleMenuRelationMapper roleMenuRelationMapper;
-    private final AdminMapper adminMapper;
-    private final AdminRoleRelationMapper adminRoleRelationMapper;
+    private final AdminService adminService;
+    private final SeedDataProperties seedDataProperties;
 
     @Override
     @Transactional
@@ -41,7 +42,7 @@ public class DataInitializer implements CommandLineRunner {
         initMenus();
         initRoles();
         initRoleRelations();
-        initDefaultAdmin();
+        adminService.ensureDefaultAdmin();
         log.info("RBAC seed data initialized successfully.");
     }
 
@@ -222,13 +223,16 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initRoleRelations() {
-        // 超级管理员 (3001): all resources + all menus
-        for (long resid = 101; resid <= 410; resid++) {
-            if (resid == 300L || resid == 400L) continue; // skip gaps
-            roleResourceRelationMapper.insert(relation(3001L, resid));
+        long superAdminRoleId = seedDataProperties.getSuperAdminRoleId();
+        // 超级管理员: all resources + all menus
+        for (long resid = seedDataProperties.getResource().getStartId();
+             resid <= seedDataProperties.getResource().getEndId(); resid++) {
+            if (resid == 300L || resid == 400L) continue;
+            roleResourceRelationMapper.insert(relation(superAdminRoleId, resid));
         }
-        for (long menuid = 2001; menuid <= 2042; menuid++) {
-            roleMenuRelationMapper.insert(menuRelation(3001L, menuid));
+        for (long menuid = seedDataProperties.getMenu().getStartId();
+             menuid <= seedDataProperties.getMenu().getEndId(); menuid++) {
+            roleMenuRelationMapper.insert(menuRelation(superAdminRoleId, menuid));
         }
         // 运营专员 (3002): pms:* + sms:* resources + 商品/营销 menus
         long[] opsResources = {101L, 102L, 103L, 104L, 105L, 106L, 107L, 108L, 109L, 110L, 111L, 112L,
@@ -276,31 +280,4 @@ public class DataInitializer implements CommandLineRunner {
         return r;
     }
 
-    private void initDefaultAdmin() {
-        AdminDO admin = adminMapper.selectById(1L);
-        if (admin == null) {
-            admin = new AdminDO();
-            admin.setId(1L);
-            admin.setUsername("admin");
-            admin.setPassword("123456");
-            admin.setNickName("超级管理员");
-            admin.setStatus(1);
-            admin.setCreateTime(LocalDateTime.now());
-            adminMapper.insert(admin);
-            log.info("Default admin (admin/123456) created.");
-        } else {
-            log.info("Default admin already exists, skipping creation.");
-        }
-        long roleRelationCount = adminRoleRelationMapper.selectCount(
-                new LambdaQueryWrapper<AdminRoleRelationDO>()
-                        .eq(AdminRoleRelationDO::getAdminId, 1L)
-                        .eq(AdminRoleRelationDO::getRoleId, 3001L));
-        if (roleRelationCount == 0) {
-            AdminRoleRelationDO rel = new AdminRoleRelationDO();
-            rel.setAdminId(1L);
-            rel.setRoleId(3001L);
-            adminRoleRelationMapper.insert(rel);
-            log.info("Default admin role relation ensured.");
-        }
-    }
 }

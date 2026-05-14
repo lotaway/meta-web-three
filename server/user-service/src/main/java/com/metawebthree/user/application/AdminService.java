@@ -5,9 +5,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.metawebthree.user.domain.model.AdminDO;
 import com.metawebthree.user.domain.model.AdminRoleRelationDO;
+import com.metawebthree.user.infrastructure.config.DefaultAdminProperties;
+import com.metawebthree.user.infrastructure.config.SeedDataProperties;
 import com.metawebthree.user.infrastructure.persistence.mapper.AdminMapper;
 import com.metawebthree.user.infrastructure.persistence.mapper.AdminRoleRelationMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +21,9 @@ public class AdminService extends ServiceImpl<AdminMapper, AdminDO> {
 
     private final AdminMapper adminMapper;
     private final AdminRoleRelationMapper adminRoleRelationMapper;
+    private final PasswordEncoder passwordEncoder;
+    private final DefaultAdminProperties defaultAdminProperties;
+    private final SeedDataProperties seedDataProperties;
 
     public Page<AdminDO> listAdmins(int pageNum, int pageSize, String keyword) {
         Page<AdminDO> page = new Page<>(pageNum, pageSize);
@@ -30,33 +36,62 @@ public class AdminService extends ServiceImpl<AdminMapper, AdminDO> {
         return adminMapper.selectPage(page, wrapper);
     }
 
-    public long countAdmins() {
-        return adminMapper.selectCount(new LambdaQueryWrapper<>());
-    }
-
     public void ensureDefaultAdmin() {
-        if (countAdmins() > 0) {
-            return;
+        long defaultAdminId = seedDataProperties.getDefaultAdminId();
+        AdminDO admin = adminMapper.selectById(defaultAdminId);
+        if (admin == null) {
+            admin = new AdminDO();
+            admin.setId(defaultAdminId);
+            admin.setUsername(defaultAdminProperties.getUsername());
+            admin.setPassword(passwordEncoder.encode(defaultAdminProperties.getPassword()));
+            admin.setNickName(defaultAdminProperties.getNickname());
+            admin.setStatus(1);
+            admin.setCreateTime(java.time.LocalDateTime.now());
+            adminMapper.insert(admin);
         }
-        AdminDO defaultAdmin = new AdminDO();
-        defaultAdmin.setId(1L);
-        defaultAdmin.setUsername("admin");
-        defaultAdmin.setPassword("123456");
-        defaultAdmin.setNickName("超级管理员");
-        defaultAdmin.setStatus(1);
-        defaultAdmin.setCreateTime(java.time.LocalDateTime.now());
-        adminMapper.insert(defaultAdmin);
-        AdminRoleRelationDO rel = new AdminRoleRelationDO();
-        rel.setAdminId(1L);
-        rel.setRoleId(3001L);
-        adminRoleRelationMapper.insert(rel);
+        long roleRelationCount = adminRoleRelationMapper.selectCount(
+                new LambdaQueryWrapper<AdminRoleRelationDO>()
+                        .eq(AdminRoleRelationDO::getAdminId, defaultAdminId)
+                        .eq(AdminRoleRelationDO::getRoleId, seedDataProperties.getSuperAdminRoleId()));
+        if (roleRelationCount == 0) {
+            AdminRoleRelationDO rel = new AdminRoleRelationDO();
+            rel.setAdminId(defaultAdminId);
+            rel.setRoleId(seedDataProperties.getSuperAdminRoleId());
+            adminRoleRelationMapper.insert(rel);
+        }
     }
 
     public AdminDO login(String username, String password) {
         LambdaQueryWrapper<AdminDO> wrapper = new LambdaQueryWrapper<AdminDO>()
-                .eq(AdminDO::getUsername, username)
-                .eq(AdminDO::getPassword, password);
-        return adminMapper.selectOne(wrapper);
+                .eq(AdminDO::getUsername, username);
+        AdminDO admin = adminMapper.selectOne(wrapper);
+        if (admin == null) {
+            return null;
+        }
+        if (passwordEncoder.matches(password, admin.getPassword())) {
+            return admin;
+        }
+        if (!admin.getPassword().startsWith("$2")) {
+            String encoded = passwordEncoder.encode(password);
+            if (password.equals(admin.getPassword())) {
+                admin.setPassword(encoded);
+                adminMapper.updateById(admin);
+                return admin;
+            }
+        }
+        return null;
+    }
+
+    public void changePassword(Long adminId, String oldPassword, String newPassword) {
+        AdminDO admin = adminMapper.selectById(adminId);
+        if (admin == null) {
+            throw new IllegalArgumentException("管理员不存在");
+        }
+        if (!passwordEncoder.matches(oldPassword, admin.getPassword())) {
+            throw new IllegalArgumentException("原密码错误");
+        }
+        admin.setPassword(passwordEncoder.encode(newPassword));
+        adminMapper.updateById(admin);
     }
 
     public List<AdminRoleRelationDO> getRoleRelations(Long adminId) {
