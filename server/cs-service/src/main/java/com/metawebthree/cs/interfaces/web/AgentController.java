@@ -5,7 +5,9 @@ import com.metawebthree.cs.application.AgentService;
 import com.metawebthree.cs.domain.model.Agent;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,6 +51,13 @@ public class AgentController {
     @PostMapping("/busy")
     public ApiResponse<Void> busy(@RequestParam Long agentId) {
         agentService.setBusy(agentId);
+        return ApiResponse.success();
+    }
+
+    @Operation(summary = "删除客服")
+    @DeleteMapping("/delete/{agentId}")
+    public ApiResponse<Void> delete(@PathVariable Long agentId) {
+        agentService.delete(agentId);
         return ApiResponse.success();
     }
 

@@ -70,4 +70,9 @@ public class MybatisAgentRepository implements AgentRepository {
     public void updateLoad(Long id, int delta) {
         mapper.updateLoad(id, delta);
     }
+
+    @Override
+    public void deleteById(Long id) {
+        mapper.deleteById(id);
+    }
 }

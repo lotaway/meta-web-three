@@ -55,4 +55,8 @@ public class AgentService {
     public List<Agent> listByGroup(Long groupId) {
         return agentRepository.findByGroupId(groupId);
     }
+
+    public void delete(Long id) {
+        agentRepository.deleteById(id);
+    }
 }

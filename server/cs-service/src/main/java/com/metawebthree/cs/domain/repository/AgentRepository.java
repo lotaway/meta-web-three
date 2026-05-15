@@ -14,4 +14,5 @@ public interface AgentRepository {
     List<Agent> findAvailableByGroupId(Long groupId);
     void updateStatus(Long id, String status);
     void updateLoad(Long id, int delta);
+    void deleteById(Long id);
 }
