@@ -20,12 +20,13 @@ modules=(
   cart-service
   promotion-service
   user-action-service
+  cs-service
 )
 
 pids=()
 
 echo "==> Stopping any existing services on ports 10081-10092"
-for port in 10081 10082 10083 10084 10085 10086 10087 10088 10089 10090 10091 10092; do
+for port in 10081 10082 10083 10084 10085 10086 10087 10088 10089 10090 10091 10092 10093; do
   pid=$(lsof -ti :$port 2>/dev/null || true)
   if [ -n "$pid" ]; then
     echo "  Killing PID $pid on port $port"

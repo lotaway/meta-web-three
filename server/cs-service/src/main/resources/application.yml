@@ -1,5 +1,5 @@
 server:
-  port: 10091
+  port: 10092
 spring:
   application:
     name: cs-service
@@ -9,7 +9,7 @@ dubbo:
   application:
     name: cs-service
   protocol:
-    port: 20091
+    port: 20092
 ---
 spring:
   config:

@@ -287,6 +287,32 @@ services:
       - default
     restart: unless-stopped
 
+  cs-service:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      target: cs-service
+    container_name: meta-web-three-cs-service
+    ports:
+      - "10092:10092"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
+    volumes:
+      - cs_service_data:/server/cs
+      - ./.aws:/.aws:ro
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - meta-web-three
+      - default
+    restart: unless-stopped
+
 volumes:
   gateway_data:
   product_service_data:
@@ -299,3 +325,4 @@ volumes:
   cart_service_data:
   promotion_service_data:
   user_action_service_data:
+  cs_service_data:
