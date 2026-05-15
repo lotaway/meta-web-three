@@ -18,15 +18,25 @@ import com.metawebthree.cs.infrastructure.persistence.mybatis.MybatisQuickReplyM
 import com.metawebthree.cs.infrastructure.persistence.mybatis.MybatisQuickReplyRepository;
 import com.metawebthree.cs.infrastructure.websocket.CsWebSocketHandler;
 import com.metawebthree.cs.infrastructure.websocket.SessionManager;
+import com.metawebthree.cs.ai.tools.AiToolRegistry;
+import com.metawebthree.cs.ai.tools.CancelOrderTool;
+import com.metawebthree.cs.ai.tools.InitiateRefundTool;
+import com.metawebthree.cs.ai.tools.QueryLogisticsTool;
+import com.metawebthree.cs.ai.tools.QueryOrderTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class CsConfig {
     private static final Logger log = LoggerFactory.getLogger(CsConfig.class);
+
+    @Value("${gateway.url:http://localhost:10081}")
+    private String gatewayUrl;
 
     @Bean
     public SessionManager sessionManager() {
@@ -88,5 +98,16 @@ public class CsConfig {
     @Bean
     public QuickReplyService quickReplyService(QuickReplyRepository quickReplyRepository) {
         return new QuickReplyService(quickReplyRepository);
+    }
+
+    @Bean
+    public AiToolRegistry aiToolRegistry(RestTemplate restTemplate) {
+        AiToolRegistry registry = new AiToolRegistry();
+        registry.register(new QueryOrderTool(restTemplate, gatewayUrl));
+        registry.register(new QueryLogisticsTool(restTemplate, gatewayUrl));
+        registry.register(new InitiateRefundTool(restTemplate, gatewayUrl));
+        registry.register(new CancelOrderTool(restTemplate, gatewayUrl));
+        log.info("registered {} ai tools", registry.getAllTools().size());
+        return registry;
     }
 }
