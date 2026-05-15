@@ -16,9 +16,10 @@
         <el-table-column prop="currentLoad" label="当前负载" width="90" />
         <el-table-column prop="maxConcurrent" label="最大接待" width="90" />
         <el-table-column prop="groupId" label="技能组" width="80" />
-        <el-table-column label="操作" width="200">
+        <el-table-column label="操作" width="220">
           <template #default="{ row }">
             <el-button size="small" @click="toggleStatus(row)">{{ row.status === 'ONLINE' ? '下线' : '上线' }}</el-button>
+            <el-button size="small" type="danger" @click="handleDelete(row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -39,7 +40,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getOnlineAgentsAPI, agentOnlineAPI, agentOfflineAPI } from '@/apis/cs'
+import { getOnlineAgentsAPI, agentOnlineAPI, agentOfflineAPI, deleteAgentAPI } from '@/apis/cs'
 import type { Agent } from '@/apis/cs'
 import { ElMessage } from 'element-plus'
 import http from '@/utils/http'
@@ -62,6 +63,12 @@ const toggleStatus = async (row: Agent) => {
     row.status = 'ONLINE'
   }
   ElMessage.success('操作成功')
+}
+
+const handleDelete = async (id: number) => {
+  await deleteAgentAPI(id)
+  ElMessage.success('已删除')
+  load()
 }
 
 const handleCreate = async () => {

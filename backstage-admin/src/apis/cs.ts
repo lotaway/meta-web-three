@@ -95,6 +95,10 @@ export function getAgentInfoAPI(agentId: number) {
   return http<Agent>({ url: '/cs/agent/get', method: 'get', params: { agentId } })
 }
 
+export function deleteAgentAPI(agentId: number) {
+  return http({ url: `/cs/agent/delete/${agentId}`, method: 'delete' })
+}
+
 export function getQuickReplyListAPI(groupId?: number) {
   return http<QuickReply[]>({ url: '/cs/quick-reply/list', method: 'get', params: groupId ? { groupId } : {} })
 }
