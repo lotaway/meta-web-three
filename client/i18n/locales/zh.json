@@ -6,10 +6,12 @@
     "cancel": "取消",
     "success": "成功",
     "error": "错误",
+    "send": "发送",
     "tabs": {
       "home": "首页",
       "category": "分类",
       "cart": "购物车",
+      "messages": "消息",
       "profile": "我的"
     }
   },
@@ -272,5 +274,22 @@
     "language_title": "选择语言",
     "zh": "简体中文",
     "en": "English"
+  },
+  "cs": {
+    "my_messages": "我的消息",
+    "customer_service": "客服",
+    "active": "进行中",
+    "queuing": "排队中",
+    "closed": "已结束",
+    "from_product": "商品咨询",
+    "from_order": "订单咨询",
+    "from_shop": "店铺咨询",
+    "no_messages": "暂无消息",
+    "connected": "已连接",
+    "disconnected": "未连接",
+    "input_placeholder": "输入消息...",
+    "close": "结束",
+    "rate_service": "评价服务",
+    "rate_title": "请为本次服务评分"
   }
 }

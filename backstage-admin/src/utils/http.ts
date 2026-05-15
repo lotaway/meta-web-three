@@ -28,6 +28,7 @@ const SERVICE_PREFIX_MAP: Record<string, string> = {
   '/memberLevel': 'user-service',
   '/sso': 'user-service',
   '/member': 'user-service',
+  '/cs': 'cs-service',
 }
 
 const http = axios.create({

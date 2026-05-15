@@ -6,10 +6,12 @@
     "cancel": "Cancel",
     "success": "Success",
     "error": "Error",
+    "send": "Send",
     "tabs": {
       "home": "Home",
       "category": "Category",
       "cart": "Cart",
+      "messages": "Messages",
       "profile": "Profile"
     }
   },
@@ -272,5 +274,22 @@
     "language_title": "Select Language",
     "zh": "简体中文",
     "en": "English"
+  },
+  "cs": {
+    "my_messages": "My Messages",
+    "customer_service": "Customer Service",
+    "active": "Active",
+    "queuing": "Queuing",
+    "closed": "Closed",
+    "from_product": "Product Inquiry",
+    "from_order": "Order Inquiry",
+    "from_shop": "Shop Inquiry",
+    "no_messages": "No messages",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "input_placeholder": "Type a message...",
+    "close": "Close",
+    "rate_service": "Rate Service",
+    "rate_title": "Rate this conversation"
   }
 }

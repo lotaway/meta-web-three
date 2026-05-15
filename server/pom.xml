@@ -29,6 +29,7 @@
         <module>commission-service</module>
         <module>cart-service</module>
         <module>user-action-service</module>
+        <module>cs-service</module>
     </modules>
 
     <properties>

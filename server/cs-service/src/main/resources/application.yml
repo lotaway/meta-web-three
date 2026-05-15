@@ -1,0 +1,38 @@
+server:
+  port: 10091
+spring:
+  application:
+    name: cs-service
+  profiles:
+    active: dev
+dubbo:
+  application:
+    name: cs-service
+  protocol:
+    port: 20091
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+    import:
+      - optional:classpath:application-common.yml
+      - optional:classpath:application-common-dev.yml
+  data:
+    mongodb:
+      host: 192.168.1.194
+      port: 27017
+      database: metawebthree_cs
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import:
+      - optional:classpath:application-common.yml
+      - optional:classpath:application-common-prod.yml
+  data:
+    mongodb:
+      host: ${MONGODB_HOST:mongo}
+      port: ${MONGODB_PORT:27017}
+      database: metawebthree_cs

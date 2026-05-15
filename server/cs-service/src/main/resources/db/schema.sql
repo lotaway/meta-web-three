@@ -1,0 +1,41 @@
+CREATE TABLE IF NOT EXISTS cs_agent (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    admin_id BIGINT NOT NULL UNIQUE,
+    nickname VARCHAR(100),
+    avatar VARCHAR(500),
+    status VARCHAR(20) DEFAULT 'OFFLINE',
+    max_concurrent INT DEFAULT 5,
+    current_load INT DEFAULT 0,
+    group_id BIGINT,
+    working_hours JSONB,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS cs_group (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(500),
+    skill_tags VARCHAR(255),
+    priority INT DEFAULT 0,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS cs_quick_reply (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    group_id BIGINT,
+    title VARCHAR(200) NOT NULL,
+    content TEXT NOT NULL,
+    msg_type VARCHAR(20) DEFAULT 'TEXT',
+    sort INT DEFAULT 0,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS cs_transfer_log (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    session_id VARCHAR(64) NOT NULL,
+    from_agent_id BIGINT,
+    to_agent_id BIGINT,
+    reason VARCHAR(500),
+    transfer_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

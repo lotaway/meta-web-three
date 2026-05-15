@@ -57,3 +57,8 @@ FROM eclipse-temurin:17-jre-jammy AS user-action-service
 WORKDIR /app
 COPY --from=builder /build/user-action-service/target/user-action-service-*.jar user-action-service.jar
 ENTRYPOINT ["java", "-jar", "user-action-service.jar"]
+
+FROM eclipse-temurin:17-jre-jammy AS cs-service
+WORKDIR /app
+COPY --from=builder /build/cs-service/target/cs-service-*.jar cs-service.jar
+ENTRYPOINT ["java", "-jar", "cs-service.jar"]

@@ -347,6 +347,33 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  {
+    path: '/cs',
+    component: Layout,
+    redirect: '/cs/dashboard',
+    name: 'cs',
+    meta: { title: '客服管理', icon: 'service' },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'csDashboard',
+        component: () => import('@/views/cs/dashboard.vue'),
+        meta: { title: '客服工作台', icon: 'cs-dashboard' },
+      },
+      {
+        path: 'agents',
+        name: 'csAgents',
+        component: () => import('@/views/cs/agents.vue'),
+        meta: { title: '客服人员', icon: 'cs-agents' },
+      },
+      {
+        path: 'quick-reply',
+        name: 'csQuickReply',
+        component: () => import('@/views/cs/quick-reply.vue'),
+        meta: { title: '快捷回复', icon: 'cs-quick-reply' },
+      },
+    ],
+  },
 ]
 
 // createWebHistory（History 模式）地址格式（需要服务器配置）：http://domain.com/admin/home
