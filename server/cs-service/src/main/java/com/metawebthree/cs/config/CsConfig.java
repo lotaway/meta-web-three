@@ -18,12 +18,15 @@ import com.metawebthree.cs.infrastructure.persistence.mybatis.MybatisQuickReplyM
 import com.metawebthree.cs.infrastructure.persistence.mybatis.MybatisQuickReplyRepository;
 import com.metawebthree.cs.infrastructure.websocket.CsWebSocketHandler;
 import com.metawebthree.cs.infrastructure.websocket.SessionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 @Configuration
 public class CsConfig {
+    private static final Logger log = LoggerFactory.getLogger(CsConfig.class);
 
     @Bean
     public SessionManager sessionManager() {
@@ -54,8 +57,8 @@ public class CsConfig {
 
     @Bean
     public ConversationEventPort conversationEventPort() {
-        return (sessionId, event, detail) -> {
-        };
+        return (sessionId, event, detail) ->
+                log.info("event session:{} type:{} detail:{}", sessionId, event, detail);
     }
 
     @Bean

@@ -1,5 +1,8 @@
 package com.metawebthree.cs.dto;
 
+import lombok.Data;
+
+@Data
 public class ChatCompletionResponse {
     private String id;
     private String object;
@@ -14,16 +17,12 @@ public class ChatCompletionResponse {
         return "";
     }
 
-    public String getId() { return id; }
-    public String getObject() { return object; }
-    public long getCreated() { return created; }
-    public String getModel() { return model; }
-    public Choice[] getChoices() { return choices; }
-
+    @Data
     public static class Choice {
         public int index;
         public Message message;
 
+        @Data
         public static class Message {
             public String role;
             public String content;

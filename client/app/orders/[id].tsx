@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next'
 import { Colors } from '@/constants/Colors'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { IconSymbol } from '@/components/ui/IconSymbol'
-import { orderApi } from '@/api/generated'
+import { orderApi, DEFAULT_USER_ID, API_BASE_URL } from '@/api/generated'
 import { useAuth } from '@/contexts/AuthContext'
 import { OrderInfo } from '@/components/order/OrderInfo'
 import { ProductList } from '@/components/order/ProductList'
@@ -156,8 +156,19 @@ export default function OrderDetailScreen() {
   }
 
   const handleReviewItem = () => {
-    const item = order.orderItems?.[0]
-    if (item) handleReview(item)
+    router.push(`/review?orderId=${orderId}`)
+  }
+
+  const handleContactService = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/cs/conversation/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-User-Id': String(DEFAULT_USER_ID) },
+        body: JSON.stringify({ channel: 'ORDER', orderId: Number(orderId) }),
+      })
+      const json = await res.json()
+      if (json.data?.sessionId) router.push(`/cs/${json.data.sessionId}`)
+    } catch { Alert.alert('提示', '创建会话失败') }
   }
 
   if (loading) {
@@ -248,12 +259,14 @@ export default function OrderDetailScreen() {
       {order.status !== 4 && (
         <ActionButtons
           status={order.status}
+          orderId={order.id}
           onPay={handlePay}
           onCancel={handleCancel}
           onConfirmReceive={handleConfirmReceive}
           onRefund={handleRefund}
           onContactDelivery={handleContactDelivery}
           onReview={handleReviewItem}
+          onContactService={handleContactService}
         />
       )}
     </SafeAreaView>

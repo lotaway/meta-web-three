@@ -5,7 +5,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useCart } from '@/hooks/useCart';
-import { productCollectionApi, DEFAULT_USER_ID } from '@/api/generated';
+import { productCollectionApi, DEFAULT_USER_ID, API_BASE_URL } from '@/api/generated';
 import { router } from 'expo-router';
 
 interface ActionButtonsProps {
@@ -85,6 +85,20 @@ export function ActionButtons({ colors, productDetails, flashInfo, onOpenSKU }: 
         <TouchableOpacity onPress={() => router.replace('/(tabs)/cart')} style={styles.bottomIconBtn}>
           <IconSymbol name="cart" size={24} color={themeColors.fontColorBase} />
           <Text style={[styles.bottomIconText, { color: themeColors.fontColorBase }]}>{t('common.tabs.cart')}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.bottomIconBtn} onPress={async () => {
+          try {
+            const res = await fetch(`${API_BASE_URL}/cs/conversation/create`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-User-Id': String(DEFAULT_USER_ID) },
+              body: JSON.stringify({ channel: 'PRODUCT', productId: productDetails?.id, orderId: null }),
+            })
+            const json = await res.json()
+            if (json.data?.sessionId) router.push(`/cs/${json.data.sessionId}`)
+          } catch { Alert.alert('提示', '创建会话失败') }
+        }}>
+          <IconSymbol name="message" size={24} color={themeColors.fontColorBase} />
+          <Text style={[styles.bottomIconText, { color: themeColors.fontColorBase }]}>客服</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomIconBtn} onPress={handleToggleFavorite}>
           <IconSymbol 

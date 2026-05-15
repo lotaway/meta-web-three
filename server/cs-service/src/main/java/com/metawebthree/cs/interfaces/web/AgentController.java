@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +24,14 @@ public class AgentController {
         this.agentService = agentService;
     }
 
-    @Operation(summary = "上線")
+    @Operation(summary = "创建客服")
+    @PostMapping("/create")
+    public ApiResponse<Agent> create(@RequestBody CreateRequest request) {
+        return ApiResponse.success(
+                agentService.create(request.adminId, request.nickname, request.groupId));
+    }
+
+    @Operation(summary = "上线")
     @PostMapping("/online")
     public ApiResponse<Void> online(@RequestParam Long agentId) {
         agentService.goOnline(agentId);
@@ -57,5 +65,11 @@ public class AgentController {
                 .map(ApiResponse::success)
                 .orElse(ApiResponse.error(
                         com.metawebthree.common.enums.ResponseStatus.NOT_FOUND));
+    }
+
+    public static class CreateRequest {
+        public Long adminId;
+        public String nickname;
+        public Long groupId;
     }
 }

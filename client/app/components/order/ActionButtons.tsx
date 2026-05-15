@@ -6,22 +6,26 @@ import { useColorScheme } from '@/hooks/useColorScheme'
 
 interface ActionButtonsProps {
   status: number
+  orderId: number
   onPay: () => void
   onCancel: () => void
   onConfirmReceive: () => void
   onRefund: () => void
   onContactDelivery: () => void
   onReview: () => void
+  onContactService?: () => void
 }
 
 export function ActionButtons({
   status,
+  orderId,
   onPay,
   onCancel,
   onConfirmReceive,
   onRefund,
   onContactDelivery,
   onReview,
+  onContactService,
 }: ActionButtonsProps) {
   const { t } = useTranslation()
   const colorScheme = useColorScheme() ?? 'light'
@@ -83,6 +87,9 @@ export function ActionButtons({
 
   return (
     <View style={[styles.bottomBar, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
+      <TouchableOpacity style={[styles.bottomBtn, { borderColor: colors.border }]} onPress={onContactService}>
+        <Text style={[styles.bottomBtnText, { color: colors.text }]}>客服</Text>
+      </TouchableOpacity>
       {renderButtons()}
     </View>
   )
