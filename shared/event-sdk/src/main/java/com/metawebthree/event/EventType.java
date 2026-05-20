@@ -93,11 +93,6 @@ public enum EventType {
     LOGISTICS_DISPATCHED("logistics.dispatched"),
     LOGISTICS_DELIVERED("logistics.delivered");
 
-    // Reporting Domain Events
-    SALES_REPORT_GENERATED("reporting.sales_report_generated"),
-    INVENTORY_REPORT_GENERATED("reporting.inventory_report_generated"),
-    FINANCIAL_REPORT_GENERATED("reporting.financial_report_generated");
-
     private final String topic;
 
     EventType(String topic) {
