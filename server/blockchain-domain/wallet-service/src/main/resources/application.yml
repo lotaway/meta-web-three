@@ -1,0 +1,26 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: wallet-service
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:3306/wallet_db?useUnicode=true&characterEncoding=utf8
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+blockchain:
+  evm:
+    rpc-url: ${EVM_RPC_URL:https://mainnet.infura.io/v3/YOUR_PROJECT_ID}
+    chain-id: ${EVM_CHAIN_ID:1}
+  solana:
+    rpc-url: ${SOLANA_RPC_URL:https://api.mainnet-beta.solana.com}
+
+logging:
+  level:
+    com.metawebthree: INFO
