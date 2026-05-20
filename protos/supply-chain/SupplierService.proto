@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package com.metawebthree.supplychain.generated.rpc;
+
+option java_multiple_files = true;
+
+import "google/type/money.proto";
+
+service SupplierService {
+    rpc getSupplier(GetSupplierRequest) returns (GetSupplierResponse);
+    rpc listSuppliers(ListSuppliersRequest) returns (ListSuppliersResponse);
+    rpc createSupplier(CreateSupplierRequest) returns (CreateSupplierResponse);
+    rpc updateSupplier(UpdateSupplierRequest) returns (UpdateSupplierResponse);
+    rpc evaluateSupplier(EvaluateSupplierRequest) returns (EvaluateSupplierResponse);
+}
+
+message GetSupplierRequest {
+    string supplierCode = 1;
+}
+
+message GetSupplierResponse {
+    string supplierCode = 1;
+    string supplierName = 2;
+    string contactPerson = 3;
+    string contactPhone = 4;
+    string contactEmail = 5;
+    string address = 6;
+    string category = 7;
+    float rating = 8;
+    string status = 9;
+}
+
+message ListSuppliersRequest {
+    string category = 1;
+    string status = 2;
+    int32 page = 3;
+    int32 pageSize = 4;
+}
+
+message ListSuppliersResponse {
+    repeated SupplierDTO suppliers = 1;
+    int32 total = 2;
+}
+
+message SupplierDTO {
+    string supplierCode = 1;
+    string supplierName = 2;
+    string contactPerson = 3;
+    string contactPhone = 4;
+    string category = 5;
+    float rating = 6;
+    string status = 7;
+}
+
+message CreateSupplierRequest {
+    string supplierName = 1;
+    string contactPerson = 2;
+    string contactPhone = 3;
+    string contactEmail = 4;
+    string address = 5;
+    string category = 6;
+}
+
+message CreateSupplierResponse {
+    string supplierCode = 1;
+    bool success = 2;
+    string message = 3;
+}
+
+message UpdateSupplierRequest {
+    string supplierCode = 1;
+    string supplierName = 2;
+    string contactPerson = 3;
+    string contactPhone = 4;
+    string contactEmail = 5;
+    string address = 6;
+    string category = 7;
+}
+
+message UpdateSupplierResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message EvaluateSupplierRequest {
+    string supplierCode = 1;
+    int64 evaluatorId = 2;
+    float rating = 3;
+    string comment = 4;
+}
+
+message EvaluateSupplierResponse {
+    bool success = 1;
+    string message = 2;
+}

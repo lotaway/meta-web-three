@@ -1,0 +1,45 @@
+owner_domain: supply-chain-domain
+description: 供应链域 - 库存、仓库、物流、采购、供应商
+services:
+  inventory-service:
+    allowed_tables:
+      - inventory
+      - inventory_reserved
+      - inventory_logs
+      - inventory_snapshot
+    readonly_tables:
+      - orders
+      - products
+  
+  warehouse-service:
+    allowed_tables:
+      - warehouses
+      - warehouse_zones
+      - locations
+      - inventory_warehouse
+    readonly_tables:
+      - orders
+  
+  logistics-service:
+    allowed_tables:
+      - shipments
+      - tracking_events
+      - carriers
+      - shipping_zones
+    readonly_tables:
+      - orders
+  
+  procurement-service:
+    allowed_tables:
+      - purchase_orders
+      - purchase_items
+      - purchase_receipts
+    readonly_tables:
+      - suppliers
+  
+  supplier-service:
+    allowed_tables:
+      - suppliers
+      - supplier_contacts
+      - supplier_contracts
+      - supplier_ratings

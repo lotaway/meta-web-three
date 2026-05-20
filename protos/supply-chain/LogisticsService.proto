@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package com.metawebthree.supplychain.generated.rpc;
+
+option java_multiple_files = true;
+
+service LogisticsService {
+    rpc createShippingOrder(CreateShippingOrderRequest) returns (CreateShippingOrderResponse);
+    rpc getShippingStatus(GetShippingStatusRequest) returns (GetShippingStatusResponse);
+    rpc updateShippingStatus(UpdateShippingStatusRequest) returns (UpdateShippingStatusResponse);
+    rpc calculateFreight(CalculateFreightRequest) returns (CalculateFreightResponse);
+}
+
+message CreateShippingOrderRequest {
+    int64 orderId = 1;
+    string senderWarehouseCode = 2;
+    string receiverAddress = 3;
+    string receiverName = 4;
+    string receiverPhone = 5;
+    map<int64, int32> productQtys = 6;
+}
+
+message CreateShippingOrderResponse {
+    string trackingNo = 1;
+    bool success = 2;
+    string message = 3;
+}
+
+message GetShippingStatusRequest {
+    string trackingNo = 1;
+}
+
+message GetShippingStatusResponse {
+    string trackingNo = 1;
+    string status = 2;
+    string currentLocation = 3;
+    repeated TrackingEvent events = 4;
+}
+
+message TrackingEvent {
+    string eventTime = 1;
+    string eventDesc = 2;
+    string location = 3;
+}
+
+message UpdateShippingStatusRequest {
+    string trackingNo = 1;
+    string status = 2;
+    string location = 3;
+    string eventDesc = 4;
+}
+
+message UpdateShippingStatusResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message CalculateFreightRequest {
+    string senderRegion = 1;
+    string receiverRegion = 2;
+    float weight = 3;
+    float volume = 4;
+}
+
+message CalculateFreightResponse {
+    float freight = 1;
+    string currency = 2;
+    int32 estimatedDays = 3;
+}

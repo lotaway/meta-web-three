@@ -1,0 +1,12 @@
+owner_domain: factory-domain
+description: 工厂域 - 生产制造、设备管理、MES
+services:
+  mes-service:
+    allowed_tables:
+      - work_orders
+      - work_sessions
+      - work_stations
+      - devices
+      - device_status
+      - device_logs
+      - production_records

@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package com.metawebthree.supplychain.generated.rpc;
+
+option java_multiple_files = true;
+
+import "google/type/money.proto";
+
+service ProcurementService {
+    rpc createPurchaseOrder(CreatePurchaseOrderRequest) returns (CreatePurchaseOrderResponse);
+    rpc getPurchaseOrder(GetPurchaseOrderRequest) returns (GetPurchaseOrderResponse);
+    rpc approvePurchaseOrder(ApprovePurchaseOrderRequest) returns (ApprovePurchaseOrderResponse);
+    rpc receivePurchaseOrder(ReceivePurchaseOrderRequest) returns (ReceivePurchaseOrderResponse);
+}
+
+message CreatePurchaseOrderRequest {
+    string supplierCode = 1;
+    repeated PurchaseOrderItem items = 2;
+    string expectedDeliveryDate = 3;
+    string remark = 4;
+}
+
+message PurchaseOrderItem {
+    int64 productId = 1;
+    int32 quantity = 2;
+    google.type.Money unitPrice = 3;
+}
+
+message CreatePurchaseOrderResponse {
+    string purchaseOrderNo = 1;
+    bool success = 2;
+    string message = 3;
+}
+
+message GetPurchaseOrderRequest {
+    string purchaseOrderNo = 1;
+}
+
+message GetPurchaseOrderResponse {
+    string purchaseOrderNo = 1;
+    string supplierCode = 2;
+    repeated PurchaseOrderItem items = 3;
+    string status = 4;
+    string expectedDeliveryDate = 5;
+    google.type.Money totalAmount = 6;
+}
+
+message ApprovePurchaseOrderRequest {
+    string purchaseOrderNo = 1;
+    int64 approverId = 2;
+    bool approved = 3;
+    string comment = 4;
+}
+
+message ApprovePurchaseOrderResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message ReceivePurchaseOrderRequest {
+    string purchaseOrderNo = 1;
+    string warehouseCode = 2;
+    map<int64, int32> receivedQtys = 3;
+}
+
+message ReceivePurchaseOrderResponse {
+    string inboundOrderNo = 1;
+    bool success = 2;
+    string message = 3;
+}

@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package com.metawebthree.supplychain.generated.rpc;
+
+option java_multiple_files = true;
+
+import "google/type/money.proto";
+
+service WarehouseService {
+    rpc getWarehouse(GetWarehouseRequest) returns (GetWarehouseResponse);
+    rpc listWarehouses(ListWarehousesRequest) returns (ListWarehousesResponse);
+    rpc createInboundOrder(CreateInboundOrderRequest) returns (CreateInboundOrderResponse);
+    rpc createOutboundOrder(CreateOutboundOrderRequest) returns (CreateOutboundOrderResponse);
+}
+
+message GetWarehouseRequest {
+    string warehouseCode = 1;
+}
+
+message GetWarehouseResponse {
+    string warehouseCode = 1;
+    string warehouseName = 2;
+    string address = 3;
+    string region = 4;
+    int32 capacity = 5;
+    int32 usedCapacity = 6;
+}
+
+message ListWarehousesRequest {
+    string region = 1;
+}
+
+message ListWarehousesResponse {
+    repeated WarehouseDTO warehouses = 1;
+}
+
+message WarehouseDTO {
+    string warehouseCode = 1;
+    string warehouseName = 2;
+    string address = 3;
+    string region = 4;
+    int32 capacity = 5;
+    int32 usedCapacity = 6;
+}
+
+message CreateInboundOrderRequest {
+    string warehouseCode = 1;
+    int64 productId = 2;
+    int32 quantity = 3;
+    string supplierCode = 4;
+}
+
+message CreateInboundOrderResponse {
+    string inboundOrderNo = 1;
+    bool success = 2;
+    string message = 3;
+}
+
+message CreateOutboundOrderRequest {
+    string warehouseCode = 1;
+    int64 orderId = 2;
+    map<int64, int32> productQtys = 3;
+}
+
+message CreateOutboundOrderResponse {
+    string outboundOrderNo = 1;
+    bool success = 2;
+    string message = 3;
+}

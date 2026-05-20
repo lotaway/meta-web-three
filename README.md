@@ -2,44 +2,58 @@
 
 _本项目为商城+AI风控+AI仓储+ERP+数字化工厂+（可选）区块链商品 相关_
 
-## Direct Introduction 目录说明
+## 目录结构
 
-- backstage-admin 商城管理后台
-- client 客户端App
-- server 商城后端
-- protos protobuf RPC消息格式，提供给各个微服务使用
-- risk-scorer 风险AI评分微服务
-- evm-contract Ethereum 及衍生链合约
-- solana-contract solana链合约
-- solana-contract Solana链合约
-- tools 工具库
-- k8s k8s部署配置文件
-- docker-* docker部署配置文件
+```
+meta-web-three/
+├── apps/              # 前端应用
+├── server/            # 后端微服务（详见 server/README.md）
+├── protos/            # Protocol Buffers 定义
+├── contracts/         # 区块链智能合约
+├── shared/            # 跨服务共享代码
+├── infra/             # 基础设施配置
+└── tools/             # 工具库
+```
 
-## Installation 安装
+### apps/ 前端应用
+- backstage-admin - 商城管理后台
+- client - 客户端 App
+
+### server/ 后端微服务
+详见 [server/README.md](./server/README.md)
+
+### protos/ 消息定义
+按领域拆分：mall/, supply-chain/, erp/, ai/, blockchain/, shared/
+
+### contracts/ 区块链合约
+- evm-contract - Ethereum 及 EVM 兼容链合约
+- solana-contract - Solana 链合约
+
+---
+
+## Installation
 
 ```bash
 $ yarn install
 ```
 
-### AI环境
+### AI 环境
 
 需要以下 4 种的任意一种作为环境管理器使用：
 
-- [anaconda](https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive)，第三方维护，包含非 py 包，数量几千，兼容性强
-- [condaforce](https://conda-forge.org/miniforge)，社区维护，包含非 py 包，数量几万，但是兼容性差
-- [uv](https://pypi.org/project/uv)，python 包管理器
-- pip，python 环境自带
+- [anaconda](https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive)
+- [condaforce](https://conda-forge.org/miniforge)
+- [uv](https://pypi.org/project/uv)
+- pip
 
-以 condaforce/miniforce 为例，下载后执行：
+### Protobuf
 
+需要 [protoc v32.0](https://github.com/protocolbuffers/protobuf/releases) 和 [CMake v4.1.0](https://cmake.org/download)。
+
+macOS 安装：
 ```bash
-mamba create -n ai -c conda-forge
-mamba activate ai
+brew install protobuf
+brew install cmake
 ```
 
-### protobuf
-
-Need generate by [protoc v32.0](https://github.com/protocolbuffers/protobuf/releases) and [CMake v4.1.0](https://cmake.org/download) for `Rust` support, if need java grpc to build server, need install [protoc-gen-grpc-java v1.75.0](https://repo1.maven.org/maven2/io/grpc/protoc-gen-grpc-java), recommand uses dubbo to support grpc, that already inside java project dependency.
-If using mac, can use `brew install protobuf` to install protoc, `brew install cmake` to install CMake.
-After installed, run `make` to generate multiple language protobuf interface files.
+运行 `make` 生成多语言 protobuf 接口文件。

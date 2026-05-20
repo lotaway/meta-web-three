@@ -1,0 +1,45 @@
+owner_domain: platform-domain
+description: 平台域 - 网关、媒体、消息、客服、佣金、用户行为
+services:
+  gateway:
+    readonly: true
+    description: API 网关，不直接访问数据库
+  
+  media-service:
+    allowed_tables:
+      - media_files
+      - media_metadata
+    readonly_tables: []
+  
+  message-service:
+    allowed_tables:
+      - messages
+      - notifications
+      - notification_queue
+    readonly_tables:
+      - users
+  
+  cs-service:
+    allowed_tables:
+      - tickets
+      - ticket_replies
+      - ticket_attachments
+    readonly_tables:
+      - users
+  
+  commission-service:
+    allowed_tables:
+      - commissions
+      - commission_logs
+      - commission_rates
+    readonly_tables:
+      - orders
+  
+  user-action-service:
+    allowed_tables:
+      - user_actions
+      - events
+      - event_metrics
+    readonly_tables:
+      - users
+      - products

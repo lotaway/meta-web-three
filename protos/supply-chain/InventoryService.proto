@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package com.metawebthree.supplychain.generated.rpc;
+
+option java_multiple_files = true;
+
+import "google/type/money.proto";
+
+service InventoryService {
+    rpc getInventory(GetInventoryRequest) returns (GetInventoryResponse);
+    rpc reserveInventory(ReserveInventoryRequest) returns (ReserveInventoryResponse);
+    rpc releaseInventory(ReleaseInventoryRequest) returns (ReleaseInventoryResponse);
+}
+
+message GetInventoryRequest {
+    int64 productId = 1;
+    string warehouseCode = 2;
+}
+
+message GetInventoryResponse {
+    int64 productId = 1;
+    string warehouseCode = 2;
+    int32 availableQty = 3;
+    int32 reservedQty = 4;
+    int32 totalQty = 5;
+}
+
+message ReserveInventoryRequest {
+    int64 orderId = 1;
+    int64 productId = 2;
+    string warehouseCode = 3;
+    int32 quantity = 4;
+}
+
+message ReserveInventoryResponse {
+    bool success = 1;
+    string message = 2;
+    string reservationId = 3;
+}
+
+message ReleaseInventoryRequest {
+    string reservationId = 1;
+}
+
+message ReleaseInventoryResponse {
+    bool success = 1;
+    string message = 2;
+}
