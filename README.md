@@ -1,14 +1,16 @@
 ## Description
 
-_本项目为元宇宙 3D+区块链 AI 相关_
+_本项目为商城+AI风控+AI仓储+ERP+数字化工厂+（可选）区块链商品 相关_
 
-## Direct 目录说明
+## Direct Introduction 目录说明
 
-- server 后端
+- backstage-admin 商城管理后台
+- client 客户端App
+- server 商城后端
 - protos protobuf RPC消息格式，提供给各个微服务使用
-
 - risk-scorer 风险AI评分微服务
 - evm-contract Ethereum 及衍生链合约
+- solana-contract solana链合约
 - solana-contract Solana链合约
 - tools 工具库
 - k8s k8s部署配置文件
@@ -34,45 +36,6 @@ $ yarn install
 ```bash
 mamba create -n ai -c conda-forge
 mamba activate ai
-```
-
-## Running the app 同时运行服务端和客户端
-
-```bash
-$ yarn dev
-```
-
-### evm-contract 链端 网关
-
-```bash
-$ cd evm-contract
-
-# compile contract
-$ yarn compile
-
-# contract test
-$ hardhat test
-
-# deploy contract
-$ hardhat run scripts/deploy.js
-
-# start a chain node
-$ hardhat node
-
-# deploy contract to local node for develop
-$ hardhat run scripts/deploy.js --network localhost
-
-# generate database
-$ npm run db:generate
-
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
 ```
 
 ### protobuf

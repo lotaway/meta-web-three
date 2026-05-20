@@ -31,6 +31,16 @@ Run Foundry tests only:
 yarn test:forge
 ```
 
+deploy contract
+
+```bash
+# compile contract
+$ yarn compile
+
+# deploy contract
+$ hardhat run scripts/deploy.js
+```
+
 ## Foundry Setup
 
 Foundry is not an npm dependency. Install it once on your machine:
