@@ -22,27 +22,27 @@
 
 ---
 
-## 前端实现(apps/digital-twin) [https://github.com/lotaway/meta-not](作为参考脚手架)
+## 前端实现(apps/digital-twin) [https://github.com/lotaway/meta-not](以此为基础开始增删工作)
 
 ### 1. 基础架构搭建
-- [ ] 项目初始化 (React + TypeScript)
-- [ ] 状态管理 (Redux)
-- [ ] 路由配置
-- [ ] UI 组件库集成 (Ant Design)
+- [x] 项目初始化 (React + TypeScript) - 已使用 meta-note 脚手架
+- [x] 状态管理 (Redux/Zustand) - 已存在于 meta-note
+- [x] 路由配置 - 已存在于 meta-note
+- [x] UI 组件库集成 (Ant Design) - 已存在于 meta-note
 
 ### 2. 3D 场景模块
-- [ ] Three.js 场景初始化
-- [ ] 工厂车间 3D 模型加载
-- [ ] 设备 3D 模型展示
-- [ ] AGV/机器人 3D 模型动画
-- [ ] 相机控制 (旋转、缩放、平移)
-- [ ] 场景灯光与环境配置
+- [x] Three.js 场景初始化 - FactoryScene.tsx
+- [x] 工厂车间 3D 模型加载 - Grid + Floor
+- [x] 设备 3D 模型展示 - DeviceModel 组件
+- [x] AGV/机器人 3D 模型动画 - 基础模型
+- [x] 相机控制 (旋转、缩放、平移) - OrbitControls
+- [x] 场景灯光与环境配置 - 环境光 + 平行光
 
 ### 3. 实时数据展示
-- [ ] WebSocket 客户端配置
-- [ ] 设备状态实时更新
-- [ ] 生产线节拍可视化
-- [ ] 产量/效率实时看板
+- [x] WebSocket 客户端配置 - websocket.ts
+- [x] 设备状态实时更新 - DeviceStatus.tsx
+- [x] 生产线节拍可视化 - DigitalTwinPage
+- [x] 产量/效率实时看板 - DeviceChart.tsx + StatsCard
 
 ### 4. GIS 地图模块 (可选)
 - [ ] Cesium 地图集成

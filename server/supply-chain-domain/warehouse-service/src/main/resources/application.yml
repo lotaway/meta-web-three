@@ -1,15 +1,10 @@
 server:
-  port: 10089
+  port: 10106
 spring:
   application:
-    name: cart-service
+    name: warehouse-service
   profiles:
     active: dev
-dubbo:
-  application:
-    name: cart-service
-  protocol:
-    port: 20090
 ---
 spring:
   config:

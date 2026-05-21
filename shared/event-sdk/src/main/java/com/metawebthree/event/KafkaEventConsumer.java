@@ -33,7 +33,7 @@ public class KafkaEventConsumer implements EventConsumer {
     @Override
     public <T extends BaseEvent> void subscribe(EventType eventType, EventHandler<T> handler) {
         @SuppressWarnings("unchecked")
-        EventHandler<BaseEvent> castHandler = event -> handler.handle(event);
+        EventHandler<BaseEvent> castHandler = event -> handler.handle((T) event);
         handlers.put(eventType.getTopic(), castHandler);
     }
 

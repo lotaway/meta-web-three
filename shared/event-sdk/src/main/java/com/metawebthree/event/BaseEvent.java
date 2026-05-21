@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -16,14 +16,14 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BaseEvent {
 
     /**
      * Unique event identifier.
      */
-    @Builder.Default
+    @SuperBuilder.Default
     private String eventId = UUID.randomUUID().toString();
 
     /**
@@ -34,7 +34,7 @@ public class BaseEvent {
     /**
      * Timestamp when event was created.
      */
-    @Builder.Default
+    @SuperBuilder.Default
     private Instant timestamp = Instant.now();
 
     /**
@@ -50,6 +50,6 @@ public class BaseEvent {
     /**
      * Payload version for schema evolution.
      */
-    @Builder.Default
+    @SuperBuilder.Default
     private int version = 1;
 }
