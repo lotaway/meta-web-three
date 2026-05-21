@@ -1,0 +1,12 @@
+# compiled output
+./system-support/bin
+./system-support/build
+build
+bin
+
+# IDEs and editors
+.idea
+.vs
+.vscode/settings.json
+
+logs/
