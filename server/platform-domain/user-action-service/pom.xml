@@ -7,9 +7,9 @@
         <groupId>com.metawebthree</groupId>
         <artifactId>backend-api</artifactId>
         <version>1.0.0</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
-
-    <artifactId>message-service</artifactId>
+    <artifactId>user-action-service</artifactId>
 
     <dependencies>
         <dependency>
@@ -18,4 +18,5 @@
             <version>1.0.0</version>
         </dependency>
     </dependencies>
+
 </project>

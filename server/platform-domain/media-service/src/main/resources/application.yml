@@ -5,7 +5,7 @@ upload:
       total-quota: 104857600     # 100MB
 
 server:
-  port: 10089
+  port: 10087
 spring:
   application:
     name: media-service
