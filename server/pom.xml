@@ -19,17 +19,38 @@
     <modules>
         <module>common</module>
         <module>gateway</module>
-        <module>product-service</module>
-        <module>order-service</module>
-        <module>user-service</module>
-        <module>message-service</module>
-        <module>payment-service</module>
-        <module>media-service</module>
-        <module>promotion-service</module>
-        <module>commission-service</module>
-        <module>cart-service</module>
-        <module>user-action-service</module>
-        <module>cs-service</module>
+        <!-- mall-domain -->
+        <module>mall-domain/product-service</module>
+        <module>mall-domain/order-service</module>
+        <module>mall-domain/user-service</module>
+        <module>mall-domain/payment-service</module>
+        <module>mall-domain/promotion-service</module>
+        <module>mall-domain/cart-service</module>
+        <!-- platform-domain -->
+        <module>platform-domain/message-service</module>
+        <module>platform-domain/media-service</module>
+        <module>platform-domain/commission-service</module>
+        <module>platform-domain/user-action-service</module>
+        <module>platform-domain/cs-service</module>
+        <!-- factory-domain -->
+        <module>factory-domain/mes-service</module>
+        <module>factory-domain/digital-twin-service</module>
+        <!-- ai-domain -->
+        <module>ai-domain/forecasting-service</module>
+        <module>ai-domain/recommendation-service</module>
+        <!-- supply-chain-domain -->
+        <module>supply-chain-domain/inventory-service</module>
+        <module>supply-chain-domain/warehouse-service</module>
+        <module>supply-chain-domain/logistics-service</module>
+        <module>supply-chain-domain/procurement-service</module>
+        <module>supply-chain-domain/supplier-service</module>
+        <!-- erp-domain -->
+        <module>erp-domain/finance-service</module>
+        <module>erp-domain/invoice-service</module>
+        <module>erp-domain/reporting-service</module>
+        <module>erp-domain/settlement-service</module>
+        <!-- blockchain-domain -->
+        <module>blockchain-domain/wallet-service</module>
     </modules>
 
     <properties>

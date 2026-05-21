@@ -108,15 +108,15 @@ echo "检查源代码..."
 # 需要检查的目录
 CHECK_DIRS=()
 
-# 确定要检查的目录
-if [ -d "$PROJECT_ROOT/server/$SERVICE_NAME" ]; then
+# 确定要检查的目录（优先 *-domain 路径）
+for domain_dir in mall-domain platform-domain supply-chain-domain factory-domain ai-domain erp-domain blockchain-domain; do
+    if [ -d "$PROJECT_ROOT/server/$domain_dir/$SERVICE_NAME" ]; then
+        CHECK_DIRS+=("$PROJECT_ROOT/server/$domain_dir/$SERVICE_NAME")
+        break
+    fi
+done
+if [ ${#CHECK_DIRS[@]} -eq 0 ] && [ -d "$PROJECT_ROOT/server/$SERVICE_NAME" ]; then
     CHECK_DIRS+=("$PROJECT_ROOT/server/$SERVICE_NAME")
-elif [ -d "$PROJECT_ROOT/server/mall-domain/$SERVICE_NAME" ]; then
-    CHECK_DIRS+=("$PROJECT_ROOT/server/mall-domain/$SERVICE_NAME")
-elif [ -d "$PROJECT_ROOT/server/supply-chain-domain/$SERVICE_NAME" ]; then
-    CHECK_DIRS+=("$PROJECT_ROOT/server/supply-chain-domain/$SERVICE_NAME")
-elif [ -d "$PROJECT_ROOT/server/platform-domain/$SERVICE_NAME" ]; then
-    CHECK_DIRS+=("$PROJECT_ROOT/server/platform-domain/$SERVICE_NAME")
 fi
 
 if [ ${#CHECK_DIRS[@]} -eq 0 ]; then
