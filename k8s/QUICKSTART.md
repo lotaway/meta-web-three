@@ -84,18 +84,13 @@ sudo chmod 755 /data -R
 cd client
 docker build -t meta-web-three/client:latest .
 
-# 构建后端服务镜像
-cd ../server/product-service
-docker build -t meta-web-three/product-service:latest .
-
-cd ../user-service
-docker build -t meta-web-three/user-service:latest .
-
-cd ../order-service
-docker build -t meta-web-three/order-service:latest .
-
-cd ../message-service
-docker build -t meta-web-three/message-service:latest .
+# 构建后端服务镜像（上下文为仓库根目录，见 scripts/server-services-registry.sh）
+cd ..
+docker build -f server/Dockerfile --target product-service -t meta-web-three/product-service:latest .
+# 一次性构建全部 Java 服务:
+./k8s/deploy.sh build
+# K8s 扩展领域服务（cs、mes、supply-chain、erp 等）:
+# kubectl apply -f k8s/services/extended-domain-services.yaml
 ```
 
 ### 步骤 2: 创建 Secret

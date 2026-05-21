@@ -1,0 +1,916 @@
+# Auto-generated domain extension services. Apply: kubectl apply -f k8s/services/extended-domain-services.yaml
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cs-service
+  namespace: meta-web-three
+  labels:
+    app: cs-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cs-service
+  template:
+    metadata:
+      labels:
+        app: cs-service
+    spec:
+      containers:
+      - name: cs-service
+        image: meta-web-three/cs-service:latest
+        ports:
+        - containerPort: 10092
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10092"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: cs-data
+          mountPath: /server/cs
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: cs-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cs-service
+  namespace: meta-web-three
+  labels:
+    app: cs-service
+spec:
+  selector:
+    app: cs-service
+  ports:
+  - port: 10092
+    targetPort: 10092
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mes-service
+  namespace: meta-web-three
+  labels:
+    app: mes-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mes-service
+  template:
+    metadata:
+      labels:
+        app: mes-service
+    spec:
+      containers:
+      - name: mes-service
+        image: meta-web-three/mes-service:latest
+        ports:
+        - containerPort: 10101
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10101"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: mes-data
+          mountPath: /server/mes
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: mes-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mes-service
+  namespace: meta-web-three
+  labels:
+    app: mes-service
+spec:
+  selector:
+    app: mes-service
+  ports:
+  - port: 10101
+    targetPort: 10101
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: digital-twin-service
+  namespace: meta-web-three
+  labels:
+    app: digital-twin-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: digital-twin-service
+  template:
+    metadata:
+      labels:
+        app: digital-twin-service
+    spec:
+      containers:
+      - name: digital-twin-service
+        image: meta-web-three/digital-twin-service:latest
+        ports:
+        - containerPort: 10102
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10102"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: digital-twin-data
+          mountPath: /server/digital-twin
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: digital-twin-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: digital-twin-service
+  namespace: meta-web-three
+  labels:
+    app: digital-twin-service
+spec:
+  selector:
+    app: digital-twin-service
+  ports:
+  - port: 10102
+    targetPort: 10102
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forecasting-service
+  namespace: meta-web-three
+  labels:
+    app: forecasting-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: forecasting-service
+  template:
+    metadata:
+      labels:
+        app: forecasting-service
+    spec:
+      containers:
+      - name: forecasting-service
+        image: meta-web-three/forecasting-service:latest
+        ports:
+        - containerPort: 10103
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10103"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: forecasting-data
+          mountPath: /server/forecasting
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: forecasting-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: forecasting-service
+  namespace: meta-web-three
+  labels:
+    app: forecasting-service
+spec:
+  selector:
+    app: forecasting-service
+  ports:
+  - port: 10103
+    targetPort: 10103
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recommendation-service
+  namespace: meta-web-three
+  labels:
+    app: recommendation-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recommendation-service
+  template:
+    metadata:
+      labels:
+        app: recommendation-service
+    spec:
+      containers:
+      - name: recommendation-service
+        image: meta-web-three/recommendation-service:latest
+        ports:
+        - containerPort: 10104
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10104"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: recommendation-data
+          mountPath: /server/recommendation
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: recommendation-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recommendation-service
+  namespace: meta-web-three
+  labels:
+    app: recommendation-service
+spec:
+  selector:
+    app: recommendation-service
+  ports:
+  - port: 10104
+    targetPort: 10104
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-service
+  namespace: meta-web-three
+  labels:
+    app: inventory-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-service
+  template:
+    metadata:
+      labels:
+        app: inventory-service
+    spec:
+      containers:
+      - name: inventory-service
+        image: meta-web-three/inventory-service:latest
+        ports:
+        - containerPort: 10105
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10105"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: inventory-data
+          mountPath: /server/inventory
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: inventory-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-service
+  namespace: meta-web-three
+  labels:
+    app: inventory-service
+spec:
+  selector:
+    app: inventory-service
+  ports:
+  - port: 10105
+    targetPort: 10105
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: warehouse-service
+  namespace: meta-web-three
+  labels:
+    app: warehouse-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: warehouse-service
+  template:
+    metadata:
+      labels:
+        app: warehouse-service
+    spec:
+      containers:
+      - name: warehouse-service
+        image: meta-web-three/warehouse-service:latest
+        ports:
+        - containerPort: 10106
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10106"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: warehouse-data
+          mountPath: /server/warehouse
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: warehouse-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: warehouse-service
+  namespace: meta-web-three
+  labels:
+    app: warehouse-service
+spec:
+  selector:
+    app: warehouse-service
+  ports:
+  - port: 10106
+    targetPort: 10106
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logistics-service
+  namespace: meta-web-three
+  labels:
+    app: logistics-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logistics-service
+  template:
+    metadata:
+      labels:
+        app: logistics-service
+    spec:
+      containers:
+      - name: logistics-service
+        image: meta-web-three/logistics-service:latest
+        ports:
+        - containerPort: 10107
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10107"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: logistics-data
+          mountPath: /server/logistics
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: logistics-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logistics-service
+  namespace: meta-web-three
+  labels:
+    app: logistics-service
+spec:
+  selector:
+    app: logistics-service
+  ports:
+  - port: 10107
+    targetPort: 10107
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: procurement-service
+  namespace: meta-web-three
+  labels:
+    app: procurement-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: procurement-service
+  template:
+    metadata:
+      labels:
+        app: procurement-service
+    spec:
+      containers:
+      - name: procurement-service
+        image: meta-web-three/procurement-service:latest
+        ports:
+        - containerPort: 10108
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10108"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: procurement-data
+          mountPath: /server/procurement
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: procurement-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: procurement-service
+  namespace: meta-web-three
+  labels:
+    app: procurement-service
+spec:
+  selector:
+    app: procurement-service
+  ports:
+  - port: 10108
+    targetPort: 10108
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: supplier-service
+  namespace: meta-web-three
+  labels:
+    app: supplier-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: supplier-service
+  template:
+    metadata:
+      labels:
+        app: supplier-service
+    spec:
+      containers:
+      - name: supplier-service
+        image: meta-web-three/supplier-service:latest
+        ports:
+        - containerPort: 10109
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10109"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: supplier-data
+          mountPath: /server/supplier
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: supplier-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: supplier-service
+  namespace: meta-web-three
+  labels:
+    app: supplier-service
+spec:
+  selector:
+    app: supplier-service
+  ports:
+  - port: 10109
+    targetPort: 10109
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finance-service
+  namespace: meta-web-three
+  labels:
+    app: finance-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: finance-service
+  template:
+    metadata:
+      labels:
+        app: finance-service
+    spec:
+      containers:
+      - name: finance-service
+        image: meta-web-three/finance-service:latest
+        ports:
+        - containerPort: 10110
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10110"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: finance-data
+          mountPath: /server/finance
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: finance-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: finance-service
+  namespace: meta-web-three
+  labels:
+    app: finance-service
+spec:
+  selector:
+    app: finance-service
+  ports:
+  - port: 10110
+    targetPort: 10110
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: invoice-service
+  namespace: meta-web-three
+  labels:
+    app: invoice-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: invoice-service
+  template:
+    metadata:
+      labels:
+        app: invoice-service
+    spec:
+      containers:
+      - name: invoice-service
+        image: meta-web-three/invoice-service:latest
+        ports:
+        - containerPort: 10111
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10111"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: invoice-data
+          mountPath: /server/invoice
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: invoice-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: invoice-service
+  namespace: meta-web-three
+  labels:
+    app: invoice-service
+spec:
+  selector:
+    app: invoice-service
+  ports:
+  - port: 10111
+    targetPort: 10111
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reporting-service
+  namespace: meta-web-three
+  labels:
+    app: reporting-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reporting-service
+  template:
+    metadata:
+      labels:
+        app: reporting-service
+    spec:
+      containers:
+      - name: reporting-service
+        image: meta-web-three/reporting-service:latest
+        ports:
+        - containerPort: 10112
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10112"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: reporting-data
+          mountPath: /server/reporting
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: reporting-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reporting-service
+  namespace: meta-web-three
+  labels:
+    app: reporting-service
+spec:
+  selector:
+    app: reporting-service
+  ports:
+  - port: 10112
+    targetPort: 10112
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: settlement-service
+  namespace: meta-web-three
+  labels:
+    app: settlement-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: settlement-service
+  template:
+    metadata:
+      labels:
+        app: settlement-service
+    spec:
+      containers:
+      - name: settlement-service
+        image: meta-web-three/settlement-service:latest
+        ports:
+        - containerPort: 10113
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10113"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: settlement-data
+          mountPath: /server/settlement
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: settlement-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: settlement-service
+  namespace: meta-web-three
+  labels:
+    app: settlement-service
+spec:
+  selector:
+    app: settlement-service
+  ports:
+  - port: 10113
+    targetPort: 10113
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wallet-service
+  namespace: meta-web-three
+  labels:
+    app: wallet-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wallet-service
+  template:
+    metadata:
+      labels:
+        app: wallet-service
+    spec:
+      containers:
+      - name: wallet-service
+        image: meta-web-three/wallet-service:latest
+        ports:
+        - containerPort: 10114
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        - name: SERVER_PORT
+          value: "10114"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/config
+        - name: wallet-data
+          mountPath: /server/wallet
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: app-config
+        configMap:
+          name: app-config
+      - name: wallet-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wallet-service
+  namespace: meta-web-three
+  labels:
+    app: wallet-service
+spec:
+  selector:
+    app: wallet-service
+  ports:
+  - port: 10114
+    targetPort: 10114
+  type: ClusterIP

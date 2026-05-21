@@ -419,16 +419,18 @@ services:
       context: "./client"
       dockerfile: dockerfile
 
-# docker-compose.server.yaml
+# docker-compose.server.yml
 services:
   product-service:
     build:
-      context: ./product-service
+      context: ./server
       dockerfile: Dockerfile
+      target: product-service
   user-action-service:
     build:
-      context: ./user-action-service
+      context: ./server
       dockerfile: Dockerfile
+      target: user-action-service
 ```
 
 ### Kubernetes 镜像配置

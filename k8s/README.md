@@ -176,12 +176,16 @@ cd client
 docker build -t meta-web-three/client:latest .
 docker push meta-web-three/client:latest
 
-# 构建后端服务镜像
-cd ../server/product-service
-docker build -t meta-web-three/product-service:latest .
+# 构建后端服务镜像（在 server 目录用统一 Dockerfile + target）
+cd ../server
+docker build -t meta-web-three/product-service:latest --target product-service .
+docker build -t meta-web-three/user-service:latest --target user-service .
+docker build -t meta-web-three/order-service:latest --target order-service .
+docker build -t meta-web-three/message-service:latest --target message-service .
+# 或使用脚本一次性构建: ../k8s/deploy.sh build
 docker push meta-web-three/product-service:latest
 
-# 重复其他服务...
+# 其他服务同理，target 名称见 server/Dockerfile
 ```
 
 ### 4. 创建存储目录

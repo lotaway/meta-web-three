@@ -1,8 +1,24 @@
+x-java-service: &java-service
+  environment:
+    - SPRING_PROFILES_ACTIVE=dev
+    - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
+  depends_on:
+    zookeeper:
+      condition: service_healthy
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  networks:
+    - meta-web-three
+    - default
+  restart: unless-stopped
+
 services:
   gateway:
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: server/Dockerfile
       target: gateway
     container_name: meta-web-three-gateway
     ports:
@@ -20,298 +36,306 @@ services:
       - meta-web-three
       - default
     restart: unless-stopped
-
   product-service:
+    <<: *java-service
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: server/Dockerfile
       target: product-service
     container_name: meta-web-three-product-service
     ports:
       - "10082:10082"
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
     volumes:
       - product_service_data:/server/product
       - ./.aws:/.aws:ro
-    depends_on:
-      zookeeper:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - meta-web-three
-      - default
-    restart: unless-stopped
-
   user-service:
+    <<: *java-service
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: server/Dockerfile
       target: user-service
     container_name: meta-web-three-user-service
     ports:
       - "10083:10083"
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
     volumes:
       - user_service_data:/server/user
       - ./.aws:/.aws:ro
-    depends_on:
-      zookeeper:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - meta-web-three
-      - default
-    restart: unless-stopped
-
   order-service:
+    <<: *java-service
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: server/Dockerfile
       target: order-service
     container_name: meta-web-three-order-service
     ports:
       - "10084:10084"
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
     volumes:
       - order_service_data:/server/order
       - ./.aws:/.aws:ro
-    depends_on:
-      zookeeper:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - meta-web-three
-      - default
-    restart: unless-stopped
-
   message-service:
+    <<: *java-service
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: server/Dockerfile
       target: message-service
     container_name: meta-web-three-message-service
     ports:
       - "10085:10085"
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
     volumes:
       - message_service_data:/server/message
       - ./.aws:/.aws:ro
-    depends_on:
-      zookeeper:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - meta-web-three
-      - default
-    restart: unless-stopped
-
   payment-service:
+    <<: *java-service
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: server/Dockerfile
       target: payment-service
     container_name: meta-web-three-payment-service
     ports:
       - "10086:10086"
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
     volumes:
       - payment_service_data:/server/payment
       - ./.aws:/.aws:ro
-    # environment:
-    #   - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/payment_service
-    #   - SPRING_DATASOURCE_USERNAME=root
-    #   - SPRING_DATASOURCE_PASSWORD=root
-    #   - SPRING_REDIS_HOST=redis
-    #   - SPRING_REDIS_PORT=6379
-    depends_on:
-      zookeeper:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - meta-web-three
-      - default
-    restart: unless-stopped
-
-  commission-service:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-      target: commission-service
-    container_name: meta-web-three-commission-service
-    ports:
-      - "10088:10088"
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
-    volumes:
-      - commission_service_data:/server/commission
-      - ./.aws:/.aws:ro
-    depends_on:
-      zookeeper:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - meta-web-three
-      - default
-    restart: unless-stopped
-
   media-service:
+    <<: *java-service
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: server/Dockerfile
       target: media-service
     container_name: meta-web-three-media-service
     ports:
       - "10087:10087"
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
     volumes:
       - media_service_data:/server/media
       - ./.aws:/.aws:ro
-    depends_on:
-      zookeeper:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - meta-web-three
-      - default
-    restart: unless-stopped
-
-  cart-service:
+  commission-service:
+    <<: *java-service
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: server/Dockerfile
+      target: commission-service
+    container_name: meta-web-three-commission-service
+    ports:
+      - "10088:10088"
+    volumes:
+      - commission_service_data:/server/commission
+      - ./.aws:/.aws:ro
+  cart-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
       target: cart-service
     container_name: meta-web-three-cart-service
     ports:
       - "10089:10089"
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
     volumes:
       - cart_service_data:/server/cart
       - ./.aws:/.aws:ro
-    depends_on:
-      zookeeper:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - meta-web-three
-      - default
-    restart: unless-stopped
-
   promotion-service:
+    <<: *java-service
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: server/Dockerfile
       target: promotion-service
     container_name: meta-web-three-promotion-service
     ports:
       - "10090:10090"
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
     volumes:
       - promotion_service_data:/server/promotion
       - ./.aws:/.aws:ro
-    depends_on:
-      zookeeper:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - meta-web-three
-      - default
-    restart: unless-stopped
-
   user-action-service:
+    <<: *java-service
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: server/Dockerfile
       target: user-action-service
     container_name: meta-web-three-user-action-service
     ports:
       - "10091:10091"
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
     volumes:
-      - user_action_service_data:/server/user-action
+      - user-action_service_data:/server/user-action
       - ./.aws:/.aws:ro
-    depends_on:
-      zookeeper:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - meta-web-three
-      - default
-    restart: unless-stopped
-
   cs-service:
+    <<: *java-service
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: server/Dockerfile
       target: cs-service
     container_name: meta-web-three-cs-service
     ports:
       - "10092:10092"
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
     volumes:
       - cs_service_data:/server/cs
       - ./.aws:/.aws:ro
-    depends_on:
-      zookeeper:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - meta-web-three
-      - default
-    restart: unless-stopped
+  mes-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: mes-service
+    container_name: meta-web-three-mes-service
+    ports:
+      - "10101:10101"
+    volumes:
+      - mes_service_data:/server/mes
+      - ./.aws:/.aws:ro
+  digital-twin-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: digital-twin-service
+    container_name: meta-web-three-digital-twin-service
+    ports:
+      - "10102:10102"
+    volumes:
+      - digital-twin_service_data:/server/digital-twin
+      - ./.aws:/.aws:ro
+  forecasting-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: forecasting-service
+    container_name: meta-web-three-forecasting-service
+    ports:
+      - "10103:10103"
+    volumes:
+      - forecasting_service_data:/server/forecasting
+      - ./.aws:/.aws:ro
+  recommendation-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: recommendation-service
+    container_name: meta-web-three-recommendation-service
+    ports:
+      - "10104:10104"
+    volumes:
+      - recommendation_service_data:/server/recommendation
+      - ./.aws:/.aws:ro
+  inventory-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: inventory-service
+    container_name: meta-web-three-inventory-service
+    ports:
+      - "10105:10105"
+    volumes:
+      - inventory_service_data:/server/inventory
+      - ./.aws:/.aws:ro
+  warehouse-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: warehouse-service
+    container_name: meta-web-three-warehouse-service
+    ports:
+      - "10106:10106"
+    volumes:
+      - warehouse_service_data:/server/warehouse
+      - ./.aws:/.aws:ro
+  logistics-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: logistics-service
+    container_name: meta-web-three-logistics-service
+    ports:
+      - "10107:10107"
+    volumes:
+      - logistics_service_data:/server/logistics
+      - ./.aws:/.aws:ro
+  procurement-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: procurement-service
+    container_name: meta-web-three-procurement-service
+    ports:
+      - "10108:10108"
+    volumes:
+      - procurement_service_data:/server/procurement
+      - ./.aws:/.aws:ro
+  supplier-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: supplier-service
+    container_name: meta-web-three-supplier-service
+    ports:
+      - "10109:10109"
+    volumes:
+      - supplier_service_data:/server/supplier
+      - ./.aws:/.aws:ro
+  finance-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: finance-service
+    container_name: meta-web-three-finance-service
+    ports:
+      - "10110:10110"
+    volumes:
+      - finance_service_data:/server/finance
+      - ./.aws:/.aws:ro
+  invoice-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: invoice-service
+    container_name: meta-web-three-invoice-service
+    ports:
+      - "10111:10111"
+    volumes:
+      - invoice_service_data:/server/invoice
+      - ./.aws:/.aws:ro
+  reporting-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: reporting-service
+    container_name: meta-web-three-reporting-service
+    ports:
+      - "10112:10112"
+    volumes:
+      - reporting_service_data:/server/reporting
+      - ./.aws:/.aws:ro
+  settlement-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: settlement-service
+    container_name: meta-web-three-settlement-service
+    ports:
+      - "10113:10113"
+    volumes:
+      - settlement_service_data:/server/settlement
+      - ./.aws:/.aws:ro
+  wallet-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: wallet-service
+    container_name: meta-web-three-wallet-service
+    ports:
+      - "10114:10114"
+    volumes:
+      - wallet_service_data:/server/wallet
+      - ./.aws:/.aws:ro
 
 volumes:
   gateway_data:
@@ -320,9 +344,23 @@ volumes:
   order_service_data:
   message_service_data:
   payment_service_data:
-  commission_service_data:
   media_service_data:
+  commission_service_data:
   cart_service_data:
   promotion_service_data:
-  user_action_service_data:
+  user-action_service_data:
   cs_service_data:
+  mes_service_data:
+  digital-twin_service_data:
+  forecasting_service_data:
+  recommendation_service_data:
+  inventory_service_data:
+  warehouse_service_data:
+  logistics_service_data:
+  procurement_service_data:
+  supplier_service_data:
+  finance_service_data:
+  invoice_service_data:
+  reporting_service_data:
+  settlement_service_data:
+  wallet_service_data:

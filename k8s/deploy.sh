@@ -126,6 +126,10 @@ install() {
     
     log_info "应用 Kubernetes 配置..."
     kubectl apply -f "$K8S_DIR/deploy-all.yaml"
+    if [ -f "$K8S_DIR/services/extended-domain-services.yaml" ]; then
+        log_info "应用扩展领域服务..."
+        kubectl apply -f "$K8S_DIR/services/extended-domain-services.yaml"
+    fi
     
     log_info "等待 Pod 启动..."
     kubectl wait --for=condition=ready pod -l app=zookeeper -n "$NAMESPACE" --timeout=300s
@@ -152,6 +156,7 @@ uninstall() {
     
     log_info "删除 Kubernetes 资源..."
     kubectl delete -f "$K8S_DIR/deploy-all.yaml" --ignore-not-found=true
+    kubectl delete -f "$K8S_DIR/services/extended-domain-services.yaml" --ignore-not-found=true
     
     log_success "卸载完成！"
 }
@@ -254,13 +259,20 @@ build_images() {
     cd "$K8S_DIR/../client"
     docker build -t meta-web-three/client:latest .
     
-    # 构建后端服务镜像
-local services=("product-service" "user-service" "order-service" "message-service" "cart-service" "promotion-service" "payment-service" "commission-service" "media-service" "gateway")
-    
-    for service in "${services[@]}"; do
+    # 构建后端服务镜像（统一使用 server/Dockerfile 多阶段 target，上下文为仓库根目录）
+    local repo_root="$K8S_DIR/.."
+    local registry="$repo_root/scripts/server-services-registry.sh"
+    # shellcheck source=../scripts/server-services-registry.sh
+    source "$registry"
+
+    for entry in "${SERVER_JAVA_SERVICES[@]}"; do
+        local service
+        service="$(server_service_name "$entry")"
         log_info "构建 $service 镜像..."
-        cd "$K8S_DIR/../server/$service"
-        docker build -t "meta-web-three/$service:latest" .
+        docker build -t "meta-web-three/$service:latest" \
+            --target "$service" \
+            -f "$repo_root/server/Dockerfile" \
+            "$repo_root"
     done
     
     log_success "所有镜像构建完成！"

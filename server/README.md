@@ -6,14 +6,34 @@
 
 - - common 公共模块
 - - gateway 网关中心
-- — user-service 用户微服务
-- - order-service 订单微服务
-- - product-service 商品微服务
-- - payment-service 支付微服务
-- - message-service 消息微服务
-- - media-service 多媒体微服务
-- - cart-service 购物车微服务
-- - promotion-service 营销微服务
+- - mall-domain/ 商城域（product、order、user、payment、cart、promotion-service）
+- - platform-domain/ 平台域（message、media、commission、user-action、cs-service）
+- - factory-domain/ 工厂域
+- - supply-chain-domain/ 供应链域
+- - ai-domain/ AI 域
+- - erp-domain/ ERP 域
+- - blockchain-domain/ 区块链域
+
+本地多服务启动：`./run-server.sh`（服务列表见 `scripts/server-services-registry.sh`）。
+
+Docker / Compose 构建（上下文为**仓库根目录**）：
+
+```bash
+docker build -f server/Dockerfile --target product-service .
+docker compose -f docker-compose.yml -f docker-compose.server.yml up -d product-service
+```
+
+端口分配（10101+ 为新增领域服务）：
+
+| 端口 | 服务 | 域 |
+|------|------|-----|
+| 10081-10092 | gateway、商城、平台核心服务 | gateway / mall / platform |
+| 10101-10104 | mes、digital-twin、forecasting、recommendation | factory / ai |
+| 10105-10109 | inventory、warehouse、logistics、procurement、supplier | supply-chain |
+| 10110-10113 | finance、invoice、reporting、settlement | erp |
+| 10114 | wallet | blockchain |
+
+K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 
 ## 微服务功能说明
 
