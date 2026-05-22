@@ -69,7 +69,7 @@
 
 ---
 
-## 后端服务 (server/digital-twin-service)
+## 后端服务 (server/factory-domain-digital-twin-service)
 
 ### 1. 服务创建
 - [ ] digital-twin-service 目录结构 (DDD 架构)
@@ -145,21 +145,9 @@
 
 ---
 
-## 优先级排序
+## 生产环境缺陷清单（待修复）
 
-### 第一阶段 (MVP)
-1. 项目基础架构搭建
-2. 3D 场景模块 (基础)
-3. WebSocket 实时数据
-4. 后端 API 开发
-5. 设备状态展示
+- [ ] system-management 的 TTS 仍为 mock：`apps/digital-twin/system-management/src/main/nestjs/services/tts.service.ts` 中 `synthesize()` 返回 `Buffer.from('mock-audio-data')`（需要替换真实合成逻辑，未就绪时应 fail-fast/清晰报错并让前端不可用）
+- [ ] system-management 的 native 加载失败后使用占位降级：`apps/digital-twin/system-management/src/main/rust-bridge.ts` catch 分支里替换 native 为 `startCaptureService` 返回字符串“Native module not loaded”、`stopCaptureService` 返回 false（需要改为严格失败/可观测告警/让 UI 进入不可用状态）
+- [ ] system-management 的 WebSocket 存在示例式占位回复（需替换为正式协议）：`apps/digital-twin/system-management/src/main/nestjs/services/websocket.service.ts` 中包含“External login no longer supported”“Hello from ${appProtocol}”（建议替换为标准握手/错误码流程）
 
-### 第二阶段 (增强)
-1. IoT MQTT 接入
-2. 数据可视化图表
-3. 告警管理
-
-### 第三阶段 (完善)
-1. GIS 地图模块
-2. AI 分析集成
-3. OPC-UA 设备连接
