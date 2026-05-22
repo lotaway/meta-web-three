@@ -14,10 +14,6 @@ interface DesktopAPI {
   ipcRemoveListener: (channel: string, listener: (event: any, ...args: any) => void) => void
   ipcRemoveAllListeners: (channel: string) => void
   getOSNetworkInterfaces: () => Partial<Record<string, import("os").NetworkInterfaceInfo[]>>
-  requestOpenChatGPTWindow: () => Promise<any>
-  requestOpenExternalLogin: () => Promise<any>
-  requestOpenDeepseekWindow: () => Promise<any>
-  requestOpenDeepseekExternalLogin: () => Promise<any>
   [apiKey: ApiKey]: (...params: any) => any
 }
 

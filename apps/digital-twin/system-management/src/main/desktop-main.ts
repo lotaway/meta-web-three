@@ -9,21 +9,14 @@ import { bootstrapNestJS } from "./nestjs/main"
 import { LLMController } from "./nestjs/controllers/llm.controller"
 import { ConfigController } from "./nestjs/controllers/config.controller"
 import { AuthController } from "./nestjs/controllers/auth.controller"
-import { StudyController } from "./nestjs/controllers/study.controller"
 import { ScreenshotController } from "./nestjs/controllers/screenshot.controller"
 import { SystemController } from "./nestjs/controllers/system.controller"
-import { NoteController } from "./nestjs/controllers/note.controller"
 import { TTSController } from "./nestjs/controllers/tts.controller"
 
-import { StudyService } from "./nestjs/services/study.service"
 import { LLMService } from "./nestjs/services/llm.service"
 import { MediaService } from "./nestjs/services/media.service"
 import { WebSocketService } from "./nestjs/services/websocket.service"
-import { NoteService } from "./nestjs/services/note.service"
 import { TTSService } from "./nestjs/services/tts.service"
-
-import chatGPTMonitor from "./desktop-chatgpt"
-import deepSeekMonitor from "./desktop-deepseek"
 
 import { AppLifecycle, AppConfig } from "./app-lifecycle"
 import { HttpServer } from "./http-server"
@@ -76,22 +69,11 @@ const setupAppEnvironment = () => {
 setupAppEnvironment()
 
 const initializeHttpServer = (nestApp: INestApplicationContext) => {
-    const studyService = nestApp.get(StudyService)
+    const llmService = nestApp.get(LLMService)
     const mediaService = nestApp.get(MediaService)
     const webSocketService = nestApp.get(WebSocketService)
-    const noteService = nestApp.get(NoteService)
     const ttsService = nestApp.get(TTSService)
 
-    const llmController = new LLMController(
-        chatGPTMonitor.getChatGPTMonitor,
-        chatGPTMonitor.getChatGPTEventBus,
-        deepSeekMonitor.getDeepSeekMonitor,
-        deepSeekMonitor.getDeepSeekEventBus
-    )
-    const authController = new AuthController(
-        chatGPTMonitor.setSessionToken,
-        deepSeekMonitor.setDeepSeekSessionToken
-    )
     const screenshotController = new ScreenshotController(
         () => appLifecycle.getMainWindow(),
         desktopCapturer,
@@ -103,12 +85,10 @@ const initializeHttpServer = (nestApp: INestApplicationContext) => {
 
     httpServerInstance = new HttpServer(
         new ConfigController(),
-        llmController,
-        authController,
-        new StudyController(studyService),
+        new LLMController(llmService),
+        new AuthController(),
         screenshotController,
         new SystemController(mediaService),
-        new NoteController(noteService),
         new TTSController(ttsService),
         WEB_SERVER_PORT
     )

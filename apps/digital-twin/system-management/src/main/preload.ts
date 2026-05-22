@@ -34,18 +34,6 @@ const desktopFn: DesktopAPI = {
   getOSNetworkInterfaces() {
     return os.networkInterfaces()
   },
-  requestOpenChatGPTWindow: () => {
-    return ipcRenderer.invoke(IPC_CHANNELS.OPEN_CHATGPT_WINDOW)
-  },
-  requestOpenExternalLogin: () => {
-    return ipcRenderer.invoke(IPC_CHANNELS.OPEN_EXTERNAL_LOGIN)
-  },
-  requestOpenDeepseekWindow: () => {
-    return ipcRenderer.invoke(IPC_CHANNELS.OPEN_DEEPSEEK_WINDOW)
-  },
-  requestOpenDeepseekExternalLogin: () => {
-    return ipcRenderer.invoke(IPC_CHANNELS.OPEN_DEEPSEEK_EXTERNAL_LOGIN)
-  }
 }
 
 if (process.contextIsolated) {

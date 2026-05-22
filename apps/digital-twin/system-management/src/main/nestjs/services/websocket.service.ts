@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import { WebSocketServer } from 'ws'
-import chatGPTMonitor from '../../desktop-chatgpt'
-import deepSeekMonitor from '../../desktop-deepseek'
 
 @Injectable()
 export class WebSocketService {
@@ -28,27 +26,10 @@ export class WebSocketService {
                 try {
                     const message = JSON.parse(messageStr)
                     if (message.type === 'login_request') {
-                        const model = message.model || 'chatgpt'
-                        console.log(`[WebSocket] Login request received for ${model}, opening external login...`)
-
-                        if (model === 'chatgpt') {
-                            chatGPTMonitor.openExternalLogin()
-                        } else if (model === 'deepseek') {
-                            deepSeekMonitor.openDeepSeekExternalLogin()
-                        } else {
-                            ws.send(JSON.stringify({
-                                type: 'login_response',
-                                status: 'error',
-                                error: 'Unsupported model'
-                            }))
-                            return
-                        }
-
                         ws.send(JSON.stringify({
                             type: 'login_response',
-                            status: 'success',
-                            message: `External login initiated for ${model}`,
-                            model
+                            status: 'error',
+                            error: 'External login no longer supported'
                         }))
                     } else {
                         console.log('[WebSocket] Unknown message type:', message.type)
@@ -74,8 +55,7 @@ export class WebSocketService {
             ws.send(JSON.stringify({
                 type: 'welcome',
                 protocol: appProtocol,
-                timestamp: Date.now(),
-                supported_models: ['chatgpt', 'deepseek']
+                timestamp: Date.now()
             }))
         })
 

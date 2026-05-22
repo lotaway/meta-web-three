@@ -25,6 +25,20 @@ function getInjectEntries() {
 }
 
 export default defineConfig({
+  define: {
+    'import.meta.env.VITE_DIGITAL_TWIN_API_PORT': JSON.stringify(
+      process.env.VITE_DIGITAL_TWIN_API_PORT || '10102',
+    ),
+    'import.meta.env.VITE_DIGITAL_TWIN_API_HOST': JSON.stringify(
+      process.env.VITE_DIGITAL_TWIN_API_HOST || 'localhost',
+    ),
+    'import.meta.env.VITE_DIGITAL_TWIN_API_URL': JSON.stringify(
+      process.env.VITE_DIGITAL_TWIN_API_URL || '',
+    ),
+    'import.meta.env.VITE_DIGITAL_TWIN_WS_URL': JSON.stringify(
+      process.env.VITE_DIGITAL_TWIN_WS_URL || '',
+    ),
+  },
   plugins: [
     react(),
     electron([

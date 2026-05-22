@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
+import mqtt from 'mqtt'
+import type { MqttClient, IClientOptions } from 'mqtt'
 
 type MessageHandler = (topic: string, message: any) => void
 
@@ -15,78 +17,61 @@ interface MQTTServiceOptions {
   reconnectPeriod?: number
 }
 
-// Simple MQTT-like implementation using WebSocket
-// Note: In production, you'd use mqtt.js library
 class DigitalTwinMQTT {
-  private ws: WebSocket | null = null
+  private client: MqttClient | null = null
   private brokerUrl: string
-  private clientId: string
-  private username?: string
-  private password?: string
-  private topics: string[] = []
+  private options: MQTTServiceOptions
   private handlers: Map<string, MessageHandler[]> = new Map()
-  private isConnected = false
-  private isManualClose = false
-  private reconnectTimer?: NodeJS.Timeout
-  private reconnectAttempts = 0
-  private maxReconnectAttempts = 10
-  private onConnectCallback?: () => void
-  private onDisconnectCallback?: () => void
-  private onErrorCallback?: (error: Error) => void
+  private topics: string[] = []
 
   constructor(options: MQTTServiceOptions) {
+    this.options = options
     this.brokerUrl = options.brokerUrl
-    this.clientId = options.clientId || `dt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-    this.username = options.username
-    this.password = options.password
     this.topics = options.topics || []
-    this.onConnectCallback = options.onConnect
-    this.onDisconnectCallback = options.onDisconnect
-    this.onErrorCallback = options.onError
   }
 
-  async connect() {
-    return new Promise<void>((resolve, reject) => {
+  async connect(): Promise<void> {
+    return new Promise((resolve, reject) => {
       try {
-        // Using a mock WebSocket connection for demo
-        // In production, you'd connect to an actual MQTT broker via WebSocket
-        this.ws = new WebSocket(this.brokerUrl)
+        const opts: IClientOptions = {
+          clientId:
+            this.options.clientId ||
+            `dt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          clean: this.options.cleanSession ?? true,
+          reconnectPeriod: this.options.reconnectPeriod ?? 5000,
+          forceNativeWebSocket: true,
+        }
+        if (this.options.username) opts.username = this.options.username
+        if (this.options.password) opts.password = this.options.password
 
-        this.ws.onopen = () => {
-          console.log('[MQTT] Connected to broker')
-          this.isConnected = true
-          this.reconnectAttempts = 0
-          this.onConnectCallback?.()
-          
-          // Subscribe to default topics
-          this.topics.forEach(topic => this.subscribe(topic))
+        this.client = mqtt.connect(this.brokerUrl, opts)
+
+        this.client.on('connect', () => {
+          console.log('[MQTT] Connected to broker:', this.brokerUrl)
+          this.topics.forEach((topic) => this.client!.subscribe(topic))
+          this.options.onConnect?.()
           resolve()
-        }
+        })
 
-        this.ws.onclose = () => {
+        this.client.on('close', () => {
           console.log('[MQTT] Disconnected from broker')
-          this.isConnected = false
-          this.onDisconnectCallback?.()
-          
-          if (!this.isManualClose) {
-            this.attemptReconnect()
-          }
-        }
+          this.options.onDisconnect?.()
+        })
 
-        this.ws.onerror = (error) => {
-          console.error('[MQTT] Error:', error)
-          this.onErrorCallback?.(new Error('MQTT connection error'))
-          reject(error)
-        }
+        this.client.on('error', (err) => {
+          console.error('[MQTT] Error:', err)
+          this.options.onError?.(err)
+          reject(err)
+        })
 
-        this.ws.onmessage = (event) => {
+        this.client.on('message', (topic, payload) => {
           try {
-            const message = JSON.parse(event.data)
-            this.handleMessage(message)
+            const message = JSON.parse(payload.toString())
+            this.dispatchMessage(topic, message)
           } catch (e) {
             console.error('[MQTT] Failed to parse message:', e)
           }
-        }
+        })
       } catch (error) {
         console.error('[MQTT] Connection failed:', error)
         reject(error)
@@ -94,58 +79,32 @@ class DigitalTwinMQTT {
     })
   }
 
-  private handleMessage(message: any) {
-    const { topic, payload } = message
-    
-    // Notify specific topic handlers
+  private dispatchMessage(topic: string, message: any) {
     const handlers = this.handlers.get(topic) || []
-    handlers.forEach(handler => handler(topic, payload))
-    
-    // Notify wildcard handlers
-    const wildcardHandlers = this.handlers.get('#') || []
-    wildcardHandlers.forEach(handler => handler(topic, payload))
-  }
+    handlers.forEach((handler) => handler(topic, message))
 
-  private attemptReconnect() {
-    if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.reconnectAttempts++
-      const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000)
-      console.log(`[MQTT] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`)
-      this.reconnectTimer = setTimeout(() => this.connect(), delay)
-    } else {
-      console.error('[MQTT] Max reconnection attempts reached')
-    }
+    const wildcardHandlers = this.handlers.get('#') || []
+    wildcardHandlers.forEach((handler) => handler(topic, message))
   }
 
   disconnect() {
-    this.isManualClose = true
-    if (this.reconnectTimer) {
-      clearTimeout(this.reconnectTimer)
+    if (this.client) {
+      this.client.end(true)
+      this.client = null
     }
-    if (this.ws) {
-      this.ws.close()
-      this.ws = null
-    }
-    this.isConnected = false
   }
 
   subscribe(topic: string, handler?: MessageHandler) {
     if (!this.topics.includes(topic)) {
       this.topics.push(topic)
     }
-
     if (handler) {
       const handlers = this.handlers.get(topic) || []
       handlers.push(handler)
       this.handlers.set(topic, handlers)
     }
-
-    // Send subscription message to broker
-    if (this.ws && this.isConnected) {
-      this.ws.send(JSON.stringify({
-        type: 'subscribe',
-        topic
-      }))
+    if (this.client?.connected) {
+      this.client.subscribe(topic)
     }
   }
 
@@ -157,22 +116,14 @@ class DigitalTwinMQTT {
         handlers.splice(index, 1)
       }
     }
-
-    if (this.ws && this.isConnected) {
-      this.ws.send(JSON.stringify({
-        type: 'unsubscribe',
-        topic
-      }))
+    if (this.client?.connected) {
+      this.client.unsubscribe(topic)
     }
   }
 
   publish(topic: string, payload: any) {
-    if (this.ws && this.isConnected) {
-      this.ws.send(JSON.stringify({
-        type: 'publish',
-        topic,
-        payload
-      }))
+    if (this.client?.connected) {
+      this.client.publish(topic, JSON.stringify(payload))
     } else {
       console.warn('[MQTT] Cannot publish, not connected')
     }
@@ -183,12 +134,11 @@ class DigitalTwinMQTT {
   }
 
   getConnectionStatus() {
-    return this.isConnected
+    return this.client?.connected ?? false
   }
 }
 
-// React Hook for MQTT
-export function useDigitalTwinMQTT(options: MQTTServiceOptions) {
+function useDigitalTwinMQTT(options: MQTTServiceOptions) {
   const [isConnected, setIsConnected] = useState(false)
   const [error, setError] = useState<Error | null>(null)
   const mqttRef = useRef<DigitalTwinMQTT | null>(null)
@@ -198,10 +148,10 @@ export function useDigitalTwinMQTT(options: MQTTServiceOptions) {
       ...options,
       onConnect: () => setIsConnected(true),
       onDisconnect: () => setIsConnected(false),
-      onError: (err) => setError(err)
+      onError: (err) => setError(err),
     })
 
-    mqtt.connect().catch(err => console.error('[MQTT] Connect error:', err))
+    mqtt.connect().catch((err) => console.error('[MQTT] Connect error:', err))
     mqttRef.current = mqtt
 
     return () => {
@@ -221,8 +171,7 @@ export function useDigitalTwinMQTT(options: MQTTServiceOptions) {
   return { isConnected, error, subscribe, publish }
 }
 
-// Device data types
-export interface DeviceTelemetry {
+interface DeviceTelemetry {
   deviceCode: string
   timestamp: number
   metrics: {
@@ -240,22 +189,23 @@ export interface DeviceTelemetry {
   }
 }
 
-export interface DeviceStatusMessage {
+interface DeviceStatusMessage {
   deviceCode: string
   status: 'online' | 'offline' | 'running' | 'idle' | 'warning' | 'error'
   timestamp: number
 }
 
-// Predefined topic patterns for digital twin
-export const DT_TOPICS = {
+const DT_TOPICS = {
   DEVICE_STATUS: 'device/+/status',
   DEVICE_TELEMETRY: 'device/+/telemetry',
   DEVICE_POSITION: 'device/+/position',
   ALERT_CREATED: 'alert/created',
   ALERT_UPDATED: 'alert/updated',
   PRODUCTION_OUTPUT: 'production/+/output',
-  AGV_POSITION: 'agv/+/position'
+  AGV_POSITION: 'agv/+/position',
 }
 
 export { DigitalTwinMQTT }
-export type { MQTTServiceOptions, MessageHandler }
+export { useDigitalTwinMQTT }
+export type { MQTTServiceOptions, MessageHandler, DeviceTelemetry, DeviceStatusMessage }
+export { DT_TOPICS }

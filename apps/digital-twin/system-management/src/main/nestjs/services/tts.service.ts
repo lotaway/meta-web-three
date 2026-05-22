@@ -1,5 +1,4 @@
 import { Injectable, MessageEvent } from '@nestjs/common';
-import axios from 'axios';
 import { app } from 'electron';
 import path from 'node:path';
 import fs from 'fs-extra';
@@ -145,35 +144,45 @@ export class TTSService {
     }
 
     private async streamToFile(url: string, dest: string, onProgress: (d: number, t: number) => void): Promise<void> {
-        const response = await axios({
-            url,
+        const response = await fetch(url, {
             method: 'GET',
-            responseType: 'stream',
-            timeout: 120000,
             headers: { 'User-Agent': 'Mozilla/5.0' },
-            maxRedirects: 10
+            signal: AbortSignal.timeout(120000)
         });
 
-        const total = parseInt(response.headers['content-length'], 10) || 0;
+        if (!response.ok) {
+            throw new Error(`Download failed: ${response.status} ${response.statusText}`)
+        }
+
+        const total = parseInt(response.headers.get('content-length') || '0', 10);
         let downloaded = 0;
         let lastReport = Date.now();
 
         const writer = fs.createWriteStream(dest);
-        response.data.on('data', (chunk: Buffer) => {
-            downloaded += chunk.length;
-            const now = Date.now();
-            if (total > 0 && now - lastReport > 200) {
-                onProgress(downloaded, total);
-                lastReport = now;
-            }
-        });
-
-        response.data.pipe(writer);
+        const reader = response.body!.getReader();
 
         return new Promise((resolve, reject) => {
-            writer.on('finish', resolve);
-            writer.on('error', reject);
-            response.data.on('error', reject);
+            const pump = async () => {
+                try {
+                    while (true) {
+                        const { done, value } = await reader.read()
+                        if (done) break
+                        downloaded += value.length
+                        const now = Date.now()
+                        if (total > 0 && now - lastReport > 200) {
+                            onProgress(downloaded, total)
+                            lastReport = now
+                        }
+                        writer.write(value)
+                    }
+                    writer.end()
+                    writer.on('finish', resolve)
+                } catch (err) {
+                    reject(err)
+                }
+            }
+            pump()
+            writer.on('error', reject)
         });
     }
 
