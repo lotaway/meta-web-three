@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import styled from 'styled-components'
-import { FactoryScene, Device, Alert, DeviceStatus, AlertPanel, DeviceChart, StatsCard } from '../components/digital-twin'
+import { FactoryScene, Device, Alert, DeviceStatus, AlertPanel, DeviceChart, StatsCard, AudioMonitor } from '../components/digital-twin'
 import { useDigitalTwinData } from '../hooks/useDigitalTwinData'
 
 const PageContainer = styled.div`
@@ -266,8 +266,8 @@ export default function DigitalTwinPage({ onClose }: DigitalTwinPageProps) {
                   </div>
                 </div>
               ) : (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                  点击设备查看详情
+                <div>
+                  <AudioMonitor />
                 </div>
               )}
             </div>

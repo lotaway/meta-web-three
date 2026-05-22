@@ -3,6 +3,7 @@ import { MediaService } from "./nestjs/services/media.service"
 import { LLMService } from "./nestjs/services/llm.service"
 import { IPC_CHANNELS } from "./constants"
 import { INestApplicationContext } from "@nestjs/common"
+import { getAudioManager } from "./rust-bridge"
 
 export class IpcRegistry {
     constructor(
@@ -58,6 +59,30 @@ export class IpcRegistry {
                 id: source.id,
                 name: source.name
             }))
+        })
+
+        // Rust native audio capture
+        const audio = getAudioManager()
+
+        ipcMain.handle(IPC_CHANNELS.AUDIO_LIST_DEVICES, () => {
+            return audio?.listAudioDevices() ?? []
+        })
+
+        ipcMain.handle(IPC_CHANNELS.AUDIO_START_CAPTURE, (_event, deviceIndex: number, sampleRate: number = 0) => {
+            try {
+                audio?.startAudioCapture(deviceIndex, sampleRate)
+                return true
+            } catch {
+                return false
+            }
+        })
+
+        ipcMain.handle(IPC_CHANNELS.AUDIO_STOP_CAPTURE, () => {
+            return audio?.stopAudioCapture() ?? false
+        })
+
+        ipcMain.handle(IPC_CHANNELS.AUDIO_GET_DATA, () => {
+            return audio?.getAudioData() ?? null
         })
     }
 }

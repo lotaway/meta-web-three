@@ -8,6 +8,10 @@ export const IPC_CHANNELS = {
     SUBTITLES_TEXT: 'subtitles:text',
     SUBTITLES_STYLE: 'subtitles:style',
     GET_AUDIO_SOURCES: 'audio:get-sources',
+    AUDIO_LIST_DEVICES: 'audio:list-devices',
+    AUDIO_START_CAPTURE: 'audio:start-capture',
+    AUDIO_STOP_CAPTURE: 'audio:stop-capture',
+    AUDIO_GET_DATA: 'audio:get-data',
 } as const
 
 export const SUBTITLES_WINDOW_CONSTANTS = {

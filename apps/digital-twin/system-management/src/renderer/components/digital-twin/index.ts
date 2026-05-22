@@ -11,3 +11,6 @@ export type { Alert } from './alert/AlertPanel'
 
 // Chart components
 export { DeviceChart, StatsCard } from './charts/DeviceChart'
+
+// Audio components
+export { AudioMonitor } from './audio/AudioMonitor'
