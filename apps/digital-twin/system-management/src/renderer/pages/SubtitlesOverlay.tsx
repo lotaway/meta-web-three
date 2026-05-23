@@ -5,7 +5,8 @@ import { IPC_CHANNELS } from '../../main/constants'
 import { SubtitleStyle, DEFAULT_SUBTITLE_STYLE } from '../types/Subtitle'
 import SubtitleSettingsPanel from '../components/SubtitleSettingsPanel'
 
-const API_BASE_URL = `http://localhost:${import.meta.env.VITE_WEB_SERVER_PORT || '5051'}`
+// Full URL configurable via env (e.g., VITE_VOICE_API_URL=http://localhost:5051)
+const API_BASE_URL = import.meta.env.VITE_VOICE_API_URL || `http://localhost:${import.meta.env.VITE_WEB_SERVER_PORT || '5051'}`
 
 const OverlayContainer = styled.div`
     position: fixed;

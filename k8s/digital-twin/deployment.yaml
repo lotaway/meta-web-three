@@ -33,23 +33,26 @@ spec:
               value: "8080"
             - name: JAVA_OPTS
               value: "-Xms512m -Xmx1024m -XX:+UseG1GC"
-            # Sensitive data should be injected from SealedSecret/External Secrets Operator
-            # Example (uncomment and configure):
-            # - name: SPRING_DATASOURCE_PASSWORD
-            #   valueFrom:
-            #     secretKeyRef:
-            #       name: digital-twin-secrets
-            #       key: database-password
-            # - name: SPRING_REDIS_PASSWORD
-            #   valueFrom:
-            #     secretKeyRef:
-            #       name: digital-twin-secrets
-            #       key: redis-password
-            # - name: SPRING_KAFKA_PROPERTIES_Sasl_Jaas_Config
-            #   valueFrom:
-            #     secretKeyRef:
-            #       name: digital-twin-secrets
-            #       key: kafka-sasl-config
+            # Sensitive data injected via SealedSecret/External Secrets Operator
+            # Uncomment and apply SealedSecret to activate:
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: digital-twin-secrets
+                  key: database-password
+                  optional: true
+            - name: SPRING_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: digital-twin-secrets
+                  key: redis-password
+                  optional: true
+            - name: SPRING_KAFKA_PROPERTIES_SASL_JAAS_CONFIG
+              valueFrom:
+                secretKeyRef:
+                  name: digital-twin-secrets
+                  key: kafka-sasl-config
+                  optional: true
           resources:
             requests:
               memory: "512Mi"

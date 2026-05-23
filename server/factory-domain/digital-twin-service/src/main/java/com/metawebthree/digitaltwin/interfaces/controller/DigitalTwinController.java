@@ -4,6 +4,10 @@ import com.metawebthree.digitaltwin.application.command.DigitalTwinCommandServic
 import com.metawebthree.digitaltwin.application.query.DigitalTwinQueryService;
 import com.metawebthree.digitaltwin.domain.entity.Device;
 import com.metawebthree.digitaltwin.domain.entity.Alert;
+import com.metawebthree.digitaltwin.interfaces.dto.*;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
@@ -12,6 +16,8 @@ import java.util.Map;
 @RequestMapping("/api/digital-twin")
 @CrossOrigin(origins = {"http://localhost:5173", "http://127.0.0.1:5173"})
 public class DigitalTwinController {
+
+    private static final Logger logger = LoggerFactory.getLogger(DigitalTwinController.class);
 
     private final DigitalTwinCommandService commandService;
     private final DigitalTwinQueryService queryService;
@@ -25,25 +31,31 @@ public class DigitalTwinController {
 
     // Device endpoints
     @PostMapping("/device")
-    public ResponseEntity<Map<String, Object>> registerDevice(@RequestBody Map<String, Object> request) {
-        String deviceCode = (String) request.get("deviceCode");
-        String deviceName = (String) request.get("deviceName");
-        String deviceType = (String) request.get("deviceType");
-        String workshopId = (String) request.get("workshopId");
-        String productionLineId = (String) request.get("productionLineId");
-        
-        Long id = commandService.registerDevice(deviceCode, deviceName, deviceType, workshopId, productionLineId);
+    public ResponseEntity<Map<String, Object>> registerDevice(
+            @Valid @RequestBody RegisterDeviceRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) String userId,
+            @RequestHeader(value = "X-User-Role", required = false) String userRole) {
+        logger.debug("Register device by user: {}, role: {}", userId, userRole);
+        Long id = commandService.registerDevice(
+            request.getDeviceCode(),
+            request.getDeviceName(),
+            request.getDeviceType(),
+            request.getWorkshopId(),
+            request.getProductionLineId()
+        );
         return ResponseEntity.ok(Map.of("deviceId", id));
     }
 
     @PostMapping("/device/{deviceCode}/status")
     public ResponseEntity<Void> updateDeviceStatus(
             @PathVariable String deviceCode,
-            @RequestBody Map<String, Object> request) {
-        String status = (String) request.get("status");
+            @Valid @RequestBody UpdateDeviceStatusRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) String userId,
+            @RequestHeader(value = "X-User-Role", required = false) String userRole) {
+        logger.debug("Update device status by user: {}, role: {}", userId, userRole);
         Device.DeviceStatus deviceStatus;
         try {
-            deviceStatus = Device.DeviceStatus.valueOf(status.toUpperCase());
+            deviceStatus = Device.DeviceStatus.valueOf(request.getStatus().toUpperCase());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
@@ -52,7 +64,9 @@ public class DigitalTwinController {
     }
 
     @PostMapping("/device/{deviceCode}/heartbeat")
-    public ResponseEntity<Void> deviceHeartbeat(@PathVariable String deviceCode) {
+    public ResponseEntity<Void> deviceHeartbeat(
+            @PathVariable String deviceCode,
+            @RequestHeader(value = "X-User-Id", required = false) String userId) {
         commandService.deviceHeartbeat(deviceCode);
         return ResponseEntity.ok().build();
     }
@@ -60,12 +74,12 @@ public class DigitalTwinController {
     @PostMapping("/device/{deviceCode}/position")
     public ResponseEntity<Void> updateDevicePosition(
             @PathVariable String deviceCode,
-            @RequestBody Map<String, Object> request) {
-        Double x = ((Number) request.get("x")).doubleValue();
-        Double y = ((Number) request.get("y")).doubleValue();
-        Double z = ((Number) request.get("z")).doubleValue();
-        Double rotation = request.get("rotation") != null ? 
-            ((Number) request.get("rotation")).doubleValue() : 0.0;
+            @Valid @RequestBody UpdateDevicePositionRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) String userId) {
+        Double x = request.getX();
+        Double y = request.getY();
+        Double z = request.getZ() != null ? request.getZ() : 0.0;
+        Double rotation = 0.0;
         commandService.updateDevicePosition(deviceCode, x, y, z, rotation);
         return ResponseEntity.ok().build();
     }

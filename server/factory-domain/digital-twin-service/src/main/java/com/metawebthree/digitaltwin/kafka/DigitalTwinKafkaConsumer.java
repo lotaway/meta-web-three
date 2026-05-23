@@ -33,8 +33,8 @@ public class DigitalTwinKafkaConsumer {
     private final DigitalTwinEventPublisher eventPublisher;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // In-memory idempotency tracking (for single-instance, use Redis for multi-instance)
-    private final Set<String> processedMessageIds = ConcurrentHashMap.newKeySet();
+    // In-memory idempotency tracking with timestamps (for single-instance, use Redis for multi-instance)
+    private final ConcurrentHashMap<String, Long> processedMessageIds = new ConcurrentHashMap<>();
     private final ScheduledExecutorService cleanupScheduler = Executors.newSingleThreadScheduledExecutor();
 
     public DigitalTwinKafkaConsumer(
@@ -72,23 +72,18 @@ public class DigitalTwinKafkaConsumer {
         if (messageId == null || messageId.isEmpty()) {
             return false;
         }
-        return !processedMessageIds.add(messageId);
+        // Atomic check-and-add with timestamp
+        Long previous = processedMessageIds.putIfAbsent(messageId, Instant.now().toEpochMilli());
+        return previous != null; // true if already existed (duplicate)
     }
 
     private void cleanupProcessedMessages() {
         long cutoff = Instant.now().minusSeconds(IDEMPOTENCY_WINDOW_MINUTES * 60L).toEpochMilli();
         int before = processedMessageIds.size();
-        processedMessageIds.removeIf(id -> {
-            try {
-                // Extract timestamp from message ID if it's a composite key
-                return false; // Keep for now, simple implementation
-            } catch (Exception e) {
-                return false;
-            }
-        });
+        processedMessageIds.entrySet().removeIf(entry -> entry.getValue() < cutoff);
         int removed = before - processedMessageIds.size();
         if (removed > 0) {
-            logger.debug("Cleaned up {} processed message IDs", removed);
+            logger.info("Cleaned up {} old message IDs (cutoff: {})", removed, cutoff);
         }
     }
 
@@ -153,44 +148,40 @@ public class DigitalTwinKafkaConsumer {
         processMessage("agv.position.updated", message);
     }
 
-    private void processMessage(String topic, String message) {
-        try {
-            // Extract message ID for idempotency check
-            String messageId = extractMessageId(message);
-            
-            // Check for duplicate
-            if (isDuplicate(messageId)) {
-                logger.debug("Duplicate message detected, skipping: {}", messageId);
-                return;
-            }
-            
-            logger.info("Received {}: {}", topic, message);
-            
-            // Route to appropriate handler based on topic
-            switch (topic) {
-                case "device.status.changed":
-                    webSocketHandler.broadcast(Map.of("type", "DEVICE_STATUS_CHANGED", "data", message));
-                    break;
-                case "device.position.updated":
-                    webSocketHandler.broadcast(Map.of("type", "DEVICE_POSITION_UPDATED", "data", message));
-                    break;
-                case "device.heartbeat":
-                    // Heartbeat messages don't need broadcast
-                    break;
-                case "alert.created":
-                    webSocketHandler.broadcast(Map.of("type", "ALERT_CREATED", "data", message));
-                    break;
-                case "production.output.updated":
-                    webSocketHandler.broadcast(Map.of("type", "PRODUCTION_OUTPUT_UPDATED", "data", message));
-                    break;
-                case "agv.position.updated":
-                    webSocketHandler.broadcast(Map.of("type", "AGV_POSITION_UPDATED", "data", message));
-                    break;
-                default:
-                    logger.warn("Unknown topic: {}", topic);
-            }
-        } catch (Exception e) {
-            logger.error("Error processing message from topic {}: {}", topic, e.getMessage(), e);
+    private void processMessage(String topic, String message) throws Exception {
+        // Extract message ID for idempotency check
+        String messageId = extractMessageId(message);
+        
+        // Check for duplicate
+        if (isDuplicate(messageId)) {
+            logger.debug("Duplicate message detected, skipping: {}", messageId);
+            return;
+        }
+        
+        logger.info("Received {}: {}", topic, message);
+        
+        // Route to appropriate handler based on topic
+        switch (topic) {
+            case "device.status.changed":
+                webSocketHandler.broadcast(Map.of("type", "DEVICE_STATUS_CHANGED", "data", message));
+                break;
+            case "device.position.updated":
+                webSocketHandler.broadcast(Map.of("type", "DEVICE_POSITION_UPDATED", "data", message));
+                break;
+            case "device.heartbeat":
+                // Heartbeat messages don't need broadcast
+                break;
+            case "alert.created":
+                webSocketHandler.broadcast(Map.of("type", "ALERT_CREATED", "data", message));
+                break;
+            case "production.output.updated":
+                webSocketHandler.broadcast(Map.of("type", "PRODUCTION_OUTPUT_UPDATED", "data", message));
+                break;
+            case "agv.position.updated":
+                webSocketHandler.broadcast(Map.of("type", "AGV_POSITION_UPDATED", "data", message));
+                break;
+            default:
+                logger.warn("Unknown topic: {}", topic);
         }
     }
 
