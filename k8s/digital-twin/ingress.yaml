@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: digital-twin-ingress
+  namespace: meta-web-three
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/websocket-services: "digital-twin-service"
+spec:
+  rules:
+    - host: digital-twin.meta-web-three.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: digital-twin-service-lb
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - digital-twin.meta-web-three.local
+      secretName: digital-twin-tls-secret

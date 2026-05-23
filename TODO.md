@@ -50,21 +50,21 @@
 - [ ] 物流路径展示
 
 ### 5. 数据可视化
-- [ ] ECharts 图表集成
-- [ ] 产量趋势图
-- [ ] 设备 OEE 仪表盘
-- [ ] 告警统计饼图
+- [x] ECharts 图表集成 - ECharts.tsx
+- [x] 产量趋势图 - LineChart
+- [x] 设备 OEE 仪表盘 - GaugeChart
+- [x] 告警统计饼图 - PieChart
 
 ### 6. IoT 设备接入
-- [ ] MQTT 客户端配置
-- [ ] 设备状态主题订阅
-- [ ] 传感器数据解析
-- [ ] 设备告警推送
+- [x] MQTT 客户端配置 - mqtt.ts
+- [x] 设备状态主题订阅 - useDigitalTwinMQTT
+- [x] 传感器数据解析 - DeviceTelemetry
+- [x] 设备告警推送 - AlertPanel
 
 ### 7. 告警管理
-- [ ] 告警列表展示
+- [x] 告警列表展示 - AlertPanel.tsx
 - [ ] 告警规则配置
-- [ ] 告警等级分类 (红/黄/蓝)
+- [x] 告警等级分类 (红/黄/蓝) - levelColors
 - [ ] 告警声音/弹窗通知
 
 ---
@@ -77,37 +77,37 @@
 - [ ] Application 启动类
 
 ### 2. 领域模型
-- [ ] DeviceEntity - 设备实体
-- [ ] WorkshopEntity - 车间实体
-- [ ] ProductionLineEntity - 生产线实体
-- [ ] AlertEntity - 告警实体
+- [x] DeviceEntity - 设备实体
+- [x] WorkshopEntity - 车间实体
+- [x] ProductionLineEntity - 生产线实体
+- [x] AlertEntity - 告警实体
 
 ### 3. 接口开发
-- [ ] 设备列表查询 API
-- [ ] 设备实时状态 API
-- [ ] 历史数据查询 API
-- [ ] 告警记录 API
+- [x] 设备列表查询 API
+- [x] 设备实时状态 API
+- [x] 历史数据查询 API
+- [x] 告警记录 API
 
 ### 4. 消息队列集成
-- [ ] Kafka Consumer 配置
-- [ ] 设备状态消息消费
-- [ ] 事件转发到 WebSocket
+- [x] Kafka Consumer 配置
+- [x] 设备状态消息消费
+- [x] 事件转发到 WebSocket
 
 ### 5. WebSocket 服务
-- [ ] WebSocket 配置
-- [ ] 客户端连接管理
-- [ ] 实时数据推送
+- [x] WebSocket 配置
+- [x] 客户端连接管理
+- [x] 实时数据推送
 
 ---
 
 ## 数据库设计
 
 ### 1. MySQL 表
-- [ ] device_info - 设备信息表
-- [ ] workshop_config - 车间配置表
-- [ ] production_line - 生产线表
-- [ ] alert_rule - 告警规则表
-- [ ] alert_record - 告警记录表
+- [x] device_info - 设备信息表 (schema.sql)
+- [x] workshop_config - 车间配置表 (schema.sql)
+- [x] production_line - 生产线表 (schema.sql)
+- [x] alert_rule - 告警规则表 (schema.sql)
+- [x] alert_record - 告警记录表 (schema.sql)
 
 ### 2. InfluxDB (时序数据)
 - [ ] device_metrics - 设备指标数据
@@ -136,18 +136,19 @@
 ## 部署配置
 
 ### 1. Docker
-- [ ] digital-twin-service/Dockerfile
-- [ ] docker-compose.digital-twin.yml
+- [x] digital-twin-service/Dockerfile
+- [x] docker-compose.digital-twin.yml
 
 ### 2. K8s
-- [ ] k8s/digital-twin-deployment.yaml
-- [ ] k8s/digital-twin-service.yaml
+- [x] k8s/digital-twin-deployment.yaml
+- [x] k8s/digital-twin-service.yaml
+- [x] k8s/digital-twin/ingress.yaml
 
 ---
 
 ## 生产环境缺陷清单（待修复）
 
-- [ ] system-management 的 TTS 仍为 mock：`apps/digital-twin/system-management/src/main/nestjs/services/tts.service.ts` 中 `synthesize()` 返回 `Buffer.from('mock-audio-data')`（需要替换真实合成逻辑，未就绪时应 fail-fast/清晰报错并让前端不可用）
-- [ ] system-management 的 native 加载失败后使用占位降级：`apps/digital-twin/system-management/src/main/rust-bridge.ts` catch 分支里替换 native 为 `startCaptureService` 返回字符串“Native module not loaded”、`stopCaptureService` 返回 false（需要改为严格失败/可观测告警/让 UI 进入不可用状态）
-- [ ] system-management 的 WebSocket 存在示例式占位回复（需替换为正式协议）：`apps/digital-twin/system-management/src/main/nestjs/services/websocket.service.ts` 中包含“External login no longer supported”“Hello from ${appProtocol}”（建议替换为标准握手/错误码流程）
+- [x] system-management 的 TTS 仍为 mock：`apps/digital-twin/system-management/src/main/nestjs/services/tts.service.ts` 中 `synthesize()` 返回 `Buffer.from('mock-audio-data')`（需要替换真实合成逻辑，未就绪时应 fail-fast/清晰报错并让前端不可用）
+- [x] system-management 的 native 加载失败后使用占位降级：`apps/digital-twin/system-management/src/main/rust-bridge.ts` catch 分支里替换 native 为 `startCaptureService` 返回字符串“Native module not loaded”、`stopCaptureService` 返回 false（需要改为严格失败/可观测告警/让 UI 进入不可用状态）
+- [x] system-management 的 WebSocket 存在示例式占位回复（需替换为正式协议）：`apps/digital-twin/system-management/src/main/nestjs/services/websocket.service.ts` 中包含“External login no longer supported”“Hello from ${appProtocol}”（建议替换为标准握手/错误码流程）
 

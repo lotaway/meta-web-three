@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  digital-twin-service:
+    build:
+      context: ./server/factory-domain/digital-twin-service
+      dockerfile: docker/Dockerfile
+    container_name: digital-twin-service
+    ports:
+      - "8082:8080"
+      - "9092:9090"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8080
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - JAVA_OPTS=-Xms512m -Xmx1024m
+    depends_on:
+      - kafka
+      - redis
+    networks:
+      - meta-web-three
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  digital-twin-frontend:
+    build:
+      context: ./apps/digital-twin/system-management
+      dockerfile: ../docker/Dockerfile
+    container_name: digital-twin-frontend
+    ports:
+      - "3002:3000"
+    environment:
+      - VITE_WS_URL=ws://localhost:8082/ws
+      - VITE_API_URL=http://localhost:8082/api
+      - VITE_MQTT_URL=ws://localhost:9001
+    depends_on:
+      - digital-twin-service
+    networks:
+      - meta-web-three
+    restart: unless-stopped
+
+networks:
+  meta-web-three:
+    driver: bridge
