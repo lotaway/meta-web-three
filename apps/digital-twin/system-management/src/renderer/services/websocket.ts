@@ -19,6 +19,7 @@ class DigitalTwinWebSocket {
   private reconnectAttempts = 0
   private maxReconnectAttempts = 5
   private reconnectInterval = 3000
+  private reconnectTimerId: ReturnType<typeof setTimeout> | null = null
   private onOpenCallback?: ConnectionHandler
   private onCloseCallback?: ConnectionHandler
   private onErrorCallback?: (error: Event) => void
@@ -81,7 +82,7 @@ class DigitalTwinWebSocket {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++
       console.log(`[WebSocket] Reconnecting... (attempt ${this.reconnectAttempts})`)
-      setTimeout(() => this.connect(), this.reconnectInterval)
+      this.reconnectTimerId = setTimeout(() => this.connect(), this.reconnectInterval)
     } else {
       console.error('[WebSocket] Max reconnection attempts reached')
     }
@@ -89,6 +90,10 @@ class DigitalTwinWebSocket {
 
   disconnect() {
     this.isManualClose = true
+    if (this.reconnectTimerId) {
+      clearTimeout(this.reconnectTimerId)
+      this.reconnectTimerId = null
+    }
     if (this.ws) {
       this.ws.close()
       this.ws = null

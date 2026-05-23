@@ -94,14 +94,27 @@ export function DeviceChart({
     })
     ctx.stroke()
 
-    // Draw fill
+    // Draw fill with proper color conversion
     ctx.lineTo(padding.left + (width - padding.left - padding.right), padding.top + chartHeight)
     ctx.lineTo(padding.left, padding.top + chartHeight)
     ctx.closePath()
-    ctx.fillStyle = color.replace(')', ', 0.1)').replace('rgb', 'rgba').replace('#', 'rgba(').replace(/([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i, (m, r, g, b) => `${parseInt(r, 16)}, ${parseInt(g, 16)}, ${parseInt(b, 16)}`)
-    ctx.globalAlpha = 0.3
+    const fillColor = (c: string): string => {
+      if (c.startsWith('#')) {
+        const hex = c.slice(1)
+        if (hex.length === 6) {
+          const r = parseInt(hex.slice(0, 2), 16)
+          const g = parseInt(hex.slice(2, 4), 16)
+          const b = parseInt(hex.slice(4, 6), 16)
+          return `rgba(${r}, ${g}, ${b}, 0.3)`
+        }
+      }
+      if (c.startsWith('rgb')) {
+        return c.replace('rgb', 'rgba').replace(')', ', 0.3)')
+      }
+      return c
+    }
+    ctx.fillStyle = fillColor(color)
     ctx.fill()
-    ctx.globalAlpha = 1
 
     // Draw dots
     data.forEach((point, i) => {

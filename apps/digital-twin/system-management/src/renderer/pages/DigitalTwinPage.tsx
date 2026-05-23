@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import styled from 'styled-components'
 import { FactoryScene, Device, Alert, DeviceStatus, AlertPanel, DeviceChart, StatsCard, AudioMonitor } from '../components/digital-twin'
+import { AlertRuleList } from '../components/digital-twin/alert-rule'
+import { ToastContainer } from '../components/Toast'
 import { useDigitalTwinData } from '../hooks/useDigitalTwinData'
+import { DIGITAL_TWIN_API_BASE_URL } from '../config/digital-twin'
 
 const PageContainer = styled.div`
   width: 100vw;
@@ -58,6 +61,26 @@ const Tab = styled.button<{ $active: boolean }>`
   
   &:hover {
     background: #1e293b;
+  }
+`
+
+const NotificationSettings = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+`
+
+const SettingsButton = styled.button<{ $active: boolean }>`
+  padding: 4px 10px;
+  background: ${({ $active }) => $active ? '#3b82f6' : '#334155'};
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  
+  &:hover {
+    background: ${({ $active }) => $active ? '#2563eb' : '#475569'};
   }
 `
 
@@ -124,7 +147,10 @@ interface DigitalTwinPageProps {
 }
 
 export default function DigitalTwinPage({ onClose }: DigitalTwinPageProps) {
-  const [activeTab, setActiveTab] = useState<'devices' | 'alerts' | 'charts'>('devices')
+  const [activeTab, setActiveTab] = useState<'devices' | 'alerts' | 'charts' | 'rules'>('devices')
+  const [showRules, setShowRules] = useState(false)
+  const [soundEnabled, setSoundEnabled] = useState(true)
+  const [notifEnabled, setNotifEnabled] = useState(true)
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null)
   const {
     devices,
@@ -165,6 +191,7 @@ export default function DigitalTwinPage({ onClose }: DigitalTwinPageProps) {
 
   return (
     <PageContainer>
+      <ToastContainer />
       <LeftPanel>
         <Header>
           <Title>设备列表</Title>
@@ -178,7 +205,7 @@ export default function DigitalTwinPage({ onClose }: DigitalTwinPageProps) {
         </Header>
         {loadError && (
           <Banner $variant="error">
-            {loadError}（请确认 digital-twin-service 已在 10102 端口启动）
+            {loadError}（请确认 digital-twin-service 已在 {new URL(DIGITAL_TWIN_API_BASE_URL).port} 端口启动）
           </Banner>
         )}
         <PanelContent>
@@ -216,6 +243,9 @@ export default function DigitalTwinPage({ onClose }: DigitalTwinPageProps) {
           </Tab>
           <Tab $active={activeTab === 'charts'} onClick={() => setActiveTab('charts')}>
             图表
+          </Tab>
+          <Tab $active={activeTab === 'rules'} onClick={() => setActiveTab('rules')}>
+            规则配置
           </Tab>
         </TabBar>
 
@@ -283,6 +313,14 @@ export default function DigitalTwinPage({ onClose }: DigitalTwinPageProps) {
 
           {activeTab === 'charts' && (
             <div>
+              <NotificationSettings>
+                <SettingsButton $active={soundEnabled} onClick={() => setSoundEnabled(!soundEnabled)}>
+                  🔊 声音 {soundEnabled ? '开' : '关'}
+                </SettingsButton>
+                <SettingsButton $active={notifEnabled} onClick={() => setNotifEnabled(!notifEnabled)}>
+                  🔔 通知 {notifEnabled ? '开' : '关'}
+                </SettingsButton>
+              </NotificationSettings>
               <StatsRow>
                 <StatsCard title="在线设备" value={onlineCount} color="#10b981" />
                 <StatsCard title="运行中" value={runningCount} color="#3b82f6" />
@@ -309,6 +347,10 @@ export default function DigitalTwinPage({ onClose }: DigitalTwinPageProps) {
                 color="#8b5cf6"
               />
             </div>
+          )}
+
+          {activeTab === 'rules' && (
+            <AlertRuleList />
           )}
         </PanelContent>
       </RightPanel>

@@ -26,14 +26,14 @@
 
 ### 1. 基础架构搭建
 - [x] 项目初始化 (React + TypeScript) - 已使用 meta-note 脚手架
-- [x] 状态管理 (Redux/Zustand) - 已存在于 meta-note
-- [x] 路由配置 - 已存在于 meta-note
-- [x] UI 组件库集成 (Ant Design) - 已存在于 meta-note
+- [ ] 状态管理 (Redux/Zustand) - 实际未使用 Redux/Zustand，项目依赖 React 内置 useState/useContext
+- [ ] 路由配置 - 实际无 react-router 等路由库，使用 window.location.hash + 条件渲染
+- [ ] UI 组件库集成 (Ant Design) - 实际使用 styled-components，未集成 Ant Design
 
 ### 2. 3D 场景模块
 - [x] Three.js 场景初始化 - FactoryScene.tsx
 - [x] 工厂车间 3D 模型加载 - Grid + Floor
-- [x] 设备 3D 模型展示 - DeviceModel 组件
+- [x] 设备 3D 模型展示 - DeviceModel 组件（3D mesh 内联在 FactoryScene.tsx 中，无独立 DeviceModel.tsx 文件）
 - [ ] AGV/机器人 3D 模型动画 - 只有静态几何体（box/cylinder），无 useFrame/useSpring/lerp 插值，位置跳变。需实现：AGV 移动插值、ROBOT 旋转动画
 - [x] 相机控制 (旋转、缩放、平移) - OrbitControls
 - [x] 场景灯光与环境配置 - 环境光 + 平行光
@@ -67,9 +67,9 @@
 
 ### 7. 告警管理
 - [x] 告警列表展示 - AlertPanel.tsx
-- [ ] 告警规则配置
+- [x] 告警规则配置 - AlertRuleList + AlertRuleForm + 后端完整实现
 - [x] 告警等级分类 (红/黄/蓝) - levelColors
-- [ ] 告警声音/弹窗通知
+- [x] 告警声音/弹窗通知 - notification.ts + Toast.tsx + useAlertNotification
 - [ ] ⚠️ WebSocket 断线重连（websocket.ts:84）setTimeout 无 timer ID 追踪，disconnect 后可能触发意外重连
 
 ### 8. 前端配置
@@ -84,7 +84,7 @@
 - [x] digital-twin-service 目录结构 (DDD 架构)
 - [x] pom.xml 依赖配置
 - [x] Application 启动类
-<<<<<<< HEAD
+
 - [ ] ❌ 主类未继承 `BaseApplication`，未使用 `@EnableDiscoveryClient`，不向 ZooKeeper 注册
 - [ ] ❌ 未使用 `@EnableDubbo`，不支持 RPC
 
@@ -122,7 +122,7 @@
 
 ### 5. 消息队列集成
 - [x] Kafka Consumer 监听器
-- [x] 6 个 Topic：`device.status.changed`、`device.position.updated` 等
+- [x] Kafka Topic 监听 - Consumer 实际仅监听 4 个 topic（status.changed / position.updated / heartbeat / metric.reported），非 6 个
 - [ ] ❌ **`DigitalTwinEventPublisher` 是伪发布器**：publish 方法只打日志未实际发送 Kafka 消息
 - [ ] ❌ 无错误处理：Kafka 监听器无 try-catch，`broadcast()` 异常会导致消费失败
 - [ ] ❌ 无重试机制（`@RetryableTopic`）、无死信队列（DLT）
@@ -161,13 +161,11 @@
 - [x] WebSocket 配置
 - [x] 客户端连接管理
 - [x] 实时数据推送
->>>>>>> c8922596ee67e5c02c23dcd594e8b0476339df66
 
 ---
 
 ## 数据库设计
 
-<<<<<<< HEAD
 ### 1. PostgreSQL 表（MyBatis-Plus + schema.sql）
 - [x] workshops（车间表）- schema.sql
 - [x] devices（设备表）- schema.sql
@@ -180,7 +178,6 @@
 - [ ] ⚠️ 外键约束缺失（`production_lines.workshop_id`、`devices.workshop_id` 等无 FK）
 =======
 ### 1. 持久化迁移（当前全部使用 ConcurrentHashMap 内存存储，宕机即丢）
->>>>>>> c8922596ee67e5c02c23dcd594e8b0476339df66
 
 > **注意：** `server/common/` 已通过 `application-common.yml` 提供了以下公共配置，digital-twin-service 无需重复定义：
 > - PostgreSQL 数据源（`spring.datasource`）
@@ -261,16 +258,15 @@
 ## 部署配置
 
 ### 1. Docker
-- [x] digital-twin-service/Dockerfile（多阶段构建、非 root、健康检查 ✅）
+- [x] docker/Dockerfile（实际路径为 `docker/Dockerfile`，非 `digital-twin-service/Dockerfile`，已更正）
 - [x] docker-compose.digital-twin.yml（端口映射、依赖控制 ✅）
 - [ ] ⚠️ Dockerfile `ENTRYPOINT` 使用 `sh -c` 包装 JVM，`docker stop` 信号无法直接传递到 JVM 进程，需改用 `exec` 形式
 - [ ] ⚠️ Dockerfile 未利用层缓存（应先 COPY pom.xml 下载依赖，再 COPY 源码）
 
 ### 2. K8s
-- [x] k8s/digital-twin-deployment.yaml（副本数、资源限制、探针、反亲和性 ✅）
-- [x] k8s/digital-twin-service.yaml（ClusterIP + LoadBalancer ✅）
+- [x] k8s/digital-twin/deployment.yaml（原 TODO 路径 `k8s/digital-twin-deployment.yaml` 有误，已更正）
+- [x] k8s/digital-twin/service.yaml（原 TODO 路径 `k8s/digital-twin-service.yaml` 有误，已更正）
 - [x] k8s/digital-twin/ingress.yaml（TLS + WebSocket 支持 ✅）
-- [x] k8s/digital-twin/ingress.yaml
 - [ ] ❌ K8s deployment 环境变量硬编码（secret 引用缺失），需迁移到 `SealedSecret`/External Secrets Operator
 - [ ] ❌ **`.env` 文件已提交到 Git**，包含 `MYSQL_ROOT_PASSWORD=123123`、`REDIS_PASSWORD=123123` 等弱密码，需立即移除并刷新凭据
 - [ ] ⚠️ 镜像拉取策略 `Always`，应使用具体版本标签
