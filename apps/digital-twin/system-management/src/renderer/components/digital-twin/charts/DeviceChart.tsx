@@ -99,18 +99,35 @@ export function DeviceChart({
     ctx.lineTo(padding.left, padding.top + chartHeight)
     ctx.closePath()
     const fillColor = (c: string): string => {
+      // Normalize to 6-digit hex first
+      let hex = c
       if (c.startsWith('#')) {
-        const hex = c.slice(1)
-        if (hex.length === 6) {
-          const r = parseInt(hex.slice(0, 2), 16)
-          const g = parseInt(hex.slice(2, 4), 16)
-          const b = parseInt(hex.slice(4, 6), 16)
-          return `rgba(${r}, ${g}, ${b}, 0.3)`
+        hex = c.slice(1)
+        // Handle 3-digit hex (#RGB -> #RRGGBB)
+        if (hex.length === 3) {
+          hex = hex.split('').map(char => char + char).join('')
         }
       }
+      
+      // Parse hex to RGB
+      if (/^[0-9a-fA-F]{6}$/.test(hex)) {
+        const r = parseInt(hex.slice(0, 2), 16)
+        const g = parseInt(hex.slice(2, 4), 16)
+        const b = parseInt(hex.slice(4, 6), 16)
+        return `rgba(${r}, ${g}, ${b}, 0.3)`
+      }
+      
+      // Handle rgb/rgba input - extract RGB values
       if (c.startsWith('rgb')) {
+        const match = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
+        if (match) {
+          return `rgba(${match[1]}, ${match[2]}, ${match[3]}, 0.3)`
+        }
+        // Fallback
         return c.replace('rgb', 'rgba').replace(')', ', 0.3)')
       }
+      
+      // Default: return as-is (will use canvas default)
       return c
     }
     ctx.fillStyle = fillColor(color)

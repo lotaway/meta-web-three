@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: digital-twin-frontend
+  namespace: meta-web-three
+  labels:
+    app: digital-twin-frontend
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: digital-twin-frontend
+  template:
+    metadata:
+      labels:
+        app: digital-twin-frontend
+        tier: frontend
+    spec:
+      containers:
+        - name: digital-twin-frontend
+          image: metawebthree/digital-twin-frontend:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: VITE_API_URL
+              value: "http://api-gateway:8080"
+            - name: VITE_WS_URL
+              value: "ws://digital-twin-service:8080/ws"
+            # Sensitive config via SealedSecret/ESO (example)
+            # - name: VITE_API_KEY
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: digital-twin-frontend-secrets
+            #       key: api-key
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: digital-twin-frontend
+                topologyKey: kubernetes.io/hostname
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: digital-twin-frontend-service
+  namespace: meta-web-three
+  labels:
+    app: digital-twin-frontend
+    tier: frontend
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  selector:
+    app: digital-twin-frontend
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: digital-twin-frontend-ingress
+  namespace: meta-web-three
+  labels:
+    app: digital-twin-frontend
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: digital-twin.meta-web-three.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: digital-twin-frontend-service
+                port:
+                  number: 80
