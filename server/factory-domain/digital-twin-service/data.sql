@@ -23,8 +23,19 @@ VALUES
 ('AGV-003',  '搬运机器人A3', 'AGV',     'WS-01', 'LINE-01', 'IDLE',     -2.0,  0.25,  -4.0,  1.5708);
 
 -- Alerts
+-- Note: Using TIMESTAMP function for cross-database compatibility
+-- MySQL: DATE_SUB(NOW(), INTERVAL 1 HOUR)
+-- PostgreSQL: NOW() - INTERVAL '1 HOUR'
+-- H2: DATEADD('HOUR', -1, CURRENT_TIMESTAMP)
 INSERT INTO alerts (alert_code, device_code, workshop_id, level, type, title, description, status, occurred_at)
 VALUES
-('ALT-001', 'PLC-002',  'WS-01', 'CRITICAL', 'DEVICE_ERROR',     '设备故障',   'PLC控制器C2通信异常',               'TRIGGERED',   CURRENT_TIMESTAMP - INTERVAL '1' HOUR),
-('ALT-002', 'ROBOT-002','WS-01', 'WARNING',  'TEMPERATURE_HIGH', '温度告警',   '机械臂R2温度过高',                 'TRIGGERED',   CURRENT_TIMESTAMP - INTERVAL '30' MINUTE),
-('ALT-003', 'AGV-001',  'WS-01', 'INFO',     'MAINTENANCE_DUE',  '维护提醒',   '搬运机器人A1即将到期维护',          'ACKNOWLEDGED', CURRENT_TIMESTAMP - INTERVAL '10' MINUTE);
+('ALT-001', 'PLC-002',  'WS-01', 'CRITICAL', 'DEVICE_ERROR',     '设备故障',   'PLC控制器C2通信异常',               'TRIGGERED',   TIMESTAMPADD(HOUR, -1, CURRENT_TIMESTAMP)),
+('ALT-002', 'ROBOT-002','WS-01', 'WARNING',  'TEMPERATURE_HIGH', '温度告警',   '机械臂R2温度过高',                 'TRIGGERED',   TIMESTAMPADD(MINUTE, -30, CURRENT_TIMESTAMP)),
+('ALT-003', 'AGV-001',  'WS-01', 'INFO',     'MAINTENANCE_DUE',  '维护提醒',   '搬运机器人A1即将到期维护',          'ACKNOWLEDGED', TIMESTAMPADD(MINUTE, -10, CURRENT_TIMESTAMP));
+
+-- For PostgreSQL, uncomment below instead:
+-- INSERT INTO alerts (alert_code, device_code, workshop_id, level, type, title, description, status, occurred_at)
+-- VALUES
+-- ('ALT-001', 'PLC-002',  'WS-01', 'CRITICAL', 'DEVICE_ERROR',     '设备故障',   'PLC控制器C2通信异常',               'TRIGGERED',   NOW() - INTERVAL '1 HOUR'),
+-- ('ALT-002', 'ROBOT-002','WS-01', 'WARNING',  'TEMPERATURE_HIGH', '温度告警',   '机械臂R2温度过高',                 'TRIGGERED',   NOW() - INTERVAL '30 MINUTE'),
+-- ('ALT-003', 'AGV-001',  'WS-01', 'INFO',     'MAINTENANCE_DUE',  '维护提醒',   '搬运机器人A1即将到期维护',          'ACKNOWLEDGED', NOW() - INTERVAL '10 MINUTE');

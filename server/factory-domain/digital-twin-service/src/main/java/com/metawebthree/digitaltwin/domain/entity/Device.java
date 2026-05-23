@@ -125,4 +125,18 @@ public class Device {
     public void setLastHeartbeat(LocalDateTime lastHeartbeat) { this.lastHeartbeat = lastHeartbeat; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+
+    // equals/hashCode based on business key (deviceCode)
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Device device = (Device) o;
+        return deviceCode != null && deviceCode.equals(device.deviceCode);
+    }
+
+    @Override
+    public int hashCode() {
+        return deviceCode != null ? deviceCode.hashCode() : 0;
+    }
 }

@@ -108,4 +108,18 @@ public class Alert {
     public void setResolvedBy(String resolvedBy) { this.resolvedBy = resolvedBy; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+
+    // equals/hashCode based on business key (alertCode)
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Alert alert = (Alert) o;
+        return alertCode != null && alertCode.equals(alert.alertCode);
+    }
+
+    @Override
+    public int hashCode() {
+        return alertCode != null ? alertCode.hashCode() : 0;
+    }
 }

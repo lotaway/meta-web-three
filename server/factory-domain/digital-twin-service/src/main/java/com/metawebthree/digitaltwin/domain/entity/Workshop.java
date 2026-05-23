@@ -75,4 +75,18 @@ public class Workshop {
     public void setLength(Double length) { this.length = length; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+
+    // equals/hashCode based on business key (workshopCode)
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Workshop workshop = (Workshop) o;
+        return workshopCode != null && workshopCode.equals(workshop.workshopCode);
+    }
+
+    @Override
+    public int hashCode() {
+        return workshopCode != null ? workshopCode.hashCode() : 0;
+    }
 }

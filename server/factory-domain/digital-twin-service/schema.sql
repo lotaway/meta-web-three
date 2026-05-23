@@ -141,3 +141,32 @@ CREATE INDEX IF NOT EXISTS idx_production_logs_line ON production_logs(line_code
 CREATE INDEX IF NOT EXISTS idx_production_logs_time ON production_logs(recorded_at);
 CREATE INDEX IF NOT EXISTS idx_telemetry_logs_device ON telemetry_logs(device_code);
 CREATE INDEX IF NOT EXISTS idx_telemetry_logs_time ON telemetry_logs(recorded_at);
+
+-- Foreign Key Constraints (for MySQL/PostgreSQL - H2 ignores these in some modes)
+-- Production Line -> Workshop
+ALTER TABLE production_lines ADD CONSTRAINT fk_production_line_workshop 
+    FOREIGN KEY (workshop_id) REFERENCES workshops(workshop_code);
+
+-- Device -> Workshop
+ALTER TABLE devices ADD CONSTRAINT fk_device_workshop 
+    FOREIGN KEY (workshop_id) REFERENCES workshops(workshop_code);
+
+-- Device -> Production Line
+ALTER TABLE devices ADD CONSTRAINT fk_device_production_line 
+    FOREIGN KEY (production_line_id) REFERENCES production_lines(line_code);
+
+-- Alert -> Device
+ALTER TABLE alerts ADD CONSTRAINT fk_alert_device 
+    FOREIGN KEY (device_code) REFERENCES devices(device_code);
+
+-- Alert -> Workshop  
+ALTER TABLE alerts ADD CONSTRAINT fk_alert_workshop 
+    FOREIGN KEY (workshop_id) REFERENCES workshops(workshop_code);
+
+-- Production Log -> Production Line
+ALTER TABLE production_logs ADD CONSTRAINT fk_production_log_line 
+    FOREIGN KEY (line_code) REFERENCES production_lines(line_code);
+
+-- Telemetry Log -> Device
+ALTER TABLE telemetry_logs ADD CONSTRAINT fk_telemetry_device 
+    FOREIGN KEY (device_code) REFERENCES devices(device_code);
