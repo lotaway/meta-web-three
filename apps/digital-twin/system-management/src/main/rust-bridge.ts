@@ -5,20 +5,8 @@ let native: typeof NativeTypes | null = null
 try {
     native = require('../../native/index.node')
 } catch (error) {
-    console.error('Failed to load native module:', error)
-    native = {
-        init: () => console.log("Native module not loaded"),
-        getSystemInfo: () => null as any,
-        getCpuInfo: () => [],
-        getMemoryInfo: () => null as any,
-        getNetworkInfo: () => [],
-        getDiskInfo: () => [],
-        getProcessList: () => [],
-        listCameras: () => [],
-        startCamera: () => {},
-        stopCamera: () => false,
-        getLatestFrame: () => null,
-    } as any
+    console.error('[NativeBridge] CRITICAL: Failed to load native module. All native features (camera, audio capture, system monitor) are UNAVAILABLE:', error)
+    native = null
 }
 
 export function initializeSupport() {
@@ -61,6 +49,15 @@ export function getAudioManager() {
             native!.startAudioCapture(deviceIndex, sampleRate),
         stopAudioCapture: () => native!.stopAudioCapture(),
         getAudioData: () => native!.getAudioData(),
+    }
+}
+
+export function getTTSManager() {
+    if (!native) return null
+    return {
+        listVoices: () => native!.listTtsVoices(),
+        synthesize: (text: string, voice: string, outputPath: string) =>
+            native!.synthesizeSpeech(text, voice, outputPath),
     }
 }
 

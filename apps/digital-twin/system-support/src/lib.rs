@@ -1,6 +1,7 @@
 pub mod monitor;
 pub mod media;
 pub mod audio;
+pub mod tts;
 
 use napi_derive::napi;
 

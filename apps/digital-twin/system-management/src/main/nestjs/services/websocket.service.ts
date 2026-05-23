@@ -25,22 +25,65 @@ export class WebSocketService {
 
                 try {
                     const message = JSON.parse(messageStr)
-                    if (message.type === 'login_request') {
-                        ws.send(JSON.stringify({
-                            type: 'login_response',
-                            status: 'error',
-                            error: 'External login no longer supported'
-                        }))
-                    } else {
-                        console.log('[WebSocket] Unknown message type:', message.type)
-                        ws.send(JSON.stringify({
-                            type: 'error',
-                            error: 'Unknown message type'
-                        }))
+
+                    switch (message.type) {
+                        case 'hello':
+                            ws.send(JSON.stringify({
+                                type: 'hello_ack',
+                                status: 'ok',
+                                code: 200,
+                                timestamp: Date.now()
+                            }))
+                            break
+
+                        case 'ping':
+                            ws.send(JSON.stringify({
+                                type: 'pong',
+                                status: 'ok',
+                                code: 200,
+                                timestamp: Date.now()
+                            }))
+                            break
+
+                        case 'subscribe':
+                            ws.send(JSON.stringify({
+                                type: 'subscribe_ack',
+                                status: 'ok',
+                                code: 200,
+                                channels: message.channels || [],
+                                timestamp: Date.now()
+                            }))
+                            break
+
+                        case 'unsubscribe':
+                            ws.send(JSON.stringify({
+                                type: 'unsubscribe_ack',
+                                status: 'ok',
+                                code: 200,
+                                channels: message.channels || [],
+                                timestamp: Date.now()
+                            }))
+                            break
+
+                        default:
+                            console.log('[WebSocket] Unknown message type:', message.type)
+                            ws.send(JSON.stringify({
+                                type: 'error',
+                                status: 'error',
+                                code: 4001,
+                                error: `Unknown message type: ${message.type}`,
+                                timestamp: Date.now()
+                            }))
                     }
                 } catch (err) {
                     console.log('[WebSocket] Non-JSON message or parse error:', messageStr)
-                    ws.send(`Hello from ${appProtocol}!`)
+                    ws.send(JSON.stringify({
+                        type: 'error',
+                        status: 'error',
+                        code: 4000,
+                        error: 'Invalid message format: expected JSON',
+                        timestamp: Date.now()
+                    }))
                 }
             })
 

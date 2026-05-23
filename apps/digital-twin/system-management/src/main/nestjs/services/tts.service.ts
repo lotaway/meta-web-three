@@ -5,6 +5,7 @@ import fs from 'fs-extra';
 import { Observable, Observer } from 'rxjs';
 import crypto from 'node:crypto';
 import { TTS_CONSTANTS, TTS_MODEL_FILES } from '../../constants';
+import { getTTSManager } from '../../rust-bridge';
 
 interface ModelIntegrity {
     isValid: boolean;
@@ -17,12 +18,14 @@ interface ModelStatus {
     files: Record<string, boolean>;
     integrity: ModelIntegrity;
     path: string;
+    nativeAvailable: boolean;
 }
 
 @Injectable()
 export class TTSService {
     private readonly modelDir = path.join(app.getPath('userData'), 'models', 'xtts-v2');
     private readonly voiceProfilesDir = path.join(app.getPath('userData'), 'voice_profiles');
+    private readonly ttsManager = getTTSManager();
 
     constructor() {
         fs.ensureDirSync(this.modelDir);
@@ -30,11 +33,27 @@ export class TTSService {
     }
 
     async synthesize(text: string, voiceProfileId: string): Promise<Buffer> {
-        const status = await this.getModelStatus();
-        if (!status.ready) {
-            throw new Error('TTS Model not ready');
+        if (!this.ttsManager) {
+            throw new Error('TTS native module not loaded: system TTS unavailable');
         }
-        return Buffer.from('mock-audio-data');
+
+        if (!text || text.trim().length === 0) {
+            throw new Error('TTS text cannot be empty');
+        }
+
+        const voice = voiceProfileId || 'Samantha';
+        const tmpFile = path.join(app.getPath('temp'), `tts-${Date.now()}.wav`);
+
+        try {
+            this.ttsManager.synthesize(text, voice, tmpFile);
+
+            const audioBuffer = await fs.readFile(tmpFile);
+            return audioBuffer;
+        } catch (error: any) {
+            throw new Error(`TTS synthesis failed: ${error.message}`);
+        } finally {
+            await fs.remove(tmpFile).catch(() => {});
+        }
     }
 
     private async calculateHash(filePath: string): Promise<string> {
@@ -89,7 +108,8 @@ export class TTSService {
             : { isValid: false, details: 'Files missing' };
 
         return {
-            ready: allFilesExist,
+            ready: this.ttsManager !== null,
+            nativeAvailable: this.ttsManager !== null,
             version: TTS_CONSTANTS.MODEL_VERSION,
             files: filePresence,
             integrity,
