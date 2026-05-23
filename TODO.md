@@ -1,8 +1,8 @@
 # 以下清单在完成后需要确认勾选
 
-- [] AI仓储功能（AI可选，回退则是无AI辅助建议，纯算法+人工处理）
-- [] 所有docker和k8s运维配置文件是否都对应了当前全新的项目架构
-- [] 是否完善了所必须的自动化测试
+- [ ] AI仓储功能（AI可选，回退则是无AI辅助建议，纯算法+人工处理）
+- [ ] 所有docker和k8s运维配置文件是否都对应了当前全新的项目架构
+- [ ] 是否完善了所必须的自动化测试
 
 ---
 
@@ -69,49 +69,96 @@
 
 ---
 
-## 后端服务 (server/factory-domain-digital-twin-service)
+## 后端服务 (server/factory-domain/digital-twin-service)
 
 ### 1. 服务创建
-- [ ] digital-twin-service 目录结构 (DDD 架构)
-- [ ] pom.xml 依赖配置
-- [ ] Application 启动类
+- [x] digital-twin-service 目录结构 (DDD 架构)
+- [x] pom.xml 依赖配置
+- [x] Application 启动类
 
 ### 2. 领域模型
-- [ ] DeviceEntity - 设备实体
-- [ ] WorkshopEntity - 车间实体
-- [ ] ProductionLineEntity - 生产线实体
-- [ ] AlertEntity - 告警实体
+- [x] DeviceEntity - 设备实体
+- [x] WorkshopEntity - 车间实体
+- [x] ProductionLineEntity - 生产线实体
+- [x] AlertEntity - 告警实体
 
 ### 3. 接口开发
-- [ ] 设备列表查询 API
-- [ ] 设备实时状态 API
-- [ ] 历史数据查询 API
-- [ ] 告警记录 API
+- [x] 设备列表查询 API
+- [x] 设备实时状态 API
+- [x] 历史数据查询 API
+- [x] 告警记录 API
 
 ### 4. 消息队列集成
-- [ ] Kafka Consumer 配置
-- [ ] 设备状态消息消费
-- [ ] 事件转发到 WebSocket
+- [x] Kafka Consumer 配置
+- [x] 设备状态消息消费
+- [x] 事件转发到 WebSocket
 
 ### 5. WebSocket 服务
-- [ ] WebSocket 配置
-- [ ] 客户端连接管理
-- [ ] 实时数据推送
+- [x] WebSocket 配置
+- [x] 客户端连接管理
+- [x] 实时数据推送
 
 ---
 
 ## 数据库设计
 
-### 1. MySQL 表
-- [ ] device_info - 设备信息表
-- [ ] workshop_config - 车间配置表
-- [ ] production_line - 生产线表
-- [ ] alert_rule - 告警规则表
-- [ ] alert_record - 告警记录表
+### 1. 持久化迁移（当前全部使用 ConcurrentHashMap 内存存储，宕机即丢）
 
-### 2. InfluxDB (时序数据)
-- [ ] device_metrics - 设备指标数据
-- [ ] production_stats - 生产统计数据
+> **注意：** `server/common/` 已通过 `application-common.yml` 提供了以下公共配置，digital-twin-service 无需重复定义：
+> - PostgreSQL 数据源（`spring.datasource`）
+> - MyBatis-Plus 全局配置（驼峰映射、分页插件、自动填充、ID 策略）
+> - Redis 连接（`spring.data.redis`）
+> - Elasticsearch 连接
+>
+> digital-twin-service 的 `pom.xml` 已依赖 `common` 模块，只需将自身的 `application.yml` 配置集成 `application-common.yml` 即可（`spring.config.import: classpath:application-common.yml`）。
+
+- [ ] 在 `application.yml` 中添加 `spring.config.import: classpath:application-common.yml`，继承 common 的公共数据库配置
+- [ ] 在 `digital-twin-service` 领域实体上添加 MyBatis-Plus 注解（`@TableName`、`@TableId` 等），映射到 `schema.sql` 对应的表
+- [ ] 删除 `DeviceRepositoryImpl.java` 及其接口，替换为 MyBatis-Plus `BaseMapper<Device>`
+- [ ] 删除 `WorkshopRepositoryImpl.java` 及其接口，替换为 MyBatis-Plus `BaseMapper<Workshop>`
+- [ ] 删除 `ProductionLineRepositoryImpl.java` 及其接口，替换为 MyBatis-Plus `BaseMapper<ProductionLine>`
+- [ ] 删除 `AlertRepositoryImpl.java` 及其接口，替换为 MyBatis-Plus `BaseMapper<Alert>`
+- [ ] 删除或重构 `schema.sql`（执行方式改为 Flyway 或 MyBatis-Plus `ddl-auto`）
+- [ ] 重构 `DigitalTwinDevDataInitializer` — 种子数据改为基于数据库状态（而非 `ConcurrentHashMap` 判空）
+
+### 2. 时序数据存储（抽象接口，支持多后端切换）
+
+> 通过定义统一接口，PostgreSQL 和 InfluxDB 可共存切换，适配不同客户需求：
+> - **小/中型**：PostgreSQL 实现（零额外运维，SQL 通用）
+> - **大型/高频**：InfluxDB 实现（高性能压缩+自动降采样）
+>
+> Spring Profile 或配置项控制 `@ConditionalOnProperty`，切换后端无需改业务代码
+
+#### 公共接口抽象
+- [ ] 定义时序数据写入接口 `TelemetryRepository`（`saveTelemetry()`, `saveProductionLog()`, `queryHistory()` 等）
+- [ ] 定义时序数据查询接口（范围查询、聚合查询、最新值查询）
+
+#### PostgreSQL 实现（默认，小中型场景）
+- [ ] 创建 `ProductionLog` 和 `TelemetryLog` 的 MyBatis-Plus Entity + Mapper，对应 `schema.sql` 的时序表
+- [ ] 实现 `PostgresTelemetryRepository`，写入 PostgreSQL
+- [ ] 实现时序数据查询 API（支持时间范围过滤、聚合，供前端 ECharts 趋势图使用）
+- [ ] `DigitalTwinSimulator` 模拟数据改为同时写入时序表
+
+#### InfluxDB 实现（可选，大型高频场景）
+- [ ] 保留 `pom.xml` 中的 `influxdb-client-java` 依赖
+- [ ] 在 `docker-compose.env.yml` 添加 InfluxDB 服务（可选，按需启用）
+- [ ] 配置 InfluxDB 连接（`application-common.yml` 或独立配置）
+- [ ] 实现 `InfluxdbTelemetryRepository`，写入 InfluxDB
+- [ ] 实现数据生命周期管理（Retention Policy + 自动降采样）
+
+### 3. Redis 实时缓存（common 已提供 Redis 连接配置，digital-twin-service 无需重复配置）
+
+- [ ] 使用 common 提供的 Redis 连接，在 digital-twin-service 中缓存设备最新状态（替代内存 Map，实现进程重启不丢）
+- [ ] 使用 Redis Pub/Sub 作为 WebSocket 广播的背板（多实例场景）
+
+### 4. 已有 DDL 但未实现的表（对应 `schema.sql`）
+
+- [ ] `workshops` - 车间配置表（已有 DDL，数据库表中无数据，需创建 MyBatis-Plus Entity）
+- [ ] `production_lines` - 生产线表（已有 DDL，数据库表中无数据，需创建 MyBatis-Plus Entity）
+- [ ] `devices` - 设备信息表（已有 DDL，数据库表中无数据，需创建 MyBatis-Plus Entity）
+- [ ] `alerts` - 告警记录表（已有 DDL，数据库表中无数据，需创建 MyBatis-Plus Entity）
+- [ ] `production_logs` - 产量日志表（时序数据，建在 PostgreSQL，见上方时序数据章节）
+- [ ] `telemetry_logs` - 遥测日志表（时序数据，建在 PostgreSQL，见上方时序数据章节）
 
 ---
 
