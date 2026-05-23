@@ -2,11 +2,16 @@ FROM eclipse-temurin:21-jdk-alpine AS builder
 
 WORKDIR /app
 
-# Copy pom files
+# Step 1: Copy pom.xml and download dependencies (cached layer)
 COPY pom.xml .
+RUN apk add --no-cache maven && \
+    mvn dependency:go-offline -B -DskipTests && \
+    apk del maven
+
+# Step 2: Copy source code
 COPY src ./src
 
-# Build the application
+# Step 3: Build the application
 RUN apk add --no-cache maven && \
     mvn clean package -DskipTests && \
     apk del maven
@@ -35,7 +40,8 @@ EXPOSE 8080 9090
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
 
-# JVM options
-ENV JAVA_OPTS="-Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+# JVM options via environment variable (PID 1 is Java)
+ENV JAVA_TOOL_OPTIONS="-Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+# Use exec form - Java receives signals directly
+ENTRYPOINT ["java", "-jar", "app.jar"]

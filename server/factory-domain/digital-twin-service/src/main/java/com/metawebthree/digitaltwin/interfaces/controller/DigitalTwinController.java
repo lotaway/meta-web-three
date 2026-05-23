@@ -41,7 +41,12 @@ public class DigitalTwinController {
             @PathVariable String deviceCode,
             @RequestBody Map<String, Object> request) {
         String status = (String) request.get("status");
-        Device.DeviceStatus deviceStatus = Device.DeviceStatus.valueOf(status.toUpperCase());
+        Device.DeviceStatus deviceStatus;
+        try {
+            deviceStatus = Device.DeviceStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
         commandService.updateDeviceStatus(deviceCode, deviceStatus);
         return ResponseEntity.ok().build();
     }
@@ -73,8 +78,12 @@ public class DigitalTwinController {
     }
 
     @GetMapping("/devices")
-    public ResponseEntity<?> getAllDevices() {
-        return ResponseEntity.ok(queryService.getAllDevices());
+    public ResponseEntity<?> getAllDevices(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        // Clamp page size to prevent abuse
+        int limitedSize = Math.min(size, 100);
+        return ResponseEntity.ok(queryService.getDevicesPaginated(page, limitedSize));
     }
 
     @GetMapping("/workshop/{workshopId}/devices")
@@ -99,8 +108,11 @@ public class DigitalTwinController {
     }
 
     @GetMapping("/workshops")
-    public ResponseEntity<?> getAllWorkshops() {
-        return ResponseEntity.ok(queryService.getAllWorkshops());
+    public ResponseEntity<?> getAllWorkshops(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        int limitedSize = Math.min(size, 100);
+        return ResponseEntity.ok(queryService.getWorkshopsPaginated(page, limitedSize));
     }
 
     // ProductionLine endpoints
@@ -116,8 +128,11 @@ public class DigitalTwinController {
     }
 
     @GetMapping("/production-lines")
-    public ResponseEntity<?> getAllProductionLines() {
-        return ResponseEntity.ok(queryService.getAllProductionLines());
+    public ResponseEntity<?> getAllProductionLines(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        int limitedSize = Math.min(size, 100);
+        return ResponseEntity.ok(queryService.getProductionLinesPaginated(page, limitedSize));
     }
 
     // Alert endpoints

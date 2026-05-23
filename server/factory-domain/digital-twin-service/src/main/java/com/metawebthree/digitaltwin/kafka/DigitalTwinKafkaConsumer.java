@@ -7,6 +7,9 @@ import com.metawebthree.digitaltwin.interfaces.websocket.DigitalTwinWebSocketHan
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.annotation.RetryableTopic;
+import org.springframework.kafka.retrytopic.DltStrategy;
+import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
@@ -89,31 +92,62 @@ public class DigitalTwinKafkaConsumer {
         }
     }
 
+    @RetryableTopic(
+        attempts = "3",
+        backoff = @Backoff(delay = 1000, multiplier = 2.0),
+        dltStrategy = DltStrategy.FAIL_ON_ERROR,
+        include = {Exception.class}
+    )
     @KafkaListener(topics = "device.status.changed", groupId = "digital-twin")
     public void consumeDeviceStatusChanged(String message) {
         processMessage("device.status.changed", message);
     }
 
+    @RetryableTopic(
+        attempts = "3",
+        backoff = @Backoff(delay = 1000, multiplier = 2.0),
+        dltStrategy = DltStrategy.FAIL_ON_ERROR
+    )
     @KafkaListener(topics = "device.position.updated", groupId = "digital-twin")
     public void consumeDevicePositionUpdated(String message) {
         processMessage("device.position.updated", message);
     }
 
+    @RetryableTopic(
+        attempts = "3",
+        backoff = @Backoff(delay = 1000, multiplier = 2.0),
+        dltStrategy = DltStrategy.FAIL_ON_ERROR
+    )
     @KafkaListener(topics = "device.heartbeat", groupId = "digital-twin")
     public void consumeDeviceHeartbeat(String message) {
         processMessage("device.heartbeat", message);
     }
 
+    @RetryableTopic(
+        attempts = "3",
+        backoff = @Backoff(delay = 1000, multiplier = 2.0),
+        dltStrategy = DltStrategy.FAIL_ON_ERROR
+    )
     @KafkaListener(topics = "alert.created", groupId = "digital-twin")
     public void consumeAlertCreated(String message) {
         processMessage("alert.created", message);
     }
 
+    @RetryableTopic(
+        attempts = "3",
+        backoff = @Backoff(delay = 1000, multiplier = 2.0),
+        dltStrategy = DltStrategy.FAIL_ON_ERROR
+    )
     @KafkaListener(topics = "production.output.updated", groupId = "digital-twin")
     public void consumeProductionOutputUpdated(String message) {
         processMessage("production.output.updated", message);
     }
 
+    @RetryableTopic(
+        attempts = "3",
+        backoff = @Backoff(delay = 1000, multiplier = 2.0),
+        dltStrategy = DltStrategy.FAIL_ON_ERROR
+    )
     @KafkaListener(topics = "agv.position.updated", groupId = "digital-twin")
     public void consumeAgvPositionUpdated(String message) {
         processMessage("agv.position.updated", message);

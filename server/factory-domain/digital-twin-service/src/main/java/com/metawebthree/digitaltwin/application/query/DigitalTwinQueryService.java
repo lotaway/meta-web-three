@@ -11,6 +11,7 @@ import com.metawebthree.digitaltwin.domain.repository.AlertRepository;
 import com.metawebthree.digitaltwin.domain.service.DigitalTwinDomainService;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -48,6 +49,23 @@ public class DigitalTwinQueryService {
         return deviceRepository.findAll();
     }
 
+    public Map<String, Object> getDevicesPaginated(int page, int size) {
+        List<Device> all = deviceRepository.findAll();
+        int total = all.size();
+        int fromIndex = (page - 1) * size;
+        int toIndex = Math.min(fromIndex + size, total);
+        List<Device> pageData = fromIndex < total 
+            ? all.subList(fromIndex, toIndex) 
+            : List.of();
+        return Map.of(
+            "data", pageData,
+            "page", page,
+            "size", size,
+            "total", total,
+            "totalPages", (int) Math.ceil((double) total / size)
+        );
+    }
+
     public List<Device> getWorkshopDevices(String workshopId) {
         return deviceRepository.findByWorkshopId(workshopId);
     }
@@ -65,6 +83,23 @@ public class DigitalTwinQueryService {
         return workshopRepository.findAll();
     }
 
+    public Map<String, Object> getWorkshopsPaginated(int page, int size) {
+        List<Workshop> all = workshopRepository.findAll();
+        int total = all.size();
+        int fromIndex = (page - 1) * size;
+        int toIndex = Math.min(fromIndex + size, total);
+        List<Workshop> pageData = fromIndex < total 
+            ? all.subList(fromIndex, toIndex) 
+            : List.of();
+        return Map.of(
+            "data", pageData,
+            "page", page,
+            "size", size,
+            "total", total,
+            "totalPages", (int) Math.ceil((double) total / size)
+        );
+    }
+
     // ProductionLine queries
     public Optional<ProductionLine> getProductionLineById(Long id) {
         return productionLineRepository.findById(id);
@@ -72,6 +107,23 @@ public class DigitalTwinQueryService {
 
     public List<ProductionLine> getAllProductionLines() {
         return productionLineRepository.findAll();
+    }
+
+    public Map<String, Object> getProductionLinesPaginated(int page, int size) {
+        List<ProductionLine> all = productionLineRepository.findAll();
+        int total = all.size();
+        int fromIndex = (page - 1) * size;
+        int toIndex = Math.min(fromIndex + size, total);
+        List<ProductionLine> pageData = fromIndex < total 
+            ? all.subList(fromIndex, toIndex) 
+            : List.of();
+        return Map.of(
+            "data", pageData,
+            "page", page,
+            "size", size,
+            "total", total,
+            "totalPages", (int) Math.ceil((double) total / size)
+        );
     }
 
     public List<ProductionLine> getWorkshopProductionLines(String workshopId) {

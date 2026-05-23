@@ -5,7 +5,8 @@ import { AudioSourceType } from '../types/Audio';
 import { ipcRenderer } from 'electron';
 import { IPC_CHANNELS } from '../../main/constants';
 
-const API_BASE_URL = `http://localhost:${import.meta.env.VITE_WEB_SERVER_PORT || '5051'}`;
+// Full URL configurable via env (e.g., VITE_VOICE_API_URL=http://localhost:5051)
+const API_BASE_URL = import.meta.env.VITE_VOICE_API_URL || `http://localhost:${import.meta.env.VITE_WEB_SERVER_PORT || '5051'}`;
 
 const Container = styled.div<{ $minimal?: boolean }>`
   background-color: ${props => props.$minimal ? 'transparent' : '#2a2a2a'};
