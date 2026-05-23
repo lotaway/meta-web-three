@@ -19,8 +19,8 @@ spec:
     spec:
       containers:
         - name: digital-twin-service
-          image: metawebthree/digital-twin-service:latest
-          imagePullPolicy: Always
+          image: metawebthree/digital-twin-service:1.0.0
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
               name: http
@@ -33,6 +33,23 @@ spec:
               value: "8080"
             - name: JAVA_OPTS
               value: "-Xms512m -Xmx1024m -XX:+UseG1GC"
+            # Sensitive data should be injected from SealedSecret/External Secrets Operator
+            # Example (uncomment and configure):
+            # - name: SPRING_DATASOURCE_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: digital-twin-secrets
+            #       key: database-password
+            # - name: SPRING_REDIS_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: digital-twin-secrets
+            #       key: redis-password
+            # - name: SPRING_KAFKA_PROPERTIES_Sasl_Jaas_Config
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: digital-twin-secrets
+            #       key: kafka-sasl-config
           resources:
             requests:
               memory: "512Mi"

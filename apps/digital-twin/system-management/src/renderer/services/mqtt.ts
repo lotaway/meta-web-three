@@ -151,13 +151,18 @@ function useDigitalTwinMQTT(options: MQTTServiceOptions) {
       onError: (err) => setError(err),
     })
 
-    mqtt.connect().catch((err) => console.error('[MQTT] Connect error:', err))
+    mqtt.connect()
+      .then(() => setError(null))
+      .catch((err) => {
+        console.error('[MQTT] Connect error:', err)
+        setError(err)
+      })
     mqttRef.current = mqtt
 
     return () => {
       mqtt.disconnect()
     }
-  }, [options.brokerUrl])
+  }, [options.brokerUrl, options.topics, options.username, options.password])
 
   const subscribe = useCallback((topic: string, handler: MessageHandler) => {
     mqttRef.current?.subscribe(topic, handler)
