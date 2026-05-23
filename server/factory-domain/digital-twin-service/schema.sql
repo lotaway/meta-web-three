@@ -1,6 +1,4 @@
--- Digital Twin Service - Database Schema Reference
--- Current implementation uses in-memory ConcurrentHashMap storage.
--- This schema documents the data model for future database-backed persistence.
+-- Digital Twin Service - Database Schema
 -- Compatible with H2, PostgreSQL, and MySQL.
 
 -- Workshops (车间)
@@ -80,6 +78,34 @@ CREATE TABLE IF NOT EXISTS alerts (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT chk_alert_level CHECK (level IN ('INFO', 'WARNING', 'ERROR', 'CRITICAL')),
     CONSTRAINT chk_alert_status CHECK (status IN ('TRIGGERED', 'ACKNOWLEDGED', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'))
+);
+
+-- Alert Rules (告警规则)
+CREATE TABLE IF NOT EXISTS alert_rules (
+    id BIGINT PRIMARY KEY,
+    rule_code VARCHAR(50) NOT NULL UNIQUE,
+    rule_name VARCHAR(200) NOT NULL,
+    description VARCHAR(1000),
+    device_type VARCHAR(50),
+    device_code VARCHAR(50),
+    workshop_id VARCHAR(50),
+    metric_type VARCHAR(30),
+    operator VARCHAR(20),
+    threshold_value DECIMAL(15, 4),
+    duration_seconds INT,
+    level VARCHAR(20) NOT NULL DEFAULT 'WARNING',
+    alert_type VARCHAR(30),
+    title_template VARCHAR(500),
+    description_template VARCHAR(1000),
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    cooldown_seconds INT NOT NULL DEFAULT 300,
+    max_alerts_per_hour INT NOT NULL DEFAULT 10,
+    notification_channels VARCHAR(500),
+    created_by VARCHAR(100),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by VARCHAR(100),
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT chk_alert_rule_level CHECK (level IN ('INFO', 'WARNING', 'ERROR', 'CRITICAL'))
 );
 
 -- Production Log (产量日志 - 时序数据)

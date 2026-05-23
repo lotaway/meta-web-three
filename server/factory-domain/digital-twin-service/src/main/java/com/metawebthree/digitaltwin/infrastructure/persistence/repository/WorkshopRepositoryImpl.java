@@ -1,40 +1,67 @@
 package com.metawebthree.digitaltwin.infrastructure.persistence.repository;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.digitaltwin.domain.entity.Workshop;
 import com.metawebthree.digitaltwin.domain.repository.WorkshopRepository;
+import com.metawebthree.digitaltwin.infrastructure.persistence.converter.WorkshopConverter;
+import com.metawebthree.digitaltwin.infrastructure.persistence.dataobject.WorkshopDO;
+import com.metawebthree.digitaltwin.infrastructure.persistence.mapper.WorkshopMapper;
 import org.springframework.stereotype.Repository;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
 public class WorkshopRepositoryImpl implements WorkshopRepository {
-    private final Map<Long, Workshop> storage = new ConcurrentHashMap<>();
-    private final AtomicLong idGen = new AtomicLong(1);
+
+    private final WorkshopMapper workshopMapper;
+
+    public WorkshopRepositoryImpl(WorkshopMapper workshopMapper) {
+        this.workshopMapper = workshopMapper;
+    }
 
     @Override
-    public Optional<Workshop> findById(Long id) { return Optional.ofNullable(storage.get(id)); }
+    public Optional<Workshop> findById(Long id) {
+        return Optional.ofNullable(workshopMapper.selectById(id))
+                .map(WorkshopConverter::toEntity);
+    }
 
     @Override
-    public Optional<Workshop> findByWorkshopCode(String code) {
-        return storage.values().stream().filter(w -> w.getWorkshopCode().equals(code)).findFirst();
+    public Optional<Workshop> findByWorkshopCode(String workshopCode) {
+        WorkshopDO d = workshopMapper.selectOne(
+                new LambdaQueryWrapper<WorkshopDO>().eq(WorkshopDO::getWorkshopCode, workshopCode));
+        return Optional.ofNullable(WorkshopConverter.toEntity(d));
     }
 
     @Override
     public List<Workshop> findByStatus(Workshop.WorkshopStatus status) {
-        return storage.values().stream().filter(w -> w.getStatus() == status).collect(Collectors.toList());
+        return workshopMapper.selectList(
+                new LambdaQueryWrapper<WorkshopDO>().eq(WorkshopDO::getStatus, status.name()))
+                .stream().map(WorkshopConverter::toEntity).collect(Collectors.toList());
     }
 
     @Override
-    public List<Workshop> findAll() { return new ArrayList<>(storage.values()); }
+    public List<Workshop> findAll() {
+        return workshopMapper.selectList(null)
+                .stream().map(WorkshopConverter::toEntity).collect(Collectors.toList());
+    }
 
     @Override
-    public Workshop save(Workshop w) { if (w.getId() == null) w.setId(idGen.getAndIncrement()); storage.put(w.getId(), w); return w; }
+    public Workshop save(Workshop workshop) {
+        WorkshopDO d = WorkshopConverter.toDO(workshop);
+        workshopMapper.insert(d);
+        workshop.setId(d.getId());
+        return workshop;
+    }
 
     @Override
-    public void update(Workshop w) { if (w.getId() != null && storage.containsKey(w.getId())) storage.put(w.getId(), w); }
+    public void update(Workshop workshop) {
+        WorkshopDO d = WorkshopConverter.toDO(workshop);
+        workshopMapper.updateById(d);
+    }
 
     @Override
-    public void deleteById(Long id) { storage.remove(id); }
+    public void deleteById(Long id) {
+        workshopMapper.deleteById(id);
+    }
 }

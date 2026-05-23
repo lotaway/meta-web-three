@@ -1,55 +1,88 @@
 package com.metawebthree.digitaltwin.infrastructure.persistence.repository;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.digitaltwin.domain.entity.Alert;
 import com.metawebthree.digitaltwin.domain.repository.AlertRepository;
+import com.metawebthree.digitaltwin.infrastructure.persistence.converter.AlertConverter;
+import com.metawebthree.digitaltwin.infrastructure.persistence.dataobject.AlertDO;
+import com.metawebthree.digitaltwin.infrastructure.persistence.mapper.AlertMapper;
 import org.springframework.stereotype.Repository;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
 public class AlertRepositoryImpl implements AlertRepository {
-    private final Map<Long, Alert> storage = new ConcurrentHashMap<>();
-    private final AtomicLong idGen = new AtomicLong(1);
+
+    private final AlertMapper alertMapper;
+
+    public AlertRepositoryImpl(AlertMapper alertMapper) {
+        this.alertMapper = alertMapper;
+    }
 
     @Override
-    public Optional<Alert> findById(Long id) { return Optional.ofNullable(storage.get(id)); }
+    public Optional<Alert> findById(Long id) {
+        return Optional.ofNullable(alertMapper.selectById(id))
+                .map(AlertConverter::toEntity);
+    }
 
     @Override
-    public Optional<Alert> findByAlertCode(String code) {
-        return storage.values().stream().filter(a -> a.getAlertCode().equals(code)).findFirst();
+    public Optional<Alert> findByAlertCode(String alertCode) {
+        AlertDO d = alertMapper.selectOne(
+                new LambdaQueryWrapper<AlertDO>().eq(AlertDO::getAlertCode, alertCode));
+        return Optional.ofNullable(AlertConverter.toEntity(d));
     }
 
     @Override
     public List<Alert> findByDeviceCode(String deviceCode) {
-        return storage.values().stream().filter(a -> a.getDeviceCode().equals(deviceCode)).collect(Collectors.toList());
+        return alertMapper.selectList(
+                new LambdaQueryWrapper<AlertDO>().eq(AlertDO::getDeviceCode, deviceCode))
+                .stream().map(AlertConverter::toEntity).collect(Collectors.toList());
     }
 
     @Override
     public List<Alert> findByWorkshopId(String workshopId) {
-        return storage.values().stream().filter(a -> a.getWorkshopId().equals(workshopId)).collect(Collectors.toList());
+        return alertMapper.selectList(
+                new LambdaQueryWrapper<AlertDO>().eq(AlertDO::getWorkshopId, workshopId))
+                .stream().map(AlertConverter::toEntity).collect(Collectors.toList());
     }
 
     @Override
     public List<Alert> findByStatus(Alert.AlertStatus status) {
-        return storage.values().stream().filter(a -> a.getStatus() == status).collect(Collectors.toList());
+        return alertMapper.selectList(
+                new LambdaQueryWrapper<AlertDO>().eq(AlertDO::getStatus, status.name()))
+                .stream().map(AlertConverter::toEntity).collect(Collectors.toList());
     }
 
     @Override
     public List<Alert> findByLevel(Alert.AlertLevel level) {
-        return storage.values().stream().filter(a -> a.getLevel() == level).collect(Collectors.toList());
+        return alertMapper.selectList(
+                new LambdaQueryWrapper<AlertDO>().eq(AlertDO::getLevel, level.name()))
+                .stream().map(AlertConverter::toEntity).collect(Collectors.toList());
     }
 
     @Override
-    public List<Alert> findAll() { return new ArrayList<>(storage.values()); }
+    public List<Alert> findAll() {
+        return alertMapper.selectList(null)
+                .stream().map(AlertConverter::toEntity).collect(Collectors.toList());
+    }
 
     @Override
-    public Alert save(Alert a) { if (a.getId() == null) a.setId(idGen.getAndIncrement()); storage.put(a.getId(), a); return a; }
+    public Alert save(Alert alert) {
+        AlertDO d = AlertConverter.toDO(alert);
+        alertMapper.insert(d);
+        alert.setId(d.getId());
+        return alert;
+    }
 
     @Override
-    public void update(Alert a) { if (a.getId() != null && storage.containsKey(a.getId())) storage.put(a.getId(), a); }
+    public void update(Alert alert) {
+        AlertDO d = AlertConverter.toDO(alert);
+        alertMapper.updateById(d);
+    }
 
     @Override
-    public void deleteById(Long id) { storage.remove(id); }
+    public void deleteById(Long id) {
+        alertMapper.deleteById(id);
+    }
 }
