@@ -149,28 +149,13 @@ public class AlertRuleCommandService {
 
     private AlertRuleResponse toResponse(AlertRule rule) {
         return new AlertRuleResponse(
-            rule.getId(),
-            rule.getRuleCode(),
-            rule.getRuleName(),
-            rule.getDescription(),
-            rule.getDeviceType(),
-            enumToString(rule.getMetricType()),
-            enumToString(rule.getOperator()),
-            rule.getThresholdValue(),
-            rule.getDurationSeconds(),
-            enumToString(rule.getLevel()),
-            enumToString(rule.getAlertType()),
-            rule.getTitleTemplate(),
-            rule.getDescriptionTemplate(),
-            rule.getEnabled(),
-            rule.getCooldownSeconds(),
-            rule.getMaxAlertsPerHour(),
-            rule.getNotificationChannels(),
-            rule.getCreatedBy(),
-            toStringOrNull(rule.getCreatedAt()),
-            rule.getUpdatedBy(),
-            toStringOrNull(rule.getUpdatedAt())
-        );
+            rule.getId(), rule.getRuleCode(), rule.getRuleName(), rule.getDescription(),
+            rule.getDeviceType(), enumToString(rule.getMetricType()), enumToString(rule.getOperator()),
+            rule.getThresholdValue(), rule.getDurationSeconds(), enumToString(rule.getLevel()),
+            enumToString(rule.getAlertType()), rule.getTitleTemplate(), rule.getDescriptionTemplate(),
+            rule.getEnabled(), rule.getCooldownSeconds(), rule.getMaxAlertsPerHour(),
+            rule.getNotificationChannels(), rule.getCreatedBy(), toStringOrNull(rule.getCreatedAt()),
+            rule.getUpdatedBy(), toStringOrNull(rule.getUpdatedAt()));
     }
 
     private <T extends Enum<T>> String enumToString(T enumValue) {

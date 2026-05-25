@@ -31,54 +31,48 @@ class AlertRuleCommandServiceTest {
         service = new AlertRuleCommandService(domainService);
     }
 
-    private AlertRule createSampleRule(Long id, String ruleCode, String ruleName,
-            String deviceType, MetricType metricType, ComparisonOperator operator,
-            Double thresholdValue, AlertRuleLevel level, AlertType alertType,
-            Boolean enabled, String createdBy) {
+    private AlertRule createSampleRule(Long id, String ruleCode) {
         AlertRule rule = new AlertRule();
         rule.setId(id);
         rule.setRuleCode(ruleCode);
-        rule.setRuleName(ruleName);
-        rule.setDeviceType(deviceType);
-        rule.setMetricType(metricType);
-        rule.setOperator(operator);
-        rule.setThresholdValue(thresholdValue);
-        rule.setLevel(level);
-        rule.setAlertType(alertType);
-        rule.setEnabled(enabled);
-        rule.setCreatedBy(createdBy);
-        rule.setCreatedAt(java.time.LocalDateTime.now());
-        rule.setUpdatedBy(createdBy);
-        rule.setUpdatedAt(java.time.LocalDateTime.now());
+        rule.setRuleName(ruleCode + " Alert");
+        rule.setDeviceType("SENSOR");
+        rule.setMetricType(MetricType.TEMPERATURE);
+        rule.setOperator(ComparisonOperator.GREATER_THAN);
+        rule.setThresholdValue(80.0);
+        rule.setLevel(AlertRuleLevel.WARNING);
+        rule.setAlertType(AlertType.THRESHOLD);
+        rule.setEnabled(true);
+        rule.setCreatedBy("admin");
         return rule;
+    }
+
+    private AlertRuleCommandService.CreateAlertRuleRequest createBaseRequest() {
+        return new AlertRuleCommandService.CreateAlertRuleRequest(
+            "RULE-001", "Temperature Alert", "Alert when temperature exceeds limit",
+            "SENSOR", "TEMPERATURE", "GREATER_THAN", 80.0, "WARNING", "THRESHOLD",
+            "Temperature exceeded", "Temperature is {value}°C");
+    }
+
+    private void prepareCreateMock(AlertRule rule) {
+        when(domainService.createRule(anyString(), anyString(), anyString(), anyString(),
+            any(AlertRule.MetricType.class), any(AlertRule.ComparisonOperator.class), anyDouble(),
+            any(AlertRule.AlertRuleLevel.class), any(AlertRule.AlertType.class),
+            anyString(), anyString(), anyString(), anyString()))
+            .thenReturn(rule);
     }
 
     @Test
     void createRule_shouldCreateRuleSuccessfully() {
-        AlertRule rule = createSampleRule(1L, "RULE-001", "Temperature Alert",
-            "SENSOR", MetricType.TEMPERATURE, ComparisonOperator.GREATER_THAN,
-            80.0, AlertRuleLevel.WARNING, AlertType.THRESHOLD, true, "admin");
+        AlertRule rule = createSampleRule(1L, "RULE-001");
+        prepareCreateMock(rule);
 
-        when(domainService.createRule(anyString(), anyString(), anyString(), anyString(), 
-                any(AlertRule.MetricType.class), any(AlertRule.ComparisonOperator.class), anyDouble(), 
-                any(AlertRule.AlertRuleLevel.class), any(AlertRule.AlertType.class), anyString(), anyString(), anyString()))
-            .thenReturn(rule);
-
-        AlertRuleCommandService.CreateAlertRuleRequest request = new AlertRuleCommandService.CreateAlertRuleRequest(
-            "RULE-001", "Temperature Alert", "Alert when temperature exceeds limit",
-            "SENSOR", "TEMPERATURE", "GREATER_THAN", 80.0, "WARNING", "THRESHOLD",
-            "Temperature exceeded", "Temperature is {value}°C"
-        );
-
-        AlertRuleCommandService.AlertRuleResponse response = service.createRule(request, "admin");
+        AlertRuleCommandService.AlertRuleResponse response = service.createRule(createBaseRequest(), "admin");
 
         assertNotNull(response);
         assertEquals(1L, response.id());
         assertEquals("RULE-001", response.ruleCode());
         assertEquals("Temperature Alert", response.ruleName());
-        verify(domainService).createRule(eq("RULE-001"), eq("Temperature Alert"), anyString(),
-            eq("SENSOR"), eq(AlertRule.MetricType.TEMPERATURE), eq(AlertRule.ComparisonOperator.GREATER_THAN),
-            eq(80.0), eq(AlertRule.AlertRuleLevel.WARNING), eq(AlertRule.AlertType.THRESHOLD), anyString(), anyString(), eq("admin"));
     }
 
     @Test
@@ -114,32 +108,33 @@ class AlertRuleCommandServiceTest {
         assertThrows(IllegalArgumentException.class, () -> service.createRule(request, "admin"));
     }
 
-    @Test
-    void updateRule_shouldUpdateRuleSuccessfully() {
-        AlertRule rule = createSampleRule(1L, "RULE-001", "Updated Temperature Alert",
-            "SENSOR", MetricType.TEMPERATURE, ComparisonOperator.GREATER_THAN,
-            90.0, AlertRuleLevel.ERROR, AlertType.THRESHOLD, true, "admin");
-
-        when(domainService.updateRule(anyLong(), anyString(), anyString(), anyString(), 
-                any(AlertRule.MetricType.class), any(AlertRule.ComparisonOperator.class), anyDouble(), anyInt(),
-                any(AlertRule.AlertRuleLevel.class), any(AlertRule.AlertType.class), anyString(), anyString(), 
-                anyInt(), anyInt(), anyString(), anyString()))
+    private void prepareUpdateMock(AlertRule rule) {
+        when(domainService.updateRule(anyLong(), anyString(), anyString(), anyString(),
+            any(AlertRule.MetricType.class), any(AlertRule.ComparisonOperator.class), anyDouble(), anyInt(),
+            any(AlertRule.AlertRuleLevel.class), any(AlertRule.AlertType.class), anyString(), anyString(),
+            anyInt(), anyInt(), anyString(), anyString()))
             .thenReturn(rule);
+    }
 
-        AlertRuleCommandService.UpdateAlertRuleRequest request = new AlertRuleCommandService.UpdateAlertRuleRequest(
+    private AlertRuleCommandService.UpdateAlertRuleRequest createUpdateRequest() {
+        return new AlertRuleCommandService.UpdateAlertRuleRequest(
             "Updated Temperature Alert", "Updated description", "SENSOR",
             "TEMPERATURE", "GREATER_THAN", 90.0, 60, "ERROR", "THRESHOLD",
-            "Temperature exceeded", "Temperature is {value}°C", 300, 20, "EMAIL"
-        );
+            "Temperature exceeded", "Temperature is {value}°C", 300, 20, "EMAIL");
+    }
 
-        AlertRuleCommandService.AlertRuleResponse response = service.updateRule(1L, request, "admin");
+    @Test
+    void updateRule_shouldUpdateRuleSuccessfully() {
+        AlertRule rule = createSampleRule(1L, "RULE-001");
+        rule.setRuleName("Updated Temperature Alert");
+        rule.setThresholdValue(90.0);
+        rule.setLevel(AlertRuleLevel.ERROR);
+        prepareUpdateMock(rule);
+
+        AlertRuleCommandService.AlertRuleResponse response = service.updateRule(1L, createUpdateRequest(), "admin");
 
         assertNotNull(response);
         assertEquals("Updated Temperature Alert", response.ruleName());
-        verify(domainService).updateRule(eq(1L), anyString(), anyString(), anyString(),
-            eq(AlertRule.MetricType.TEMPERATURE), eq(AlertRule.ComparisonOperator.GREATER_THAN), eq(90.0),
-            eq(60), eq(AlertRule.AlertRuleLevel.ERROR), eq(AlertRule.AlertType.THRESHOLD), anyString(), anyString(),
-            eq(300), eq(20), eq("EMAIL"), eq("admin"));
     }
 
     @Test

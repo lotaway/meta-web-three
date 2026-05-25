@@ -1,5 +1,7 @@
 package com.metawebthree.digitaltwin.integration.kafka;
 
+import com.metawebthree.digitaltwin.interfaces.websocket.DigitalTwinWebSocketHandler;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,12 +10,14 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@EmbeddedKafka(partitions = 1, topics = {"device.status.changed", "device.position.updated", 
+@EmbeddedKafka(partitions = 1, topics = {"device.status.changed", "device.position.updated",
     "device.heartbeat", "alert.created", "production.output.updated", "agv.position.updated"},
     brokerProperties = {"listeners=PLAINTEXT://localhost:9092", "port=9092"})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -23,15 +27,26 @@ class DigitalTwinKafkaConsumerIntegrationTest {
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
 
+    @Autowired(required = false)
+    private DigitalTwinWebSocketHandler webSocketHandler;
+
+    private final AtomicReference<String> lastMessage = new AtomicReference<>();
+    private final CountDownLatch messageLatch = new CountDownLatch(1);
+
+    @BeforeEach
+    void setUp() {
+        lastMessage.set(null);
+    }
+
     @Test
     @DisplayName("消费 device.status.changed 消息")
     void consumeDeviceStatusChanged() throws Exception {
         String message = "{\"messageId\":\"test-status-001\",\"deviceCode\":\"DEVICE001\",\"status\":\"RUNNING\"}";
         kafkaTemplate.send("device.status.changed", message).get(5, TimeUnit.SECONDS);
-        
-        Thread.sleep(1000);
-        
-        assertTrue(true, "消息发送成功");
+
+        assertTrue(waitForMessage(3000), "消息未被消费者处理");
+        assertNotNull(lastMessage.get(), "消息内容为空");
+        assertTrue(lastMessage.get().contains("DEVICE001"), "设备编码不匹配");
     }
 
     @Test
@@ -39,10 +54,9 @@ class DigitalTwinKafkaConsumerIntegrationTest {
     void consumeDevicePositionUpdated() throws Exception {
         String message = "{\"messageId\":\"test-position-001\",\"deviceCode\":\"DEVICE001\",\"x\":100.5,\"y\":200.3}";
         kafkaTemplate.send("device.position.updated", message).get(5, TimeUnit.SECONDS);
-        
-        Thread.sleep(1000);
-        
-        assertTrue(true, "消息发送成功");
+
+        assertTrue(waitForMessage(3000), "消息未被消费者处理");
+        assertNotNull(lastMessage.get(), "消息内容为空");
     }
 
     @Test
@@ -50,10 +64,9 @@ class DigitalTwinKafkaConsumerIntegrationTest {
     void consumeAlertCreated() throws Exception {
         String message = "{\"messageId\":\"test-alert-001\",\"alertLevel\":\"HIGH\",\"content\":\"Temperature exceeded\"}";
         kafkaTemplate.send("alert.created", message).get(5, TimeUnit.SECONDS);
-        
-        Thread.sleep(1000);
-        
-        assertTrue(true, "消息发送成功");
+
+        assertTrue(waitForMessage(3000), "消息未被消费者处理");
+        assertNotNull(lastMessage.get(), "消息内容为空");
     }
 
     @Test
@@ -61,10 +74,9 @@ class DigitalTwinKafkaConsumerIntegrationTest {
     void consumeProductionOutputUpdated() throws Exception {
         String message = "{\"messageId\":\"test-output-001\",\"lineId\":\"LINE001\",\"output\":1500}";
         kafkaTemplate.send("production.output.updated", message).get(5, TimeUnit.SECONDS);
-        
-        Thread.sleep(1000);
-        
-        assertTrue(true, "消息发送成功");
+
+        assertTrue(waitForMessage(3000), "消息未被消费者处理");
+        assertNotNull(lastMessage.get(), "消息内容为空");
     }
 
     @Test
@@ -72,10 +84,9 @@ class DigitalTwinKafkaConsumerIntegrationTest {
     void consumeAgvPositionUpdated() throws Exception {
         String message = "{\"messageId\":\"test-agv-001\",\"agvCode\":\"AGV001\",\"x\":50.0,\"y\":75.0,\"angle\":90}";
         kafkaTemplate.send("agv.position.updated", message).get(5, TimeUnit.SECONDS);
-        
-        Thread.sleep(1000);
-        
-        assertTrue(true, "消息发送成功");
+
+        assertTrue(waitForMessage(3000), "消息未被消费者处理");
+        assertNotNull(lastMessage.get(), "消息内容为空");
     }
 
     @Test
@@ -83,10 +94,8 @@ class DigitalTwinKafkaConsumerIntegrationTest {
     void consumeDeviceHeartbeat() throws Exception {
         String message = "{\"deviceCode\":\"DEVICE001\",\"timestamp\":1699999999000}";
         kafkaTemplate.send("device.heartbeat", message).get(5, TimeUnit.SECONDS);
-        
-        Thread.sleep(1000);
-        
-        assertTrue(true, "消息发送成功");
+
+        assertTrue(waitForMessage(3000), "消息未被消费者处理");
     }
 
     @Test
@@ -94,13 +103,23 @@ class DigitalTwinKafkaConsumerIntegrationTest {
     void idempotencyTest() throws Exception {
         String messageId = "test-idempotent-001";
         String message = "{\"messageId\":\"" + messageId + "\",\"deviceCode\":\"DEVICE001\",\"status\":\"IDLE\"}";
-        
+
         kafkaTemplate.send("device.status.changed", message).get(5, TimeUnit.SECONDS);
-        Thread.sleep(500);
-        
+
+        assertTrue(waitForMessage(3000), "首次消息未被消费者处理");
+
+        String firstMessageContent = lastMessage.get();
+        assertNotNull(firstMessageContent, "消息内容为空");
+
+        lastMessage.set(null);
         kafkaTemplate.send("device.status.changed", message).get(5, TimeUnit.SECONDS);
+
         Thread.sleep(1000);
-        
-        assertTrue(true, "幂等性测试通过");
+
+        assertNull(lastMessage.get(), "重复消息未被过滤，幂等性测试失败");
+    }
+
+    private boolean waitForMessage(long timeoutMs) throws InterruptedException {
+        return messageLatch.await(timeoutMs, TimeUnit.MILLISECONDS);
     }
 }

@@ -63,21 +63,27 @@ public class DigitalTwinSimulator {
         if (devices.isEmpty()) return;
 
         devices.stream()
-                .filter(d -> d.getStatus() != Device.DeviceStatus.OFFLINE
-                        && d.getStatus() != Device.DeviceStatus.MAINTENANCE)
+                .filter(this::isStatusMutable)
                 .skip(random.nextInt(devices.size()))
                 .findFirst()
-                .ifPresent(device -> {
-                    Device.DeviceStatus newStatus = STATUS_POOL[random.nextInt(STATUS_POOL.length)];
-                    if (newStatus != device.getStatus()) {
-                        try {
-                            commandService.updateDeviceStatus(device.getDeviceCode(), newStatus);
-                            log.info("[Sim] {}: {} → {}", device.getDeviceCode(), device.getStatus(), newStatus);
-                        } catch (Exception e) {
-                            log.warn("[Sim] Failed to update device status: {}", device.getDeviceCode(), e);
-                        }
-                    }
-                });
+                .ifPresent(this::updateDeviceStatus);
+    }
+
+    private boolean isStatusMutable(Device device) {
+        Device.DeviceStatus status = device.getStatus();
+        return status != Device.DeviceStatus.OFFLINE && status != Device.DeviceStatus.MAINTENANCE;
+    }
+
+    private void updateDeviceStatus(Device device) {
+        Device.DeviceStatus newStatus = STATUS_POOL[random.nextInt(STATUS_POOL.length)];
+        if (newStatus == device.getStatus()) return;
+
+        try {
+            commandService.updateDeviceStatus(device.getDeviceCode(), newStatus);
+            log.info("[Sim] {}: {} → {}", device.getDeviceCode(), device.getStatus(), newStatus);
+        } catch (Exception e) {
+            log.warn("[Sim] Failed to update device status: {}", device.getDeviceCode(), e);
+        }
     }
 
     @Scheduled(initialDelay = 3000, fixedDelay = 3000)
@@ -130,15 +136,25 @@ public class DigitalTwinSimulator {
 
     @Scheduled(initialDelay = 15000, fixedDelay = 20000)
     public void simulateRandomAlerts() {
-        if (random.nextDouble() > 0.35) return;
+        if (!shouldGenerateAlert()) return;
+        List<Device> onlineDevices = getOnlineDevices();
+        if (onlineDevices.isEmpty()) return;
+        Device device = onlineDevices.get(random.nextInt(onlineDevices.size()));
+        var alertInfo = pickRandomAlertInfo();
+        createAlert(device, alertInfo);
+    }
 
-        List<Device> devices = deviceRepository.findAll().stream()
+    private boolean shouldGenerateAlert() {
+        return random.nextDouble() <= 0.35;
+    }
+
+    private List<Device> getOnlineDevices() {
+        return deviceRepository.findAll().stream()
                 .filter(d -> d.getStatus() != Device.DeviceStatus.OFFLINE)
                 .toList();
-        if (devices.isEmpty()) return;
+    }
 
-        Device device = devices.get(random.nextInt(devices.size()));
-
+    private AlertInfo pickRandomAlertInfo() {
         Alert.AlertType[] types = {
             Alert.AlertType.TEMPERATURE_HIGH,
             Alert.AlertType.VIBRATION_ABNORMAL,
@@ -151,19 +167,23 @@ public class DigitalTwinSimulator {
             Alert.AlertLevel.WARNING, Alert.AlertLevel.WARNING,
             Alert.AlertLevel.INFO, Alert.AlertLevel.WARNING, Alert.AlertLevel.ERROR,
         };
-
         int pick = random.nextInt(types.length);
+        return new AlertInfo(levels[pick], types[pick], titles[pick]);
+    }
+
+    private void createAlert(Device device, AlertInfo info) {
         String workshopId = device.getWorkshopId() != null ? device.getWorkshopId() : "WS-01";
         try {
             commandService.createAlert(
                     device.getDeviceCode(), workshopId,
-                    levels[pick], types[pick],
-                    titles[pick],
-                    device.getDeviceName() + " " + titles[pick]
+                    info.level(), info.type(),
+                    info.title(),
+                    device.getDeviceName() + " " + info.title()
             );
-            log.info("[Sim] Alert: {} @ {}", titles[pick], device.getDeviceCode());
+            log.info("[Sim] Alert: {} @ {}", info.title(), device.getDeviceCode());
         } catch (Exception e) {
             log.warn("[Sim] Failed to create alert: {}", device.getDeviceCode(), e);
         }
     }
-}
+
+    private record AlertInfo(Alert.AlertLevel level, Alert.AlertType type, String title) {}

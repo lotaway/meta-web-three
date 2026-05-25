@@ -1,25 +1,38 @@
 import { useEffect, useRef } from 'react'
 
-function toFillColor(c: string): string {
-  let hex = c
-  if (c.startsWith('#')) {
-    hex = c.slice(1)
-    if (hex.length === 3) {
-      hex = hex.split('').map(char => char + char).join('')
-    }
+function normalizeHex(c: string): string {
+  if (!c.startsWith('#')) return c
+  let hex = c.slice(1)
+  if (hex.length === 3) {
+    hex = hex.split('').map(char => char + char).join('')
   }
-  if (/^[0-9a-fA-F]{6}$/.test(hex)) {
-    const r = parseInt(hex.slice(0, 2), 16)
-    const g = parseInt(hex.slice(2, 4), 16)
-    const b = parseInt(hex.slice(4, 6), 16)
-    return `rgba(${r}, ${g}, ${b}, 0.3)`
+  return hex
+}
+
+function hexToRgba(hex: string): string | null {
+  if (!/^[0-9a-fA-F]{6}$/.test(hex)) return null
+  const r = parseInt(hex.slice(0, 2), 16)
+  const g = parseInt(hex.slice(2, 4), 16)
+  const b = parseInt(hex.slice(4, 6), 16)
+  return `rgba(${r}, ${g}, ${b}, 0.3)`
+}
+
+function rgbToRgba(c: string): string {
+  const match = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
+  if (match) {
+    return `rgba(${match[1]}, ${match[2]}, ${match[3]}, 0.3)`
+  }
+  return c.replace('rgb', 'rgba').replace(')', ', 0.3)')
+}
+
+function toFillColor(c: string): string {
+  const hex = normalizeHex(c)
+  if (c.startsWith('#')) {
+    const rgba = hexToRgba(hex)
+    if (rgba) return rgba
   }
   if (c.startsWith('rgb')) {
-    const match = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
-    if (match) {
-      return `rgba(${match[1]}, ${match[2]}, ${match[3]}, 0.3)`
-    }
-    return c.replace('rgb', 'rgba').replace(')', ', 0.3)')
+    return rgbToRgba(c)
   }
   return c
 }
