@@ -1,5 +1,6 @@
 package com.metawebthree.digitaltwin.infrastructure.config;
 
+import com.metawebthree.digitaltwin.interfaces.websocket.DigitalTwinAuthHandshakeInterceptor;
 import com.metawebthree.digitaltwin.interfaces.websocket.DigitalTwinWebSocketHandler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +27,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        var registration = registry.addHandler(webSocketHandler, "/ws/digital-twin");
+        var registration = registry.addHandler(webSocketHandler, "/ws/digital-twin")
+            .addInterceptors(new DigitalTwinAuthHandshakeInterceptor());
         
         if (allowedOrigins != null && !allowedOrigins.isEmpty()) {
             String[] origins = allowedOrigins.split(",");

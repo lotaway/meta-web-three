@@ -70,7 +70,7 @@ public class AlertRuleCommandService {
         String updatedAt
     ) {}
 
-    public AlertRuleResponse createRule(CreateAlertRuleRequest request, String operatorId) {
+    public AlertRuleResponse createRule(CreateAlertRuleRequest request, String userId) {
         validateCreateRequest(request);
         AlertRule rule = domainService.createRule(
             request.ruleCode(),
@@ -84,12 +84,12 @@ public class AlertRuleCommandService {
             AlertType.valueOf(request.alertType()),
             request.titleTemplate(),
             request.descriptionTemplate(),
-            operatorId
+            userId
         );
         return toResponse(rule);
     }
 
-    public AlertRuleResponse updateRule(Long id, UpdateAlertRuleRequest request, String operatorId) {
+    public AlertRuleResponse updateRule(Long id, UpdateAlertRuleRequest request, String userId) {
         validateUpdateRequest(request);
         AlertRule rule = domainService.updateRule(
             id,
@@ -107,7 +107,7 @@ public class AlertRuleCommandService {
             request.cooldownSeconds(),
             request.maxAlertsPerHour(),
             request.notificationChannels(),
-            operatorId
+            userId
         );
         return toResponse(rule);
     }

@@ -1,5 +1,6 @@
 package com.metawebthree.digitaltwin.interfaces.controller;
 
+import com.metawebthree.common.annotations.RequirePermission;
 import com.metawebthree.digitaltwin.application.command.AlertRuleCommandService;
 import com.metawebthree.digitaltwin.application.command.AlertRuleCommandService.AlertRuleResponse;
 import com.metawebthree.digitaltwin.application.command.AlertRuleCommandService.CreateAlertRuleRequest;
@@ -28,11 +29,12 @@ public class AlertRuleController {
     private final AlertRuleQueryService queryService;
 
     public AlertRuleController(AlertRuleCommandService commandService,
-                              AlertRuleQueryService queryService) {
+            AlertRuleQueryService queryService) {
         this.commandService = commandService;
         this.queryService = queryService;
     }
 
+    @RequirePermission("dt:alert:read")
     @GetMapping
     public ResponseEntity<List<AlertRuleListItem>> getAllRules(
             @RequestParam(required = false) Boolean enabled,
@@ -48,6 +50,7 @@ public class AlertRuleController {
         return ResponseEntity.ok(rules);
     }
 
+    @RequirePermission("dt:alert:read")
     @GetMapping("/{id}")
     public ResponseEntity<AlertRuleDetail> getRuleById(@PathVariable Long id) {
         AlertRuleDetail rule = queryService.getRuleById(id);
@@ -57,31 +60,34 @@ public class AlertRuleController {
         return ResponseEntity.ok(rule);
     }
 
+    @RequirePermission("dt:alert:ack")
     @PostMapping
     public ResponseEntity<AlertRuleResponse> createRule(
             @RequestBody CreateAlertRuleRequest request,
-            @RequestHeader(value = "X-Operator-Id", defaultValue = "system") String operatorId) {
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId) {
         try {
-            AlertRuleResponse rule = commandService.createRule(request, operatorId);
+            AlertRuleResponse rule = commandService.createRule(request, userId);
             return ResponseEntity.ok(rule);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
+    @RequirePermission("dt:alert:ack")
     @PutMapping("/{id}")
     public ResponseEntity<AlertRuleResponse> updateRule(
             @PathVariable Long id,
             @RequestBody UpdateAlertRuleRequest request,
-            @RequestHeader(value = "X-Operator-Id", defaultValue = "system") String operatorId) {
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId) {
         try {
-            AlertRuleResponse rule = commandService.updateRule(id, request, operatorId);
+            AlertRuleResponse rule = commandService.updateRule(id, request, userId);
             return ResponseEntity.ok(rule);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
+    @RequirePermission("dt:alert:ack")
     @PutMapping("/{id}/enable")
     public ResponseEntity<Map<String, Object>> enableRule(@PathVariable Long id) {
         try {
@@ -91,6 +97,7 @@ public class AlertRuleController {
         }
     }
 
+    @RequirePermission("dt:alert:ack")
     @PutMapping("/{id}/disable")
     public ResponseEntity<Map<String, Object>> disableRule(@PathVariable Long id) {
         try {
@@ -100,6 +107,7 @@ public class AlertRuleController {
         }
     }
 
+    @RequirePermission("dt:alert:ack")
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> deleteRule(@PathVariable Long id) {
         try {
@@ -109,6 +117,7 @@ public class AlertRuleController {
         }
     }
 
+    @RequirePermission("dt:alert:read")
     @GetMapping("/check-unique")
     public ResponseEntity<Map<String, Boolean>> checkUnique(
             @RequestParam String field,
@@ -117,7 +126,7 @@ public class AlertRuleController {
         boolean isUnique = switch (field) {
             case "ruleName" -> queryService.checkRuleNameUnique(value, excludeId);
             case "ruleCode" -> queryService.checkRuleCodeUnique(value, excludeId);
-            default -> false
+            default -> false;
         };
         return ResponseEntity.ok(Map.of("unique", isUnique));
     }

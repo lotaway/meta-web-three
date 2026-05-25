@@ -25,40 +25,15 @@ public class DigitalTwinWebSocketHandler extends TextWebSocketHandler {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-    private static final String USER_ID_HEADER = "X-User-Id";
-    private static final String USER_ROLE_HEADER = "X-User-Role";
-    private static final String TOKEN_HEADER = "Authorization";
-
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        // Authentication check
-        String userId = getHeader(session, USER_ID_HEADER);
-        String userRole = getHeader(session, USER_ROLE_HEADER);
-        String token = getHeader(session, TOKEN_HEADER);
-
-        if (userId == null || token == null) {
-            log.warn("WebSocket connection rejected: missing authentication. Session: {}", session.getId());
-            try {
-                session.close(CloseStatus.POLICY_VIOLATION);
-            } catch (IOException e) {
-                log.error("Failed to close session", e);
-            }
-            return;
-        }
-
-        // Store user info in session attributes
-        session.getAttributes().put("userId", userId);
-        session.getAttributes().put("userRole", userRole);
+        String userId = (String) session.getAttributes().get("userId");
+        String userRole = (String) session.getAttributes().get("userRole");
 
         sessions.add(session);
         log.info("WebSocket connected: sessionId={}, userId={}, role={}", session.getId(), userId, userRole);
 
-        // Start heartbeat for this session
         startHeartbeat(session);
-    }
-
-    private String getHeader(WebSocketSession session, String name) {
-        return session.getHandshakeHeaders().getFirst(name);
     }
 
     private void startHeartbeat(WebSocketSession session) {

@@ -8,7 +8,7 @@
 ## 前端实现(apps/digital-twin)
 
 ### 1. 基础架构搭建
-- [ ] 状态管理 (Redux/Zustand) - 实际未使用 Redux/Zustand，项目依赖 React 内置 useState/useContext
+- [ ] 状态管理 (Redux) - 实际未使用 Redux，项目依赖 React 内置 useState/useContext
 - [ ] 路由配置 - 实际无 react-router 等路由库，使用 window.location.hash + 条件渲染
 - [ ] UI 组件库集成 (Ant Design) - 实际使用 styled-components，未集成 Ant Design
 
@@ -17,51 +17,12 @@
 - [ ] 仓库布局可视化
 - [ ] 物流路径展示
 
-### 数据可视化
-- [x] ✅ DeviceChart.tsx fillColor - 已确认修复：支持3位hex + 正确解析rgba()
-
-### 前端配置
-- [x] ✅ VoiceTools.tsx 硬编码 localhost - 已修复为完整 URL 可配置（VITE_VOICE_API_URL）
-- [x] ✅ SubtitlesOverlay.tsx 硬编码 - 已修复为完整 URL 可配置 (VITE_VOICE_API_URL)
-
 ---
 
 ## 后端服务 (server/factory-domain/digital-twin-service)
 
-### 1. 服务创建
-- [x] ✅ 主类未继承 `BaseApplication` - 已确认继承 BaseApplication + @EnableDiscoveryClient + @EnableDubbo
-- [x] ✅ 未使用 `@EnableDubbo` - 已确认添加 @EnableDubbo 注解
-
-### 2. 领域模型
-- [x] ✅ 值对象封装 - 标记为可选重构项，当前使用原始类型符合MVP快速迭代需求
-
-### 3. 持久化层
+### 持久化层
 - [ ] `schema.sql` 已更新，新增 `alert_rules` 表。需执行 DDL 建表
-
-### 4. 接口开发
-- [x] ✅ 完全无鉴权 - 已为所有接口添加 X-User-Id/X-User-Role 请求头读取，并记录日志
-- [x] ✅ 无参数校验 - 已创建 DTO 类(RegisterDeviceRequest/UpdateDeviceStatusRequest等)，添加 @Valid 注解，添加 spring-boot-starter-validation 依赖
-- [x] ✅ 无全局异常处理器 - 已确认存在 GlobalExceptionHandler.java
-- [x] ✅ valueOf 异常 - 已添加 try-catch，非法值返回 400
-- [x] ✅ 无分页参数 - 已为 getAllDevices/Workshops/ProductionLines 添加 page/size 参数，限制最大100行
-
-### 5. 消息队列集成
-- [x] ✅ Kafka 错误处理失效 - 已移除 processMessage 内部 try-catch，添加 throws Exception 让异常传播到 @RetryableTopic 触发重试
-- [x] ✅ Kafka 幂等性缓存清理 - 已实现真正的清理逻辑，使用 ConcurrentHashMap 存储带时间戳的 messageId，清理30分钟前的条目
-
-### 6. WebSocket 服务
-- [x] ✅ WebSocket 无认证 - 已确认握手阶段验证 X-User-Id/Authorization
-- [x] ✅ WebSocket setAllowedOrigins - 已确认从配置读取
-- [x] ✅ WebSocket 无心跳检测 - 已实现定时 ping/pong
-- [x] ✅ WebSocket handleTransportError - 已确认覆盖实现
-- [x] ✅ WebSocket 使用 System.out - 已确认使用 Logger
-- [x] ✅ WebSocket 无 @PreDestroy - 已确认添加 @PreDestroy 方法
-
-## 数据库设计
-
-### 1. PostgreSQL 表（MyBatis-Plus + schema.sql）
-- [x] ✅ 表名差异 - 确认使用语义化命名（devices/workshops），无需修改
-- [x] ✅ 字符集配置 - schema.sql 兼容多数据库，MySQL字符集应在部署时通过数据库/表配置设置
 
 ## 联调测试
 
@@ -79,19 +40,6 @@
 - [ ] 实时数据展示测试
 - [ ] 告警流程测试
 
----
-
-## 部署配置
-
-### 1. Docker
-- [x] ✅ Dockerfile ENTRYPOINT - 已改为 exec 形式，JVM 参数通过 JAVA_TOOL_OPTIONS 传入
-- [x] ✅ Dockerfile 层缓存 - 已优化为：COPY pom.xml → RUN mvn dependency:go-offline → COPY src → mvn package
-
-### 2. K8s
-- [x] ✅ K8s secret 引用 - 已取消注释并添加 optional: true，支持 SealedSecret/External Secrets Operator 集成
-
----
-
 ## 跨服务鉴权体系延伸（架构级，须统一处理）
 
 Gateway（`server/gateway`）的 `UserAuthFilter` + JWT 鉴权体系原本只服务商城（mall-domain），现有 digital-twin、ERP、供应链等新域均未纳入。
@@ -103,7 +51,7 @@ Gateway（`server/gateway`）的 `UserAuthFilter` + JWT 鉴权体系原本只服
 | `user-service` | ✅ 是 | ✅ 是 | ✅ 是 | ✅ 是 |
 | `product-service` | ✅ 是 | ✅ 是 | ⚠️ 不消费但 Gateway 已验证 JWT | ⚠️ 无 |
 | `order-service` | ✅ 是 | ✅ 是 | ⚠️ 同上 | ⚠️ 无 |
-| **`digital-twin-service`** | ❌ 否（未继承 `BaseApplication`） | ❌ 否（ZooKeeper 不可发现） | ❌ 完全不读取 | ❌ 无 |
+| **`digital-twin-service`** | ❌ 否（未继承 `BaseApplication`） | ❌ 否（ZooKeeper 不可发现） | ✅ 已读取并鉴权 | ✅ `@RequirePermission("dt:*")` 已覆盖 |
 | **ERP 各服务** | ❌ 否 | ❌ 否 | ❌ 完全不读取 | ❌ 无 |
 | **供应链各服务** | ❌ 否 | ❌ 否 | ❌ 完全不读取 | ❌ 无 |
 
@@ -111,14 +59,75 @@ Gateway（`server/gateway`）的 `UserAuthFilter` + JWT 鉴权体系原本只服
 
 1. **digital-twin-service**：主类继承 `BaseApplication` + `@EnableDiscoveryClient` + `@EnableDubbo`，注册到 ZooKeeper
 2. **Gateway 白名单**：若 digital-twin WebSocket 端点无需鉴权，需加入 `excludedPathPatterns`；其余 API 通过 Gateway 统一鉴权
-3. **Controller 改造**：注入 `@RequestHeader(HeaderConstants.USER_ID)` 和 `@RequestHeader(HeaderConstants.USER_ROLE)`，在业务方法中做授权决策
-4. **`@RequirePermission` 拓展**：当前仅 admin 权限体系，需扩充到 digital-twin 的 device/workshop/alert 等资源（如 `dt:device:control`、`dt:alert:ack`）
-5. **WebSocket 认证**：在握手阶段通过 `HandshakeInterceptor` 验证 token（query param 或 Sec-WebSocket-Protocol）
+3. **Controller 改造**：✅ 已完成 — Controller/WebSocket 均已注入 `X-User-Id`/`X-User-Role`，`DigitalTwinPermissionChecker` 基于 role 值做授权决策（ADMIN/OPERATOR/VIEWER）
+4. **`@RequirePermission` 拓展**：✅ 已完成 — 所有 digital-twin Controller 方法均已标注 `@RequirePermission("dt:*")`，权限资源覆盖 device/workshop/production-line/alert/stats
+5. **WebSocket 认证**：✅ 已完成 — 改用 `HandshakeInterceptor` 在握手阶段验证 token + `X-User-Id`，handler 中不再重复认证
 6. **ERP + 供应链同理**：统一规划权限资源树，避免各域各自造轮子
 
 ---
 
-## 生产环境缺陷清单（待修复）
+## 代码审查发现的问题（待修复）
 
-- [x] ✅ DeviceChart fillColor - 已确认修复：支持3位hex + 正确解析rgba()
-- [x] ✅ 跨服务鉴权 - 标记为架构级统一规划项，需Gateway统一方案
+### 🔴 阻断级 (Critical)
+
+- [ ] **AlertTest.java 引用了不存在的 `escalate()` 方法**
+  - 位置: `server/factory-domain/digital-twin-service/src/test/java/.../AlertTest.java:77`
+  - 问题: `alert.escalate()` 调用了 `Alert` 实体中不存在的方法，测试无法编译通过
+  - 方案: 在 `Alert.java` 中添加 `escalate()` 方法实现逐级升级告警级别，或在测试中移除该测试用例
+
+- [ ] **`AlertRuleCommandService` 缺少 `@Service` 注解**
+  - 位置: `server/factory-domain/digital-twin-service/src/main/java/.../AlertRuleCommandService.java:11`
+  - 问题: 类未标注 `@Service`，Spring 不会将其注册为 Bean，`AlertRuleController` 注入时导致启动失败
+  - 方案: 在类上添加 `@Service` 注解，或通过 `@Configuration` + `@Bean` 显式注册
+
+### 🟡 严重级 (High) — CODE_PRICEPLES 违规
+
+- [ ] **禁止吞异常 — 空 catch 块清理**
+  - 位置: `DigitalTwinSimulator.java:77,155`
+  - 问题: 三处 `catch (Exception e) { // skip }` 静默吞掉所有异常，生产环境无法定位问题
+  - 方案: 至少记录 `log.warn()` 或 `log.error()`，避免空 catch
+
+- [ ] **注释残留 — 清理非必要注释**
+  - 位置: 多处文件（KafkaConsumer, DltConsumer, EventPublisher, WebSocketHandler, VoiceTools 等）
+  - 问题: 违反"禁止注释，任何需要注释解释的代码视为设计失败"
+  - 方案: 删除功能实现注释，将需解释逻辑重构为自描述代码
+
+- [ ] **单函数超 20 行 — 拆分大函数**
+  - 违反清单:
+    - `DigitalTwinKafkaConsumer.processMessage()` ~35行 → 拆分为按 topic 路由的独立 handler
+    - `DigitalTwinWebSocketHandler.afterConnectionEstablished()` ~25行 → 抽离认证逻辑
+    - `DeviceChart.tsx fillColor()` ~30行 → 抽离为独立工具函数
+    - `AlertRuleCommandService.toResponse()` ~24行 → 使用 Builder 模式
+    - `DigitalTwinSimulator.simulateAGVMovement()` ~23行 → 拆解路线计算
+  - 方案: 每个函数不超过 20 行，一个函数只做一件事
+
+- [ ] **核心业务逻辑缺少单元测试**
+  - 缺失测试:
+    - `DigitalTwinDomainServiceImpl` — 最核心的领域服务
+    - `DigitalTwinCommandService` / `DigitalTwinQueryService` — 应用服务
+    - `DigitalTwinKafkaConsumer` — 消息处理核心
+    - `DigitalTwinWebSocketHandler` — WebSocket 核心
+  - 方案: 使用 JUnit 5 + Mockito 为上述类添加单元测试，遵循"核心业务逻辑与底层能力必须有单元测试"
+
+### 🔵 一般级 (Medium)
+
+- [ ] **硬编码 CORS 来源改为配置注入**
+  - 位置: `DigitalTwinController.java:17`
+  - 问题: `@CrossOrigin(origins = {"http://localhost:5173", "http://127.0.0.1:5173"})` 硬编码
+  - 方案: 从 `application.yml` 读取 `digital-twin.cors.allowed-origins` 配置注入
+
+- [ ] **内存分页改为数据库分页**
+  - 位置: `DigitalTwinQueryService.java`
+  - 问题: 三处分页均使用 `findAll()` + `subList()` 全量加载到内存再截取
+  - 方案: 使用 MyBatis-Plus Page 或 SQL `LIMIT/OFFSET` 实现数据库分页
+
+- [ ] **清除生产环境 DEBUG 日志**
+  - 位置: `DigitalTwinKafkaConsumer.java:161`
+  - 问题: `logger.info("Received {}: {}", topic, message)` 每次消费都打印完整 payload
+  - 方案: 改为 `logger.debug`，或通过日志级别控制
+
+- [ ] **`DigitalTwinEventPublisher` 重复 Logger 定义**
+  - 位置: `DigitalTwinEventPublisher.java:5,19`
+  - 问题: 同时使用 `@Slf4j`（提供 `log`）和手动 `LoggerFactory.getLogger`（提供 `logger`）
+  - 方案: 删除 `@Slf4j` 或删除手动 Logger 定义，统一使用一种方式
+
