@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleBusinessException(BusinessException e) {
         log.warn("Business exception: {}", e.getMessage());
         Map<String, Object> response = new HashMap<>();
-        response.put("code", e.getCode());
+        response.put("code", e.getStatus().getCode());
         response.put("message", e.getMessage());
         response.put("success", false);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);

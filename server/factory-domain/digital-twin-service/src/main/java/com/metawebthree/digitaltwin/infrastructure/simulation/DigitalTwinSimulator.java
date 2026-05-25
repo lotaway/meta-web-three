@@ -187,3 +187,5 @@ public class DigitalTwinSimulator {
     }
 
     private record AlertInfo(Alert.AlertLevel level, Alert.AlertType type, String title) {}
+
+}

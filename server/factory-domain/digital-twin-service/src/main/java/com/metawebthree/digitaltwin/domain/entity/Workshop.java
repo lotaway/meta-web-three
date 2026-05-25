@@ -74,7 +74,9 @@ public class Workshop {
     public Double getLength() { return length; }
     public void setLength(Double length) { this.length = length; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
     // equals/hashCode based on business key (workshopCode)
     @Override

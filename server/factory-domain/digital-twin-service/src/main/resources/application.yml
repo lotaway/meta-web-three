@@ -5,6 +5,21 @@ spring:
     name: digital-twin-service
   profiles:
     active: dev
+
+# AI Service Configuration
+ai:
+  forecasting-service:
+    endpoint: ${FORECASTING_SERVICE_URL:http://localhost:8082}
+    timeout-ms: ${FORECASTING_SERVICE_TIMEOUT:5000}
+    retry-count: ${FORECASTING_SERVICE_RETRY:3}
+  location-recommendation-service:
+    endpoint: ${LOCATION_RECOMMENDATION_URL:http://localhost:8083}
+    timeout-ms: ${LOCATION_RECOMMENDATION_TIMEOUT:5000}
+    retry-count: ${LOCATION_RECOMMENDATION_RETRY:3}
+  anomaly-detection-service:
+    endpoint: ${ANOMALY_DETECTION_URL:http://localhost:8084}
+    timeout-ms: ${ANOMALY_DETECTION_TIMEOUT:5000}
+    retry-count: ${ANOMALY_DETECTION_RETRY:3}
 ---
 spring:
   config:

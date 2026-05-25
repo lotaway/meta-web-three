@@ -132,4 +132,61 @@ public class DigitalTwinEventPublisher {
         logger.info("Publishing ALERT_RESOLVED: id={}", alertId);
         publishToKafka(topicPrefix + ".alert.resolved", event);
     }
+
+    public void publishWarehouseStatusChanged(String warehouseCode, String status) {
+        Map<String, Object> event = new HashMap<>();
+        event.put("eventType", "WAREHOUSE_STATUS_CHANGED");
+        event.put("warehouseCode", warehouseCode);
+        event.put("status", status);
+        event.put("timestamp", System.currentTimeMillis());
+        logger.info("Publishing WAREHOUSE_STATUS_CHANGED: {} -> {}", warehouseCode, status);
+        publishToKafka(topicPrefix + ".warehouse.status.changed", event);
+    }
+
+    public void publishInventoryLevelChanged(String warehouseCode, String sku, Integer quantity, String status) {
+        Map<String, Object> event = new HashMap<>();
+        event.put("eventType", "INVENTORY_LEVEL_CHANGED");
+        event.put("warehouseCode", warehouseCode);
+        event.put("sku", sku);
+        event.put("quantity", quantity);
+        event.put("status", status);
+        event.put("timestamp", System.currentTimeMillis());
+        logger.info("Publishing INVENTORY_LEVEL_CHANGED: {} SKU={} qty={}", warehouseCode, sku, quantity);
+        publishToKafka(topicPrefix + ".inventory.level.changed", event);
+    }
+
+    public void publishInventoryAlertCreated(String warehouseCode, String alertCode, String level, String message) {
+        Map<String, Object> event = new HashMap<>();
+        event.put("eventType", "INVENTORY_ALERT_CREATED");
+        event.put("warehouseCode", warehouseCode);
+        event.put("alertCode", alertCode);
+        event.put("level", level);
+        event.put("message", message);
+        event.put("timestamp", System.currentTimeMillis());
+        logger.info("Publishing INVENTORY_ALERT_CREATED: {} [{}]", alertCode, level);
+        publishToKafka(topicPrefix + ".inventory.alert.created", event);
+    }
+
+    public void publishRestockSuggestionCreated(String warehouseCode, String sku, Integer suggestedQty, String reason) {
+        Map<String, Object> event = new HashMap<>();
+        event.put("eventType", "RESTOCK_SUGGESTION_CREATED");
+        event.put("warehouseCode", warehouseCode);
+        event.put("sku", sku);
+        event.put("suggestedQty", suggestedQty);
+        event.put("reason", reason);
+        event.put("timestamp", System.currentTimeMillis());
+        logger.info("Publishing RESTOCK_SUGGESTION_CREATED: SKU={} qty={}", sku, suggestedQty);
+        publishToKafka(topicPrefix + ".restock.suggestion.created", event);
+    }
+
+    public void publishShelfStatusChanged(String warehouseCode, String shelfCode, String status) {
+        Map<String, Object> event = new HashMap<>();
+        event.put("eventType", "SHELF_STATUS_CHANGED");
+        event.put("warehouseCode", warehouseCode);
+        event.put("shelfCode", shelfCode);
+        event.put("status", status);
+        event.put("timestamp", System.currentTimeMillis());
+        logger.info("Publishing SHELF_STATUS_CHANGED: {} shelf={}", warehouseCode, shelfCode);
+        publishToKafka(topicPrefix + ".shelf.status.changed", event);
+    }
 }

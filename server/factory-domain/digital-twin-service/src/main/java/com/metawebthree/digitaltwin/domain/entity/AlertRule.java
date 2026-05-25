@@ -42,6 +42,12 @@ public class AlertRule {
         INFO, WARNING, ERROR, CRITICAL
     }
 
+    public enum AlertType {
+        DEVICE_OFFLINE, DEVICE_ERROR, TEMPERATURE_HIGH, TEMPERATURE_LOW,
+        HUMIDITY_HIGH, HUMIDITY_LOW, PRESSURE_ABNORMAL, VIBRATION_ABNORMAL,
+        POWER_ABNORMAL, NETWORK_ERROR, MAINTENANCE_DUE, SAFETY_ISSUE, OTHER
+    }
+
     public void createRule(String ruleCode, String ruleName, String description,
                           String deviceType, MetricType metricType, ComparisonOperator operator,
                           Double thresholdValue, AlertRuleLevel level, AlertType alertType,
@@ -171,7 +177,9 @@ public class AlertRule {
     public String getCreatedBy() { return createdBy; }
     public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public String getUpdatedBy() { return updatedBy; }
     public void setUpdatedBy(String updatedBy) { this.updatedBy = updatedBy; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { digitalTwinApi, parseWsEventData, type ChartPoint } from '../services/digitalTwin-api'
+import { digitalTwinApi, parseWsEventData, type ChartPoint } from '../services/digital-twin-api'
 
 // Mock axios
 vi.mock('axios', () => ({

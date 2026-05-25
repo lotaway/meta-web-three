@@ -146,24 +146,83 @@ public class DigitalTwinKafkaConsumer {
         processMessage("agv.position.updated", message);
     }
 
-    private void processMessage(String topic, String message) throws Exception {
-        String messageId = extractMessageId(message);
-        
-        if (isDuplicate(messageId)) {
-            logger.debug("Duplicate message detected, skipping: {}", messageId);
-            return;
-        }
-        
-        logger.debug("Received {}: {}", topic, message);
-        
-        switch (topic) {
-            case "device.status.changed" -> handleDeviceStatusChanged(message);
-            case "device.position.updated" -> handleDevicePositionUpdated(message);
-            case "device.heartbeat" -> handleDeviceHeartbeat(message);
-            case "alert.created" -> handleAlertCreated(message);
-            case "production.output.updated" -> handleProductionOutputUpdated(message);
-            case "agv.position.updated" -> handleAgvPositionUpdated(message);
-            default -> logger.warn("Unknown topic: {}", topic);
+    @RetryableTopic(
+        attempts = "3",
+        backoff = @Backoff(delay = 1000, multiplier = 2.0),
+        dltStrategy = DltStrategy.FAIL_ON_ERROR
+    )
+    @KafkaListener(topics = "warehouse.status.changed", groupId = "digital-twin")
+    public void consumeWarehouseStatusChanged(String message) {
+        processMessage("warehouse.status.changed", message);
+    }
+
+    @RetryableTopic(
+        attempts = "3",
+        backoff = @Backoff(delay = 1000, multiplier = 2.0),
+        dltStrategy = DltStrategy.FAIL_ON_ERROR
+    )
+    @KafkaListener(topics = "inventory.level.changed", groupId = "digital-twin")
+    public void consumeInventoryLevelChanged(String message) {
+        processMessage("inventory.level.changed", message);
+    }
+
+    @RetryableTopic(
+        attempts = "3",
+        backoff = @Backoff(delay = 1000, multiplier = 2.0),
+        dltStrategy = DltStrategy.FAIL_ON_ERROR
+    )
+    @KafkaListener(topics = "inventory.alert.created", groupId = "digital-twin")
+    public void consumeInventoryAlertCreated(String message) {
+        processMessage("inventory.alert.created", message);
+    }
+
+    @RetryableTopic(
+        attempts = "3",
+        backoff = @Backoff(delay = 1000, multiplier = 2.0),
+        dltStrategy = DltStrategy.FAIL_ON_ERROR
+    )
+    @KafkaListener(topics = "restock.suggestion.created", groupId = "digital-twin")
+    public void consumeRestockSuggestionCreated(String message) {
+        processMessage("restock.suggestion.created", message);
+    }
+
+    @RetryableTopic(
+        attempts = "3",
+        backoff = @Backoff(delay = 1000, multiplier = 2.0),
+        dltStrategy = DltStrategy.FAIL_ON_ERROR
+    )
+    @KafkaListener(topics = "shelf.status.changed", groupId = "digital-twin")
+    public void consumeShelfStatusChanged(String message) {
+        processMessage("shelf.status.changed", message);
+    }
+
+    private void processMessage(String topic, String message) {
+        try {
+            String messageId = extractMessageId(message);
+            
+            if (isDuplicate(messageId)) {
+                logger.debug("Duplicate message detected, skipping: {}", messageId);
+                return;
+            }
+            
+            logger.debug("Received {}: {}", topic, message);
+            
+            switch (topic) {
+                case "device.status.changed" -> handleDeviceStatusChanged(message);
+                case "device.position.updated" -> handleDevicePositionUpdated(message);
+                case "device.heartbeat" -> handleDeviceHeartbeat(message);
+                case "alert.created" -> handleAlertCreated(message);
+                case "production.output.updated" -> handleProductionOutputUpdated(message);
+                case "agv.position.updated" -> handleAgvPositionUpdated(message);
+                case "warehouse.status.changed" -> handleWarehouseStatusChanged(message);
+                case "inventory.level.changed" -> handleInventoryLevelChanged(message);
+                case "inventory.alert.created" -> handleInventoryAlertCreated(message);
+                case "restock.suggestion.created" -> handleRestockSuggestionCreated(message);
+                case "shelf.status.changed" -> handleShelfStatusChanged(message);
+                default -> logger.warn("Unknown topic: {}", topic);
+            }
+        } catch (Exception e) {
+            logger.error("Error processing message from topic {}: {}", topic, message, e);
         }
     }
 
@@ -188,6 +247,26 @@ public class DigitalTwinKafkaConsumer {
 
     private void handleAgvPositionUpdated(String message) {
         webSocketHandler.broadcast(Map.of("type", "AGV_POSITION_UPDATED", "data", message));
+    }
+
+    private void handleWarehouseStatusChanged(String message) {
+        webSocketHandler.broadcast(Map.of("type", "WAREHOUSE_STATUS_CHANGED", "data", message));
+    }
+
+    private void handleInventoryLevelChanged(String message) {
+        webSocketHandler.broadcast(Map.of("type", "INVENTORY_LEVEL_CHANGED", "data", message));
+    }
+
+    private void handleInventoryAlertCreated(String message) {
+        webSocketHandler.broadcast(Map.of("type", "INVENTORY_ALERT_CREATED", "data", message));
+    }
+
+    private void handleRestockSuggestionCreated(String message) {
+        webSocketHandler.broadcast(Map.of("type", "RESTOCK_SUGGESTION_CREATED", "data", message));
+    }
+
+    private void handleShelfStatusChanged(String message) {
+        webSocketHandler.broadcast(Map.of("type", "SHELF_STATUS_CHANGED", "data", message));
     }
 
     private String extractMessageId(String message) {

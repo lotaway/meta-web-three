@@ -15,6 +15,9 @@ export default defineConfig({
       include: ['src/renderer/**/*.{js,ts,jsx,tsx}'],
       exclude: ['src/renderer/**/*.d.ts', 'src/renderer/**/node_modules/**'],
     },
+    alias: [
+      { find: /^@\/(.*)/, replacement: path.resolve(__dirname, './src/renderer/$1') }
+    ]
   },
   resolve: {
     alias: {

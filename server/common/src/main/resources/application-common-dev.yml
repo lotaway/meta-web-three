@@ -21,3 +21,18 @@ logging:
   level:
     com.metawebthree: DEBUG
     org.springframework.web: INFO
+
+# AI Service Endpoint Configuration
+ai:
+  forecasting-service:
+    endpoint: http://localhost:8082
+    timeout-ms: 5000
+    retry-count: 3
+  location-recommendation-service:
+    endpoint: http://localhost:8083
+    timeout-ms: 5000
+    retry-count: 3
+  anomaly-detection-service:
+    endpoint: http://localhost:8084
+    timeout-ms: 5000
+    retry-count: 3
