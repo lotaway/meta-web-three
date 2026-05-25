@@ -40,11 +40,5 @@ public class DigitalTwinDltConsumer {
         logger.error("Message Payload: {}", message);
         logger.error("Stack Trace: {}", stackTrace);
         logger.error("=============================");
-        
-        // Here you could add:
-        // - Alert notifications for failed processing
-        // - Database persistence for later analysis
-        // - Retry via alternative path
-        // - Dead letter archival to cold storage
     }
 }
