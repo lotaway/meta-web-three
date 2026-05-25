@@ -2,6 +2,7 @@ package com.metawebthree.digitaltwin.infrastructure.config;
 
 import com.metawebthree.common.annotations.PermissionChecker;
 import com.metawebthree.common.constants.HeaderConstants;
+import com.metawebthree.digitaltwin.common.DigitalTwinPermissions;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -15,25 +16,25 @@ public class DigitalTwinPermissionChecker implements PermissionChecker {
 
     private static final Map<String, Set<String>> ROLE_PERMISSIONS = Map.of(
         "ADMIN", Set.of(
-            "dt:device:read", "dt:device:create", "dt:device:update", "dt:device:control",
-            "dt:workshop:read", "dt:workshop:create", "dt:workshop:update",
-            "dt:production-line:read", "dt:production-line:create", "dt:production-line:update",
-            "dt:alert:read", "dt:alert:create", "dt:alert:ack", "dt:alert:resolve",
-            "dt:stats:read"
+            DigitalTwinPermissions.DEVICE_READ, DigitalTwinPermissions.DEVICE_CREATE, DigitalTwinPermissions.DEVICE_UPDATE, DigitalTwinPermissions.DEVICE_CONTROL,
+            DigitalTwinPermissions.WORKSHOP_READ, DigitalTwinPermissions.WORKSHOP_CREATE, DigitalTwinPermissions.WORKSHOP_UPDATE,
+            DigitalTwinPermissions.PRODUCTION_LINE_READ, DigitalTwinPermissions.PRODUCTION_LINE_CREATE, DigitalTwinPermissions.PRODUCTION_LINE_UPDATE,
+            DigitalTwinPermissions.ALERT_READ, DigitalTwinPermissions.ALERT_CREATE, DigitalTwinPermissions.ALERT_ACK, DigitalTwinPermissions.ALERT_RESOLVE,
+            DigitalTwinPermissions.STATS_READ
         ),
-        "ADMIN", Set.of(
-            "dt:device:read", "dt:device:create", "dt:device:update", "dt:device:control",
-            "dt:workshop:read", "dt:workshop:create", "dt:workshop:update",
-            "dt:production-line:read", "dt:production-line:create", "dt:production-line:update",
-            "dt:alert:read", "dt:alert:create", "dt:alert:ack", "dt:alert:resolve",
-            "dt:stats:read"
+        "OPERATOR", Set.of(
+            DigitalTwinPermissions.DEVICE_READ, DigitalTwinPermissions.DEVICE_CREATE, DigitalTwinPermissions.DEVICE_UPDATE, DigitalTwinPermissions.DEVICE_CONTROL,
+            DigitalTwinPermissions.WORKSHOP_READ, DigitalTwinPermissions.WORKSHOP_CREATE, DigitalTwinPermissions.WORKSHOP_UPDATE,
+            DigitalTwinPermissions.PRODUCTION_LINE_READ, DigitalTwinPermissions.PRODUCTION_LINE_CREATE, DigitalTwinPermissions.PRODUCTION_LINE_UPDATE,
+            DigitalTwinPermissions.ALERT_READ, DigitalTwinPermissions.ALERT_CREATE, DigitalTwinPermissions.ALERT_ACK, DigitalTwinPermissions.ALERT_RESOLVE,
+            DigitalTwinPermissions.STATS_READ
         ),
         "VIEWER", Set.of(
-            "dt:device:read",
-            "dt:workshop:read",
-            "dt:production-line:read",
-            "dt:alert:read",
-            "dt:stats:read"
+            DigitalTwinPermissions.DEVICE_READ,
+            DigitalTwinPermissions.WORKSHOP_READ,
+            DigitalTwinPermissions.PRODUCTION_LINE_READ,
+            DigitalTwinPermissions.ALERT_READ,
+            DigitalTwinPermissions.STATS_READ
         )
     );
 

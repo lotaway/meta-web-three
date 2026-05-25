@@ -1,6 +1,7 @@
 package com.metawebthree.digitaltwin.interfaces.controller;
 
 import com.metawebthree.common.annotations.RequirePermission;
+import com.metawebthree.digitaltwin.common.DigitalTwinPermissions;
 import com.metawebthree.digitaltwin.application.command.AlertRuleCommandService;
 import com.metawebthree.digitaltwin.application.command.AlertRuleCommandService.AlertRuleResponse;
 import com.metawebthree.digitaltwin.application.command.AlertRuleCommandService.CreateAlertRuleRequest;
@@ -34,7 +35,7 @@ public class AlertRuleController {
         this.queryService = queryService;
     }
 
-    @RequirePermission("dt:alert:read")
+    @RequirePermission(DigitalTwinPermissions.ALERT_READ)
     @GetMapping
     public ResponseEntity<List<AlertRuleListItem>> getAllRules(
             @RequestParam(required = false) Boolean enabled,
@@ -50,7 +51,7 @@ public class AlertRuleController {
         return ResponseEntity.ok(rules);
     }
 
-    @RequirePermission("dt:alert:read")
+    @RequirePermission(DigitalTwinPermissions.ALERT_READ)
     @GetMapping("/{id}")
     public ResponseEntity<AlertRuleDetail> getRuleById(@PathVariable Long id) {
         AlertRuleDetail rule = queryService.getRuleById(id);
@@ -60,7 +61,7 @@ public class AlertRuleController {
         return ResponseEntity.ok(rule);
     }
 
-    @RequirePermission("dt:alert:ack")
+    @RequirePermission(DigitalTwinPermissions.ALERT_ACK)
     @PostMapping
     public ResponseEntity<AlertRuleResponse> createRule(
             @RequestBody CreateAlertRuleRequest request,
@@ -73,7 +74,7 @@ public class AlertRuleController {
         }
     }
 
-    @RequirePermission("dt:alert:ack")
+    @RequirePermission(DigitalTwinPermissions.ALERT_ACK)
     @PutMapping("/{id}")
     public ResponseEntity<AlertRuleResponse> updateRule(
             @PathVariable Long id,
@@ -87,7 +88,7 @@ public class AlertRuleController {
         }
     }
 
-    @RequirePermission("dt:alert:ack")
+    @RequirePermission(DigitalTwinPermissions.ALERT_ACK)
     @PutMapping("/{id}/enable")
     public ResponseEntity<Map<String, Object>> enableRule(@PathVariable Long id) {
         try {
@@ -97,7 +98,7 @@ public class AlertRuleController {
         }
     }
 
-    @RequirePermission("dt:alert:ack")
+    @RequirePermission(DigitalTwinPermissions.ALERT_ACK)
     @PutMapping("/{id}/disable")
     public ResponseEntity<Map<String, Object>> disableRule(@PathVariable Long id) {
         try {
@@ -107,7 +108,7 @@ public class AlertRuleController {
         }
     }
 
-    @RequirePermission("dt:alert:ack")
+    @RequirePermission(DigitalTwinPermissions.ALERT_ACK)
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> deleteRule(@PathVariable Long id) {
         try {
@@ -117,7 +118,7 @@ public class AlertRuleController {
         }
     }
 
-    @RequirePermission("dt:alert:read")
+    @RequirePermission(DigitalTwinPermissions.ALERT_READ)
     @GetMapping("/check-unique")
     public ResponseEntity<Map<String, Boolean>> checkUnique(
             @RequestParam String field,

@@ -5,6 +5,7 @@ import com.metawebthree.digitaltwin.application.query.DigitalTwinQueryService;
 import com.metawebthree.digitaltwin.domain.entity.Device;
 import com.metawebthree.digitaltwin.domain.entity.Alert;
 import com.metawebthree.common.annotations.RequirePermission;
+import com.metawebthree.digitaltwin.common.DigitalTwinPermissions;
 import com.metawebthree.digitaltwin.interfaces.dto.*;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -31,7 +32,7 @@ public class DigitalTwinController {
     }
 
     // Device endpoints
-    @RequirePermission("dt:device:create")
+    @RequirePermission(DigitalTwinPermissions.DEVICE_CREATE)
     @PostMapping("/device")
     public ResponseEntity<Map<String, Object>> registerDevice(
             @Valid @RequestBody RegisterDeviceRequest request,
@@ -48,7 +49,7 @@ public class DigitalTwinController {
         return ResponseEntity.ok(Map.of("deviceId", id));
     }
 
-    @RequirePermission("dt:device:update")
+    @RequirePermission(DigitalTwinPermissions.DEVICE_UPDATE)
     @PostMapping("/device/{deviceCode}/status")
     public ResponseEntity<Void> updateDeviceStatus(
             @PathVariable String deviceCode,
@@ -66,7 +67,7 @@ public class DigitalTwinController {
         return ResponseEntity.ok().build();
     }
 
-    @RequirePermission("dt:device:update")
+    @RequirePermission(DigitalTwinPermissions.DEVICE_UPDATE)
     @PostMapping("/device/{deviceCode}/heartbeat")
     public ResponseEntity<Void> deviceHeartbeat(
             @PathVariable String deviceCode,
@@ -75,7 +76,7 @@ public class DigitalTwinController {
         return ResponseEntity.ok().build();
     }
 
-    @RequirePermission("dt:device:update")
+    @RequirePermission(DigitalTwinPermissions.DEVICE_UPDATE)
     @PostMapping("/device/{deviceCode}/position")
     public ResponseEntity<Void> updateDevicePosition(
             @PathVariable String deviceCode,
@@ -89,7 +90,7 @@ public class DigitalTwinController {
         return ResponseEntity.ok().build();
     }
 
-    @RequirePermission("dt:device:read")
+    @RequirePermission(DigitalTwinPermissions.DEVICE_READ)
     @GetMapping("/device/{id}")
     public ResponseEntity<?> getDevice(@PathVariable Long id) {
         return queryService.getDeviceById(id)
@@ -97,7 +98,7 @@ public class DigitalTwinController {
             .orElse(ResponseEntity.notFound().build());
     }
 
-    @RequirePermission("dt:device:read")
+    @RequirePermission(DigitalTwinPermissions.DEVICE_READ)
     @GetMapping("/devices")
     public ResponseEntity<?> getAllDevices(
             @RequestParam(defaultValue = "1") int page,
@@ -107,20 +108,20 @@ public class DigitalTwinController {
         return ResponseEntity.ok(queryService.getDevicesPaginated(page, limitedSize));
     }
 
-    @RequirePermission("dt:device:read")
+    @RequirePermission(DigitalTwinPermissions.DEVICE_READ)
     @GetMapping("/workshop/{workshopId}/devices")
     public ResponseEntity<?> getWorkshopDevices(@PathVariable String workshopId) {
         return ResponseEntity.ok(queryService.getWorkshopDevices(workshopId));
     }
 
-    @RequirePermission("dt:device:read")
+    @RequirePermission(DigitalTwinPermissions.DEVICE_READ)
     @GetMapping("/devices/online")
     public ResponseEntity<?> getOnlineDevices() {
         return ResponseEntity.ok(queryService.getOnlineDevices());
     }
 
     // Workshop endpoints
-    @RequirePermission("dt:workshop:create")
+    @RequirePermission(DigitalTwinPermissions.WORKSHOP_CREATE)
     @PostMapping("/workshop")
     public ResponseEntity<Map<String, Object>> createWorkshop(@RequestBody Map<String, Object> request) {
         String workshopCode = (String) request.get("workshopCode");
@@ -131,7 +132,7 @@ public class DigitalTwinController {
         return ResponseEntity.ok(Map.of("workshopId", id));
     }
 
-    @RequirePermission("dt:workshop:read")
+    @RequirePermission(DigitalTwinPermissions.WORKSHOP_READ)
     @GetMapping("/workshops")
     public ResponseEntity<?> getAllWorkshops(
             @RequestParam(defaultValue = "1") int page,
@@ -141,7 +142,7 @@ public class DigitalTwinController {
     }
 
     // ProductionLine endpoints
-    @RequirePermission("dt:production-line:create")
+    @RequirePermission(DigitalTwinPermissions.PRODUCTION_LINE_CREATE)
     @PostMapping("/production-line")
     public ResponseEntity<Map<String, Object>> createProductionLine(@RequestBody Map<String, Object> request) {
         String lineCode = (String) request.get("lineCode");
@@ -153,7 +154,7 @@ public class DigitalTwinController {
         return ResponseEntity.ok(Map.of("lineId", id));
     }
 
-    @RequirePermission("dt:production-line:read")
+    @RequirePermission(DigitalTwinPermissions.PRODUCTION_LINE_READ)
     @GetMapping("/production-lines")
     public ResponseEntity<?> getAllProductionLines(
             @RequestParam(defaultValue = "1") int page,
@@ -163,7 +164,7 @@ public class DigitalTwinController {
     }
 
     // Alert endpoints
-    @RequirePermission("dt:alert:create")
+    @RequirePermission(DigitalTwinPermissions.ALERT_CREATE)
     @PostMapping("/alert")
     public ResponseEntity<Map<String, Object>> createAlert(@RequestBody Map<String, Object> request) {
         String deviceCode = (String) request.get("deviceCode");
@@ -180,7 +181,7 @@ public class DigitalTwinController {
         return ResponseEntity.ok(Map.of("alertId", id));
     }
 
-    @RequirePermission("dt:alert:ack")
+    @RequirePermission(DigitalTwinPermissions.ALERT_ACK)
     @PostMapping("/alert/{id}/acknowledge")
     public ResponseEntity<Void> acknowledgeAlert(
             @PathVariable Long id,
@@ -190,7 +191,7 @@ public class DigitalTwinController {
         return ResponseEntity.ok().build();
     }
 
-    @RequirePermission("dt:alert:resolve")
+    @RequirePermission(DigitalTwinPermissions.ALERT_RESOLVE)
     @PostMapping("/alert/{id}/resolve")
     public ResponseEntity<Void> resolveAlert(
             @PathVariable Long id,
@@ -201,14 +202,13 @@ public class DigitalTwinController {
         return ResponseEntity.ok().build();
     }
 
-    @RequirePermission("dt:alert:read")
+    @RequirePermission(DigitalTwinPermissions.ALERT_READ)
     @GetMapping("/alerts/active")
     public ResponseEntity<?> getActiveAlerts() {
         return ResponseEntity.ok(queryService.getActiveAlerts());
     }
 
-    // Statistics
-    @RequirePermission("dt:stats:read")
+    @RequirePermission(DigitalTwinPermissions.STATS_READ)
     @GetMapping("/stats/summary")
     public ResponseEntity<?> getStatsSummary() {
         return ResponseEntity.ok(Map.of(
