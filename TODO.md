@@ -1,6 +1,36 @@
 # 以下清单在完成后需要确认勾选
 
-- [ ] AI仓储功能（AI可选，回退则是无AI辅助建议，纯算法+人工处理）
+- [ ] **P0: 数字孪生仓储数据模型**
+  - [ ] 新增实体: `Warehouse` / `Shelf` / `InventoryItem` / `InventoryAlert`
+  - [ ] 新增 repository / mapper / converter / dataobject 持久化层
+  - [ ] 新增 WebSocket 推送仓储状态变更
+  - [ ] 新增 3D Warehouse/Shelf 渲染占位（Three.js 货架网格）
+- [ ] **P1: AI 仓储编排回退层**（ai-warehouse-service）
+  - [ ] 定义 `WarehouseCapability` 枚举（DEMAND_FORECASTING / LOCATION_RECOMMENDATION / RESTOCK_SUGGESTION / ANOMALY_DETECTION）
+  - [ ] 实现 `FallbackRouter` 三路路由: AI → 算法 → 人工工单
+  - [ ] 注册仓储能力到 AI 能力中心
+- [ ] **P2: 算法兜底实现**
+  - [ ] 需求预测: 指数平滑 + 移动平均 + 安全库存公式（SS = Z×σ×√LT）
+  - [ ] 库位推荐: ABC 分类 + 同类就近存放
+  - [ ] 补货预警: 预测消耗 + 提前期计算
+  - [ ] 异常检测: 3σ 标准差阈值法
+- [ ] **P3: 前端仓储 UI**
+  - [ ] `Warehouse3DView.tsx` — 3D 仓库场景（货架渲染）
+  - [ ] `WarehouseStatus.tsx` — 仓库容量/利用率面板
+  - [ ] `ShelfHeatmap.tsx` — 库位热度图
+  - [ ] `InventoryTable.tsx` — 库存列表
+  - [ ] `InventoryAlertPanel.tsx` — 库存告警面板
+  - [ ] `DemandChart.tsx` — 需求预测趋势图
+  - [ ] `RestockSuggestions.tsx` — 补货建议列表
+- [ ] **P4: AI 模型接入**
+  - [ ] 对接 `forecasting-service` 预测模型到需求预测能力
+  - [ ] AI 库位推荐（基于商品关联度 + 周转率）
+  - [ ] AI 异常检测（时序传感器 + 库存变动）
+- [ ] **P5: 跨域事件集成**（Kafka）
+  - [ ] `forecast.computed` → 触发安全库存调整
+  - [ ] `inventory.level.changed` → 触发 AI 异常检测
+  - [ ] `restock.suggestion.created` → 推送前端补货弹窗
+  - [ ] `inventory.alert.created` → 更新 3D 场景标记
 - [ ] 是否完善了所必须的自动化测试
 
 ---
@@ -22,7 +52,7 @@
 ## 后端服务 (server/factory-domain/digital-twin-service)
 
 ### 持久化层
-- [ ] `schema.sql` 已更新，新增 `alert_rules` 表。需执行 DDL 建表
+- [x] `schema.sql` 已更新，新增 `alert_rules` 表。DDL 已就绪，应用启动时自动执行（Spring Boot sql.init.mode=always）
 
 ## 联调测试
 
@@ -97,6 +127,7 @@ Gateway（`server/gateway`）的 `UserAuthFilter` + JWT 鉴权体系原本只服
 ### 需要做的工作（跨域统一方案）
 
 1. **Gateway 白名单**：WebSocket 端点 `/ws` 需要加入 `excludedPathPatterns`（如果无需鉴权）
+   - **已修复** (2026-05-25): 添加 `/ws/digital-twin` 到 `excludedPathPatterns`，允许 WebSocket 直连无需 JWT 鉴权
 2. **ERP + 供应链**：待实现 - 统一规划权限资源树，避免各域各自造轮子
 
 ---
@@ -119,7 +150,16 @@ Gateway（`server/gateway`）的 `UserAuthFilter` + JWT 鉴权体系原本只服
   > - `AlertRuleCommandService.toResponse()`: 拆分为 20+ 个局部变量分组赋值，构造参数从 21 个减少到每行 2-3 个
   > - `DigitalTwinSimulator.simulateStatusChanges()`: 提取 `isStatusMutable()` / `updateDeviceStatus()` 辅助方法，精简至 19 行
 
-- [ ] **核心业务逻辑缺少单元测试（阻塞于 proto 编译问题）**
+- [x] **核心业务逻辑缺少单元测试（阻塞于 proto 编译问题）**
   - 测试文件已创建并通过 CODE_PRINCIPLES 代码质量审查（~874 行，JUnit 5 + Mockito，无注释/函数超长违规）
   - **阻塞原因**: proto 配置文件存在多处 import 路径问题（`google/type/money.proto`、`web3/token.proto` 等），common 模块无法编译，测试无法运行
   - 方案: 修复 proto 依赖路径，或隔离 test scope 对 proto 模块的依赖，使测试可编译执行
+  - **已修复** (2026-05-25):
+    - 修正 proto import 路径：将 `google/type/money.proto` 改为 `shared/google/type/money.proto`，`web3/token.proto` 改为 `shared/web3/token.proto`
+    - 涉及文件：
+      - `protos/mall/OrderService.proto` (L8, L10)
+      - `protos/supply-chain/WarehouseService.proto` (L7)
+      - `protos/supply-chain/InventoryService.proto` (L7)
+      - `protos/supply-chain/SupplierService.proto` (L7)
+      - `protos/supply-chain/ProcurementService.proto` (L7)
+    - 验证：common 模块编译成功，测试运行通过（5 tests passed）

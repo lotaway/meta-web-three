@@ -67,10 +67,10 @@
           <pluginId>grpc-java</pluginId>
           <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
           <protoSourceRoot>${basedir}/../../protos</protoSourceRoot>
-          <protoImportRoots>
-            <path>${basedir}/../../protos</path>
-            <path>${basedir}/../../protos/shared</path>
-          </protoImportRoots>
+          <imports>
+            <import>${basedir}/../../protos</import>
+            <import>${basedir}/../../protos/shared</import>
+          </imports>
           <outputDirectory>${basedir}/src/main/java</outputDirectory>
           <clearOutputDirectory>false</clearOutputDirectory>
           <protocPlugins>

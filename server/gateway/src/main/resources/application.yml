@@ -64,6 +64,8 @@ gateway:
       - /promotion-service/flash/product/**
       # Actuator
       - /actuator/**
+      # WebSocket - digital twin real-time communication
+      - /ws/digital-twin
     excluded-path-keywords:
       - /v3/api-docs
       - /swagger-ui
