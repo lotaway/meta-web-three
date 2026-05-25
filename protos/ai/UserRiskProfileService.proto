@@ -5,7 +5,7 @@ package com.metawebthree.common.generated.rpc;
 option java_multiple_files = true;
 option java_outer_classname = "UserRiskProfileServiceProto";
 
-import "DeviceRiskTag.proto";
+import "ai/DeviceRiskTag.proto";
 
 service UserRiskProfileService {
     rpc getUserRiskProfile (GetUserRiskProfileRequest) returns (GetUserRiskProfileResponse);

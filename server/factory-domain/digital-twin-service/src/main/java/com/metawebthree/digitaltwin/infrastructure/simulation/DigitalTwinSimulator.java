@@ -87,23 +87,34 @@ public class DigitalTwinSimulator {
             Device device = deviceRepository.findByDeviceCode(deviceCode).orElse(null);
             if (device == null || device.getStatus() != Device.DeviceStatus.RUNNING) continue;
 
-            int idx = agvRouteIndices.getOrDefault(deviceCode, 1);
-            idx = (idx % (route.length - 1)) + 1;
-            agvRouteIndices.put(deviceCode, idx);
+            int idx = computeNextIndex(deviceCode, route);
+            double[] pos = parseCoordinates(route[idx]);
+            double rotation = computeRotation(route, idx, pos);
 
-            String[] parts = route[idx].split(",");
-            double x = Double.parseDouble(parts[0]);
-            double y = Double.parseDouble(parts[1]);
-            double z = Double.parseDouble(parts[2]);
-
-            int nextIdx = (idx % (route.length - 1)) + 1;
-            String[] nextParts = route[nextIdx].split(",");
-            double nextX = Double.parseDouble(nextParts[0]);
-            double nextZ = Double.parseDouble(nextParts[2]);
-            double rotation = Math.atan2(nextZ - z, nextX - x);
-
-            commandService.updateDevicePosition(deviceCode, x, y, z, rotation);
+            commandService.updateDevicePosition(deviceCode, pos[0], pos[1], pos[2], rotation);
         }
+    }
+
+    private int computeNextIndex(String deviceCode, String[] route) {
+        int idx = agvRouteIndices.getOrDefault(deviceCode, 1);
+        idx = (idx % (route.length - 1)) + 1;
+        agvRouteIndices.put(deviceCode, idx);
+        return idx;
+    }
+
+    private double[] parseCoordinates(String coord) {
+        String[] parts = coord.split(",");
+        return new double[] {
+            Double.parseDouble(parts[0]),
+            Double.parseDouble(parts[1]),
+            Double.parseDouble(parts[2])
+        };
+    }
+
+    private double computeRotation(String[] route, int idx, double[] currentPos) {
+        int nextIdx = (idx % (route.length - 1)) + 1;
+        double[] nextPos = parseCoordinates(route[nextIdx]);
+        return Math.atan2(nextPos[2] - currentPos[2], nextPos[0] - currentPos[0]);
     }
 
     @Scheduled(initialDelay = 7000, fixedDelay = 5000)

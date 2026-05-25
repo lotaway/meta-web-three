@@ -1,6 +1,8 @@
 package com.metawebthree.digitaltwin.infrastructure.persistence.repository;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.metawebthree.digitaltwin.domain.entity.Workshop;
 import com.metawebthree.digitaltwin.domain.repository.WorkshopRepository;
 import com.metawebthree.digitaltwin.infrastructure.persistence.converter.WorkshopConverter;
@@ -44,6 +46,13 @@ public class WorkshopRepositoryImpl implements WorkshopRepository {
     public List<Workshop> findAll() {
         return workshopMapper.selectList(null)
                 .stream().map(WorkshopConverter::toEntity).collect(Collectors.toList());
+    }
+
+    @Override
+    public IPage<Workshop> findPaginated(int page, int size) {
+        Page<WorkshopDO> pageObj = new Page<>(page, size);
+        IPage<WorkshopDO> result = workshopMapper.selectPage(pageObj, null);
+        return result.convert(WorkshopConverter::toEntity);
     }
 
     @Override

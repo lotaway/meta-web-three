@@ -33,7 +33,7 @@ public class DigitalTwinKafkaConsumer {
     private final DigitalTwinEventPublisher eventPublisher;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // In-memory idempotency tracking with timestamps
+    // Idempotency tracking with timestamps
     private final ConcurrentHashMap<String, Long> processedMessageIds = new ConcurrentHashMap<>();
     private final ScheduledExecutorService cleanupScheduler = Executors.newSingleThreadScheduledExecutor();
 
@@ -46,7 +46,6 @@ public class DigitalTwinKafkaConsumer {
 
     @PostConstruct
     public void init() {
-        // Schedule cleanup of old message IDs
         cleanupScheduler.scheduleAtFixedRate(
             this::cleanupProcessedMessages,
             CLEANUP_INTERVAL_MINUTES,
@@ -72,9 +71,8 @@ public class DigitalTwinKafkaConsumer {
         if (messageId == null || messageId.isEmpty()) {
             return false;
         }
-        // Atomic check-and-add with timestamp
         Long previous = processedMessageIds.putIfAbsent(messageId, Instant.now().toEpochMilli());
-        return previous != null; // true if already existed (duplicate)
+        return previous != null;
     }
 
     private void cleanupProcessedMessages() {
@@ -159,26 +157,37 @@ public class DigitalTwinKafkaConsumer {
         logger.debug("Received {}: {}", topic, message);
         
         switch (topic) {
-            case "device.status.changed":
-                webSocketHandler.broadcast(Map.of("type", "DEVICE_STATUS_CHANGED", "data", message));
-                break;
-            case "device.position.updated":
-                webSocketHandler.broadcast(Map.of("type", "DEVICE_POSITION_UPDATED", "data", message));
-                break;
-            case "device.heartbeat":
-                break;
-            case "alert.created":
-                webSocketHandler.broadcast(Map.of("type", "ALERT_CREATED", "data", message));
-                break;
-            case "production.output.updated":
-                webSocketHandler.broadcast(Map.of("type", "PRODUCTION_OUTPUT_UPDATED", "data", message));
-                break;
-            case "agv.position.updated":
-                webSocketHandler.broadcast(Map.of("type", "AGV_POSITION_UPDATED", "data", message));
-                break;
-            default:
-                logger.warn("Unknown topic: {}", topic);
+            case "device.status.changed" -> handleDeviceStatusChanged(message);
+            case "device.position.updated" -> handleDevicePositionUpdated(message);
+            case "device.heartbeat" -> handleDeviceHeartbeat(message);
+            case "alert.created" -> handleAlertCreated(message);
+            case "production.output.updated" -> handleProductionOutputUpdated(message);
+            case "agv.position.updated" -> handleAgvPositionUpdated(message);
+            default -> logger.warn("Unknown topic: {}", topic);
         }
+    }
+
+    private void handleDeviceStatusChanged(String message) {
+        webSocketHandler.broadcast(Map.of("type", "DEVICE_STATUS_CHANGED", "data", message));
+    }
+
+    private void handleDevicePositionUpdated(String message) {
+        webSocketHandler.broadcast(Map.of("type", "DEVICE_POSITION_UPDATED", "data", message));
+    }
+
+    private void handleDeviceHeartbeat(String message) {
+    }
+
+    private void handleAlertCreated(String message) {
+        webSocketHandler.broadcast(Map.of("type", "ALERT_CREATED", "data", message));
+    }
+
+    private void handleProductionOutputUpdated(String message) {
+        webSocketHandler.broadcast(Map.of("type", "PRODUCTION_OUTPUT_UPDATED", "data", message));
+    }
+
+    private void handleAgvPositionUpdated(String message) {
+        webSocketHandler.broadcast(Map.of("type", "AGV_POSITION_UPDATED", "data", message));
     }
 
     private String extractMessageId(String message) {

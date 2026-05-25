@@ -1,5 +1,6 @@
 package com.metawebthree.digitaltwin.application.query;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.metawebthree.digitaltwin.domain.entity.Device;
 import com.metawebthree.digitaltwin.domain.entity.Workshop;
 import com.metawebthree.digitaltwin.domain.entity.ProductionLine;
@@ -50,19 +51,13 @@ public class DigitalTwinQueryService {
     }
 
     public Map<String, Object> getDevicesPaginated(int page, int size) {
-        List<Device> all = deviceRepository.findAll();
-        int total = all.size();
-        int fromIndex = (page - 1) * size;
-        int toIndex = Math.min(fromIndex + size, total);
-        List<Device> pageData = fromIndex < total 
-            ? all.subList(fromIndex, toIndex) 
-            : List.of();
+        IPage<Device> pageResult = deviceRepository.findPaginated(page, size);
         return Map.of(
-            "data", pageData,
-            "page", page,
-            "size", size,
-            "total", total,
-            "totalPages", (int) Math.ceil((double) total / size)
+            "data", pageResult.getRecords(),
+            "page", pageResult.getCurrent(),
+            "size", pageResult.getSize(),
+            "total", pageResult.getTotal(),
+            "totalPages", pageResult.getPages()
         );
     }
 
@@ -84,19 +79,13 @@ public class DigitalTwinQueryService {
     }
 
     public Map<String, Object> getWorkshopsPaginated(int page, int size) {
-        List<Workshop> all = workshopRepository.findAll();
-        int total = all.size();
-        int fromIndex = (page - 1) * size;
-        int toIndex = Math.min(fromIndex + size, total);
-        List<Workshop> pageData = fromIndex < total 
-            ? all.subList(fromIndex, toIndex) 
-            : List.of();
+        IPage<Workshop> pageResult = workshopRepository.findPaginated(page, size);
         return Map.of(
-            "data", pageData,
-            "page", page,
-            "size", size,
-            "total", total,
-            "totalPages", (int) Math.ceil((double) total / size)
+            "data", pageResult.getRecords(),
+            "page", pageResult.getCurrent(),
+            "size", pageResult.getSize(),
+            "total", pageResult.getTotal(),
+            "totalPages", pageResult.getPages()
         );
     }
 
@@ -110,19 +99,13 @@ public class DigitalTwinQueryService {
     }
 
     public Map<String, Object> getProductionLinesPaginated(int page, int size) {
-        List<ProductionLine> all = productionLineRepository.findAll();
-        int total = all.size();
-        int fromIndex = (page - 1) * size;
-        int toIndex = Math.min(fromIndex + size, total);
-        List<ProductionLine> pageData = fromIndex < total 
-            ? all.subList(fromIndex, toIndex) 
-            : List.of();
+        IPage<ProductionLine> pageResult = productionLineRepository.findPaginated(page, size);
         return Map.of(
-            "data", pageData,
-            "page", page,
-            "size", size,
-            "total", total,
-            "totalPages", (int) Math.ceil((double) total / size)
+            "data", pageResult.getRecords(),
+            "page", pageResult.getCurrent(),
+            "size", pageResult.getSize(),
+            "total", pageResult.getTotal(),
+            "totalPages", pageResult.getPages()
         );
     }
 

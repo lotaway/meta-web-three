@@ -1,6 +1,8 @@
 package com.metawebthree.digitaltwin.infrastructure.persistence.repository;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.metawebthree.digitaltwin.domain.entity.ProductionLine;
 import com.metawebthree.digitaltwin.domain.repository.ProductionLineRepository;
 import com.metawebthree.digitaltwin.infrastructure.persistence.converter.ProductionLineConverter;
@@ -51,6 +53,13 @@ public class ProductionLineRepositoryImpl implements ProductionLineRepository {
     public List<ProductionLine> findAll() {
         return productionLineMapper.selectList(null)
                 .stream().map(ProductionLineConverter::toEntity).collect(Collectors.toList());
+    }
+
+    @Override
+    public IPage<ProductionLine> findPaginated(int page, int size) {
+        Page<ProductionLineDO> pageObj = new Page<>(page, size);
+        IPage<ProductionLineDO> result = productionLineMapper.selectPage(pageObj, null);
+        return result.convert(ProductionLineConverter::toEntity);
     }
 
     @Override

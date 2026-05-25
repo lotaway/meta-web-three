@@ -1,6 +1,8 @@
 package com.metawebthree.digitaltwin.infrastructure.persistence.repository;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.metawebthree.digitaltwin.domain.entity.Device;
 import com.metawebthree.digitaltwin.domain.repository.DeviceRepository;
 import com.metawebthree.digitaltwin.infrastructure.persistence.converter.DeviceConverter;
@@ -58,6 +60,13 @@ public class DeviceRepositoryImpl implements DeviceRepository {
     public List<Device> findAll() {
         return deviceMapper.selectList(null)
                 .stream().map(DeviceConverter::toEntity).collect(Collectors.toList());
+    }
+
+    @Override
+    public IPage<Device> findPaginated(int page, int size) {
+        Page<DeviceDO> pageObj = new Page<>(page, size);
+        IPage<DeviceDO> result = deviceMapper.selectPage(pageObj, null);
+        return result.convert(DeviceConverter::toEntity);
     }
 
     @Override

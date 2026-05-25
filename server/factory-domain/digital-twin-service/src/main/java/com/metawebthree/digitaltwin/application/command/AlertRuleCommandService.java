@@ -154,12 +154,12 @@ public class AlertRuleCommandService {
             rule.getRuleName(),
             rule.getDescription(),
             rule.getDeviceType(),
-            rule.getMetricType() != null ? rule.getMetricType().name() : null,
-            rule.getOperator() != null ? rule.getOperator().name() : null,
+            enumToString(rule.getMetricType()),
+            enumToString(rule.getOperator()),
             rule.getThresholdValue(),
             rule.getDurationSeconds(),
-            rule.getLevel() != null ? rule.getLevel().name() : null,
-            rule.getAlertType() != null ? rule.getAlertType().name() : null,
+            enumToString(rule.getLevel()),
+            enumToString(rule.getAlertType()),
             rule.getTitleTemplate(),
             rule.getDescriptionTemplate(),
             rule.getEnabled(),
@@ -167,9 +167,17 @@ public class AlertRuleCommandService {
             rule.getMaxAlertsPerHour(),
             rule.getNotificationChannels(),
             rule.getCreatedBy(),
-            rule.getCreatedAt() != null ? rule.getCreatedAt().toString() : null,
+            toStringOrNull(rule.getCreatedAt()),
             rule.getUpdatedBy(),
-            rule.getUpdatedAt() != null ? rule.getUpdatedAt().toString() : null
+            toStringOrNull(rule.getUpdatedAt())
         );
+    }
+
+    private <T extends Enum<T>> String enumToString(T enumValue) {
+        return enumValue != null ? enumValue.name() : null;
+    }
+
+    private String toStringOrNull(Object obj) {
+        return obj != null ? obj.toString() : null;
     }
 }

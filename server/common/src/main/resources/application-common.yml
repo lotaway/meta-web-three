@@ -90,3 +90,9 @@ elasticsearch:
 # Storage type: local / minio / s3
 storage:
   type: local
+
+digital-twin:
+  cors:
+    allowed-origins:
+      - http://localhost:5173
+      - http://127.0.0.1:5173

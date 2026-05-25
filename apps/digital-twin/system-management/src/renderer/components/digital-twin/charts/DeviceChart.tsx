@@ -1,5 +1,29 @@
 import { useEffect, useRef } from 'react'
 
+function toFillColor(c: string): string {
+  let hex = c
+  if (c.startsWith('#')) {
+    hex = c.slice(1)
+    if (hex.length === 3) {
+      hex = hex.split('').map(char => char + char).join('')
+    }
+  }
+  if (/^[0-9a-fA-F]{6}$/.test(hex)) {
+    const r = parseInt(hex.slice(0, 2), 16)
+    const g = parseInt(hex.slice(2, 4), 16)
+    const b = parseInt(hex.slice(4, 6), 16)
+    return `rgba(${r}, ${g}, ${b}, 0.3)`
+  }
+  if (c.startsWith('rgb')) {
+    const match = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
+    if (match) {
+      return `rgba(${match[1]}, ${match[2]}, ${match[3]}, 0.3)`
+    }
+    return c.replace('rgb', 'rgba').replace(')', ', 0.3)')
+  }
+  return c
+}
+
 interface ChartData {
   timestamp: number
   value: number
@@ -29,27 +53,23 @@ export function DeviceChart({
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // Set canvas size
     const rect = canvas.getBoundingClientRect()
     canvas.width = rect.width * window.devicePixelRatio
     canvas.height = height * window.devicePixelRatio
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio)
 
     const width = rect.width
-    const chartHeight = height - 40 // Leave space for labels
+    const chartHeight = height - 40
     const padding = { top: 10, right: 10, bottom: 30, left: 50 }
 
-    // Clear canvas
     ctx.fillStyle = '#1e293b'
     ctx.fillRect(0, 0, width, height)
 
-    // Calculate min/max
     const values = data.map(d => d.value)
     const min = Math.min(...values)
     const max = Math.max(...values)
     const range = max - min || 1
 
-    // Draw grid
     ctx.strokeStyle = '#334155'
     ctx.lineWidth = 0.5
     for (let i = 0; i <= 4; i++) {
@@ -59,7 +79,6 @@ export function DeviceChart({
       ctx.lineTo(width - padding.right, y)
       ctx.stroke()
 
-      // Y-axis labels
       const value = max - (range / 4) * i
       ctx.fillStyle = '#64748b'
       ctx.font = '10px sans-serif'
@@ -67,7 +86,6 @@ export function DeviceChart({
       ctx.fillText(value.toFixed(1), padding.left - 5, y + 4)
     }
 
-    // Draw X-axis labels
     const timeRange = data[data.length - 1].timestamp - data[0].timestamp
     for (let i = 0; i <= 4; i++) {
       const x = padding.left + ((width - padding.left - padding.right) / 4) * i
@@ -79,7 +97,6 @@ export function DeviceChart({
       ctx.fillText(timeStr, x, height - 10)
     }
 
-    // Draw line
     ctx.strokeStyle = color
     ctx.lineWidth = 2
     ctx.beginPath()
@@ -94,46 +111,12 @@ export function DeviceChart({
     })
     ctx.stroke()
 
-    // Draw fill with proper color conversion
     ctx.lineTo(padding.left + (width - padding.left - padding.right), padding.top + chartHeight)
     ctx.lineTo(padding.left, padding.top + chartHeight)
     ctx.closePath()
-    const fillColor = (c: string): string => {
-      // Normalize to 6-digit hex first
-      let hex = c
-      if (c.startsWith('#')) {
-        hex = c.slice(1)
-        // Handle 3-digit hex (#RGB -> #RRGGBB)
-        if (hex.length === 3) {
-          hex = hex.split('').map(char => char + char).join('')
-        }
-      }
-      
-      // Parse hex to RGB
-      if (/^[0-9a-fA-F]{6}$/.test(hex)) {
-        const r = parseInt(hex.slice(0, 2), 16)
-        const g = parseInt(hex.slice(2, 4), 16)
-        const b = parseInt(hex.slice(4, 6), 16)
-        return `rgba(${r}, ${g}, ${b}, 0.3)`
-      }
-      
-      // Handle rgb/rgba input - extract RGB values
-      if (c.startsWith('rgb')) {
-        const match = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
-        if (match) {
-          return `rgba(${match[1]}, ${match[2]}, ${match[3]}, 0.3)`
-        }
-        // Fallback
-        return c.replace('rgb', 'rgba').replace(')', ', 0.3)')
-      }
-      
-      // Default: return as-is (will use canvas default)
-      return c
-    }
-    ctx.fillStyle = fillColor(color)
+    ctx.fillStyle = toFillColor(color)
     ctx.fill()
 
-    // Draw dots
     data.forEach((point, i) => {
       const x = padding.left + ((width - padding.left - padding.right) / (data.length - 1)) * i
       const y = padding.top + chartHeight - ((point.value - min) / range) * chartHeight
@@ -143,7 +126,6 @@ export function DeviceChart({
       ctx.fill()
     })
 
-    // Current value
     const currentValue = data[data.length - 1]?.value || 0
     ctx.fillStyle = color
     ctx.font = 'bold 14px sans-serif'
