@@ -12,14 +12,13 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Base class for AI service clients in digital-twin-service.
- * Provides common HTTP invocation logic for calling AI/ML services.
- */
+
 public abstract class AbstractAIClient {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractAIClient.class);
-    protected static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final long RETRY_BACKOFF_BASE_MS = 100L;
+
+    public static final ObjectMapper objectMapper = new ObjectMapper();
 
     protected final String endpoint;
     protected final int timeoutMs;
@@ -35,9 +34,7 @@ public abstract class AbstractAIClient {
             .build();
     }
 
-    /**
-     * Execute the AI invocation with retry logic.
-     */
+    
     public AIClientResponse invoke(AIClientRequest request) {
         int attempts = 0;
         Exception lastException = null;
@@ -56,7 +53,7 @@ public abstract class AbstractAIClient {
             attempts++;
             if (attempts < retryCount) {
                 try {
-                    Thread.sleep(100L * attempts);
+                    Thread.sleep(RETRY_BACKOFF_BASE_MS * attempts);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                     return AIClientResponse.failure("Interrupted during retry", -1);
@@ -70,14 +67,10 @@ public abstract class AbstractAIClient {
         );
     }
 
-    /**
-     * Implement the actual HTTP invocation logic.
-     */
+    
     protected abstract AIClientResponse doInvoke(AIClientRequest request);
 
-    /**
-     * Build HTTP request with common headers.
-     */
+    
     protected HttpRequest.Builder buildRequest(URI uri, String body) {
         return HttpRequest.newBuilder()
             .uri(uri)
@@ -86,9 +79,7 @@ public abstract class AbstractAIClient {
             .POST(HttpRequest.BodyPublishers.ofString(body));
     }
 
-    /**
-     * Check if the client is available (endpoint reachable).
-     */
+    
     public boolean isAvailable() {
         try {
             HttpRequest request = HttpRequest.newBuilder()
@@ -101,7 +92,7 @@ public abstract class AbstractAIClient {
                 HttpResponse.BodyHandlers.ofString());
             return response.statusCode() >= 200 && response.statusCode() < 300;
         } catch (Exception e) {
-            log.debug("Health check failed for {}: {}", endpoint, e.getMessage());
+            log.info("Health check failed for {}: {}", endpoint, e.getMessage());
             return false;
         }
     }
@@ -110,9 +101,7 @@ public abstract class AbstractAIClient {
         return endpoint;
     }
 
-    /**
-     * Request wrapper for AI client.
-     */
+    
     public static class AIClientRequest {
         private final String capability;
         private final Map<String, Object> payload;
@@ -139,9 +128,7 @@ public abstract class AbstractAIClient {
         }
     }
 
-    /**
-     * Response wrapper for AI client.
-     */
+    
     public static class AIClientResponse {
         private final boolean success;
         private final String data;

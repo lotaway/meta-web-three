@@ -24,7 +24,7 @@ public class AnomalyDetectionFallback implements AlgorithmFallback {
         List<Double> sensorData = parseSensorData(payload);
         
         if (sensorData == null || sensorData.size() < 5) {
-            return buildAnomalyResult(false, "Insufficient data for detection", null);
+            return buildAnomalyResult(false, AnomalyType.NORMAL, null);
         }
         
         double currentValue = getCurrentValue(sensorData);
@@ -38,7 +38,7 @@ public class AnomalyDetectionFallback implements AlgorithmFallback {
         double upperBound = mean + SIGMA_THRESHOLD * stdDev;
         
         boolean isAnomaly = currentValue < lowerBound || currentValue > upperBound;
-        String anomalyType = determineAnomalyType(currentValue, mean, stdDev);
+        AnomalyType anomalyType = determineAnomalyType(currentValue, mean, stdDev);
         
         return buildAnomalyResult(isAnomaly, anomalyType,
             new double[]{lowerBound, upperBound});
@@ -71,29 +71,29 @@ public class AnomalyDetectionFallback implements AlgorithmFallback {
         return Math.sqrt(variance);
     }
 
-    private String determineAnomalyType(double current, double mean, double stdDev) {
+    private AnomalyType determineAnomalyType(double current, double mean, double stdDev) {
         double zScore = (current - mean) / stdDev;
         if (zScore > SIGMA_THRESHOLD) {
-            return "SPIKE";
+            return AnomalyType.SPIKE;
         } else if (zScore < -SIGMA_THRESHOLD) {
-            return "DROP";
+            return AnomalyType.DROP;
         } else {
-            return "NORMAL";
+            return AnomalyType.NORMAL;
         }
     }
 
-    private Object buildAnomalyResult(boolean isAnomaly, String anomalyType,
+    private Object buildAnomalyResult(boolean isAnomaly, AnomalyType anomalyType,
             double[] bounds) {
         if (bounds != null) {
             return String.format(
                 "{\"isAnomaly\":%b,\"anomalyType\":\"%s\",\"lowerBound\":%.2f,"
                 + "\"upperBound\":%.2f,\"method\":\"3sigma_threshold\",\"confidence\":0.85}",
-                isAnomaly, anomalyType, bounds[0], bounds[1]
+                isAnomaly, anomalyType.name(), bounds[0], bounds[1]
             );
         }
         return String.format(
             "{\"isAnomaly\":%b,\"anomalyType\":\"%s\",\"method\":\"3sigma_threshold\"}",
-            isAnomaly, anomalyType
+            isAnomaly, anomalyType.name()
         );
     }
 }

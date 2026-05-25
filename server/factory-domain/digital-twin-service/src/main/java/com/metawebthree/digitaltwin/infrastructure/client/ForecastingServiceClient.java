@@ -6,15 +6,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
+import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Client for connecting to forecasting-service.
- * Provides AI-based demand forecasting by calling the forecasting-service REST API.
- */
+
 @Component
 public class ForecastingServiceClient extends AbstractAIClient {
 
@@ -33,15 +31,7 @@ public class ForecastingServiceClient extends AbstractAIClient {
         super("http://localhost:8082", 5000, 3);
     }
 
-    /**
-     * Create a forecast request for a specific SKU.
-     *
-     * @param skuCode Product SKU code
-     * @param skuName Product name
-     * @param warehouseId Warehouse ID
-     * @param forecastDate Date to forecast
-     * @return Forecast result with predicted quantity and confidence
-     */
+    
     public ForecastResult createForecast(String skuCode, String skuName,
             Long warehouseId, LocalDate forecastDate) {
         Map<String, Object> payload = new HashMap<>();
@@ -62,14 +52,7 @@ public class ForecastingServiceClient extends AbstractAIClient {
         return null;
     }
 
-    /**
-     * Get historical forecasts for a SKU within a date range.
-     *
-     * @param skuCode Product SKU code
-     * @param startDate Start date of history
-     * @param endDate End date of history
-     * @return List of historical forecast data
-     */
+    
     public Map<String, Object> getForecastHistory(String skuCode,
             LocalDate startDate, LocalDate endDate) {
         Map<String, Object> payload = new HashMap<>();
@@ -88,12 +71,7 @@ public class ForecastingServiceClient extends AbstractAIClient {
         return Map.of();
     }
 
-    /**
-     * Get forecasts by warehouse.
-     *
-     * @param warehouseId Warehouse ID
-     * @return List of forecasts for the warehouse
-     */
+    
     public Map<String, Object> getForecastByWarehouse(Long warehouseId) {
         Map<String, Object> payload = new HashMap<>();
         payload.put("warehouseId", warehouseId);
@@ -121,7 +99,7 @@ public class ForecastingServiceClient extends AbstractAIClient {
                 HttpResponse.BodyHandlers.ofString());
 
             if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
-                log.debug("Forecast request succeeded: {}", request.getCapability());
+                log.info("Forecast request succeeded: {}", request.getCapability());
                 return AIClientResponse.success(httpResponse.body(), httpResponse.statusCode());
             } else {
                 log.warn("Forecast request failed with status {}: {}",
@@ -162,9 +140,7 @@ public class ForecastingServiceClient extends AbstractAIClient {
         }
     }
 
-    /**
-     * Forecast result DTO.
-     */
+    
     public static class ForecastResult {
         private Long forecastId;
         private String skuCode;

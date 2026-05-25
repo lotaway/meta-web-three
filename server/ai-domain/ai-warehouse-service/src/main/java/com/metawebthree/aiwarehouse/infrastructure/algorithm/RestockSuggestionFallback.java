@@ -1,12 +1,21 @@
 package com.metawebthree.aiwarehouse.infrastructure.algorithm;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metawebthree.aiwarehouse.domain.entity.WarehouseCapability;
 import com.metawebthree.aiwarehouse.infrastructure.router.FallbackRouter.AlgorithmFallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 @Component
 public class RestockSuggestionFallback implements AlgorithmFallback {
 
+    private static final Logger log = LoggerFactory.getLogger(RestockSuggestionFallback.class);
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private static final int LEAD_TIME_DAYS = 7;
     private static final double SAFETY_FACTOR = 1.2;
 
@@ -53,18 +62,17 @@ public class RestockSuggestionFallback implements AlgorithmFallback {
     }
 
     private String extractValue(String payload, String... keys) {
-        for (String key : keys) {
-            int idx = payload.indexOf("\"" + key + "\"");
-            if (idx >= 0) {
-                int colon = payload.indexOf(":", idx);
-                int comma = payload.indexOf(",", colon);
-                int end = comma > 0 ? comma : payload.length();
-                String value = payload.substring(colon + 1, end).trim();
-                value = value.replaceAll("[^0-9.-]", "");
-                if (!value.isEmpty()) {
-                    return value;
+        try {
+            Map<String, Object> data = objectMapper.readValue(payload,
+                new TypeReference<Map<String, Object>>() {});
+            for (String key : keys) {
+                Object value = data.get(key);
+                if (value != null) {
+                    return value.toString();
                 }
             }
+        } catch (Exception e) {
+            log.warn("Failed to extract value from payload: {}", e.getMessage());
         }
         return null;
     }

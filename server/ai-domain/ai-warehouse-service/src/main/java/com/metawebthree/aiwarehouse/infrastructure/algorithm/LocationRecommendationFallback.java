@@ -1,5 +1,7 @@
 package com.metawebthree.aiwarehouse.infrastructure.algorithm;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metawebthree.aiwarehouse.domain.entity.WarehouseCapability;
 import com.metawebthree.aiwarehouse.infrastructure.router.FallbackRouter.AlgorithmFallback;
 import org.springframework.stereotype.Component;
@@ -10,6 +12,8 @@ import java.util.stream.Collectors;
 
 @Component
 public class LocationRecommendationFallback implements AlgorithmFallback {
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public WarehouseCapability getCapability() {
@@ -27,7 +31,15 @@ public class LocationRecommendationFallback implements AlgorithmFallback {
     }
 
     private Map<String, Object> parsePayload(String payload) {
-        return Map.of();
+        if (payload == null || payload.isEmpty()) {
+            return Map.of();
+        }
+        try {
+            return objectMapper.readValue(payload, 
+                new TypeReference<Map<String, Object>>() {});
+        } catch (Exception e) {
+            return Map.of();
+        }
     }
 
     private String getCategory(Map<String, Object> request) {

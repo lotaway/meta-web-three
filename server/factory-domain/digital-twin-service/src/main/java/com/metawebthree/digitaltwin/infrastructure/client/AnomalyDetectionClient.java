@@ -5,14 +5,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
+import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.*;
 
-/**
- * Client for AI-based anomaly detection.
- * Uses time-series sensor data + inventory changes to detect anomalies.
- */
+
 @Component
 public class AnomalyDetectionClient extends AbstractAIClient {
 
@@ -22,14 +20,7 @@ public class AnomalyDetectionClient extends AbstractAIClient {
         super("http://localhost:8084", 5000, 3);
     }
 
-    /**
-     * Detect anomalies for a specific SKU in a warehouse.
-     *
-     * @param skuCode Product SKU code
-     * @param warehouseId Warehouse ID
-     * @param timeRange Hours to analyze
-     * @return List of detected anomalies
-     */
+    
     public List<AnomalyResult> detectAnomalies(String skuCode, Long warehouseId, Integer timeRange) {
         Map<String, Object> payload = new HashMap<>();
         payload.put("skuCode", skuCode);
@@ -48,12 +39,7 @@ public class AnomalyDetectionClient extends AbstractAIClient {
         return List.of();
     }
 
-    /**
-     * Detect anomalies based on sensor time-series data.
-     *
-     * @param sensorData List of sensor readings with timestamp
-     * @return Detected anomalies in the sensor data
-     */
+    
     public List<AnomalyResult> detectSensorAnomalies(List<Map<String, Object>> sensorData) {
         Map<String, Object> payload = new HashMap<>();
         payload.put("sensorData", sensorData);
@@ -70,14 +56,7 @@ public class AnomalyDetectionClient extends AbstractAIClient {
         return List.of();
     }
 
-    /**
-     * Detect anomalies based on inventory change patterns.
-     *
-     * @param warehouseId Warehouse ID
-     * @param startTime Start of analysis window
-     * @param endTime End of analysis window
-     * @return List of inventory pattern anomalies
-     */
+    
     public List<AnomalyResult> detectInventoryAnomalies(Long warehouseId,
             LocalDateTime startTime, LocalDateTime endTime) {
         Map<String, Object> payload = new HashMap<>();
@@ -98,13 +77,7 @@ public class AnomalyDetectionClient extends AbstractAIClient {
         return List.of();
     }
 
-    /**
-     * Get real-time anomaly alerts for a warehouse.
-     *
-     * @param warehouseId Warehouse ID
-     * @param alertSeverity Minimum severity level (LOW, MEDIUM, HIGH, CRITICAL)
-     * @return List of active anomaly alerts
-     */
+    
     public List<AnomalyResult> getActiveAlerts(Long warehouseId, String alertSeverity) {
         Map<String, Object> payload = new HashMap<>();
         payload.put("warehouseId", warehouseId);
@@ -122,14 +95,7 @@ public class AnomalyDetectionClient extends AbstractAIClient {
         return List.of();
     }
 
-    /**
-     * Get anomaly prediction for a SKU (predict future anomalies).
-     *
-     * @param skuCode Product SKU code
-     * @param warehouseId Warehouse ID
-     * @param predictionHours Hours to predict ahead
-     * @return Predicted anomalies
-     */
+    
     public List<AnomalyResult> predictAnomalies(String skuCode, Long warehouseId,
             Integer predictionHours) {
         Map<String, Object> payload = new HashMap<>();
@@ -160,7 +126,7 @@ public class AnomalyDetectionClient extends AbstractAIClient {
                 HttpResponse.BodyHandlers.ofString());
 
             if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
-                log.debug("Anomaly detection request succeeded: {}", request.getCapability());
+                log.info("Anomaly detection request succeeded: {}", request.getCapability());
                 return AIClientResponse.success(httpResponse.body(), httpResponse.statusCode());
             } else {
                 log.warn("Anomaly detection request failed with status {}: {}",
@@ -212,9 +178,7 @@ public class AnomalyDetectionClient extends AbstractAIClient {
         }
     }
 
-    /**
-     * Anomaly detection result DTO.
-     */
+    
     public static class AnomalyResult {
         private Long anomalyId;
         private String anomalyType;

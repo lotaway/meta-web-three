@@ -1,3 +1,5 @@
+import React, { useState, useMemo } from 'react'
+
 export interface InventoryItem {
   id: string
   sku: string
@@ -31,16 +33,14 @@ export function InventoryTable({
   searchable = true,
   pageSize = 10
 }: InventoryTableProps) {
-  const [searchTerm, setSearchTerm] = React.useState('')
-  const [currentPage, setCurrentPage] = React.useState(1)
-  const [sortField, setSortField] = React.useState<keyof InventoryItem>('lastUpdated')
-  const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('desc')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [sortField, setSortField] = useState<keyof InventoryItem>('lastUpdated')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
-  // Filter and sort
-  const filteredItems = React.useMemo(() => {
+  const filteredItems = useMemo(() => {
     let result = [...items]
     
-    // Search filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
       result = result.filter(item => 
@@ -51,7 +51,6 @@ export function InventoryTable({
       )
     }
     
-    // Sort
     result.sort((a, b) => {
       const aVal = a[sortField]
       const bVal = b[sortField]
@@ -63,8 +62,7 @@ export function InventoryTable({
     return result
   }, [items, searchTerm, sortField, sortOrder])
 
-  // Pagination
-  const paginatedItems = React.useMemo(() => {
+  const paginatedItems = useMemo(() => {
     const start = (currentPage - 1) * pageSize
     return filteredItems.slice(start, start + pageSize)
   }, [filteredItems, currentPage, pageSize])
@@ -107,9 +105,6 @@ export function InventoryTable({
     return <span style={{ marginLeft: '4px' }}>{sortOrder === 'asc' ? '↑' : '↓'}</span>
   }
 
-  // React import for hooks
-  const React = require('react')
-
   return (
     <div style={{
       background: 'rgba(15, 23, 42, 0.9)',
@@ -119,7 +114,6 @@ export function InventoryTable({
       fontFamily: 'system-ui, -apple-system, sans-serif',
       overflow: 'hidden'
     }}>
-      {/* Search bar */}
       {searchable && (
         <div style={{ 
           padding: '12px 16px', 
@@ -150,7 +144,6 @@ export function InventoryTable({
         </div>
       )}
 
-      {/* Table */}
       <div style={{ overflowX: 'auto' }}>
         <table style={{ 
           width: '100%', 
@@ -239,7 +232,6 @@ export function InventoryTable({
         </table>
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div style={{ 
           padding: '12px 16px', 

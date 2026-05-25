@@ -2,6 +2,7 @@ package com.metawebthree.digitaltwin.kafka;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.metawebthree.digitaltwin.application.ai.WarehouseAIService;
 import com.metawebthree.digitaltwin.infrastructure.event.DigitalTwinEventPublisher;
 import com.metawebthree.digitaltwin.interfaces.websocket.DigitalTwinWebSocketHandler;
 import org.slf4j.Logger;
@@ -16,7 +17,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import java.time.Instant;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -31,6 +31,7 @@ public class DigitalTwinKafkaConsumer {
 
     private final DigitalTwinWebSocketHandler webSocketHandler;
     private final DigitalTwinEventPublisher eventPublisher;
+    private final WarehouseAIService aiService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // Idempotency tracking with timestamps
@@ -39,9 +40,11 @@ public class DigitalTwinKafkaConsumer {
 
     public DigitalTwinKafkaConsumer(
             DigitalTwinWebSocketHandler webSocketHandler,
-            DigitalTwinEventPublisher eventPublisher) {
+            DigitalTwinEventPublisher eventPublisher,
+            WarehouseAIService aiService) {
         this.webSocketHandler = webSocketHandler;
         this.eventPublisher = eventPublisher;
+        this.aiService = aiService;
     }
 
     @PostConstruct
@@ -196,16 +199,26 @@ public class DigitalTwinKafkaConsumer {
         processMessage("shelf.status.changed", message);
     }
 
+    @RetryableTopic(
+        attempts = "3",
+        backoff = @Backoff(delay = 1000, multiplier = 2.0),
+        dltStrategy = DltStrategy.FAIL_ON_ERROR
+    )
+    @KafkaListener(topics = "forecast.computed", groupId = "digital-twin")
+    public void consumeForecastComputed(String message) {
+        processMessage("forecast.computed", message);
+    }
+
     private void processMessage(String topic, String message) {
         try {
             String messageId = extractMessageId(message);
             
             if (isDuplicate(messageId)) {
-                logger.debug("Duplicate message detected, skipping: {}", messageId);
+                logger.info("Duplicate message detected, skipping: {}", messageId);
                 return;
             }
             
-            logger.debug("Received {}: {}", topic, message);
+            logger.info("Received {}: {}", topic, message);
             
             switch (topic) {
                 case "device.status.changed" -> handleDeviceStatusChanged(message);
@@ -219,6 +232,7 @@ public class DigitalTwinKafkaConsumer {
                 case "inventory.alert.created" -> handleInventoryAlertCreated(message);
                 case "restock.suggestion.created" -> handleRestockSuggestionCreated(message);
                 case "shelf.status.changed" -> handleShelfStatusChanged(message);
+                case "forecast.computed" -> handleForecastComputed(message);
                 default -> logger.warn("Unknown topic: {}", topic);
             }
         } catch (Exception e) {
@@ -235,6 +249,7 @@ public class DigitalTwinKafkaConsumer {
     }
 
     private void handleDeviceHeartbeat(String message) {
+        logger.info("Device heartbeat received, event ignored for digital twin: {}", message);
     }
 
     private void handleAlertCreated(String message) {
@@ -255,6 +270,71 @@ public class DigitalTwinKafkaConsumer {
 
     private void handleInventoryLevelChanged(String message) {
         webSocketHandler.broadcast(Map.of("type", "INVENTORY_LEVEL_CHANGED", "data", message));
+        triggerAnomalyDetection(message);
+    }
+
+    private void triggerAnomalyDetection(String message) {
+        try {
+            JsonNode node = objectMapper.readTree(message);
+            String skuCode = node.has("sku") ? node.get("sku").asText() : null;
+            Long warehouseId = node.has("warehouseId") ? node.get("warehouseId").asLong() : null;
+            
+            if (skuCode != null && warehouseId != null) {
+                logger.info("Triggering AI anomaly detection for SKU {} in warehouse {}", skuCode, warehouseId);
+                var anomalies = aiService.detectAnomalies(skuCode, warehouseId, 24);
+                if (anomalies != null && !anomalies.isEmpty()) {
+                    logger.info("Detected {} anomalies for SKU {} in warehouse {}", 
+                        anomalies.size(), skuCode, warehouseId);
+                    webSocketHandler.broadcast(Map.of(
+                        "type", "ANOMALY_DETECTED",
+                        "data", Map.of(
+                            "skuCode", skuCode,
+                            "warehouseId", warehouseId,
+                            "anomalies", anomalies
+                        )
+                    ));
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Failed to trigger anomaly detection for message: {}", message, e);
+        }
+    }
+
+    private void handleForecastComputed(String message) {
+        try {
+            JsonNode node = objectMapper.readTree(message);
+            String skuCode = node.has("skuCode") ? node.get("skuCode").asText() : null;
+            Long warehouseId = node.has("warehouseId") ? node.get("warehouseId").asLong() : null;
+            Integer predictedQty = node.has("predictedQuantity") ? node.get("predictedQuantity").asInt() : null;
+            Double confidence = node.has("confidence") ? node.get("confidence").asDouble() : null;
+            
+            logger.info("Forecast computed for SKU {} in warehouse {}: predicted={}, confidence={}",
+                skuCode, warehouseId, predictedQty, confidence);
+            
+            if (skuCode != null && warehouseId != null && predictedQty != null) {
+                adjustSafetyStock(warehouseId, skuCode, predictedQty, confidence);
+            }
+            
+            webSocketHandler.broadcast(Map.of("type", "FORECAST_COMPUTED", "data", message));
+        } catch (Exception e) {
+            logger.error("Failed to process forecast.computed message: {}", message, e);
+        }
+    }
+
+    private void adjustSafetyStock(Long warehouseId, String skuCode, Integer predictedQty, Double confidence) {
+        logger.info("Adjusting safety stock for warehouse {} SKU {} based on forecast: predicted={}",
+            warehouseId, skuCode, predictedQty);
+        
+        webSocketHandler.broadcast(Map.of(
+            "type", "SAFETY_STOCK_ADJUSTED",
+            "data", Map.of(
+                "warehouseId", warehouseId,
+                "skuCode", skuCode,
+                "predictedQuantity", predictedQty,
+                "confidence", confidence != null ? confidence : 0.0,
+                "adjustedAt", System.currentTimeMillis()
+            )
+        ));
     }
 
     private void handleInventoryAlertCreated(String message) {

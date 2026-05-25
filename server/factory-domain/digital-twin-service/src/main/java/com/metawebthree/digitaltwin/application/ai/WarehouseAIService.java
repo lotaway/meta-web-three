@@ -12,10 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-/**
- * AI orchestration service for warehouse operations.
- * Coordinates demand forecasting, location recommendation, and anomaly detection.
- */
+
 @Service
 public class WarehouseAIService {
 
@@ -36,9 +33,7 @@ public class WarehouseAIService {
 
     // ==================== Demand Forecasting ====================
 
-    /**
-     * Get AI-based demand forecast for a SKU.
-     */
+    
     public ForecastingResult forecastDemand(String skuCode, String skuName,
             Long warehouseId, LocalDate forecastDate) {
         log.info("Requesting AI demand forecast for SKU {} in warehouse {}",
@@ -55,26 +50,20 @@ public class WarehouseAIService {
         return null;
     }
 
-    /**
-     * Get forecast history for analysis.
-     */
+    
     public Map<String, Object> getForecastHistory(String skuCode,
             LocalDate startDate, LocalDate endDate) {
         return forecastingClient.getForecastHistory(skuCode, startDate, endDate);
     }
 
-    /**
-     * Get all forecasts for a warehouse.
-     */
+    
     public Map<String, Object> getWarehouseForecasts(Long warehouseId) {
         return forecastingClient.getForecastByWarehouse(warehouseId);
     }
 
     // ==================== Location Recommendation ====================
 
-    /**
-     * Get AI-based location recommendation for a product.
-     */
+    
     public LocationRecResult recommendLocation(String skuCode, Long warehouseId, Integer quantity) {
         log.info("Requesting AI location recommendation for SKU {} in warehouse {}",
             skuCode, warehouseId);
@@ -90,9 +79,7 @@ public class WarehouseAIService {
         return null;
     }
 
-    /**
-     * Get batch location recommendations for multiple products.
-     */
+    
     public List<LocationRecResult> recommendBatchLocations(
             List<Map<String, Object>> items, Long warehouseId) {
         List<LocationRecommendationClient.LocationRecommendation> results =
@@ -103,25 +90,19 @@ public class WarehouseAIService {
             .toList();
     }
 
-    /**
-     * Get product correlation data for location planning.
-     */
+    
     public Map<String, Double> getProductCorrelations(String skuCode, Long warehouseId) {
         return locationClient.getProductCorrelations(skuCode, warehouseId);
     }
 
-    /**
-     * Get turnover rate analysis.
-     */
+    
     public Map<String, Object> getTurnoverAnalysis(String skuCode, Long warehouseId) {
         return locationClient.getTurnoverAnalysis(skuCode, warehouseId);
     }
 
     // ==================== Anomaly Detection ====================
 
-    /**
-     * Detect anomalies for a SKU using AI.
-     */
+    
     public List<AnomalyResult> detectAnomalies(String skuCode, Long warehouseId, Integer timeRangeHours) {
         log.info("Requesting AI anomaly detection for SKU {} in warehouse {}",
             skuCode, warehouseId);
@@ -134,9 +115,7 @@ public class WarehouseAIService {
             .toList();
     }
 
-    /**
-     * Detect anomalies from sensor time-series data.
-     */
+    
     public List<AnomalyResult> detectSensorAnomalies(List<Map<String, Object>> sensorData) {
         List<AnomalyDetectionClient.AnomalyResult> results =
             anomalyClient.detectSensorAnomalies(sensorData);
@@ -146,9 +125,7 @@ public class WarehouseAIService {
             .toList();
     }
 
-    /**
-     * Detect inventory pattern anomalies.
-     */
+    
     public List<AnomalyResult> detectInventoryAnomalies(Long warehouseId,
             LocalDateTime startTime, LocalDateTime endTime) {
         List<AnomalyDetectionClient.AnomalyResult> results =
@@ -159,9 +136,7 @@ public class WarehouseAIService {
             .toList();
     }
 
-    /**
-     * Get active anomaly alerts.
-     */
+    
     public List<AnomalyResult> getActiveAlerts(Long warehouseId, String minSeverity) {
         List<AnomalyDetectionClient.AnomalyResult> results =
             anomalyClient.getActiveAlerts(warehouseId, minSeverity);
@@ -171,9 +146,7 @@ public class WarehouseAIService {
             .toList();
     }
 
-    /**
-     * Predict future anomalies.
-     */
+    
     public List<AnomalyResult> predictAnomalies(String skuCode, Long warehouseId,
             Integer predictionHours) {
         List<AnomalyDetectionClient.AnomalyResult> results =

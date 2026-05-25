@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
+import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
 
@@ -89,7 +90,14 @@ public class LocationRecommendationClient extends AbstractAIClient {
         AIClientResponse response = invoke(request);
 
         if (response.isSuccess()) {
-            return response.getDataAsMap();
+            Map<String, Object> rawData = response.getDataAsMap();
+            Map<String, Double> result = new HashMap<>();
+            rawData.forEach((key, value) -> {
+                if (value instanceof Number) {
+                    result.put(key, ((Number) value).doubleValue());
+                }
+            });
+            return result;
         }
 
         log.error("Failed to get product correlations for SKU {}: {}",

@@ -38,7 +38,7 @@ public class DigitalTwinEventPublisher {
                 if (ex != null) {
                     logger.error("Failed to send event to Kafka. topic={}, event={}", topic, event, ex);
                 } else {
-                    logger.debug("Event sent to Kafka. topic={}, partition={}, offset={}", 
+                    logger.info("Event sent to Kafka. topic={}, partition={}, offset={}", 
                         topic, result.getRecordMetadata().partition(), 
                         result.getRecordMetadata().offset());
                 }
