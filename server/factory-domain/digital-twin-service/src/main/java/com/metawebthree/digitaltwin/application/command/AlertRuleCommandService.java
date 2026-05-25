@@ -6,8 +6,10 @@ import com.metawebthree.digitaltwin.domain.entity.AlertRule.AlertType;
 import com.metawebthree.digitaltwin.domain.entity.AlertRule.ComparisonOperator;
 import com.metawebthree.digitaltwin.domain.entity.AlertRule.MetricType;
 import com.metawebthree.digitaltwin.domain.service.AlertRuleDomainService;
+import org.springframework.stereotype.Service;
 import java.util.Map;
 
+@Service
 public class AlertRuleCommandService {
     private final AlertRuleDomainService domainService;
 

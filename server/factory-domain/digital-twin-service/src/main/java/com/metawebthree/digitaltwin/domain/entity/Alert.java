@@ -75,6 +75,17 @@ public class Alert {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void escalate() {
+        if (level == null || level == AlertLevel.CRITICAL) {
+            return;
+        }
+        int ordinal = level.ordinal();
+        if (ordinal < AlertLevel.values().length - 1) {
+            this.level = AlertLevel.values()[ordinal + 1];
+            this.updatedAt = LocalDateTime.now();
+        }
+    }
+
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

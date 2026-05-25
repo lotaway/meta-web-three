@@ -74,7 +74,7 @@ public class DigitalTwinSimulator {
                             commandService.updateDeviceStatus(device.getDeviceCode(), newStatus);
                             log.info("[Sim] {}: {} → {}", device.getDeviceCode(), device.getStatus(), newStatus);
                         } catch (Exception e) {
-                            // skip
+                            log.warn("[Sim] Failed to update device status: {}", device.getDeviceCode(), e);
                         }
                     }
                 });
@@ -152,7 +152,7 @@ public class DigitalTwinSimulator {
             );
             log.info("[Sim] Alert: {} @ {}", titles[pick], device.getDeviceCode());
         } catch (Exception e) {
-            // skip
+            log.warn("[Sim] Failed to create alert: {}", device.getDeviceCode(), e);
         }
     }
 }

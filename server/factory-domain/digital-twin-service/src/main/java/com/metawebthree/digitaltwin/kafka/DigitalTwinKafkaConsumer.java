@@ -33,7 +33,7 @@ public class DigitalTwinKafkaConsumer {
     private final DigitalTwinEventPublisher eventPublisher;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // In-memory idempotency tracking with timestamps (for single-instance, use Redis for multi-instance)
+    // In-memory idempotency tracking with timestamps
     private final ConcurrentHashMap<String, Long> processedMessageIds = new ConcurrentHashMap<>();
     private final ScheduledExecutorService cleanupScheduler = Executors.newSingleThreadScheduledExecutor();
 
@@ -149,18 +149,15 @@ public class DigitalTwinKafkaConsumer {
     }
 
     private void processMessage(String topic, String message) throws Exception {
-        // Extract message ID for idempotency check
         String messageId = extractMessageId(message);
         
-        // Check for duplicate
         if (isDuplicate(messageId)) {
             logger.debug("Duplicate message detected, skipping: {}", messageId);
             return;
         }
         
-        logger.info("Received {}: {}", topic, message);
+        logger.debug("Received {}: {}", topic, message);
         
-        // Route to appropriate handler based on topic
         switch (topic) {
             case "device.status.changed":
                 webSocketHandler.broadcast(Map.of("type", "DEVICE_STATUS_CHANGED", "data", message));
@@ -169,7 +166,6 @@ public class DigitalTwinKafkaConsumer {
                 webSocketHandler.broadcast(Map.of("type", "DEVICE_POSITION_UPDATED", "data", message));
                 break;
             case "device.heartbeat":
-                // Heartbeat messages don't need broadcast
                 break;
             case "alert.created":
                 webSocketHandler.broadcast(Map.of("type", "ALERT_CREATED", "data", message));
@@ -188,14 +184,12 @@ public class DigitalTwinKafkaConsumer {
     private String extractMessageId(String message) {
         try {
             JsonNode node = objectMapper.readTree(message);
-            // Try common ID field names
             if (node.has("messageId")) return node.get("messageId").asText();
             if (node.has("id")) return node.get("id").asText();
             if (node.has("eventId")) return node.get("eventId").asText();
             if (node.has("deviceCode") && node.has("timestamp")) {
                 return node.get("deviceCode").asText() + "_" + node.get("timestamp").asText();
             }
-            // Generate ID from content hash if no ID field
             return String.valueOf(message.hashCode());
         } catch (Exception e) {
             return String.valueOf(message.hashCode());
