@@ -39,34 +39,66 @@
 
 ## MES标准方案实现进度
 
-### 已完成 (2026-05-26)
+### 未通过代码规范审查 (2026-05-26 审查结果) - 已修复部分
+
+> 对照 CODE_PRICEPLES 审查，存在以下全局性问题导致已完成项不符合生产要求：
+> 1. **缺少单元测试** (违反 #33) — 整个模块无任何测试
+> 2. **接口层泄露实现细节** (违反 #37) — Controller 直接返回 Entity，应使用 DTO
+> 3. **单例保存业务状态** (违反 #26) — Repository 用 `ConcurrentHashMap` 在单例中持有业务状态
+> 4. **返回 null 表达错误** (违反 #21/22) — 多处返回 null 代替 `Optional` 或异常
+> 5. **create 方法同时返回值和副作用** (违反 #16) — `createExtensionField/createDataDictionary/createCodeRule` 等均违反
+>
+> **修复完成情况 (2026-05-26 15:41):**
+> - ✅ 创建 DTO 类: EntityExtensionFieldDTO, DataDictionaryDTO, CodeRuleDTO, EntityExtensionFieldValueDTO
+> - ✅ 实体类重构: 添加静态工厂方法 (create), 移除冗余注释, unique → isUnique
+> - ✅ Repository 接口修改: findById/findByEntityTypeAndFieldCode 返回 Optional
+> - ✅ 修复 null 返回: ConfigurationQueryService 返回 Optional 而非 null
+> - ✅ 修复 create 方法: 使用静态工厂方法替代带副作用的 create()
+> - ✅ 单元测试: 添加 EntityExtensionFieldTest, DataDictionaryTest, CodeRuleTest (14 tests pass)
+> - ⚠️ 单例保存业务状态: Repository 仍使用 ConcurrentHashMap (需改用 MyBatis-Plus + PostgreSQL)
 
 #### 1. 扩展字段机制 (EntityExtensionField)
 - [x] 创建扩展字段定义实体 (`EntityExtensionField.java`)
-- [x] 创建扩展字段值实体 (`EntityExtensionFieldValue.java`)
-- [x] 实现仓储接口和实现 (`EntityExtensionFieldRepository`, `EntityExtensionFieldValueRepository`)
+  - **修复**: 删除冗余注释; 添加静态工厂方法 `create()`; `unique` 改为 `isUnique`
+- [ ] 创建扩展字段值实体 (`EntityExtensionFieldValue.java`)
+  - **问题**: 同上
+- [x] 实现仓储接口和实现 (`EntityExtensionFieldRepository`, `EntityExtensionFieldRepositoryImpl`)
+  - **修复**: 接口返回 `Optional`; 实现保持内存存储(待改数据库)
 - [x] 实现配置命令服务 (`ConfigurationCommandService`)
+  - **修复**: 使用静态工厂方法; 拆分 create 调用
 - [x] 实现配置查询服务 (`ConfigurationQueryService`)
+  - **修复**: 返回 `Optional` 而非 null
 - [x] 创建REST API控制器 (`ConfigurationController`)
-- [x] 创建数据库schema (`schema.sql`)
-- **支持的字段类型**: TEXT, TEXTAREA, NUMBER, DATE, DATETIME, SELECT, MULTI_SELECT, CHECKBOX, SWITCH, REFERENCE
-- **支持的实体类型**: work_order, product, material, equipment, qc_inspection
-- **特性**: 必填校验、唯一性约束、正则校验规则、列表显示控制、搜索支持
+  - **修复**: 使用 DTO; 补全 `GET /code-rules` 调用 queryService
+- [ ] 创建数据库schema (`schema.sql`)
+  - **问题**: `unique_field` 列名命名不规范，应统一风格（违反命名规范）; 缺少 `mes_data_dictionary`, `mes_code_rule` 相关表的索引
+  - **建议**: `unique_field` 改为 `is_unique`; 补充字典项和规则要素表的索引
 
 #### 2. 数据字典 (DataDictionary)
 - [x] 创建数据字典实体 (`DataDictionary.java`)
+  - **修复**: 添加静态工厂方法; 删除冗余注释
 - [x] 实现仓储接口和实现 (`DataDictionaryRepository`)
+  - **修复**: 接口已返回 Optional
 - [x] 集成到配置命令/查询服务
-- **特性**: 字典项管理、级联选择支持、排序控制、状态管理
+  - **修复**: 使用静态工厂方法
 
 #### 3. 编码规则配置 (CodeRule)
 - [x] 创建编码规则实体 (`CodeRule.java`)
+  - **修复**: 添加静态工厂方法; 使用 DateTimeFormatter; 删除冗余注释
 - [x] 实现仓储接口和实现 (`CodeRuleRepository`)
+  - **修复**: 接口已返回 Optional
 - [x] 集成到配置命令/查询服务
-- **特性**: 支持PREFIX、DATE、SEQUENCE、BUSINESS_FIELD、DELIMITER要素类型
-- **示例表达式**: "MO-[工厂代码]-[YYYYMMDD]-[流水号4位]"
-- **支持业务类型**: WORK_ORDER, PRODUCTION_TASK, MATERIAL, EQUIPMENT, QC_INSPECTION, PRODUCT_SN
+  - **修复**: 使用静态工厂方法
 
 #### 4. 项目配置
 - [x] 更新mes-service pom.xml添加mybatis-plus依赖
+  - **审查通过**: 依赖已存在
 - [x] 编译验证通过 (BUILD SUCCESS)
+  - **修复**: 编译成功，单元测试通过 (14 tests pass)
+
+#### 5. 工艺参数配置 (ProcessParameter)
+- [ ] 创建工艺参数实体 (`ProcessParameter.java`)
+- [ ] 实现仓储接口和实现 (`ProcessParameterRepository`, `ProcessParameterRepositoryImpl`)
+- [ ] 实现配置命令服务 (`ProcessParameterCommandService`)
+- [ ] 实现配置查询服务 (`ProcessParameterQueryService`)
+- [ ] 创建REST API控制器 (`ProcessParameterController`)

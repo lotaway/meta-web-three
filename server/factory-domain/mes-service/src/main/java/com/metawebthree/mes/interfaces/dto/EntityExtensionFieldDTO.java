@@ -1,14 +1,14 @@
-package com.metawebthree.mes.domain.entity;
+package com.metawebthree.mes.interfaces.dto;
 
 import java.time.LocalDateTime;
 
-public class EntityExtensionField {
+public class EntityExtensionFieldDTO {
     
     private Long id;
     private String entityType;
     private String fieldCode;
     private String fieldName;
-    private FieldType fieldType;
+    private String fieldType;
     private String defaultValue;
     private Boolean required;
     private Boolean isUnique;
@@ -19,44 +19,34 @@ public class EntityExtensionField {
     private String fieldGroup;
     private String referenceType;
     private String referenceEntity;
-    private FieldStatus status;
+    private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
-    public enum FieldType {
-        TEXT, TEXTAREA, NUMBER, DATE, DATETIME, SELECT, MULTI_SELECT, CHECKBOX, SWITCH, REFERENCE
-    }
-    
-    public enum FieldStatus {
-        ACTIVE, INACTIVE
-    }
-    
-    public static EntityExtensionField create(String entityType, String fieldCode, String fieldName,
-                                               FieldType fieldType, String fieldGroup) {
-        EntityExtensionField field = new EntityExtensionField();
-        field.entityType = entityType;
-        field.fieldCode = fieldCode;
-        field.fieldName = fieldName;
-        field.fieldType = fieldType;
-        field.fieldGroup = fieldGroup;
-        field.required = false;
-        field.isUnique = false;
-        field.listVisible = true;
-        field.searchable = false;
-        field.status = FieldStatus.ACTIVE;
-        field.createdAt = LocalDateTime.now();
-        field.updatedAt = LocalDateTime.now();
-        return field;
-    }
-    
-    public boolean validateValue(String value) {
-        if (required && (value == null || value.isEmpty())) {
-            return false;
-        }
-        if (validationRule != null && !validationRule.isEmpty() && value != null && !value.isEmpty()) {
-            return value.matches(validationRule);
-        }
-        return true;
+    public static EntityExtensionFieldDTO fromEntity(
+            com.metawebthree.mes.domain.entity.EntityExtensionField entity) {
+        if (entity == null) return null;
+        
+        EntityExtensionFieldDTO dto = new EntityExtensionFieldDTO();
+        dto.setId(entity.getId());
+        dto.setEntityType(entity.getEntityType());
+        dto.setFieldCode(entity.getFieldCode());
+        dto.setFieldName(entity.getFieldName());
+        dto.setFieldType(entity.getFieldType() != null ? entity.getFieldType().name() : null);
+        dto.setDefaultValue(entity.getDefaultValue());
+        dto.setRequired(entity.getRequired());
+        dto.setIsUnique(entity.getIsUnique());
+        dto.setValidationRule(entity.getValidationRule());
+        dto.setListVisible(entity.getListVisible());
+        dto.setSearchable(entity.getSearchable());
+        dto.setSortOrder(entity.getSortOrder());
+        dto.setFieldGroup(entity.getFieldGroup());
+        dto.setReferenceType(entity.getReferenceType());
+        dto.setReferenceEntity(entity.getReferenceEntity());
+        dto.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
+        dto.setCreatedAt(entity.getCreatedAt());
+        dto.setUpdatedAt(entity.getUpdatedAt());
+        return dto;
     }
     
     public Long getId() { return id; }
@@ -67,8 +57,8 @@ public class EntityExtensionField {
     public void setFieldCode(String fieldCode) { this.fieldCode = fieldCode; }
     public String getFieldName() { return fieldName; }
     public void setFieldName(String fieldName) { this.fieldName = fieldName; }
-    public FieldType getFieldType() { return fieldType; }
-    public void setFieldType(FieldType fieldType) { this.fieldType = fieldType; }
+    public String getFieldType() { return fieldType; }
+    public void setFieldType(String fieldType) { this.fieldType = fieldType; }
     public String getDefaultValue() { return defaultValue; }
     public void setDefaultValue(String defaultValue) { this.defaultValue = defaultValue; }
     public Boolean getRequired() { return required; }
@@ -89,9 +79,10 @@ public class EntityExtensionField {
     public void setReferenceType(String referenceType) { this.referenceType = referenceType; }
     public String getReferenceEntity() { return referenceEntity; }
     public void setReferenceEntity(String referenceEntity) { this.referenceEntity = referenceEntity; }
-    public FieldStatus getStatus() { return status; }
-    public void setStatus(FieldStatus status) { this.status = status; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

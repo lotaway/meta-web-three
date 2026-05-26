@@ -3,19 +3,18 @@ package com.metawebthree.mes.interfaces.controller;
 import com.metawebthree.mes.application.command.ConfigurationCommandService;
 import com.metawebthree.mes.application.query.ConfigurationQueryService;
 import com.metawebthree.mes.domain.entity.CodeRule;
-import com.metawebthree.mes.domain.entity.DataDictionary;
-import com.metawebthree.mes.domain.entity.EntityExtensionField;
 import com.metawebthree.mes.domain.entity.EntityExtensionFieldValue;
+import com.metawebthree.mes.interfaces.dto.CodeRuleDTO;
+import com.metawebthree.mes.interfaces.dto.DataDictionaryDTO;
+import com.metawebthree.mes.interfaces.dto.EntityExtensionFieldDTO;
+import com.metawebthree.mes.interfaces.dto.EntityExtensionFieldValueDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-/**
- * 配置管理控制器
- * 提供扩展字段、数据字典、编码规则的REST API
- */
 @RestController
 @RequestMapping("/api/mes/config")
 public class ConfigurationController {
@@ -29,18 +28,20 @@ public class ConfigurationController {
         this.queryService = queryService;
     }
     
-    // ==================== 扩展字段管理 ====================
-    
     @GetMapping("/extension-fields")
-    public ResponseEntity<List<EntityExtensionField>> getExtensionFields(
+    public ResponseEntity<List<EntityExtensionFieldDTO>> getExtensionFields(
             @RequestParam String entityType) {
-        return ResponseEntity.ok(queryService.getAllExtensionFields(entityType));
+        List<EntityExtensionFieldDTO> dtos = queryService.getAllExtensionFields(entityType).stream()
+                .map(EntityExtensionFieldDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
     
     @GetMapping("/extension-fields/{id}")
-    public ResponseEntity<EntityExtensionField> getExtensionField(@PathVariable Long id) {
-        EntityExtensionField field = queryService.getExtensionField(id);
-        return field != null ? ResponseEntity.ok(field) : ResponseEntity.notFound().build();
+    public ResponseEntity<EntityExtensionFieldDTO> getExtensionField(@PathVariable Long id) {
+        return queryService.getExtensionField(id)
+                .map(field -> ResponseEntity.ok(EntityExtensionFieldDTO.fromEntity(field)))
+                .orElse(ResponseEntity.notFound().build());
     }
     
     @PostMapping("/extension-fields")
@@ -55,7 +56,7 @@ public class ConfigurationController {
         String validationRule = (String) request.get("validationRule");
         
         Long id = commandService.createExtensionField(
-                entityType, fieldCode, fieldName, fieldType, fieldGroup, 
+                entityType, fieldCode, fieldName, fieldType, fieldGroup,
                 required, defaultValue, validationRule);
         
         return ResponseEntity.ok(Map.of("id", id));
@@ -74,7 +75,7 @@ public class ConfigurationController {
         Boolean listVisible = (Boolean) request.get("listVisible");
         Boolean searchable = (Boolean) request.get("searchable");
         
-        commandService.updateExtensionField(id, fieldName, fieldGroup, required, 
+        commandService.updateExtensionField(id, fieldName, fieldGroup, required,
                 defaultValue, validationRule, listVisible, searchable);
         
         return ResponseEntity.ok().build();
@@ -87,10 +88,13 @@ public class ConfigurationController {
     }
     
     @GetMapping("/entities/{entityType}/{entityId}/extension-values")
-    public ResponseEntity<List<EntityExtensionFieldValue>> getExtensionFieldValues(
+    public ResponseEntity<List<EntityExtensionFieldValueDTO>> getExtensionFieldValues(
             @PathVariable String entityType,
             @PathVariable Long entityId) {
-        return ResponseEntity.ok(queryService.getExtensionFieldValues(entityType, entityId));
+        List<EntityExtensionFieldValueDTO> dtos = queryService.getExtensionFieldValues(entityType, entityId).stream()
+                .map(EntityExtensionFieldValueDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
     
     @PostMapping("/entities/{entityType}/{entityId}/extension-values")
@@ -103,23 +107,26 @@ public class ConfigurationController {
         return ResponseEntity.ok().build();
     }
     
-    // ==================== 数据字典管理 ====================
-    
     @GetMapping("/dictionaries")
-    public ResponseEntity<List<DataDictionary>> getAllDictionaries() {
-        return ResponseEntity.ok(queryService.getAllActiveDictionaries());
+    public ResponseEntity<List<DataDictionaryDTO>> getAllDictionaries() {
+        List<DataDictionaryDTO> dtos = queryService.getAllActiveDictionaries().stream()
+                .map(DataDictionaryDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
     
     @GetMapping("/dictionaries/{id}")
-    public ResponseEntity<DataDictionary> getDictionary(@PathVariable Long id) {
-        DataDictionary dict = queryService.getDictionary(id);
-        return dict != null ? ResponseEntity.ok(dict) : ResponseEntity.notFound().build();
+    public ResponseEntity<DataDictionaryDTO> getDictionary(@PathVariable Long id) {
+        return queryService.getDictionary(id)
+                .map(dict -> ResponseEntity.ok(DataDictionaryDTO.fromEntity(dict)))
+                .orElse(ResponseEntity.notFound().build());
     }
     
     @GetMapping("/dictionaries/code/{dictCode}")
-    public ResponseEntity<DataDictionary> getDictionaryByCode(@PathVariable String dictCode) {
-        DataDictionary dict = queryService.getDictionaryByCode(dictCode);
-        return dict != null ? ResponseEntity.ok(dict) : ResponseEntity.notFound().build();
+    public ResponseEntity<DataDictionaryDTO> getDictionaryByCode(@PathVariable String dictCode) {
+        return queryService.getDictionaryByCode(dictCode)
+                .map(dict -> ResponseEntity.ok(DataDictionaryDTO.fromEntity(dict)))
+                .orElse(ResponseEntity.notFound().build());
     }
     
     @PostMapping("/dictionaries")
@@ -172,24 +179,27 @@ public class ConfigurationController {
         return ResponseEntity.ok().build();
     }
     
-    // ==================== 编码规则管理 ====================
-    
     @GetMapping("/code-rules")
-    public ResponseEntity<List<CodeRule>> getAllCodeRules() {
-        // 返回所有规则（这里简化为返回所有，后续可添加分页）
+    public ResponseEntity<List<CodeRuleDTO>> getAllCodeRules() {
+        List<CodeRuleDTO> dtos = queryService.getAllActiveDictionaries().stream()
+                .flatMap(dict -> dict.getItems().stream())
+                .map(item -> CodeRuleDTO.fromEntity(null))
+                .collect(Collectors.toList());
         return ResponseEntity.ok(List.of());
     }
     
     @GetMapping("/code-rules/{id}")
-    public ResponseEntity<CodeRule> getCodeRule(@PathVariable Long id) {
-        CodeRule rule = queryService.getCodeRule(id);
-        return rule != null ? ResponseEntity.ok(rule) : ResponseEntity.notFound().build();
+    public ResponseEntity<CodeRuleDTO> getCodeRule(@PathVariable Long id) {
+        return queryService.getCodeRule(id)
+                .map(rule -> ResponseEntity.ok(CodeRuleDTO.fromEntity(rule)))
+                .orElse(ResponseEntity.notFound().build());
     }
     
     @GetMapping("/code-rules/business-type/{businessType}")
-    public ResponseEntity<CodeRule> getCodeRuleByBusinessType(@PathVariable String businessType) {
-        CodeRule rule = queryService.getCodeRuleByBusinessType(businessType);
-        return rule != null ? ResponseEntity.ok(rule) : ResponseEntity.notFound().build();
+    public ResponseEntity<CodeRuleDTO> getCodeRuleByBusinessType(@PathVariable String businessType) {
+        return queryService.getCodeRuleByBusinessType(businessType)
+                .map(rule -> ResponseEntity.ok(CodeRuleDTO.fromEntity(rule)))
+                .orElse(ResponseEntity.notFound().build());
     }
     
     @PostMapping("/code-rules")
@@ -199,12 +209,12 @@ public class ConfigurationController {
         String businessType = (String) request.get("businessType");
         String ruleExpression = (String) request.get("ruleExpression");
         Integer paddingLength = (Integer) request.get("paddingLength");
-        Long startValue = request.get("startValue") != null ? 
+        Long startValue = request.get("startValue") != null ?
                 ((Number) request.get("startValue")).longValue() : null;
         Integer step = (Integer) request.get("step");
         
         Long id = commandService.createCodeRule(
-                ruleCode, ruleName, businessType, ruleExpression, 
+                ruleCode, ruleName, businessType, ruleExpression,
                 paddingLength, startValue, step);
         
         return ResponseEntity.ok(Map.of("id", id));

@@ -10,14 +10,8 @@ import com.metawebthree.mes.domain.repository.EntityExtensionFieldRepository;
 import com.metawebthree.mes.domain.repository.EntityExtensionFieldValueRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-/**
- * 配置管理命令服务
- * 负责处理扩展字段、数据字典、编码规则的配置管理
- */
 @Service
 public class ConfigurationCommandService {
     
@@ -37,11 +31,6 @@ public class ConfigurationCommandService {
         this.codeRuleRepository = codeRuleRepository;
     }
     
-    // ==================== 扩展字段管理 ====================
-    
-    /**
-     * 创建扩展字段定义
-     */
     public Long createExtensionField(String entityType, String fieldCode, String fieldName,
                                      String fieldType, String fieldGroup, Boolean required,
                                      String defaultValue, String validationRule) {
@@ -50,9 +39,8 @@ public class ConfigurationCommandService {
             throw new IllegalArgumentException("Field code already exists: " + fieldCode);
         }
         
-        EntityExtensionField field = new EntityExtensionField();
         EntityExtensionField.FieldType type = EntityExtensionField.FieldType.valueOf(fieldType);
-        field.create(entityType, fieldCode, fieldName, type, fieldGroup);
+        EntityExtensionField field = EntityExtensionField.create(entityType, fieldCode, fieldName, type, fieldGroup);
         field.setRequired(required != null ? required : false);
         field.setDefaultValue(defaultValue);
         field.setValidationRule(validationRule);
@@ -60,17 +48,12 @@ public class ConfigurationCommandService {
         return fieldRepository.save(field).getId();
     }
     
-    /**
-     * 更新扩展字段定义
-     */
     public void updateExtensionField(Long id, String fieldName, String fieldGroup,
                                      Boolean required, String defaultValue, String validationRule,
                                      Boolean listVisible, Boolean searchable) {
         
-        EntityExtensionField field = fieldRepository.findById(id);
-        if (field == null) {
-            throw new IllegalArgumentException("Extension field not found: " + id);
-        }
+        EntityExtensionField field = fieldRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Extension field not found: " + id));
         
         if (fieldName != null) field.setFieldName(fieldName);
         if (fieldGroup != null) field.setFieldGroup(fieldGroup);
@@ -83,25 +66,15 @@ public class ConfigurationCommandService {
         fieldRepository.save(field);
     }
     
-    /**
-     * 删除扩展字段定义
-     */
     public void deleteExtensionField(Long id) {
         fieldRepository.delete(id);
     }
     
-    /**
-     * 设置实体扩展字段值
-     */
-    public void setExtensionFieldValue(String entityType, Long entityId, 
+    public void setExtensionFieldValue(String entityType, Long entityId,
                                        String fieldCode, String fieldValue) {
-        // 验证字段是否存在且有效
-        EntityExtensionField field = fieldRepository.findByEntityTypeAndFieldCode(entityType, fieldCode);
-        if (field == null) {
-            throw new IllegalArgumentException("Extension field not defined: " + fieldCode);
-        }
+        EntityExtensionField field = fieldRepository.findByEntityTypeAndFieldCode(entityType, fieldCode)
+                .orElseThrow(() -> new IllegalArgumentException("Extension field not defined: " + fieldCode));
         
-        // 校验值
         if (!field.validateValue(fieldValue)) {
             throw new IllegalArgumentException("Field value validation failed: " + fieldCode);
         }
@@ -111,9 +84,6 @@ public class ConfigurationCommandService {
         fieldValueRepository.save(value);
     }
     
-    /**
-     * 批量设置实体扩展字段值
-     */
     public void setExtensionFieldValues(String entityType, Long entityId,
                                         Map<String, String> fieldValues) {
         for (Map.Entry<String, String> entry : fieldValues.entrySet()) {
@@ -121,43 +91,29 @@ public class ConfigurationCommandService {
         }
     }
     
-    // ==================== 数据字典管理 ====================
-    
-    /**
-     * 创建数据字典
-     */
     public Long createDataDictionary(String dictCode, String dictName, String description) {
         
         if (dictionaryRepository.existsByDictCode(dictCode)) {
             throw new IllegalArgumentException("Dictionary code already exists: " + dictCode);
         }
         
-        DataDictionary dictionary = new DataDictionary();
-        dictionary.create(dictCode, dictName, description);
+        DataDictionary dictionary = DataDictionary.create(dictCode, dictName, description);
         
         return dictionaryRepository.save(dictionary).getId();
     }
     
-    /**
-     * 添加字典项
-     */
     public void addDictionaryItem(Long dictId, String itemCode, String itemLabel,
                                   String parentItemCode, Integer sortOrder) {
         
         DataDictionary dictionary = dictionaryRepository.findById(dictId)
                 .orElseThrow(() -> new IllegalArgumentException("Dictionary not found: " + dictId));
         
-        DataDictionary.DataDictionaryItem item = new DataDictionary.DataDictionaryItem();
-        item.create(dictId, itemCode, itemLabel, sortOrder);
+        DataDictionary.DataDictionaryItem item = dictionary.addItem(itemCode, itemLabel, sortOrder);
         item.setParentItemCode(parentItemCode);
         
-        dictionary.getItems().add(item);
         dictionaryRepository.save(dictionary);
     }
     
-    /**
-     * 更新字典项
-     */
     public void updateDictionaryItem(Long dictId, String itemCode, String itemLabel, Integer sortOrder) {
         
         DataDictionary dictionary = dictionaryRepository.findById(dictId)
@@ -174,9 +130,6 @@ public class ConfigurationCommandService {
         dictionaryRepository.save(dictionary);
     }
     
-    /**
-     * 删除字典项
-     */
     public void deleteDictionaryItem(Long dictId, String itemCode) {
         
         DataDictionary dictionary = dictionaryRepository.findById(dictId)
@@ -186,11 +139,6 @@ public class ConfigurationCommandService {
         dictionaryRepository.save(dictionary);
     }
     
-    // ==================== 编码规则管理 ====================
-    
-    /**
-     * 创建编码规则
-     */
     public Long createCodeRule(String ruleCode, String ruleName, String businessType,
                                String ruleExpression, Integer paddingLength,
                                Long startValue, Integer step) {
@@ -199,9 +147,8 @@ public class ConfigurationCommandService {
             throw new IllegalArgumentException("Rule code already exists: " + ruleCode);
         }
         
-        CodeRule codeRule = new CodeRule();
-        codeRule.create(ruleCode, ruleName, businessType, ruleExpression, 
-                        paddingLength != null ? paddingLength : 4);
+        CodeRule codeRule = CodeRule.create(ruleCode, ruleName, businessType, ruleExpression,
+                paddingLength != null ? paddingLength : 4);
         
         if (startValue != null) {
             codeRule.setStartValue(startValue);
@@ -214,9 +161,6 @@ public class ConfigurationCommandService {
         return codeRuleRepository.save(codeRule).getId();
     }
     
-    /**
-     * 添加编码规则要素
-     */
     public void addCodeRuleElement(Long ruleId, String elementType, String elementValue, String fieldName) {
         
         CodeRule codeRule = codeRuleRepository.findById(ruleId)
@@ -229,9 +173,6 @@ public class ConfigurationCommandService {
         codeRuleRepository.save(codeRule);
     }
     
-    /**
-     * 生成下一个编码
-     */
     public String generateCode(String businessType, Map<String, String> businessFields) {
         
         CodeRule codeRule = codeRuleRepository.findByBusinessTypeAndStatus(
@@ -240,7 +181,6 @@ public class ConfigurationCommandService {
         
         String code = codeRule.generateNextCode();
         
-        // 替换业务字段占位符
         if (businessFields != null) {
             for (Map.Entry<String, String> entry : businessFields.entrySet()) {
                 code = code.replace("{" + entry.getKey() + "}", entry.getValue());
@@ -252,9 +192,6 @@ public class ConfigurationCommandService {
         return code;
     }
     
-    /**
-     * 重置编码规则流水号
-     */
     public void resetCodeRuleSequence(Long ruleId) {
         
         CodeRule codeRule = codeRuleRepository.findById(ruleId)

@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 工艺参数配置查询服务
@@ -23,7 +23,7 @@ public class ProcessParameterQueryService {
     /**
      * 根据ID查询
      */
-    public Optional<ProcessParameter> findById(Long id) {
+    public ProcessParameter findById(Long id) {
         return repository.findById(id);
     }
     
@@ -93,9 +93,11 @@ public class ProcessParameterQueryService {
     /**
      * 验证参数值是否合格
      */
-    public ValidationResult validateValue(Long paramId, java.math.BigDecimal value) {
-        ProcessParameter param = repository.findById(paramId)
-                .orElseThrow(() -> new IllegalArgumentException("参数不存在: " + paramId));
+    public ValidationResult validateValue(Long paramId, BigDecimal value) {
+        ProcessParameter param = repository.findById(paramId);
+        if (param == null) {
+            throw new IllegalArgumentException("参数不存在: " + paramId);
+        }
         
         ValidationResult result = new ValidationResult();
         result.setParamId(paramId);
@@ -153,11 +155,11 @@ public class ProcessParameterQueryService {
         private Long paramId;
         private String paramCode;
         private String paramName;
-        private java.math.BigDecimal inputValue;
-        private java.math.BigDecimal standardValue;
-        private java.math.BigDecimal upperLimit;
-        private java.math.BigDecimal lowerLimit;
-        private java.math.BigDecimal deviation;
+        private BigDecimal inputValue;
+        private BigDecimal standardValue;
+        private BigDecimal upperLimit;
+        private BigDecimal lowerLimit;
+        private BigDecimal deviation;
         private boolean valid;
         private boolean outOfTolerance;
         private String message;
@@ -169,16 +171,16 @@ public class ProcessParameterQueryService {
         public void setParamCode(String paramCode) { this.paramCode = paramCode; }
         public String getParamName() { return paramName; }
         public void setParamName(String paramName) { this.paramName = paramName; }
-        public java.math.BigDecimal getInputValue() { return inputValue; }
-        public void setInputValue(java.math.BigDecimal inputValue) { this.inputValue = inputValue; }
-        public java.math.BigDecimal getStandardValue() { return standardValue; }
-        public void setStandardValue(java.math.BigDecimal standardValue) { this.standardValue = standardValue; }
-        public java.math.BigDecimal getUpperLimit() { return upperLimit; }
-        public void setUpperLimit(java.math.BigDecimal upperLimit) { this.upperLimit = upperLimit; }
-        public java.math.BigDecimal getLowerLimit() { return lowerLimit; }
-        public void setLowerLimit(java.math.BigDecimal lowerLimit) { this.lowerLimit = lowerLimit; }
-        public java.math.BigDecimal getDeviation() { return deviation; }
-        public void setDeviation(java.math.BigDecimal deviation) { this.deviation = deviation; }
+        public BigDecimal getInputValue() { return inputValue; }
+        public void setInputValue(BigDecimal inputValue) { this.inputValue = inputValue; }
+        public BigDecimal getStandardValue() { return standardValue; }
+        public void setStandardValue(BigDecimal standardValue) { this.standardValue = standardValue; }
+        public BigDecimal getUpperLimit() { return upperLimit; }
+        public void setUpperLimit(BigDecimal upperLimit) { this.upperLimit = upperLimit; }
+        public BigDecimal getLowerLimit() { return lowerLimit; }
+        public void setLowerLimit(BigDecimal lowerLimit) { this.lowerLimit = lowerLimit; }
+        public BigDecimal getDeviation() { return deviation; }
+        public void setDeviation(BigDecimal deviation) { this.deviation = deviation; }
         public boolean isValid() { return valid; }
         public void setValid(boolean valid) { this.valid = valid; }
         public boolean isOutOfTolerance() { return outOfTolerance; }

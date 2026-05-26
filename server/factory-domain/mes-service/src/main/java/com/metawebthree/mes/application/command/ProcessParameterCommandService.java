@@ -73,8 +73,10 @@ public class ProcessParameterCommandService {
      * 更新工艺参数
      */
     public ProcessParameter updateParameter(Long id, ProcessParameter updated) {
-        ProcessParameter parameter = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("参数不存在: " + id));
+        ProcessParameter parameter = repository.findById(id);
+        if (parameter == null) {
+            throw new IllegalArgumentException("参数不存在: " + id);
+        }
         
         if (updated.getParamName() != null) {
             parameter.setParamName(updated.getParamName());
@@ -123,8 +125,10 @@ public class ProcessParameterCommandService {
      * 激活/停用工艺参数
      */
     public ProcessParameter updateStatus(Long id, ProcessParameter.ParamStatus status) {
-        ProcessParameter parameter = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("参数不存在: " + id));
+        ProcessParameter parameter = repository.findById(id);
+        if (parameter == null) {
+            throw new IllegalArgumentException("参数不存在: " + id);
+        }
         
         parameter.setStatus(status);
         return repository.save(parameter);

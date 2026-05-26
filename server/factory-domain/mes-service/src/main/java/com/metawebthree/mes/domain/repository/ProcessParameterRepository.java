@@ -1,18 +1,18 @@
 package com.metawebthree.mes.domain.repository;
 
 import com.metawebthree.mes.domain.entity.ProcessParameter;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 /**
  * 工艺参数仓储接口
  */
-@Repository
-public interface ProcessParameterRepository extends JpaRepository<ProcessParameter, Long> {
+public interface ProcessParameterRepository {
+    
+    /**
+     * 根据ID查询
+     */
+    ProcessParameter findById(Long id);
     
     /**
      * 根据参数编码查询
@@ -20,12 +20,12 @@ public interface ProcessParameterRepository extends JpaRepository<ProcessParamet
     ProcessParameter findByParamCode(String paramCode);
     
     /**
-     * 根据工艺路线ID查询参数列表
+     * 根据工艺路线ID查询参数列表（按工序序号和显示顺序排序）
      */
     List<ProcessParameter> findByRouteIdOrderByStepNoAscDisplayOrderAsc(Long routeId);
     
     /**
-     * 根据工艺路线编码查询参数列表
+     * 根据工艺路线编码查询参数列表（按工序序号和显示顺序排序）
      */
     List<ProcessParameter> findByRouteCodeOrderByStepNoAscDisplayOrderAsc(String routeCode);
     
@@ -65,13 +65,37 @@ public interface ProcessParameterRepository extends JpaRepository<ProcessParamet
     long countByRouteIdAndStepNo(Long routeId, Integer stepNo);
     
     /**
-     * 查询活跃状态的参数
+     * 查询激活状态的参数（按工序序号和显示顺序排序）
      */
-    @Query("SELECT p FROM ProcessParameter p WHERE p.routeId = :routeId AND p.status = 'ACTIVE' ORDER BY p.stepNo, p.displayOrder")
-    List<ProcessParameter> findActiveByRouteId(@Param("routeId") Long routeId);
+    List<ProcessParameter> findActiveByRouteId(Long routeId);
     
     /**
      * 根据参数类型和状态查询
      */
     List<ProcessParameter> findByParamTypeAndStatus(ProcessParameter.ParamType paramType, ProcessParameter.ParamStatus status);
+    
+    /**
+     * 保存工艺参数
+     */
+    ProcessParameter save(ProcessParameter parameter);
+    
+    /**
+     * 批量保存工艺参数
+     */
+    List<ProcessParameter> saveAll(List<ProcessParameter> parameters);
+    
+    /**
+     * 根据ID删除
+     */
+    void deleteById(Long id);
+    
+    /**
+     * 批量删除
+     */
+    void deleteAllById(List<Long> ids);
+    
+    /**
+     * 检查ID是否存在
+     */
+    boolean existsById(Long id);
 }

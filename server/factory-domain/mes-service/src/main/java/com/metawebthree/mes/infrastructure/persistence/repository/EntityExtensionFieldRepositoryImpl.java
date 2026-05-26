@@ -16,8 +16,8 @@ public class EntityExtensionFieldRepositoryImpl implements EntityExtensionFieldR
     private final AtomicLong idGen = new AtomicLong(1);
     
     @Override
-    public EntityExtensionField findById(Long id) {
-        return storage.get(id);
+    public Optional<EntityExtensionField> findById(Long id) {
+        return Optional.ofNullable(storage.get(id));
     }
     
     @Override
@@ -30,12 +30,11 @@ public class EntityExtensionFieldRepositoryImpl implements EntityExtensionFieldR
     }
     
     @Override
-    public EntityExtensionField findByEntityTypeAndFieldCode(String entityType, String fieldCode) {
+    public Optional<EntityExtensionField> findByEntityTypeAndFieldCode(String entityType, String fieldCode) {
         return storage.values().stream()
                 .filter(f -> f.getEntityType().equals(entityType))
                 .filter(f -> f.getFieldCode().equals(fieldCode))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
     
     @Override
