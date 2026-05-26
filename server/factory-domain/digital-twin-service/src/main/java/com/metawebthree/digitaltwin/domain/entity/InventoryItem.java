@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class InventoryItem {
+    private static final BigDecimal CRITICAL_THRESHOLD_FACTOR = BigDecimal.valueOf(0.5);
+
     private Long id;
     private String itemCode;
     private String sku;
@@ -67,7 +69,7 @@ public class InventoryItem {
             this.status = ItemStatus.EXPIRED;
         } else if (minQuantity != null && quantity.compareTo(minQuantity) <= 0) {
             if (minQuantity.compareTo(BigDecimal.ZERO) > 0) {
-                BigDecimal threshold = minQuantity.multiply(BigDecimal.valueOf(0.5));
+                BigDecimal threshold = minQuantity.multiply(CRITICAL_THRESHOLD_FACTOR);
                 this.status = quantity.compareTo(threshold) <= 0 ? ItemStatus.CRITICAL : ItemStatus.LOW;
             } else {
                 this.status = ItemStatus.LOW;

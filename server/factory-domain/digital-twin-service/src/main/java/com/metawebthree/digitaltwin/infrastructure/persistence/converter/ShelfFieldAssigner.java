@@ -3,8 +3,11 @@ package com.metawebthree.digitaltwin.infrastructure.persistence.converter;
 import com.metawebthree.digitaltwin.infrastructure.persistence.dataobject.ShelfDO;
 import com.metawebthree.digitaltwin.domain.entity.Shelf;
 import com.metawebthree.digitaltwin.domain.entity.Shelf.ShelfStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ShelfFieldAssigner {
+    private static final Logger log = LoggerFactory.getLogger(ShelfFieldAssigner.class);
 
     public static void assignToEntity(Shelf shelf, ShelfDO shelfDO) {
         assignIdAndCode(shelf, shelfDO);
@@ -115,6 +118,7 @@ public class ShelfFieldAssigner {
         try {
             return ShelfStatus.valueOf(status);
         } catch (IllegalArgumentException e) {
+            log.warn("Failed to parse ShelfStatus: invalid value '{}', returning null", status);
             return null;
         }
     }

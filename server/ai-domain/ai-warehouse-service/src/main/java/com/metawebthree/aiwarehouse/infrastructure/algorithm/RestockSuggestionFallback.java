@@ -44,6 +44,7 @@ public class RestockSuggestionFallback implements AlgorithmFallback {
             String stock = extractValue(payload, "currentStock", "stock", "quantity");
             return stock != null ? Double.parseDouble(stock) : 0.0;
         } catch (Exception e) {
+            log.warn("Failed to parse current stock from payload, returning 0.0: {}", e.getMessage());
             return 0.0;
         }
     }
@@ -57,6 +58,7 @@ public class RestockSuggestionFallback implements AlgorithmFallback {
                 "consumption", "demand");
             return consumption != null ? Double.parseDouble(consumption) : 10.0;
         } catch (Exception e) {
+            log.warn("Failed to parse daily consumption from payload, returning default 10.0: {}", e.getMessage());
             return 10.0;
         }
     }

@@ -29,16 +29,24 @@ public class Shelf {
         EMPTY, OCCUPIED, FULL, MAINTENANCE, OUT_OF_SERVICE
     }
 
+    private static final Integer DEFAULT_LEVEL_NUMBER = 1;
+    private static final Integer DEFAULT_TOTAL_LEVELS = 3;
+
     public Shelf() {
     }
 
     public Shelf(String shelfCode, String warehouseCode, Integer rowNumber, Integer columnNumber) {
+        this(shelfCode, warehouseCode, rowNumber, columnNumber, DEFAULT_LEVEL_NUMBER, DEFAULT_TOTAL_LEVELS);
+    }
+
+    public Shelf(String shelfCode, String warehouseCode, Integer rowNumber, Integer columnNumber,
+                 Integer levelNumber, Integer totalLevels) {
         this.shelfCode = shelfCode;
         this.warehouseCode = warehouseCode;
         this.rowNumber = rowNumber;
         this.columnNumber = columnNumber;
-        this.levelNumber = 1;
-        this.totalLevels = 3;
+        this.levelNumber = levelNumber != null ? levelNumber : DEFAULT_LEVEL_NUMBER;
+        this.totalLevels = totalLevels != null ? totalLevels : DEFAULT_TOTAL_LEVELS;
         this.status = ShelfStatus.EMPTY;
         this.currentWeight = BigDecimal.ZERO;
         this.createdAt = LocalDateTime.now();

@@ -3,8 +3,11 @@ package com.metawebthree.digitaltwin.infrastructure.persistence.converter;
 import com.metawebthree.digitaltwin.infrastructure.persistence.dataobject.WarehouseDO;
 import com.metawebthree.digitaltwin.domain.entity.Warehouse;
 import com.metawebthree.digitaltwin.domain.entity.Warehouse.WarehouseStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WarehouseFieldAssigner {
+    private static final Logger log = LoggerFactory.getLogger(WarehouseFieldAssigner.class);
 
     public static void assignToEntity(Warehouse warehouse, WarehouseDO warehouseDO) {
         assignBasicFields(warehouse, warehouseDO);
@@ -99,6 +102,7 @@ public class WarehouseFieldAssigner {
         try {
             return WarehouseStatus.valueOf(status);
         } catch (IllegalArgumentException e) {
+            log.warn("Failed to parse WarehouseStatus: invalid value '{}', returning null", status);
             return null;
         }
     }

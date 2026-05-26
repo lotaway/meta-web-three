@@ -28,6 +28,7 @@ public class DigitalTwinKafkaConsumer {
     private static final Logger logger = LoggerFactory.getLogger(DigitalTwinKafkaConsumer.class);
     private static final int IDEMPOTENCY_WINDOW_MINUTES = 30;
     private static final int CLEANUP_INTERVAL_MINUTES = 5;
+    private static final int DEFAULT_ANOMALY_DETECTION_HOURS = 24;
 
     private final DigitalTwinWebSocketHandler webSocketHandler;
     private final DigitalTwinEventPublisher eventPublisher;
@@ -281,7 +282,7 @@ public class DigitalTwinKafkaConsumer {
             
             if (skuCode != null && warehouseId != null) {
                 logger.info("Triggering AI anomaly detection for SKU {} in warehouse {}", skuCode, warehouseId);
-                var anomalies = aiService.detectAnomalies(skuCode, warehouseId, 24);
+                var anomalies = aiService.detectAnomalies(skuCode, warehouseId, DEFAULT_ANOMALY_DETECTION_HOURS);
                 if (anomalies != null && !anomalies.isEmpty()) {
                     logger.info("Detected {} anomalies for SKU {} in warehouse {}", 
                         anomalies.size(), skuCode, warehouseId);
@@ -360,6 +361,7 @@ public class DigitalTwinKafkaConsumer {
             }
             return String.valueOf(message.hashCode());
         } catch (Exception e) {
+            logger.warn("Failed to extract message ID, using hashCode fallback: {}", e.getMessage());
             return String.valueOf(message.hashCode());
         }
     }

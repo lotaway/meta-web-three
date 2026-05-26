@@ -18,6 +18,8 @@ public class WarehouseCapabilityInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(
         WarehouseCapabilityInitializer.class);
+    private static final int DEFAULT_TIMEOUT_MS = 5000;
+    private static final int DEFAULT_MAX_RETRIES = 3;
 
     private final AIWarehouseDomainService domainService;
     private final AICapabilityRepository capabilityRepository;
@@ -36,13 +38,13 @@ public class WarehouseCapabilityInitializer {
             WarehouseCapability.class);
         
         map.put(WarehouseCapability.DEMAND_FORECASTING,
-            new CapabilityConfig("forecasting", "DEMAND_FORECASTING", "ALGORITHM"));
+            new CapabilityConfig("forecasting", "FORECASTING", "ALGORITHM"));
         map.put(WarehouseCapability.LOCATION_RECOMMENDATION,
-            new CapabilityConfig("location", "LOCATION_RECOMMENDATION", "ALGORITHM"));
+            new CapabilityConfig("location", "RECOMMENDATION", "ALGORITHM"));
         map.put(WarehouseCapability.RESTOCK_SUGGESTION,
-            new CapabilityConfig("restock", "RESTOCK_SUGGESTION", "HUMAN"));
+            new CapabilityConfig("restock", "RECOMMENDATION", "HUMAN"));
         map.put(WarehouseCapability.ANOMALY_DETECTION,
-            new CapabilityConfig("anomaly", "ANOMALY_DETECTION", "ALGORITHM"));
+            new CapabilityConfig("anomaly", "RISK_SCORING", "ALGORITHM"));
         
         return map;
     }
@@ -52,16 +54,20 @@ public class WarehouseCapabilityInitializer {
         log.info("Starting warehouse capability registration...");
         
         for (WarehouseCapability capability : WarehouseCapability.values()) {
-            registerCapability(capability);
+            boolean success = registerCapability(capability);
+            if (!success) {
+                log.warn("Capability registration failed, will retry on next startup: {}",
+                    capability.getCapabilityId());
+            }
         }
         
         log.info("Warehouse capability registration completed");
     }
 
-    private void registerCapability(WarehouseCapability capability) {
+    private boolean registerCapability(WarehouseCapability capability) {
         try {
             if (capabilityRepository.existsByCapabilityId(capability.getCapabilityId())) {
-                log.debug("Capability already exists, skipping: {}",
+                log.info("Capability already exists, skipping: {}",
                     capability.getCapabilityId());
                 return;
             }
@@ -79,18 +85,19 @@ public class WarehouseCapabilityInitializer {
             
             log.info("Registered warehouse capability: {} -> {}",
                 capability.getCapabilityId(), config.serviceName);
+            return true;
         } catch (Exception e) {
             log.error("Failed to register capability {}: {}",
-                capability.getCapabilityId(), e.getMessage());
+                capability.getCapabilityId(), e.getMessage(), e);
+            return false;
         }
     }
 
     private String buildFallbackConfig(WarehouseCapability capability) {
         return String.format(
-            "{\"capability\":\"%s\",\"algorithmTimeout\":5000,"
-            + "\"humanTicketPriority\":\"NORMAL\",\"maxRetries\":3}",
-            capability.name()
-        );
+            "{\"capability\":\"%s\",\"algorithmTimeout\":%d,"
+            + "\"humanTicketPriority\":\"NORMAL\",\"maxRetries\":%d}",
+            capability.name(), DEFAULT_TIMEOUT_MS, DEFAULT_MAX_RETRIES);
     }
 
     private static class CapabilityConfig {

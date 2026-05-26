@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 
 @Service
 public class ShelfCommandService {
+    private static final Integer DEFAULT_LEVEL_NUMBER = 1;
+    private static final Integer DEFAULT_TOTAL_LEVELS = 3;
 
     private final ShelfRepository shelfRepository;
     private final WarehouseRepository warehouseRepository;
@@ -46,8 +48,8 @@ public class ShelfCommandService {
 
     private void initializeShelfFields(Shelf shelf, CreateShelfRequest request) {
         shelf.setZone(request.zone);
-        shelf.setLevelNumber(1);
-        shelf.setTotalLevels(request.totalLevels != null ? request.totalLevels : 3);
+        shelf.setLevelNumber(DEFAULT_LEVEL_NUMBER);
+        shelf.setTotalLevels(request.totalLevels != null ? request.totalLevels : DEFAULT_TOTAL_LEVELS);
         shelf.setStatus(ShelfStatus.EMPTY);
         shelf.setMaxWeight(request.maxWeight);
         shelf.setCurrentWeight(BigDecimal.ZERO);

@@ -3,8 +3,11 @@ package com.metawebthree.digitaltwin.infrastructure.persistence.converter;
 import com.metawebthree.digitaltwin.infrastructure.persistence.dataobject.InventoryItemDO;
 import com.metawebthree.digitaltwin.domain.entity.InventoryItem;
 import com.metawebthree.digitaltwin.domain.entity.InventoryItem.ItemStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InventoryItemFieldAssigner {
+    private static final Logger log = LoggerFactory.getLogger(InventoryItemFieldAssigner.class);
 
     public static void assignToEntity(InventoryItem item, InventoryItemDO itemDO) {
         assignIdAndCode(item, itemDO);
@@ -119,6 +122,7 @@ public class InventoryItemFieldAssigner {
         try {
             return ItemStatus.valueOf(status);
         } catch (IllegalArgumentException e) {
+            log.warn("Failed to parse ItemStatus: invalid value '{}', returning null", status);
             return null;
         }
     }

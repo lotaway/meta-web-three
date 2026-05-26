@@ -37,7 +37,7 @@ public class DigitalTwinController {
             @Valid @RequestBody RegisterDeviceRequest request,
             @RequestHeader(value = "X-User-Id", required = false) String userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
-        logger.debug("Register device by user: {}, role: {}", userId, userRole);
+        logger.info("Register device by user: {}, role: {}", userId, userRole);
         Long id = commandService.registerDevice(
             request.getDeviceCode(),
             request.getDeviceName(),
@@ -55,7 +55,7 @@ public class DigitalTwinController {
             @Valid @RequestBody UpdateDeviceStatusRequest request,
             @RequestHeader(value = "X-User-Id", required = false) String userId,
             @RequestHeader(value = "X-User-Role", required = false) String userRole) {
-        logger.debug("Update device status by user: {}, role: {}", userId, userRole);
+        logger.info("Update device status by user: {}, role: {}", userId, userRole);
         Device.DeviceStatus deviceStatus;
         try {
             deviceStatus = Device.DeviceStatus.valueOf(request.getStatus().toUpperCase());

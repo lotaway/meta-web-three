@@ -5,8 +5,11 @@ import com.metawebthree.digitaltwin.domain.entity.InventoryAlert;
 import com.metawebthree.digitaltwin.domain.entity.InventoryAlert.AlertLevel;
 import com.metawebthree.digitaltwin.domain.entity.InventoryAlert.AlertStatus;
 import com.metawebthree.digitaltwin.domain.entity.InventoryAlert.AlertType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InventoryAlertFieldAssigner {
+    private static final Logger log = LoggerFactory.getLogger(InventoryAlertFieldAssigner.class);
 
     public static void assignToEntity(InventoryAlert alert, InventoryAlertDO alertDO) {
         assignIdAndCode(alert, alertDO);
@@ -125,6 +128,7 @@ public class InventoryAlertFieldAssigner {
         try {
             return AlertType.valueOf(alertType);
         } catch (IllegalArgumentException e) {
+            log.warn("Failed to parse AlertType: invalid value '{}', returning null", alertType);
             return null;
         }
     }
@@ -136,6 +140,7 @@ public class InventoryAlertFieldAssigner {
         try {
             return AlertLevel.valueOf(level);
         } catch (IllegalArgumentException e) {
+            log.warn("Failed to parse AlertLevel: invalid value '{}', returning null", level);
             return null;
         }
     }
@@ -147,6 +152,7 @@ public class InventoryAlertFieldAssigner {
         try {
             return AlertStatus.valueOf(status);
         } catch (IllegalArgumentException e) {
+            log.warn("Failed to parse AlertStatus: invalid value '{}', returning null", status);
             return null;
         }
     }

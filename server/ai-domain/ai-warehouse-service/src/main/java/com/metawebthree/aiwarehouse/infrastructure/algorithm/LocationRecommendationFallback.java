@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metawebthree.aiwarehouse.domain.entity.WarehouseCapability;
 import com.metawebthree.aiwarehouse.infrastructure.router.FallbackRouter.AlgorithmFallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -13,7 +15,9 @@ import java.util.stream.Collectors;
 @Component
 public class LocationRecommendationFallback implements AlgorithmFallback {
 
+    private static final Logger log = LoggerFactory.getLogger(LocationRecommendationFallback.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final double DEFAULT_VELOCITY = 50.0;
 
     @Override
     public WarehouseCapability getCapability() {
@@ -38,6 +42,7 @@ public class LocationRecommendationFallback implements AlgorithmFallback {
             return objectMapper.readValue(payload, 
                 new TypeReference<Map<String, Object>>() {});
         } catch (Exception e) {
+            log.warn("Failed to parse payload, returning empty map: {}", e.getMessage());
             return Map.of();
         }
     }
@@ -53,10 +58,11 @@ public class LocationRecommendationFallback implements AlgorithmFallback {
             try {
                 return Double.parseDouble(velocity.toString());
             } catch (Exception e) {
-                return 50.0;
+                log.warn("Failed to parse velocity, returning default {}: {}", DEFAULT_VELOCITY, e.getMessage());
+                return DEFAULT_VELOCITY;
             }
         }
-        return 50.0;
+        return DEFAULT_VELOCITY;
     }
 
     private String assignZone(double velocity) {

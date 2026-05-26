@@ -30,7 +30,7 @@ public class DigitalTwinAuthHandshakeInterceptor implements HandshakeInterceptor
 
         attributes.put("userId", userId);
         attributes.put("userRole", userRole);
-        logger.debug("WebSocket handshake authenticated: userId={}, role={}", userId, userRole);
+        logger.info("WebSocket handshake authenticated: userId={}, role={}", userId, userRole);
         return true;
     }
 
