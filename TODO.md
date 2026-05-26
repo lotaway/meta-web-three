@@ -1,46 +1,6 @@
 # TODO
 
-## P3: 前端组件代码质量修复
-
-### DemandChart.tsx — 子组件超行
-
-- [ ] 目标是将 `ChartStats`（当前 52 行）拆分至 ≤20 行
-- [ ] 目标是将 `ChartLegend`（当前 35 行）拆分至 ≤20 行
-- [ ] 目标是将 `YAxisLabels`（当前 31 行）拆分至 ≤20 行
-- [ ] 目标是将 `DataPoints`（当前 36 行）拆分至 ≤20 行
-- [ ] 目标是将 `XAxisLabels`（当前 30 行）拆分至 ≤20 行
-- [ ] 目标是检查并拆分同文件中其他超行子组件（ChartHeader、GridLines、ConfidenceInterval、ForecastPath、ActualPath）
-- 难点：子组件内部有内联样式、计算逻辑和渲染标记混在一起，需逐一定义 Props 接口再独立文件提取
-
-### InventoryAlertPanel.tsx — 超 500 行
-
-- [ ] 目标是将 InventoryAlertPanel.tsx（当前 506 行）缩减至 ≤500 行
-- [ ] 目标是将 506 行对应的逻辑子组件拆分到独立文件（如 AlertListItem、AlertFilterBar 等）
-- 难点：仅超 6 行，需识别内聚性子组件边界，最小的拆分就能达标
-
-
-## P2: WarehouseApplicationServiceImpl 重构
-
-路径：`server/supply-chain-domain/warehouse-service/src/main/java/com/metawebthree/warehouse/application/WarehouseApplicationServiceImpl.java`
-
-### CQRS 命令查询职责分离
-
-- [ ] 目标是让 `createWarehouse`（第 47 行）返回 `void` 而非 `WarehouseDTO`
-- [ ] 目标是让 `updateWarehouse`（第 71 行）返回 `void` 而非 `WarehouseDTO`
-- [ ] 目标是让 `createInboundOrder`（第 106 行）返回 `void` 而非 `InboundOrderDTO`
-- [ ] 目标是让 `confirmInboundOrder`（第 143 行）返回 `void` 而非 `InboundOrderDTO`
-- [ ] 目标是让 `completeInboundOrder`（第 155 行）返回 `void` 而非 `InboundOrderDTO`
-- 难点：Controller 层目前依赖这些方法返回 DTO，需同步修改 Controller 及调用方；可能涉及前端 API 响应结构调整
-
-### Optional.orElse(null) 替换
-
-- [ ] 目标是替换第 90 行 `updateWarehouse` 中的 `.orElse(null)` 为抛业务异常
-- [ ] 目标是替换第 97 行 `queryWarehouse` 中的 `.orElse(null)` 为抛业务异常
-- [ ] 目标是替换第 151 行 `confirmInboundOrder` 中的 `.orElse(null)` 为抛业务异常
-- [ ] 目标是替换第 180 行 `completeInboundOrder` 中的 `.orElse(null)` 为抛业务异常
-- [ ] 目标是替换第 187 行 `queryInboundOrder` 中的 `.orElse(null)` 为抛业务异常
-- 原则：查询不到应抛 `WarehouseNotFoundException` / `InboundOrderNotFoundException`，由全局异常处理器统一返回 404
-- 难点：需先确认这些异常类和全局处理器是否存在，不存在则新建
+注意所有修改完成后都要进行对应的项目/服务编译确保没有语法错误、引入库错误等问题。
 
 ## 测试补充
 
@@ -74,3 +34,5 @@
 - [ ] 目标是供应链服务消费 Gateway 传递的 `X-User-Id` / `X-User-Role` 请求头
 - [ ] 目标是供应链服务使用 `@RequirePermission` 注解进行接口鉴权
 - [ ] 目标是统一规划供应链权限资源树，避免自建鉴权轮子
+
+- [] 按照[MES标准方案参考](TODO_MES_SPEC.md)检查当前项目是否完成了MES必须的一些功能，并以项目为基础进行完善，查漏补缺，优化到接近顶尖产品
