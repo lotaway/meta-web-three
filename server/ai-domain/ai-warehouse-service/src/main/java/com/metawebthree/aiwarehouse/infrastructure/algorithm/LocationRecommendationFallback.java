@@ -24,6 +24,8 @@ public class LocationRecommendationFallback implements AlgorithmFallback {
     private static final String ZONE_B = "B";
     private static final String ZONE_C = "C";
     private static final String ADJACENT_CATEGORY = "RELATED";
+    private static final String DEFAULT_CATEGORY = "GENERAL";
+    private static final String CLASSIFICATION_METHOD_ABC = "abc_classification";
 
     @Override
     public WarehouseCapability getCapability() {
@@ -55,7 +57,7 @@ public class LocationRecommendationFallback implements AlgorithmFallback {
 
     private String getCategory(Map<String, Object> request) {
         Object category = request.get("category");
-        return category != null ? category.toString() : "GENERAL";
+        return category != null ? category.toString() : DEFAULT_CATEGORY;
     }
 
     private double getVelocity(Map<String, Object> request) {
@@ -85,7 +87,7 @@ public class LocationRecommendationFallback implements AlgorithmFallback {
             double velocity) {
         return String.format(
             "{\"recommendedZone\":\"%s\",\"category\":\"%s\",\"velocity\":%.1f,"
-            + "\"method\":\"abc_classification\",\"adjacentCategories\":[\"%s\"]}",
+            + "\"method\":\"" + CLASSIFICATION_METHOD_ABC + "\",\"adjacentCategories\":[\"%s\"]}",
             zone, category, velocity, findAdjacentCategory(category)
         );
     }

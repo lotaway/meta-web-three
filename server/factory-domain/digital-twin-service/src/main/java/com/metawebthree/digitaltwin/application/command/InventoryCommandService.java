@@ -21,6 +21,7 @@ import java.util.UUID;
 public class InventoryCommandService {
 
     private static final int ALERT_CODE_LENGTH = 16;
+    private static final String ALERT_CODE_PREFIX = "INV-";
     private final InventoryItemRepository inventoryItemRepository;
     private final InventoryAlertRepository inventoryAlertRepository;
     private final ShelfRepository shelfRepository;
@@ -166,7 +167,7 @@ public class InventoryCommandService {
     }
 
     private InventoryAlert createLowStockAlert(InventoryItem item) {
-        String alertCode = "INV-" + UUID.randomUUID().toString().replace("-", "").substring(0, ALERT_CODE_LENGTH);
+        String alertCode = ALERT_CODE_PREFIX + UUID.randomUUID().toString().replace("-", "").substring(0, ALERT_CODE_LENGTH);
         InventoryAlert alert = new InventoryAlert(
                 alertCode,
                 item.getItemCode(),

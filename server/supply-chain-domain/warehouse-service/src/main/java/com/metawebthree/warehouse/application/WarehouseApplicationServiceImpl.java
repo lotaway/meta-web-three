@@ -18,6 +18,19 @@ import java.util.stream.Collectors;
 @Service
 public class WarehouseApplicationServiceImpl implements WarehouseApplicationService {
 
+    // 状态常量
+    private static final String STATUS_ACTIVE = "ACTIVE";
+    private static final String STATUS_PENDING = "PENDING";
+    
+    // 编码前缀常量
+    private static final String WAREHOUSE_CODE_PREFIX = "WH";
+    private static final String INBOUND_ORDER_PREFIX = "IB";
+    private static final int CODE_SUFFIX_LENGTH = 4;
+    
+    // 默认值常量
+    private static final int DEFAULT_USED_CAPACITY = 0;
+    private static final int DEFAULT_QUANTITY = 0;
+    
     private final WarehouseRepository warehouseRepository;
     private final InboundOrderRepository inboundOrderRepository;
     private final WarehouseDomainEventPublisher eventPublisher;
@@ -43,8 +56,8 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
         warehouse.setContact(dto.getContact());
         warehouse.setPhone(dto.getPhone());
         warehouse.setTotalCapacity(dto.getTotalCapacity());
-        warehouse.setUsedCapacity(0);
-        warehouse.setStatus("ACTIVE");
+        warehouse.setUsedCapacity(DEFAULT_USED_CAPACITY);
+        warehouse.setStatus(STATUS_ACTIVE);
         warehouse.setCreatedAt(LocalDateTime.now());
         warehouse.setUpdatedAt(LocalDateTime.now());
         
@@ -86,7 +99,6 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
 
     @Override
     public List<WarehouseDTO> listWarehouses(String status) {
-        // 简化实现，返回空列表或通过其他方式实现
         return List.of();
     }
 
@@ -97,7 +109,7 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
         order.setInboundType(dto.getInboundType());
         order.setWarehouseId(dto.getWarehouseId());
         order.setSupplierCode(dto.getSupplierCode());
-        order.setStatus("PENDING");
+        order.setStatus(STATUS_PENDING);
         order.setRemark(dto.getRemark());
         order.setOperator(dto.getOperator());
         order.setPlanArrivalTime(dto.getPlanArrivalTime());
@@ -114,7 +126,7 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
                     item.setActualQuantity(itemDTO.getActualQuantity());
                     item.setUnitCost(itemDTO.getUnitCost());
                     item.setBatchNo(itemDTO.getBatchNo());
-                    item.setStatus("PENDING");
+                    item.setStatus(STATUS_PENDING);
                     return item;
                 })
                 .collect(Collectors.toList());
@@ -150,11 +162,10 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
                 order.setUpdatedAt(LocalDateTime.now());
                 inboundOrderRepository.update(order);
                 
-                // 发布入库完成事件和入库明细事件
                 eventPublisher.publishInboundOrderCompleted(orderNo);
                 if (order.getItems() != null) {
                     for (InboundOrderItem item : order.getItems()) {
-                        int qty = item.getActualQuantity() != null ? item.getActualQuantity() : (item.getPlanQuantity() != null ? item.getPlanQuantity() : 0);
+                        int qty = getActualQuantity(item);
                         eventPublisher.publishStockIn(
                             order.getWarehouseId(),
                             item.getSkuCode(),
@@ -192,11 +203,13 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
     }
 
     private String generateWarehouseCode() {
-        return "WH" + System.currentTimeMillis() + UUID.randomUUID().toString().substring(0, 4).toUpperCase();
+        return WAREHOUSE_CODE_PREFIX + System.currentTimeMillis() 
+            + UUID.randomUUID().toString().substring(0, CODE_SUFFIX_LENGTH).toUpperCase();
     }
 
     private String generateInboundOrderNo() {
-        return "IB" + System.currentTimeMillis() + UUID.randomUUID().toString().substring(0, 4).toUpperCase();
+        return INBOUND_ORDER_PREFIX + System.currentTimeMillis() 
+            + UUID.randomUUID().toString().substring(0, CODE_SUFFIX_LENGTH).toUpperCase();
     }
 
     private WarehouseDTO toWarehouseDTO(Warehouse warehouse) {
@@ -257,7 +270,19 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
         dto.setUnitCost(item.getUnitCost());
         dto.setBatchNo(item.getBatchNo());
         dto.setProductionDate(item.getProductionDate());
-        dto.setExpiryDate(item.getExpiryDate());
+        return dto;
+    }
+
+    private int getActualQuantity(InboundOrderItem item) {
+        if (item.getActualQuantity() != null) {
+            return item.getActualQuantity();
+        }
+        if (item.getPlanQuantity() != null) {
+            return item.getPlanQuantity();
+        }
+        return DEFAULT_QUANTITY;
+    }
+}        dto.setExpiryDate(item.getExpiryDate());
         return dto;
     }
 }

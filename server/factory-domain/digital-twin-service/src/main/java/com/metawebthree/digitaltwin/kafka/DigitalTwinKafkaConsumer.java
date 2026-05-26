@@ -20,6 +20,7 @@ public class DigitalTwinKafkaConsumer {
     private static final Logger logger = LoggerFactory.getLogger(DigitalTwinKafkaConsumer.class);
     private static final int DEFAULT_ANOMALY_DETECTION_HOURS = 24;
     private static final double DEFAULT_CONFIDENCE = 0.0;
+    private static final String MESSAGE_ID_DELIMITER = "_";
 
     private final DigitalTwinWebSocketHandler webSocketHandler;
     private final WarehouseAIService aiService;
@@ -313,7 +314,7 @@ public class DigitalTwinKafkaConsumer {
             if (node.has("id")) return node.get("id").asText();
             if (node.has("eventId")) return node.get("eventId").asText();
             if (node.has("deviceCode") && node.has("timestamp")) {
-                return node.get("deviceCode").asText() + "_" + node.get("timestamp").asText();
+                return node.get("deviceCode").asText() + MESSAGE_ID_DELIMITER + node.get("timestamp").asText();
             }
             return String.valueOf(message.hashCode());
         } catch (Exception e) {
