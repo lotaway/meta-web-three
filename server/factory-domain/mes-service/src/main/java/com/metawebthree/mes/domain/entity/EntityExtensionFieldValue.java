@@ -3,7 +3,7 @@ package com.metawebthree.mes.domain.entity;
 import java.time.LocalDateTime;
 
 public class EntityExtensionFieldValue {
-    
+
     private Long id;
     private String entityType;
     private Long entityId;
@@ -11,7 +11,7 @@ public class EntityExtensionFieldValue {
     private String fieldValue;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    
+
     public static EntityExtensionFieldValue create(String entityType, Long entityId, String fieldCode, String fieldValue) {
         EntityExtensionFieldValue value = new EntityExtensionFieldValue();
         value.entityType = entityType;
@@ -22,13 +22,12 @@ public class EntityExtensionFieldValue {
         value.updatedAt = LocalDateTime.now();
         return value;
     }
-    
+
     public void updateValue(String newValue) {
         this.fieldValue = newValue;
         this.updatedAt = LocalDateTime.now();
     }
-    
-    // Getters and Setters
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getEntityType() { return entityType; }

@@ -24,13 +24,14 @@ class DataDictionaryTest {
     void addItemShouldAddItemToDictionary() {
         DataDictionary dict = DataDictionary.create("GENDER", "性别", "性别字典");
         
-        DataDictionary.DataDictionaryItem item = dict.addItem("M", "男", 1);
+        dict.addItem("M", "男", 1);
         
+        assertEquals(1, dict.getItems().size());
+        DataDictionary.DataDictionaryItem item = dict.getItems().get(0);
         assertEquals("M", item.getItemCode());
         assertEquals("男", item.getItemLabel());
         assertEquals(1, item.getSortOrder());
         assertEquals(DataDictionary.DataDictionaryItem.ItemStatus.ACTIVE, item.getStatus());
-        assertEquals(1, dict.getItems().size());
     }
     
     @Test
@@ -48,8 +49,11 @@ class DataDictionaryTest {
     @Test
     void getActiveItemsShouldReturnOnlyActiveItems() {
         DataDictionary dict = DataDictionary.create("GENDER", "性别", "性别字典");
-        DataDictionary.DataDictionaryItem male = dict.addItem("M", "男", 1);
-        DataDictionary.DataDictionaryItem female = dict.addItem("F", "女", 2);
+        dict.addItem("M", "男", 1);
+        dict.addItem("F", "女", 2);
+        
+        DataDictionary.DataDictionaryItem male = dict.getItems().get(0);
+        DataDictionary.DataDictionaryItem female = dict.getItems().get(1);
         
         female.setStatus(DataDictionary.DataDictionaryItem.ItemStatus.INACTIVE);
         

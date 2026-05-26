@@ -81,7 +81,6 @@ public class ProductionTask {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getTaskNo() { return taskNo; }
@@ -105,7 +104,9 @@ public class ProductionTask {
     public String getOperatorId() { return operatorId; }
     public void setOperatorId(String operatorId) { this.operatorId = operatorId; }
     public LocalDateTime getStartTime() { return startTime; }
+    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
     public LocalDateTime getEndTime() { return endTime; }
+    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
 }

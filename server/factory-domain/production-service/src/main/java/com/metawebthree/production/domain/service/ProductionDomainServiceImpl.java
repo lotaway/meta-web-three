@@ -4,6 +4,7 @@ import com.metawebthree.production.domain.entity.ProductionOrder;
 import com.metawebthree.production.domain.entity.ProductionSchedule;
 import com.metawebthree.production.domain.entity.WorkStation;
 import com.metawebthree.production.domain.repository.ProductionOrderRepository;
+import com.metawebthree.production.domain.repository.ProductionScheduleRepository;
 import com.metawebthree.production.domain.repository.WorkStationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +19,14 @@ public class ProductionDomainServiceImpl implements ProductionDomainService {
     private static final Logger logger = LoggerFactory.getLogger(ProductionDomainServiceImpl.class);
     
     private final ProductionOrderRepository orderRepository;
+    private final ProductionScheduleRepository scheduleRepository;
     private final WorkStationRepository stationRepository;
 
     public ProductionDomainServiceImpl(ProductionOrderRepository orderRepository,
+                                        ProductionScheduleRepository scheduleRepository,
                                         WorkStationRepository stationRepository) {
         this.orderRepository = orderRepository;
+        this.scheduleRepository = scheduleRepository;
         this.stationRepository = stationRepository;
     }
 
@@ -129,14 +133,24 @@ public class ProductionDomainServiceImpl implements ProductionDomainService {
 
     @Override
     public ProductionSchedule startSchedule(Long scheduleId) {
-        logger.info("Started schedule: {}", scheduleId);
-        return null;
+        ProductionSchedule schedule = scheduleRepository.findById(scheduleId)
+            .orElseThrow(() -> new IllegalArgumentException("Schedule not found: " + scheduleId));
+        
+        schedule.startExecution();
+        
+        logger.info("Started schedule: {}", schedule.getScheduleCode());
+        return scheduleRepository.save(schedule);
     }
 
     @Override
     public ProductionSchedule completeSchedule(Long scheduleId) {
-        logger.info("Completed schedule: {}", scheduleId);
-        return null;
+        ProductionSchedule schedule = scheduleRepository.findById(scheduleId)
+            .orElseThrow(() -> new IllegalArgumentException("Schedule not found: " + scheduleId));
+        
+        schedule.completeSchedule();
+        
+        logger.info("Completed schedule: {}", schedule.getScheduleCode());
+        return scheduleRepository.save(schedule);
     }
 
     @Override
@@ -188,6 +202,6 @@ public class ProductionDomainServiceImpl implements ProductionDomainService {
 
     @Override
     public List<ProductionSchedule> getSchedulesForOrder(String orderCode) {
-        return List.of();
+        return scheduleRepository.findByOrderCode(orderCode);
     }
 }

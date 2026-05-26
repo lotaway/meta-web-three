@@ -10,6 +10,9 @@ public interface MesDomainService {
     WorkOrder createWorkOrder(String workOrderNo, String productCode, String productName,
                              Integer quantity, String workshopId, String processRouteId);
     
+    WorkOrder createWorkOrderWithCodeRule(String businessType, String productCode, String productName,
+                             Integer quantity, String workshopId, String processRouteId);
+    
     void releaseWorkOrder(Long workOrderId);
     void startWorkOrder(Long workOrderId);
     void completeWorkOrder(Long workOrderId);

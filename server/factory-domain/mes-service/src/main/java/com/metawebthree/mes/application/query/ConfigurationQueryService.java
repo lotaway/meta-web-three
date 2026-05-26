@@ -68,6 +68,14 @@ public class ConfigurationQueryService {
         return dictionaryRepository.findById(id);
     }
     
+    public List<DataDictionary.DataDictionaryItem> getDictionaryItemsByParent(Long dictId, String parentItemCode) {
+        return dictionaryRepository.findItemsByDictIdAndParentItemCode(dictId, parentItemCode);
+    }
+    
+    public List<DataDictionary.DataDictionaryItem> getRootDictionaryItems(Long dictId) {
+        return dictionaryRepository.findRootItemsByDictId(dictId);
+    }
+    
     public Optional<CodeRule> getCodeRule(Long id) {
         return codeRuleRepository.findById(id);
     }

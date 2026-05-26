@@ -2,7 +2,6 @@ package com.metawebthree.mes.domain.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 public class ProcessParameter {
     
@@ -85,10 +84,6 @@ public class ProcessParameter {
         param.createdAt = LocalDateTime.now();
         param.updatedAt = LocalDateTime.now();
         return param;
-    }
-    
-    public static Optional<ProcessParameter> createForQuery(Long id) {
-        return Optional.empty();
     }
     
     public boolean validateValue(BigDecimal value) {

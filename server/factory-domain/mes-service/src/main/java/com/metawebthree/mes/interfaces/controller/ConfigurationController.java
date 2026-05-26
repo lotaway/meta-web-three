@@ -129,6 +129,52 @@ public class ConfigurationController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
+    @GetMapping("/dictionaries/{dictId}/items/root")
+    public ResponseEntity<List<DataDictionaryDTO.DataDictionaryItemDTO>> getRootItems(
+            @PathVariable Long dictId) {
+        List<DataDictionaryDTO.DataDictionaryItemDTO> items = queryService.getRootDictionaryItems(dictId).stream()
+                .map(DataDictionaryDTO.DataDictionaryItemDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(items);
+    }
+    
+    @GetMapping("/dictionaries/{dictId}/items")
+    public ResponseEntity<List<DataDictionaryDTO.DataDictionaryItemDTO>> getItemsByParent(
+            @PathVariable Long dictId,
+            @RequestParam(required = false) String parentItemCode) {
+        List<DataDictionaryDTO.DataDictionaryItemDTO> items = queryService.getDictionaryItemsByParent(dictId, parentItemCode).stream()
+                .map(DataDictionaryDTO.DataDictionaryItemDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(items);
+    }
+    
+    @GetMapping("/dictionaries/code/{dictCode}/items/root")
+    public ResponseEntity<List<DataDictionaryDTO.DataDictionaryItemDTO>> getRootItemsByCode(
+            @PathVariable String dictCode) {
+        return queryService.getDictionaryByCode(dictCode)
+                .map(dict -> {
+                    List<DataDictionaryDTO.DataDictionaryItemDTO> items = queryService.getRootDictionaryItems(dict.getId()).stream()
+                            .map(DataDictionaryDTO.DataDictionaryItemDTO::fromEntity)
+                            .collect(Collectors.toList());
+                    return ResponseEntity.ok(items);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+    
+    @GetMapping("/dictionaries/code/{dictCode}/items")
+    public ResponseEntity<List<DataDictionaryDTO.DataDictionaryItemDTO>> getItemsByParentCode(
+            @PathVariable String dictCode,
+            @RequestParam(required = false) String parentItemCode) {
+        return queryService.getDictionaryByCode(dictCode)
+                .map(dict -> {
+                    List<DataDictionaryDTO.DataDictionaryItemDTO> items = queryService.getDictionaryItemsByParent(dict.getId(), parentItemCode).stream()
+                            .map(DataDictionaryDTO.DataDictionaryItemDTO::fromEntity)
+                            .collect(Collectors.toList());
+                    return ResponseEntity.ok(items);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+    
     @PostMapping("/dictionaries")
     public ResponseEntity<Void> createDictionary(@RequestBody Map<String, Object> request) {
         String dictCode = (String) request.get("dictCode");

@@ -4,12 +4,15 @@ import com.metawebthree.mes.domain.entity.WorkOrder;
 import com.metawebthree.mes.domain.entity.ProductionTask;
 import com.metawebthree.mes.domain.entity.ProcessRoute;
 import com.metawebthree.mes.domain.entity.Equipment;
+import com.metawebthree.mes.domain.entity.CodeRule;
 import com.metawebthree.mes.domain.repository.WorkOrderRepository;
 import com.metawebthree.mes.domain.repository.ProductionTaskRepository;
 import com.metawebthree.mes.domain.repository.ProcessRouteRepository;
 import com.metawebthree.mes.domain.repository.EquipmentRepository;
+import com.metawebthree.mes.domain.repository.CodeRuleRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MesDomainServiceImpl implements MesDomainService {
@@ -18,21 +21,45 @@ public class MesDomainServiceImpl implements MesDomainService {
     private final ProductionTaskRepository taskRepository;
     private final ProcessRouteRepository routeRepository;
     private final EquipmentRepository equipmentRepository;
+    private final CodeRuleRepository codeRuleRepository;
 
     public MesDomainServiceImpl(
             WorkOrderRepository workOrderRepository,
             ProductionTaskRepository taskRepository,
             ProcessRouteRepository routeRepository,
-            EquipmentRepository equipmentRepository) {
+            EquipmentRepository equipmentRepository,
+            CodeRuleRepository codeRuleRepository) {
         this.workOrderRepository = workOrderRepository;
         this.taskRepository = taskRepository;
         this.routeRepository = routeRepository;
         this.equipmentRepository = equipmentRepository;
+        this.codeRuleRepository = codeRuleRepository;
     }
 
     @Override
     public WorkOrder createWorkOrder(String workOrderNo, String productCode, String productName,
             Integer quantity, String workshopId, String processRouteId) {
+        WorkOrder workOrder = new WorkOrder();
+        workOrder.create(workOrderNo, productCode, productName, quantity, workshopId, processRouteId);
+        return workOrderRepository.save(workOrder);
+    }
+
+    @Override
+    public WorkOrder createWorkOrderWithCodeRule(String businessType, String productCode, String productName,
+            Integer quantity, String workshopId, String processRouteId) {
+        Optional<CodeRule> codeRuleOpt = codeRuleRepository.findByBusinessTypeAndStatus(
+                businessType, CodeRule.RuleStatus.ACTIVE);
+        
+        String workOrderNo;
+        if (codeRuleOpt.isPresent()) {
+            CodeRule codeRule = codeRuleOpt.get();
+            workOrderNo = codeRule.peekNextCode();
+            codeRule.advanceSequence();
+            codeRuleRepository.save(codeRule);
+        } else {
+            throw new IllegalStateException("No active CodeRule found for businessType: " + businessType);
+        }
+        
         WorkOrder workOrder = new WorkOrder();
         workOrder.create(workOrderNo, productCode, productName, quantity, workshopId, processRouteId);
         return workOrderRepository.save(workOrder);

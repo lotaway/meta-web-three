@@ -107,8 +107,11 @@ public class ConfigurationCommandService {
         DataDictionary dictionary = dictionaryRepository.findById(dictId)
                 .orElseThrow(() -> new IllegalArgumentException("Dictionary not found: " + dictId));
         
-        DataDictionary.DataDictionaryItem item = dictionary.addItem(itemCode, itemLabel, sortOrder);
-        item.setParentItemCode(parentItemCode);
+        dictionary.addItem(itemCode, itemLabel, sortOrder);
+        dictionary.getItems().stream()
+                .filter(item -> item.getItemCode().equals(itemCode))
+                .findFirst()
+                .ifPresent(item -> item.setParentItemCode(parentItemCode));
         
         dictionaryRepository.save(dictionary);
     }

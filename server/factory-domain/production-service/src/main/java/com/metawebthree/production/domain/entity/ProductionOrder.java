@@ -9,7 +9,7 @@ public class ProductionOrder {
     private String orderCode;
     private String productCode;
     private String productName;
-    private Integer quantity Planned;
+    private Integer quantityPlanned;
     private Integer quantityCompleted;
     private OrderStatus status;
     private Priority priority;

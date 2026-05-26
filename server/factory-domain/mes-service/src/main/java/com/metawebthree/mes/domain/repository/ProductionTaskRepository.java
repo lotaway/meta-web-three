@@ -8,8 +8,10 @@ public interface ProductionTaskRepository {
     Optional<ProductionTask> findById(Long id);
     Optional<ProductionTask> findByTaskNo(String taskNo);
     List<ProductionTask> findByWorkOrderId(Long workOrderId);
+    List<ProductionTask> findByWorkOrderNo(String workOrderNo);
     List<ProductionTask> findByStatus(ProductionTask.TaskStatus status);
     List<ProductionTask> findByWorkstationId(String workstationId);
+    List<ProductionTask> findAll();
     ProductionTask save(ProductionTask task);
     void update(ProductionTask task);
     void deleteById(Long id);

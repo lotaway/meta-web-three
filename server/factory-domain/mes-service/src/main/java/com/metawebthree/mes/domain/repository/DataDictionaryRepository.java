@@ -17,4 +17,8 @@ public interface DataDictionaryRepository {
     void delete(Long id);
     
     boolean existsByDictCode(String dictCode);
+    
+    List<DataDictionary.DataDictionaryItem> findItemsByDictIdAndParentItemCode(Long dictId, String parentItemCode);
+    
+    List<DataDictionary.DataDictionaryItem> findRootItemsByDictId(Long dictId);
 }

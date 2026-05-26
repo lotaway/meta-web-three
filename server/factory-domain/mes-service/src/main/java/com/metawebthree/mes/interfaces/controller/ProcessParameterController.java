@@ -57,10 +57,18 @@ public class ProcessParameterController {
     
     @PutMapping("/{id}")
     public ResponseEntity<ProcessParameterDTO> update(@PathVariable Long id, @RequestBody ProcessParameterRequest request) {
-        ProcessParameter updated = ProcessParameter.create(
-                null, request.getParamName(), request.getRouteId(), request.getRouteCode(),
-                request.getStepNo(), request.getStepCode(), request.getParamType(), request.getDataType()
-        );
+        ProcessParameter existing = queryService.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("参数不存在: " + id));
+        
+        ProcessParameter updated = new ProcessParameter();
+        updated.setParamCode(existing.getParamCode());
+        updated.setParamName(request.getParamName());
+        updated.setRouteId(request.getRouteId());
+        updated.setRouteCode(request.getRouteCode());
+        updated.setStepNo(request.getStepNo());
+        updated.setStepCode(request.getStepCode());
+        updated.setParamType(request.getParamType());
+        updated.setDataType(request.getDataType());
         updated.setUnit(request.getUnit());
         updated.setStandardValue(request.getStandardValue());
         updated.setUpperLimit(request.getUpperLimit());

@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 public class ProductionOrderRepositoryImpl implements ProductionOrderRepository {
     private final Map<Long, ProductionOrder> storage = new ConcurrentHashMap<>();
     private final Map<String, ProductionOrder> codeIndex = new ConcurrentHashMap<>();
-    private Long idGenerator = 1L;
 
     @Override
     public Optional<ProductionOrder> findById(Long id) {
@@ -46,7 +45,8 @@ public class ProductionOrderRepositoryImpl implements ProductionOrderRepository 
     @Override
     public ProductionOrder save(ProductionOrder order) {
         if (order.getId() == null) {
-            order.setId(idGenerator++);
+            long maxId = storage.keySet().stream().mapToLong(Long::longValue).max().orElse(0L);
+            order.setId(maxId + 1);
         }
         storage.put(order.getId(), order);
         if (order.getOrderCode() != null) {

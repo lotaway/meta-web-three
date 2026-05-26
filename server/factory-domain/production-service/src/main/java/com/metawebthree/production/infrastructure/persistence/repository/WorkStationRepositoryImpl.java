@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 public class WorkStationRepositoryImpl implements WorkStationRepository {
     private final Map<Long, WorkStation> storage = new ConcurrentHashMap<>();
     private final Map<String, WorkStation> codeIndex = new ConcurrentHashMap<>();
-    private Long idGenerator = 1L;
 
     @Override
     public Optional<WorkStation> findById(Long id) {
@@ -46,7 +45,8 @@ public class WorkStationRepositoryImpl implements WorkStationRepository {
     @Override
     public WorkStation save(WorkStation station) {
         if (station.getId() == null) {
-            station.setId(idGenerator++);
+            long maxId = storage.keySet().stream().mapToLong(Long::longValue).max().orElse(0L);
+            station.setId(maxId + 1);
         }
         storage.put(station.getId(), station);
         if (station.getStationCode() != null) {
