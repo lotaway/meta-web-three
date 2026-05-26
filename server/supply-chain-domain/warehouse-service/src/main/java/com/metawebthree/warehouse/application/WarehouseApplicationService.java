@@ -14,7 +14,7 @@ public interface WarehouseApplicationService {
 
     List<WarehouseDTO> listWarehouses(String status);
 
-    void createInboundOrder(InboundOrderDTO dto);
+    String createInboundOrder(InboundOrderDTO dto);
 
     void confirmInboundOrder(String orderNo);
 

@@ -102,7 +102,7 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
     }
 
     @Override
-    public void createInboundOrder(InboundOrderDTO dto) {
+    public String createInboundOrder(InboundOrderDTO dto) {
         InboundOrder order = new InboundOrder();
         order.setOrderNo(generateInboundOrderNo());
         order.setInboundType(dto.getInboundType());
@@ -134,6 +134,7 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
         
         inboundOrderRepository.insert(order);
         eventPublisher.publishInboundOrderCreated(order.getOrderNo(), order.getWarehouseId());
+        return order.getOrderNo();
     }
 
     @Override
