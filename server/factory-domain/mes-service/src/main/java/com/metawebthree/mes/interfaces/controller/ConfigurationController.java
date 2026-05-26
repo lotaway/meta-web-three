@@ -45,7 +45,7 @@ public class ConfigurationController {
     }
     
     @PostMapping("/extension-fields")
-    public ResponseEntity<Map<String, Object>> createExtensionField(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<Void> createExtensionField(@RequestBody Map<String, Object> request) {
         String entityType = (String) request.get("entityType");
         String fieldCode = (String) request.get("fieldCode");
         String fieldName = (String) request.get("fieldName");
@@ -55,11 +55,11 @@ public class ConfigurationController {
         String defaultValue = (String) request.get("defaultValue");
         String validationRule = (String) request.get("validationRule");
         
-        Long id = commandService.createExtensionField(
+        commandService.createExtensionField(
                 entityType, fieldCode, fieldName, fieldType, fieldGroup,
                 required, defaultValue, validationRule);
         
-        return ResponseEntity.ok(Map.of("id", id));
+        return ResponseEntity.status(201).build();
     }
     
     @PutMapping("/extension-fields/{id}")
@@ -130,14 +130,14 @@ public class ConfigurationController {
     }
     
     @PostMapping("/dictionaries")
-    public ResponseEntity<Map<String, Object>> createDictionary(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<Void> createDictionary(@RequestBody Map<String, Object> request) {
         String dictCode = (String) request.get("dictCode");
         String dictName = (String) request.get("dictName");
         String description = (String) request.get("description");
         
-        Long id = commandService.createDataDictionary(dictCode, dictName, description);
+        commandService.createDataDictionary(dictCode, dictName, description);
         
-        return ResponseEntity.ok(Map.of("id", id));
+        return ResponseEntity.status(201).build();
     }
     
     @PostMapping("/dictionaries/{dictId}/items")
@@ -181,11 +181,10 @@ public class ConfigurationController {
     
     @GetMapping("/code-rules")
     public ResponseEntity<List<CodeRuleDTO>> getAllCodeRules() {
-        List<CodeRuleDTO> dtos = queryService.getAllActiveDictionaries().stream()
-                .flatMap(dict -> dict.getItems().stream())
-                .map(item -> CodeRuleDTO.fromEntity(null))
+        List<CodeRuleDTO> dtos = queryService.getAllActiveCodeRules().stream()
+                .map(CodeRuleDTO::fromEntity)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(List.of());
+        return ResponseEntity.ok(dtos);
     }
     
     @GetMapping("/code-rules/{id}")
@@ -203,7 +202,7 @@ public class ConfigurationController {
     }
     
     @PostMapping("/code-rules")
-    public ResponseEntity<Map<String, Object>> createCodeRule(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<Void> createCodeRule(@RequestBody Map<String, Object> request) {
         String ruleCode = (String) request.get("ruleCode");
         String ruleName = (String) request.get("ruleName");
         String businessType = (String) request.get("businessType");
@@ -213,11 +212,11 @@ public class ConfigurationController {
                 ((Number) request.get("startValue")).longValue() : null;
         Integer step = (Integer) request.get("step");
         
-        Long id = commandService.createCodeRule(
+        commandService.createCodeRule(
                 ruleCode, ruleName, businessType, ruleExpression,
                 paddingLength, startValue, step);
         
-        return ResponseEntity.ok(Map.of("id", id));
+        return ResponseEntity.status(201).build();
     }
     
     @PostMapping("/code-rules/{ruleId}/elements")
@@ -252,7 +251,8 @@ public class ConfigurationController {
     
     @GetMapping("/code-rules/preview/{businessType}")
     public ResponseEntity<Map<String, String>> previewCode(@PathVariable String businessType) {
-        String preview = queryService.previewCode(businessType);
-        return ResponseEntity.ok(Map.of("preview", preview != null ? preview : ""));
+        return queryService.previewCode(businessType)
+                .map(preview -> ResponseEntity.ok(Map.of("preview", preview)))
+                .orElse(ResponseEntity.notFound().build());
     }
 }

@@ -31,7 +31,7 @@ public class ConfigurationCommandService {
         this.codeRuleRepository = codeRuleRepository;
     }
     
-    public Long createExtensionField(String entityType, String fieldCode, String fieldName,
+    public void createExtensionField(String entityType, String fieldCode, String fieldName,
                                      String fieldType, String fieldGroup, Boolean required,
                                      String defaultValue, String validationRule) {
         
@@ -45,7 +45,7 @@ public class ConfigurationCommandService {
         field.setDefaultValue(defaultValue);
         field.setValidationRule(validationRule);
         
-        return fieldRepository.save(field).getId();
+        fieldRepository.save(field);
     }
     
     public void updateExtensionField(Long id, String fieldName, String fieldGroup,
@@ -91,7 +91,7 @@ public class ConfigurationCommandService {
         }
     }
     
-    public Long createDataDictionary(String dictCode, String dictName, String description) {
+    public void createDataDictionary(String dictCode, String dictName, String description) {
         
         if (dictionaryRepository.existsByDictCode(dictCode)) {
             throw new IllegalArgumentException("Dictionary code already exists: " + dictCode);
@@ -99,7 +99,7 @@ public class ConfigurationCommandService {
         
         DataDictionary dictionary = DataDictionary.create(dictCode, dictName, description);
         
-        return dictionaryRepository.save(dictionary).getId();
+        dictionaryRepository.save(dictionary);
     }
     
     public void addDictionaryItem(Long dictId, String itemCode, String itemLabel,
@@ -139,7 +139,7 @@ public class ConfigurationCommandService {
         dictionaryRepository.save(dictionary);
     }
     
-    public Long createCodeRule(String ruleCode, String ruleName, String businessType,
+    public void createCodeRule(String ruleCode, String ruleName, String businessType,
                                String ruleExpression, Integer paddingLength,
                                Long startValue, Integer step) {
         
@@ -158,7 +158,7 @@ public class ConfigurationCommandService {
             codeRule.setStep(step);
         }
         
-        return codeRuleRepository.save(codeRule).getId();
+        codeRuleRepository.save(codeRule);
     }
     
     public void addCodeRuleElement(Long ruleId, String elementType, String elementValue, String fieldName) {
@@ -179,7 +179,7 @@ public class ConfigurationCommandService {
                 businessType, CodeRule.RuleStatus.ACTIVE)
                 .orElseThrow(() -> new IllegalArgumentException("No active code rule for: " + businessType));
         
-        String code = codeRule.generateNextCode();
+        String code = codeRule.peekNextCode();
         
         if (businessFields != null) {
             for (Map.Entry<String, String> entry : businessFields.entrySet()) {
@@ -187,6 +187,7 @@ public class ConfigurationCommandService {
             }
         }
         
+        codeRule.advanceSequence();
         codeRuleRepository.save(codeRule);
         
         return code;

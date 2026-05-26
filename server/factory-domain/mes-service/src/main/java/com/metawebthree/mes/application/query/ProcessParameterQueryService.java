@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 工艺参数配置查询服务
@@ -23,14 +24,14 @@ public class ProcessParameterQueryService {
     /**
      * 根据ID查询
      */
-    public ProcessParameter findById(Long id) {
+    public Optional<ProcessParameter> findById(Long id) {
         return repository.findById(id);
     }
     
     /**
      * 根据参数编码查询
      */
-    public ProcessParameter findByParamCode(String paramCode) {
+    public Optional<ProcessParameter> findByParamCode(String paramCode) {
         return repository.findByParamCode(paramCode);
     }
     
@@ -94,10 +95,8 @@ public class ProcessParameterQueryService {
      * 验证参数值是否合格
      */
     public ValidationResult validateValue(Long paramId, BigDecimal value) {
-        ProcessParameter param = repository.findById(paramId);
-        if (param == null) {
-            throw new IllegalArgumentException("参数不存在: " + paramId);
-        }
+        ProcessParameter param = repository.findById(paramId)
+                .orElseThrow(() -> new IllegalArgumentException("参数不存在: " + paramId));
         
         ValidationResult result = new ValidationResult();
         result.setParamId(paramId);
@@ -109,7 +108,7 @@ public class ProcessParameterQueryService {
         result.setLowerLimit(param.getLowerLimit());
         
         if (value == null) {
-            if (param.getRequired()) {
+            if (param.getIsRequired()) {
                 result.setValid(false);
                 result.setMessage("参数值不能为空");
                 return result;

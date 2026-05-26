@@ -2,59 +2,27 @@ package com.metawebthree.mes.domain.entity;
 
 import java.time.LocalDateTime;
 
-/**
- * 实体扩展字段值
- * 存储每个实体实例的扩展字段值
- */
 public class EntityExtensionFieldValue {
     
     private Long id;
-    
-    /**
-     * 实体类型
-     */
     private String entityType;
-    
-    /**
-     * 实体ID
-     */
     private Long entityId;
-    
-    /**
-     * 字段编码
-     */
     private String fieldCode;
-    
-    /**
-     * 字段值
-     */
     private String fieldValue;
-    
-    /**
-     * 创建时间
-     */
     private LocalDateTime createdAt;
-    
-    /**
-     * 更新时间
-     */
     private LocalDateTime updatedAt;
     
-    /**
-     * 创建扩展字段值
-     */
-    public void create(String entityType, Long entityId, String fieldCode, String fieldValue) {
-        this.entityType = entityType;
-        this.entityId = entityId;
-        this.fieldCode = fieldCode;
-        this.fieldValue = fieldValue;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+    public static EntityExtensionFieldValue create(String entityType, Long entityId, String fieldCode, String fieldValue) {
+        EntityExtensionFieldValue value = new EntityExtensionFieldValue();
+        value.entityType = entityType;
+        value.entityId = entityId;
+        value.fieldCode = fieldCode;
+        value.fieldValue = fieldValue;
+        value.createdAt = LocalDateTime.now();
+        value.updatedAt = LocalDateTime.now();
+        return value;
     }
     
-    /**
-     * 更新字段值
-     */
     public void updateValue(String newValue) {
         this.fieldValue = newValue;
         this.updatedAt = LocalDateTime.now();

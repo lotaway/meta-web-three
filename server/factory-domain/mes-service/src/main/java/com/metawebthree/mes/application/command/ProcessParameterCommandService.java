@@ -47,19 +47,18 @@ public class ProcessParameterCommandService {
             String remark) {
         
         // 检查参数编码是否已存在
-        if (repository.existsByParamCode(paramCode)) {
+        if (repository.findByParamCode(paramCode).isPresent()) {
             throw new IllegalArgumentException("参数编码已存在: " + paramCode);
         }
         
-        ProcessParameter parameter = new ProcessParameter();
-        parameter.create(paramCode, paramName, routeId, routeCode, stepNo, stepCode, paramType, dataType);
+        ProcessParameter parameter = ProcessParameter.create(paramCode, paramName, routeId, routeCode, stepNo, stepCode, paramType, dataType);
         parameter.setUnit(unit);
         parameter.setStandardValue(standardValue);
         parameter.setUpperLimit(upperLimit);
         parameter.setLowerLimit(lowerLimit);
         parameter.setCollectionMethod(collectionMethod);
         parameter.setDeviceAddress(deviceAddress);
-        parameter.setRequired(required);
+        parameter.setIsRequired(required);
         parameter.setValidationRule(validationRule);
         parameter.setAlarmThreshold(alarmThreshold);
         parameter.setDisplayOrder(displayOrder);
@@ -73,10 +72,8 @@ public class ProcessParameterCommandService {
      * 更新工艺参数
      */
     public ProcessParameter updateParameter(Long id, ProcessParameter updated) {
-        ProcessParameter parameter = repository.findById(id);
-        if (parameter == null) {
-            throw new IllegalArgumentException("参数不存在: " + id);
-        }
+        ProcessParameter parameter = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("参数不存在: " + id));
         
         if (updated.getParamName() != null) {
             parameter.setParamName(updated.getParamName());
@@ -99,8 +96,8 @@ public class ProcessParameterCommandService {
         if (updated.getDeviceAddress() != null) {
             parameter.setDeviceAddress(updated.getDeviceAddress());
         }
-        if (updated.getRequired() != null) {
-            parameter.setRequired(updated.getRequired());
+        if (updated.getIsRequired() != null) {
+            parameter.setIsRequired(updated.getIsRequired());
         }
         if (updated.getValidationRule() != null) {
             parameter.setValidationRule(updated.getValidationRule());
@@ -125,10 +122,8 @@ public class ProcessParameterCommandService {
      * 激活/停用工艺参数
      */
     public ProcessParameter updateStatus(Long id, ProcessParameter.ParamStatus status) {
-        ProcessParameter parameter = repository.findById(id);
-        if (parameter == null) {
-            throw new IllegalArgumentException("参数不存在: " + id);
-        }
+        ProcessParameter parameter = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("参数不存在: " + id));
         
         parameter.setStatus(status);
         return repository.save(parameter);
@@ -138,7 +133,7 @@ public class ProcessParameterCommandService {
      * 删除工艺参数
      */
     public void deleteParameter(Long id) {
-        if (!repository.existsById(id)) {
+        if (repository.findById(id).isEmpty()) {
             throw new IllegalArgumentException("参数不存在: " + id);
         }
         repository.deleteById(id);

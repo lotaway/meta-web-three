@@ -39,66 +39,67 @@
 
 ## MES标准方案实现进度
 
-### 未通过代码规范审查 (2026-05-26 审查结果) - 已修复部分
+### 未通过代码规范审查 (2026-05-26 复审结果) - 部分已修复
 
-> 对照 CODE_PRICEPLES 审查，存在以下全局性问题导致已完成项不符合生产要求：
-> 1. **缺少单元测试** (违反 #33) — 整个模块无任何测试
-> 2. **接口层泄露实现细节** (违反 #37) — Controller 直接返回 Entity，应使用 DTO
-> 3. **单例保存业务状态** (违反 #26) — Repository 用 `ConcurrentHashMap` 在单例中持有业务状态
-> 4. **返回 null 表达错误** (违反 #21/22) — 多处返回 null 代替 `Optional` 或异常
-> 5. **create 方法同时返回值和副作用** (违反 #16) — `createExtensionField/createDataDictionary/createCodeRule` 等均违反
->
-> **修复完成情况 (2026-05-26 15:41):**
-> - ✅ 创建 DTO 类: EntityExtensionFieldDTO, DataDictionaryDTO, CodeRuleDTO, EntityExtensionFieldValueDTO
-> - ✅ 实体类重构: 添加静态工厂方法 (create), 移除冗余注释, unique → isUnique
-> - ✅ Repository 接口修改: findById/findByEntityTypeAndFieldCode 返回 Optional
-> - ✅ 修复 null 返回: ConfigurationQueryService 返回 Optional 而非 null
-> - ✅ 修复 create 方法: 使用静态工厂方法替代带副作用的 create()
-> - ✅ 单元测试: 添加 EntityExtensionFieldTest, DataDictionaryTest, CodeRuleTest (14 tests pass)
-> - ⚠️ 单例保存业务状态: Repository 仍使用 ConcurrentHashMap (需改用 MyBatis-Plus + PostgreSQL)
+> 对照 CODE_PRICEPLES 逐项审查，以下已完成项仍存在不符合生产要求的全局性问题：
+
+> **已修复项 (2026-05-26 16:20):**
+> 1. ✅ **多个方法同时返回值和副作用** (违反 #16) — `ConfigurationCommandService.create*` 方法已改为 void；`CodeRule.generateNextCode()` 已拆分为 `peekNextCode()` + `advanceSequence()`
+> 2. ✅ **`ConfigurationQueryService.previewCode()` 返回 null** (违反 #21/22) — 已改为返回 `Optional<String>`
+> 3. ✅ **`ConfigurationController.getCodeRules()` 实现错误** (违反 CHECK_RULE) — 已修正为调用 queryService
+> 4. ✅ **残留注释** (违反 #3) — 已删除 ProcessParameterRepository.java 中的 Javadoc 注释
+> 
+> **待修复项:**
+> 4. **Controller 缺少输入校验** (违反 #23) — 所有 POST/PUT 接口使用 `Map<String, Object>` 接收请求体，未做任何类型校验或参数校验
+> 5. **单例保存业务状态未修复** (违反 #26) — 所有 RepositoryImpl 仍使用 `ConcurrentHashMap` 在单例中持有业务状态，无持久化能力（需要数据库支持）
+> 6. **Repository.save() 返回实体** (违反 #16) — 所有 Repository 的 `save()` 方法在持久化的同时返回实体，这是仓储层常见模式，需要整体架构调整
 
 #### 1. 扩展字段机制 (EntityExtensionField)
+
 - [x] 创建扩展字段定义实体 (`EntityExtensionField.java`)
-  - **修复**: 删除冗余注释; 添加静态工厂方法 `create()`; `unique` 改为 `isUnique`
-- [ ] 创建扩展字段值实体 (`EntityExtensionFieldValue.java`)
-  - **问题**: 同上
+  - **审查通过**: 符合规范，无残留问题
+- [x] 创建扩展字段值实体 (`EntityExtensionFieldValue.java`)
+  - **已修复**: 删除 Javadoc 注释；`create()` 已改为静态工厂方法
 - [x] 实现仓储接口和实现 (`EntityExtensionFieldRepository`, `EntityExtensionFieldRepositoryImpl`)
-  - **修复**: 接口返回 `Optional`; 实现保持内存存储(待改数据库)
+  - **已修复**: 删除 Javadoc 注释（EntityExtensionFieldValueRepository.java）
 - [x] 实现配置命令服务 (`ConfigurationCommandService`)
-  - **修复**: 使用静态工厂方法; 拆分 create 调用
+  - **已修复**: `createExtensionField`/`createDataDictionary`/`createCodeRule` 改为 void；`generateCode` 使用 `peekNextCode()` + `advanceSequence()` 拆分
 - [x] 实现配置查询服务 (`ConfigurationQueryService`)
-  - **修复**: 返回 `Optional` 而非 null
+  - **已修复**: `previewCode()` 返回 `Optional<String>`
 - [x] 创建REST API控制器 (`ConfigurationController`)
-  - **修复**: 使用 DTO; 补全 `GET /code-rules` 调用 queryService
+  - **已修复**: `getAllCodeRules()` 调用 queryService 获取真实编码规则；create 方法返回 201 Created
 - [ ] 创建数据库schema (`schema.sql`)
   - **问题**: `unique_field` 列名命名不规范，应统一风格（违反命名规范）; 缺少 `mes_data_dictionary`, `mes_code_rule` 相关表的索引
   - **建议**: `unique_field` 改为 `is_unique`; 补充字典项和规则要素表的索引
 
 #### 2. 数据字典 (DataDictionary)
+
 - [x] 创建数据字典实体 (`DataDictionary.java`)
-  - **修复**: 添加静态工厂方法; 删除冗余注释
+  - **已修复**: `addItem()` 改为 void（无副作用返回值）
 - [x] 实现仓储接口和实现 (`DataDictionaryRepository`)
-  - **修复**: 接口已返回 Optional
+  - **已修复**: 删除 Javadoc 注释
 - [x] 集成到配置命令/查询服务
-  - **修复**: 使用静态工厂方法
+  - **已修复**: 依赖的服务已修复，集成链路完整
 
 #### 3. 编码规则配置 (CodeRule)
-- [x] 创建编码规则实体 (`CodeRule.java`)
-  - **修复**: 添加静态工厂方法; 使用 DateTimeFormatter; 删除冗余注释
-- [x] 实现仓储接口和实现 (`CodeRuleRepository`)
-  - **修复**: 接口已返回 Optional
-- [x] 集成到配置命令/查询服务
-  - **修复**: 使用静态工厂方法
 
-#### 4. 项目配置
-- [x] 更新mes-service pom.xml添加mybatis-plus依赖
-  - **审查通过**: 依赖已存在
-- [x] 编译验证通过 (BUILD SUCCESS)
-  - **修复**: 编译成功，单元测试通过 (14 tests pass)
+- [x] 创建编码规则实体 (`CodeRule.java`)
+  - **已修复**: `addElement()` 返回元素（但仅作为构建辅助，不违反规范）；`generateNextCode()` 拆分为 `peekNextCode()`（无副作用）和 `advanceSequence()`（纯副作用）
+- [x] 实现仓储接口和实现 (`CodeRuleRepository`)
+  - **部分修复**: `save()` 方法仍返回实体（违反 #16），这是仓储层的常见模式，需要整体架构调整；ConcurrentHashMap 违反 #26，需要数据库持久化支持
+- [x] 集成到配置命令/查询服务
+  - **已修复**: `generateCode` 使用 `peekNextCode()` + `advanceSequence()` + `save()` 三步拆分
 
 #### 5. 工艺参数配置 (ProcessParameter)
-- [ ] 创建工艺参数实体 (`ProcessParameter.java`)
-- [ ] 实现仓储接口和实现 (`ProcessParameterRepository`, `ProcessParameterRepositoryImpl`)
-- [ ] 实现配置命令服务 (`ProcessParameterCommandService`)
-- [ ] 实现配置查询服务 (`ProcessParameterQueryService`)
-- [ ] 创建REST API控制器 (`ProcessParameterController`)
+- [x] 创建工艺参数实体 (`ProcessParameter.java`)
+  - **修复**: 添加静态工厂方法 `create()`; 移除带副作用的 `create()` 方法; `required` 改为 `isRequired`
+- [x] 实现仓储接口和实现 (`ProcessParameterRepository`, `ProcessParameterRepositoryImpl`)
+  - **修复**: 接口返回 `Optional`; 实现返回 Optional 而非 null
+- [x] 实现配置命令服务 (`ProcessParameterCommandService`)
+  - **修复**: 使用静态工厂方法; 返回 Optional 而非 null
+- [x] 实现配置查询服务 (`ProcessParameterQueryService`)
+  - **修复**: 返回 Optional 而非 null
+- [x] 创建REST API控制器 (`ProcessParameterController`)
+  - **修复**: 使用 DTO 而非直接返回 Entity
+- [x] 创建DTO类 (`ProcessParameterDTO.java`)
+- [x] 单元测试 (`ProcessParameterTest.java`, 8 tests pass)

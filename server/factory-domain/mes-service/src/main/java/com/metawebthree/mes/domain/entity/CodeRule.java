@@ -86,9 +86,8 @@ public class CodeRule {
         return element;
     }
     
-    public String generateNextCode() {
+    public String peekNextCode() {
         Long seq = this.currentValue;
-        this.currentValue += this.step;
         
         StringBuilder sb = new StringBuilder();
         for (RuleElement element : this.elements) {
@@ -101,6 +100,16 @@ public class CodeRule {
             }
         }
         return sb.toString();
+    }
+    
+    public void advanceSequence() {
+        this.currentValue += this.step;
+    }
+    
+    public String generateNextCode() {
+        String code = peekNextCode();
+        advanceSequence();
+        return code;
     }
     
     private String formatDate(String pattern) {

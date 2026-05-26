@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+import java.util.Optional;
 
 /**
  * 工艺参数仓储实现
@@ -20,16 +21,15 @@ public class ProcessParameterRepositoryImpl implements ProcessParameterRepositor
     private final AtomicLong idGen = new AtomicLong(1);
     
     @Override
-    public ProcessParameter findById(Long id) {
-        return storage.get(id);
+    public Optional<ProcessParameter> findById(Long id) {
+        return Optional.ofNullable(storage.get(id));
     }
     
     @Override
-    public ProcessParameter findByParamCode(String paramCode) {
+    public Optional<ProcessParameter> findByParamCode(String paramCode) {
         return storage.values().stream()
                 .filter(p -> p.getParamCode().equals(paramCode))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
     
     @Override

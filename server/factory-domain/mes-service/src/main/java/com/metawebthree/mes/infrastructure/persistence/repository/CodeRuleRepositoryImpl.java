@@ -36,6 +36,13 @@ public class CodeRuleRepositoryImpl implements CodeRuleRepository {
     }
     
     @Override
+    public List<CodeRule> findAllActive() {
+        return storage.values().stream()
+                .filter(r -> r.getStatus() == CodeRule.RuleStatus.ACTIVE)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
     public CodeRule save(CodeRule codeRule) {
         if (codeRule.getId() == null) {
             codeRule.setId(idGen.getAndIncrement());

@@ -2,6 +2,7 @@ package com.metawebthree.mes.domain.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 /**
  * 工艺参数配置
@@ -85,7 +86,7 @@ public class ProcessParameter {
     /**
      * 是否必填
      */
-    private Boolean required;
+    private Boolean isRequired;
     
     /**
      * 校验规则（正则表达式）
@@ -177,23 +178,32 @@ public class ProcessParameter {
     }
     
     /**
-     * 创建工艺参数
+     * 静态工厂方法：创建工艺参数
      */
-    public void create(String paramCode, String paramName, Long routeId, 
-                       String routeCode, Integer stepNo, String stepCode,
-                       ParamType paramType, DataType dataType) {
-        this.paramCode = paramCode;
-        this.paramName = paramName;
-        this.routeId = routeId;
-        this.routeCode = routeCode;
-        this.stepNo = stepNo;
-        this.stepCode = stepCode;
-        this.paramType = paramType;
-        this.dataType = dataType;
-        this.required = false;
-        this.status = ParamStatus.ACTIVE;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+    public static ProcessParameter create(String paramCode, String paramName, Long routeId, 
+                                           String routeCode, Integer stepNo, String stepCode,
+                                           ParamType paramType, DataType dataType) {
+        ProcessParameter param = new ProcessParameter();
+        param.paramCode = paramCode;
+        param.paramName = paramName;
+        param.routeId = routeId;
+        param.routeCode = routeCode;
+        param.stepNo = stepNo;
+        param.stepCode = stepCode;
+        param.paramType = paramType;
+        param.dataType = dataType;
+        param.isRequired = false;
+        param.status = ParamStatus.ACTIVE;
+        param.createdAt = LocalDateTime.now();
+        param.updatedAt = LocalDateTime.now();
+        return param;
+    }
+    
+    /**
+     * 静态工厂方法：根据ID构建查询用 Optional
+     */
+    public static Optional<ProcessParameter> createForQuery(Long id) {
+        return Optional.empty();
     }
     
     /**
@@ -201,7 +211,7 @@ public class ProcessParameter {
      */
     public boolean validateValue(BigDecimal value) {
         if (value == null) {
-            return !required;
+            return !isRequired;
         }
         
         if (upperLimit != null && value.compareTo(upperLimit) > 0) {
@@ -269,8 +279,8 @@ public class ProcessParameter {
     public void setCollectionMethod(CollectionMethod collectionMethod) { this.collectionMethod = collectionMethod; }
     public String getDeviceAddress() { return deviceAddress; }
     public void setDeviceAddress(String deviceAddress) { this.deviceAddress = deviceAddress; }
-    public Boolean getRequired() { return required; }
-    public void setRequired(Boolean required) { this.required = required; }
+    public Boolean getIsRequired() { return isRequired; }
+    public void setIsRequired(Boolean isRequired) { this.isRequired = isRequired; }
     public String getValidationRule() { return validationRule; }
     public void setValidationRule(String validationRule) { this.validationRule = validationRule; }
     public BigDecimal getAlarmThreshold() { return alarmThreshold; }

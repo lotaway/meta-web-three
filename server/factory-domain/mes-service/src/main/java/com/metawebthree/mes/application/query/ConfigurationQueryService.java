@@ -80,10 +80,13 @@ public class ConfigurationQueryService {
         return codeRuleRepository.findByBusinessTypeAndStatus(businessType, CodeRule.RuleStatus.ACTIVE);
     }
     
-    public String previewCode(String businessType) {
+    public List<CodeRule> getAllActiveCodeRules() {
+        return codeRuleRepository.findAllActive();
+    }
+    
+    public Optional<String> previewCode(String businessType) {
         return getCodeRuleByBusinessType(businessType)
-                .map(this::generatePreview)
-                .orElse(null);
+                .map(this::generatePreview);
     }
     
     private String generatePreview(CodeRule codeRule) {
