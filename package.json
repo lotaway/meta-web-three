@@ -22,10 +22,6 @@
     "expo-image-picker": "^55.0.19"
   },
   "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://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@github.com/lotaway/meta-web-three.git"
-  },
   "keywords": [],
   "bugs": {
     "url": "https://github.com/lotaway/meta-web-three/issues"
