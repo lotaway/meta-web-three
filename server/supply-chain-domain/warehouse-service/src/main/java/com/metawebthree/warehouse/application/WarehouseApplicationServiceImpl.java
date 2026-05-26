@@ -270,6 +270,7 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
         dto.setUnitCost(item.getUnitCost());
         dto.setBatchNo(item.getBatchNo());
         dto.setProductionDate(item.getProductionDate());
+        dto.setExpiryDate(item.getExpiryDate());
         return dto;
     }
 
@@ -281,8 +282,5 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
             return item.getPlanQuantity();
         }
         return DEFAULT_QUANTITY;
-    }
-}        dto.setExpiryDate(item.getExpiryDate());
-        return dto;
     }
 }

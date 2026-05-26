@@ -47,6 +47,14 @@ const LOAD_THRESHOLDS = {
   heatmapStep: 25
 } as const
 
+const INFO_PANEL_CONFIG = {
+  padding: '12px 16px',
+  borderRadius: '8px',
+  fontSize: '12px',
+  titleMarginBottom: '8px',
+  gridGap: '4px'
+} as const
+
 export interface Shelf {
   id: string
   code: string
@@ -339,19 +347,19 @@ function WarehouseInfoPanel({ warehouse }: { warehouse: Warehouse }) {
         aria-label={`${warehouse.name} 信息面板`}
         style={{
           background: Colors.background,
-          padding: '12px 16px',
-          borderRadius: '8px',
+          padding: INFO_PANEL_CONFIG.padding,
+          borderRadius: INFO_PANEL_CONFIG.borderRadius,
           border: `1px solid ${Colors.border}`,
           color: Colors.text,
-          fontSize: '12px',
+          fontSize: INFO_PANEL_CONFIG.fontSize,
           fontFamily: 'monospace',
           minWidth: '180px'
         }}
       >
-        <div style={{ fontWeight: 'bold', marginBottom: '8px', color: Colors.primary }}>
+        <div style={{ fontWeight: 'bold', marginBottom: INFO_PANEL_CONFIG.titleMarginBottom, color: Colors.primary }}>
           {warehouse.name}
         </div>
-        <div style={{ display: 'grid', gap: '4px' }}>
+        <div style={{ display: 'grid', gap: INFO_PANEL_CONFIG.gridGap }}>
           <div>
             总面积: <span style={{ color: Colors.textMuted }}>{warehouse.totalArea} m²</span>
           </div>

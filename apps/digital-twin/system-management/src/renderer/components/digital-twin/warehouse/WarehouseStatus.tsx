@@ -21,7 +21,12 @@ const STATUS_CONFIG = {
 const STATUS_COLORS = {
   active: Colors.success,
   maintenance: Colors.warning,
-  inactive: Colors.textMuted
+  inactive: Colors.textMuted,
+  backgrounds: {
+    active: 'rgba(34, 197, 94, 0.2)',
+    maintenance: 'rgba(251, 191, 36, 0.2)',
+    inactive: 'rgba(100, 116, 139, 0.2)'
+  }
 } as const
 
 const UTIL_COLORS = [
@@ -186,10 +191,10 @@ function StatusIndicator({ status, size = 'full' }: { status: string; size?: 'co
 function StatusBadge({ status }: { status: string }) {
   const color = getStatusColor(status)
   const backgroundColor = status === 'active'
-    ? 'rgba(34, 197, 94, 0.2)'
+    ? STATUS_COLORS.backgrounds.active
     : status === 'maintenance'
-      ? 'rgba(251, 191, 36, 0.2)'
-      : 'rgba(100, 116, 139, 0.2)'
+      ? STATUS_COLORS.backgrounds.maintenance
+      : STATUS_COLORS.backgrounds.inactive
 
   return (
     <span

@@ -17,7 +17,12 @@ export default defineConfig({
     },
     alias: [
       { find: /^@\/(.*)/, replacement: path.resolve(__dirname, './src/renderer/$1') }
-    ]
+    ],
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      jsx: 'automatic',
+    },
   },
   resolve: {
     alias: {

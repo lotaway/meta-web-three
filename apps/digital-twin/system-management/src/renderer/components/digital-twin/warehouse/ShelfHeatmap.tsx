@@ -14,7 +14,8 @@ const HEATMAP_CONFIG = {
   labelBoxSize: '12px',
   shadowThreshold: 60,
   shadowBlur: '8px',
-  opacityEmpty: 0.3
+  opacityEmpty: 0.3,
+  cellFontSize: '9px'
 } as const
 
 const LOAD_THRESHOLDS = {
@@ -120,7 +121,7 @@ function HeatmapCell({ shelf, heatmapValue, isSelected, onClick }: HeatmapCellPr
         <span
           style={{
             fontWeight: 600,
-            fontSize: '9px',
+            fontSize: HEATMAP_CONFIG.cellFontSize,
             textShadow: '0 1px 2px rgba(0,0,0,0.5)'
           }}
         >
