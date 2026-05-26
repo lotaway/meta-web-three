@@ -33,6 +33,9 @@ public enum ResponseStatus {
     MEDIA_UPLOAD_FAILED("6002", "文件上传失败"),
     MEDIA_DELETE_FAILED("6003", "文件删除失败"),
 
+    WAREHOUSE_NOT_FOUND("7001", "仓库不存在"),
+    INBOUND_ORDER_NOT_FOUND("7002", "入库单不存在"),
+
     PARAM_ERROR("1000", "参数错误"),
     METHOD_NOT_ALLOWED("1004", "不支持的请求方法"),
     NOT_FOUND("1005", "资源不存在"),
