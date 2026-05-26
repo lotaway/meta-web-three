@@ -4,7 +4,6 @@ import com.metawebthree.mes.application.command.ProcessParameterCommandService;
 import com.metawebthree.mes.application.query.ProcessParameterQueryService;
 import com.metawebthree.mes.domain.entity.ProcessParameter;
 import com.metawebthree.mes.interfaces.dto.ProcessParameterDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,23 +14,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * 工艺参数配置控制器
- * 提供工艺参数的 REST API
- */
 @RestController
 @RequestMapping("/api/mes/process-parameters")
 public class ProcessParameterController {
     
-    @Autowired
-    private ProcessParameterCommandService commandService;
+    private final ProcessParameterCommandService commandService;
+    private final ProcessParameterQueryService queryService;
     
-    @Autowired
-    private ProcessParameterQueryService queryService;
+    public ProcessParameterController(
+            ProcessParameterCommandService commandService,
+            ProcessParameterQueryService queryService) {
+        this.commandService = commandService;
+        this.queryService = queryService;
+    }
     
-    /**
-     * 创建工艺参数
-     */
     @PostMapping
     public ResponseEntity<ProcessParameterDTO> create(@RequestBody ProcessParameterRequest request) {
         ProcessParameter param = commandService.createParameter(
@@ -59,9 +55,6 @@ public class ProcessParameterController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ProcessParameterDTO.fromEntity(param));
     }
     
-    /**
-     * 更新工艺参数
-     */
     @PutMapping("/{id}")
     public ResponseEntity<ProcessParameterDTO> update(@PathVariable Long id, @RequestBody ProcessParameterRequest request) {
         ProcessParameter updated = ProcessParameter.create(
@@ -85,9 +78,6 @@ public class ProcessParameterController {
         return ResponseEntity.ok(ProcessParameterDTO.fromEntity(param));
     }
     
-    /**
-     * 更新参数状态
-     */
     @PatchMapping("/{id}/status")
     public ResponseEntity<ProcessParameterDTO> updateStatus(
             @PathVariable Long id,
@@ -96,27 +86,18 @@ public class ProcessParameterController {
         return ResponseEntity.ok(ProcessParameterDTO.fromEntity(param));
     }
     
-    /**
-     * 删除工艺参数
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         commandService.deleteParameter(id);
         return ResponseEntity.noContent().build();
     }
     
-    /**
-     * 批量删除工艺参数
-     */
     @DeleteMapping("/batch")
     public ResponseEntity<Void> deleteBatch(@RequestBody List<Long> ids) {
         commandService.deleteParameters(ids);
         return ResponseEntity.noContent().build();
     }
     
-    /**
-     * 根据ID查询
-     */
     @GetMapping("/{id}")
     public ResponseEntity<ProcessParameterDTO> getById(@PathVariable Long id) {
         return queryService.findById(id)
@@ -124,9 +105,6 @@ public class ProcessParameterController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
-    /**
-     * 根据参数编码查询
-     */
     @GetMapping("/code/{paramCode}")
     public ResponseEntity<ProcessParameterDTO> getByParamCode(@PathVariable String paramCode) {
         return queryService.findByParamCode(paramCode)
@@ -134,9 +112,6 @@ public class ProcessParameterController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
-    /**
-     * 根据工艺路线ID查询
-     */
     @GetMapping("/route/{routeId}")
     public ResponseEntity<List<ProcessParameterDTO>> getByRouteId(@PathVariable Long routeId) {
         List<ProcessParameterDTO> params = queryService.findByRouteId(routeId).stream()
@@ -145,9 +120,6 @@ public class ProcessParameterController {
         return ResponseEntity.ok(params);
     }
     
-    /**
-     * 根据工艺路线编码查询
-     */
     @GetMapping("/route-code/{routeCode}")
     public ResponseEntity<List<ProcessParameterDTO>> getByRouteCode(@PathVariable String routeCode) {
         List<ProcessParameterDTO> params = queryService.findByRouteCode(routeCode).stream()
@@ -156,9 +128,6 @@ public class ProcessParameterController {
         return ResponseEntity.ok(params);
     }
     
-    /**
-     * 根据工序查询
-     */
     @GetMapping("/step/{routeId}/{stepNo}")
     public ResponseEntity<List<ProcessParameterDTO>> getByStep(
             @PathVariable Long routeId,
@@ -169,9 +138,6 @@ public class ProcessParameterController {
         return ResponseEntity.ok(params);
     }
     
-    /**
-     * 根据参数类型查询
-     */
     @GetMapping("/type/{paramType}")
     public ResponseEntity<List<ProcessParameterDTO>> getByParamType(
             @PathVariable ProcessParameter.ParamType paramType) {
@@ -181,9 +147,6 @@ public class ProcessParameterController {
         return ResponseEntity.ok(params);
     }
     
-    /**
-     * 查询所有激活的参数
-     */
     @GetMapping("/active")
     public ResponseEntity<List<ProcessParameterDTO>> getActiveParameters() {
         List<ProcessParameterDTO> params = queryService.findActiveParameters().stream()
@@ -192,9 +155,6 @@ public class ProcessParameterController {
         return ResponseEntity.ok(params);
     }
     
-    /**
-     * 根据参数分组查询
-     */
     @GetMapping("/group/{paramGroup}")
     public ResponseEntity<List<ProcessParameterDTO>> getByParamGroup(@PathVariable String paramGroup) {
         List<ProcessParameterDTO> params = queryService.findByParamGroup(paramGroup).stream()
@@ -203,9 +163,6 @@ public class ProcessParameterController {
         return ResponseEntity.ok(params);
     }
     
-    /**
-     * 统计工艺路线的参数数量
-     */
     @GetMapping("/route/{routeId}/count")
     public ResponseEntity<Map<String, Long>> countByRouteId(@PathVariable Long routeId) {
         long count = queryService.countByRouteId(routeId);
@@ -214,9 +171,6 @@ public class ProcessParameterController {
         return ResponseEntity.ok(result);
     }
     
-    /**
-     * 验证参数值
-     */
     @PostMapping("/{id}/validate")
     public ResponseEntity<ProcessParameterQueryService.ValidationResult> validateValue(
             @PathVariable Long id,
@@ -225,9 +179,6 @@ public class ProcessParameterController {
         return ResponseEntity.ok(result);
     }
     
-    /**
-     * 批量验证参数值
-     */
     @PostMapping("/validate-batch")
     public ResponseEntity<List<ProcessParameterQueryService.ValidationResult>> validateBatch(
             @RequestBody List<ValidateRequest> requests) {
@@ -237,9 +188,6 @@ public class ProcessParameterController {
         return ResponseEntity.ok(results);
     }
     
-    /**
-     * 复制工艺参数到新工艺路线
-     */
     @PostMapping("/copy")
     public ResponseEntity<List<ProcessParameterDTO>> copyToRoute(@RequestBody CopyRequest request) {
         List<ProcessParameterDTO> params = commandService.copyToRoute(
@@ -253,9 +201,6 @@ public class ProcessParameterController {
         return ResponseEntity.status(HttpStatus.CREATED).body(params);
     }
     
-    /**
-     * 请求对象
-     */
     public static class ProcessParameterRequest {
         private String paramCode;
         private String paramName;
@@ -278,7 +223,6 @@ public class ProcessParameterController {
         private String paramGroup;
         private String remark;
         
-        // Getters and Setters
         public String getParamCode() { return paramCode; }
         public void setParamCode(String paramCode) { this.paramCode = paramCode; }
         public String getParamName() { return paramName; }
@@ -321,9 +265,6 @@ public class ProcessParameterController {
         public void setRemark(String remark) { this.remark = remark; }
     }
     
-    /**
-     * 校验请求
-     */
     public static class ValidateRequest {
         private Long paramId;
         private BigDecimal value;
@@ -334,9 +275,6 @@ public class ProcessParameterController {
         public void setValue(BigDecimal value) { this.value = value; }
     }
     
-    /**
-     * 复制请求
-     */
     public static class CopyRequest {
         private Long sourceRouteId;
         private Long targetRouteId;

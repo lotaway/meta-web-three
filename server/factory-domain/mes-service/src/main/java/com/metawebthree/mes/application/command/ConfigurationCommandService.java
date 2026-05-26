@@ -79,8 +79,7 @@ public class ConfigurationCommandService {
             throw new IllegalArgumentException("Field value validation failed: " + fieldCode);
         }
         
-        EntityExtensionFieldValue value = new EntityExtensionFieldValue();
-        value.create(entityType, entityId, fieldCode, fieldValue);
+        EntityExtensionFieldValue value = EntityExtensionFieldValue.create(entityType, entityId, fieldCode, fieldValue);
         fieldValueRepository.save(value);
     }
     

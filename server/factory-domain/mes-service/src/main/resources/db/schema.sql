@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS mes_entity_extension_field (
     field_type VARCHAR(20) NOT NULL COMMENT '字段类型: TEXT, NUMBER, DATE, DATETIME, SELECT, MULTI_SELECT, CHECKBOX, SWITCH, REFERENCE',
     default_value VARCHAR(500) COMMENT '默认值',
     required BOOLEAN DEFAULT FALSE COMMENT '是否必填',
-    unique_field BOOLEAN DEFAULT FALSE COMMENT '是否唯一',
+    is_unique BOOLEAN DEFAULT FALSE COMMENT '是否唯一',
     validation_rule VARCHAR(500) COMMENT '校验规则(正则表达式)',
     list_visible BOOLEAN DEFAULT TRUE COMMENT '是否列表显示',
     searchable BOOLEAN DEFAULT FALSE COMMENT '是否可搜索',
@@ -83,6 +83,8 @@ CREATE TABLE IF NOT EXISTS mes_code_rule_element (
     field_name VARCHAR(50) COMMENT '业务字段名(BUSINESS_FIELD时)',
     sort_order INTEGER DEFAULT 0 COMMENT '排序序号'
 );
+
+CREATE INDEX idx_code_rule_element_rule_id ON mes_code_rule_element(rule_id);
 
 -- 创建索引
 CREATE INDEX idx_extension_field_entity_type ON mes_entity_extension_field(entity_type);

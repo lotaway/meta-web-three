@@ -6,9 +6,6 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * 工艺参数实体单元测试
- */
 public class ProcessParameterTest {
     
     @Test

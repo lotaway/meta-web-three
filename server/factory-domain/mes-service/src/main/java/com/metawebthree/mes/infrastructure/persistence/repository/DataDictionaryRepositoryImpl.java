@@ -41,7 +41,6 @@ public class DataDictionaryRepositoryImpl implements DataDictionaryRepository {
             dictionary.setId(idGen.getAndIncrement());
         }
         
-        // 如果有字典项，更新它们的dictId
         if (dictionary.getItems() != null) {
             for (DataDictionary.DataDictionaryItem item : dictionary.getItems()) {
                 if (item.getDictId() == null) {

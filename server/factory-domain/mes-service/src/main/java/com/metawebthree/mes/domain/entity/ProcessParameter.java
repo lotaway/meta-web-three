@@ -4,182 +4,70 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-/**
- * 工艺参数配置
- * 用于定义生产工艺过程中的参数标准
- * 对应 SPEC 文档 4.2 工艺参数配置
- */
 public class ProcessParameter {
     
     private Long id;
-    
-    /**
-     * 参数编码（唯一标识）
-     */
     private String paramCode;
-    
-    /**
-     * 参数名称
-     */
     private String paramName;
-    
-    /**
-     * 所属工艺路线ID
-     */
     private Long routeId;
-    
-    /**
-     * 工艺路线编码
-     */
     private String routeCode;
-    
-    /**
-     * 工序序号
-     */
     private Integer stepNo;
-    
-    /**
-     * 工序编码
-     */
     private String stepCode;
-    
-    /**
-     * 参数类型
-     */
     private ParamType paramType;
-    
-    /**
-     * 数据类型
-     */
     private DataType dataType;
-    
-    /**
-     * 单位
-     */
     private String unit;
-    
-    /**
-     * 标准值
-     */
     private BigDecimal standardValue;
-    
-    /**
-     * 规格上限
-     */
     private BigDecimal upperLimit;
-    
-    /**
-     * 规格下限
-     */
     private BigDecimal lowerLimit;
-    
-    /**
-     * 采集方式: MANUAL, AUTO_SENSOR, PLC, barcode
-     */
     private CollectionMethod collectionMethod;
-    
-    /**
-     * 采集设备地址
-     */
     private String deviceAddress;
-    
-    /**
-     * 是否必填
-     */
     private Boolean isRequired;
-    
-    /**
-     * 校验规则（正则表达式）
-     */
     private String validationRule;
-    
-    /**
-     * 超差报警阈值（百分比）
-     */
     private BigDecimal alarmThreshold;
-    
-    /**
-     * 显示顺序
-     */
     private Integer displayOrder;
-    
-    /**
-     * 参数分组
-     */
     private String paramGroup;
-    
-    /**
-     * 备注说明
-     */
     private String remark;
-    
-    /**
-     * 状态: ACTIVE, INACTIVE
-     */
     private ParamStatus status;
-    
-    /**
-     * 创建时间
-     */
     private LocalDateTime createdAt;
-    
-    /**
-     * 更新时间
-     */
     private LocalDateTime updatedAt;
     
-    /**
-     * 参数类型枚举
-     */
     public enum ParamType {
-        TEMPERATURE,       // 温度
-        PRESSURE,          // 压力
-        SPEED,             // 速度
-        TIME,              // 时间
-        CURRENT,           // 电流
-        VOLTAGE,           // 电压
-        FORCE,             // 力
-        LENGTH,            // 长度
-        ANGLE,             // 角度
-        WEIGHT,            // 重量
-        VOLUME,            // 体积
-        SPEED_PER_MINUTE,  // 转速
-        HUMIDITY,          // 湿度
-        QUALITY,           // 质量参数
-        COUNT,             // 计数
-        OTHER              // 其他
+        TEMPERATURE,       
+        PRESSURE,          
+        SPEED,             
+        TIME,              
+        CURRENT,           
+        VOLTAGE,           
+        FORCE,             
+        LENGTH,            
+        ANGLE,             
+        WEIGHT,            
+        VOLUME,            
+        SPEED_PER_MINUTE,  
+        HUMIDITY,          
+        QUALITY,           
+        COUNT,             
+        OTHER              
     }
     
-    /**
-     * 数据类型枚举
-     */
     public enum DataType {
-        INTEGER,   // 整数
-        DECIMAL,   // 小数
-        TEXT,      // 文本
-        BOOLEAN    // 布尔
+        INTEGER,   
+        DECIMAL,   
+        TEXT,      
+        BOOLEAN    
     }
     
-    /**
-     * 采集方式枚举
-     */
     public enum CollectionMethod {
-        MANUAL,      // 人工录入
-        AUTO_SENSOR, // 传感器自动采集
-        PLC,         // PLC采集
-        BARCODE      // 条码扫描
+        MANUAL,      
+        AUTO_SENSOR, 
+        PLC,         
+        BARCODE      
     }
     
-    /**
-     * 参数状态枚举
-     */
     public enum ParamStatus {
         ACTIVE, INACTIVE
     }
     
-    /**
-     * 静态工厂方法：创建工艺参数
-     */
     public static ProcessParameter create(String paramCode, String paramName, Long routeId, 
                                            String routeCode, Integer stepNo, String stepCode,
                                            ParamType paramType, DataType dataType) {
@@ -199,16 +87,10 @@ public class ProcessParameter {
         return param;
     }
     
-    /**
-     * 静态工厂方法：根据ID构建查询用 Optional
-     */
     public static Optional<ProcessParameter> createForQuery(Long id) {
         return Optional.empty();
     }
     
-    /**
-     * 校验参数值是否在规格范围内
-     */
     public boolean validateValue(BigDecimal value) {
         if (value == null) {
             return !isRequired;
@@ -225,9 +107,6 @@ public class ProcessParameter {
         return true;
     }
     
-    /**
-     * 计算偏差百分比
-     */
     public BigDecimal calculateDeviation(BigDecimal actualValue) {
         if (standardValue == null || actualValue == null || standardValue.compareTo(BigDecimal.ZERO) == 0) {
             return null;
@@ -237,9 +116,6 @@ public class ProcessParameter {
                           .multiply(new BigDecimal("100"));
     }
     
-    /**
-     * 判断是否超差
-     */
     public boolean isOutOfTolerance(BigDecimal actualValue) {
         BigDecimal deviation = calculateDeviation(actualValue);
         if (deviation == null || alarmThreshold == null) {
@@ -248,7 +124,6 @@ public class ProcessParameter {
         return deviation.abs().compareTo(alarmThreshold) > 0;
     }
     
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getParamCode() { return paramCode; }

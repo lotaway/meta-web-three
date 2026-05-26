@@ -2,7 +2,6 @@ package com.metawebthree.mes.application.query;
 
 import com.metawebthree.mes.domain.entity.ProcessParameter;
 import com.metawebthree.mes.domain.repository.ProcessParameterRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,90 +9,56 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * 工艺参数配置查询服务
- * 处理工艺参数的查询检索
- */
 @Service
 @Transactional(readOnly = true)
 public class ProcessParameterQueryService {
     
-    @Autowired
-    private ProcessParameterRepository repository;
+    private final ProcessParameterRepository repository;
     
-    /**
-     * 根据ID查询
-     */
+    public ProcessParameterQueryService(ProcessParameterRepository repository) {
+        this.repository = repository;
+    }
+    
     public Optional<ProcessParameter> findById(Long id) {
         return repository.findById(id);
     }
     
-    /**
-     * 根据参数编码查询
-     */
     public Optional<ProcessParameter> findByParamCode(String paramCode) {
         return repository.findByParamCode(paramCode);
     }
     
-    /**
-     * 根据工艺路线ID查询所有参数
-     */
     public List<ProcessParameter> findByRouteId(Long routeId) {
         return repository.findByRouteIdOrderByStepNoAscDisplayOrderAsc(routeId);
     }
     
-    /**
-     * 根据工艺路线编码查询所有参数
-     */
     public List<ProcessParameter> findByRouteCode(String routeCode) {
         return repository.findByRouteCodeOrderByStepNoAscDisplayOrderAsc(routeCode);
     }
     
-    /**
-     * 根据工序查询参数
-     */
     public List<ProcessParameter> findByStep(Long routeId, Integer stepNo) {
         return repository.findByRouteIdAndStepNoOrderByDisplayOrderAsc(routeId, stepNo);
     }
     
-    /**
-     * 根据参数类型查询
-     */
     public List<ProcessParameter> findByParamType(ProcessParameter.ParamType paramType) {
         return repository.findByParamType(paramType);
     }
     
-    /**
-     * 查询所有激活的参数
-     */
     public List<ProcessParameter> findActiveParameters() {
         return repository.findByStatus(ProcessParameter.ParamStatus.ACTIVE);
     }
     
-    /**
-     * 根据参数分组查询
-     */
     public List<ProcessParameter> findByParamGroup(String paramGroup) {
         return repository.findByParamGroup(paramGroup);
     }
     
-    /**
-     * 根据工艺路线ID统计参数数量
-     */
     public long countByRouteId(Long routeId) {
         return repository.countByRouteId(routeId);
     }
     
-    /**
-     * 根据工序统计参数数量
-     */
     public long countByStep(Long routeId, Integer stepNo) {
         return repository.countByRouteIdAndStepNo(routeId, stepNo);
     }
     
-    /**
-     * 验证参数值是否合格
-     */
     public ValidationResult validateValue(Long paramId, BigDecimal value) {
         ProcessParameter param = repository.findById(paramId)
                 .orElseThrow(() -> new IllegalArgumentException("参数不存在: " + paramId));
@@ -118,7 +83,6 @@ public class ProcessParameterQueryService {
             return result;
         }
         
-        // 检查是否在规格范围内
         boolean inRange = param.validateValue(value);
         if (!inRange) {
             result.setValid(false);
@@ -132,13 +96,12 @@ public class ProcessParameterQueryService {
             return result;
         }
         
-        // 检查是否超差
         if (param.isOutOfTolerance(value)) {
             BigDecimal deviation = param.calculateDeviation(value);
             result.setDeviation(deviation);
             result.setOutOfTolerance(true);
             result.setMessage("参数值超出报警阈值，偏差: " + deviation + "%");
-            result.setValid(true); // 超差仍然算通过，但需要标记
+            result.setValid(true);
             return result;
         }
         
@@ -147,9 +110,6 @@ public class ProcessParameterQueryService {
         return result;
     }
     
-    /**
-     * 校验结果
-     */
     public static class ValidationResult {
         private Long paramId;
         private String paramCode;
@@ -163,7 +123,6 @@ public class ProcessParameterQueryService {
         private boolean outOfTolerance;
         private String message;
         
-        // Getters and Setters
         public Long getParamId() { return paramId; }
         public void setParamId(Long paramId) { this.paramId = paramId; }
         public String getParamCode() { return paramCode; }

@@ -3,10 +3,6 @@ package com.metawebthree.mes.interfaces.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * 工艺参数DTO
- * 用于REST API返回数据，避免泄露实体实现细节
- */
 public class ProcessParameterDTO {
     
     private Long id;
@@ -66,7 +62,6 @@ public class ProcessParameterDTO {
         return dto;
     }
     
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getParamCode() { return paramCode; }

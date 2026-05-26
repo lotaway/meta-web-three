@@ -10,10 +10,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.Optional;
 
-/**
- * 工艺参数仓储实现
- * 使用内存存储，生产环境应替换为数据库实现
- */
 @Repository
 public class ProcessParameterRepositoryImpl implements ProcessParameterRepository {
     

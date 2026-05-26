@@ -2,7 +2,6 @@ package com.metawebthree.mes.application.command;
 
 import com.metawebthree.mes.domain.entity.ProcessParameter;
 import com.metawebthree.mes.domain.repository.ProcessParameterRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,20 +9,16 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * 工艺参数配置命令服务
- * 处理工艺参数的创建、更新、删除等命令
- */
 @Service
 @Transactional
 public class ProcessParameterCommandService {
     
-    @Autowired
-    private ProcessParameterRepository repository;
+    private final ProcessParameterRepository repository;
     
-    /**
-     * 创建工艺参数
-     */
+    public ProcessParameterCommandService(ProcessParameterRepository repository) {
+        this.repository = repository;
+    }
+    
     public ProcessParameter createParameter(
             String paramCode,
             String paramName,
@@ -46,7 +41,6 @@ public class ProcessParameterCommandService {
             String paramGroup,
             String remark) {
         
-        // 检查参数编码是否已存在
         if (repository.findByParamCode(paramCode).isPresent()) {
             throw new IllegalArgumentException("参数编码已存在: " + paramCode);
         }
@@ -68,9 +62,6 @@ public class ProcessParameterCommandService {
         return repository.save(parameter);
     }
     
-    /**
-     * 更新工艺参数
-     */
     public ProcessParameter updateParameter(Long id, ProcessParameter updated) {
         ProcessParameter parameter = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("参数不存在: " + id));
@@ -118,9 +109,6 @@ public class ProcessParameterCommandService {
         return repository.save(parameter);
     }
     
-    /**
-     * 激活/停用工艺参数
-     */
     public ProcessParameter updateStatus(Long id, ProcessParameter.ParamStatus status) {
         ProcessParameter parameter = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("参数不存在: " + id));
@@ -129,9 +117,6 @@ public class ProcessParameterCommandService {
         return repository.save(parameter);
     }
     
-    /**
-     * 删除工艺参数
-     */
     public void deleteParameter(Long id) {
         if (repository.findById(id).isEmpty()) {
             throw new IllegalArgumentException("参数不存在: " + id);
@@ -139,16 +124,10 @@ public class ProcessParameterCommandService {
         repository.deleteById(id);
     }
     
-    /**
-     * 批量删除工艺参数
-     */
     public void deleteParameters(List<Long> ids) {
         repository.deleteAllById(ids);
     }
     
-    /**
-     * 复制工艺参数到新的工艺路线
-     */
     public List<ProcessParameter> copyToRoute(Long sourceRouteId, Long targetRouteId, 
                                                String targetRouteCode, Integer newStepOffset) {
         List<ProcessParameter> sourceParams = repository.findByRouteIdOrderByStepNoAscDisplayOrderAsc(sourceRouteId);

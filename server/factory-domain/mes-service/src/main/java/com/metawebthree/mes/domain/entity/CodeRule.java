@@ -106,6 +106,7 @@ public class CodeRule {
         this.currentValue += this.step;
     }
     
+    @Deprecated
     public String generateNextCode() {
         String code = peekNextCode();
         advanceSequence();

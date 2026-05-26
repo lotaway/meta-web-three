@@ -32,10 +32,9 @@ public class DataDictionary {
         return dict;
     }
     
-    public DataDictionaryItem addItem(String itemCode, String itemLabel, Integer sortOrder) {
+    public void addItem(String itemCode, String itemLabel, Integer sortOrder) {
         DataDictionaryItem item = DataDictionaryItem.create(this.id, itemCode, itemLabel, sortOrder);
         this.items.add(item);
-        return item;
     }
     
     public void removeItem(String itemCode) {
