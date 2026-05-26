@@ -202,6 +202,24 @@ CREATE TABLE IF NOT EXISTS mes_equipment (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 工艺路线表
+CREATE TABLE IF NOT EXISTS mes_process_route (
+    id BIGSERIAL PRIMARY KEY,
+    route_code VARCHAR(50) NOT NULL UNIQUE COMMENT '工艺路线编码',
+    route_name VARCHAR(100) NOT NULL COMMENT '工艺路线名称',
+    product_code VARCHAR(50) NOT NULL COMMENT '产品编码',
+    version INTEGER DEFAULT 1 COMMENT '版本号',
+    status VARCHAR(20) DEFAULT 'DRAFT' COMMENT '状态: DRAFT, ACTIVE, ARCHIVED',
+    steps JSONB COMMENT '工序步骤(JSON数组)',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 工艺路线表索引
+CREATE INDEX idx_process_route_code ON mes_process_route(route_code);
+CREATE INDEX idx_process_route_product_code ON mes_process_route(product_code);
+CREATE INDEX idx_process_route_status ON mes_process_route(status);
+
 -- 设备表索引
 CREATE INDEX idx_equipment_code ON mes_equipment(equipment_code);
 CREATE INDEX idx_equipment_workshop_id ON mes_equipment(workshop_id);

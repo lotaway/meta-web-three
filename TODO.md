@@ -94,6 +94,8 @@
 - [x] 创建设备实体 (`Equipment.java`)
   - ✅ 实体已创建，包含完整的状态机和业务逻辑
   - ✅ 15 个单元测试全部通过（状态转换、边界场景）
+  - ✅ 已接入 PostgreSQL/MyBatis-Plus 持久化
+  - 创建了 EquipmentDO、EquipmentMapper，重构了 RepositoryImpl
 - [ ] 设备点检模板 (SPEC 4.6 P1)
   - **缺失**: 无点检项、点检周期、异常判定
 - [ ] 保养计划 (SPEC 4.6 P1)
