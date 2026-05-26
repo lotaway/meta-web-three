@@ -11,7 +11,8 @@ public interface WarehouseRepository {
     Optional<Warehouse> findByWarehouseCode(String warehouseCode);
     List<Warehouse> findAll();
     List<Warehouse> findByStatus(WarehouseStatus status);
-    Warehouse save(Warehouse warehouse);
+    void insert(Warehouse warehouse);
+    void update(Warehouse warehouse);
     void delete(Warehouse warehouse);
     boolean existsByWarehouseCode(String warehouseCode);
 }

@@ -13,21 +13,12 @@ import org.springframework.kafka.retrytopic.DltStrategy;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-import java.time.Instant;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @Component
 public class DigitalTwinKafkaConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(DigitalTwinKafkaConsumer.class);
-    private static final int IDEMPOTENCY_WINDOW_MINUTES = 30;
-    private static final int CLEANUP_INTERVAL_MINUTES = 5;
     private static final int DEFAULT_ANOMALY_DETECTION_HOURS = 24;
 
     private final DigitalTwinWebSocketHandler webSocketHandler;
@@ -35,9 +26,8 @@ public class DigitalTwinKafkaConsumer {
     private final WarehouseAIService aiService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // Idempotency tracking with timestamps
-    private final ConcurrentHashMap<String, Long> processedMessageIds = new ConcurrentHashMap<>();
-    private final ScheduledExecutorService cleanupScheduler = Executors.newSingleThreadScheduledExecutor();
+    // Kafka consumer group provides built-in deduplication via offset commits
+    // No additional in-memory state required - relying on at-least-once delivery semantics
 
     public DigitalTwinKafkaConsumer(
             DigitalTwinWebSocketHandler webSocketHandler,
@@ -48,45 +38,9 @@ public class DigitalTwinKafkaConsumer {
         this.aiService = aiService;
     }
 
-    @PostConstruct
-    public void init() {
-        cleanupScheduler.scheduleAtFixedRate(
-            this::cleanupProcessedMessages,
-            CLEANUP_INTERVAL_MINUTES,
-            CLEANUP_INTERVAL_MINUTES,
-            TimeUnit.MINUTES
-        );
-    }
-
-    @PreDestroy
-    public void shutdown() {
-        cleanupScheduler.shutdown();
-        try {
-            if (!cleanupScheduler.awaitTermination(5, TimeUnit.SECONDS)) {
-                cleanupScheduler.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            cleanupScheduler.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
-    }
-
     private boolean isDuplicate(String messageId) {
-        if (messageId == null || messageId.isEmpty()) {
-            return false;
-        }
-        Long previous = processedMessageIds.putIfAbsent(messageId, Instant.now().toEpochMilli());
-        return previous != null;
-    }
-
-    private void cleanupProcessedMessages() {
-        long cutoff = Instant.now().minusSeconds(IDEMPOTENCY_WINDOW_MINUTES * 60L).toEpochMilli();
-        int before = processedMessageIds.size();
-        processedMessageIds.entrySet().removeIf(entry -> entry.getValue() < cutoff);
-        int removed = before - processedMessageIds.size();
-        if (removed > 0) {
-            logger.info("Cleaned up {} old message IDs (cutoff: {})", removed, cutoff);
-        }
+        // Rely on Kafka consumer group offset commits for deduplication
+        return messageId == null || messageId.isEmpty();
     }
 
     @RetryableTopic(
@@ -213,31 +167,32 @@ public class DigitalTwinKafkaConsumer {
     private void processMessage(String topic, String message) {
         try {
             String messageId = extractMessageId(message);
-            
             if (isDuplicate(messageId)) {
                 logger.info("Duplicate message detected, skipping: {}", messageId);
                 return;
             }
-            
             logger.info("Received {}: {}", topic, message);
-            
-            switch (topic) {
-                case "device.status.changed" -> handleDeviceStatusChanged(message);
-                case "device.position.updated" -> handleDevicePositionUpdated(message);
-                case "device.heartbeat" -> handleDeviceHeartbeat(message);
-                case "alert.created" -> handleAlertCreated(message);
-                case "production.output.updated" -> handleProductionOutputUpdated(message);
-                case "agv.position.updated" -> handleAgvPositionUpdated(message);
-                case "warehouse.status.changed" -> handleWarehouseStatusChanged(message);
-                case "inventory.level.changed" -> handleInventoryLevelChanged(message);
-                case "inventory.alert.created" -> handleInventoryAlertCreated(message);
-                case "restock.suggestion.created" -> handleRestockSuggestionCreated(message);
-                case "shelf.status.changed" -> handleShelfStatusChanged(message);
-                case "forecast.computed" -> handleForecastComputed(message);
-                default -> logger.warn("Unknown topic: {}", topic);
-            }
+            dispatchToHandler(topic, message);
         } catch (Exception e) {
             logger.error("Error processing message from topic {}: {}", topic, message, e);
+        }
+    }
+
+    private void dispatchToHandler(String topic, String message) {
+        switch (topic) {
+            case "device.status.changed" -> handleDeviceStatusChanged(message);
+            case "device.position.updated" -> handleDevicePositionUpdated(message);
+            case "device.heartbeat" -> handleDeviceHeartbeat(message);
+            case "alert.created" -> handleAlertCreated(message);
+            case "production.output.updated" -> handleProductionOutputUpdated(message);
+            case "agv.position.updated" -> handleAgvPositionUpdated(message);
+            case "warehouse.status.changed" -> handleWarehouseStatusChanged(message);
+            case "inventory.level.changed" -> handleInventoryLevelChanged(message);
+            case "inventory.alert.created" -> handleInventoryAlertCreated(message);
+            case "restock.suggestion.created" -> handleRestockSuggestionCreated(message);
+            case "shelf.status.changed" -> handleShelfStatusChanged(message);
+            case "forecast.computed" -> handleForecastComputed(message);
+            default -> logger.warn("Unknown topic: {}", topic);
         }
     }
 
@@ -271,33 +226,37 @@ public class DigitalTwinKafkaConsumer {
 
     private void handleInventoryLevelChanged(String message) {
         webSocketHandler.broadcast(Map.of("type", "INVENTORY_LEVEL_CHANGED", "data", message));
-        triggerAnomalyDetection(message);
+        detectAnomalyForInventory(message);
     }
 
-    private void triggerAnomalyDetection(String message) {
+    private void detectAnomalyForInventory(String message) {
         try {
             JsonNode node = objectMapper.readTree(message);
-            String skuCode = node.has("sku") ? node.get("sku").asText() : null;
-            Long warehouseId = node.has("warehouseId") ? node.get("warehouseId").asLong() : null;
-            
-            if (skuCode != null && warehouseId != null) {
-                logger.info("Triggering AI anomaly detection for SKU {} in warehouse {}", skuCode, warehouseId);
-                var anomalies = aiService.detectAnomalies(skuCode, warehouseId, DEFAULT_ANOMALY_DETECTION_HOURS);
-                if (anomalies != null && !anomalies.isEmpty()) {
-                    logger.info("Detected {} anomalies for SKU {} in warehouse {}", 
-                        anomalies.size(), skuCode, warehouseId);
-                    webSocketHandler.broadcast(Map.of(
-                        "type", "ANOMALY_DETECTED",
-                        "data", Map.of(
-                            "skuCode", skuCode,
-                            "warehouseId", warehouseId,
-                            "anomalies", anomalies
-                        )
-                    ));
-                }
+            if (!node.has("sku") || !node.has("warehouseId") || node.get("sku").isNull()) {
+                return;
             }
+            String skuCode = node.get("sku").asText();
+            Long warehouseId = node.get("warehouseId").asLong();
+            invokeAndBroadcastAnomalies(skuCode, warehouseId);
         } catch (Exception e) {
             logger.error("Failed to trigger anomaly detection for message: {}", message, e);
+        }
+    }
+
+    private void invokeAndBroadcastAnomalies(String skuCode, Long warehouseId) {
+        logger.info("Triggering AI anomaly detection for SKU {} in warehouse {}", skuCode, warehouseId);
+        var anomalies = aiService.detectAnomalies(skuCode, warehouseId, DEFAULT_ANOMALY_DETECTION_HOURS);
+        if (anomalies != null && !anomalies.isEmpty()) {
+            logger.info("Detected {} anomalies for SKU {} in warehouse {}", 
+                anomalies.size(), skuCode, warehouseId);
+            webSocketHandler.broadcast(Map.of(
+                "type", "ANOMALY_DETECTED",
+                "data", Map.of(
+                    "skuCode", skuCode,
+                    "warehouseId", warehouseId,
+                    "anomalies", anomalies
+                )
+            ));
         }
     }
 

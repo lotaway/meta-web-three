@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.UUID;
 
 @Service
 public class InventoryCommandService {
@@ -24,7 +24,6 @@ public class InventoryCommandService {
     private final InventoryAlertRepository inventoryAlertRepository;
     private final ShelfRepository shelfRepository;
     private final DigitalTwinEventPublisher eventPublisher;
-    private final AtomicLong alertIdGenerator = new AtomicLong(System.currentTimeMillis());
 
     public InventoryCommandService(InventoryItemRepository inventoryItemRepository,
                                     InventoryAlertRepository inventoryAlertRepository,
@@ -41,7 +40,8 @@ public class InventoryCommandService {
         validateCreateItemRequest(request);
         InventoryItem item = new InventoryItem(request.itemCode, request.sku, request.itemName);
         assignItemFields(item, request);
-        return inventoryItemRepository.save(item);
+        inventoryItemRepository.insert(item);
+        return item;
     }
 
     private void validateCreateItemRequest(CreateItemRequest request) {
@@ -75,7 +75,8 @@ public class InventoryCommandService {
         InventoryItem item = inventoryItemRepository.findById(request.id)
                 .orElseThrow(() -> new IllegalArgumentException("Item not found: " + request.id));
         applyItemUpdates(item, request);
-        return inventoryItemRepository.save(item);
+        inventoryItemRepository.update(item);
+        return item;
     }
 
     private void applyItemUpdates(InventoryItem item, UpdateItemRequest request) {
@@ -107,14 +108,14 @@ public class InventoryCommandService {
                 .orElseThrow(() -> new IllegalArgumentException("Item not found: " + itemId));
         item.addQuantity(quantity);
         item.setLastRestockDate(LocalDate.now());
-        InventoryItem savedItem = inventoryItemRepository.save(item);
+        inventoryItemRepository.update(item);
         String warehouseCode = findWarehouseCodeByShelf(item.getShelfCode());
         eventPublisher.publishInventoryLevelChanged(
                 warehouseCode,
                 item.getSku(),
                 item.getQuantity().intValue(),
                 item.getStatus().name());
-        return savedItem;
+        return item;
     }
 
     @Transactional
@@ -122,15 +123,15 @@ public class InventoryCommandService {
         InventoryItem item = inventoryItemRepository.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("Item not found: " + itemId));
         item.removeQuantity(quantity);
-        InventoryItem savedItem = inventoryItemRepository.save(item);
+        inventoryItemRepository.update(item);
         String warehouseCode = findWarehouseCodeByShelf(item.getShelfCode());
         eventPublisher.publishInventoryLevelChanged(
                 warehouseCode,
                 item.getSku(),
                 item.getQuantity().intValue(),
                 item.getStatus().name());
-        checkAndCreateLowStockAlert(savedItem);
-        return savedItem;
+        checkAndCreateLowStockAlert(item);
+        return item;
     }
 
     @Transactional
@@ -138,7 +139,8 @@ public class InventoryCommandService {
         InventoryAlert alert = inventoryAlertRepository.findById(alertId)
                 .orElseThrow(() -> new IllegalArgumentException("Alert not found: " + alertId));
         alert.acknowledge(userId);
-        return inventoryAlertRepository.save(alert);
+        inventoryAlertRepository.update(alert);
+        return alert;
     }
 
     @Transactional
@@ -146,13 +148,14 @@ public class InventoryCommandService {
         InventoryAlert alert = inventoryAlertRepository.findById(alertId)
                 .orElseThrow(() -> new IllegalArgumentException("Alert not found: " + alertId));
         alert.resolve(userId, solution);
-        return inventoryAlertRepository.save(alert);
+        inventoryAlertRepository.update(alert);
+        return alert;
     }
 
     private void checkAndCreateLowStockAlert(InventoryItem item) {
         if (item.needsRestock()) {
             InventoryAlert alert = createLowStockAlert(item);
-            inventoryAlertRepository.save(alert);
+            inventoryAlertRepository.insert(alert);
             eventPublisher.publishInventoryAlertCreated(
                     alert.getWarehouseCode(),
                     alert.getAlertCode(),
@@ -162,7 +165,7 @@ public class InventoryCommandService {
     }
 
     private InventoryAlert createLowStockAlert(InventoryItem item) {
-        String alertCode = "INV-" + alertIdGenerator.incrementAndGet();
+        String alertCode = "INV-" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
         InventoryAlert alert = new InventoryAlert(
                 alertCode,
                 item.getItemCode(),

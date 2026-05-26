@@ -16,7 +16,8 @@ public interface InventoryItemRepository {
     List<InventoryItem> findByCategory(String category);
     List<InventoryItem> findLowStockItems();
     List<InventoryItem> findExpiringSoonItems(int daysThreshold);
-    InventoryItem save(InventoryItem inventoryItem);
+    void insert(InventoryItem inventoryItem);
+    void update(InventoryItem inventoryItem);
     void delete(InventoryItem inventoryItem);
     boolean existsByItemCode(String itemCode);
     boolean existsBySku(String sku);

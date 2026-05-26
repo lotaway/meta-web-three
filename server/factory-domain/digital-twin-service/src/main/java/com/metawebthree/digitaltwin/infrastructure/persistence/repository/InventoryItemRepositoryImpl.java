@@ -106,15 +106,16 @@ public class InventoryItemRepositoryImpl implements InventoryItemRepository {
     }
 
     @Override
-    public InventoryItem save(InventoryItem inventoryItem) {
+    public void insert(InventoryItem inventoryItem) {
         InventoryItemDO itemDO = inventoryItemConverter.toDO(inventoryItem);
-        if (inventoryItem.getId() == null) {
-            inventoryItemMapper.insert(itemDO);
-            inventoryItem.setId(itemDO.getId());
-        } else {
-            inventoryItemMapper.updateById(itemDO);
-        }
-        return inventoryItem;
+        inventoryItemMapper.insert(itemDO);
+        inventoryItem.setId(itemDO.getId());
+    }
+
+    @Override
+    public void update(InventoryItem inventoryItem) {
+        InventoryItemDO itemDO = inventoryItemConverter.toDO(inventoryItem);
+        inventoryItemMapper.updateById(itemDO);
     }
 
     @Override

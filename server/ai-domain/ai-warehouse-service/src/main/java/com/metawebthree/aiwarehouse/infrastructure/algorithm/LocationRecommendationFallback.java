@@ -18,6 +18,8 @@ public class LocationRecommendationFallback implements AlgorithmFallback {
     private static final Logger log = LoggerFactory.getLogger(LocationRecommendationFallback.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final double DEFAULT_VELOCITY = 50.0;
+    private static final double HIGH_VELOCITY_THRESHOLD = 80.0;
+    private static final double MEDIUM_VELOCITY_THRESHOLD = 50.0;
 
     @Override
     public WarehouseCapability getCapability() {
@@ -66,9 +68,9 @@ public class LocationRecommendationFallback implements AlgorithmFallback {
     }
 
     private String assignZone(double velocity) {
-        if (velocity >= 80) {
+        if (velocity >= HIGH_VELOCITY_THRESHOLD) {
             return "A";
-        } else if (velocity >= 50) {
+        } else if (velocity >= MEDIUM_VELOCITY_THRESHOLD) {
             return "B";
         } else {
             return "C";

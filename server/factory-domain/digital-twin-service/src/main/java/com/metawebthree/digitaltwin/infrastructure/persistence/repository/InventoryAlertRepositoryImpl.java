@@ -106,15 +106,16 @@ public class InventoryAlertRepositoryImpl implements InventoryAlertRepository {
     }
 
     @Override
-    public InventoryAlert save(InventoryAlert inventoryAlert) {
+    public void insert(InventoryAlert inventoryAlert) {
         InventoryAlertDO alertDO = inventoryAlertConverter.toDO(inventoryAlert);
-        if (inventoryAlert.getId() == null) {
-            inventoryAlertMapper.insert(alertDO);
-            inventoryAlert.setId(alertDO.getId());
-        } else {
-            inventoryAlertMapper.updateById(alertDO);
-        }
-        return inventoryAlert;
+        inventoryAlertMapper.insert(alertDO);
+        inventoryAlert.setId(alertDO.getId());
+    }
+
+    @Override
+    public void update(InventoryAlert inventoryAlert) {
+        InventoryAlertDO alertDO = inventoryAlertConverter.toDO(inventoryAlert);
+        inventoryAlertMapper.updateById(alertDO);
     }
 
     @Override

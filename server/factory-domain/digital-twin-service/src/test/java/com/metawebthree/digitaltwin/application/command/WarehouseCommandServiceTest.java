@@ -62,11 +62,11 @@ class WarehouseCommandServiceTest {
     @Test
     void createWarehouse_shouldCreateSuccessfully() {
         when(warehouseRepository.existsByWarehouseCode("WH-001")).thenReturn(false);
-        when(warehouseRepository.save(any(Warehouse.class))).thenAnswer(invocation -> {
+        doAnswer(invocation -> {
             Warehouse w = invocation.getArgument(0);
             w.setId(1L);
-            return w;
-        });
+            return null;
+        }).when(warehouseRepository).insert(any(Warehouse.class));
 
         Warehouse result = service.createWarehouse(createBaseRequest());
 
@@ -74,7 +74,7 @@ class WarehouseCommandServiceTest {
         assertEquals("WH-001", result.getWarehouseCode());
         assertEquals("Test Warehouse", result.getWarehouseName());
         assertEquals(WarehouseStatus.PLANNING, result.getStatus());
-        verify(warehouseRepository).save(any(Warehouse.class));
+        verify(warehouseRepository).insert(any(Warehouse.class));
     }
 
     @Test
@@ -89,7 +89,7 @@ class WarehouseCommandServiceTest {
     void updateWarehouse_shouldUpdateSuccessfully() {
         Warehouse warehouse = createSampleWarehouse(1L, "WH-001");
         when(warehouseRepository.findById(1L)).thenReturn(Optional.of(warehouse));
-        when(warehouseRepository.save(any(Warehouse.class))).thenReturn(warehouse);
+        doNothing().when(warehouseRepository).update(any(Warehouse.class));
 
         WarehouseCommandService.UpdateWarehouseRequest request = new WarehouseCommandService.UpdateWarehouseRequest();
         request.id = 1L;
@@ -100,7 +100,7 @@ class WarehouseCommandServiceTest {
 
         assertNotNull(result);
         assertEquals("Updated Name", result.getWarehouseName());
-        verify(warehouseRepository).save(any(Warehouse.class));
+        verify(warehouseRepository).update(any(Warehouse.class));
     }
 
     @Test
@@ -117,12 +117,12 @@ class WarehouseCommandServiceTest {
     void activateWarehouse_shouldActivateAndPublishEvent() {
         Warehouse warehouse = createSampleWarehouse(1L, "WH-001");
         when(warehouseRepository.findById(1L)).thenReturn(Optional.of(warehouse));
-        when(warehouseRepository.save(any(Warehouse.class))).thenReturn(warehouse);
+        doNothing().when(warehouseRepository).update(any(Warehouse.class));
 
         service.activateWarehouse(1L);
 
         assertEquals(WarehouseStatus.OPERATING, warehouse.getStatus());
-        verify(warehouseRepository).save(warehouse);
+        verify(warehouseRepository).update(warehouse);
         verify(eventPublisher).publishWarehouseStatusChanged("WH-001", "OPERATING");
     }
 
@@ -137,12 +137,12 @@ class WarehouseCommandServiceTest {
     void decommissionWarehouse_shouldDecommissionAndPublishEvent() {
         Warehouse warehouse = createSampleWarehouse(1L, "WH-001");
         when(warehouseRepository.findById(1L)).thenReturn(Optional.of(warehouse));
-        when(warehouseRepository.save(any(Warehouse.class))).thenReturn(warehouse);
+        doNothing().when(warehouseRepository).update(any(Warehouse.class));
 
         service.decommissionWarehouse(1L);
 
         assertEquals(WarehouseStatus.DECOMMISSIONED, warehouse.getStatus());
-        verify(warehouseRepository).save(warehouse);
+        verify(warehouseRepository).update(warehouse);
         verify(eventPublisher).publishWarehouseStatusChanged("WH-001", "DECOMMISSIONED");
     }
 

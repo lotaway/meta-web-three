@@ -19,6 +19,9 @@ import java.util.Map;
 public class DigitalTwinController {
 
     private static final Logger logger = LoggerFactory.getLogger(DigitalTwinController.class);
+    private static final double DEFAULT_Z_COORDINATE = 0.0;
+    private static final double DEFAULT_ROTATION = 0.0;
+    private static final int MAX_PAGE_SIZE = 100;
 
     private final DigitalTwinCommandService commandService;
     private final DigitalTwinQueryService queryService;
@@ -30,7 +33,6 @@ public class DigitalTwinController {
         this.queryService = queryService;
     }
 
-    // Device endpoints
     @RequirePermission(DigitalTwinPermissions.DEVICE_CREATE)
     @PostMapping("/device")
     public ResponseEntity<Map<String, Object>> registerDevice(
@@ -60,6 +62,7 @@ public class DigitalTwinController {
         try {
             deviceStatus = Device.DeviceStatus.valueOf(request.getStatus().toUpperCase());
         } catch (IllegalArgumentException e) {
+            logger.warn("Invalid device status value: {}", request.getStatus());
             return ResponseEntity.badRequest().build();
         }
         commandService.updateDeviceStatus(deviceCode, deviceStatus);
@@ -83,8 +86,8 @@ public class DigitalTwinController {
             @RequestHeader(value = "X-User-Id", required = false) String userId) {
         Double x = request.getX();
         Double y = request.getY();
-        Double z = request.getZ() != null ? request.getZ() : 0.0;
-        Double rotation = 0.0;
+        Double z = request.getZ() != null ? request.getZ() : DEFAULT_Z_COORDINATE;
+        Double rotation = DEFAULT_ROTATION;
         commandService.updateDevicePosition(deviceCode, x, y, z, rotation);
         return ResponseEntity.ok().build();
     }
@@ -102,8 +105,7 @@ public class DigitalTwinController {
     public ResponseEntity<?> getAllDevices(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size) {
-        // Clamp page size to prevent abuse
-        int limitedSize = Math.min(size, 100);
+        int limitedSize = Math.min(size, MAX_PAGE_SIZE);
         return ResponseEntity.ok(queryService.getDevicesPaginated(page, limitedSize));
     }
 

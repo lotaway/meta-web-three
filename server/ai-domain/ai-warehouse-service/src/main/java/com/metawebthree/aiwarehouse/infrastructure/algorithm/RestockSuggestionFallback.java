@@ -18,6 +18,9 @@ public class RestockSuggestionFallback implements AlgorithmFallback {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final int LEAD_TIME_DAYS = 7;
     private static final double SAFETY_FACTOR = 1.2;
+    private static final double DEFAULT_DAILY_CONSUMPTION = 10.0;
+    private static final double MAX_STOCK_MULTIPLIER = 2.0;
+    private static final double URGENT_THRESHOLD_FACTOR = 0.5;
 
     @Override
     public WarehouseCapability getCapability() {
@@ -51,15 +54,16 @@ public class RestockSuggestionFallback implements AlgorithmFallback {
 
     private double parseDailyConsumption(String payload) {
         if (payload == null || payload.isEmpty()) {
-            return 10.0;
+            return DEFAULT_DAILY_CONSUMPTION;
         }
         try {
             String consumption = extractValue(payload, "dailyConsumption",
                 "consumption", "demand");
-            return consumption != null ? Double.parseDouble(consumption) : 10.0;
+            return consumption != null ? Double.parseDouble(consumption) : DEFAULT_DAILY_CONSUMPTION;
         } catch (Exception e) {
-            log.warn("Failed to parse daily consumption from payload, returning default 10.0: {}", e.getMessage());
-            return 10.0;
+            log.warn("Failed to parse daily consumption from payload, returning default {}: {}", 
+                DEFAULT_DAILY_CONSUMPTION, e.getMessage());
+            return DEFAULT_DAILY_CONSUMPTION;
         }
     }
 
@@ -85,14 +89,14 @@ public class RestockSuggestionFallback implements AlgorithmFallback {
 
     private double calculateSuggestedQuantity(double currentStock,
             double dailyConsumption, double reorderPoint) {
-        double maxStock = dailyConsumption * LEAD_TIME_DAYS * 2 * SAFETY_FACTOR;
+        double maxStock = dailyConsumption * LEAD_TIME_DAYS * MAX_STOCK_MULTIPLIER * SAFETY_FACTOR;
         double suggested = maxStock - currentStock;
         return Math.max(0, suggested);
     }
 
     private Object buildSuggestionResult(double currentStock, double dailyConsumption,
             double reorderPoint, double suggestedQuantity) {
-        boolean isUrgent = currentStock < reorderPoint * 0.5;
+        boolean isUrgent = currentStock < reorderPoint * URGENT_THRESHOLD_FACTOR;
         return String.format(
             "{\"currentStock\":%.0f,\"dailyConsumption\":%.1f,\"reorderPoint\":%.1f,"
             + "\"suggestedQuantity\":%.0f,\"urgency\":\"%s\",\"leadTimeDays\":%d,"

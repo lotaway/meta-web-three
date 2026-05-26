@@ -3,9 +3,10 @@ package com.metawebthree.aiwarehouse.infrastructure.config;
 import com.metawebthree.aiwarehouse.domain.entity.AICapability;
 import com.metawebthree.aiwarehouse.domain.entity.WarehouseCapability;
 import com.metawebthree.aiwarehouse.domain.repository.AICapabilityRepository;
-import com.metawebthree.aiwarehouse.domain.service.AIWarehouseDomainService;
+import com.metawebthree.aiwarehouse.domain.service.IAIWarehouseDomainService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -20,13 +21,18 @@ public class WarehouseCapabilityInitializer {
         WarehouseCapabilityInitializer.class);
     private static final int DEFAULT_TIMEOUT_MS = 5000;
     private static final int DEFAULT_MAX_RETRIES = 3;
+    private static final String DEFAULT_PROTOCOL = "https://";
+    private static final String DEFAULT_API_PATH = "/api/v1/predict";
 
-    private final AIWarehouseDomainService domainService;
+    private final IAIWarehouseDomainService domainService;
     private final AICapabilityRepository capabilityRepository;
     private final Map<WarehouseCapability, CapabilityConfig> configs;
 
+    @Value("${warehouse.ai.base-url:localhost:8080}")
+    private String aiServiceBaseUrl;
+
     public WarehouseCapabilityInitializer(
-            AIWarehouseDomainService domainService,
+            IAIWarehouseDomainService domainService,
             AICapabilityRepository capabilityRepository) {
         this.domainService = domainService;
         this.capabilityRepository = capabilityRepository;
@@ -66,31 +72,46 @@ public class WarehouseCapabilityInitializer {
 
     private boolean registerCapability(WarehouseCapability capability) {
         try {
-            if (capabilityRepository.existsByCapabilityId(capability.getCapabilityId())) {
-                log.info("Capability already exists, skipping: {}",
-                    capability.getCapabilityId());
-                return;
+            if (checkCapabilityExists(capability)) {
+                return true;
             }
-            
-            CapabilityConfig config = configs.get(capability);
-            
-            domainService.registerCapability(
-                capability.getCapabilityId(),
-                capability.getCapabilityName(),
-                AICapability.AICapabilityType.valueOf(config.type),
-                "http://" + config.serviceName + "/api/v1/predict",
-                AICapability.FallbackType.valueOf(config.fallbackType),
-                buildFallbackConfig(capability)
-            );
-            
-            log.info("Registered warehouse capability: {} -> {}",
-                capability.getCapabilityId(), config.serviceName);
+            doRegisterCapability(capability);
             return true;
         } catch (Exception e) {
             log.error("Failed to register capability {}: {}",
                 capability.getCapabilityId(), e.getMessage(), e);
             return false;
         }
+    }
+
+    private boolean checkCapabilityExists(WarehouseCapability capability) {
+        if (capabilityRepository.existsByCapabilityId(capability.getCapabilityId())) {
+            log.info("Capability already exists, skipping: {}",
+                capability.getCapabilityId());
+            return true;
+        }
+        return false;
+    }
+
+    private void doRegisterCapability(WarehouseCapability capability) {
+        CapabilityConfig config = configs.get(capability);
+        String endpointUrl = buildEndpointUrl(config.serviceName);
+        
+        domainService.registerCapability(
+            capability.getCapabilityId(),
+            capability.getCapabilityName(),
+            AICapability.AICapabilityType.valueOf(config.type),
+            endpointUrl,
+            AICapability.FallbackType.valueOf(config.fallbackType),
+            buildFallbackConfig(capability)
+        );
+        
+        log.info("Registered warehouse capability: {} -> {}",
+            capability.getCapabilityId(), config.serviceName);
+    }
+
+    private String buildEndpointUrl(String serviceName) {
+        return DEFAULT_PROTOCOL + aiServiceBaseUrl + DEFAULT_API_PATH;
     }
 
     private String buildFallbackConfig(WarehouseCapability capability) {

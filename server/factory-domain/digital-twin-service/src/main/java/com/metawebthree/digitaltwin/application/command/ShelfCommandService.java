@@ -34,7 +34,8 @@ public class ShelfCommandService {
         Shelf shelf = new Shelf(request.shelfCode, request.warehouseCode, 
                                 request.rowNumber, request.columnNumber);
         initializeShelfFields(shelf, request);
-        return shelfRepository.save(shelf);
+        shelfRepository.insert(shelf);
+        return shelf;
     }
 
     private void validateShelfRequest(CreateShelfRequest request) {
@@ -78,7 +79,8 @@ public class ShelfCommandService {
             shelf.setMaxWeight(request.maxWeight);
         }
         shelf.setUpdatedAt(LocalDateTime.now());
-        return shelfRepository.save(shelf);
+        shelfRepository.update(shelf);
+        return shelf;
     }
 
     @Transactional
@@ -86,7 +88,7 @@ public class ShelfCommandService {
         Shelf shelf = shelfRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Shelf not found: " + id));
         shelf.occupy();
-        shelfRepository.save(shelf);
+        shelfRepository.update(shelf);
         eventPublisher.publishShelfStatusChanged(
                 shelf.getWarehouseCode(),
                 shelf.getShelfCode(),
@@ -98,7 +100,7 @@ public class ShelfCommandService {
         Shelf shelf = shelfRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Shelf not found: " + id));
         shelf.clear();
-        shelfRepository.save(shelf);
+        shelfRepository.update(shelf);
         eventPublisher.publishShelfStatusChanged(
                 shelf.getWarehouseCode(),
                 shelf.getShelfCode(),

@@ -84,18 +84,18 @@ class InventoryCommandServiceTest {
     void createItem_shouldCreateSuccessfully() {
         when(inventoryItemRepository.existsByItemCode("ITEM-001")).thenReturn(false);
         when(shelfRepository.existsByShelfCode("SHELF-001")).thenReturn(true);
-        when(inventoryItemRepository.save(any(InventoryItem.class))).thenAnswer(invocation -> {
+        doAnswer(invocation -> {
             InventoryItem item = invocation.getArgument(0);
             item.setId(1L);
-            return item;
-        });
+            return null;
+        }).when(inventoryItemRepository).insert(any(InventoryItem.class));
 
         InventoryItem result = service.createItem(createBaseRequest());
 
         assertNotNull(result);
         assertEquals("ITEM-001", result.getItemCode());
         assertEquals("SKU-001", result.getSku());
-        verify(inventoryItemRepository).save(any(InventoryItem.class));
+        verify(inventoryItemRepository).insert(any(InventoryItem.class));
     }
 
     @Test
@@ -117,7 +117,7 @@ class InventoryCommandServiceTest {
     void updateItem_shouldUpdateSuccessfully() {
         InventoryItem item = createSampleItem(1L, "ITEM-001");
         when(inventoryItemRepository.findById(1L)).thenReturn(Optional.of(item));
-        when(inventoryItemRepository.save(any(InventoryItem.class))).thenReturn(item);
+        doNothing().when(inventoryItemRepository).update(any(InventoryItem.class));
 
         InventoryCommandService.UpdateItemRequest request = new InventoryCommandService.UpdateItemRequest();
         request.id = 1L;
@@ -127,7 +127,7 @@ class InventoryCommandServiceTest {
         InventoryItem result = service.updateItem(request);
 
         assertNotNull(result);
-        verify(inventoryItemRepository).save(any(InventoryItem.class));
+        verify(inventoryItemRepository).update(any(InventoryItem.class));
     }
 
     @Test
@@ -144,13 +144,13 @@ class InventoryCommandServiceTest {
     void addStock_shouldAddQuantityAndPublishEvent() {
         InventoryItem item = createSampleItem(1L, "ITEM-001");
         when(inventoryItemRepository.findById(1L)).thenReturn(Optional.of(item));
-        when(inventoryItemRepository.save(any(InventoryItem.class))).thenReturn(item);
+        doNothing().when(inventoryItemRepository).update(any(InventoryItem.class));
         when(shelfRepository.findByShelfCode("SHELF-001")).thenReturn(Optional.of(new Shelf("SHELF-001", "WH-001", 1, 1)));
 
         InventoryItem result = service.addStock(1L, BigDecimal.valueOf(50));
 
         assertNotNull(result);
-        verify(inventoryItemRepository).save(item);
+        verify(inventoryItemRepository).update(item);
         verify(eventPublisher).publishInventoryLevelChanged(eq("WH-001"), eq("SKU-001"), anyInt(), anyString());
     }
 
@@ -165,13 +165,13 @@ class InventoryCommandServiceTest {
     void removeStock_shouldRemoveQuantityAndPublishEvent() {
         InventoryItem item = createSampleItem(1L, "ITEM-001");
         when(inventoryItemRepository.findById(1L)).thenReturn(Optional.of(item));
-        when(inventoryItemRepository.save(any(InventoryItem.class))).thenReturn(item);
+        doNothing().when(inventoryItemRepository).update(any(InventoryItem.class));
         when(shelfRepository.findByShelfCode("SHELF-001")).thenReturn(Optional.of(new Shelf("SHELF-001", "WH-001", 1, 1)));
 
         InventoryItem result = service.removeStock(1L, BigDecimal.valueOf(30));
 
         assertNotNull(result);
-        verify(inventoryItemRepository).save(item);
+        verify(inventoryItemRepository).update(item);
         verify(eventPublisher).publishInventoryLevelChanged(eq("WH-001"), eq("SKU-001"), anyInt(), anyString());
     }
 
@@ -189,14 +189,18 @@ class InventoryCommandServiceTest {
         item.setMinQuantity(BigDecimal.valueOf(20));
         
         when(inventoryItemRepository.findById(1L)).thenReturn(Optional.of(item));
-        when(inventoryItemRepository.save(any(InventoryItem.class))).thenReturn(item);
+        doNothing().when(inventoryItemRepository).update(any(InventoryItem.class));
         when(shelfRepository.findByShelfCode("SHELF-001")).thenReturn(Optional.of(new Shelf("SHELF-001", "WH-001", 1, 1)));
-        when(inventoryAlertRepository.save(any(InventoryAlert.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        doAnswer(invocation -> {
+            InventoryAlert alert = invocation.getArgument(0);
+            alert.setId(1L);
+            return null;
+        }).when(inventoryAlertRepository).insert(any(InventoryAlert.class));
 
         InventoryItem result = service.removeStock(1L, BigDecimal.valueOf(10));
 
         assertNotNull(result);
-        verify(inventoryAlertRepository).save(any(InventoryAlert.class));
+        verify(inventoryAlertRepository).insert(any(InventoryAlert.class));
         verify(eventPublisher).publishInventoryAlertCreated(eq("WH-001"), anyString(), eq("WARNING"), anyString());
     }
 
@@ -206,12 +210,12 @@ class InventoryCommandServiceTest {
         alert.setId(1L);
         
         when(inventoryAlertRepository.findById(1L)).thenReturn(Optional.of(alert));
-        when(inventoryAlertRepository.save(any(InventoryAlert.class))).thenReturn(alert);
+        doNothing().when(inventoryAlertRepository).update(any(InventoryAlert.class));
 
         InventoryAlert result = service.acknowledgeAlert(1L, "admin");
 
         assertNotNull(result);
-        verify(inventoryAlertRepository).save(alert);
+        verify(inventoryAlertRepository).update(alert);
     }
 
     @Test
@@ -227,12 +231,12 @@ class InventoryCommandServiceTest {
         alert.setId(1L);
         
         when(inventoryAlertRepository.findById(1L)).thenReturn(Optional.of(alert));
-        when(inventoryAlertRepository.save(any(InventoryAlert.class))).thenReturn(alert);
+        doNothing().when(inventoryAlertRepository).update(any(InventoryAlert.class));
 
         InventoryAlert result = service.resolveAlert(1L, "admin", "Resolved by adding stock");
 
         assertNotNull(result);
-        verify(inventoryAlertRepository).save(alert);
+        verify(inventoryAlertRepository).update(alert);
     }
 
     @Test

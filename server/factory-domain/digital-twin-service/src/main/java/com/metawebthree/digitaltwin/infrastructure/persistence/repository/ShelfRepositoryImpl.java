@@ -80,15 +80,16 @@ public class ShelfRepositoryImpl implements ShelfRepository {
     }
 
     @Override
-    public Shelf save(Shelf shelf) {
+    public void insert(Shelf shelf) {
         ShelfDO shelfDO = shelfConverter.toDO(shelf);
-        if (shelf.getId() == null) {
-            shelfMapper.insert(shelfDO);
-            shelf.setId(shelfDO.getId());
-        } else {
-            shelfMapper.updateById(shelfDO);
-        }
-        return shelf;
+        shelfMapper.insert(shelfDO);
+        shelf.setId(shelfDO.getId());
+    }
+
+    @Override
+    public void update(Shelf shelf) {
+        ShelfDO shelfDO = shelfConverter.toDO(shelf);
+        shelfMapper.updateById(shelfDO);
     }
 
     @Override

@@ -71,11 +71,11 @@ class ShelfCommandServiceTest {
     void createShelf_shouldCreateSuccessfully() {
         when(shelfRepository.existsByShelfCode("SHELF-001")).thenReturn(false);
         when(warehouseRepository.existsByWarehouseCode("WH-001")).thenReturn(true);
-        when(shelfRepository.save(any(Shelf.class))).thenAnswer(invocation -> {
+        doAnswer(invocation -> {
             Shelf s = invocation.getArgument(0);
             s.setId(1L);
-            return s;
-        });
+            return null;
+        }).when(shelfRepository).insert(any(Shelf.class));
 
         Shelf result = service.createShelf(createBaseRequest());
 
@@ -83,7 +83,7 @@ class ShelfCommandServiceTest {
         assertEquals("SHELF-001", result.getShelfCode());
         assertEquals("WH-001", result.getWarehouseCode());
         assertEquals(ShelfStatus.EMPTY, result.getStatus());
-        verify(shelfRepository).save(any(Shelf.class));
+        verify(shelfRepository).insert(any(Shelf.class));
     }
 
     @Test
@@ -105,7 +105,7 @@ class ShelfCommandServiceTest {
     void updateShelf_shouldUpdateSuccessfully() {
         Shelf shelf = createSampleShelf(1L, "SHELF-001", "WH-001");
         when(shelfRepository.findById(1L)).thenReturn(Optional.of(shelf));
-        when(shelfRepository.save(any(Shelf.class))).thenReturn(shelf);
+        doNothing().when(shelfRepository).update(any(Shelf.class));
 
         ShelfCommandService.UpdateShelfRequest request = new ShelfCommandService.UpdateShelfRequest();
         request.id = 1L;
@@ -116,7 +116,7 @@ class ShelfCommandServiceTest {
 
         assertNotNull(result);
         assertEquals("B", result.getZone());
-        verify(shelfRepository).save(any(Shelf.class));
+        verify(shelfRepository).update(any(Shelf.class));
     }
 
     @Test
@@ -133,12 +133,12 @@ class ShelfCommandServiceTest {
     void occupyShelf_shouldOccupyAndPublishEvent() {
         Shelf shelf = createSampleShelf(1L, "SHELF-001", "WH-001");
         when(shelfRepository.findById(1L)).thenReturn(Optional.of(shelf));
-        when(shelfRepository.save(any(Shelf.class))).thenReturn(shelf);
+        doNothing().when(shelfRepository).update(any(Shelf.class));
 
         service.occupyShelf(1L);
 
         assertEquals(ShelfStatus.OCCUPIED, shelf.getStatus());
-        verify(shelfRepository).save(shelf);
+        verify(shelfRepository).update(shelf);
         verify(eventPublisher).publishShelfStatusChanged("WH-001", "SHELF-001", "OCCUPIED");
     }
 
@@ -154,12 +154,12 @@ class ShelfCommandServiceTest {
         Shelf shelf = createSampleShelf(1L, "SHELF-001", "WH-001");
         shelf.setStatus(ShelfStatus.OCCUPIED);
         when(shelfRepository.findById(1L)).thenReturn(Optional.of(shelf));
-        when(shelfRepository.save(any(Shelf.class))).thenReturn(shelf);
+        doNothing().when(shelfRepository).update(any(Shelf.class));
 
         service.clearShelf(1L);
 
         assertEquals(ShelfStatus.EMPTY, shelf.getStatus());
-        verify(shelfRepository).save(shelf);
+        verify(shelfRepository).update(shelf);
         verify(eventPublisher).publishShelfStatusChanged("WH-001", "SHELF-001", "EMPTY");
     }
 

@@ -2,50 +2,36 @@
 
 ## ❌ 未通过重新审查 — 需修复后重新勾选
 
-### P0: 实体层
-- [x] **Warehouse.java / Shelf.java / InventoryItem.java / InventoryAlert.java**
-  - Shelf.java L40-41: 魔法数字 `1`(levelNumber), `3`(totalLevels)，应改为构造参数传入 ✅ 已修复：添加 DEFAULT_LEVEL_NUMBER=1, DEFAULT_TOTAL_LEVELS=3 常量
-  - InventoryItem.java L70: 魔法数字 `0.5`(threshold系数)，应定义为静态常量或配置项 ✅ 已修复：添加 CRITICAL_THRESHOLD_FACTOR 常量
-
 ### P0: Repository 体系 (FieldAssigner + RepositoryImpl)
-- [x] **FieldAssigner (4个)** — 吞异常: parseStatus/parseAlertType/parseLevel 在 catch(IllegalArgumentException) 中 return null 且不记录日志，调用方无法区分"值为空"和"值非法" ✅ 已修复：为4个FieldAssigner添加日志记录
-  - WarehouseFieldAssigner.java L99-103 ✅
-  - ShelfFieldAssigner.java L115-119 ✅
-  - InventoryItemFieldAssigner.java L119-123 ✅
-  - InventoryAlertFieldAssigner.java L127, L138, L149 ✅
-- [ ] **RepositoryImpl (4个)** — save() 方法同时产生副作用(insert/update DB)和返回值，违反"一个函数要么返回值，要么产生副作用"
-  - 建议: 拆分为 insert(entity) / update(entity) 两个 void 方法
+- [x] **RepositoryImpl (4个)** — save() 方法同时产生副作用(insert/update DB)和返回值，违反"一个函数要么返回值，要么产生副作用"
+  - ✅ 已修复：拆分为 insert(entity) / update(entity) 两个 void 方法
+  - 修改文件：WarehouseRepository.java, ShelfRepository.java, InventoryItemRepository.java, InventoryAlertRepository.java (接口)
+  - 修改文件：WarehouseRepositoryImpl.java, ShelfRepositoryImpl.java, InventoryItemRepositoryImpl.java, InventoryAlertRepositoryImpl.java (实现)
+  - 修改文件：WarehouseCommandService.java, ShelfCommandService.java, InventoryCommandService.java (调用方)
 
 ### P0: 应用层命令服务
-- [ ] **InventoryCommandService.java** — 多项违规:
-  - L81-102 applyItemUpdates() 22行 > 20行限制
-  - L27 alertIdGenerator: AtomicLong 可变状态存在于 @Service 单例中，违反"单例不得保存业务状态"和"禁止隐式共享状态"
-  - 多个 create*/update* 方法同时返回值和产生副作用
-- [x] **ShelfCommandService.java** — L49-50: 魔法数字 `1`(levelNumber), `3`(totalLevels) ✅ 已修复：添加 DEFAULT_LEVEL_NUMBER 和 DEFAULT_TOTAL_LEVELS 常量
-
+- [x] **InventoryCommandService.java** — 多项违规:
+  - ✅ L81-102 applyItemUpdates() 16行 < 20行限制（已优化）
+  - ✅ L27 alertIdGenerator: AtomicLong 已改为 UUID，无可变状态
+  - ✅ 多个 create*/update* 方法返回值和产生副作用已修复（随 RepositoryImpl 一起修复）
 ### P0: WebSocket 推送仓储状态变更
-- [x] **DigitalTwinKafkaConsumer.java** — 修复不完整 ✅ 已修复
+- [ ] **DigitalTwinKafkaConsumer.java** — 部分修复，仍有问题:
   - L212-241 processMessage() 30行 > 20行 (未修复，需重构switch)
-  - L37 注释残留 `// Idempotency tracking with timestamps` ✅ 已移除
-  - L284 魔法数字 `24` (小时)，应抽取为常量 ✅ 已修复：添加 DEFAULT_ANOMALY_DETECTION_HOURS=24
-  - L362-364 extractMessageId() catch 块仅 return hashCode() 兜底值，未记录日志，吞异常 ✅ 已修复：添加日志记录
+  - L277-302 triggerAnomalyDetection() 26行 > 20行 ❌ (新发现)
+  - L68-71 InterruptedException 捕获后未记录日志，吞异常 ❌ (新发现)
+  - L39 processedMessageIds: ConcurrentHashMap 存于 @Component 单例，违反"单例不得保存业务状态" ❌ (新发现)
+  - L37 注释残留 ✅ 已移除；L284 魔法数字 ✅ 已修复；L362-364 异常日志 ✅ 已修复
+  - 建议: processMessage/triggerAnomalyDetection 拆分子方法，InterruptedException 添加日志，幂等性改为外部去重服务
 
 ### P1: 能力中心注册 (WarehouseCapabilityInitializer.java)
-- [x] **WarehouseCapabilityInitializer** — 7项违规 ✅ 已修复（部分）:
-  - L61-86 registerCapability() 26行 > 20行 (部分修复)
-  - L64 log.debug 调试日志残留 ✅ 已改为 log.info
-  - L82-85 catch(Exception) 静默返回，调用方不知注册失败 ✅ 已修复：改为返回 boolean 并在调用方记录日志
-  - L75 URL 硬编码 `"http://" + config.serviceName + "/api/v1/predict"` (未修复)
-  - L90-91 魔法数字 5000(timeout), 3(maxRetries) ✅ 已修复：添加 DEFAULT_TIMEOUT_MS 和 DEFAULT_MAX_RETRIES 常量
+- [ ] **WarehouseCapabilityInitializer** — 部分修复，仍有严重问题:
+  - L72 `return;` 在 boolean 方法中 → **编译错误** ❌❌ (新发现)
+  - L81 `"http://" + config.serviceName + "/api/v1/predict"` 硬编码 URL (未修复，且使用不安全的HTTP)
+  - L67-94 registerCapability() 28行 > 20行 (未修复)
   - L22 依赖具体实现 AIWarehouseDomainService 而非接口 (未修复)
-  - L24 configs: Map 存于 Component 单例中，违反"单例不得保存业务状态" (未修复)
-  - **🚨 L74 AICapabilityType.valueOf(config.type) 运行时崩溃** ✅ 已修复：将 "DEMAND_FORECASTING" -> "FORECASTING", "LOCATION_RECOMMENDATION" -> "RECOMMENDATION", "ANOMALY_DETECTION" -> "RISK_SCORING"
-
-### P2: 算法兜底实现
-- [x] **RestockSuggestionFallback.java** — ~~L71 logger.warn 使用了未声明的 `logger` 变量，**编译错误**，该文件无法编译~~ → **已修复 (2026-05-25 22:05)** ✅
-  - L42-44 parseCurrentStock() catch 块 return 0.0 无日志，吞异常 ✅ 已修复
-  - L55-57 parseDailyConsumption() catch 块 return 10.0 无日志，吞异常 ✅ 已修复
-- [x] **LocationRecommendationFallback.java** — L41-42 parsePayload() catch 返回 Map.of() 吞异常 ✅ 已修复；L55-56 getVelocity() catch 返回 50.0 吞异常 ✅ 已修复
+  - L24 configs: Map 存于 Component 单例中 (未修复)
+  - L64 log.debug ✅ 已修复；L82-85 catch 静默返回 ✅ 已修复；L90-91 魔法数字 ✅ 已修复；L74 valueOf 崩溃 ✅ 已修复
+  - 建议: L72 改为 return true/false；URL 改为配置注入；registerCapability 拆分子方法；AIWarehouseDomainService 提取接口
 
 ### P3: 前端组件 (6个组件)
 - [ ] **RestockSuggestions.tsx / DemandChart.tsx / InventoryAlertPanel.tsx / ShelfHeatmap.tsx / WarehouseStatus.tsx / Warehouse3DView.tsx**
@@ -62,9 +48,21 @@
 - [ ] **useAlertNotification.test.ts** — L5 注释残留
 - [ ] **DeviceChart.test.ts** — L3 注释残留
 
-### 全局遗留问题（新增发现，不属于原审查范围但违反 CODE_PRINCIPLES）
-- [x] **DigitalTwinController.java** L40, L58: 残留 logger.debug 调用 ✅ 已修复：改为 logger.info
-- [x] **DigitalTwinAuthHandshakeInterceptor.java** L33: 残留 logger.debug 调用 ✅ 已修复：改为 logger.info
+### P2: 算法兜底实现（新发现魔法数字）
+- [ ] **RestockSuggestionFallback.java** — 新增魔法数字:
+  - L54/L59/L62: 默认日消耗量 `10.0`，应定义为常量
+  - L88: 最大库存乘数 `2`，应定义为常量
+  - L95: 紧急阈值 `0.5`，应定义为常量
+- [ ] **LocationRecommendationFallback.java** — 新增魔法数字:
+  - L69: 高周转阈值 `80`，应定义为常量
+  - L71: 中周转阈值 `50`，应定义为常量
+
+### P2: DigitalTwinController.java（新发现违规）
+- [ ] **DigitalTwinController.java** — 新发现违规:
+  - L62-63: IllegalArgumentException 捕获后未记录日志，吞异常
+  - L86-87: 魔法数字 `0.0`(默认Z坐标/旋转值)，应定义为常量
+  - L33/L122/L143/L165: 注释残留 (`// Device endpoints` 等)
+  - 建议: 添加异常日志、抽取常量、移除注释
 
 ### 原有未完成项（保持不变）
 - [ ] FallbackRouter + AlgorithmFallback 实现 (相关类不存在，暂不适用)
@@ -88,6 +86,12 @@
 - 代码审查超行修复（所有超行文件已确认修复）
 - P1 WarehouseCapability 枚举 (4种能力定义清晰)
 - P1 FallbackRouter 三路路由 (AI → 算法 → 人工工单)
+- P0 实体层魔法数字 (Shelf.java DEFAULT_LEVEL_NUMBER/DEFAULT_TOTAL_LEVELS, InventoryItem.java CRITICAL_THRESHOLD_FACTOR) ✅ 2026-05-26 审查通过
+- P0 FieldAssigner (4个) 异常日志修复 (WarehouseFieldAssigner/ShelfFieldAssigner/InventoryItemFieldAssigner/InventoryAlertFieldAssigner) ✅ 2026-05-26 审查通过
+- P0 ShelfCommandService.java 魔法数字修复 (DEFAULT_LEVEL_NUMBER/DEFAULT_TOTAL_LEVELS) ✅ 2026-05-26 审查通过
+- P2 RestockSuggestionFallback.java 编译错误+吞异常修复 ✅ 2026-05-26 审查通过（新发现魔法数字已另立条目）
+- P2 LocationRecommendationFallback.java 吞异常修复 ✅ 2026-05-26 审查通过（新发现魔法数字已另立条目）
+- DigitalTwinController.java / DigitalTwinAuthHandshakeInterceptor.java logger.debug 修复 ✅ 2026-05-26 审查通过（DigitalTwinController 新发现违规已另立条目）
 
 ---
 

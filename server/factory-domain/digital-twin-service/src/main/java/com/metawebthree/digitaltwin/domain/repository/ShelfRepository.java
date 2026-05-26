@@ -14,7 +14,8 @@ public interface ShelfRepository {
     List<Shelf> findByWarehouseCodeAndStatus(String warehouseCode, ShelfStatus status);
     List<Shelf> findByWarehouseCodeAndZone(String warehouseCode, String zone);
     List<Shelf> findEmptyShelves(String warehouseCode);
-    Shelf save(Shelf shelf);
+    void insert(Shelf shelf);
+    void update(Shelf shelf);
     void delete(Shelf shelf);
     boolean existsByShelfCode(String shelfCode);
 }

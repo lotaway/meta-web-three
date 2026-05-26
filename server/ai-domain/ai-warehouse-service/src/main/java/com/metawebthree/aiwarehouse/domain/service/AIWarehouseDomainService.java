@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class AIWarehouseDomainService {
+public class AIWarehouseDomainService implements IAIWarehouseDomainService {
 
     private final AICapabilityRepository capabilityRepository;
     private final AIRequestRecordRepository requestRecordRepository;
@@ -22,6 +22,7 @@ public class AIWarehouseDomainService {
         this.requestRecordRepository = requestRecordRepository;
     }
 
+    @Override
     public AICapability registerCapability(String capabilityId, String capabilityName,
             AICapability.AICapabilityType type, String endpoint,
             AICapability.FallbackType fallbackType, String fallbackConfig) {

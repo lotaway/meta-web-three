@@ -17,7 +17,8 @@ public interface InventoryAlertRepository {
     List<InventoryAlert> findByLevel(AlertLevel level);
     List<InventoryAlert> findActiveAlerts();
     List<InventoryAlert> findByWarehouseCodeAndStatus(String warehouseCode, AlertStatus status);
-    InventoryAlert save(InventoryAlert inventoryAlert);
+    void insert(InventoryAlert inventoryAlert);
+    void update(InventoryAlert inventoryAlert);
     void delete(InventoryAlert inventoryAlert);
     boolean existsByAlertCode(String alertCode);
 }

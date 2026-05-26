@@ -42,7 +42,8 @@ public class WarehouseCommandService {
         warehouse.setHeight(request.height);
         warehouse.setCreatedAt(LocalDateTime.now());
         warehouse.setUpdatedAt(LocalDateTime.now());
-        return warehouseRepository.save(warehouse);
+        warehouseRepository.insert(warehouse);
+        return warehouse;
     }
 
     @Transactional
@@ -50,7 +51,8 @@ public class WarehouseCommandService {
         Warehouse warehouse = warehouseRepository.findById(request.id)
                 .orElseThrow(() -> new IllegalArgumentException("Warehouse not found: " + request.id));
         applyUpdates(warehouse, request);
-        return warehouseRepository.save(warehouse);
+        warehouseRepository.update(warehouse);
+        return warehouse;
     }
 
     private void applyUpdates(Warehouse warehouse, UpdateWarehouseRequest request) {
@@ -80,7 +82,7 @@ public class WarehouseCommandService {
         Warehouse warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Warehouse not found: " + id));
         warehouse.activate();
-        warehouseRepository.save(warehouse);
+        warehouseRepository.update(warehouse);
         eventPublisher.publishWarehouseStatusChanged(
                 warehouse.getWarehouseCode(),
                 warehouse.getStatus().name());
@@ -91,7 +93,7 @@ public class WarehouseCommandService {
         Warehouse warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Warehouse not found: " + id));
         warehouse.decommission();
-        warehouseRepository.save(warehouse);
+        warehouseRepository.update(warehouse);
         eventPublisher.publishWarehouseStatusChanged(
                 warehouse.getWarehouseCode(),
                 warehouse.getStatus().name());

@@ -55,15 +55,16 @@ public class WarehouseRepositoryImpl implements WarehouseRepository {
     }
 
     @Override
-    public Warehouse save(Warehouse warehouse) {
+    public void insert(Warehouse warehouse) {
         WarehouseDO warehouseDO = warehouseConverter.toDO(warehouse);
-        if (warehouse.getId() == null) {
-            warehouseMapper.insert(warehouseDO);
-            warehouse.setId(warehouseDO.getId());
-        } else {
-            warehouseMapper.updateById(warehouseDO);
-        }
-        return warehouse;
+        warehouseMapper.insert(warehouseDO);
+        warehouse.setId(warehouseDO.getId());
+    }
+
+    @Override
+    public void update(Warehouse warehouse) {
+        WarehouseDO warehouseDO = warehouseConverter.toDO(warehouse);
+        warehouseMapper.updateById(warehouseDO);
     }
 
     @Override
