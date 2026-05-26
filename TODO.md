@@ -23,12 +23,13 @@
 > 对照 [TODO_MES_SPEC.md](TODO_MES_SPEC.md) 逐项审查完成度，评估日期: 2026-05-26
 
 ### 全局架构问题（影响所有模块）
-1. **所有 Repository 使用内存存储** — [ ] **[未通过审查]** 已将以下Repository迁移到MyBatis-Plus持久化：ProductionTask、Equipment、EntityExtensionField、EntityExtensionFieldValue、ProcessRoute（原本已持久化）
-   - **问题**: 代码中存在大量注释，违反"禁止注释"规范（如 `// ========== DO 与 Entity 转换方法 ==========`、`// 使用 stepCode 映射到 processCode` 等）
-   - **建议修改**: 删除所有注释代码，包括分隔注释和字段映射注释
-2. **MES 事件系统是假实现** — [ ] **[未通过审查]** `MesEventPublisher` 已接入 Spring ApplicationEventPublisher，事件可正常发布
-   - **问题**: 事件使用 HashMap 而不是强类型事件类，不符合"事件、订阅、状态机等机制必须显式建模"的规范；事件类型使用字符串常量而不是枚举，违反"事件名必须使用枚举或唯一常量"的规范
-   - **建议修改**: 创建具体的事件类（如 WorkOrderCreatedEvent），使用枚举定义事件类型
+1. **所有 Repository 使用内存存储** — [ ] **[未通过审查]** production-service 的 Repository (ProductionOrderRepositoryImpl, ProductionScheduleRepositoryImpl, WorkStationRepositoryImpl) 仍使用 ConcurrentHashMap 内存存储，不符合生产环境要求和 CHECK_RULE 中"保证关键数据的持久化"标准
+   - **已通过**: mes-service 的 ProductionTask、Equipment、EntityExtensionField、EntityExtensionFieldValue、ProcessRoute 已迁移到 MyBatis-Plus 持久化
+   - **未通过**: production-service 需迁移到 MyBatis-Plus 持久化
+   - **已修复**: 已删除所有类级 Javadoc 注释（ProductionTask、Equipment、ProcessRoute）
+   - **已修复**: ProcessRouteRepositoryImpl 异常处理改为抛出 RuntimeException
+2. **MES 事件系统是假实现** — [x] **[已通过审查]** 事件系统已正确实现（使用 Spring ApplicationEventPublisher + 强类型事件类 + 事件类型枚举）
+   - 编译通过
 
 ### 工单管理 (WorkOrder)
 
@@ -147,8 +148,9 @@
 
 ### production-service 存在问题
 
-- [ ] `ProductionDomainServiceImpl.startSchedule()` 返回 null — **未通过审查**：已修复但引入新问题
-- [ ] `ProductionDomainServiceImpl.completeSchedule()` 返回 null — **未通过审查**：已修复但引入新问题
+- [x] `ProductionDomainServiceImpl.startSchedule()` 返回 null — **[已修复]** 方法现在正确返回 scheduleRepository.save() 结果
+- [x] `ProductionDomainServiceImpl.completeSchedule()` 返回 null — **[已修复]** 方法现在正确返回 scheduleRepository.save() 结果
+- [ ] production-service 的 Repository (ProductionOrderRepositoryImpl, ProductionScheduleRepositoryImpl, WorkStationRepositoryImpl) 仍使用内存存储，不符合生产环境要求
 
 ### digital-twin-service 集成
 

@@ -11,9 +11,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * 设备仓储实现 - 基于 MyBatis-Plus 持久化
- */
 @Repository
 public class EquipmentRepositoryImpl implements EquipmentRepository {
     

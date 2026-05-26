@@ -15,9 +15,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * 工艺路线仓储实现 - 基于 MyBatis-Plus 持久化
- */
 @Repository
 public class ProcessRouteRepositoryImpl implements ProcessRouteRepository {
     
@@ -99,7 +96,7 @@ public class ProcessRouteRepositoryImpl implements ProcessRouteRepository {
                     new TypeReference<List<ProcessStep>>() {});
                 entity.setSteps(steps);
             } catch (JsonProcessingException e) {
-                entity.setSteps(null);
+                throw new RuntimeException("Failed to parse process steps", e);
             }
         }
         
@@ -122,7 +119,7 @@ public class ProcessRouteRepositoryImpl implements ProcessRouteRepository {
             try {
                 doObj.setSteps(objectMapper.writeValueAsString(entity.getSteps()));
             } catch (JsonProcessingException e) {
-                doObj.setSteps(null);
+                throw new RuntimeException("Failed to serialize process steps", e);
             }
         }
         

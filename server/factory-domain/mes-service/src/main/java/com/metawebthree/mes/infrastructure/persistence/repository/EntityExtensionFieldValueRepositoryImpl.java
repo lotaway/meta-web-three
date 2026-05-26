@@ -53,7 +53,6 @@ public class EntityExtensionFieldValueRepositoryImpl implements EntityExtensionF
     
     @Override
     public EntityExtensionFieldValue save(EntityExtensionFieldValue value) {
-        // 查找是否已存在
         LambdaQueryWrapper<EntityExtensionFieldValueDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(EntityExtensionFieldValueDO::getEntityType, value.getEntityType())
                .eq(EntityExtensionFieldValueDO::getEntityId, value.getEntityId())
@@ -61,13 +60,11 @@ public class EntityExtensionFieldValueRepositoryImpl implements EntityExtensionF
         EntityExtensionFieldValueDO existingDO = entityExtensionFieldValueMapper.selectOne(wrapper);
         
         if (existingDO != null) {
-            // 更新现有值
             existingDO.setFieldValue(value.getFieldValue());
             entityExtensionFieldValueMapper.updateById(existingDO);
             value.setId(existingDO.getId());
             return value;
         } else {
-            // 新增
             EntityExtensionFieldValueDO doObj = toDO(value);
             entityExtensionFieldValueMapper.insert(doObj);
             value.setId(doObj.getId());
@@ -91,8 +88,6 @@ public class EntityExtensionFieldValueRepositoryImpl implements EntityExtensionF
                .eq(EntityExtensionFieldValueDO::getFieldCode, fieldCode);
         entityExtensionFieldValueMapper.delete(wrapper);
     }
-    
-    // ========== DO 与 Entity 转换方法 ==========
     
     private EntityExtensionFieldValue toEntity(EntityExtensionFieldValueDO doObj) {
         if (doObj == null) {

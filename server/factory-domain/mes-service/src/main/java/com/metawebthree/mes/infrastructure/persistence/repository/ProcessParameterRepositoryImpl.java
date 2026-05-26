@@ -164,8 +164,6 @@ public class ProcessParameterRepositoryImpl implements ProcessParameterRepositor
         return processParameterMapper.selectById(id) != null;
     }
     
-    // ========== DO 与 Entity 转换方法 ==========
-    
     private ProcessParameter toEntity(ProcessParameterDO doObj) {
         if (doObj == null) {
             return null;

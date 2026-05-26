@@ -59,19 +59,15 @@ public class DataDictionaryRepositoryImpl implements DataDictionaryRepository {
         DataDictionaryDO doObj = toDO(dictionary);
         
         if (dictionary.getId() == null) {
-            // 新增
             dataDictionaryMapper.insert(doObj);
             dictionary.setId(doObj.getId());
         } else {
-            // 更新
             dataDictionaryMapper.updateById(doObj);
-            // 删除原有的items，关联到dict的items
             LambdaQueryWrapper<DataDictionaryItemDO> deleteWrapper = new LambdaQueryWrapper<>();
             deleteWrapper.eq(DataDictionaryItemDO::getDictId, dictionary.getId());
             dataDictionaryItemMapper.delete(deleteWrapper);
         }
         
-        // 保存 items
         if (dictionary.getItems() != null) {
             for (DataDictionary.DataDictionaryItem item : dictionary.getItems()) {
                 DataDictionaryItemDO itemDO = toItemDO(item, dictionary.getId());
@@ -86,12 +82,10 @@ public class DataDictionaryRepositoryImpl implements DataDictionaryRepository {
     
     @Override
     public void delete(Long id) {
-        // 级联删除 items
         LambdaQueryWrapper<DataDictionaryItemDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(DataDictionaryItemDO::getDictId, id);
         dataDictionaryItemMapper.delete(wrapper);
         
-        // 删除字典
         dataDictionaryMapper.deleteById(id);
     }
     
@@ -125,8 +119,6 @@ public class DataDictionaryRepositoryImpl implements DataDictionaryRepository {
         return findItemsByDictIdAndParentItemCode(dictId, null);
     }
     
-    // ========== DO 与 Entity 转换方法 ==========
-    
     private DataDictionary toEntity(DataDictionaryDO doObj) {
         if (doObj == null) {
             return null;
@@ -140,7 +132,6 @@ public class DataDictionaryRepositoryImpl implements DataDictionaryRepository {
         entity.setSortOrder(doObj.getSortOrder());
         entity.setUpdatedAt(doObj.getUpdatedAt());
         
-        // 查询关联的 items
         LambdaQueryWrapper<DataDictionaryItemDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(DataDictionaryItemDO::getDictId, doObj.getId())
                .orderByAsc(DataDictionaryItemDO::getSortOrder);

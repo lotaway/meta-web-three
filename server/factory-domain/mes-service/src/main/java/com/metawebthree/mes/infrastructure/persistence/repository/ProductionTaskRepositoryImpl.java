@@ -11,9 +11,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * 生产任务仓储实现 - 基于 MyBatis-Plus 持久化
- */
 @Repository
 public class ProductionTaskRepositoryImpl implements ProductionTaskRepository {
     

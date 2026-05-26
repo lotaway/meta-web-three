@@ -70,8 +70,6 @@ public class EntityExtensionFieldRepositoryImpl implements EntityExtensionFieldR
         return entityExtensionFieldMapper.selectCount(wrapper) > 0;
     }
     
-    // ========== DO 与 Entity 转换方法 ==========
-    
     private EntityExtensionField toEntity(EntityExtensionFieldDO doObj) {
         if (doObj == null) {
             return null;
