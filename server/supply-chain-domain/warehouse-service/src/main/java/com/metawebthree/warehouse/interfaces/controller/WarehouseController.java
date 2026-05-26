@@ -3,6 +3,7 @@ package com.metawebthree.warehouse.interfaces.controller;
 import com.metawebthree.warehouse.application.WarehouseApplicationService;
 import com.metawebthree.warehouse.application.dto.WarehouseDTO;
 import com.metawebthree.warehouse.application.dto.InboundOrderDTO;
+import com.metawebthree.common.dto.ApiResponse;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -22,15 +23,17 @@ public class WarehouseController {
 
     // 仓库管理
     @PostMapping("/warehouses")
-    public WarehouseDTO createWarehouse(@RequestBody WarehouseDTO dto) {
-        return warehouseService.createWarehouse(dto);
+    public ApiResponse<Long> createWarehouse(@RequestBody WarehouseDTO dto) {
+        Long id = warehouseService.createWarehouse(dto);
+        return ApiResponse.success(id);
     }
 
     @PutMapping("/warehouses/{id}")
-    public WarehouseDTO updateWarehouse(
+    public ApiResponse<Void> updateWarehouse(
             @PathVariable Long id,
             @RequestBody WarehouseDTO dto) {
-        return warehouseService.updateWarehouse(id, dto);
+        warehouseService.updateWarehouse(id, dto);
+        return ApiResponse.success();
     }
 
     @GetMapping("/warehouses/{id}")
@@ -45,20 +48,23 @@ public class WarehouseController {
 
     // 入库管理
     @PostMapping("/inbound")
-    public InboundOrderDTO createInboundOrder(@RequestBody InboundOrderDTO dto) {
-        return warehouseService.createInboundOrder(dto);
+    public ApiResponse<Void> createInboundOrder(@RequestBody InboundOrderDTO dto) {
+        warehouseService.createInboundOrder(dto);
+        return ApiResponse.success();
     }
 
     @PostMapping("/inbound/{orderNo}/confirm")
-    public InboundOrderDTO confirmInboundOrder(@PathVariable String orderNo) {
-        return warehouseService.confirmInboundOrder(orderNo);
+    public ApiResponse<Void> confirmInboundOrder(@PathVariable String orderNo) {
+        warehouseService.confirmInboundOrder(orderNo);
+        return ApiResponse.success();
     }
 
     @PostMapping("/inbound/{orderNo}/complete")
-    public InboundOrderDTO completeInboundOrder(
+    public ApiResponse<Void> completeInboundOrder(
             @PathVariable String orderNo,
             @RequestBody InboundOrderDTO dto) {
-        return warehouseService.completeInboundOrder(orderNo, dto);
+        warehouseService.completeInboundOrder(orderNo, dto);
+        return ApiResponse.success();
     }
 
     @GetMapping("/inbound/{orderNo}")

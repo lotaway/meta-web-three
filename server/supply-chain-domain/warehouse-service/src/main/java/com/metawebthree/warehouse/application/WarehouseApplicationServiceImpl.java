@@ -9,6 +9,8 @@ import com.metawebthree.warehouse.domain.entity.InboundOrderItem;
 import com.metawebthree.warehouse.infrastructure.event.WarehouseDomainEventPublisher;
 import com.metawebthree.warehouse.infrastructure.persistence.repository.WarehouseRepository;
 import com.metawebthree.warehouse.infrastructure.persistence.repository.InboundOrderRepository;
+import com.metawebthree.warehouse.domain.exception.WarehouseNotFoundException;
+import com.metawebthree.warehouse.domain.exception.InboundOrderNotFoundException;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,7 +46,7 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
     }
 
     @Override
-    public WarehouseDTO createWarehouse(WarehouseDTO dto) {
+    public Long createWarehouse(WarehouseDTO dto) {
         Warehouse warehouse = new Warehouse();
         warehouse.setWarehouseCode(generateWarehouseCode());
         warehouse.setWarehouseName(dto.getWarehouseName());
@@ -63,38 +65,35 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
         
         warehouseRepository.insert(warehouse);
         eventPublisher.publishCreated(warehouse.getId(), warehouse.getWarehouseCode(), warehouse.getWarehouseName());
-        
-        return toWarehouseDTO(warehouseRepository.findById(warehouse.getId()).orElse(warehouse));
+        return warehouse.getId();
     }
 
     @Override
-    public WarehouseDTO updateWarehouse(Long id, WarehouseDTO dto) {
-        return warehouseRepository.findById(id)
-            .map(warehouse -> {
-                if (dto.getWarehouseName() != null) {
-                    warehouse.setWarehouseName(dto.getWarehouseName());
-                }
-                if (dto.getContact() != null) {
-                    warehouse.setContact(dto.getContact());
-                }
-                if (dto.getPhone() != null) {
-                    warehouse.setPhone(dto.getPhone());
-                }
-                if (dto.getAddress() != null) {
-                    warehouse.setAddress(dto.getAddress());
-                }
-                warehouse.setUpdatedAt(LocalDateTime.now());
-                warehouseRepository.update(warehouse);
-                return toWarehouseDTO(warehouseRepository.findById(id).orElse(warehouse));
-            })
-            .orElse(null);
+    public void updateWarehouse(Long id, WarehouseDTO dto) {
+        Warehouse warehouse = warehouseRepository.findById(id)
+            .orElseThrow(() -> new WarehouseNotFoundException(id));
+        
+        if (dto.getWarehouseName() != null) {
+            warehouse.setWarehouseName(dto.getWarehouseName());
+        }
+        if (dto.getContact() != null) {
+            warehouse.setContact(dto.getContact());
+        }
+        if (dto.getPhone() != null) {
+            warehouse.setPhone(dto.getPhone());
+        }
+        if (dto.getAddress() != null) {
+            warehouse.setAddress(dto.getAddress());
+        }
+        warehouse.setUpdatedAt(LocalDateTime.now());
+        warehouseRepository.update(warehouse);
     }
 
     @Override
     public WarehouseDTO queryWarehouse(Long id) {
         return warehouseRepository.findById(id)
             .map(this::toWarehouseDTO)
-            .orElse(null);
+            .orElseThrow(() -> new WarehouseNotFoundException(id));
     }
 
     @Override
@@ -103,7 +102,7 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
     }
 
     @Override
-    public InboundOrderDTO createInboundOrder(InboundOrderDTO dto) {
+    public void createInboundOrder(InboundOrderDTO dto) {
         InboundOrder order = new InboundOrder();
         order.setOrderNo(generateInboundOrderNo());
         order.setInboundType(dto.getInboundType());
@@ -135,56 +134,49 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
         
         inboundOrderRepository.insert(order);
         eventPublisher.publishInboundOrderCreated(order.getOrderNo(), order.getWarehouseId());
+    }
+
+    @Override
+    public void confirmInboundOrder(String orderNo) {
+        InboundOrder order = inboundOrderRepository.findByOrderNo(orderNo)
+            .orElseThrow(() -> new InboundOrderNotFoundException(orderNo));
         
-        return toInboundOrderDTO(inboundOrderRepository.findById(order.getId()).orElse(order));
+        order.confirm();
+        order.setUpdatedAt(LocalDateTime.now());
+        inboundOrderRepository.update(order);
     }
 
     @Override
-    public InboundOrderDTO confirmInboundOrder(String orderNo) {
-        return inboundOrderRepository.findByOrderNo(orderNo)
-            .map(order -> {
-                order.confirm();
-                order.setUpdatedAt(LocalDateTime.now());
-                inboundOrderRepository.update(order);
-                return toInboundOrderDTO(inboundOrderRepository.findByOrderNo(orderNo).orElse(order));
-            })
-            .orElse(null);
-    }
-
-    @Override
-    public InboundOrderDTO completeInboundOrder(String orderNo, InboundOrderDTO dto) {
-        return inboundOrderRepository.findByOrderNo(orderNo)
-            .map(order -> {
-                order.complete();
-                order.setActualArrivalTime(dto.getActualArrivalTime() != null 
-                    ? dto.getActualArrivalTime() 
-                    : LocalDateTime.now());
-                order.setUpdatedAt(LocalDateTime.now());
-                inboundOrderRepository.update(order);
-                
-                eventPublisher.publishInboundOrderCompleted(orderNo);
-                if (order.getItems() != null) {
-                    for (InboundOrderItem item : order.getItems()) {
-                        int qty = getActualQuantity(item);
-                        eventPublisher.publishStockIn(
-                            order.getWarehouseId(),
-                            item.getSkuCode(),
-                            qty,
-                            orderNo
-                        );
-                    }
-                }
-                
-                return toInboundOrderDTO(inboundOrderRepository.findByOrderNo(orderNo).orElse(order));
-            })
-            .orElse(null);
+    public void completeInboundOrder(String orderNo, InboundOrderDTO dto) {
+        InboundOrder order = inboundOrderRepository.findByOrderNo(orderNo)
+            .orElseThrow(() -> new InboundOrderNotFoundException(orderNo));
+        
+        order.complete();
+        order.setActualArrivalTime(dto.getActualArrivalTime() != null 
+            ? dto.getActualArrivalTime() 
+            : LocalDateTime.now());
+        order.setUpdatedAt(LocalDateTime.now());
+        inboundOrderRepository.update(order);
+        
+        eventPublisher.publishInboundOrderCompleted(orderNo);
+        if (order.getItems() != null) {
+            for (InboundOrderItem item : order.getItems()) {
+                int qty = getActualQuantity(item);
+                eventPublisher.publishStockIn(
+                    order.getWarehouseId(),
+                    item.getSkuCode(),
+                    qty,
+                    orderNo
+                );
+            }
+        }
     }
 
     @Override
     public InboundOrderDTO queryInboundOrder(String orderNo) {
         return inboundOrderRepository.findByOrderNo(orderNo)
             .map(this::toInboundOrderDTO)
-            .orElse(null);
+            .orElseThrow(() -> new InboundOrderNotFoundException(orderNo));
     }
 
     @Override

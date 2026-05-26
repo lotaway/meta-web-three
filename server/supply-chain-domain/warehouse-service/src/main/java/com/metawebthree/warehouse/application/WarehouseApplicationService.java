@@ -6,19 +6,19 @@ import java.util.List;
 
 public interface WarehouseApplicationService {
 
-    WarehouseDTO createWarehouse(WarehouseDTO dto);
+    Long createWarehouse(WarehouseDTO dto);
 
-    WarehouseDTO updateWarehouse(Long id, WarehouseDTO dto);
+    void updateWarehouse(Long id, WarehouseDTO dto);
 
     WarehouseDTO queryWarehouse(Long id);
 
     List<WarehouseDTO> listWarehouses(String status);
 
-    InboundOrderDTO createInboundOrder(InboundOrderDTO dto);
+    void createInboundOrder(InboundOrderDTO dto);
 
-    InboundOrderDTO confirmInboundOrder(String orderNo);
+    void confirmInboundOrder(String orderNo);
 
-    InboundOrderDTO completeInboundOrder(String orderNo, InboundOrderDTO dto);
+    void completeInboundOrder(String orderNo, InboundOrderDTO dto);
 
     InboundOrderDTO queryInboundOrder(String orderNo);
 
