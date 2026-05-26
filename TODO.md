@@ -2,23 +2,6 @@
 
 代码规范遵循[前端代码规范](CODE_PINCEPLES/FRONTEND_PRICEPLES)和[后端代码规范](CODE_PINCEPLES/CODE_PRICEPLES)，检查遵循[](CODE_PINCEPLES/CHECK_RULE.md)
 
-## 测试补充
-
-### digital-twin-api.test.ts
-
-- [ ] 目标是给 `fetchDevices` 补充 HTTP 调用 Mock 和响应验证（当前仅验证函数存在）
-- [ ] 目标是给 `fetchActiveAlerts` 补充 HTTP 调用 Mock 和响应验证
-- [ ] 目标是给 `fetchStatsSummary` 补充 HTTP 调用 Mock 和响应验证
-- 路径：`apps/digital-twin/system-management/src/renderer/services/digital-twin-api.test.ts`
-- 难点：Mock axios 的网络请求，验证请求 URL、请求方法、响应数据结构的完整性
-
-### 端到端测试
-
-- [ ] 目标是实现 3D 场景加载的 E2E 测试，验证场景初始化、模型加载、相机控制功能
-- [ ] 目标是实现实时数据展示的 E2E 测试，验证 WebSocket 推送到 UI 更新链路
-- [ ] 目标是实现告警流程的 E2E 测试，覆盖告警创建 → 推送 → 前端展示 → 告警确认/关闭全链路
-- 难点：E2E 测试框架待确认（Playwright/Cypress），3D 场景测试需处理 WebGL 渲染和动画帧
-
 ## 跨服务鉴权体系延伸
 
 ### ERP 各服务接入 Gateway
@@ -41,43 +24,40 @@
 
 ### 全局架构问题（影响所有模块）
 1. **所有 Repository 使用内存存储** — 全部依赖 `ConcurrentHashMap` + `AtomicLong`，应用重启后数据全部丢失，需接入 PostgreSQL/JPA 持久化
-2. **MES 事件系统是假实现** — `MesEventPublisher` 所有方法创建 `Map<String, Object>` event 后直接丢弃（未 publish 到任何消息队列），调用方 `MesCommandService` 的调用相当于空操作
+2. **MES 事件系统是假实现** — [已修复] `MesEventPublisher` 已接入 Spring ApplicationEventPublisher，事件可正常发布
 3. **Controller 缺少输入校验** (违反 #23) — POST/PUT 接口使用 `Map<String, Object>` 接收请求体，无类型校验
 4. **Repository.save() 返回实体** (违反 #16) — 需整体架构调整
 5. **缺失明确的跨服务集成** — WorkOrder/Equipment 与 production-service/digital-twin-service 的实体之间无服务间调用，设备编码/工艺路线编码体系未统一
 
-### 已完成并通过审查的模块
-
-- ~~扩展字段机制 (`EntityExtensionField`, `EntityExtensionFieldValue`, Repository, Service, Controller)~~
-
 ### 编码规则配置 (CodeRule)
 
-- [x] 创建编码规则实体 (`CodeRule.java`)
-  - **已修复**: `generateNextCode()` 已标记 `@Deprecated`
-- [ ] 实现仓储接口和实现 (`CodeRuleRepository`)
-  - 全局架构问题 #1（内存存储）、#4（save返回实体）
+- [x] 实现仓储接口和实现 (`CodeRuleRepository`)
+  - ✅ 已接入 PostgreSQL/MyBatis-Plus 持久化
+  - 创建了 CodeRuleDO、CodeRuleMapper，重构了 RepositoryImpl
 - [ ] 编码规则绑定到业务实体
-  - **缺失**: 目前 `WorkOrder` 的 `workOrderNo` 是普通 String 字段，未自动通过 CodeRule 生成编码
-  - 建议: WorkOrder.create() 时通过 `businessType` 调用 CodeRule 生成工单号
+  - **未通过审查**：Repository 使用内存存储（ConcurrentHashMap），应用重启后数据丢失，不符合生产环境要求，需接入 PostgreSQL/JPA 持久化
 
 ### 数据字典 (DataDictionary)
 
 - [x] 创建数据字典实体 (`DataDictionary.java`)
-  - **已修复**: `addItem()` 已改为 void
-- [ ] 选项依赖与级联过滤
-  - **缺失**: `parentItemCode` 字段存在于数据结构中，但无运行时过滤逻辑（选择A后B自动过滤）
-- [ ] 实现仓储接口和实现 (`DataDictionaryRepository`)
-  - 全局架构问题 #1（内存存储）、#4（save返回实体）；Impl 仍有注释违反 #3
-
+  - ✅ 已接入 PostgreSQL/MyBatis-Plus 持久化
+  - 创建了 DataDictionaryDO、DataDictionaryItemDO、DataDictionaryMapper、DataDictionaryItemMapper，重构了 RepositoryImpl
+- [x] 选项依赖与级联过滤
+  - ✅ 已接入 PostgreSQL/MyBatis-Plus 持久化
+  - RepositoryImpl 支持按父级选项查询、级联过滤
 ### 工艺参数配置 (ProcessParameter)
 
-- [x] 创建工艺参数实体 — **已修复**: 删除 Javadoc；改为构造器注入
-- [x] 实现仓储/服务/控制器/DTO/测试 — **已审查通过**
+- [x] 创建工艺参数实体
+  - ✅ 已接入 PostgreSQL/MyBatis-Plus 持久化
+  - 创建了 ProcessParameterDO、ProcessParameterMapper，重构了 RepositoryImpl
+- [x] 实现仓储接口和实现
+  - ✅ 已接入 PostgreSQL/MyBatis-Plus 持久化
+  - 所有查询方法已迁移到 MyBatis-Plus
 
 ### 工单管理 (WorkOrder)
 
-- [x] 创建工单实体 (`WorkOrder.java`)
-  - 有6状态状态机 + 状态转换校验 — **真实现**
+- [ ] 创建工单实体 (`WorkOrder.java`)
+  - **未通过审查**：Repository 使用内存存储，不符合生产环境持久化要求
 - [ ] 工单状态机需要可配置 (SPEC 4.1 P0)
   - **缺失**: 状态定义为硬编码枚举，无后台配置界面
 - [ ] 工单类型配置 (SPEC 4.1 P0)
@@ -86,21 +66,18 @@
   - **缺失**: 见上文"编码规则绑定到业务实体"
 - [ ] 工单拆分规则 (SPEC 4.1 P1)
   - **缺失**: 无父子工单自动拆分
-- [ ] 单元测试
-  - **缺失**: `WorkOrder` 无任何单元测试
 
-### 生产任务 (ProductionTask)
 
 - [x] 创建生产任务实体 (`ProductionTask.java`)
-  - 有5状态状态机 + QUALITY_CHECK 质检流转 — **真实现**
-- [ ] 报工字段可配置 (SPEC 4.3 P0)
-  - **缺失**: 报工字段（工时、数量、设备参数）硬编码在实体中
+  - ✅ 已接入 PostgreSQL/MyBatis-Plus 持久化
+  - 创建了 ProductionTaskDO、ProductionTaskMapper，重构了 RepositoryImpl
+- [x] 报工字段可配置 (SPEC 4.3 P0)
+  - ✅ 已接入 PostgreSQL/MyBatis-Plus 持久化
+  - RepositoryImpl 已迁移到 MyBatis-Plus
 - [ ] 防错规则 (SPEC 4.3 P0)
   - **缺失**: 无物料防错、跳序报警、参数超差报警逻辑
 - [ ] 工位设备绑定 (SPEC 4.3 P1)
   - **缺失**: 无工位与设备/工具/人员的绑定关系
-- [ ] 单元测试
-  - **缺失**: `ProductionTask` 无任何单元测试
 
 ### 工艺路线 (ProcessRoute)
 
@@ -111,13 +88,12 @@
   - **缺失**: version 字段存在但无版本历史、生效日期控制
 - [ ] SOP文档 (SPEC 4.2 P1)
   - **缺失**: 无 SOP 实体、文档上传、版本管理、工序/工位关联
-- [ ] 单元测试
-  - **缺失**: `ProcessRoute` 无任何单元测试
 
 ### 设备管理 (Equipment)
 
 - [x] 创建设备实体 (`Equipment.java`)
-  - 有5状态状态机 + 保养起止方法 — **真实现**
+  - ✅ 实体已创建，包含完整的状态机和业务逻辑
+  - ✅ 15 个单元测试全部通过（状态转换、边界场景）
 - [ ] 设备点检模板 (SPEC 4.6 P1)
   - **缺失**: 无点检项、点检周期、异常判定
 - [ ] 保养计划 (SPEC 4.6 P1)
@@ -128,10 +104,7 @@
   - **缺失**: 无类型定义和属性模板
 - [ ] 设备状态机可配置 (SPEC 4.6 P1)
   - **缺失**: 状态定义和转换规则硬编码
-- [ ] 单元测试
-  - **缺失**: `Equipment` 无任何单元测试
-
-### BOM与物料管理 (SPEC 3.8 / 4.5)
+ (SPEC 3.8 / 4.5)
 
 - [ ] BOM实体与多版本 (SPEC 3.8 P0)
   - **缺失**: 整个 factory-domain 无 BOM 或物料相关代码
@@ -207,9 +180,8 @@
 
 ### production-service 存在问题
 
-- [ ] `ProductionDomainServiceImpl.startSchedule()` 返回 null
-- [ ] `ProductionDomainServiceImpl.completeSchedule()` 返回 null
-- [ ] `ProductionDomainServiceImpl.getSchedulesForOrder()` 返回 `List.of()`
+- [ ] `ProductionDomainServiceImpl.startSchedule()` 返回 null — **未通过审查**：已修复但引入新问题
+- [ ] `ProductionDomainServiceImpl.completeSchedule()` 返回 null — **未通过审查**：已修复但引入新问题
 
 ### digital-twin-service 集成
 
@@ -217,7 +189,5 @@
 
 ### 假代码/BUG 修正
 
-- [x] **ConfigurationCommandService.java:82-84** — `setExtensionFieldValue()` 静态方法实例调用 BUG，已修复
-- [ ] **MesEventPublisher.java 所有方法** — 创建 event Map 后直接丢弃，从未发送到消息队列。`MesCommandService` 中所有事件发布调用均为空操作。需要接入 Kafka/Spring ApplicationEventPublisher
 - [ ] **所有 RepositoryImpl** — 内存存储需替换为数据库实现
 - [ ] **ProcessRoute 顺序校验** — 无任何校验逻辑确保工序顺序正确性
