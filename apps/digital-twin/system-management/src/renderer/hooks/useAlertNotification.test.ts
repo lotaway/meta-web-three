@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { useAlertNotification, type AlertEvent } from './useAlertNotification'
 
-// Mock the Toast component and notification service
 vi.mock('../components/Toast', () => ({
   notificationService: {
     playAlertSound: vi.fn().mockResolvedValue(undefined),

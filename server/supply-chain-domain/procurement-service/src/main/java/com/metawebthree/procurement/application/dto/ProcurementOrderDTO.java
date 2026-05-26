@@ -22,5 +22,6 @@ public class ProcurementOrderDTO {
     private String approver;
     private LocalDateTime approvedAt;
     private LocalDateTime expectedDeliveryDate;
+    private LocalDateTime actualDeliveryDate;
     private LocalDateTime createdAt;
 }

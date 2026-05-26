@@ -3,7 +3,7 @@ package com.metawebthree.logistics.application;
 import com.metawebthree.logistics.application.dto.LogisticsOrderDTO;
 import com.metawebthree.logistics.domain.entity.LogisticsOrder;
 import com.metawebthree.logistics.domain.entity.TrackingEvent;
-import com.metawebthree.logistics.infrastructure.event.LogisticsEventPublisher;
+import com.metawebthree.logistics.infrastructure.event.LogisticsDomainEventPublisher;
 import com.metawebthree.logistics.infrastructure.persistence.repository.LogisticsOrderRepository;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -15,10 +15,10 @@ import java.util.stream.Collectors;
 public class LogisticsApplicationServiceImpl implements LogisticsApplicationService {
 
     private final LogisticsOrderRepository repository;
-    private final LogisticsEventPublisher eventPublisher;
+    private final LogisticsDomainEventPublisher eventPublisher;
 
     public LogisticsApplicationServiceImpl(LogisticsOrderRepository repository,
-                                           LogisticsEventPublisher eventPublisher) {
+                                           LogisticsDomainEventPublisher eventPublisher) {
         this.repository = repository;
         this.eventPublisher = eventPublisher;
     }

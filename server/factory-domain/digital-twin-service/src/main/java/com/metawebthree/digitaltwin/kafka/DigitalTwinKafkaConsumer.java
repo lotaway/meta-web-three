@@ -3,7 +3,6 @@ package com.metawebthree.digitaltwin.kafka;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metawebthree.digitaltwin.application.ai.WarehouseAIService;
-import com.metawebthree.digitaltwin.infrastructure.event.DigitalTwinEventPublisher;
 import com.metawebthree.digitaltwin.interfaces.websocket.DigitalTwinWebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +19,9 @@ public class DigitalTwinKafkaConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(DigitalTwinKafkaConsumer.class);
     private static final int DEFAULT_ANOMALY_DETECTION_HOURS = 24;
+    private static final double DEFAULT_CONFIDENCE = 0.0;
 
     private final DigitalTwinWebSocketHandler webSocketHandler;
-    private final DigitalTwinEventPublisher eventPublisher;
     private final WarehouseAIService aiService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -31,10 +30,8 @@ public class DigitalTwinKafkaConsumer {
 
     public DigitalTwinKafkaConsumer(
             DigitalTwinWebSocketHandler webSocketHandler,
-            DigitalTwinEventPublisher eventPublisher,
             WarehouseAIService aiService) {
         this.webSocketHandler = webSocketHandler;
-        this.eventPublisher = eventPublisher;
         this.aiService = aiService;
     }
 
@@ -291,7 +288,7 @@ public class DigitalTwinKafkaConsumer {
                 "warehouseId", warehouseId,
                 "skuCode", skuCode,
                 "predictedQuantity", predictedQty,
-                "confidence", confidence != null ? confidence : 0.0,
+                "confidence", confidence != null ? confidence : DEFAULT_CONFIDENCE,
                 "adjustedAt", System.currentTimeMillis()
             )
         ));

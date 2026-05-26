@@ -1,6 +1,7 @@
 package com.metawebthree.inventory.application;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.metawebthree.inventory.application.dto.InventoryOperationResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -48,18 +49,18 @@ public class OrderEventListener {
                     BigDecimal unitPrice = new BigDecimal(priceObj.toString());
 
                     // Reserve inventory for each item
-                    boolean success = inventoryService.reserveInventory(
+                    InventoryOperationResult result = inventoryService.reserveInventory(
                             Long.parseLong(productId),
                             quantity,
                             "ORDER-" + orderId
                     );
 
-                    if (success) {
+                    if (result != null && result.isSuccess()) {
                         log.info("Inventory reserved: productId={}, quantity={}, orderId={}",
                                 productId, quantity, orderId);
                     } else {
-                        log.warn("Failed to reserve inventory: productId={}, quantity={}",
-                                productId, quantity);
+                        log.warn("Failed to reserve inventory: productId={}, quantity={}, reason={}",
+                                productId, quantity, result != null ? result.getMessage() : "unknown");
                     }
                 }
             }

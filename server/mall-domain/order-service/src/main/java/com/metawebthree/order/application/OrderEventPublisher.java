@@ -52,8 +52,10 @@ public class OrderEventPublisher {
                         .map(i -> OrderCreatedEvent.OrderItem.builder()
                                 .productId(i.getProductId().toString())
                                 .productName(i.getProductName())
+                                .skuId(i.getSkuId() != null ? i.getSkuId().toString() : null)
                                 .quantity(i.getQuantity())
                                 .unitPrice(i.getUnitPrice())
+                                .imageUrl(i.getImageUrl())
                                 .build())
                         .toList())
                 .build();
@@ -128,27 +130,96 @@ public class OrderEventPublisher {
         public String getCurrency() { return currency; }
         public List<OrderItem> getItems() { return items; }
         public Instant getOrderTime() { return orderTime; }
+
+        public static class OrderItem {
+            private String productId;
+            private String productName;
+            private String skuId;
+            private Integer quantity;
+            private BigDecimal unitPrice;
+            private String imageUrl;
+
+            public static Builder builder() { return new Builder(); }
+            public static class Builder {
+                private final OrderItem item = new OrderItem();
+                public Builder productId(String val) { item.productId = val; return this; }
+                public Builder productName(String val) { item.productName = val; return this; }
+                public Builder skuId(String val) { item.skuId = val; return this; }
+                public Builder quantity(Integer val) { item.quantity = val; return this; }
+                public Builder unitPrice(BigDecimal val) { item.unitPrice = val; return this; }
+                public Builder imageUrl(String val) { item.imageUrl = val; return this; }
+                public OrderItem build() { return item; }
+            }
+
+            public String getProductId() { return productId; }
+            public String getProductName() { return productName; }
+            public String getSkuId() { return skuId; }
+            public Integer getQuantity() { return quantity; }
+            public BigDecimal getUnitPrice() { return unitPrice; }
+            public String getImageUrl() { return imageUrl; }
+        }
     }
 
+    // Legacy OrderItem for backward compatibility
     public static class OrderItem {
         private String productId;
         private String productName;
+        private String skuId;
         private Integer quantity;
         private BigDecimal unitPrice;
+        private String imageUrl;
 
         public static Builder builder() { return new Builder(); }
         public static class Builder {
             private final OrderItem item = new OrderItem();
             public Builder productId(String val) { item.productId = val; return this; }
             public Builder productName(String val) { item.productName = val; return this; }
+            public Builder skuId(String val) { item.skuId = val; return this; }
             public Builder quantity(Integer val) { item.quantity = val; return this; }
             public Builder unitPrice(BigDecimal val) { item.unitPrice = val; return this; }
+            public Builder imageUrl(String val) { item.imageUrl = val; return this; }
             public OrderItem build() { return item; }
         }
 
         public String getProductId() { return productId; }
         public String getProductName() { return productName; }
+        public String getSkuId() { return skuId; }
         public Integer getQuantity() { return quantity; }
         public BigDecimal getUnitPrice() { return unitPrice; }
+        public String getImageUrl() { return imageUrl; }
+    }
+
+    // Order item DTO for creation
+    public static class OrderItemCreate {
+        private Long productId;
+        private String productName;
+        private Long skuId;
+        private Integer quantity;
+        private BigDecimal unitPrice;
+        private String imageUrl;
+
+        public OrderItemCreate() {}
+
+        public OrderItemCreate(Long productId, String productName, Long skuId, Integer quantity, BigDecimal unitPrice, String imageUrl) {
+            this.productId = productId;
+            this.productName = productName;
+            this.skuId = skuId;
+            this.quantity = quantity;
+            this.unitPrice = unitPrice;
+            this.imageUrl = imageUrl;
+        }
+
+        public Long getProductId() { return productId; }
+        public void setProductId(Long productId) { this.productId = productId; }
+        public String getProductName() { return productName; }
+        public void setProductName(String productName) { this.productName = productName; }
+        public Long getSkuId() { return skuId; }
+        public void setSkuId(Long skuId) { this.skuId = skuId; }
+        public Integer getQuantity() { return quantity; }
+        public void setQuantity(Integer quantity) { this.quantity = quantity; }
+        public BigDecimal getUnitPrice() { return unitPrice; }
+        public void setUnitPrice(BigDecimal unitPrice) { this.unitPrice = unitPrice; }
+        public String getImageUrl() { return imageUrl; }
+        public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     }
 }

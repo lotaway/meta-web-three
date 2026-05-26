@@ -22,4 +22,20 @@ public interface InventoryApplicationService {
 
     InventoryOperationResult decrease(String skuCode, Long warehouseId, 
             Integer quantity, String remark);
+
+    /**
+     * Convenience method to reserve inventory for order.
+     * @param productId product ID
+     * @param quantity quantity to reserve
+     * @param orderId order ID for bizId
+     * @return operation result
+     */
+    default InventoryOperationResult reserveInventory(Long productId, Integer quantity, String orderId) {
+        ReserveInventoryDTO dto = new ReserveInventoryDTO();
+        dto.setSkuCode(productId.toString());
+        dto.setQuantity(quantity);
+        dto.setBizId(orderId);
+        dto.setBizType("ORDER");
+        return reserve(dto);
+    }
 }

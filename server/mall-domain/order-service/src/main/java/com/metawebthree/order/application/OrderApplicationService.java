@@ -77,7 +77,12 @@ public class OrderApplicationService {
             orderItemMapper.insert(item);
         }
         // Publish order created event
-        eventPublisher.publishOrderCreated(orderId, orderNo, userId, total, "USD", items);
+        List<OrderEventPublisher.OrderItemCreate> eventItems = items.stream()
+                .map(i -> new OrderEventPublisher.OrderItemCreate(
+                        i.getProductId(), i.getProductName(), i.getSkuId(),
+                        i.getQuantity(), i.getUnitPrice(), i.getImageUrl()))
+                .collect(Collectors.toList());
+        eventPublisher.publishOrderCreated(orderId, orderNo, userId, total, "USD", eventItems);
         return orderId;
     }
 

@@ -10,7 +10,9 @@ public interface InboundOrderRepository {
 
     Optional<InboundOrder> findByOrderNo(String orderNo);
 
-    InboundOrder save(InboundOrder order);
+    void insert(InboundOrder order);
+
+    void update(InboundOrder order);
 
     List<InboundOrder> findByWarehouseId(Long warehouseId);
 

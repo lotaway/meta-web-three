@@ -3,7 +3,7 @@ package com.metawebthree.procurement.application;
 import com.metawebthree.procurement.application.dto.ProcurementOrderDTO;
 import com.metawebthree.procurement.domain.entity.ProcurementOrder;
 import com.metawebthree.procurement.domain.repository.ProcurementOrderRepository;
-import com.metawebthree.procurement.infrastructure.event.ProcurementEventPublisher;
+import com.metawebthree.procurement.infrastructure.event.ProcurementDomainEventPublisher;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,10 +14,10 @@ import java.util.stream.Collectors;
 public class ProcurementApplicationServiceImpl implements ProcurementApplicationService {
 
     private final ProcurementOrderRepository repository;
-    private final ProcurementEventPublisher eventPublisher;
+    private final ProcurementDomainEventPublisher eventPublisher;
 
     public ProcurementApplicationServiceImpl(ProcurementOrderRepository repository,
-                                              ProcurementEventPublisher eventPublisher) {
+                                              ProcurementDomainEventPublisher eventPublisher) {
         this.repository = repository;
         this.eventPublisher = eventPublisher;
     }

@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// Extract pure functions from DeviceChart for testing
 function normalizeHex(c: string): string {
   if (!c.startsWith('#')) return c
   let hex = c.slice(1)

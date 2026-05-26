@@ -20,6 +20,10 @@ public class LocationRecommendationFallback implements AlgorithmFallback {
     private static final double DEFAULT_VELOCITY = 50.0;
     private static final double HIGH_VELOCITY_THRESHOLD = 80.0;
     private static final double MEDIUM_VELOCITY_THRESHOLD = 50.0;
+    private static final String ZONE_A = "A";
+    private static final String ZONE_B = "B";
+    private static final String ZONE_C = "C";
+    private static final String ADJACENT_CATEGORY = "RELATED";
 
     @Override
     public WarehouseCapability getCapability() {
@@ -69,11 +73,11 @@ public class LocationRecommendationFallback implements AlgorithmFallback {
 
     private String assignZone(double velocity) {
         if (velocity >= HIGH_VELOCITY_THRESHOLD) {
-            return "A";
+            return ZONE_A;
         } else if (velocity >= MEDIUM_VELOCITY_THRESHOLD) {
-            return "B";
+            return ZONE_B;
         } else {
-            return "C";
+            return ZONE_C;
         }
     }
 
@@ -87,6 +91,6 @@ public class LocationRecommendationFallback implements AlgorithmFallback {
     }
 
     private String findAdjacentCategory(String category) {
-        return "RELATED";
+        return ADJACENT_CATEGORY;
     }
 }

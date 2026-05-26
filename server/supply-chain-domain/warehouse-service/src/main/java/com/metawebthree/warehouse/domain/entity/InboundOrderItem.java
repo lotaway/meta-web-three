@@ -2,6 +2,7 @@ package com.metawebthree.warehouse.domain.entity;
 
 import lombok.Data;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 public class InboundOrderItem {
@@ -15,6 +16,8 @@ public class InboundOrderItem {
     private String status;
     private BigDecimal unitCost;
     private String batchNo;
-    private String productionDate;
-    private String expiryDate;
+    private LocalDateTime productionDate;
+    private LocalDateTime expiryDate;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

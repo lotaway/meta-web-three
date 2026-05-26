@@ -9,7 +9,9 @@ public interface WarehouseRepository {
 
     Optional<Warehouse> findByWarehouseCode(String warehouseCode);
 
-    Warehouse save(Warehouse warehouse);
+    void insert(Warehouse warehouse);
+
+    void update(Warehouse warehouse);
 
     void delete(Warehouse warehouse);
 }

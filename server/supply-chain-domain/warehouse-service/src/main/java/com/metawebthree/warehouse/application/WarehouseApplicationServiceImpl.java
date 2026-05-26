@@ -6,7 +6,7 @@ import com.metawebthree.warehouse.application.dto.InboundOrderItemDTO;
 import com.metawebthree.warehouse.domain.entity.Warehouse;
 import com.metawebthree.warehouse.domain.entity.InboundOrder;
 import com.metawebthree.warehouse.domain.entity.InboundOrderItem;
-import com.metawebthree.warehouse.infrastructure.event.WarehouseEventPublisher;
+import com.metawebthree.warehouse.infrastructure.event.WarehouseDomainEventPublisher;
 import com.metawebthree.warehouse.infrastructure.persistence.repository.WarehouseRepository;
 import com.metawebthree.warehouse.infrastructure.persistence.repository.InboundOrderRepository;
 import org.springframework.stereotype.Service;
@@ -20,11 +20,11 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
 
     private final WarehouseRepository warehouseRepository;
     private final InboundOrderRepository inboundOrderRepository;
-    private final WarehouseEventPublisher eventPublisher;
+    private final WarehouseDomainEventPublisher eventPublisher;
 
     public WarehouseApplicationServiceImpl(WarehouseRepository warehouseRepository,
                                            InboundOrderRepository inboundOrderRepository,
-                                           WarehouseEventPublisher eventPublisher) {
+                                           WarehouseDomainEventPublisher eventPublisher) {
         this.warehouseRepository = warehouseRepository;
         this.inboundOrderRepository = inboundOrderRepository;
         this.eventPublisher = eventPublisher;
@@ -44,15 +44,14 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
         warehouse.setPhone(dto.getPhone());
         warehouse.setTotalCapacity(dto.getTotalCapacity());
         warehouse.setUsedCapacity(0);
-        warehouse.setAvailableCapacity(dto.getTotalCapacity());
         warehouse.setStatus("ACTIVE");
         warehouse.setCreatedAt(LocalDateTime.now());
         warehouse.setUpdatedAt(LocalDateTime.now());
         
-        Warehouse saved = warehouseRepository.save(warehouse);
-        eventPublisher.publishCreated(saved.getId(), saved.getWarehouseCode(), saved.getWarehouseName());
+        warehouseRepository.insert(warehouse);
+        eventPublisher.publishCreated(warehouse.getId(), warehouse.getWarehouseCode(), warehouse.getWarehouseName());
         
-        return toWarehouseDTO(saved);
+        return toWarehouseDTO(warehouseRepository.findById(warehouse.getId()).orElse(warehouse));
     }
 
     @Override
@@ -72,7 +71,8 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
                     warehouse.setAddress(dto.getAddress());
                 }
                 warehouse.setUpdatedAt(LocalDateTime.now());
-                return toWarehouseDTO(warehouseRepository.save(warehouse));
+                warehouseRepository.update(warehouse);
+                return toWarehouseDTO(warehouseRepository.findById(id).orElse(warehouse));
             })
             .orElse(null);
     }
@@ -121,10 +121,10 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
             order.setItems(items);
         }
         
-        InboundOrder saved = inboundOrderRepository.save(order);
-        eventPublisher.publishInboundOrderCreated(saved.getOrderNo(), saved.getWarehouseId());
+        inboundOrderRepository.insert(order);
+        eventPublisher.publishInboundOrderCreated(order.getOrderNo(), order.getWarehouseId());
         
-        return toInboundOrderDTO(saved);
+        return toInboundOrderDTO(inboundOrderRepository.findById(order.getId()).orElse(order));
     }
 
     @Override
@@ -133,7 +133,8 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
             .map(order -> {
                 order.confirm();
                 order.setUpdatedAt(LocalDateTime.now());
-                return toInboundOrderDTO(inboundOrderRepository.save(order));
+                inboundOrderRepository.update(order);
+                return toInboundOrderDTO(inboundOrderRepository.findByOrderNo(orderNo).orElse(order));
             })
             .orElse(null);
     }
@@ -147,7 +148,7 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
                     ? dto.getActualArrivalTime() 
                     : LocalDateTime.now());
                 order.setUpdatedAt(LocalDateTime.now());
-                InboundOrder saved = inboundOrderRepository.save(order);
+                inboundOrderRepository.update(order);
                 
                 // 发布入库完成事件和入库明细事件
                 eventPublisher.publishInboundOrderCompleted(orderNo);
@@ -163,7 +164,7 @@ public class WarehouseApplicationServiceImpl implements WarehouseApplicationServ
                     }
                 }
                 
-                return toInboundOrderDTO(saved);
+                return toInboundOrderDTO(inboundOrderRepository.findByOrderNo(orderNo).orElse(order));
             })
             .orElse(null);
     }

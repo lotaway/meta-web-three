@@ -121,7 +121,6 @@ public class DigitalTwinController {
         return ResponseEntity.ok(queryService.getOnlineDevices());
     }
 
-    // Workshop endpoints
     @RequirePermission(DigitalTwinPermissions.WORKSHOP_CREATE)
     @PostMapping("/workshop")
     public ResponseEntity<Map<String, Object>> createWorkshop(@RequestBody Map<String, Object> request) {
@@ -138,11 +137,10 @@ public class DigitalTwinController {
     public ResponseEntity<?> getAllWorkshops(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size) {
-        int limitedSize = Math.min(size, 100);
+        int limitedSize = Math.min(size, MAX_PAGE_SIZE);
         return ResponseEntity.ok(queryService.getWorkshopsPaginated(page, limitedSize));
     }
 
-    // ProductionLine endpoints
     @RequirePermission(DigitalTwinPermissions.PRODUCTION_LINE_CREATE)
     @PostMapping("/production-line")
     public ResponseEntity<Map<String, Object>> createProductionLine(@RequestBody Map<String, Object> request) {
@@ -160,11 +158,10 @@ public class DigitalTwinController {
     public ResponseEntity<?> getAllProductionLines(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size) {
-        int limitedSize = Math.min(size, 100);
+        int limitedSize = Math.min(size, MAX_PAGE_SIZE);
         return ResponseEntity.ok(queryService.getProductionLinesPaginated(page, limitedSize));
     }
 
-    // Alert endpoints
     @RequirePermission(DigitalTwinPermissions.ALERT_CREATE)
     @PostMapping("/alert")
     public ResponseEntity<Map<String, Object>> createAlert(@RequestBody Map<String, Object> request) {

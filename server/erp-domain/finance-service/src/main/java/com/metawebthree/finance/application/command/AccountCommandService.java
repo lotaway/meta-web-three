@@ -2,7 +2,7 @@ package com.metawebthree.finance.application.command;
 
 import com.metawebthree.finance.domain.entity.Account;
 import com.metawebthree.finance.domain.repository.AccountRepository;
-import com.metawebthree.finance.infrastructure.event.FinanceEventPublisher;
+import com.metawebthree.finance.infrastructure.event.FinanceDomainEventPublisher;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,9 +10,9 @@ import java.util.List;
 @Service
 public class AccountCommandService {
     private final AccountRepository accountRepository;
-    private final FinanceEventPublisher eventPublisher;
+    private final FinanceDomainEventPublisher eventPublisher;
 
-    public AccountCommandService(AccountRepository accountRepository, FinanceEventPublisher eventPublisher) {
+    public AccountCommandService(AccountRepository accountRepository, FinanceDomainEventPublisher eventPublisher) {
         this.accountRepository = accountRepository;
         this.eventPublisher = eventPublisher;
     }

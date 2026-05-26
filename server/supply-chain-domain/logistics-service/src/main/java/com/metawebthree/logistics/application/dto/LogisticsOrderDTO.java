@@ -15,9 +15,15 @@ public class LogisticsOrderDTO {
     private String senderName;
     private String senderPhone;
     private String senderAddress;
+    private String senderProvince;
+    private String senderCity;
+    private String senderDistrict;
     private String receiverName;
     private String receiverPhone;
     private String receiverAddress;
+    private String receiverProvince;
+    private String receiverCity;
+    private String receiverDistrict;
     private BigDecimal weight;
     private BigDecimal volume;
     private BigDecimal freight;

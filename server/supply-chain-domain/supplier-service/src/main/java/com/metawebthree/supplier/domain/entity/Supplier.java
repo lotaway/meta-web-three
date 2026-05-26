@@ -25,6 +25,10 @@ public class Supplier {
     private String category;
     private Integer score;
     private String level;
+    private String assessmentLevel;
+    private String name;
+    private String contactPerson;
+    private String contactPhone;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
