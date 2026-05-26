@@ -1,7 +1,7 @@
 {
   "name": "meta-web-three",
   "version": "1.0.2-20230225",
-  "description": "",
+  "description": "_本项目为商城+AI风控+AI仓储+ERP+数字化工厂+（可选）区块链商品 相关_",
   "author": "",
   "license": "UNLICENSED",
   "scripts": {
@@ -12,11 +12,27 @@
     "start:env": "docker compose -f ./docker-compose.env.yml start",
     "stop:env": "docker compose -f ./docker-compose.env.yml stop",
     "delete:env": "docker compose -f ./docker-compose.env.yml down",
-    "delete:system:docker:env": "docker stop $(docker ps -aq) && docker rm $(docker ps -aq)"
+    "delete:system:docker:env": "docker stop $(docker ps -aq) && docker rm $(docker ps -aq)",
+    "test:e2e": "cd apps/digital-twin/system-management && npm run test:e2e",
+    "test:e2e:ui": "cd apps/digital-twin/system-management && npm run test:e2e:ui"
   },
   "dependencies": {
     "caniuse-lite": "^1.0.30001519",
     "ethers": "^6.13.4",
     "expo-image-picker": "^55.0.19"
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://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@github.com/lotaway/meta-web-three.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/lotaway/meta-web-three/issues"
+  },
+  "homepage": "https://github.com/lotaway/meta-web-three#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "playwright": "^1.60.0"
   }
 }
