@@ -1,0 +1,13 @@
+package com.metawebthree.mes.domain.event;
+
+public enum MesEventType {
+    WORK_ORDER_CREATED,
+    WORK_ORDER_RELEASED,
+    WORK_ORDER_STARTED,
+    WORK_ORDER_COMPLETED,
+    TASK_CREATED,
+    TASK_STARTED,
+    TASK_COMPLETED,
+    EQUIPMENT_BREAKDOWN,
+    EQUIPMENT_REPAIRED
+}

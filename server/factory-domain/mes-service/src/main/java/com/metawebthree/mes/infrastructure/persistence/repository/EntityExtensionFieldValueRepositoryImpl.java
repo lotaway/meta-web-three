@@ -1,41 +1,47 @@
 package com.metawebthree.mes.infrastructure.persistence.repository;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.mes.domain.entity.EntityExtensionFieldValue;
 import com.metawebthree.mes.domain.repository.EntityExtensionFieldValueRepository;
+import com.metawebthree.mes.infrastructure.persistence.dataobject.EntityExtensionFieldValueDO;
+import com.metawebthree.mes.infrastructure.persistence.mapper.EntityExtensionFieldValueMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
 public class EntityExtensionFieldValueRepositoryImpl implements EntityExtensionFieldValueRepository {
     
-    private final Map<Long, EntityExtensionFieldValue> storage = new ConcurrentHashMap<>();
-    private final AtomicLong idGen = new AtomicLong(1);
+    @Autowired
+    private EntityExtensionFieldValueMapper entityExtensionFieldValueMapper;
     
     @Override
     public Optional<EntityExtensionFieldValue> findById(Long id) {
-        return Optional.ofNullable(storage.get(id));
+        EntityExtensionFieldValueDO doObj = entityExtensionFieldValueMapper.selectById(id);
+        return Optional.ofNullable(doObj).map(this::toEntity);
     }
     
     @Override
     public List<EntityExtensionFieldValue> findByEntityTypeAndEntityId(String entityType, Long entityId) {
-        return storage.values().stream()
-                .filter(v -> v.getEntityType().equals(entityType))
-                .filter(v -> v.getEntityId().equals(entityId))
-                .collect(Collectors.toList());
+        LambdaQueryWrapper<EntityExtensionFieldValueDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(EntityExtensionFieldValueDO::getEntityType, entityType)
+               .eq(EntityExtensionFieldValueDO::getEntityId, entityId);
+        List<EntityExtensionFieldValueDO> doList = entityExtensionFieldValueMapper.selectList(wrapper);
+        return doList.stream().map(this::toEntity).collect(Collectors.toList());
     }
     
     @Override
     public Optional<EntityExtensionFieldValue> findByEntityTypeAndEntityIdAndFieldCode(
             String entityType, Long entityId, String fieldCode) {
-        return storage.values().stream()
-                .filter(v -> v.getEntityType().equals(entityType))
-                .filter(v -> v.getEntityId().equals(entityId))
-                .filter(v -> v.getFieldCode().equals(fieldCode))
-                .findFirst();
+        LambdaQueryWrapper<EntityExtensionFieldValueDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(EntityExtensionFieldValueDO::getEntityType, entityType)
+               .eq(EntityExtensionFieldValueDO::getEntityId, entityId)
+               .eq(EntityExtensionFieldValueDO::getFieldCode, fieldCode);
+        EntityExtensionFieldValueDO doObj = entityExtensionFieldValueMapper.selectOne(wrapper);
+        return Optional.ofNullable(doObj).map(this::toEntity);
     }
     
     @Override
@@ -48,41 +54,70 @@ public class EntityExtensionFieldValueRepositoryImpl implements EntityExtensionF
     @Override
     public EntityExtensionFieldValue save(EntityExtensionFieldValue value) {
         // 查找是否已存在
-        Optional<EntityExtensionFieldValue> existing = findByEntityTypeAndEntityIdAndFieldCode(
-                value.getEntityType(), value.getEntityId(), value.getFieldCode());
+        LambdaQueryWrapper<EntityExtensionFieldValueDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(EntityExtensionFieldValueDO::getEntityType, value.getEntityType())
+               .eq(EntityExtensionFieldValueDO::getEntityId, value.getEntityId())
+               .eq(EntityExtensionFieldValueDO::getFieldCode, value.getFieldCode());
+        EntityExtensionFieldValueDO existingDO = entityExtensionFieldValueMapper.selectOne(wrapper);
         
-        if (existing.isPresent()) {
+        if (existingDO != null) {
             // 更新现有值
-            existing.get().updateValue(value.getFieldValue());
-            return existing.get();
+            existingDO.setFieldValue(value.getFieldValue());
+            entityExtensionFieldValueMapper.updateById(existingDO);
+            value.setId(existingDO.getId());
+            return value;
         } else {
             // 新增
-            if (value.getId() == null) {
-                value.setId(idGen.getAndIncrement());
-            }
-            storage.put(value.getId(), value);
+            EntityExtensionFieldValueDO doObj = toDO(value);
+            entityExtensionFieldValueMapper.insert(doObj);
+            value.setId(doObj.getId());
             return value;
         }
     }
     
     @Override
     public void deleteByEntityTypeAndEntityId(String entityType, Long entityId) {
-        List<Long> toRemove = storage.values().stream()
-                .filter(v -> v.getEntityType().equals(entityType))
-                .filter(v -> v.getEntityId().equals(entityId))
-                .map(EntityExtensionFieldValue::getId)
-                .collect(Collectors.toList());
-        toRemove.forEach(storage::remove);
+        LambdaQueryWrapper<EntityExtensionFieldValueDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(EntityExtensionFieldValueDO::getEntityType, entityType)
+               .eq(EntityExtensionFieldValueDO::getEntityId, entityId);
+        entityExtensionFieldValueMapper.delete(wrapper);
     }
     
     @Override
     public void deleteByEntityTypeAndEntityIdAndFieldCode(String entityType, Long entityId, String fieldCode) {
-        List<Long> toRemove = storage.values().stream()
-                .filter(v -> v.getEntityType().equals(entityType))
-                .filter(v -> v.getEntityId().equals(entityId))
-                .filter(v -> v.getFieldCode().equals(fieldCode))
-                .map(EntityExtensionFieldValue::getId)
-                .collect(Collectors.toList());
-        toRemove.forEach(storage::remove);
+        LambdaQueryWrapper<EntityExtensionFieldValueDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(EntityExtensionFieldValueDO::getEntityType, entityType)
+               .eq(EntityExtensionFieldValueDO::getEntityId, entityId)
+               .eq(EntityExtensionFieldValueDO::getFieldCode, fieldCode);
+        entityExtensionFieldValueMapper.delete(wrapper);
+    }
+    
+    // ========== DO 与 Entity 转换方法 ==========
+    
+    private EntityExtensionFieldValue toEntity(EntityExtensionFieldValueDO doObj) {
+        if (doObj == null) {
+            return null;
+        }
+        EntityExtensionFieldValue entity = new EntityExtensionFieldValue();
+        entity.setId(doObj.getId());
+        entity.setEntityType(doObj.getEntityType());
+        entity.setEntityId(doObj.getEntityId());
+        entity.setFieldCode(doObj.getFieldCode());
+        entity.setFieldValue(doObj.getFieldValue());
+        entity.setUpdatedAt(doObj.getUpdatedAt());
+        return entity;
+    }
+    
+    private EntityExtensionFieldValueDO toDO(EntityExtensionFieldValue entity) {
+        if (entity == null) {
+            return null;
+        }
+        EntityExtensionFieldValueDO doObj = new EntityExtensionFieldValueDO();
+        doObj.setId(entity.getId());
+        doObj.setEntityType(entity.getEntityType());
+        doObj.setEntityId(entity.getEntityId());
+        doObj.setFieldCode(entity.getFieldCode());
+        doObj.setFieldValue(entity.getFieldValue());
+        return doObj;
     }
 }

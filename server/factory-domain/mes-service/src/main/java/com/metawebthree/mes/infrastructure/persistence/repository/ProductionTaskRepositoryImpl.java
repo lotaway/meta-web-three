@@ -97,8 +97,6 @@ public class ProductionTaskRepositoryImpl implements ProductionTaskRepository {
         productionTaskMapper.deleteById(id);
     }
     
-    // ========== DO 与 Entity 转换方法 ==========
-    
     private ProductionTask toEntity(ProductionTaskDO doObj) {
         if (doObj == null) {
             return null;
@@ -108,13 +106,13 @@ public class ProductionTaskRepositoryImpl implements ProductionTaskRepository {
         entity.setTaskNo(doObj.getTaskNo());
         entity.setWorkOrderId(doObj.getWorkOrderId());
         entity.setWorkstationId(doObj.getWorkstationId());
-        entity.setProcessCode(doObj.getStepCode()); // 使用 stepCode 映射到 processCode
+        entity.setProcessCode(doObj.getStepCode());
         entity.setStatus(ProductionTask.TaskStatus.valueOf(doObj.getStatus()));
-        entity.setQuantity(doObj.getPlannedQuantity()); // 使用 plannedQuantity 映射到 quantity
+        entity.setQuantity(doObj.getPlannedQuantity());
         entity.setCompletedQuantity(doObj.getCompletedQuantity());
         entity.setQualifiedQuantity(doObj.getQualifiedQuantity());
-        entity.setDefectiveQuantity(doObj.getRejectedQuantity()); // 使用 rejectedQuantity 映射到 defectiveQuantity
-        entity.setOperatorId(doObj.getAssignedTo()); // 使用 assignedTo 映射到 operatorId
+        entity.setDefectiveQuantity(doObj.getRejectedQuantity());
+        entity.setOperatorId(doObj.getAssignedTo());
         entity.setStartTime(doObj.getStartTime());
         entity.setEndTime(doObj.getEndTime());
         return entity;
@@ -129,13 +127,13 @@ public class ProductionTaskRepositoryImpl implements ProductionTaskRepository {
         doObj.setTaskNo(entity.getTaskNo());
         doObj.setWorkOrderId(entity.getWorkOrderId());
         doObj.setWorkstationId(entity.getWorkstationId());
-        doObj.setStepCode(entity.getProcessCode()); // 使用 processCode 映射到 stepCode
+        doObj.setStepCode(entity.getProcessCode());
         doObj.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
-        doObj.setPlannedQuantity(entity.getQuantity()); // 使用 quantity 映射到 plannedQuantity
+        doObj.setPlannedQuantity(entity.getQuantity());
         doObj.setCompletedQuantity(entity.getCompletedQuantity());
         doObj.setQualifiedQuantity(entity.getQualifiedQuantity());
-        doObj.setRejectedQuantity(entity.getDefectiveQuantity()); // 使用 defectiveQuantity 映射到 rejectedQuantity
-        doObj.setAssignedTo(entity.getOperatorId()); // 使用 operatorId 映射到 assignedTo
+        doObj.setRejectedQuantity(entity.getDefectiveQuantity());
+        doObj.setAssignedTo(entity.getOperatorId());
         doObj.setStartTime(entity.getStartTime());
         doObj.setEndTime(entity.getEndTime());
         return doObj;

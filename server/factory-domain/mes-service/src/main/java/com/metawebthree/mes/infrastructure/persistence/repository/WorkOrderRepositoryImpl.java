@@ -83,8 +83,6 @@ public class WorkOrderRepositoryImpl implements WorkOrderRepository {
         workOrderMapper.deleteById(id);
     }
     
-    // ========== DO 与 Entity 转换方法 ==========
-    
     private WorkOrder toEntity(WorkOrderDO doObj) {
         if (doObj == null) {
             return null;
@@ -104,7 +102,6 @@ public class WorkOrderRepositoryImpl implements WorkOrderRepository {
         entity.setPlannedEndTime(doObj.getPlannedEndTime());
         entity.setActualStartTime(doObj.getActualStartTime());
         entity.setActualEndTime(doObj.getActualEndTime());
-        // createdAt 和 updatedAt 通过数据库自动管理
         return entity;
     }
     

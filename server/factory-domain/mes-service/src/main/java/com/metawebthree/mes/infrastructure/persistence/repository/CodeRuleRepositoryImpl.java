@@ -78,8 +78,6 @@ public class CodeRuleRepositoryImpl implements CodeRuleRepository {
         return codeRuleMapper.selectCount(wrapper) > 0;
     }
     
-    // ========== DO 与 Entity 转换方法 ==========
-    
     private CodeRule toEntity(CodeRuleDO doObj) {
         if (doObj == null) {
             return null;
@@ -95,9 +93,7 @@ public class CodeRuleRepositoryImpl implements CodeRuleRepository {
         entity.setStep(doObj.getStep());
         entity.setPaddingLength(doObj.getPaddingLength());
         entity.setStatus(CodeRule.RuleStatus.valueOf(doObj.getStatus()));
-        // createdAt 和 updatedAt 通过数据库自动管理，CodeRule 实体无需手动设置
         
-        // 反序列化 elements
         if (doObj.getElements() != null && !doObj.getElements().isEmpty()) {
             try {
                 entity.setElements(objectMapper.readValue(doObj.getElements(), 
@@ -128,7 +124,6 @@ public class CodeRuleRepositoryImpl implements CodeRuleRepository {
         doObj.setPaddingLength(entity.getPaddingLength());
         doObj.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
         
-        // 序列化 elements
         if (entity.getElements() != null) {
             try {
                 doObj.setElements(objectMapper.writeValueAsString(entity.getElements()));

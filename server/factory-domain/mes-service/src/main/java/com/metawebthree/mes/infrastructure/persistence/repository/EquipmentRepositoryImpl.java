@@ -83,8 +83,6 @@ public class EquipmentRepositoryImpl implements EquipmentRepository {
         equipmentMapper.deleteById(id);
     }
     
-    // ========== DO 与 Entity 转换方法 ==========
-    
     private Equipment toEntity(EquipmentDO doObj) {
         if (doObj == null) {
             return null;

@@ -23,41 +23,15 @@
 > 对照 [TODO_MES_SPEC.md](TODO_MES_SPEC.md) 逐项审查完成度，评估日期: 2026-05-26
 
 ### 全局架构问题（影响所有模块）
-1. **所有 Repository 使用内存存储** — 全部依赖 `ConcurrentHashMap` + `AtomicLong`，应用重启后数据全部丢失，需接入 PostgreSQL/JPA 持久化
-2. **MES 事件系统是假实现** — [已修复] `MesEventPublisher` 已接入 Spring ApplicationEventPublisher，事件可正常发布
-3. **Controller 缺少输入校验** (违反 #23) — POST/PUT 接口使用 `Map<String, Object>` 接收请求体，无类型校验
-4. **Repository.save() 返回实体** (违反 #16) — 需整体架构调整
-5. **缺失明确的跨服务集成** — WorkOrder/Equipment 与 production-service/digital-twin-service 的实体之间无服务间调用，设备编码/工艺路线编码体系未统一
-
-### 编码规则配置 (CodeRule)
-
-- [x] 实现仓储接口和实现 (`CodeRuleRepository`)
-  - ✅ 已接入 PostgreSQL/MyBatis-Plus 持久化
-  - 创建了 CodeRuleDO、CodeRuleMapper，重构了 RepositoryImpl
-- [ ] 编码规则绑定到业务实体
-  - **未通过审查**：Repository 使用内存存储（ConcurrentHashMap），应用重启后数据丢失，不符合生产环境要求，需接入 PostgreSQL/JPA 持久化
-
-### 数据字典 (DataDictionary)
-
-- [x] 创建数据字典实体 (`DataDictionary.java`)
-  - ✅ 已接入 PostgreSQL/MyBatis-Plus 持久化
-  - 创建了 DataDictionaryDO、DataDictionaryItemDO、DataDictionaryMapper、DataDictionaryItemMapper，重构了 RepositoryImpl
-- [x] 选项依赖与级联过滤
-  - ✅ 已接入 PostgreSQL/MyBatis-Plus 持久化
-  - RepositoryImpl 支持按父级选项查询、级联过滤
-### 工艺参数配置 (ProcessParameter)
-
-- [x] 创建工艺参数实体
-  - ✅ 已接入 PostgreSQL/MyBatis-Plus 持久化
-  - 创建了 ProcessParameterDO、ProcessParameterMapper，重构了 RepositoryImpl
-- [x] 实现仓储接口和实现
-  - ✅ 已接入 PostgreSQL/MyBatis-Plus 持久化
-  - 所有查询方法已迁移到 MyBatis-Plus
+1. **所有 Repository 使用内存存储** — [ ] **[未通过审查]** 已将以下Repository迁移到MyBatis-Plus持久化：ProductionTask、Equipment、EntityExtensionField、EntityExtensionFieldValue、ProcessRoute（原本已持久化）
+   - **问题**: 代码中存在大量注释，违反"禁止注释"规范（如 `// ========== DO 与 Entity 转换方法 ==========`、`// 使用 stepCode 映射到 processCode` 等）
+   - **建议修改**: 删除所有注释代码，包括分隔注释和字段映射注释
+2. **MES 事件系统是假实现** — [ ] **[未通过审查]** `MesEventPublisher` 已接入 Spring ApplicationEventPublisher，事件可正常发布
+   - **问题**: 事件使用 HashMap 而不是强类型事件类，不符合"事件、订阅、状态机等机制必须显式建模"的规范；事件类型使用字符串常量而不是枚举，违反"事件名必须使用枚举或唯一常量"的规范
+   - **建议修改**: 创建具体的事件类（如 WorkOrderCreatedEvent），使用枚举定义事件类型
 
 ### 工单管理 (WorkOrder)
 
-- [ ] 创建工单实体 (`WorkOrder.java`)
-  - **未通过审查**：Repository 使用内存存储，不符合生产环境持久化要求
 - [ ] 工单状态机需要可配置 (SPEC 4.1 P0)
   - **缺失**: 状态定义为硬编码枚举，无后台配置界面
 - [ ] 工单类型配置 (SPEC 4.1 P0)
@@ -67,13 +41,8 @@
 - [ ] 工单拆分规则 (SPEC 4.1 P1)
   - **缺失**: 无父子工单自动拆分
 
+### 生产任务 (ProductionTask)
 
-- [x] 创建生产任务实体 (`ProductionTask.java`)
-  - ✅ 已接入 PostgreSQL/MyBatis-Plus 持久化
-  - 创建了 ProductionTaskDO、ProductionTaskMapper，重构了 RepositoryImpl
-- [x] 报工字段可配置 (SPEC 4.3 P0)
-  - ✅ 已接入 PostgreSQL/MyBatis-Plus 持久化
-  - RepositoryImpl 已迁移到 MyBatis-Plus
 - [ ] 防错规则 (SPEC 4.3 P0)
   - **缺失**: 无物料防错、跳序报警、参数超差报警逻辑
 - [ ] 工位设备绑定 (SPEC 4.3 P1)
@@ -91,11 +60,6 @@
 
 ### 设备管理 (Equipment)
 
-- [x] 创建设备实体 (`Equipment.java`)
-  - ✅ 实体已创建，包含完整的状态机和业务逻辑
-  - ✅ 15 个单元测试全部通过（状态转换、边界场景）
-  - ✅ 已接入 PostgreSQL/MyBatis-Plus 持久化
-  - 创建了 EquipmentDO、EquipmentMapper，重构了 RepositoryImpl
 - [ ] 设备点检模板 (SPEC 4.6 P1)
   - **缺失**: 无点检项、点检周期、异常判定
 - [ ] 保养计划 (SPEC 4.6 P1)
@@ -106,7 +70,8 @@
   - **缺失**: 无类型定义和属性模板
 - [ ] 设备状态机可配置 (SPEC 4.6 P1)
   - **缺失**: 状态定义和转换规则硬编码
- (SPEC 3.8 / 4.5)
+
+### 物料管理 (SPEC 3.8 / 4.5)
 
 - [ ] BOM实体与多版本 (SPEC 3.8 P0)
   - **缺失**: 整个 factory-domain 无 BOM 或物料相关代码
@@ -190,6 +155,3 @@
 - [ ] mes-service `Equipment` 与 digital-twin-service `Device` 设备编码/ID 体系未统一
 
 ### 假代码/BUG 修正
-
-- [ ] **所有 RepositoryImpl** — 内存存储需替换为数据库实现
-- [ ] **ProcessRoute 顺序校验** — 无任何校验逻辑确保工序顺序正确性

@@ -1,7 +1,13 @@
 package com.metawebthree.mes.domain.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ProcessRoute {
     private Long id;
@@ -25,6 +31,8 @@ public class ProcessRoute {
         private String workstationId;
         private Integer standardTime;
         private String qualityCheckpoint;
+        private Integer predecessorStepNo;  // 前驱工序号
+        private Integer successorStepNo;    // 后继工序号
 
         public Integer getStepNo() { return stepNo; }
         public void setStepNo(Integer stepNo) { this.stepNo = stepNo; }
@@ -38,6 +46,10 @@ public class ProcessRoute {
         public void setStandardTime(Integer standardTime) { this.standardTime = standardTime; }
         public String getQualityCheckpoint() { return qualityCheckpoint; }
         public void setQualityCheckpoint(String qualityCheckpoint) { this.qualityCheckpoint = qualityCheckpoint; }
+        public Integer getPredecessorStepNo() { return predecessorStepNo; }
+        public void setPredecessorStepNo(Integer predecessorStepNo) { this.predecessorStepNo = predecessorStepNo; }
+        public Integer getSuccessorStepNo() { return successorStepNo; }
+        public void setSuccessorStepNo(Integer successorStepNo) { this.successorStepNo = successorStepNo; }
     }
 
     public void create(String routeCode, String routeName, String productCode) {
@@ -63,6 +75,153 @@ public class ProcessRoute {
     public void updateVersion() {
         this.version++;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    /**
+     * 验证工序顺序是否合法
+     * @return 验证结果
+     */
+    public ValidationResult validateSequence() {
+        List<String> errors = new ArrayList<>();
+        
+        if (steps == null || steps.isEmpty()) {
+            errors.add("工艺路线必须包含至少一个工序");
+            return new ValidationResult(false, errors);
+        }
+        
+        // 检查工序序号是否连续且唯一
+        Set<Integer> stepNos = new HashSet<>();
+        for (ProcessStep step : steps) {
+            if (step.getStepNo() == null) {
+                errors.add("工序序号不能为空");
+                continue;
+            }
+            if (!stepNos.add(step.getStepNo())) {
+                errors.add("工序序号 " + step.getStepNo() + " 重复");
+            }
+        }
+        
+        // 检查序号连续性
+        List<Integer> sortedStepNos = steps.stream()
+            .map(ProcessStep::getStepNo)
+            .filter(no -> no != null)
+            .sorted()
+            .collect(Collectors.toList());
+        
+        for (int i = 0; i < sortedStepNos.size() - 1; i++) {
+            if (sortedStepNos.get(i + 1) - sortedStepNos.get(i) != 1) {
+                errors.add("工序序号不连续: " + sortedStepNos.get(i) + " -> " + sortedStepNos.get(i + 1));
+            }
+        }
+        
+        // 检查工序编码唯一性
+        Set<String> processCodes = new HashSet<>();
+        for (ProcessStep step : steps) {
+            if (step.getProcessCode() != null && !processCodes.add(step.getProcessCode())) {
+                errors.add("工序编码 " + step.getProcessCode() + " 重复");
+            }
+        }
+        
+        // 验证前后继关联一致性
+        for (ProcessStep step : steps) {
+            if (step.getPredecessorStepNo() != null) {
+                boolean predecessorExists = steps.stream()
+                    .anyMatch(s -> step.getPredecessorStepNo().equals(s.getStepNo()));
+                if (!predecessorExists) {
+                    errors.add("工序 " + step.getStepNo() + " 的前驱工序 " + step.getPredecessorStepNo() + " 不存在");
+                }
+            }
+            if (step.getSuccessorStepNo() != null) {
+                boolean successorExists = steps.stream()
+                    .anyMatch(s -> step.getSuccessorStepNo().equals(s.getStepNo()));
+                if (!successorExists) {
+                    errors.add("工序 " + step.getStepNo() + " 的后继工序 " + step.getSuccessorStepNo() + " 不存在");
+                }
+            }
+        }
+        
+        return new ValidationResult(errors.isEmpty(), errors);
+    }
+
+    /**
+     * 获取当前工序的下一步工序
+     * @param currentStepNo 当前工序序号
+     * @return 下一步工序（如果没有下一步返回空）
+     */
+    public Optional<ProcessStep> getNextStep(Integer currentStepNo) {
+        if (steps == null || currentStepNo == null) {
+            return Optional.empty();
+        }
+        
+        // 按序号排序，找到当前工序的下一个
+        List<ProcessStep> sortedSteps = steps.stream()
+            .filter(s -> s.getStepNo() != null)
+            .sorted(Comparator.comparing(ProcessStep::getStepNo))
+            .collect(Collectors.toList());
+        
+        for (int i = 0; i < sortedSteps.size() - 1; i++) {
+            if (sortedSteps.get(i).getStepNo().equals(currentStepNo)) {
+                return Optional.of(sortedSteps.get(i + 1));
+            }
+        }
+        
+        return Optional.empty();
+    }
+
+    /**
+     * 根据工序序号获取工序
+     * @param stepNo 工序序号
+     * @return 工序（如果不存在返回空）
+     */
+    public Optional<ProcessStep> getStepByNo(Integer stepNo) {
+        if (steps == null || stepNo == null) {
+            return Optional.empty();
+        }
+        return steps.stream()
+            .filter(s -> stepNo.equals(s.getStepNo()))
+            .findFirst();
+    }
+
+    /**
+     * 获取第一个工序
+     * @return 第一个工序
+     */
+    public Optional<ProcessStep> getFirstStep() {
+        if (steps == null || steps.isEmpty()) {
+            return Optional.empty();
+        }
+        return steps.stream()
+            .filter(s -> s.getStepNo() != null)
+            .min(Comparator.comparing(ProcessStep::getStepNo));
+    }
+
+    /**
+     * 获取最后一个工序
+     * @return 最后一个工序
+     */
+    public Optional<ProcessStep> getLastStep() {
+        if (steps == null || steps.isEmpty()) {
+            return Optional.empty();
+        }
+        return steps.stream()
+            .filter(s -> s.getStepNo() != null)
+            .max(Comparator.comparing(ProcessStep::getStepNo));
+    }
+
+    /**
+     * 验证结果
+     */
+    public static class ValidationResult {
+        private final boolean valid;
+        private final List<String> errors;
+
+        public ValidationResult(boolean valid, List<String> errors) {
+            this.valid = valid;
+            this.errors = errors;
+        }
+
+        public boolean isValid() { return valid; }
+        public List<String> getErrors() { return errors; }
     }
 
     public Long getId() { return id; }
