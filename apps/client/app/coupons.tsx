@@ -114,7 +114,7 @@ export default function CouponListScreen() {
           </Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   )
 
   return (

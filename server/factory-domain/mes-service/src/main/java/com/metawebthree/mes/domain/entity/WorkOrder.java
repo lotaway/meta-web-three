@@ -15,11 +15,16 @@ public class WorkOrder {
     private Integer quantity;
     private Integer completedQuantity;
     private WorkOrderStatus status;
-    private String statusCode; // 可配置状态机的状态码
-    private String typeCode; // 工单类型: NORMAL, REWORK, REPAIR, SAMPLE
+    private String statusCode;
+    private String typeCode;
     private Priority priority;
     private String workshopId;
     private String processRouteId;
+    private Long codeRuleId;
+    private Long parentWorkOrderId;
+    private Long splitRuleId;
+    private Integer splitSequence;
+    private String splitType;
     private LocalDateTime plannedStartTime;
     private LocalDateTime plannedEndTime;
     private LocalDateTime actualStartTime;
@@ -27,17 +32,14 @@ public class WorkOrder {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
-    // 静态服务引用（通过setter注入）
     private static StatusMachineService statusMachineService;
     
-    // 默认状态机编码
     private static final String DEFAULT_STATUS_MACHINE_CODE = "WORK_ORDER_DEFAULT";
 
     public enum WorkOrderStatus {
         DRAFT, RELEASED, IN_PROGRESS, PAUSED, COMPLETED, CANCELLED
     }
     
-    // 兼容：旧的状态码到枚举的映射
     public static final java.util.Map<String, WorkOrderStatus> STATUS_CODE_MAP = 
         java.util.Map.of(
             "DRAFT", WorkOrderStatus.DRAFT,
@@ -52,7 +54,12 @@ public class WorkOrder {
         LOW, NORMAL, HIGH, URGENT
     }
     
-    // 注入状态机服务（用于单元测试模拟）
+    public enum SplitType {
+        BY_BOM,
+        BY_PROCESS,
+        MANUAL
+    }
+    
     public static void setStatusMachineService(StatusMachineService service) {
         statusMachineService = service;
     }
@@ -68,15 +75,12 @@ public class WorkOrder {
         this.completedQuantity = 0;
         this.status = WorkOrderStatus.DRAFT;
         this.statusCode = "DRAFT";
-        this.typeCode = "NORMAL"; // 默认工单类型
+        this.typeCode = "NORMAL";
         this.priority = Priority.NORMAL;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 使用工单类型创建工单
-     */
     public void createWithType(String workOrderNo, String productCode, String productName,
                                Integer quantity, String workshopId, String processRouteId,
                                String typeCode) {
@@ -131,9 +135,6 @@ public class WorkOrder {
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 带原因取消工单
-     */
     public void cancelWithReason(String reason) {
         validateTransition("CANCEL");
         this.status = WorkOrderStatus.CANCELLED;
@@ -157,20 +158,14 @@ public class WorkOrder {
         return (double) completedQuantity / quantity * 100;
     }
     
-    /**
-     * 验证状态转换是否允许
-     */
     private void validateTransition(String action) {
-        // 如果没有配置状态机服务，使用默认的枚举验证
         if (statusMachineService == null) {
             validateLegacyTransition(action);
             return;
         }
         
-        // 尝试获取可配置的状态机
         Optional<StatusMachine> machineOpt = statusMachineService.getStatusMachine("WORK_ORDER");
         if (machineOpt.isEmpty()) {
-            // 回退到传统验证
             validateLegacyTransition(action);
             return;
         }
@@ -178,7 +173,6 @@ public class WorkOrder {
         StatusMachine machine = machineOpt.get();
         String currentStatus = statusCode != null ? statusCode : status.name();
         
-        // 检查转换是否有效
         boolean isValid = machine.getTransitions().stream()
                 .anyMatch(t -> t.getFromStatus().equals(currentStatus) 
                            && t.getTransitionAction().equals(action));
@@ -189,9 +183,6 @@ public class WorkOrder {
         }
     }
     
-    /**
-     * 传统枚举验证（向后兼容）
-     */
     private void validateLegacyTransition(String action) {
         switch (action) {
             case "RELEASE":
@@ -229,16 +220,10 @@ public class WorkOrder {
         }
     }
     
-    /**
-     * 获取当前状态码（优先使用可配置的状态码）
-     */
     public String getStatusCode() {
         return statusCode != null ? statusCode : (status != null ? status.name() : null);
     }
     
-    /**
-     * 获取工单类型
-     */
     public String getTypeCode() {
         return typeCode;
     }
@@ -249,13 +234,11 @@ public class WorkOrder {
     
     public void setStatusCode(String statusCode) {
         this.statusCode = statusCode;
-        // 同步更新枚举状态
         if (statusCode != null && STATUS_CODE_MAP.containsKey(statusCode)) {
             this.status = STATUS_CODE_MAP.get(statusCode);
         }
     }
     
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getWorkOrderNo() { return workOrderNo; }
@@ -281,6 +264,8 @@ public class WorkOrder {
     public void setWorkshopId(String workshopId) { this.workshopId = workshopId; }
     public String getProcessRouteId() { return processRouteId; }
     public void setProcessRouteId(String processRouteId) { this.processRouteId = processRouteId; }
+    public Long getCodeRuleId() { return codeRuleId; }
+    public void setCodeRuleId(Long codeRuleId) { this.codeRuleId = codeRuleId; }
     public LocalDateTime getPlannedStartTime() { return plannedStartTime; }
     public void setPlannedStartTime(LocalDateTime plannedStartTime) { this.plannedStartTime = plannedStartTime; }
     public LocalDateTime getPlannedEndTime() { return plannedEndTime; }
@@ -291,4 +276,21 @@ public class WorkOrder {
     public void setActualEndTime(LocalDateTime actualEndTime) { this.actualEndTime = actualEndTime; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+    
+    public Long getParentWorkOrderId() { return parentWorkOrderId; }
+    public void setParentWorkOrderId(Long parentWorkOrderId) { this.parentWorkOrderId = parentWorkOrderId; }
+    public Long getSplitRuleId() { return splitRuleId; }
+    public void setSplitRuleId(Long splitRuleId) { this.splitRuleId = splitRuleId; }
+    public Integer getSplitSequence() { return splitSequence; }
+    public void setSplitSequence(Integer splitSequence) { this.splitSequence = splitSequence; }
+    public String getSplitType() { return splitType; }
+    public void setSplitType(String splitType) { this.splitType = splitType; }
+    
+    public boolean isChildOrder() {
+        return parentWorkOrderId != null;
+    }
+    
+    public boolean isParentOrder() {
+        return parentWorkOrderId == null && splitRuleId != null;
+    }
 }

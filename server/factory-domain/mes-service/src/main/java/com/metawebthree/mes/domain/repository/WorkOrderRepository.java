@@ -10,6 +10,8 @@ public interface WorkOrderRepository {
     List<WorkOrder> findByStatus(WorkOrder.WorkOrderStatus status);
     List<WorkOrder> findByWorkshopId(String workshopId);
     List<WorkOrder> findByProductCode(String productCode);
+    List<WorkOrder> findByParentWorkOrderId(Long parentWorkOrderId);
+    List<WorkOrder> findAll();
     WorkOrder save(WorkOrder workOrder);
     void update(WorkOrder workOrder);
     void deleteById(Long id);

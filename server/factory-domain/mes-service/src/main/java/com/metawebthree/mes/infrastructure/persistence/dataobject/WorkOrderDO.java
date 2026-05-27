@@ -32,6 +32,11 @@ public class WorkOrderDO {
     private String priority; // LOW, NORMAL, HIGH, URGENT
     private String workshopId;
     private String processRouteId;
+    private Long codeRuleId;
+    private Long parentWorkOrderId; // 父工单ID
+    private Long splitRuleId; // 拆分规则ID
+    private Integer splitSequence; // 拆分序号
+    private String splitType; // 拆分类型
     private LocalDateTime plannedStartTime;
     private LocalDateTime plannedEndTime;
     private LocalDateTime actualStartTime;

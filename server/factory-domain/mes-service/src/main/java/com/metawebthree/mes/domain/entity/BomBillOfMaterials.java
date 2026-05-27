@@ -12,13 +12,13 @@ public class BomBillOfMaterials {
     private String productCode;
     private String productName;
     private String version;
-    private String versionStatus; // DRAFT/ACTIVE/DEPRECATED
+    private String versionStatus;
     private LocalDateTime effectiveDate;
     private LocalDateTime expiryDate;
-    private String bomType; // MAIN/PROCESS/SUBSTITUTE
-    private String processRouteId; // 关联工艺路线（工序BOM需要）
+    private String bomType;
+    private String processRouteId;
     private String description;
-    private String status; // ACTIVE/INACTIVE
+    private String status;
     private Integer itemCount;
     private String createdBy;
     private String updatedBy;

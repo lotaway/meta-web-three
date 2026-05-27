@@ -322,3 +322,231 @@ CREATE INDEX idx_product_sn_rule_product_id ON mes_product_sn_rule(product_id);
 CREATE INDEX idx_product_sn_rule_product_code ON mes_product_sn_rule(product_code);
 CREATE INDEX idx_product_sn_rule_code_rule_id ON mes_product_sn_rule(code_rule_id);
 CREATE INDEX idx_product_sn_rule_active ON mes_product_sn_rule(is_active);
+
+-- 工单编码规则绑定表
+CREATE TABLE IF NOT EXISTS mes_work_order_code_rule (
+    id BIGSERIAL PRIMARY KEY,
+    workshop_id VARCHAR(50) COMMENT '车间ID',
+    work_order_type VARCHAR(50) NOT NULL COMMENT '工单类型: NORMAL, REWORK, REPAIR, SAMPLE',
+    code_rule_id BIGINT NOT NULL COMMENT '编码规则ID',
+    rule_code VARCHAR(50) NOT NULL COMMENT '编码规则代码',
+    is_active BOOLEAN DEFAULT TRUE COMMENT '是否激活',
+    description VARCHAR(500) COMMENT '描述',
+    priority INTEGER DEFAULT 0 COMMENT '优先级，数字越大优先级越高',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 创建工单编码规则绑定表索引
+CREATE INDEX idx_work_order_code_rule_workshop_type ON mes_work_order_code_rule(workshop_id, work_order_type);
+CREATE INDEX idx_work_order_code_rule_type ON mes_work_order_code_rule(work_order_type);
+CREATE INDEX idx_work_order_code_rule_workshop ON mes_work_order_code_rule(workshop_id);
+CREATE INDEX idx_work_order_code_rule_code_rule_id ON mes_work_order_code_rule(code_rule_id);
+CREATE INDEX idx_work_order_code_rule_active ON mes_work_order_code_rule(is_active);
+
+-- 为工单表添加编码规则绑定字段
+ALTER TABLE mes_work_order ADD COLUMN IF NOT EXISTS code_rule_id BIGINT;
+
+-- 领料模式配置表
+CREATE TABLE IF NOT EXISTS mes_material_issue_config (
+    id BIGSERIAL PRIMARY KEY,
+    config_code VARCHAR(50) NOT NULL UNIQUE COMMENT '配置编码',
+    config_name VARCHAR(100) NOT NULL COMMENT '配置名称',
+    workshop_id VARCHAR(50) COMMENT '车间ID',
+    product_code VARCHAR(50) COMMENT '产品编码，为空表示车间级默认配置',
+    issue_mode VARCHAR(20) NOT NULL COMMENT '领料模式: PRE_PICKING(备料制), PULL(领料制), JIT(JIT配送)',
+    issue_rule VARCHAR(20) DEFAULT 'FIFO' COMMENT '发料规则: FIFO(先进先出), LIFO(后进先出), LOCKED_BATCH(锁定批号), EXPIRY_FIRST(效期优先)',
+    lead_time_hours INTEGER DEFAULT 0 COMMENT '提前期(小时)，备料制和JIT模式使用',
+    buffer_hours INTEGER DEFAULT 0 COMMENT '缓冲期(小时)，JIT模式使用',
+    is_active BOOLEAN DEFAULT TRUE COMMENT '是否激活',
+    priority INTEGER DEFAULT 0 COMMENT '优先级，数字越大优先级越高，用于匹配优先级',
+    description VARCHAR(500) COMMENT '描述',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(workshop_id, product_code)
+);
+
+-- 创建领料模式配置表索引
+CREATE INDEX idx_material_issue_config_workshop_product ON mes_material_issue_config(workshop_id, product_code);
+CREATE INDEX idx_material_issue_config_workshop ON mes_material_issue_config(workshop_id);
+CREATE INDEX idx_material_issue_config_product_code ON mes_material_issue_config(product_code);
+CREATE INDEX idx_material_issue_config_issue_mode ON mes_material_issue_config(issue_mode);
+CREATE INDEX idx_material_issue_config_active ON mes_material_issue_config(is_active);
+CREATE INDEX idx_material_issue_config_priority ON mes_material_issue_config(priority DESC);
+
+-- 质检方案表
+CREATE TABLE IF NOT EXISTS mes_qc_inspection_plan (
+    id BIGSERIAL PRIMARY KEY,
+    plan_code VARCHAR(50) NOT NULL UNIQUE COMMENT '方案编码',
+    plan_name VARCHAR(100) NOT NULL COMMENT '方案名称',
+    inspection_type VARCHAR(20) NOT NULL COMMENT '检验类型: IQC, IPQC, FQC, OQC',
+    applicable_product_types VARCHAR(500) COMMENT '适用产品类型，多个用逗号分隔',
+    version INTEGER DEFAULT 1 COMMENT '版本号',
+    sampling_plan_code VARCHAR(50) COMMENT '抽样方案编码',
+    sampling_type VARCHAR(30) DEFAULT 'RANDOM_SAMPLING' COMMENT '抽样类型: FULL_INSPECTION, RANDOM_SAMPLING, SYSTEMATIC_SAMPLING, DOUBLE_SAMPLING',
+    aql VARCHAR(20) DEFAULT '0.65' COMMENT 'AQL值',
+    inspection_level VARCHAR(20) DEFAULT 'normal' COMMENT '检验水平: normal, reduced, tightened',
+    sample_size INTEGER DEFAULT 0 COMMENT '样本大小，0表示根据AQL计算',
+    accept_number VARCHAR(20) DEFAULT '0' COMMENT '合格判定数',
+    reject_number VARCHAR(20) DEFAULT '1' COMMENT '不合格判定数',
+    disposition_rule VARCHAR(500) COMMENT '处置规则',
+    qualified_flow VARCHAR(50) DEFAULT 'pass' COMMENT '合格流向',
+    unqualified_flow VARCHAR(50) DEFAULT 'isolate' COMMENT '不合格流向',
+    special_approval_flow VARCHAR(500) COMMENT '特采审批流程',
+    status VARCHAR(20) DEFAULT 'DRAFT' COMMENT '状态: DRAFT, EFFECTIVE, EXPIRED, CANCELLED',
+    effective_date TIMESTAMP COMMENT '生效日期',
+    expiration_date TIMESTAMP COMMENT '失效日期',
+    sort_order INTEGER DEFAULT 0 COMMENT '排序序号',
+    remark VARCHAR(500) COMMENT '备注',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_inspection_plan_code ON mes_qc_inspection_plan(plan_code);
+CREATE INDEX idx_inspection_plan_type ON mes_qc_inspection_plan(inspection_type);
+CREATE INDEX idx_inspection_plan_status ON mes_qc_inspection_plan(status);
+CREATE INDEX idx_inspection_plan_product_types ON mes_qc_inspection_plan(applicable_product_types);
+
+-- 检验项表（检验项库）
+CREATE TABLE IF NOT EXISTS mes_qc_inspection_item (
+    id BIGSERIAL PRIMARY KEY,
+    item_code VARCHAR(50) NOT NULL UNIQUE COMMENT '检验项编码',
+    item_name VARCHAR(100) NOT NULL COMMENT '检验项名称',
+    item_category VARCHAR(50) COMMENT '检验项分类: appearance, dimension, function, performance, safety',
+    data_type VARCHAR(20) DEFAULT 'NUMERIC' COMMENT '数据类型: NUMERIC, TEXT, BOOLEAN, DATE, SELECT',
+    unit VARCHAR(20) COMMENT '单位',
+    standard_value DECIMAL(20,4) COMMENT '标准值',
+    upper_limit DECIMAL(20,4) COMMENT '规格上限',
+    lower_limit DECIMAL(20,4) COMMENT '规格下限',
+    inspection_method VARCHAR(200) COMMENT '检验方法',
+    inspection_tool VARCHAR(100) COMMENT '检测工具',
+    severity INTEGER DEFAULT 1 COMMENT '严重等级: 1-轻微, 2-一般, 3-严重, 4-致命',
+    is_mandatory BOOLEAN DEFAULT TRUE COMMENT '是否必检',
+    status VARCHAR(20) DEFAULT 'ACTIVE' COMMENT '状态: ACTIVE, INACTIVE',
+    sort_order INTEGER DEFAULT 0 COMMENT '排序序号',
+    remark VARCHAR(500) COMMENT '备注',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_inspection_item_code ON mes_qc_inspection_item(item_code);
+CREATE INDEX idx_inspection_item_category ON mes_qc_inspection_item(item_category);
+CREATE INDEX idx_inspection_item_status ON mes_qc_inspection_item(status);
+
+-- 方案检验项关联表
+CREATE TABLE IF NOT EXISTS mes_qc_plan_item (
+    id BIGSERIAL PRIMARY KEY,
+    plan_id BIGINT NOT NULL COMMENT '质检方案ID',
+    item_id BIGINT NOT NULL COMMENT '检验项ID',
+    item_sequence INTEGER NOT NULL COMMENT '检验项序号',
+    is_mandatory BOOLEAN DEFAULT TRUE COMMENT '是否必检',
+    default_value VARCHAR(200) COMMENT '默认值',
+    inspection_method VARCHAR(200) COMMENT '检验方法，覆盖检验项默认方法',
+    sampling_rule VARCHAR(500) COMMENT '抽样规则',
+    sort_order INTEGER DEFAULT 0 COMMENT '排序序号',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(plan_id, item_id)
+);
+
+CREATE INDEX idx_plan_item_plan ON mes_qc_plan_item(plan_id);
+CREATE INDEX idx_plan_item_item ON mes_qc_plan_item(item_id);
+
+-- SOP文档表
+CREATE TABLE IF NOT EXISTS mes_sop_document (
+    id BIGSERIAL PRIMARY KEY,
+    document_code VARCHAR(50) NOT NULL UNIQUE COMMENT '文档编码',
+    document_name VARCHAR(100) NOT NULL COMMENT '文档名称',
+    document_type VARCHAR(50) COMMENT '文档类型: OPERATING_INSTRUCTION, MAINTENANCE_MANUAL, SAFETY_GUIDE, TRAINING_MATERIAL',
+    category VARCHAR(50) COMMENT '分类',
+    current_version INTEGER DEFAULT 0 COMMENT '当前版本号',
+    status VARCHAR(20) DEFAULT 'DRAFT' COMMENT '状态: DRAFT, ACTIVE, ARCHIVED',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_sop_document_code ON mes_sop_document(document_code);
+CREATE INDEX idx_sop_document_type ON mes_sop_document(document_type);
+CREATE INDEX idx_sop_document_category ON mes_sop_document(category);
+CREATE INDEX idx_sop_document_status ON mes_sop_document(status);
+
+-- SOP文档版本表
+CREATE TABLE IF NOT EXISTS mes_sop_document_version (
+    id BIGSERIAL PRIMARY KEY,
+    sop_document_id BIGINT NOT NULL REFERENCES mes_sop_document(id) ON DELETE CASCADE,
+    version_no INTEGER NOT NULL COMMENT '版本号',
+    file_name VARCHAR(200) NOT NULL COMMENT '文件名',
+    file_path VARCHAR(500) NOT NULL COMMENT '文件路径',
+    file_type VARCHAR(20) COMMENT '文件类型: PDF, DOC, DOCX, PPT, PPTX, VIDEO, IMG',
+    file_size BIGINT COMMENT '文件大小(字节)',
+    uploader VARCHAR(50) COMMENT '上传人',
+    change_description VARCHAR(500) COMMENT '变更说明',
+    is_current_version BOOLEAN DEFAULT FALSE COMMENT '是否为当前版本',
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(sop_document_id, version_no)
+);
+
+CREATE INDEX idx_sop_document_version_document ON mes_sop_document_version(sop_document_id);
+CREATE INDEX idx_sop_document_version_current ON mes_sop_document_version(sop_document_id, is_current_version);
+
+-- SOP工艺路线绑定表（工序/工位关联）
+CREATE TABLE IF NOT EXISTS mes_sop_route_binding (
+    id BIGSERIAL PRIMARY KEY,
+    sop_document_id BIGINT NOT NULL REFERENCES mes_sop_document(id) ON DELETE CASCADE,
+    route_code VARCHAR(50) COMMENT '工艺路线编码',
+    route_name VARCHAR(100) COMMENT '工艺路线名称',
+    step_no INTEGER COMMENT '工序号',
+    process_code VARCHAR(50) COMMENT '工序编码',
+    process_name VARCHAR(100) COMMENT '工序名称',
+    workstation_id VARCHAR(50) COMMENT '工位ID',
+    workstation_name VARCHAR(100) COMMENT '工位名称',
+    sort_order INTEGER DEFAULT 0 COMMENT '排序序号',
+    is_active BOOLEAN DEFAULT TRUE COMMENT '是否激活',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_sop_route_binding_document ON mes_sop_route_binding(sop_document_id);
+CREATE INDEX idx_sop_route_binding_route ON mes_sop_route_binding(route_code, step_no);
+CREATE INDEX idx_sop_route_binding_workstation ON mes_sop_route_binding(workstation_id);
+CREATE INDEX idx_sop_route_binding_active ON mes_sop_route_binding(is_active);
+
+-- 设备保养计划表
+CREATE TABLE IF NOT EXISTS mes_equipment_maintenance_plan (
+    id BIGSERIAL PRIMARY KEY,
+    plan_code VARCHAR(50) NOT NULL UNIQUE COMMENT '计划编码',
+    plan_name VARCHAR(100) NOT NULL COMMENT '计划名称',
+    description VARCHAR(500) COMMENT '描述',
+    equipment_type_id BIGINT COMMENT '设备类型ID',
+    equipment_type_code VARCHAR(50) COMMENT '设备类型编码',
+    cycle_type VARCHAR(20) NOT NULL COMMENT '周期类型: TIME_BASED, RUNNING_HOURS',
+    cycle_days INTEGER COMMENT '周期天数（时间周期类型使用）',
+    cycle_running_hours INTEGER COMMENT '周期运行时长（运行时长类型使用）',
+    advance_alert_days INTEGER DEFAULT 3 COMMENT '提前预警天数',
+    is_active BOOLEAN DEFAULT TRUE COMMENT '是否激活',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_maintenance_plan_code ON mes_equipment_maintenance_plan(plan_code);
+CREATE INDEX idx_maintenance_plan_type ON mes_equipment_maintenance_plan(equipment_type_code);
+CREATE INDEX idx_maintenance_plan_active ON mes_equipment_maintenance_plan(is_active);
+
+-- 设备保养项目明细表
+CREATE TABLE IF NOT EXISTS mes_equipment_maintenance_item (
+    id BIGSERIAL PRIMARY KEY,
+    plan_id BIGINT NOT NULL REFERENCES mes_equipment_maintenance_plan(id) ON DELETE CASCADE,
+    item_code VARCHAR(50) NOT NULL COMMENT '项目编码',
+    item_name VARCHAR(100) NOT NULL COMMENT '项目名称',
+    description VARCHAR(500) COMMENT '项目描述',
+    check_method VARCHAR(200) COMMENT '检查方法',
+    standard VARCHAR(500) COMMENT '标准/判定依据',
+    is_required BOOLEAN DEFAULT TRUE COMMENT '是否必检',
+    sort_order INTEGER DEFAULT 0 COMMENT '排序序号',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_maintenance_item_plan ON mes_equipment_maintenance_item(plan_id);
+CREATE INDEX idx_maintenance_item_code ON mes_equipment_maintenance_item(item_code);

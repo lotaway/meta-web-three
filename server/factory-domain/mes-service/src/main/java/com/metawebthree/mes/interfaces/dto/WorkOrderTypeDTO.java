@@ -30,7 +30,7 @@ public class WorkOrderTypeDTO {
         dto.setIsDefault(entity.getIsDefault());
         dto.setSortOrder(entity.getSortOrder());
         dto.setStatus(entity.getStatus());
-        dto.setCreatedAt(null); // WorkOrderType entity doesn't have createdAt
+        dto.setCreatedAt(null);
         dto.setUpdatedAt(null);
         return dto;
     }

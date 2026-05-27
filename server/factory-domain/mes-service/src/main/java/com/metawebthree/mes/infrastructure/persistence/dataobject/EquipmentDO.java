@@ -16,17 +16,21 @@ public class EquipmentDO {
     
     private String equipmentCode;
     private String equipmentName;
+    private Long equipmentTypeId;
     private String equipmentType;
     private String workshopId;
     private String workstationId;
     private String status;
+    private Long statusConfigId;
     private BigDecimal utilizationRate;
     private Integer todayOutput;
     private String currentTaskNo;
     private LocalDateTime lastMaintenanceTime;
     private LocalDateTime nextMaintenanceTime;
+    private Long totalRunningSeconds;
+    private Long totalIdleSeconds;
+    private Long totalDowntimeSeconds;
     
-    // 数字孪生关联字段
     private String digitalTwinDeviceCode;
     private BigDecimal positionX;
     private BigDecimal positionY;

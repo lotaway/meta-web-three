@@ -1,22 +1,45 @@
 package com.metawebthree.mes.domain.entity;
 
+import com.metawebthree.mes.domain.entity.EquipmentStatusCode;
+
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 public class Equipment {
+    
+    public enum EquipmentStatus {
+        IDLE,
+        RUNNING,
+        BREAKDOWN,
+        MAINTENANCE,
+        OFFLINE,
+        ONLINE,
+        WARNING,
+        ERROR
+    }
+    
     private Long id;
     private String equipmentCode;
     private String equipmentName;
-    private String equipmentType;
+    private Long equipmentTypeId;
+    private String equipmentTypeCode;
     private String workshopId;
     private String workstationId;
+    private String statusCode;
     private EquipmentStatus status;
+    private Long statusConfigId;
+    private String currentTaskNo;
     private Double utilizationRate;
     private Integer todayOutput;
-    private String currentTaskNo;
     private LocalDateTime lastMaintenanceTime;
     private LocalDateTime nextMaintenanceTime;
+    private Long totalRunningSeconds;
+    private Long totalIdleSeconds;
+    private Long totalDowntimeSeconds;
     
-    // 数字孪生关联字段
+    private Map<String, Object> extensionFields;
+    
     private String digitalTwinDeviceCode;
     private Double positionX;
     private Double positionY;
@@ -30,37 +53,73 @@ public class Equipment {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public enum EquipmentStatus {
-        IDLE, RUNNING, MAINTENANCE, BREAKDOWN, SCRAP,
-        ONLINE, OFFLINE, WARNING, ERROR
-    }
-
     public void create(String equipmentCode, String equipmentName, 
-                      String equipmentType, String workshopId) {
+                      Long equipmentTypeId, String equipmentTypeCode, String workshopId) {
         this.equipmentCode = equipmentCode;
         this.equipmentName = equipmentName;
-        this.equipmentType = equipmentType;
+        this.equipmentTypeId = equipmentTypeId;
+        this.equipmentTypeCode = equipmentTypeCode;
         this.workshopId = workshopId;
+        this.statusCode = EquipmentStatusCode.IDLE;
         this.status = EquipmentStatus.IDLE;
         this.utilizationRate = 0.0;
         this.todayOutput = 0;
+        this.totalRunningSeconds = 0L;
+        this.totalIdleSeconds = 0L;
+        this.totalDowntimeSeconds = 0L;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
-    public void startTask(String taskNo) {
-        if (status != EquipmentStatus.IDLE) {
-            throw new IllegalStateException("Equipment is not idle");
+    public void create(String equipmentCode, String equipmentName, 
+                      String equipmentTypeCode, String workshopId) {
+        this.equipmentCode = equipmentCode;
+        this.equipmentName = equipmentName;
+        this.equipmentTypeCode = equipmentTypeCode;
+        this.workshopId = workshopId;
+        this.statusCode = EquipmentStatusCode.IDLE;
+        this.status = EquipmentStatus.IDLE;
+        this.utilizationRate = 0.0;
+        this.todayOutput = 0;
+        this.totalRunningSeconds = 0L;
+        this.totalIdleSeconds = 0L;
+        this.totalDowntimeSeconds = 0L;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public boolean canTransitionTo(String targetStatus, List<EquipmentStatusTransition> transitions) {
+        if (targetStatus == null || this.statusCode == null) {
+            return false;
         }
+        if (targetStatus.equals(this.statusCode)) {
+            return false;
+        }
+        for (EquipmentStatusTransition transition : transitions) {
+            if (transition.canTransition(this.statusCode, null)) {
+                if (transition.getToStatusCode().equals(targetStatus)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void transitionTo(String newStatusCode, Long statusConfigId) {
+        this.statusCode = newStatusCode;
+        this.statusConfigId = statusConfigId;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void startTask(String taskNo) {
+        this.statusCode = EquipmentStatusCode.RUNNING;
         this.status = EquipmentStatus.RUNNING;
         this.currentTaskNo = taskNo;
         this.updatedAt = LocalDateTime.now();
     }
 
     public void completeTask() {
-        if (status != EquipmentStatus.RUNNING) {
-            throw new IllegalStateException("Equipment is not running");
-        }
+        this.statusCode = EquipmentStatusCode.IDLE;
         this.status = EquipmentStatus.IDLE;
         this.currentTaskNo = null;
         this.todayOutput++;
@@ -68,33 +127,25 @@ public class Equipment {
     }
 
     public void reportBreakdown() {
-        if (status != EquipmentStatus.RUNNING) {
-            throw new IllegalStateException("Equipment is not running");
-        }
+        this.statusCode = EquipmentStatusCode.BREAKDOWN;
         this.status = EquipmentStatus.BREAKDOWN;
         this.updatedAt = LocalDateTime.now();
     }
 
     public void repair() {
-        if (status != EquipmentStatus.BREAKDOWN) {
-            throw new IllegalStateException("Equipment is not broken down");
-        }
+        this.statusCode = EquipmentStatusCode.IDLE;
         this.status = EquipmentStatus.IDLE;
         this.updatedAt = LocalDateTime.now();
     }
 
     public void startMaintenance() {
-        if (status == EquipmentStatus.RUNNING) {
-            throw new IllegalStateException("Cannot maintain while running");
-        }
+        this.statusCode = EquipmentStatusCode.MAINTENANCE;
         this.status = EquipmentStatus.MAINTENANCE;
         this.updatedAt = LocalDateTime.now();
     }
 
     public void completeMaintenance() {
-        if (status != EquipmentStatus.MAINTENANCE) {
-            throw new IllegalStateException("Equipment is not in maintenance");
-        }
+        this.statusCode = EquipmentStatusCode.IDLE;
         this.status = EquipmentStatus.IDLE;
         this.lastMaintenanceTime = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
@@ -102,7 +153,8 @@ public class Equipment {
 
     public void heartbeat() {
         this.lastHeartbeat = LocalDateTime.now();
-        if (this.status == EquipmentStatus.OFFLINE) {
+        if (EquipmentStatusCode.OFFLINE.equals(this.statusCode)) {
+            this.statusCode = EquipmentStatusCode.ONLINE;
             this.status = EquipmentStatus.ONLINE;
         }
         this.updatedAt = LocalDateTime.now();
@@ -128,7 +180,8 @@ public class Equipment {
 
     public void syncFromDigitalTwin(String dtStatus, LocalDateTime dtLastHeartbeat) {
         if (dtStatus != null) {
-            this.status = fromDigitalTwinStatusString(dtStatus);
+            this.statusCode = mapDigitalTwinStatus(dtStatus);
+            this.status = mapToEquipmentStatus(dtStatus);
         }
         if (dtLastHeartbeat != null) {
             this.lastHeartbeat = dtLastHeartbeat;
@@ -136,7 +189,21 @@ public class Equipment {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public static EquipmentStatus fromDigitalTwinStatusString(String dtStatus) {
+    private String mapDigitalTwinStatus(String dtStatus) {
+        if (dtStatus == null) return null;
+        return switch (dtStatus.toUpperCase()) {
+            case "ONLINE" -> EquipmentStatusCode.ONLINE;
+            case "OFFLINE" -> EquipmentStatusCode.OFFLINE;
+            case "RUNNING" -> EquipmentStatusCode.RUNNING;
+            case "IDLE" -> EquipmentStatusCode.IDLE;
+            case "WARNING" -> EquipmentStatusCode.WARNING;
+            case "ERROR" -> EquipmentStatusCode.ERROR;
+            case "MAINTENANCE" -> EquipmentStatusCode.MAINTENANCE;
+            default -> dtStatus.toUpperCase();
+        };
+    }
+
+    private EquipmentStatus mapToEquipmentStatus(String dtStatus) {
         if (dtStatus == null) return null;
         return switch (dtStatus.toUpperCase()) {
             case "ONLINE" -> EquipmentStatus.ONLINE;
@@ -150,19 +217,48 @@ public class Equipment {
         };
     }
 
-    public String toDigitalTwinStatusString() {
-        if (this.status == null) return null;
-        return switch (this.status) {
-            case ONLINE -> "ONLINE";
-            case OFFLINE -> "OFFLINE";
-            case RUNNING -> "RUNNING";
-            case IDLE -> "IDLE";
-            case WARNING -> "WARNING";
-            case ERROR -> "ERROR";
-            case MAINTENANCE -> "MAINTENANCE";
-            case BREAKDOWN -> "ERROR";
-            case SCRAP -> "OFFLINE";
-        };
+    public void updateExtensionField(String fieldName, Object value) {
+        if (this.extensionFields == null) {
+            this.extensionFields = new java.util.HashMap<>();
+        }
+        this.extensionFields.put(fieldName, value);
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public Object getExtensionField(String fieldName) {
+        if (this.extensionFields == null) {
+            return null;
+        }
+        return this.extensionFields.get(fieldName);
+    }
+
+    public void calculateOEE(Integer plannedProductionTime, Integer idealCycleTime, Integer goodProductCount) {
+        if (plannedProductionTime == null || plannedProductionTime == 0) {
+            this.utilizationRate = 0.0;
+            return;
+        }
+        if (totalRunningSeconds == null || totalRunningSeconds == 0) {
+            this.utilizationRate = 0.0;
+            return;
+        }
+        Double availability = (double) (totalRunningSeconds + totalIdleSeconds) / plannedProductionTime;
+        Double performance = idealCycleTime != null && todayOutput != null && todayOutput > 0 
+            ? (double) (todayOutput * idealCycleTime) / (totalRunningSeconds * 60) 
+            : 1.0;
+        Double quality = goodProductCount != null && todayOutput != null && todayOutput > 0
+            ? (double) goodProductCount / todayOutput
+            : 1.0;
+        this.utilizationRate = availability * performance * quality * 100;
+    }
+
+    public void bindWorkstation(String workstationId) {
+        this.workstationId = workstationId;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void unbindWorkstation() {
+        this.workstationId = null;
+        this.updatedAt = LocalDateTime.now();
     }
 
     public Long getId() { return id; }
@@ -171,24 +267,39 @@ public class Equipment {
     public void setEquipmentCode(String equipmentCode) { this.equipmentCode = equipmentCode; }
     public String getEquipmentName() { return equipmentName; }
     public void setEquipmentName(String equipmentName) { this.equipmentName = equipmentName; }
-    public String getEquipmentType() { return equipmentType; }
-    public void setEquipmentType(String equipmentType) { this.equipmentType = equipmentType; }
+    public Long getEquipmentTypeId() { return equipmentTypeId; }
+    public void setEquipmentTypeId(Long equipmentTypeId) { this.equipmentTypeId = equipmentTypeId; }
+    public String getEquipmentTypeCode() { return equipmentTypeCode; }
+    public void setEquipmentTypeCode(String equipmentTypeCode) { this.equipmentTypeCode = equipmentTypeCode; }
+    public String getEquipmentType() { return equipmentTypeCode; }
     public String getWorkshopId() { return workshopId; }
     public void setWorkshopId(String workshopId) { this.workshopId = workshopId; }
     public String getWorkstationId() { return workstationId; }
     public void setWorkstationId(String workstationId) { this.workstationId = workstationId; }
+    public String getStatusCode() { return statusCode; }
+    public void setStatusCode(String statusCode) { this.statusCode = statusCode; }
     public EquipmentStatus getStatus() { return status; }
     public void setStatus(EquipmentStatus status) { this.status = status; }
+    public Long getStatusConfigId() { return statusConfigId; }
+    public void setStatusConfigId(Long statusConfigId) { this.statusConfigId = statusConfigId; }
+    public String getCurrentTaskNo() { return currentTaskNo; }
+    public void setCurrentTaskNo(String currentTaskNo) { this.currentTaskNo = currentTaskNo; }
     public Double getUtilizationRate() { return utilizationRate; }
     public void setUtilizationRate(Double utilizationRate) { this.utilizationRate = utilizationRate; }
     public Integer getTodayOutput() { return todayOutput; }
     public void setTodayOutput(Integer todayOutput) { this.todayOutput = todayOutput; }
-    public String getCurrentTaskNo() { return currentTaskNo; }
-    public void setCurrentTaskNo(String currentTaskNo) { this.currentTaskNo = currentTaskNo; }
     public LocalDateTime getLastMaintenanceTime() { return lastMaintenanceTime; }
     public void setLastMaintenanceTime(LocalDateTime lastMaintenanceTime) { this.lastMaintenanceTime = lastMaintenanceTime; }
     public LocalDateTime getNextMaintenanceTime() { return nextMaintenanceTime; }
     public void setNextMaintenanceTime(LocalDateTime nextMaintenanceTime) { this.nextMaintenanceTime = nextMaintenanceTime; }
+    public Long getTotalRunningSeconds() { return totalRunningSeconds; }
+    public void setTotalRunningSeconds(Long totalRunningSeconds) { this.totalRunningSeconds = totalRunningSeconds; }
+    public Long getTotalIdleSeconds() { return totalIdleSeconds; }
+    public void setTotalIdleSeconds(Long totalIdleSeconds) { this.totalIdleSeconds = totalIdleSeconds; }
+    public Long getTotalDowntimeSeconds() { return totalDowntimeSeconds; }
+    public void setTotalDowntimeSeconds(Long totalDowntimeSeconds) { this.totalDowntimeSeconds = totalDowntimeSeconds; }
+    public Map<String, Object> getExtensionFields() { return extensionFields; }
+    public void setExtensionFields(Map<String, Object> extensionFields) { this.extensionFields = extensionFields; }
     public String getDigitalTwinDeviceCode() { return digitalTwinDeviceCode; }
     public void setDigitalTwinDeviceCode(String digitalTwinDeviceCode) { this.digitalTwinDeviceCode = digitalTwinDeviceCode; }
     public Double getPositionX() { return positionX; }

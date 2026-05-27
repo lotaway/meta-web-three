@@ -71,7 +71,7 @@ public class MesQueryService {
         return equipmentRepository.findByWorkshopId(workshopId);
     }
 
-    public List<Equipment> getEquipmentByStatus(Equipment.EquipmentStatus status) {
-        return equipmentRepository.findByStatus(status);
+    public List<Equipment> getEquipmentByStatusCode(String statusCode) {
+        return equipmentRepository.findByStatusCode(statusCode);
     }
 }

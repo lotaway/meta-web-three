@@ -41,13 +41,12 @@ public class CodeRule {
         ACTIVE, INACTIVE
     }
     
-    // SN生成专用元素类型
     public enum SnElementType {
-        RANDOM_NUMERIC,      // 随机数字
-        RANDOM_ALPHANUMERIC, // 随机字母数字
-        CHECKSUM_MOD10,     // Mod10 校验位
-        CHECKSUM_MOD11,     // Mod11 校验位
-        UUID_SHORT          // 短UUID(无横线)
+        RANDOM_NUMERIC,
+        RANDOM_ALPHANUMERIC,
+        CHECKSUM_MOD10,
+        CHECKSUM_MOD11,
+        UUID_SHORT
     }
     
     public static class RuleElement {
@@ -60,7 +59,6 @@ public class CodeRule {
         
         public enum ElementType {
             PREFIX, DATE, SEQUENCE, BUSINESS_FIELD, DELIMITER,
-            // SN生成专用类型
             RANDOM_NUMERIC, RANDOM_ALPHANUMERIC, CHECKSUM_MOD10, CHECKSUM_MOD11, UUID_SHORT
         }
         

@@ -72,7 +72,7 @@ export class CategoryPage extends Page {
   private root = element(by.id('category-page'))
   private categoryList = element(by.id('category-list'))
   private subCategoryList = element(by.id('sub-category-list'))
-  private productGrid = element(by.id('product-grid')
+  private productGrid = element(by.id('product-grid'))
 
   async waitForLoad(): Promise<void> {
     await this.root.waitForVisible()

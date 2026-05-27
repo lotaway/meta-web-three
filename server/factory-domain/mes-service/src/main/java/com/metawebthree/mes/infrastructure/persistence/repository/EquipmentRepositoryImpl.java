@@ -40,9 +40,9 @@ public class EquipmentRepositoryImpl implements EquipmentRepository {
     }
     
     @Override
-    public List<Equipment> findByStatus(Equipment.EquipmentStatus status) {
+    public List<Equipment> findByStatusCode(String statusCode) {
         LambdaQueryWrapper<EquipmentDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(EquipmentDO::getStatus, status.name());
+        wrapper.eq(EquipmentDO::getStatus, statusCode);
         List<EquipmentDO> doList = equipmentMapper.selectList(wrapper);
         return doList.stream().map(this::toEntity).collect(java.util.stream.Collectors.toList());
     }
@@ -51,6 +51,14 @@ public class EquipmentRepositoryImpl implements EquipmentRepository {
     public List<Equipment> findByWorkstationId(String workstationId) {
         LambdaQueryWrapper<EquipmentDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(EquipmentDO::getWorkstationId, workstationId);
+        List<EquipmentDO> doList = equipmentMapper.selectList(wrapper);
+        return doList.stream().map(this::toEntity).collect(java.util.stream.Collectors.toList());
+    }
+    
+    @Override
+    public List<Equipment> findByEquipmentTypeId(Long equipmentTypeId) {
+        LambdaQueryWrapper<EquipmentDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(EquipmentDO::getEquipmentTypeId, equipmentTypeId);
         List<EquipmentDO> doList = equipmentMapper.selectList(wrapper);
         return doList.stream().map(this::toEntity).collect(java.util.stream.Collectors.toList());
     }
@@ -88,15 +96,19 @@ public class EquipmentRepositoryImpl implements EquipmentRepository {
         entity.setId(doObj.getId());
         entity.setEquipmentCode(doObj.getEquipmentCode());
         entity.setEquipmentName(doObj.getEquipmentName());
-        entity.setEquipmentType(doObj.getEquipmentType());
+        entity.setEquipmentTypeId(doObj.getEquipmentTypeId());
+        entity.setEquipmentTypeCode(doObj.getEquipmentType());
         entity.setWorkshopId(doObj.getWorkshopId());
         entity.setWorkstationId(doObj.getWorkstationId());
-        entity.setStatus(Equipment.EquipmentStatus.valueOf(doObj.getStatus()));
+        entity.setStatusCode(doObj.getStatus());
+        entity.setStatusConfigId(doObj.getStatusConfigId());
         entity.setUtilizationRate(doObj.getUtilizationRate() != null ? doObj.getUtilizationRate().doubleValue() : null);
         entity.setTodayOutput(doObj.getTodayOutput());
         entity.setCurrentTaskNo(doObj.getCurrentTaskNo());
         entity.setLastMaintenanceTime(doObj.getLastMaintenanceTime());
         entity.setNextMaintenanceTime(doObj.getNextMaintenanceTime());
+        entity.setDigitalTwinDeviceCode(doObj.getDigitalTwinDeviceCode());
+        entity.setLastHeartbeat(doObj.getLastHeartbeat());
         return entity;
     }
     
@@ -108,10 +120,12 @@ public class EquipmentRepositoryImpl implements EquipmentRepository {
         doObj.setId(entity.getId());
         doObj.setEquipmentCode(entity.getEquipmentCode());
         doObj.setEquipmentName(entity.getEquipmentName());
-        doObj.setEquipmentType(entity.getEquipmentType());
+        doObj.setEquipmentTypeId(entity.getEquipmentTypeId());
+        doObj.setEquipmentType(entity.getEquipmentTypeCode());
         doObj.setWorkshopId(entity.getWorkshopId());
         doObj.setWorkstationId(entity.getWorkstationId());
-        doObj.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
+        doObj.setStatus(entity.getStatusCode());
+        doObj.setStatusConfigId(entity.getStatusConfigId());
         doObj.setUtilizationRate(entity.getUtilizationRate() != null ? java.math.BigDecimal.valueOf(entity.getUtilizationRate()) : null);
         doObj.setTodayOutput(entity.getTodayOutput());
         doObj.setCurrentTaskNo(entity.getCurrentTaskNo());

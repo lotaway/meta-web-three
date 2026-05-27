@@ -31,8 +31,8 @@ public class ProcessRoute {
         private String workstationId;
         private Integer standardTime;
         private String qualityCheckpoint;
-        private Integer predecessorStepNo;  // 前驱工序号
-        private Integer successorStepNo;    // 后继工序号
+        private Integer predecessorStepNo;
+        private Integer successorStepNo;
 
         public Integer getStepNo() { return stepNo; }
         public void setStepNo(Integer stepNo) { this.stepNo = stepNo; }
@@ -77,10 +77,6 @@ public class ProcessRoute {
         this.updatedAt = LocalDateTime.now();
     }
 
-    /**
-     * 验证工序顺序是否合法
-     * @return 验证结果
-     */
     public ValidationResult validateSequence() {
         List<String> errors = new ArrayList<>();
         
@@ -89,7 +85,6 @@ public class ProcessRoute {
             return new ValidationResult(false, errors);
         }
         
-        // 检查工序序号是否连续且唯一
         Set<Integer> stepNos = new HashSet<>();
         for (ProcessStep step : steps) {
             if (step.getStepNo() == null) {
@@ -101,7 +96,6 @@ public class ProcessRoute {
             }
         }
         
-        // 检查序号连续性
         List<Integer> sortedStepNos = steps.stream()
             .map(ProcessStep::getStepNo)
             .filter(no -> no != null)
@@ -114,7 +108,6 @@ public class ProcessRoute {
             }
         }
         
-        // 检查工序编码唯一性
         Set<String> processCodes = new HashSet<>();
         for (ProcessStep step : steps) {
             if (step.getProcessCode() != null && !processCodes.add(step.getProcessCode())) {
@@ -122,7 +115,6 @@ public class ProcessRoute {
             }
         }
         
-        // 验证前后继关联一致性
         for (ProcessStep step : steps) {
             if (step.getPredecessorStepNo() != null) {
                 boolean predecessorExists = steps.stream()
@@ -143,11 +135,6 @@ public class ProcessRoute {
         return new ValidationResult(errors.isEmpty(), errors);
     }
 
-    /**
-     * 获取当前工序的下一步工序
-     * @param currentStepNo 当前工序序号
-     * @return 下一步工序（如果没有下一步返回空）
-     */
     public Optional<ProcessStep> getNextStep(Integer currentStepNo) {
         if (steps == null || currentStepNo == null) {
             return Optional.empty();
@@ -168,11 +155,6 @@ public class ProcessRoute {
         return Optional.empty();
     }
 
-    /**
-     * 根据工序序号获取工序
-     * @param stepNo 工序序号
-     * @return 工序（如果不存在返回空）
-     */
     public Optional<ProcessStep> getStepByNo(Integer stepNo) {
         if (steps == null || stepNo == null) {
             return Optional.empty();
@@ -182,10 +164,6 @@ public class ProcessRoute {
             .findFirst();
     }
 
-    /**
-     * 获取第一个工序
-     * @return 第一个工序
-     */
     public Optional<ProcessStep> getFirstStep() {
         if (steps == null || steps.isEmpty()) {
             return Optional.empty();
@@ -195,10 +173,6 @@ public class ProcessRoute {
             .min(Comparator.comparing(ProcessStep::getStepNo));
     }
 
-    /**
-     * 获取最后一个工序
-     * @return 最后一个工序
-     */
     public Optional<ProcessStep> getLastStep() {
         if (steps == null || steps.isEmpty()) {
             return Optional.empty();
@@ -208,9 +182,6 @@ public class ProcessRoute {
             .max(Comparator.comparing(ProcessStep::getStepNo));
     }
 
-    /**
-     * 验证结果
-     */
     public static class ValidationResult {
         private final boolean valid;
         private final List<String> errors;

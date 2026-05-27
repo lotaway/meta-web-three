@@ -43,4 +43,22 @@ public final class MesPermissions {
     public static final String CONFIG_CREATE = "mes:config:create";
     public static final String CONFIG_UPDATE = "mes:config:update";
     public static final String CONFIG_DELETE = "mes:config:delete";
+
+    // Quality Control permissions
+    public static final String QC_INSPECTION_TYPE_READ   = "mes:qc:inspection-type:read";
+    public static final String QC_INSPECTION_TYPE_CREATE = "mes:qc:inspection-type:create";
+    public static final String QC_INSPECTION_TYPE_UPDATE = "mes:qc:inspection-type:update";
+    public static final String QC_INSPECTION_TYPE_DELETE = "mes:qc:inspection-type:delete";
+    
+    // QC Inspection Plan permissions
+    public static final String QC_INSPECTION_PLAN_READ   = "mes:qc:inspection-plan:read";
+    public static final String QC_INSPECTION_PLAN_CREATE = "mes:qc:inspection-plan:create";
+    public static final String QC_INSPECTION_PLAN_UPDATE = "mes:qc:inspection-plan:update";
+    public static final String QC_INSPECTION_PLAN_DELETE = "mes:qc:inspection-plan:delete";
+    
+    // QC Inspection Item permissions
+    public static final String QC_INSPECTION_ITEM_READ   = "mes:qc:inspection-item:read";
+    public static final String QC_INSPECTION_ITEM_CREATE = "mes:qc:inspection-item:create";
+    public static final String QC_INSPECTION_ITEM_UPDATE = "mes:qc:inspection-item:update";
+    public static final String QC_INSPECTION_ITEM_DELETE = "mes:qc:inspection-item:delete";
 }

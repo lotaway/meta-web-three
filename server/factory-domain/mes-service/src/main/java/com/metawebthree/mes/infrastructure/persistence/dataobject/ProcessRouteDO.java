@@ -18,7 +18,7 @@ public class ProcessRouteDO {
     private String productCode;
     private Integer version;
     private String status;
-    private String steps; // JSON格式存储工序步骤
+    private String steps;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

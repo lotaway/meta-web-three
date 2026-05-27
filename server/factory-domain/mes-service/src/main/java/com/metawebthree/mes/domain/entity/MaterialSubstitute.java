@@ -12,13 +12,12 @@ public class MaterialSubstitute {
     private String productCode;
     private String mainMaterialCode;
     private String mainMaterialName;
-    private String status; // ACTIVE/INACTIVE
+    private String status;
     private String createdBy;
     private String updatedBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
-    // 替代料列表
     private List<SubstituteItem> substitutes = new ArrayList<>();
     
     public enum SubstituteStatus {
@@ -33,20 +32,20 @@ public class MaterialSubstitute {
         private String materialSpec;
         private String unitCode;
         private String unitName;
-        private Integer priority; // 替代优先级，数字越小优先级越高
-        private Double conversionRate; // 替代换算率
-        private String conversionUnit; // 换算单位
-        private String reason; // 替代原因
+        private Integer priority;
+        private Double conversionRate;
+        private String conversionUnit;
+        private String reason;
         private LocalDateTime effectiveDate;
         private LocalDateTime expiryDate;
-        private String status; // ACTIVE/INACTIVE/PENDING
+        private String status;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
         
         public enum ItemStatus {
-            PENDING,   // 待生效
-            ACTIVE,    // 生效中
-            INACTIVE   // 已停用
+            PENDING,
+            ACTIVE,
+            INACTIVE
         }
         
         public void create(Long substituteGroupId, String materialCode, String materialName,

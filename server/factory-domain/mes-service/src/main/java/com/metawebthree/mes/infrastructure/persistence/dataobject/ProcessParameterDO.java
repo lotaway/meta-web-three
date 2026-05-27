@@ -28,13 +28,13 @@ public class ProcessParameterDO {
     private String routeCode;
     private Integer stepNo;
     private String stepCode;
-    private String paramType;    // TEMPERATURE, PRESSURE, SPEED, TIME, CURRENT, VOLTAGE, FORCE, LENGTH, ANGLE, WEIGHT, VOLUME, SPEED_PER_MINUTE, HUMIDITY, QUALITY, COUNT, OTHER
-    private String dataType;     // INTEGER, DECIMAL, TEXT, BOOLEAN
+    private String paramType;
+    private String dataType;
     private String unit;
     private java.math.BigDecimal standardValue;
     private java.math.BigDecimal upperLimit;
     private java.math.BigDecimal lowerLimit;
-    private String collectionMethod;  // MANUAL, AUTO_SENSOR, PLC, BARCODE
+    private String collectionMethod;
     private String deviceAddress;
     private Boolean isRequired;
     private String validationRule;
@@ -42,7 +42,7 @@ public class ProcessParameterDO {
     private Integer displayOrder;
     private String paramGroup;
     private String remark;
-    private String status;       // ACTIVE, INACTIVE
+    private String status;
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
     @TableField(fill = FieldFill.INSERT_UPDATE)

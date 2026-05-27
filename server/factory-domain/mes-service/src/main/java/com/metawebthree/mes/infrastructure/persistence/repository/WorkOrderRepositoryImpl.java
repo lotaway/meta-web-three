@@ -59,6 +59,20 @@ public class WorkOrderRepositoryImpl implements WorkOrderRepository {
     }
     
     @Override
+    public List<WorkOrder> findByParentWorkOrderId(Long parentWorkOrderId) {
+        LambdaQueryWrapper<WorkOrderDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(WorkOrderDO::getParentWorkOrderId, parentWorkOrderId);
+        List<WorkOrderDO> doList = workOrderMapper.selectList(wrapper);
+        return doList.stream().map(this::toEntity).collect(java.util.stream.Collectors.toList());
+    }
+    
+    @Override
+    public List<WorkOrder> findAll() {
+        List<WorkOrderDO> doList = workOrderMapper.selectList(null);
+        return doList.stream().map(this::toEntity).collect(java.util.stream.Collectors.toList());
+    }
+    
+    @Override
     public WorkOrder save(WorkOrder workOrder) {
         WorkOrderDO workOrderDO = toDO(workOrder);
         if (workOrder.getId() == null) {
@@ -100,6 +114,11 @@ public class WorkOrderRepositoryImpl implements WorkOrderRepository {
         entity.setPriority(WorkOrder.Priority.valueOf(doObj.getPriority()));
         entity.setWorkshopId(doObj.getWorkshopId());
         entity.setProcessRouteId(doObj.getProcessRouteId());
+        entity.setCodeRuleId(doObj.getCodeRuleId());
+        entity.setParentWorkOrderId(doObj.getParentWorkOrderId());
+        entity.setSplitRuleId(doObj.getSplitRuleId());
+        entity.setSplitSequence(doObj.getSplitSequence());
+        entity.setSplitType(doObj.getSplitType());
         entity.setPlannedStartTime(doObj.getPlannedStartTime());
         entity.setPlannedEndTime(doObj.getPlannedEndTime());
         entity.setActualStartTime(doObj.getActualStartTime());
@@ -124,6 +143,11 @@ public class WorkOrderRepositoryImpl implements WorkOrderRepository {
         doObj.setPriority(entity.getPriority() != null ? entity.getPriority().name() : null);
         doObj.setWorkshopId(entity.getWorkshopId());
         doObj.setProcessRouteId(entity.getProcessRouteId());
+        doObj.setCodeRuleId(entity.getCodeRuleId());
+        doObj.setParentWorkOrderId(entity.getParentWorkOrderId());
+        doObj.setSplitRuleId(entity.getSplitRuleId());
+        doObj.setSplitSequence(entity.getSplitSequence());
+        doObj.setSplitType(entity.getSplitType());
         doObj.setPlannedStartTime(entity.getPlannedStartTime());
         doObj.setPlannedEndTime(entity.getPlannedEndTime());
         doObj.setActualStartTime(entity.getActualStartTime());

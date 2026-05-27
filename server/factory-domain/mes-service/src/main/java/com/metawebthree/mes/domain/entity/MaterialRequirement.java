@@ -16,33 +16,32 @@ public class MaterialRequirement {
     private String workOrderNo;
     private String productCode;
     private String productName;
-    private Integer quantity; // 工单数量
+    private Integer quantity;
     private String bomVersion;
-    private String status; // DRAFT/CONFIRMED/ISSUED/PARTIALLY_ISSUED/COMPLETED
+    private String status;
     private String warehouseId;
     private String workshopId;
-    private String requirementType; // NORMAL/EMERGENCY/REWORK
+    private String requirementType;
     private LocalDateTime requiredDate;
     private String createdBy;
     private String updatedBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
-    // 物料需求明细
     private List<MaterialRequirementItem> items = new ArrayList<>();
     
     public enum RequirementStatus {
-        DRAFT,              // 待确认
-        CONFIRMED,          // 已确认
-        ISSUED,             // 已发料
-        PARTIALLY_ISSUED,   // 部分发料
-        COMPLETED           // 完成
+        DRAFT,
+        CONFIRMED,
+        ISSUED,
+        PARTIALLY_ISSUED,
+        COMPLETED
     }
     
     public enum RequirementType {
-        NORMAL,     // 正常工单
-        EMERGENCY,  // 紧急工单
-        REWORK      // 返工工单
+        NORMAL,
+        EMERGENCY,
+        REWORK
     }
     
     public static class MaterialRequirementItem {
@@ -53,22 +52,22 @@ public class MaterialRequirement {
         private String materialSpec;
         private String unitCode;
         private String unitName;
-        private Double requiredQuantity;   // 需求数量
-        private Double issuedQuantity;     // 已发数量
-        private Double pendingQuantity;    // 待发数量
-        private Double scrapQuantity;      // 报废数量
-        private String locationId;         // 库位ID
-        private String batchNo;            // 批次号
-        private String status;             // PENDING/ISSUED/PARTIALLY_ISSUED
+        private Double requiredQuantity;
+        private Double issuedQuantity;
+        private Double pendingQuantity;
+        private Double scrapQuantity;
+        private String locationId;
+        private String batchNo;
+        private String status;
         private String remark;
         private LocalDateTime requiredDate;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
         
         public enum ItemStatus {
-            PENDING,           // 待发
-            ISSUED,            // 已发
-            PARTIALLY_ISSUED   // 部分已发
+            PENDING,
+            ISSUED,
+            PARTIALLY_ISSUED
         }
         
         public void create(Long requirementId, String materialCode, String materialName,
@@ -234,7 +233,7 @@ public class MaterialRequirement {
     
     public void cancel() {
         if (!this.status.equals(RequirementStatus.COMPLETED.name())) {
-            this.status = RequirementStatus.DRAFT.name(); // 降级为草稿
+            this.status = RequirementStatus.DRAFT.name();
             this.updatedAt = LocalDateTime.now();
         }
     }

@@ -8,8 +8,9 @@ public interface EquipmentRepository {
     Optional<Equipment> findById(Long id);
     Optional<Equipment> findByEquipmentCode(String equipmentCode);
     List<Equipment> findByWorkshopId(String workshopId);
-    List<Equipment> findByStatus(Equipment.EquipmentStatus status);
+    List<Equipment> findByStatusCode(String statusCode);
     List<Equipment> findByWorkstationId(String workstationId);
+    List<Equipment> findByEquipmentTypeId(Long equipmentTypeId);
     Equipment save(Equipment equipment);
     void update(Equipment equipment);
     void deleteById(Long id);
