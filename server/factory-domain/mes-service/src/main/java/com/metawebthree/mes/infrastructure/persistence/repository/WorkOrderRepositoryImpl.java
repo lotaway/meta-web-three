@@ -95,6 +95,8 @@ public class WorkOrderRepositoryImpl implements WorkOrderRepository {
         entity.setQuantity(doObj.getQuantity());
         entity.setCompletedQuantity(doObj.getCompletedQuantity());
         entity.setStatus(WorkOrder.WorkOrderStatus.valueOf(doObj.getStatus()));
+        entity.setStatusCode(doObj.getStatusCode());
+        entity.setTypeCode(doObj.getTypeCode());
         entity.setPriority(WorkOrder.Priority.valueOf(doObj.getPriority()));
         entity.setWorkshopId(doObj.getWorkshopId());
         entity.setProcessRouteId(doObj.getProcessRouteId());
@@ -117,6 +119,8 @@ public class WorkOrderRepositoryImpl implements WorkOrderRepository {
         doObj.setQuantity(entity.getQuantity());
         doObj.setCompletedQuantity(entity.getCompletedQuantity());
         doObj.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
+        doObj.setStatusCode(entity.getStatusCode());
+        doObj.setTypeCode(entity.getTypeCode());
         doObj.setPriority(entity.getPriority() != null ? entity.getPriority().name() : null);
         doObj.setWorkshopId(entity.getWorkshopId());
         doObj.setProcessRouteId(entity.getProcessRouteId());

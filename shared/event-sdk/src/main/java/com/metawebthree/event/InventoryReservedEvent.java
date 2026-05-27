@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.Builder;
 
 import java.time.Instant;
 import java.util.List;
@@ -16,13 +16,15 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Builder
 public class InventoryReservedEvent extends BaseEvent {
 
     private String reservationId;
     private String orderId;
     private List<ReservedItem> items;
     private Instant expiresAt;
+
+    public static Builder builder() { return Builder.builder(); }
 
     @Data
     @NoArgsConstructor

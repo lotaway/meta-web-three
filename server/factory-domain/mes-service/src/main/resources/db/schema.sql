@@ -136,6 +136,8 @@ CREATE TABLE IF NOT EXISTS mes_work_order (
     quantity INTEGER NOT NULL COMMENT '计划数量',
     completed_quantity INTEGER DEFAULT 0 COMMENT '完成数量',
     status VARCHAR(20) DEFAULT 'DRAFT' COMMENT '状态: DRAFT, RELEASED, IN_PROGRESS, PAUSED, COMPLETED, CANCELLED',
+    status_code VARCHAR(50) COMMENT '可配置状态机的状态码',
+    type_code VARCHAR(50) DEFAULT 'NORMAL' COMMENT '工单类型: NORMAL, REWORK, REPAIR, SAMPLE',
     priority VARCHAR(20) DEFAULT 'NORMAL' COMMENT '优先级: LOW, NORMAL, HIGH, URGENT',
     workshop_id VARCHAR(50) COMMENT '车间ID',
     process_route_id VARCHAR(50) COMMENT '工艺路线ID',
@@ -149,6 +151,8 @@ CREATE TABLE IF NOT EXISTS mes_work_order (
 
 -- 工单表索引
 CREATE INDEX idx_work_order_status ON mes_work_order(status);
+CREATE INDEX idx_work_order_type_code ON mes_work_order(type_code);
+CREATE INDEX idx_work_order_status_code ON mes_work_order(status_code);
 CREATE INDEX idx_work_order_workshop_id ON mes_work_order(workshop_id);
 CREATE INDEX idx_work_order_product_code ON mes_work_order(product_code);
 
@@ -225,3 +229,77 @@ CREATE INDEX idx_equipment_code ON mes_equipment(equipment_code);
 CREATE INDEX idx_equipment_workshop_id ON mes_equipment(workshop_id);
 CREATE INDEX idx_equipment_workstation_id ON mes_equipment(workstation_id);
 CREATE INDEX idx_equipment_status ON mes_equipment(status);
+
+-- 工单类型表
+CREATE TABLE IF NOT EXISTS mes_work_order_type (
+    id BIGSERIAL PRIMARY KEY,
+    type_code VARCHAR(50) NOT NULL UNIQUE COMMENT '类型编码: NORMAL, REWORK, REPAIR, SAMPLE',
+    type_name VARCHAR(100) NOT NULL COMMENT '类型名称',
+    description VARCHAR(500) COMMENT '描述',
+    status_machine_code VARCHAR(50) COMMENT '关联的状态机编码',
+    process_route_template VARCHAR(50) COMMENT '工艺路线模板编码',
+    is_default BOOLEAN DEFAULT FALSE COMMENT '是否为默认类型',
+    sort_order INTEGER DEFAULT 0 COMMENT '排序序号',
+    status VARCHAR(20) DEFAULT 'ACTIVE' COMMENT '状态: ACTIVE, INACTIVE',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 状态机配置表
+CREATE TABLE IF NOT EXISTS mes_status_machine (
+    id BIGSERIAL PRIMARY KEY,
+    machine_code VARCHAR(50) NOT NULL UNIQUE COMMENT '状态机编码',
+    machine_name VARCHAR(100) NOT NULL COMMENT '状态机名称',
+    entity_type VARCHAR(50) NOT NULL COMMENT '实体类型: WORK_ORDER, PRODUCTION_TASK, EQUIPMENT',
+    description VARCHAR(500) COMMENT '描述',
+    initial_status VARCHAR(50) COMMENT '初始状态',
+    is_default BOOLEAN DEFAULT FALSE COMMENT '是否为默认状态机',
+    status VARCHAR(20) DEFAULT 'ACTIVE' COMMENT '状态: ACTIVE, INACTIVE',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 状态配置表
+CREATE TABLE IF NOT EXISTS mes_status_config (
+    id BIGSERIAL PRIMARY KEY,
+    machine_id BIGINT NOT NULL REFERENCES mes_status_machine(id) ON DELETE CASCADE,
+    status_code VARCHAR(50) NOT NULL COMMENT '状态编码',
+    status_name VARCHAR(100) NOT NULL COMMENT '状态名称',
+    status_category VARCHAR(20) COMMENT '状态分类: PENDING, PROCESSING, COMPLETED, CANCELLED, SPECIAL',
+    is_initial BOOLEAN DEFAULT FALSE COMMENT '是否为初始状态',
+    is_final BOOLEAN DEFAULT FALSE COMMENT '是否为终态',
+    color VARCHAR(20) COMMENT '前端显示颜色',
+    icon VARCHAR(50) COMMENT '前端显示图标',
+    sort_order INTEGER DEFAULT 0 COMMENT '排序序号',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(machine_id, status_code)
+);
+
+-- 状态转换规则表
+CREATE TABLE IF NOT EXISTS mes_status_transition (
+    id BIGSERIAL PRIMARY KEY,
+    machine_id BIGINT NOT NULL REFERENCES mes_status_machine(id) ON DELETE CASCADE,
+    from_status VARCHAR(50) NOT NULL COMMENT '源状态',
+    to_status VARCHAR(50) NOT NULL COMMENT '目标状态',
+    transition_action VARCHAR(50) NOT NULL COMMENT '转换动作: RELEASE, START, PAUSE, RESUME, COMPLETE, CANCEL',
+    condition_expression VARCHAR(500) COMMENT '触发条件表达式',
+    event_code VARCHAR(50) COMMENT '触发事件编码',
+    is_auto_transition BOOLEAN DEFAULT FALSE COMMENT '是否自动转换',
+    sort_order INTEGER DEFAULT 0 COMMENT '排序序号',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(machine_id, from_status, to_status)
+);
+
+-- 创建工单类型表索引
+CREATE INDEX idx_work_order_type_code ON mes_work_order_type(type_code);
+CREATE INDEX idx_work_order_type_status ON mes_work_order_type(status);
+
+-- 创建状态机配置表索引
+CREATE INDEX idx_status_machine_code ON mes_status_machine(machine_code);
+CREATE INDEX idx_status_machine_entity_type ON mes_status_machine(entity_type);
+
+-- 创建状态配置表索引
+CREATE INDEX idx_status_config_machine_id ON mes_status_config(machine_id);
+
+-- 创建状态转换规则表索引
+CREATE INDEX idx_status_transition_machine_id ON mes_status_transition(machine_id);

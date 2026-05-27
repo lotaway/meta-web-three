@@ -27,6 +27,8 @@ public class WorkOrderDO {
     private Integer quantity;
     private Integer completedQuantity;
     private String status; // DRAFT, RELEASED, IN_PROGRESS, PAUSED, COMPLETED, CANCELLED
+    private String statusCode; // 可配置状态机的状态码
+    private String typeCode; // 工单类型: NORMAL, REWORK, REPAIR, SAMPLE
     private String priority; // LOW, NORMAL, HIGH, URGENT
     private String workshopId;
     private String processRouteId;

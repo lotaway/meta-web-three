@@ -49,8 +49,8 @@ public class WarehouseController {
     // 入库管理
     @PostMapping("/inbound")
     public ApiResponse<String> createInboundOrder(@RequestBody InboundOrderDTO dto) {
-        String orderNo = warehouseService.createInboundOrder(dto);
-        return ApiResponse.success(orderNo);
+        InboundOrderDTO result = warehouseService.createInboundOrder(dto);
+        return ApiResponse.success(result != null ? result.getOrderNo() : null);
     }
 
     @PostMapping("/inbound/{orderNo}/confirm")

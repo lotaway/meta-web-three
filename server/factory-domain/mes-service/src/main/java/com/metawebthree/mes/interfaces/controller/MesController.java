@@ -1,7 +1,9 @@
 package com.metawebthree.mes.interfaces.controller;
 
+import com.metawebthree.common.annotations.RequirePermission;
 import com.metawebthree.mes.application.command.MesCommandService;
 import com.metawebthree.mes.application.query.MesQueryService;
+import com.metawebthree.mes.common.MesPermissions;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
@@ -20,6 +22,7 @@ public class MesController {
 
     // Work Order endpoints
     @PostMapping("/work-order")
+    @RequirePermission(MesPermissions.WORK_ORDER_CREATE)
     public ResponseEntity<Map<String, Object>> createWorkOrder(@RequestBody Map<String, Object> request) {
         String workOrderNo = (String) request.get("workOrderNo");
         String productCode = (String) request.get("productCode");
@@ -35,24 +38,28 @@ public class MesController {
     }
 
     @PostMapping("/work-order/{id}/release")
+    @RequirePermission(MesPermissions.WORK_ORDER_RELEASE)
     public ResponseEntity<Void> releaseWorkOrder(@PathVariable Long id) {
         commandService.releaseWorkOrder(id);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/work-order/{id}/start")
+    @RequirePermission(MesPermissions.WORK_ORDER_UPDATE)
     public ResponseEntity<Void> startWorkOrder(@PathVariable Long id) {
         commandService.startWorkOrder(id);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/work-order/{id}/complete")
+    @RequirePermission(MesPermissions.WORK_ORDER_UPDATE)
     public ResponseEntity<Void> completeWorkOrder(@PathVariable Long id) {
         commandService.completeWorkOrder(id);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/work-order/{id}")
+    @RequirePermission(MesPermissions.WORK_ORDER_READ)
     public ResponseEntity<?> getWorkOrder(@PathVariable Long id) {
         return queryService.getWorkOrderById(id)
             .map(ResponseEntity::ok)
@@ -60,12 +67,14 @@ public class MesController {
     }
 
     @GetMapping("/work-order/workshop/{workshopId}")
+    @RequirePermission(MesPermissions.WORK_ORDER_READ)
     public ResponseEntity<?> getWorkshopWorkOrders(@PathVariable String workshopId) {
         return ResponseEntity.ok(queryService.getWorkshopWorkOrders(workshopId));
     }
 
     // Task endpoints
     @PostMapping("/task")
+    @RequirePermission(MesPermissions.TASK_CREATE)
     public ResponseEntity<Map<String, Object>> createTask(@RequestBody Map<String, Object> request) {
         String taskNo = (String) request.get("taskNo");
         Long workOrderId = ((Number) request.get("workOrderId")).longValue();
@@ -80,12 +89,14 @@ public class MesController {
     }
 
     @PostMapping("/task/{id}/start")
+    @RequirePermission(MesPermissions.TASK_START)
     public ResponseEntity<Void> startTask(@PathVariable Long id) {
         commandService.startTask(id);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/task/{id}/complete")
+    @RequirePermission(MesPermissions.TASK_COMPLETE)
     public ResponseEntity<Void> completeTask(
             @PathVariable Long id,
             @RequestBody Map<String, Object> request) {
@@ -97,6 +108,7 @@ public class MesController {
 
     // Equipment endpoints
     @GetMapping("/equipment/{id}")
+    @RequirePermission(MesPermissions.EQUIPMENT_READ)
     public ResponseEntity<?> getEquipment(@PathVariable Long id) {
         return queryService.getEquipmentById(id)
             .map(ResponseEntity::ok)
@@ -104,17 +116,20 @@ public class MesController {
     }
 
     @GetMapping("/equipment/workshop/{workshopId}")
+    @RequirePermission(MesPermissions.EQUIPMENT_READ)
     public ResponseEntity<?> getWorkshopEquipment(@PathVariable String workshopId) {
         return ResponseEntity.ok(queryService.getWorkshopEquipment(workshopId));
     }
 
     @PostMapping("/equipment/{id}/breakdown")
+    @RequirePermission(MesPermissions.EQUIPMENT_BREAKDOWN)
     public ResponseEntity<Void> reportBreakdown(@PathVariable Long id) {
         commandService.reportEquipmentBreakdown(id);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/equipment/{id}/repair")
+    @RequirePermission(MesPermissions.EQUIPMENT_REPAIR)
     public ResponseEntity<Void> repairEquipment(@PathVariable Long id) {
         commandService.repairEquipment(id);
         return ResponseEntity.ok().build();

@@ -23,33 +23,30 @@ public class BaseEvent {
     /**
      * Unique event identifier.
      */
-    @SuperBuilder.Default
-    private String eventId = UUID.randomUUID().toString();
+    protected String eventId = UUID.randomUUID().toString();
 
     /**
      * Event type, e.g., ORDER_CREATED, INVENTORY_RESERVED.
      */
-    private EventType eventType;
+    protected EventType eventType;
 
     /**
      * Timestamp when event was created.
      */
-    @SuperBuilder.Default
-    private Instant timestamp = Instant.now();
+    protected Instant timestamp = Instant.now();
 
     /**
      * Correlation ID for tracking related events.
      */
-    private String correlationId;
+    protected String correlationId;
 
     /**
      * Source service that published this event.
      */
-    private String sourceService;
+    protected String sourceService;
 
     /**
      * Payload version for schema evolution.
      */
-    @SuperBuilder.Default
-    private int version = 1;
+    protected int version = 1;
 }

@@ -1,7 +1,9 @@
 package com.metawebthree.mes.interfaces.controller;
 
+import com.metawebthree.common.annotations.RequirePermission;
 import com.metawebthree.mes.application.command.ProductionTaskCommandService;
 import com.metawebthree.mes.application.query.ProductionTaskQueryService;
+import com.metawebthree.mes.common.MesPermissions;
 import com.metawebthree.mes.domain.entity.EntityExtensionFieldValue;
 import com.metawebthree.mes.domain.entity.ProductionTask;
 import com.metawebthree.mes.interfaces.dto.EntityExtensionFieldValueDTO;
@@ -30,6 +32,7 @@ public class ProductionTaskController {
     }
     
     @PostMapping
+    @RequirePermission(MesPermissions.TASK_CREATE)
     public ResponseEntity<ProductionTaskDTO> create(@RequestBody CreateRequest request) {
         ProductionTask task = commandService.createTask(
                 request.getTaskNo(),
@@ -43,12 +46,14 @@ public class ProductionTaskController {
     }
     
     @PostMapping("/{id}/start")
+    @RequirePermission(MesPermissions.TASK_START)
     public ResponseEntity<ProductionTaskDTO> start(@PathVariable Long id) {
         ProductionTask task = commandService.startTask(id);
         return ResponseEntity.ok(ProductionTaskDTO.fromEntity(task));
     }
     
     @PostMapping("/{id}/complete")
+    @RequirePermission(MesPermissions.TASK_COMPLETE)
     public ResponseEntity<ProductionTaskDTO> complete(
             @PathVariable Long id,
             @RequestBody CompleteRequest request) {
@@ -75,6 +80,7 @@ public class ProductionTaskController {
     }
     
     @PutMapping("/{id}")
+    @RequirePermission(MesPermissions.TASK_UPDATE)
     public ResponseEntity<ProductionTaskDTO> update(
             @PathVariable Long id,
             @RequestBody UpdateRequest request) {
@@ -89,12 +95,14 @@ public class ProductionTaskController {
     }
     
     @DeleteMapping("/{id}")
+    @RequirePermission(MesPermissions.TASK_UPDATE)
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         commandService.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
     
     @GetMapping("/{id}")
+    @RequirePermission(MesPermissions.TASK_READ)
     public ResponseEntity<ProductionTaskDTO> getById(@PathVariable Long id) {
         return queryService.findById(id)
                 .map(task -> ResponseEntity.ok(ProductionTaskDTO.fromEntity(task)))
@@ -102,6 +110,7 @@ public class ProductionTaskController {
     }
     
     @GetMapping("/no/{taskNo}")
+    @RequirePermission(MesPermissions.TASK_READ)
     public ResponseEntity<ProductionTaskDTO> getByTaskNo(@PathVariable String taskNo) {
         return queryService.findByTaskNo(taskNo)
                 .map(task -> ResponseEntity.ok(ProductionTaskDTO.fromEntity(task)))
@@ -109,6 +118,7 @@ public class ProductionTaskController {
     }
     
     @GetMapping("/work-order/{workOrderId}")
+    @RequirePermission(MesPermissions.TASK_READ)
     public ResponseEntity<List<ProductionTaskDTO>> getByWorkOrderId(@PathVariable Long workOrderId) {
         List<ProductionTaskDTO> tasks = queryService.findByWorkOrderId(workOrderId).stream()
                 .map(ProductionTaskDTO::fromEntity)
@@ -117,6 +127,7 @@ public class ProductionTaskController {
     }
     
     @GetMapping("/status/{status}")
+    @RequirePermission(MesPermissions.TASK_READ)
     public ResponseEntity<List<ProductionTaskDTO>> getByStatus(@PathVariable String status) {
         ProductionTask.TaskStatus taskStatus = ProductionTask.TaskStatus.valueOf(status);
         List<ProductionTaskDTO> tasks = queryService.findByStatus(taskStatus).stream()
@@ -126,6 +137,7 @@ public class ProductionTaskController {
     }
     
     @GetMapping("/workstation/{workstationId}")
+    @RequirePermission(MesPermissions.TASK_READ)
     public ResponseEntity<List<ProductionTaskDTO>> getByWorkstationId(@PathVariable String workstationId) {
         List<ProductionTaskDTO> tasks = queryService.findByWorkstationId(workstationId).stream()
                 .map(ProductionTaskDTO::fromEntity)
@@ -134,6 +146,7 @@ public class ProductionTaskController {
     }
     
     @GetMapping
+    @RequirePermission(MesPermissions.TASK_READ)
     public ResponseEntity<List<ProductionTaskDTO>> getAll() {
         List<ProductionTaskDTO> tasks = queryService.findAll().stream()
                 .map(ProductionTaskDTO::fromEntity)

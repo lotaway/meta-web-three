@@ -1,7 +1,9 @@
 package com.metawebthree.mes.interfaces.controller;
 
+import com.metawebthree.common.annotations.RequirePermission;
 import com.metawebthree.mes.application.command.ConfigurationCommandService;
 import com.metawebthree.mes.application.query.ConfigurationQueryService;
+import com.metawebthree.mes.common.MesPermissions;
 import com.metawebthree.mes.domain.entity.CodeRule;
 import com.metawebthree.mes.domain.entity.EntityExtensionFieldValue;
 import com.metawebthree.mes.interfaces.dto.CodeRuleDTO;
@@ -29,6 +31,7 @@ public class ConfigurationController {
     }
     
     @GetMapping("/extension-fields")
+    @RequirePermission(MesPermissions.CONFIG_READ)
     public ResponseEntity<List<EntityExtensionFieldDTO>> getExtensionFields(
             @RequestParam String entityType) {
         List<EntityExtensionFieldDTO> dtos = queryService.getAllExtensionFields(entityType).stream()
@@ -38,6 +41,7 @@ public class ConfigurationController {
     }
     
     @GetMapping("/extension-fields/{id}")
+    @RequirePermission(MesPermissions.CONFIG_READ)
     public ResponseEntity<EntityExtensionFieldDTO> getExtensionField(@PathVariable Long id) {
         return queryService.getExtensionField(id)
                 .map(field -> ResponseEntity.ok(EntityExtensionFieldDTO.fromEntity(field)))
@@ -45,6 +49,7 @@ public class ConfigurationController {
     }
     
     @PostMapping("/extension-fields")
+    @RequirePermission(MesPermissions.CONFIG_CREATE)
     public ResponseEntity<Void> createExtensionField(@RequestBody Map<String, Object> request) {
         String entityType = (String) request.get("entityType");
         String fieldCode = (String) request.get("fieldCode");
@@ -63,6 +68,7 @@ public class ConfigurationController {
     }
     
     @PutMapping("/extension-fields/{id}")
+    @RequirePermission(MesPermissions.CONFIG_UPDATE)
     public ResponseEntity<Void> updateExtensionField(
             @PathVariable Long id,
             @RequestBody Map<String, Object> request) {
@@ -82,12 +88,14 @@ public class ConfigurationController {
     }
     
     @DeleteMapping("/extension-fields/{id}")
+    @RequirePermission(MesPermissions.CONFIG_DELETE)
     public ResponseEntity<Void> deleteExtensionField(@PathVariable Long id) {
         commandService.deleteExtensionField(id);
         return ResponseEntity.ok().build();
     }
     
     @GetMapping("/entities/{entityType}/{entityId}/extension-values")
+    @RequirePermission(MesPermissions.CONFIG_READ)
     public ResponseEntity<List<EntityExtensionFieldValueDTO>> getExtensionFieldValues(
             @PathVariable String entityType,
             @PathVariable Long entityId) {
@@ -108,6 +116,7 @@ public class ConfigurationController {
     }
     
     @GetMapping("/dictionaries")
+    @RequirePermission(MesPermissions.CONFIG_READ)
     public ResponseEntity<List<DataDictionaryDTO>> getAllDictionaries() {
         List<DataDictionaryDTO> dtos = queryService.getAllActiveDictionaries().stream()
                 .map(DataDictionaryDTO::fromEntity)
@@ -116,6 +125,7 @@ public class ConfigurationController {
     }
     
     @GetMapping("/dictionaries/{id}")
+    @RequirePermission(MesPermissions.CONFIG_READ)
     public ResponseEntity<DataDictionaryDTO> getDictionary(@PathVariable Long id) {
         return queryService.getDictionary(id)
                 .map(dict -> ResponseEntity.ok(DataDictionaryDTO.fromEntity(dict)))
@@ -176,6 +186,7 @@ public class ConfigurationController {
     }
     
     @PostMapping("/dictionaries")
+    @RequirePermission(MesPermissions.CONFIG_CREATE)
     public ResponseEntity<Void> createDictionary(@RequestBody Map<String, Object> request) {
         String dictCode = (String) request.get("dictCode");
         String dictName = (String) request.get("dictName");
@@ -226,6 +237,7 @@ public class ConfigurationController {
     }
     
     @GetMapping("/code-rules")
+    @RequirePermission(MesPermissions.CONFIG_READ)
     public ResponseEntity<List<CodeRuleDTO>> getAllCodeRules() {
         List<CodeRuleDTO> dtos = queryService.getAllActiveCodeRules().stream()
                 .map(CodeRuleDTO::fromEntity)
@@ -234,6 +246,7 @@ public class ConfigurationController {
     }
     
     @GetMapping("/code-rules/{id}")
+    @RequirePermission(MesPermissions.CONFIG_READ)
     public ResponseEntity<CodeRuleDTO> getCodeRule(@PathVariable Long id) {
         return queryService.getCodeRule(id)
                 .map(rule -> ResponseEntity.ok(CodeRuleDTO.fromEntity(rule)))
@@ -241,6 +254,7 @@ public class ConfigurationController {
     }
     
     @GetMapping("/code-rules/business-type/{businessType}")
+    @RequirePermission(MesPermissions.CONFIG_READ)
     public ResponseEntity<CodeRuleDTO> getCodeRuleByBusinessType(@PathVariable String businessType) {
         return queryService.getCodeRuleByBusinessType(businessType)
                 .map(rule -> ResponseEntity.ok(CodeRuleDTO.fromEntity(rule)))
@@ -248,6 +262,7 @@ public class ConfigurationController {
     }
     
     @PostMapping("/code-rules")
+    @RequirePermission(MesPermissions.CONFIG_CREATE)
     public ResponseEntity<Void> createCodeRule(@RequestBody Map<String, Object> request) {
         String ruleCode = (String) request.get("ruleCode");
         String ruleName = (String) request.get("ruleName");
@@ -266,6 +281,7 @@ public class ConfigurationController {
     }
     
     @PostMapping("/code-rules/{ruleId}/elements")
+    @RequirePermission(MesPermissions.CONFIG_UPDATE)
     public ResponseEntity<Void> addCodeRuleElement(
             @PathVariable Long ruleId,
             @RequestBody Map<String, Object> request) {
@@ -280,12 +296,14 @@ public class ConfigurationController {
     }
     
     @PostMapping("/code-rules/{ruleId}/reset")
+    @RequirePermission(MesPermissions.CONFIG_UPDATE)
     public ResponseEntity<Void> resetCodeRuleSequence(@PathVariable Long ruleId) {
         commandService.resetCodeRuleSequence(ruleId);
         return ResponseEntity.ok().build();
     }
     
     @GetMapping("/code-rules/generate/{businessType}")
+    @RequirePermission(MesPermissions.CONFIG_READ)
     public ResponseEntity<Map<String, String>> generateCode(
             @PathVariable String businessType,
             @RequestParam(required = false) Map<String, String> businessFields) {
@@ -296,6 +314,7 @@ public class ConfigurationController {
     }
     
     @GetMapping("/code-rules/preview/{businessType}")
+    @RequirePermission(MesPermissions.CONFIG_READ)
     public ResponseEntity<Map<String, String>> previewCode(@PathVariable String businessType) {
         return queryService.previewCode(businessType)
                 .map(preview -> ResponseEntity.ok(Map.of("preview", preview)))

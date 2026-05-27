@@ -1,5 +1,7 @@
 package com.metawebthree.finance.interfaces.controller;
 
+import com.metawebthree.common.annotations.RequirePermission;
+import com.metawebthree.finance.common.ERPPermissions;
 import com.metawebthree.finance.application.command.AccountCommandService;
 import com.metawebthree.finance.application.query.AccountQueryService;
 import com.metawebthree.finance.domain.entity.Account;
@@ -19,12 +21,15 @@ public class AccountController {
         this.queryService = queryService;
     }
 
+    @RequirePermission(ERPPermissions.ACCOUNT_CREATE)
     @PostMapping
-    public ResponseEntity<Long> createAccount(@RequestBody AccountCreateRequest request) {
+    public ResponseEntity<Long> createAccount(@RequestBody AccountCreateRequest request,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId) {
         Long id = commandService.createAccount(request.getAccountNo(), request.getAccountName(), request.getType());
         return ResponseEntity.ok(id);
     }
 
+    @RequirePermission(ERPPermissions.ACCOUNT_READ)
     @GetMapping("/{id}")
     public ResponseEntity<Account> getAccount(@PathVariable Long id) {
         return queryService.getById(id)
@@ -32,6 +37,7 @@ public class AccountController {
             .orElse(ResponseEntity.notFound().build());
     }
 
+    @RequirePermission(ERPPermissions.ACCOUNT_READ)
     @GetMapping
     public ResponseEntity<List<Account>> listAccounts(@RequestParam(required = false) String status,
                                                        @RequestParam(required = false) String type) {
@@ -46,32 +52,42 @@ public class AccountController {
         return ResponseEntity.ok(accounts);
     }
 
+    @RequirePermission(ERPPermissions.ACCOUNT_UPDATE)
     @PostMapping("/{id}/freeze")
-    public ResponseEntity<Void> freezeAccount(@PathVariable Long id) {
+    public ResponseEntity<Void> freezeAccount(@PathVariable Long id,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId) {
         commandService.freezeAccount(id);
         return ResponseEntity.ok().build();
     }
 
+    @RequirePermission(ERPPermissions.ACCOUNT_UPDATE)
     @PostMapping("/{id}/unfreeze")
-    public ResponseEntity<Void> unfreezeAccount(@PathVariable Long id) {
+    public ResponseEntity<Void> unfreezeAccount(@PathVariable Long id,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId) {
         commandService.unfreezeAccount(id);
         return ResponseEntity.ok().build();
     }
 
+    @RequirePermission(ERPPermissions.ACCOUNT_UPDATE)
     @PostMapping("/{id}/close")
-    public ResponseEntity<Void> closeAccount(@PathVariable Long id) {
+    public ResponseEntity<Void> closeAccount(@PathVariable Long id,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId) {
         commandService.closeAccount(id);
         return ResponseEntity.ok().build();
     }
 
+    @RequirePermission(ERPPermissions.ACCOUNT_UPDATE)
     @PostMapping("/{id}/credit")
-    public ResponseEntity<Void> credit(@PathVariable Long id, @RequestParam BigDecimal amount) {
+    public ResponseEntity<Void> credit(@PathVariable Long id, @RequestParam BigDecimal amount,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId) {
         commandService.credit(id, amount);
         return ResponseEntity.ok().build();
     }
 
+    @RequirePermission(ERPPermissions.ACCOUNT_UPDATE)
     @PostMapping("/{id}/debit")
-    public ResponseEntity<Void> debit(@PathVariable Long id, @RequestParam BigDecimal amount) {
+    public ResponseEntity<Void> debit(@PathVariable Long id, @RequestParam BigDecimal amount,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId) {
         commandService.debit(id, amount);
         return ResponseEntity.ok().build();
     }

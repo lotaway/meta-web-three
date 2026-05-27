@@ -1,7 +1,9 @@
 package com.metawebthree.mes.interfaces.controller;
 
+import com.metawebthree.common.annotations.RequirePermission;
 import com.metawebthree.mes.application.command.ProcessParameterCommandService;
 import com.metawebthree.mes.application.query.ProcessParameterQueryService;
+import com.metawebthree.mes.common.MesPermissions;
 import com.metawebthree.mes.domain.entity.ProcessParameter;
 import com.metawebthree.mes.interfaces.dto.ProcessParameterDTO;
 import org.springframework.http.HttpStatus;
@@ -29,6 +31,7 @@ public class ProcessParameterController {
     }
     
     @PostMapping
+    @RequirePermission(MesPermissions.PROCESS_PARAMETER_CREATE)
     public ResponseEntity<ProcessParameterDTO> create(@RequestBody ProcessParameterRequest request) {
         ProcessParameter param = commandService.createParameter(
                 request.getParamCode(),
@@ -56,6 +59,7 @@ public class ProcessParameterController {
     }
     
     @PutMapping("/{id}")
+    @RequirePermission(MesPermissions.PROCESS_PARAMETER_UPDATE)
     public ResponseEntity<ProcessParameterDTO> update(@PathVariable Long id, @RequestBody ProcessParameterRequest request) {
         ProcessParameter existing = queryService.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("参数不存在: " + id));
@@ -95,6 +99,7 @@ public class ProcessParameterController {
     }
     
     @DeleteMapping("/{id}")
+    @RequirePermission(MesPermissions.PROCESS_PARAMETER_DELETE)
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         commandService.deleteParameter(id);
         return ResponseEntity.noContent().build();
@@ -107,6 +112,7 @@ public class ProcessParameterController {
     }
     
     @GetMapping("/{id}")
+    @RequirePermission(MesPermissions.PROCESS_PARAMETER_READ)
     public ResponseEntity<ProcessParameterDTO> getById(@PathVariable Long id) {
         return queryService.findById(id)
                 .map(param -> ResponseEntity.ok(ProcessParameterDTO.fromEntity(param)))
@@ -114,6 +120,7 @@ public class ProcessParameterController {
     }
     
     @GetMapping("/code/{paramCode}")
+    @RequirePermission(MesPermissions.PROCESS_PARAMETER_READ)
     public ResponseEntity<ProcessParameterDTO> getByParamCode(@PathVariable String paramCode) {
         return queryService.findByParamCode(paramCode)
                 .map(param -> ResponseEntity.ok(ProcessParameterDTO.fromEntity(param)))
@@ -121,6 +128,7 @@ public class ProcessParameterController {
     }
     
     @GetMapping("/route/{routeId}")
+    @RequirePermission(MesPermissions.PROCESS_PARAMETER_READ)
     public ResponseEntity<List<ProcessParameterDTO>> getByRouteId(@PathVariable Long routeId) {
         List<ProcessParameterDTO> params = queryService.findByRouteId(routeId).stream()
                 .map(ProcessParameterDTO::fromEntity)
@@ -129,6 +137,7 @@ public class ProcessParameterController {
     }
     
     @GetMapping("/route-code/{routeCode}")
+    @RequirePermission(MesPermissions.PROCESS_PARAMETER_READ)
     public ResponseEntity<List<ProcessParameterDTO>> getByRouteCode(@PathVariable String routeCode) {
         List<ProcessParameterDTO> params = queryService.findByRouteCode(routeCode).stream()
                 .map(ProcessParameterDTO::fromEntity)
@@ -137,6 +146,7 @@ public class ProcessParameterController {
     }
     
     @GetMapping("/step/{routeId}/{stepNo}")
+    @RequirePermission(MesPermissions.PROCESS_PARAMETER_READ)
     public ResponseEntity<List<ProcessParameterDTO>> getByStep(
             @PathVariable Long routeId,
             @PathVariable Integer stepNo) {
@@ -147,6 +157,7 @@ public class ProcessParameterController {
     }
     
     @GetMapping("/type/{paramType}")
+    @RequirePermission(MesPermissions.PROCESS_PARAMETER_READ)
     public ResponseEntity<List<ProcessParameterDTO>> getByParamType(
             @PathVariable ProcessParameter.ParamType paramType) {
         List<ProcessParameterDTO> params = queryService.findByParamType(paramType).stream()
@@ -156,6 +167,7 @@ public class ProcessParameterController {
     }
     
     @GetMapping("/active")
+    @RequirePermission(MesPermissions.PROCESS_PARAMETER_READ)
     public ResponseEntity<List<ProcessParameterDTO>> getActiveParameters() {
         List<ProcessParameterDTO> params = queryService.findActiveParameters().stream()
                 .map(ProcessParameterDTO::fromEntity)
@@ -164,6 +176,7 @@ public class ProcessParameterController {
     }
     
     @GetMapping("/group/{paramGroup}")
+    @RequirePermission(MesPermissions.PROCESS_PARAMETER_READ)
     public ResponseEntity<List<ProcessParameterDTO>> getByParamGroup(@PathVariable String paramGroup) {
         List<ProcessParameterDTO> params = queryService.findByParamGroup(paramGroup).stream()
                 .map(ProcessParameterDTO::fromEntity)
