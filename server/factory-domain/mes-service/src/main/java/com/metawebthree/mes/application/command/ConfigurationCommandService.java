@@ -1,5 +1,6 @@
 package com.metawebthree.mes.application.command;
 
+import com.metawebthree.mes.domain.config.WorkOrderType;
 import com.metawebthree.mes.domain.entity.CodeRule;
 import com.metawebthree.mes.domain.entity.DataDictionary;
 import com.metawebthree.mes.domain.entity.EntityExtensionField;
@@ -8,6 +9,7 @@ import com.metawebthree.mes.domain.repository.CodeRuleRepository;
 import com.metawebthree.mes.domain.repository.DataDictionaryRepository;
 import com.metawebthree.mes.domain.repository.EntityExtensionFieldRepository;
 import com.metawebthree.mes.domain.repository.EntityExtensionFieldValueRepository;
+import com.metawebthree.mes.domain.repository.WorkOrderTypeRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -19,16 +21,19 @@ public class ConfigurationCommandService {
     private final EntityExtensionFieldValueRepository fieldValueRepository;
     private final DataDictionaryRepository dictionaryRepository;
     private final CodeRuleRepository codeRuleRepository;
+    private final WorkOrderTypeRepository workOrderTypeRepository;
     
     public ConfigurationCommandService(
             EntityExtensionFieldRepository fieldRepository,
             EntityExtensionFieldValueRepository fieldValueRepository,
             DataDictionaryRepository dictionaryRepository,
-            CodeRuleRepository codeRuleRepository) {
+            CodeRuleRepository codeRuleRepository,
+            WorkOrderTypeRepository workOrderTypeRepository) {
         this.fieldRepository = fieldRepository;
         this.fieldValueRepository = fieldValueRepository;
         this.dictionaryRepository = dictionaryRepository;
         this.codeRuleRepository = codeRuleRepository;
+        this.workOrderTypeRepository = workOrderTypeRepository;
     }
     
     public void createExtensionField(String entityType, String fieldCode, String fieldName,
@@ -202,5 +207,68 @@ public class ConfigurationCommandService {
         
         codeRule.resetSequence();
         codeRuleRepository.save(codeRule);
+    }
+    
+    // ==================== Work Order Type Operations ====================
+    
+    public WorkOrderType createWorkOrderType(String typeCode, String typeName, String description,
+                                              String statusMachineCode, String processRouteTemplate,
+                                              Boolean isDefault, Integer sortOrder) {
+        
+        if (workOrderTypeRepository.findByTypeCode(typeCode).isPresent()) {
+            throw new IllegalArgumentException("Work order type code already exists: " + typeCode);
+        }
+        
+        // If setting as default, clear other defaults
+        if (Boolean.TRUE.equals(isDefault)) {
+            workOrderTypeRepository.findByIsDefaultTrue()
+                    .ifPresent(defaultType -> {
+                        defaultType.setIsDefault(false);
+                        workOrderTypeRepository.update(defaultType);
+                    });
+        }
+        
+        WorkOrderType workOrderType = new WorkOrderType();
+        workOrderType.setTypeCode(typeCode);
+        workOrderType.setTypeName(typeName);
+        workOrderType.setDescription(description);
+        workOrderType.setStatusMachineCode(statusMachineCode);
+        workOrderType.setProcessRouteTemplate(processRouteTemplate);
+        workOrderType.setIsDefault(isDefault != null ? isDefault : false);
+        workOrderType.setSortOrder(sortOrder != null ? sortOrder : 0);
+        workOrderType.setStatus("ACTIVE");
+        
+        return workOrderTypeRepository.save(workOrderType);
+    }
+    
+    public void updateWorkOrderType(Long id, String typeName, String description,
+                                    String statusMachineCode, String processRouteTemplate,
+                                    Boolean isDefault, Integer sortOrder, String status) {
+        
+        WorkOrderType workOrderType = workOrderTypeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Work order type not found: " + id));
+        
+        // If setting as default, clear other defaults
+        if (Boolean.TRUE.equals(isDefault) && !Boolean.TRUE.equals(workOrderType.getIsDefault())) {
+            workOrderTypeRepository.findByIsDefaultTrue()
+                    .ifPresent(defaultType -> {
+                        defaultType.setIsDefault(false);
+                        workOrderTypeRepository.update(defaultType);
+                    });
+        }
+        
+        if (typeName != null) workOrderType.setTypeName(typeName);
+        if (description != null) workOrderType.setDescription(description);
+        if (statusMachineCode != null) workOrderType.setStatusMachineCode(statusMachineCode);
+        if (processRouteTemplate != null) workOrderType.setProcessRouteTemplate(processRouteTemplate);
+        if (isDefault != null) workOrderType.setIsDefault(isDefault);
+        if (sortOrder != null) workOrderType.setSortOrder(sortOrder);
+        if (status != null) workOrderType.setStatus(status);
+        
+        workOrderTypeRepository.update(workOrderType);
+    }
+    
+    public void deleteWorkOrderType(Long id) {
+        workOrderTypeRepository.deleteById(id);
     }
 }

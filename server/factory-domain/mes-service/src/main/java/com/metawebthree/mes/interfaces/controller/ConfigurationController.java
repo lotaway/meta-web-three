@@ -4,12 +4,14 @@ import com.metawebthree.common.annotations.RequirePermission;
 import com.metawebthree.mes.application.command.ConfigurationCommandService;
 import com.metawebthree.mes.application.query.ConfigurationQueryService;
 import com.metawebthree.mes.common.MesPermissions;
+import com.metawebthree.mes.domain.config.WorkOrderType;
 import com.metawebthree.mes.domain.entity.CodeRule;
 import com.metawebthree.mes.domain.entity.EntityExtensionFieldValue;
 import com.metawebthree.mes.interfaces.dto.CodeRuleDTO;
 import com.metawebthree.mes.interfaces.dto.DataDictionaryDTO;
 import com.metawebthree.mes.interfaces.dto.EntityExtensionFieldDTO;
 import com.metawebthree.mes.interfaces.dto.EntityExtensionFieldValueDTO;
+import com.metawebthree.mes.interfaces.dto.WorkOrderTypeDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -319,5 +321,94 @@ public class ConfigurationController {
         return queryService.previewCode(businessType)
                 .map(preview -> ResponseEntity.ok(Map.of("preview", preview)))
                 .orElse(ResponseEntity.notFound().build());
+    }
+    
+    // ==================== Work Order Type APIs ====================
+    
+    @GetMapping("/work-order-types")
+    @RequirePermission(MesPermissions.CONFIG_READ)
+    public ResponseEntity<List<WorkOrderTypeDTO>> getAllWorkOrderTypes() {
+        List<WorkOrderTypeDTO> dtos = queryService.getAllWorkOrderTypes().stream()
+                .map(WorkOrderTypeDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
+    
+    @GetMapping("/work-order-types/active")
+    @RequirePermission(MesPermissions.CONFIG_READ)
+    public ResponseEntity<List<WorkOrderTypeDTO>> getActiveWorkOrderTypes() {
+        List<WorkOrderTypeDTO> dtos = queryService.getActiveWorkOrderTypes().stream()
+                .map(WorkOrderTypeDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
+    
+    @GetMapping("/work-order-types/{id}")
+    @RequirePermission(MesPermissions.CONFIG_READ)
+    public ResponseEntity<WorkOrderTypeDTO> getWorkOrderType(@PathVariable Long id) {
+        return queryService.getWorkOrderTypeById(id)
+                .map(type -> ResponseEntity.ok(WorkOrderTypeDTO.fromEntity(type)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+    
+    @GetMapping("/work-order-types/code/{typeCode}")
+    @RequirePermission(MesPermissions.CONFIG_READ)
+    public ResponseEntity<WorkOrderTypeDTO> getWorkOrderTypeByCode(@PathVariable String typeCode) {
+        return queryService.getWorkOrderTypeByCode(typeCode)
+                .map(type -> ResponseEntity.ok(WorkOrderTypeDTO.fromEntity(type)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+    
+    @GetMapping("/work-order-types/default")
+    @RequirePermission(MesPermissions.CONFIG_READ)
+    public ResponseEntity<WorkOrderTypeDTO> getDefaultWorkOrderType() {
+        return queryService.getDefaultWorkOrderType()
+                .map(type -> ResponseEntity.ok(WorkOrderTypeDTO.fromEntity(type)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+    
+    @PostMapping("/work-order-types")
+    @RequirePermission(MesPermissions.CONFIG_CREATE)
+    public ResponseEntity<WorkOrderTypeDTO> createWorkOrderType(@RequestBody Map<String, Object> request) {
+        String typeCode = (String) request.get("typeCode");
+        String typeName = (String) request.get("typeName");
+        String description = (String) request.get("description");
+        String statusMachineCode = (String) request.get("statusMachineCode");
+        String processRouteTemplate = (String) request.get("processRouteTemplate");
+        Boolean isDefault = (Boolean) request.get("isDefault");
+        Integer sortOrder = (Integer) request.get("sortOrder");
+        
+        WorkOrderType created = commandService.createWorkOrderType(
+                typeCode, typeName, description, statusMachineCode, processRouteTemplate,
+                isDefault, sortOrder);
+        
+        return ResponseEntity.status(201).body(WorkOrderTypeDTO.fromEntity(created));
+    }
+    
+    @PutMapping("/work-order-types/{id}")
+    @RequirePermission(MesPermissions.CONFIG_UPDATE)
+    public ResponseEntity<Void> updateWorkOrderType(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> request) {
+        
+        String typeName = (String) request.get("typeName");
+        String description = (String) request.get("description");
+        String statusMachineCode = (String) request.get("statusMachineCode");
+        String processRouteTemplate = (String) request.get("processRouteTemplate");
+        Boolean isDefault = (Boolean) request.get("isDefault");
+        Integer sortOrder = (Integer) request.get("sortOrder");
+        String status = (String) request.get("status");
+        
+        commandService.updateWorkOrderType(id, typeName, description, statusMachineCode,
+                processRouteTemplate, isDefault, sortOrder, status);
+        
+        return ResponseEntity.ok().build();
+    }
+    
+    @DeleteMapping("/work-order-types/{id}")
+    @RequirePermission(MesPermissions.CONFIG_DELETE)
+    public ResponseEntity<Void> deleteWorkOrderType(@PathVariable Long id) {
+        commandService.deleteWorkOrderType(id);
+        return ResponseEntity.ok().build();
     }
 }

@@ -1,5 +1,6 @@
 package com.metawebthree.mes.application.query;
 
+import com.metawebthree.mes.domain.config.WorkOrderType;
 import com.metawebthree.mes.domain.entity.CodeRule;
 import com.metawebthree.mes.domain.entity.DataDictionary;
 import com.metawebthree.mes.domain.entity.EntityExtensionField;
@@ -8,6 +9,7 @@ import com.metawebthree.mes.domain.repository.CodeRuleRepository;
 import com.metawebthree.mes.domain.repository.DataDictionaryRepository;
 import com.metawebthree.mes.domain.repository.EntityExtensionFieldRepository;
 import com.metawebthree.mes.domain.repository.EntityExtensionFieldValueRepository;
+import com.metawebthree.mes.domain.repository.WorkOrderTypeRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -23,16 +25,19 @@ public class ConfigurationQueryService {
     private final EntityExtensionFieldValueRepository fieldValueRepository;
     private final DataDictionaryRepository dictionaryRepository;
     private final CodeRuleRepository codeRuleRepository;
+    private final WorkOrderTypeRepository workOrderTypeRepository;
     
     public ConfigurationQueryService(
             EntityExtensionFieldRepository fieldRepository,
             EntityExtensionFieldValueRepository fieldValueRepository,
             DataDictionaryRepository dictionaryRepository,
-            CodeRuleRepository codeRuleRepository) {
+            CodeRuleRepository codeRuleRepository,
+            WorkOrderTypeRepository workOrderTypeRepository) {
         this.fieldRepository = fieldRepository;
         this.fieldValueRepository = fieldValueRepository;
         this.dictionaryRepository = dictionaryRepository;
         this.codeRuleRepository = codeRuleRepository;
+        this.workOrderTypeRepository = workOrderTypeRepository;
     }
     
     public List<EntityExtensionField> getAllExtensionFields(String entityType) {
@@ -118,5 +123,27 @@ public class ConfigurationQueryService {
                 .replace("YY", String.format("%02d", now.getYear() % 100))
                 .replace("MM", String.format("%02d", now.getMonthValue()))
                 .replace("DD", String.format("%02d", now.getDayOfMonth()));
+    }
+    
+    // ==================== Work Order Type Queries ====================
+    
+    public List<WorkOrderType> getAllWorkOrderTypes() {
+        return workOrderTypeRepository.findAll();
+    }
+    
+    public Optional<WorkOrderType> getWorkOrderTypeById(Long id) {
+        return workOrderTypeRepository.findById(id);
+    }
+    
+    public Optional<WorkOrderType> getWorkOrderTypeByCode(String typeCode) {
+        return workOrderTypeRepository.findByTypeCode(typeCode);
+    }
+    
+    public Optional<WorkOrderType> getDefaultWorkOrderType() {
+        return workOrderTypeRepository.findByIsDefaultTrue();
+    }
+    
+    public List<WorkOrderType> getActiveWorkOrderTypes() {
+        return workOrderTypeRepository.findByStatus("ACTIVE");
     }
 }
