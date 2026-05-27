@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -399,5 +400,125 @@ public class ConfigurationController {
     public ResponseEntity<Void> deleteWorkOrderType(@PathVariable Long id) {
         commandService.deleteWorkOrderType(id);
         return ResponseEntity.ok().build();
+    }
+    
+    // ==================== Product SN Rule Binding APIs ====================
+    
+    @GetMapping("/product-sn-rules")
+    @RequirePermission(MesPermissions.CONFIG_READ)
+    public ResponseEntity<List<Map<String, Object>>> getAllProductSnRules() {
+        List<Map<String, Object>> rules = queryService.getAllActiveProductSnRules().stream()
+                .map(rule -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", rule.getId());
+                    map.put("productId", rule.getProductId());
+                    map.put("productCode", rule.getProductCode());
+                    map.put("codeRuleId", rule.getCodeRuleId());
+                    map.put("ruleCode", rule.getRuleCode());
+                    map.put("isActive", rule.getIsActive());
+                    map.put("description", rule.getDescription() != null ? rule.getDescription() : "");
+                    return map;
+                })
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(rules);
+    }
+    
+    @GetMapping("/product-sn-rules/product/{productId}")
+    @RequirePermission(MesPermissions.CONFIG_READ)
+    public ResponseEntity<Map<String, Object>> getProductSnRuleByProductId(@PathVariable Long productId) {
+        return queryService.getProductSnRuleByProductId(productId)
+                .map(rule -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", rule.getId());
+                    map.put("productId", rule.getProductId());
+                    map.put("productCode", rule.getProductCode());
+                    map.put("codeRuleId", rule.getCodeRuleId());
+                    map.put("ruleCode", rule.getRuleCode());
+                    map.put("isActive", rule.getIsActive());
+                    map.put("description", rule.getDescription() != null ? rule.getDescription() : "");
+                    return ResponseEntity.ok(map);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+    
+    @GetMapping("/product-sn-rules/product-code/{productCode}")
+    @RequirePermission(MesPermissions.CONFIG_READ)
+    public ResponseEntity<Map<String, Object>> getProductSnRuleByProductCode(@PathVariable String productCode) {
+        return queryService.getProductSnRuleByProductCode(productCode)
+                .map(rule -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", rule.getId());
+                    map.put("productId", rule.getProductId());
+                    map.put("productCode", rule.getProductCode());
+                    map.put("codeRuleId", rule.getCodeRuleId());
+                    map.put("ruleCode", rule.getRuleCode());
+                    map.put("isActive", rule.getIsActive());
+                    map.put("description", rule.getDescription() != null ? rule.getDescription() : "");
+                    return ResponseEntity.ok(map);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+    
+    @PostMapping("/product-sn-rules")
+    @RequirePermission(MesPermissions.CONFIG_CREATE)
+    public ResponseEntity<Void> bindProductSnRule(@RequestBody Map<String, Object> request) {
+        Long productId = ((Number) request.get("productId")).longValue();
+        String productCode = (String) request.get("productCode");
+        Long codeRuleId = ((Number) request.get("codeRuleId")).longValue();
+        String ruleCode = (String) request.get("ruleCode");
+        String description = (String) request.get("description");
+        
+        commandService.bindProductSnRule(productId, productCode, codeRuleId, ruleCode, description);
+        
+        return ResponseEntity.status(201).build();
+    }
+    
+    @DeleteMapping("/product-sn-rules/product/{productId}")
+    @RequirePermission(MesPermissions.CONFIG_DELETE)
+    public ResponseEntity<Void> unbindProductSnRule(@PathVariable Long productId) {
+        commandService.unbindProductSnRule(productId);
+        return ResponseEntity.ok().build();
+    }
+    
+    @PutMapping("/product-sn-rules/product/{productId}/status")
+    @RequirePermission(MesPermissions.CONFIG_UPDATE)
+    public ResponseEntity<Void> updateProductSnRuleStatus(
+            @PathVariable Long productId,
+            @RequestBody Map<String, Boolean> request) {
+        
+        Boolean isActive = request.get("isActive");
+        commandService.updateProductSnRuleStatus(productId, isActive);
+        
+        return ResponseEntity.ok().build();
+    }
+    
+    @GetMapping("/product-sn-rules/generate/product/{productId}")
+    @RequirePermission(MesPermissions.CONFIG_READ)
+    public ResponseEntity<Map<String, String>> generateProductSn(
+            @PathVariable Long productId,
+            @RequestParam(required = false) Map<String, String> businessFields) {
+        
+        String sn = commandService.generateProductSn(productId, businessFields);
+        
+        return ResponseEntity.ok(Map.of("sn", sn));
+    }
+    
+    @GetMapping("/product-sn-rules/generate/product-code/{productCode}")
+    @RequirePermission(MesPermissions.CONFIG_READ)
+    public ResponseEntity<Map<String, String>> generateProductSnByCode(
+            @PathVariable String productCode,
+            @RequestParam(required = false) Map<String, String> businessFields) {
+        
+        String sn = commandService.generateProductSnByCode(productCode, businessFields);
+        
+        return ResponseEntity.ok(Map.of("sn", sn));
+    }
+    
+    @GetMapping("/code-rules/preview-sn/{businessType}")
+    @RequirePermission(MesPermissions.CONFIG_READ)
+    public ResponseEntity<Map<String, String>> previewSnCode(@PathVariable String businessType) {
+        return queryService.previewSnCode(businessType)
+                .map(preview -> ResponseEntity.ok(Map.of("preview", preview)))
+                .orElse(ResponseEntity.notFound().build());
     }
 }

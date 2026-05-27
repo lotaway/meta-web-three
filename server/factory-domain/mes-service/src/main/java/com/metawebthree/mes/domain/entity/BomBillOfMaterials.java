@@ -5,10 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * BOM（物料清单）实体
- * 支持多版本管理，按产品维度维护
- */
 public class BomBillOfMaterials {
     
     private Long id;
@@ -50,9 +46,6 @@ public class BomBillOfMaterials {
         ACTIVE, INACTIVE
     }
     
-    /**
-     * 创建BOM
-     */
     public void create(String bomCode, String productCode, String productName, 
                       String version, String bomType) {
         this.bomCode = bomCode;
@@ -67,9 +60,6 @@ public class BomBillOfMaterials {
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 激活BOM版本
-     */
     public void activate() {
         if (this.versionStatus.equals(VersionStatus.DRAFT.name())) {
             this.versionStatus = VersionStatus.ACTIVE.name();
@@ -77,70 +67,46 @@ public class BomBillOfMaterials {
         }
     }
     
-    /**
-     * 弃用BOM版本
-     */
     public void deprecate(String reason) {
         this.versionStatus = VersionStatus.DEPRECATED.name();
         this.changeReason = reason;
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 设置生效日期并更新时间
-     */
     public void applyEffectiveDate(LocalDateTime effectiveDate) {
         this.effectiveDate = effectiveDate;
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 设置失效日期并更新时间
-     */
     public void applyExpiryDate(LocalDateTime expiryDate) {
         this.expiryDate = expiryDate;
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 添加BOM子项
-     */
     public void addItem(BomItem item) {
         this.items.add(item);
         this.itemCount = this.items.size();
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 移除BOM子项
-     */
     public void removeItem(Long itemId) {
         this.items.removeIf(item -> item.getId().equals(itemId));
         this.itemCount = this.items.size();
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 根据物料编码查找子项
-     */
     public Optional<BomItem> findItemByMaterialCode(String materialCode) {
         return this.items.stream()
                 .filter(item -> item.getMaterialCode().equals(materialCode))
                 .findFirst();
     }
     
-    /**
-     * 获取所有有效子项
-     */
     public List<BomItem> getActiveItems() {
         return this.items.stream()
                 .filter(item -> "ACTIVE".equals(item.getStatus()))
                 .toList();
     }
     
-    /**
-     * 验证BOM完整性
-     */
     public boolean validate() {
         if (bomCode == null || productCode == null || version == null) {
             return false;
@@ -156,9 +122,6 @@ public class BomBillOfMaterials {
         return distinctCount == items.size();
     }
     
-    /**
-     * 获取BOM总用量（按产品数量计算）
-     */
     public Double calculateTotalMaterialQuantity(String materialCode, Integer productQuantity) {
         return findItemByMaterialCode(materialCode)
                 .map(item -> item.getQuantity() * productQuantity.doubleValue())

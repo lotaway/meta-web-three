@@ -6,10 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * BOM版本管理实体
- * 统一管理同一产品的多个BOM版本，支持版本历史和生效日期控制
- */
 public class BomVersion {
     
     private Long id;
@@ -19,9 +15,6 @@ public class BomVersion {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
-    /**
-     * BOM版本记录
-     */
     public static class BomVersionRecord {
         private Long id;
         private Long bomId;
@@ -53,26 +46,17 @@ public class BomVersion {
             this.changedAt = LocalDateTime.now();
         }
         
-        /**
-         * 激活版本
-         */
         public void activate(LocalDateTime effectiveDate) {
             this.versionStatus = VersionStatus.ACTIVE.name();
             this.effectiveDate = effectiveDate;
         }
         
-        /**
-         * 弃用版本
-         */
         public void deprecate(LocalDateTime expiryDate, String reason) {
             this.versionStatus = VersionStatus.DEPRECATED.name();
             this.expiryDate = expiryDate;
             this.changeReason = reason;
         }
         
-        /**
-         * 检查版本是否在生效期间内
-         */
         public boolean isEffective(LocalDateTime date) {
             if (!VersionStatus.ACTIVE.name().equals(versionStatus)) {
                 return false;
@@ -105,9 +89,6 @@ public class BomVersion {
         public void setChangedAt(LocalDateTime changedAt) { this.changedAt = changedAt; }
     }
     
-    /**
-     * 初始化版本管理
-     */
     public void initialize(String productCode, String productName) {
         this.productCode = productCode;
         this.productName = productName;
@@ -115,9 +96,6 @@ public class BomVersion {
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 添加版本记录
-     */
     public void addVersion(BomVersionRecord record) {
         // 同一产品同一版本号只能有一个记录
         boolean exists = versions.stream()
@@ -129,35 +107,23 @@ public class BomVersion {
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 根据版本号查找版本
-     */
     public Optional<BomVersionRecord> findByVersion(String version) {
         return this.versions.stream()
                 .filter(v -> v.getVersion().equals(version))
                 .findFirst();
     }
     
-    /**
-     * 获取当前生效版本（按生效日期判断）
-     */
     public Optional<BomVersionRecord> getEffectiveVersion(LocalDateTime date) {
         return this.versions.stream()
                 .filter(v -> v.isEffective(date))
                 .max(Comparator.comparing(BomVersionRecord::getEffectiveDate));
     }
     
-    /**
-     * 获取最新版本
-     */
     public Optional<BomVersionRecord> getLatestVersion() {
         return this.versions.stream()
                 .max(Comparator.comparing(BomVersionRecord::getChangedAt));
     }
     
-    /**
-     * 激活指定版本
-     */
     public void activateVersion(String version, LocalDateTime effectiveDate) {
         BomVersionRecord target = findByVersion(version)
                 .orElseThrow(() -> new IllegalArgumentException("Version not found: " + version));
@@ -172,26 +138,17 @@ public class BomVersion {
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 获取版本历史（按时间倒序）
-     */
     public List<BomVersionRecord> getVersionHistory() {
         return this.versions.stream()
                 .sorted(Comparator.comparing(BomVersionRecord::getChangedAt).reversed())
                 .toList();
     }
     
-    /**
-     * 根据日期自动选择BOM版本
-     */
     public Optional<Long> selectBomIdByDate(LocalDateTime date) {
         return getEffectiveVersion(date)
                 .map(BomVersionRecord::getBomId);
     }
     
-    /**
-     * 获取版本数量
-     */
     public int getVersionCount() {
         return this.versions.size();
     }

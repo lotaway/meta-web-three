@@ -5,10 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * 工序BOM实体
- * 支持按工序定义物料使用清单，与工艺路线关联
- */
 public class ProcessBomItem {
     
     private Long id;
@@ -32,9 +28,6 @@ public class ProcessBomItem {
         ACTIVE, INACTIVE
     }
     
-    /**
-     * 工序级物料
-     */
     public static class ProcessMaterial {
         private Long id;
         private Long processBomId;
@@ -112,9 +105,6 @@ public class ProcessBomItem {
         public LocalDateTime getUpdatedAt() { return updatedAt; }
     }
     
-    /**
-     * 创建工序BOM
-     */
     public void create(String processBomCode, String productCode, 
                       String processRouteId, String processCode, String processName) {
         this.processBomCode = processBomCode;
@@ -128,52 +118,34 @@ public class ProcessBomItem {
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 添加工序级物料
-     */
     public void addMaterial(ProcessMaterial material) {
         this.materials.add(material);
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 根据物料编码查找物料
-     */
     public Optional<ProcessMaterial> findMaterialByCode(String materialCode) {
         return this.materials.stream()
                 .filter(m -> m.getMaterialCode().equals(materialCode))
                 .findFirst();
     }
     
-    /**
-     * 获取所有有效物料
-     */
     public List<ProcessMaterial> getActiveMaterials() {
         return this.materials.stream()
                 .filter(m -> "ACTIVE".equals(m.getStatus()))
                 .toList();
     }
     
-    /**
-     * 计算工序物料需求
-     */
     public Double calculateMaterialDemand(String materialCode, Integer productQuantity) {
         return findMaterialByCode(materialCode)
                 .map(m -> m.calculateMaterialDemand(productQuantity))
                 .orElse(0.0);
     }
     
-    /**
-     * 禁用工序BOM
-     */
     public void deactivate() {
         this.status = ProcessBomStatus.INACTIVE.name();
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 验证工序BOM完整性
-     */
     public boolean validate() {
         if (processBomCode == null || productCode == null || processCode == null) {
             return false;

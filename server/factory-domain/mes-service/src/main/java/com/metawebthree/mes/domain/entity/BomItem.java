@@ -2,10 +2,6 @@ package com.metawebthree.mes.domain.entity;
 
 import java.time.LocalDateTime;
 
-/**
- * BOM子项（物料项）实体
- * 定义产品中使用的物料及其用量
- */
 public class BomItem {
     
     private Long id;
@@ -42,9 +38,6 @@ public class BomItem {
         ACTIVE, INACTIVE
     }
     
-    /**
-     * 创建BOM子项
-     */
     public void create(Long bomId, String materialCode, String materialName,
                       Double quantity, String unitCode, String unitName) {
         this.bomId = bomId;
@@ -60,9 +53,6 @@ public class BomItem {
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 创建组件类型的子项
-     */
     public void createComponent(Long bomId, String materialCode, String materialName,
                                 Double quantity, String unitCode, String unitName,
                                 String parentMaterialCode) {
@@ -71,9 +61,6 @@ public class BomItem {
         this.parentMaterialCode = parentMaterialCode;
     }
     
-    /**
-     * 创建子总成类型的子项
-     */
     public void createSubassembly(Long bomId, String materialCode, String materialName,
                                   Double quantity, String unitCode, String unitName,
                                   String parentMaterialCode, Integer level) {
@@ -83,9 +70,6 @@ public class BomItem {
         this.level = level != null ? String.valueOf(level) : "1";
     }
     
-    /**
-     * 设置报废率并更新时间
-     */
     public void applyScrapRate(Double scrapRate) {
         if (scrapRate == null || scrapRate < 0 || scrapRate > 1) {
             throw new IllegalArgumentException("Scrap rate must be between 0 and 1");
@@ -94,9 +78,6 @@ public class BomItem {
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 计算考虑报废率后的实际用量
-     */
     public Double calculateActualQuantity() {
         if (quantity == null || scrapRate == null) {
             return quantity;
@@ -105,48 +86,30 @@ public class BomItem {
         return quantity / (1 - scrapRate);
     }
     
-    /**
-     * 计算给定产品数量下的物料需求
-     */
     public Double calculateMaterialDemand(Integer productQuantity) {
         Double actualQty = calculateActualQuantity();
         return actualQty * productQuantity.doubleValue();
     }
     
-    /**
-     * 设置替代料
-     */
     public void setSubstituteItem(Long substituteItemId) {
         this.substituteItemId = substituteItemId;
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 检查是否有替代料
-     */
     public boolean hasSubstitute() {
         return substituteItemId != null;
     }
     
-    /**
-     * 禁用子项
-     */
     public void deactivate() {
         this.status = ItemStatus.INACTIVE.name();
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 激活子项
-     */
     public void activate() {
         this.status = ItemStatus.ACTIVE.name();
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 更新用量
-     */
     public void updateQuantity(Double quantity) {
         if (quantity == null || quantity <= 0) {
             throw new IllegalArgumentException("Quantity must be positive");

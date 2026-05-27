@@ -5,10 +5,12 @@ import com.metawebthree.mes.domain.entity.CodeRule;
 import com.metawebthree.mes.domain.entity.DataDictionary;
 import com.metawebthree.mes.domain.entity.EntityExtensionField;
 import com.metawebthree.mes.domain.entity.EntityExtensionFieldValue;
+import com.metawebthree.mes.domain.entity.ProductSnRule;
 import com.metawebthree.mes.domain.repository.CodeRuleRepository;
 import com.metawebthree.mes.domain.repository.DataDictionaryRepository;
 import com.metawebthree.mes.domain.repository.EntityExtensionFieldRepository;
 import com.metawebthree.mes.domain.repository.EntityExtensionFieldValueRepository;
+import com.metawebthree.mes.domain.repository.ProductSnRuleRepository;
 import com.metawebthree.mes.domain.repository.WorkOrderTypeRepository;
 import org.springframework.stereotype.Service;
 
@@ -26,18 +28,21 @@ public class ConfigurationQueryService {
     private final DataDictionaryRepository dictionaryRepository;
     private final CodeRuleRepository codeRuleRepository;
     private final WorkOrderTypeRepository workOrderTypeRepository;
+    private final ProductSnRuleRepository productSnRuleRepository;
     
     public ConfigurationQueryService(
             EntityExtensionFieldRepository fieldRepository,
             EntityExtensionFieldValueRepository fieldValueRepository,
             DataDictionaryRepository dictionaryRepository,
             CodeRuleRepository codeRuleRepository,
-            WorkOrderTypeRepository workOrderTypeRepository) {
+            WorkOrderTypeRepository workOrderTypeRepository,
+            ProductSnRuleRepository productSnRuleRepository) {
         this.fieldRepository = fieldRepository;
         this.fieldValueRepository = fieldValueRepository;
         this.dictionaryRepository = dictionaryRepository;
         this.codeRuleRepository = codeRuleRepository;
         this.workOrderTypeRepository = workOrderTypeRepository;
+        this.productSnRuleRepository = productSnRuleRepository;
     }
     
     public List<EntityExtensionField> getAllExtensionFields(String entityType) {
@@ -145,5 +150,49 @@ public class ConfigurationQueryService {
     
     public List<WorkOrderType> getActiveWorkOrderTypes() {
         return workOrderTypeRepository.findByStatus("ACTIVE");
+    }
+    
+    // ==================== Product SN Rule Queries ====================
+    
+    public Optional<ProductSnRule> getProductSnRuleByProductId(Long productId) {
+        return productSnRuleRepository.findByProductId(productId);
+    }
+    
+    public Optional<ProductSnRule> getProductSnRuleByProductCode(String productCode) {
+        return productSnRuleRepository.findByProductCode(productCode);
+    }
+    
+    public List<ProductSnRule> getAllActiveProductSnRules() {
+        return productSnRuleRepository.findAllActive();
+    }
+    
+    public Optional<String> previewSnCode(String businessType) {
+        return getCodeRuleByBusinessType(businessType)
+                .map(this::generateSnPreview);
+    }
+    
+    private String generateSnPreview(CodeRule codeRule) {
+        StringBuilder preview = new StringBuilder();
+        for (CodeRule.RuleElement element : codeRule.getElements()) {
+            switch (element.getType()) {
+                case PREFIX -> preview.append(element.getValue());
+                case DATE -> preview.append(formatDatePreview(element.getValue()));
+                case SEQUENCE -> preview.append(String.format("%0" + codeRule.getPaddingLength() + "d", 1));
+                case BUSINESS_FIELD -> preview.append("{").append(element.getFieldName()).append("}");
+                case DELIMITER -> preview.append(element.getValue());
+                case RANDOM_NUMERIC -> {
+                    int len = element.getValue() != null ? Integer.parseInt(element.getValue()) : 6;
+                    preview.append("<".repeat(len));
+                }
+                case RANDOM_ALPHANUMERIC -> {
+                    int len = element.getValue() != null ? Integer.parseInt(element.getValue()) : 8;
+                    preview.append("<".repeat(len));
+                }
+                case CHECKSUM_MOD10 -> preview.append("C");
+                case CHECKSUM_MOD11 -> preview.append("C");
+                case UUID_SHORT -> preview.append("<".repeat(12));
+            }
+        }
+        return preview.toString();
     }
 }

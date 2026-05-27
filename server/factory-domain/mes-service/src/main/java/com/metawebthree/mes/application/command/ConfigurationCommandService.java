@@ -5,10 +5,12 @@ import com.metawebthree.mes.domain.entity.CodeRule;
 import com.metawebthree.mes.domain.entity.DataDictionary;
 import com.metawebthree.mes.domain.entity.EntityExtensionField;
 import com.metawebthree.mes.domain.entity.EntityExtensionFieldValue;
+import com.metawebthree.mes.domain.entity.ProductSnRule;
 import com.metawebthree.mes.domain.repository.CodeRuleRepository;
 import com.metawebthree.mes.domain.repository.DataDictionaryRepository;
 import com.metawebthree.mes.domain.repository.EntityExtensionFieldRepository;
 import com.metawebthree.mes.domain.repository.EntityExtensionFieldValueRepository;
+import com.metawebthree.mes.domain.repository.ProductSnRuleRepository;
 import com.metawebthree.mes.domain.repository.WorkOrderTypeRepository;
 import org.springframework.stereotype.Service;
 
@@ -22,18 +24,21 @@ public class ConfigurationCommandService {
     private final DataDictionaryRepository dictionaryRepository;
     private final CodeRuleRepository codeRuleRepository;
     private final WorkOrderTypeRepository workOrderTypeRepository;
+    private final ProductSnRuleRepository productSnRuleRepository;
     
     public ConfigurationCommandService(
             EntityExtensionFieldRepository fieldRepository,
             EntityExtensionFieldValueRepository fieldValueRepository,
             DataDictionaryRepository dictionaryRepository,
             CodeRuleRepository codeRuleRepository,
-            WorkOrderTypeRepository workOrderTypeRepository) {
+            WorkOrderTypeRepository workOrderTypeRepository,
+            ProductSnRuleRepository productSnRuleRepository) {
         this.fieldRepository = fieldRepository;
         this.fieldValueRepository = fieldValueRepository;
         this.dictionaryRepository = dictionaryRepository;
         this.codeRuleRepository = codeRuleRepository;
         this.workOrderTypeRepository = workOrderTypeRepository;
+        this.productSnRuleRepository = productSnRuleRepository;
     }
     
     public void createExtensionField(String entityType, String fieldCode, String fieldName,
@@ -270,5 +275,77 @@ public class ConfigurationCommandService {
     
     public void deleteWorkOrderType(Long id) {
         workOrderTypeRepository.deleteById(id);
+    }
+    
+    // ==================== Product SN Rule Binding ====================
+    
+    public ProductSnRule bindProductSnRule(Long productId, String productCode, 
+                                            Long codeRuleId, String ruleCode, String description) {
+        
+        // Verify code rule exists
+        CodeRule codeRule = codeRuleRepository.findById(codeRuleId)
+                .orElseThrow(() -> new IllegalArgumentException("Code rule not found: " + codeRuleId));
+        
+        // Check if binding already exists for this product
+        if (productSnRuleRepository.existsByProductId(productId)) {
+            throw new IllegalArgumentException("SN rule already bound to product: " + productId);
+        }
+        
+        ProductSnRule binding = ProductSnRule.create(productId, productCode, codeRuleId, ruleCode);
+        binding.setDescription(description);
+        
+        return productSnRuleRepository.save(binding);
+    }
+    
+    public void unbindProductSnRule(Long productId) {
+        ProductSnRule binding = productSnRuleRepository.findByProductId(productId)
+                .orElseThrow(() -> new IllegalArgumentException("No SN rule bound to product: " + productId));
+        
+        productSnRuleRepository.delete(binding.getId());
+    }
+    
+    public void updateProductSnRuleStatus(Long productId, Boolean isActive) {
+        ProductSnRule binding = productSnRuleRepository.findByProductId(productId)
+                .orElseThrow(() -> new IllegalArgumentException("No SN rule bound to product: " + productId));
+        
+        if (Boolean.TRUE.equals(isActive)) {
+            binding.activate();
+        } else {
+            binding.deactivate();
+        }
+        
+        productSnRuleRepository.save(binding);
+    }
+    
+    public String generateProductSn(Long productId, Map<String, String> businessFields) {
+        ProductSnRule binding = productSnRuleRepository.findByProductId(productId)
+                .orElseThrow(() -> new IllegalArgumentException("No SN rule bound to product: " + productId));
+        
+        if (!Boolean.TRUE.equals(binding.getIsActive())) {
+            throw new IllegalStateException("SN rule is inactive for product: " + productId);
+        }
+        
+        CodeRule codeRule = codeRuleRepository.findById(binding.getCodeRuleId())
+                .orElseThrow(() -> new IllegalArgumentException("Code rule not found: " + binding.getCodeRuleId()));
+        
+        String sn = codeRule.peekNextCode();
+        
+        if (businessFields != null) {
+            for (Map.Entry<String, String> entry : businessFields.entrySet()) {
+                sn = sn.replace("{" + entry.getKey() + "}", entry.getValue());
+            }
+        }
+        
+        codeRule.advanceSequence();
+        codeRuleRepository.save(codeRule);
+        
+        return sn;
+    }
+    
+    public String generateProductSnByCode(String productCode, Map<String, String> businessFields) {
+        ProductSnRule binding = productSnRuleRepository.findByProductCode(productCode)
+                .orElseThrow(() -> new IllegalArgumentException("No SN rule bound to product code: " + productCode));
+        
+        return generateProductSn(binding.getProductId(), businessFields);
     }
 }

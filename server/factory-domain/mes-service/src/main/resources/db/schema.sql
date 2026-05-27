@@ -303,3 +303,22 @@ CREATE INDEX idx_status_config_machine_id ON mes_status_config(machine_id);
 
 -- 创建状态转换规则表索引
 CREATE INDEX idx_status_transition_machine_id ON mes_status_transition(machine_id);
+-- 产品SN规则绑定表
+CREATE TABLE IF NOT EXISTS mes_product_sn_rule (
+    id BIGSERIAL PRIMARY KEY,
+    product_id BIGINT NOT NULL COMMENT '产品ID',
+    product_code VARCHAR(50) NOT NULL COMMENT '产品编码',
+    code_rule_id BIGINT NOT NULL COMMENT '编码规则ID',
+    rule_code VARCHAR(50) NOT NULL COMMENT '编码规则代码',
+    is_active BOOLEAN DEFAULT TRUE COMMENT '是否激活',
+    description VARCHAR(500) COMMENT '描述',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(product_id)
+);
+
+-- 创建产品SN规则绑定表索引
+CREATE INDEX idx_product_sn_rule_product_id ON mes_product_sn_rule(product_id);
+CREATE INDEX idx_product_sn_rule_product_code ON mes_product_sn_rule(product_code);
+CREATE INDEX idx_product_sn_rule_code_rule_id ON mes_product_sn_rule(code_rule_id);
+CREATE INDEX idx_product_sn_rule_active ON mes_product_sn_rule(is_active);

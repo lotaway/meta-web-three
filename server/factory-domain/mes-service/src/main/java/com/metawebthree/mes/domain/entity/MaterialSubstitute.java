@@ -6,10 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * 替代料管理实体
- * 管理物料替代关系，支持替代优先级配置
- */
 public class MaterialSubstitute {
     
     private Long id;
@@ -29,9 +25,6 @@ public class MaterialSubstitute {
         ACTIVE, INACTIVE
     }
     
-    /**
-     * 替代料项
-     */
     public static class SubstituteItem {
         private Long id;
         private Long substituteGroupId;
@@ -56,9 +49,6 @@ public class MaterialSubstitute {
             INACTIVE   // 已停用
         }
         
-        /**
-         * 创建替代料
-         */
         public void create(Long substituteGroupId, String materialCode, String materialName,
                           Integer priority) {
             this.substituteGroupId = substituteGroupId;
@@ -70,9 +60,6 @@ public class MaterialSubstitute {
             this.updatedAt = LocalDateTime.now();
         }
         
-        /**
-         * 设置换算率
-         */
         public void setConversionRate(Double conversionRate, String conversionUnit) {
             if (conversionRate == null || conversionRate <= 0) {
                 throw new IllegalArgumentException("Conversion rate must be positive");
@@ -82,27 +69,18 @@ public class MaterialSubstitute {
             this.updatedAt = LocalDateTime.now();
         }
         
-        /**
-         * 激活替代料
-         */
         public void activate(LocalDateTime effectiveDate) {
             this.effectiveDate = effectiveDate;
             this.status = ItemStatus.ACTIVE.name();
             this.updatedAt = LocalDateTime.now();
         }
         
-        /**
-         * 停用替代料
-         */
         public void deactivate(String reason) {
             this.status = ItemStatus.INACTIVE.name();
             this.reason = reason;
             this.updatedAt = LocalDateTime.now();
         }
         
-        /**
-         * 检查是否在生效期间
-         */
         public boolean isEffective(LocalDateTime date) {
             if (!ItemStatus.ACTIVE.name().equals(status)) {
                 return false;
@@ -112,9 +90,6 @@ public class MaterialSubstitute {
             return afterEffective && beforeExpiry;
         }
         
-        /**
-         * 计算替代料用量
-         */
         public Double calculateSubstituteQuantity(Double mainMaterialQuantity) {
             if (conversionRate == null) {
                 return mainMaterialQuantity;
@@ -155,9 +130,6 @@ public class MaterialSubstitute {
         public LocalDateTime getUpdatedAt() { return updatedAt; }
     }
     
-    /**
-     * 创建替代料组
-     */
     public void create(String productCode, String mainMaterialCode, String mainMaterialName) {
         this.productCode = productCode;
         this.mainMaterialCode = mainMaterialCode;
@@ -167,9 +139,6 @@ public class MaterialSubstitute {
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 添加替代料
-     */
     public void addSubstitute(SubstituteItem item) {
         // 检查优先级是否重复
         boolean priorityExists = substitutes.stream()
@@ -181,26 +150,17 @@ public class MaterialSubstitute {
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 移除替代料
-     */
     public void removeSubstitute(Long substituteId) {
         this.substitutes.removeIf(s -> s.getId().equals(substituteId));
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 获取当前最优替代料（优先级最高且在生效期内）
-     */
     public Optional<SubstituteItem> getPrimarySubstitute(LocalDateTime date) {
         return this.substitutes.stream()
                 .filter(s -> s.isEffective(date))
                 .min(Comparator.comparing(SubstituteItem::getPriority));
     }
     
-    /**
-     * 获取所有生效的替代料（按优先级排序）
-     */
     public List<SubstituteItem> getActiveSubstitutes(LocalDateTime date) {
         return this.substitutes.stream()
                 .filter(s -> s.isEffective(date))
@@ -208,32 +168,20 @@ public class MaterialSubstitute {
                 .toList();
     }
     
-    /**
-     * 获取替代料数量
-     */
     public int getSubstituteCount() {
         return this.substitutes.size();
     }
     
-    /**
-     * 检查指定物料是否是有效的替代料
-     */
     public boolean isValidSubstitute(String materialCode, LocalDateTime date) {
         return this.substitutes.stream()
                 .anyMatch(s -> s.getMaterialCode().equals(materialCode) && s.isEffective(date));
     }
     
-    /**
-     * 禁用替代料组
-     */
     public void deactivate() {
         this.status = SubstituteStatus.INACTIVE.name();
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 激活替代料组
-     */
     public void activate() {
         this.status = SubstituteStatus.ACTIVE.name();
         this.updatedAt = LocalDateTime.now();

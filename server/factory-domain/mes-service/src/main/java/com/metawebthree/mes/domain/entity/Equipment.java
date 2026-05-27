@@ -15,11 +15,24 @@ public class Equipment {
     private String currentTaskNo;
     private LocalDateTime lastMaintenanceTime;
     private LocalDateTime nextMaintenanceTime;
+    
+    // 数字孪生关联字段
+    private String digitalTwinDeviceCode;
+    private Double positionX;
+    private Double positionY;
+    private Double positionZ;
+    private Double rotationY;
+    private String ipAddress;
+    private String macAddress;
+    private String mqttTopic;
+    private LocalDateTime lastHeartbeat;
+    
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public enum EquipmentStatus {
-        IDLE, RUNNING, MAINTENANCE, BREAKDOWN, SCRAP
+        IDLE, RUNNING, MAINTENANCE, BREAKDOWN, SCRAP,
+        ONLINE, OFFLINE, WARNING, ERROR
     }
 
     public void create(String equipmentCode, String equipmentName, 
@@ -87,6 +100,71 @@ public class Equipment {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void heartbeat() {
+        this.lastHeartbeat = LocalDateTime.now();
+        if (this.status == EquipmentStatus.OFFLINE) {
+            this.status = EquipmentStatus.ONLINE;
+        }
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updatePosition(Double x, Double y, Double z, Double rotation) {
+        this.positionX = x;
+        this.positionY = y;
+        this.positionZ = z;
+        this.rotationY = rotation;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void bindDigitalTwinDevice(String deviceCode) {
+        this.digitalTwinDeviceCode = deviceCode;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void unbindDigitalTwinDevice() {
+        this.digitalTwinDeviceCode = null;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void syncFromDigitalTwin(String dtStatus, LocalDateTime dtLastHeartbeat) {
+        if (dtStatus != null) {
+            this.status = fromDigitalTwinStatusString(dtStatus);
+        }
+        if (dtLastHeartbeat != null) {
+            this.lastHeartbeat = dtLastHeartbeat;
+        }
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public static EquipmentStatus fromDigitalTwinStatusString(String dtStatus) {
+        if (dtStatus == null) return null;
+        return switch (dtStatus.toUpperCase()) {
+            case "ONLINE" -> EquipmentStatus.ONLINE;
+            case "OFFLINE" -> EquipmentStatus.OFFLINE;
+            case "RUNNING" -> EquipmentStatus.RUNNING;
+            case "IDLE" -> EquipmentStatus.IDLE;
+            case "WARNING" -> EquipmentStatus.WARNING;
+            case "ERROR" -> EquipmentStatus.ERROR;
+            case "MAINTENANCE" -> EquipmentStatus.MAINTENANCE;
+            default -> null;
+        };
+    }
+
+    public String toDigitalTwinStatusString() {
+        if (this.status == null) return null;
+        return switch (this.status) {
+            case ONLINE -> "ONLINE";
+            case OFFLINE -> "OFFLINE";
+            case RUNNING -> "RUNNING";
+            case IDLE -> "IDLE";
+            case WARNING -> "WARNING";
+            case ERROR -> "ERROR";
+            case MAINTENANCE -> "MAINTENANCE";
+            case BREAKDOWN -> "ERROR";
+            case SCRAP -> "OFFLINE";
+        };
+    }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getEquipmentCode() { return equipmentCode; }
@@ -111,6 +189,24 @@ public class Equipment {
     public void setLastMaintenanceTime(LocalDateTime lastMaintenanceTime) { this.lastMaintenanceTime = lastMaintenanceTime; }
     public LocalDateTime getNextMaintenanceTime() { return nextMaintenanceTime; }
     public void setNextMaintenanceTime(LocalDateTime nextMaintenanceTime) { this.nextMaintenanceTime = nextMaintenanceTime; }
+    public String getDigitalTwinDeviceCode() { return digitalTwinDeviceCode; }
+    public void setDigitalTwinDeviceCode(String digitalTwinDeviceCode) { this.digitalTwinDeviceCode = digitalTwinDeviceCode; }
+    public Double getPositionX() { return positionX; }
+    public void setPositionX(Double positionX) { this.positionX = positionX; }
+    public Double getPositionY() { return positionY; }
+    public void setPositionY(Double positionY) { this.positionY = positionY; }
+    public Double getPositionZ() { return positionZ; }
+    public void setPositionZ(Double positionZ) { this.positionZ = positionZ; }
+    public Double getRotationY() { return rotationY; }
+    public void setRotationY(Double rotationY) { this.rotationY = rotationY; }
+    public String getIpAddress() { return ipAddress; }
+    public void setIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
+    public String getMacAddress() { return macAddress; }
+    public void setMacAddress(String macAddress) { this.macAddress = macAddress; }
+    public String getMqttTopic() { return mqttTopic; }
+    public void setMqttTopic(String mqttTopic) { this.mqttTopic = mqttTopic; }
+    public LocalDateTime getLastHeartbeat() { return lastHeartbeat; }
+    public void setLastHeartbeat(LocalDateTime lastHeartbeat) { this.lastHeartbeat = lastHeartbeat; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
 }

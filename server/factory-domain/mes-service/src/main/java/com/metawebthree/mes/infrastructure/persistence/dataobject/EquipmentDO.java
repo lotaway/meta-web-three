@@ -25,6 +25,18 @@ public class EquipmentDO {
     private String currentTaskNo;
     private LocalDateTime lastMaintenanceTime;
     private LocalDateTime nextMaintenanceTime;
+    
+    // 数字孪生关联字段
+    private String digitalTwinDeviceCode;
+    private BigDecimal positionX;
+    private BigDecimal positionY;
+    private BigDecimal positionZ;
+    private BigDecimal rotationY;
+    private String ipAddress;
+    private String macAddress;
+    private String mqttTopic;
+    private LocalDateTime lastHeartbeat;
+    
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

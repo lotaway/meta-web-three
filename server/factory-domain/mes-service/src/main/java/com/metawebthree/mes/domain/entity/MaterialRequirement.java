@@ -7,11 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * 物料需求计算实体
- * 根据工单数量和BOM自动计算物料需求，生成配料单
- */
 public class MaterialRequirement {
+    
+    private static final double DEFAULT_SCRAP_RATE = 0.01;
     
     private Long id;
     private String requirementNo;
@@ -47,9 +45,6 @@ public class MaterialRequirement {
         REWORK      // 返工工单
     }
     
-    /**
-     * 物料需求明细项
-     */
     public static class MaterialRequirementItem {
         private Long id;
         private Long requirementId;
@@ -90,9 +85,6 @@ public class MaterialRequirement {
             this.updatedAt = LocalDateTime.now();
         }
         
-        /**
-         * 发料
-         */
         public void issue(Double quantity) {
             if (quantity <= 0) {
                 throw new IllegalArgumentException("Issue quantity must be positive");
@@ -102,7 +94,7 @@ public class MaterialRequirement {
             }
             this.issuedQuantity += quantity;
             this.pendingQuantity -= quantity;
-            this.scrapQuantity += quantity * 0.01; // 假设1%报废
+            this.scrapQuantity += quantity * DEFAULT_SCRAP_RATE;
             
             // 更新状态
             if (pendingQuantity <= 0) {
@@ -113,9 +105,6 @@ public class MaterialRequirement {
             this.updatedAt = LocalDateTime.now();
         }
         
-        /**
-         * 取消发料
-         */
         public void cancelIssue(Double quantity) {
             if (quantity <= 0) {
                 throw new IllegalArgumentException("Cancel quantity must be positive");
@@ -125,7 +114,7 @@ public class MaterialRequirement {
             }
             this.issuedQuantity -= quantity;
             this.pendingQuantity += quantity;
-            this.scrapQuantity = Math.max(0, this.scrapQuantity - quantity * 0.01);
+            this.scrapQuantity = Math.max(0, this.scrapQuantity - quantity * DEFAULT_SCRAP_RATE);
             
             // 更新状态
             if (issuedQuantity <= 0) {
@@ -136,18 +125,12 @@ public class MaterialRequirement {
             this.updatedAt = LocalDateTime.now();
         }
         
-        /**
-         * 完成发料
-         */
         public void complete() {
             this.status = ItemStatus.ISSUED.name();
             this.pendingQuantity = 0.0;
             this.updatedAt = LocalDateTime.now();
         }
         
-        /**
-         * 获取发料完成率
-         */
         public Double getIssueCompletionRate() {
             if (requiredQuantity == null || requiredQuantity == 0) {
                 return 0.0;
@@ -192,9 +175,6 @@ public class MaterialRequirement {
         public LocalDateTime getUpdatedAt() { return updatedAt; }
     }
     
-    /**
-     * 创建物料需求单
-     */
     public void create(String requirementNo, String workOrderNo, String productCode,
                       String productName, Integer quantity) {
         this.requirementNo = requirementNo;
@@ -208,9 +188,6 @@ public class MaterialRequirement {
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 添加物料需求项
-     */
     public void addItem(MaterialRequirementItem item) {
         // 检查物料是否重复
         boolean exists = items.stream()
@@ -222,9 +199,6 @@ public class MaterialRequirement {
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 根据BOM计算物料需求（自动算料）
-     */
     public void calculateFromBom(BomBillOfMaterials bom, Integer quantity) {
         if (bom == null || bom.getItems() == null) {
             throw new IllegalArgumentException("BOM is invalid");
@@ -251,9 +225,6 @@ public class MaterialRequirement {
         this.updatedAt = LocalDateTime.now();
     }
     
-    /**
-     * 确认物料需求
-     */
     public void confirm() {
         if (this.status.equals(RequirementStatus.DRAFT.name())) {
             this.status = RequirementStatus.CONFIRMED.name();
@@ -261,9 +232,6 @@ public class MaterialRequirement {
         }
     }
     
-    /**
-     * 取消物料需求
-     */
     public void cancel() {
         if (!this.status.equals(RequirementStatus.COMPLETED.name())) {
             this.status = RequirementStatus.DRAFT.name(); // 降级为草稿
@@ -271,17 +239,11 @@ public class MaterialRequirement {
         }
     }
     
-    /**
-     * 检查是否全部发料完成
-     */
     public boolean isFullyIssued() {
         return items.stream()
                 .allMatch(i -> MaterialRequirementItem.ItemStatus.ISSUED.name().equals(i.getStatus()));
     }
     
-    /**
-     * 获取发料完成率
-     */
     public Double getIssueCompletionRate() {
         if (items.isEmpty()) {
             return 0.0;
@@ -298,9 +260,6 @@ public class MaterialRequirement {
         return (totalIssued / totalRequired) * 100;
     }
     
-    /**
-     * 获取待发物料汇总
-     */
     public Map<String, Double> getPendingSummary() {
         Map<String, Double> summary = new HashMap<>();
         for (MaterialRequirementItem item : items) {
