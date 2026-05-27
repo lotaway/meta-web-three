@@ -6,7 +6,6 @@ spring:
       connect-string: localhost:2181
       discovery:
         enabled: true
-        prefer-ip-address: true
         metadata:
           version: 1.0.0
         # root: /meta-web-three
