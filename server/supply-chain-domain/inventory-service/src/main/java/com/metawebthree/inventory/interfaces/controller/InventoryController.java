@@ -5,14 +5,10 @@ import com.metawebthree.inventory.application.InventoryApplicationService;
 import com.metawebthree.inventory.application.dto.InventoryDTO;
 import com.metawebthree.inventory.application.dto.InventoryOperationResult;
 import com.metawebthree.inventory.application.dto.ReserveInventoryDTO;
-import com.metawebthree.inventory.common.SupplyChainPermissions;
+import com.metawebthree.common.SupplyChainPermissions;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-/**
- * 库存管理 REST API
- * 能力: 库存查询、预留、确认、取消、增减
- */
 @RestController
 @RequestMapping("/api/inventory")
 public class InventoryController {

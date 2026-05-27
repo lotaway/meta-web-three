@@ -1,5 +1,7 @@
 package com.metawebthree.finance.interfaces.controller;
 
+import com.metawebthree.common.annotations.RequirePermission;
+import com.metawebthree.common.ERPPermissions;
 import com.metawebthree.finance.application.command.VoucherCommandService;
 import com.metawebthree.finance.application.query.VoucherQueryService;
 import com.metawebthree.finance.domain.entity.Voucher;
@@ -19,45 +21,66 @@ public class VoucherController {
         this.queryService = queryService;
     }
 
+    @RequirePermission(ERPPermissions.VOUCHER_CREATE)
     @PostMapping
-    public ResponseEntity<Long> createVoucher(@RequestBody VoucherCreateRequest request) {
+    public ResponseEntity<Long> createVoucher(@RequestBody VoucherCreateRequest request,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         Long id = commandService.createVoucher(request.getVoucherNo(), request.getType(), 
             request.getDescription(), request.getCreatedBy());
         return ResponseEntity.ok(id);
     }
 
+    @RequirePermission(ERPPermissions.VOUCHER_CREATE)
     @PostMapping("/{id}/lines")
-    public ResponseEntity<Void> addLine(@PathVariable Long id, @RequestBody VoucherLineRequest request) {
+    public ResponseEntity<Void> addLine(@PathVariable Long id, @RequestBody VoucherLineRequest request,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         commandService.addVoucherLine(id, request.getSubjectId(), 
             request.getDebitAmount(), request.getCreditAmount());
         return ResponseEntity.ok().build();
     }
 
+    @RequirePermission(ERPPermissions.VOUCHER_CREATE)
     @PostMapping("/{id}/submit")
-    public ResponseEntity<Void> submitForApproval(@PathVariable Long id) {
+    public ResponseEntity<Void> submitForApproval(@PathVariable Long id,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         commandService.submitForApproval(id);
         return ResponseEntity.ok().build();
     }
 
+    @RequirePermission(ERPPermissions.VOUCHER_APPROVE)
     @PostMapping("/{id}/approve")
-    public ResponseEntity<Void> approve(@PathVariable Long id, @RequestParam String approver) {
+    public ResponseEntity<Void> approve(@PathVariable Long id, 
+            @RequestParam String approver,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         commandService.approve(id, approver);
         return ResponseEntity.ok().build();
     }
 
+    @RequirePermission(ERPPermissions.VOUCHER_APPROVE)
     @PostMapping("/{id}/reject")
-    public ResponseEntity<Void> reject(@PathVariable Long id, @RequestParam String approver, 
-                                        @RequestParam String reason) {
+    public ResponseEntity<Void> reject(@PathVariable Long id, 
+            @RequestParam String approver, 
+            @RequestParam String reason,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         commandService.reject(id, approver, reason);
         return ResponseEntity.ok().build();
     }
 
+    @RequirePermission(ERPPermissions.VOUCHER_CREATE)
     @PostMapping("/{id}/post")
-    public ResponseEntity<Void> post(@PathVariable Long id) {
+    public ResponseEntity<Void> post(@PathVariable Long id,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         commandService.post(id);
         return ResponseEntity.ok().build();
     }
 
+    @RequirePermission(ERPPermissions.VOUCHER_READ)
     @GetMapping("/{id}")
     public ResponseEntity<Voucher> getVoucher(@PathVariable Long id) {
         return queryService.getById(id)
@@ -65,6 +88,7 @@ public class VoucherController {
             .orElse(ResponseEntity.notFound().build());
     }
 
+    @RequirePermission(ERPPermissions.VOUCHER_READ)
     @GetMapping
     public ResponseEntity<List<Voucher>> listVouchers(@RequestParam(required = false) String status) {
         List<Voucher> vouchers = status != null ? 

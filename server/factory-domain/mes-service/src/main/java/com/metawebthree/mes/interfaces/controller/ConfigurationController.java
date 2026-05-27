@@ -8,10 +8,13 @@ import com.metawebthree.mes.domain.config.WorkOrderType;
 import com.metawebthree.mes.domain.entity.CodeRule;
 import com.metawebthree.mes.domain.entity.EntityExtensionFieldValue;
 import com.metawebthree.mes.interfaces.dto.CodeRuleDTO;
+import com.metawebthree.mes.interfaces.dto.CreateWorkOrderTypeRequest;
 import com.metawebthree.mes.interfaces.dto.DataDictionaryDTO;
 import com.metawebthree.mes.interfaces.dto.EntityExtensionFieldDTO;
 import com.metawebthree.mes.interfaces.dto.EntityExtensionFieldValueDTO;
+import com.metawebthree.mes.interfaces.dto.UpdateWorkOrderTypeRequest;
 import com.metawebthree.mes.interfaces.dto.WorkOrderTypeDTO;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -369,18 +372,11 @@ public class ConfigurationController {
     
     @PostMapping("/work-order-types")
     @RequirePermission(MesPermissions.CONFIG_CREATE)
-    public ResponseEntity<WorkOrderTypeDTO> createWorkOrderType(@RequestBody Map<String, Object> request) {
-        String typeCode = (String) request.get("typeCode");
-        String typeName = (String) request.get("typeName");
-        String description = (String) request.get("description");
-        String statusMachineCode = (String) request.get("statusMachineCode");
-        String processRouteTemplate = (String) request.get("processRouteTemplate");
-        Boolean isDefault = (Boolean) request.get("isDefault");
-        Integer sortOrder = (Integer) request.get("sortOrder");
-        
+    public ResponseEntity<WorkOrderTypeDTO> createWorkOrderType(@Valid @RequestBody CreateWorkOrderTypeRequest request) {
         WorkOrderType created = commandService.createWorkOrderType(
-                typeCode, typeName, description, statusMachineCode, processRouteTemplate,
-                isDefault, sortOrder);
+                request.getTypeCode(), request.getTypeName(), request.getDescription(), 
+                request.getStatusMachineCode(), request.getProcessRouteTemplate(),
+                request.getIsDefault(), request.getSortOrder());
         
         return ResponseEntity.status(201).body(WorkOrderTypeDTO.fromEntity(created));
     }
@@ -389,18 +385,11 @@ public class ConfigurationController {
     @RequirePermission(MesPermissions.CONFIG_UPDATE)
     public ResponseEntity<Void> updateWorkOrderType(
             @PathVariable Long id,
-            @RequestBody Map<String, Object> request) {
+            @Valid @RequestBody UpdateWorkOrderTypeRequest request) {
         
-        String typeName = (String) request.get("typeName");
-        String description = (String) request.get("description");
-        String statusMachineCode = (String) request.get("statusMachineCode");
-        String processRouteTemplate = (String) request.get("processRouteTemplate");
-        Boolean isDefault = (Boolean) request.get("isDefault");
-        Integer sortOrder = (Integer) request.get("sortOrder");
-        String status = (String) request.get("status");
-        
-        commandService.updateWorkOrderType(id, typeName, description, statusMachineCode,
-                processRouteTemplate, isDefault, sortOrder, status);
+        commandService.updateWorkOrderType(id, request.getTypeName(), request.getDescription(), 
+                request.getStatusMachineCode(), request.getProcessRouteTemplate(),
+                request.getIsDefault(), request.getSortOrder(), request.getStatus());
         
         return ResponseEntity.ok().build();
     }

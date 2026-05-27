@@ -1,5 +1,7 @@
 package com.metawebthree.invoice.interfaces.controller;
 
+import com.metawebthree.common.annotations.RequirePermission;
+import com.metawebthree.common.ERPPermissions;
 import com.metawebthree.invoice.application.command.InvoiceCommandService;
 import com.metawebthree.invoice.application.query.InvoiceQueryService;
 import com.metawebthree.invoice.domain.entity.Invoice;
@@ -21,14 +23,18 @@ public class InvoiceController {
         this.queryService = queryService;
     }
 
+    @RequirePermission(ERPPermissions.INVOICE_CREATE)
     @PostMapping
-    public ResponseEntity<Long> create(@RequestBody InvoiceRequest request) {
+    public ResponseEntity<Long> create(@RequestBody InvoiceRequest request,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         Long id = commandService.createInvoice(request.getInvoiceNo(), request.getOrderNo(),
             request.getCustomerId(), request.getCustomerName(), request.getCustomerTaxNo(),
             request.getType(), request.getAmount(), request.getTaxRate());
         return ResponseEntity.ok(id);
     }
 
+    @RequirePermission(ERPPermissions.INVOICE_READ)
     @GetMapping("/{id}")
     public ResponseEntity<Invoice> get(@PathVariable Long id) {
         return queryService.getById(id)
@@ -36,6 +42,7 @@ public class InvoiceController {
             .orElse(ResponseEntity.notFound().build());
     }
 
+    @RequirePermission(ERPPermissions.INVOICE_READ)
     @GetMapping
     public ResponseEntity<List<Invoice>> list(@RequestParam(required = false) String status,
                                                @RequestParam(required = false) Long customerId,
@@ -54,26 +61,41 @@ public class InvoiceController {
         return ResponseEntity.ok(invoices);
     }
 
+    @RequirePermission(ERPPermissions.INVOICE_ISSUE)
     @PostMapping("/{id}/issue")
-    public ResponseEntity<Void> issue(@PathVariable Long id, @RequestParam String issuer) {
+    public ResponseEntity<Void> issue(@PathVariable Long id, 
+            @RequestParam String issuer,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         commandService.issue(id, issuer);
         return ResponseEntity.ok().build();
     }
 
+    @RequirePermission(ERPPermissions.INVOICE_PRINT)
     @PostMapping("/{id}/print")
-    public ResponseEntity<Void> print(@PathVariable Long id) {
+    public ResponseEntity<Void> print(@PathVariable Long id,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         commandService.print(id);
         return ResponseEntity.ok().build();
     }
 
+    @RequirePermission(ERPPermissions.INVOICE_VOID)
     @PostMapping("/{id}/void")
-    public ResponseEntity<Void> voidInvoice(@PathVariable Long id, @RequestParam String reason) {
+    public ResponseEntity<Void> voidInvoice(@PathVariable Long id, 
+            @RequestParam String reason,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         commandService.voidInvoice(id, reason);
         return ResponseEntity.ok().build();
     }
 
+    @RequirePermission(ERPPermissions.INVOICE_RED_FLUSH)
     @PostMapping("/{id}/red-flush")
-    public ResponseEntity<Void> redFlush(@PathVariable Long id, @RequestParam String reason) {
+    public ResponseEntity<Void> redFlush(@PathVariable Long id, 
+            @RequestParam String reason,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         commandService.redFlush(id, reason);
         return ResponseEntity.ok().build();
     }

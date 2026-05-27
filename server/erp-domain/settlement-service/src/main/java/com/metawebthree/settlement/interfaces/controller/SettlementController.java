@@ -1,5 +1,7 @@
 package com.metawebthree.settlement.interfaces.controller;
 
+import com.metawebthree.common.annotations.RequirePermission;
+import com.metawebthree.common.ERPPermissions;
 import com.metawebthree.settlement.application.command.SettlementCommandService;
 import com.metawebthree.settlement.application.query.SettlementQueryService;
 import com.metawebthree.settlement.domain.entity.SettlementOrder;
@@ -21,13 +23,17 @@ public class SettlementController {
         this.queryService = queryService;
     }
 
+    @RequirePermission(ERPPermissions.SETTLEMENT_CREATE)
     @PostMapping
-    public ResponseEntity<Long> create(@RequestBody SettlementRequest request) {
+    public ResponseEntity<Long> create(@RequestBody SettlementRequest request,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         Long id = commandService.createSettlement(request.getSettlementNo(), request.getOrderNo(),
             request.getMerchantId(), request.getMerchantName(), request.getOrderAmount(), request.getCommissionRate());
         return ResponseEntity.ok(id);
     }
 
+    @RequirePermission(ERPPermissions.SETTLEMENT_READ)
     @GetMapping("/{id}")
     public ResponseEntity<SettlementOrder> get(@PathVariable Long id) {
         return queryService.getById(id)
@@ -35,6 +41,7 @@ public class SettlementController {
             .orElse(ResponseEntity.notFound().build());
     }
 
+    @RequirePermission(ERPPermissions.SETTLEMENT_READ)
     @GetMapping
     public ResponseEntity<List<SettlementOrder>> list(@RequestParam(required = false) String status,
                                                        @RequestParam(required = false) Long merchantId,
@@ -53,38 +60,58 @@ public class SettlementController {
         return ResponseEntity.ok(orders);
     }
 
+    @RequirePermission(ERPPermissions.SETTLEMENT_CONFIRM)
     @PostMapping("/{id}/confirm")
-    public ResponseEntity<Void> confirm(@PathVariable Long id) {
+    public ResponseEntity<Void> confirm(@PathVariable Long id,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         commandService.confirm(id);
         return ResponseEntity.ok().build();
     }
 
+    @RequirePermission(ERPPermissions.SETTLEMENT_PROCESS)
     @PostMapping("/{id}/process")
-    public ResponseEntity<Void> process(@PathVariable Long id) {
+    public ResponseEntity<Void> process(@PathVariable Long id,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         commandService.process(id);
         return ResponseEntity.ok().build();
     }
 
+    @RequirePermission(ERPPermissions.SETTLEMENT_COMPLETE)
     @PostMapping("/{id}/complete")
-    public ResponseEntity<Void> complete(@PathVariable Long id) {
+    public ResponseEntity<Void> complete(@PathVariable Long id,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         commandService.complete(id);
         return ResponseEntity.ok().build();
     }
 
+    @RequirePermission(ERPPermissions.SETTLEMENT_FAIL)
     @PostMapping("/{id}/fail")
-    public ResponseEntity<Void> fail(@PathVariable Long id, @RequestParam String reason) {
+    public ResponseEntity<Void> fail(@PathVariable Long id, 
+            @RequestParam String reason,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         commandService.fail(id, reason);
         return ResponseEntity.ok().build();
     }
 
+    @RequirePermission(ERPPermissions.SETTLEMENT_CANCEL)
     @PostMapping("/{id}/cancel")
-    public ResponseEntity<Void> cancel(@PathVariable Long id) {
+    public ResponseEntity<Void> cancel(@PathVariable Long id,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         commandService.cancel(id);
         return ResponseEntity.ok().build();
     }
 
+    @RequirePermission(ERPPermissions.SETTLEMENT_REFUND)
     @PostMapping("/{id}/refund")
-    public ResponseEntity<Void> refund(@PathVariable Long id, @RequestParam BigDecimal amount) {
+    public ResponseEntity<Void> refund(@PathVariable Long id, 
+            @RequestParam BigDecimal amount,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         commandService.applyRefund(id, amount);
         return ResponseEntity.ok().build();
     }

@@ -1,5 +1,7 @@
 package com.metawebthree.finance.interfaces.controller;
 
+import com.metawebthree.common.annotations.RequirePermission;
+import com.metawebthree.common.ERPPermissions;
 import com.metawebthree.finance.application.command.AccountSubjectCommandService;
 import com.metawebthree.finance.application.query.AccountSubjectQueryService;
 import com.metawebthree.finance.domain.entity.AccountSubject;
@@ -19,13 +21,17 @@ public class AccountSubjectController {
         this.queryService = queryService;
     }
 
+    @RequirePermission(ERPPermissions.ACCOUNT_SUBJECT_CREATE)
     @PostMapping
-    public ResponseEntity<Long> createSubject(@RequestBody SubjectCreateRequest request) {
+    public ResponseEntity<Long> createSubject(@RequestBody SubjectCreateRequest request,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         Long id = commandService.createSubject(request.getSubjectCode(), request.getSubjectName(), 
             request.getDirection(), request.getParentId());
         return ResponseEntity.ok(id);
     }
 
+    @RequirePermission(ERPPermissions.ACCOUNT_SUBJECT_READ)
     @GetMapping("/{id}")
     public ResponseEntity<AccountSubject> getSubject(@PathVariable Long id) {
         return queryService.getById(id)
@@ -33,6 +39,7 @@ public class AccountSubjectController {
             .orElse(ResponseEntity.notFound().build());
     }
 
+    @RequirePermission(ERPPermissions.ACCOUNT_SUBJECT_READ)
     @GetMapping
     public ResponseEntity<List<AccountSubject>> listSubjects(@RequestParam(required = false) String status,
                                                               @RequestParam(required = false) Integer level) {
@@ -47,6 +54,7 @@ public class AccountSubjectController {
         return ResponseEntity.ok(subjects);
     }
 
+    @RequirePermission(ERPPermissions.ACCOUNT_SUBJECT_READ)
     @GetMapping("/code/{code}")
     public ResponseEntity<AccountSubject> getByCode(@PathVariable String code) {
         return queryService.getBySubjectCode(code)
@@ -54,19 +62,26 @@ public class AccountSubjectController {
             .orElse(ResponseEntity.notFound().build());
     }
 
+    @RequirePermission(ERPPermissions.ACCOUNT_SUBJECT_READ)
     @GetMapping("/parent/{parentId}")
     public ResponseEntity<List<AccountSubject>> getByParentId(@PathVariable Long parentId) {
         return ResponseEntity.ok(queryService.listByParentId(parentId));
     }
 
+    @RequirePermission(ERPPermissions.ACCOUNT_SUBJECT_UPDATE)
     @PostMapping("/{id}/disable")
-    public ResponseEntity<Void> disable(@PathVariable Long id) {
+    public ResponseEntity<Void> disable(@PathVariable Long id,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         commandService.disable(id);
         return ResponseEntity.ok().build();
     }
 
+    @RequirePermission(ERPPermissions.ACCOUNT_SUBJECT_UPDATE)
     @PostMapping("/{id}/enable")
-    public ResponseEntity<Void> enable(@PathVariable Long id) {
+    public ResponseEntity<Void> enable(@PathVariable Long id,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         commandService.enable(id);
         return ResponseEntity.ok().build();
     }

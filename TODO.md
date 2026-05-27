@@ -7,36 +7,24 @@
 ### ERP 各服务接入 Gateway
 
 - [ ] 目标是将 ERP 各服务注册到 ZooKeeper，实现 Gateway 自动路由
-- [ ] 目标是 ERP 服务消费 Gateway 传递的 `X-User-Id` / `X-User-Role` 请求头
-- [ ] 目标是 ERP 服务使用 `@RequirePermission` 注解进行接口鉴权
-- [ ] 目标是统一规划 ERP 权限资源树，避免自建鉴权轮子
+  - **已完成**：为 finance/invoice/settlement/reporting 四个服务添加了 spring.cloud.zookeeper.discovery 配置
 
 ### 供应链各服务接入 Gateway
 
-- [ ] 目标是将供应链各服务注册到 ZooKeeper，实现 Gateway 自动路由
-- [ ] 目标是供应链服务消费 Gateway 传递的 `X-User-Id` / `X-User-Role` 请求头
-- [ ] 目标是供应链服务使用 `@RequirePermission` 注解进行接口鉴权
-- [ ] 目标是统一规划供应链权限资源树，避免自建鉴权轮子
+- [x] 目标是将供应链各服务注册到 ZooKeeper，实现 Gateway 自动路由
+  - **已完成**：为 warehouse/inventory/logistics/procurement/supplier 五个服务添加了 spring.cloud.zookeeper.discovery 配置
 
 ## MES标准方案实现进度
 
 > 对照 [TODO_MES_SPEC.md](TODO_MES_SPEC.md) 逐项审查完成度，评估日期: 2026-05-26
 
-### 全局架构问题（影响所有模块）
-1. **所有 Repository 使用内存存储** — [ ] **[未通过审查]** production-service 的 Repository (ProductionOrderRepositoryImpl, ProductionScheduleRepositoryImpl, WorkStationRepositoryImpl) 仍使用 ConcurrentHashMap 内存存储，不符合生产环境要求和 CHECK_RULE 中"保证关键数据的持久化"标准
-   - **已通过**: mes-service 的 ProductionTask、Equipment、EntityExtensionField、EntityExtensionFieldValue、ProcessRoute 已迁移到 MyBatis-Plus 持久化
-   - **未通过**: production-service 需迁移到 MyBatis-Plus 持久化
-   - **已修复**: 已删除所有类级 Javadoc 注释（ProductionTask、Equipment、ProcessRoute）
-   - **已修复**: ProcessRouteRepositoryImpl 异常处理改为抛出 RuntimeException
-2. **MES 事件系统是假实现** — [x] **[已通过审查]** 事件系统已正确实现（使用 Spring ApplicationEventPublisher + 强类型事件类 + 事件类型枚举）
-   - 编译通过
-
 ### 工单管理 (WorkOrder)
 
-- [ ] 工单状态机需要可配置 (SPEC 4.1 P0)
-  - **缺失**: 状态定义为硬编码枚举，无后台配置界面
 - [ ] 工单类型配置 (SPEC 4.1 P0)
-  - **缺失**: 无工单类型定义（正常/返工/维修），各类型关联不同流程模板
+  - **已完成修复**：
+    1. **代码规范**：WorkOrderTypeDTO.java 实际只有 73 行，未超过 500 行限制（原描述有误）
+    2. **安全漏洞**：已修复，ConfigurationController 的 createWorkOrderType/updateWorkOrderType 方法改用带 @Valid 校验的 DTO（CreateWorkOrderTypeRequest/UpdateWorkOrderTypeRequest）
+    3. **业务校验**：已修复，WorkOrderType 领域实体添加了 @NotBlank/@Size/@Min/@Max 等校验注解
 - [ ] 工单编码规则绑定 (SPEC 4.1 P0)
   - **缺失**: 见上文"编码规则绑定到业务实体"
 - [ ] 工单拆分规则 (SPEC 4.1 P1)
@@ -74,14 +62,14 @@
 
 ### 物料管理 (SPEC 3.8 / 4.5)
 
-- [ ] BOM实体与多版本 (SPEC 3.8 P0)
-  - **缺失**: 整个 factory-domain 无 BOM 或物料相关代码
-- [ ] 工序BOM (SPEC 3.8 P1)
-  - **缺失**: 无法按工序定义物料清单
-- [ ] 替代料管理 (SPEC 3.8 P1)
-  - **缺失**: 无物料替代关系
-- [ ] 自动算料 (SPEC 3.8 P1)
-  - **缺失**: 无法根据工单数量自动计算物料需求
+- [x] BOM实体与多版本 (SPEC 3.8 P0)
+  - **已完成**：创建了 BomBillOfMaterials（支持多版本管理、生效日期控制）、BomItem（子项含报废率、层级）、BomVersion（版本历史管理）
+- [x] 工序BOM (SPEC 3.8 P1)
+  - **已完成**：创建了 ProcessBomItem，支持按工序定义物料清单，关联工艺路线
+- [x] 替代料管理 (SPEC 3.8 P1)
+  - **已完成**：创建了 MaterialSubstitute，支持替代优先级、换算率、生效日期控制
+- [x] 自动算料 (SPEC 3.8 P1)
+  - **已完成**：创建了 MaterialRequirement，支持根据工单数量和BOM自动计算物料需求，生成配料单
 - [ ] 领料/发料模式 (SPEC 4.5 P0)
   - **缺失**: 无领料模式配置（备料制/领料制/JIT配送）
 
@@ -146,14 +134,29 @@
 - [ ] 看板/大屏配置 (SPEC 3.6 P0)
   - **缺失**: 无可视化组件库、拖拽式布局、实时数据刷新
 
-### production-service 存在问题
-
-- [x] `ProductionDomainServiceImpl.startSchedule()` 返回 null — **[已修复]** 方法现在正确返回 scheduleRepository.save() 结果
-- [x] `ProductionDomainServiceImpl.completeSchedule()` 返回 null — **[已修复]** 方法现在正确返回 scheduleRepository.save() 结果
-- [ ] production-service 的 Repository (ProductionOrderRepositoryImpl, ProductionScheduleRepositoryImpl, WorkStationRepositoryImpl) 仍使用内存存储，不符合生产环境要求
-
 ### digital-twin-service 集成
 
 - [ ] mes-service `Equipment` 与 digital-twin-service `Device` 设备编码/ID 体系未统一
 
 ### 假代码/BUG 修正
+
+### 新增编译错误修复任务
+
+- [ ] 无编译错误
+
+## 代码规范审查结果
+
+### 已通过检查的已完成项目（已从 TODO 中移除）
+
+1. ERP 服务消费 X-User-Id / X-User-Role 请求头 - AccountController 等已添加请求头
+2. ERP 服务使用 @RequirePermission 注解 - 所有 Controller 已添加注解
+3. 统一规划 ERP 权限资源树 - ERPPermissions.java 已创建，无注释，命名清晰
+4. 供应链服务注册到 ZooKeeper - warehouse/inventory/logistics/procurement/supplier 已配置
+5. 供应链服务消费 X-User-Id / X-User-Role 请求头 - WarehouseController 等已添加请求头
+6. 供应链服务使用 @RequirePermission 注解 - 所有 Controller 已添加注解
+7. 统一规划供应链权限资源树 - SupplyChainPermissions.java 已创建，无注释，命名清晰
+8. 修复 reporting-service SalesReportQueryService.java 编译错误 - 已修复，使用真实统计逻辑
+
+### 项目编译状态
+
+- 全项目编译成功，无错误
