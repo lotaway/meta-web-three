@@ -5,15 +5,6 @@ spring:
     name: settlement-service
   profiles:
     active: dev
-  cloud:
-    zookeeper:
-      discovery:
-        enabled: true
-        register: true
-        prefer-ip-address: true
-        metadata:
-          version: 1.0.0
-        service-name: ${spring.application.name}
 ---
 spring:
   config:

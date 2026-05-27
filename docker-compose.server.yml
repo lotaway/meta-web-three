@@ -21,6 +21,7 @@ services:
       dockerfile: server/Dockerfile
       target: gateway
     container_name: meta-web-three-gateway
+    hostname: gateway
     ports:
       - "10081:10081"
     environment:
@@ -43,6 +44,7 @@ services:
       dockerfile: server/Dockerfile
       target: product-service
     container_name: meta-web-three-product-service
+    hostname: product-service
     ports:
       - "10082:10082"
     volumes:
@@ -55,6 +57,7 @@ services:
       dockerfile: server/Dockerfile
       target: user-service
     container_name: meta-web-three-user-service
+    hostname: user-service
     ports:
       - "10083:10083"
     volumes:
@@ -67,6 +70,7 @@ services:
       dockerfile: server/Dockerfile
       target: order-service
     container_name: meta-web-three-order-service
+    hostname: order-service
     ports:
       - "10084:10084"
     volumes:
@@ -79,6 +83,7 @@ services:
       dockerfile: server/Dockerfile
       target: message-service
     container_name: meta-web-three-message-service
+    hostname: message-service
     ports:
       - "10085:10085"
     volumes:
@@ -91,6 +96,7 @@ services:
       dockerfile: server/Dockerfile
       target: payment-service
     container_name: meta-web-three-payment-service
+    hostname: payment-service
     ports:
       - "10086:10086"
     volumes:
@@ -103,6 +109,7 @@ services:
       dockerfile: server/Dockerfile
       target: media-service
     container_name: meta-web-three-media-service
+    hostname: media-service
     ports:
       - "10087:10087"
     volumes:
@@ -115,6 +122,7 @@ services:
       dockerfile: server/Dockerfile
       target: commission-service
     container_name: meta-web-three-commission-service
+    hostname: commission-service
     ports:
       - "10088:10088"
     volumes:
@@ -127,6 +135,7 @@ services:
       dockerfile: server/Dockerfile
       target: cart-service
     container_name: meta-web-three-cart-service
+    hostname: cart-service
     ports:
       - "10089:10089"
     volumes:
@@ -139,6 +148,7 @@ services:
       dockerfile: server/Dockerfile
       target: promotion-service
     container_name: meta-web-three-promotion-service
+    hostname: promotion-service
     ports:
       - "10090:10090"
     volumes:
@@ -151,6 +161,7 @@ services:
       dockerfile: server/Dockerfile
       target: user-action-service
     container_name: meta-web-three-user-action-service
+    hostname: user-action-service
     ports:
       - "10091:10091"
     volumes:
@@ -163,6 +174,7 @@ services:
       dockerfile: server/Dockerfile
       target: cs-service
     container_name: meta-web-three-cs-service
+    hostname: cs-service
     ports:
       - "10092:10092"
     volumes:
@@ -175,6 +187,7 @@ services:
       dockerfile: server/Dockerfile
       target: mes-service
     container_name: meta-web-three-mes-service
+    hostname: mes-service
     ports:
       - "10101:10101"
     volumes:
@@ -187,6 +200,7 @@ services:
       dockerfile: server/Dockerfile
       target: digital-twin-service
     container_name: meta-web-three-digital-twin-service
+    hostname: digital-twin-service
     ports:
       - "10102:10102"
     volumes:
@@ -199,6 +213,7 @@ services:
       dockerfile: server/Dockerfile
       target: forecasting-service
     container_name: meta-web-three-forecasting-service
+    hostname: forecasting-service
     ports:
       - "10103:10103"
     volumes:
@@ -211,6 +226,7 @@ services:
       dockerfile: server/Dockerfile
       target: recommendation-service
     container_name: meta-web-three-recommendation-service
+    hostname: recommendation-service
     ports:
       - "10104:10104"
     volumes:
@@ -223,6 +239,7 @@ services:
       dockerfile: server/Dockerfile
       target: inventory-service
     container_name: meta-web-three-inventory-service
+    hostname: inventory-service
     ports:
       - "10105:10105"
     volumes:
@@ -235,6 +252,7 @@ services:
       dockerfile: server/Dockerfile
       target: warehouse-service
     container_name: meta-web-three-warehouse-service
+    hostname: warehouse-service
     ports:
       - "10106:10106"
     volumes:
@@ -247,6 +265,7 @@ services:
       dockerfile: server/Dockerfile
       target: logistics-service
     container_name: meta-web-three-logistics-service
+    hostname: logistics-service
     ports:
       - "10107:10107"
     volumes:
@@ -259,6 +278,7 @@ services:
       dockerfile: server/Dockerfile
       target: procurement-service
     container_name: meta-web-three-procurement-service
+    hostname: procurement-service
     ports:
       - "10108:10108"
     volumes:
@@ -271,6 +291,7 @@ services:
       dockerfile: server/Dockerfile
       target: supplier-service
     container_name: meta-web-three-supplier-service
+    hostname: supplier-service
     ports:
       - "10109:10109"
     volumes:
@@ -283,6 +304,7 @@ services:
       dockerfile: server/Dockerfile
       target: finance-service
     container_name: meta-web-three-finance-service
+    hostname: finance-service
     ports:
       - "10110:10110"
     volumes:
@@ -295,6 +317,7 @@ services:
       dockerfile: server/Dockerfile
       target: invoice-service
     container_name: meta-web-three-invoice-service
+    hostname: invoice-service
     ports:
       - "10111:10111"
     volumes:
@@ -307,6 +330,7 @@ services:
       dockerfile: server/Dockerfile
       target: reporting-service
     container_name: meta-web-three-reporting-service
+    hostname: reporting-service
     ports:
       - "10112:10112"
     volumes:
@@ -319,6 +343,7 @@ services:
       dockerfile: server/Dockerfile
       target: settlement-service
     container_name: meta-web-three-settlement-service
+    hostname: settlement-service
     ports:
       - "10113:10113"
     volumes:
@@ -331,6 +356,7 @@ services:
       dockerfile: server/Dockerfile
       target: wallet-service
     container_name: meta-web-three-wallet-service
+    hostname: wallet-service
     ports:
       - "10114:10114"
     volumes:
