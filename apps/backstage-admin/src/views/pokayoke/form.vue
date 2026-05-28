@@ -3,38 +3,38 @@
     <el-card>
       <template #header>
         <div class="card-header">
-          <span>{{ isEdit ? '编辑规则' : '新增规则' }}</span>
-          <el-button @click="handleBack">返回</el-button>
+          <span>{{ isEdit ? t('mes.pokayoke.edit') : t('mes.pokayoke.add') }}</span>
+          <el-button @click="handleBack">{{ t('mes.pokayoke.back') }}</el-button>
         </div>
       </template>
 
       <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="规则编码" prop="ruleCode">
-              <el-input v-model="form.ruleCode" placeholder="请输入规则编码" :disabled="isEdit" />
+            <el-form-item :label="t('mes.pokayoke.ruleCode')" prop="ruleCode">
+              <el-input v-model="form.ruleCode" :placeholder="t('mes.pokayoke.ruleCodePlaceholder')" :disabled="isEdit" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="规则名称" prop="ruleName">
-              <el-input v-model="form.ruleName" placeholder="请输入规则名称" />
+            <el-form-item :label="t('mes.pokayoke.ruleName')" prop="ruleName">
+              <el-input v-model="form.ruleName" :placeholder="t('mes.pokayoke.ruleNamePlaceholder')" />
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="规则类型" prop="ruleType">
-              <el-select v-model="form.ruleType" placeholder="请选择规则类型">
-                <el-option label="物料检查" value="MATERIAL_CHECK" />
-                <el-option label="顺序检查" value="SEQUENCE_CHECK" />
-                <el-option label="参数检查" value="PARAMETER_CHECK" />
-                <el-option label="工位检查" value="STATION_CHECK" />
+            <el-form-item :label="t('mes.pokayoke.ruleType')" prop="ruleType">
+              <el-select v-model="form.ruleType" :placeholder="t('mes.pokayoke.ruleTypePlaceholder')">
+                <el-option :label="t('mes.pokayoke.typeMaterialCheck')" value="MATERIAL_CHECK" />
+                <el-option :label="t('mes.pokayoke.typeSequenceCheck')" value="SEQUENCE_CHECK" />
+                <el-option :label="t('mes.pokayoke.typeParameterCheck')" value="PARAMETER_CHECK" />
+                <el-option :label="t('mes.pokayoke.typeStationCheck')" value="STATION_CHECK" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="优先级">
+            <el-form-item :label="t('mes.pokayoke.priority')">
               <el-input-number v-model="form.priority" :min="0" :max="100" />
             </el-form-item>
           </el-col>
@@ -42,50 +42,49 @@
 
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="工位">
-              <el-input v-model="form.workstationId" placeholder="请输入工位ID" />
+            <el-form-item :label="t('mes.pokayoke.workstation')">
+              <el-input v-model="form.workstationId" :placeholder="t('mes.pokayoke.workstationIdPlaceholder')" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="错误提示">
-              <el-input v-model="form.errorMessage" placeholder="请输入错误提示" />
+            <el-form-item :label="t('mes.pokayoke.errorMessage')">
+              <el-input v-model="form.errorMessage" :placeholder="t('mes.pokayoke.errorMessagePlaceholder')" />
             </el-form-item>
           </el-col>
         </el-row>
 
-        <el-form-item label="条件表达式">
+        <el-form-item :label="t('mes.pokayoke.conditionExpression')">
           <el-input 
             v-model="form.conditionExpression" 
             type="textarea" 
             :rows="4"
-            placeholder="例如: material.code.startsWith('MAT-')" 
+            :placeholder="t('mes.pokayoke.conditionExpressionPlaceholder')" 
           />
           <div class="form-tip">
-            支持的变量: material.code, material.quantity, sequence.current, sequence.next, 
-            parameter.name, parameter.value, workstation.id
+            {{ t('mes.pokayoke.conditionExpressionTip') }}
           </div>
         </el-form-item>
 
-        <el-form-item label="动作类型">
-          <el-select v-model="form.actionType" placeholder="请选择动作类型">
-            <el-option label="阻止操作" value="BLOCK" />
-            <el-option label="警告" value="WARNING" />
-            <el-option label="记录日志" value="LOG" />
+        <el-form-item :label="t('mes.pokayoke.actionType')">
+          <el-select v-model="form.actionType" :placeholder="t('mes.pokayoke.actionTypePlaceholder')">
+            <el-option :label="t('mes.pokayoke.actionBlock')" value="BLOCK" />
+            <el-option :label="t('mes.pokayoke.actionWarning')" value="WARNING" />
+            <el-option :label="t('mes.pokayoke.actionLog')" value="LOG" />
           </el-select>
         </el-form-item>
 
-        <el-form-item label="动作配置">
+        <el-form-item :label="t('mes.pokayoke.actionConfig')">
           <el-input 
             v-model="form.actionConfig" 
             type="textarea" 
             :rows="3"
-            placeholder="JSON 格式的动作配置" 
+            :placeholder="t('mes.pokayoke.actionConfigPlaceholder')" 
           />
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="handleSubmit" :loading="submitting">保存</el-button>
-          <el-button @click="handleBack">取消</el-button>
+          <el-button type="primary" @click="handleSubmit" :loading="submitting">{{ t('mes.pokayoke.save') }}</el-button>
+          <el-button @click="handleBack">{{ t('mes.pokayoke.cancel') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -96,9 +95,11 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { usePokayokeRuleStore } from '@/stores/pokayokeRule'
 import type { FormInstance } from 'element-plus'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const ruleStore = usePokayokeRuleStore()
@@ -121,9 +122,9 @@ const form = reactive({
 })
 
 const rules = {
-  ruleCode: [{ required: true, message: '请输入规则编码', trigger: 'blur' }],
-  ruleName: [{ required: true, message: '请输入规则名称', trigger: 'blur' }],
-  ruleType: [{ required: true, message: '请选择规则类型', trigger: 'change' }],
+  ruleCode: [{ required: true, message: t('mes.pokayoke.ruleCodeRequired'), trigger: 'blur' }],
+  ruleName: [{ required: true, message: t('mes.pokayoke.ruleNameRequired'), trigger: 'blur' }],
+  ruleType: [{ required: true, message: t('mes.pokayoke.ruleTypeRequired'), trigger: 'change' }],
 }
 
 onMounted(async () => {
@@ -155,14 +156,14 @@ async function handleSubmit() {
   try {
     if (isEdit.value) {
       await ruleStore.updateRule(Number(route.query.id), form)
-      ElMessage.success('更新成功')
+      ElMessage.success(t('mes.pokayoke.updateSuccess'))
     } else {
       await ruleStore.createRule(form)
-      ElMessage.success('创建成功')
+      ElMessage.success(t('mes.pokayoke.createSuccess'))
     }
     router.push('/mes/pokayoke')
   } catch (error) {
-    ElMessage.error('操作失败')
+    ElMessage.error(t('mes.pokayoke.operationFailed'))
   } finally {
     submitting.value = false
   }

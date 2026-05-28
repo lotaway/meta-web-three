@@ -114,32 +114,32 @@ function handleDetail(row: PokayokeRule) {
 async function handleActivate(row: PokayokeRule) {
   try {
     await ruleStore.activateRule(row.id!)
-    ElMessage.success('激活成功')
+    ElMessage.success(t('pokayoke.activateSuccess'))
     ruleStore.fetchRules(queryParams)
   } catch (error) {
-    ElMessage.error('激活失败')
+    ElMessage.error(t('pokayoke.activateFailed'))
   }
 }
 
 async function handleDeactivate(row: PokayokeRule) {
   try {
     await ruleStore.deactivateRule(row.id!)
-    ElMessage.success('停用成功')
+    ElMessage.success(t('pokayoke.deactivateSuccess'))
     ruleStore.fetchRules(queryParams)
   } catch (error) {
-    ElMessage.error('停用失败')
+    ElMessage.error(t('pokayoke.deactivateFailed'))
   }
 }
 
 async function handleDelete(row: PokayokeRule) {
   try {
-    await ElMessageBox.confirm('确认删除该规则吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('pokayoke.confirmDelete'), t('common.warning'), {
+      confirmButtonText: t('common.confirmText'),
+      cancelButtonText: t('common.cancelText'),
       type: 'warning',
     })
     await ruleStore.deleteRule(row.id!)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('message.deleteSuccess'))
   } catch (error) {
     // cancelled
   }
@@ -147,12 +147,12 @@ async function handleDelete(row: PokayokeRule) {
 
 function getRuleTypeLabel(type?: string): string {
   const map: Record<string, string> = {
-    MATERIAL_CHECK: '物料检查',
-    SEQUENCE_CHECK: '顺序检查',
-    PARAMETER_CHECK: '参数检查',
-    STATION_CHECK: '工位检查',
+    MATERIAL_CHECK: t('pokayoke.typeMaterialCheck'),
+    SEQUENCE_CHECK: t('pokayoke.typeSequenceCheck'),
+    PARAMETER_CHECK: t('pokayoke.typeParameterCheck'),
+    STATION_CHECK: t('pokayoke.typeStationCheck'),
   }
-  return map[type || ''] || type
+  return map[type || ''] || type || ''
 }
 
 function getRuleTypeTag(type?: string): string {
@@ -167,11 +167,11 @@ function getRuleTypeTag(type?: string): string {
 
 function getStatusLabel(status?: string): string {
   const map: Record<string, string> = {
-    DRAFT: '草稿',
-    ACTIVE: '激活',
-    INACTIVE: '停用',
+    DRAFT: t('pokayoke.statusDraft'),
+    ACTIVE: t('pokayoke.statusActive'),
+    INACTIVE: t('pokayoke.statusInactive'),
   }
-  return map[status || ''] || status
+  return map[status || ''] || status || ''
 }
 
 function getStatusTag(status?: string): string {

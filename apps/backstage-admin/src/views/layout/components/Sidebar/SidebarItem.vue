@@ -1,11 +1,24 @@
 <script lang="ts" setup>
 import type { RouteRecordExt } from '@/types/router'
 import { computed, type PropType } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 // 定义组件名称
 defineOptions({
   name: 'SidebarItem'
 })
+
+const { t } = useI18n()
+
+// 翻译标题函数：如果是翻译key则翻译，否则直接显示
+const translateTitle = (title: string | undefined) => {
+  if (!title) return ''
+  // 如果是翻译key格式（包含点号），则翻译
+  if (title.includes('.') && !title.includes(' ')) {
+    return t(title)
+  }
+  return title
+}
 
 // 定义props
 const props = defineProps({
@@ -55,8 +68,7 @@ const hasOneShowingChildren = (children: RouteRecordExt[]) => {
             :icon-class="item.children[0]!.meta.icon">
           </svg-icon>
           <template #title>
-            <span v-if="item.children[0]!.meta && item.children[0]!.meta.title">{{ item.children[0]!.meta.title
-              }}</span>
+            <span v-if="item.children[0]!.meta && item.children[0]!.meta.title">{{ translateTitle(item.children[0]!.meta.title) }}</span>
           </template>
         </el-menu-item>
       </router-link>
@@ -65,7 +77,7 @@ const hasOneShowingChildren = (children: RouteRecordExt[]) => {
         <!-- 一级菜单 -->
         <template #title>
           <svg-icon v-if="item.meta && item.meta.icon" :icon-class="item.meta.icon"></svg-icon>
-          <span v-if="item.meta && item.meta.title">{{ item.meta.title }}</span>
+          <span v-if="item.meta && item.meta.title">{{ translateTitle(item.meta.title) }}</span>
         </template>
         <!-- 子菜单 -->
         <template v-for="child in getFilteredChildren(item.children!)">
@@ -76,7 +88,7 @@ const hasOneShowingChildren = (children: RouteRecordExt[]) => {
             <el-menu-item :index="item.path + '/' + child.path">
               <svg-icon v-if="child.meta && child.meta.icon" :icon-class="child.meta.icon"></svg-icon>
               <template #title>
-                <span v-if="child.meta && child.meta.title">{{ child.meta.title }}</span>
+                <span v-if="child.meta && child.meta.title">{{ translateTitle(child.meta.title) }}</span>
               </template>
             </el-menu-item>
           </a>
@@ -85,7 +97,7 @@ const hasOneShowingChildren = (children: RouteRecordExt[]) => {
             <el-menu-item :index="item.path + '/' + child.path">
               <svg-icon v-if="child.meta && child.meta.icon" :icon-class="child.meta.icon"></svg-icon>
               <template #title>
-                <span v-if="child.meta && child.meta.title">{{ child.meta.title }}</span>
+                <span v-if="child.meta && child.meta.title">{{ translateTitle(child.meta.title) }}</span>
               </template>
             </el-menu-item>
           </router-link>

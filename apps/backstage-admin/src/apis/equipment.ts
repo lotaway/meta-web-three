@@ -200,7 +200,7 @@ export function getOEEAPI(id: number, params?: {
   })
 }
 
-// ========== 设备维护计划 ==========
+// Maintenance Plan
 export interface MaintenancePlan {
   id?: number
   equipmentId: number
@@ -286,7 +286,7 @@ export function executeMaintenancePlanAPI(id: number, result?: string) {
   })
 }
 
-// ========== 设备点检记录 ==========
+// Equipment Checklist
 export interface EquipmentChecklist {
   id?: number
   equipmentId: number

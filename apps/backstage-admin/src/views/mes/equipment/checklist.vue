@@ -85,7 +85,7 @@
       />
     </el-card>
 
-    <!-- 新增/编辑对话框 -->
+    <!-- Add/Edit Dialog -->
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="600px">
       <el-form :model="form" :rules="rules" ref="formRef" label-width="140px">
         <el-form-item :label="t('mes.equipment.checklist.equipment')" prop="equipmentId">
@@ -121,7 +121,7 @@
       </template>
     </el-dialog>
 
-    <!-- 完成点检对话框 -->
+    <!-- Complete Checklist Dialog -->
     <el-dialog v-model="completeDialogVisible" :title="t('mes.equipment.checklist.completeTitle')" width="500px">
       <el-form :model="completeForm" label-width="120px">
         <el-form-item :label="t('mes.equipment.checklist.result')">
@@ -196,10 +196,10 @@ const form = reactive<CreateChecklistRequest>({
 })
 
 const rules = {
-  equipmentId: [{ required: true, message: '请选择设备', trigger: 'change' }],
-  checkCode: [{ required: true, message: '请输入点检编号', trigger: 'blur' }],
-  checkType: [{ required: true, message: '请选择点检类型', trigger: 'change' }],
-  checkTime: [{ required: true, message: '请选择点检时间', trigger: 'change' }]
+  equipmentId: [{ required: true, message: t('mes.equipment.checklist.selectEquipment'), trigger: 'change' }],
+  checkCode: [{ required: true, message: t('mes.equipment.checklist.checkCodePlaceholder'), trigger: 'blur' }],
+  checkType: [{ required: true, message: t('mes.equipment.checklist.selectType'), trigger: 'change' }],
+  checkTime: [{ required: true, message: t('mes.equipment.checklist.selectDateTime'), trigger: 'change' }]
 }
 
 const completeDialogVisible = ref(false)
@@ -220,7 +220,7 @@ const getEquipmentList = async () => {
     const res = await getEquipmentListAPI()
     equipmentList.value = res.data || []
   } catch (error) {
-    console.error('Failed to load equipment list:', error)
+    ElMessage.error(t('mes.equipment.checklist.fetchEquipmentFailed'))
   }
 }
 
@@ -308,7 +308,9 @@ const handleDelete = (row: EquipmentChecklist) => {
     } catch (error) {
       ElMessage.error(t('common.deleteFailed'))
     }
-  }).catch(() => {})
+  }).catch(() => {
+    // ignore
+  })
 }
 
 const handleComplete = (row: EquipmentChecklist) => {

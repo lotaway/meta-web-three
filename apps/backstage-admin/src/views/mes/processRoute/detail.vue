@@ -177,8 +177,7 @@ const loadData = async () => {
       ElMessage.error(t('mes.processRoute.dataNotExist'))
       router.push('/mes/process-route')
     }
-  } catch (error) {
-    console.error(t('mes.processRoute.loadFailed'), error)
+  } catch (error: unknown) {
     ElMessage.error(t('mes.processRoute.loadFailed'))
   } finally {
     loading.value = false
@@ -199,8 +198,10 @@ const handleActivate = async () => {
     await activateProcessRouteAPI(routeId.value)
     ElMessage.success(t('mes.processRoute.activateSuccess'))
     loadData()
-  } catch (error) {
-    // 用户取消
+  } catch (error: unknown) {
+    if (error !== 'cancel' && error !== 'close') {
+      ElMessage.error(t('mes.processRoute.activateFailed'))
+    }
   }
 }
 
@@ -210,8 +211,10 @@ const handleArchive = async () => {
     await archiveProcessRouteAPI(routeId.value)
     ElMessage.success(t('mes.processRoute.archiveSuccess'))
     loadData()
-  } catch (error) {
-    // 用户取消
+  } catch (error: unknown) {
+    if (error !== 'cancel' && error !== 'close') {
+      ElMessage.error(t('mes.processRoute.archiveFailed'))
+    }
   }
 }
 

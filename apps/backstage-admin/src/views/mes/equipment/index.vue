@@ -112,7 +112,7 @@ const getList = async () => {
     equipmentList.value = data || []
     total.value = data?.length || 0
   } catch (error) {
-    console.error(t('mes.equipment.fetchListFailed'), error)
+    ElMessage.error(t('mes.equipment.fetchListFailed'))
   } finally {
     loading.value = false
   }
@@ -155,12 +155,10 @@ const handleStartTask = async (row: Equipment) => {
       ElMessage.success(t('mes.equipment.taskStartSuccess'))
       getList()
     }
-  } catch (error) {
-    // 用户取消
+  } catch {
+    // ignore
   }
-}
 
-const handleReportBreakdown = async (row: Equipment) => {
   try {
     await ElMessageBox.confirm(t('mes.equipment.confirmBreakdown'), t('common.warning'), {
       type: 'warning'
@@ -169,7 +167,7 @@ const handleReportBreakdown = async (row: Equipment) => {
     ElMessage.success(t('mes.equipment.breakdownReported'))
     getList()
   } catch (error) {
-    // 用户取消
+    // ignore
   }
 }
 

@@ -161,7 +161,6 @@ const addStep = () => {
 
 const removeStep = (index: number) => {
   form.steps.splice(index, 1)
-  // 重新编号
   form.steps.forEach((step, idx) => {
     step.stepNo = idx + 1
   })
@@ -184,9 +183,8 @@ const loadData = async () => {
       form.status = data.status
       form.steps = data.steps ? [...data.steps] : []
     }
-  } catch (error) {
+  } catch (error: unknown) {
     ElMessage.error(t('mes.processRoute.loadFailed'))
-    console.error(error)
   }
 }
 
@@ -221,13 +219,10 @@ const handleSubmit = async () => {
         await createProcessRouteAPI(data)
         ElMessage.success(t('mes.processRoute.createSuccess'))
       }
-      
-      // 可选：保存后验证
-      // await validateProcessRouteAPI(...)
-      
+
       router.push('/mes/process-route')
-    } catch (error) {
-      console.error(t('mes.processRoute.submitFailed'), error)
+    } catch (error: unknown) {
+      ElMessage.error(t('mes.processRoute.submitFailed') + (error as Error).message)
     } finally {
       submitting.value = false
     }

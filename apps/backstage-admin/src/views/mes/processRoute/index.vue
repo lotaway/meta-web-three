@@ -104,7 +104,7 @@ const getList = async () => {
     routeList.value = data || []
     total.value = data?.length || 0
   } catch (error) {
-    console.error(t('mes.processRoute.fetchListFailed'), error)
+    ElMessage.error(t('mes.processRoute.fetchListFailed'))
   } finally {
     loading.value = false
   }
@@ -142,8 +142,10 @@ const handleActivate = async (row: ProcessRoute) => {
     await activateProcessRouteAPI(row.id!)
     ElMessage.success(t('mes.processRoute.activateSuccess'))
     getList()
-  } catch (error) {
-    // 用户取消或激活失败
+  } catch (error: unknown) {
+    if (error !== 'cancel' && error !== 'close') {
+      ElMessage.error(t('mes.processRoute.activateFailed'))
+    }
   }
 }
 
@@ -155,8 +157,10 @@ const handleArchive = async (row: ProcessRoute) => {
     await archiveProcessRouteAPI(row.id!)
     ElMessage.success(t('mes.processRoute.archiveSuccess'))
     getList()
-  } catch (error) {
-    // 用户取消或归档失败
+  } catch (error: unknown) {
+    if (error !== 'cancel' && error !== 'close') {
+      ElMessage.error(t('mes.processRoute.archiveFailed'))
+    }
   }
 }
 
@@ -168,8 +172,10 @@ const handleDelete = async (row: ProcessRoute) => {
     await deleteProcessRouteAPI(row.id!)
     ElMessage.success(t('mes.processRoute.deleteSuccess'))
     getList()
-  } catch (error) {
-    // 用户取消或删除失败
+  } catch (error: unknown) {
+    if (error !== 'cancel' && error !== 'close') {
+      ElMessage.error(t('mes.processRoute.deleteFailed'))
+    }
   }
 }
 

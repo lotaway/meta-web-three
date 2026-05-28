@@ -38,7 +38,6 @@ export interface UpdateProcessRouteRequest {
   steps?: ProcessStep[]
 }
 
-// 创建工艺路线
 export function createProcessRouteAPI(data: CreateProcessRouteRequest) {
   return http<ProcessRoute>({
     url: '/api/mes/process-route',
@@ -47,7 +46,6 @@ export function createProcessRouteAPI(data: CreateProcessRouteRequest) {
   })
 }
 
-// 更新工艺路线
 export function updateProcessRouteAPI(id: number, data: UpdateProcessRouteRequest) {
   return http<ProcessRoute>({
     url: `/api/mes/process-route/${id}`,
@@ -56,7 +54,6 @@ export function updateProcessRouteAPI(id: number, data: UpdateProcessRouteReques
   })
 }
 
-// 删除工艺路线
 export function deleteProcessRouteAPI(id: number) {
   return http({
     url: `/api/mes/process-route/${id}`,
@@ -64,7 +61,6 @@ export function deleteProcessRouteAPI(id: number) {
   })
 }
 
-// 根据ID获取工艺路线
 export function getProcessRouteByIdAPI(id: number) {
   return http<ProcessRoute>({
     url: `/api/mes/process-route/${id}`,
@@ -72,7 +68,6 @@ export function getProcessRouteByIdAPI(id: number) {
   })
 }
 
-// 根据路线编码获取工艺路线
 export function getProcessRouteByCodeAPI(routeCode: string) {
   return http<ProcessRoute>({
     url: `/api/mes/process-route/code/${routeCode}`,
@@ -80,7 +75,6 @@ export function getProcessRouteByCodeAPI(routeCode: string) {
   })
 }
 
-// 根据产品编码获取工艺路线列表
 export function getProcessRouteByProductAPI(productCode: string) {
   return http<ProcessRoute[]>({
     url: `/api/mes/process-route/product/${productCode}`,
@@ -88,7 +82,6 @@ export function getProcessRouteByProductAPI(productCode: string) {
   })
 }
 
-// 获取工艺路线列表（可按状态筛选）
 export function getProcessRouteListAPI(status?: string) {
   return http<ProcessRoute[]>({
     url: '/api/mes/process-route',
@@ -97,7 +90,6 @@ export function getProcessRouteListAPI(status?: string) {
   })
 }
 
-// 激活工艺路线
 export function activateProcessRouteAPI(id: number) {
   return http<ProcessRoute>({
     url: `/api/mes/process-route/${id}/activate`,
@@ -105,7 +97,6 @@ export function activateProcessRouteAPI(id: number) {
   })
 }
 
-// 归档工艺路线
 export function archiveProcessRouteAPI(id: number) {
   return http<ProcessRoute>({
     url: `/api/mes/process-route/${id}/archive`,
@@ -113,7 +104,6 @@ export function archiveProcessRouteAPI(id: number) {
   })
 }
 
-// 验证工艺路线
 export function validateProcessRouteAPI(id: number) {
   return http<ProcessRoute>({
     url: `/api/mes/process-route/${id}/validate`,
@@ -121,7 +111,6 @@ export function validateProcessRouteAPI(id: number) {
   })
 }
 
-// 获取下一道工序
 export function getNextStepAPI(id: number, stepNo: number) {
   return http<ProcessStep>({
     url: `/api/mes/process-route/${id}/next-step/${stepNo}`,
@@ -129,7 +118,6 @@ export function getNextStepAPI(id: number, stepNo: number) {
   })
 }
 
-// 获取首道工序
 export function getFirstStepAPI(id: number) {
   return http<ProcessStep>({
     url: `/api/mes/process-route/${id}/first-step`,

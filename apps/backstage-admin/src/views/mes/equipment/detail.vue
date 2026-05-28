@@ -104,8 +104,8 @@ const handleStartTask = async () => {
       equipment.value = await startTaskAPI(equipment.value.id!, taskNo.value)
       ElMessage.success(t('mes.equipment.detail.taskStarted'))
     }
-  } catch (error) {
-    // 用户取消
+  } catch {
+    // ignore
   }
 }
 
@@ -116,8 +116,8 @@ const handleCompleteTask = async () => {
       equipment.value = await completeTaskAPI(equipment.value.id!)
       ElMessage.success(t('mes.equipment.detail.taskCompleted'))
     }
-  } catch (error) {
-    // 用户取消
+  } catch {
+    // ignore
   }
 }
 
@@ -128,8 +128,8 @@ const handleReportBreakdown = async () => {
       equipment.value = await reportBreakdownAPI(equipment.value.id!)
       ElMessage.success(t('mes.equipment.detail.breakdownReported'))
     }
-  } catch (error) {
-    // 用户取消
+  } catch {
+    // ignore
   }
 }
 
@@ -140,8 +140,8 @@ const handleRepair = async () => {
       equipment.value = await repairEquipmentAPI(equipment.value.id!)
       ElMessage.success(t('mes.equipment.detail.repairCompleted'))
     }
-  } catch (error) {
-    // 用户取消
+  } catch {
+    // ignore
   }
 }
 
@@ -152,8 +152,8 @@ const handleStartMaintenance = async () => {
       equipment.value = await startMaintenanceAPI(equipment.value.id!)
       ElMessage.success(t('mes.equipment.detail.maintenanceStarted'))
     }
-  } catch (error) {
-    // 用户取消
+  } catch {
+    // ignore
   }
 }
 

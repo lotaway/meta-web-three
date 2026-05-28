@@ -77,7 +77,7 @@
       />
     </el-card>
 
-    <!-- 新增/编辑对话框 -->
+    <!-- Add/Edit Dialog -->
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="600px">
       <el-form :model="form" :rules="rules" ref="formRef" label-width="140px">
         <el-form-item :label="t('mes.equipment.maintenancePlan.equipment')" prop="equipmentId">
@@ -126,7 +126,7 @@
       </template>
     </el-dialog>
 
-    <!-- 执行保养对话框 -->
+    <!-- Execute Maintenance Dialog -->
     <el-dialog v-model="executeDialogVisible" :title="t('mes.equipment.maintenancePlan.executeTitle')" width="400px">
       <el-form :model="executeForm" label-width="100px">
         <el-form-item :label="t('mes.equipment.maintenancePlan.result')">
@@ -192,11 +192,11 @@ const form = reactive<CreateMaintenancePlanRequest>({
 })
 
 const rules = {
-  equipmentId: [{ required: true, message: '请选择设备', trigger: 'change' }],
-  planCode: [{ required: true, message: '请输入计划编码', trigger: 'blur' }],
-  planName: [{ required: true, message: '请输入计划名称', trigger: 'blur' }],
-  maintenanceType: [{ required: true, message: '请选择保养类型', trigger: 'change' }],
-  nextExecutionTime: [{ required: true, message: '请选择下次执行时间', trigger: 'change' }]
+  equipmentId: [{ required: true, message: t('mes.equipment.maintenancePlan.selectEquipment'), trigger: 'change' }],
+  planCode: [{ required: true, message: t('mes.equipment.maintenancePlan.planCodePlaceholder'), trigger: 'blur' }],
+  planName: [{ required: true, message: t('mes.equipment.maintenancePlan.planNamePlaceholder'), trigger: 'blur' }],
+  maintenanceType: [{ required: true, message: t('mes.equipment.maintenancePlan.selectType'), trigger: 'change' }],
+  nextExecutionTime: [{ required: true, message: t('mes.equipment.maintenancePlan.selectDateTime'), trigger: 'change' }]
 }
 
 const executeDialogVisible = ref(false)
@@ -215,7 +215,7 @@ const getEquipmentList = async () => {
     const res = await getEquipmentListAPI()
     equipmentList.value = res.data || []
   } catch (error) {
-    console.error('Failed to load equipment list:', error)
+    ElMessage.error(t('mes.equipment.maintenancePlan.fetchEquipmentFailed'))
   }
 }
 
@@ -302,7 +302,9 @@ const handleDelete = (row: MaintenancePlan) => {
     } catch (error) {
       ElMessage.error(t('common.deleteFailed'))
     }
-  }).catch(() => {})
+  }).catch(() => {
+    // ignore
+  })
 }
 
 const handleExecute = (row: MaintenancePlan) => {

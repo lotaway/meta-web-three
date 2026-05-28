@@ -44,7 +44,6 @@ export const useEquipmentStore = defineStore('equipment', () => {
       equipmentList.value = data || []
       total.value = data?.length || 0
     } catch (error) {
-      console.error('获取设备列表失败:', error)
       equipmentList.value = []
       total.value = 0
     } finally {
@@ -60,7 +59,6 @@ export const useEquipmentStore = defineStore('equipment', () => {
       currentEquipment.value = data
       return data
     } catch (error) {
-      console.error('获取设备详情失败:', error)
       currentEquipment.value = null
       return null
     } finally {
@@ -74,7 +72,6 @@ export const useEquipmentStore = defineStore('equipment', () => {
       const result = await createEquipmentAPI(data)
       return result
     } catch (error) {
-      console.error('创建设备失败:', error)
       throw error
     } finally {
       loading.value = false
@@ -87,7 +84,6 @@ export const useEquipmentStore = defineStore('equipment', () => {
       const result = await updateEquipmentAPI(id, data)
       return result
     } catch (error) {
-      console.error('更新设备失败:', error)
       throw error
     } finally {
       loading.value = false
@@ -100,7 +96,6 @@ export const useEquipmentStore = defineStore('equipment', () => {
       await deleteEquipmentAPI(id)
       return true
     } catch (error) {
-      console.error('删除设备失败:', error)
       return false
     } finally {
       loading.value = false
@@ -112,7 +107,6 @@ export const useEquipmentStore = defineStore('equipment', () => {
       const result = await startTaskAPI(id, taskNo)
       return result
     } catch (error) {
-      console.error('开始任务失败:', error)
       throw error
     }
   }
@@ -122,7 +116,6 @@ export const useEquipmentStore = defineStore('equipment', () => {
       const result = await completeTaskAPI(id)
       return result
     } catch (error) {
-      console.error('完成任务失败:', error)
       throw error
     }
   }
@@ -132,7 +125,6 @@ export const useEquipmentStore = defineStore('equipment', () => {
       const result = await reportBreakdownAPI(id, reason)
       return result
     } catch (error) {
-      console.error('报告故障失败:', error)
       throw error
     }
   }
@@ -142,7 +134,6 @@ export const useEquipmentStore = defineStore('equipment', () => {
       const result = await repairEquipmentAPI(id)
       return result
     } catch (error) {
-      console.error('维修设备失败:', error)
       throw error
     }
   }
@@ -152,7 +143,6 @@ export const useEquipmentStore = defineStore('equipment', () => {
       const result = await startMaintenanceAPI(id)
       return result
     } catch (error) {
-      console.error('开始保养失败:', error)
       throw error
     }
   }
@@ -162,7 +152,6 @@ export const useEquipmentStore = defineStore('equipment', () => {
       const result = await completeMaintenanceAPI(id)
       return result
     } catch (error) {
-      console.error('完成保养失败:', error)
       throw error
     }
   }
@@ -172,7 +161,6 @@ export const useEquipmentStore = defineStore('equipment', () => {
       const result = await bindWorkstationAPI(id, workstationId)
       return result
     } catch (error) {
-      console.error('绑定工位失败:', error)
       throw error
     }
   }
@@ -182,7 +170,6 @@ export const useEquipmentStore = defineStore('equipment', () => {
       const result = await unbindWorkstationAPI(id)
       return result
     } catch (error) {
-      console.error('解绑工位失败:', error)
       throw error
     }
   }
@@ -191,7 +178,6 @@ export const useEquipmentStore = defineStore('equipment', () => {
     try {
       return await getEquipmentStatusAPI(id)
     } catch (error) {
-      console.error('获取设备状态失败:', error)
       return null
     }
   }
