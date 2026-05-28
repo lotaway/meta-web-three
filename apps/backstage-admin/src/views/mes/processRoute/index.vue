@@ -2,55 +2,55 @@
   <div class="process-route-container">
     <el-card class="filter-card">
       <el-form :inline="true" :model="queryParams" class="filter-form">
-        <el-form-item label="路线编码">
-          <el-input v-model="queryParams.routeCode" placeholder="请输入路线编码" clearable />
+        <el-form-item :label="t('mes.processRoute.routeCode')">
+          <el-input v-model="queryParams.routeCode" :placeholder="t('mes.processRoute.routeCodePlaceholder')" clearable />
         </el-form-item>
-        <el-form-item label="路线名称">
-          <el-input v-model="queryParams.routeName" placeholder="请输入路线名称" clearable />
+        <el-form-item :label="t('mes.processRoute.routeName')">
+          <el-input v-model="queryParams.routeName" :placeholder="t('mes.processRoute.routeNamePlaceholder')" clearable />
         </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
-            <el-option label="草稿" value="DRAFT" />
-            <el-option label="已激活" value="ACTIVE" />
-            <el-option label="已归档" value="ARCHIVED" />
+        <el-form-item :label="t('mes.processRoute.status')">
+          <el-select v-model="queryParams.status" :placeholder="t('mes.processRoute.statusPlaceholder')" clearable>
+            <el-option :label="t('mes.processRoute.statusDraft')" value="DRAFT" />
+            <el-option :label="t('mes.processRoute.statusActive')" value="ACTIVE" />
+            <el-option :label="t('mes.processRoute.statusArchived')" value="ARCHIVED" />
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleQuery">查询</el-button>
-          <el-button @click="resetQuery">重置</el-button>
+          <el-button type="primary" @click="handleQuery">{{ t('common.query') }}</el-button>
+          <el-button @click="resetQuery">{{ t('common.reset') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <el-card>
       <div class="toolbar">
-        <el-button type="primary" @click="handleAdd">新增工艺路线</el-button>
+        <el-button type="primary" @click="handleAdd">{{ t('mes.processRoute.add') }}</el-button>
       </div>
 
       <el-table :data="routeList" v-loading="loading" border stripe>
-        <el-table-column label="ID" prop="id" width="80" />
-        <el-table-column label="路线编码" prop="routeCode" width="150" />
-        <el-table-column label="路线名称" prop="routeName" width="180" />
-        <el-table-column label="产品编码" prop="productCode" width="150" />
-        <el-table-column label="版本" prop="version" width="80" />
-        <el-table-column label="状态" prop="status" width="100">
+        <el-table-column :label="t('common.id')" prop="id" width="80" />
+        <el-table-column :label="t('mes.processRoute.routeCode')" prop="routeCode" width="150" />
+        <el-table-column :label="t('mes.processRoute.routeName')" prop="routeName" width="180" />
+        <el-table-column :label="t('mes.processRoute.productCode')" prop="productCode" width="150" />
+        <el-table-column :label="t('mes.processRoute.version')" prop="version" width="80" />
+        <el-table-column :label="t('mes.processRoute.status')" prop="status" width="100">
           <template #default="{ row }">
             <el-tag :type="getStatusType(row.status)">{{ getStatusText(row.status) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="工序数量" width="100">
+        <el-table-column :label="t('mes.processRoute.stepCount')" width="100">
           <template #default="{ row }">
             {{ row.steps?.length || 0 }}
           </template>
         </el-table-column>
-        <el-table-column label="创建时间" prop="createdAt" width="180" />
-        <el-table-column label="操作" fixed="right" width="240">
+        <el-table-column :label="t('mes.processRoute.createdAt')" prop="createdAt" width="180" />
+        <el-table-column :label="t('common.operation')" fixed="right" width="240">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">查看</el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-            <el-button link type="warning" size="small" @click="handleActivate(row)" v-if="row.status === 'DRAFT'">激活</el-button>
-            <el-button link type="info" size="small" @click="handleArchive(row)" v-if="row.status === 'ACTIVE'">归档</el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="primary" size="small" @click="handleView(row)">{{ t('common.view') }}</el-button>
+            <el-button link type="primary" size="small" @click="handleEdit(row)">{{ t('common.edit') }}</el-button>
+            <el-button link type="warning" size="small" @click="handleActivate(row)" v-if="row.status === 'DRAFT'">{{ t('mes.processRoute.activate') }}</el-button>
+            <el-button link type="info" size="small" @click="handleArchive(row)" v-if="row.status === 'ACTIVE'">{{ t('mes.processRoute.archive') }}</el-button>
+            <el-button link type="danger" size="small" @click="handleDelete(row)">{{ t('common.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -71,6 +71,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { ProcessRoute } from '@/apis/processRoute'
 import { 
@@ -79,6 +80,8 @@ import {
   activateProcessRouteAPI,
   archiveProcessRouteAPI 
 } from '@/apis/processRoute'
+
+const { t } = useI18n()
 
 const router = useRouter()
 
@@ -101,7 +104,7 @@ const getList = async () => {
     routeList.value = data || []
     total.value = data?.length || 0
   } catch (error) {
-    console.error('获取工艺路线列表失败:', error)
+    console.error(t('mes.processRoute.fetchListFailed'), error)
   } finally {
     loading.value = false
   }
@@ -133,11 +136,11 @@ const handleView = (row: ProcessRoute) => {
 
 const handleActivate = async (row: ProcessRoute) => {
   try {
-    await ElMessageBox.confirm('确定要激活该工艺路线吗？', '提示', {
+    await ElMessageBox.confirm(t('mes.processRoute.confirmActivate'), t('common.warning'), {
       type: 'warning'
     })
     await activateProcessRouteAPI(row.id!)
-    ElMessage.success('激活成功')
+    ElMessage.success(t('mes.processRoute.activateSuccess'))
     getList()
   } catch (error) {
     // 用户取消或激活失败
@@ -146,11 +149,11 @@ const handleActivate = async (row: ProcessRoute) => {
 
 const handleArchive = async (row: ProcessRoute) => {
   try {
-    await ElMessageBox.confirm('确定要归档该工艺路线吗？', '提示', {
+    await ElMessageBox.confirm(t('mes.processRoute.confirmArchive'), t('common.warning'), {
       type: 'warning'
     })
     await archiveProcessRouteAPI(row.id!)
-    ElMessage.success('归档成功')
+    ElMessage.success(t('mes.processRoute.archiveSuccess'))
     getList()
   } catch (error) {
     // 用户取消或归档失败
@@ -159,11 +162,11 @@ const handleArchive = async (row: ProcessRoute) => {
 
 const handleDelete = async (row: ProcessRoute) => {
   try {
-    await ElMessageBox.confirm('确定要删除该工艺路线吗？', '提示', {
+    await ElMessageBox.confirm(t('mes.processRoute.confirmDelete'), t('common.warning'), {
       type: 'warning'
     })
     await deleteProcessRouteAPI(row.id!)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('mes.processRoute.deleteSuccess'))
     getList()
   } catch (error) {
     // 用户取消或删除失败
@@ -181,9 +184,9 @@ const getStatusType = (status?: string) => {
 
 const getStatusText = (status?: string) => {
   const map: Record<string, string> = {
-    DRAFT: '草稿',
-    ACTIVE: '已激活',
-    ARCHIVED: '已归档'
+    DRAFT: t('mes.processRoute.statusDraft'),
+    ACTIVE: t('mes.processRoute.statusActive'),
+    ARCHIVED: t('mes.processRoute.statusArchived')
   }
   return map[status || ''] || status
 }
