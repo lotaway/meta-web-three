@@ -2,37 +2,37 @@
   <div class="cs-agents">
     <el-card>
       <template #header>
-        <div class="card-header"><span>客服人员</span><el-button type="primary" size="small" @click="showDialog = true">添加客服</el-button></div>
+        <div class="card-header"><span>{{ t('cs.agents.title') }}</span><el-button type="primary" size="small" @click="showDialog = true">{{ t('cs.agents.addAgent') }}</el-button></div>
       </template>
       <el-table :data="agents" border stripe>
-        <el-table-column prop="id" label="ID" width="60" />
-        <el-table-column prop="adminId" label="管理员ID" width="100" />
-        <el-table-column prop="nickname" label="昵称" />
-        <el-table-column prop="status" label="状态" width="90">
+        <el-table-column prop="id" :label="t('cs.agents.id')" width="60" />
+        <el-table-column prop="adminId" :label="t('cs.agents.adminId')" width="100" />
+        <el-table-column prop="nickname" :label="t('cs.agents.nickname')" />
+        <el-table-column prop="status" :label="t('cs.agents.status')" width="90">
           <template #default="{ row }">
             <el-tag :type="statusTagType(row.status)" size="small">{{ row.status }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="currentLoad" label="当前负载" width="90" />
-        <el-table-column prop="maxConcurrent" label="最大接待" width="90" />
-        <el-table-column prop="groupId" label="技能组" width="80" />
-        <el-table-column label="操作" width="220">
+        <el-table-column prop="currentLoad" :label="t('cs.agents.currentLoad')" width="90" />
+        <el-table-column prop="maxConcurrent" :label="t('cs.agents.maxConcurrent')" width="90" />
+        <el-table-column prop="groupId" :label="t('cs.agents.groupId')" width="80" />
+        <el-table-column :label="t('cs.agents.operations')" width="220">
           <template #default="{ row }">
-            <el-button size="small" @click="toggleStatus(row)">{{ row.status === 'ONLINE' ? '下线' : '上线' }}</el-button>
-            <el-button size="small" type="danger" @click="handleDelete(row.id)">删除</el-button>
+            <el-button size="small" @click="toggleStatus(row)">{{ row.status === 'ONLINE' ? t('cs.agents.offline') : t('cs.agents.online') }}</el-button>
+            <el-button size="small" type="danger" @click="handleDelete(row.id)">{{ t('cs.agents.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-card>
-    <el-dialog v-model="showDialog" title="添加客服" width="400px">
+    <el-dialog v-model="showDialog" :title="t('cs.agents.dialogTitle')" width="400px">
       <el-form :model="form" label-width="80px">
-        <el-form-item label="管理员ID"><el-input v-model.number="form.adminId" type="number" /></el-form-item>
-        <el-form-item label="昵称"><el-input v-model="form.nickname" /></el-form-item>
-        <el-form-item label="技能组"><el-input v-model.number="form.groupId" type="number" /></el-form-item>
+        <el-form-item :label="t('cs.agents.adminIdLabel')"><el-input v-model.number="form.adminId" type="number" /></el-form-item>
+        <el-form-item :label="t('cs.agents.nicknameLabel')"><el-input v-model="form.nickname" /></el-form-item>
+        <el-form-item :label="t('cs.agents.groupIdLabel')"><el-input v-model.number="form.groupId" type="number" /></el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="showDialog = false">取消</el-button>
-        <el-button type="primary" @click="handleCreate">确定</el-button>
+        <el-button @click="showDialog = false">{{ t('cs.agents.cancel') }}</el-button>
+        <el-button type="primary" @click="handleCreate">{{ t('cs.agents.confirm') }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -40,10 +40,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getOnlineAgentsAPI, agentOnlineAPI, agentOfflineAPI, deleteAgentAPI } from '@/apis/cs'
 import type { Agent } from '@/apis/cs'
 import { ElMessage } from 'element-plus'
 import http from '@/utils/http'
+
+const { t } = useI18n()
 
 const agents = ref<Agent[]>([])
 const showDialog = ref(false)
@@ -62,18 +65,18 @@ const toggleStatus = async (row: Agent) => {
     await agentOnlineAPI(row.id)
     row.status = 'ONLINE'
   }
-  ElMessage.success('操作成功')
+  ElMessage.success(t('cs.agents.operationSuccess'))
 }
 
 const handleDelete = async (id: number) => {
   await deleteAgentAPI(id)
-  ElMessage.success('已删除')
+  ElMessage.success(t('cs.agents.deleted'))
   load()
 }
 
 const handleCreate = async () => {
   await http({ url: '/cs/agent/create', method: 'post', data: form.value })
-  ElMessage.success('创建成功')
+  ElMessage.success(t('cs.agents.createSuccess'))
   showDialog.value = false
   load()
 }

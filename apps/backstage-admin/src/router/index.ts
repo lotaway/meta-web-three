@@ -433,19 +433,19 @@ export const asyncRouterMap: RouteRecordExt[] = [
       {
         path: 'pokayoke',
         name: 'pokayoke',
-        component: () => import('@/views/pokayoke/index.vue'),
+        component: () => import('@/views/mes/pokayoke/index.vue'),
         meta: { title: 'mes.pokayoke.title', icon: 'mes-pokayoke' },
       },
       {
         path: 'pokayoke/form',
         name: 'pokayokeForm',
-        component: () => import('@/views/pokayoke/form.vue'),
+        component: () => import('@/views/mes/pokayoke/form.vue'),
         meta: { title: 'mes.pokayoke.form', hidden: true },
       },
       {
         path: 'pokayoke/detail',
         name: 'pokayokeDetail',
-        component: () => import('@/views/pokayoke/detail.vue'),
+        component: () => import('@/views/mes/pokayoke/detail.vue'),
         meta: { title: 'mes.pokayoke.detail', hidden: true },
       },
     ],

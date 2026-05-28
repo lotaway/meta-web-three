@@ -174,7 +174,8 @@ const loadData = async () => {
   if (!isEdit.value) return
   
   try {
-    const data = await getProcessRouteByIdAPI(routeId.value)
+    const res = await getProcessRouteByIdAPI(routeId.value)
+    const data = res.data
     if (data) {
       form.routeCode = data.routeCode
       form.routeName = data.routeName

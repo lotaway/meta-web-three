@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox, type CascaderOption } from 'element-plus'
 import { Warning } from '@element-plus/icons-vue'
 import { getOrderDetailByIdAPI, orderUpdateReceiverInfoAPI, orderUpdateMoneyInfoAPI, orderUpdateCloseAPI, orderUpdateNoteAPI, orderDeleteByIdsAPI } from '@/apis/order'
@@ -8,6 +9,8 @@ import LogisticsDialog from '@/views/oms/order/components/logisticsDialog.vue'
 import type { OmsOrder, OmsOrderDetail, OmsReceiverInfoParam } from '@/types/order'
 import { formatDateTime } from '@/utils/datetime'
 import { pcaTextArr } from 'element-china-area-data'
+
+const { t } = useI18n()
 
 // 获取路由对象
 const router = useRouter()
@@ -58,7 +61,7 @@ const logisticsDialogVisible = ref(false)
 // 格式化空值
 const formatNull = (value: string | undefined) => {
   if (!value) {
-    return '暂无'
+    return t('oms.order.detail.cellNoData')
   } else {
     return value
   }
@@ -67,7 +70,7 @@ const formatNull = (value: string | undefined) => {
 // 格式化长文本
 const formatLongText = (value: string | undefined) => {
   if (!value) {
-    return '暂无'
+    return t('oms.order.detail.cellNoData')
   } else if (value.length > 8) {
     return value.substring(0, 8) + '...'
   } else {
@@ -78,29 +81,29 @@ const formatLongText = (value: string | undefined) => {
 // 格式化支付方式
 const formatPayType = (value: number) => {
   if (value === 1) {
-    return '支付宝'
+    return t('oms.order.detail.payTypeAlipay')
   } else if (value === 2) {
-    return '微信'
+    return t('oms.order.detail.payTypeWechat')
   } else {
-    return '未支付'
+    return t('oms.order.detail.payTypeUnpaid')
   }
 }
 
 // 格式化订单来源
 const formatSourceType = (value: number) => {
   if (value === 1) {
-    return 'APP订单'
+    return t('oms.order.detail.sourceTypeAPP')
   } else {
-    return 'PC订单'
+    return t('oms.order.detail.sourceTypePC')
   }
 }
 
 // 格式化订单类型
 const formatOrderType = (value: number) => {
   if (value === 1) {
-    return '秒杀订单'
+    return t('oms.order.detail.orderTypeFlash')
   } else {
-    return '正常订单'
+    return t('oms.order.detail.orderTypeNormal')
   }
 }
 
@@ -118,37 +121,37 @@ const formatAddress = (order: OmsOrder) => {
 // 格式化订单状态
 const formatStatus = (value: number) => {
   if (value === 1) {
-    return '待发货'
+    return t('oms.order.detail.statusPendingDeliver')
   } else if (value === 2) {
-    return '已发货'
+    return t('oms.order.detail.statusDelivered')
   } else if (value === 3) {
-    return '已完成'
+    return t('oms.order.detail.statusCompleted')
   } else if (value === 4) {
-    return '已关闭'
+    return t('oms.order.detail.statusClosed')
   } else if (value === 5) {
-    return '无效订单'
+    return t('oms.order.detail.statusInvalid')
   } else {
-    return '待付款'
+    return t('oms.order.detail.statusPendingPay')
   }
 }
 
 // 格式化支付状态
 const formatPayStatus = (value: number) => {
   if (value === 0) {
-    return '未支付'
+    return t('oms.order.detail.payStatusUnpaid')
   } else if (value === 4) {
-    return '已退款'
+    return t('oms.order.detail.payStatusRefunded')
   } else {
-    return '已支付'
+    return t('oms.order.detail.payStatusPaid')
   }
 }
 
 // 格式化发货状态
 const formatDeliverStatus = (value: number) => {
   if (value === 0 || value === 1) {
-    return '未发货'
+    return t('oms.order.detail.deliverStatusNotDelivered')
   } else {
-    return '已发货'
+    return t('oms.order.detail.deliverStatusDelivered')
   }
 }
 
@@ -216,16 +219,16 @@ const showUpdateReceiverDialog = () => {
 
 // 处理更新收货人信息
 const handleUpdateReceiverInfo = async () => {
-  await ElMessageBox.confirm('是否要修改收货信息?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('oms.order.detail.msgModifyReceiverConfirm'), t('oms.order.detail.confirmTitle'), {
+    confirmButtonText: t('common.confirmText'),
+    cancelButtonText: t('common.cancelText'),
     type: 'warning'
   })
   await orderUpdateReceiverInfoAPI(receiverInfo.value)
   receiverDialogVisible.value = false
   ElMessage({
     type: 'success',
-    message: '修改成功!'
+    message: t('oms.order.detail.msgModifySuccess')
   })
   const response = await getOrderDetailByIdAPI(id.value!)
   order.value = response.data
@@ -242,16 +245,16 @@ const showUpdateMoneyDialog = () => {
 
 // 处理更新费用信息
 const handleUpdateMoneyInfo = async () => {
-  await ElMessageBox.confirm('是否要修改费用信息?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('oms.order.detail.msgModifyMoneyConfirm'), t('oms.order.detail.confirmTitle'), {
+    confirmButtonText: t('common.confirmText'),
+    cancelButtonText: t('common.cancelText'),
     type: 'warning'
   })
   await orderUpdateMoneyInfoAPI(moneyInfo.value)
   moneyDialogVisible.value = false
   ElMessage({
     type: 'success',
-    message: '修改成功!'
+    message: t('oms.order.detail.msgModifySuccess')
   })
   const response = await getOrderDetailByIdAPI(id.value!)
   order.value = response.data
@@ -266,16 +269,16 @@ const showMessageDialog = () => {
 
 // 处理发送站内信
 const handleSendMessage = async () => {
-  await ElMessageBox.confirm('是否要发送站内信?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('oms.order.detail.msgSendMessageConfirm'), t('oms.order.detail.confirmTitle'), {
+    confirmButtonText: t('common.confirmText'),
+    cancelButtonText: t('common.cancelText'),
     type: 'warning'
   })
-  console.log('站内信功能暂未实现，模拟发送。。。')
+  console.log(t('oms.order.detail.msgFeatureNotImpl'))
   messageDialogVisible.value = false
   ElMessage({
     type: 'success',
-    message: '发送成功!'
+    message: t('oms.order.detail.msgSendSuccess')
   })
 }
 
@@ -289,16 +292,16 @@ const showCloseOrderDialog = () => {
 // 处理关闭订单
 const handleCloseOrder = async () => {
   try {
-    await ElMessageBox.confirm('是否要关闭?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('oms.order.detail.msgCloseOrderConfirm'), t('oms.order.detail.confirmTitle'), {
+      confirmButtonText: t('common.confirmText'),
+      cancelButtonText: t('common.cancelText'),
       type: 'warning'
     })
     await orderUpdateCloseAPI({ ids: closeInfo.value.id.toString(), note: closeInfo.value.note })
     closeDialogVisible.value = false
     ElMessage({
       type: 'success',
-      message: '订单关闭成功!'
+      message: t('oms.order.detail.msgCloseSuccess')
     })
 
     const response = await getOrderDetailByIdAPI(id.value!)
@@ -319,16 +322,16 @@ const showMarkOrderDialog = () => {
 
 // 处理备注订单
 const handleMarkOrder = async () => {
-  await ElMessageBox.confirm('是否要备注订单?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('oms.order.detail.msgMarkOrderConfirm'), t('oms.order.detail.confirmTitle'), {
+    confirmButtonText: t('common.confirmText'),
+    cancelButtonText: t('common.cancelText'),
     type: 'warning'
   })
   await orderUpdateNoteAPI({ id: markInfo.value.id, note: markInfo.value.note, status: order.value.status })
   markOrderDialogVisible.value = false
   ElMessage({
     type: 'success',
-    message: '订单备注成功!'
+    message: t('oms.order.detail.msgMarkSuccess')
   })
   const response = await getOrderDetailByIdAPI(id.value!)
   order.value = response.data
@@ -337,14 +340,14 @@ const handleMarkOrder = async () => {
 // 处理删除订单
 const handleDeleteOrder = async () => {
   try {
-    await ElMessageBox.confirm('是否要进行该删除操作?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('oms.order.detail.msgDeleteOrderConfirm'), t('oms.order.detail.confirmTitle'), {
+      confirmButtonText: t('common.confirmText'),
+      cancelButtonText: t('common.cancelText'),
       type: 'warning'
     })
     await orderDeleteByIdsAPI({ ids: id.value!.toString() })
     ElMessage({
-      message: '删除成功！',
+      message: t('oms.order.detail.msgDeleteSuccess'),
       type: 'success',
       duration: 1000
     })
@@ -367,11 +370,11 @@ const showLogisticsDialog = () => {
   <div class="detail-container">
     <div>
       <el-steps :active="formatStepStatus(order.status)" finish-status="success" align-center>
-        <el-step title="提交订单" :description="order.createTime ? formatDateTime(order.createTime) : ''"></el-step>
-        <el-step title="支付订单" :description="order.paymentTime ? formatDateTime(order.paymentTime) : ''"></el-step>
-        <el-step title="平台发货" :description="order.deliveryTime ? formatDateTime(order.deliveryTime) : ''"></el-step>
-        <el-step title="确认收货" :description="order.receiveTime ? formatDateTime(order.receiveTime) : ''"></el-step>
-        <el-step title="完成评价" :description="order.commentTime ? formatDateTime(order.commentTime) : ''"></el-step>
+        <el-step :title="t('oms.order.detail.stepSubmitOrder')" :description="order.createTime ? formatDateTime(order.createTime) : ''"></el-step>
+        <el-step :title="t('oms.order.detail.stepPayOrder')" :description="order.paymentTime ? formatDateTime(order.paymentTime) : ''"></el-step>
+        <el-step :title="t('oms.order.detail.stepPlatformDeliver')" :description="order.deliveryTime ? formatDateTime(order.deliveryTime) : ''"></el-step>
+        <el-step :title="t('oms.order.detail.stepConfirmReceive')" :description="order.receiveTime ? formatDateTime(order.receiveTime) : ''"></el-step>
+        <el-step :title="t('oms.order.detail.stepCompleteReview')" :description="order.commentTime ? formatDateTime(order.commentTime) : ''"></el-step>
       </el-steps>
     </div>
     <el-card shadow="never" style="margin-top: 15px">
@@ -379,28 +382,28 @@ const showLogisticsDialog = () => {
         <el-icon class="color-danger el-icon-middle" style="margin-left: 15px;">
           <Warning />
         </el-icon>
-        <span class="color-danger">当前订单状态：{{ formatStatus(order.status) }}</span>
+        <span class="color-danger">{{ t('oms.order.detail.currentStatus') }}：{{ formatStatus(order.status) }}</span>
         <div class="operate-button-container" v-show="order.status === 0">
-          <el-button size="small" @click="showUpdateReceiverDialog">修改收货人信息</el-button>
-          <el-button size="small" @click="showUpdateMoneyDialog">修改费用信息</el-button>
-          <el-button size="small" @click="showMessageDialog">发送站内信</el-button>
-          <el-button size="small" @click="showCloseOrderDialog">关闭订单</el-button>
-          <el-button size="small" @click="showMarkOrderDialog">备注订单</el-button>
+          <el-button size="small" @click="showUpdateReceiverDialog">{{ t('oms.order.detail.btnModifyReceiver') }}</el-button>
+          <el-button size="small" @click="showUpdateMoneyDialog">{{ t('oms.order.detail.btnModifyMoney') }}</el-button>
+          <el-button size="small" @click="showMessageDialog">{{ t('oms.order.detail.btnSendMessage') }}</el-button>
+          <el-button size="small" @click="showCloseOrderDialog">{{ t('oms.order.detail.btnCloseOrder') }}</el-button>
+          <el-button size="small" @click="showMarkOrderDialog">{{ t('oms.order.detail.btnMarkOrder') }}</el-button>
         </div>
         <div class="operate-button-container" v-show="order.status === 1">
-          <el-button size="small" @click="showUpdateReceiverDialog">修改收货人信息</el-button>
-          <el-button size="small" @click="showMessageDialog">发送站内信</el-button>
-          <el-button size="small">取消订单</el-button>
-          <el-button size="small" @click="showMarkOrderDialog">备注订单</el-button>
+          <el-button size="small" @click="showUpdateReceiverDialog">{{ t('oms.order.detail.btnModifyReceiver') }}</el-button>
+          <el-button size="small" @click="showMessageDialog">{{ t('oms.order.detail.btnSendMessage') }}</el-button>
+          <el-button size="small">{{ t('oms.order.detail.btnCancelOrder') }}</el-button>
+          <el-button size="small" @click="showMarkOrderDialog">{{ t('oms.order.detail.btnMarkOrder') }}</el-button>
         </div>
         <div class="operate-button-container" v-show="order.status === 2 || order.status === 3">
-          <el-button size="small" @click="showLogisticsDialog">订单跟踪</el-button>
-          <el-button size="small" @click="showMessageDialog">发送站内信</el-button>
-          <el-button size="small" @click="showMarkOrderDialog">备注订单</el-button>
+          <el-button size="small" @click="showLogisticsDialog">{{ t('oms.order.detail.btnOrderTrack') }}</el-button>
+          <el-button size="small" @click="showMessageDialog">{{ t('oms.order.detail.btnSendMessage') }}</el-button>
+          <el-button size="small" @click="showMarkOrderDialog">{{ t('oms.order.detail.btnMarkOrder') }}</el-button>
         </div>
         <div class="operate-button-container" v-show="order.status === 4">
-          <el-button size="small" @click="handleDeleteOrder">删除订单</el-button>
-          <el-button size="small" @click="showMarkOrderDialog">备注订单</el-button>
+          <el-button size="small" @click="handleDeleteOrder">{{ t('oms.order.detail.btnDeleteOrder') }}</el-button>
+          <el-button size="small" @click="showMarkOrderDialog">{{ t('oms.order.detail.btnMarkOrder') }}</el-button>
         </div>
       </div>
       <!-- 其余模板内容保持不变，由于篇幅限制，这里省略了大部分模板代码 -->

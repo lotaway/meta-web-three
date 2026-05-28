@@ -4,6 +4,9 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { getOrderSettingByIdAPI, orderSettingUpdateByIdAPI } from '@/apis/orderSetting'
 import type { FormInstance, FormRules } from 'element-plus'
 import type { OmsOrderSetting } from '@/types/orderSetting'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // 默认订单设置数据
 const defaultOrderSetting = {
@@ -32,11 +35,11 @@ const orderSettingForm = ref<FormInstance>()
 // 时间验证规则
 const checkTime = (rule: unknown, value: string, callback: (error?: Error) => void) => {
   if (!value) {
-    return callback(new Error('时间不能为空'))
+    return callback(new Error(t('oms.orderSetting.timeRequired')))
   }
   const intValue = parseInt(value)
   if (!Number.isInteger(intValue)) {
-    return callback(new Error('请输入数字值'))
+    return callback(new Error(t('oms.orderSetting.numberRequired')))
   }
   callback()
 }
@@ -54,20 +57,20 @@ const confirm = async () => {
   if (!orderSettingForm.value) return
   const valid = await orderSettingForm.value.validate()
   if (valid) {
-    await ElMessageBox.confirm('是否要提交修改?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('oms.orderSetting.confirmSubmit'), t('oms.orderSetting.confirmTitle'), {
+      confirmButtonText: t('common.confirmText'),
+      cancelButtonText: t('common.cancelText'),
       type: 'warning'
     })
     await orderSettingUpdateByIdAPI(1, orderSetting.value)
     ElMessage({
       type: 'success',
-      message: '提交成功!',
+      message: t('oms.orderSetting.submitSuccess'),
       duration: 1000
     })
   } else {
     ElMessage({
-      message: '提交参数不合法',
+      message: t('oms.orderSetting.submitFailed'),
       type: 'warning'
     })
     return false
@@ -78,38 +81,38 @@ const confirm = async () => {
 <template>
   <el-card class="form-container" shadow="never">
     <el-form :model="orderSetting" ref="orderSettingForm" :rules="rules" label-width="150px">
-      <el-form-item label="秒杀订单超过：" prop="flashOrderOvertime">
+      <el-form-item :label="t('oms.orderSetting.flashOrderOvertime') + '：'" prop="flashOrderOvertime">
         <el-input v-model="orderSetting.flashOrderOvertime" class="input-width">
-          <template #append>分</template>
+          <template #append>{{ t('oms.orderSetting.minutes') }}</template>
         </el-input>
-        <span class="note-margin">未付款，订单自动关闭</span>
+        <span class="note-margin">{{ t('oms.orderSetting.flashOrderTip') }}</span>
       </el-form-item>
-      <el-form-item label="正常订单超过：" prop="normalOrderOvertime">
+      <el-form-item :label="t('oms.orderSetting.normalOrderOvertime') + '：'" prop="normalOrderOvertime">
         <el-input v-model="orderSetting.normalOrderOvertime" class="input-width">
-          <template #append>分</template>
+          <template #append>{{ t('oms.orderSetting.minutes') }}</template>
         </el-input>
-        <span class="note-margin">未付款，订单自动关闭</span>
+        <span class="note-margin">{{ t('oms.orderSetting.normalOrderTip') }}</span>
       </el-form-item>
-      <el-form-item label="发货超过：" prop="confirmOvertime">
+      <el-form-item :label="t('oms.orderSetting.confirmOvertime') + '：'" prop="confirmOvertime">
         <el-input v-model="orderSetting.confirmOvertime" class="input-width">
-          <template #append>天</template>
+          <template #append>{{ t('oms.orderSetting.days') }}</template>
         </el-input>
-        <span class="note-margin">未收货，订单自动完成</span>
+        <span class="note-margin">{{ t('oms.orderSetting.confirmOrderTip') }}</span>
       </el-form-item>
-      <el-form-item label="订单完成超过：" prop="finishOvertime">
+      <el-form-item :label="t('oms.orderSetting.finishOrderOvertime') + '：'" prop="finishOvertime">
         <el-input v-model="orderSetting.finishOvertime" class="input-width">
-          <template #append>天</template>
+          <template #append>{{ t('oms.orderSetting.days') }}</template>
         </el-input>
-        <span class="note-margin">自动结束交易，不能申请售后</span>
+        <span class="note-margin">{{ t('oms.orderSetting.finishOrderTip') }}</span>
       </el-form-item>
-      <el-form-item label="订单完成超过：" prop="commentOvertime">
+      <el-form-item :label="t('oms.orderSetting.commentOrderOvertime') + '：'" prop="commentOvertime">
         <el-input v-model="orderSetting.commentOvertime" class="input-width">
-          <template #append>天</template>
+          <template #append>{{ t('oms.orderSetting.days') }}</template>
         </el-input>
-        <span class="note-margin">自动五星好评</span>
+        <span class="note-margin">{{ t('oms.orderSetting.commentOrderTip') }}</span>
       </el-form-item>
       <el-form-item>
-        <el-button @click="confirm()" type="primary">提交</el-button>
+        <el-button @click="confirm()" type="primary">{{ t('oms.orderSetting.submit') }}</el-button>
       </el-form-item>
     </el-form>
   </el-card>

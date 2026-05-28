@@ -27,7 +27,7 @@ const getList = async () => {
     total.value = response.data.total
   } catch (error) {
     listLoading.value = false
-    console.error('获取角色列表失败:', error)
+    ElMessage.error(t('role.page.errorGetList'))
   }
 }
 
@@ -76,16 +76,16 @@ const handleAdd = () => {
 
 const handleStatusChange = async (index: number, row: UmsRole) => {
   try {
-    await ElMessageBox.confirm('是否要修改该状态?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(i18n('confirmModifyStatus'), i18n('prompt'), {
+      confirmButtonText: i18n('confirm'),
+      cancelButtonText: i18n('cancel'),
       type: 'warning'
     })
     await roleUpdateStatusAPI(row.id!, { status: row.status })
-    ElMessage.success('修改成功!')
+    ElMessage.success(i18n('successModify'))
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('更新状态失败:', error)
+    ElMessage.error(t('role.page.errorUpdateStatus'))
       getList()
     }
   }
@@ -93,19 +93,19 @@ const handleStatusChange = async (index: number, row: UmsRole) => {
 
 const handleDelete = async (index: number, row: UmsRole) => {
   try {
-    await ElMessageBox.confirm('是否要删除该角色?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(i18n('confirmDelete'), i18n('prompt'), {
+      confirmButtonText: i18n('confirm'),
+      cancelButtonText: i18n('cancel'),
       type: 'warning'
     })
     const ids = []
     ids.push(row.id)
     await roleDeleteByIdsAPI({ ids: ids.toString() })
-    ElMessage.success('删除成功!')
+    ElMessage.success(i18n('successDelete'))
     getList()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除失败:', error)
+    ElMessage.error(t('role.page.errorDelete'))
     }
   }
 }
@@ -118,23 +118,23 @@ const handleUpdate = (index: number, row: UmsRole) => {
 
 const handleDialogConfirm = async () => {
   try {
-    await ElMessageBox.confirm('是否要确认?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(i18n('confirmSubmit'), i18n('prompt'), {
+      confirmButtonText: i18n('confirm'),
+      cancelButtonText: i18n('cancel'),
       type: 'warning'
     })
     if (isEdit.value) {
       await roleUpdateByIdAPI(role.value.id!, role.value)
-      ElMessage.success('修改成功！')
+      ElMessage.success(i18n('successModify'))
     } else {
       await roleCreateAPI(role.value)
-      ElMessage.success('添加成功！')
+      ElMessage.success(i18n('successAdd'))
     }
     dialogVisible.value = false
     getList()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('操作失败:', error)
+    ElMessage.error(t('role.page.errorOperation'))
     }
   }
 }
@@ -155,12 +155,16 @@ const formatDateTime = (time: string) => {
 }
 
 const getRoleName = (name: string) => {
-  return t(`role.${name}`) || name
+  return t(`role.page.${name}`) || t(`role.${name}`) || name
 }
 
 const getRoleDescription = (description: string) => {
-  return t(`role.${description}`) || description
+  return t(`role.page.${description}`) || t(`role.${description}`) || description
 }
+
+const i18n = (key: string) => t(`role.page.${key}`)
+
+const common = (key: string) => t(`common.${key}`)
 </script>
 
 <template>
@@ -170,18 +174,18 @@ const getRoleDescription = (description: string) => {
         <el-icon class="el-icon-middle">
           <Search />
         </el-icon>
-        <span>筛选搜索</span>
+        <span>{{ i18n('filterSearch') }}</span>
         <el-button style="float: right" @click="handleSearchList()" type="primary" size="default">
-          查询搜索
+          {{ i18n('querySearch') }}
         </el-button>
         <el-button style="float: right; margin-right: 15px" @click="handleResetSearch()" size="default">
-          重置
+          {{ i18n('reset') }}
         </el-button>
       </div>
       <div style="margin-top: 15px">
         <el-form :inline="true" :model="listQuery" size="default" label-width="140px">
-          <el-form-item label="输入搜索：">
-            <el-input v-model="listQuery.keyword" class="input-width" placeholder="角色名称" clearable></el-input>
+          <el-form-item :label="i18n('inputSearch') + '：'">
+            <el-input v-model="listQuery.keyword" class="input-width" :placeholder="i18n('roleNamePlaceholder')" clearable></el-input>
           </el-form-item>
         </el-form>
       </div>
@@ -190,53 +194,53 @@ const getRoleDescription = (description: string) => {
       <el-icon class="el-icon-middle">
         <Tickets />
       </el-icon>
-      <span>数据列表</span>
-      <el-button size="default" class="btn-add" @click="handleAdd()" style="margin-left: 20px">添加</el-button>
+      <span>{{ i18n('dataList') }}</span>
+      <el-button size="default" class="btn-add" @click="handleAdd()" style="margin-left: 20px">{{ i18n('add') }}</el-button>
     </el-card>
     <div class="table-container">
       <el-table ref="roleTable" :data="list" style="width: 100%;" v-loading="listLoading" border>
-        <el-table-column label="编号" width="100" align="center">
+        <el-table-column :label="i18n('id')" width="100" align="center">
           <template #default="scope">{{ scope.row.id }}</template>
         </el-table-column>
-        <el-table-column label="角色名称" align="center">
+        <el-table-column :label="i18n('roleName')" align="center">
           <template #default="scope">{{ getRoleName(scope.row.name) }}</template>
         </el-table-column>
-        <el-table-column label="描述" align="center">
+        <el-table-column :label="i18n('description')" align="center">
           <template #default="scope">{{ getRoleDescription(scope.row.description) }}</template>
         </el-table-column>
-        <el-table-column label="用户数" width="100" align="center">
+        <el-table-column :label="i18n('userCount')" width="100" align="center">
           <template #default="scope">{{ scope.row.adminCount }}</template>
         </el-table-column>
-        <el-table-column label="添加时间" width="160" align="center">
+        <el-table-column :label="i18n('createTime')" width="160" align="center">
           <template #default="scope">{{ formatDateTime(scope.row.createTime) }}</template>
         </el-table-column>
-        <el-table-column label="是否启用" width="140" align="center">
+        <el-table-column :label="i18n('enabled')" width="140" align="center">
           <template #default="scope">
             <el-switch @change="handleStatusChange(scope.$index, scope.row)" :active-value="1" :inactive-value="0"
               v-model="scope.row.status">
             </el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="160" align="center">
+        <el-table-column :label="i18n('operation')" width="160" align="center">
           <template #default="scope">
             <el-row>
               <el-col :span="12">
-                <el-button size="small" type="primary" link @click="handleSelectMenu(scope.$index, scope.row)">分配菜单
+                <el-button size="small" type="primary" link @click="handleSelectMenu(scope.$index, scope.row)">{{ i18n('assignMenu') }}
                 </el-button>
               </el-col>
               <el-col :span="12">
-                <el-button size="small" type="primary" link @click="handleSelectResource(scope.$index, scope.row)">分配资源
+                <el-button size="small" type="primary" link @click="handleSelectResource(scope.$index, scope.row)">{{ i18n('assignResource') }}
                 </el-button>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="12">
                 <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row)">
-                  编辑
+                  {{ i18n('edit') }}
                 </el-button>
               </el-col>
               <el-col :span="12">
-                <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row)">删除
+                <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row)">{{ i18n('delete') }}
                 </el-button>
               </el-col>
             </el-row>
@@ -250,25 +254,25 @@ const getRoleDescription = (description: string) => {
         :page-size="listQuery.pageSize" :page-sizes="[5, 10, 15]" :total="total">
       </el-pagination>
     </div>
-    <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑角色' : '添加角色'" width="40%">
+    <el-dialog v-model="dialogVisible" :title="isEdit ? i18n('dialogTitleEdit') : i18n('dialogTitleAdd')" width="40%">
       <el-form :model="role" label-width="150px" size="default">
-        <el-form-item label="角色名称：">
+        <el-form-item :label="i18n('roleNameLabel')">
           <el-input v-model="role.name" style="width: 250px"></el-input>
         </el-form-item>
-        <el-form-item label="描述：">
+        <el-form-item :label="i18n('descriptionLabel')">
           <el-input v-model="role.description" type="textarea" :rows="5" style="width: 250px"></el-input>
         </el-form-item>
-        <el-form-item label="是否启用：">
+        <el-form-item :label="i18n('isEnabledLabel')">
           <el-radio-group v-model="role.status">
-            <el-radio :label="1">是</el-radio>
-            <el-radio :label="0">否</el-radio>
+            <el-radio :label="1">{{ i18n('yes') }}</el-radio>
+            <el-radio :label="0">{{ i18n('no') }}</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogVisible = false" size="default">取 消</el-button>
-          <el-button type="primary" @click="handleDialogConfirm()" size="default">确 定</el-button>
+          <el-button @click="dialogVisible = false" size="default">{{ common('cancel') }}</el-button>
+          <el-button type="primary" @click="handleDialogConfirm()" size="default">{{ common('confirm') }}</el-button>
         </span>
       </template>
     </el-dialog>

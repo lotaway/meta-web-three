@@ -141,7 +141,7 @@ async function handleDelete(row: PokayokeRule) {
     await ruleStore.deleteRule(row.id!)
     ElMessage.success(t('message.deleteSuccess'))
   } catch (error) {
-    // cancelled
+    ElMessage.error(t('message.deleteFailed'))
   }
 }
 
@@ -155,14 +155,14 @@ function getRuleTypeLabel(type?: string): string {
   return map[type || ''] || type || ''
 }
 
-function getRuleTypeTag(type?: string): string {
-  const map: Record<string, string> = {
+function getRuleTypeTag(type?: string): 'success' | 'warning' | 'danger' | 'info' | undefined {
+  const map: Record<string, 'success' | 'warning' | 'danger' | 'info' | undefined> = {
     MATERIAL_CHECK: 'danger',
     SEQUENCE_CHECK: 'warning',
     PARAMETER_CHECK: 'success',
     STATION_CHECK: 'info',
   }
-  return map[type || ''] || ''
+  return map[type || ''] || 'info'
 }
 
 function getStatusLabel(status?: string): string {
@@ -174,13 +174,13 @@ function getStatusLabel(status?: string): string {
   return map[status || ''] || status || ''
 }
 
-function getStatusTag(status?: string): string {
-  const map: Record<string, string> = {
+function getStatusTag(status?: string): 'success' | 'warning' | 'danger' | 'info' | undefined {
+  const map: Record<string, 'success' | 'warning' | 'danger' | 'info' | undefined> = {
     DRAFT: 'info',
     ACTIVE: 'success',
     INACTIVE: 'warning',
   }
-  return map[status || ''] || ''
+  return map[status || ''] || 'info'
 }
 </script>
 

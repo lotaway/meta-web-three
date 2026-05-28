@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
 import type { ProcessRoute, ProcessStep } from '@/apis/processRoute'
 import {
   getProcessRouteListAPI,
@@ -38,6 +39,7 @@ export const useProcessRouteStore = defineStore('processRoute', () => {
       routeList.value = data || []
       total.value = data?.length || 0
     } catch (error) {
+      ElMessage.error('Failed to fetch route list')
       routeList.value = []
       total.value = 0
     } finally {
@@ -53,6 +55,7 @@ export const useProcessRouteStore = defineStore('processRoute', () => {
       currentRoute.value = data
       return data
     } catch (error) {
+      ElMessage.error('Failed to fetch route details')
       currentRoute.value = null
       return null
     } finally {
@@ -64,6 +67,7 @@ export const useProcessRouteStore = defineStore('processRoute', () => {
     try {
       return await getProcessRouteByCodeAPI(routeCode)
     } catch (error) {
+      ElMessage.error('Failed to fetch route by code')
       return null
     }
   }
@@ -72,6 +76,7 @@ export const useProcessRouteStore = defineStore('processRoute', () => {
     try {
       return await getProcessRouteByProductAPI(productCode)
     } catch (error) {
+      ElMessage.error('Failed to fetch route by product')
       return []
     }
   }
@@ -106,6 +111,7 @@ export const useProcessRouteStore = defineStore('processRoute', () => {
       await deleteProcessRouteAPI(id)
       return true
     } catch (error) {
+      ElMessage.error('Failed to delete route')
       return false
     } finally {
       loading.value = false
@@ -144,6 +150,7 @@ export const useProcessRouteStore = defineStore('processRoute', () => {
       const { getFirstStepAPI } = await import('@/apis/processRoute')
       return await getFirstStepAPI(id)
     } catch (error) {
+      ElMessage.error('Failed to fetch first step')
       return null
     }
   }
@@ -153,6 +160,7 @@ export const useProcessRouteStore = defineStore('processRoute', () => {
       const { getNextStepAPI } = await import('@/apis/processRoute')
       return await getNextStepAPI(id, stepNo)
     } catch (error) {
+      ElMessage.error('Failed to fetch next step')
       return null
     }
   }

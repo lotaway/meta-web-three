@@ -182,7 +182,8 @@ const dateRange = ref<[string, string] | null>(null)
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const formRef = ref<FormInstance>()
-const form = reactive<CreateChecklistRequest>({
+const form = reactive<CreateChecklistRequest & { id?: number }>({
+  id: undefined,
   equipmentId: 0,
   checkCode: '',
   checkType: 'DAILY',
@@ -309,7 +310,7 @@ const handleDelete = (row: EquipmentChecklist) => {
       ElMessage.error(t('common.deleteFailed'))
     }
   }).catch(() => {
-    // ignore
+    return
   })
 }
 
@@ -363,8 +364,8 @@ const submitComplete = async () => {
   }
 }
 
-const getTypeTag = (type: string) => {
-  const map: Record<string, string> = {
+const getTypeTag = (type: string): 'success' | 'warning' | 'danger' | 'info' => {
+  const map: Record<string, 'success' | 'warning' | 'danger' | 'info'> = {
     DAILY: 'success',
     WEEKLY: 'info',
     MONTHLY: 'warning',
@@ -385,8 +386,8 @@ const getTypeText = (type: string) => {
   return map[type] || type
 }
 
-const getStatusTag = (status: string) => {
-  const map: Record<string, string> = {
+const getStatusTag = (status: string): 'success' | 'warning' | 'danger' | 'info' => {
+  const map: Record<string, 'success' | 'warning' | 'danger' | 'info'> = {
     PENDING: 'warning',
     COMPLETED: 'success',
     ABNORMAL: 'danger'

@@ -135,11 +135,11 @@ const sortedSteps = computed(() => {
   return [...routeData.steps].sort((a, b) => (a.stepNo || 0) - (b.stepNo || 0))
 })
 
-const getStatusType = (status?: string) => {
-  const map: Record<string, string> = {
+const getStatusType = (status?: string): 'success' | 'warning' | 'danger' | 'info' | undefined => {
+  const map: Record<string, 'success' | 'warning' | 'danger' | 'info' | undefined> = {
     DRAFT: 'info',
     ACTIVE: 'success',
-    ARCHIVED: ''
+    ARCHIVED: 'info'
   }
   return map[status || ''] || 'info'
 }
@@ -170,7 +170,8 @@ const loadData = async () => {
 
   loading.value = true
   try {
-    const data = await getProcessRouteByIdAPI(routeId.value)
+    const res = await getProcessRouteByIdAPI(routeId.value)
+    const data = res.data
     if (data) {
       Object.assign(routeData, data)
     } else {
@@ -220,7 +221,8 @@ const handleArchive = async () => {
 
 const handleValidate = async () => {
   try {
-    const data = await validateProcessRouteAPI(routeId.value)
+    const res = await validateProcessRouteAPI(routeId.value)
+    const data = res.data
     validationResult.value = data.validationResult ?? false
     validationMessage.value = data.validationMessage || ''
     if (validationResult.value) {

@@ -106,9 +106,10 @@ const queryParams = reactive({
 const getList = async () => {
   loading.value = true
   try {
-    const data = await getEquipmentListAPI({
+    const res = await getEquipmentListAPI({
       status: queryParams.status as any || undefined
     })
+    const data = res.data
     equipmentList.value = data || []
     total.value = data?.length || 0
   } catch (error) {
@@ -155,10 +156,14 @@ const handleStartTask = async (row: Equipment) => {
       ElMessage.success(t('mes.equipment.taskStartSuccess'))
       getList()
     }
-  } catch {
-    // ignore
+  } catch (error) {
+    if (error !== 'cancel' && error !== 'close') {
+      ElMessage.error(t('mes.equipment.taskStartFailed'))
+    }
   }
+}
 
+const handleReportBreakdown = async (row: Equipment) => {
   try {
     await ElMessageBox.confirm(t('mes.equipment.confirmBreakdown'), t('common.warning'), {
       type: 'warning'
@@ -167,7 +172,9 @@ const handleStartTask = async (row: Equipment) => {
     ElMessage.success(t('mes.equipment.breakdownReported'))
     getList()
   } catch (error) {
-    // ignore
+    if (error !== 'cancel' && error !== 'close') {
+      ElMessage.error(t('mes.equipment.breakdownReportFailed'))
+    }
   }
 }
 
@@ -180,7 +187,9 @@ const handleMaintenance = async (row: Equipment) => {
     ElMessage.success(t('mes.equipment.maintenanceStarted'))
     getList()
   } catch (error) {
-    // 用户取消
+    if (error !== 'cancel' && error !== 'close') {
+      ElMessage.error(t('mes.equipment.maintenanceStartFailed'))
+    }
   }
 }
 
@@ -193,12 +202,14 @@ const handleDelete = async (row: Equipment) => {
     ElMessage.success(t('mes.equipment.deleteSuccess'))
     getList()
   } catch (error) {
-    // 用户取消
+    if (error !== 'cancel' && error !== 'close') {
+      ElMessage.error(t('mes.equipment.deleteFailed'))
+    }
   }
 }
 
-const getStatusType = (status?: string) => {
-  const map: Record<string, string> = {
+const getStatusType = (status?: string): 'success' | 'warning' | 'danger' | 'info' | undefined => {
+  const map: Record<string, 'success' | 'warning' | 'danger' | 'info' | undefined> = {
     IDLE: 'info',
     RUNNING: 'success',
     BREAKDOWN: 'danger',

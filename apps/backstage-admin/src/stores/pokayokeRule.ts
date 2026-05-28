@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
 import type { PokayokeRule, RuleStatus, RuleType } from '@/apis/pokayokeRule'
 import {
   getRuleListAPI,
@@ -26,6 +27,10 @@ export const usePokayokeRuleStore = defineStore('pokayokeRule', () => {
       const data = res.data
       rules.value = data || []
       total.value = data?.length || 0
+    } catch (error) {
+      ElMessage.error('Failed to fetch rules')
+      rules.value = []
+      total.value = 0
     } finally {
       loading.value = false
     }
@@ -38,6 +43,10 @@ export const usePokayokeRuleStore = defineStore('pokayokeRule', () => {
       const data = res.data
       currentRule.value = data
       return data
+    } catch (error) {
+      ElMessage.error('Failed to fetch rule')
+      currentRule.value = null
+      return null
     } finally {
       loading.value = false
     }

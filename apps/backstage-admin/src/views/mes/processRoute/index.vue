@@ -100,7 +100,8 @@ const queryParams = reactive({
 const getList = async () => {
   loading.value = true
   try {
-    const data = await getProcessRouteListAPI(queryParams.status || undefined)
+    const res = await getProcessRouteListAPI(queryParams.status || undefined)
+    const data = res.data
     routeList.value = data || []
     total.value = data?.length || 0
   } catch (error) {
@@ -179,11 +180,11 @@ const handleDelete = async (row: ProcessRoute) => {
   }
 }
 
-const getStatusType = (status?: string) => {
-  const map: Record<string, string> = {
+const getStatusType = (status?: string): 'success' | 'warning' | 'danger' | 'info' | undefined => {
+  const map: Record<string, 'success' | 'warning' | 'danger' | 'info' | undefined> = {
     DRAFT: 'info',
     ACTIVE: 'success',
-    ARCHIVED: ''
+    ARCHIVED: 'info'
   }
   return map[status || ''] || 'info'
 }

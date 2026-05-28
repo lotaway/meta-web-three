@@ -20,6 +20,13 @@ const translateTitle = (title: string | undefined) => {
   return title
 }
 
+// 安全转换名字为字符串
+const safeName = (name: unknown): string => {
+  if (typeof name === 'string') return name
+  if (name && typeof name === 'object') return ''
+  return String(name)
+}
+
 // 定义props
 const props = defineProps({
   // 生成菜单的路由
@@ -73,7 +80,7 @@ const hasOneShowingChildren = (children: RouteRecordExt[]) => {
         </el-menu-item>
       </router-link>
       <!-- 有多个子菜单的一级菜单 -->
-      <el-sub-menu v-else :index="item.name as string || item.path" :key="item.name">
+      <el-sub-menu v-else :index="(safeName(item.name) || item.path) as string" :key="safeName(item.name) as string">
         <!-- 一级菜单 -->
         <template #title>
           <svg-icon v-if="item.meta && item.meta.icon" :icon-class="item.meta.icon"></svg-icon>
@@ -84,7 +91,7 @@ const hasOneShowingChildren = (children: RouteRecordExt[]) => {
           <sidebar-item :is-nest="true" class="nest-menu" v-if="child.children && child.children.length > 0"
             :routes="[child]" :key="child.path"></sidebar-item>
           <!-- 具有外链功能的子菜单 -->
-          <a v-else-if="child.path.startsWith('http')" v-bind:href="child.path" target="_blank" :key="child.name">
+          <a v-else-if="child.path.startsWith('http')" v-bind:href="child.path" target="_blank" :key="(safeName(child.name) || child.path) as string">
             <el-menu-item :index="item.path + '/' + child.path">
               <svg-icon v-if="child.meta && child.meta.icon" :icon-class="child.meta.icon"></svg-icon>
               <template #title>
@@ -93,7 +100,7 @@ const hasOneShowingChildren = (children: RouteRecordExt[]) => {
             </el-menu-item>
           </a>
           <!-- 普通子菜单 -->
-          <router-link v-else :to="item.path + '/' + child.path" :key="'route-' + (child.name as string)">
+          <router-link v-else :to="item.path + '/' + child.path" :key="('route-' + (safeName(child.name) || child.path)) as string">
             <el-menu-item :index="item.path + '/' + child.path">
               <svg-icon v-if="child.meta && child.meta.icon" :icon-class="child.meta.icon"></svg-icon>
               <template #title>

@@ -61,7 +61,7 @@
                 <el-button size="small">快捷回复</el-button>
               </template>
               <el-scrollbar max-height="250">
-                <div v-for="r in quickReplies" :key="r.id" class="cs-qr-item" @click="insertQuickReply(r.content)">
+                <div v-for="(r, index) in quickReplies" :key="r.id ?? index" class="cs-qr-item" @click="insertQuickReply(r.content)">
                   {{ r.title }}
                 </div>
               </el-scrollbar>

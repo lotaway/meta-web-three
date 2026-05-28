@@ -11,6 +11,8 @@ import { t } from '@/locales'
 const router = useRouter()
 const route = useRoute()
 
+const i18n = (key: string) => t(`menu.${key}`)
+
 const listQuery = ref<PageParam>({
   pageNum: 1,
   pageSize: 10
@@ -36,7 +38,7 @@ const getList = async () => {
     total.value = response.data.total
   } catch (error) {
     listLoading.value = false
-    console.error('获取菜单列表失败:', error)
+    ElMessage.error(t('menu.loadFailed'))
   }
 }
 
@@ -63,7 +65,7 @@ const handleCurrentChange = (val: number) => {
 const handleHiddenChange = async (index: number, row: UmsMenu) => {
   await menuUpdateHiddenByIdAPI(row.id!, { hidden: row.hidden })
   ElMessage({
-    message: '修改成功',
+    message: i18n('updateSuccess'),
     type: 'success',
     duration: 1000
   })
@@ -78,21 +80,21 @@ const handleUpdate = (index: number, row: UmsMenu) => {
 }
 
 const handleDelete = async (index: number, row: UmsMenu) => {
-  await ElMessageBox.confirm('是否要删除该菜单', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(i18n('confirmDeleteMenu'), i18n('prompt'), {
+    confirmButtonText: i18n('confirm'),
+    cancelButtonText: i18n('cancel'),
     type: 'warning',
   })
   try {
     await deleteMenuByIdAPI(row.id!)
     ElMessage({
-      message: '删除成功',
+      message: i18n('deleteSuccess'),
       type: 'success',
       duration: 1000
     })
     getList()
   } catch (error) {
-    console.error('删除菜单失败:', error)
+    ElMessage.error(t('menu.deleteFailed'))
   }
 }
 
@@ -107,9 +109,9 @@ const getMenuTitle = (title: string) => {
 
 const levelFilter = (value: number) => {
   if (value === 0) {
-    return '一级'
+    return i18n('level1')
   } else if (value === 1) {
-    return '二级'
+    return i18n('level2')
   }
   return ''
 }
@@ -129,50 +131,50 @@ const disableNextLevel = (value: number) => {
       <el-icon class="el-icon-middle">
         <Tickets />
       </el-icon>
-      <span>数据列表</span>
+      <span>{{ i18n('dataList') }}</span>
       <el-button class="btn-add" @click="handleAddMenu()">
-        添加
+        {{ i18n('add') }}
       </el-button>
     </el-card>
     <div class="table-container">
       <el-table ref="menuTable" style="width: 100%" :data="list" v-loading="listLoading" border>
-        <el-table-column label="编号" width="100" align="center">
+        <el-table-column label="{{ i18n('id') }}" width="100" align="center">
           <template #default="scope">{{ scope.row.id }}</template>
         </el-table-column>
-        <el-table-column label="菜单名称" align="center">
+        <el-table-column label="{{ i18n('menuName') }}" align="center">
           <template #default="scope">{{ getMenuTitle(scope.row.title) }}</template>
         </el-table-column>
-        <el-table-column label="菜单级数" width="100" align="center">
+        <el-table-column label="{{ i18n('menuLevel') }}" width="100" align="center">
           <template #default="scope">{{ levelFilter(scope.row.level) }}</template>
         </el-table-column>
-        <el-table-column label="前端名称" align="center">
+        <el-table-column label="{{ i18n('frontName') }}" align="center">
           <template #default="scope">{{ scope.row.name }}</template>
         </el-table-column>
-        <el-table-column label="前端图标" width="100" align="center">
+        <el-table-column label="{{ i18n('frontIcon') }}" width="100" align="center">
           <template #default="scope"><svg-icon :icon-class="scope.row.icon"></svg-icon></template>
         </el-table-column>
-        <el-table-column label="是否显示" width="100" align="center">
+        <el-table-column label="{{ i18n('isShow') }}" width="100" align="center">
           <template #default="scope">
             <el-switch @change="handleHiddenChange(scope.$index, scope.row)" :active-value="0" :inactive-value="1"
               v-model="scope.row.hidden">
             </el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="排序" width="100" align="center">
+        <el-table-column label="{{ i18n('sort') }}" width="100" align="center">
           <template #default="scope">{{ scope.row.sort }}</template>
         </el-table-column>
-        <el-table-column label="设置" width="120" align="center">
+        <el-table-column label="{{ i18n('setting') }}" width="120" align="center">
           <template #default="scope">
             <el-button type="primary" size="small" link :disabled="disableNextLevel(scope.row.level)"
-              @click="handleShowNextLevel(scope.$index, scope.row)">查看下级
+              @click="handleShowNextLevel(scope.$index, scope.row)">{{ i18n('viewSubLevel') }}
             </el-button>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" align="center">
+        <el-table-column label="{{ i18n('operation') }}" width="200" align="center">
           <template #default="scope">
-            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row)">编辑
+            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row)">{{ i18n('edit') }}
             </el-button>
-            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row)">删除
+            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row)">{{ i18n('delete') }}
             </el-button>
           </template>
         </el-table-column>

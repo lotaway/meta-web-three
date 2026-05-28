@@ -177,7 +177,8 @@ const queryParams = reactive({
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const formRef = ref<FormInstance>()
-const form = reactive<CreateMaintenancePlanRequest>({
+const form = reactive<CreateMaintenancePlanRequest & { id?: number }>({
+  id: undefined,
   equipmentId: 0,
   planCode: '',
   planName: '',
@@ -303,7 +304,7 @@ const handleDelete = (row: MaintenancePlan) => {
       ElMessage.error(t('common.deleteFailed'))
     }
   }).catch(() => {
-    // ignore
+    return
   })
 }
 
@@ -351,8 +352,8 @@ const submitExecute = async () => {
   }
 }
 
-const getTypeTag = (type: string) => {
-  const map: Record<string, string> = {
+const getTypeTag = (type: string): 'success' | 'warning' | 'danger' | 'info' => {
+  const map: Record<string, 'success' | 'warning' | 'danger' | 'info'> = {
     PREVENTIVE: 'success',
     PREDICTIVE: 'warning',
     CORRECTIVE: 'danger'
@@ -369,8 +370,8 @@ const getTypeText = (type: string) => {
   return map[type] || type
 }
 
-const getStatusTag = (status: string) => {
-  const map: Record<string, string> = {
+const getStatusTag = (status: string): 'success' | 'warning' | 'danger' | 'info' => {
+  const map: Record<string, 'success' | 'warning' | 'danger' | 'info'> = {
     ACTIVE: 'success',
     INACTIVE: 'info',
     COMPLETED: 'warning'

@@ -80,7 +80,8 @@ const loadData = async () => {
   const id = Number(route.query.id)
   loading.value = true
   try {
-    equipment.value = await getEquipmentByIdAPI(id)
+    const res = await getEquipmentByIdAPI(id)
+    equipment.value = res.data
   } catch (error) {
     ElMessage.error(t('mes.equipment.detail.loadError'))
   } finally {
@@ -101,11 +102,14 @@ const handleStartTask = async () => {
       inputErrorMessage: t('mes.equipment.detail.enterTaskNo')
     })
     if (taskNo.value && equipment.value) {
-      equipment.value = await startTaskAPI(equipment.value.id!, taskNo.value)
+      const res = await startTaskAPI(equipment.value.id!, taskNo.value)
+      equipment.value = res.data
       ElMessage.success(t('mes.equipment.detail.taskStarted'))
     }
-  } catch {
-    // ignore
+  } catch (error) {
+    if (error !== 'cancel' && error !== 'close') {
+      ElMessage.error(t('mes.equipment.detail.taskStartFailed'))
+    }
   }
 }
 
@@ -113,11 +117,14 @@ const handleCompleteTask = async () => {
   try {
     await ElMessageBox.confirm(t('mes.equipment.detail.confirmCompleteTask'), t('common.warning'), { type: 'warning' })
     if (equipment.value) {
-      equipment.value = await completeTaskAPI(equipment.value.id!)
+      const res = await completeTaskAPI(equipment.value.id!)
+      equipment.value = res.data
       ElMessage.success(t('mes.equipment.detail.taskCompleted'))
     }
-  } catch {
-    // ignore
+  } catch (error) {
+    if (error !== 'cancel' && error !== 'close') {
+      ElMessage.error(t('mes.equipment.detail.taskCompleteFailed'))
+    }
   }
 }
 
@@ -125,11 +132,14 @@ const handleReportBreakdown = async () => {
   try {
     await ElMessageBox.confirm(t('mes.equipment.detail.confirmBreakdown'), t('common.warning'), { type: 'warning' })
     if (equipment.value) {
-      equipment.value = await reportBreakdownAPI(equipment.value.id!)
+      const res = await reportBreakdownAPI(equipment.value.id!)
+      equipment.value = res.data
       ElMessage.success(t('mes.equipment.detail.breakdownReported'))
     }
-  } catch {
-    // ignore
+  } catch (error) {
+    if (error !== 'cancel' && error !== 'close') {
+      ElMessage.error(t('mes.equipment.detail.breakdownReportFailed'))
+    }
   }
 }
 
@@ -137,11 +147,14 @@ const handleRepair = async () => {
   try {
     await ElMessageBox.confirm(t('mes.equipment.detail.confirmRepair'), t('common.warning'), { type: 'warning' })
     if (equipment.value) {
-      equipment.value = await repairEquipmentAPI(equipment.value.id!)
+      const res = await repairEquipmentAPI(equipment.value.id!)
+      equipment.value = res.data
       ElMessage.success(t('mes.equipment.detail.repairCompleted'))
     }
-  } catch {
-    // ignore
+  } catch (error) {
+    if (error !== 'cancel' && error !== 'close') {
+      ElMessage.error(t('mes.equipment.detail.repairFailed'))
+    }
   }
 }
 
@@ -149,11 +162,14 @@ const handleStartMaintenance = async () => {
   try {
     await ElMessageBox.confirm(t('mes.equipment.detail.confirmMaintenance'), t('common.warning'), { type: 'warning' })
     if (equipment.value) {
-      equipment.value = await startMaintenanceAPI(equipment.value.id!)
+      const res = await startMaintenanceAPI(equipment.value.id!)
+      equipment.value = res.data
       ElMessage.success(t('mes.equipment.detail.maintenanceStarted'))
     }
-  } catch {
-    // ignore
+  } catch (error) {
+    if (error !== 'cancel' && error !== 'close') {
+      ElMessage.error(t('mes.equipment.detail.maintenanceStartFailed'))
+    }
   }
 }
 
@@ -161,11 +177,14 @@ const handleCompleteMaintenance = async () => {
   try {
     await ElMessageBox.confirm(t('mes.equipment.detail.confirmCompleteMaintenance'), t('common.warning'), { type: 'warning' })
     if (equipment.value) {
-      equipment.value = await completeMaintenanceAPI(equipment.value.id!)
+      const res = await completeMaintenanceAPI(equipment.value.id!)
+      equipment.value = res.data
       ElMessage.success(t('mes.equipment.detail.maintenanceCompleted'))
     }
   } catch (error) {
-    // 用户取消
+    if (error !== 'cancel' && error !== 'close') {
+      ElMessage.error(t('mes.equipment.detail.maintenanceCompleteFailed'))
+    }
   }
 }
 
@@ -173,8 +192,8 @@ const handleBack = () => {
   router.back()
 }
 
-const getStatusType = (status?: string) => {
-  const map: Record<string, string> = {
+const getStatusType = (status?: string): 'success' | 'warning' | 'danger' | 'info' | undefined => {
+  const map: Record<string, 'success' | 'warning' | 'danger' | 'info' | undefined> = {
     IDLE: 'info',
     RUNNING: 'success',
     BREAKDOWN: 'danger',
