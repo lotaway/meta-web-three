@@ -374,6 +374,74 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // MES 制造执行系统 - 工艺路线模块
+  {
+    path: '/mes',
+    component: Layout,
+    redirect: '/mes/process-route',
+    name: 'mes',
+    meta: { title: '制造执行', icon: 'mes' },
+    children: [
+      {
+        path: 'process-route',
+        name: 'processRoute',
+        component: () => import('@/views/mes/processRoute/index.vue'),
+        meta: { title: '工艺路线', icon: 'mes-route' },
+      },
+      {
+        path: 'process-route/form',
+        name: 'processRouteForm',
+        component: () => import('@/views/mes/processRoute/form.vue'),
+        meta: { title: '工艺路线表单' },
+        hidden: true,
+      },
+      {
+        path: 'process-route/detail',
+        name: 'processRouteDetail',
+        component: () => import('@/views/mes/processRoute/detail.vue'),
+        meta: { title: '工艺路线详情' },
+        hidden: true,
+      },
+      {
+        path: 'equipment',
+        name: 'equipment',
+        component: () => import('@/views/mes/equipment/index.vue'),
+        meta: { title: '设备管理', icon: 'mes-equipment' },
+      },
+      {
+        path: 'equipment/form',
+        name: 'equipmentForm',
+        component: () => import('@/views/mes/equipment/form.vue'),
+        meta: { title: '设备表单' },
+        hidden: true,
+      },
+      {
+        path: 'equipment/detail',
+        name: 'equipmentDetail',
+        component: () => import('@/views/mes/equipment/detail.vue'),
+        meta: { title: '设备详情' },
+        hidden: true,
+      },
+      {
+        path: 'pokayoke',
+        name: 'pokayoke',
+        component: () => import('@/views/pokayoke/index.vue'),
+        meta: { title: '防错规则', icon: 'mes-pokayoke' },
+      },
+      {
+        path: 'pokayoke/form',
+        name: 'pokayokeForm',
+        component: () => import('@/views/pokayoke/form.vue'),
+        meta: { title: '防错规则表单', hidden: true },
+      },
+      {
+        path: 'pokayoke/detail',
+        name: 'pokayokeDetail',
+        component: () => import('@/views/pokayoke/detail.vue'),
+        meta: { title: '防错规则详情', hidden: true },
+      },
+    ],
+  },
 ]
 
 // createWebHistory（History 模式）地址格式（需要服务器配置）：http://domain.com/admin/home
