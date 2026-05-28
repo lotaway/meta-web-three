@@ -2,53 +2,53 @@
   <div class="equipment-form-container">
     <el-card>
       <template #header>
-        <span>{{ isEdit ? '编辑设备' : '新增设备' }}</span>
+        <span>{{ isEdit ? t('mes.equipment.form.titleEdit') : t('mes.equipment.form.titleAdd') }}</span>
       </template>
       
       <el-form :model="form" :rules="rules" ref="formRef" label-width="120px">
-        <el-form-item label="设备编码" prop="equipmentCode">
-          <el-input v-model="form.equipmentCode" placeholder="请输入设备编码" :disabled="isEdit" />
+        <el-form-item :label="t('mes.equipment.equipmentCode')" prop="equipmentCode">
+          <el-input v-model="form.equipmentCode" :placeholder="t('mes.equipment.equipmentCodePlaceholder')" :disabled="isEdit" />
         </el-form-item>
         
-        <el-form-item label="设备名称" prop="equipmentName">
-          <el-input v-model="form.equipmentName" placeholder="请输入设备名称" />
+        <el-form-item :label="t('mes.equipment.equipmentName')" prop="equipmentName">
+          <el-input v-model="form.equipmentName" :placeholder="t('mes.equipment.equipmentNamePlaceholder')" />
         </el-form-item>
         
-        <el-form-item label="设备类型编码" prop="equipmentTypeCode">
-          <el-input v-model="form.equipmentTypeCode" placeholder="请输入设备类型编码" />
+        <el-form-item :label="t('mes.equipment.equipmentTypeCode')" prop="equipmentTypeCode">
+          <el-input v-model="form.equipmentTypeCode" :placeholder="t('mes.equipment.equipmentTypeCode') + t('common.placeholderSuffix')" />
         </el-form-item>
         
-        <el-form-item label="车间ID" prop="workshopId">
-          <el-input v-model="form.workshopId" placeholder="请输入车间ID" />
+        <el-form-item :label="t('mes.equipment.workshopId')" prop="workshopId">
+          <el-input v-model="form.workshopId" :placeholder="t('mes.equipment.workshopId') + t('common.placeholderSuffix')" />
         </el-form-item>
         
-        <el-form-item label="工位ID" prop="workstationId">
-          <el-input v-model="form.workstationId" placeholder="请输入工位ID" />
+        <el-form-item :label="t('mes.equipment.workstationId')" prop="workstationId">
+          <el-input v-model="form.workstationId" :placeholder="t('mes.equipment.workstationId') + t('common.placeholderSuffix')" />
         </el-form-item>
         
-        <el-form-item label="X坐标" prop="positionX">
+        <el-form-item :label="t('mes.equipment.form.positionX')" prop="positionX">
           <el-input-number v-model="form.positionX" :precision="2" :step="0.1" />
         </el-form-item>
         
-        <el-form-item label="Y坐标" prop="positionY">
+        <el-form-item :label="t('mes.equipment.form.positionY')" prop="positionY">
           <el-input-number v-model="form.positionY" :precision="2" :step="0.1" />
         </el-form-item>
         
-        <el-form-item label="Z坐标" prop="positionZ">
+        <el-form-item :label="t('mes.equipment.form.positionZ')" prop="positionZ">
           <el-input-number v-model="form.positionZ" :precision="2" :step="0.1" />
         </el-form-item>
         
-        <el-form-item label="IP地址" prop="ipAddress">
-          <el-input v-model="form.ipAddress" placeholder="请输入IP地址" />
+        <el-form-item :label="t('mes.equipment.ipAddress')" prop="ipAddress">
+          <el-input v-model="form.ipAddress" :placeholder="t('mes.equipment.ipAddress') + t('common.placeholderSuffix')" />
         </el-form-item>
         
-        <el-form-item label="MAC地址" prop="macAddress">
-          <el-input v-model="form.macAddress" placeholder="请输入MAC地址" />
+        <el-form-item :label="t('mes.equipment.macAddress')" prop="macAddress">
+          <el-input v-model="form.macAddress" :placeholder="t('mes.equipment.macAddress') + t('common.placeholderSuffix')" />
         </el-form-item>
         
         <el-form-item>
-          <el-button type="primary" @click="handleSubmit" :loading="loading">提交</el-button>
-          <el-button @click="handleBack">返回</el-button>
+          <el-button type="primary" @click="handleSubmit" :loading="loading">{{ t('mes.equipment.form.submit') }}</el-button>
+          <el-button @click="handleBack">{{ t('mes.equipment.form.back') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -58,10 +58,13 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ElMessage, FormInstance } from 'element-plus'
+import { useI18n } from 'vue-i18n'
+import { ElMessage } from 'element-plus'
+import type { FormInstance } from 'element-plus'
 import type { Equipment, CreateEquipmentRequest, UpdateEquipmentRequest } from '@/apis/equipment'
 import { getEquipmentByIdAPI, createEquipmentAPI, updateEquipmentAPI } from '@/apis/equipment'
 
+const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const formRef = ref<FormInstance>()
@@ -83,9 +86,9 @@ const form = reactive<CreateEquipmentRequest & UpdateEquipmentRequest & { id?: n
 })
 
 const rules = {
-  equipmentCode: [{ required: true, message: '请输入设备编码', trigger: 'blur' }],
-  equipmentName: [{ required: true, message: '请输入设备名称', trigger: 'blur' }],
-  equipmentTypeCode: [{ required: true, message: '请输入设备类型编码', trigger: 'blur' }]
+  equipmentCode: [{ required: true, message: t('mes.equipment.equipmentCodePlaceholder'), trigger: 'blur' }],
+  equipmentName: [{ required: true, message: t('mes.equipment.equipmentNamePlaceholder'), trigger: 'blur' }],
+  equipmentTypeCode: [{ required: true, message: t('mes.equipment.equipmentTypeCode') + t('common.requiredSuffix'), trigger: 'blur' }]
 }
 
 const loadData = async () => {
@@ -95,7 +98,7 @@ const loadData = async () => {
       const data = await getEquipmentByIdAPI(id)
       Object.assign(form, data)
     } catch (error) {
-      ElMessage.error('加载设备信息失败')
+      ElMessage.error(t('mes.equipment.form.loadError'))
     }
   }
 }
@@ -122,14 +125,14 @@ const handleSubmit = async () => {
             macAddress: form.macAddress
           }
           await updateEquipmentAPI(id, updateData)
-          ElMessage.success('更新成功')
+          ElMessage.success(t('mes.equipment.form.updateSuccess'))
         } else {
           await createEquipmentAPI(form as CreateEquipmentRequest)
-          ElMessage.success('创建成功')
+          ElMessage.success(t('mes.equipment.form.createSuccess'))
         }
         router.push('/mes/equipment')
       } catch (error) {
-        ElMessage.error(isEdit.value ? '更新失败' : '创建失败')
+        ElMessage.error(isEdit.value ? t('mes.equipment.form.updateFailed') : t('mes.equipment.form.createFailed'))
       } finally {
         loading.value = false
       }

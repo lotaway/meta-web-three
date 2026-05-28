@@ -22,9 +22,10 @@ export const usePokayokeRuleStore = defineStore('pokayokeRule', () => {
   async function fetchRules(params?: { status?: RuleStatus; ruleType?: RuleType }) {
     loading.value = true
     try {
-      const data = await getRuleListAPI(params)
-      rules.value = data
-      total.value = data.length
+      const res = await getRuleListAPI(params)
+      const data = res.data
+      rules.value = data || []
+      total.value = data?.length || 0
     } finally {
       loading.value = false
     }
@@ -33,7 +34,8 @@ export const usePokayokeRuleStore = defineStore('pokayokeRule', () => {
   async function fetchRuleById(id: number) {
     loading.value = true
     try {
-      const data = await getRuleByIdAPI(id)
+      const res = await getRuleByIdAPI(id)
+      const data = res.data
       currentRule.value = data
       return data
     } finally {
@@ -42,13 +44,15 @@ export const usePokayokeRuleStore = defineStore('pokayokeRule', () => {
   }
 
   async function createRule(rule: Partial<PokayokeRule>) {
-    const data = await createRuleAPI(rule as any)
+    const res = await createRuleAPI(rule as any)
+    const data = res.data
     rules.value.push(data)
     return data
   }
 
   async function updateRule(id: number, rule: Partial<PokayokeRule>) {
-    const data = await updateRuleAPI(id, rule as any)
+    const res = await updateRuleAPI(id, rule as any)
+    const data = res.data
     const index = rules.value.findIndex(r => r.id === id)
     if (index !== -1) {
       rules.value[index] = data

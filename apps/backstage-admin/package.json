@@ -30,6 +30,7 @@
     "tinymce-i18n": "^26.1.12",
     "vue": "^3.5.25",
     "vue-echarts": "^8.0.1",
+    "vue-i18n": "^9.14.0",
     "vue-router": "^4.6.3"
   },
   "devDependencies": {

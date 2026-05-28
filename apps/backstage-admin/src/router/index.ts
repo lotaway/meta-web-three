@@ -423,6 +423,18 @@ export const asyncRouterMap: RouteRecordExt[] = [
         hidden: true,
       },
       {
+        path: 'equipment/maintenance-plan',
+        name: 'equipmentMaintenancePlan',
+        component: () => import('@/views/mes/equipment/maintenancePlan.vue'),
+        meta: { title: '设备维护计划', icon: 'mes-equipment' },
+      },
+      {
+        path: 'equipment/checklist',
+        name: 'equipmentChecklist',
+        component: () => import('@/views/mes/equipment/checklist.vue'),
+        meta: { title: '设备点检记录', icon: 'mes-equipment' },
+      },
+      {
         path: 'pokayoke',
         name: 'pokayoke',
         component: () => import('@/views/pokayoke/index.vue'),

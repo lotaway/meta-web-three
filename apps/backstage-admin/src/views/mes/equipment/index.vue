@@ -2,60 +2,60 @@
   <div class="equipment-container">
     <el-card class="filter-card">
       <el-form :inline="true" :model="queryParams" class="filter-form">
-        <el-form-item label="设备编码">
-          <el-input v-model="queryParams.equipmentCode" placeholder="请输入设备编码" clearable />
+        <el-form-item :label="t('mes.equipment.equipmentCode')">
+          <el-input v-model="queryParams.equipmentCode" :placeholder="t('mes.equipment.equipmentCodePlaceholder')" clearable />
         </el-form-item>
-        <el-form-item label="设备名称">
-          <el-input v-model="queryParams.equipmentName" placeholder="请输入设备名称" clearable />
+        <el-form-item :label="t('mes.equipment.equipmentName')">
+          <el-input v-model="queryParams.equipmentName" :placeholder="t('mes.equipment.equipmentNamePlaceholder')" clearable />
         </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
-            <el-option label="空闲" value="IDLE" />
-            <el-option label="运行中" value="RUNNING" />
-            <el-option label="故障" value="BREAKDOWN" />
-            <el-option label="保养中" value="MAINTENANCE" />
-            <el-option label="离线" value="OFFLINE" />
-            <el-option label="在线" value="ONLINE" />
+        <el-form-item :label="t('mes.equipment.status')">
+          <el-select v-model="queryParams.status" :placeholder="t('mes.equipment.statusPlaceholder')" clearable>
+            <el-option :label="t('mes.equipment.statusIdle')" value="IDLE" />
+            <el-option :label="t('mes.equipment.statusRunning')" value="RUNNING" />
+            <el-option :label="t('mes.equipment.statusBreakdown')" value="BREAKDOWN" />
+            <el-option :label="t('mes.equipment.statusMaintenance')" value="MAINTENANCE" />
+            <el-option :label="t('mes.equipment.statusOffline')" value="OFFLINE" />
+            <el-option :label="t('mes.equipment.statusOnline')" value="ONLINE" />
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleQuery">查询</el-button>
-          <el-button @click="resetQuery">重置</el-button>
+          <el-button type="primary" @click="handleQuery">{{ t('common.query') }}</el-button>
+          <el-button @click="resetQuery">{{ t('common.reset') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <el-card>
       <div class="toolbar">
-        <el-button type="primary" @click="handleAdd">新增设备</el-button>
+        <el-button type="primary" @click="handleAdd">{{ t('mes.equipment.add') }}</el-button>
       </div>
 
       <el-table :data="equipmentList" v-loading="loading" border stripe>
-        <el-table-column label="ID" prop="id" width="80" />
-        <el-table-column label="设备编码" prop="equipmentCode" width="150" />
-        <el-table-column label="设备名称" prop="equipmentName" width="180" />
-        <el-table-column label="设备类型" prop="equipmentTypeCode" width="120" />
-        <el-table-column label="状态" prop="status" width="100">
+        <el-table-column :label="t('common.id')" prop="id" width="80" />
+        <el-table-column :label="t('mes.equipment.equipmentCode')" prop="equipmentCode" width="150" />
+        <el-table-column :label="t('mes.equipment.equipmentName')" prop="equipmentName" width="180" />
+        <el-table-column :label="t('mes.equipment.equipmentTypeCode')" prop="equipmentTypeCode" width="120" />
+        <el-table-column :label="t('mes.equipment.status')" prop="status" width="100">
           <template #default="{ row }">
             <el-tag :type="getStatusType(row.status)">{{ getStatusText(row.status) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="今日产出" prop="todayOutput" width="100" />
-        <el-table-column label="OEE" width="100">
+        <el-table-column :label="t('mes.equipment.todayOutput')" prop="todayOutput" width="100" />
+        <el-table-column :label="t('mes.equipment.oee')" width="100">
           <template #default="{ row }">
             {{ row.utilizationRate?.toFixed(1) }}%
           </template>
         </el-table-column>
-        <el-table-column label="IP地址" prop="ipAddress" width="140" />
-        <el-table-column label="创建时间" prop="createdAt" width="180" />
-        <el-table-column label="操作" fixed="right" width="280">
+        <el-table-column :label="t('mes.equipment.ipAddress')" prop="ipAddress" width="140" />
+        <el-table-column :label="t('mes.equipment.createdAt')" prop="createdAt" width="180" />
+        <el-table-column :label="t('common.operation')" fixed="right" width="280">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">查看</el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-            <el-button link type="success" size="small" @click="handleStartTask(row)" v-if="row.status === 'IDLE'">开始任务</el-button>
-            <el-button link type="warning" size="small" @click="handleReportBreakdown(row)" v-if="row.status === 'RUNNING'">报故障</el-button>
-            <el-button link type="info" size="small" @click="handleMaintenance(row)" v-if="row.status === 'IDLE'">保养</el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="primary" size="small" @click="handleView(row)">{{ t('common.view') }}</el-button>
+            <el-button link type="primary" size="small" @click="handleEdit(row)">{{ t('common.edit') }}</el-button>
+            <el-button link type="success" size="small" @click="handleStartTask(row)" v-if="row.status === 'IDLE'">{{ t('mes.equipment.startTask') }}</el-button>
+            <el-button link type="warning" size="small" @click="handleReportBreakdown(row)" v-if="row.status === 'RUNNING'">{{ t('mes.equipment.reportBreakdown') }}</el-button>
+            <el-button link type="info" size="small" @click="handleMaintenance(row)" v-if="row.status === 'IDLE'">{{ t('mes.equipment.startMaintenance') }}</el-button>
+            <el-button link type="danger" size="small" @click="handleDelete(row)">{{ t('common.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -76,6 +76,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { Equipment } from '@/apis/equipment'
 import { 
@@ -85,6 +86,8 @@ import {
   reportBreakdownAPI,
   startMaintenanceAPI 
 } from '@/apis/equipment'
+
+const { t } = useI18n()
 
 const router = useRouter()
 
@@ -109,7 +112,7 @@ const getList = async () => {
     equipmentList.value = data || []
     total.value = data?.length || 0
   } catch (error) {
-    console.error('获取设备列表失败:', error)
+    console.error(t('mes.equipment.fetchListFailed'), error)
   } finally {
     loading.value = false
   }
@@ -141,15 +144,15 @@ const handleView = (row: Equipment) => {
 
 const handleStartTask = async (row: Equipment) => {
   try {
-    const taskNo = await ElMessageBox.prompt('请输入任务编号', '开始任务', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    const taskNo = await ElMessageBox.prompt(t('mes.equipment.taskNoPlaceholder'), t('mes.equipment.startTask'), {
+      confirmButtonText: t('common.confirmText'),
+      cancelButtonText: t('common.cancelText'),
       inputPattern: /.+/,
-      inputErrorMessage: '请输入任务编号'
+      inputErrorMessage: t('mes.equipment.taskNoError')
     })
     if (taskNo.value) {
       await startTaskAPI(row.id!, taskNo.value)
-      ElMessage.success('任务已开始')
+      ElMessage.success(t('mes.equipment.taskStartSuccess'))
       getList()
     }
   } catch (error) {
@@ -159,11 +162,11 @@ const handleStartTask = async (row: Equipment) => {
 
 const handleReportBreakdown = async (row: Equipment) => {
   try {
-    await ElMessageBox.confirm('确定要报告该设备故障吗？', '提示', {
+    await ElMessageBox.confirm(t('mes.equipment.confirmBreakdown'), t('common.warning'), {
       type: 'warning'
     })
     await reportBreakdownAPI(row.id!)
-    ElMessage.success('已报告故障')
+    ElMessage.success(t('mes.equipment.breakdownReported'))
     getList()
   } catch (error) {
     // 用户取消
@@ -172,11 +175,11 @@ const handleReportBreakdown = async (row: Equipment) => {
 
 const handleMaintenance = async (row: Equipment) => {
   try {
-    await ElMessageBox.confirm('确定要开始设备保养吗？', '提示', {
+    await ElMessageBox.confirm(t('mes.equipment.confirmMaintenance'), t('common.warning'), {
       type: 'warning'
     })
     await startMaintenanceAPI(row.id!)
-    ElMessage.success('已启动保养')
+    ElMessage.success(t('mes.equipment.maintenanceStarted'))
     getList()
   } catch (error) {
     // 用户取消
@@ -185,11 +188,11 @@ const handleMaintenance = async (row: Equipment) => {
 
 const handleDelete = async (row: Equipment) => {
   try {
-    await ElMessageBox.confirm('确定要删除该设备吗？', '提示', {
+    await ElMessageBox.confirm(t('mes.equipment.confirmDelete'), t('common.warning'), {
       type: 'warning'
     })
     await deleteEquipmentAPI(row.id!)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('mes.equipment.deleteSuccess'))
     getList()
   } catch (error) {
     // 用户取消
@@ -212,14 +215,14 @@ const getStatusType = (status?: string) => {
 
 const getStatusText = (status?: string) => {
   const map: Record<string, string> = {
-    IDLE: '空闲',
-    RUNNING: '运行中',
-    BREAKDOWN: '故障',
-    MAINTENANCE: '保养中',
-    OFFLINE: '离线',
-    ONLINE: '在线',
-    WARNING: '警告',
-    ERROR: '错误'
+    IDLE: t('mes.equipment.statusIdle'),
+    RUNNING: t('mes.equipment.statusRunning'),
+    BREAKDOWN: t('mes.equipment.statusBreakdown'),
+    MAINTENANCE: t('mes.equipment.statusMaintenance'),
+    OFFLINE: t('mes.equipment.statusOffline'),
+    ONLINE: t('mes.equipment.statusOnline'),
+    WARNING: t('mes.equipment.statusWarning'),
+    ERROR: t('mes.equipment.statusError')
   }
   return map[status || ''] || status
 }

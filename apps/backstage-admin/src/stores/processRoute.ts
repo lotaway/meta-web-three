@@ -36,7 +36,8 @@ export const useProcessRouteStore = defineStore('processRoute', () => {
   const fetchRouteList = async (status?: string) => {
     loading.value = true
     try {
-      const data = await getProcessRouteListAPI(status)
+      const res = await getProcessRouteListAPI(status)
+      const data = res.data
       routeList.value = data || []
       total.value = data?.length || 0
     } catch (error) {
@@ -52,7 +53,8 @@ export const useProcessRouteStore = defineStore('processRoute', () => {
   const fetchRouteById = async (id: number) => {
     loading.value = true
     try {
-      const data = await getProcessRouteByIdAPI(id)
+      const res = await getProcessRouteByIdAPI(id)
+      const data = res.data
       currentRoute.value = data
       return data
     } catch (error) {

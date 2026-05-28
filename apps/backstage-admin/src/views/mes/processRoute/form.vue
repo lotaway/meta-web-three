@@ -3,96 +3,96 @@
     <el-card>
       <template #header>
         <div class="card-header">
-          <span>{{ isEdit ? '编辑工艺路线' : '新增工艺路线' }}</span>
+          <span>{{ isEdit ? t('mes.processRoute.edit') : t('mes.processRoute.add') }}</span>
         </div>
       </template>
 
       <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="路线编码" prop="routeCode">
-              <el-input v-model="form.routeCode" placeholder="请输入路线编码" :disabled="isEdit" />
+            <el-form-item :label="t('mes.processRoute.routeCode')" prop="routeCode">
+              <el-input v-model="form.routeCode" :placeholder="t('mes.processRoute.routeCodePlaceholder')" :disabled="isEdit" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="路线名称" prop="routeName">
-              <el-input v-model="form.routeName" placeholder="请输入路线名称" />
+            <el-form-item :label="t('mes.processRoute.routeName')" prop="routeName">
+              <el-input v-model="form.routeName" :placeholder="t('mes.processRoute.routeNamePlaceholder')" />
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="产品编码" prop="productCode">
-              <el-input v-model="form.productCode" placeholder="请输入产品编码" />
+            <el-form-item :label="t('mes.processRoute.productCode')" prop="productCode">
+              <el-input v-model="form.productCode" :placeholder="t('mes.processRoute.productCodePlaceholder')" />
             </el-form-item>
           </el-col>
           <el-col :span="12" v-if="isEdit">
-            <el-form-item label="版本">
+            <el-form-item :label="t('mes.processRoute.version')">
               <el-input :value="form.version" disabled />
             </el-form-item>
           </el-col>
         </el-row>
 
-        <el-divider content-position="left">工序步骤</el-divider>
+        <el-divider content-position="left">{{ t('mes.processRoute.steps') }}</el-divider>
 
         <div class="steps-container">
           <el-table :data="form.steps" border stripe>
-            <el-table-column label="序号" prop="stepNo" width="80" align="center">
+            <el-table-column :label="t('mes.processRoute.stepNo')" prop="stepNo" width="80" align="center">
               <template #default="{ $index }">
                 {{ $index + 1 }}
               </template>
             </el-table-column>
-            <el-table-column label="工序编码" prop="processCode" min-width="120">
+            <el-table-column :label="t('mes.processRoute.processCode')" prop="processCode" min-width="120">
               <template #default="{ row }">
-                <el-input v-model="row.processCode" placeholder="工序编码" size="small" />
+                <el-input v-model="row.processCode" :placeholder="t('mes.processRoute.processCodePlaceholder')" size="small" />
               </template>
             </el-table-column>
-            <el-table-column label="工序名称" prop="processName" min-width="120">
+            <el-table-column :label="t('mes.processRoute.processName')" prop="processName" min-width="120">
               <template #default="{ row }">
-                <el-input v-model="row.processName" placeholder="工序名称" size="small" />
+                <el-input v-model="row.processName" :placeholder="t('mes.processRoute.processNamePlaceholder')" size="small" />
               </template>
             </el-table-column>
-            <el-table-column label="工位ID" prop="workstationId" width="120">
+            <el-table-column :label="t('mes.processRoute.workstationId')" prop="workstationId" width="120">
               <template #default="{ row }">
-                <el-input v-model="row.workstationId" placeholder="工位ID" size="small" />
+                <el-input v-model="row.workstationId" :placeholder="t('mes.processRoute.workstationIdPlaceholder')" size="small" />
               </template>
             </el-table-column>
-            <el-table-column label="标准工时(分钟)" prop="standardTime" width="140">
+            <el-table-column :label="t('mes.processRoute.standardTime')" prop="standardTime" width="140">
               <template #default="{ row }">
                 <el-input-number v-model="row.standardTime" :min="0" :step="1" size="small" controls-position="right" />
               </template>
             </el-table-column>
-            <el-table-column label="质检工序" prop="qualityCheckpoint" width="120">
+            <el-table-column :label="t('mes.processRoute.qualityCheckpoint')" prop="qualityCheckpoint" width="120">
               <template #default="{ row }">
                 <el-switch v-model="row.qualityCheckpoint" active-value="YES" inactive-value="NO" />
               </template>
             </el-table-column>
-            <el-table-column label="前驱工序" prop="predecessorStepNo" width="100">
+            <el-table-column :label="t('mes.processRoute.predecessorStep')" prop="predecessorStepNo" width="100">
               <template #default="{ row, $index }">
-                <el-select v-model="row.predecessorStepNo" placeholder="选择" clearable size="small">
-                  <el-option v-for="(step, idx) in getAvailablePredecessors($index)" :key="idx" :label="step.processName || `步骤${idx+1}`" :value="step.stepNo" />
+                <el-select v-model="row.predecessorStepNo" :placeholder="t('mes.processRoute.selectPredecessor')" clearable size="small">
+                  <el-option v-for="(step, idx) in getAvailablePredecessors($index)" :key="idx" :label="step.processName || t('mes.processRoute.step') + (idx+1)" :value="step.stepNo" />
                 </el-select>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="80" align="center">
+            <el-table-column :label="t('common.operation')" width="80" align="center">
               <template #default="{ $index }">
-                <el-button link type="danger" size="small" @click="removeStep($index)">删除</el-button>
+                <el-button link type="danger" size="small" @click="removeStep($index)">{{ t('mes.processRoute.removeStep') }}</el-button>
               </template>
             </el-table-column>
           </el-table>
 
           <el-button type="primary" plain size="small" @click="addStep" style="margin-top: 10px">
             <el-icon><Plus /></el-icon>
-            添加工序
+            {{ t('mes.processRoute.addStep') }}
           </el-button>
         </div>
 
         <el-divider />
 
         <el-form-item>
-          <el-button type="primary" @click="handleSubmit" :loading="submitting">提交</el-button>
-          <el-button @click="handleCancel">取消</el-button>
+          <el-button type="primary" @click="handleSubmit" :loading="submitting">{{ t('common.submit') }}</el-button>
+          <el-button @click="handleCancel">{{ t('common.cancelText') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -102,6 +102,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import type { ProcessRoute, ProcessStep, CreateProcessRouteRequest, UpdateProcessRouteRequest } from '@/apis/processRoute'
@@ -111,6 +112,8 @@ import {
   updateProcessRouteAPI,
   validateProcessRouteAPI 
 } from '@/apis/processRoute'
+
+const { t } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
@@ -137,9 +140,9 @@ const form = reactive<{
 })
 
 const rules: FormRules = {
-  routeCode: [{ required: true, message: '请输入路线编码', trigger: 'blur' }],
-  routeName: [{ required: true, message: '请输入路线名称', trigger: 'blur' }],
-  productCode: [{ required: true, message: '请输入产品编码', trigger: 'blur' }],
+  routeCode: [{ required: true, message: t('mes.processRoute.routeCodeRequired'), trigger: 'blur' }],
+  routeName: [{ required: true, message: t('mes.processRoute.routeNameRequired'), trigger: 'blur' }],
+  productCode: [{ required: true, message: t('mes.processRoute.productCodeRequired'), trigger: 'blur' }],
 }
 
 const addStep = () => {
@@ -182,7 +185,7 @@ const loadData = async () => {
       form.steps = data.steps ? [...data.steps] : []
     }
   } catch (error) {
-    ElMessage.error('加载数据失败')
+    ElMessage.error(t('mes.processRoute.loadFailed'))
     console.error(error)
   }
 }
@@ -194,7 +197,7 @@ const handleSubmit = async () => {
     if (!valid) return
     
     if (form.steps.length === 0) {
-      ElMessage.warning('请至少添加一个工序')
+      ElMessage.warning(t('mes.processRoute.addAtLeastOneStep'))
       return
     }
 
@@ -207,7 +210,7 @@ const handleSubmit = async () => {
           steps: form.steps
         }
         await updateProcessRouteAPI(routeId.value, data)
-        ElMessage.success('更新成功')
+        ElMessage.success(t('mes.processRoute.updateSuccess'))
       } else {
         const data: CreateProcessRouteRequest = {
           routeCode: form.routeCode,
@@ -216,7 +219,7 @@ const handleSubmit = async () => {
           steps: form.steps
         }
         await createProcessRouteAPI(data)
-        ElMessage.success('创建成功')
+        ElMessage.success(t('mes.processRoute.createSuccess'))
       }
       
       // 可选：保存后验证
@@ -224,7 +227,7 @@ const handleSubmit = async () => {
       
       router.push('/mes/process-route')
     } catch (error) {
-      console.error('提交失败:', error)
+      console.error(t('mes.processRoute.submitFailed'), error)
     } finally {
       submitting.value = false
     }

@@ -3,50 +3,50 @@
     <el-card v-loading="loading">
       <template #header>
         <div class="header-row">
-          <span>设备详情</span>
-          <el-button @click="handleBack">返回</el-button>
+          <span>{{ t('mes.equipment.detail.title') }}</span>
+          <el-button @click="handleBack">{{ t('mes.equipment.detail.back') }}</el-button>
         </div>
       </template>
       
       <el-descriptions :column="2" border v-if="equipment">
-        <el-descriptions-item label="设备编码">{{ equipment.equipmentCode }}</el-descriptions-item>
-        <el-descriptions-item label="设备名称">{{ equipment.equipmentName }}</el-descriptions-item>
-        <el-descriptions-item label="设备类型">{{ equipment.equipmentTypeCode }}</el-descriptions-item>
-        <el-descriptions-item label="状态">
+        <el-descriptions-item :label="t('mes.equipment.equipmentCode')">{{ equipment.equipmentCode }}</el-descriptions-item>
+        <el-descriptions-item :label="t('mes.equipment.equipmentName')">{{ equipment.equipmentName }}</el-descriptions-item>
+        <el-descriptions-item :label="t('mes.equipment.equipmentType')">{{ equipment.equipmentTypeCode }}</el-descriptions-item>
+        <el-descriptions-item :label="t('mes.equipment.status')">
           <el-tag :type="getStatusType(equipment.status)">{{ getStatusText(equipment.status) }}</el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="车间ID">{{ equipment.workshopId }}</el-descriptions-item>
-        <el-descriptions-item label="工位ID">{{ equipment.workstationId }}</el-descriptions-item>
-        <el-descriptions-item label="当前位置">
+        <el-descriptions-item :label="t('mes.equipment.workshopId')">{{ equipment.workshopId }}</el-descriptions-item>
+        <el-descriptions-item :label="t('mes.equipment.workstationId')">{{ equipment.workstationId }}</el-descriptions-item>
+        <el-descriptions-item :label="t('mes.equipment.detail.currentPosition')">
           X: {{ equipment.positionX }}, Y: {{ equipment.positionY }}, Z: {{ equipment.positionZ }}
         </el-descriptions-item>
-        <el-descriptions-item label="IP地址">{{ equipment.ipAddress }}</el-descriptions-item>
-        <el-descriptions-item label="MAC地址">{{ equipment.macAddress }}</el-descriptions-item>
-        <el-descriptions-item label="数字孪生设备">{{ equipment.digitalTwinDeviceCode || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="今日产出">{{ equipment.todayOutput }}</el-descriptions-item>
-        <el-descriptions-item label="OEE">
+        <el-descriptions-item :label="t('mes.equipment.ipAddress')">{{ equipment.ipAddress }}</el-descriptions-item>
+        <el-descriptions-item :label="t('mes.equipment.macAddress')">{{ equipment.macAddress }}</el-descriptions-item>
+        <el-descriptions-item :label="t('mes.equipment.digitalTwin')">{{ equipment.digitalTwinDeviceCode || '-' }}</el-descriptions-item>
+        <el-descriptions-item :label="t('mes.equipment.todayOutput')">{{ equipment.todayOutput }}</el-descriptions-item>
+        <el-descriptions-item :label="t('mes.equipment.oee')">
           {{ equipment.utilizationRate?.toFixed(2) }}%
         </el-descriptions-item>
-        <el-descriptions-item label="运行时间">{{ formatDuration(equipment.totalRunningSeconds) }}</el-descriptions-item>
-        <el-descriptions-item label="空闲时间">{{ formatDuration(equipment.totalIdleSeconds) }}</el-descriptions-item>
-        <el-descriptions-item label="停机时间">{{ formatDuration(equipment.totalDowntimeSeconds) }}</el-descriptions-item>
-        <el-descriptions-item label="当前任务">{{ equipment.currentTaskNo || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="最后保养时间">{{ equipment.lastMaintenanceTime || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="下次保养时间">{{ equipment.nextMaintenanceTime || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="最后心跳">{{ equipment.lastHeartbeat || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="创建时间">{{ equipment.createdAt }}</el-descriptions-item>
+        <el-descriptions-item :label="t('mes.equipment.runningTime')">{{ formatDuration(equipment.totalRunningSeconds) }}</el-descriptions-item>
+        <el-descriptions-item :label="t('mes.equipment.idleTime')">{{ formatDuration(equipment.totalIdleSeconds) }}</el-descriptions-item>
+        <el-descriptions-item :label="t('mes.equipment.downtime')">{{ formatDuration(equipment.totalDowntimeSeconds) }}</el-descriptions-item>
+        <el-descriptions-item :label="t('mes.equipment.currentTask')">{{ equipment.currentTaskNo || '-' }}</el-descriptions-item>
+        <el-descriptions-item :label="t('mes.equipment.lastMaintenance')">{{ equipment.lastMaintenanceTime || '-' }}</el-descriptions-item>
+        <el-descriptions-item :label="t('mes.equipment.nextMaintenance')">{{ equipment.nextMaintenanceTime || '-' }}</el-descriptions-item>
+        <el-descriptions-item :label="t('mes.equipment.lastHeartbeat')">{{ equipment.lastHeartbeat || '-' }}</el-descriptions-item>
+        <el-descriptions-item :label="t('mes.equipment.createdAt')">{{ equipment.createdAt }}</el-descriptions-item>
       </el-descriptions>
       
       <el-divider />
       
       <div class="action-buttons">
-        <el-button type="primary" @click="handleEdit" v-if="equipment">编辑</el-button>
-        <el-button type="success" @click="handleStartTask" v-if="equipment?.status === 'IDLE'">开始任务</el-button>
-        <el-button type="info" @click="handleCompleteTask" v-if="equipment?.status === 'RUNNING'">完成任务</el-button>
-        <el-button type="warning" @click="handleReportBreakdown" v-if="equipment?.status === 'RUNNING'">报告故障</el-button>
-        <el-button type="danger" @click="handleRepair" v-if="equipment?.status === 'BREAKDOWN'">维修</el-button>
-        <el-button @click="handleStartMaintenance" v-if="equipment?.status === 'IDLE'">开始保养</el-button>
-        <el-button @click="handleCompleteMaintenance" v-if="equipment?.status === 'MAINTENANCE'">完成保养</el-button>
+        <el-button type="primary" @click="handleEdit" v-if="equipment">{{ t('mes.equipment.detail.edit') }}</el-button>
+        <el-button type="success" @click="handleStartTask" v-if="equipment?.status === 'IDLE'">{{ t('mes.equipment.detail.startTask') }}</el-button>
+        <el-button type="info" @click="handleCompleteTask" v-if="equipment?.status === 'RUNNING'">{{ t('mes.equipment.detail.completeTask') }}</el-button>
+        <el-button type="warning" @click="handleReportBreakdown" v-if="equipment?.status === 'RUNNING'">{{ t('mes.equipment.detail.reportBreakdown') }}</el-button>
+        <el-button type="danger" @click="handleRepair" v-if="equipment?.status === 'BREAKDOWN'">{{ t('mes.equipment.detail.repair') }}</el-button>
+        <el-button @click="handleStartMaintenance" v-if="equipment?.status === 'IDLE'">{{ t('mes.equipment.detail.startMaintenance') }}</el-button>
+        <el-button @click="handleCompleteMaintenance" v-if="equipment?.status === 'MAINTENANCE'">{{ t('mes.equipment.detail.completeMaintenance') }}</el-button>
       </div>
     </el-card>
   </div>
@@ -55,6 +55,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { Equipment } from '@/apis/equipment'
 import { 
@@ -67,6 +68,7 @@ import {
   completeMaintenanceAPI
 } from '@/apis/equipment'
 
+const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const loading = ref(false)
@@ -80,7 +82,7 @@ const loadData = async () => {
   try {
     equipment.value = await getEquipmentByIdAPI(id)
   } catch (error) {
-    ElMessage.error('加载设备信息失败')
+    ElMessage.error(t('mes.equipment.detail.loadError'))
   } finally {
     loading.value = false
   }
@@ -92,15 +94,15 @@ const handleEdit = () => {
 
 const handleStartTask = async () => {
   try {
-    const taskNo = await ElMessageBox.prompt('请输入任务编号', '开始任务', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    const taskNo = await ElMessageBox.prompt(t('mes.equipment.detail.enterTaskNo'), t('mes.equipment.detail.startTaskTitle'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       inputPattern: /.+/,
-      inputErrorMessage: '请输入任务编号'
+      inputErrorMessage: t('mes.equipment.detail.enterTaskNo')
     })
     if (taskNo.value && equipment.value) {
       equipment.value = await startTaskAPI(equipment.value.id!, taskNo.value)
-      ElMessage.success('任务已开始')
+      ElMessage.success(t('mes.equipment.detail.taskStarted'))
     }
   } catch (error) {
     // 用户取消
@@ -109,10 +111,10 @@ const handleStartTask = async () => {
 
 const handleCompleteTask = async () => {
   try {
-    await ElMessageBox.confirm('确定要完成当前任务吗？', '提示', { type: 'warning' })
+    await ElMessageBox.confirm(t('mes.equipment.detail.confirmCompleteTask'), t('common.warning'), { type: 'warning' })
     if (equipment.value) {
       equipment.value = await completeTaskAPI(equipment.value.id!)
-      ElMessage.success('任务已完成')
+      ElMessage.success(t('mes.equipment.detail.taskCompleted'))
     }
   } catch (error) {
     // 用户取消
@@ -121,10 +123,10 @@ const handleCompleteTask = async () => {
 
 const handleReportBreakdown = async () => {
   try {
-    await ElMessageBox.confirm('确定要报告设备故障吗？', '提示', { type: 'warning' })
+    await ElMessageBox.confirm(t('mes.equipment.detail.confirmBreakdown'), t('common.warning'), { type: 'warning' })
     if (equipment.value) {
       equipment.value = await reportBreakdownAPI(equipment.value.id!)
-      ElMessage.success('已报告故障')
+      ElMessage.success(t('mes.equipment.detail.breakdownReported'))
     }
   } catch (error) {
     // 用户取消
@@ -133,10 +135,10 @@ const handleReportBreakdown = async () => {
 
 const handleRepair = async () => {
   try {
-    await ElMessageBox.confirm('确定要维修该设备吗？', '提示', { type: 'warning' })
+    await ElMessageBox.confirm(t('mes.equipment.detail.confirmRepair'), t('common.warning'), { type: 'warning' })
     if (equipment.value) {
       equipment.value = await repairEquipmentAPI(equipment.value.id!)
-      ElMessage.success('维修完成')
+      ElMessage.success(t('mes.equipment.detail.repairCompleted'))
     }
   } catch (error) {
     // 用户取消
@@ -145,10 +147,10 @@ const handleRepair = async () => {
 
 const handleStartMaintenance = async () => {
   try {
-    await ElMessageBox.confirm('确定要开始设备保养吗？', '提示', { type: 'warning' })
+    await ElMessageBox.confirm(t('mes.equipment.detail.confirmMaintenance'), t('common.warning'), { type: 'warning' })
     if (equipment.value) {
       equipment.value = await startMaintenanceAPI(equipment.value.id!)
-      ElMessage.success('已启动保养')
+      ElMessage.success(t('mes.equipment.detail.maintenanceStarted'))
     }
   } catch (error) {
     // 用户取消
@@ -157,10 +159,10 @@ const handleStartMaintenance = async () => {
 
 const handleCompleteMaintenance = async () => {
   try {
-    await ElMessageBox.confirm('确定要完成保养吗？', '提示', { type: 'warning' })
+    await ElMessageBox.confirm(t('mes.equipment.detail.confirmCompleteMaintenance'), t('common.warning'), { type: 'warning' })
     if (equipment.value) {
       equipment.value = await completeMaintenanceAPI(equipment.value.id!)
-      ElMessage.success('保养已完成')
+      ElMessage.success(t('mes.equipment.detail.maintenanceCompleted'))
     }
   } catch (error) {
     // 用户取消
@@ -187,24 +189,24 @@ const getStatusType = (status?: string) => {
 
 const getStatusText = (status?: string) => {
   const map: Record<string, string> = {
-    IDLE: '空闲',
-    RUNNING: '运行中',
-    BREAKDOWN: '故障',
-    MAINTENANCE: '保养中',
-    OFFLINE: '离线',
-    ONLINE: '在线',
-    WARNING: '警告',
-    ERROR: '错误'
+    IDLE: t('mes.equipment.statusIdle'),
+    RUNNING: t('mes.equipment.statusRunning'),
+    BREAKDOWN: t('mes.equipment.statusBreakdown'),
+    MAINTENANCE: t('mes.equipment.statusMaintenance'),
+    OFFLINE: t('mes.equipment.statusOffline'),
+    ONLINE: t('mes.equipment.statusOnline'),
+    WARNING: t('mes.equipment.statusWarning'),
+    ERROR: t('mes.equipment.statusError')
   }
   return map[status || ''] || status
 }
 
 const formatDuration = (seconds?: number) => {
-  if (!seconds) return '0秒'
+  if (!seconds) return `0${t('mes.equipment.timeFormat.minutes')}`
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
   const secs = seconds % 60
-  return `${hours}小时${minutes}分钟${secs}秒`
+  return `${hours}${t('mes.equipment.timeFormat.hours')}${minutes}${t('mes.equipment.timeFormat.minutes')}${secs}${t('mes.equipment.timeFormat.seconds')}`
 }
 
 onMounted(() => {

@@ -1,6 +1,6 @@
 import { useUserStore } from '@/stores/user'
 import type { CommonResult } from '@/types/common'
-import axios from 'axios'
+import axios, { type AxiosInstance, type AxiosResponse, type InternalAxiosRequestConfig, type AxiosRequestConfig } from 'axios'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { HTTP_TIMEOUT, MESSAGE_DURATION } from '@/constants'
 import { t } from '@/locales'
@@ -29,15 +29,17 @@ const SERVICE_PREFIX_MAP: Record<string, string> = {
   '/sso': 'user-service',
   '/member': 'user-service',
   '/cs': 'cs-service',
+  '/api/mes': 'mes-service',
+  '/api/pokayoke': 'mes-service',
 }
 
-const http = axios.create({
+const service: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BASE_SERVER_URL,
   timeout: HTTP_TIMEOUT,
 })
 
-http.interceptors.request.use(
-  config => {
+service.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
     const url = config.url || ''
     const matchedPrefix = Object.keys(SERVICE_PREFIX_MAP)
       .sort((a, b) => b.length - a.length)
@@ -46,13 +48,6 @@ http.interceptors.request.use(
       const serviceId = SERVICE_PREFIX_MAP[matchedPrefix]
       config.url = `/${serviceId}${url.startsWith('/') ? '' : '/'}${url}`
     }
-    return config
-  },
-  e => Promise.reject(e),
-)
-
-http.interceptors.request.use(
-  config => {
     const userStore = useUserStore()
     const token = userStore.userInfo.token
     if (token) {
@@ -63,9 +58,10 @@ http.interceptors.request.use(
   e => Promise.reject(e),
 )
 
-http.interceptors.response.use(
-  response => {
-    const res: CommonResult<unknown> = response.data
+// 响应拦截器
+service.interceptors.response.use(
+  (response: AxiosResponse) => {
+    const res = response.data as CommonResult<unknown>
     const code = String(res.code)
     if (code !== '200') {
       ElMessage({
@@ -84,19 +80,28 @@ http.interceptors.response.use(
           location.reload()
         })
       }
-      return Promise.reject('error')
-    } else {
-      return response.data
+      return Promise.reject(new Error(res.message))
     }
+    // 返回完整响应对象，包含 .data 属性供调用者访问实际数据
+    return response
   },
   error => {
     ElMessage({
-      message: error.message,
+      message: error.message || 'Request failed',
       type: 'error',
       duration: MESSAGE_DURATION,
     })
     return Promise.reject(error)
   },
 )
+
+// http 函数 - 支持泛型
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function http<T = any>(config: AxiosRequestConfig): Promise<CommonResult<T>> {
+  // @ts-ignore - TypeScript 无法正确推断拦截器返回类型
+  return service(config).then((response: AxiosResponse<CommonResult<T>>) => {
+    return response.data as CommonResult<T>
+  })
+}
 
 export default http

@@ -199,3 +199,177 @@ export function getOEEAPI(id: number, params?: {
     params,
   })
 }
+
+// ========== 设备维护计划 ==========
+export interface MaintenancePlan {
+  id?: number
+  equipmentId: number
+  equipmentCode?: string
+  equipmentName?: string
+  planCode: string
+  planName: string
+  maintenanceType: 'PREVENTIVE' | 'PREDICTIVE' | 'CORRECTIVE'
+  intervalDays: number
+  intervalHours: number
+  nextExecutionTime: string
+  lastExecutionTime?: string
+  estimatedDuration: number
+  assignedTo?: string
+  status: 'ACTIVE' | 'INACTIVE' | 'COMPLETED'
+  description?: string
+  checkItems?: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface CreateMaintenancePlanRequest {
+  equipmentId: number
+  planCode: string
+  planName: string
+  maintenanceType: 'PREVENTIVE' | 'PREDICTIVE' | 'CORRECTIVE'
+  intervalDays: number
+  intervalHours: number
+  nextExecutionTime: string
+  estimatedDuration: number
+  assignedTo?: string
+  description?: string
+  checkItems?: string
+}
+
+export function getMaintenancePlanListAPI(params?: {
+  equipmentId?: number
+  maintenanceType?: string
+  status?: string
+}) {
+  return http<MaintenancePlan[]>({
+    url: '/api/mes/equipment/maintenance-plans',
+    method: 'get',
+    params,
+  })
+}
+
+export function getMaintenancePlanByIdAPI(id: number) {
+  return http<MaintenancePlan>({
+    url: `/api/mes/equipment/maintenance-plans/${id}`,
+    method: 'get',
+  })
+}
+
+export function createMaintenancePlanAPI(data: CreateMaintenancePlanRequest) {
+  return http<MaintenancePlan>({
+    url: '/api/mes/equipment/maintenance-plans',
+    method: 'post',
+    data,
+  })
+}
+
+export function updateMaintenancePlanAPI(id: number, data: Partial<CreateMaintenancePlanRequest>) {
+  return http<MaintenancePlan>({
+    url: `/api/mes/equipment/maintenance-plans/${id}`,
+    method: 'put',
+    data,
+  })
+}
+
+export function deleteMaintenancePlanAPI(id: number) {
+  return http({
+    url: `/api/mes/equipment/maintenance-plans/${id}`,
+    method: 'delete',
+  })
+}
+
+export function executeMaintenancePlanAPI(id: number, result?: string) {
+  return http<MaintenancePlan>({
+    url: `/api/mes/equipment/maintenance-plans/${id}/execute`,
+    method: 'post',
+    data: { result },
+  })
+}
+
+// ========== 设备点检记录 ==========
+export interface EquipmentChecklist {
+  id?: number
+  equipmentId: number
+  equipmentCode?: string
+  equipmentName?: string
+  checkCode: string
+  checkType: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'ANNUAL'
+  checkTime: string
+  checkerId?: string
+  checkerName?: string
+  status: 'PENDING' | 'COMPLETED' | 'ABNORMAL'
+  result?: string
+  abnormalItems?: string
+  remarks?: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface CreateChecklistRequest {
+  equipmentId: number
+  checkCode: string
+  checkType: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'ANNUAL'
+  checkTime: string
+  checkerId?: string
+  checkerName?: string
+  status?: 'PENDING' | 'COMPLETED' | 'ABNORMAL'
+  result?: string
+  abnormalItems?: string
+  remarks?: string
+}
+
+export function getChecklistListAPI(params?: {
+  equipmentId?: number
+  checkType?: string
+  status?: string
+  startDate?: string
+  endDate?: string
+}) {
+  return http<EquipmentChecklist[]>({
+    url: '/api/mes/equipment/checklists',
+    method: 'get',
+    params,
+  })
+}
+
+export function getChecklistByIdAPI(id: number) {
+  return http<EquipmentChecklist>({
+    url: `/api/mes/equipment/checklists/${id}`,
+    method: 'get',
+  })
+}
+
+export function createChecklistAPI(data: CreateChecklistRequest) {
+  return http<EquipmentChecklist>({
+    url: '/api/mes/equipment/checklists',
+    method: 'post',
+    data,
+  })
+}
+
+export function updateChecklistAPI(id: number, data: Partial<CreateChecklistRequest>) {
+  return http<EquipmentChecklist>({
+    url: `/api/mes/equipment/checklists/${id}`,
+    method: 'put',
+    data,
+  })
+}
+
+export function deleteChecklistAPI(id: number) {
+  return http({
+    url: `/api/mes/equipment/checklists/${id}`,
+    method: 'delete',
+  })
+}
+
+export function completeChecklistAPI(id: number, data: {
+  result?: string
+  abnormalItems?: string
+  remarks?: string
+}) {
+  return http<EquipmentChecklist>({
+    url: `/api/mes/equipment/checklists/${id}/complete`,
+    method: 'post',
+    data,
+  })
+}

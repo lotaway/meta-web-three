@@ -39,7 +39,8 @@ export const useEquipmentStore = defineStore('equipment', () => {
   }) => {
     loading.value = true
     try {
-      const data = await getEquipmentListAPI(params)
+      const res = await getEquipmentListAPI(params)
+      const data = res.data
       equipmentList.value = data || []
       total.value = data?.length || 0
     } catch (error) {
@@ -54,7 +55,8 @@ export const useEquipmentStore = defineStore('equipment', () => {
   const fetchEquipmentById = async (id: number) => {
     loading.value = true
     try {
-      const data = await getEquipmentByIdAPI(id)
+      const res = await getEquipmentByIdAPI(id)
+      const data = res.data
       currentEquipment.value = data
       return data
     } catch (error) {
