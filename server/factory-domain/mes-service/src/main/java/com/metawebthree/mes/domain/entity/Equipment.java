@@ -112,6 +112,9 @@ public class Equipment {
     }
 
     public void startTask(String taskNo) {
+        if (this.status != EquipmentStatus.IDLE) {
+            throw new IllegalStateException("只有在 IDLE 状态下才能开始任务，当前状态: " + this.status);
+        }
         this.statusCode = EquipmentStatusCode.RUNNING;
         this.status = EquipmentStatus.RUNNING;
         this.currentTaskNo = taskNo;
@@ -119,6 +122,9 @@ public class Equipment {
     }
 
     public void completeTask() {
+        if (this.status != EquipmentStatus.RUNNING) {
+            throw new IllegalStateException("只有在 RUNNING 状态下才能完成任务，当前状态: " + this.status);
+        }
         this.statusCode = EquipmentStatusCode.IDLE;
         this.status = EquipmentStatus.IDLE;
         this.currentTaskNo = null;
@@ -127,24 +133,36 @@ public class Equipment {
     }
 
     public void reportBreakdown() {
+        if (this.status != EquipmentStatus.RUNNING) {
+            throw new IllegalStateException("只有在 RUNNING 状态下才能报故障，当前状态: " + this.status);
+        }
         this.statusCode = EquipmentStatusCode.BREAKDOWN;
         this.status = EquipmentStatus.BREAKDOWN;
         this.updatedAt = LocalDateTime.now();
     }
 
     public void repair() {
+        if (this.status != EquipmentStatus.BREAKDOWN) {
+            throw new IllegalStateException("只有在 BREAKDOWN 状态下才能维修，当前状态: " + this.status);
+        }
         this.statusCode = EquipmentStatusCode.IDLE;
         this.status = EquipmentStatus.IDLE;
         this.updatedAt = LocalDateTime.now();
     }
 
     public void startMaintenance() {
+        if (this.status == EquipmentStatus.RUNNING) {
+            throw new IllegalStateException("RUNNING 状态下不能开始保养，当前状态: " + this.status);
+        }
         this.statusCode = EquipmentStatusCode.MAINTENANCE;
         this.status = EquipmentStatus.MAINTENANCE;
         this.updatedAt = LocalDateTime.now();
     }
 
     public void completeMaintenance() {
+        if (this.status != EquipmentStatus.MAINTENANCE) {
+            throw new IllegalStateException("只有在 MAINTENANCE 状态下才能完成保养，当前状态: " + this.status);
+        }
         this.statusCode = EquipmentStatusCode.IDLE;
         this.status = EquipmentStatus.IDLE;
         this.lastMaintenanceTime = LocalDateTime.now();

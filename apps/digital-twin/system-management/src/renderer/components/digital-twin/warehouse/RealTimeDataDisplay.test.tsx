@@ -277,7 +277,7 @@ describe('Real-time Data Display Tests', () => {
       expect(screen.getByText('5234')).toBeInTheDocument()
     })
 
-    it('should display today's inbound count', () => {
+    it('should display today\'s inbound count', () => {
       render(
         <WarehouseStatus
           data={mockStatusData}
@@ -288,7 +288,7 @@ describe('Real-time Data Display Tests', () => {
       expect(screen.getByText('120')).toBeInTheDocument()
     })
 
-    it('should display today's outbound count', () => {
+    it('should display today\'s outbound count', () => {
       render(
         <WarehouseStatus
           data={mockStatusData}
