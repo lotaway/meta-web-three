@@ -61,4 +61,28 @@ public final class MesPermissions {
     public static final String QC_INSPECTION_ITEM_CREATE = "mes:qc:inspection-item:create";
     public static final String QC_INSPECTION_ITEM_UPDATE = "mes:qc:inspection-item:update";
     public static final String QC_INSPECTION_ITEM_DELETE = "mes:qc:inspection-item:delete";
+    
+    // QC Defect Code permissions
+    public static final String QC_DEFECT_CODE_READ   = "mes:qc:defect-code:read";
+    public static final String QC_DEFECT_CODE_CREATE = "mes:qc:defect-code:create";
+    public static final String QC_DEFECT_CODE_UPDATE = "mes:qc:defect-code:update";
+    public static final String QC_DEFECT_CODE_DELETE = "mes:qc:defect-code:delete";
+    
+    // QC Trigger Rule permissions
+    public static final String QC_TRIGGER_RULE_READ   = "mes:qc:trigger-rule:read";
+    public static final String QC_TRIGGER_RULE_CREATE = "mes:qc:trigger-rule:create";
+    public static final String QC_TRIGGER_RULE_UPDATE = "mes:qc:trigger-rule:update";
+    public static final String QC_TRIGGER_RULE_DELETE = "mes:qc:trigger-rule:delete";
+    
+    // QC Non-Conformance Disposition permissions
+    public static final String QC_NON_CONFORMANCE_READ   = "mes:qc:non-conformance:read";
+    public static final String QC_NON_CONFORMANCE_CREATE = "mes:qc:non-conformance:create";
+    public static final String QC_NON_CONFORMANCE_UPDATE = "mes:qc:non-conformance:update";
+    public static final String QC_NON_CONFORMANCE_DELETE = "mes:qc:non-conformance:delete";
+    
+    // QC SPC Control Chart permissions
+    public static final String QC_SPC_CONTROL_CHART_READ   = "mes:qc:spc-control-chart:read";
+    public static final String QC_SPC_CONTROL_CHART_CREATE = "mes:qc:spc-control-chart:create";
+    public static final String QC_SPC_CONTROL_CHART_UPDATE = "mes:qc:spc-control-chart:update";
+    public static final String QC_SPC_CONTROL_CHART_DELETE = "mes:qc:spc-control-chart:delete";
 }

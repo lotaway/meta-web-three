@@ -3,16 +3,16 @@ package com.metawebthree.mes.adapter.http.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metawebthree.mes.domain.entity.ProcessRoute;
 import com.metawebthree.mes.domain.repository.ProcessRouteRepository;
+import com.metawebthree.mes.infrastructure.event.MesEventPublisher;
 import com.metawebthree.mes.interfaces.dto.ProcessRouteDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import com.metawebthree.mes.config.TestConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,15 +23,18 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Import(TestConfig.class)
 @Transactional
-@DisplayName("ProcessRoute REST API 集成测试")
+@DisplayName("ProcessRoute REST API Integration Test")
 class ProcessRouteControllerIntegrationTest {
 
     @Autowired
@@ -43,19 +46,28 @@ class ProcessRouteControllerIntegrationTest {
     @Autowired
     private ProcessRouteRepository processRouteRepository;
 
+    @MockBean
+    private MesEventPublisher mesEventPublisher;
+
     private ProcessRoute testRoute;
 
     @BeforeEach
     void setUp() {
-        // 使用 H2 内存数据库，测试间自动清理
+        doNothing().when(mesEventPublisher).publishWorkOrderCreated(anyLong(), anyString());
+        doNothing().when(mesEventPublisher).publishWorkOrderReleased(anyLong());
+        doNothing().when(mesEventPublisher).publishWorkOrderStarted(anyLong());
+        doNothing().when(mesEventPublisher).publishWorkOrderCompleted(anyLong());
+        doNothing().when(mesEventPublisher).publishProcessRouteActivated(anyLong());
+        doNothing().when(mesEventPublisher).publishProcessRouteArchived(anyLong());
+
         testRoute = new ProcessRoute();
-        testRoute.create("TEST-001", "测试工艺路线", "P001");
+        testRoute.create("TEST-001", "Test Route", "P001");
         
         List<ProcessRoute.ProcessStep> steps = new ArrayList<>();
         ProcessRoute.ProcessStep step1 = new ProcessRoute.ProcessStep();
         step1.setStepNo(1);
         step1.setProcessCode("PC-001");
-        step1.setProcessName("组装");
+        step1.setProcessName("Assembly");
         step1.setWorkstationId("WS-001");
         step1.setStandardTime(300);
         steps.add(step1);
@@ -63,7 +75,7 @@ class ProcessRouteControllerIntegrationTest {
         ProcessRoute.ProcessStep step2 = new ProcessRoute.ProcessStep();
         step2.setStepNo(2);
         step2.setProcessCode("PC-002");
-        step2.setProcessName("测试");
+        step2.setProcessName("Testing");
         step2.setWorkstationId("WS-002");
         step2.setStandardTime(120);
         step2.setPredecessorStepNo(1);
@@ -74,22 +86,22 @@ class ProcessRouteControllerIntegrationTest {
     }
 
     @Nested
-    @DisplayName("CRUD 操作测试")
+    @DisplayName("CRUD Operations")
     class CrudTests {
         
         @Test
-        @DisplayName("创建工艺路线 - 成功")
+        @DisplayName("Create ProcessRoute - Success")
         void testCreate_Success() throws Exception {
             ProcessRouteDTO.CreateRequest request = new ProcessRouteDTO.CreateRequest();
             request.setRouteCode("NEW-001");
-            request.setRouteName("新工艺路线");
+            request.setRouteName("New Route");
             request.setProductCode("P002");
             
             List<ProcessRouteDTO.ProcessStepDTO> steps = new ArrayList<>();
             ProcessRouteDTO.ProcessStepDTO stepDto = new ProcessRouteDTO.ProcessStepDTO();
             stepDto.setStepNo(1);
             stepDto.setProcessCode("PC-001");
-            stepDto.setProcessName("组装");
+            stepDto.setProcessName("Assembly");
             stepDto.setWorkstationId("WS-001");
             stepDto.setStandardTime(300);
             steps.add(stepDto);
@@ -100,30 +112,30 @@ class ProcessRouteControllerIntegrationTest {
                     .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.routeCode").value("NEW-001"))
-                    .andExpect(jsonPath("$.routeName").value("新工艺路线"))
+                    .andExpect(jsonPath("$.routeName").value("New Route"))
                     .andExpect(jsonPath("$.productCode").value("P002"))
                     .andExpect(jsonPath("$.status").value("DRAFT"));
         }
         
         @Test
-        @DisplayName("创建工艺路线 - 验证失败（工序序号不连续）")
+        @DisplayName("Create ProcessRoute - Validation Failed (Non-consecutive Step No)")
         void testCreate_ValidationFailed() throws Exception {
             ProcessRouteDTO.CreateRequest request = new ProcessRouteDTO.CreateRequest();
             request.setRouteCode("NEW-002");
-            request.setRouteName("验证失败路线");
+            request.setRouteName("Invalid Route");
             request.setProductCode("P003");
             
             List<ProcessRouteDTO.ProcessStepDTO> steps = new ArrayList<>();
             ProcessRouteDTO.ProcessStepDTO stepDto = new ProcessRouteDTO.ProcessStepDTO();
             stepDto.setStepNo(1);
             stepDto.setProcessCode("PC-001");
-            stepDto.setProcessName("组装");
+            stepDto.setProcessName("Assembly");
             steps.add(stepDto);
             
             ProcessRouteDTO.ProcessStepDTO stepDto2 = new ProcessRouteDTO.ProcessStepDTO();
-            stepDto2.setStepNo(3);  // 跳过了2
+            stepDto2.setStepNo(3);
             stepDto2.setProcessCode("PC-002");
-            stepDto2.setProcessName("测试");
+            stepDto2.setProcessName("Testing");
             steps.add(stepDto2);
             request.setSteps(steps);
             
@@ -136,24 +148,24 @@ class ProcessRouteControllerIntegrationTest {
         }
         
         @Test
-        @DisplayName("根据ID获取工艺路线 - 成功")
+        @DisplayName("Get ProcessRoute By ID - Success")
         void testGetById_Success() throws Exception {
             mockMvc.perform(get("/api/mes/process-route/" + testRoute.getId()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(testRoute.getId().intValue()))
                     .andExpect(jsonPath("$.routeCode").value("TEST-001"))
-                    .andExpect(jsonPath("$.routeName").value("测试工艺路线"));
+                    .andExpect(jsonPath("$.routeName").value("Test Route"));
         }
         
         @Test
-        @DisplayName("根据ID获取工艺路线 - 不存在")
+        @DisplayName("Get ProcessRoute By ID - Not Found")
         void testGetById_NotFound() throws Exception {
             mockMvc.perform(get("/api/mes/process-route/99999"))
                     .andExpect(status().isNotFound());
         }
         
         @Test
-        @DisplayName("根据路线编码获取工艺路线")
+        @DisplayName("Get ProcessRoute By Code")
         void testGetByCode() throws Exception {
             mockMvc.perform(get("/api/mes/process-route/code/TEST-001"))
                     .andExpect(status().isOk())
@@ -161,22 +173,22 @@ class ProcessRouteControllerIntegrationTest {
         }
         
         @Test
-        @DisplayName("更新工艺路线 - 成功")
+        @DisplayName("Update ProcessRoute - Success")
         void testUpdate_Success() throws Exception {
             ProcessRouteDTO.UpdateRequest request = new ProcessRouteDTO.UpdateRequest();
-            request.setRouteName("更新后的名称");
+            request.setRouteName("Updated Name");
             request.setProductCode("P999");
             
             mockMvc.perform(put("/api/mes/process-route/" + testRoute.getId())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.routeName").value("更新后的名称"))
+                    .andExpect(jsonPath("$.routeName").value("Updated Name"))
                     .andExpect(jsonPath("$.productCode").value("P999"));
         }
         
         @Test
-        @DisplayName("删除工艺路线")
+        @DisplayName("Delete ProcessRoute")
         void testDelete() throws Exception {
             mockMvc.perform(delete("/api/mes/process-route/" + testRoute.getId()))
                     .andExpect(status().isOk());
@@ -186,7 +198,7 @@ class ProcessRouteControllerIntegrationTest {
         }
         
         @Test
-        @DisplayName("列表查询 - 无条件")
+        @DisplayName("List All ProcessRoutes")
         void testList_All() throws Exception {
             mockMvc.perform(get("/api/mes/process-route"))
                     .andExpect(status().isOk())
@@ -195,21 +207,19 @@ class ProcessRouteControllerIntegrationTest {
         }
         
         @Test
-        @DisplayName("列表查询 - 按状态筛选")
+        @DisplayName("List ProcessRoutes By Status")
         void testList_ByStatus() throws Exception {
-            // 测试查询 DRAFT 状态
             mockMvc.perform(get("/api/mes/process-route").param("status", "DRAFT"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(1)));
             
-            // 测试查询 ACTIVE 状态（无数据）
             mockMvc.perform(get("/api/mes/process-route").param("status", "ACTIVE"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(0)));
         }
         
         @Test
-        @DisplayName("根据产品编码查询")
+        @DisplayName("Get ProcessRoutes By Product Code")
         void testGetByProduct() throws Exception {
             mockMvc.perform(get("/api/mes/process-route/product/P001"))
                     .andExpect(status().isOk())
@@ -219,11 +229,11 @@ class ProcessRouteControllerIntegrationTest {
     }
 
     @Nested
-    @DisplayName("状态转换测试")
+    @DisplayName("Status Transition Tests")
     class StatusTransitionTests {
         
         @Test
-        @DisplayName("激活工艺路线 - 成功")
+        @DisplayName("Activate ProcessRoute - Success")
         void testActivate_Success() throws Exception {
             mockMvc.perform(post("/api/mes/process-route/" + testRoute.getId() + "/activate"))
                     .andExpect(status().isOk())
@@ -231,12 +241,10 @@ class ProcessRouteControllerIntegrationTest {
         }
         
         @Test
-        @DisplayName("激活工艺路线 - 验证失败")
+        @DisplayName("Activate ProcessRoute - Validation Failed")
         void testActivate_ValidationFailed() throws Exception {
-            // 创建一个没有工序的工艺路线
             ProcessRoute invalidRoute = new ProcessRoute();
-            invalidRoute.create("INVALID-001", "无效路线", "P001");
-            // 不设置工序
+            invalidRoute.create("INVALID-001", "Invalid Route", "P001");
             processRouteRepository.save(invalidRoute);
             
             mockMvc.perform(post("/api/mes/process-route/" + invalidRoute.getId() + "/activate"))
@@ -245,12 +253,10 @@ class ProcessRouteControllerIntegrationTest {
         }
         
         @Test
-        @DisplayName("归档工艺路线")
+        @DisplayName("Archive ProcessRoute")
         void testArchive() throws Exception {
-            // 先激活
             testRoute.activate();
             processRouteRepository.update(testRoute);
-            // 重新查询获取最新状态
             testRoute = processRouteRepository.findById(testRoute.getId()).orElse(testRoute);
             
             mockMvc.perform(post("/api/mes/process-route/" + testRoute.getId() + "/archive"))
@@ -259,39 +265,39 @@ class ProcessRouteControllerIntegrationTest {
         }
         
         @Test
-        @DisplayName("验证工艺路线")
+        @DisplayName("Validate ProcessRoute")
         void testValidate() throws Exception {
             mockMvc.perform(post("/api/mes/process-route/" + testRoute.getId() + "/validate"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.validationResult").value(true))
-                    .andExpect(jsonPath("$.validationMessage").value("验证通过"));
+                    .andExpect(jsonPath("$.validationMessage").value("Validation Passed"));
         }
     }
 
     @Nested
-    @DisplayName("工序查询测试")
+    @DisplayName("Step Query Tests")
     class StepQueryTests {
         
         @Test
-        @DisplayName("获取首道工序")
+        @DisplayName("Get First Step")
         void testGetFirstStep() throws Exception {
             mockMvc.perform(get("/api/mes/process-route/" + testRoute.getId() + "/first-step"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.stepNo").value(1))
-                    .andExpect(jsonPath("$.processName").value("组装"));
+                    .andExpect(jsonPath("$.processName").value("Assembly"));
         }
         
         @Test
-        @DisplayName("获取下一道工序")
+        @DisplayName("Get Next Step")
         void testGetNextStep() throws Exception {
             mockMvc.perform(get("/api/mes/process-route/" + testRoute.getId() + "/next-step/1"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.stepNo").value(2))
-                    .andExpect(jsonPath("$.processName").value("测试"));
+                    .andExpect(jsonPath("$.processName").value("Testing"));
         }
         
         @Test
-        @DisplayName("获取最后一道工序的下一道 - 返回404")
+        @DisplayName("Get Next Step From Last Step - Returns 404")
         void testGetNextStep_LastStep() throws Exception {
             mockMvc.perform(get("/api/mes/process-route/" + testRoute.getId() + "/next-step/2"))
                     .andExpect(status().isNotFound());
