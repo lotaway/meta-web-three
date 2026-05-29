@@ -106,7 +106,7 @@ public class MesDomainServiceImpl implements MesDomainService {
     }
 
     @Override
-    public ProductionTask createTask(String taskNo, Long workOrderId, String workstationId,
+    public ProductionTask createTask(String taskNo, Long workOrderId, Long workstationId,
             String processCode, Integer quantity, String operatorId) {
         ProductionTask task = new ProductionTask();
         task.create(taskNo, workOrderId, workstationId, processCode, quantity, operatorId);

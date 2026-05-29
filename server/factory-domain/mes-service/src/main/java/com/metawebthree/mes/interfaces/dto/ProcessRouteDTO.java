@@ -97,7 +97,7 @@ public class ProcessRouteDTO {
         private Integer stepNo;
         private String processCode;
         private String processName;
-        private String workstationId;
+        private Long workstationId;
         private Integer standardTime;
         private String qualityCheckpoint;
         private Integer predecessorStepNo;
@@ -137,8 +137,8 @@ public class ProcessRouteDTO {
         public void setProcessCode(String processCode) { this.processCode = processCode; }
         public String getProcessName() { return processName; }
         public void setProcessName(String processName) { this.processName = processName; }
-        public String getWorkstationId() { return workstationId; }
-        public void setWorkstationId(String workstationId) { this.workstationId = workstationId; }
+        public Long getWorkstationId() { return workstationId; }
+        public void setWorkstationId(Long workstationId) { this.workstationId = workstationId; }
         public Integer getStandardTime() { return standardTime; }
         public void setStandardTime(Integer standardTime) { this.standardTime = standardTime; }
         public String getQualityCheckpoint() { return qualityCheckpoint; }

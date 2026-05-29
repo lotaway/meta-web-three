@@ -39,7 +39,7 @@ public class ProductionTaskCommandService {
         this.pokaYokeService = pokaYokeService;
     }
     
-    public ProductionTask createTask(String taskNo, Long workOrderId, String workstationId,
+    public ProductionTask createTask(String taskNo, Long workOrderId, Long workstationId,
                                      String processCode, Integer quantity, String operatorId) {
         if (repository.findByTaskNo(taskNo).isPresent()) {
             throw new IllegalArgumentException("任务编号已存在: " + taskNo);
@@ -174,7 +174,7 @@ public class ProductionTaskCommandService {
         return task;
     }
     
-    public ProductionTask updateTask(Long taskId, String workstationId, String processCode, 
+    public ProductionTask updateTask(Long taskId, Long workstationId, String processCode, 
                                       Integer quantity, String operatorId) {
         ProductionTask task = repository.findById(taskId)
                 .orElseThrow(() -> new IllegalArgumentException("任务不存在: " + taskId));

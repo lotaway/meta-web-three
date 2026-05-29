@@ -12,7 +12,7 @@ public class WorkReportDTO {
     private String taskNo;
     private Long workOrderId;
     private String workOrderNo;
-    private String workstationId;
+    private Long workstationId;
     private String workstationName;
     private String processCode;
     private String processName;
@@ -72,8 +72,8 @@ public class WorkReportDTO {
     public void setWorkOrderId(Long workOrderId) { this.workOrderId = workOrderId; }
     public String getWorkOrderNo() { return workOrderNo; }
     public void setWorkOrderNo(String workOrderNo) { this.workOrderNo = workOrderNo; }
-    public String getWorkstationId() { return workstationId; }
-    public void setWorkstationId(String workstationId) { this.workstationId = workstationId; }
+    public Long getWorkstationId() { return workstationId; }
+    public void setWorkstationId(Long workstationId) { this.workstationId = workstationId; }
     public String getWorkstationName() { return workstationName; }
     public void setWorkstationName(String workstationName) { this.workstationName = workstationName; }
     public String getProcessCode() { return processCode; }
@@ -114,7 +114,7 @@ public class WorkReportDTO {
         private String taskNo;
         private Long workOrderId;
         private String workOrderNo;
-        private String workstationId;
+        private Long workstationId;
         private String workstationName;
         private String processCode;
         private String processName;
@@ -136,8 +136,8 @@ public class WorkReportDTO {
         public void setWorkOrderId(Long workOrderId) { this.workOrderId = workOrderId; }
         public String getWorkOrderNo() { return workOrderNo; }
         public void setWorkOrderNo(String workOrderNo) { this.workOrderNo = workOrderNo; }
-        public String getWorkstationId() { return workstationId; }
-        public void setWorkstationId(String workstationId) { this.workstationId = workstationId; }
+        public Long getWorkstationId() { return workstationId; }
+        public void setWorkstationId(Long workstationId) { this.workstationId = workstationId; }
         public String getWorkstationName() { return workstationName; }
         public void setWorkstationName(String workstationName) { this.workstationName = workstationName; }
         public String getProcessCode() { return processCode; }

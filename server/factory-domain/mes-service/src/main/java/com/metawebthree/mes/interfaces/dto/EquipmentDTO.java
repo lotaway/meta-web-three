@@ -14,7 +14,7 @@ public class EquipmentDTO {
     private Long equipmentTypeId;
     private String equipmentTypeCode;
     private String workshopId;
-    private String workstationId;
+    private Long workstationId;
     private String statusCode;
     private String status;
     private Long statusConfigId;
@@ -101,7 +101,7 @@ public class EquipmentDTO {
         private Long equipmentTypeId;
         private String equipmentTypeCode;
         private String workshopId;
-        private String workstationId;
+        private Long workstationId;
         
         public String getEquipmentCode() { return equipmentCode; }
         public void setEquipmentCode(String equipmentCode) { this.equipmentCode = equipmentCode; }
@@ -113,8 +113,8 @@ public class EquipmentDTO {
         public void setEquipmentTypeCode(String equipmentTypeCode) { this.equipmentTypeCode = equipmentTypeCode; }
         public String getWorkshopId() { return workshopId; }
         public void setWorkshopId(String workshopId) { this.workshopId = workshopId; }
-        public String getWorkstationId() { return workstationId; }
-        public void setWorkstationId(String workstationId) { this.workstationId = workstationId; }
+        public Long getWorkstationId() { return workstationId; }
+        public void setWorkstationId(Long workstationId) { this.workstationId = workstationId; }
     }
     
     public static class UpdateRequest {
@@ -122,7 +122,7 @@ public class EquipmentDTO {
         private Long equipmentTypeId;
         private String equipmentTypeCode;
         private String workshopId;
-        private String workstationId;
+        private Long workstationId;
         private String ipAddress;
         private String macAddress;
         private String mqttTopic;
@@ -135,8 +135,8 @@ public class EquipmentDTO {
         public void setEquipmentTypeCode(String equipmentTypeCode) { this.equipmentTypeCode = equipmentTypeCode; }
         public String getWorkshopId() { return workshopId; }
         public void setWorkshopId(String workshopId) { this.workshopId = workshopId; }
-        public String getWorkstationId() { return workstationId; }
-        public void setWorkstationId(String workstationId) { this.workstationId = workstationId; }
+        public Long getWorkstationId() { return workstationId; }
+        public void setWorkstationId(Long workstationId) { this.workstationId = workstationId; }
         public String getIpAddress() { return ipAddress; }
         public void setIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
         public String getMacAddress() { return macAddress; }
@@ -202,8 +202,8 @@ public class EquipmentDTO {
     public void setEquipmentTypeCode(String equipmentTypeCode) { this.equipmentTypeCode = equipmentTypeCode; }
     public String getWorkshopId() { return workshopId; }
     public void setWorkshopId(String workshopId) { this.workshopId = workshopId; }
-    public String getWorkstationId() { return workstationId; }
-    public void setWorkstationId(String workstationId) { this.workstationId = workstationId; }
+    public Long getWorkstationId() { return workstationId; }
+    public void setWorkstationId(Long workstationId) { this.workstationId = workstationId; }
     public String getStatusCode() { return statusCode; }
     public void setStatusCode(String statusCode) { this.statusCode = statusCode; }
     public String getStatus() { return status; }

@@ -63,7 +63,7 @@ public class SopDocument {
 
     public void bindRoute(String routeCode, String routeName, Integer stepNo, 
                           String processCode, String processName, 
-                          String workstationId, String workstationName) {
+                          Long workstationId, String workstationName) {
         if (this.routeBindings == null) {
             this.routeBindings = new ArrayList<>();
         }

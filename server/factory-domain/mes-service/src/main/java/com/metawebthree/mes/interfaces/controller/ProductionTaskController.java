@@ -190,7 +190,7 @@ public class ProductionTaskController {
     public static class CreateRequest {
         private String taskNo;
         private Long workOrderId;
-        private String workstationId;
+        private Long workstationId;
         private String processCode;
         private Integer quantity;
         private String operatorId;
@@ -199,8 +199,8 @@ public class ProductionTaskController {
         public void setTaskNo(String taskNo) { this.taskNo = taskNo; }
         public Long getWorkOrderId() { return workOrderId; }
         public void setWorkOrderId(Long workOrderId) { this.workOrderId = workOrderId; }
-        public String getWorkstationId() { return workstationId; }
-        public void setWorkstationId(String workstationId) { this.workstationId = workstationId; }
+        public Long getWorkstationId() { return workstationId; }
+        public void setWorkstationId(Long workstationId) { this.workstationId = workstationId; }
         public String getProcessCode() { return processCode; }
         public void setProcessCode(String processCode) { this.processCode = processCode; }
         public Integer getQuantity() { return quantity; }
@@ -210,13 +210,13 @@ public class ProductionTaskController {
     }
     
     public static class UpdateRequest {
-        private String workstationId;
+        private Long workstationId;
         private String processCode;
         private Integer quantity;
         private String operatorId;
         
-        public String getWorkstationId() { return workstationId; }
-        public void setWorkstationId(String workstationId) { this.workstationId = workstationId; }
+        public Long getWorkstationId() { return workstationId; }
+        public void setWorkstationId(Long workstationId) { this.workstationId = workstationId; }
         public String getProcessCode() { return processCode; }
         public void setProcessCode(String processCode) { this.processCode = processCode; }
         public Integer getQuantity() { return quantity; }
