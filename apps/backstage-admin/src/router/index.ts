@@ -448,6 +448,99 @@ export const asyncRouterMap: RouteRecordExt[] = [
         component: () => import('@/views/mes/pokayoke/detail.vue'),
         meta: { title: 'mes.pokayoke.detail', hidden: true },
       },
+      // 生产任务模块
+      {
+        path: 'production-task',
+        name: 'productionTask',
+        component: () => import('@/views/mes/productionTask/index.vue'),
+        meta: { title: 'mes.productionTask.title', icon: 'mes-task' },
+      },
+      {
+        path: 'production-task/form',
+        name: 'productionTaskForm',
+        component: () => import('@/views/mes/productionTask/form.vue'),
+        meta: { title: 'mes.productionTask.form', hidden: true },
+      },
+      {
+        path: 'production-task/detail',
+        name: 'productionTaskDetail',
+        component: () => import('@/views/mes/productionTask/detail.vue'),
+        meta: { title: 'mes.productionTask.detail', hidden: true },
+      },
+      // 工单管理
+      {
+        path: 'workOrder',
+        name: 'workOrder',
+        component: () => import('@/views/mes/workOrder/index.vue'),
+        meta: { title: 'mes.workOrder.title', icon: 'mes-workorder' },
+      },
+      {
+        path: 'workOrder/form',
+        name: 'workOrderForm',
+        component: () => import('@/views/mes/workOrder/form.vue'),
+        meta: { title: 'mes.workOrder.form', hidden: true },
+      },
+      {
+        path: 'workOrder/detail',
+        name: 'workOrderDetail',
+        component: () => import('@/views/mes/workOrder/detail.vue'),
+        meta: { title: 'mes.workOrder.detail', hidden: true },
+      },
+      // QC 质检管理模块
+      {
+        path: 'inspectionType',
+        name: 'inspectionType',
+        component: () => import('@/views/mes/qc/inspectionType/index.vue'),
+        meta: { title: 'mes.qc.inspectionType.title', icon: 'mes-qc' },
+      },
+      {
+        path: 'inspectionType/form',
+        name: 'inspectionTypeForm',
+        component: () => import('@/views/mes/qc/inspectionType/form.vue'),
+        meta: { title: 'mes.qc.inspectionType.form', hidden: true },
+      },
+      {
+        path: 'inspectionType/detail',
+        name: 'inspectionTypeDetail',
+        component: () => import('@/views/mes/qc/inspectionType/detail.vue'),
+        meta: { title: 'mes.qc.inspectionType.detail', hidden: true },
+      },
+      {
+        path: 'defectCode',
+        name: 'defectCode',
+        component: () => import('@/views/mes/qc/defectCode/index.vue'),
+        meta: { title: 'mes.qc.defectCode.title', icon: 'mes-qc' },
+      },
+      {
+        path: 'defectCode/form',
+        name: 'defectCodeForm',
+        component: () => import('@/views/mes/qc/defectCode/form.vue'),
+        meta: { title: 'mes.qc.defectCode.form', hidden: true },
+      },
+      {
+        path: 'defectCode/detail',
+        name: 'defectCodeDetail',
+        component: () => import('@/views/mes/qc/defectCode/detail.vue'),
+        meta: { title: 'mes.qc.defectCode.detail', hidden: true },
+      },
+      {
+        path: 'nonConformance',
+        name: 'nonConformance',
+        component: () => import('@/views/mes/qc/nonConformance/index.vue'),
+        meta: { title: 'mes.qc.nonConformance.title', icon: 'mes-qc' },
+      },
+      {
+        path: 'nonConformance/form',
+        name: 'nonConformanceForm',
+        component: () => import('@/views/mes/qc/nonConformance/form.vue'),
+        meta: { title: 'mes.qc.nonConformance.form', hidden: true },
+      },
+      {
+        path: 'nonConformance/detail',
+        name: 'nonConformanceDetail',
+        component: () => import('@/views/mes/qc/nonConformance/detail.vue'),
+        meta: { title: 'mes.qc.nonConformance.detail', hidden: true },
+      },
     ],
   },
 ]
