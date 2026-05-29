@@ -4,34 +4,36 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("mes_production_task")
-public class ProductionTaskDO {
+@TableName("mes_work_report")
+public class WorkReportDO {
     
     @TableId(type = IdType.AUTO)
     private Long id;
     
+    private String reportNo;
+    private Long taskId;
     private String taskNo;
     private Long workOrderId;
     private String workOrderNo;
     private Long workstationId;
     private String workstationName;
+    private String processCode;
+    private String processName;
     private Integer stepNo;
-    private String stepCode;
-    private String stepName;
-    private String assignedTo;
-    private String status;
-    private Integer plannedQuantity;
-    private Integer completedQuantity;
+    private String operatorId;
+    private String operatorName;
+    private LocalDateTime reportTime;
+    private Integer quantity;
     private Integer qualifiedQuantity;
-    private Integer rejectedQuantity;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
-    private Integer actualDurationMinutes;
+    private Integer defectiveQuantity;
+    private Integer durationMinutes;
+    private String parameterValuesJson;
     private String remarks;
+    private String status;
+    private String createdBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

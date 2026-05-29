@@ -10,14 +10,14 @@ public class SopRouteBinding {
     private Integer stepNo;
     private String processCode;
     private String processName;
-    private String workstationId;
+    private Long workstationId;
     private String workstationName;
     private Integer sortOrder;
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public void create(Long sopDocumentId, String routeCode, Integer stepNo, String workstationId) {
+    public void create(Long sopDocumentId, String routeCode, Integer stepNo, Long workstationId) {
         this.sopDocumentId = sopDocumentId;
         this.routeCode = routeCode;
         this.stepNo = stepNo;
@@ -42,8 +42,8 @@ public class SopRouteBinding {
     public void setProcessCode(String processCode) { this.processCode = processCode; }
     public String getProcessName() { return processName; }
     public void setProcessName(String processName) { this.processName = processName; }
-    public String getWorkstationId() { return workstationId; }
-    public void setWorkstationId(String workstationId) { this.workstationId = workstationId; }
+    public Long getWorkstationId() { return workstationId; }
+    public void setWorkstationId(Long workstationId) { this.workstationId = workstationId; }
     public String getWorkstationName() { return workstationName; }
     public void setWorkstationName(String workstationName) { this.workstationName = workstationName; }
     public Integer getSortOrder() { return sortOrder; }

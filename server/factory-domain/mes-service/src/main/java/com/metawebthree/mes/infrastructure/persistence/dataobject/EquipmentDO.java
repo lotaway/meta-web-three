@@ -19,7 +19,7 @@ public class EquipmentDO {
     private Long equipmentTypeId;
     private String equipmentType;
     private String workshopId;
-    private String workstationId;
+    private Long workstationId;
     private String status;
     private Long statusConfigId;
     private BigDecimal utilizationRate;

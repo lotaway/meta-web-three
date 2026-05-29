@@ -25,7 +25,7 @@ public class Equipment {
     private Long equipmentTypeId;
     private String equipmentTypeCode;
     private String workshopId;
-    private String workstationId;
+    private Long workstationId;
     private String statusCode;
     private EquipmentStatus status;
     private Long statusConfigId;
@@ -269,7 +269,7 @@ public class Equipment {
         this.utilizationRate = availability * performance * quality * 100;
     }
 
-    public void bindWorkstation(String workstationId) {
+    public void bindWorkstation(Long workstationId) {
         this.workstationId = workstationId;
         this.updatedAt = LocalDateTime.now();
     }
@@ -292,8 +292,8 @@ public class Equipment {
     public String getEquipmentType() { return equipmentTypeCode; }
     public String getWorkshopId() { return workshopId; }
     public void setWorkshopId(String workshopId) { this.workshopId = workshopId; }
-    public String getWorkstationId() { return workstationId; }
-    public void setWorkstationId(String workstationId) { this.workstationId = workstationId; }
+    public Long getWorkstationId() { return workstationId; }
+    public void setWorkstationId(Long workstationId) { this.workstationId = workstationId; }
     public String getStatusCode() { return statusCode; }
     public void setStatusCode(String statusCode) { this.statusCode = statusCode; }
     public EquipmentStatus getStatus() { return status; }

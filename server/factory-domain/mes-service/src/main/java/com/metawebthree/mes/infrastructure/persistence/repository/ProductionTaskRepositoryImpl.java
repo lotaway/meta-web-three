@@ -112,6 +112,7 @@ public class ProductionTaskRepositoryImpl implements ProductionTaskRepository {
         entity.setOperatorId(doObj.getAssignedTo());
         entity.setStartTime(doObj.getStartTime());
         entity.setEndTime(doObj.getEndTime());
+        entity.setActualDurationMinutes(doObj.getActualDurationMinutes());
         return entity;
     }
     
@@ -133,6 +134,7 @@ public class ProductionTaskRepositoryImpl implements ProductionTaskRepository {
         doObj.setAssignedTo(entity.getOperatorId());
         doObj.setStartTime(entity.getStartTime());
         doObj.setEndTime(entity.getEndTime());
+        doObj.setActualDurationMinutes(entity.getActualDurationMinutes());
         return doObj;
     }
 }

@@ -10,7 +10,7 @@ public class PokaYokeRule {
     private String ruleName;
     private RuleType ruleType;
     private RuleStatus status;
-    private String workstationId;
+    private Long workstationId;
     private String processCode;
     private String productCode;
     private TriggerCondition triggerCondition;
@@ -62,7 +62,7 @@ public class PokaYokeRule {
     }
 
     public void create(String ruleCode, String ruleName, RuleType ruleType,
-                       String workstationId, String processCode) {
+                       Long workstationId, String processCode) {
         this.ruleCode = ruleCode;
         this.ruleName = ruleName;
         this.ruleType = ruleType;
@@ -108,8 +108,8 @@ public class PokaYokeRule {
     public void setRuleType(RuleType ruleType) { this.ruleType = ruleType; }
     public RuleStatus getStatus() { return status; }
     public void setStatus(RuleStatus status) { this.status = status; }
-    public String getWorkstationId() { return workstationId; }
-    public void setWorkstationId(String workstationId) { this.workstationId = workstationId; }
+    public Long getWorkstationId() { return workstationId; }
+    public void setWorkstationId(Long workstationId) { this.workstationId = workstationId; }
     public String getProcessCode() { return processCode; }
     public void setProcessCode(String processCode) { this.processCode = processCode; }
     public String getProductCode() { return productCode; }

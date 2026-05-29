@@ -16,7 +16,7 @@ public class AndonEvent {
     private String sourceSystem;
     private String sourceId;
     private String workshopId;
-    private String workstationId;
+    private Long workstationId;
     private String equipmentId;
     private String productCode;
     private String workOrderNo;
@@ -52,7 +52,7 @@ public class AndonEvent {
     
     public static AndonEvent create(Long andonTypeId, String andonTypeCode, String andonTypeName,
                                     Long andonLevelId, String levelCode, String levelName,
-                                    String triggerMethod, String workshopId, String workstationId,
+                                    String triggerMethod, String workshopId, Long workstationId,
                                     String equipmentId, String reporterId, String reporterName,
                                     String description) {
         AndonEvent event = new AndonEvent();
@@ -147,8 +147,8 @@ public class AndonEvent {
     public void setSourceId(String sourceId) { this.sourceId = sourceId; }
     public String getWorkshopId() { return workshopId; }
     public void setWorkshopId(String workshopId) { this.workshopId = workshopId; }
-    public String getWorkstationId() { return workstationId; }
-    public void setWorkstationId(String workstationId) { this.workstationId = workstationId; }
+    public Long getWorkstationId() { return workstationId; }
+    public void setWorkstationId(Long workstationId) { this.workstationId = workstationId; }
     public String getEquipmentId() { return equipmentId; }
     public void setEquipmentId(String equipmentId) { this.equipmentId = equipmentId; }
     public String getProductCode() { return productCode; }

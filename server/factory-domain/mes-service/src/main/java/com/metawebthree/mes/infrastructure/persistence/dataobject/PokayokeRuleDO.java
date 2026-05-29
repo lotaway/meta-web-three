@@ -17,7 +17,7 @@ public class PokayokeRuleDO {
     private String ruleName;
     private String ruleType;
     private String status;
-    private String workstationId;
+    private Long workstationId;
     private String processCode;
     private String productCode;
     private String triggerCondition;
