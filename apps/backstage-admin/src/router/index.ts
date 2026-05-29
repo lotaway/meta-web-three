@@ -541,6 +541,37 @@ export const asyncRouterMap: RouteRecordExt[] = [
         component: () => import('@/views/mes/qc/nonConformance/detail.vue'),
         meta: { title: 'mes.qc.nonConformance.detail', hidden: true },
       },
+      // 流程引擎模块
+      {
+        path: 'process-template',
+        name: 'processTemplate',
+        component: () => import('@/views/mes/processTemplate/index.vue'),
+        meta: { title: 'mes.processTemplate.title', icon: 'mes-process' },
+      },
+      {
+        path: 'process-template/form',
+        name: 'processTemplateForm',
+        component: () => import('@/views/mes/processTemplate/form.vue'),
+        meta: { title: 'mes.processTemplate.form', hidden: true },
+      },
+      {
+        path: 'process-template/detail',
+        name: 'processTemplateDetail',
+        component: () => import('@/views/mes/processTemplate/detail.vue'),
+        meta: { title: 'mes.processTemplate.detail', hidden: true },
+      },
+      {
+        path: 'process-instance',
+        name: 'processInstance',
+        component: () => import('@/views/mes/processInstance/index.vue'),
+        meta: { title: 'mes.processInstance.title', icon: 'mes-process' },
+      },
+      {
+        path: 'process-instance/detail',
+        name: 'processInstanceDetail',
+        component: () => import('@/views/mes/processInstance/detail.vue'),
+        meta: { title: 'mes.processInstance.detail', hidden: true },
+      },
     ],
   },
 ]
