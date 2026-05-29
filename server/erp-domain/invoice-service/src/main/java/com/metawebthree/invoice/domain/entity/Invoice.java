@@ -126,4 +126,23 @@ public class Invoice {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setId(Long id) { this.id = id; }
+    public void setInvoiceNo(String invoiceNo) { this.invoiceNo = invoiceNo; }
+    public void setOrderNo(String orderNo) { this.orderNo = orderNo; }
+    public void setCustomerId(Long customerId) { this.customerId = customerId; }
+    public void setCustomerName(String customerName) { this.customerName = customerName; }
+    public void setCustomerTaxNo(String customerTaxNo) { this.customerTaxNo = customerTaxNo; }
+    public void setCustomerAddress(String customerAddress) { this.customerAddress = customerAddress; }
+    public void setCustomerBank(String customerBank) { this.customerBank = customerBank; }
+    public void setCustomerAccount(String customerAccount) { this.customerAccount = customerAccount; }
+    public void setType(InvoiceType type) { this.type = type; }
+    public void setStatus(InvoiceStatus status) { this.status = status; }
+    public void setAmount(BigDecimal amount) { this.amount = amount; }
+    public void setTaxAmount(BigDecimal taxAmount) { this.taxAmount = taxAmount; }
+    public void setTotalAmount(BigDecimal totalAmount) { this.totalAmount = totalAmount; }
+    public void setTaxRate(String taxRate) { this.taxRate = taxRate; }
+    public void setIssueDate(LocalDateTime issueDate) { this.issueDate = issueDate; }
+    public void setIssuer(String issuer) { this.issuer = issuer; }
+    public void setRemark(String remark) { this.remark = remark; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }
