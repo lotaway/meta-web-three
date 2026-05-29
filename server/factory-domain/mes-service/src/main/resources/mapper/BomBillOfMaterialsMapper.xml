@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metawebthree.mes.infrastructure.persistence.mapper.BomBillOfMaterialsMapper">
+    
+    <select id="findByBomCode" resultType="com.metawebthree.mes.infrastructure.persistence.dataobject.BomBillOfMaterialsDO">
+        SELECT * FROM mes_bom WHERE bom_code = #{bomCode}
+    </select>
+    
+    <select id="findByProductCode" resultType="com.metawebthree.mes.infrastructure.persistence.dataobject.BomBillOfMaterialsDO">
+        SELECT * FROM mes_bom WHERE product_code = #{productCode}
+    </select>
+    
+    <select id="findActiveByProductCode" resultType="com.metawebthree.mes.infrastructure.persistence.dataobject.BomBillOfMaterialsDO">
+        SELECT * FROM mes_bom WHERE product_code = #{productCode} AND status = 'ACTIVE'
+    </select>
+    
+    <select id="findByProductCodeAndVersion" resultType="com.metawebthree.mes.infrastructure.persistence.dataobject.BomBillOfMaterialsDO">
+        SELECT * FROM mes_bom WHERE product_code = #{productCode} AND version = #{version}
+    </select>
+</mapper>

@@ -8,13 +8,13 @@ import com.metawebthree.mes.domain.repository.BomRepository;
 import com.metawebthree.mes.infrastructure.persistence.dataobject.BomBillOfMaterialsDO;
 import com.metawebthree.mes.infrastructure.persistence.dataobject.BomItemDO;
 import com.metawebthree.mes.infrastructure.persistence.dataobject.BomVersionDO;
+import com.metawebthree.mes.infrastructure.persistence.dataobject.ProcessBomItemDO;
 import com.metawebthree.mes.infrastructure.persistence.mapper.BomBillOfMaterialsMapper;
 import com.metawebthree.mes.infrastructure.persistence.mapper.BomItemMapper;
 import com.metawebthree.mes.infrastructure.persistence.mapper.BomVersionMapper;
 import com.metawebthree.mes.infrastructure.persistence.mapper.ProcessBomItemMapper;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,7 +43,6 @@ public class BomRepositoryImpl implements BomRepository {
         if (obj == null) return Optional.empty();
         
         BomBillOfMaterials entity = toEntity(obj);
-        // 加载子项
         entity.setItems(loadItemsByBomId(id));
         return Optional.of(entity);
     }
@@ -129,15 +128,13 @@ public class BomRepositoryImpl implements BomRepository {
 
     @Override
     public List<ProcessBomItem> findProcessBomByRouteId(String processRouteId) {
-        List<com.metawebthree.mes.infrastructure.persistence.dataobject.ProcessBomItemDO> list = 
-            processBomMapper.findByRouteId(processRouteId);
+        List<ProcessBomItemDO> list = processBomMapper.findByRouteId(processRouteId);
         return list.stream().map(this::toProcessBomEntity).collect(Collectors.toList());
     }
 
     @Override
     public List<ProcessBomItem> findProcessBomByProcessCode(String processRouteId, String processCode) {
-        List<com.metawebthree.mes.infrastructure.persistence.dataobject.ProcessBomItemDO> list = 
-            processBomMapper.findByProcessCode(processRouteId, processCode);
+        List<ProcessBomItemDO> list = processBomMapper.findByProcessCode(processRouteId, processCode);
         return list.stream().map(this::toProcessBomEntity).collect(Collectors.toList());
     }
 
@@ -284,22 +281,20 @@ public class BomRepositoryImpl implements BomRepository {
         return DO;
     }
 
-    private ProcessBomItem toProcessBomEntity(com.metawebthree.mes.infrastructure.persistence.dataobject.ProcessBomItemDO obj) {
+    private ProcessBomItem toProcessBomEntity(ProcessBomItemDO obj) {
         if (obj == null) return null;
         ProcessBomItem entity = new ProcessBomItem();
         entity.setId(obj.getId());
-        entity.setRouteId(obj.getRouteId());
-        entity.setRouteCode(obj.getRouteCode());
+        entity.setProcessBomCode(obj.getProcessBomCode());
+        entity.setProductCode(obj.getProductCode());
+        entity.setProcessRouteId(obj.getProcessRouteId());
         entity.setProcessCode(obj.getProcessCode());
         entity.setProcessName(obj.getProcessName());
-        entity.setSequence(obj.getSequence());
-        entity.setMaterialCode(obj.getMaterialCode());
-        entity.setMaterialName(obj.getMaterialName());
-        entity.setMaterialSpec(obj.getMaterialSpec());
-        entity.setQuantity(obj.getQuantity());
-        entity.setUnitCode(obj.getUnitCode());
-        entity.setUnitName(obj.getUnitName());
+        entity.setVersion(obj.getVersion());
         entity.setStatus(obj.getStatus());
+        entity.setDescription(obj.getDescription());
+        entity.setCreatedBy(obj.getCreatedBy());
+        entity.setUpdatedBy(obj.getUpdatedBy());
         entity.setCreatedAt(obj.getCreatedAt());
         entity.setUpdatedAt(obj.getUpdatedAt());
         return entity;

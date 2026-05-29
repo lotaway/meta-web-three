@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metawebthree.mes.infrastructure.persistence.mapper.MaterialSubstituteMapper">
+    
+    <select id="findByProductCodeAndMainMaterialCode" resultType="com.metawebthree.mes.infrastructure.persistence.dataobject.MaterialSubstituteDO">
+        SELECT * FROM mes_material_substitute WHERE product_code = #{productCode} AND main_material_code = #{mainMaterialCode} LIMIT 1
+    </select>
+    
+    <select id="findByProductCode" resultType="com.metawebthree.mes.infrastructure.persistence.dataobject.MaterialSubstituteDO">
+        SELECT * FROM mes_material_substitute WHERE product_code = #{productCode}
+    </select>
+    
+    <select id="findActiveByProductCode" resultType="com.metawebthree.mes.infrastructure.persistence.dataobject.MaterialSubstituteDO">
+        SELECT * FROM mes_material_substitute WHERE product_code = #{productCode} AND status = 'ACTIVE'
+    </select>
+</mapper>
