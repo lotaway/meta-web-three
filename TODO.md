@@ -559,11 +559,11 @@
   - 问题5：文件顶部有注释 `// QC Quality Inspection API`，违反「禁止注释」规范
   - 修复建议：将所有 `http.get(url)` 改为 `http({ method: 'get', url })` 格式，修正 DefectSeverity 中的空格，删除文件头注释
   - 构建验证：✅ npm run build-only 成功（但 type-check 有 30+ 错误）
-- [ ] **检验类型管理页** (`src/views/mes/qc/inspectionType/`) ❌ 未通过审查（2026-05-28）
-  - 问题：index.vue、form.vue、detail.vue 均使用硬编码中文消息（如 '获取检验类型列表失败'、'加载数据失败' 等），未使用 `t()` 国际化函数
-  - 修复建议：将所有 ElMessage 中的硬编码中文改为 `t('mes.qc.xxx')` 国际化键
-- [ ] **检验计划管理页** (`src/views/mes/qc/inspectionPlan/`)
-- [ ] **检验项管理页** (`src/views/mes/qc/inspectionItem/`)
+- [x] **检验类型管理页** (`src/views/mes/qc/inspectionType/`) ✅ 已完成（2026-05-29）
+  - 已添加 QC 检验类型国际化翻译键到 zh-CN.ts 和 en-US.ts
+  - index.vue、form.vue、detail.vue 均已使用 `t()` 国际化函数替换硬编码中文
+  - 构建验证：✅ npm run build-only 成功
+- [ ] **检验计划管理页** (`src/views/mes/qc/inspectionPlan/`)- [ ] **检验项管理页** (`src/views/mes/qc/inspectionItem/`)
 - [ ] **缺陷代码管理页** (`src/views/mes/qc/defectCode/`)
 - [ ] **触发规则管理页** (`src/views/mes/qc/triggerRule/`)
 - [ ] **不合格处置页** (`src/views/mes/qc/nonConformance/`)
@@ -712,6 +712,4 @@
 **文件**：`logistics-service/.../LogisticsApplicationServiceImpl.java`
 **问题**：直接返回 `List.of()`
 - [ ] 配合持久层实现（7.2）后修复
-
-- [] [backstage-admin](app/backstage-admin)需要参考[client](app/client/package.json)中`generate:api`命令生成后端接口封装的方式来生成和调用接口，而不是全都手写。
-- [] [backstage-admin](apps/backstage-admin)里@detail.vue @form.vue @index.vue  这三个文件依旧直接使用了大量中文文本，需要改成国际化
+- [ ] 按照[TODO_FACTORY_PLAN](./TODO_FACTORY_PLAN.md)完成功能完善
