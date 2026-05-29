@@ -5,6 +5,8 @@ import java.util.Optional;
 
 public interface InventoryRepository {
 
+    Optional<Inventory> findById(Long id);
+
     Optional<Inventory> findBySkuAndWarehouse(String skuCode, Long warehouseId);
 
     Inventory save(Inventory inventory);

@@ -5,16 +5,21 @@ import com.metawebthree.inventory.application.dto.InventoryOperationResult;
 import com.metawebthree.inventory.application.dto.ReserveInventoryDTO;
 import com.metawebthree.inventory.domain.entity.Inventory;
 import com.metawebthree.inventory.domain.service.InventoryDomainService;
+import com.metawebthree.inventory.infrastructure.persistence.repository.InventoryRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class InventoryApplicationServiceImpl implements InventoryApplicationService {
 
     private final InventoryDomainService domainService;
+    private final InventoryRepository inventoryRepository;
 
-    public InventoryApplicationServiceImpl(InventoryDomainService domainService) {
+    public InventoryApplicationServiceImpl(InventoryDomainService domainService, 
+                                            InventoryRepository inventoryRepository) {
         this.domainService = domainService;
+        this.inventoryRepository = inventoryRepository;
     }
 
     @Override
