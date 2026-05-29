@@ -92,19 +92,6 @@ public class VoucherRepositoryImpl implements VoucherRepository {
     }
 
     @Override
-    public List<Voucher> findByType(Voucher.VoucherType type) {
-        LambdaQueryWrapper<VoucherDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(VoucherDO::getType, type.name());
-        List<VoucherDO> voucherDOs = voucherMapper.selectList(wrapper);
-        return voucherDOs.stream()
-                .map(vo -> {
-                    List<VoucherLineDO> lineDOs = voucherLineMapper.selectByVoucherId(vo.getId());
-                    return voucherConverter.toEntity(vo, lineDOs);
-                })
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public List<Voucher> findAll() {
         List<VoucherDO> voucherDOs = voucherMapper.selectList(null);
         return voucherDOs.stream()
@@ -138,10 +125,10 @@ public class VoucherRepositoryImpl implements VoucherRepository {
             // Insert new lines
             for (Voucher.VoucherLine line : voucher.getLines()) {
                 VoucherLineDO lineDO = new VoucherLineDO();
-                lineDO.setVoucherId(voucher.getId());
-                lineDO.setSubjectId(line.subjectId);
-                lineDO.setDebitAmount(line.debitAmount);
-                lineDO.setCreditAmount(line.creditAmount);
+                lineDO.setVoucherId(voucherDO.getId());
+                lineDO.setSubjectId(line.getSubjectId());
+                lineDO.setDebitAmount(line.getDebitAmount());
+                lineDO.setCreditAmount(line.getCreditAmount());
                 voucherLineMapper.insert(lineDO);
             }
         }
@@ -162,9 +149,9 @@ public class VoucherRepositoryImpl implements VoucherRepository {
             for (Voucher.VoucherLine line : voucher.getLines()) {
                 VoucherLineDO lineDO = new VoucherLineDO();
                 lineDO.setVoucherId(voucher.getId());
-                lineDO.setSubjectId(line.subjectId);
-                lineDO.setDebitAmount(line.debitAmount);
-                lineDO.setCreditAmount(line.creditAmount);
+                lineDO.setSubjectId(line.getSubjectId());
+                lineDO.setDebitAmount(line.getDebitAmount());
+                lineDO.setCreditAmount(line.getCreditAmount());
                 voucherLineMapper.insert(lineDO);
             }
         }

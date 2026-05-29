@@ -71,5 +71,13 @@ public class AccountSubject {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setId(Long id) { this.id = id; }
+    public void setSubjectCode(String subjectCode) { this.subjectCode = subjectCode; }
+    public void setSubjectName(String subjectName) { this.subjectName = subjectName; }
+    public void setDirection(SubjectDirection direction) { this.direction = direction; }
+    public void setParentId(Long parentId) { this.parentId = parentId; }
+    public void setLevel(Integer level) { this.level = level; }
+    public void setStatus(SubjectStatus status) { this.status = status; }
     public void setBalance(BigDecimal balance) { this.balance = balance; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

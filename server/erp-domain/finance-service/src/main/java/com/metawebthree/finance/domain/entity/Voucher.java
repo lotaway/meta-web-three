@@ -2,6 +2,7 @@ package com.metawebthree.finance.domain.entity;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 @Builder(toBuilder = true)
 public class Voucher {
     private Long id;
@@ -113,6 +115,7 @@ public class Voucher {
     }
 
     @Getter
+    @Setter
     @Builder
     public static class VoucherLine {
         private Long subjectId;

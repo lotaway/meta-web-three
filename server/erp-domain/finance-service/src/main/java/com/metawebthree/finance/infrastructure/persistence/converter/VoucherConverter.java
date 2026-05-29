@@ -15,31 +15,33 @@ public class VoucherConverter {
         if (doObj == null) {
             return null;
         }
-        Voucher entity = new Voucher();
-        entity.setId(doObj.getId());
-        entity.setVoucherNo(doObj.getVoucherNo());
-        entity.setType(Voucher.VoucherType.valueOf(doObj.getType()));
-        entity.setVoucherDate(doObj.getVoucherDate());
-        entity.setDescription(doObj.getDescription());
-        entity.setStatus(Voucher.VoucherStatus.valueOf(doObj.getStatus()));
-        entity.setCreatedBy(doObj.getCreatedBy());
-        entity.setApprovedBy(doObj.getApprovedBy());
-        entity.setCreatedAt(doObj.getCreatedAt());
-        entity.setUpdatedAt(doObj.getUpdatedAt());
         
+        List<Voucher.VoucherLine> lines = null;
         if (lineDOs != null && !lineDOs.isEmpty()) {
-            List<Voucher.VoucherLine> lines = new ArrayList<>();
+            lines = new ArrayList<>();
             for (VoucherLineDO lineDO : lineDOs) {
-                Voucher.VoucherLine line = new Voucher.VoucherLine();
-                line.subjectId = lineDO.getSubjectId();
-                line.debitAmount = lineDO.getDebitAmount();
-                line.creditAmount = lineDO.getCreditAmount();
+                Voucher.VoucherLine line = Voucher.VoucherLine.builder()
+                        .subjectId(lineDO.getSubjectId())
+                        .debitAmount(lineDO.getDebitAmount())
+                        .creditAmount(lineDO.getCreditAmount())
+                        .build();
                 lines.add(line);
             }
-            entity.setLines(lines);
         }
         
-        return entity;
+        return Voucher.builder()
+                .id(doObj.getId())
+                .voucherNo(doObj.getVoucherNo())
+                .type(Voucher.VoucherType.valueOf(doObj.getType()))
+                .voucherDate(doObj.getVoucherDate())
+                .description(doObj.getDescription())
+                .status(Voucher.VoucherStatus.valueOf(doObj.getStatus()))
+                .createdBy(doObj.getCreatedBy())
+                .approvedBy(doObj.getApprovedBy())
+                .createdAt(doObj.getCreatedAt())
+                .updatedAt(doObj.getUpdatedAt())
+                .lines(lines)
+                .build();
     }
 
     public VoucherDO toDO(Voucher entity) {
