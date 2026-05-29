@@ -1,5 +1,7 @@
 package com.metawebthree.supplier.interfaces.controller;
 
+import com.metawebthree.common.annotations.RequirePermission;
+import com.metawebthree.common.SupplyChainPermissions;
 import com.metawebthree.supplier.application.SupplierApplicationService;
 import com.metawebthree.supplier.application.dto.SupplierDTO;
 import org.springframework.web.bind.annotation.*;
@@ -20,11 +22,13 @@ public class SupplierController {
     }
 
     @PostMapping("/suppliers")
+    @RequirePermission(SupplyChainPermissions.SUPPLIER_CREATE)
     public SupplierDTO createSupplier(@RequestBody SupplierDTO dto) {
         return supplierService.createSupplier(dto);
     }
 
     @PutMapping("/suppliers/{id}")
+    @RequirePermission(SupplyChainPermissions.SUPPLIER_UPDATE)
     public SupplierDTO updateSupplier(
             @PathVariable Long id,
             @RequestBody SupplierDTO dto) {
@@ -32,16 +36,19 @@ public class SupplierController {
     }
 
     @GetMapping("/suppliers/{id}")
+    @RequirePermission(SupplyChainPermissions.SUPPLIER_READ)
     public SupplierDTO querySupplier(@PathVariable Long id) {
         return supplierService.querySupplier(id);
     }
 
     @GetMapping("/suppliers/code/{code}")
+    @RequirePermission(SupplyChainPermissions.SUPPLIER_READ)
     public SupplierDTO queryByCode(@PathVariable String code) {
         return supplierService.queryByCode(code);
     }
 
     @GetMapping("/suppliers")
+    @RequirePermission(SupplyChainPermissions.SUPPLIER_READ)
     public List<SupplierDTO> listSuppliers(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String category) {
@@ -49,6 +56,7 @@ public class SupplierController {
     }
 
     @PutMapping("/suppliers/{id}/assessment")
+    @RequirePermission(SupplyChainPermissions.SUPPLIER_ASSESS)
     public SupplierDTO updateAssessment(
             @PathVariable Long id,
             @RequestParam String level) {

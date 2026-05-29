@@ -24,4 +24,18 @@ public final class SupplyChainPermissions {
     public static final String INVENTORY_CONFIRM = "sc:inventory:confirm";
     public static final String INVENTORY_CANCEL   = "sc:inventory:cancel";
     public static final String INVENTORY_ADJUST   = "sc:inventory:adjust";
+    
+    // Supplier permissions
+    public static final String SUPPLIER_READ     = "sc:supplier:read";
+    public static final String SUPPLIER_CREATE   = "sc:supplier:create";
+    public static final String SUPPLIER_UPDATE   = "sc:supplier:update";
+    public static final String SUPPLIER_DELETE   = "sc:supplier:delete";
+    public static final String SUPPLIER_ASSESS   = "sc:supplier:assess";
+    
+    // Procurement permissions
+    public static final String PROCUREMENT_READ    = "sc:procurement:read";
+    public static final String PROCUREMENT_CREATE  = "sc:procurement:create";
+    public static final String PROCUREMENT_UPDATE  = "sc:procurement:update";
+    public static final String PROCUREMENT_APPROVE = "sc:procurement:approve";
+    public static final String PROCUREMENT_REJECT  = "sc:procurement:reject";
 }
