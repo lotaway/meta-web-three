@@ -105,8 +105,19 @@ public class LogisticsApplicationServiceImpl implements LogisticsApplicationServ
 
     @Override
     public List<LogisticsOrderDTO> listOrders(Long carrierId, String status) {
-        // 简化实现：暂不支持复杂查询，返回空列表或通过其他方式实现
-        return List.of();
+        List<LogisticsOrder> orders;
+        if (carrierId != null && status != null) {
+            orders = repository.findByCarrierIdAndStatus(carrierId, status);
+        } else if (carrierId != null) {
+            orders = repository.findByCarrierId(carrierId);
+        } else if (status != null) {
+            orders = repository.findByStatus(status);
+        } else {
+            orders = repository.findAll();
+        }
+        return orders.stream()
+            .map(this::toDTO)
+            .collect(Collectors.toList());
     }
 
     public LogisticsOrderDTO addTrackingEvent(String trackingNo, String eventType, String location, String description) {
