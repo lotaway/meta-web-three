@@ -1,5 +1,6 @@
 package com.metawebthree.mes.interfaces.controller;
 
+import com.metawebthree.common.annotations.RequirePermission;
 import com.metawebthree.mes.application.command.WorkOrderCommandService;
 import com.metawebthree.mes.application.query.WorkOrderQueryService;
 import com.metawebthree.mes.common.MesPermissions;

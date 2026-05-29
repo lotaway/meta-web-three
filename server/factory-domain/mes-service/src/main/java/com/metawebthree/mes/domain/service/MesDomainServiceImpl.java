@@ -125,7 +125,7 @@ public class MesDomainServiceImpl implements MesDomainService {
     public void completeTask(Long taskId, Integer qualified, Integer defective) {
         ProductionTask task = taskRepository.findById(taskId)
             .orElseThrow(() -> new IllegalArgumentException("Task not found"));
-        task.complete(qualified, defective);
+        task.complete(qualified, defective, 0);
         taskRepository.update(task);
     }
 
