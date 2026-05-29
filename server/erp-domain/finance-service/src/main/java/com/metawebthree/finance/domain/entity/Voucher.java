@@ -1,10 +1,15 @@
 package com.metawebthree.finance.domain.entity;
 
+import lombok.Builder;
+import lombok.Getter;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Builder(toBuilder = true)
 public class Voucher {
     private Long id;
     private String voucherNo;
@@ -26,19 +31,25 @@ public class Voucher {
         DRAFT, PENDING_APPROVAL, APPROVED, POSTED, REJECTED
     }
 
-    public void createDraft(String voucherNo, VoucherType type, String description, String createdBy) {
-        this.voucherNo = voucherNo;
-        this.type = type;
-        this.voucherDate = LocalDateTime.now();
-        this.description = description;
-        this.status = VoucherStatus.DRAFT;
-        this.createdBy = createdBy;
-        this.lines = new ArrayList<>();
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+    public static Voucher createDraft(String voucherNo, VoucherType type, String description, String createdBy) {
+        LocalDateTime now = LocalDateTime.now();
+        return Voucher.builder()
+                .voucherNo(voucherNo)
+                .type(type)
+                .voucherDate(now)
+                .description(description)
+                .status(VoucherStatus.DRAFT)
+                .createdBy(createdBy)
+                .lines(new ArrayList<>())
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
     }
 
     public void addLine(Long subjectId, BigDecimal debitAmount, BigDecimal creditAmount) {
+        if (lines == null) {
+            lines = new ArrayList<>();
+        }
         VoucherLine line = new VoucherLine();
         line.subjectId = subjectId;
         line.debitAmount = debitAmount;
@@ -48,27 +59,27 @@ public class Voucher {
 
     public void submitForApproval() {
         validateForApproval();
-        status = VoucherStatus.PENDING_APPROVAL;
-        updatedAt = LocalDateTime.now();
+        this.status = VoucherStatus.PENDING_APPROVAL;
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void approve(String approver) {
         if (status != VoucherStatus.PENDING_APPROVAL) {
             throw new IllegalStateException("Voucher not pending approval");
         }
-        approvedBy = approver;
-        status = VoucherStatus.APPROVED;
-        updatedAt = LocalDateTime.now();
+        this.approvedBy = approver;
+        this.status = VoucherStatus.APPROVED;
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void reject(String approver, String reason) {
         if (status != VoucherStatus.PENDING_APPROVAL) {
             throw new IllegalStateException("Voucher not pending approval");
         }
-        approvedBy = approver;
-        description = description + " [REJECTED: " + reason + "]";
-        status = VoucherStatus.REJECTED;
-        updatedAt = LocalDateTime.now();
+        this.approvedBy = approver;
+        this.description = this.description + " [REJECTED: " + reason + "]";
+        this.status = VoucherStatus.REJECTED;
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void post() {
@@ -78,8 +89,8 @@ public class Voucher {
         if (!isBalanced()) {
             throw new IllegalStateException("Voucher not balanced");
         }
-        status = VoucherStatus.POSTED;
-        updatedAt = LocalDateTime.now();
+        this.status = VoucherStatus.POSTED;
+        this.updatedAt = LocalDateTime.now();
     }
 
     private void validateForApproval() {
@@ -93,30 +104,19 @@ public class Voucher {
 
     public boolean isBalanced() {
         BigDecimal totalDebit = lines.stream()
-            .map(l -> l.debitAmount != null ? l.debitAmount : BigDecimal.ZERO)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(l -> l.debitAmount != null ? l.debitAmount : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal totalCredit = lines.stream()
-            .map(l -> l.creditAmount != null ? l.creditAmount : BigDecimal.ZERO)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(l -> l.creditAmount != null ? l.creditAmount : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         return totalDebit.compareTo(totalCredit) == 0;
     }
 
+    @Getter
+    @Builder
     public static class VoucherLine {
-        public Long subjectId;
-        public BigDecimal debitAmount;
-        public BigDecimal creditAmount;
+        private Long subjectId;
+        private BigDecimal debitAmount;
+        private BigDecimal creditAmount;
     }
-
-    public Long getId() { return id; }
-    public String getVoucherNo() { return voucherNo; }
-    public VoucherType getType() { return type; }
-    public LocalDateTime getVoucherDate() { return voucherDate; }
-    public String getDescription() { return description; }
-    public VoucherStatus getStatus() { return status; }
-    public String getCreatedBy() { return createdBy; }
-    public String getApprovedBy() { return approvedBy; }
-    public List<VoucherLine> getLines() { return lines; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setId(Long id) { this.id = id; }
 }
