@@ -1,87 +1,151 @@
 package com.metawebthree.reporting.domain.entity;
 
+import lombok.Builder;
+import lombok.Getter;
+import lombok.ToString;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Getter
+@ToString
+@Builder
 public class InventoryReport {
-    private Long id;
-    private String reportNo;
-    private ReportType type;
-    private LocalDateTime reportDate;
-    private BigDecimal totalInventoryValue;
-    private Integer totalSkuCount;
-    private Integer totalQuantity;
-    private BigDecimal turnoverRate;
-    private BigDecimal slowMovingRate;
-    private Integer slowMovingCount;
-    private String warehouseBreakdown;
-    private String categoryBreakdown;
-    private String lowStockItems;
-    private LocalDateTime createdAt;
+    private final Long id;
+    private final String reportNo;
+    private final ReportType type;
+    private final LocalDateTime reportDate;
+    private final BigDecimal totalInventoryValue;
+    private final Integer totalSkuCount;
+    private final Integer totalQuantity;
+    private final BigDecimal turnoverRate;
+    private final BigDecimal slowMovingRate;
+    private final Integer slowMovingCount;
+    private final String warehouseBreakdown;
+    private final String categoryBreakdown;
+    private final String lowStockItems;
+    private final LocalDateTime createdAt;
 
     public enum ReportType {
         DAILY, WEEKLY, MONTHLY
     }
 
-    public void generateDailyReport(LocalDateTime reportDate) {
-        this.reportNo = "INV-" + reportDate.toLocalDate().toString().replace("-", "");
-        this.type = ReportType.DAILY;
-        this.reportDate = reportDate;
-        this.createdAt = LocalDateTime.now();
+    public static InventoryReport generateDailyReport(LocalDateTime reportDate) {
+        return InventoryReport.builder()
+                .reportNo("INV-" + reportDate.toLocalDate().toString().replace("-", ""))
+                .type(ReportType.DAILY)
+                .reportDate(reportDate)
+                .createdAt(LocalDateTime.now())
+                .build();
     }
 
-    public void generateMonthlyReport(int year, int month) {
-        this.reportNo = "INV-" + year + String.format("%02d", month);
-        this.type = ReportType.MONTHLY;
-        this.reportDate = LocalDateTime.of(year, month, 28, 0, 0);
-        this.createdAt = LocalDateTime.now();
+    public static InventoryReport generateMonthlyReport(int year, int month) {
+        return InventoryReport.builder()
+                .reportNo("INV-" + year + String.format("%02d", month))
+                .type(ReportType.MONTHLY)
+                .reportDate(LocalDateTime.of(year, month, 28, 0, 0))
+                .createdAt(LocalDateTime.now())
+                .build();
     }
 
-    public void setMetrics(BigDecimal totalInventoryValue, Integer totalSkuCount, Integer totalQuantity,
-                          BigDecimal turnoverRate, BigDecimal slowMovingRate, Integer slowMovingCount) {
-        this.totalInventoryValue = totalInventoryValue;
-        this.totalSkuCount = totalSkuCount;
-        this.totalQuantity = totalQuantity;
-        this.turnoverRate = turnoverRate;
-        this.slowMovingRate = slowMovingRate;
-        this.slowMovingCount = slowMovingCount;
+    public InventoryReport withMetrics(
+            BigDecimal totalInventoryValue,
+            Integer totalSkuCount,
+            Integer totalQuantity,
+            BigDecimal turnoverRate,
+            BigDecimal slowMovingRate,
+            Integer slowMovingCount) {
+        return InventoryReport.builder()
+                .id(this.id)
+                .reportNo(this.reportNo)
+                .type(this.type)
+                .reportDate(this.reportDate)
+                .totalInventoryValue(totalInventoryValue)
+                .totalSkuCount(totalSkuCount)
+                .totalQuantity(totalQuantity)
+                .turnoverRate(turnoverRate)
+                .slowMovingRate(slowMovingRate)
+                .slowMovingCount(slowMovingCount)
+                .warehouseBreakdown(this.warehouseBreakdown)
+                .categoryBreakdown(this.categoryBreakdown)
+                .lowStockItems(this.lowStockItems)
+                .createdAt(this.createdAt)
+                .build();
     }
 
-    public void setWarehouseBreakdown(String breakdown) {
-        this.warehouseBreakdown = breakdown;
+    public InventoryReport withWarehouseBreakdown(String breakdown) {
+        return InventoryReport.builder()
+                .id(this.id)
+                .reportNo(this.reportNo)
+                .type(this.type)
+                .reportDate(this.reportDate)
+                .totalInventoryValue(this.totalInventoryValue)
+                .totalSkuCount(this.totalSkuCount)
+                .totalQuantity(this.totalQuantity)
+                .turnoverRate(this.turnoverRate)
+                .slowMovingRate(this.slowMovingRate)
+                .slowMovingCount(this.slowMovingCount)
+                .warehouseBreakdown(breakdown)
+                .categoryBreakdown(this.categoryBreakdown)
+                .lowStockItems(this.lowStockItems)
+                .createdAt(this.createdAt)
+                .build();
     }
 
-    public void setCategoryBreakdown(String breakdown) {
-        this.categoryBreakdown = breakdown;
+    public InventoryReport withCategoryBreakdown(String breakdown) {
+        return InventoryReport.builder()
+                .id(this.id)
+                .reportNo(this.reportNo)
+                .type(this.type)
+                .reportDate(this.reportDate)
+                .totalInventoryValue(this.totalInventoryValue)
+                .totalSkuCount(this.totalSkuCount)
+                .totalQuantity(this.totalQuantity)
+                .turnoverRate(this.turnoverRate)
+                .slowMovingRate(this.slowMovingRate)
+                .slowMovingCount(this.slowMovingCount)
+                .warehouseBreakdown(this.warehouseBreakdown)
+                .categoryBreakdown(breakdown)
+                .lowStockItems(this.lowStockItems)
+                .createdAt(this.createdAt)
+                .build();
     }
 
-    public void setLowStockItems(String items) {
-        this.lowStockItems = items;
+    public InventoryReport withLowStockItems(String items) {
+        return InventoryReport.builder()
+                .id(this.id)
+                .reportNo(this.reportNo)
+                .type(this.type)
+                .reportDate(this.reportDate)
+                .totalInventoryValue(this.totalInventoryValue)
+                .totalSkuCount(this.totalSkuCount)
+                .totalQuantity(this.totalQuantity)
+                .turnoverRate(this.turnoverRate)
+                .slowMovingRate(this.slowMovingRate)
+                .slowMovingCount(this.slowMovingCount)
+                .warehouseBreakdown(this.warehouseBreakdown)
+                .categoryBreakdown(this.categoryBreakdown)
+                .lowStockItems(items)
+                .createdAt(this.createdAt)
+                .build();
     }
 
-    public Long getId() { return id; }
-    public String getReportNo() { return reportNo; }
-    public ReportType getType() { return type; }
-    public LocalDateTime getReportDate() { return reportDate; }
-    public BigDecimal getTotalInventoryValue() { return totalInventoryValue; }
-    public Integer getTotalSkuCount() { return totalSkuCount; }
-    public Integer getTotalQuantity() { return totalQuantity; }
-    public BigDecimal getTurnoverRate() { return turnoverRate; }
-    public BigDecimal getSlowMovingRate() { return slowMovingRate; }
-    public Integer getSlowMovingCount() { return slowMovingCount; }
-    public String getWarehouseBreakdown() { return warehouseBreakdown; }
-    public String getCategoryBreakdown() { return categoryBreakdown; }
-    public String getLowStockItems() { return lowStockItems; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setId(Long id) { this.id = id; }
-    public void setTotalInventoryValue(BigDecimal totalInventoryValue) { this.totalInventoryValue = totalInventoryValue; }
-    public void setTotalSkuCount(Integer totalSkuCount) { this.totalSkuCount = totalSkuCount; }
-    public void setTotalQuantity(Integer totalQuantity) { this.totalQuantity = totalQuantity; }
-    public void setTurnoverRate(BigDecimal turnoverRate) { this.turnoverRate = turnoverRate; }
-    public void setSlowMovingRate(BigDecimal slowMovingRate) { this.slowMovingRate = slowMovingRate; }
-    public void setSlowMovingCount(Integer slowMovingCount) { this.slowMovingCount = slowMovingCount; }
-    public void setReportNo(String reportNo) { this.reportNo = reportNo; }
-    public void setType(ReportType type) { this.type = type; }
-    public void setReportDate(LocalDateTime reportDate) { this.reportDate = reportDate; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public InventoryReport withId(Long id) {
+        return InventoryReport.builder()
+                .id(id)
+                .reportNo(this.reportNo)
+                .type(this.type)
+                .reportDate(this.reportDate)
+                .totalInventoryValue(this.totalInventoryValue)
+                .totalSkuCount(this.totalSkuCount)
+                .totalQuantity(this.totalQuantity)
+                .turnoverRate(this.turnoverRate)
+                .slowMovingRate(this.slowMovingRate)
+                .slowMovingCount(this.slowMovingCount)
+                .warehouseBreakdown(this.warehouseBreakdown)
+                .categoryBreakdown(this.categoryBreakdown)
+                .lowStockItems(this.lowStockItems)
+                .createdAt(this.createdAt)
+                .build();
+    }
 }
