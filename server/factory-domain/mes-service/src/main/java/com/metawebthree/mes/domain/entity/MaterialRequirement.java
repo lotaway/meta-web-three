@@ -171,7 +171,9 @@ public class MaterialRequirement {
         public LocalDateTime getRequiredDate() { return requiredDate; }
         public void setRequiredDate(LocalDateTime requiredDate) { this.requiredDate = requiredDate; }
         public LocalDateTime getCreatedAt() { return createdAt; }
+        public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
         public LocalDateTime getUpdatedAt() { return updatedAt; }
+        public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     }
     
     public void create(String requirementNo, String workOrderNo, String productCode,
@@ -300,4 +302,7 @@ public class MaterialRequirement {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public List<MaterialRequirementItem> getItems() { return items; }
     public void setItems(List<MaterialRequirementItem> items) { this.items = items; }
+    
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

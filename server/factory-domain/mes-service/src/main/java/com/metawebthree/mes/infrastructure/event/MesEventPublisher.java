@@ -3,6 +3,7 @@ package com.metawebthree.mes.infrastructure.event;
 import com.metawebthree.common.event.DomainEventPublisher;
 import com.metawebthree.mes.domain.event.*;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -13,6 +14,9 @@ import java.util.Map;
  */
 @Slf4j
 public class MesEventPublisher {
+
+    // Explicit logger (Lombok @Slf4j annotation processor not working)
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(MesEventPublisher.class);
 
     private final DomainEventPublisher eventPublisher;
 

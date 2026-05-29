@@ -126,7 +126,9 @@ public class MaterialSubstitute {
         public String getStatus() { return status; }
         public void setStatus(String status) { this.status = status; }
         public LocalDateTime getCreatedAt() { return createdAt; }
+        public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
         public LocalDateTime getUpdatedAt() { return updatedAt; }
+        public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     }
     
     public void create(String productCode, String mainMaterialCode, String mainMaterialName) {
@@ -205,4 +207,7 @@ public class MaterialSubstitute {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public List<SubstituteItem> getSubstitutes() { return substitutes; }
     public void setSubstitutes(List<SubstituteItem> substitutes) { this.substitutes = substitutes; }
+    
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

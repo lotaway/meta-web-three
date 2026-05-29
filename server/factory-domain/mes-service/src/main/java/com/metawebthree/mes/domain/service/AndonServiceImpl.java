@@ -134,7 +134,7 @@ public class AndonServiceImpl implements AndonService {
     
     @Override
     public AndonEvent triggerAndon(Long andonTypeId, Long andonLevelId, String triggerMethod,
-                                  String workshopId, Long workstationId, String equipmentId,
+                                  String workshopId, String workstationId, String equipmentId,
                                   String reporterId, String reporterName, String description) {
         AndonType andonType = andonTypeRepository.findById(andonTypeId)
             .orElseThrow(() -> new IllegalArgumentException("AndonType not found: " + andonTypeId));
@@ -148,7 +148,7 @@ public class AndonServiceImpl implements AndonService {
         AndonEvent event = AndonEvent.create(
             andonTypeId, andonType.getTypeCode(), andonType.getTypeName(),
             andonLevelId, andonLevel.getLevelCode(), andonLevel.getLevelName(),
-            triggerMethod, workshopId, workstationId, equipmentId,
+            triggerMethod, workshopId, workstationId != null ? Long.parseLong(workstationId) : null, equipmentId,
             reporterId, reporterName, description
         );
         

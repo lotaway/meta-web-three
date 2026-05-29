@@ -508,3 +508,83 @@ CREATE TABLE IF NOT EXISTS mes_workstation (
     INDEX idx_type (type),
     INDEX idx_status (status)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '工位表';
+
+-- =====================
+-- V12: parameter_group_template & process_parameter
+-- =====================
+-- Parameter Group Template (工艺参数组模板) table
+CREATE TABLE IF NOT EXISTS mes_parameter_group_template (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    template_code VARCHAR(50) NOT NULL UNIQUE COMMENT '模板编码',
+    template_name VARCHAR(100) NOT NULL COMMENT '模板名称',
+    product_type VARCHAR(50) COMMENT '关联产品类型',
+    description VARCHAR(500) COMMENT '描述',
+    status VARCHAR(50) NOT NULL DEFAULT 'DRAFT' COMMENT '状态: DRAFT/ACTIVE/INACTIVE/ARCHIVED',
+    display_order INT DEFAULT 0 COMMENT '显示顺序',
+    parameter_ids TEXT COMMENT '参数ID列表 JSON',
+    parameter_codes TEXT COMMENT '参数编码列表 JSON',
+    created_by VARCHAR(50) COMMENT '创建人',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_by VARCHAR(50) COMMENT '更新人',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_template_code (template_code),
+    INDEX idx_product_type (product_type),
+    INDEX idx_status (status)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '工艺参数组模板表';
+
+-- Process Parameter (工艺参数) table
+CREATE TABLE IF NOT EXISTS mes_process_parameter (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    param_code VARCHAR(50) NOT NULL UNIQUE COMMENT '参数编码',
+    param_name VARCHAR(100) NOT NULL COMMENT '参数名称',
+    route_id BIGINT COMMENT '工艺路线ID',
+    route_code VARCHAR(50) COMMENT '工艺路线编码',
+    step_no INT COMMENT '工序序号',
+    step_code VARCHAR(50) COMMENT '工序编码',
+    param_type VARCHAR(50) COMMENT '参数类型: TEMPERATURE/PRESSURE/SPEED/TIME/CURRENT/VOLTAGE/FORCE/LENGTH/ANGLE/WEIGHT/VOLUME/SPEED_PER_MINUTE/HUMIDITY/QUALITY/COUNT/OTHER',
+    data_type VARCHAR(50) COMMENT '数据类型: INTEGER/DECIMAL/TEXT/BOOLEAN',
+    unit VARCHAR(20) COMMENT '单位',
+    standard_value DECIMAL(18,4) COMMENT '标准值',
+    upper_limit DECIMAL(18,4) COMMENT '上限',
+    lower_limit DECIMAL(18,4) COMMENT '下限',
+    collection_method VARCHAR(50) COMMENT '采集方式: MANUAL/AUTO_SENSOR/PLC/BARCODE',
+    device_address VARCHAR(100) COMMENT '设备地址',
+    is_required TINYINT(1) DEFAULT 0 COMMENT '是否必填',
+    validation_rule VARCHAR(200) COMMENT '校验规则',
+    alarm_threshold DECIMAL(18,4) COMMENT '告警阈值(百分比)',
+    display_order INT DEFAULT 0 COMMENT '显示顺序',
+    param_group VARCHAR(50) COMMENT '参数分组',
+    remark VARCHAR(500) COMMENT '备注',
+    status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE' COMMENT '状态: ACTIVE/INACTIVE',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_param_code (param_code),
+    INDEX idx_route_id (route_id),
+    INDEX idx_route_code (route_code),
+    INDEX idx_step_no (step_no),
+    INDEX idx_param_type (param_type),
+    INDEX idx_status (status)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '工艺参数表';
+
+-- =====================
+-- V13: process_route
+-- =====================
+-- Process Route (工艺路线) table
+CREATE TABLE IF NOT EXISTS mes_process_route (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    route_code VARCHAR(50) NOT NULL UNIQUE COMMENT '工艺路线编码',
+    route_name VARCHAR(100) NOT NULL COMMENT '工艺路线名称',
+    product_code VARCHAR(50) COMMENT '产品编码',
+    version INT NOT NULL DEFAULT 1 COMMENT '版本号',
+    status VARCHAR(50) NOT NULL DEFAULT 'DRAFT' COMMENT '状态: DRAFT/ACTIVE/ARCHIVED',
+    effective_date DATETIME COMMENT '生效日期',
+    expiry_date DATETIME COMMENT '失效日期',
+    steps TEXT COMMENT '工序步骤 JSON 数组',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_route_code (route_code),
+    INDEX idx_product_code (product_code),
+    INDEX idx_version (version),
+    INDEX idx_status (status),
+    INDEX idx_effective_expiry (effective_date, expiry_date)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '工艺路线表';

@@ -163,6 +163,7 @@ public class BomVersion {
     public List<BomVersionRecord> getVersions() { return versions; }
     public void setVersions(List<BomVersionRecord> versions) { this.versions = versions; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

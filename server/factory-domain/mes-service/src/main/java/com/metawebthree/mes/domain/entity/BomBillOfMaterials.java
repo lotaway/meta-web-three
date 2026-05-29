@@ -170,4 +170,7 @@ public class BomBillOfMaterials {
     public void setPreviousVersion(String previousVersion) { this.previousVersion = previousVersion; }
     public String getChangeReason() { return changeReason; }
     public void setChangeReason(String changeReason) { this.changeReason = changeReason; }
+    
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

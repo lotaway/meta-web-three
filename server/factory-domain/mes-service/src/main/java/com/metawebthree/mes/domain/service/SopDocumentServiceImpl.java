@@ -93,11 +93,11 @@ public class SopDocumentServiceImpl implements SopDocumentService {
     @Override
     public SopDocument bindRoute(Long sopDocumentId, String routeCode, String routeName, 
                                   Integer stepNo, String processCode, String processName,
-                                  Long workstationId, String workstationName) {
+                                  String workstationId, String workstationName) {
         SopDocument doc = repository.findById(sopDocumentId)
             .orElseThrow(() -> new IllegalArgumentException("SOP文档不存在: " + sopDocumentId));
         
-        doc.bindRoute(routeCode, routeName, stepNo, processCode, processName, workstationId, workstationName);
+        doc.bindRoute(routeCode, routeName, stepNo, processCode, processName, workstationId != null ? Long.parseLong(workstationId) : null, workstationName);
         return repository.save(doc);
     }
 

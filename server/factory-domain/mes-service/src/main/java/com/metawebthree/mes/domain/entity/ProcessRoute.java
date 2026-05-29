@@ -16,6 +16,8 @@ public class ProcessRoute {
     private String productCode;
     private Integer version;
     private RouteStatus status;
+    private LocalDateTime effectiveDate;      // 生效日期
+    private LocalDateTime expiryDate;         // 失效日期
     private List<ProcessStep> steps;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -209,6 +211,34 @@ public class ProcessRoute {
     public void setStatus(RouteStatus status) { this.status = status; }
     public List<ProcessStep> getSteps() { return steps; }
     public void setSteps(List<ProcessStep> steps) { this.steps = steps; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+    
+    // EffectiveDate & ExpiryDate
+    public LocalDateTime getEffectiveDate() { return effectiveDate; }
+    public void setEffectiveDate(LocalDateTime effectiveDate) { this.effectiveDate = effectiveDate; }
+    public LocalDateTime getExpiryDate() { return expiryDate; }
+    public void setExpiryDate(LocalDateTime expiryDate) { this.expiryDate = expiryDate; }
+    
+    /**
+     * 判断当前日期是否在有效期内
+     */
+    public boolean isEffectiveNow() {
+        LocalDateTime now = LocalDateTime.now();
+        boolean afterEffective = effectiveDate == null || !now.isBefore(effectiveDate);
+        boolean beforeExpiry = expiryDate == null || !now.isAfter(expiryDate);
+        return afterEffective && beforeExpiry;
+    }
+    
+    /**
+     * 判断指定日期是否在有效期内
+     */
+    public boolean isEffectiveAt(LocalDateTime dateTime) {
+        if (dateTime == null) return false;
+        boolean afterEffective = effectiveDate == null || !dateTime.isBefore(effectiveDate);
+        boolean beforeExpiry = expiryDate == null || !dateTime.isAfter(expiryDate);
+        return afterEffective && beforeExpiry;
+    }
 }

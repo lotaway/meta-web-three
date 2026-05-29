@@ -37,4 +37,24 @@ public class WorkOrderType {
     public static final String TYPE_REWORK = "REWORK";
     public static final String TYPE_REPAIR = "REPAIR";
     public static final String TYPE_SAMPLE = "SAMPLE";
+
+    // Explicit getters and setters (Lombok annotation processor not working)
+    public String getTypeCode() { return typeCode; }
+    public void setTypeCode(String typeCode) { this.typeCode = typeCode; }
+    public String getTypeName() { return typeName; }
+    public void setTypeName(String typeName) { this.typeName = typeName; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public String getStatusMachineCode() { return statusMachineCode; }
+    public void setStatusMachineCode(String statusMachineCode) { this.statusMachineCode = statusMachineCode; }
+    public String getProcessRouteTemplate() { return processRouteTemplate; }
+    public void setProcessRouteTemplate(String processRouteTemplate) { this.processRouteTemplate = processRouteTemplate; }
+    public Boolean getIsDefault() { return isDefault; }
+    public void setIsDefault(Boolean isDefault) { this.isDefault = isDefault; }
+    public Integer getSortOrder() { return sortOrder; }
+    public void setSortOrder(Integer sortOrder) { this.sortOrder = sortOrder; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 }

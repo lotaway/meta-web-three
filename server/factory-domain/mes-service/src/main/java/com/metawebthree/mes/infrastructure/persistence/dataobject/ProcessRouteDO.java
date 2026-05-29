@@ -18,6 +18,8 @@ public class ProcessRouteDO {
     private String productCode;
     private Integer version;
     private String status;
+    private LocalDateTime effectiveDate;   // 生效日期
+    private LocalDateTime expiryDate;      // 失效日期
     private String steps;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -180,4 +180,7 @@ public class ProcessBomItem {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public List<ProcessMaterial> getMaterials() { return materials; }
     public void setMaterials(List<ProcessMaterial> materials) { this.materials = materials; }
+    
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

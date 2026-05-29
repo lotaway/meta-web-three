@@ -159,4 +159,7 @@ public class BomItem {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public Long getSubstituteItemId() { return substituteItemId; }
     public void setSubstituteItemId(Long substituteItemId) { this.substituteItemId = substituteItemId; }
+    
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }
