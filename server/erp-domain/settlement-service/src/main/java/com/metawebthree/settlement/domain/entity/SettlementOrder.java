@@ -105,6 +105,20 @@ public class SettlementOrder {
     public LocalDateTime getSettlementDate() { return settlementDate; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public String getDescription() { return description; }
     public void setId(Long id) { this.id = id; }
     public void setChannel(String channel) { this.channel = channel; }
+    public void setSettlementNo(String settlementNo) { this.settlementNo = settlementNo; }
+    public void setOrderNo(String orderNo) { this.orderNo = orderNo; }
+    public void setMerchantId(Long merchantId) { this.merchantId = merchantId; }
+    public void setMerchantName(String merchantName) { this.merchantName = merchantName; }
+    public void setOrderAmount(BigDecimal orderAmount) { this.orderAmount = orderAmount; }
+    public void setSettlementAmount(BigDecimal settlementAmount) { this.settlementAmount = settlementAmount; }
+    public void setCommissionAmount(BigDecimal commissionAmount) { this.commissionAmount = commissionAmount; }
+    public void setRefundAmount(BigDecimal refundAmount) { this.refundAmount = refundAmount; }
+    public void setStatus(SettlementStatus status) { this.status = status; }
+    public void setSettlementDate(LocalDateTime settlementDate) { this.settlementDate = settlementDate; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public void setDescription(String description) { this.description = description; }
 }
