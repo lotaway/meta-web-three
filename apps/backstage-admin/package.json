@@ -12,7 +12,9 @@
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
-    "lint": "eslint . --fix --cache"
+    "lint": "eslint . --fix --cache",
+    "generate:api": "OPENAPI_ENV_FILES=.env,.env.local OPENAPI_API_HOST_ENV=VITE_BASE_SERVER_URL OPENAPI_API_DOC_HOST_ENV=VITE_API_DOC_HOST OPENAPI_RUNTIME_ENV_VAR='import.meta.env.VITE_BASE_SERVER_URL' OPENAPI_TIMEOUT=180000 OPENAPI_USE_NPX=true OPENAPI_DEFAULT_HOST='http://localhost:10081' node ../tools/OpenApiToTS.js",
+    "generate:enum": "node tools/JEnumToTS.js"
   },
   "dependencies": {
     "@tinymce/tinymce-vue": "^5.1.1",
@@ -40,6 +42,7 @@
     "@vitejs/plugin-vue": "^6.0.2",
     "@vue/eslint-config-typescript": "^14.6.0",
     "@vue/tsconfig": "^0.8.1",
+    "dotenv": "^16.6.1",
     "eslint": "^9.39.1",
     "eslint-plugin-vue": "~10.5.1",
     "fast-glob": "^3.3.3",

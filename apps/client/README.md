@@ -112,11 +112,50 @@ bundletool install-apks --apks=app.apks
 
 ### Generate API Interfaces
 
-This method relies on the OpenAPI interface documentation and generator. The specific script is located at `tools/OpenapiToTS.js`. Configure `NEXT_PUBLIC_BACK_API_DOC_HOST` or `NEXT_PUBLIC_BACK_API_HOST` in the `.env` file to point to the OpenAPI doc configuration URL, then run the following command to generate the encapsulated API calls:
+This method relies on the OpenAPI interface documentation and generator. The shared script is located at `apps/tools/OpenApiToTS.js`, used by both `apps/client/` and `apps/backstage-admin/`.
 
+**Workflow:** Download OpenAPI docs → Generate TypeScript-Fetch API client → Inject env variable as base URL.
+
+**Prerequisites:**
+- Backend service is running
+- Install openapi-generator-cli: `npm install -g @openapitools/openapi-generator-cli`
+
+**Configuration (`.env.development`):**
+```bash
+NEXT_PUBLIC_BACK_API_HOST=http://localhost:10081
+NEXT_PUBLIC_BACK_API_DOC_HOST=http://localhost:10081   # defaults to API_HOST
+```
+
+**Run:**
 ```bash
 yarn generate:api
 ```
+
+**Generated structure:**
+```
+src/generated/api/
+├── apis/           # API classes (one per Controller)
+├── models/         # TypeScript interfaces / type definitions
+├── runtime.ts      # Base runtime
+├── index.ts        # Export entry
+└── openapi.json    # Raw OpenAPI spec
+```
+
+**Usage:**
+```typescript
+import { DefaultApi, OrderApi } from '@/generated/api'
+
+const api = new DefaultApi()
+const orders = await api.listOrders({ status: 'pending' })
+
+const orderApi = new OrderApi()
+await orderApi.createOrder({ order: orderRequest })
+```
+
+**Notes:**
+- Generated code overwrites all files under `src/generated/api/`
+- To customize generation logic, modify `apps/tools/OpenApiToTS.js`
+- After first generation, consider committing `openapi.json` for offline development
 
 ### Generate Enums
 
