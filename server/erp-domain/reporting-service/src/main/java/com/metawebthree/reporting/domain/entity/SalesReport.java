@@ -80,4 +80,15 @@ public class SalesReport {
     public String getChannelBreakdown() { return channelBreakdown; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setId(Long id) { this.id = id; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setProfitMargin(BigDecimal profitMargin) { this.profitMargin = profitMargin; }
+    public void setTotalSalesAmount(BigDecimal totalSalesAmount) { this.totalSalesAmount = totalSalesAmount; }
+    public void setTotalOrderCount(Integer totalOrderCount) { this.totalOrderCount = totalOrderCount; }
+    public void setAverageOrderAmount(BigDecimal averageOrderAmount) { this.averageOrderAmount = averageOrderAmount; }
+    public void setGrossProfit(BigDecimal grossProfit) { this.grossProfit = grossProfit; }
+    public void setReportNo(String reportNo) { this.reportNo = reportNo; }
+    public void setType(ReportType type) { this.type = type; }
+    public void setReportDate(LocalDateTime reportDate) { this.reportDate = reportDate; }
+    public void setStartDate(LocalDateTime startDate) { this.startDate = startDate; }
+    public void setEndDate(LocalDateTime endDate) { this.endDate = endDate; }
 }

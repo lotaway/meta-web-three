@@ -51,24 +51,12 @@ public class FinancialReport {
         this.netReceivable = totalReceivable.subtract(totalPayable);
     }
 
-    public void setAgingAnalysis(String analysis) {
-        this.agingAnalysis = analysis;
-    }
-
     public void setWorkingCapitalMetrics(BigDecimal currentAssets, BigDecimal currentLiabilities) {
         this.currentAssets = currentAssets;
         this.currentLiabilities = currentLiabilities;
         this.workingCapital = currentAssets.subtract(currentLiabilities);
         this.currentRatio = currentLiabilities.compareTo(BigDecimal.ZERO) > 0 ?
             currentAssets.divide(currentLiabilities, 2, BigDecimal.ROUND_HALF_UP) : BigDecimal.ZERO;
-    }
-
-    public void setReceivablesByCustomer(String data) {
-        this.receivablesByCustomer = data;
-    }
-
-    public void setPayablesBySupplier(String data) {
-        this.payablesBySupplier = data;
     }
 
     public Long getId() { return id; }
@@ -87,4 +75,18 @@ public class FinancialReport {
     public String getPayablesBySupplier() { return payablesBySupplier; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setId(Long id) { this.id = id; }
+    public void setTotalReceivable(BigDecimal totalReceivable) { this.totalReceivable = totalReceivable; }
+    public void setTotalPayable(BigDecimal totalPayable) { this.totalPayable = totalPayable; }
+    public void setNetReceivable(BigDecimal netReceivable) { this.netReceivable = netReceivable; }
+    public void setAgingAnalysis(String agingAnalysis) { this.agingAnalysis = agingAnalysis; }
+    public void setCurrentAssets(BigDecimal currentAssets) { this.currentAssets = currentAssets; }
+    public void setCurrentLiabilities(BigDecimal currentLiabilities) { this.currentLiabilities = currentLiabilities; }
+    public void setWorkingCapital(BigDecimal workingCapital) { this.workingCapital = workingCapital; }
+    public void setCurrentRatio(BigDecimal currentRatio) { this.currentRatio = currentRatio; }
+    public void setReceivablesByCustomer(String receivablesByCustomer) { this.receivablesByCustomer = receivablesByCustomer; }
+    public void setPayablesBySupplier(String payablesBySupplier) { this.payablesBySupplier = payablesBySupplier; }
+    public void setReportNo(String reportNo) { this.reportNo = reportNo; }
+    public void setType(ReportType type) { this.type = type; }
+    public void setReportDate(LocalDateTime reportDate) { this.reportDate = reportDate; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

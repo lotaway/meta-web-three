@@ -74,4 +74,14 @@ public class InventoryReport {
     public String getLowStockItems() { return lowStockItems; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setId(Long id) { this.id = id; }
+    public void setTotalInventoryValue(BigDecimal totalInventoryValue) { this.totalInventoryValue = totalInventoryValue; }
+    public void setTotalSkuCount(Integer totalSkuCount) { this.totalSkuCount = totalSkuCount; }
+    public void setTotalQuantity(Integer totalQuantity) { this.totalQuantity = totalQuantity; }
+    public void setTurnoverRate(BigDecimal turnoverRate) { this.turnoverRate = turnoverRate; }
+    public void setSlowMovingRate(BigDecimal slowMovingRate) { this.slowMovingRate = slowMovingRate; }
+    public void setSlowMovingCount(Integer slowMovingCount) { this.slowMovingCount = slowMovingCount; }
+    public void setReportNo(String reportNo) { this.reportNo = reportNo; }
+    public void setType(ReportType type) { this.type = type; }
+    public void setReportDate(LocalDateTime reportDate) { this.reportDate = reportDate; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
