@@ -11,9 +11,7 @@ public class InventoryReportConverter {
         if (reportDO == null) {
             return null;
         }
-        InventoryReport report = new InventoryReport();
-        InventoryReportFieldAssigner.assignToEntity(report, reportDO);
-        return report;
+        return InventoryReportFieldAssigner.assignToEntity(reportDO);
     }
 
     public InventoryReportDO toDO(InventoryReport report) {

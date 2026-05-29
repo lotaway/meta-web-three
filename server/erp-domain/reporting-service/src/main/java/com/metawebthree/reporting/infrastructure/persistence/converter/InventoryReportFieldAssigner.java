@@ -8,21 +8,23 @@ import org.slf4j.LoggerFactory;
 public class InventoryReportFieldAssigner {
     private static final Logger log = LoggerFactory.getLogger(InventoryReportFieldAssigner.class);
 
-    public static void assignToEntity(InventoryReport report, InventoryReportDO reportDO) {
-        report.setId(reportDO.getId());
-        report.setReportNo(reportDO.getReportNo());
-        report.setType(parseReportType(reportDO.getType()));
-        report.setReportDate(reportDO.getReportDate());
-        report.setTotalInventoryValue(reportDO.getTotalInventoryValue());
-        report.setTotalSkuCount(reportDO.getTotalSkuCount());
-        report.setTotalQuantity(reportDO.getTotalQuantity());
-        report.setTurnoverRate(reportDO.getTurnoverRate());
-        report.setSlowMovingRate(reportDO.getSlowMovingRate());
-        report.setSlowMovingCount(reportDO.getSlowMovingCount());
-        report.setWarehouseBreakdown(reportDO.getWarehouseBreakdown());
-        report.setCategoryBreakdown(reportDO.getCategoryBreakdown());
-        report.setLowStockItems(reportDO.getLowStockItems());
-        report.setCreatedAt(reportDO.getCreatedAt());
+    public static InventoryReport assignToEntity(InventoryReportDO reportDO) {
+        return InventoryReport.builder()
+                .id(reportDO.getId())
+                .reportNo(reportDO.getReportNo())
+                .type(parseReportType(reportDO.getType()))
+                .reportDate(reportDO.getReportDate())
+                .totalInventoryValue(reportDO.getTotalInventoryValue())
+                .totalSkuCount(reportDO.getTotalSkuCount())
+                .totalQuantity(reportDO.getTotalQuantity())
+                .turnoverRate(reportDO.getTurnoverRate())
+                .slowMovingRate(reportDO.getSlowMovingRate())
+                .slowMovingCount(reportDO.getSlowMovingCount())
+                .warehouseBreakdown(reportDO.getWarehouseBreakdown())
+                .categoryBreakdown(reportDO.getCategoryBreakdown())
+                .lowStockItems(reportDO.getLowStockItems())
+                .createdAt(reportDO.getCreatedAt())
+                .build();
     }
 
     public static void assignToDO(InventoryReportDO reportDO, InventoryReport report) {

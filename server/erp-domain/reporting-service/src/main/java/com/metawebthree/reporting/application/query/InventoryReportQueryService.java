@@ -17,42 +17,40 @@ public class InventoryReportQueryService {
 
     public Long generateDailyReport() {
         LocalDateTime now = LocalDateTime.now();
-        InventoryReport report = new InventoryReport();
-        report.generateDailyReport(now);
-        
-        report.setMetrics(
-            BigDecimal.valueOf(5000000),
-            2500,
-            80000,
-            BigDecimal.valueOf(4.5),
-            BigDecimal.valueOf(8.2),
-            205
-        );
-        report.setWarehouseBreakdown("{\"WH01\":40%,\"WH02\":35%,\"WH03\":25%}");
-        report.setCategoryBreakdown("{\"electronics\":45%,\"clothing\":25%,\"food\":20%,\"others\":10%}");
-        report.setLowStockItems("[{\"sku\":\"SKU001\",\"name\":\"Product A\",\"stock\":50},{\"sku\":\"SKU002\",\"name\":\"Product B\",\"stock\":30}]");
+        String reportNo = "INV-" + now.toLocalDate().toString().replace("-", "");
+        InventoryReport report = InventoryReport.generateDailyReport(now)
+                .withMetrics(
+                    BigDecimal.valueOf(5000000),
+                    2500,
+                    80000,
+                    BigDecimal.valueOf(4.5),
+                    BigDecimal.valueOf(8.2),
+                    205
+                )
+                .withWarehouseBreakdown("{\"WH01\":40%,\"WH02\":35%,\"WH03\":25%}")
+                .withCategoryBreakdown("{\"electronics\":45%,\"clothing\":25%,\"food\":20%,\"others\":10%}")
+                .withLowStockItems("[{\"sku\":\"SKU001\",\"name\":\"Product A\",\"stock\":50},{\"sku\":\"SKU002\",\"name\":\"Product B\",\"stock\":30}]");
         
         repository.save(report);
-        return report.getId();
+        return repository.findByReportNo(reportNo).map(InventoryReport::getId).orElse(null);
     }
 
     public Long generateMonthlyReport(int year, int month) {
-        InventoryReport report = new InventoryReport();
-        report.generateMonthlyReport(year, month);
-        
-        report.setMetrics(
-            BigDecimal.valueOf(5200000),
-            2600,
-            82000,
-            BigDecimal.valueOf(4.8),
-            BigDecimal.valueOf(7.5),
-            195
-        );
-        report.setWarehouseBreakdown("{\"WH01\":42%,\"WH02\":33%,\"WH03\":25%}");
-        report.setCategoryBreakdown("{\"electronics\":43%,\"clothing\":27%,\"food\":18%,\"others\":12%}");
+        String reportNo = "INV-" + year + String.format("%02d", month);
+        InventoryReport report = InventoryReport.generateMonthlyReport(year, month)
+                .withMetrics(
+                    BigDecimal.valueOf(5200000),
+                    2600,
+                    82000,
+                    BigDecimal.valueOf(4.8),
+                    BigDecimal.valueOf(7.5),
+                    195
+                )
+                .withWarehouseBreakdown("{\"WH01\":42%,\"WH02\":33%,\"WH03\":25%}")
+                .withCategoryBreakdown("{\"electronics\":43%,\"clothing\":27%,\"food\":18%,\"others\":12%}");
         
         repository.save(report);
-        return report.getId();
+        return repository.findByReportNo(reportNo).map(InventoryReport::getId).orElse(null);
     }
 
     public Optional<InventoryReport> getById(Long id) {

@@ -67,7 +67,6 @@ public class InventoryReportRepositoryImpl implements InventoryReportRepository 
     public void save(InventoryReport report) {
         InventoryReportDO reportDO = inventoryReportConverter.toDO(report);
         inventoryReportMapper.insert(reportDO);
-        report.setId(reportDO.getId());
     }
 
     @Override
