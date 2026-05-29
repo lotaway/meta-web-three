@@ -9,27 +9,27 @@
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		59CB2879C8136BD2B2BB0B2F /* libPods-metawebthreeapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3004B51A0D2857FD41AFB701 /* libPods-metawebthreeapp.a */; };
-		765EC8CBFD9C66FBB96B736F /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAD67EB274C981B2860DB93 /* ExpoModulesProvider.swift */; };
-		873E912332EBD3E15404AB56 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FACC2F4AFF119AA5FC0BA64A /* PrivacyInfo.xcprivacy */; };
+		A695C74A943AA14A6B4FEDED /* libPods-metawebthreeapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 99800131664FB3FDF6615EFF /* libPods-metawebthreeapp.a */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
+		D01DE77750BD12287934E990 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1FF0A2935E1854048B843D5 /* ExpoModulesProvider.swift */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
+		FD384155CFE7AE8D27DDD51E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3AE12C3290EDA2ADB36FF225 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0A5F15C9EE2319A431D7C860 /* Pods-metawebthreeapp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-metawebthreeapp.debug.xcconfig"; path = "Target Support Files/Pods-metawebthreeapp/Pods-metawebthreeapp.debug.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* metawebthreeapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = metawebthreeapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = metawebthreeapp/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = metawebthreeapp/Info.plist; sourceTree = "<group>"; };
-		3004B51A0D2857FD41AFB701 /* libPods-metawebthreeapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-metawebthreeapp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		531147372B4DCFE0568B74B4 /* Pods-metawebthreeapp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-metawebthreeapp.release.xcconfig"; path = "Target Support Files/Pods-metawebthreeapp/Pods-metawebthreeapp.release.xcconfig"; sourceTree = "<group>"; };
+		3AE12C3290EDA2ADB36FF225 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = metawebthreeapp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		99800131664FB3FDF6615EFF /* libPods-metawebthreeapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-metawebthreeapp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = metawebthreeapp/SplashScreen.storyboard; sourceTree = "<group>"; };
+		B1FF0A2935E1854048B843D5 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-metawebthreeapp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		ECAD67EB274C981B2860DB93 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-metawebthreeapp/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		CBB97214F92559215561B95D /* Pods-metawebthreeapp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-metawebthreeapp.debug.xcconfig"; path = "Target Support Files/Pods-metawebthreeapp/Pods-metawebthreeapp.debug.xcconfig"; sourceTree = "<group>"; };
+		CE2DEB63FCE772C0E85C56A8 /* Pods-metawebthreeapp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-metawebthreeapp.release.xcconfig"; path = "Target Support Files/Pods-metawebthreeapp/Pods-metawebthreeapp.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = metawebthreeapp/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* metawebthreeapp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "metawebthreeapp-Bridging-Header.h"; path = "metawebthreeapp/metawebthreeapp-Bridging-Header.h"; sourceTree = "<group>"; };
-		FACC2F4AFF119AA5FC0BA64A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = metawebthreeapp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,7 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				59CB2879C8136BD2B2BB0B2F /* libPods-metawebthreeapp.a in Frameworks */,
+				A695C74A943AA14A6B4FEDED /* libPods-metawebthreeapp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,15 +53,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				FACC2F4AFF119AA5FC0BA64A /* PrivacyInfo.xcprivacy */,
-			);
-			name = metawebthreeapp;
-			sourceTree = "<group>";
-		};
-		16CB8828AA795F13BDA7BF67 /* metawebthreeapp */ = {
-			isa = PBXGroup;
-			children = (
-				ECAD67EB274C981B2860DB93 /* ExpoModulesProvider.swift */,
+				3AE12C3290EDA2ADB36FF225 /* PrivacyInfo.xcprivacy */,
 			);
 			name = metawebthreeapp;
 			sourceTree = "<group>";
@@ -70,17 +62,17 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				3004B51A0D2857FD41AFB701 /* libPods-metawebthreeapp.a */,
+				99800131664FB3FDF6615EFF /* libPods-metawebthreeapp.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		438D42F3A5041F782CD8A712 /* ExpoModulesProviders */ = {
+		2D5FA64E0B040CC8B6FEBFCC /* metawebthreeapp */ = {
 			isa = PBXGroup;
 			children = (
-				16CB8828AA795F13BDA7BF67 /* metawebthreeapp */,
+				B1FF0A2935E1854048B843D5 /* ExpoModulesProvider.swift */,
 			);
-			name = ExpoModulesProviders;
+			name = metawebthreeapp;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -97,8 +89,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				DED54D031CD29BCBBF33EE46 /* Pods */,
-				438D42F3A5041F782CD8A712 /* ExpoModulesProviders */,
+				9B182314E72C06148E79DEB1 /* Pods */,
+				E3DFE8BD674B5B7740DF1501 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -113,6 +105,16 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		9B182314E72C06148E79DEB1 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				CBB97214F92559215561B95D /* Pods-metawebthreeapp.debug.xcconfig */,
+				CE2DEB63FCE772C0E85C56A8 /* Pods-metawebthreeapp.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
 			isa = PBXGroup;
 			children = (
@@ -122,14 +124,12 @@
 			path = metawebthreeapp/Supporting;
 			sourceTree = "<group>";
 		};
-		DED54D031CD29BCBBF33EE46 /* Pods */ = {
+		E3DFE8BD674B5B7740DF1501 /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				0A5F15C9EE2319A431D7C860 /* Pods-metawebthreeapp.debug.xcconfig */,
-				531147372B4DCFE0568B74B4 /* Pods-metawebthreeapp.release.xcconfig */,
+				2D5FA64E0B040CC8B6FEBFCC /* metawebthreeapp */,
 			);
-			name = Pods;
-			path = Pods;
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -140,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "metawebthreeapp" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				EF8198026357FC95C784FD75 /* [Expo] Configure project */,
+				87026FD18120326B03B4EC2A /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				C6C800AE552361F5D570DBE4 /* [CP] Embed Pods Frameworks */,
+				77F9E07A097A7445E97A06F1 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -196,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				873E912332EBD3E15404AB56 /* PrivacyInfo.xcprivacy in Resources */,
+				FD384155CFE7AE8D27DDD51E /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -240,6 +240,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		77F9E07A097A7445E97A06F1 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-metawebthreeapp/Pods-metawebthreeapp-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-metawebthreeapp/Pods-metawebthreeapp-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
@@ -302,29 +324,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-metawebthreeapp/Pods-metawebthreeapp-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		C6C800AE552361F5D570DBE4 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-metawebthreeapp/Pods-metawebthreeapp-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-metawebthreeapp/Pods-metawebthreeapp-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		EF8198026357FC95C784FD75 /* [Expo] Configure project */ = {
+		87026FD18120326B03B4EC2A /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -356,7 +356,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				765EC8CBFD9C66FBB96B736F /* ExpoModulesProvider.swift in Sources */,
+				D01DE77750BD12287934E990 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -365,7 +365,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0A5F15C9EE2319A431D7C860 /* Pods-metawebthreeapp.debug.xcconfig */;
+			baseConfigurationReference = CBB97214F92559215561B95D /* Pods-metawebthreeapp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -401,7 +401,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 531147372B4DCFE0568B74B4 /* Pods-metawebthreeapp.release.xcconfig */;
+			baseConfigurationReference = CE2DEB63FCE772C0E85C56A8 /* Pods-metawebthreeapp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
