@@ -3,42 +3,42 @@
     <el-card>
       <template #header>
         <div class="card-header">
-          <span>{{ isEdit ? 'Edit Inspection Type' : 'Add Inspection Type' }}</span>
+          <span>{{ isEdit ? t('mes.qc.inspectionType.edit') : t('mes.qc.inspectionType.add') }}</span>
         </div>
       </template>
 
       <el-form ref="formRef" :model="formData" :rules="rules" label-width="150px">
-        <el-form-item label="Inspection Type Code" prop="typeCode">
-          <el-input v-model="formData.typeCode" :disabled="isEdit" placeholder="Enter inspection type code" />
+        <el-form-item :label="t('mes.qc.inspectionType.typeCode')" prop="typeCode">
+          <el-input v-model="formData.typeCode" :disabled="isEdit" :placeholder="t('mes.qc.inspectionType.typeCodePlaceholder')" />
         </el-form-item>
 
-        <el-form-item label="Inspection Type Name" prop="typeName">
-          <el-input v-model="formData.typeName" placeholder="Enter inspection type name" />
+        <el-form-item :label="t('mes.qc.inspectionType.typeName')" prop="typeName">
+          <el-input v-model="formData.typeName" :placeholder="t('mes.qc.inspectionType.typeNamePlaceholder')" />
         </el-form-item>
 
-        <el-form-item label="Inspection Category" prop="category">
-          <el-select v-model="formData.category" placeholder="请选择检验分类">
-            <el-option label="来料检验" value="INCOMING" />
-            <el-option label="工序检验" value="PROCESS" />
-            <el-option label="最终检验" value="FINAL" />
-            <el-option label="出货检验" value="OUTGOING" />
-            <el-option label="自定义" value="CUSTOM" />
+        <el-form-item :label="t('mes.qc.inspectionType.category')" prop="category">
+          <el-select v-model="formData.category" :placeholder="t('mes.qc.inspectionType.categoryPlaceholder')">
+            <el-option :label="t('mes.qc.inspectionType.categoryIncoming')" value="INCOMING" />
+            <el-option :label="t('mes.qc.inspectionType.categoryProcess')" value="PROCESS" />
+            <el-option :label="t('mes.qc.inspectionType.categoryFinal')" value="FINAL" />
+            <el-option :label="t('mes.qc.inspectionType.categoryOutgoing')" value="OUTGOING" />
+            <el-option :label="t('mes.qc.inspectionType.categoryCustom')" value="CUSTOM" />
           </el-select>
         </el-form-item>
 
-        <el-form-item label="描述" prop="description">
-          <el-input v-model="formData.description" type="textarea" :rows="3" placeholder="Enter description" />
+        <el-form-item :label="t('mes.equipment.description')" prop="description">
+          <el-input v-model="formData.description" type="textarea" :rows="3" :placeholder="t('mes.equipment.descriptionPlaceholder')" />
         </el-form-item>
 
         <el-form-item label="Applicable Products" prop="applicableProducts">
           <el-input v-model="formData.applicableProducts" placeholder="Enter applicable products, separated by commas" />
         </el-form-item>
 
-        <el-form-item label="Default Sampling Plan" prop="defaultSamplingPlan">
+        <el-form-item :label="t('mes.qc.inspectionType.defaultSamplingPlan')" prop="defaultSamplingPlan">
           <el-input v-model="formData.defaultSamplingPlan" placeholder="Example: GB/T 2828.1" />
         </el-form-item>
 
-        <el-form-item label="Default AQL" prop="defaultAql">
+        <el-form-item :label="t('mes.qc.inspectionType.defaultAql')" prop="defaultAql">
           <el-input v-model="formData.defaultAql" placeholder="例如: 0.1, 0.15, 0.25" />
         </el-form-item>
 
@@ -46,7 +46,7 @@
           <el-input-number v-model="formData.defaultTimeoutHours" :min="1" :max="168" />
         </el-form-item>
 
-        <el-form-item label="Require Quality Certificate" prop="requireCertificate">
+        <el-form-item :label="t('mes.qc.inspectionType.requireCertificate')" prop="requireCertificate">
           <el-switch v-model="formData.requireCertificate" />
         </el-form-item>
 
@@ -54,13 +54,13 @@
           <el-switch v-model="formData.requireTestReport" />
         </el-form-item>
 
-        <el-form-item label="Sort Order" prop="sortOrder">
+        <el-form-item :label="t('mes.qc.inspectionType.sortOrder')" prop="sortOrder">
           <el-input-number v-model="formData.sortOrder" :min="0" :max="9999" />
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="handleSubmit" :loading="submitting">Save</el-button>
-          <el-button @click="handleCancel">Cancel</el-button>
+          <el-button type="primary" @click="handleSubmit" :loading="submitting">{{ t('common.save') }}</el-button>
+          <el-button @click="handleCancel">{{ t('common.cancel') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -106,13 +106,13 @@ const { t } = useI18n()
 
 const rules = {
   typeCode: [
-    { required: true, message: t('mes.inspectionType.form.typeCodeRequired'), trigger: 'blur' }
+    { required: true, message: t('mes.qc.inspectionType.typeCodePlaceholder'), trigger: 'blur' }
   ],
   typeName: [
-    { required: true, message: t('mes.inspectionType.form.typeNameRequired'), trigger: 'blur' }
+    { required: true, message: t('mes.qc.inspectionType.typeNamePlaceholder'), trigger: 'blur' }
   ],
   category: [
-    { required: true, message: t('mes.inspectionType.form.categoryRequired'), trigger: 'change' }
+    { required: true, message: t('mes.qc.inspectionType.categoryPlaceholder'), trigger: 'change' }
   ]
 }
 
@@ -125,7 +125,7 @@ const loadData = async () => {
       Object.assign(formData, res.data)
     }
   } catch (error) {
-    ElMessage.error('加载数据失败')
+    ElMessage.error(t('mes.processRoute.loadFailed'))
   }
 }
 
@@ -139,14 +139,14 @@ const handleSubmit = async () => {
     try {
       if (isEdit.value) {
         await updateInspectionTypeAPI(Number(route.query.id), formData)
-        ElMessage.success('更新成功')
+        ElMessage.success(t('mes.qc.inspectionType.updateSuccess'))
       } else {
         await createInspectionTypeAPI(formData)
-        ElMessage.success('创建成功')
+        ElMessage.success(t('mes.qc.inspectionType.createSuccess'))
       }
       router.push('/mes/inspectionType')
     } catch (error) {
-      ElMessage.error(isEdit.value ? '更新失败' : '创建失败')
+      ElMessage.error(isEdit.value ? t('mes.qc.inspectionType.deleteFailed') : t('mes.qc.inspectionType.operationFailed'))
     } finally {
       submitting.value = false
     }

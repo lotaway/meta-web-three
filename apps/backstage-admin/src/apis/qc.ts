@@ -264,43 +264,43 @@ export interface QcTriggerRule {
 }
 
 export const getTriggerRuleListAPI = () => {
-  return http.get<QcTriggerRule[]>('/api/mes/qc/trigger-rule')
+  return http<QcTriggerRule[]>({ method: 'get', url: '/api/mes/qc/trigger-rule' })
 }
 
 export const getTriggerRuleByIdAPI = (id: number) => {
-  return http.get<QcTriggerRule>(`/api/mes/qc/trigger-rule/${id}`)
+  return http<QcTriggerRule>({ method: 'get', url: `/api/mes/qc/trigger-rule/${id}` })
 }
 
 export const getTriggerRuleByCodeAPI = (code: string) => {
-  return http.get<QcTriggerRule>(`/api/mes/qc/trigger-rule/code/${code}`)
+  return http<QcTriggerRule>({ method: 'get', url: `/api/mes/qc/trigger-rule/code/${code}` })
 }
 
 export const getTriggerRuleByTypeAPI = (triggerType: string) => {
-  return http.get<QcTriggerRule[]>(`/api/mes/qc/trigger-rule/type/${triggerType}`)
+  return http<QcTriggerRule[]>({ method: 'get', url: `/api/mes/qc/trigger-rule/type/${triggerType}` })
 }
 
 export const getEnabledTriggerRuleListAPI = () => {
-  return http.get<QcTriggerRule[]>('/api/mes/qc/trigger-rule/enabled')
+  return http<QcTriggerRule[]>({ method: 'get', url: '/api/mes/qc/trigger-rule/enabled' })
 }
 
 export const createTriggerRuleAPI = (data: Partial<QcTriggerRule>) => {
-  return http.post<QcTriggerRule>('/api/mes/qc/trigger-rule', data)
+  return http<QcTriggerRule>({ method: 'post', url: '/api/mes/qc/trigger-rule', data })
 }
 
 export const updateTriggerRuleAPI = (id: number, data: Partial<QcTriggerRule>) => {
-  return http.put<QcTriggerRule>(`/api/mes/qc/trigger-rule/${id}`, data)
+  return http<QcTriggerRule>({ method: 'put', url: `/api/mes/qc/trigger-rule/${id}`, data })
 }
 
 export const deleteTriggerRuleAPI = (id: number) => {
-  return http.delete(`/api/mes/qc/trigger-rule/${id}`)
+  return http({ method: 'delete', url: `/api/mes/qc/trigger-rule/${id}` })
 }
 
 export const enableTriggerRuleAPI = (id: number) => {
-  return http.post<QcTriggerRule>(`/api/mes/qc/trigger-rule/${id}/enable`)
+  return http<QcTriggerRule>({ method: 'post', url: `/api/mes/qc/trigger-rule/${id}/enable` })
 }
 
 export const disableTriggerRuleAPI = (id: number) => {
-  return http.post<QcTriggerRule>(`/api/mes/qc/trigger-rule/${id}/disable`)
+  return http<QcTriggerRule>({ method: 'post', url: `/api/mes/qc/trigger-rule/${id}/disable` })
 }
 
 // ==================== SPC Control Chart ====================

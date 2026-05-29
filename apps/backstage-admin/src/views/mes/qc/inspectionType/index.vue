@@ -2,71 +2,71 @@
   <div class="inspection-type-container">
     <el-card class="filter-card">
       <el-form :inline="true" :model="queryParams" class="filter-form">
-        <el-form-item label="检验类型编码">
-          <el-input v-model="queryParams.typeCode" placeholder="请输入检验类型编码" clearable />
+        <el-form-item :label="t('mes.qc.inspectionType.typeCode')">
+          <el-input v-model="queryParams.typeCode" :placeholder="t('mes.qc.inspectionType.typeCodePlaceholder')" clearable />
         </el-form-item>
-        <el-form-item label="检验类型名称">
-          <el-input v-model="queryParams.typeName" placeholder="请输入检验类型名称" clearable />
+        <el-form-item :label="t('mes.qc.inspectionType.typeName')">
+          <el-input v-model="queryParams.typeName" :placeholder="t('mes.qc.inspectionType.typeNamePlaceholder')" clearable />
         </el-form-item>
-        <el-form-item label="检验分类">
-          <el-select v-model="queryParams.category" placeholder="请选择分类" clearable>
-            <el-option label="来料检验" value="INCOMING" />
-            <el-option label="工序检验" value="PROCESS" />
-            <el-option label="最终检验" value="FINAL" />
-            <el-option label="出货检验" value="OUTGOING" />
-            <el-option label="自定义" value="CUSTOM" />
+        <el-form-item :label="t('mes.qc.inspectionType.category')">
+          <el-select v-model="queryParams.category" :placeholder="t('mes.qc.inspectionType.categoryPlaceholder')" clearable>
+            <el-option :label="t('mes.qc.inspectionType.categoryIncoming')" value="INCOMING" />
+            <el-option :label="t('mes.qc.inspectionType.categoryProcess')" value="PROCESS" />
+            <el-option :label="t('mes.qc.inspectionType.categoryFinal')" value="FINAL" />
+            <el-option :label="t('mes.qc.inspectionType.categoryOutgoing')" value="OUTGOING" />
+            <el-option :label="t('mes.qc.inspectionType.categoryCustom')" value="CUSTOM" />
           </el-select>
         </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
-            <el-option label="激活" value="ACTIVE" />
-            <el-option label="停用" value="INACTIVE" />
+        <el-form-item :label="t('mes.qc.inspectionType.status')">
+          <el-select v-model="queryParams.status" :placeholder="t('mes.qc.inspectionType.statusPlaceholder')" clearable>
+            <el-option :label="t('mes.qc.inspectionType.statusActive')" value="ACTIVE" />
+            <el-option :label="t('mes.qc.inspectionType.statusInactive')" value="INACTIVE" />
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleQuery">查询</el-button>
-          <el-button @click="resetQuery">重置</el-button>
+          <el-button type="primary" @click="handleQuery">{{ t('common.query') }}</el-button>
+          <el-button @click="resetQuery">{{ t('common.reset') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <el-card>
       <div class="toolbar">
-        <el-button type="primary" @click="handleAdd">新增</el-button>
+        <el-button type="primary" @click="handleAdd">{{ t('mes.qc.inspectionType.add') }}</el-button>
       </div>
 
       <el-table :data="typeList" v-loading="loading" border stripe>
-        <el-table-column label="ID" prop="id" width="80" />
-        <el-table-column label="检验类型编码" prop="typeCode" width="150" />
-        <el-table-column label="检验类型名称" prop="typeName" width="180" />
-        <el-table-column label="检验分类" prop="category" width="120">
+        <el-table-column :label="t('mes.qc.inspectionType.id')" prop="id" width="80" />
+        <el-table-column :label="t('mes.qc.inspectionType.typeCode')" prop="typeCode" width="150" />
+        <el-table-column :label="t('mes.qc.inspectionType.typeName')" prop="typeName" width="180" />
+        <el-table-column :label="t('mes.qc.inspectionType.category')" prop="category" width="120">
           <template #default="{ row }">
             {{ getCategoryText(row.category) }}
           </template>
         </el-table-column>
-        <el-table-column label="默认抽样方案" prop="defaultSamplingPlan" width="150" />
-        <el-table-column label="默认AQL" prop="defaultAql" width="100" />
-        <el-table-column label="需要证书" prop="requireCertificate" width="100">
+        <el-table-column :label="t('mes.qc.inspectionType.defaultSamplingPlan')" prop="defaultSamplingPlan" width="150" />
+        <el-table-column :label="t('mes.qc.inspectionType.defaultAql')" prop="defaultAql" width="100" />
+        <el-table-column :label="t('mes.qc.inspectionType.requireCertificate')" prop="requireCertificate" width="100">
           <template #default="{ row }">
-            {{ row.requireCertificate ? '是' : '否' }}
+            {{ row.requireCertificate ? t('mes.qc.inspectionType.yes') : t('mes.qc.inspectionType.no') }}
           </template>
         </el-table-column>
-        <el-table-column label="状态" prop="status" width="100">
+        <el-table-column :label="t('mes.qc.inspectionType.status')" prop="status" width="100">
           <template #default="{ row }">
             <el-tag :type="row.status === 'ACTIVE' ? 'success' : 'info'">
-              {{ row.status === 'ACTIVE' ? '激活' : '停用' }}
+              {{ row.status === 'ACTIVE' ? t('mes.qc.inspectionType.statusActive') : t('mes.qc.inspectionType.statusInactive') }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="排序" prop="sortOrder" width="80" />
-        <el-table-column label="创建时间" prop="createdAt" width="180" />
-        <el-table-column label="操作" fixed="right" width="200">
+        <el-table-column :label="t('mes.qc.inspectionType.sortOrder')" prop="sortOrder" width="80" />
+        <el-table-column :label="t('mes.qc.inspectionType.createdAt')" prop="createdAt" width="180" />
+        <el-table-column :label="t('common.operation')" fixed="right" width="200">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">查看</el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-            <el-button link type="success" size="small" @click="handleActivate(row)" v-if="row.status === 'INACTIVE'">激活</el-button>
-            <el-button link type="warning" size="small" @click="handleDeactivate(row)" v-if="row.status === 'ACTIVE'">停用</el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+            <el-button link type="primary" size="small" @click="handleView(row)">{{ t('common.view') }}</el-button>
+            <el-button link type="primary" size="small" @click="handleEdit(row)">{{ t('common.edit') }}</el-button>
+            <el-button link type="success" size="small" @click="handleActivate(row)" v-if="row.status === 'INACTIVE'">{{ t('mes.qc.inspectionType.activate') }}</el-button>
+            <el-button link type="warning" size="small" @click="handleDeactivate(row)" v-if="row.status === 'ACTIVE'">{{ t('mes.qc.inspectionType.deactivate') }}</el-button>
+            <el-button link type="danger" size="small" @click="handleDelete(row)">{{ t('common.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -87,6 +87,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { QcInspectionType, InspectionCategory } from '@/apis/qc'
 import {
@@ -96,6 +97,7 @@ import {
   deactivateInspectionTypeAPI
 } from '@/apis/qc'
 
+const { t } = useI18n()
 const router = useRouter()
 
 const loading = ref(false)
@@ -113,11 +115,11 @@ const queryParams = reactive({
 
 const getCategoryText = (category: string) => {
   const categoryMap: Record<string, string> = {
-    INCOMING: '来料检验',
-    PROCESS: '工序检验',
-    FINAL: '最终检验',
-    OUTGOING: '出货检验',
-    CUSTOM: '自定义'
+    INCOMING: t('mes.qc.inspectionType.categoryIncoming'),
+    PROCESS: t('mes.qc.inspectionType.categoryProcess'),
+    FINAL: t('mes.qc.inspectionType.categoryFinal'),
+    OUTGOING: t('mes.qc.inspectionType.categoryOutgoing'),
+    CUSTOM: t('mes.qc.inspectionType.categoryCustom')
   }
   return categoryMap[category] || category
 }
@@ -129,7 +131,7 @@ const getList = async () => {
     typeList.value = res.data || []
     total.value = res.data?.length || 0
   } catch (error) {
-    ElMessage.error('获取检验类型列表失败')
+    ElMessage.error(t('mes.qc.inspectionType.loadFailed'))
   } finally {
     loading.value = false
   }
@@ -162,51 +164,51 @@ const handleEdit = (row: QcInspectionType) => {
 
 const handleActivate = async (row: QcInspectionType) => {
   try {
-    await ElMessageBox.confirm('确定要激活该检验类型吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('mes.qc.inspectionType.confirmActivate'), t('message.prompt'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await activateInspectionTypeAPI(row.id!)
-    ElMessage.success('激活成功')
+    ElMessage.success(t('mes.qc.inspectionType.activateSuccess'))
     getList()
   } catch (error: any) {
     if (error !== 'cancel') {
-      ElMessage.error('激活失败')
+      ElMessage.error(t('mes.qc.inspectionType.activateFailed'))
     }
   }
 }
 
 const handleDeactivate = async (row: QcInspectionType) => {
   try {
-    await ElMessageBox.confirm('确定要停用该检验类型吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('mes.qc.inspectionType.confirmDeactivate'), t('message.prompt'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await deactivateInspectionTypeAPI(row.id!)
-    ElMessage.success('停用成功')
+    ElMessage.success(t('mes.qc.inspectionType.deactivateSuccess'))
     getList()
   } catch (error: any) {
     if (error !== 'cancel') {
-      ElMessage.error('停用失败')
+      ElMessage.error(t('mes.qc.inspectionType.deactivateFailed'))
     }
   }
 }
 
 const handleDelete = async (row: QcInspectionType) => {
   try {
-    await ElMessageBox.confirm('确定要删除该检验类型吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('mes.qc.inspectionType.confirmDelete'), t('message.prompt'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await deleteInspectionTypeAPI(row.id!)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('mes.qc.inspectionType.deleteSuccess'))
     getList()
   } catch (error: any) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error(t('mes.qc.inspectionType.deleteFailed'))
     }
   }
 }
