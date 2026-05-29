@@ -332,48 +332,113 @@ export interface SpcControlChart {
 }
 
 export const getSpcControlChartListAPI = () => {
-  return http.get<SpcControlChart[]>('/api/mes/qc/spc-control-chart')
+  return http<SpcControlChart[]>({ method: 'get', url: '/api/mes/qc/spc-control-chart' })
 }
 
 export const getSpcControlChartByIdAPI = (id: number) => {
-  return http.get<SpcControlChart>(`/api/mes/qc/spc-control-chart/${id}`)
+  return http<SpcControlChart>({ method: 'get', url: `/api/mes/qc/spc-control-chart/${id}` })
 }
 
 export const getSpcControlChartByCodeAPI = (code: string) => {
-  return http.get<SpcControlChart>(`/api/mes/qc/spc-control-chart/code/${code}`)
+  return http<SpcControlChart>({ method: 'get', url: `/api/mes/qc/spc-control-chart/code/${code}` })
 }
 
 export const getSpcControlChartByTypeAPI = (type: string) => {
-  return http.get<SpcControlChart[]>(`/api/mes/qc/spc-control-chart/type/${type}`)
+  return http<SpcControlChart[]>({ method: 'get', url: `/api/mes/qc/spc-control-chart/type/${type}` })
 }
 
 export const getEnabledSpcControlChartListAPI = () => {
-  return http.get<SpcControlChart[]>('/api/mes/qc/spc-control-chart/enabled')
+  return http<SpcControlChart[]>({ method: 'get', url: '/api/mes/qc/spc-control-chart/enabled' })
 }
 
 export const createSpcControlChartAPI = (data: Partial<SpcControlChart>) => {
-  return http.post<SpcControlChart>('/api/mes/qc/spc-control-chart', data)
+  return http<SpcControlChart>({ method: 'post', url: '/api/mes/qc/spc-control-chart', data })
 }
 
 export const updateSpcControlChartAPI = (id: number, data: Partial<SpcControlChart>) => {
-  return http.put<SpcControlChart>(`/api/mes/qc/spc-control-chart/${id}`, data)
+  return http<SpcControlChart>({ method: 'put', url: `/api/mes/qc/spc-control-chart/${id}`, data })
 }
 
 export const deleteSpcControlChartAPI = (id: number) => {
-  return http.delete(`/api/mes/qc/spc-control-chart/${id}`)
+  return http({ method: 'delete', url: `/api/mes/qc/spc-control-chart/${id}` })
 }
 
 export const enableSpcControlChartAPI = (id: number) => {
-  return http.post<SpcControlChart>(`/api/mes/qc/spc-control-chart/${id}/enable`)
+  return http<SpcControlChart>({ method: 'post', url: `/api/mes/qc/spc-control-chart/${id}/enable` })
 }
 
 export const disableSpcControlChartAPI = (id: number) => {
-  return http.post<SpcControlChart>(`/api/mes/qc/spc-control-chart/${id}/disable`)
+  return http<SpcControlChart>({ method: 'post', url: `/api/mes/qc/spc-control-chart/${id}/disable` })
 }
 
 export const calculateSpcControlLimitsAPI = (chartId: number, dataPoints: SpcDataPoint[]) => {
-  return http.post<{ ucl: number; lcl: number; centerLine: number }>(
-    `/api/mes/qc/spc-control-chart/${chartId}/calculate`,
-    { dataPoints }
-  )
+  return http<{ ucl: number; lcl: number; centerLine: number }>({
+    method: 'post',
+    url: `/api/mes/qc/spc-control-chart/${chartId}/calculate`,
+    data: { dataPoints }
+  })
+}
+
+// ==================== NonConformance Disposition ====================
+export type DispositionType = 'SCRAP' | 'REWORK' | 'RETURN' | 'USE_AS_IS' | '降级使用'
+
+export interface DispositionStep {
+  stepOrder: number
+  stepName: string
+  action: string
+  assigneeRole?: string
+  requiresApproval?: boolean
+  timeoutHours?: number
+}
+
+export interface NonConformanceDisposition {
+  id?: number
+  dispositionCode: string
+  dispositionName: string
+  type: DispositionType
+  steps?: DispositionStep[]
+  isEnabled?: boolean
+  sortOrder?: number
+  createdAt?: string
+  updatedAt?: string
+}
+
+export const getNonConformanceDispositionListAPI = () => {
+  return http<NonConformanceDisposition[]>({ method: 'get', url: '/api/mes/qc/non-conformance' })
+}
+
+export const getNonConformanceDispositionByIdAPI = (id: number) => {
+  return http<NonConformanceDisposition>({ method: 'get', url: `/api/mes/qc/non-conformance/${id}` })
+}
+
+export const getNonConformanceDispositionByCodeAPI = (code: string) => {
+  return http<NonConformanceDisposition>({ method: 'get', url: `/api/mes/qc/non-conformance/code/${code}` })
+}
+
+export const getNonConformanceDispositionByTypeAPI = (type: string) => {
+  return http<NonConformanceDisposition[]>({ method: 'get', url: `/api/mes/qc/non-conformance/type/${type}` })
+}
+
+export const getEnabledNonConformanceDispositionListAPI = () => {
+  return http<NonConformanceDisposition[]>({ method: 'get', url: '/api/mes/qc/non-conformance/enabled' })
+}
+
+export const createNonConformanceDispositionAPI = (data: Partial<NonConformanceDisposition>) => {
+  return http<NonConformanceDisposition>({ method: 'post', url: '/api/mes/qc/non-conformance', data })
+}
+
+export const updateNonConformanceDispositionAPI = (id: number, data: Partial<NonConformanceDisposition>) => {
+  return http<NonConformanceDisposition>({ method: 'put', url: `/api/mes/qc/non-conformance/${id}`, data })
+}
+
+export const deleteNonConformanceDispositionAPI = (id: number) => {
+  return http({ method: 'delete', url: `/api/mes/qc/non-conformance/${id}` })
+}
+
+export const enableNonConformanceDispositionAPI = (id: number) => {
+  return http<NonConformanceDisposition>({ method: 'post', url: `/api/mes/qc/non-conformance/${id}/enable` })
+}
+
+export const disableNonConformanceDispositionAPI = (id: number) => {
+  return http<NonConformanceDisposition>({ method: 'post', url: `/api/mes/qc/non-conformance/${id}/disable` })
 }
