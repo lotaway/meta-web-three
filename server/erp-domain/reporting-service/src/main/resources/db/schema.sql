@@ -65,3 +65,25 @@ CREATE TABLE IF NOT EXISTS rp_financial_report (
     INDEX idx_type (type),
     INDEX idx_report_date (report_date)
 );
+
+-- 报表订阅表
+CREATE TABLE IF NOT EXISTS report_subscription (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    user_name VARCHAR(128),
+    report_type VARCHAR(32) NOT NULL,
+    frequency VARCHAR(32) NOT NULL,
+    cron_expression VARCHAR(64),
+    channel VARCHAR(32) NOT NULL,
+    recipient VARCHAR(256),
+    webhook_url VARCHAR(512),
+    enabled BOOLEAN DEFAULT TRUE,
+    next_send_time TIMESTAMP,
+    last_send_time TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_user_id (user_id),
+    INDEX idx_report_type (report_type),
+    INDEX idx_enabled (enabled),
+    INDEX idx_next_send_time (next_send_time)
+);
