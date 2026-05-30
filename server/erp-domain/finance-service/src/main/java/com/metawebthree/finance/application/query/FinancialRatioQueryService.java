@@ -78,7 +78,7 @@ public class FinancialRatioQueryService {
     }
 
     private BigDecimal getAverageReceivables() {
-        List<Account> receivables = accountRepository.findByType(Account.AccountType.RECEIVABLE);
+        List<Account> receivables = accountRepository.findByType(Account.AccountType.CREDIT);
         BigDecimal total = receivables.stream()
                 .filter(a -> a.getStatus() == Account.AccountStatus.ACTIVE)
                 .map(Account::getBalance)
@@ -93,7 +93,7 @@ public class FinancialRatioQueryService {
     }
 
     private BigDecimal getAveragePayables() {
-        List<Account> payables = accountRepository.findByType(Account.AccountType.PAYABLE);
+        List<Account> payables = accountRepository.findByType(Account.AccountType.CREDIT);
         BigDecimal total = payables.stream()
                 .filter(a -> a.getStatus() == Account.AccountStatus.ACTIVE)
                 .map(Account::getBalance)
