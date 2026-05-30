@@ -43,26 +43,26 @@ public class CashPlanCreateCommand {
     public void setRemark(String remark) { this.remark = remark; }
     public List<CashPlanLineCreateCommand> getLines() { return lines; }
     public void setLines(List<CashPlanLineCreateCommand> lines) { this.lines = lines; }
-}
 
-class CashPlanLineCreateCommand {
-    private String categoryCode;
-    private String categoryName;
-    private String flowDirection;
-    private BigDecimal plannedAmount;
-    private LocalDate plannedDate;
-    private String remark;
+    public static class CashPlanLineCreateCommand {
+        private String categoryCode;
+        private String categoryName;
+        private String flowDirection;
+        private BigDecimal plannedAmount;
+        private LocalDate plannedDate;
+        private String remark;
 
-    public String getCategoryCode() { return categoryCode; }
-    public void setCategoryCode(String categoryCode) { this.categoryCode = categoryCode; }
-    public String getCategoryName() { return categoryName; }
-    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
-    public String getFlowDirection() { return flowDirection; }
-    public void setFlowDirection(String flowDirection) { this.flowDirection = flowDirection; }
-    public BigDecimal getPlannedAmount() { return plannedAmount; }
-    public void setPlannedAmount(BigDecimal plannedAmount) { this.plannedAmount = plannedAmount; }
-    public LocalDate getPlannedDate() { return plannedDate; }
-    public void setPlannedDate(LocalDate plannedDate) { this.plannedDate = plannedDate; }
-    public String getRemark() { return remark; }
-    public void setRemark(String remark) { this.remark = remark; }
+        public String getCategoryCode() { return categoryCode; }
+        public void setCategoryCode(String categoryCode) { this.categoryCode = categoryCode; }
+        public String getCategoryName() { return categoryName; }
+        public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
+        public String getFlowDirection() { return flowDirection; }
+        public void setFlowDirection(String flowDirection) { this.flowDirection = flowDirection; }
+        public BigDecimal getPlannedAmount() { return plannedAmount; }
+        public void setPlannedAmount(BigDecimal plannedAmount) { this.plannedAmount = plannedAmount; }
+        public LocalDate getPlannedDate() { return plannedDate; }
+        public void setPlannedDate(LocalDate plannedDate) { this.plannedDate = plannedDate; }
+        public String getRemark() { return remark; }
+        public void setRemark(String remark) { this.remark = remark; }
+    }
 }

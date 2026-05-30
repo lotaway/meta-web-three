@@ -95,7 +95,7 @@ public class BankReconciliation {
             return variance.abs();
         }
         return items.stream()
-                .filter(item -> item.getReconciliationStatus() == ReconciliationItemStatus.PENDING)
+                .filter(item -> item.getReconciliationStatus() == ReconciliationItem.ReconciliationItemStatus.PENDING)
                 .map(ReconciliationItem::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }

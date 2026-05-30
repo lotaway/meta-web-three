@@ -5,11 +5,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BankReconciliationRepository {
-    BankReconciliation save(BankReconciliation reconciliation);
+    Long save(BankReconciliation reconciliation);
     Optional<BankReconciliation> findById(Long id);
     Optional<BankReconciliation> findByReconciliationNo(String reconciliationNo);
     List<BankReconciliation> findAll();
     List<BankReconciliation> findByBankAccountId(Long bankAccountId);
     List<BankReconciliation> findByStatus(BankReconciliation.ReconciliationStatus status);
+    void update(BankReconciliation reconciliation);
     void deleteById(Long id);
 }

@@ -6,11 +6,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CashFlowForecastRepository {
-    CashFlowForecast save(CashFlowForecast forecast);
+    Long save(CashFlowForecast forecast);
     Optional<CashFlowForecast> findById(Long id);
     Optional<CashFlowForecast> findByForecastNo(String forecastNo);
     List<CashFlowForecast> findAll();
     List<CashFlowForecast> findByForecastDate(LocalDate forecastDate);
     List<CashFlowForecast> findByDateRange(LocalDate startDate, LocalDate endDate);
+    Long saveItem(CashFlowForecast.ForecastItem item);
+    List<CashFlowForecast.ForecastItem> findItemsByForecastId(Long forecastId);
     void deleteById(Long id);
 }

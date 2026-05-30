@@ -113,7 +113,7 @@ public class CashQueryService {
     }
 
     public List<BankReconciliation> listBankReconciliationsByStatus(String status) {
-        return bankReconciliationRepository.findByStatus(BankReconciliation.BankReconciliationStatus.valueOf(status));
+        return bankReconciliationRepository.findByStatus(BankReconciliation.ReconciliationStatus.valueOf(status));
     }
 
     // Cash Flow Forecast queries

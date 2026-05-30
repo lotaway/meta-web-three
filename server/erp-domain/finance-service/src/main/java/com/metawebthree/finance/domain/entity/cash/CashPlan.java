@@ -130,18 +130,18 @@ public class CashPlan {
             return;
         }
         inflowAmount = lines.stream()
-                .filter(line -> line.getFlowDirection() == CashFlowDirection.INFLOW)
+                .filter(line -> line.getFlowDirection() == CashPlanLine.CashFlowDirection.INFLOW)
                 .map(CashPlanLine::getPlannedAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         outflowAmount = lines.stream()
-                .filter(line -> line.getFlowDirection() == CashFlowDirection.OUTFLOW)
+                .filter(line -> line.getFlowDirection() == CashPlanLine.CashFlowDirection.OUTFLOW)
                 .map(CashPlanLine::getPlannedAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         totalAmount = inflowAmount.subtract(outflowAmount);
     }
 
-    public void recordActual(BigDecimal amount, CashFlowDirection direction) {
-        if (direction == CashFlowDirection.INFLOW) {
+    public void recordActual(BigDecimal amount, CashPlanLine.CashFlowDirection direction) {
+        if (direction == CashPlanLine.CashFlowDirection.INFLOW) {
             inflowAmount = inflowAmount.add(amount);
         } else {
             outflowAmount = outflowAmount.add(amount);

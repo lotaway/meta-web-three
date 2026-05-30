@@ -69,7 +69,7 @@ public class CashCommandService {
 
     @Transactional
     public void updateCashPlan(CashPlanCreateCommand command) {
-        CashPlan cashPlan = cashPlanRepository.findById(command.getPlanCode())
+        CashPlan cashPlan = cashPlanRepository.findByPlanCode(command.getPlanCode())
             .orElseThrow(() -> new IllegalArgumentException("Cash plan not found"));
         
         if (cashPlan.getStatus() != CashPlan.CashPlanStatus.DRAFT) {
