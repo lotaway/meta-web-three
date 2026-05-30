@@ -3,6 +3,11 @@ package com.metawebthree.finance.domain.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class Account {
     private Long id;
     private String accountNo;
@@ -83,14 +88,4 @@ public class Account {
             throw new IllegalArgumentException("Invalid amount");
         }
     }
-
-    public Long getId() { return id; }
-    public String getAccountNo() { return accountNo; }
-    public String getAccountName() { return accountName; }
-    public AccountType getType() { return type; }
-    public BigDecimal getBalance() { return balance; }
-    public AccountStatus getStatus() { return status; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setId(Long id) { this.id = id; }
 }

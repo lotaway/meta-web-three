@@ -1,7 +1,9 @@
 package com.metawebthree.finance.domain.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -12,6 +14,8 @@ import java.util.List;
 @Getter
 @Setter
 @Builder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public class Voucher {
     private Long id;
     private String voucherNo;
@@ -52,10 +56,11 @@ public class Voucher {
         if (lines == null) {
             lines = new ArrayList<>();
         }
-        VoucherLine line = new VoucherLine();
-        line.subjectId = subjectId;
-        line.debitAmount = debitAmount;
-        line.creditAmount = creditAmount;
+        VoucherLine line = VoucherLine.builder()
+                .subjectId(subjectId)
+                .debitAmount(debitAmount)
+                .creditAmount(creditAmount)
+                .build();
         lines.add(line);
     }
 
@@ -117,6 +122,8 @@ public class Voucher {
     @Getter
     @Setter
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class VoucherLine {
         private Long subjectId;
         private BigDecimal debitAmount;
