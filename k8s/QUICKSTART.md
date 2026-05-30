@@ -81,8 +81,8 @@ sudo chmod 755 /data -R
 #### 构建应用镜像
 ```bash
 # 构建前端镜像
-cd client
-docker build -t meta-web-three/client:latest .
+cd apps/digital-twin/system-management
+docker build -t meta-web-three/digital-twin-frontend:latest -f docker/Dockerfile .
 
 # 构建后端服务镜像（上下文为仓库根目录，见 scripts/server-services-registry.sh）
 cd ..

@@ -172,9 +172,9 @@ kubectl create secret generic database-secret \
 
 ```bash
 # 构建前端镜像
-cd client
-docker build -t meta-web-three/client:latest .
-docker push meta-web-three/client:latest
+cd apps/digital-twin/system-management
+docker build -t meta-web-three/digital-twin-frontend:latest -f docker/Dockerfile .
+docker push meta-web-three/digital-twin-frontend:latest
 
 # 构建后端服务镜像（在 server 目录用统一 Dockerfile + target）
 cd ../server

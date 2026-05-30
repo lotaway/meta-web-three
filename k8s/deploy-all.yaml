@@ -908,30 +908,30 @@ spec:
     targetPort: 10092
   type: ClusterIP
 
-# 8. 部署前端
+# 8. 部署前端 (digital-twin 系统管理)
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: client
+  name: digital-twin-frontend
   namespace: meta-web-three
   labels:
-    app: client
+    app: digital-twin-frontend
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: client
+      app: digital-twin-frontend
   template:
     metadata:
       labels:
-        app: client
+        app: digital-twin-frontend
     spec:
       containers:
-      - name: client
-        image: meta-web-three/client:latest
+      - name: digital-twin-frontend
+        image: meta-web-three/digital-twin-frontend:latest
         ports:
-        - containerPort: 30001
+        - containerPort: 3000
         resources:
           requests:
             memory: "128Mi"
@@ -944,14 +944,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: client-service
+  name: digital-twin-frontend-service
   namespace: meta-web-three
 spec:
   selector:
-    app: client
+    app: digital-twin-frontend
   ports:
-  - port: 30001
-    targetPort: 30001
+  - port: 3000
+    targetPort: 3000
   type: ClusterIP
 
       - path: /cs
@@ -967,7 +967,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: client-ingress
+  name: digital-twin-frontend-ingress
   namespace: meta-web-three
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
@@ -981,9 +981,9 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: client-service
+            name: digital-twin-frontend-service
             port:
-              number: 30001
+              number: 3000
 
 ---
 apiVersion: networking.k8s.io/v1

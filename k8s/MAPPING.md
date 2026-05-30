@@ -40,9 +40,9 @@ metadata:
 ```yaml
 # docker-compose.yml
 services:
-  client:
+  digital-twin-frontend:
     ports:
-      - "${VITE_PORT}:${VITE_PORT}"
+      - "${VITE_PORT:-3000}:3000"
 
 # docker-compose.server.yaml
 services:
@@ -106,20 +106,20 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: client-service
+  name: digital-twin-frontend-service
 spec:
   selector:
-    app: client
+    app: digital-twin-frontend
   ports:
-  - port: 30001
-    targetPort: 30001
+  - port: 3000
+    targetPort: 3000
   type: ClusterIP
 
 # Ingress 配置
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: client-ingress
+  name: digital-twin-frontend-ingress
 spec:
   rules:
   - host: meta-web-three.local
@@ -129,9 +129,9 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: client-service
+            name: digital-twin-frontend-service
             port:
-              number: 30001
+              number: 3000
 ```
 
 **映射说明**：
@@ -414,10 +414,12 @@ spec:
 ```yaml
 # docker-compose.yml
 services:
-  client:
+  digital-twin-frontend:
     build:
-      context: "./client"
-      dockerfile: dockerfile
+      context: "./apps/digital-twin/system-management"
+      dockerfile: docker/Dockerfile
+      ports:
+      - "3000:3000"
 
 # docker-compose.server.yml
 services:
