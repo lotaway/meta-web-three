@@ -20,6 +20,8 @@ export interface InventoryAlertPanelProps {
   autoRefresh?: boolean
   refreshInterval?: number
   maxVisible?: number
+  filterLevel?: 'all' | 'critical' | 'warning' | 'info'
+  sortBy?: 'severity' | 'occurredAt' | 'priority'
 }
 
 // ============ 子组件：摘要统计 ============

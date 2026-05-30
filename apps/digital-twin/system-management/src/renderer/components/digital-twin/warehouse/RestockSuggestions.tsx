@@ -47,10 +47,13 @@ export interface RestockSuggestion {
 }
 
 export interface RestockSuggestionsProps {
-  suggestions: RestockSuggestion[]
+  suggestions?: RestockSuggestion[]
+  items?: RestockSuggestion[]
+  filterUrgency?: string
   onApprove?: (suggestionId: string) => void
   onReject?: (suggestionId: string, reason?: string) => void
   onOrder?: (suggestionId: string) => void
+  onDismiss?: (suggestionId: string) => void
   onDetailsClick?: (suggestion: RestockSuggestion) => void
   groupByUrgency?: boolean
 }
@@ -222,19 +225,24 @@ function FilterHeader({
 // ============ 主组件 ============
 export function RestockSuggestions({
   suggestions,
+  items,
   onApprove,
   onReject,
   onOrder,
+  onDismiss,
   onDetailsClick,
   groupByUrgency = true
 }: RestockSuggestionsProps) {
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'ordered'>('all')
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
+  // Use items as alias for suggestions
+  const data = suggestions || items || []
+
   // 过滤建议
   const filteredSuggestions = useMemo(() => {
-    return suggestions.filter(s => filter === 'all' || s.status === filter)
-  }, [suggestions, filter])
+    return data.filter(s => filter === 'all' || s.status === filter)
+  }, [data, filter])
 
   // 按优先级分组
   const groupedSuggestions = useMemo(() => {

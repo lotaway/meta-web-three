@@ -32,8 +32,10 @@ const LOAD_RATIO = {
 } as const
 
 export interface ShelfHeatmapProps {
-  shelves: Shelf[]
-  heatmapData: WarehouseHeatmapData[]
+  shelves?: Shelf[]
+  heatmapData?: WarehouseHeatmapData[]
+  data?: { shelfId?: string; level?: number; column?: number; row?: number; col?: number; value: number; label?: string }[]
+  title?: string
   onCellClick?: (shelfId: string, level: number, column: number) => void
   selectedCell?: { shelfId: string; level: number; column: number } | null
   showLabels?: boolean
@@ -361,8 +363,10 @@ export function ShelfHeatmap({
 }: ShelfHeatmapProps) {
   // 构建网格数据
   const gridData = useMemo(() => {
-    const maxLevel = Math.max(...shelves.map(s => s.level), 0) + 1
-    const maxColumn = Math.max(...shelves.map(s => s.column), 0) + 1
+    const shelvesData = shelves || []
+    const heatmapDataVal = heatmapData || []
+    const maxLevel = Math.max(...shelvesData.map(s => s.level), 0) + 1
+    const maxColumn = Math.max(...shelvesData.map(s => s.column), 0) + 1
 
     const matrix: Array<Array<{ shelf: Shelf | null; heatmapValue: number }>> = []
 
@@ -370,8 +374,8 @@ export function ShelfHeatmap({
       const row: Array<{ shelf: Shelf | null; heatmapValue: number }> = []
 
       for (let column = 0; column < maxColumn; column++) {
-        const shelf = shelves.find(s => s.level === level && s.column === column) || null
-        const heatmap = heatmapData.find(
+        const shelf = shelvesData.find(s => s.level === level && s.column === column) || null
+        const heatmap = heatmapDataVal.find(
           d => d.shelfId === shelf?.id && d.level === level && d.column === column
         )
 
@@ -388,11 +392,15 @@ export function ShelfHeatmap({
   }, [shelves, heatmapData])
 
   // 摘要统计
-  const summary = useMemo(() => ({
-    total: shelves.length,
-    active: shelves.filter(s => s.status === 'occupied').length,
-    hot: heatmapData.filter(d => d.value >= LOAD_THRESHOLDS.critical).length
-  }), [shelves, heatmapData])
+  const summary = useMemo(() => {
+    const shelvesData = shelves || []
+    const heatmapDataVal = heatmapData || []
+    return {
+      total: shelvesData.length,
+      active: shelvesData.filter(s => s.status === 'occupied').length,
+      hot: heatmapDataVal.filter(d => d.value >= LOAD_THRESHOLDS.critical).length
+    }
+  }, [shelves, heatmapData])
 
   return (
     <ErrorBoundary>

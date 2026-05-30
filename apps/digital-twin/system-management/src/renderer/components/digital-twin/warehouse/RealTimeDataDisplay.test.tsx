@@ -32,7 +32,7 @@ vi.mock('chart.js', () => ({
 }))
 
 // Import components after mocks
-import { DemandChart, type any } from './DemandChart'
+import { DemandChart } from './DemandChart'
 import { ShelfHeatmap } from './ShelfHeatmap'
 import { WarehouseStatus } from './WarehouseStatus'
 

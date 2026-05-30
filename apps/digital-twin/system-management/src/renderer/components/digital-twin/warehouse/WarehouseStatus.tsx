@@ -51,8 +51,9 @@ const STATUS_VALUE_COLORS = {
 } as const
 
 export interface WarehouseStatusProps {
-  warehouse: Warehouse
-  shelves: Shelf[]
+  warehouse?: Warehouse
+  shelves?: Shelf[]
+  data?: { warehouse: unknown; options: unknown }
   compact?: boolean
 }
 
@@ -451,13 +452,14 @@ export function WarehouseStatus({
 }: WarehouseStatusProps) {
   // 计算统计数据
   const stats = useMemo(() => {
-    const total = shelves.length
-    const occupied = shelves.filter(s => s.status === 'occupied').length
-    const full = shelves.filter(s => s.status === 'full').length
-    const empty = shelves.filter(s => s.status === 'empty').length
-    const maintenance = shelves.filter(s => s.status === 'maintenance').length
-    const totalCap = shelves.reduce((sum, s) => sum + s.capacity, 0)
-    const usedCap = shelves.reduce((sum, s) => sum + s.currentLoad, 0)
+    const shelvesData = shelves || []
+    const total = shelvesData.length
+    const occupied = shelvesData.filter(s => s.status === 'occupied').length
+    const full = shelvesData.filter(s => s.status === 'full').length
+    const empty = shelvesData.filter(s => s.status === 'empty').length
+    const maintenance = shelvesData.filter(s => s.status === 'maintenance').length
+    const totalCap = shelvesData.reduce((sum, s) => sum + s.capacity, 0)
+    const usedCap = shelvesData.reduce((sum, s) => sum + s.currentLoad, 0)
 
     return {
       total,
@@ -473,8 +475,8 @@ export function WarehouseStatus({
 
   // 内容组件（根据 compact 模式选择不同的渲染）
   const content = compact
-    ? <CompactWarehouseStatus warehouse={warehouse} stats={stats} />
-    : <FullWarehouseStatus warehouse={warehouse} stats={stats} />
+    ? <CompactWarehouseStatus warehouse={warehouse || {} as Warehouse} stats={stats} />
+    : <FullWarehouseStatus warehouse={warehouse || {} as Warehouse} stats={stats} />
 
   // compact 模式也需要 ErrorBoundary 包裹
   return (
