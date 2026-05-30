@@ -74,8 +74,8 @@ const route = useRoute()
 const loading = ref(false)
 const detail = ref<ProcessFlowInstance | null>(null)
 
-const getStatusType = (status?: string) => {
-  const statusMap: Record<string, string> = {
+const getStatusType = (status?: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' => {
+  const statusMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     RUNNING: 'success',
     COMPLETED: 'info',
     TERMINATED: 'danger',

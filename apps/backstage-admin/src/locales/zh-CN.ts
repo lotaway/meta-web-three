@@ -792,7 +792,7 @@ export default {
       pause: '暂停',
       resume: '恢复',
       complete: '完成',
-      cancel: '取消',
+      cancelAction: '取消',
       split: '拆分',
       updateProgress: '更新进度',
       releaseSuccess: '工单已下达',

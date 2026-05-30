@@ -740,7 +740,7 @@ export default {
       pause: 'Pause',
       resume: 'Resume',
       complete: 'Complete',
-      cancel: 'Cancel',
+      cancelAction: 'Cancel',
       split: 'Split',
       updateProgress: 'Update Progress',
       releaseSuccess: 'Work order released',

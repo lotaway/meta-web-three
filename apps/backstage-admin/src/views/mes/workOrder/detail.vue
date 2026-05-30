@@ -106,7 +106,7 @@
             type="danger"
             @click="handleCancel"
           >
-            {{ t('mes.workOrder.cancel') }}
+            {{ t('mes.workOrder.cancelAction') }}
           </el-button>
           <el-button
             v-if="canSplit"
@@ -164,7 +164,7 @@
     </el-dialog>
 
     <!-- 取消原因对话框 -->
-    <el-dialog v-model="cancelDialogVisible" :title="t('mes.workOrder.cancel')" width="400px">
+    <el-dialog v-model="cancelDialogVisible" :title="t('mes.workOrder.cancelAction')" width="400px">
       <el-form :model="cancelForm" label-width="100px">
         <el-form-item :label="t('mes.workOrder.cancelReason')">
           <el-input
@@ -230,8 +230,8 @@ const canCancel = computed(() => ['DRAFT', 'RELEASED', 'IN_PROGRESS', 'PAUSED'].
 const canSplit = computed(() => workOrder.value?.status === 'COMPLETED')
 const canUpdate = computed(() => ['DRAFT'].includes(workOrder.value?.status || ''))
 
-const getStatusType = (status: string) => {
-  const typeMap: Record<string, string> = {
+const getStatusType = (status: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' => {
+  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     DRAFT: 'info',
     RELEASED: 'warning',
     IN_PROGRESS: 'primary',

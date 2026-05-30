@@ -84,8 +84,8 @@ const formData = reactive<QcInspectionPlan>({
 
 const { t } = useI18n()
 
-const getStatusType = (status: string) => {
-  const typeMap: Record<string, string> = {
+const getStatusType = (status: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' => {
+  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     DRAFT: 'info',
     ACTIVE: 'success',
     SUSPENDED: 'warning',

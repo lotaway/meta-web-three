@@ -90,7 +90,8 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { ElMessage, FormInstance, FormRules } from 'element-plus'
+import { ElMessage } from 'element-plus'
+import type { FormInstance, FormRules } from 'element-plus'
 import type { NonConformanceDisposition, DispositionStep } from '@/apis/qc'
 import {
   getNonConformanceDispositionByIdAPI,

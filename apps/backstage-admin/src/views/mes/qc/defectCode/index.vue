@@ -140,12 +140,12 @@ const getSeverityText = (severity: string) => {
   return severityMap[severity] || severity
 }
 
-const getSeverityType = (severity: string) => {
-  const severityTypeMap: Record<string, string> = {
+const getSeverityType = (severity: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' => {
+  const severityTypeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     'CRITICAL': 'danger',
     'MAJOR': 'warning',
     'MINOR': 'info',
-    'OBSERVATION': ''
+    'OBSERVATION': 'info'
   }
   return severityTypeMap[severity] || 'info'
 }

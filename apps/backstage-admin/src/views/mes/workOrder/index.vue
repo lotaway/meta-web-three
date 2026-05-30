@@ -121,8 +121,8 @@ const statusOptions = [
   { value: 'CANCELLED', label: 'mes.workOrder.statusCANCELLED' },
 ]
 
-const getStatusType = (status: string) => {
-  const typeMap: Record<string, string> = {
+const getStatusType = (status: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' => {
+  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     DRAFT: 'info',
     RELEASED: 'warning',
     IN_PROGRESS: 'primary',

@@ -53,4 +53,18 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vue 核心
+          'vue-vendor': ['vue', 'vue-router', 'pinia'],
+          // Element Plus
+          'element-plus': ['element-plus'],
+          // 其他大型第三方库
+          'echarts': ['echarts'],
+        },
+      },
+    },
+  },
 })

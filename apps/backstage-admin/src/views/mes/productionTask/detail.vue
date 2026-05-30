@@ -136,8 +136,8 @@ const loading = ref(false)
 const completeDialogVisible = ref(false)
 const completeForm = ref({ qualified: 0, defective: 0 })
 
-const getStatusType = (status: string) => {
-  const typeMap: Record<string, string> = {
+const getStatusType = (status: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' => {
+  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     PENDING: 'info',
     IN_PROGRESS: 'warning',
     QUALITY_CHECK: 'warning',

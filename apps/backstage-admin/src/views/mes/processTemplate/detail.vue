@@ -64,8 +64,8 @@ const route = useRoute()
 const loading = ref(false)
 const detail = ref<ProcessFlowTemplate | null>(null)
 
-const getStatusType = (status?: string) => {
-  const statusMap: Record<string, string> = {
+const getStatusType = (status?: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' => {
+  const statusMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     DRAFT: 'info',
     PUBLISHED: 'success',
     ARCHIVED: 'warning',
