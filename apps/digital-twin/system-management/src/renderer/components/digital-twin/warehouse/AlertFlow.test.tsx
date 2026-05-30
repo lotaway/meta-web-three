@@ -505,7 +505,7 @@ describe('Alert Flow Tests - End-to-End', () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
       const mockOnApprove = vi.fn()
 
-      const suggestions: any[] = [
+      const items: any[] = [
         {
           id: 'restock-001',
           sku: 'SKU-1234',
@@ -589,7 +589,7 @@ describe('Alert Flow Tests - End-to-End', () => {
 
   describe('Alert Priority Calculation', () => {
     it('should calculate urgency based on stock level', () => {
-      const suggestions: any[] = [
+      const items: any[] = [
         {
           id: '1',
           sku: 'SKU-1',
