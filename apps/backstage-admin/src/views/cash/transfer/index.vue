@@ -87,6 +87,23 @@ const handleCancel = async (row: CashTransfer) => {
   }
 }
 
+const handleDelete = async (row: CashTransfer) => {
+  try {
+    await ElMessageBox.confirm('Are you sure to delete this record?', 'Confirm', {
+      confirmButtonText: 'Confirm',
+      cancelButtonText: 'Cancel',
+      type: 'warning'
+    })
+    await deleteCashTransferAPI(row.id)
+    ElMessage.success('Deleted successfully')
+    getList()
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('Failed to delete transfer:', error)
+    }
+  }
+}
+
 const formatMoney = (value: number | undefined | null) => {
   if (value === undefined || value === null) return '0.00'
   return new Intl.NumberFormat('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)
@@ -104,8 +121,8 @@ const getStatusLabel = (status: string) => {
   return statusMap[status] || status
 }
 
-const getStatusType = (status: string) => {
-  const typeMap: Record<string, string> = {
+const getStatusType = (status: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' => {
+  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     DRAFT: 'info',
     PENDING_APPROVAL: 'warning',
     APPROVED: 'success',

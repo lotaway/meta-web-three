@@ -10,6 +10,7 @@ import { t } from '@/locales'
 const router = useRouter()
 
 const loading = ref(true)
+const activeTab = ref('transfers')
 const summary = ref<CashSummary>({
   totalBalance: 0,
   activeAccountCount: 0,
@@ -84,8 +85,8 @@ const getStatusLabel = (status: string) => {
   return statusMap[status] || status
 }
 
-const getStatusType = (status: string) => {
-  const typeMap: Record<string, string> = {
+const getStatusType = (status: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' => {
+  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     DRAFT: 'info',
     PENDING_APPROVAL: 'warning',
     APPROVED: 'success',

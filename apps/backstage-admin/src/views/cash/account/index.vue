@@ -106,8 +106,8 @@ const getStatusLabel = (status: string) => {
   return statusMap[status] || status
 }
 
-const getStatusType = (status: string) => {
-  const typeMap: Record<string, string> = {
+const getStatusType = (status: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' => {
+  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
     ACTIVE: 'success',
     FROZEN: 'warning',
     CLOSED: 'info'
