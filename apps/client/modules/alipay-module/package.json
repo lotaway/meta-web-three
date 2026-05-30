@@ -1,5 +1,5 @@
 {
-    "name": "@app/alipay",
+    "name": "alipay-module",
     "version": "1.0.0",
     "description": "Alipay Expo Module",
     "main": "build/index.js",

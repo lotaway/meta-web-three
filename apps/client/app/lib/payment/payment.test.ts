@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { pay, type PayResult } from '../app/lib/payment'
 
-vi.mock('@app/wechat-pay', () => {
+vi.mock('wechat-pay-module', () => {
   const mock = {
     init: vi.fn(),
     pay: vi.fn(),
@@ -13,7 +13,7 @@ vi.mock('@app/wechat-pay', () => {
   }
 })
 
-vi.mock('@app/alipay', () => {
+vi.mock('alipay-module', () => {
   const mock = {
     init: vi.fn(),
     pay: vi.fn().mockResolvedValue('transaction_id'),

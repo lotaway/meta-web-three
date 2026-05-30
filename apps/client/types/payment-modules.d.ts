@@ -1,4 +1,4 @@
-declare module '@app/wechat-pay' {
+declare module 'wechat-pay-module' {
   export interface WechatPayParams {
     appId?: string
     partnerId: string
@@ -18,7 +18,7 @@ declare module '@app/wechat-pay' {
   export default WechatPayModule
 }
 
-declare module '@app/alipay' {
+declare module 'alipay-module' {
   export const AlipayModule: {
     init(appId: string): void
     pay(params: { orderString: string }): Promise<string>

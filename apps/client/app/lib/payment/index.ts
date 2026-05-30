@@ -1,5 +1,5 @@
-import WechatPayModule, { type WechatPayParams } from '@app/wechat-pay'
-import AlipayModule from '@app/alipay'
+import WechatPayModule, { type WechatPayParams } from 'wechat-pay-module'
+import AlipayModule from 'alipay-module'
 import { confirmPayment } from '@stripe/stripe-react-native'
 import { ALIPAY_APP_ID, WECHAT_APP_ID } from '@/api/generated'
 

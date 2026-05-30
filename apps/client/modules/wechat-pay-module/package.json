@@ -1,5 +1,5 @@
 {
-  "name": "@app/wechat-pay",
+  "name": "wechat-pay-module",
   "version": "1.0.0",
   "description": "Wechat Pay Expo Module",
   "main": "build/index.js",
