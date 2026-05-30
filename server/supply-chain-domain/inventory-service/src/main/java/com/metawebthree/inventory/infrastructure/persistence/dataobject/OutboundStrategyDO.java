@@ -4,23 +4,25 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("inventory")
-public class InventoryDO {
+@TableName("outbound_strategy")
+public class OutboundStrategyDO {
     @TableId(type = IdType.AUTO)
     private Long id;
-    private String skuCode;
+    private String strategyCode;
+    private String strategyName;
+    private String strategyType;
     private Long warehouseId;
-    private Integer totalQuantity;
-    private Integer availableQuantity;
-    private Integer reservedQuantity;
-    private Integer defectiveQuantity;
-    private BigDecimal unitCost;
-    private Integer safetyStock;
-    private Integer leadTimeDays;
+    private String warehouseCode;
+    private String skuCode;
+    private String skuCodePattern;
+    private Integer priority;
+    private String specificBatchNo;
+    private Boolean isActive;
+    private String remark;
+    private String creator;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Integer version;

@@ -14,9 +14,25 @@ public class Inventory {
     private Integer reservedQuantity;
     private Integer defectiveQuantity;
     private BigDecimal unitCost;
+    private Integer safetyStock;
+    private Integer leadTimeDays;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Integer version;
+
+    public boolean needsReplenishment() {
+        return availableQuantity < safetyStock;
+    }
+
+    public Integer calculateReorderQuantity(Integer averageDailySales) {
+        if (leadTimeDays == null || leadTimeDays <= 0 || averageDailySales == null || averageDailySales <= 0) {
+            return 0;
+        }
+        Integer leadTimeDemand = averageDailySales * leadTimeDays;
+        Integer targetStock = safetyStock + leadTimeDemand;
+        Integer reorderQty = targetStock - availableQuantity;
+        return Math.max(0, reorderQty);
+    }
 
     public boolean canReserve(Integer quantity) {
         return availableQuantity >= quantity;

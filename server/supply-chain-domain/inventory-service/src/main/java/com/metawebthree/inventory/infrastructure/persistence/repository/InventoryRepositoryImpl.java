@@ -7,7 +7,9 @@ import com.metawebthree.inventory.infrastructure.persistence.dataobject.Inventor
 import com.metawebthree.inventory.infrastructure.persistence.mapper.InventoryMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class InventoryRepositoryImpl implements InventoryRepository {
@@ -33,6 +35,22 @@ public class InventoryRepositoryImpl implements InventoryRepository {
                .eq(InventoryDO::getWarehouseId, warehouseId);
         InventoryDO inventoryDO = inventoryMapper.selectOne(wrapper);
         return Optional.ofNullable(inventoryConverter.toEntity(inventoryDO));
+    }
+
+    @Override
+    public List<Inventory> findByWarehouse(Long warehouseId) {
+        LambdaQueryWrapper<InventoryDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(InventoryDO::getWarehouseId, warehouseId);
+        return inventoryMapper.selectList(wrapper).stream()
+                .map(inventoryConverter::toEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Inventory> findAll() {
+        return inventoryMapper.selectList(null).stream()
+                .map(inventoryConverter::toEntity)
+                .collect(Collectors.toList());
     }
 
     @Override

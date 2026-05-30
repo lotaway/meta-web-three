@@ -8,19 +8,24 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("inventory")
-public class InventoryDO {
+@TableName("inventory_batch")
+public class InventoryBatchDO {
     @TableId(type = IdType.AUTO)
     private Long id;
     private String skuCode;
     private Long warehouseId;
-    private Integer totalQuantity;
+    private String batchNo;
+    private Integer quantity;
     private Integer availableQuantity;
     private Integer reservedQuantity;
-    private Integer defectiveQuantity;
+    private Integer pickedQuantity;
+    private LocalDateTime inboundDate;
+    private LocalDateTime productionDate;
+    private LocalDateTime expiryDate;
     private BigDecimal unitCost;
-    private Integer safetyStock;
-    private Integer leadTimeDays;
+    private String locationCode;
+    private String status;
+    private String remark;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Integer version;
