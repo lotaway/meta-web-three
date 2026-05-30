@@ -50,7 +50,7 @@ export default function AddressEditScreen() {
     if (!userId) return
     try {
       const response = await addressApi.list({ xUserId: userId })
-      const address = response.data?.find(a => a.id === addressId)
+      const address = response.data?.find((a: MemberAddress) => a.id === addressId)
       if (address) {
         setName(address.name || '')
         setPhone(address.phoneNumber || '')
@@ -59,7 +59,7 @@ export default function AddressEditScreen() {
         setRegion(address.region || '')
         setDetailAddress(address.detailAddress || '')
         setPostCode(address.postCode || '')
-        setIsDefault(address.defaultStatus === 1)
+        setIsDefault(address.defaultStatus === true)
       }
     } catch (error) {
       Alert.alert(t('common.error'), t('address.load_failed'))
@@ -106,7 +106,7 @@ export default function AddressEditScreen() {
         region,
         detailAddress,
         postCode,
-        defaultStatus: isDefault ? 1 : 0,
+        defaultStatus: isDefault,
       }
 
       if (addressId) {

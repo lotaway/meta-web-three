@@ -41,6 +41,8 @@ export const advertiseApi = new AdvertiseManagementApi(apiConfig)
 export const esProductApi = new ESProductManagementApi(apiConfig)
 export const couponApi = new CouponControllerApi(apiConfig)
 export const productCollectionApi = new UserActionControllerApi(apiConfig)
+export const memberAttentionApi = productCollectionApi
+export const readHistoryApi = productCollectionApi
 export const commentApi = new UserActionControllerApi(apiConfig)
 export const notificationApi = new NotificationControllerApi(apiConfig)
 export const ssoApi = new SsoControllerApi(apiConfig)
@@ -48,3 +50,4 @@ export const commissionApi = new CommissionControllerApi(apiConfig)
 export const exchangeApi = new ExchangeApi(apiConfig)
 
 export const stripeKey = STRIPE_PUBLISHABLE_KEY
+export const RP_ID = process.env.EXPO_PUBLIC_PASSKEY_RP_ID ?? 'localhost'

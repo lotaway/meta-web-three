@@ -139,7 +139,7 @@ function useProductDetailLogic(t: any, id: any) {
     setSkuSelectorVisible(false);
     if (closeOnly) return;
     if (skuActionType === 'cart') {
-      addItem({ productId: (sku || {}).id, quantity, skuId: (sku || {}).skuId });
+      addItem({ productId: Number(id), quantity, skuId: Number(sku?.skuId ?? id) });
       Alert.alert(t('common.success'), t('home.product.added_to_cart'));
     } else if (skuActionType === 'buy' && flashInfo) {
       router.push({
@@ -172,8 +172,9 @@ export default function ProductDetailScreen() {
       {({ productDetails, isPageLoading }) => {
         if (isPageLoading || !productDetails) return <LoadingView t={t} />;
         const productImages = getProductImages(productDetails);
-        const mockSpecs: SpecGroup[] = productDetails?.specs || getDefaultSpecs();
-        const mockSKUs: SKUInfo[] = productDetails?.skus || [];
+        const detailWithSku = productDetails as any;
+        const mockSpecs: SpecGroup[] = detailWithSku?.specs || getDefaultSpecs();
+        const mockSKUs: SKUInfo[] = detailWithSku?.skus || [];
         return (
           <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen options={{ title: t('home.product.detail_title'), headerTransparent: true, headerTitle: '' }} />

@@ -150,6 +150,7 @@ function BrandSection({ brandList, colors }: { brandList: BrandItem[]; colors: t
       <SectionHeader
         title={t('home.sections.brand_direct')}
         subtitle={t('home.sections.brand_direct_subtitle')}
+        colors={colors}
         onMorePress={() => router.push('/brand')}
       />
       <View style={styles.brandGrid}>
@@ -175,7 +176,7 @@ function FlashSection({ promotion, colors, onProductPress }: { promotion: FlashP
   const { t } = useTranslation();
   return (
     <>
-      <SectionHeader title={t('home.sections.flash_sale')} subtitle={t('home.sections.flash_sale_subtitle')} />
+      <SectionHeader title={t('home.sections.flash_sale')} subtitle={t('home.sections.flash_sale_subtitle')} colors={colors} />
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.flashScroll}>
         {promotion.productList.map((item) => (
           <TouchableOpacity key={item.id} style={styles.flashItem} onPress={() => onProductPress(item.id)}>
@@ -194,7 +195,7 @@ function FlashSection({ promotion, colors, onProductPress }: { promotion: FlashP
 function ProductGridSection({ title, subtitle, productList, colors, onProductPress }: { title: string; subtitle: string; productList: ProductItem[]; colors: typeof Colors.light; onProductPress: (id: number) => void }) {
   return (
     <>
-      <SectionHeader title={title} subtitle={subtitle} />
+      <SectionHeader title={title} subtitle={subtitle} colors={colors} />
       <View style={styles.productGrid}>
         {productList.map((item) => (
           <TouchableOpacity key={item.id} style={styles.productItem} onPress={() => onProductPress(item.id)}>
@@ -215,7 +216,7 @@ function ProductGridSection({ title, subtitle, productList, colors, onProductPre
   );
 }
 
-function SectionHeader({ title, subtitle, onMorePress }: { title: string; subtitle: string; onMorePress?: () => void }) {
+function SectionHeader({ title, subtitle, colors, onMorePress }: { title: string; subtitle: string; colors: typeof Colors.light; onMorePress?: () => void }) {
   return (
     <View style={styles.sectionHeader}>
       <View style={styles.sectionTitleBox}>

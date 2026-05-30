@@ -19,7 +19,7 @@ export default function ProfileMenuCell({ icon, title, color, onPress, showBorde
   return (
     <TouchableOpacity style={[styles.menuCell, showBorder && styles.bottomBorder]} onPress={onPress}>
       <View style={styles.menuLeft}>
-        <IconSymbol name={icon} size={20} color={color} />
+        <IconSymbol name={icon as any} size={20} color={color} />
         <Text style={[styles.menuTitle, { color: colors.fontColorDark }]}>{title}</Text>
         {badge != null && badge > 0 && (
           <View style={styles.badge}>

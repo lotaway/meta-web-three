@@ -1,20 +1,28 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { pay, type PayResult } from '../app/lib/payment'
 
-vi.mock('@app/wechat-pay', () => ({
-  NativeWechatPay: {
+vi.mock('@app/wechat-pay', () => {
+  const mock = {
     init: vi.fn(),
     pay: vi.fn(),
     isWechatInstalled: vi.fn().mockResolvedValue(true),
-  },
-}))
+  }
+  return {
+    default: mock,
+    WechatPayModule: mock,
+  }
+})
 
-vi.mock('@app/alipay', () => ({
-  NativeAlipay: {
+vi.mock('@app/alipay', () => {
+  const mock = {
     init: vi.fn(),
     pay: vi.fn().mockResolvedValue('transaction_id'),
-  },
-}))
+  }
+  return {
+    default: mock,
+    AlipayModule: mock,
+  }
+})
 
 vi.mock('@stripe/stripe-react-native', () => ({
   confirmPayment: vi.fn(),

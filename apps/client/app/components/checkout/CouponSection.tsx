@@ -174,7 +174,7 @@ const styles = {
   modalContent: {
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    maxHeight: '70%',
+    maxHeight: 560,
   },
   modalHeader: {
     flexDirection: 'row' as const,

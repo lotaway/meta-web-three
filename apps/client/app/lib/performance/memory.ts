@@ -51,7 +51,7 @@ export function useMemoryWarning(threshold: number = 0.9) {
 }
 
 export function createMemoryMonitor(onWarning?: (usage: number) => void) {
-  let intervalId: NodeJS.Timeout | null = null
+  let intervalId: ReturnType<typeof setInterval> | null = null
 
   const start = (threshold: number = 0.9, interval: number = 5000) => {
     if (typeof window === 'undefined') return

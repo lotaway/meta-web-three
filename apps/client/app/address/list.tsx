@@ -84,7 +84,7 @@ export default function AddressListScreen() {
     try {
       await addressApi.update({
         id: address.id!,
-        memberAddress: { ...address, defaultStatus: 1 },
+        memberAddress: { ...address, defaultStatus: true },
       })
       loadAddresses()
     } catch (error) {
@@ -93,7 +93,7 @@ export default function AddressListScreen() {
   }
 
   const renderAddressItem = ({ item }: { item: MemberAddress }) => {
-    const isDefault = item.defaultStatus === 1
+    const isDefault = item.defaultStatus === true
     return (
       <TouchableOpacity
         style={[styles.addressCard, { backgroundColor: colors.card, borderColor: colors.border }]}

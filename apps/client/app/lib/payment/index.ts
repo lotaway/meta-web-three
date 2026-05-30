@@ -1,5 +1,5 @@
-import { NativeWechatPay, WechatPayParams } from '@app/wechat-pay'
-import { NativeAlipay } from '@app/alipay'
+import WechatPayModule, { type WechatPayParams } from '@app/wechat-pay'
+import AlipayModule from '@app/alipay'
 import { confirmPayment } from '@stripe/stripe-react-native'
 import { ALIPAY_APP_ID, WECHAT_APP_ID } from '@/api/generated'
 
@@ -69,8 +69,8 @@ async function wechatPay(
     if (!appId) {
       return { status: 'fail', type: 'wechat', code: 'APP_ID_MISSING', message: '微信 App ID 未配置' }
     }
-    NativeWechatPay.init(appId)
-    await NativeWechatPay.pay(runtimeParams)
+    WechatPayModule.init(appId)
+    await WechatPayModule.pay(runtimeParams)
     return { status: 'success', type: 'wechat', transactionId: runtimeParams.prepayId }
   } catch (error: any) {
     if (error?.code === 'USER_CANCEL') {
@@ -90,9 +90,9 @@ async function alipayPay(
 ): Promise<PaySuccessResult | PayCancelResult | PayFailResult> {
   try {
     if (ALIPAY_APP_ID) {
-      NativeAlipay.init(ALIPAY_APP_ID)
+      AlipayModule.init(ALIPAY_APP_ID)
     }
-    const result = await NativeAlipay.pay({ orderString })
+    const result = await AlipayModule.pay({ orderString })
     return { status: 'success', type: 'alipay', transactionId: result }
   } catch (error: any) {
     if (error?.code === '6001') {

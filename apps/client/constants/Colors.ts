@@ -5,6 +5,7 @@ export const Colors = {
   light: {
     text: '#303133',
     background: '#f8f8f8',
+    card: '#fff',
     tint: tintColorLight,
     icon: '#687076',
     tabIconDefault: '#C0C4CC',
@@ -19,10 +20,12 @@ export const Colors = {
     fontColorBase: '#606266',
     fontColorLight: '#909399',
     fontColorDisabled: '#C0C4CC',
+    textSecondary: '#909399',
   },
   dark: {
     text: '#ECEDEE',
     background: '#151718',
+    card: '#1E2022',
     tint: tintColorDark,
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
@@ -37,5 +40,6 @@ export const Colors = {
     fontColorBase: '#C8C9CC',
     fontColorLight: '#9BA1A6',
     fontColorDisabled: '#6B6C6E',
+    textSecondary: '#9BA1A6',
   },
 }

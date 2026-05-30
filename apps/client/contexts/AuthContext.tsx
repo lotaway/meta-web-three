@@ -137,16 +137,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function loginWithSso(username: string, password: string): Promise<{ token: string; tokenHead: string }> {
     try {
       const response = await ssoApi.login({ username, password });
-      const { token: newToken, tokenHead } = response;
+      const loginData = response.data;
+      if (!loginData?.token || !loginData?.tokenHead) {
+        throw new Error('Invalid SSO login response');
+      }
+      const { token: newToken, tokenHead } = loginData;
       
       const fullToken = tokenHead + newToken;
       
       const infoResponse = await ssoApi.info({ xUserId: 0 });
       let uid = 0;
-      let userData: UserDTO | undefined;
       
       if (infoResponse.data) {
-        userData = infoResponse.data;
+        const userData: UserDTO = infoResponse.data;
         uid = userData.id ?? 0;
         
         await Promise.all([
@@ -161,7 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsAuthenticated(true);
       }
       
-      return response;
+      return loginData as { token: string; tokenHead: string };
     } catch (error) {
       console.error('Failed to login with SSO:', error);
       throw error;
@@ -233,16 +236,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function loginWithPhone(phone: string, authCode: string) {
     try {
       const response = await ssoApi.loginByPhone({ telephone: phone, authCode });
-      const { token: newToken, tokenHead } = response;
+      const loginData = response.data;
+      if (!loginData?.token || !loginData?.tokenHead) {
+        throw new Error('Invalid phone login response');
+      }
+      const { token: newToken, tokenHead } = loginData;
       
       const fullToken = tokenHead + newToken;
       
       const infoResponse = await ssoApi.info({ xUserId: 0 });
       let uid = 0;
-      let userData: UserDTO | undefined;
       
       if (infoResponse.data) {
-        userData = infoResponse.data;
+        const userData: UserDTO = infoResponse.data;
         uid = userData.id ?? 0;
         
         await Promise.all([

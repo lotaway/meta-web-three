@@ -272,10 +272,10 @@ export default function LoginScreen() {
 
             <View style={styles.socialRow}>
               <TouchableOpacity style={[styles.socialBtn, { borderColor: colors.border }]}>
-                <IconSymbol name="logo.wechat" size={24} color="#07C160" />
+                <IconSymbol name={'logo.wechat' as any} size={24} color="#07C160" />
               </TouchableOpacity>
               <TouchableOpacity style={[styles.socialBtn, { borderColor: colors.border }]}>
-                <IconSymbol name="logo.apple" size={24} color="#000" />
+                <IconSymbol name={'logo.apple' as any} size={24} color="#000" />
               </TouchableOpacity>
             </View>
 

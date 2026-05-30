@@ -153,7 +153,7 @@ export default function CategoryListScreen() {
           {item.name}
         </Text>
         {item.subTitle && (
-          <Text numberOfLines={1} style={[styles.subTitle, { color: colors.textSecondary }]}>
+          <Text numberOfLines={1} style={[styles.productSubtitle, { color: colors.textSecondary }]}>
             {item.subTitle}
           </Text>
         )}
@@ -216,9 +216,13 @@ export default function CategoryListScreen() {
 
   // 渲染分类筛选面板
   const renderCateMask = () => (
-    <View style={[styles.cateMask, { backgroundColor: 'rgba(0,0,0,0.4)' }]}
+    <View
       pointerEvents={cateMaskVisible ? 'auto' : 'none'}
-      style={cateMaskVisible ? styles.cateMaskVisible : styles.cateMaskHidden}
+      style={[
+        styles.cateMask,
+        { backgroundColor: 'rgba(0,0,0,0.4)' },
+        cateMaskVisible ? styles.cateMaskVisible : styles.cateMaskHidden,
+      ]}
     >
       <TouchableOpacity
         style={styles.cateMaskOverlay}

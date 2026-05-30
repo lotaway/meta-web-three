@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useRef } from 'react'
 import {
   View,
   Text,
@@ -329,6 +329,10 @@ const styles = StyleSheet.create({
   goShoppingBtnText: { color: '#fff', fontSize: 16, fontWeight: '600' },
   listContent: {
     padding: 12,
+  },
+  footer: {
+    padding: 16,
+    alignItems: 'center',
   },
   orderCard: {
     borderRadius: 12,

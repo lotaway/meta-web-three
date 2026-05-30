@@ -1,6 +1,5 @@
 import React from 'react'
-import { View, Text, StyleSheet } from 'react-native'
-import { LinearGradient } from 'expo-linear-gradient'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { IconSymbol } from '@/components/ui/IconSymbol'
 import { useTranslation } from 'react-i18next'
 import { Colors } from '@/constants/Colors'
@@ -17,12 +16,7 @@ export default function ProfileHeader({ user, colors }: ProfileHeaderProps) {
   const themeColors = Colors[colorScheme]
   return (
     <View style={styles.userSection}>
-      <LinearGradient
-        colors={['#2fbfc7', '#306996', '#31337a', '#30176a']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.bgGradient}
-      />
+      <View style={styles.bgGradient} />
       <View style={styles.userInfoBox}>
         <View style={styles.portraitBox}>
           <IconSymbol name="person.circle.fill" size={60} color="#fff" />
@@ -60,6 +54,7 @@ const styles = StyleSheet.create({
     top: 0,
     right: 0,
     bottom: 0,
+    backgroundColor: '#306996',
   },
   userInfoBox: {
     flexDirection: 'row',

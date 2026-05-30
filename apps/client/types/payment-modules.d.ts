@@ -9,18 +9,22 @@ declare module '@app/wechat-pay' {
     sign: string
   }
 
-  export const NativeWechatPay: {
+  export const WechatPayModule: {
     init(appId: string): void
     isWechatInstalled(): Promise<boolean>
     pay(params: WechatPayParams): Promise<void>
   }
+
+  export default WechatPayModule
 }
 
 declare module '@app/alipay' {
-  export const NativeAlipay: {
+  export const AlipayModule: {
     init(appId: string): void
     pay(params: { orderString: string }): Promise<string>
   }
+
+  export default AlipayModule
 }
 
 declare module '@stripe/stripe-react-native' {

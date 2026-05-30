@@ -176,7 +176,7 @@ export default function CheckoutScreen() {
     try {
       const response = await addressApi.list({ xUserId: DEFAULT_USER_ID })
       if (response.data && Array.isArray(response.data) && response.data.length > 0) {
-        const defaultAddr = response.data.find((addr) => addr.defaultStatus === 1)
+        const defaultAddr = response.data.find((addr: MemberReceiveAddressDTO) => addr.defaultStatus === true)
         setSelectedAddress(defaultAddr ?? response.data[0])
       }
     } catch (error) {
@@ -232,7 +232,7 @@ export default function CheckoutScreen() {
       amount: Number(detail?.order?.orderAmount ?? 0),
       couponDiscount: 0,
       payAmount: Number(detail?.order?.orderAmount ?? 0),
-      items: detail?.items?.map((item) => ({
+      items: detail?.items?.map((item: any) => ({
         name: item.productName ?? '',
         price: Number(item.unitPrice ?? 0),
         quantity: item.quantity ?? 0,

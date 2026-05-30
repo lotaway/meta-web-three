@@ -59,14 +59,14 @@ export default function CartScreen() {
     if (checkedItems.size === cartItems.length) {
       setCheckedItems(new Set());
     } else {
-      setCheckedItems(new Set(cartItems.map((item) => item.id)));
+      setCheckedItems(new Set(cartItems.map((item) => item.id).filter((id): id is number => id != null)));
     }
   };
 
   const handleUpdateQuantity = async (id: number, delta: number) => {
     const item = cartItems.find((i) => i.id === id);
     if (!item) return;
-    const newQty = item.quantity + delta;
+    const newQty = (item.quantity ?? 0) + delta;
     if (newQty < 1) {
       await handleRemove([id]);
     } else {
@@ -84,12 +84,12 @@ export default function CartScreen() {
 
   const shoppingCartItems = useMemo(() => {
     return cartItems.map((item) => ({
-      id: item.id,
+      id: item.id ?? 0,
       productName: item.productName || '商品',
-      productPic: item.imageUrl || '',
+      productPic: item.imageUrl || item.productPic || '',
       price: Number(item.price || 0),
-      quantity: item.quantity,
-      checked: checkedItems.has(item.id),
+      quantity: item.quantity ?? 0,
+      checked: item.id != null && checkedItems.has(item.id),
       spDataStr: item.skuSpec || '',
     }));
   }, [cartItems, checkedItems]);

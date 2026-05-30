@@ -43,7 +43,7 @@ export function CommentPreview({ productId, productName, colors }: CommentPrevie
           <Text style={[styles.commentCount, { color: themeColors.fontColorLight }]}>暂无评价</Text>
         </View>
         <View style={styles.commentEmpty}>
-          <IconSymbol name="chatbubble" size={40} color={themeColors.fontColorDisabled} />
+          <IconSymbol name={'chatbubble' as any} size={40} color={themeColors.fontColorDisabled} />
           <Text style={[styles.commentEmptyText, { color: themeColors.fontColorDisabled }]}>
             暂无用户评价
           </Text>
