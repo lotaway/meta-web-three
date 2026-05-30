@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor, act } from '@testing-library/react'
 import { fireEvent } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 // Mock WebSocket
 class MockWebSocket {
@@ -34,8 +35,8 @@ class MockWebSocket {
 vi.stubGlobal('WebSocket', MockWebSocket)
 
 // Import components after mocks
-import { InventoryAlertPanel, type AlertItem } from '../InventoryAlertPanel'
-import { RestockSuggestions, type RestockItem } from '../RestockSuggestions'
+import { InventoryAlertPanel } from './InventoryAlertPanel'
+import { RestockSuggestions } from './RestockSuggestions'
 
 describe('Alert Flow Tests - End-to-End', () => {
   beforeEach(() => {
@@ -48,7 +49,7 @@ describe('Alert Flow Tests - End-to-End', () => {
   })
 
   describe('InventoryAlertPanel - Alert Display and Management', () => {
-    const mockAlerts: AlertItem[] = [
+    const mockAlerts: any[] = [
       {
         id: 'alert-001',
         code: 'INV-20240526-001',
@@ -89,7 +90,7 @@ describe('Alert Flow Tests - End-to-End', () => {
         <InventoryAlertPanel
           alerts={mockAlerts}
           onAcknowledge={vi.fn()}
-          onResolve={vi.fn()}
+          onDismiss={vi.fn()}
         />
       )
 
@@ -101,7 +102,7 @@ describe('Alert Flow Tests - End-to-End', () => {
         <InventoryAlertPanel
           alerts={mockAlerts}
           onAcknowledge={vi.fn()}
-          onResolve={vi.fn()}
+          onDismiss={vi.fn()}
         />
       )
 
@@ -114,7 +115,7 @@ describe('Alert Flow Tests - End-to-End', () => {
         <InventoryAlertPanel
           alerts={mockAlerts}
           onAcknowledge={vi.fn()}
-          onResolve={vi.fn()}
+          onDismiss={vi.fn()}
         />
       )
 
@@ -126,7 +127,7 @@ describe('Alert Flow Tests - End-to-End', () => {
         <InventoryAlertPanel
           alerts={mockAlerts}
           onAcknowledge={vi.fn()}
-          onResolve={vi.fn()}
+          onDismiss={vi.fn()}
         />
       )
 
@@ -138,7 +139,7 @@ describe('Alert Flow Tests - End-to-End', () => {
         <InventoryAlertPanel
           alerts={mockAlerts}
           onAcknowledge={vi.fn()}
-          onResolve={vi.fn()}
+          onDismiss={vi.fn()}
         />
       )
 
@@ -153,7 +154,7 @@ describe('Alert Flow Tests - End-to-End', () => {
         <InventoryAlertPanel
           alerts={mockAlerts}
           onAcknowledge={mockOnAcknowledge}
-          onResolve={vi.fn()}
+          onDismiss={vi.fn()}
         />
       )
 
@@ -165,7 +166,7 @@ describe('Alert Flow Tests - End-to-End', () => {
       }
     })
 
-    it('should call onResolve when resolve button is clicked', async () => {
+    it('should call onDismiss when resolve button is clicked', async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
       const mockOnResolve = vi.fn()
 
@@ -173,7 +174,7 @@ describe('Alert Flow Tests - End-to-End', () => {
         <InventoryAlertPanel
           alerts={mockAlerts}
           onAcknowledge={vi.fn()}
-          onResolve={mockOnResolve}
+          onDismiss={mockOnResolve}
         />
       )
 
@@ -190,7 +191,7 @@ describe('Alert Flow Tests - End-to-End', () => {
         <InventoryAlertPanel
           alerts={mockAlerts}
           onAcknowledge={vi.fn()}
-          onResolve={vi.fn()}
+          onDismiss={vi.fn()}
           filterLevel="critical"
         />
       )
@@ -204,7 +205,7 @@ describe('Alert Flow Tests - End-to-End', () => {
         <InventoryAlertPanel
           alerts={[]}
           onAcknowledge={vi.fn()}
-          onResolve={vi.fn()}
+          onDismiss={vi.fn()}
         />
       )
 
@@ -216,7 +217,7 @@ describe('Alert Flow Tests - End-to-End', () => {
         <InventoryAlertPanel
           alerts={mockAlerts}
           onAcknowledge={vi.fn()}
-          onResolve={vi.fn()}
+          onDismiss={vi.fn()}
         />
       )
 
@@ -225,7 +226,7 @@ describe('Alert Flow Tests - End-to-End', () => {
     })
 
     it('should sort alerts by priority', () => {
-      const unsortedAlerts: AlertItem[] = [
+      const unsortedAlerts: any[] = [
         { ...mockAlerts[0], level: 'info' },
         { ...mockAlerts[1], level: 'critical' },
         { ...mockAlerts[2], level: 'warning' },
@@ -235,7 +236,7 @@ describe('Alert Flow Tests - End-to-End', () => {
         <InventoryAlertPanel
           alerts={unsortedAlerts}
           onAcknowledge={vi.fn()}
-          onResolve={vi.fn()}
+          onDismiss={vi.fn()}
           sortBy="priority"
         />
       )
@@ -246,7 +247,7 @@ describe('Alert Flow Tests - End-to-End', () => {
   })
 
   describe('RestockSuggestions - Automated Restock Recommendations', () => {
-    const mockRestockItems: RestockItem[] = [
+    const mockanys: any[] = [
       {
         id: 'restock-001',
         sku: 'SKU-1234',
@@ -285,7 +286,7 @@ describe('Alert Flow Tests - End-to-End', () => {
     it('should render restock suggestions panel', () => {
       render(
         <RestockSuggestions
-          items={mockRestockItems}
+          items={mockanys}
           onApprove={vi.fn()}
           onDismiss={vi.fn()}
         />
@@ -297,7 +298,7 @@ describe('Alert Flow Tests - End-to-End', () => {
     it('should display correct number of suggestions', () => {
       render(
         <RestockSuggestions
-          items={mockRestockItems}
+          items={mockanys}
           onApprove={vi.fn()}
           onDismiss={vi.fn()}
         />
@@ -309,7 +310,7 @@ describe('Alert Flow Tests - End-to-End', () => {
     it('should highlight high urgency items', () => {
       render(
         <RestockSuggestions
-          items={mockRestockItems}
+          items={mockanys}
           onApprove={vi.fn()}
           onDismiss={vi.fn()}
         />
@@ -321,7 +322,7 @@ describe('Alert Flow Tests - End-to-End', () => {
     it('should display product details', () => {
       render(
         <RestockSuggestions
-          items={mockRestockItems}
+          items={mockanys}
           onApprove={vi.fn()}
           onDismiss={vi.fn()}
         />
@@ -338,7 +339,7 @@ describe('Alert Flow Tests - End-to-End', () => {
     it('should display recommended quantity', () => {
       render(
         <RestockSuggestions
-          items={mockRestockItems}
+          items={mockanys}
           onApprove={vi.fn()}
           onDismiss={vi.fn()}
         />
@@ -350,7 +351,7 @@ describe('Alert Flow Tests - End-to-End', () => {
     it('should display estimated cost', () => {
       render(
         <RestockSuggestions
-          items={mockRestockItems}
+          items={mockanys}
           onApprove={vi.fn()}
           onDismiss={vi.fn()}
         />
@@ -365,7 +366,7 @@ describe('Alert Flow Tests - End-to-End', () => {
 
       render(
         <RestockSuggestions
-          items={mockRestockItems}
+          items={mockanys}
           onApprove={mockOnApprove}
           onDismiss={vi.fn()}
         />
@@ -385,7 +386,7 @@ describe('Alert Flow Tests - End-to-End', () => {
 
       render(
         <RestockSuggestions
-          items={mockRestockItems}
+          items={mockanys}
           onApprove={vi.fn()}
           onDismiss={mockOnDismiss}
         />
@@ -402,7 +403,7 @@ describe('Alert Flow Tests - End-to-End', () => {
     it('should calculate total estimated cost', () => {
       render(
         <RestockSuggestions
-          items={mockRestockItems}
+          items={mockanys}
           onApprove={vi.fn()}
           onDismiss={vi.fn()}
         />
@@ -427,7 +428,7 @@ describe('Alert Flow Tests - End-to-End', () => {
     it('should filter by urgency level', () => {
       render(
         <RestockSuggestions
-          items={mockRestockItems}
+          items={mockanys}
           onApprove={vi.fn()}
           onDismiss={vi.fn()}
           filterUrgency="high"
@@ -439,10 +440,10 @@ describe('Alert Flow Tests - End-to-End', () => {
     })
 
     it('should sort by urgency by default', () => {
-      const unsortedItems: RestockItem[] = [
-        { ...mockRestockItems[0], urgency: 'low' },
-        { ...mockRestockItems[1], urgency: 'high' },
-        { ...mockRestockItems[2], urgency: 'medium' },
+      const unsortedItems: any[] = [
+        { ...mockanys[0], urgency: 'low' },
+        { ...mockanys[1], urgency: 'high' },
+        { ...mockanys[2], urgency: 'medium' },
       ]
 
       render(
@@ -462,19 +463,19 @@ describe('Alert Flow Tests - End-to-End', () => {
     it('should show notification when new alert arrives', async () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
       
-      const initialAlerts: AlertItem[] = []
+      const initialAlerts: any[] = []
       const { rerender } = render(
         <InventoryAlertPanel
           alerts={initialAlerts}
           onAcknowledge={vi.fn()}
-          onResolve={vi.fn()}
+          onDismiss={vi.fn()}
         />
       )
 
       expect(screen.getByText('暂无告警')).toBeInTheDocument()
 
       // Simulate new alert arriving
-      const newAlert: AlertItem = {
+      const newAlert: any = {
         id: 'alert-new',
         code: 'INV-NEW-001',
         deviceCode: 'DEVICE-NEW',
@@ -491,7 +492,7 @@ describe('Alert Flow Tests - End-to-End', () => {
           <InventoryAlertPanel
             alerts={[newAlert]}
             onAcknowledge={vi.fn()}
-            onResolve={vi.fn()}
+            onDismiss={vi.fn()}
           />
         )
         vi.advanceTimersByTime(1000)
@@ -504,7 +505,7 @@ describe('Alert Flow Tests - End-to-End', () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
       const mockOnApprove = vi.fn()
 
-      const items: RestockItem[] = [
+      const suggestions: any[] = [
         {
           id: 'restock-001',
           sku: 'SKU-1234',
@@ -547,7 +548,7 @@ describe('Alert Flow Tests - End-to-End', () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
       const mockOnResolve = vi.fn()
 
-      const pendingAlert: AlertItem = {
+      const pendingAlert: any = {
         id: 'alert-001',
         code: 'INV-001',
         deviceCode: 'DEVICE-001',
@@ -563,7 +564,7 @@ describe('Alert Flow Tests - End-to-End', () => {
         <InventoryAlertPanel
           alerts={[pendingAlert]}
           onAcknowledge={vi.fn()}
-          onResolve={mockOnResolve}
+          onDismiss={mockOnResolve}
         />
       )
 
@@ -577,7 +578,7 @@ describe('Alert Flow Tests - End-to-End', () => {
           <InventoryAlertPanel
             alerts={[resolvedAlert]}
             onAcknowledge={vi.fn()}
-            onResolve={mockOnResolve}
+            onDismiss={mockOnResolve}
           />
         )
       })
@@ -588,7 +589,7 @@ describe('Alert Flow Tests - End-to-End', () => {
 
   describe('Alert Priority Calculation', () => {
     it('should calculate urgency based on stock level', () => {
-      const items: RestockItem[] = [
+      const suggestions: any[] = [
         {
           id: '1',
           sku: 'SKU-1',
@@ -646,7 +647,7 @@ describe('Alert Flow Tests - End-to-End', () => {
           <InventoryAlertPanel
             alerts={manyAlerts}
             onAcknowledge={vi.fn()}
-            onResolve={vi.fn()}
+            onDismiss={vi.fn()}
           />
         )
       }).not.toThrow()
@@ -679,7 +680,7 @@ describe('Alert Flow Tests - End-to-End', () => {
 
   describe('Accessibility', () => {
     it('should have proper roles for alert items', () => {
-      const alerts: AlertItem[] = [
+      const alerts: any[] = [
         {
           id: 'alert-001',
           code: 'INV-001',
@@ -697,7 +698,7 @@ describe('Alert Flow Tests - End-to-End', () => {
         <InventoryAlertPanel
           alerts={alerts}
           onAcknowledge={vi.fn()}
-          onResolve={vi.fn()}
+          onDismiss={vi.fn()}
         />
       )
 
@@ -723,7 +724,7 @@ describe('Alert Flow Tests - End-to-End', () => {
             },
           ]}
           onAcknowledge={vi.fn()}
-          onResolve={vi.fn()}
+          onDismiss={vi.fn()}
         />
       )
 

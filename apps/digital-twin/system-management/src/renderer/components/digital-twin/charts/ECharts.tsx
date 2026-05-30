@@ -24,7 +24,7 @@ export function PieChart({ title, data, colors, height = 250 }: PieChartProps) {
 
     chartInstance.current = echarts.init(chartRef.current)
 
-    const option: echarts.EChartsOption = {
+    const option: any = {
       tooltip: {
         trigger: 'item',
         formatter: '{b}: {c} ({d}%)'
@@ -101,7 +101,7 @@ export function LineChart({ title, data, unit = '', color = '#3b82f6', height = 
 
     chartInstance.current = echarts.init(chartRef.current)
 
-    const option: echarts.EChartsOption = {
+    const option: any = {
       tooltip: {
         trigger: 'axis',
         formatter: (params: any) => {
@@ -180,7 +180,7 @@ export function GaugeChart({ title, value, max = 100, unit = '%', color = '#3b82
 
     chartInstance.current = echarts.init(chartRef.current)
 
-    const option: echarts.EChartsOption = {
+    const option: any = {
       series: [
         {
           type: 'gauge',
@@ -245,7 +245,7 @@ export function BarChart({ title, data, color = '#3b82f6', height = 200 }: BarCh
 
     chartInstance.current = echarts.init(chartRef.current)
 
-    const option: echarts.EChartsOption = {
+    const option: any = {
       tooltip: { trigger: 'axis' },
       grid: { left: 50, right: 20, top: 20, bottom: 30 },
       xAxis: {

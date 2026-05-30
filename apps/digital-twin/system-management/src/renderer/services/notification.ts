@@ -5,7 +5,6 @@ export interface NotificationOptions {
   tag?: string
   requireInteraction?: boolean
   silent?: boolean
-  vibrate?: number[]
   onClick?: () => void
 }
 
@@ -43,7 +42,6 @@ export class NotificationService {
       tag: options.tag,
       requireInteraction: options.requireInteraction,
       silent: options.silent,
-      vibrate: options.vibrate,
     })
   }
 

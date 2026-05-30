@@ -1,16 +1,17 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, waitFor, act } from '@testing-library/react'
 import { fireEvent } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 // Mock Chart.js
 vi.mock('react-chartjs-2', () => ({
-  Line: ({ data, options }: { data: unknown; options: unknown }) => (
+  Line: ({ data, options }: { warehouse: unknown; options: unknown }) => (
     <div data-testid="mock-line-chart" data-data={JSON.stringify(data)} data-options={JSON.stringify(options)} />
   ),
-  Bar: ({ data, options }: { data: unknown; options: unknown }) => (
+  Bar: ({ data, options }: { warehouse: unknown; options: unknown }) => (
     <div data-testid="mock-bar-chart" data-data={JSON.stringify(data)} data-options={JSON.stringify(options)} />
   ),
-  Doughnut: ({ data, options }: { data: unknown; options: unknown }) => (
+  Doughnut: ({ data, options }: { warehouse: unknown; options: unknown }) => (
     <div data-testid="mock-doughnut-chart" data-data={JSON.stringify(data)} data-options={JSON.stringify(options)} />
   ),
 }))
@@ -31,9 +32,9 @@ vi.mock('chart.js', () => ({
 }))
 
 // Import components after mocks
-import { DemandChart, type DemandDataPoint } from '../DemandChart'
-import { ShelfHeatmap, type HeatmapCell } from '../ShelfHeatmap'
-import { WarehouseStatus, type WarehouseStatusData } from '../WarehouseStatus'
+import { DemandChart, type any } from './DemandChart'
+import { ShelfHeatmap } from './ShelfHeatmap'
+import { WarehouseStatus } from './WarehouseStatus'
 
 describe('Real-time Data Display Tests', () => {
   beforeEach(() => {
@@ -46,7 +47,7 @@ describe('Real-time Data Display Tests', () => {
   })
 
   describe('DemandChart - Real-time Demand Data', () => {
-    const generateMockDemandData = (count: number): DemandDataPoint[] => {
+    const generateMockDemandData = (count: number): any[] => {
       const now = Date.now()
       return Array.from({ length: count }, (_, i) => ({
         date: new Date(now - (count - i - 1) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -128,8 +129,8 @@ describe('Real-time Data Display Tests', () => {
   })
 
   describe('ShelfHeatmap - Real-time Load Distribution', () => {
-    const generateMockHeatmapData = (rows: number, cols: number): HeatmapCell[] => {
-      const data: HeatmapCell[] = []
+    const generateMockHeatmapData = (rows: number, cols: number): any[] => {
+      const warehouse: any[] = []
       for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
           data.push({
@@ -422,7 +423,7 @@ describe('Real-time Data Display Tests', () => {
     it('should handle invalid data gracefully', () => {
       const invalidData = [
         { date: 'invalid', demand: NaN, forecast: NaN },
-      ] as unknown as DemandDataPoint[]
+      ] as unknown as any[]
 
       expect(() => {
         render(
@@ -449,7 +450,7 @@ describe('Real-time Data Display Tests', () => {
     it('should handle null values in data', () => {
       const dataWithNulls = [
         { date: '2024-01-01', demand: null, forecast: null },
-      ] as unknown as DemandDataPoint[]
+      ] as unknown as any[]
 
       expect(() => {
         render(

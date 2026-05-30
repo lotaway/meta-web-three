@@ -29,16 +29,20 @@ export {
 // Inventory Alert Panel
 export { 
   InventoryAlertPanel, 
-  type InventoryAlertPanelProps,
-  type InventoryAlert 
+  type InventoryAlertPanelProps
 } from './InventoryAlertPanel'
+
+// Export InventoryAlert from alert module
+export { type InventoryAlert } from './alert'
 
 // Demand Forecast Chart
 export { 
   DemandChart, 
-  type DemandChartProps,
-  type DemandForecastPoint 
+  type DemandChartProps
 } from './DemandChart'
+
+// Export DemandForecastPoint from chart module
+export { type DemandForecastPoint } from './chart'
 
 // Restock Suggestions
 export { 

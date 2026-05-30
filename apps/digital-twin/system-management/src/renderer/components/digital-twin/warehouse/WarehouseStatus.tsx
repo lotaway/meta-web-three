@@ -58,7 +58,9 @@ export interface WarehouseStatusProps {
 
 // ============ 辅助函数 ============
 function getStatusColor(status: string): string {
-  return STATUS_COLORS[status as keyof typeof STATUS_COLORS] || Colors.textSecondary
+  type StatusColorKey = 'active' | 'maintenance' | 'inactive'
+  const colorKey = status as StatusColorKey
+  return STATUS_COLORS[colorKey] || Colors.textSecondary
 }
 
 function getUtilizationColor(rate: number): string {

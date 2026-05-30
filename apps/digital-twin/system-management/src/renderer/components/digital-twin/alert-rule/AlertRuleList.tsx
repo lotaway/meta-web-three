@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { alertRuleApi, type AlertRule } from '../../services/api/alertRule'
+import { alertRuleApi, type AlertRule } from '../../../services/api/alertRule'
 import { AlertRuleForm } from './AlertRuleForm'
 
 const LEVEL_COLORS: Record<string, string> = {

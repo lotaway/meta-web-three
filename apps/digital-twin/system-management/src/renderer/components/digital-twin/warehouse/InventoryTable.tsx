@@ -52,8 +52,8 @@ export function InventoryTable({
     }
     
     result.sort((a, b) => {
-      const aVal = a[sortField]
-      const bVal = b[sortField]
+      const aVal = String(a[sortField] ?? '')
+      const bVal = String(b[sortField] ?? '')
       if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1
       if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1
       return 0
@@ -278,5 +278,3 @@ export function InventoryTable({
     </div>
   )
 }
-
-export type { InventoryTableProps, InventoryItem }

@@ -99,7 +99,8 @@ function ShelfModel({ shelf, isSelected, onClick, heatmapValue }: ShelfModelProp
 
     if (heatmapValue !== undefined) {
       const idx = Math.min(Math.floor(heatmapValue / LOAD_THRESHOLDS.heatmapStep) + 1, 4)
-      return Colors.heatmap[idx] || Colors.success
+      const heatmapKeys: Record<number, keyof typeof Colors.heatmap> = { 1: 'cold', 2: 'cool', 3: 'normal', 4: 'warm' }
+      return Colors.heatmap[heatmapKeys[idx]] || Colors.success
     }
 
     const ratio = shelf.currentLoad / shelf.capacity

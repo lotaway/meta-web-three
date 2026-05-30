@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react'
-import { notificationService, addToast, type ToastNotification } from '../components/Toast'
+import { addToast, type ToastNotification } from '../components/Toast'
+import { notificationService } from '../services/notification'
 import { alertRuleApi } from '../services/api/alertRule'
 
 export interface AlertEvent {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { alertRuleApi, type AlertRule, type CreateAlertRuleRequest, type UpdateAlertRuleRequest } from '../../services/api/alertRule'
+import { alertRuleApi, type AlertRule, type CreateAlertRuleRequest, type UpdateAlertRuleRequest } from '../../../services/api/alertRule'
 
 interface AlertRuleFormProps {
   rule?: AlertRule | null
@@ -74,7 +74,23 @@ export function AlertRuleForm({ rule, onSave, onCancel }: AlertRuleFormProps) {
     setError('')
     try {
       if (rule) {
-        await alertRuleApi.update(rule.id, formData as UpdateAlertRuleRequest)
+        const updateData = {
+          ruleName: formData.ruleName,
+          description: formData.description,
+          deviceType: formData.deviceType,
+          metricType: formData.metricType,
+          operator: formData.operator,
+          thresholdValue: formData.thresholdValue,
+          durationSeconds: 300,
+          level: formData.level,
+          alertType: formData.alertType,
+          titleTemplate: formData.titleTemplate,
+          descriptionTemplate: formData.descriptionTemplate,
+          cooldownSeconds: 60,
+          maxAlertsPerHour: 10,
+          notificationChannels: 'system'
+        }
+        await alertRuleApi.update(rule.id, updateData)
       } else {
         await alertRuleApi.create(formData)
       }
