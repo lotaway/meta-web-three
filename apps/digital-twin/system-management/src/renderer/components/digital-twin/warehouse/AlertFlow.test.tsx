@@ -56,10 +56,17 @@ describe('Alert Flow Tests - End-to-End', () => {
         deviceCode: 'DEVICE-001',
         level: 'critical',
         type: 'LOW_STOCK',
+        severity: 'critical',
         title: '库存不足告警',
+        message: '商品 SKU-1234 库存低于安全库存',
+        itemId: 'item-001',
+        itemSku: 'SKU-1234',
+        itemName: '商品A',
         description: '商品 SKU-1234 库存低于安全库存',
         status: 'pending',
         occurredAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        acknowledged: false,
       },
       {
         id: 'alert-002',
@@ -67,10 +74,17 @@ describe('Alert Flow Tests - End-to-End', () => {
         deviceCode: 'DEVICE-002',
         level: 'warning',
         type: 'EXPIRING_SOON',
+        severity: 'warning',
         title: '临期商品告警',
+        message: '商品 SKU-5678 将在 7 天后过期',
+        itemId: 'item-002',
+        itemSku: 'SKU-5678',
+        itemName: '商品B',
         description: '商品 SKU-5678 将在 7 天后过期',
         status: 'pending',
         occurredAt: new Date(Date.now() - 3600000).toISOString(),
+        createdAt: new Date(Date.now() - 3600000).toISOString(),
+        acknowledged: false,
       },
       {
         id: 'alert-003',
@@ -78,10 +92,17 @@ describe('Alert Flow Tests - End-to-End', () => {
         deviceCode: 'DEVICE-003',
         level: 'info',
         type: 'STOCK_LEVEL_NORMAL',
+        severity: 'info',
         title: '库存正常',
+        message: '所有商品库存处于正常水平',
+        itemId: 'item-003',
+        itemSku: 'SKU-9012',
+        itemName: '商品C',
         description: '所有商品库存处于正常水平',
         status: 'resolved',
         occurredAt: new Date(Date.now() - 7200000).toISOString(),
+        createdAt: new Date(Date.now() - 7200000).toISOString(),
+        acknowledged: true,
       },
     ]
 
@@ -481,10 +502,17 @@ describe('Alert Flow Tests - End-to-End', () => {
         deviceCode: 'DEVICE-NEW',
         level: 'critical',
         type: 'LOW_STOCK',
+        severity: 'critical',
         title: '新告警',
+        message: '新商品库存不足',
+        itemId: 'item-new',
+        itemSku: 'SKU-NEW',
+        itemName: '新商品',
         description: '新商品库存不足',
         status: 'pending',
         occurredAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        acknowledged: false,
       }
 
       await act(async () => {
@@ -554,10 +582,17 @@ describe('Alert Flow Tests - End-to-End', () => {
         deviceCode: 'DEVICE-001',
         level: 'critical',
         type: 'LOW_STOCK',
+        severity: 'critical',
         title: '库存不足',
+        message: '需要补货',
+        itemId: 'item-001',
+        itemSku: 'SKU-001',
+        itemName: '商品A',
         description: '需要补货',
         status: 'pending',
         occurredAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        acknowledged: false,
       }
 
       const { rerender } = render(
@@ -630,16 +665,20 @@ describe('Alert Flow Tests - End-to-End', () => {
 
   describe('Performance', () => {
     it('should handle large number of alerts', () => {
-      const manyAlerts = Array.from({ length: 100 }, (_, i) => ({
+      const manyAlerts: any[] = Array.from({ length: 100 }, (_, i) => ({
         id: `alert-${i}`,
-        code: `INV-${i}`,
-        deviceCode: `DEVICE-${i}`,
         level: (['critical', 'warning', 'info'] as const)[i % 3],
-        type: 'LOW_STOCK',
+        type: (['low_stock', 'critical_stock', 'overstock', 'expiring', 'expired', 'anomaly'] as const)[i % 6],
+        severity: (['critical', 'warning', 'info'] as const)[i % 3],
         title: `告警 ${i}`,
-        description: `描述 ${i}`,
+        message: `消息 ${i}`,
+        itemId: `item-${i}`,
+        itemSku: `SKU-${i}`,
+        itemName: `商品 ${i}`,
         status: 'pending',
         occurredAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        acknowledged: false,
       }))
 
       expect(() => {
@@ -654,16 +693,21 @@ describe('Alert Flow Tests - End-to-End', () => {
     })
 
     it('should handle large number of restock suggestions', () => {
-      const manyItems = Array.from({ length: 100 }, (_, i) => ({
+      const manyItems: any[] = Array.from({ length: 100 }, (_, i) => ({
         id: `restock-${i}`,
-        sku: `SKU-${i}`,
-        productName: `商品 ${i}`,
+        itemId: `item-${i}`,
+        itemSku: `SKU-${i}`,
+        itemName: `商品 ${i}`,
+        category: 'Category A',
         currentStock: Math.floor(Math.random() * 100),
         safetyStock: 100,
-        recommendedQuantity: 100,
-        urgency: (['high', 'medium', 'low'] as const)[i % 3],
-        estimatedCost: Math.floor(Math.random() * 5000),
-        supplier: `供应商 ${i}`,
+        suggestedQuantity: 100,
+        urgency: (['critical', 'high', 'medium', 'low'] as const)[i % 4],
+        reason: 'Stock below safety level',
+        estimatedArrival: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        confidence: 0.85,
+        createdAt: new Date().toISOString(),
+        status: 'pending' as const,
       }))
 
       expect(() => {
@@ -687,10 +731,17 @@ describe('Alert Flow Tests - End-to-End', () => {
           deviceCode: 'DEVICE-001',
           level: 'critical',
           type: 'LOW_STOCK',
+          severity: 'critical',
           title: '测试告警',
+          message: '测试描述',
+          itemId: 'item-001',
+          itemSku: 'SKU-001',
+          itemName: '测试商品',
           description: '测试描述',
           status: 'pending',
           occurredAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+          acknowledged: false,
         },
       ]
 
@@ -713,14 +764,15 @@ describe('Alert Flow Tests - End-to-End', () => {
           alerts={[
             {
               id: 'alert-001',
-              code: 'INV-001',
-              deviceCode: 'DEVICE-001',
-              level: 'warning',
-              type: 'TEST',
+              type: 'low_stock',
+              severity: 'warning',
               title: '测试',
-              description: '测试描述',
-              status: 'pending',
-              occurredAt: new Date().toISOString(),
+              message: '测试消息',
+              itemId: 'item-001',
+              itemSku: 'SKU-001',
+              itemName: '测试商品',
+              createdAt: new Date().toISOString(),
+              acknowledged: false,
             },
           ]}
           onAcknowledge={vi.fn()}

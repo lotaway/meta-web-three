@@ -5,14 +5,14 @@ import userEvent from '@testing-library/user-event'
 
 // Mock Chart.js
 vi.mock('react-chartjs-2', () => ({
-  Line: ({ data, options }: { warehouse: unknown; options: unknown }) => (
-    <div data-testid="mock-line-chart" data-data={JSON.stringify(data)} data-options={JSON.stringify(options)} />
+  Line: ({ data, options, warehouse }: { warehouse: unknown; data: unknown; options: unknown }) => (
+    <div data-testid="mock-line-chart" data-data={JSON.stringify(data)} data-options={JSON.stringify(options)} data-warehouse={JSON.stringify(warehouse)} />
   ),
-  Bar: ({ data, options }: { warehouse: unknown; options: unknown }) => (
-    <div data-testid="mock-bar-chart" data-data={JSON.stringify(data)} data-options={JSON.stringify(options)} />
+  Bar: ({ data, options, warehouse }: { warehouse: unknown; data: unknown; options: unknown }) => (
+    <div data-testid="mock-bar-chart" data-data={JSON.stringify(data)} data-options={JSON.stringify(options)} data-warehouse={JSON.stringify(warehouse)} />
   ),
-  Doughnut: ({ data, options }: { warehouse: unknown; options: unknown }) => (
-    <div data-testid="mock-doughnut-chart" data-data={JSON.stringify(data)} data-options={JSON.stringify(options)} />
+  Doughnut: ({ data, options, warehouse }: { warehouse: unknown; data: unknown; options: unknown }) => (
+    <div data-testid="mock-doughnut-chart" data-data={JSON.stringify(data)} data-options={JSON.stringify(options)} data-warehouse={JSON.stringify(warehouse)} />
   ),
 }))
 
@@ -130,7 +130,7 @@ describe('Real-time Data Display Tests', () => {
 
   describe('ShelfHeatmap - Real-time Load Distribution', () => {
     const generateMockHeatmapData = (rows: number, cols: number): any[] => {
-      const warehouse: any[] = []
+      const data: any[] = []
       for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
           data.push({
@@ -231,128 +231,104 @@ describe('Real-time Data Display Tests', () => {
   })
 
   describe('WarehouseStatus - Real-time Status Updates', () => {
-    const mockStatusData: WarehouseStatusData = {
-      warehouseId: 'wh-001',
-      warehouseName: '主仓库A',
-      totalCapacity: 10000,
-      usedCapacity: 7500,
-      itemCount: 5234,
-      inboundToday: 120,
-      outboundToday: 85,
-      pendingOrders: 15,
-      efficiency: 87.5,
-      lastUpdate: new Date().toISOString(),
+    const mockWarehouse = {
+      id: 'wh-001',
+      name: 'Warehouse A',
+      status: 'active' as const,
+      totalArea: 10000,
+      usedArea: 7500,
+      capacity: 10000,
     }
+
+    const mockShelves = [
+      { id: 'shelf-1', code: 'S1', level: 1, column: 1, status: 'occupied' as const, capacity: 100, currentLoad: 80 },
+      { id: 'shelf-2', code: 'S2', level: 1, column: 2, status: 'full' as const, capacity: 100, currentLoad: 100 },
+      { id: 'shelf-3', code: 'S3', level: 1, column: 3, status: 'empty' as const, capacity: 100, currentLoad: 0 },
+      { id: 'shelf-4', code: 'S4', level: 1, column: 4, status: 'maintenance' as const, capacity: 100, currentLoad: 50 },
+    ]
 
     it('should render warehouse status panel', () => {
       render(
         <WarehouseStatus
-          data={mockStatusData}
+          warehouse={mockWarehouse}
+          shelves={mockShelves}
           compact={false}
         />
       )
 
-      expect(screen.getByText('主仓库A')).toBeInTheDocument()
+      expect(screen.getByText('Warehouse A')).toBeInTheDocument()
     })
 
     it('should display capacity utilization percentage', () => {
       render(
         <WarehouseStatus
-          data={mockStatusData}
+          warehouse={mockWarehouse}
+          shelves={mockShelves}
           compact={false}
         />
       )
 
-      // 7500/10000 * 100 = 75%
-      expect(screen.getByText(/75\.0%/)).toBeInTheDocument()
+      // 80/100 * 100 = 80%
+      expect(screen.getByText(/80\.0%/)).toBeInTheDocument()
     })
 
-    it('should display item count', () => {
+    it('should display total shelves', () => {
       render(
         <WarehouseStatus
-          data={mockStatusData}
+          warehouse={mockWarehouse}
+          shelves={mockShelves}
           compact={false}
         />
       )
 
-      expect(screen.getByText('5234')).toBeInTheDocument()
-    })
-
-    it('should display today\'s inbound count', () => {
-      render(
-        <WarehouseStatus
-          data={mockStatusData}
-          compact={false}
-        />
-      )
-
-      expect(screen.getByText('120')).toBeInTheDocument()
-    })
-
-    it('should display today\'s outbound count', () => {
-      render(
-        <WarehouseStatus
-          data={mockStatusData}
-          compact={false}
-        />
-      )
-
-      expect(screen.getByText('85')).toBeInTheDocument()
-    })
-
-    it('should display efficiency metric', () => {
-      render(
-        <WarehouseStatus
-          data={mockStatusData}
-          compact={false}
-        />
-      )
-
-      expect(screen.getByText(/87\.5/)).toBeInTheDocument()
+      expect(screen.getByText('4')).toBeInTheDocument()
     })
 
     it('should render in compact mode', () => {
       render(
         <WarehouseStatus
-          data={mockStatusData}
+          warehouse={mockWarehouse}
+          shelves={mockShelves}
           compact={true}
         />
       )
 
-      expect(screen.getByText('主仓库A')).toBeInTheDocument()
+      expect(screen.getByText('Warehouse A')).toBeInTheDocument()
     })
 
     it('should handle status updates', () => {
       const { rerender } = render(
         <WarehouseStatus
-          data={mockStatusData}
+          warehouse={mockWarehouse}
+          shelves={mockShelves}
           compact={false}
         />
       )
 
-      const updatedStatus: WarehouseStatusData = {
-        ...mockStatusData,
-        usedCapacity: 8000,
-        itemCount: 5500,
-        efficiency: 89.2,
-        lastUpdate: new Date().toISOString(),
-      }
+      const updatedShelves = [
+        { id: 'shelf-1', code: 'S1', level: 1, column: 1, status: 'occupied' as const, capacity: 100, currentLoad: 90 },
+        { id: 'shelf-2', code: 'S2', level: 1, column: 2, status: 'full' as const, capacity: 100, currentLoad: 100 },
+        { id: 'shelf-3', code: 'S3', level: 1, column: 3, status: 'empty' as const, capacity: 100, currentLoad: 10 },
+        { id: 'shelf-4', code: 'S4', level: 1, column: 4, status: 'maintenance' as const, capacity: 100, currentLoad: 50 },
+      ]
 
       rerender(
         <WarehouseStatus
-          data={updatedStatus}
+          warehouse={mockWarehouse}
+          shelves={updatedShelves}
           compact={false}
         />
       )
 
-      // 8000/10000 * 100 = 80%
-      expect(screen.getByText(/80\.0%/)).toBeInTheDocument()
+      // (90+100+10+50)/400 = 250/400 = 62.5%
+      expect(screen.getByText(/62\.5%/)).toBeInTheDocument()
     })
 
     it('should display last update timestamp', () => {
       render(
         <WarehouseStatus
-          data={mockStatusData}
+          warehouse={mockWarehouse}
+          shelves={mockShelves}
           compact={false}
         />
       )

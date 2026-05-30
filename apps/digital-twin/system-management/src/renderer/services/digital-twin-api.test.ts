@@ -86,8 +86,8 @@ describe('digitalTwinApi', () => {
   describe('fetchActiveAlerts', () => {
     it('should call GET /api/digital-twin/alerts/active and return mapped alerts', async () => {
       const mockDevices = [
-        { id: '1', code: 'DEVICE-001', name: '设备1', type: 'sensor', status: 'online' as const, position: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 } },
-        { id: '2', code: 'DEVICE-002', name: '设备2', type: 'sensor', status: 'online' as const, position: { x: 1, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 } },
+        { id: '1', code: 'DEVICE-001', name: '设备1', type: 'sensor', status: 'online' as const, position: [0, 0, 0] as [number, number, number], rotation: 0 },
+        { id: '2', code: 'DEVICE-002', name: '设备2', type: 'sensor', status: 'online' as const, position: [1, 0, 0] as [number, number, number], rotation: 90 },
       ]
 
       const mockApiAlerts = [
