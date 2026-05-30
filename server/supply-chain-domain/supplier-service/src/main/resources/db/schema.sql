@@ -37,3 +37,111 @@ CREATE INDEX idx_supplier_code ON supplier(supplier_code);
 CREATE INDEX idx_supplier_status ON supplier(status);
 CREATE INDEX idx_supplier_category ON supplier(category);
 CREATE INDEX idx_supplier_assessment_level ON supplier(assessment_level);
+
+-- =====================
+-- V2: supplier portal init (供应商协同门户)
+-- =====================
+
+-- 供应商发货通知表
+CREATE TABLE IF NOT EXISTS supplier_shipment_notice (
+    id BIGSERIAL PRIMARY KEY,
+    notice_no VARCHAR(64) NOT NULL UNIQUE,
+    supplier_code VARCHAR(64) NOT NULL,
+    order_no VARCHAR(64) NOT NULL,
+    warehouse_id BIGINT,
+    expected_shipment_date TIMESTAMP,
+    actual_shipment_date TIMESTAMP,
+    shipment_method VARCHAR(32), -- EXPRESS/OCEAN/AIR/LAND
+    carrier_name VARCHAR(128),
+    carrier_contact VARCHAR(64),
+    tracking_number VARCHAR(128),
+    vehicle_number VARCHAR(64),
+    driver_name VARCHAR(64),
+    driver_phone VARCHAR(32),
+    total_quantity DECIMAL(15,3),
+    total_weight DECIMAL(15,3),
+    total_volume DECIMAL(15,3),
+    status VARCHAR(32) DEFAULT 'DRAFT', -- DRAFT/SUBMITTED/CONFIRMED/IN_TRANSIT/DELIVERED/CANCELLED
+    remark TEXT,
+    confirmer VARCHAR(128),
+    confirmed_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    version INTEGER DEFAULT 0
+);
+
+CREATE INDEX idx_shipment_notice_no ON supplier_shipment_notice(notice_no);
+CREATE INDEX idx_shipment_supplier ON supplier_shipment_notice(supplier_code);
+CREATE INDEX idx_shipment_order ON supplier_shipment_notice(order_no);
+CREATE INDEX idx_shipment_status ON supplier_shipment_notice(status);
+
+-- 发货通知明细表
+CREATE TABLE IF NOT EXISTS supplier_shipment_notice_item (
+    id BIGSERIAL PRIMARY KEY,
+    notice_id BIGINT NOT NULL,
+    product_code VARCHAR(64) NOT NULL,
+    product_name VARCHAR(128),
+    unit VARCHAR(16),
+    quantity DECIMAL(15,3),
+    weight DECIMAL(15,3),
+    volume DECIMAL(15,3),
+    batch_no VARCHAR(64),
+    production_date TIMESTAMP,
+    expiry_date TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    version INTEGER DEFAULT 0
+);
+
+CREATE INDEX idx_shipment_item_notice ON supplier_shipment_notice_item(notice_id);
+CREATE INDEX idx_shipment_item_product ON supplier_shipment_notice_item(product_code);
+
+-- 供应商对账表
+CREATE TABLE IF NOT EXISTS supplier_reconciliation (
+    id BIGSERIAL PRIMARY KEY,
+    reconciliation_no VARCHAR(64) NOT NULL UNIQUE,
+    supplier_code VARCHAR(64) NOT NULL,
+    period_start DATE NOT NULL,
+    period_end DATE NOT NULL,
+    order_count INTEGER DEFAULT 0,
+    total_amount DECIMAL(15,2) DEFAULT 0,
+    shipped_amount DECIMAL(15,2) DEFAULT 0,
+    invoiced_amount DECIMAL(15,2) DEFAULT 0,
+    settled_amount DECIMAL(15,2) DEFAULT 0,
+    pending_amount DECIMAL(15,2) DEFAULT 0,
+    currency VARCHAR(8) DEFAULT 'CNY',
+    status VARCHAR(32) DEFAULT 'PENDING', -- PENDING/SUBMITTED/CONFIRMED/REJECTED/PAID
+    submitted_at TIMESTAMP,
+    confirmed_at TIMESTAMP,
+    confirmed_by VARCHAR(128),
+    paid_at TIMESTAMP,
+    remark TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    version INTEGER DEFAULT 0
+);
+
+CREATE INDEX idx_reconciliation_no ON supplier_reconciliation(reconciliation_no);
+CREATE INDEX idx_reconciliation_supplier ON supplier_reconciliation(supplier_code);
+CREATE INDEX idx_reconciliation_status ON supplier_reconciliation(status);
+CREATE INDEX idx_reconciliation_period ON supplier_reconciliation(period_start, period_end);
+
+-- 对账明细表
+CREATE TABLE IF NOT EXISTS supplier_reconciliation_item (
+    id BIGSERIAL PRIMARY KEY,
+    reconciliation_id BIGINT NOT NULL,
+    order_no VARCHAR(64) NOT NULL,
+    order_date DATE,
+    shipped_date DATE,
+    invoiced_amount DECIMAL(15,2),
+    settled_amount DECIMAL(15,2),
+    pending_amount DECIMAL(15,2),
+    status VARCHAR(32), -- PENDING/CONFIRMED/REJECTED
+    remark TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    version INTEGER DEFAULT 0
+);
+
+CREATE INDEX idx_reconciliation_item_recon ON supplier_reconciliation_item(reconciliation_id);
+CREATE INDEX idx_reconciliation_item_order ON supplier_reconciliation_item(order_no);

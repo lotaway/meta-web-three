@@ -38,4 +38,28 @@ public final class SupplyChainPermissions {
     public static final String PROCUREMENT_UPDATE  = "sc:procurement:update";
     public static final String PROCUREMENT_APPROVE = "sc:procurement:approve";
     public static final String PROCUREMENT_REJECT  = "sc:procurement:reject";
+
+    // ABC Classification permissions
+    public static final String INVENTORY_ABC_ANALYZE = "sc:inventory:abc:analyze";
+    
+    // Outbound Strategy permissions
+    public static final String OUTBOUND_STRATEGY_READ = "sc:outbound:strategy:read";
+    public static final String OUTBOUND_STRATEGY_CREATE = "sc:outbound:strategy:create";
+    public static final String OUTBOUND_STRATEGY_UPDATE = "sc:outbound:strategy:update";
+    public static final String OUTBOUND_STRATEGY_DELETE = "sc:outbound:strategy:delete";
+    public static final String OUTBOUND_ALLOCATE = "sc:outbound:allocate";
+    
+    // Supplier Portal permissions (供应商协同门户)
+    public static final String PORTAL_ORDER_READ = "sc:portal:order:read";
+    public static final String PORTAL_SHIPMENT_READ = "sc:portal:shipment:read";
+    public static final String PORTAL_SHIPMENT_CREATE = "sc:portal:shipment:create";
+    public static final String PORTAL_SHIPMENT_UPDATE = "sc:portal:shipment:update";
+    public static final String PORTAL_SHIPMENT_SUBMIT = "sc:portal:shipment:submit";
+    public static final String PORTAL_SHIPMENT_CONFIRM = "sc:portal:shipment:confirm";
+    public static final String PORTAL_RECONCILIATION_READ = "sc:portal:reconciliation:read";
+    public static final String PORTAL_RECONCILIATION_CREATE = "sc:portal:reconciliation:create";
+    public static final String PORTAL_RECONCILIATION_SUBMIT = "sc:portal:reconciliation:submit";
+    public static final String PORTAL_RECONCILIATION_CONFIRM = "sc:portal:reconciliation:confirm";
+    public static final String PORTAL_RECONCILIATION_REJECT = "sc:portal:reconciliation:reject";
+    public static final String PORTAL_RECONCILIATION_PAID = "sc:portal:reconciliation:paid";
 }
