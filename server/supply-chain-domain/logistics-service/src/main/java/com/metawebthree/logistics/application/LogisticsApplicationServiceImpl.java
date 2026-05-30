@@ -87,7 +87,13 @@ public class LogisticsApplicationServiceImpl implements LogisticsApplicationServ
                         break;
                     case "DELIVERED":
                         order.delivered();
-                        eventPublisher.publishDelivered(trackingNo);
+                        eventPublisher.publishDelivered(
+                            trackingNo,
+                            order.getCarrierId(),
+                            order.getCarrierName(),
+                            order.getOrderNo(),
+                            order.getFreight()
+                        );
                         break;
                     case "EXCEPTION":
                         order.exception(null);

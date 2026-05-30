@@ -53,9 +53,14 @@ public class LogisticsDomainEventPublisher {
         publish("logistics.dispatched", data);
     }
 
-    public void publishDelivered(String trackingNo) {
+    public void publishDelivered(String trackingNo, Long carrierId, String carrierName, 
+                                   String orderNo, java.math.BigDecimal freight) {
         Map<String, Object> data = new HashMap<>();
         data.put("trackingNo", trackingNo);
+        data.put("orderNo", orderNo);
+        data.put("carrierId", carrierId);
+        data.put("carrierName", carrierName);
+        data.put("freight", freight != null ? freight.toString() : "0");
         publish("logistics.delivered", data);
     }
 
