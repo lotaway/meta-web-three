@@ -10,6 +10,9 @@ public interface ForecastingDomainService {
     SalesForecast createForecast(String skuCode, String skuName, Long warehouseId,
                                   LocalDate forecastDate, Integer quantity, String modelName);
     
+    SalesForecast createForecastWithAlgorithm(String skuCode, String skuName, 
+        Long warehouseId, LocalDate forecastDate, String algorithm, Integer windowSize);
+    
     void confirmForecast(Long forecastId);
     
     void adjustForecast(Long forecastId, Integer newQuantity);

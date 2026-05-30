@@ -31,6 +31,21 @@ public class ForecastingCommandService {
         return forecast.getId();
     }
 
+    /**
+     * Create forecast using specified algorithm (SMA, WMA, EXPONENTIAL_SMOOTHING)
+     * Quantity will be calculated based on historical sales data
+     */
+    public Long createForecastWithAlgorithm(String skuCode, String skuName, Long warehouseId,
+                               LocalDate forecastDate, String algorithm, Integer windowSize) {
+        SalesForecast forecast = domainService.createForecastWithAlgorithm(
+            skuCode, skuName, warehouseId, forecastDate, algorithm, windowSize);
+        
+        eventPublisher.publishForecastCreated(
+            forecast.getId(), skuCode, warehouseId, forecastDate, forecast.getForecastQuantity());
+        
+        return forecast.getId();
+    }
+
     public void confirmForecast(Long forecastId) {
         domainService.confirmForecast(forecastId);
         eventPublisher.publishForecastConfirmed(forecastId);
