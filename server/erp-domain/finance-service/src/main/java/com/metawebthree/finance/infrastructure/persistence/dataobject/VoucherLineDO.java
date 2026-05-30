@@ -16,4 +16,7 @@ public class VoucherLineDO {
     private Long subjectId;
     private BigDecimal debitAmount;
     private BigDecimal creditAmount;
+    private String foreignCurrency;
+    private BigDecimal foreignDebitAmount;
+    private BigDecimal foreignCreditAmount;
 }

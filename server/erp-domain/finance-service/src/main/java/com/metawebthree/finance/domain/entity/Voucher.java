@@ -23,6 +23,8 @@ public class Voucher {
     private LocalDateTime voucherDate;
     private String description;
     private VoucherStatus status;
+    private String currency;
+    private BigDecimal exchangeRate;
     private String createdBy;
     private String approvedBy;
     private LocalDateTime createdAt;
@@ -60,6 +62,22 @@ public class Voucher {
                 .subjectId(subjectId)
                 .debitAmount(debitAmount)
                 .creditAmount(creditAmount)
+                .build();
+        lines.add(line);
+    }
+
+    public void addLine(Long subjectId, BigDecimal debitAmount, BigDecimal creditAmount,
+            String foreignCurrency, BigDecimal foreignDebitAmount, BigDecimal foreignCreditAmount) {
+        if (lines == null) {
+            lines = new ArrayList<>();
+        }
+        VoucherLine line = VoucherLine.builder()
+                .subjectId(subjectId)
+                .debitAmount(debitAmount)
+                .creditAmount(creditAmount)
+                .foreignCurrency(foreignCurrency)
+                .foreignDebitAmount(foreignDebitAmount)
+                .foreignCreditAmount(foreignCreditAmount)
                 .build();
         lines.add(line);
     }
@@ -128,5 +146,8 @@ public class Voucher {
         private Long subjectId;
         private BigDecimal debitAmount;
         private BigDecimal creditAmount;
+        private String foreignCurrency;
+        private BigDecimal foreignDebitAmount;
+        private BigDecimal foreignCreditAmount;
     }
 }

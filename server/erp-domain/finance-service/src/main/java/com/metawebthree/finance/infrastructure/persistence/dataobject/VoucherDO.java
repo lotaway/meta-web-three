@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -16,6 +18,8 @@ public class VoucherDO {
     private LocalDateTime voucherDate;
     private String description;
     private String status;
+    private String currency;
+    private BigDecimal exchangeRate;
     private String createdBy;
     private String approvedBy;
     private LocalDateTime createdAt;
