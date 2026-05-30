@@ -1449,4 +1449,43 @@ export default {
       orderCard: '订单卡片',
     },
   },
+  cash: {
+    title: '资金管理',
+    dashboard: '仪表盘',
+    totalBalance: '资金总余额',
+    activeAccounts: '活跃账户',
+    pendingTransfers: '待审批调拨',
+    pendingReconciliations: '待审批对账',
+    quickActions: '快捷操作',
+    pendingApprovals: '待审批事项',
+    createPlan: '创建计划',
+    addAccount: '新增账户',
+    createTransfer: '创建调拨',
+    createReconciliation: '创建对账',
+    createForecast: '创建预测',
+    transfers: '调拨单',
+    reconciliations: '对账单',
+    noPendingTransfers: '暂无待审批调拨',
+    noPendingReconciliations: '暂无待审批对账',
+    transferNo: '调拨单号',
+    reconciliationNo: '对账单号',
+    amount: '金额',
+    accountName: '账户名称',
+    status: '状态',
+    plan: {
+      title: '资金计划',
+    },
+    account: {
+      title: '银行账户',
+    },
+    transfer: {
+      title: '资金调拨',
+    },
+    reconciliation: {
+      title: '银行对账',
+    },
+    forecast: {
+      title: '现金流预测',
+    },
+  },
 }

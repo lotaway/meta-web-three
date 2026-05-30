@@ -1397,4 +1397,43 @@ export default {
       orderCard: 'Order Card',
     },
   },
+  cash: {
+    title: 'Cash Management',
+    dashboard: 'Dashboard',
+    totalBalance: 'Total Balance',
+    activeAccounts: 'Active Accounts',
+    pendingTransfers: 'Pending Transfers',
+    pendingReconciliations: 'Pending Reconciliations',
+    quickActions: 'Quick Actions',
+    pendingApprovals: 'Pending Approvals',
+    createPlan: 'Create Plan',
+    addAccount: 'Add Account',
+    createTransfer: 'Create Transfer',
+    createReconciliation: 'Create Reconciliation',
+    createForecast: 'Create Forecast',
+    transfers: 'Transfers',
+    reconciliations: 'Reconciliations',
+    noPendingTransfers: 'No pending transfers',
+    noPendingReconciliations: 'No pending reconciliations',
+    transferNo: 'Transfer No.',
+    reconciliationNo: 'Reconciliation No.',
+    amount: 'Amount',
+    accountName: 'Account Name',
+    status: 'Status',
+    plan: {
+      title: 'Cash Plan',
+    },
+    account: {
+      title: 'Bank Account',
+    },
+    transfer: {
+      title: 'Cash Transfer',
+    },
+    reconciliation: {
+      title: 'Bank Reconciliation',
+    },
+    forecast: {
+      title: 'Cash Flow Forecast',
+    },
+  },
 }

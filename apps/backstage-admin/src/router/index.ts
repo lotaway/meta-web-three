@@ -574,6 +574,52 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // Cash Management Module
+  {
+    path: '/cash',
+    component: Layout,
+    redirect: '/cash',
+    name: 'cash',
+    meta: { title: 'cash.title', icon: 'wallet' },
+    children: [
+      {
+        path: '',
+        name: 'cashDashboard',
+        component: () => import('@/views/cash/index.vue'),
+        meta: { title: 'cash.dashboard', icon: 'cash-dashboard' },
+      },
+      {
+        path: 'plan',
+        name: 'cashPlan',
+        component: () => import('@/views/cash/plan/index.vue'),
+        meta: { title: 'cash.plan.title', icon: 'cash-plan' },
+      },
+      {
+        path: 'account',
+        name: 'bankAccount',
+        component: () => import('@/views/cash/account/index.vue'),
+        meta: { title: 'cash.account.title', icon: 'bank-account' },
+      },
+      {
+        path: 'transfer',
+        name: 'cashTransfer',
+        component: () => import('@/views/cash/transfer/index.vue'),
+        meta: { title: 'cash.transfer.title', icon: 'cash-transfer' },
+      },
+      {
+        path: 'reconciliation',
+        name: 'bankReconciliation',
+        component: () => import('@/views/cash/reconciliation/index.vue'),
+        meta: { title: 'cash.reconciliation.title', icon: 'bank-reconciliation' },
+      },
+      {
+        path: 'forecast',
+        name: 'cashFlowForecast',
+        component: () => import('@/views/cash/forecast/index.vue'),
+        meta: { title: 'cash.forecast.title', icon: 'cash-forecast' },
+      },
+    ],
+  },
 ]
 
 // createWebHistory（History 模式）地址格式（需要服务器配置）：http://domain.com/admin/home
