@@ -50,4 +50,16 @@ public class CartItemDTO {
     private String productSn;
     @Schema(description = "商品属性")
     private String productAttr;
+    
+    // 促销相关字段
+    @Schema(description = "促销标签（如限时折扣、满减优惠）")
+    private String promotionTag;
+    @Schema(description = "促销类型（discount:折扣, coupon:优惠券, flash:秒杀）")
+    private String promotionType;
+    @Schema(description = "优惠金额")
+    private BigDecimal discountAmount;
+    @Schema(description = "促销开始时间")
+    private Date promotionStartTime;
+    @Schema(description = "促销结束时间")
+    private Date promotionEndTime;
 }

@@ -5,12 +5,14 @@ import com.metawebthree.cart.domain.CartItem;
 import com.metawebthree.cart.domain.ProductInfo;
 import com.metawebthree.cart.infrastructure.CartItemMapper;
 import com.metawebthree.cart.infrastructure.client.ProductClient;
+import com.metawebthree.cart.infrastructure.client.PromotionClient;
 import com.metawebthree.cart.dto.CartItemDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +24,7 @@ public class CartServiceImpl implements CartService {
 
     private final CartItemMapper cartItemMapper;
     private final ProductClient productClient;
+    private final PromotionClient promotionClient;
 
     @Override
     public int add(CartItemDTO cartItemDTO) {
@@ -114,10 +117,27 @@ public class CartServiceImpl implements CartService {
         // 获取购物车列表
         List<CartItemDTO> cartItems = list(memberId);
         
-        // TODO: 查询促销信息并附加到购物车项
-        // 这里可以调用 promotion-service 获取促销规则
+        // 查询促销信息并附加到购物车项
+        for (CartItemDTO item : cartItems) {
+            enrichPromotionInfo(item);
+        }
         
         return cartItems;
+    }
+
+    private void enrichPromotionInfo(CartItemDTO item) {
+        try {
+            List<PromotionClient.PromotionInfo> promotions = promotionClient.getPromotionsByProductId(item.getProductId());
+
+            if (promotions != null && !promotions.isEmpty()) {
+                PromotionClient.PromotionInfo best = promotions.get(0);
+                item.setPromotionTag(best.getPromotionTag());
+                item.setPromotionType(best.getPromotionType());
+                item.setDiscountAmount(best.getDiscountAmount());
+            }
+        } catch (Exception e) {
+            log.warn("获取促销信息失败 - 商品ID: {}, 错误: {}", item.getProductId(), e.getMessage());
+        }
     }
 
     @Override
@@ -128,7 +148,7 @@ public class CartServiceImpl implements CartService {
             item.setProductSkuId(cartItem.getProductSkuId());
         }
         item.setModifyDate(new Date());
-        
+
         LambdaQueryWrapper<CartItem> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(CartItem::getMemberId, memberId).eq(CartItem::getId, id);
         cartItemMapper.update(item, queryWrapper);
@@ -136,20 +156,17 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartItemDTO getProductOptions(Long memberId, Long productId) {
-        CartItemDTO dto = new CartItemDTO();
-        dto.setProductId(productId);
-        
-        try {
-            ProductInfo product = productClient.getProductInfo(productId);
-            if (product != null) {
-                dto.setProductName(product.getName());
-                dto.setProductPic(product.getPic());
-                dto.setPrice(product.getPrice());
-            }
-        } catch (Exception e) {
-            log.warn("Failed to get product info for productId: {}, error: {}", productId, e.getMessage());
+        LambdaQueryWrapper<CartItem> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(CartItem::getMemberId, memberId)
+                .eq(CartItem::getProductId, productId)
+                .eq(CartItem::getDeleteStatus, 0);
+
+        CartItem item = cartItemMapper.selectOne(queryWrapper);
+        if (item == null) {
+            return null;
         }
-        
+        CartItemDTO dto = new CartItemDTO();
+        BeanUtils.copyProperties(item, dto);
         return dto;
     }
 }
