@@ -20,7 +20,9 @@ import com.metawebthree.order.infrastructure.persistence.mapper.OrderItemMapper;
 import com.metawebthree.order.infrastructure.persistence.mapper.OrderMapper;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class OrderApplicationService {
     private final OrderMapper orderMapper;
@@ -225,12 +227,46 @@ public class OrderApplicationService {
         for (OrderDO order : timeoutOrders) {
             order.setOrderStatus("CANCELED");
             orderMapper.updateById(order);
+            // 执行订单取消补偿
+            processOrderCancellationCompensation(order);
         }
 
-        // TODO: 恢复库存锁定、返还优惠券、返还积分等操作
-        // 参考 temp/mall 的实现
-
         return timeoutOrders.size();
+    }
+
+    /**
+     * 处理订单取消补偿
+     * 包括：恢复库存锁定、返还优惠券、返还积分等操作
+     * 
+     * @param order 取消的订单
+     */
+    private void processOrderCancellationCompensation(OrderDO order) {
+        log.info("开始处理订单取消补偿 - 订单ID: {}, 订单号: {}", order.getId(), order.getOrderNo());
+        
+        try {
+            // 1. 恢复库存锁定
+            // TODO: 调用 inventory-service 释放订单占用的库存
+            // inventoryService.releaseStock(order.getId());
+            log.debug("恢复库存锁定 - 待集成 inventory-service");
+            
+            // 2. 返还优惠券
+            // TODO: 调用 promotion-service 返还用户使用的优惠券
+            // if (order.getCouponId() != null) {
+            //     promotionService.returnCoupon(order.getUserId(), order.getCouponId());
+            // }
+            log.debug("返还优惠券 - 待集成 promotion-service, couponId: {}", order.getCouponId());
+            
+            // 3. 返还积分
+            // TODO: 调用 user-service 返还用户使用的积分
+            // if (order.getUseIntegration() != null && order.getUseIntegration() > 0) {
+            //     userService.returnIntegration(order.getUserId(), order.getUseIntegration());
+            // }
+            log.debug("返还积分 - 待集成 user-service, integration: {}", order.getUseIntegration());
+            
+            log.info("订单取消补偿处理完成 - 订单ID: {}", order.getId());
+        } catch (Exception e) {
+            log.error("订单取消补偿处理失败 - 订单ID: {}, 错误: {}", order.getId(), e.getMessage(), e);
+        }
     }
 
     @Data
