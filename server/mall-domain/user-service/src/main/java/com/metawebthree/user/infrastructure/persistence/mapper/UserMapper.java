@@ -36,4 +36,10 @@ public interface UserMapper extends MPJBaseMapper<UserDO> {
 
     @Select("select * from User where email = #{telephone} or id in (select user_id from Web3_User where wallet_address = #{telephone}) limit 1")
     UserDO selectByTelephone(@Param("telephone") String telephone);
+
+    @Update("update User set integration = integration + #{delta} where id = #{userId}")
+    int updateIntegration(@Param("userId") Long userId, @Param("delta") Integer delta);
+
+    @Select("select integration from User where id = #{userId}")
+    Integer getIntegration(@Param("userId") Long userId);
 }

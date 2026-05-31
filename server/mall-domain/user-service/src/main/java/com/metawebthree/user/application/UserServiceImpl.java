@@ -28,13 +28,18 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements UserService {
+
+    private static final String AUTH_CODE_PREFIX = "auth:code:";
+    private static final long AUTH_CODE_EXPIRE_SECONDS = 300; // 5 分钟
 
     private final PageConfigVO pageConfigVo;
 
@@ -44,10 +49,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     private final TokenMappingMapper tokenMappingMapper;
     private final UserJwtUtil jwtUtil;
     private final ReferralBindingPort referralBindingPort;
+    private final StringRedisTemplate redisTemplate;
 
     public UserServiceImpl(PageConfigVO pageConfigVo, UserMapper userMapper, Web3UserMapper web3UserMapper,
             UserRoleMappingMapper userRoleMappingMapper, TokenMappingMapper tokenMappingMapper, UserJwtUtil jwtUtil,
-            ReferralBindingPort referralBindingPort) {
+            ReferralBindingPort referralBindingPort, StringRedisTemplate redisTemplate) {
         this.pageConfigVo = pageConfigVo;
         this.userMapper = userMapper;
         this.web3UserMapper = web3UserMapper;
@@ -55,6 +61,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         this.tokenMappingMapper = tokenMappingMapper;
         this.jwtUtil = jwtUtil;
         this.referralBindingPort = referralBindingPort;
+        this.redisTemplate = redisTemplate;
     }
 
     public IPage<UserDTO> getUserList(int pageNum, UserDTO userDTO, AuthorDO authorDO) {
@@ -337,15 +344,44 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     public String generateAuthCode(String telephone) {
         String authCode = String.valueOf((int) (Math.random() * 900000) + 100000);
         log.info("生成验证码 - 手机号: {}, 验证码: {}", telephone, authCode);
-        // TODO: 集成 Redis 存储验证码，设置 5 分钟过期
+        // 集成 Redis 存储验证码，设置 5 分钟过期
+        String key = AUTH_CODE_PREFIX + telephone;
+        redisTemplate.opsForValue().set(key, authCode, AUTH_CODE_EXPIRE_SECONDS, TimeUnit.SECONDS);
         return authCode;
+    }
+
+    /**
+     * 验证验证码是否正确
+     * @param telephone 手机号
+     * @param authCode 验证码
+     * @return 验证是否成功
+     */
+    public boolean verifyAuthCode(String telephone, String authCode) {
+        String key = AUTH_CODE_PREFIX + telephone;
+        String storedCode = redisTemplate.opsForValue().get(key);
+        if (storedCode == null) {
+            log.warn("验证码已过期或不存在 - 手机号: {}", telephone);
+            return false;
+        }
+        boolean valid = storedCode.equals(authCode);
+        if (valid) {
+            // 验证成功后删除验证码，防止重复使用
+            redisTemplate.delete(key);
+            log.info("验证码验证成功 - 手机号: {}", telephone);
+        } else {
+            log.warn("验证码错误 - 手机号: {}, 输入: {}", telephone, authCode);
+        }
+        return valid;
     }
 
     @Override
     @Transactional
     public void updatePassword(String telephone, String password, String authCode) {
         try {
-            // TODO: 验证 authCode（从 Redis 获取并校验）
+            // 验证 authCode（从 Redis 获取并校验）
+            if (!verifyAuthCode(telephone, authCode)) {
+                throw new IllegalArgumentException("验证码错误或已过期");
+            }
             UserDO user = userMapper.selectByTelephone(telephone);
             if (user == null) {
                 throw new IllegalArgumentException("用户不存在");
@@ -390,9 +426,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             return null;
         }
         
-        String generatedCode = generateAuthCode(telephone);
-        if (!generatedCode.equals(authCode)) {
-            log.warn("验证码错误 - 手机号: {}, 输入: {}, 预期: {}", telephone, authCode, generatedCode);
+        // 使用 Redis 验证验证码
+        if (!verifyAuthCode(telephone, authCode)) {
+            log.warn("验证码错误 - 手机号: {}, 输入: {}", telephone, authCode);
             return null;
         }
         
