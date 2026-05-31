@@ -9,8 +9,7 @@ temp/
 /dist
 */dist
 */dist-electron
-/node_modules
-*/node_modules
+node_modules
 */dist-ssr
 *.local
 /target
