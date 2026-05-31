@@ -13,6 +13,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metawebthree.common.constants.RequestHeaderKeys;
+import com.metawebthree.common.utils.InternalTokenUtil;
 import com.metawebthree.gateway.auth.GatewayAuthProperties;
 import com.metawebthree.gateway.auth.UserTokenClaims;
 import com.metawebthree.gateway.auth.UserTokenValidator;
@@ -24,22 +25,40 @@ public class UserAuthFilterTest {
     @Test
     public void shouldSkipAuthenticationWhenPathIsExcluded() {
         UserTokenValidator tokenValidator = Mockito.mock(UserTokenValidator.class);
-        UserAuthFilter filter = new UserAuthFilter(tokenValidator, defaultProperties(), new ObjectMapper());
+        InternalTokenUtil internalTokenUtil = Mockito.mock(InternalTokenUtil.class);
+        Mockito.when(internalTokenUtil.generate()).thenReturn("test-internal-token");
+        GatewayAuthProperties authProperties = defaultProperties();
+        ObjectMapper objectMapper = new ObjectMapper();
+        
+        UserAuthFilter filter = new UserAuthFilter(tokenValidator, authProperties, objectMapper, internalTokenUtil);
+        
         GatewayFilterChain chain = Mockito.mock(GatewayFilterChain.class);
-        ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/user-service/user/signIn").build());
-        Mockito.when(chain.filter(exchange)).thenReturn(Mono.empty());
+        Mockito.when(chain.filter(Mockito.any(ServerWebExchange.class))).thenReturn(Mono.empty());
+        
+        ServerWebExchange exchange = MockServerWebExchange.from(
+            MockServerHttpRequest.get("/user-service/user/signIn").build());
 
-        filter.filter(exchange, chain).block();
-
-        Mockito.verify(chain).filter(exchange);
+        Mono<Void> result = filter.filter(exchange, chain);
+        
+        Assertions.assertNotNull(result);
+        result.block();
+        
+        Mockito.verify(chain).filter(Mockito.any(ServerWebExchange.class));
         Mockito.verifyNoInteractions(tokenValidator);
     }
 
     @Test
     public void shouldReturnUnauthorizedWhenAuthorizationHeaderMissing() {
         UserTokenValidator tokenValidator = Mockito.mock(UserTokenValidator.class);
-        UserAuthFilter filter = new UserAuthFilter(tokenValidator, defaultProperties(), new ObjectMapper());
-        ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/user-service/user/profile").build());
+        InternalTokenUtil internalTokenUtil = Mockito.mock(InternalTokenUtil.class);
+        Mockito.when(internalTokenUtil.generate()).thenReturn("test-internal-token");
+        GatewayAuthProperties authProperties = defaultProperties();
+        ObjectMapper objectMapper = new ObjectMapper();
+        
+        UserAuthFilter filter = new UserAuthFilter(tokenValidator, authProperties, objectMapper, internalTokenUtil);
+        
+        ServerWebExchange exchange = MockServerWebExchange.from(
+            MockServerHttpRequest.get("/user-service/user/profile").build());
 
         filter.filter(exchange, Mockito.mock(GatewayFilterChain.class)).block();
 
@@ -51,7 +70,13 @@ public class UserAuthFilterTest {
     @Test
     public void shouldInjectUserHeadersWhenTokenIsValid() {
         UserTokenValidator tokenValidator = Mockito.mock(UserTokenValidator.class);
-        UserAuthFilter filter = new UserAuthFilter(tokenValidator, defaultProperties(), new ObjectMapper());
+        InternalTokenUtil internalTokenUtil = Mockito.mock(InternalTokenUtil.class);
+        Mockito.when(internalTokenUtil.generate()).thenReturn("test-internal-token");
+        GatewayAuthProperties authProperties = defaultProperties();
+        ObjectMapper objectMapper = new ObjectMapper();
+        
+        UserAuthFilter filter = new UserAuthFilter(tokenValidator, authProperties, objectMapper, internalTokenUtil);
+        
         GatewayFilterChain chain = Mockito.mock(GatewayFilterChain.class);
         ArgumentCaptor<ServerWebExchange> exchangeCaptor = ArgumentCaptor.forClass(ServerWebExchange.class);
         Mockito.when(chain.filter(exchangeCaptor.capture())).thenReturn(Mono.empty());
@@ -81,6 +106,8 @@ public class UserAuthFilterTest {
                         "/user-service/user/checkWeb3SignerMessage",
                         "/user-service/admin/login",
                         "/actuator"),
-                java.util.List.of("/v3/api-docs", "/swagger-ui"));
+                java.util.List.of("/v3/api-docs", "/swagger-ui"),
+                java.util.Map.of(),
+                java.util.Map.of());
     }
 }

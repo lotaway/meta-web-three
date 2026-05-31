@@ -64,6 +64,18 @@ gateway:
     excluded-path-keywords:
       - /v3/api-docs
       - /swagger-ui
+    rbac-excluded-path-patterns:
+      # Login & registration — skip role check even if user is authenticated
+      - /user-service/user/signIn
+      - /user-service/user/signInWithWallet
+      - /user-service/user/create
+      - /user-service/sso/**
+      # Actuator & docs
+      - /actuator/**
+      - /v3/api-docs
+      - /swagger-ui
+      # WebSocket — real-time communication
+      - /ws/**
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -75,6 +87,47 @@ springdoc:
     - group: 'all'
       paths-to-match: '/**'
       packages-to-scan: 'com.metawebthree'
+
+# Resilience4j 熔断与降级配置
+resilience4j:
+  circuitbreaker:
+    instances:
+      backend:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+        slowCallRateThreshold: 100
+        slowCallDurationThreshold: 2s
+      productService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 3
+        permittedNumberOfCallsInHalfOpenState: 2
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 40
+      orderService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 3
+        permittedNumberOfCallsInHalfOpenState: 2
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 40
+      paymentService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 3
+        permittedNumberOfCallsInHalfOpenState: 2
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+  timelimiter:
+    instances:
+      backend:
+        timeoutDuration: 3s
+        cancelRunningFuture: true
 ---
 spring:
   config:
