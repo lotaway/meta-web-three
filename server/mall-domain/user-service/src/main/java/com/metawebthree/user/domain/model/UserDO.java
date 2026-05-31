@@ -26,4 +26,7 @@ public class UserDO extends BaseDO {
     private String email;
     private String password;
     private Long typeId;
+    private Integer integration;
+    private Integer growth;
+    private Long memberLevelId;
 }

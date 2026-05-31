@@ -42,4 +42,16 @@ public interface UserMapper extends MPJBaseMapper<UserDO> {
 
     @Select("select integration from User where id = #{userId}")
     Integer getIntegration(@Param("userId") Long userId);
+    
+    @Update("update User set growth = growth + #{delta} where id = #{userId}")
+    int updateGrowth(@Param("userId") Long userId, @Param("delta") Integer delta);
+    
+    @Select("select growth from User where id = #{userId}")
+    Integer getGrowth(@Param("userId") Long userId);
+    
+    @Update("update User set member_level_id = #{memberLevelId} where id = #{userId}")
+    int updateMemberLevelId(@Param("userId") Long userId, @Param("memberLevelId") Long memberLevelId);
+    
+    @Select("select member_level_id from User where id = #{userId}")
+    Long getMemberLevelId(@Param("userId") Long userId);
 }

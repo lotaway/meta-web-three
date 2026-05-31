@@ -2,11 +2,15 @@ package com.metawebthree.user.infrastructure.rpc;
 
 import com.metawebthree.common.generated.rpc.*;
 import com.metawebthree.user.application.dto.UserDTO;
+import com.metawebthree.user.application.MemberLevelService;
+import com.metawebthree.user.domain.model.MemberLevelDO;
 import com.metawebthree.user.infrastructure.persistence.mapper.UserMapper;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
@@ -14,9 +18,11 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class UserRPCServiceImpl implements UserService {
     private final UserMapper userMapper;
+    private final MemberLevelService memberLevelService;
 
-    public UserRPCServiceImpl(UserMapper userMapper) {
+    public UserRPCServiceImpl(UserMapper userMapper, MemberLevelService memberLevelService) {
         this.userMapper = userMapper;
+        this.memberLevelService = memberLevelService;
     }
 
     @Override
@@ -47,7 +53,7 @@ public class UserRPCServiceImpl implements UserService {
     public ReturnIntegrationResponse returnIntegration(ReturnIntegrationRequest request) {
         ReturnIntegrationResponse.Builder responseBuilder = ReturnIntegrationResponse.newBuilder();
         try {
-            if (request.getIntegration() == null || request.getIntegration() <= 0) {
+            if (request.getIntegration() <= 0) {
                 responseBuilder.setSuccess(false).setMessage("积分数量必须大于0");
                 return responseBuilder.build();
             }
@@ -72,6 +78,11 @@ public class UserRPCServiceImpl implements UserService {
     }
 
     @Override
+    public CompletableFuture<ReturnIntegrationResponse> returnIntegrationAsync(ReturnIntegrationRequest request) {
+        return CompletableFuture.completedFuture(returnIntegration(request));
+    }
+
+    @Override
     public GetUserIntegrationResponse getUserIntegration(GetUserIntegrationRequest request) {
         GetUserIntegrationResponse.Builder responseBuilder = GetUserIntegrationResponse.newBuilder();
         try {
@@ -83,5 +94,106 @@ public class UserRPCServiceImpl implements UserService {
             responseBuilder.setUserId(request.getUserId()).setIntegration(0);
         }
         return responseBuilder.build();
+    }
+
+    @Override
+    public CompletableFuture<GetUserIntegrationResponse> getUserIntegrationAsync(GetUserIntegrationRequest request) {
+        return CompletableFuture.completedFuture(getUserIntegration(request));
+    }
+
+    @Override
+    public AddIntegrationResponse addIntegration(AddIntegrationRequest request) {
+        AddIntegrationResponse.Builder responseBuilder = AddIntegrationResponse.newBuilder();
+        try {
+            if (request.getIntegration() <= 0) {
+                responseBuilder.setSuccess(false).setMessage("积分数量必须大于0");
+                return responseBuilder.build();
+            }
+            
+            int updated = userMapper.updateIntegration(request.getUserId(), request.getIntegration());
+            if (updated > 0) {
+                Integer currentIntegration = userMapper.getIntegration(request.getUserId());
+                responseBuilder.setSuccess(true)
+                        .setMessage("积分已添加")
+                        .setCurrentIntegration(currentIntegration != null ? currentIntegration : 0);
+                log.info("积分添加成功 - userId: {}, orderId: {}, integration: {}", 
+                        request.getUserId(), request.getOrderId(), request.getIntegration());
+            } else {
+                responseBuilder.setSuccess(false).setMessage("用户不存在或积分添加失败");
+            }
+        } catch (Exception e) {
+            log.error("积分添加失败 - userId: {}, orderId: {}, error: {}", 
+                    request.getUserId(), request.getOrderId(), e.getMessage(), e);
+            responseBuilder.setSuccess(false).setMessage("积分添加失败: " + e.getMessage());
+        }
+        return responseBuilder.build();
+    }
+
+    @Override
+    public CompletableFuture<AddIntegrationResponse> addIntegrationAsync(AddIntegrationRequest request) {
+        return CompletableFuture.completedFuture(addIntegration(request));
+    }
+
+    @Override
+    public AddGrowthResponse addGrowth(AddGrowthRequest request) {
+        AddGrowthResponse.Builder responseBuilder = AddGrowthResponse.newBuilder();
+        try {
+            if (request.getGrowth() <= 0) {
+                responseBuilder.setSuccess(false).setMessage("成长值必须大于0");
+                return responseBuilder.build();
+            }
+            
+            int updated = userMapper.updateGrowth(request.getUserId(), request.getGrowth());
+            if (updated > 0) {
+                Integer currentGrowth = userMapper.getGrowth(request.getUserId());
+                responseBuilder.setSuccess(true)
+                        .setMessage("成长值已添加")
+                        .setCurrentGrowth(currentGrowth != null ? currentGrowth : 0);
+                log.info("成长值添加成功 - userId: {}, orderId: {}, growth: {}", 
+                        request.getUserId(), request.getOrderId(), request.getGrowth());
+                
+                updateMemberLevelIfNeeded(request.getUserId(), currentGrowth);
+            } else {
+                responseBuilder.setSuccess(false).setMessage("用户不存在或成长值添加失败");
+            }
+        } catch (Exception e) {
+            log.error("成长值添加失败 - userId: {}, orderId: {}, error: {}", 
+                    request.getUserId(), request.getOrderId(), e.getMessage(), e);
+            responseBuilder.setSuccess(false).setMessage("成长值添加失败: " + e.getMessage());
+        }
+        return responseBuilder.build();
+    }
+
+    private void updateMemberLevelIfNeeded(Long userId, Integer currentGrowth) {
+        if (currentGrowth == null || currentGrowth <= 0) {
+            return;
+        }
+        
+        List<MemberLevelDO> allLevels = memberLevelService.list();
+        if (allLevels == null || allLevels.isEmpty()) {
+            return;
+        }
+        
+        MemberLevelDO targetLevel = allLevels.stream()
+                .filter(level -> level.getGrowthPoint() != null && level.getGrowthPoint() <= currentGrowth)
+                .max(Comparator.comparing(MemberLevelDO::getGrowthPoint))
+                .orElse(null);
+        
+        if (targetLevel == null) {
+            return;
+        }
+        
+        Long currentMemberLevelId = userMapper.getMemberLevelId(userId);
+        
+        if (currentMemberLevelId == null || !currentMemberLevelId.equals(targetLevel.getId())) {
+            userMapper.updateMemberLevelId(userId, targetLevel.getId());
+            log.info("会员等级自动升级 - userId: {}, oldLevelId: {}, newLevelId: {}, newLevelName: {}, growth: {}", 
+                    userId, currentMemberLevelId, targetLevel.getId(), targetLevel.getName(), currentGrowth);
+        }
+    }
+
+    @Override
+    public CompletableFuture<AddGrowthResponse> addGrowthAsync(AddGrowthRequest request) {
+        return CompletableFuture.completedFuture(addGrowth(request));
     }
 }
