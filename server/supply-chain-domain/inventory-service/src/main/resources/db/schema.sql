@@ -135,3 +135,58 @@ CREATE TABLE IF NOT EXISTS outbound_strategy (
     INDEX idx_is_active (is_active),
     INDEX idx_priority (priority)
 ) COMMENT '出库策略配置表';
+
+-- 库存预警配置表
+CREATE TABLE IF NOT EXISTS inventory_alert_config (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    config_code VARCHAR(64) NOT NULL COMMENT '配置编码',
+    warehouse_code VARCHAR(32) COMMENT '仓库编码（空为全局配置）',
+    sku_code VARCHAR(64) COMMENT 'SKU编码（空为适用所有）',
+    safety_stock_threshold INT COMMENT '安全库存阈值',
+    level VARCHAR(32) DEFAULT 'WARNING' COMMENT '预警级别：INFO/WARNING/ERROR/CRITICAL',
+    enabled BOOLEAN DEFAULT TRUE COMMENT '是否启用',
+    cooldown_minutes INT DEFAULT 60 COMMENT '冷却时间（分钟）',
+    notification_channels VARCHAR(128) COMMENT '通知渠道：EMAIL,SMS,IN_APP,DINGTALK',
+    notify_users VARCHAR(512) COMMENT '通知用户（逗号分隔）',
+    created_by VARCHAR(64) COMMENT '创建人',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_by VARCHAR(64) COMMENT '更新人',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    version INT DEFAULT 0 COMMENT '乐观锁版本',
+    UNIQUE KEY uk_config_code (config_code),
+    INDEX idx_warehouse_code (warehouse_code),
+    INDEX idx_sku_code (sku_code),
+    INDEX idx_enabled (enabled)
+) COMMENT '库存预警配置表';
+
+-- 库存预警记录表
+CREATE TABLE IF NOT EXISTS inventory_alert (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    alert_code VARCHAR(64) NOT NULL COMMENT '预警编号',
+    warehouse_code VARCHAR(32) NOT NULL COMMENT '仓库编码',
+    sku_code VARCHAR(64) NOT NULL COMMENT 'SKU编码',
+    alert_type VARCHAR(32) NOT NULL COMMENT '预警类型：LOW_STOCK/OVERSTOCK/EXPIRING_SOON/EXPIRED',
+    level VARCHAR(32) DEFAULT 'WARNING' COMMENT '预警级别：INFO/WARNING/ERROR/CRITICAL',
+    title VARCHAR(256) NOT NULL COMMENT '标题',
+    description VARCHAR(1024) COMMENT '描述',
+    current_quantity INT COMMENT '当前数量',
+    threshold_value INT COMMENT '阈值',
+    status VARCHAR(32) DEFAULT 'TRIGGERED' COMMENT '状态：TRIGGERED/ACKNOWLEDGED/IN_PROGRESS/RESOLVED/CLOSED',
+    solution VARCHAR(1024) COMMENT '解决方案',
+    acknowledged_by VARCHAR(64) COMMENT '确认人',
+    acknowledged_at TIMESTAMP COMMENT '确认时间',
+    resolved_by VARCHAR(64) COMMENT '解决人',
+    resolved_at TIMESTAMP COMMENT '解决时间',
+    occurred_at TIMESTAMP NOT NULL COMMENT '发生时间',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    version INT DEFAULT 0 COMMENT '乐观锁版本',
+    UNIQUE KEY uk_alert_code (alert_code),
+    INDEX idx_warehouse_code (warehouse_code),
+    INDEX idx_sku_code (sku_code),
+    INDEX idx_alert_type (alert_type),
+    INDEX idx_level (level),
+    INDEX idx_status (status),
+    INDEX idx_occurred_at (occurred_at),
+    INDEX idx_created_at (created_at)
+) COMMENT '库存预警记录表';
