@@ -374,7 +374,7 @@ public class ProductService {
             return new ArrayList<>();
         }
         return items.stream()
-                .map(this::convertToProductDTO)
+                .map(item -> convertToProductDTO(item, null, null))
                 .collect(Collectors.toList());
     }
 }
