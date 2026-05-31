@@ -36,6 +36,12 @@ public enum ResponseStatus {
     WAREHOUSE_NOT_FOUND("7001", "仓库不存在"),
     INBOUND_ORDER_NOT_FOUND("7002", "入库单不存在"),
 
+    SUPPLIER_NOT_FOUND("8001", "供应商不存在"),
+    SUPPLIER_CREATE_FAILED("8002", "供应商创建失败"),
+    SUPPLIER_UPDATE_FAILED("8003", "供应商更新失败"),
+    SUPPLIER_DELETE_FAILED("8004", "供应商删除失败"),
+    SUPPLIER_VERIFICATION_FAILED("8005", "供应商资质审核失败"),
+
     PARAM_ERROR("1000", "参数错误"),
     METHOD_NOT_ALLOWED("1004", "不支持的请求方法"),
     NOT_FOUND("1005", "资源不存在"),
