@@ -2,10 +2,6 @@ package com.metawebthree.reporting.domain.entity;
 
 import java.time.LocalDateTime;
 
-/**
- * 报表订阅实体
- * 用户可以订阅特定类型的报表，按指定频率自动接收
- */
 public class ReportSubscription {
     private Long id;
     private Long userId;
@@ -61,7 +57,6 @@ public class ReportSubscription {
         calculateNextSendTime();
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public Long getUserId() { return userId; }
     public String getUserName() { return userName; }

@@ -4,9 +4,6 @@ import com.metawebthree.reporting.domain.entity.ReportSubscription;
 import com.metawebthree.reporting.infrastructure.persistence.dataobject.ReportSubscriptionDO;
 import org.springframework.stereotype.Component;
 
-/**
- * 报表订阅转换器
- */
 @Component
 public class ReportSubscriptionConverter {
 

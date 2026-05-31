@@ -7,9 +7,6 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-/**
- * 报表订阅数据对象
- */
 @Data
 @TableName("report_subscription")
 public class ReportSubscriptionDO {

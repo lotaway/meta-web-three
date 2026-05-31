@@ -13,9 +13,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * 报表订阅仓储实现
- */
 @Repository
 @RequiredArgsConstructor
 public class ReportSubscriptionRepositoryImpl implements ReportSubscriptionRepository {
