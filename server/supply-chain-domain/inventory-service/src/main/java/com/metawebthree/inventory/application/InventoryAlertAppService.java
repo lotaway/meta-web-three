@@ -24,13 +24,11 @@ public class InventoryAlertAppService {
 
     @Transactional
     public InventoryAlert createAlert(InventoryAlert alert, InventoryAlertConfig config) {
-        // 保存预警记录
         InventoryAlert savedAlert = alertRepository.save(alert);
         
-        log.info("创建库存预警成功: alertCode={}, skuCode={}, level={}", 
+        log.info("Inventory alert created: alertCode={}, skuCode={}, level={}", 
                 alert.getAlertCode(), alert.getSkuCode(), alert.getLevel());
         
-        // 发布预警创建事件，用于发送通知
         if (config != null && config.getNotificationChannels() != null) {
             AlertNotificationDTO notification = buildNotification(savedAlert, config);
             InventoryAlertCreatedEvent event = new InventoryAlertCreatedEvent(this, notification);
@@ -44,24 +42,24 @@ public class InventoryAlertAppService {
     public void acknowledgeAlert(Long alertId, String userId) {
         InventoryAlert alert = alertRepository.findById(alertId);
         if (alert == null) {
-            throw new IllegalArgumentException("预警记录不存在: " + alertId);
+            throw new IllegalArgumentException("Alert not found: " + alertId);
         }
         alert.acknowledge(userId);
         alertRepository.save(alert);
         
-        log.info("预警已确认: alertCode={}, acknowledgedBy={}", alert.getAlertCode(), userId);
+        log.info("Alert acknowledged: alertCode={}, acknowledgedBy={}", alert.getAlertCode(), userId);
     }
 
     @Transactional
     public void resolveAlert(Long alertId, String userId, String solution) {
         InventoryAlert alert = alertRepository.findById(alertId);
         if (alert == null) {
-            throw new IllegalArgumentException("预警记录不存在: " + alertId);
+            throw new IllegalArgumentException("Alert not found: " + alertId);
         }
         alert.resolve(userId, solution);
         alertRepository.save(alert);
         
-        log.info("预警已解决: alertCode={}, resolvedBy={}", alert.getAlertCode(), userId);
+        log.info("Alert resolved: alertCode={}, resolvedBy={}", alert.getAlertCode(), userId);
     }
 
     public List<InventoryAlert> getActiveAlerts() {

@@ -190,3 +190,46 @@ CREATE TABLE IF NOT EXISTS inventory_alert (
     INDEX idx_occurred_at (occurred_at),
     INDEX idx_created_at (created_at)
 ) COMMENT '库存预警记录表';
+
+-- 库存预占记录表
+CREATE TABLE IF NOT EXISTS inventory_reservation_record (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    biz_id VARCHAR(64) NOT NULL COMMENT '业务单据ID',
+    sku_code VARCHAR(64) NOT NULL COMMENT 'SKU编码',
+    warehouse_id BIGINT NOT NULL COMMENT '仓库ID',
+    quantity INT NOT NULL COMMENT '预占数量',
+    status VARCHAR(32) DEFAULT 'PENDING' COMMENT '状态：PENDING/CONFIRMED/CANCELLED',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY uk_biz_id (biz_id),
+    INDEX idx_sku_code (sku_code),
+    INDEX idx_warehouse_id (warehouse_id),
+    INDEX idx_status (status)
+) COMMENT '库存预占记录表';
+
+-- 库存操作审计日志表
+CREATE TABLE IF NOT EXISTS inventory_operation_log (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    operation_type VARCHAR(32) NOT NULL COMMENT '操作类型：RESERVE/CONFIRM/CANCEL/INCREASE/DECREASE',
+    sku_code VARCHAR(64) NOT NULL COMMENT 'SKU编码',
+    warehouse_id BIGINT NOT NULL COMMENT '仓库ID',
+    quantity INT NOT NULL COMMENT '变动数量(增为正，减为负)',
+    biz_id VARCHAR(64) COMMENT '业务单据ID',
+    remark VARCHAR(512) COMMENT '备注',
+    operator_id VARCHAR(64) COMMENT '操作人ID',
+    operator_name VARCHAR(128) COMMENT '操作人名称',
+    quantity_before INT COMMENT '操作前库存',
+    quantity_after INT COMMENT '操作后库存',
+    operated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '操作时间',
+    result VARCHAR(32) DEFAULT 'SUCCESS' COMMENT '操作结果：SUCCESS/FAILED',
+    error_message VARCHAR(1024) COMMENT '错误信息',
+    request_id VARCHAR(64) COMMENT '请求ID',
+    client_ip VARCHAR(64) COMMENT '客户端IP',
+    INDEX idx_sku_code (sku_code),
+    INDEX idx_warehouse_id (warehouse_id),
+    INDEX idx_operation_type (operation_type),
+    INDEX idx_biz_id (biz_id),
+    INDEX idx_operator_id (operator_id),
+    INDEX idx_operated_at (operated_at),
+    INDEX idx_result (result)
+) COMMENT '库存操作审计日志表';

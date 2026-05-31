@@ -47,6 +47,15 @@ public class InventoryRepositoryImpl implements InventoryRepository {
     }
 
     @Override
+    public List<Inventory> findBySkuCode(String skuCode) {
+        LambdaQueryWrapper<InventoryDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(InventoryDO::getSkuCode, skuCode);
+        return inventoryMapper.selectList(wrapper).stream()
+                .map(inventoryConverter::toEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<Inventory> findAll() {
         return inventoryMapper.selectList(null).stream()
                 .map(inventoryConverter::toEntity)

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metawebthree.inventory.infrastructure.persistence.mapper.InventoryOperationLogMapper">
+    
+    <insert id="insert" parameterType="com.metawebthree.inventory.infrastructure.persistence.dataobject.InventoryOperationLogDO" 
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO inventory_operation_log (
+            operation_type, sku_code, warehouse_id, quantity, biz_id, remark,
+            operator_id, operator_name, quantity_before, quantity_after,
+            operated_at, result, error_message, request_id, client_ip
+        ) VALUES (
+            #{operationType}, #{skuCode}, #{warehouseId}, #{quantity}, #{bizId}, #{remark},
+            #{operatorId}, #{operatorName}, #{quantityBefore}, #{quantityAfter},
+            #{operatedAt}, #{result}, #{errorMessage}, #{requestId}, #{clientIp}
+        )
+    </insert>
+    
+    <select id="findByBizId" resultType="com.metawebthree.inventory.infrastructure.persistence.dataobject.InventoryOperationLogDO">
+        SELECT * FROM inventory_operation_log WHERE biz_id = #{bizId} ORDER BY operated_at DESC
+    </select>
+    
+    <select id="findBySkuCodeAndWarehouseId" resultType="com.metawebthree.inventory.infrastructure.persistence.dataobject.InventoryOperationLogDO">
+        SELECT * FROM inventory_operation_log 
+        WHERE sku_code = #{skuCode} AND warehouse_id = #{warehouseId} 
+        ORDER BY operated_at DESC
+    </select>
+    
+    <select id="findByOperationType" resultType="com.metawebthree.inventory.infrastructure.persistence.dataobject.InventoryOperationLogDO">
+        SELECT * FROM inventory_operation_log WHERE operation_type = #{operationType} ORDER BY operated_at DESC
+    </select>
+    
+    <select id="findByOperatedAtBetween" resultType="com.metawebthree.inventory.infrastructure.persistence.dataobject.InventoryOperationLogDO">
+        SELECT * FROM inventory_operation_log 
+        WHERE operated_at BETWEEN #{start} AND #{end} 
+        ORDER BY operated_at DESC
+    </select>
+    
+    <select id="findByOperatorId" resultType="com.metawebthree.inventory.infrastructure.persistence.dataobject.InventoryOperationLogDO">
+        SELECT * FROM inventory_operation_log WHERE operator_id = #{operatorId} ORDER BY operated_at DESC
+    </select>
+    
+    <select id="findByResult" resultType="com.metawebthree.inventory.infrastructure.persistence.dataobject.InventoryOperationLogDO">
+        SELECT * FROM inventory_operation_log WHERE result = #{result} ORDER BY operated_at DESC
+    </select>
+</mapper>

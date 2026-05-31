@@ -29,16 +29,16 @@ public class InventoryAlertJob {
     private final InventoryAlertAppService alertAppService;
 
     /**
-     * 每小时检查一次库存安全预警
+     * Check inventory safety stock alert every hour
      */
     @Scheduled(cron = "0 0 * * * ?")
     public void checkInventorySafetyStock() {
-        log.info("开始执行库存安全预警检查任务");
+        log.info("Starting inventory safety stock alert check task");
         try {
             List<Inventory> inventories = inventoryRepository.findAll();
             List<InventoryAlertConfig> configs = configRepository.findAllEnabled();
             
-            // 批量获取所有 SKU 的最新预警，避免 N+1 查询
+            // Batch fetch all SKU's latest alerts to avoid N+1 query
             List<String> skuCodes = inventories.stream()
                     .map(Inventory::getSkuCode)
                     .distinct()
@@ -48,11 +48,11 @@ public class InventoryAlertJob {
                     .collect(Collectors.toMap(InventoryAlert::getSkuCode, a -> a, (a, b) -> a));
 
             for (Inventory inventory : inventories) {
-                // 查找对应的预警配置
+                // Find matching alert config
                 InventoryAlertConfig config = findMatchingConfig(inventory, configs);
                 
                 if (config == null) {
-                    // 使用默认配置（如果设置了安全库存）
+                    // Use default config (if safety stock is set)
                     if (inventory.getSafetyStock() != null && inventory.getSafetyStock() > 0) {
                         config = createDefaultConfig(inventory);
                     } else {
@@ -60,38 +60,38 @@ public class InventoryAlertJob {
                     }
                 }
 
-                // 使用预加载的预警数据，避免 N+1 查询
+                // Use preloaded alert data to avoid N+1 query
                 InventoryAlert lastAlert = lastAlertMap.get(inventory.getSkuCode());
                 if (alertDomainService.isInCooldown(lastAlert, config.getCooldownMinutes())) {
-                    log.debug("SKU {} 处于预警冷却期内，跳过", inventory.getSkuCode());
+                    log.debug("SKU {} is in alert cooldown period, skipping", inventory.getSkuCode());
                     continue;
                 }
 
-                // 检查是否需要生成预警
+                // Check if alert needs to be generated
                 List<InventoryAlert> alerts = alertDomainService.checkInventoryAlerts(inventory, config);
                 for (InventoryAlert alert : alerts) {
                     alertAppService.createAlert(alert, config);
                 }
             }
 
-            log.info("库存安全预警检查任务执行完成");
+            log.info("Inventory safety stock alert check task completed");
         } catch (Exception e) {
-            log.error("库存安全预警检查任务执行失败: {}", e.getMessage(), e);
+            log.error("Inventory safety stock alert check task failed: {}", e.getMessage(), e);
         }
     }
 
     /**
-     * 查找匹配的预警配置
+     * Find matching alert config
      */
     private InventoryAlertConfig findMatchingConfig(Inventory inventory, List<InventoryAlertConfig> configs) {
         for (InventoryAlertConfig config : configs) {
-            // 先精确匹配
+            // First exact match
             if (config.getSkuCode() != null && config.getSkuCode().equals(inventory.getSkuCode())) {
                 return config;
             }
         }
         
-        // 再按仓库匹配
+        // Then match by warehouse
         for (InventoryAlertConfig config : configs) {
             if (config.getWarehouseCode() != null && 
                 config.getWarehouseCode().equals(inventory.getWarehouseId().toString()) &&
@@ -100,7 +100,7 @@ public class InventoryAlertJob {
             }
         }
         
-        // 返回全局配置
+        // Return global config
         for (InventoryAlertConfig config : configs) {
             if (config.getWarehouseCode() == null && config.getSkuCode() == null) {
                 return config;
@@ -111,14 +111,14 @@ public class InventoryAlertJob {
     }
 
     /**
-     * 创建默认配置
+     * Create default config
      */
     private InventoryAlertConfig createDefaultConfig(Inventory inventory) {
         InventoryAlertConfig config = new InventoryAlertConfig();
         config.setEnabled(true);
         config.setSafetyStockThreshold(inventory.getSafetyStock());
         config.setLevel(InventoryAlertConfig.AlertLevel.WARNING);
-        config.setCooldownMinutes(60); // 默认1小时冷却
+        config.setCooldownMinutes(60); // Default 1 hour cooldown
         config.setNotificationChannels("EMAIL,IN_APP");
         return config;
     }

@@ -12,6 +12,8 @@ public interface InventoryRepository {
 
     List<Inventory> findByWarehouse(Long warehouseId);
 
+    List<Inventory> findBySkuCode(String skuCode);
+
     List<Inventory> findAll();
 
     Inventory save(Inventory inventory);
