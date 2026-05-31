@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package com.metawebthree.common.generated.rpc;
+
+option java_multiple_files = true;
+
+service PromotionService {
+    rpc listCouponTypesByProduct(ListCouponTypesByProductRequest) returns (ListCouponTypesByProductResponse);
+    rpc returnCoupon(ReturnCouponRequest) returns (ReturnCouponResponse);
+    rpc getUserCoupons(GetUserCouponsRequest) returns (GetUserCouponsResponse);
+}
+
+message ReturnCouponRequest {
+    int64 userId = 1;
+    int64 couponId = 2;
+    int64 orderId = 3;
+}
+
+message ReturnCouponResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message GetUserCouponsRequest {
+    int64 userId = 1;
+    bool onlyUnused = 2;
+}
+
+message GetUserCouponsResponse {
+    repeated CouponProto coupons = 1;
+}
+
+message CouponProto {
+    int64 id = 1;
+    string name = 2;
+    int64 couponTypeId = 3;
+    int64 orderId = 4;
+    int64 useTime = 5;
+    int64 receiveTime = 6;
+    string status = 7;
+}
+
+message ListCouponTypesByProductRequest {
+    int64 product_id = 1;
+}
+
+message ListCouponTypesByProductResponse {
+    repeated CouponTypeProto coupon_types = 1;
+}
+
+message CouponTypeProto {
+    int64 id = 1;
+    string name = 2;
+    string description = 3;
+    string image_url = 4;
+    double minimum_order_amount = 5;
+    double discount_amount = 6;
+    bool is_enabled = 7;
+    int64 start_time = 8;
+    int64 end_time = 9;
+}

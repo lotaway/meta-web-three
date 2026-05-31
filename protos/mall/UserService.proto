@@ -8,6 +8,31 @@ service UserService {
     rpc getWalletAddressByUserId(GetWalletAddressByUserIdRequest) returns (GetWalletAddressByUserIdResponse);
 
     rpc getUserIdByWalletAddress(GetUserIdByWalletAddressRequest) returns (GetUserIdByWalletAddressResponse);
+
+    rpc returnIntegration(ReturnIntegrationRequest) returns (ReturnIntegrationResponse);
+    rpc getUserIntegration(GetUserIntegrationRequest) returns (GetUserIntegrationResponse);
+}
+
+message ReturnIntegrationRequest {
+    int64 userId = 1;
+    int32 integration = 2;
+    int64 orderId = 3;
+    string reason = 4;
+}
+
+message ReturnIntegrationResponse {
+    bool success = 1;
+    string message = 2;
+    int32 currentIntegration = 3;
+}
+
+message GetUserIntegrationRequest {
+    int64 userId = 1;
+}
+
+message GetUserIntegrationResponse {
+    int64 userId = 1;
+    int32 integration = 2;
 }
 
 message GetWalletAddressByUserIdRequest {
