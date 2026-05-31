@@ -8,7 +8,8 @@ import com.metawebthree.order.domain.model.SagaStep;
 import com.metawebthree.order.infrastructure.client.InventoryClient;
 import com.metawebthree.order.infrastructure.client.PromotionClient;
 import com.metawebthree.order.infrastructure.persistence.mapper.OrderMapper;
-import lombok.Data;
+import com.metawebthree.common.exception.BusinessException;
+import com.metawebthree.common.enums.ResponseStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -109,7 +110,7 @@ public class OrderPaymentSaga {
                 "Order payment saga - reserve inventory");
             
             if (!reserveResult) {
-                throw new RuntimeException("Failed to reserve inventory");
+                throw new BusinessException(ResponseStatus.SYSTEM_ERROR, "Failed to reserve inventory");
             }
             
             SagaOrchestrator.SagaStepResult step2Result = SagaOrchestrator.SagaStepResult.success(
@@ -133,7 +134,7 @@ public class OrderPaymentSaga {
             boolean paymentResult = true; // paymentService.processPayment(userId, orderId, orderData.getTotalAmount());
             
             if (!paymentResult) {
-                throw new RuntimeException("Payment failed");
+                throw new BusinessException(ResponseStatus.SYSTEM_ERROR, "Payment failed");
             }
             
             SagaOrchestrator.SagaStepResult step3Result = SagaOrchestrator.SagaStepResult.success(
@@ -155,7 +156,7 @@ public class OrderPaymentSaga {
                 "Order payment saga - confirm inventory");
             
             if (!confirmResult) {
-                throw new RuntimeException("Failed to confirm inventory");
+                throw new BusinessException(ResponseStatus.SYSTEM_ERROR, "Failed to confirm inventory");
             }
             
             SagaOrchestrator.SagaStepResult step4Result = SagaOrchestrator.SagaStepResult.success(
@@ -188,7 +189,7 @@ public class OrderPaymentSaga {
                 }
             }
             
-            throw new RuntimeException("Order payment saga failed: " + e.getMessage(), e);
+            throw new BusinessException(ResponseStatus.SYSTEM_ERROR, "Order payment saga failed: " + e.getMessage(), e);
         }
     }
 

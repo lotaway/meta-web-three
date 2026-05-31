@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metawebthree.order.domain.model.SagaInstance;
 import com.metawebthree.order.domain.model.SagaStep;
+import com.metawebthree.common.exception.BusinessException;
+import com.metawebthree.common.enums.ResponseStatus;
 import com.metawebthree.order.infrastructure.persistence.mapper.SagaInstanceMapper;
 import com.metawebthree.order.infrastructure.persistence.mapper.SagaStepMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -135,7 +137,7 @@ public class SagaOrchestratorImpl implements SagaOrchestrator {
             sagaStepMapper.updateById(step);
             
             updateSagaStatus(sagaId, SagaInstance.Status.FAILED, e.getMessage());
-            throw new RuntimeException("Saga step execution failed: " + stepName, e);
+            throw new BusinessException(ResponseStatus.SYSTEM_ERROR, "Saga step execution failed: " + stepName, e);
         }
     }
 
