@@ -26,12 +26,14 @@
         <module>mall-domain/payment-service</module>
         <module>mall-domain/promotion-service</module>
         <module>mall-domain/cart-service</module>
+        <module>mall-domain/supplier-service</module>
         <!-- platform-domain -->
         <module>platform-domain/message-service</module>
         <module>platform-domain/media-service</module>
         <module>platform-domain/commission-service</module>
         <module>platform-domain/user-action-service</module>
         <module>platform-domain/cs-service</module>
+        <module>platform-domain/data-analysis-service</module>
         <!-- factory-domain -->
         <module>factory-domain/mes-service</module>
         <module>factory-domain/digital-twin-service</module>
@@ -52,6 +54,7 @@
         <module>erp-domain/hrm-service</module>
         <!-- blockchain-domain -->
         <module>blockchain-domain/wallet-service</module>
+        <module>blockchain-domain/traceability-service</module>
     </modules>
 
     <properties>
