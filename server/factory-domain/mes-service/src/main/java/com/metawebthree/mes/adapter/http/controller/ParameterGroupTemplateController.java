@@ -35,14 +35,12 @@ public class ParameterGroupTemplateController {
         
         ParameterGroupTemplate template = request.toEntity();
         
-        // 如果有参数ID，获取对应的参数编码
+        // 如果有参数ID，批量获取对应的参数编码
         if (request.getParameterIds() != null && !request.getParameterIds().isEmpty()) {
-            List<String> codes = new ArrayList<>();
-            for (Long paramId : request.getParameterIds()) {
-                processParameterRepository.findById(paramId).ifPresent(
-                    p -> codes.add(p.getParamCode())
-                );
-            }
+            List<ProcessParameter> params = processParameterRepository.findByIds(request.getParameterIds());
+            List<String> codes = params.stream()
+                    .map(ProcessParameter::getParamCode)
+                    .collect(Collectors.toList());
             template.setParameterCodes(codes);
         }
         
@@ -75,14 +73,16 @@ public class ParameterGroupTemplateController {
         }
         if (request.getParameterIds() != null) {
             template.setParameterIds(request.getParameterIds());
-            // 获取对应的参数编码
-            List<String> codes = new ArrayList<>();
-            for (Long paramId : request.getParameterIds()) {
-                processParameterRepository.findById(paramId).ifPresent(
-                    p -> codes.add(p.getParamCode())
-                );
+            // 批量获取对应的参数编码
+            if (!request.getParameterIds().isEmpty()) {
+                List<ProcessParameter> params = processParameterRepository.findByIds(request.getParameterIds());
+                List<String> codes = params.stream()
+                        .map(ProcessParameter::getParamCode)
+                        .collect(Collectors.toList());
+                template.setParameterCodes(codes);
+            } else {
+                template.setParameterCodes(List.of());
             }
-            template.setParameterCodes(codes);
         }
         
         templateRepository.save(template);

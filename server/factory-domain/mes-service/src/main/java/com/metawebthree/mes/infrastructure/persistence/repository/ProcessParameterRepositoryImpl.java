@@ -25,6 +25,15 @@ public class ProcessParameterRepositoryImpl implements ProcessParameterRepositor
     }
     
     @Override
+    public List<ProcessParameter> findByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        List<ProcessParameterDO> doList = processParameterMapper.selectBatchIds(ids);
+        return doList.stream().map(this::toEntity).collect(java.util.stream.Collectors.toList());
+    }
+    
+    @Override
     public Optional<ProcessParameter> findByParamCode(String paramCode) {
         LambdaQueryWrapper<ProcessParameterDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ProcessParameterDO::getParamCode, paramCode);

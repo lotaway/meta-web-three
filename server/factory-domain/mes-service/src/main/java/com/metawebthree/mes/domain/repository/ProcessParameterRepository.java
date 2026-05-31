@@ -9,6 +9,8 @@ public interface ProcessParameterRepository {
     
     Optional<ProcessParameter> findById(Long id);
     
+    List<ProcessParameter> findByIds(List<Long> ids);
+    
     Optional<ProcessParameter> findByParamCode(String paramCode);
     
     List<ProcessParameter> findByRouteIdOrderByStepNoAscDisplayOrderAsc(Long routeId);
