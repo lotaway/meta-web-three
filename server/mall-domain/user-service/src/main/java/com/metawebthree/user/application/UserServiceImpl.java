@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.metawebthree.author.AuthorDO;
 import com.metawebthree.common.VO.PageConfigVO;
+import com.metawebthree.common.exception.BusinessException;
+import com.metawebthree.common.enums.ResponseStatus;
 import com.metawebthree.common.utils.UserRole;
 import com.metawebthree.user.infrastructure.persistence.mapper.Web3UserMapper;
 import com.metawebthree.user.infrastructure.persistence.mapper.UserMapper;
@@ -320,7 +322,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
 
         } catch (Exception e) {
             log.error("Failed to create sub-token", e);
-            throw new RuntimeException("Failed to create sub-token: " + e.getMessage());
+            throw new BusinessException(ResponseStatus.SYSTEM_ERROR, "Failed to create sub-token: " + e.getMessage());
         }
     }
 
@@ -391,7 +393,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             log.info("密码修改成功 - 手机号: {}", telephone);
         } catch (Exception e) {
             log.error("修改密码失败: {}", e.getMessage());
-            throw new RuntimeException("修改密码失败", e);
+            throw new BusinessException(ResponseStatus.SYSTEM_ERROR, "Password change failed", e);
         }
     }
 

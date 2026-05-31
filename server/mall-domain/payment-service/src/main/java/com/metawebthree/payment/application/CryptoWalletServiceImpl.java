@@ -3,6 +3,7 @@ package com.metawebthree.payment.application;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metawebthree.common.annotations.LogMethod;
+import com.metawebthree.payment.domain.exception.ExternalServiceException;
 import com.metawebthree.payment.domain.model.ExchangeOrder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +59,7 @@ public class CryptoWalletServiceImpl {
     private void validateWalletBalance(ExchangeOrder order) {
         BigDecimal balance = getWalletBalance(order.getCryptoCurrency());
         if (balance.compareTo(order.getCryptoAmount()) < 0) {
-            throw new RuntimeException("Insufficient wallet balance. Required: " + order.getCryptoAmount() + " "
+            throw new ExternalServiceException("Wallet", "Insufficient wallet balance. Required: " + order.getCryptoAmount() + " "
                     + order.getCryptoCurrency() +
                     ", Available: " + balance + " " + order.getCryptoCurrency());
         }
@@ -108,7 +109,7 @@ public class CryptoWalletServiceImpl {
                 return new BigDecimal(balanceObj.toString());
             }
         }
-        throw new RuntimeException("Failed to fetch balance from blockchain API");
+        throw new ExternalServiceException("BlockchainAPI", "Failed to fetch balance from blockchain API");
     }
 
     private BigDecimal fetchBalanceFromWalletSdk(String cryptoCurrency) {
@@ -134,7 +135,7 @@ public class CryptoWalletServiceImpl {
                 return new BigDecimal(balanceObj.toString());
             }
         }
-        throw new RuntimeException("Failed to fetch balance from wallet SDK");
+        throw new ExternalServiceException("WalletSDK", "Failed to fetch balance from wallet SDK");
     }
 
     /**
@@ -192,7 +193,7 @@ public class CryptoWalletServiceImpl {
                 return txHashObj.toString();
             }
         }
-        throw new RuntimeException("Transfer failed: no txHash returned");
+        throw new ExternalServiceException("BlockchainAPI", "Transfer failed: no txHash returned");
     }
 
     private String transferViaWalletSdk(ExchangeOrder order) {
@@ -226,7 +227,7 @@ public class CryptoWalletServiceImpl {
                 return hashObj.toString();
             }
         }
-        throw new RuntimeException("Transfer failed: no txHash returned");
+        throw new ExternalServiceException("WalletSDK", "Transfer failed: no txHash returned");
     }
 
     private String getHotWalletAddress(String cryptoCurrency) {
@@ -350,7 +351,7 @@ public class CryptoWalletServiceImpl {
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
             return response.getBody();
         }
-        throw new RuntimeException("Failed to fetch transaction details");
+        throw new ExternalServiceException("BlockchainAPI", "Failed to fetch transaction details");
     }
 
     private Object fetchTransactionDetailsFromWalletSdk(String txHash, String cryptoCurrency) {
@@ -372,7 +373,7 @@ public class CryptoWalletServiceImpl {
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
             return response.getBody();
         }
-        throw new RuntimeException("Failed to fetch transaction details");
+        throw new ExternalServiceException("WalletSDK", "Failed to fetch transaction details");
     }
 
     /**
@@ -435,7 +436,7 @@ public class CryptoWalletServiceImpl {
                 return addressObj.toString();
             }
         }
-        throw new RuntimeException("Failed to create wallet address: no address returned");
+        throw new ExternalServiceException("BlockchainAPI", "Failed to create wallet address: no address returned");
     }
 
     private String createWalletAddressViaWalletSdk(String cryptoCurrency) {
@@ -464,7 +465,7 @@ public class CryptoWalletServiceImpl {
                 return addressObj2.toString();
             }
         }
-        throw new RuntimeException("Failed to create wallet address: no address returned");
+        throw new ExternalServiceException("WalletSDK", "Failed to create wallet address: no address returned");
     }
 
     public boolean isValidAddress(String address, String cryptoCurrency) {

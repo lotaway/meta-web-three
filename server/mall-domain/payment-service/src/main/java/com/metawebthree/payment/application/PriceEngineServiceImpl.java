@@ -1,5 +1,6 @@
 package com.metawebthree.payment.application;
 
+import com.metawebthree.payment.domain.exception.ExternalServiceException;
 import com.metawebthree.payment.domain.model.CryptoPrice;
 import com.metawebthree.payment.infrastructure.persistence.mapper.CryptoPriceRepository;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class PriceEngineServiceImpl {
         List<CryptoPrice> prices = cryptoPriceRepository.findByBaseCurrencyAndQuoteCurrency(baseCurrency, quoteCurrency);
         
         if (prices.isEmpty()) {
-            throw new RuntimeException("No price data available for " + baseCurrency + "-" + quoteCurrency);
+            throw new ExternalServiceException("PriceEngine", "No price data available for " + baseCurrency + "-" + quoteCurrency);
         }
         BigDecimal totalWeight = BigDecimal.ZERO;
         BigDecimal weightedSum = BigDecimal.ZERO;
@@ -103,7 +104,7 @@ public class PriceEngineServiceImpl {
         if (cachedPrice != null) {
             return cachedPrice;
         }
-        throw new RuntimeException("Unable to fetch price for " + symbol);
+        throw new ExternalServiceException("PriceEngine", "Unable to fetch price for " + symbol);
     }
     
     private boolean isPriceValid(CryptoPrice price) {

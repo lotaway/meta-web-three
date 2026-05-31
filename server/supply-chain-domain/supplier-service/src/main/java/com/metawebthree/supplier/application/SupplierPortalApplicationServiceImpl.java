@@ -11,6 +11,8 @@ import com.metawebthree.supplier.domain.repository.SupplierReconciliationReposit
 import com.metawebthree.supplier.domain.repository.SupplierShipmentNoticeRepository;
 import com.metawebthree.supplier.infrastructure.rpc.ProcurementServiceClient;
 import com.metawebthree.supplier.infrastructure.rpc.dto.ProcurementOrderDTO;
+import com.metawebthree.common.exception.BusinessException;
+import com.metawebthree.common.enums.ResponseStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -67,10 +69,10 @@ public class SupplierPortalApplicationServiceImpl implements SupplierPortalAppli
     @Override
     public SupplierShipmentNoticeDTO updateShipmentNotice(Long id, SupplierShipmentNoticeDTO dto) {
         SupplierShipmentNotice notice = shipmentNoticeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("发货通知不存在"));
+                .orElseThrow(() -> new BusinessException(ResponseStatus.NOT_FOUND, "Shipment notice not found"));
         
         if (!notice.canEdit()) {
-            throw new RuntimeException("当前状态不允许编辑");
+            throw new BusinessException(ResponseStatus.ORDER_STATUS_INVALID, "Current status does not allow edit");
         }
         
         updateShipmentNoticeFromDTO(notice, dto);
@@ -81,10 +83,10 @@ public class SupplierPortalApplicationServiceImpl implements SupplierPortalAppli
     @Override
     public SupplierShipmentNoticeDTO submitShipmentNotice(Long id) {
         SupplierShipmentNotice notice = shipmentNoticeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("发货通知不存在"));
+                .orElseThrow(() -> new BusinessException(ResponseStatus.NOT_FOUND, "Shipment notice not found"));
         
         if (!notice.canSubmit()) {
-            throw new RuntimeException("当前状态不允许提交");
+            throw new BusinessException(ResponseStatus.ORDER_STATUS_INVALID, "Current status does not allow submit");
         }
         
         notice.submit();
@@ -95,10 +97,10 @@ public class SupplierPortalApplicationServiceImpl implements SupplierPortalAppli
     @Override
     public SupplierShipmentNoticeDTO confirmShipmentNotice(Long id, String confirmer) {
         SupplierShipmentNotice notice = shipmentNoticeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("发货通知不存在"));
+                .orElseThrow(() -> new BusinessException(ResponseStatus.NOT_FOUND, "Shipment notice not found"));
         
         if (!notice.canConfirm()) {
-            throw new RuntimeException("当前状态不允许确认");
+            throw new BusinessException(ResponseStatus.ORDER_STATUS_INVALID, "Current status does not allow confirm");
         }
         
         notice.confirm(confirmer);
@@ -138,10 +140,10 @@ public class SupplierPortalApplicationServiceImpl implements SupplierPortalAppli
     @Override
     public SupplierReconciliationDTO submitReconciliation(Long id) {
         SupplierReconciliation reconciliation = reconciliationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("对账单不存在"));
+                .orElseThrow(() -> new BusinessException(ResponseStatus.NOT_FOUND, "Reconciliation not found"));
         
         if (!reconciliation.canSubmit()) {
-            throw new RuntimeException("当前状态不允许提交");
+            throw new BusinessException(ResponseStatus.ORDER_STATUS_INVALID, "Current status does not allow submit");
         }
         
         reconciliation.submit();
@@ -152,10 +154,10 @@ public class SupplierPortalApplicationServiceImpl implements SupplierPortalAppli
     @Override
     public SupplierReconciliationDTO confirmReconciliation(Long id, String confirmedBy) {
         SupplierReconciliation reconciliation = reconciliationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("对账单不存在"));
+                .orElseThrow(() -> new BusinessException(ResponseStatus.NOT_FOUND, "Reconciliation not found"));
         
         if (!reconciliation.canConfirm()) {
-            throw new RuntimeException("当前状态不允许确认");
+            throw new BusinessException(ResponseStatus.ORDER_STATUS_INVALID, "Current status does not allow confirm");
         }
         
         reconciliation.confirm(confirmedBy);
@@ -166,10 +168,10 @@ public class SupplierPortalApplicationServiceImpl implements SupplierPortalAppli
     @Override
     public SupplierReconciliationDTO rejectReconciliation(Long id, String remark) {
         SupplierReconciliation reconciliation = reconciliationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("对账单不存在"));
+                .orElseThrow(() -> new BusinessException(ResponseStatus.NOT_FOUND, "Reconciliation not found"));
         
         if (!reconciliation.canReject()) {
-            throw new RuntimeException("当前状态不允许驳回");
+            throw new BusinessException(ResponseStatus.ORDER_STATUS_INVALID, "Current status does not allow reject");
         }
         
         reconciliation.reject(remark);
@@ -180,10 +182,10 @@ public class SupplierPortalApplicationServiceImpl implements SupplierPortalAppli
     @Override
     public SupplierReconciliationDTO markAsPaid(Long id) {
         SupplierReconciliation reconciliation = reconciliationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("对账单不存在"));
+                .orElseThrow(() -> new BusinessException(ResponseStatus.NOT_FOUND, "Reconciliation not found"));
         
         if (!reconciliation.canMarkPaid()) {
-            throw new RuntimeException("当前状态不允许标记为已付款");
+            throw new BusinessException(ResponseStatus.ORDER_STATUS_INVALID, "Current status does not allow mark as paid");
         }
         
         reconciliation.markAsPaid();
