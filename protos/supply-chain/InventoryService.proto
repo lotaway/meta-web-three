@@ -10,6 +10,7 @@ service InventoryService {
     rpc getInventory(GetInventoryRequest) returns (GetInventoryResponse);
     rpc reserveInventory(ReserveInventoryRequest) returns (ReserveInventoryResponse);
     rpc releaseInventory(ReleaseInventoryRequest) returns (ReleaseInventoryResponse);
+    rpc releaseInventoryByOrderId(ReleaseInventoryByOrderIdRequest) returns (ReleaseInventoryByOrderIdResponse);
 }
 
 message GetInventoryRequest {
@@ -40,6 +41,17 @@ message ReserveInventoryResponse {
 
 message ReleaseInventoryRequest {
     string reservationId = 1;
+}
+
+message ReleaseInventoryByOrderIdRequest {
+    int64 orderId = 1;
+    string reason = 2;
+}
+
+message ReleaseInventoryByOrderIdResponse {
+    bool success = 1;
+    string message = 2;
+    int32 releasedCount = 3;
 }
 
 message ReleaseInventoryResponse {

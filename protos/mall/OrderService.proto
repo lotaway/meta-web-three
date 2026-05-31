@@ -11,6 +11,10 @@ import "shared/google/type/money.proto";
 
 service OrderService {
     rpc getOrderByUserId(GetOrderByUserIdRequest) returns (GetOrderByUserIdResponse);
+    rpc paySuccess(PaySuccessRequest) returns (PaySuccessResponse);
+    rpc closeOrder(CloseOrderRequest) returns (CloseOrderResponse);
+    rpc queryLogistics(QueryLogisticsRequest) returns (QueryLogisticsResponse);
+    rpc createReturnApply(CreateReturnApplyRequest) returns (CreateReturnApplyResponse);
 }
 
 message GetOrderByUserIdRequest {
@@ -30,4 +34,45 @@ message OrderDTO {
     google.type.Money orderAmount = 6;
     web3.Token tokens = 7;
     string orderRemark = 8;
+}
+
+message PaySuccessRequest {
+    int64 orderId = 1;
+    int32 payType = 2;
+}
+
+message PaySuccessResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message CloseOrderRequest {
+    string ids = 1;
+    string note = 2;
+}
+
+message CloseOrderResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message QueryLogisticsRequest {
+    int64 orderId = 1;
+}
+
+message QueryLogisticsResponse {
+    string logisticsCompany = 1;
+    string trackingNumber = 2;
+    repeated string traces = 3;
+}
+
+message CreateReturnApplyRequest {
+    int64 orderId = 1;
+    string reason = 2;
+    int64 userId = 3;
+}
+
+message CreateReturnApplyResponse {
+    bool success = 1;
+    string message = 2;
 }
