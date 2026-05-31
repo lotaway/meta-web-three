@@ -1,65 +1,27 @@
 # TODO
 
-## 代码规范
+准则：代码规范遵循[前端代码规范](CODE_PINCEPLES/FRONTEND_PRICEPLES)和[后端代码规范](CODE_PINCEPLES/CODE_PRICEPLES)，检查遵循[检查规则](CODE_PINCEPLES/CHECK_RULE.md)，所有代码中的文本（注释、日志、变量命名等）统一使用英文，国际化文本除外
 
-- 代码规范遵循[前端代码规范](CODE_PINCEPLES/FRONTEND_PRICEPLES)和[后端代码规范](CODE_PINCEPLES/CODE_PRICEPLES)，检查遵循[检查规则](CODE_PINCEPLES/CHECK_RULE.md)
-- 所有代码中的文本（注释、日志、变量命名等）统一使用英文，国际化文本（i18n 资源文件、用户可见的多语言文案）除外
-
-- [ ] **订单取消补偿机制** — OrderApplicationService.processOrderCancellationCompensation() 已实现真实业务逻辑：(1)扩展PromotionService.proto添加returnCoupon/getUserCoupons方法 (2)扩展UserService.proto添加returnIntegration/getUserIntegration方法 (3)实现PromotionServiceRpcImpl新方法 (4)实现UserRPCServiceImpl新方法 (5)创建PromotionClient/UserClient/InventoryClient调用Dubbo服务 (6)processOrderCancellationCompensation()实现库存释放、优惠券返还、积分返还逻辑
-  - ⚠️ 检查受阻：后端存在编译错误（详见下方"修复损坏的 POM 文件"任务），无法完整验证代码规范符合性
-- [ ] **支付服务对账调度** — ReconciliationServiceImpl 存在 @TODO 注释，getExternalBills/checkMissingOrders/checkExtraOrders/checkAmountMismatches 均为空壳，需实现对账核心逻辑
-- [ ] **库存预警通知集成** — InventoryAlertNotificationListener 中 TODO 要求集成邮件、短信、站内信、钉钉机器人发送消息
-- [ ] **支付服务对接银行API** — SettlementServiceImpl 中 TODO 要求实现分组逻辑并调用银行/支付平台API进行转账
-- [ ] **数字货币钱包对接区块链API** — CryptoWalletServiceImpl 中 TODO 要求调用区块链API或钱包SDK进行转账和余额查询
-- [ ] **统一排查微服务间 HTTP 直连调用改为 Dubbo RPC**
-  - 当前存在使用 `@Value("${xxx.service.url}")` + `RestTemplate`/`WebClient` 直接调用其他微服务的情况，应统一改为 protobuf + `@DubboReference` 方式
-  - 排查方向：全局搜索 `service.url`、`RestTemplate`、`WebClient` + 硬编码 URL 模式
-  - 已发现并修复：cart-service 中 `promotion.service.url` + `RestTemplate` 调用 promotion-service
-  - 可能存在的其他位置：各 Service Impl 中的 `RestTemplate` 使用、各 Client 类中的 `WebClient` 使用、application.yml 中的 `*.service.url` 配置项
-- [ ] **用户服务 Redis 验证码集成** — UserServiceImpl 已正确集成 Redis 存储验证码，5分钟过期，验证成功后自动删除，编译通过
-  - ⚠️ 检查受阻：后端存在编译错误，无法完整验证
-- [ ] **购物车促销信息查询** — 已创建 PromotionClient 通过 Dubbo RPC 调用 promotion-service 查询商品可用优惠券，enrichPromotionInfo() 已实现真实查询逻辑，编译通过
-  - ⚠️ 检查受阻：后端存在编译错误，无法完整验证
-- [ ] **检查其他后端服务** — erp-domain、mall-domain、platform-domain、supply-chain-domain、ai-domain、blockchain-domain 各服务正常，无 System.out/System.err，无明显 N+1 查询问题
-  - ⚠️ 检查受阻：后端存在编译错误，无法完整验证
-- [ ] **后端缓存使用检查** — TokenBlacklistService(Redis)、PriceEngineServiceImpl(ConcurrentHashMap)、ExcelService(Redis MQ)、OpenApiConfig(HashMap) 均正常
-  - ⚠️ 检查受阻：后端存在编译错误，无法完整验证
-- [ ] **后端日志规范性检查** — 主代码无 System.out/System.err，统一使用 log.info/debug/warn/error
-  - ⚠️ 检查受阻：后端存在编译错误，无法完整验证
-- [ ] **后端异常处理规范性检查** — 有 GlobalExceptionHandler 统一处理异常、BusinessException 业务异常类
-  - ⚠️ 检查受阻：后端存在编译错误，无法完整验证
-- [x] **前端代码规范审查（API调用）** — TypeScript 编译通过，无错误 ✅
-- [x] **前端 TypeScript 编译错误修复** — 已修复 ✅
-- [x] **后端编译错误修复** — SupplyChainPermissions 缺失常量问题已解决
-  - ⚠️ 检查受阻：后端存在新的编译错误（详见下方任务），无法完整验证
-- [ ] **项目管理模块** — TimeEntryNotFoundException 已创建，RuntimeException 已替换，编译通过
-  - ⚠️ 检查受阻：后端存在编译错误，无法完整验证
-- [ ] **报表订阅与自动发送** — 代码已删除所有注释，编译通过
-  - ⚠️ 检查受阻：后端存在编译错误，无法完整验证
-- [ ] **人力资源（HRM）模块** — 代码已删除所有注释，RuntimeException 已改为具体业务异常类，编译通过
-  - ⚠️ 检查受阻：后端存在编译错误，无法完整验证
-- [ ] **库存安全预警功能 - 数据库表** — 已通过检查
-  - ⚠️ 检查受阻：后端存在编译错误，无法完整验证
-- [ ] **库存安全预警功能 - Repository实现** — 已重构为 MyBatis-Plus 真实数据库持久化
-  - ⚠️ 检查受阻：后端存在编译错误，无法完整验证
-- [ ] **库存安全预警功能 - Controller** — 已删除所有注释
-  - ⚠️ 检查受阻：后端存在编译错误，无法完整验证
-- [x] **前端 TypeScript API 调用修复** — 已修复 notificationApi/memberAttentionApi/readHistoryApi/couponApi/productCollectionApi/commentApi/orderApi/AuthContext/profile 等 API 调用 ✅
-- [x] **前端 TypeScript 配置（baseUrl）** — 已通过检查 ✅
-- [x] **前端性能优化（懒加载）** — 已通过检查（RN 项目不适用 Next.js 懒加载策略）✅
-- [x] **后端编译错误修复（SupplyChainPermissions）** — 已通过检查，编译通过
-  - ⚠️ 检查受阻：后端存在新的编译错误，无法完整验证
-- [ ] **ProductService N+1 查询优化** — 已修复 listProducts/searchProducts/simpleSearch/recommendProducts/getProductById 中的 N+1 查询问题
-  - ⚠️ 检查受阻：后端存在编译错误，无法完整验证
-- [x] **前端 expo-router Link 类型问题修复** — 已修复 `.expo/types/router.d.ts` 类型定义，扩展 `href` 类型接受动态路由字符串 ✅
-- [ ] **后端 OrderService N+1 查询优化** — OrderServiceImpl、CartServiceImpl、SettlementServiceImpl 等均无 N+1 查询问题
-  - ⚠️ 检查受阻：后端存在编译错误，无法完整验证
-- [ ] **后端 Service 层 N+1 查询检查（库存/促销服务）** — 各 Service 均使用 saveBatch 批量插入，无 N+1 查询问题
-  - ⚠️ 检查受阻：后端存在编译错误，无法完整验证
-
-## 编译错误修复（非本次修改引起）
-
-- [ ] **修复损坏的 POM 文件** — 发现两个 POM 文件被截断损坏，导致后端无法编译：
-  - `server/platform-domain/media-service/pom.xml` - 文件不完整，缺少结尾标签
-  - `server/factory-domain/digital-twin-service/pom.xml` - 文件不完整，缺少结尾标签
-  - 建议：从 Git 历史或其他来源恢复完整的 POM 文件内容
+- [ ] **供应商管理系统** — 供应商入驻、资质审核、绩效评估、采购结算；创建 supplier-service；使用自定义业务异常 BusinessException 替代 RuntimeException；与采购服务集成（ProcurementService RPC）；编译通过
+  - ⚠️ 问题1：supply-chain-domain/supplier-service 和 mall-domain/supplier-service 重复定义（artifactId=supplier-service, groupId=com.metawebthree），导致 Maven 编译 DuplicateProjectException
+  - ⚠️ 问题2：supply-chain-domain/supplier-service 仍使用 RuntimeException + 中文错误信息（如"当前状态不允许编辑"），未使用 BusinessException
+- [x] **智能推荐系统** — 创建 recommendation-service (product-recommendation-service)；实现基于协同过滤、内容推荐和混合推荐的算法；与用户行为数据、商品画像集成；编译通过
+- [x] **会员等级系统** — 实现用户会员等级、积分规则、等级权益；MemberLevelService 已实现；RPC 代码已生成；编译通过
+- [x] **营销活动中心** — 秒杀、团购、限时折扣活动；promotion-service 已实现活动配置、限时秒杀、团购活动；与库存、订单服务集成
+- [x] **链上商品溯源** — 商品全链路区块链溯源；合约使用 AccessControl 角色控制替代单一 EOA owner；后端使用自定义业务异常 BusinessException 替代 RuntimeException；编译通过
+- [x] **运营数据看板** — 销售、用户、库存多维统计分析；DTO 类拆分文件；移除 Lombok 依赖；data-analysis-service 编译通过
+- [x] **财务对账自动化** — 日终自动生成财务对账报表，检测账务异常；代码无中文注释；方法拆分合理；实现 CSV 文件保存逻辑
+- [ ] **代码审查修复：payment-service** — 使用自定义业务异常 ExternalServiceException 替代 RuntimeException，删除 TODO 注释，编译通过
+  - ⚠️ 问题：CryptoWalletServiceImpl.java 和 PriceEngineServiceImpl.java 仍有多处 RuntimeException 未替换为 BusinessException
+- [x] **代码审查修复：order-service（中文注释）** — 删除所有中文注释，编译通过
+- [x] **代码审查修复：order-service（语法错误）** — 删除多余闭合大括号，修复 Java 源文件语法错误，编译通过
+- [x] **代码审查修复：user-service** — 运行 make gen-java-dubbo 重新生成 RPC 代码，编译通过
+  - ⚠️ 遗留问题：UserServiceImpl.java 仍有 RuntimeException + 中文错误信息"修改密码失败"（第394行）
+- [ ] **代码审查修复：supplier-service** — 使用自定义业务异常 BusinessException 替代 RuntimeException，所有错误信息改为英文，编译通过
+  - ⚠️ 问题：SupplierPortalApplicationServiceImpl.java 仍有 7 处 RuntimeException + 中文错误信息
+- [x] **智能风控系统** — 交易风控、反欺诈、异常检测；创建 risk-control-service；实现交易风险评估、异常行为检测；与订单服务集成（OrderClient 使用 @DubboReference）；编译通过
+- [ ] **服务间调用统一使用 Dubbo RPC** — 所有服务间调用必须通过 `@DubboReference` 走 Dubbo Triple 协议，禁止使用 RestTemplate + 硬编码 URL
+  - ✅ 已修复：order-service/InventoryClient.java 改用 @DubboReference + InventoryService
+  - ✅ 外部 AI 服务允许：digital-twin-service/AnomalyDetectionClient.java、LocationRecommendationClient.java、ForecastingServiceClient.java 使用 HTTP 调用外部 AI 服务
+  - ⚠️ 遗留问题：order-service 仍保留 RestTemplateConfig.java 配置类，虽然 InventoryClient 已修复，但配置类应删除避免误导
+- [x] **服务目录检查：recommendation-service** — @server/mall-domain/recommendation-service/（Java 微服务）和 @server/ai-domain/recommendation-service/（Python AI 服务）是不同技术栈的实现，非重复
