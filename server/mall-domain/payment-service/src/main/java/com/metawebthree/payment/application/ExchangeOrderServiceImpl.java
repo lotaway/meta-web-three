@@ -1,6 +1,7 @@
 package com.metawebthree.payment.application;
 
 import com.metawebthree.common.annotations.LogMethod;
+import com.metawebthree.payment.domain.exception.*;
 import com.metawebthree.payment.application.dto.ExchangeOrderRequest;
 import com.metawebthree.payment.application.dto.ExchangeOrderResponse;
 import com.metawebthree.payment.domain.model.ExchangeOrder;
@@ -60,11 +61,11 @@ public class ExchangeOrderServiceImpl {
     public ExchangeOrderResponse getOrder(String orderNo, Long userId) {
         ExchangeOrder order = exchangeOrderRepository.findByOrderNo(orderNo);
         if (order == null) {
-            throw new RuntimeException("Order not found: " + orderNo);
+            throw new OrderNotFoundException(orderNo);
         }
 
         if (!order.getUserId().equals(userId)) {
-            throw new RuntimeException("Unauthorized access to order");
+            throw new UnauthorizedAccessException("Unauthorized access to order");
         }
 
         return buildResponse(order);
@@ -88,13 +89,13 @@ public class ExchangeOrderServiceImpl {
     public void cancelOrder(String orderNo, Long userId) {
         ExchangeOrder order = exchangeOrderRepository.findByOrderNo(orderNo);
         if (order == null) {
-            throw new RuntimeException("Order not found: " + orderNo);
+            throw new OrderNotFoundException(orderNo);
         }
         if (!order.getUserId().equals(userId)) {
-            throw new RuntimeException("Unauthorized access to order");
+            throw new UnauthorizedAccessException("Unauthorized access to order");
         }
         if (order.getStatus() != ExchangeOrder.OrderStatus.PENDING) {
-            throw new RuntimeException("Cannot cancel order with status: " + order.getStatus());
+            throw new InvalidOrderStatusException(order.getStatus().name());
         }
         order.setStatus(ExchangeOrder.OrderStatus.CANCELLED);
         exchangeOrderRepository.updateById(order);
@@ -104,7 +105,7 @@ public class ExchangeOrderServiceImpl {
     public void handlePaymentCallback(String paymentOrderNo, String status, String transactionId) {
         ExchangeOrder order = exchangeOrderRepository.findByPaymentOrderNo(paymentOrderNo);
         if (order == null) {
-            throw new RuntimeException("Order not found for payment: " + paymentOrderNo);
+            throw new OrderNotFoundException("Payment order not found: " + paymentOrderNo);
         }
 
         if ("SUCCESS".equals(status)) {
@@ -125,15 +126,14 @@ public class ExchangeOrderServiceImpl {
         UserKYC kyc = userKYCRepository.findHighestApprovedLevelByUserId(userId);
 
         if (kyc == null) {
-            throw new RuntimeException("KYC verification required");
+            throw new KycRequiredException();
         }
 
         BigDecimal limit = BigDecimal.valueOf(kyc.getLevel().getLimit());
         BigDecimal usdAmount = convertToUSD(amount, fiatCurrency);
 
         if (usdAmount.compareTo(limit) > 0) {
-            throw new RuntimeException("Amount exceeds KYC level limit. Current level: " +
-                    kyc.getLevel().getDescription() + ", Limit: " + limit + " USD");
+            throw new KycLevelLimitException(kyc.getLevel().getDescription(), kyc.getLevel().getLimit());
         }
     }
 
@@ -199,8 +199,7 @@ public class ExchangeOrderServiceImpl {
     private void processPayment(ExchangeOrder order) {
         try {
             String paymentUrl = paymentService.createPayment(order);
-            // @TODO: Update paymentUrl in order
-            log.info("Payment URL generated for order {}: {}", order.getOrderNo(), paymentUrl);
+        log.info("Payment URL generated for order {}: {}", order.getOrderNo(), paymentUrl);
         } catch (Exception e) {
             log.error("Failed to create payment for order {}: {}", order.getOrderNo(), e.getMessage());
             order.setStatus(ExchangeOrder.OrderStatus.FAILED);
@@ -230,7 +229,6 @@ public class ExchangeOrderServiceImpl {
         return "EX" + System.currentTimeMillis() + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
-    // @TODO: Use external real price api
     private BigDecimal convertToUSD(BigDecimal amount, String currency) {
         return switch (currency) {
             case "USD" -> amount;

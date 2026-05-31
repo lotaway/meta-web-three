@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.metawebthree.common.services.QuartzManager;
 import com.metawebthree.payment.job.ExecuteSettlementOrderJob;
+import com.metawebthree.payment.job.ReconciliationDailyJob;
 import com.metawebthree.payment.job.SettlementDailyClearingJob;
 
 import jakarta.annotation.PostConstruct;
@@ -40,6 +41,19 @@ public class QuartzConfig {
                                 // Daily at 9:00 AM
                                 "0 0 9 * * ?",
                                 "Daily settlement execution job",
+                                null);
+                
+                // Daily reconciliation job at 1:00 AM
+                quartzManager.addJob(
+                                "reconciliationDailyJob",
+                                "reconciliationGroup",
+                                "reconciliationDailyTrigger",
+                                "reconciliationGroup",
+                                ReconciliationDailyJob.class,
+                                // Daily at 1:00 AM
+                                CronScheduleBuilder.cronSchedule("0 0 1 * * ?")
+                                                .withMisfireHandlingInstructionFireAndProceed(),
+                                "Daily financial reconciliation job",
                                 null);
         }
 

@@ -50,6 +50,12 @@ payment:
       
     # 钱包配置
     wallet:
+      # 区块链API配置
+      api:
+        blockchain-url: https://api.blockchain.info
+        wallet-sdk-url: https://wallet-sdk.example.com
+        key: your_api_key
+        
       # 热钱包地址
       hot-wallet:
         btc: your_btc_hot_wallet_address
@@ -113,6 +119,21 @@ payment:
       l3:
         name: "企业验证"
         limit: 1000000
+        
+  # Quartz调度配置
+  quartz:
+    enabled: true
+    
+  # 对账配置
+  reconciliation:
+    # 支付平台API地址（获取外部账单）
+    payment-platform-api-url: ${RECONCILIATION_PAYMENT_PLATFORM_API_URL:}
+    # 消息服务地址（发送站内通知）
+    message-service-url: ${RECONCILIATION_MESSAGE_SERVICE_URL:}
+    # 钉钉Webhook地址（发送告警）
+    dingtalk-webhook-url: ${RECONCILIATION_DINGTALK_WEBHOOK_URL:}
+    # 报表存储路径
+    report-storage-path: ${RECONCILIATION_REPORT_STORAGE_PATH:/tmp/reconciliation-reports}
 ---
 spring:
   config:

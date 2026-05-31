@@ -2,6 +2,7 @@ package com.metawebthree.payment.application;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.metawebthree.payment.domain.exception.*;
 import com.metawebthree.payment.domain.model.CryptoPrice;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +36,7 @@ public class ExternalPriceServiceImpl {
             }
         }
 
-        throw new RuntimeException("Failed to fetch price from all sources for " + symbol);
+        throw new ExternalServiceException("Price Service", "Failed to fetch price from all sources for " + symbol);
     }
 
     private CryptoPrice fetchFromSource(String symbol, String source) throws Exception {
@@ -44,7 +45,7 @@ public class ExternalPriceServiceImpl {
 
         try (Response response = httpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                throw new RuntimeException("HTTP " + response.code() + " for " + url);
+                throw new ExternalServiceException("Price Service", "HTTP " + response.code() + " for " + url);
             }
 
             String responseBody = response.body().string();
@@ -86,7 +87,6 @@ public class ExternalPriceServiceImpl {
         switch (source) {
             case "binance":
                 price = new BigDecimal(root.get("price").asText());
-                // @TODD: Get extra data
                 break;
 
             case "coinbase":
@@ -142,7 +142,7 @@ public class ExternalPriceServiceImpl {
         Request request = new Request.Builder().url(url).build();
         try (Response response = httpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                throw new RuntimeException("HTTP " + response.code() + " for " + url);
+                throw new ExternalServiceException("Price Service", "HTTP " + response.code() + " for " + url);
             }
 
             String responseBody = response.body().string();

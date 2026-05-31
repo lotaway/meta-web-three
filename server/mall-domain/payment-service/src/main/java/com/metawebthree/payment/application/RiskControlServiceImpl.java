@@ -1,6 +1,7 @@
 package com.metawebthree.payment.application;
 
 import com.metawebthree.common.annotations.LogMethod;
+import com.metawebthree.payment.domain.exception.*;
 import com.metawebthree.payment.domain.model.ExchangeOrder;
 import com.metawebthree.payment.infrastructure.persistence.mapper.ExchangeOrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -105,12 +106,11 @@ public class RiskControlServiceImpl {
                     scoreResponse.getDecision());
 
             if (scoreResponse.getScore() < minScore) {
-                throw new RuntimeException("Risk score too low: " + scoreResponse.getScore() +
-                        " (Required: " + minScore + "). Decision: " + scoreResponse.getDecision());
+                throw new RiskScoreTooLowException(scoreResponse.getScore(), minScore, scoreResponse.getDecision());
             }
         } catch (Exception e) {
             log.error("Risk score check failed for user {}", userId, e);
-            throw new RuntimeException("Risk assessment failed: " + e.getMessage());
+            throw new RiskControlException("Risk assessment failed: " + e.getMessage());
         }
     }
 
@@ -118,8 +118,7 @@ public class RiskControlServiceImpl {
         BigDecimal usdAmount = convertToUSD(amount, fiatCurrency);
 
         if (usdAmount.compareTo(singleLimitUSD) > 0) {
-            throw new RuntimeException("Single transaction limit exceeded. Limit: " +
-                    singleLimitUSD + " USD, Amount: " + usdAmount + " USD");
+            throw new SingleTransactionLimitExceededException(singleLimitUSD.intValue(), usdAmount.intValue());
         }
     }
 
@@ -136,8 +135,7 @@ public class RiskControlServiceImpl {
         BigDecimal totalUSD = dailyTotal.add(usdAmount);
 
         if (totalUSD.compareTo(dailyLimitUSD) > 0) {
-            throw new RuntimeException("Daily limit exceeded. Daily total: " +
-                    totalUSD + " USD, Limit: " + dailyLimitUSD + " USD");
+            throw new DailyLimitExceededException(totalUSD.intValue(), dailyLimitUSD.intValue());
         }
     }
 
@@ -145,18 +143,14 @@ public class RiskControlServiceImpl {
         Timestamp oneHourAgo = Timestamp.valueOf(LocalDateTime.now().minusHours(1));
         Long hourlyCount = exchangeOrderRepository.getCompletedOrderCountByUserIdAndDateRange(userId, oneHourAgo);
         if (hourlyCount > hourlyOrderLimit) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Transaction frequency too high. Hourly limit: ")
-                    .append(hourlyOrderLimit).append(", Current: ")
-                    .append(hourlyCount);
-            throw new RuntimeException(sb.toString());
+            throw new TransactionFrequencyTooHighException(hourlyOrderLimit.intValue(), hourlyCount.intValue());
         }
     }
 
     private void validateAbnormalBehavior(Long userId) {
         List<ExchangeOrder> failedOrders = exchangeOrderRepository.findByUserIdAndStatus(userId, "FAILED");
         if (failedOrders.size() > 5) {
-            throw new RuntimeException("Too many failed orders. Failed count: " + failedOrders.size());
+            throw new TooManyFailedOrdersException(failedOrders.size());
         }
     }
 
@@ -166,17 +160,16 @@ public class RiskControlServiceImpl {
                 .multiply(new BigDecimal("100"));
 
         if (slippage.compareTo(maxSlippagePercentage) > 0) {
-            throw new RuntimeException("Slippage too high. Expected: " + expectedRate +
-                    ", Actual: " + actualRate + ", Slippage: " + slippage + "%");
+            throw new SlippageTooHighException(expectedRate.toString(), actualRate.toString(), slippage.toString());
         }
     }
 
     public void validateWalletAddress(String walletAddress) {
         if (isBlacklistedAddress(walletAddress)) {
-            throw new RuntimeException("Wallet address is blacklisted");
+            throw new BlacklistedWalletAddressException();
         }
         if (!isValidAddressFormat(walletAddress)) {
-            throw new RuntimeException("Invalid wallet address format");
+            throw new InvalidWalletAddressFormatException();
         }
     }
 

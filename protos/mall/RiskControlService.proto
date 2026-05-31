@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package com.metawebthree.common.generated.rpc;
+
+option java_multiple_files = true;
+option java_outer_classname = "RiskControlServiceProto";
+
+service RiskControlService {
+    rpc assessOrderRisk (OrderRiskRequest) returns (RiskResponse);
+    rpc assessPaymentRisk (PaymentRiskRequest) returns (RiskResponse);
+    rpc detectAnomaly (AnomalyRequest) returns (RiskResponse);
+    rpc checkFraud (FraudRequest) returns (RiskResponse);
+    rpc batchCheck (BatchRiskRequest) returns (BatchRiskResponse);
+}
+
+message OrderRiskRequest {
+    string user_id = 1;
+    string order_id = 2;
+    double amount = 3;
+    string order_type = 4;
+    map<string, string> ext_data = 5;
+}
+
+message PaymentRiskRequest {
+    string user_id = 1;
+    string payment_id = 2;
+    double amount = 3;
+    string payment_method = 4;
+    map<string, string> ext_data = 5;
+}
+
+message AnomalyRequest {
+    string user_id = 1;
+    string scene = 2;
+    string behavior_data = 3;
+    map<string, string> ext_data = 4;
+}
+
+message FraudRequest {
+    string user_id = 1;
+    string order_id = 2;
+    repeated string indicators = 3;
+    map<string, string> ext_data = 4;
+}
+
+message BatchRiskRequest {
+    repeated OrderRiskRequest requests = 1;
+}
+
+message BatchRiskResponse {
+    repeated RiskResponse responses = 1;
+}
+
+message RiskResponse {
+    string event_id = 1;
+    int32 risk_score = 2;
+    string risk_level = 3;
+    string decision = 4;
+    string details = 5;
+}
