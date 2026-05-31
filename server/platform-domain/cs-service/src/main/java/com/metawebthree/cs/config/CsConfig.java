@@ -101,12 +101,13 @@ public class CsConfig {
     }
 
     @Bean
-    public AiToolRegistry aiToolRegistry(RestTemplate restTemplate) {
+    public AiToolRegistry aiToolRegistry(QueryOrderTool queryOrderTool, QueryLogisticsTool queryLogisticsTool, 
+            InitiateRefundTool initiateRefundTool, CancelOrderTool cancelOrderTool) {
         AiToolRegistry registry = new AiToolRegistry();
-        registry.register(new QueryOrderTool(restTemplate, gatewayUrl));
-        registry.register(new QueryLogisticsTool(restTemplate, gatewayUrl));
-        registry.register(new InitiateRefundTool(restTemplate, gatewayUrl));
-        registry.register(new CancelOrderTool(restTemplate, gatewayUrl));
+        registry.register(queryOrderTool);
+        registry.register(queryLogisticsTool);
+        registry.register(initiateRefundTool);
+        registry.register(cancelOrderTool);
         log.info("registered {} ai tools", registry.getAllTools().size());
         return registry;
     }

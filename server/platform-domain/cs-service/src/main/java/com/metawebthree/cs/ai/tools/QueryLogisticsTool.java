@@ -1,32 +1,47 @@
 package com.metawebthree.cs.ai.tools;
 
+import com.metawebthree.common.generated.rpc.OrderService;
+import com.metawebthree.common.generated.rpc.QueryLogisticsRequest;
+import com.metawebthree.common.generated.rpc.QueryLogisticsResponse;
 import com.metawebthree.cs.dto.AiToolRequest;
 import com.metawebthree.cs.dto.AiToolResult;
-import org.springframework.web.client.RestTemplate;
+import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+@Component
 public class QueryLogisticsTool extends AiTool {
-    private static final String SERVICE = "/order-service/order";
-    private final RestTemplate restTemplate;
-    private final String gatewayUrl;
+    @DubboReference(check = false, lazy = true)
+    private OrderService orderService;
 
-    public QueryLogisticsTool(RestTemplate restTemplate, String gatewayUrl) {
+    public QueryLogisticsTool() {
         super("query_logistics", "根据订单ID查询物流信息，包括快递公司、运单号、物流轨迹");
-        this.restTemplate = restTemplate;
-        this.gatewayUrl = gatewayUrl;
     }
 
     @Override
     public AiToolResult execute(AiToolRequest request) {
-        Object orderId = request.getParams().get("orderId");
-        if (orderId == null) {
+        Object orderIdObj = request.getParams().get("orderId");
+        if (orderIdObj == null) {
             return AiToolResult.failure(getName(), "缺少参数 orderId");
         }
         try {
-            String json = restTemplate.getForObject(
-                    gatewayUrl + SERVICE + "/detail?orderId={id}", String.class, orderId);
-            return AiToolResult.success(getName(), json);
+            Long orderId = Long.parseLong(orderIdObj.toString());
+            QueryLogisticsRequest grpcRequest = QueryLogisticsRequest.newBuilder()
+                    .setOrderId(orderId)
+                    .build();
+            QueryLogisticsResponse response = orderService.queryLogistics(grpcRequest);
+            
+            if (response != null) {
+                String json = String.format(
+                    "{\"logisticsCompany\":\"%s\",\"trackingNumber\":\"%s\",\"traces\":%s}",
+                    response.getLogisticsCompany(),
+                    response.getTrackingNumber(),
+                    response.getTracesList()
+                );
+                return AiToolResult.success(getName(), json);
+            }
+            return AiToolResult.failure(getName(), "未找到物流信息");
         } catch (Exception e) {
             return AiToolResult.failure(getName(), "查询物流失败: " + e.getMessage());
         }

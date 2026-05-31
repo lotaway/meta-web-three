@@ -1,36 +1,45 @@
 package com.metawebthree.cs.ai.tools;
 
+import com.metawebthree.common.generated.rpc.CloseOrderRequest;
+import com.metawebthree.common.generated.rpc.CloseOrderResponse;
+import com.metawebthree.common.generated.rpc.OrderService;
 import com.metawebthree.cs.dto.AiToolRequest;
 import com.metawebthree.cs.dto.AiToolResult;
-import org.springframework.web.client.RestTemplate;
+import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+@Component
 public class CancelOrderTool extends AiTool {
-    private static final String SERVICE = "/order-service/order";
-    private final RestTemplate restTemplate;
-    private final String gatewayUrl;
+    @DubboReference(check = false, lazy = true)
+    private OrderService orderService;
 
-    public CancelOrderTool(RestTemplate restTemplate, String gatewayUrl) {
+    public CancelOrderTool() {
         super("cancel_order", "取消指定订单，需要提供订单ID和取消原因");
-        this.restTemplate = restTemplate;
-        this.gatewayUrl = gatewayUrl;
     }
 
     @Override
     public AiToolResult execute(AiToolRequest request) {
         Map<String, Object> params = request.getParams();
-        Object orderId = params.get("orderId");
+        Object orderIdObj = params.get("orderId");
         Object reason = params.get("reason");
-        if (orderId == null || reason == null) {
+        if (orderIdObj == null || reason == null) {
             return AiToolResult.failure(getName(), "缺少参数 orderId 或 reason");
         }
         try {
-            String json = restTemplate.postForObject(
-                    gatewayUrl + SERVICE + "/update/close",
-                    Map.of("ids", String.valueOf(orderId), "note", reason),
-                    String.class);
-            return AiToolResult.success(getName(), json);
+            String orderIds = orderIdObj.toString();
+            CloseOrderRequest grpcRequest = CloseOrderRequest.newBuilder()
+                    .setIds(orderIds)
+                    .setNote(reason.toString())
+                    .build();
+            CloseOrderResponse response = orderService.closeOrder(grpcRequest);
+            
+            if (response != null && response.getSuccess()) {
+                return AiToolResult.success(getName(), "订单取消成功");
+            }
+            String errorMsg = response != null ? response.getMessage() : "未知错误";
+            return AiToolResult.failure(getName(), "取消订单失败: " + errorMsg);
         } catch (Exception e) {
             return AiToolResult.failure(getName(), "取消订单失败: " + e.getMessage());
         }
