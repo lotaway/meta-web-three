@@ -3,11 +3,7 @@ package com.metawebthree.order.infrastructure.client;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;
 
-import com.metawebthree.common.generated.rpc.GetUserIntegrationRequest;
-import com.metawebthree.common.generated.rpc.GetUserIntegrationResponse;
-import com.metawebthree.common.generated.rpc.ReturnIntegrationRequest;
-import com.metawebthree.common.generated.rpc.ReturnIntegrationResponse;
-import com.metawebthree.common.generated.rpc.UserService;
+import com.metawebthree.common.generated.rpc.*;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -66,6 +62,74 @@ public class UserClient {
             return response.getIntegration();
         } catch (Exception e) {
             log.error("获取用户积分失败 - userId: {}, error: {}", userId, e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * 订单完成后添加积分
+     * @param userId 用户ID
+     * @param integration 积分数量
+     * @param orderId 订单ID
+     * @param reason 原因
+     * @return 添加后的当前积分，null表示失败
+     */
+    public Integer addIntegration(Long userId, int integration, Long orderId, String reason) {
+        try {
+            AddIntegrationRequest request = AddIntegrationRequest.newBuilder()
+                    .setUserId(userId)
+                    .setIntegration(integration)
+                    .setOrderId(orderId)
+                    .setReason(reason)
+                    .build();
+
+            AddIntegrationResponse response = userService.addIntegration(request);
+            if (response.getSuccess()) {
+                log.info("积分添加成功 - userId: {}, orderId: {}, integration: {}, current: {}", 
+                        userId, orderId, integration, response.getCurrentIntegration());
+                return response.getCurrentIntegration();
+            } else {
+                log.warn("积分添加失败 - userId: {}, orderId: {}, message: {}", 
+                        userId, orderId, response.getMessage());
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("积分添加异常 - userId: {}, orderId: {}, error: {}", 
+                    userId, orderId, e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * 订单完成后添加成长值
+     * @param userId 用户ID
+     * @param growth 成长值数量
+     * @param orderId 订单ID
+     * @param reason 原因
+     * @return 添加后的当前成长值，null表示失败
+     */
+    public Integer addGrowth(Long userId, int growth, Long orderId, String reason) {
+        try {
+            AddGrowthRequest request = AddGrowthRequest.newBuilder()
+                    .setUserId(userId)
+                    .setGrowth(growth)
+                    .setOrderId(orderId)
+                    .setReason(reason)
+                    .build();
+
+            AddGrowthResponse response = userService.addGrowth(request);
+            if (response.getSuccess()) {
+                log.info("成长值添加成功 - userId: {}, orderId: {}, growth: {}, current: {}", 
+                        userId, orderId, growth, response.getCurrentGrowth());
+                return response.getCurrentGrowth();
+            } else {
+                log.warn("成长值添加失败 - userId: {}, orderId: {}, message: {}", 
+                        userId, orderId, response.getMessage());
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("成长值添加异常 - userId: {}, orderId: {}, error: {}", 
+                    userId, orderId, e.getMessage(), e);
             return null;
         }
     }

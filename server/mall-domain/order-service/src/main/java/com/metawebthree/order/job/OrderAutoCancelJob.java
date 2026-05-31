@@ -17,13 +17,13 @@ public class OrderAutoCancelJob {
 
     @Scheduled(cron = "${order.auto.cancel.cron:0 */5 * * * ?}")
     public void cancelTimeOutOrders() {
-        log.info("开始执行超时订单自动取消任务");
+        log.info("Starting timeout order auto-cancel job");
         try {
             int defaultTimeoutMinutes = 30;
             int count = orderApplicationService.cancelTimeOutOrder(defaultTimeoutMinutes);
-            log.info("超时订单自动取消任务完成，取消订单数: {}", count);
+            log.info("Timeout order auto-cancel job completed, cancelled order count: {}", count);
         } catch (Exception e) {
-            log.error("超时订单自动取消任务执行失败", e);
+            log.error("Timeout order auto-cancel job execution failed", e);
         }
     }
 }

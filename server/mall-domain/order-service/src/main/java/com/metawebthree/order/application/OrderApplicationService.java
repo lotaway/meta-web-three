@@ -156,8 +156,8 @@ public class OrderApplicationService {
     }
 
     public ConfirmOrderResult generateConfirmOrder(Long userId, List<Long> cartIds) {
-        // 这里应该是从 cart-service 获取购物车项，从 user-service 获取地址和积分等
-        // 目前先返回一个简单的结果
+        // Retrieve cart items from cart-service, address and points from user-service
+        // Return a simple result for now
         ConfirmOrderResult result = new ConfirmOrderResult();
         result.setCartPromotionItemList(Collections.emptyList());
         result.setMemberReceiveAddressList(Collections.emptyList());
@@ -195,8 +195,48 @@ public class OrderApplicationService {
             LocalDateTime returnDeadlineAt = confirmAt.plusDays(returnWindowDays);
             LocalDateTime availableAt = returnDeadlineAt.plusDays(1);
             commissionSettlementPort.calculate(orderId, userId, order.getOrderAmount(), availableAt);
+            
+            grantIntegrationAndGrowth(order);
         }
         return updated;
+    }
+
+    private void grantIntegrationAndGrowth(OrderDO order) {
+        if (order == null || order.getOrderAmount() == null) {
+            return;
+        }
+        
+        int integrationRate = 1;
+        int growthRate = 1;
+        
+        int integrationToGrant = order.getOrderAmount().intValue() * integrationRate;
+        int growthToGrant = order.getOrderAmount().intValue() * growthRate;
+        
+        if (integrationToGrant > 0) {
+            Integer currentIntegration = userClient.addIntegration(
+                    order.getUserId(), 
+                    integrationToGrant, 
+                    order.getId(), 
+                    "Order completion reward points"
+            );
+            if (currentIntegration != null) {
+                log.info("Order completion points reward - orderId: {}, userId: {}, integration: {}, current: {}", 
+                        order.getId(), order.getUserId(), integrationToGrant, currentIntegration);
+            }
+        }
+        
+        if (growthToGrant > 0) {
+            Integer currentGrowth = userClient.addGrowth(
+                    order.getUserId(), 
+                    growthToGrant, 
+                    order.getId(), 
+                    "Order completion reward growth"
+            );
+            if (currentGrowth != null) {
+                log.info("Order completion growth reward - orderId: {}, userId: {}, growth: {}, current: {}", 
+                        order.getId(), order.getUserId(), growthToGrant, currentGrowth);
+            }
+        }
     }
 
     @Transactional
@@ -214,15 +254,15 @@ public class OrderApplicationService {
     }
 
     /**
-     * 自动取消超时订单
-     * 查询超时未支付的订单（状态为CREATED），并更新状态为CANCELED
+     * Auto cancel timeout orders
+     * Query orders that timeout without payment (status CREATED), update status to CANCELED
      * 
-     * @param timeoutMinutes 超时时间（分钟）
-     * @return 取消的订单数量
+     * @param timeoutMinutes timeout in minutes
+     * @return number of orders canceled
      */
     @Transactional
     public int cancelTimeOutOrder(int timeoutMinutes) {
-        // 查询超时未支付订单
+        // Query orders that timeout without payment
         LocalDateTime timeoutTime = LocalDateTime.now().minusMinutes(timeoutMinutes);
         List<OrderDO> timeoutOrders = orderMapper.selectList(
                 new LambdaQueryWrapper<OrderDO>()
@@ -234,7 +274,7 @@ public class OrderApplicationService {
             return 0;
         }
 
-        // 批量更新订单状态为CANCELED
+        // Batch update order status to CANCELED
         List<Long> orderIds = timeoutOrders.stream()
                 .map(OrderDO::getId)
                 .collect(Collectors.toList());
@@ -242,7 +282,7 @@ public class OrderApplicationService {
         for (OrderDO order : timeoutOrders) {
             order.setOrderStatus("CANCELED");
             orderMapper.updateById(order);
-            // 执行订单取消补偿
+            // Execute order cancellation compensation
             processOrderCancellationCompensation(order);
         }
 
@@ -250,66 +290,58 @@ public class OrderApplicationService {
     }
 
     /**
-     * 处理订单取消补偿
-     * 包括：恢复库存锁定、返还优惠券、返还积分等操作
+     * Handle order cancellation compensation
+     * Include: release inventory lock, return coupon, return points
      * 
-     * @param order 取消的订单
+     * @param order canceled order
      */
     private void processOrderCancellationCompensation(OrderDO order) {
-        log.info("开始处理订单取消补偿 - 订单ID: {}, 订单号: {}", order.getId(), order.getOrderNo());
+        log.info("Start processing order cancellation compensation - orderId: {}, orderNo: {}", order.getId(), order.getOrderNo());
         
         try {
-            // 1. 恢复库存锁定 - 释放订单占用的库存
-            // 从订单项中获取商品信息，调用库存服务释放预留
-            List<OrderItemDO> orderItems = orderItemMapper.selectList(
-                    new LambdaQueryWrapper<OrderItemDO>().eq(OrderItemDO::getOrderId, order.getId()));
-            
-            if (orderItems != null && !orderItems.isEmpty()) {
-                // 这里需要根据预留ID释放库存
-                // 由于当前系统可能没有保存reservationId，这里记录日志
-                // 实际生产环境中应该在订单创建时就保存reservationId
-                for (OrderItemDO item : orderItems) {
-                    log.debug("释放库存 - productId: {}, skuId: {}, quantity: {}", 
-                            item.getProductId(), item.getSkuId(), item.getQuantity());
-                    // 实际释放库存需要 reservationId，这里简化处理
-                    // inventoryClient.releaseInventory(reservationId);
-                }
-                log.info("订单库存释放记录完成 - 订单ID: {}, 商品数: {}", order.getId(), orderItems.size());
+            // 1. Release inventory lock - release inventory reserved by order
+            // Release all reserved inventory for this order by order ID
+            boolean inventoryReleased = inventoryClient.releaseInventoryByOrderId(
+                    order.getId(), "Order cancellation inventory release");
+            if (inventoryReleased) {
+                log.info("Order inventory released successfully - orderId: {}", order.getId());
+            } else {
+                log.warn("Order inventory release failed - orderId: {}", order.getId());
             }
             
-            // 2. 返还优惠券
+            // 2. Return coupon
             if (order.getCouponId() != null) {
                 boolean couponReturned = promotionClient.returnCoupon(
                         order.getUserId(), order.getCouponId(), order.getId());
                 if (couponReturned) {
-                    log.info("优惠券返还成功 - userId: {}, couponId: {}, orderId: {}", 
+                    log.info("Coupon returned successfully - userId: {}, couponId: {}, orderId: {}", 
                             order.getUserId(), order.getCouponId(), order.getId());
                 } else {
-                    log.warn("优惠券返还失败 - userId: {}, couponId: {}, orderId: {}", 
+                    log.warn("Coupon return failed - userId: {}, couponId: {}, orderId: {}", 
                             order.getUserId(), order.getCouponId(), order.getId());
                 }
             } else {
-                log.debug("订单未使用优惠券，跳过优惠券返还 - orderId: {}", order.getId());
+                log.debug("Order did not use coupon, skip coupon return - orderId: {}", order.getId());
             }
             
-            // 3. 返还积分
+            // 3. Return points
             if (order.getUseIntegration() != null && order.getUseIntegration() > 0) {
                 Integer currentIntegration = userClient.returnIntegration(
                         order.getUserId(), order.getUseIntegration(), order.getId());
                 if (currentIntegration != null) {
-                    log.info("积分返还成功 - userId: {}, orderId: {}, 返还积分: {}, 当前积分: {}", 
+                    log.info("Points returned successfully - userId: {}, orderId: {}, returned points: {}, current points: {}", 
                             order.getUserId(), order.getId(), order.getUseIntegration(), currentIntegration);
                 } else {
-                    log.warn("积分返还失败 - userId: {}, orderId: {}, 积分: {}", 
+                    log.warn("Points return failed - userId: {}, orderId: {}, points: {}", 
                             order.getUserId(), order.getId(), order.getUseIntegration());
                 }
             } else {
-                log.debug("订单未使用积分，跳过积分返还 - orderId: {}", order.getId());
+                log.debug("Order did not use points, skip points return - orderId: {}", order.getId());
             }
             
-            log.info("订单取消补偿处理完成 - 订单ID: {}", order.getId());
+            log.info("Order cancellation compensation completed - orderId: {}", order.getId());
         } catch (Exception e) {
-            log.error("订单取消补偿处理失败 - 订单ID: {}, 错误: {}", order.getId(), e.getMessage(), e);
+            log.error("Order cancellation compensation failed - orderId: {}, error: {}", order.getId(), e.getMessage(), e);
         }
     }
 

@@ -142,3 +142,46 @@ CREATE TABLE IF NOT EXISTS tb_order_operate_log (
     order_status INT,
     note VARCHAR(500)
 );
+
+-- Saga Transaction Instance Table
+CREATE TABLE IF NOT EXISTS tb_saga_instance (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    saga_id VARCHAR(64) NOT NULL COMMENT 'Saga transaction ID',
+    biz_id VARCHAR(64) COMMENT 'Business ID (e.g., order ID)',
+    saga_type VARCHAR(32) NOT NULL COMMENT 'Saga type: ORDER_PAYMENT_SAGA',
+    status VARCHAR(32) NOT NULL DEFAULT 'RUNNING' COMMENT 'Status: RUNNING/COMPLETED/COMPENSATED/FAILED',
+    current_step VARCHAR(32) COMMENT 'Current executing step',
+    start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Start time',
+    end_time TIMESTAMP COMMENT 'End time',
+    error_message VARCHAR(1024) COMMENT 'Error message if failed',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_saga_id (saga_id),
+    INDEX idx_biz_id (biz_id),
+    INDEX idx_status (status),
+    INDEX idx_saga_type (saga_type)
+) COMMENT 'Saga transaction instance table';
+
+-- Saga Step Execution Table
+CREATE TABLE IF NOT EXISTS tb_saga_step (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    saga_id VARCHAR(64) NOT NULL COMMENT 'Saga transaction ID',
+    step_name VARCHAR(64) NOT NULL COMMENT 'Step name',
+    step_order INT NOT NULL COMMENT 'Step execution order',
+    service_name VARCHAR(64) NOT NULL COMMENT 'Target service name',
+    compensable BOOLEAN DEFAULT TRUE COMMENT 'Whether this step can be compensated',
+    status VARCHAR(32) NOT NULL DEFAULT 'PENDING' COMMENT 'Status: PENDING/RUNNING/COMPLETED/COMPENSATED/FAILED',
+    request_data TEXT COMMENT 'Request data JSON',
+    response_data TEXT COMMENT 'Response data JSON',
+    compensation_data TEXT COMMENT 'Compensation data JSON',
+    retry_count INT DEFAULT 0 COMMENT 'Retry count',
+    max_retries INT DEFAULT 3 COMMENT 'Max retries',
+    error_message VARCHAR(1024) COMMENT 'Error message if failed',
+    start_time TIMESTAMP COMMENT 'Step start time',
+    end_time TIMESTAMP COMMENT 'Step end time',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_saga_id (saga_id),
+    INDEX idx_status (status),
+    INDEX idx_step_order (step_order)
+) COMMENT 'Saga step execution table';
