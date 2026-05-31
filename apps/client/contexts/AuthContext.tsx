@@ -233,8 +233,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function loginWithPhone(phone: string, authCode: string) {
-    try {
+  async function loginWithPhone(_phone: string, _authCode: string) {
+    // TODO: 后端 API 暂不支持手机号登录
+    throw new Error('手机号登录暂不支持');
+    /* try {
       const response = await ssoApi.loginByPhone({ telephone: phone, authCode });
       const loginData = response.data;
       if (!loginData?.token || !loginData?.tokenHead) {
@@ -265,25 +267,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Failed to login with phone:', error);
       throw error;
-    }
+    } */
   }
 
-  async function getAuthCode(telephone: string) {
-    try {
+  async function getAuthCode(_telephone: string) {
+    // TODO: 后端 API 暂不支持获取验证码
+    throw new Error('获取验证码暂不支持');
+    /* try {
       await ssoApi.getAuthCode({ telephone });
     } catch (error) {
       console.error('Failed to get auth code:', error);
       throw error;
-    }
+    } */
   }
 
-  async function forgotPassword(telephone: string, password: string, authCode: string) {
-    try {
+  async function forgotPassword(_telephone: string, _password: string, _authCode: string) {
+    // TODO: 后端 API 暂不支持更新密码
+    throw new Error('忘记密码功能暂不支持');
+    /* try {
       await ssoApi.updatePassword({ telephone, password, authCode });
     } catch (error) {
       console.error('Failed to update password:', error);
       throw error;
-    }
+    } */
   }
 
   return (

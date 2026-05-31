@@ -28,11 +28,11 @@ export function ActionButtons({ colors, productDetails, flashInfo, onOpenSKU }: 
 
   const loadFavoriteStatus = async () => {
     try {
-      const response = await productCollectionApi.detail({
+      const response = await productCollectionApi.listCollection({
         xUserId: DEFAULT_USER_ID,
-        productId: productDetails?.id,
       });
-      setIsFavorite(response.data != null);
+      const isFav = response.data?.some((item: any) => item.id === productDetails?.id);
+      setIsFavorite(!!isFav);
     } catch (error) {
       console.error('Failed to load favorite status:', error);
     }
@@ -41,19 +41,20 @@ export function ActionButtons({ colors, productDetails, flashInfo, onOpenSKU }: 
   const handleToggleFavorite = async () => {
     try {
       if (isFavorite) {
-        await productCollectionApi.delete({
+        await productCollectionApi.deleteCollection({
           xUserId: DEFAULT_USER_ID,
           productId: productDetails.id,
         });
         setIsFavorite(false);
         Alert.alert(t('common.success'), '取消收藏成功');
       } else {
-        await productCollectionApi.add({
-          productId: productDetails.id,
-          productName: productDetails.name,
-          productPic: productDetails.pic,
-          productPrice: productDetails.price,
-          productSubTitle: productDetails.subTitle,
+        await productCollectionApi.addCollection({
+          xUserId: DEFAULT_USER_ID,
+          collectionParam: {
+            productId: productDetails.id,
+            productName: productDetails.name,
+            productPic: productDetails.pic,
+          },
         });
         setIsFavorite(true);
         Alert.alert(t('common.success'), '收藏成功');

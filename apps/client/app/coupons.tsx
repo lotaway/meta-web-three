@@ -53,11 +53,10 @@ export default function CouponListScreen() {
   const loadCoupons = async () => {
     setLoading(true)
     try {
-      const response = await couponApi.list({
-        xUserId: DEFAULT_USER_ID,
+      const response = await couponApi.listCoupons({
         useStatus: selectedTab ?? undefined,
       })
-      setCoupons(response.data ?? [])
+      setCoupons((response.data ?? []) as any)
     } catch (error) {
       Alert.alert(t('common.error'), '加载优惠券失败')
     } finally {
@@ -69,8 +68,9 @@ export default function CouponListScreen() {
     setClaiming(couponTypeId.toString())
     try {
       await couponApi.claimCoupon({
-        xUserId: DEFAULT_USER_ID,
-        couponTypeId,
+        couponClaimRequest: {
+          couponTypeId,
+        },
       })
       Alert.alert(t('common.success'), '领取成功')
       loadCoupons()

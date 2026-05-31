@@ -56,7 +56,7 @@ export default function RefundScreen() {
       })
       if (response.data) {
         setOrder(response.data)
-        setRefundAmount(String(response.data.payAmount || 0))
+        setRefundAmount(String(response.data.order?.orderAmount || response.data.totalPrice || 0))
       }
     } catch (error) {
       console.error('Failed to load order:', error)

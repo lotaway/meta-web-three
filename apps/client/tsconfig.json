@@ -1,6 +1,7 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "baseUrl": ".",
     "module": "esnext",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -24,7 +25,8 @@
     "**/*.tsx",
     "expo-env.d.ts",
     "plugins/with-native-build-config.js",
-    ".expo/types/**/*.ts"
+    ".expo/types/**/*.ts",
+    "types/**/*.d.ts"
   ],
   "exclude": [
     "e2e",

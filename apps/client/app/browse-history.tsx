@@ -33,10 +33,8 @@ export default function BrowseHistoryScreen() {
 
   const fetchHistory = async (): Promise<ProductDTO[] | null> => {
     try {
-      const response = await readHistoryApi.list({
+      const response = await readHistoryApi.listHistory({
         xUserId: DEFAULT_USER_ID,
-        pageNum: pageNumRef.current,
-        pageSize: PAGE_SIZE,
       });
       return response.data ? response.data as ProductDTO[] : null;
     } catch (error) {
@@ -84,7 +82,7 @@ export default function BrowseHistoryScreen() {
 
   const handleDelete = async (productId: number) => {
     try {
-      await readHistoryApi.delete({
+      await readHistoryApi.deleteCollection({
         xUserId: DEFAULT_USER_ID,
         productId,
       });
@@ -95,12 +93,14 @@ export default function BrowseHistoryScreen() {
   };
 
   const handleClear = async () => {
-    try {
-      await readHistoryApi.clear({ xUserId: DEFAULT_USER_ID });
+    // TODO: 需要后端 API 支持清除浏览历史
+    console.log('Clear history not implemented');
+    /* try {
+      await readHistoryApi.clearHistory({ xUserId: DEFAULT_USER_ID });
       setProducts([]);
     } catch (error) {
       console.error('Clear history failed:', error);
-    }
+    } */
   };
 
   const handleProductPress = (productId: number) => {

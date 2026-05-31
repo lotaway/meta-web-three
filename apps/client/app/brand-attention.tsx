@@ -40,10 +40,8 @@ export default function BrandAttentionScreen() {
 
   const fetchBrands = async (): Promise<BrandItem[] | null> => {
     try {
-      const response = await memberAttentionApi.list({
+      const response = await memberAttentionApi.listAttention({
         xUserId: DEFAULT_USER_ID,
-        pageNum: pageNumRef.current,
-        pageSize: PAGE_SIZE,
       });
       return response.data ? response.data as BrandItem[] : null;
     } catch (error) {
@@ -90,15 +88,17 @@ export default function BrandAttentionScreen() {
   );
 
   const handleDelete = async (brandId: number) => {
-    try {
-      await memberAttentionApi.delete({
+    // TODO: 需要后端 API 支持删除品牌关注
+    console.log('Delete brand not implemented, brandId:', brandId);
+    /* try {
+      await memberAttentionApi.deleteCollection({
         xUserId: DEFAULT_USER_ID,
         brandId,
       });
       setBrands(prev => prev.filter(item => item.id !== brandId));
     } catch (error) {
       console.error('Delete brand failed:', error);
-    }
+    } */
   };
 
   const renderBrandItem = ({ item }: { item: BrandItem }) => (

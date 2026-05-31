@@ -70,14 +70,16 @@ export default function ReviewScreen() {
 
     setSubmitting(true)
     try {
-      await commentApi.create({
+      await commentApi.addComment({
         xUserId: DEFAULT_USER_ID,
-        productId,
-        productName,
-        star: rating,
-        content: content.trim(),
-        pics: images.join(','),
-        productAttribute: productAttr || undefined,
+        commentParam: {
+          productId,
+          productName,
+          star: rating,
+          content: content.trim(),
+          pics: images.join(','),
+          productAttribute: productAttr || undefined,
+        },
       })
 
       Alert.alert('成功', '评价提交成功', [

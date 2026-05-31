@@ -57,12 +57,12 @@ export default function NotificationsScreen() {
   const loadNotifications = async () => {
     setLoading(true)
     try {
-      const response = await notificationApi.list({
+      const response = await notificationApi.listNotifications({
         xUserId: DEFAULT_USER_ID,
         type: selectedType ?? undefined,
       })
       if (response.data && Array.isArray(response.data)) {
-        setNotifications(response.data)
+        setNotifications(response.data as any)
       }
     } catch (error) {
       console.error('Failed to load notifications:', error)
@@ -73,7 +73,7 @@ export default function NotificationsScreen() {
 
   const loadUnreadCount = async () => {
     try {
-      const response = await notificationApi.unreadCount({ xUserId: DEFAULT_USER_ID })
+      const response = await notificationApi.getUnreadCount({ xUserId: DEFAULT_USER_ID })
       if (response.data != null) {
         setUnreadCount(response.data as number)
       }
@@ -84,7 +84,7 @@ export default function NotificationsScreen() {
 
   const handleMarkRead = async (notificationId: number) => {
     try {
-      await notificationApi.markRead({
+      await notificationApi.markAsRead({
         xUserId: DEFAULT_USER_ID,
         notificationId,
       })
@@ -99,7 +99,7 @@ export default function NotificationsScreen() {
 
   const handleMarkAllRead = async () => {
     try {
-      await notificationApi.markAllRead({ xUserId: DEFAULT_USER_ID })
+      await notificationApi.markAllAsRead({ xUserId: DEFAULT_USER_ID })
       setNotifications((prev) => prev.map((n) => ({ ...n, readStatus: 1 })))
       setUnreadCount(0)
       Alert.alert('提示', '已全部标记为已读')
@@ -116,7 +116,7 @@ export default function NotificationsScreen() {
         style: 'destructive',
         onPress: async () => {
           try {
-            await notificationApi.delete({
+            await notificationApi.deleteNotification({
               xUserId: DEFAULT_USER_ID,
               notificationId,
             })

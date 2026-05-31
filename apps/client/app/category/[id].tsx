@@ -68,10 +68,7 @@ export default function CategoryListScreen() {
 
   const fetchProducts = useCallback(async () => {
     const response = await productApi.listProducts({
-      productCategoryId: selectedCateId || undefined,
-      pageNum: pageNumRef.current,
-      pageSize,
-      sort: getSortParam(),
+      categoryId: selectedCateId || undefined,
     });
     return response.data as ProductDTO[] | null;
   }, [selectedCateId, sortType]);

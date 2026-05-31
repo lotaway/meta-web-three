@@ -23,7 +23,7 @@ export function CommentPreview({ productId, productName, colors }: CommentPrevie
 
   const loadComments = async () => {
     try {
-      const response = await commentApi.listByProduct({ productId });
+      const response = await commentApi.listCommentsByProduct({ productId });
       if (response.data && Array.isArray(response.data)) {
         setComments(response.data.slice(0, 3));
       }

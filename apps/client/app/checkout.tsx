@@ -187,8 +187,7 @@ export default function CheckoutScreen() {
   const loadAvailableCoupons = async () => {
     setLoadingCoupons(true)
     try {
-      const response = await couponApi.list({
-        xUserId: DEFAULT_USER_ID,
+      const response = await couponApi.listCoupons({
         useStatus: 0,
       })
       if (response.data && Array.isArray(response.data)) {

@@ -44,10 +44,8 @@ export default function FavoritesScreen() {
     }
 
     try {
-      const response = await productCollectionApi.list({
+      const response = await productCollectionApi.listCollection({
         xUserId: DEFAULT_USER_ID,
-        pageNum: pageNumRef.current,
-        pageSize: PAGE_SIZE,
       });
 
       if (response.data) {
@@ -76,7 +74,7 @@ export default function FavoritesScreen() {
 
   const handleRemove = async (productId: number) => {
     try {
-      await productCollectionApi.delete({
+      await productCollectionApi.deleteCollection({
         xUserId: DEFAULT_USER_ID,
         productId,
       });

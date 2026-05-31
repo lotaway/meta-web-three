@@ -96,7 +96,7 @@ export default function ProfileScreen() {
 
   async function loadUnreadCount() {
     try {
-      const response = await notificationApi.unreadCount({ xUserId: DEFAULT_USER_ID })
+      const response = await notificationApi.getUnreadCount({ xUserId: DEFAULT_USER_ID })
       if (response.data != null) {
         setUnreadNotifications(response.data as number)
       }
@@ -107,7 +107,7 @@ export default function ProfileScreen() {
 
   async function loadCouponCount() {
     try {
-      const response = await couponApi.list({ xUserId: DEFAULT_USER_ID })
+      const response = await couponApi.listCoupons({})
       if (response.data) {
         setCouponCount((response.data as any[]).length)
       }

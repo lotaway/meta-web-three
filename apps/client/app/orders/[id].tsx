@@ -42,7 +42,7 @@ export default function OrderDetailScreen() {
   const loadOrder = async () => {
     setLoading(true)
     try {
-      const response = await orderApi.detail({ id: orderId })
+      const response = await orderApi.detail({ xUserId: DEFAULT_USER_ID, id: orderId })
       if (response.data) {
         setOrder(response.data)
       }
