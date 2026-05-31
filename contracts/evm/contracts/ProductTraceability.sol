@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/governance/TimelockController.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
@@ -16,6 +17,13 @@ contract ProductTraceability is AccessControl, ReentrancyGuard {
     bytes32 public constant PRODUCER_ROLE = keccak256("PRODUCER_ROLE");
     bytes32 public constant TRANSPORTER_ROLE = keccak256("TRANSPORTER_ROLE");
     bytes32 public constant VERIFIER_ROLE = keccak256("VERIFIER_ROLE");
+    
+    // Timelock controller for multi-sig admin management
+    TimelockController public timelockController;
+    
+    // Initialization flag
+    bool public initialized;
+    
     uint256 private _nextTraceId;
 
     // Trace record status
@@ -122,19 +130,17 @@ contract ProductTraceability is AccessControl, ReentrancyGuard {
     function hasAdminRole(address account) external view returns (bool) {
         return hasRole(ADMIN_ROLE, account);
     }
-        string indexed productId,
-        string productName,
-        address producer
-    );
+    
     // Events
-    event ProductRegistered(
-        string indexed productId,
-        string productName,
-        address producer
-    );
+    event TraceCreated(
         uint256 indexed traceId,
         string productId,
         string batchNumber,
+        address producer
+    );
+    event ProductRegistered(
+        string indexed productId,
+        string productName,
         address producer
     );
     event TraceEventAdded(
@@ -148,10 +154,27 @@ contract ProductTraceability is AccessControl, ReentrancyGuard {
         TraceStatus newStatus
     );
 
-    constructor() {
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(ADMIN_ROLE, msg.sender);
+    // Event for initialization
+    event ContractInitialized(address timelockController);
+    
+    /**
+     * @dev Initialize the contract with timelock controller
+     * @param _timelock Address of the TimelockController (multi-sig)
+     */
+    function initialize(address _timelock) external {
+        require(!initialized, "Already initialized");
+        require(_timelock != address(0), "Invalid timelock address");
+        
+        timelockController = TimelockController(_timelock);
+        
+        // Grant admin role to timelock controller (not to EOA)
+        _grantRole(DEFAULT_ADMIN_ROLE, _timelock);
+        _grantRole(ADMIN_ROLE, _timelock);
+        
+        initialized = true;
         _nextTraceId = 1;
+        
+        emit ContractInitialized(_timelock);
     }
 
     // Modifiers for role-based access
