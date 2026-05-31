@@ -45,6 +45,18 @@ public class MybatisCouponTypeRepository implements CouponTypeRepository {
         return records.stream().map(this::toDomain).collect(Collectors.toList());
     }
 
+    @Override
+    public List<CouponType> listAll() {
+        List<CouponTypeRecord> records = mapper.selectList(null);
+        return records.stream().map(this::toDomain).collect(Collectors.toList());
+    }
+
+    @Override
+    public void update(CouponType couponType) {
+        CouponTypeRecord record = toRecord(couponType);
+        mapper.updateById(record);
+    }
+
     private CouponTypeRecord toRecord(CouponType couponType) {
         CouponTypeRecord record = new CouponTypeRecord();
         copyRecordBasic(record, couponType);

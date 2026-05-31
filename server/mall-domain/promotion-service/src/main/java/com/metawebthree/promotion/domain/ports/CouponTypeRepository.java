@@ -8,4 +8,6 @@ public interface CouponTypeRepository {
     void save(CouponType couponType);
     CouponType findById(Long id);
     List<CouponType> listEnabledActive(LocalDateTime now);
+    List<CouponType> listAll();
+    void update(CouponType couponType);
 }

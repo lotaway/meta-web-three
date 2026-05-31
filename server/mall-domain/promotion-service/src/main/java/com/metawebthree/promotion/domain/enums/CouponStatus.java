@@ -13,4 +13,13 @@ public enum CouponStatus {
     public int getCode() {
         return code;
     }
+
+    public static CouponStatus fromCode(int code) {
+        for (CouponStatus status : values()) {
+            if (status.code == code) {
+                return status;
+            }
+        }
+        return UNUSED;
+    }
 }

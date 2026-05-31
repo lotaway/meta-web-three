@@ -104,6 +104,11 @@ public class PromotionServiceRpcImpl implements com.metawebthree.common.generate
     }
 
     @Override
+    public CompletableFuture<ReturnCouponResponse> returnCouponAsync(ReturnCouponRequest request) {
+        return CompletableFuture.completedFuture(returnCoupon(request));
+    }
+
+    @Override
     public GetUserCouponsResponse getUserCoupons(GetUserCouponsRequest request) {
         GetUserCouponsResponse.Builder responseBuilder = GetUserCouponsResponse.newBuilder();
         try {
@@ -133,5 +138,10 @@ public class PromotionServiceRpcImpl implements com.metawebthree.common.generate
             log.error("获取用户优惠券失败 - userId: {}, error: {}", request.getUserId(), e.getMessage(), e);
         }
         return responseBuilder.build();
+    }
+
+    @Override
+    public CompletableFuture<GetUserCouponsResponse> getUserCouponsAsync(GetUserCouponsRequest request) {
+        return CompletableFuture.completedFuture(getUserCoupons(request));
     }
 }
