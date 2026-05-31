@@ -12,15 +12,17 @@ import com.metawebthree.product.domain.exception.ProductErrorCode;
 import com.metawebthree.product.domain.model.*;
 import com.metawebthree.product.infrastructure.persistence.mapper.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 
 @Service("productAppService")
 @Slf4j
@@ -45,6 +47,8 @@ public class ProductService {
         this.productLimitsMapper = productLimitsMapper;
     }
 
+    @RateLimiter(name = "getProductDetail")
+    @CircuitBreaker(name = "productService", fallbackMethod = "getProductDetailFallback")
     public ProductDetailDTO getProductDetail(Integer id) {
         ProductDO product = productMapper.selectById(id);
         if (product == null) {
@@ -60,6 +64,11 @@ public class ProductService {
         ProductLimitsDO limits = productLimitsMapper.selectById(id);
 
         return buildProductDetail(product, defaultEntity, stats, limits);
+    }
+
+    private ProductDetailDTO getProductDetailFallback(Integer id, Throwable t) {
+        log.error("商品详情查询失败，触发限流或熔断: productId={}, error={}", id, t.getMessage());
+        throw new RuntimeException("系统繁忙，请稍后再试");
     }
 
     private ProductEntityDO findDefaultEntity(List<ProductEntityDO> entities) {
@@ -87,14 +96,16 @@ public class ProductService {
     }
 
     private void mapStatsInfo(ProductDetailDTO detail, ProductStatsDO stats) {
-        if (stats == null) return;
+        if (stats == null)
+            return;
         detail.setCommentNumber(stats.getCommentNumber());
         detail.setScoreNumber(stats.getScoreNumber());
         detail.setScores(convertScore(stats.getScores()));
     }
 
     private void mapLimitsInfo(ProductDetailDTO detail, ProductLimitsDO limits) {
-        if (limits == null) return;
+        if (limits == null)
+            return;
         detail.setPurchase(limits.getPurchase());
     }
 
@@ -121,8 +132,17 @@ public class ProductService {
     public List<ProductDTO> listProducts(Integer categoryId, String keyword, String priceRange) {
         QueryWrapper<ProductDO> query = buildListQuery(categoryId, keyword);
         List<ProductDO> items = productMapper.selectList(query);
+        if (items.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 批量查询，修复 N+1 问题
+        List<Integer> productIds = items.stream().map(ProductDO::getId).collect(Collectors.toList());
+        Map<Integer, ProductStatsDO> statsMap = batchGetStats(productIds);
+        Map<Integer, ProductEntityDO> defaultSkuMap = batchGetDefaultSkus(productIds);
+
         return items.stream()
-                .map(this::convertToProductDTO)
+                .map(item -> convertToProductDTO(item, statsMap.get(item.getId()), defaultSkuMap.get(item.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -137,18 +157,57 @@ public class ProductService {
         return query;
     }
 
-    private ProductDTO convertToProductDTO(ProductDO item) {
+    // 批量查询 ProductStats
+    private Map<Integer, ProductStatsDO> batchGetStats(List<Integer> productIds) {
+        if (productIds.isEmpty()) {
+            return new HashMap<>();
+        }
+        List<ProductStatsDO> statsList = productStatsMapper.selectBatchIds(productIds);
+        return statsList.stream().collect(Collectors.toMap(ProductStatsDO::getProductId, Function.identity()));
+    }
+
+    // 批量查询 ProductEntity 并找出每个产品的最低价 SKU
+    private Map<Integer, ProductEntityDO> batchGetDefaultSkus(List<Integer> productIds) {
+        if (productIds.isEmpty()) {
+            return new HashMap<>();
+        }
+        List<ProductEntityDO> entities = productEntityMapper.selectList(
+                new QueryWrapper<ProductEntityDO>().in("product_id", productIds));
+
+        // 按 productId 分组，找出每个产品的最低价 SKU
+        Map<Integer, List<ProductEntityDO>> grouped = entities.stream()
+                .collect(Collectors.groupingBy(ProductEntityDO::getProductId));
+
+        Map<Integer, ProductEntityDO> result = new HashMap<>();
+        for (Map.Entry<Integer, List<ProductEntityDO>> entry : grouped.entrySet()) {
+            entry.getValue().stream()
+                    .min(Comparator.comparing(ProductEntityDO::getSalePrice))
+                    .ifPresent(entity -> result.put(entry.getKey(), entity));
+        }
+        return result;
+    }
+
+    private ProductDTO convertToProductDTO(ProductDO item, ProductStatsDO stats, ProductEntityDO defaultSku) {
         ProductDTO dto = new ProductDTO();
         dto.setId(item.getId());
         dto.setName(item.getProductName());
         dto.setGoodsNo(item.getProductNo());
 
-        enrichWithDefaultSku(dto, item.getId());
-        enrichWithStats(dto, item.getId());
+        // 使用已批量查询的数据
+        if (stats != null) {
+            dto.setCommentNumber(stats.getCommentNumber());
+            dto.setScores(convertScore(stats.getScores()));
+        }
+        if (defaultSku != null) {
+            dto.setPrice(defaultSku.getSalePrice() != null ? defaultSku.getSalePrice().toString() : null);
+            dto.setMarketPrice(defaultSku.getMarketPrice() != null ? defaultSku.getMarketPrice().toString() : null);
+            dto.setImageUrl(defaultSku.getImageUrl());
+        }
 
         return dto;
     }
 
+    // 以下方法保留用于单产品详情查询（已优化）
     private void enrichWithStats(ProductDTO dto, Integer productId) {
         ProductStatsDO stats = productStatsMapper.selectById(productId);
         if (stats != null) {
@@ -213,12 +272,20 @@ public class ProductService {
         if (product == null) {
             return null;
         }
-        return convertToProductDTO(product);
+        // 批量查询数据
+        ProductStatsDO stats = productStatsMapper.selectById(id);
+        List<ProductEntityDO> entities = productEntityMapper.selectList(
+                new QueryWrapper<ProductEntityDO>().eq("product_id", id));
+        ProductEntityDO defaultSku = entities.stream()
+                .min(Comparator.comparing(ProductEntityDO::getSalePrice))
+                .orElse(null);
+        return convertToProductDTO(product, stats, defaultSku);
     }
 
-    public List<ProductDTO> searchProducts(String keyword, Integer categoryId, Integer brandId, Integer sort, Integer pageNum, Integer pageSize) {
+    public List<ProductDTO> searchProducts(String keyword, Integer categoryId, Integer brandId, Integer sort,
+            Integer pageNum, Integer pageSize) {
         QueryWrapper<ProductDO> query = new QueryWrapper<>();
-        
+
         if (keyword != null && !keyword.isEmpty()) {
             query.and(wrapper -> wrapper
                     .like("product_name", keyword)
@@ -227,11 +294,11 @@ public class ProductService {
                     .or()
                     .like("product_remark", keyword));
         }
-        
+
         if (brandId != null) {
             query.eq("brand_id", brandId);
         }
-        
+
         // 排序逻辑
         switch (sort) {
             case 1: // 销量
@@ -247,14 +314,23 @@ public class ProductService {
                 query.orderByDesc("create_time");
                 break;
         }
-        
+
         // 分页
         int offset = (pageNum - 1) * pageSize;
         query.last("LIMIT " + pageSize + " OFFSET " + offset);
-        
+
         List<ProductDO> items = productMapper.selectList(query);
+        if (items.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 批量查询，修复 N+1 问题
+        List<Integer> productIds = items.stream().map(ProductDO::getId).collect(Collectors.toList());
+        Map<Integer, ProductStatsDO> statsMap = batchGetStats(productIds);
+        Map<Integer, ProductEntityDO> defaultSkuMap = batchGetDefaultSkus(productIds);
+
         return items.stream()
-                .map(this::convertToProductDTO)
+                .map(item -> convertToProductDTO(item, statsMap.get(item.getId()), defaultSkuMap.get(item.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -265,10 +341,19 @@ public class ProductService {
                 .or()
                 .like("product_no", keyword));
         query.last("LIMIT " + limit);
-        
+
         List<ProductDO> items = productMapper.selectList(query);
+        if (items.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 批量查询，修复 N+1 问题
+        List<Integer> productIds = items.stream().map(ProductDO::getId).collect(Collectors.toList());
+        Map<Integer, ProductStatsDO> statsMap = batchGetStats(productIds);
+        Map<Integer, ProductEntityDO> defaultSkuMap = batchGetDefaultSkus(productIds);
+
         return items.stream()
-                .map(this::convertToProductDTO)
+                .map(item -> convertToProductDTO(item, statsMap.get(item.getId()), defaultSkuMap.get(item.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -277,14 +362,17 @@ public class ProductService {
         if (product == null) {
             return new ArrayList<>();
         }
-        
+
         // 基于产品名称前缀推荐（简化实现）
         QueryWrapper<ProductDO> query = new QueryWrapper<>();
         query.ne("id", productId)
                 .orderByDesc("create_time")
                 .last("LIMIT " + limit);
-        
+
         List<ProductDO> items = productMapper.selectList(query);
+        if (items.isEmpty()) {
+            return new ArrayList<>();
+        }
         return items.stream()
                 .map(this::convertToProductDTO)
                 .collect(Collectors.toList());

@@ -5,7 +5,6 @@ import com.metawebthree.payment.infrastructure.persistence.mapper.CryptoPriceRep
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +26,10 @@ public class PriceEngineServiceImpl {
     @Value("${payment.price-engine.update-interval:5}")
     private int updateInterval;
     
+    // 注意：使用本地 ConcurrentHashMap 缓存价格数据
+    // 定时任务 updatePrices() 每5秒刷新缓存，确保数据及时更新
+    // 价格数据变化频繁，不适合使用 Spring Cache
     private final Map<String, CryptoPrice> priceCache = new ConcurrentHashMap<>();
-    
-    @Cacheable(value = "cryptoPrices", key = "#symbol")
     public CryptoPrice getCurrentPrice(String symbol) {
         CryptoPrice cachedPrice = priceCache.get(symbol);
         if (cachedPrice != null && isPriceValid(cachedPrice)) {
