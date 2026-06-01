@@ -170,6 +170,12 @@ export const asyncRouterMap: RouteRecordExt[] = [
         meta: { title: '退货申请详情' },
         hidden: true,
       },
+      {
+        path: 'afterSale',
+        name: 'afterSale',
+        component: () => import('@/views/oms/afterSale/index.vue'),
+        meta: { title: '售后管理', icon: 'after-sale' },
+      },
     ],
   },
   {
@@ -645,6 +651,99 @@ export const asyncRouterMap: RouteRecordExt[] = [
         name: 'inventoryAlert',
         component: () => import('@/views/inventory/inventory-alert/index.vue'),
         meta: { title: 'inventory.alert.title', icon: 'alert' },
+      },
+    ],
+  },
+
+  // Logistics Management Module
+  {
+    path: '/logistics',
+    component: Layout,
+    redirect: '/logistics/list',
+    name: 'logistics',
+    meta: { title: 'logistics.title', icon: 'truck' },
+    children: [
+      {
+        path: 'list',
+        name: 'logisticsList',
+        component: () => import('@/views/logistics/index.vue'),
+        meta: { title: 'logistics.list.title', icon: 'truck' },
+      },
+    ],
+  },
+  // Supplier Management Module
+  {
+    path: '/supplier',
+    component: Layout,
+    redirect: '/supplier/list',
+    name: 'supplier',
+    meta: { title: 'supplier.title', icon: 'supplier' },
+    children: [
+      {
+        path: 'list',
+        name: 'supplierList',
+        component: () => import('@/views/supplier/index.vue'),
+        meta: { title: 'supplier.list.title', icon: 'supplier' },
+      },
+    ],
+  },
+  // Review Management Module
+  {
+    path: '/review',
+    component: Layout,
+    redirect: '/review/list',
+    name: 'review',
+    meta: { title: 'review.title', icon: 'comment' },
+    children: [
+      {
+        path: 'list',
+        name: 'reviewList',
+        component: () => import('@/views/review/index.vue'),
+        meta: { title: 'review.list.title', icon: 'comment' },
+      },
+    ],
+  },
+  // AI Service Management Module
+  {
+    path: '/ai',
+    component: Layout,
+    redirect: '/ai/routing',
+    name: 'ai',
+    meta: { title: 'ai.title', icon: 'ai' },
+    children: [
+      {
+        path: 'routing',
+        name: 'aiRouting',
+        component: () => import('@/views/ai/route-optimizer/index.vue'),
+        meta: { title: 'ai.routing.title', icon: 'route' },
+      },
+      {
+        path: 'forecasting',
+        name: 'aiForecasting',
+        component: () => import('@/views/ai/forecasting/index.vue'),
+        meta: { title: 'ai.forecasting.title', icon: 'forecast' },
+      },
+    ],
+  },
+  // Blockchain Service Management Module
+  {
+    path: '/blockchain',
+    component: Layout,
+    redirect: '/blockchain/traceability',
+    name: 'blockchain',
+    meta: { title: 'blockchain.title', icon: 'blockchain' },
+    children: [
+      {
+        path: 'traceability',
+        name: 'blockchainTraceability',
+        component: () => import('@/views/blockchain/traceability/index.vue'),
+        meta: { title: 'blockchain.traceability.title', icon: 'trace' },
+      },
+      {
+        path: 'wallet',
+        name: 'blockchainWallet',
+        component: () => import('@/views/blockchain/wallet/index.vue'),
+        meta: { title: 'blockchain.wallet.title', icon: 'wallet' },
       },
     ],
   },
