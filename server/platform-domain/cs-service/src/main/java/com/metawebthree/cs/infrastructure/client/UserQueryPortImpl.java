@@ -32,4 +32,12 @@ public class UserQueryPortImpl implements UserQueryPort {
         log.debug("findAvatar not implemented via RPC, userId: {}", userId);
         return Optional.empty();
     }
+
+    @Override
+    public Optional<String> findPhone(Long userId) {
+        // UserService does not provide phone query via RPC
+        // Could be extended in future when user-service adds more endpoints
+        log.debug("findPhone not implemented via RPC, userId: {}", userId);
+        return Optional.empty();
+    }
 }
