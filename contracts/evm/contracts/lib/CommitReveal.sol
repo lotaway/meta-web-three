@@ -21,19 +21,19 @@ contract CommitReveal {
 
     function reveal(uint256 _value, bytes32 _salt) public {
         cleanupExpired();
-        Commit storage commit = commits[msg.sender];
-        require(commit.commitHash != 0, "Not committed");
-        require(!commit.revealed, "Already revealed");
+        Commit storage userCommit = commits[msg.sender];
+        require(userCommit.commitHash != 0, "Not committed");
+        require(!userCommit.revealed, "Already revealed");
         require(
-            block.number > commit.blockNumber,
+            block.number > userCommit.blockNumber,
             "Cannot reveal in same block"
         );
         require(
-            keccak256(abi.encodePacked(_value, _salt)) == commit.commitHash,
+            keccak256(abi.encodePacked(_value, _salt)) == userCommit.commitHash,
             "Invalid reveal"
         );
 
-        commit.revealed = true;
+        userCommit.revealed = true;
         // use _value as random number or selection
     }
 

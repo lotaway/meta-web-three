@@ -20,6 +20,8 @@ contract GoodsNFT is IGoodsNFT, ERC721, Ownable, ReentrancyGuard {
     uint256 private _nextTokenId;
 
     uint256 public constant RATE_DENOMINATOR = 100;
+    uint256 public constant COMMISSION_RATE = 10; // 10%
+    uint256 public constant UPLINE_COMMISSION_RATE = 30; // 30% of commission goes to uplines
 
     mapping(string => bytes32) public couponBatchRoots;
     mapping(bytes32 => bool) public usedCoupons;
@@ -105,6 +107,12 @@ contract GoodsNFT is IGoodsNFT, ERC721, Ownable, ReentrancyGuard {
     ) external nonReentrant {
         bytes32 root = couponBatchRoots[batchId];
         require(root != bytes32(0), "Batch root not set");
+        uint256 price = goodPrices[tokenId];
+        uint256 discountedPrice = price - (price * discount / 100);
+        if (discountedPrice < minPrice) {
+            discountedPrice = minPrice;
+        }
+        require(block.timestamp >= startTime, "Coupon not yet active");
         require(block.timestamp <= endTime, "Coupon expired");
 
         bytes32 leaf = keccak256(
@@ -120,7 +128,7 @@ contract GoodsNFT is IGoodsNFT, ERC721, Ownable, ReentrancyGuard {
         require(MerkleProof.verify(proof, root, leaf), "Invalid coupon proof");
         require(!usedCoupons[leaf], "Coupon already used");
 
-        _processPurchase(tokenId, referrer, finalPrice);
+        _processPurchase(tokenId, referrer, discountedPrice);
         emit CouponUsed(batchId, couponCode, msg.sender);
     }
 
