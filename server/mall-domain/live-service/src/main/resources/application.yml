@@ -1,0 +1,21 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: live-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER:localhost:8848}
+
+dubbo:
+  application:
+    name: live-service
+  protocol:
+    name: dubbo
+    port: 20886
+  registry:
+    address: nacos://${NACOS_SERVER:localhost:8848}
+  consumer:
+    check: false
