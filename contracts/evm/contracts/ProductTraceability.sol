@@ -18,10 +18,10 @@ contract ProductTraceability is AccessControl, ReentrancyGuard, Initializable {
     bytes32 public constant PRODUCER_ROLE = keccak256("PRODUCER_ROLE");
     bytes32 public constant TRANSPORTER_ROLE = keccak256("TRANSPORTER_ROLE");
     bytes32 public constant VERIFIER_ROLE = keccak256("VERIFIER_ROLE");
-    
+
     // Timelock controller for multi-sig admin management
     TimelockController public timelockController;
-    
+
     uint256 private _nextTraceId;
 
     // Trace record status
@@ -128,7 +128,7 @@ contract ProductTraceability is AccessControl, ReentrancyGuard, Initializable {
     function hasAdminRole(address account) external view returns (bool) {
         return hasRole(ADMIN_ROLE, account);
     }
-    
+
     // Events
     event TraceCreated(
         uint256 indexed traceId,
@@ -154,22 +154,22 @@ contract ProductTraceability is AccessControl, ReentrancyGuard, Initializable {
 
     // Event for initialization
     event ContractInitialized(address timelockController);
-    
+
     /**
      * @dev Initialize the contract with timelock controller
      * @param _timelock Address of the TimelockController (multi-sig)
      */
-    function initialize(address _timelock) external initializer {
+    function initialize(address payable _timelock) external initializer {
         require(_timelock != address(0), "Invalid timelock address");
-        
+
         timelockController = TimelockController(_timelock);
-        
+
         // Grant admin role to timelock controller (not to EOA)
         _grantRole(DEFAULT_ADMIN_ROLE, _timelock);
         _grantRole(ADMIN_ROLE, _timelock);
-        
+
         _nextTraceId = 1;
-        
+
         emit ContractInitialized(_timelock);
     }
 
@@ -547,8 +547,7 @@ contract ProductTraceability is AccessControl, ReentrancyGuard, Initializable {
             if (
                 keccak256(
                     abi.encodePacked(traceRecords[traceIds[i]].batchNumber)
-                ) ==
-                keccak256(abi.encodePacked(batchNumber))
+                ) == keccak256(abi.encodePacked(batchNumber))
             ) {
                 return true;
             }
@@ -580,15 +579,11 @@ library Strings {
         return string(buffer);
     }
 
-    function toHexString(
-        address addr
-    ) internal pure returns (string memory) {
+    function toHexString(address addr) internal pure returns (string memory) {
         return toHexString(uint256(uint160(addr)));
     }
 
-    function toHexString(
-        uint256 value
-    ) internal pure returns (string memory) {
+    function toHexString(uint256 value) internal pure returns (string memory) {
         uint256 length = 0;
         uint256 temp = value;
         while (temp != 0) {
