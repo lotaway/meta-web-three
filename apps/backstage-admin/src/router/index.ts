@@ -277,6 +277,12 @@ export const asyncRouterMap: RouteRecordExt[] = [
         meta: { title: '编辑广告' },
         hidden: true,
       },
+      {
+        path: 'recommendation',
+        name: 'recommendation',
+        component: () => import('@/views/sms/recommendation/index.vue'),
+        meta: { title: '推荐规则管理', icon: 'sms-recommend' },
+      },
     ],
   },
   {
@@ -344,6 +350,12 @@ export const asyncRouterMap: RouteRecordExt[] = [
         component: () => import('@/views/ums/resource/categoryList.vue'),
         meta: { title: '资源分类' },
         hidden: true,
+      },
+      {
+        path: 'memberLevel',
+        name: 'memberLevel',
+        component: () => import('@/views/ums/memberLevel/index.vue'),
+        meta: { title: '会员等级', icon: 'ums-member' },
       },
     ],
   },
@@ -617,6 +629,22 @@ export const asyncRouterMap: RouteRecordExt[] = [
         name: 'cashFlowForecast',
         component: () => import('@/views/cash/forecast/index.vue'),
         meta: { title: 'cash.forecast.title', icon: 'cash-forecast' },
+      },
+    ],
+  },
+  // Inventory Management Module
+  {
+    path: '/inventory',
+    component: Layout,
+    redirect: '/inventory/alert',
+    name: 'inventory',
+    meta: { title: 'inventory.title', icon: 'inventory' },
+    children: [
+      {
+        path: 'alert',
+        name: 'inventoryAlert',
+        component: () => import('@/views/inventory/inventory-alert/index.vue'),
+        meta: { title: 'inventory.alert.title', icon: 'alert' },
       },
     ],
   },

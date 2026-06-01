@@ -18,6 +18,8 @@ public interface RecommendationDomainService {
     
     void activateRule(Long ruleId);
     
+    void deleteRule(Long ruleId);
+    
     void applyRules(Recommendation recommendation);
     
     Double calculateCTR(Long recommendationId);

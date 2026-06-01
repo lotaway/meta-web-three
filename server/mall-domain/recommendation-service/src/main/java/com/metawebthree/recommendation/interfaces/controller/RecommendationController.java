@@ -87,6 +87,12 @@ public class RecommendationController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/rule/{id}")
+    public ResponseEntity<Void> deleteRule(@PathVariable Long id) {
+        commandService.deleteRule(id);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/rule/scene/{scene}")
     public ResponseEntity<?> getRulesByScene(@PathVariable String scene) {
         return ResponseEntity.ok(queryService.getRulesByScene(scene));

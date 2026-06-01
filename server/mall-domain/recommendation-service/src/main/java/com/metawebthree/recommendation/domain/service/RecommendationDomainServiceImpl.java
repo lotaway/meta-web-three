@@ -149,6 +149,11 @@ public class RecommendationDomainServiceImpl implements RecommendationDomainServ
     }
 
     @Override
+    public void deleteRule(Long ruleId) {
+        ruleRepository.deleteById(ruleId);
+    }
+
+    @Override
     public void applyRules(Recommendation recommendation) {
         List<RecommendationRule> activeRules = ruleRepository
             .findBySceneAndStatus(recommendation.getScene(), RecommendationRule.RuleStatus.ACTIVE);

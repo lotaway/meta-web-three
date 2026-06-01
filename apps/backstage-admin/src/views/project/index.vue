@@ -122,7 +122,7 @@ const queryParams = reactive({
   status: ''
 })
 
-const form = reactive<ProjectCreateCommand>({
+const form = reactive<ProjectCreateCommand & { id?: number }>({
   projectCode: '',
   projectName: '',
   description: '',
@@ -144,8 +144,8 @@ const rules = {
   managerName: [{ required: true, message: '请输入项目经理', trigger: 'blur' }]
 }
 
-const getStatusType = (status: string) => {
-  const map: Record<string, string> = {
+const getStatusType = (status: string): 'success' | 'warning' | 'danger' | 'info' | 'primary' => {
+  const map: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'primary'> = {
     DRAFT: 'info',
     ACTIVE: 'success',
     SUSPENDED: 'warning',

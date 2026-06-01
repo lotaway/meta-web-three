@@ -47,6 +47,10 @@ public class RecommendationCommandService {
         eventPublisher.publishRuleActivated(ruleId);
     }
 
+    public void deleteRule(Long ruleId) {
+        domainService.deleteRule(ruleId);
+    }
+
     public void recordClick(Long recommendationId, String skuCode) {
         // Implementation
     }

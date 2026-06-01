@@ -104,4 +104,25 @@ function http<T = any>(config: AxiosRequestConfig): Promise<CommonResult<T>> {
   })
 }
 
+// 添加便捷方法
+http.get = <T = any>(url: string, config?: AxiosRequestConfig): Promise<CommonResult<T>> => {
+  return http<T>({ ...config, method: 'GET', url })
+}
+
+http.post = <T = any>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<CommonResult<T>> => {
+  return http<T>({ ...config, method: 'POST', url, data })
+}
+
+http.put = <T = any>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<CommonResult<T>> => {
+  return http<T>({ ...config, method: 'PUT', url, data })
+}
+
+http.delete = <T = any>(url: string, config?: AxiosRequestConfig): Promise<CommonResult<T>> => {
+  return http<T>({ ...config, method: 'DELETE', url })
+}
+
+http.patch = <T = any>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<CommonResult<T>> => {
+  return http<T>({ ...config, method: 'PATCH', url, data })
+}
+
 export default http
