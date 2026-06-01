@@ -21,7 +21,7 @@
 ---
 **【服务合并】：**
 
-- [ ] **合并 notification-service 到 message-service** -- 代码规范问题：缺少单元测试，不符合CODE_PRICEPLES核心业务逻辑与底层能力必须有单元测试要求。message-service 已整合多渠道发送能力（短信、邮件、App推送、站内通知、模板系统），编译通过，但需补充 NotificationApplicationService 等核心类的单元测试
+~~合并 notification-service 到 message-service~~ -- 已完成：补充了 NotificationApplicationService 单元测试类（15个测试用例覆盖核心业务逻辑：send、sendWithTemplate、markAsRead、getById、getByUserId、getUnreadByUserId、getByType、getAll、configureTemplate），编译通过，代码规范问题已修复
 
 ---
 **【前端管理后台缺失】：** 
