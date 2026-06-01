@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metawebthree.inventoryalert.infrastructure.persistence.mapper.InventoryAlertMapper">
+    
+    <resultMap id="BaseResultMap" type="com.metawebthree.inventoryalert.domain.model.InventoryAlertDO">
+        <id column="id" property="id"/>
+        <result column="product_id" property="productId"/>
+        <result column="sku_id" property="skuId"/>
+        <result column="product_name" property="productName"/>
+        <result column="sku_code" property="skuCode"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="warehouse_name" property="warehouseName"/>
+        <result column="current_stock" property="currentStock"/>
+        <result column="threshold" property="threshold"/>
+        <result column="alert_level" property="alertLevel"/>
+        <result column="alert_status" property="alertStatus"/>
+        <result column="alert_message" property="alertMessage"/>
+        <result column="alert_time" property="alertTime"/>
+        <result column="resolved_time" property="resolvedTime"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.metawebthree.inventoryalert.domain.model.InventoryAlertDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO inventory_alert (
+            product_id, sku_id, product_name, sku_code, warehouse_id, warehouse_name,
+            current_stock, threshold, alert_level, alert_status, alert_message,
+            alert_time, resolved_time, remark
+        ) VALUES (
+            #{productId}, #{skuId}, #{productName}, #{skuCode}, #{warehouseId}, #{warehouseName},
+            #{currentStock}, #{threshold}, #{alertLevel}, #{alertStatus}, #{alertMessage},
+            #{alertTime}, #{resolvedTime}, #{remark}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.metawebthree.inventoryalert.domain.model.InventoryAlertDO">
+        UPDATE inventory_alert SET
+            product_id = #{productId},
+            sku_id = #{skuId},
+            product_name = #{productName},
+            sku_code = #{skuCode},
+            warehouse_id = #{warehouseId},
+            warehouse_name = #{warehouseName},
+            current_stock = #{currentStock},
+            threshold = #{threshold},
+            alert_level = #{alertLevel},
+            alert_status = #{alertStatus},
+            alert_message = #{alertMessage},
+            alert_time = #{alertTime},
+            resolved_time = #{resolvedTime},
+            remark = #{remark}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM inventory_alert WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" parameterType="long" resultMap="BaseResultMap">
+        SELECT * FROM inventory_alert WHERE id = #{id}
+    </select>
+
+    <select id="selectByProductId" parameterType="long" resultMap="BaseResultMap">
+        SELECT * FROM inventory_alert WHERE product_id = #{productId} ORDER BY alert_time DESC
+    </select>
+
+    <select id="selectByWarehouseId" parameterType="long" resultMap="BaseResultMap">
+        SELECT * FROM inventory_alert WHERE warehouse_id = #{warehouseId} ORDER BY alert_time DESC
+    </select>
+
+    <select id="selectByAlertLevel" parameterType="int" resultMap="BaseResultMap">
+        SELECT * FROM inventory_alert WHERE alert_level = #{alertLevel} ORDER BY alert_time DESC
+    </select>
+
+    <select id="selectByStatus" parameterType="int" resultMap="BaseResultMap">
+        SELECT * FROM inventory_alert WHERE alert_status = #{status} ORDER BY alert_time DESC
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT * FROM inventory_alert ORDER BY alert_time DESC
+    </select>
+
+    <update id="updateStatus">
+        UPDATE inventory_alert SET alert_status = #{status} WHERE id = #{id}
+    </update>
+
+</mapper>
