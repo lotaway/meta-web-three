@@ -1,9 +1,9 @@
 import type { CommonPage } from '@/types/common'
 import type { SmsCoupon, SmsCouponHistory, CouponQueryParam, CouponHistoryQueryParam } from '@/types/coupon'
 import type { SmsFlashPromotion, SmsFlashPromotionSession, SmsFlashPromotionProductRelation, FlashProductQueryParam } from '@/types/flash'
-import type { PmsHomeBrand } from '@/types/homeBrand'
-import type { PmsHomeSubject } from '@/types/homeSubject'
-import type { PmsHomeNewProduct } from '@/types/newProduct'
+import type { SmsHomeBrand } from '@/types/homeBrand'
+import type { SmsHomeRecommendSubject } from '@/types/homeSubject'
+import type { SmsHomeNewProduct } from '@/types/newProduct'
 import http from '@/utils/http'
 
 // Coupon APIs
@@ -159,14 +159,14 @@ export function flashProductRelationDeleteAPI(id: number) {
 
 // Home Brand APIs
 export function getHomeBrandListAPI(params: { pageNum: number; pageSize: number; brandName?: string; recommendStatus?: number }) {
-  return http<CommonPage<PmsHomeBrand>>({
+  return http<CommonPage<SmsHomeBrand>>({
     url: '/home/brand/list',
     method: 'get',
     params: params,
   })
 }
 
-export function homeBrandCreateAPI(data: PmsHomeBrand) {
+export function homeBrandCreateAPI(data: SmsHomeBrand) {
   return http({
     url: '/home/brand/create',
     method: 'post',
@@ -174,7 +174,7 @@ export function homeBrandCreateAPI(data: PmsHomeBrand) {
   })
 }
 
-export function homeBrandUpdateAPI(id: number, data: PmsHomeBrand) {
+export function homeBrandUpdateAPI(id: number, data: SmsHomeBrand) {
   return http({
     url: '/home/brand/update/' + id,
     method: 'post',
@@ -199,14 +199,14 @@ export function homeBrandDeleteAPI(id: number) {
 
 // Home Subject APIs
 export function getHomeSubjectListAPI(params: { pageNum: number; pageSize: number; subjectName?: string; recommendStatus?: number }) {
-  return http<CommonPage<PmsHomeSubject>>({
+  return http<CommonPage<SmsHomeRecommendSubject>>({
     url: '/home/subject/list',
     method: 'get',
     params: params,
   })
 }
 
-export function homeSubjectCreateAPI(data: PmsHomeSubject) {
+export function homeSubjectCreateAPI(data: SmsHomeRecommendSubject) {
   return http({
     url: '/home/subject/create',
     method: 'post',
@@ -214,7 +214,7 @@ export function homeSubjectCreateAPI(data: PmsHomeSubject) {
   })
 }
 
-export function homeSubjectUpdateAPI(id: number, data: PmsHomeSubject) {
+export function homeSubjectUpdateAPI(id: number, data: SmsHomeRecommendSubject) {
   return http({
     url: '/home/subject/update/' + id,
     method: 'post',
@@ -239,14 +239,14 @@ export function homeSubjectDeleteAPI(id: number) {
 
 // Home New Product APIs
 export function getHomeNewProductListAPI(params: { pageNum: number; pageSize: number; productName?: string; recommendStatus?: number }) {
-  return http<CommonPage<PmsHomeNewProduct>>({
+  return http<CommonPage<SmsHomeNewProduct>>({
     url: '/home/newProduct/list',
     method: 'get',
     params: params,
   })
 }
 
-export function homeNewProductCreateAPI(data: PmsHomeNewProduct) {
+export function homeNewProductCreateAPI(data: SmsHomeNewProduct) {
   return http({
     url: '/home/newProduct/create',
     method: 'post',
@@ -254,7 +254,7 @@ export function homeNewProductCreateAPI(data: PmsHomeNewProduct) {
   })
 }
 
-export function homeNewProductUpdateAPI(id: number, data: PmsHomeNewProduct) {
+export function homeNewProductUpdateAPI(id: number, data: SmsHomeNewProduct) {
   return http({
     url: '/home/newProduct/update/' + id,
     method: 'post',

@@ -703,6 +703,22 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // HR Management Module
+  {
+    path: '/hrm',
+    component: Layout,
+    redirect: '/hrm/employee',
+    name: 'hrm',
+    meta: { title: 'hrm.title', icon: 'user' },
+    children: [
+      {
+        path: 'employee',
+        name: 'hrmEmployee',
+        component: () => import('@/views/hrm/index.vue'),
+        meta: { title: 'hrm.employee.title', icon: 'user' },
+      },
+    ],
+  },
   // AI Service Management Module
   {
     path: '/ai',
