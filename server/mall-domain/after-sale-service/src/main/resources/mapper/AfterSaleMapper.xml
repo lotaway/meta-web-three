@@ -81,4 +81,78 @@
         UPDATE after_sale_order SET after_sale_status = #{status}, process_time = NOW() WHERE id = #{id}
     </update>
 
+    <!-- Pagination query -->
+    <select id="selectByPage" resultMap="BaseResultMap">
+        SELECT * FROM after_sale_order
+        <where>
+            <if test="status != null">
+                AND after_sale_status = #{status}
+            </if>
+            <if test="type != null">
+                AND after_sale_type = #{type}
+            </if>
+            <if test="orderNo != null and orderNo != ''">
+                AND order_no LIKE CONCAT('%', #{orderNo}, '%')
+            </if>
+            <if test="userId != null and userId != ''">
+                AND user_id = #{userId}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND DATE(apply_time) &gt;= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND DATE(apply_time) &lt;= #{endDate}
+            </if>
+        </where>
+        ORDER BY apply_time DESC
+        LIMIT #{pageSize} OFFSET ${(pageNum - 1) * pageSize}
+    </select>
+
+    <!-- Count for pagination -->
+    <select id="countByPage" resultType="long">
+        SELECT COUNT(*) FROM after_sale_order
+        <where>
+            <if test="status != null">
+                AND after_sale_status = #{status}
+            </if>
+            <if test="type != null">
+                AND after_sale_type = #{type}
+            </if>
+            <if test="orderNo != null and orderNo != ''">
+                AND order_no LIKE CONCAT('%', #{orderNo}, '%')
+            </if>
+            <if test="userId != null and userId != ''">
+                AND user_id = #{userId}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND DATE(apply_time) &gt;= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND DATE(apply_time) &lt;= #{endDate}
+            </if>
+        </where>
+    </select>
+
+    <!-- Statistics: count by status -->
+    <select id="countByStatus" resultType="long">
+        SELECT COUNT(*) FROM after_sale_order WHERE after_sale_status = #{status}
+    </select>
+
+    <!-- Statistics: total count -->
+    <select id="countTotal" resultType="long">
+        SELECT COUNT(*) FROM after_sale_order
+    </select>
+
+    <!-- Statistics: sum refund amount -->
+    <select id="sumRefundAmount" resultType="long">
+        SELECT COALESCE(SUM(refund_amount), 0) FROM after_sale_order
+    </select>
+
+    <!-- Statistics: count by date range -->
+    <select id="countByDateRange" resultType="long">
+        SELECT COUNT(*) FROM after_sale_order
+        WHERE DATE(apply_time) &gt;= #{startDate}
+        AND DATE(apply_time) &lt;= #{endDate}
+    </select>
+
 </mapper>

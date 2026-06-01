@@ -3,11 +3,14 @@ package com.metawebthree.aftersale.interfaces.controller;
 import com.metawebthree.aftersale.application.dto.AfterSaleApplyDTO;
 import com.metawebthree.aftersale.application.dto.AfterSaleDTO;
 import com.metawebthree.aftersale.application.dto.AfterSaleProcessDTO;
+import com.metawebthree.aftersale.application.dto.AfterSaleQueryDTO;
+import com.metawebthree.aftersale.application.dto.AfterSaleStatisticDTO;
 import com.metawebthree.aftersale.application.service.AfterSaleApplicationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/after-sale")
@@ -67,11 +70,40 @@ public class AfterSaleController {
     }
 
     /**
-     * Get all after-sale records (admin)
+     * Get all after-sale records with pagination (admin)
      */
     @GetMapping("/list")
-    public ResponseEntity<List<AfterSaleDTO>> getAll() {
-        List<AfterSaleDTO> result = afterSaleService.getAll();
+    public ResponseEntity<Map<String, Object>> getAll(AfterSaleQueryDTO queryDTO) {
+        Map<String, Object> result = afterSaleService.getAllPaged(queryDTO);
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * Get after-sale statistics (admin)
+     */
+    @GetMapping("/statistics")
+    public ResponseEntity<AfterSaleStatisticDTO> getStatistics() {
+        AfterSaleStatisticDTO result = afterSaleService.getStatistics();
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * Batch process after-sale (approve multiple)
+     */
+    @PostMapping("/batch-approve")
+    public ResponseEntity<Map<String, Object>> batchApprove(@RequestBody List<Long> ids) {
+        int count = afterSaleService.batchApprove(ids);
+        return ResponseEntity.ok(Map.of("success", true, "count", count));
+    }
+
+    /**
+     * Batch process after-sale (reject multiple)
+     */
+    @PostMapping("/batch-reject")
+    public ResponseEntity<Map<String, Object>> batchReject(
+            @RequestBody List<Long> ids,
+            @RequestParam String reason) {
+        int count = afterSaleService.batchReject(ids, reason);
+        return ResponseEntity.ok(Map.of("success", true, "count", count));
     }
 }

@@ -3,6 +3,8 @@ package com.metawebthree.aftersale.application.service;
 import com.metawebthree.aftersale.application.dto.AfterSaleApplyDTO;
 import com.metawebthree.aftersale.application.dto.AfterSaleDTO;
 import com.metawebthree.aftersale.application.dto.AfterSaleProcessDTO;
+import com.metawebthree.aftersale.application.dto.AfterSaleQueryDTO;
+import com.metawebthree.aftersale.application.dto.AfterSaleStatisticDTO;
 import com.metawebthree.aftersale.domain.model.AfterSaleOrderDO;
 import com.metawebthree.aftersale.domain.model.AfterSaleStatus;
 import com.metawebthree.aftersale.domain.model.AfterSaleType;
@@ -13,8 +15,12 @@ import com.metawebthree.common.enums.ResponseStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -136,6 +142,93 @@ public class AfterSaleApplicationService {
         return afterSaleRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Get all after-sale records with pagination (admin)
+     */
+    public Map<String, Object> getAllPaged(AfterSaleQueryDTO queryDTO) {
+        List<AfterSaleOrderDO> list = afterSaleRepository.findByPage(queryDTO);
+        Long total = afterSaleRepository.countByPage(queryDTO);
+        
+        List<AfterSaleDTO> dtoList = list.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("data", dtoList);
+        result.put("total", total);
+        result.put("pageNum", queryDTO.getPageNum());
+        result.put("pageSize", queryDTO.getPageSize());
+        
+        return result;
+    }
+
+    /**
+     * Get after-sale statistics (admin)
+     */
+    public AfterSaleStatisticDTO getStatistics() {
+        AfterSaleStatisticDTO stat = new AfterSaleStatisticDTO();
+        
+        stat.setTotalCount(afterSaleRepository.countTotal());
+        stat.setPendingCount(afterSaleRepository.countByStatus(AfterSaleStatus.PENDING.getCode()));
+        stat.setProcessingCount(afterSaleRepository.countByStatus(AfterSaleStatus.PROCESSING.getCode()));
+        stat.setApprovedCount(afterSaleRepository.countByStatus(AfterSaleStatus.APPROVED.getCode()));
+        stat.setRejectedCount(afterSaleRepository.countByStatus(AfterSaleStatus.REJECTED.getCode()));
+        stat.setCompletedCount(afterSaleRepository.countByStatus(AfterSaleStatus.COMPLETED.getCode()));
+        stat.setTotalRefundAmount(afterSaleRepository.sumRefundAmount());
+        
+        LocalDate today = LocalDate.now();
+        LocalDate weekAgo = today.minusDays(7);
+        LocalDate monthAgo = today.minusDays(30);
+        
+        String todayStr = today.format(DateTimeFormatter.ISO_DATE);
+        String weekAgoStr = weekAgo.format(DateTimeFormatter.ISO_DATE);
+        String monthAgoStr = monthAgo.format(DateTimeFormatter.ISO_DATE);
+        
+        stat.setTodayCount(afterSaleRepository.countByDateRange(todayStr, todayStr));
+        stat.setWeekCount(afterSaleRepository.countByDateRange(weekAgoStr, todayStr));
+        stat.setMonthCount(afterSaleRepository.countByDateRange(monthAgoStr, todayStr));
+        
+        return stat;
+    }
+
+    /**
+     * Batch approve after-sale records
+     */
+    @Transactional
+    public int batchApprove(List<Long> ids) {
+        int count = 0;
+        for (Long id : ids) {
+            AfterSaleOrderDO afterSaleOrder = afterSaleRepository.findById(id);
+            if (afterSaleOrder != null && afterSaleOrder.getAfterSaleStatus().equals(AfterSaleStatus.PENDING.getCode())) {
+                orderClient.closeOrderForRefund(
+                    String.valueOf(afterSaleOrder.getOrderId()),
+                    "After-sale batch approved"
+                );
+                afterSaleRepository.updateStatus(id, AfterSaleStatus.APPROVED.getCode());
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Batch reject after-sale records
+     */
+    @Transactional
+    public int batchReject(List<Long> ids, String reason) {
+        int count = 0;
+        for (Long id : ids) {
+            AfterSaleOrderDO afterSaleOrder = afterSaleRepository.findById(id);
+            if (afterSaleOrder != null && afterSaleOrder.getAfterSaleStatus().equals(AfterSaleStatus.PENDING.getCode())) {
+                afterSaleOrder.setRejectReason(reason);
+                afterSaleRepository.save(afterSaleOrder);
+                afterSaleRepository.updateStatus(id, AfterSaleStatus.REJECTED.getCode());
+                count++;
+            }
+        }
+        return count;
     }
 
     private AfterSaleDTO convertToDTO(AfterSaleOrderDO afterSaleOrder) {

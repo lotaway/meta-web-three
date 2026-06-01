@@ -1,5 +1,6 @@
 package com.metawebthree.aftersale.infrastructure.persistence.mapper;
 
+import com.metawebthree.aftersale.application.dto.AfterSaleQueryDTO;
 import com.metawebthree.aftersale.domain.model.AfterSaleOrderDO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -15,4 +16,14 @@ public interface AfterSaleMapper {
     List<AfterSaleOrderDO> selectByOrderId(Long orderId);
     List<AfterSaleOrderDO> selectAll();
     int updateStatus(@Param("id") Long id, @Param("status") Integer status);
+    
+    // Pagination and query support
+    List<AfterSaleOrderDO> selectByPage(AfterSaleQueryDTO queryDTO);
+    Long countByPage(AfterSaleQueryDTO queryDTO);
+    
+    // Statistics
+    Long countByStatus(@Param("status") Integer status);
+    Long countTotal();
+    Long sumRefundAmount();
+    Long countByDateRange(@Param("startDate") String startDate, @Param("endDate") String endDate);
 }
