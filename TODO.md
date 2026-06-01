@@ -1,6 +1,7 @@
 # TODO
 
 准则：代码规范遵循[前端代码规范](CODE_PINCEPLES/FRONTEND_PRICEPLES)和[后端代码规范](CODE_PINCEPLES/CODE_PRICEPLES)，检查遵循[检查规则](CODE_PINCEPLES/CHECK_RULE.md)，所有代码中的文本（注释、日志、变量命名等）统一使用英文，国际化文本除外
+添加后端服务与功能后，需要考虑是否需要添加浏览与操作到[后台管理](apps/backstage-admin/)或[数字孪生](apps/digital-twin/)里
 
 ---
 **【待规划功能】（2026-06-01评估）**
@@ -12,7 +13,10 @@
 ---
 **【项目演进任务】（2026-06-01）**
 
-- [ ] 社交电商系统架构设计：完成拼团、分享奖励、裂变分销、社群管理的领域模型设计
+~~社交电商系统架构设计~~：编译错误已修复：
+1. group-buying-service/GroupBuyApplicationService.java 第90行：LocalDateTime 转换为 Timestamp 后传给 expireTime 字段；第197行：Timestamp 与 Timestamp.valueOf(LocalDateTime.now()) 比较
+2. social-commerce-service/DistributionRewardDO.java 第17行：补上缺失的 @ 符号（AllArgsConstructor → @AllArgsConstructor）
+编译通过，已从清单中移除
 
 ---
 **【服务合并】：**
@@ -55,9 +59,11 @@
 - 推荐系统管理后台：编译通过，代码实现完整（deleteRuleAPI已实现，handleDelete调用真实API，后端deleteRule端点存在），已通过检查并从清单中移除
 - 前端项目编译错误已修复（http.ts 中 http.get/post/put/delete 方法类型定义完整，index.vue 中 TypeScript 类型错误已修正），编译通过，已通过检查并从清单中移除
 - 直播带货系统架构设计：LiveApplicationService 方法已拆分为私有辅助方法，符合单函数不超过20行规范；已新增 LiveApplicationServiceTest 单元测试类（9个测试用例覆盖核心业务逻辑）；编译通过，已通过检查并从清单中移除
+- 社交电商系统架构设计：编译错误，group-buying-service 和 social-commerce-service 存在类型不兼容和语法错误，标记为未完成
 
 **备注**：
 - 推荐系统管理后台：已从清单中移除，代码符合规范要求
 - 库存预警系统管理后台：已从清单中移除，代码符合规范要求
 - 前端项目编译错误已修复，编译通过
 - 直播带货系统架构设计：已从清单中移除，代码符合规范要求
+- 社交电商系统架构设计：标记为未完成，需修复编译错误
