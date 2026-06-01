@@ -54,4 +54,7 @@ public interface UserMapper extends MPJBaseMapper<UserDO> {
     
     @Select("select member_level_id from User where id = #{userId}")
     Long getMemberLevelId(@Param("userId") Long userId);
+    
+    @Select("select telephone from User where id = #{userId}")
+    String selectTelephoneByUserId(@Param("userId") Long userId);
 }

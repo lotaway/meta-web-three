@@ -196,4 +196,34 @@ public class UserRPCServiceImpl implements UserService {
     public CompletableFuture<AddGrowthResponse> addGrowthAsync(AddGrowthRequest request) {
         return CompletableFuture.completedFuture(addGrowth(request));
     }
+    
+    @Override
+    public GetUserPhoneResponse getUserPhone(GetUserPhoneRequest request) {
+        GetUserPhoneResponse.Builder responseBuilder = GetUserPhoneResponse.newBuilder();
+        try {
+            String phone = userMapper.selectTelephoneByUserId(request.getUserId());
+            if (phone != null && !phone.isEmpty()) {
+                responseBuilder.setSuccess(true)
+                        .setPhone(phone)
+                        .setMessage("查询成功");
+                log.info("获取用户手机号成功 - userId: {}, phone: ***", request.getUserId());
+            } else {
+                responseBuilder.setSuccess(false)
+                        .setPhone("")
+                        .setMessage("用户未绑定手机号");
+                log.warn("用户未绑定手机号 - userId: {}", request.getUserId());
+            }
+        } catch (Exception e) {
+            log.error("获取用户手机号失败 - userId: {}, error: {}", request.getUserId(), e.getMessage(), e);
+            responseBuilder.setSuccess(false)
+                    .setPhone("")
+                    .setMessage("查询失败: " + e.getMessage());
+        }
+        return responseBuilder.build();
+    }
+    
+    @Override
+    public CompletableFuture<GetUserPhoneResponse> getUserPhoneAsync(GetUserPhoneRequest request) {
+        return CompletableFuture.completedFuture(getUserPhone(request));
+    }
 }

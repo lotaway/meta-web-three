@@ -23,4 +23,33 @@ public class MemberLevelController {
     public ApiResponse<List<MemberLevelDO>> list(@RequestParam(required = false) Integer defaultStatus) {
         return ApiResponse.success(memberLevelService.listByDefaultStatus(defaultStatus));
     }
+
+    @Operation(summary = "获取会员等级详情")
+    @GetMapping("/{id}")
+    public ApiResponse<MemberLevelDO> getById(@PathVariable Long id) {
+        MemberLevelDO memberLevel = memberLevelService.getById(id);
+        return ApiResponse.success(memberLevel);
+    }
+
+    @Operation(summary = "创建会员等级")
+    @PostMapping
+    public ApiResponse<Long> create(@RequestBody MemberLevelDO memberLevel) {
+        memberLevelService.save(memberLevel);
+        return ApiResponse.success(memberLevel.getId());
+    }
+
+    @Operation(summary = "更新会员等级")
+    @PutMapping("/{id}")
+    public ApiResponse<Void> update(@PathVariable Long id, @RequestBody MemberLevelDO memberLevel) {
+        memberLevel.setId(id);
+        memberLevelService.updateById(memberLevel);
+        return ApiResponse.success(null);
+    }
+
+    @Operation(summary = "删除会员等级")
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> delete(@PathVariable Long id) {
+        memberLevelService.removeById(id);
+        return ApiResponse.success(null);
+    }
 }
