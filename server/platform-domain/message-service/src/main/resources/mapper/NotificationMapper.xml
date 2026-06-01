@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metawebthree.notification.infrastructure.persistence.mapper.NotificationMapper">
+    
+    <resultMap id="BaseResultMap" type="com.metawebthree.notification.domain.model.NotificationDO">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="notification_type" property="notificationType"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="channel" property="channel"/>
+        <result column="send_status" property="sendStatus"/>
+        <result column="read_status" property="readStatus"/>
+        <result column="send_time" property="sendTime"/>
+        <result column="read_time" property="readTime"/>
+        <result column="extra_data" property="extraData"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.metawebthree.notification.domain.model.NotificationDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO notification (
+            user_id, notification_type, title, content, channel, send_status, read_status,
+            send_time, read_time, extra_data, create_time, update_time
+        ) VALUES (
+            #{userId}, #{notificationType}, #{title}, #{content}, #{channel}, #{sendStatus}, #{readStatus},
+            #{sendTime}, #{readTime}, #{extraData}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.metawebthree.notification.domain.model.NotificationDO">
+        UPDATE notification SET
+            user_id = #{userId},
+            notification_type = #{notificationType},
+            title = #{title},
+            content = #{content},
+            channel = #{channel},
+            send_status = #{sendStatus},
+            read_status = #{readStatus},
+            send_time = #{sendTime},
+            read_time = #{readTime},
+            extra_data = #{extraData},
+            update_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM notification WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" parameterType="long" resultMap="BaseResultMap">
+        SELECT * FROM notification WHERE id = #{id}
+    </select>
+
+    <select id="selectByUserId" parameterType="long" resultMap="BaseResultMap">
+        SELECT * FROM notification WHERE user_id = #{userId} ORDER BY send_time DESC
+    </select>
+
+    <select id="selectByUserIdAndReadStatus" resultMap="BaseResultMap">
+        SELECT * FROM notification WHERE user_id = #{userId} AND read_status = #{readStatus} ORDER BY send_time DESC
+    </select>
+
+    <select id="selectByUserIdAndType" resultMap="BaseResultMap">
+        SELECT * FROM notification WHERE user_id = #{userId} AND notification_type = #{type} ORDER BY send_time DESC
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT * FROM notification ORDER BY send_time DESC
+    </select>
+
+    <update id="updateReadStatus">
+        UPDATE notification SET read_status = #{readStatus}, read_time = NOW() WHERE id = #{id}
+    </update>
+
+</mapper>
