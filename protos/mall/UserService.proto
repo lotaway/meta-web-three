@@ -14,6 +14,8 @@ service UserService {
     
     rpc addIntegration(AddIntegrationRequest) returns (AddIntegrationResponse);
     rpc addGrowth(AddGrowthRequest) returns (AddGrowthResponse);
+    
+    rpc getUserPhone(GetUserPhoneRequest) returns (GetUserPhoneResponse);
 }
 
 message ReturnIntegrationRequest {
@@ -78,4 +80,14 @@ message GetUserIdByWalletAddressRequest {
 
 message GetUserIdByWalletAddressResponse {
     int64 userId = 1;
+}
+
+message GetUserPhoneRequest {
+    int64 userId = 1;
+}
+
+message GetUserPhoneResponse {
+    string phone = 1;
+    bool success = 2;
+    string message = 3;
 }
