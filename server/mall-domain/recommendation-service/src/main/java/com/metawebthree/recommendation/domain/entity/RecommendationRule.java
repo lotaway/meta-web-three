@@ -2,6 +2,7 @@ package com.metawebthree.recommendation.domain.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class RecommendationRule {
     private Long id;
@@ -14,6 +15,8 @@ public class RecommendationRule {
     private BigDecimal minScore;
     private String conditions;
     private String exclusions;
+    private List<String> targetSkus;
+    private BigDecimal boostFactor;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -72,4 +75,8 @@ public class RecommendationRule {
     public void setExclusions(String exclusions) { this.exclusions = exclusions; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public List<String> getTargetSkus() { return targetSkus; }
+    public void setTargetSkus(List<String> targetSkus) { this.targetSkus = targetSkus; }
+    public BigDecimal getBoostFactor() { return boostFactor; }
+    public void setBoostFactor(BigDecimal boostFactor) { this.boostFactor = boostFactor; }
 }

@@ -14,6 +14,9 @@ public class Recommendation {
     private RecommendationStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime expiresAt;
+    private Integer clickCount;
+    private Integer conversionCount;
+    private Integer impressionCount;
 
     public enum RecommendationAlgorithm {
         COLLABORATIVE_FILTERING, CONTENT_BASED, HYBRID, POPULARITY, AI_MODEL
@@ -96,4 +99,11 @@ public class Recommendation {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getExpiresAt() { return expiresAt; }
     public void setExpiresAt(LocalDateTime expiresAt) { this.expiresAt = expiresAt; }
+    
+    public Integer getClickCount() { return clickCount; }
+    public void setClickCount(Integer clickCount) { this.clickCount = clickCount; }
+    public Integer getConversionCount() { return conversionCount; }
+    public void setConversionCount(Integer conversionCount) { this.conversionCount = conversionCount; }
+    public Integer getImpressionCount() { return impressionCount; }
+    public void setImpressionCount(Integer impressionCount) { this.impressionCount = impressionCount; }
 }

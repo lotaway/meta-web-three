@@ -13,6 +13,8 @@ public class RecommendationRepositoryImpl implements RecommendationRepository {
 
     private final Map<Long, Recommendation> storage = new ConcurrentHashMap<>();
     private final AtomicLong idGenerator = new AtomicLong(1);
+    private final Map<Long, Map<String, Integer>> clickCounts = new ConcurrentHashMap<>();
+    private final Map<Long, Map<String, Integer>> conversionCounts = new ConcurrentHashMap<>();
 
     @Override
     public Optional<Recommendation> findById(Long id) {
@@ -60,5 +62,39 @@ public class RecommendationRepositoryImpl implements RecommendationRepository {
     @Override
     public void deleteById(Long id) {
         storage.remove(id);
+    }
+    
+    @Override
+    public void recordBehavior(Long userId, String skuCode, String behaviorType) {
+        List<Recommendation> userRecs = findByUserId(userId);
+        for (Recommendation rec : userRecs) {
+            if (rec.getItems() != null) {
+                boolean found = rec.getItems().stream()
+                    .anyMatch(item -> item.getSkuCode().equals(skuCode));
+                if (found) {
+                    incrementMetric(rec.getId(), skuCode, behaviorType);
+                    break;
+                }
+            }
+        }
+    }
+    
+    private void incrementMetric(Long recommendationId, String skuCode, String behaviorType) {
+        Recommendation rec = storage.get(recommendationId);
+        if (rec == null) return;
+        
+        if ("CLICK".equals(behaviorType)) {
+            clickCounts.computeIfAbsent(recommendationId, k -> new ConcurrentHashMap<>())
+                .merge(skuCode, 1, Integer::sum);
+            rec.setClickCount(clickCounts.get(recommendationId).values().stream()
+                .mapToInt(Integer::intValue).sum());
+        } else if ("CONVERSION".equals(behaviorType)) {
+            conversionCounts.computeIfAbsent(recommendationId, k -> new ConcurrentHashMap<>())
+                .merge(skuCode, 1, Integer::sum);
+            rec.setConversionCount(conversionCounts.get(recommendationId).values().stream()
+                .mapToInt(Integer::intValue).sum());
+        } else if ("IMPRESSION".equals(behaviorType)) {
+            rec.setImpressionCount((rec.getImpressionCount() != null ? rec.getImpressionCount() : 0) + 1);
+        }
     }
 }

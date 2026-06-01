@@ -5,6 +5,24 @@ spring:
     name: recommendation-service
   profiles:
     active: dev
+recommendation:
+  algorithm:
+    scoring:
+      collaborative-weight: 0.4
+      content-weight: 0.3
+      hybrid-weight: 0.5
+      popularity-weight: 0.6
+      ai-model-weight: 0.8
+      base-score: 80.0
+      score-decay: 5.0
+    ctr:
+      industry-average: 3.5
+      high-threshold: 5.0
+      low-threshold: 1.0
+    conversion:
+      industry-average: 1.2
+      high-threshold: 2.5
+      low-threshold: 0.5
 ---
 spring:
   config:

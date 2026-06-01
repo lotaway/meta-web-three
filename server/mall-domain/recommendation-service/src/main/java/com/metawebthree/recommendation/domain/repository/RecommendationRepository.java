@@ -12,4 +12,5 @@ public interface RecommendationRepository {
     Recommendation save(Recommendation recommendation);
     void update(Recommendation recommendation);
     void deleteById(Long id);
+    void recordBehavior(Long userId, String skuCode, String behaviorType);
 }

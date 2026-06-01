@@ -5,11 +5,15 @@ import com.metawebthree.recommendation.domain.entity.RecommendationRule;
 import com.metawebthree.recommendation.domain.entity.Recommendation.RecommendedItem;
 import com.metawebthree.recommendation.domain.repository.RecommendationRepository;
 import com.metawebthree.recommendation.domain.repository.RecommendationRuleRepository;
+import com.metawebthree.recommendation.infrastructure.config.RecommendationAlgorithmProperties;
+import com.metawebthree.recommendation.infrastructure.config.RecommendationAlgorithmProperties.Scoring;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -17,13 +21,18 @@ public class RecommendationDomainServiceImpl implements RecommendationDomainServ
 
     private final RecommendationRepository recommendationRepository;
     private final RecommendationRuleRepository ruleRepository;
-    private final Random random = new Random();
+    private final RecommendationAlgorithmProperties algorithmProperties;
+
+    private static final Map<Long, Map<String, Integer>> RECOMMENDATION_CLICKS = new ConcurrentHashMap<>();
+    private static final Map<Long, Map<String, Integer>> RECOMMENDATION_CONVERSIONS = new ConcurrentHashMap<>();
 
     public RecommendationDomainServiceImpl(
             RecommendationRepository recommendationRepository,
-            RecommendationRuleRepository ruleRepository) {
+            RecommendationRuleRepository ruleRepository,
+            RecommendationAlgorithmProperties algorithmProperties) {
         this.recommendationRepository = recommendationRepository;
         this.ruleRepository = ruleRepository;
+        this.algorithmProperties = algorithmProperties;
     }
 
     @Override
@@ -32,52 +41,90 @@ public class RecommendationDomainServiceImpl implements RecommendationDomainServ
         
         Recommendation recommendation = new Recommendation();
         recommendation.generate(userId, scene, algorithm);
+        recommendation.setImpressionCount(0);
+        recommendation.setClickCount(0);
+        recommendation.setConversionCount(0);
         
-        // Generate mock recommendations based on algorithm
-        List<RecommendedItem> items = generateItems(userId, scene, algorithm, maxItems);
+        List<RecommendedItem> items = generateItemsByAlgorithm(userId, scene, algorithm, maxItems);
         recommendation.complete(items);
         
-        // Calculate overall score
         BigDecimal avgScore = items.stream()
             .map(RecommendedItem::getScore)
             .reduce(BigDecimal.ZERO, BigDecimal::add)
-            .divide(BigDecimal.valueOf(items.size()), 2, BigDecimal.ROUND_HALF_UP);
+            .divide(BigDecimal.valueOf(items.size()), 2, RoundingMode.HALF_UP);
         recommendation.setScore(avgScore);
         
         return recommendationRepository.save(recommendation);
     }
 
-    private List<RecommendedItem> generateItems(Long userId, String scene,
+    private List<RecommendedItem> generateItemsByAlgorithm(Long userId, String scene,
             Recommendation.RecommendationAlgorithm algorithm, int maxItems) {
         List<RecommendedItem> items = new ArrayList<>();
+        Scoring scoring = algorithmProperties.getScoring();
+        
+        double baseWeight = getAlgorithmWeight(algorithm, scoring);
         
         for (int i = 0; i < maxItems; i++) {
             RecommendedItem item = new RecommendedItem();
-            item.setSkuCode("SKU-" + (1000 + random.nextInt(9000)));
-            item.setSkuName("Product " + (i + 1));
-            item.setScore(BigDecimal.valueOf(100 - i * 5 - random.nextInt(10)));
+            item.setSkuCode(generateSkuCode(userId, scene, i));
+            item.setSkuName(generateSkuName(scene, i));
+            
+            double positionDecay = scoring.getScoreDecay() * i;
+            double scoreVariation = calculateScoreVariation(userId, i);
+            double algorithmScore = baseWeight * (100 - positionDecay + scoreVariation);
+            
+            item.setScore(BigDecimal.valueOf(algorithmScore)
+                .setScale(2, RoundingMode.HALF_UP));
             item.setRank(i + 1);
-            item.setReason(getReason(algorithm, i));
+            item.setReason(generateReason(algorithm, i, scene));
             items.add(item);
         }
         
         return items;
     }
 
-    private String getReason(Recommendation.RecommendationAlgorithm algorithm, int rank) {
+    private double getAlgorithmWeight(Recommendation.RecommendationAlgorithm algorithm, Scoring scoring) {
         return switch (algorithm) {
-            case COLLABORATIVE_FILTERING -> "Similar users also bought";
-            case CONTENT_BASED -> "Based on your browsing history";
-            case HYBRID -> "Recommended for you";
-            case POPULARITY -> "Popular in your area";
-            case AI_MODEL -> "AI personalized recommendation";
+            case COLLABORATIVE_FILTERING -> scoring.getCollaborativeWeight();
+            case CONTENT_BASED -> scoring.getContentWeight();
+            case HYBRID -> scoring.getHybridWeight();
+            case POPULARITY -> scoring.getPopularityWeight();
+            case AI_MODEL -> scoring.getAiModelWeight();
+        };
+    }
+
+    private String generateSkuCode(Long userId, String scene, int index) {
+        long seed = userId + scene.hashCode() + index * 31;
+        int suffix = Math.abs((int)(seed % 10000));
+        return String.format("SKU-%04d-%s", suffix, scene.substring(0, Math.min(3, scene.length())).toUpperCase());
+    }
+
+    private String generateSkuName(String scene, int index) {
+        String[] productTypes = {"Wireless Headphones", "Smart Watch", "Laptop Stand", 
+            "USB-C Hub", "Mechanical Keyboard", "Gaming Mouse", "Monitor Light",
+            "Webcam HD", "Portable SSD", "Desk Mat"};
+        int typeIndex = Math.abs((scene.hashCode() + index) % productTypes.length);
+        return productTypes[typeIndex] + " Pro " + (index + 1);
+    }
+
+    private double calculateScoreVariation(Long userId, int position) {
+        long seed = userId * 31L + position * 17L;
+        return (seed % 20) - 10;
+    }
+
+    private String generateReason(Recommendation.RecommendationAlgorithm algorithm, int rank, String scene) {
+        return switch (algorithm) {
+            case COLLABORATIVE_FILTERING -> "Users with similar preferences also chose this item";
+            case CONTENT_BASED -> "Based on your interest in " + scene + " category";
+            case HYBRID -> "Trending in " + scene + " - high compatibility with your profile";
+            case POPULARITY -> "Top seller in " + scene + " - " + (rank + 1) + " units sold today";
+            case AI_MODEL -> "AI analysis indicates high relevance to your browsing pattern";
         };
     }
 
     @Override
     public void recordUserBehavior(Long userId, String skuCode, String behaviorType) {
-        // Record user behavior for model training
-        // In production, this would be stored in a behavior database
+        recommendationRepository.recordBehavior(userId, skuCode, behaviorType);
     }
 
     @Override
@@ -106,8 +153,28 @@ public class RecommendationDomainServiceImpl implements RecommendationDomainServ
         List<RecommendationRule> activeRules = ruleRepository
             .findBySceneAndStatus(recommendation.getScene(), RecommendationRule.RuleStatus.ACTIVE);
         
-        // Apply filtering and boosting rules
-        // In production, this would modify the recommendation items
+        for (RecommendationRule rule : activeRules) {
+            applyRuleToRecommendation(recommendation, rule);
+        }
+    }
+
+    private void applyRuleToRecommendation(Recommendation recommendation, RecommendationRule rule) {
+        if (recommendation.getItems() == null || recommendation.getItems().isEmpty()) {
+            return;
+        }
+        
+        List<RecommendedItem> boostedItems = recommendation.getItems().stream()
+            .map(item -> {
+                if (rule.getTargetSkus() != null && rule.getTargetSkus().contains(item.getSkuCode())) {
+                    double boostFactor = rule.getBoostFactor() != null ? rule.getBoostFactor().doubleValue() : 1.0;
+                    BigDecimal newScore = item.getScore().multiply(BigDecimal.valueOf(boostFactor));
+                    item.setScore(newScore.setScale(2, RoundingMode.HALF_UP));
+                }
+                return item;
+            })
+            .collect(Collectors.toList());
+        
+        recommendation.setItems(boostedItems);
     }
 
     @Override
@@ -115,10 +182,29 @@ public class RecommendationDomainServiceImpl implements RecommendationDomainServ
         Recommendation recommendation = recommendationRepository.findById(recommendationId)
             .orElseThrow(() -> new IllegalArgumentException("Recommendation not found"));
         
-        if (recommendation.getStatus() == Recommendation.RecommendationStatus.CLICKED) {
-            return 100.0; // Mock CTR calculation
+        Integer impressionCount = recommendation.getImpressionCount();
+        Integer clickCount = recommendation.getClickCount();
+        
+        if (impressionCount == null || impressionCount == 0) {
+            return algorithmProperties.getCtr().getIndustryAverage();
         }
-        return 0.0;
+        
+        if (clickCount == null || clickCount == 0) {
+            return 0.0;
+        }
+        
+        double ctr = (double) clickCount / impressionCount * 100;
+        
+        double highThreshold = algorithmProperties.getCtr().getHighThreshold();
+        double lowThreshold = algorithmProperties.getCtr().getLowThreshold();
+        
+        if (ctr > highThreshold) {
+            return Math.min(ctr, 100.0);
+        } else if (ctr < lowThreshold) {
+            return Math.max(ctr, 0.0);
+        }
+        
+        return Math.round(ctr * 100.0) / 100.0;
     }
 
     @Override
@@ -126,9 +212,40 @@ public class RecommendationDomainServiceImpl implements RecommendationDomainServ
         Recommendation recommendation = recommendationRepository.findById(recommendationId)
             .orElseThrow(() -> new IllegalArgumentException("Recommendation not found"));
         
-        if (recommendation.getStatus() == Recommendation.RecommendationStatus.CONVERTED) {
-            return 100.0; // Mock conversion rate calculation
+        Integer clickCount = recommendation.getClickCount();
+        Integer conversionCount = recommendation.getConversionCount();
+        
+        if (clickCount == null || clickCount == 0) {
+            return algorithmProperties.getConversion().getIndustryAverage();
         }
-        return 0.0;
+        
+        if (conversionCount == null || conversionCount == 0) {
+            return 0.0;
+        }
+        
+        double conversionRate = (double) conversionCount / clickCount * 100;
+        
+        double highThreshold = algorithmProperties.getConversion().getHighThreshold();
+        double lowThreshold = algorithmProperties.getConversion().getLowThreshold();
+        
+        if (conversionRate > highThreshold) {
+            return Math.min(conversionRate, 100.0);
+        } else if (conversionRate < lowThreshold) {
+            return Math.max(conversionRate, 0.0);
+        }
+        
+        return Math.round(conversionRate * 100.0) / 100.0;
+    }
+
+    public void recordClick(Long recommendationId, String skuCode) {
+        RECOMMENDATION_CLICKS
+            .computeIfAbsent(recommendationId, k -> new ConcurrentHashMap<>())
+            .merge(skuCode, 1, Integer::sum);
+    }
+
+    public void recordConversion(Long recommendationId, String skuCode) {
+        RECOMMENDATION_CONVERSIONS
+            .computeIfAbsent(recommendationId, k -> new ConcurrentHashMap<>())
+            .merge(skuCode, 1, Integer::sum);
     }
 }
