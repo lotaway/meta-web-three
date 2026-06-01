@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/governance/TimelockController.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 /**
  * @title ProductTraceability
@@ -11,7 +12,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  * Implements: production, transportation, sales full-process on-chain
  * Uses AccessControl for role-based permission management
  */
-contract ProductTraceability is AccessControl, ReentrancyGuard {
+contract ProductTraceability is AccessControl, ReentrancyGuard, Initializable {
     // Role definitions
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant PRODUCER_ROLE = keccak256("PRODUCER_ROLE");
@@ -20,9 +21,6 @@ contract ProductTraceability is AccessControl, ReentrancyGuard {
     
     // Timelock controller for multi-sig admin management
     TimelockController public timelockController;
-    
-    // Initialization flag
-    bool public initialized;
     
     uint256 private _nextTraceId;
 
@@ -161,8 +159,7 @@ contract ProductTraceability is AccessControl, ReentrancyGuard {
      * @dev Initialize the contract with timelock controller
      * @param _timelock Address of the TimelockController (multi-sig)
      */
-    function initialize(address _timelock) external {
-        require(!initialized, "Already initialized");
+    function initialize(address _timelock) external initializer {
         require(_timelock != address(0), "Invalid timelock address");
         
         timelockController = TimelockController(_timelock);
@@ -171,7 +168,6 @@ contract ProductTraceability is AccessControl, ReentrancyGuard {
         _grantRole(DEFAULT_ADMIN_ROLE, _timelock);
         _grantRole(ADMIN_ROLE, _timelock);
         
-        initialized = true;
         _nextTraceId = 1;
         
         emit ContractInitialized(_timelock);
