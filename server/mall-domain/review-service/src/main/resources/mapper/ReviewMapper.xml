@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metawebthree.review.infrastructure.persistence.mapper.ReviewMapper">
+    
+    <resultMap id="BaseResultMap" type="com.metawebthree.review.domain.model.ReviewDO">
+        <id column="id" property="id"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_item_id" property="orderItemId"/>
+        <result column="product_id" property="productId"/>
+        <result column="sku_id" property="skuId"/>
+        <result column="user_id" property="userId"/>
+        <result column="store_id" property="storeId"/>
+        <result column="rating" property="rating"/>
+        <result column="content" property="content"/>
+        <result column="images" property="images"/>
+        <result column="status" property="status"/>
+        <result column="like_count" property="likeCount"/>
+        <result column="reply_count" property="replyCount"/>
+        <result column="reply_content" property="replyContent"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.metawebthree.review.domain.model.ReviewDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO review (
+            order_id, order_item_id, product_id, sku_id, user_id, store_id,
+            rating, content, images, status, like_count, reply_count,
+            reply_content, create_time, update_time
+        ) VALUES (
+            #{orderId}, #{orderItemId}, #{productId}, #{skuId}, #{userId}, #{storeId},
+            #{rating}, #{content}, #{images}, #{status}, #{likeCount}, #{replyCount},
+            #{replyContent}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.metawebthree.review.domain.model.ReviewDO">
+        UPDATE review SET
+            order_id = #{orderId},
+            order_item_id = #{orderItemId},
+            product_id = #{productId},
+            sku_id = #{skuId},
+            user_id = #{userId},
+            store_id = #{storeId},
+            rating = #{rating},
+            content = #{content},
+            images = #{images},
+            status = #{status},
+            like_count = #{likeCount},
+            reply_count = #{replyCount},
+            reply_content = #{replyContent},
+            update_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM review WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" parameterType="long" resultMap="BaseResultMap">
+        SELECT * FROM review WHERE id = #{id}
+    </select>
+
+    <select id="selectByProductId" parameterType="long" resultMap="BaseResultMap">
+        SELECT * FROM review WHERE product_id = #{productId} AND status = 1 ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByUserId" parameterType="long" resultMap="BaseResultMap">
+        SELECT * FROM review WHERE user_id = #{userId} ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByStoreId" parameterType="long" resultMap="BaseResultMap">
+        SELECT * FROM review WHERE store_id = #{storeId} ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByOrderId" parameterType="long" resultMap="BaseResultMap">
+        SELECT * FROM review WHERE order_id = #{orderId} ORDER BY create_time DESC
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT * FROM review ORDER BY create_time DESC
+    </select>
+
+    <update id="updateStatus">
+        UPDATE review SET status = #{status}, update_time = NOW() WHERE id = #{id}
+    </update>
+
+    <update id="incrementLikeCount">
+        UPDATE review SET like_count = like_count + 1 WHERE id = #{id}
+    </update>
+
+    <update id="addReply">
+        UPDATE review SET reply_content = #{replyContent}, reply_count = reply_count + 1, update_time = NOW() WHERE id = #{id}
+    </update>
+
+</mapper>
