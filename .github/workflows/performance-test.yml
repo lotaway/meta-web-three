@@ -1,0 +1,167 @@
+name: Performance Testing Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: 'Test suite to run'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - quick
+          - critical
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      threads:
+        description: 'Number of concurrent threads'
+        required: false
+        default: '10'
+      duration:
+        description: 'Test duration in seconds'
+        required: false
+        default: '300'
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM
+
+env:
+  JMETER_VERSION: '5.6.3'
+  JAVA_VERSION: '17'
+
+jobs:
+  performance-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Cache JMeter
+        uses: actions/cache@v3
+        with:
+          path: ~/jmeter
+          key: jmeter-${{ env.JMETER_VERSION }}
+
+      - name: Download and install JMeter
+        run: |
+          if [ ! -d ~/jmeter ]; then
+            mkdir -p ~/jmeter
+            curl -L -o jmeter.tgz https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${{ env.JMETER_VERSION }}.tgz
+            tar -xzf jmeter.tgz -C ~/jmeter --strip-components=1
+            rm jmeter.tgz
+          fi
+          echo "$HOME/jmeter/bin" >> $GITHUB_PATH
+
+      - name: Create test configuration
+        run: |
+          cat > perf-config.properties << EOF
+          test.environment=${{ github.event.inputs.environment || 'staging' }}
+          test.threads=${{ github.event.inputs.threads || '10' }}
+          test.duration=${{ github.event.inputs.duration || '300' }}
+          test.rampup=30
+          
+          # Service endpoints
+          api.gateway=http://localhost:8080
+          api.product=http://localhost:10082
+          api.order=http://localhost:10080
+          api.user=http://localhost:10081
+          EOF
+
+      - name: Determine test plan
+        id: test_plan
+        run: |
+          if [[ "${{ github.event.inputs.test_suite }}" == "quick" ]]; then
+            echo "plan=TestConfig.jmx" >> $GITHUB_OUTPUT
+            echo "threads=5" >> $GITHUB_OUTPUT
+            echo "duration=60" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event.inputs.test_suite }}" == "critical" ]]; then
+            echo "plan=TestConfig.jmx" >> $GITHUB_OUTPUT
+            echo "threads=20" >> $GITHUB_OUTPUT
+            echo "duration=180" >> $GITHUB_OUTPUT
+          else
+            echo "plan=TestConfig.jmx" >> $GITHUB_OUTPUT
+            echo "threads=${{ github.event.inputs.threads || '10' }}" >> $GITHUB_OUTPUT
+            echo "duration=${{ github.event.inputs.duration || '300' }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run JMeter tests
+        run: |
+          cd ${{ github.workspace }}
+          ~/jmeter/bin/jmeter -n \
+            -t TestConfig.jmx \
+            -l results.jtl \
+            -j results.log \
+            -Jthreads=${{ steps.test_plan.outputs.threads }} \
+            -Jduration=${{ steps.test_plan.outputs.duration }} \
+            -Pperf-config.properties
+
+      - name: Generate HTML report
+        run: |
+          ~/jmeter/bin/jmeter -g results.jtl -o report
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jmeter-results-${{ github.run_number }}
+          path: |
+            results.jtl
+            results.log
+            report
+          retention-days: 30
+
+      - name: Parse and analyze results
+        if: always()
+        run: |
+          echo "## Performance Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Extract key metrics
+          total_samples=$(grep -c "true" results.jtl 2>/dev/null || echo "0")
+          failures=$(grep -c "false" results.jtl 2>/dev/null || echo "0")
+          
+          echo "### Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Total Samples: $total_samples" >> $GITHUB_STEP_SUMMARY
+          echo "- Failures: $failures" >> $GITHUB_STEP_SUMMARY
+          echo "- Test Suite: ${{ github.event.inputs.test_suite || 'scheduled' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Environment: ${{ github.event.inputs.environment || 'staging' }}" >> $GITHUB_STEP_SUMMARY
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Detailed Report" >> $GITHUB_STEP_SUMMARY
+          echo "See attached HTML report for detailed metrics." >> $GITHUB_STEP_SUMMARY
+
+      - name: Check performance thresholds
+        if: always()
+        run: |
+          # Average response time threshold: 500ms
+          avg_response=$(awk -F',' 'NR>1 {sum+=$2; count++} END {print int(sum/count)}' results.jtl 2>/dev/null || echo "0")
+          echo "Average Response Time: ${avg_response}ms"
+          
+          # 95th percentile threshold: 1000ms
+          p95_response=$(sort -t',' -k2 -n results.jtl | awk -F',' 'NR==int(NR*0.95) {print int($2)}' 2>/dev/null || echo "0")
+          echo "95th Percentile: ${p95_response}ms"
+          
+          # Failure rate threshold: 1%
+          failure_rate=$(awk -F',' 'BEGIN{fail=0;total=0} NR>1 {total++; if($8=="false") fail++} END {print int(fail*100/total)}' results.jtl 2>/dev/null || echo "0")
+          echo "Failure Rate: ${failure_rate}%"
+          
+          # Set exit code based on thresholds
+          if [ "$avg_response" -gt 500 ] || [ "$p95_response" -gt 1000 ] || [ "$failure_rate" -gt 1 ]; then
+            echo "Performance test FAILED - thresholds exceeded"
+            exit 1
+          fi
+          echo "Performance test PASSED"
