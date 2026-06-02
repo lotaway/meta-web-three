@@ -15,6 +15,13 @@ service OrderService {
     rpc closeOrder(CloseOrderRequest) returns (CloseOrderResponse);
     rpc queryLogistics(QueryLogisticsRequest) returns (QueryLogisticsResponse);
     rpc createReturnApply(CreateReturnApplyRequest) returns (CreateReturnApplyResponse);
+    // Statistics RPCs
+    rpc getOrderStatusDistribution(GetOrderStatusDistributionRequest) returns (GetOrderStatusDistributionResponse);
+    rpc getPendingOrdersCount(GetPendingOrdersCountRequest) returns (GetPendingOrdersCountResponse);
+    rpc getPendingPaymentsCount(GetPendingPaymentsCountRequest) returns (GetPendingPaymentsCountResponse);
+    // Analytics RPCs
+    rpc getHotProducts(GetHotProductsRequest) returns (GetHotProductsResponse);
+    rpc getSalesByHourToday(GetSalesByHourTodayRequest) returns (GetSalesByHourTodayResponse);
 }
 
 message GetOrderByUserIdRequest {
@@ -75,4 +82,55 @@ message CreateReturnApplyRequest {
 message CreateReturnApplyResponse {
     bool success = 1;
     string message = 2;
+}
+
+// Statistics messages
+message GetOrderStatusDistributionRequest {
+}
+
+message GetOrderStatusDistributionResponse {
+    map<string, int64> distribution = 1;
+}
+
+message GetPendingOrdersCountRequest {
+}
+
+message GetPendingOrdersCountResponse {
+    int64 count = 1;
+}
+
+message GetPendingPaymentsCountRequest {
+}
+
+message GetPendingPaymentsCountResponse {
+    int64 count = 1;
+}
+
+// Analytics messages
+message GetHotProductsRequest {
+    int32 limit = 1;
+}
+
+message GetHotProductsResponse {
+    repeated HotProductInfo products = 1;
+}
+
+message HotProductInfo {
+    int64 productId = 1;
+    string productName = 2;
+    int64 salesCount = 3;
+    int64 salesAmount = 4;
+}
+
+message GetSalesByHourTodayRequest {
+}
+
+message GetSalesByHourTodayResponse {
+    repeated SalesByHourInfo hourlyData = 1;
+}
+
+message SalesByHourInfo {
+    int32 hour = 1;
+    int64 sales = 2;
+    int32 orders = 3;
 }

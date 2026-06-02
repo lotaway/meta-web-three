@@ -1,29 +1,26 @@
 package com.metawebthree.dataanalysis.infrastructure.client;
 
+import com.metawebthree.common.generated.rpc.GetAlertStatisticsResponse;
+import com.metawebthree.common.generated.rpc.GetLowStockAlertsCountRequest;
+import com.metawebthree.common.generated.rpc.GetLowStockAlertsCountResponse;
+import com.metawebthree.common.generated.rpc.InventoryAlertService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Client for calling inventory-alert-service via REST API
+ * Client for inventory-alert-service metrics
+ * Uses @DubboReference to invoke inventory-alert-service Dubbo interfaces
  */
 @Slf4j
 @Component
 public class InventoryAlertClient {
 
-    private final RestTemplate restTemplate;
-
-    @Value(\"${services.inventory-alert-service.url:http://localhost:8085}\")
-    private String inventoryAlertServiceUrl;
-
-    public InventoryAlertClient() {
-        this.restTemplate = new RestTemplate();
-    }
+    @DubboReference
+    private InventoryAlertService inventoryAlertService;
 
     /**
      * Get pending (unresolved) inventory alerts count
@@ -31,36 +28,28 @@ public class InventoryAlertClient {
      */
     public Long getLowStockAlertsCount() {
         try {
-            String url = inventoryAlertServiceUrl + \"/api/admin/inventory-alert/statistics/low-stock-count\";
-            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
-            if (response.getBody() != null && response.getBody().containsKey(\"data\")) {
-                Object data = response.getBody().get(\"data\");
-                if (data instanceof Number) {
-                    return ((Number) data).longValue();
-                }
-            }
+            GetLowStockAlertsCountRequest request = GetLowStockAlertsCountRequest.getDefaultInstance();
+            GetLowStockAlertsCountResponse response = inventoryAlertService.getLowStockAlertsCount(request);
+            return response.getCount();
         } catch (Exception e) {
-            log.warn(\"Failed to get low stock alerts count: {}\", e.getMessage());
+            log.error("Failed to get low stock alerts count via Dubbo", e);
+            return 0L;
         }
-        return 0L;
     }
 
     /**
-     * Get all pending alerts
-     * @return list of pending alert counts by level
+     * Get all pending alerts statistics
+     * @return map of status -> count
      */
     public Map<String, Long> getAlertStatistics() {
         try {
-            String url = inventoryAlertServiceUrl + \"/api/admin/inventory-alert/statistics/status-distribution\";
-            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
-            if (response.getBody() != null && response.getBody().containsKey(\"data\")) {
-                @SuppressWarnings(\"unchecked\")
-                Map<String, Long> data = (Map<String, Long>) response.getBody().get(\"data\");
-                return data != null ? data : new HashMap<>();
-            }
+            GetAlertStatisticsResponse response = inventoryAlertService.getAlertStatistics(
+                    com.metawebthree.common.generated.rpc.GetAlertStatisticsRequest.getDefaultInstance()
+            );
+            return new HashMap<>(response.getDistributionMap());
         } catch (Exception e) {
-            log.warn(\"Failed to get alert statistics: {}\", e.getMessage());
+            log.error("Failed to get alert statistics via Dubbo", e);
+            return new HashMap<>();
         }
-        return new HashMap<>();
     }
 }

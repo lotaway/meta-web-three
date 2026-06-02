@@ -1,12 +1,9 @@
 package com.metawebthree.dataanalysis.infrastructure.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metawebthree.common.generated.rpc.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,22 +11,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Client for calling order-service via REST API
+ * Client for order-service metrics
+ * Uses @DubboReference to invoke order-service Dubbo interfaces
  */
 @Slf4j
 @Component
 public class OrderClient {
 
-    private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
-
-    @Value(\"${services.order-service.url:http://localhost:8082}\")
-    private String orderServiceUrl;
-
-    public OrderClient() {
-        this.restTemplate = new RestTemplate();
-        this.objectMapper = new ObjectMapper();
-    }
+    @DubboReference
+    private OrderService orderService;
 
     /**
      * Get order status distribution counts
@@ -37,17 +27,14 @@ public class OrderClient {
      */
     public Map<String, Long> getOrderStatusDistribution() {
         try {
-            String url = orderServiceUrl + \"/api/admin/order/statistics/status-distribution\";
-            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
-            if (response.getBody() != null && response.getBody().containsKey(\"data\")) {
-                @SuppressWarnings(\"unchecked\")
-                Map<String, Long> data = (Map<String, Long>) response.getBody().get(\"data\");
-                return data != null ? data : new HashMap<>();
-            }
+            GetOrderStatusDistributionResponse response = orderService.getOrderStatusDistribution(
+                    GetOrderStatusDistributionRequest.getDefaultInstance()
+            );
+            return new HashMap<>(response.getDistributionMap());
         } catch (Exception e) {
-            log.warn(\"Failed to get order status distribution: {}\", e.getMessage());
+            log.error("Failed to get order status distribution via Dubbo", e);
+            return new HashMap<>();
         }
-        return new HashMap<>();
     }
 
     /**
@@ -56,18 +43,14 @@ public class OrderClient {
      */
     public Long getPendingOrdersCount() {
         try {
-            String url = orderServiceUrl + \"/api/admin/order/statistics/pending-count\";
-            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
-            if (response.getBody() != null && response.getBody().containsKey(\"data\")) {
-                Object data = response.getBody().get(\"data\");
-                if (data instanceof Number) {
-                    return ((Number) data).longValue();
-                }
-            }
+            GetPendingOrdersCountResponse response = orderService.getPendingOrdersCount(
+                    GetPendingOrdersCountRequest.getDefaultInstance()
+            );
+            return response.getCount();
         } catch (Exception e) {
-            log.warn(\"Failed to get pending orders count: {}\", e.getMessage());
+            log.error("Failed to get pending orders count via Dubbo", e);
+            return 0L;
         }
-        return 0L;
     }
 
     /**
@@ -76,73 +59,46 @@ public class OrderClient {
      */
     public Long getPendingPaymentsCount() {
         try {
-            String url = orderServiceUrl + \"/api/admin/order/statistics/pending-payments-count\";
-            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
-            if (response.getBody() != null && response.getBody().containsKey(\"data\")) {
-                Object data = response.getBody().get(\"data\");
-                if (data instanceof Number) {
-                    return ((Number) data).longValue();
-                }
-            }
+            GetPendingPaymentsCountResponse response = orderService.getPendingPaymentsCount(
+                    GetPendingPaymentsCountRequest.getDefaultInstance()
+            );
+            return response.getCount();
         } catch (Exception e) {
-            log.warn(\"Failed to get pending payments count: {}\", e.getMessage());
+            log.error("Failed to get pending payments count via Dubbo", e);
+            return 0L;
         }
-        return 0L;
     }
 
     /**
      * Get hot products based on sales
      * @param limit number of products to return
-     * @return list of hot product info
+     * @return list of hot product info from proto
      */
     public List<HotProductInfo> getHotProducts(int limit) {
-        // Placeholder - would query from order-service or product-service
-        // This requires aggregation of order items by product
-        return new ArrayList<>();
+        try {
+            GetHotProductsResponse response = orderService.getHotProducts(
+                    GetHotProductsRequest.newBuilder().setLimit(limit).build()
+            );
+            return response.getProductsList();
+        } catch (Exception e) {
+            log.error("Failed to get hot products via Dubbo", e);
+            return List.of();
+        }
     }
 
     /**
      * Get sales by hour for today
-     * @return list of hourly sales data
+     * @return list of hourly sales data from proto
      */
     public List<SalesByHourInfo> getSalesByHourToday() {
-        // Placeholder - would query from order-service
-        // Aggregating order data by hour
-        return new ArrayList<>();
-    }
-
-    /**
-     * Hot product info DTO
-     */
-    public static class HotProductInfo {
-        private Long productId;
-        private String productName;
-        private Long salesCount;
-        private Long salesAmount;
-
-        public Long getProductId() { return productId; }
-        public void setProductId(Long productId) { this.productId = productId; }
-        public String getProductName() { return productName; }
-        public void setProductName(String productName) { this.productName = productName; }
-        public Long getSalesCount() { return salesCount; }
-        public void setSalesCount(Long salesCount) { this.salesCount = salesCount; }
-        public Long getSalesAmount() { return salesAmount; }
-        public void setSalesAmount(Long salesAmount) { this.salesAmount = salesAmount; }
-    }
-
-    /**
-     * Sales by hour info DTO
-     */
-    public static class SalesByHourInfo {
-        private Integer hour;
-        private Long sales;
-        private Integer orders;
-
-        public Integer getHour() { return hour; }
-        public void setHour(Integer hour) { this.hour = hour; }
-        public Long getSales() { return sales; }
-        public void setSales(Long sales) { this.sales = sales; }
-        public Integer getOrders() { return orders; }
-        public void setOrders(Integer orders) { this.orders = orders; }
+        try {
+            GetSalesByHourTodayResponse response = orderService.getSalesByHourToday(
+                    GetSalesByHourTodayRequest.getDefaultInstance()
+            );
+            return response.getHourlyDataList();
+        } catch (Exception e) {
+            log.error("Failed to get sales by hour today via Dubbo", e);
+            return List.of();
+        }
     }
 }

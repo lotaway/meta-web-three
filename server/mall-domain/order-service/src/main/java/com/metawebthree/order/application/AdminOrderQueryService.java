@@ -85,4 +85,33 @@ public class AdminOrderQueryService {
             return 0L;
         }
     }
+    
+    /**
+     * Get hot products based on sales
+     * @param limit number of products to return
+     * @return list of product info with sales data
+     */
+    public List<Map<String, Object>> getHotProducts(int limit) {
+        try {
+            List<Map<String, Object>> results = adminOrderMapper.selectHotProducts(limit);
+            return results != null ? results : List.of();
+        } catch (Exception e) {
+            log.error("Failed to get hot products", e);
+            return List.of();
+        }
+    }
+    
+    /**
+     * Get sales by hour for today
+     * @return list of hourly sales data
+     */
+    public List<Map<String, Object>> getSalesByHourToday() {
+        try {
+            List<Map<String, Object>> results = adminOrderMapper.selectSalesByHourToday();
+            return results != null ? results : List.of();
+        } catch (Exception e) {
+            log.error("Failed to get sales by hour today", e);
+            return List.of();
+        }
+    }
 }

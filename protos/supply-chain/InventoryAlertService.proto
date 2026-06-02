@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package com.metawebthree.common.generated.rpc;
+
+option java_multiple_files = true;
+
+service InventoryAlertService {
+    rpc getLowStockAlertsCount(GetLowStockAlertsCountRequest) returns (GetLowStockAlertsCountResponse);
+    rpc getAlertStatistics(GetAlertStatisticsRequest) returns (GetAlertStatisticsResponse);
+}
+
+message GetLowStockAlertsCountRequest {
+    // Request empty, just need to call the method
+}
+
+message GetLowStockAlertsCountResponse {
+    int64 count = 1;
+}
+
+message GetAlertStatisticsRequest {
+    // Request empty
+}
+
+message AlertStatistics {
+    int64 pending = 1;
+    int64 resolved = 2;
+    int64 ignored = 3;
+}
+
+message GetAlertStatisticsResponse {
+    map<string, int64> distribution = 1;
+}

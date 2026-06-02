@@ -1,52 +1,65 @@
 package com.metawebthree.dataanalysis.infrastructure.client;
 
+import com.metawebthree.common.generated.rpc.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Client for calling payment-service via REST API
- * Note: For pending payments, we actually get this from order-service
- * This client is kept for future payment-specific metrics
+ * Client for payment-service metrics
+ * Uses @DubboReference to invoke payment-service Dubbo interfaces
+ * Note: Pending payments data is primarily fetched from order-service via OrderClient
+ * This client provides additional payment-specific metrics
  */
 @Slf4j
 @Component
 public class PaymentClient {
 
-    private final RestTemplate restTemplate;
-
-    @Value(\"${services.payment-service.url:http://localhost:8083}\")
-    private String paymentServiceUrl;
-
-    public PaymentClient() {
-        this.restTemplate = new RestTemplate();
-    }
+    @DubboReference
+    private PaymentService paymentService;
 
     /**
      * Get pending payments count
-     * For this system, pending payments are tracked in order-service
-     * This method returns 0 as payments are handled via orders
+     * Primary source is order-service via OrderClient.getPendingPaymentsCount()
+     * This provides payment-specific pending count if available
      * @return count of pending payments
      */
     public Long getPendingPaymentsCount() {
-        // Pending payments are tracked through order status
-        // Order status 0 = pending payment
-        // This is handled via OrderClient.getPendingPaymentsCount()
-        return 0L;
+        // Primary source is order-service
+        // This is a fallback for payment-specific data
+        try {
+            GetPaymentStatisticsResponse response = paymentService.getPaymentStatistics(
+                    GetPaymentStatisticsRequest.getDefaultInstance()
+            );
+            return response.getStatistics().getPendingPayments();
+        } catch (Exception e) {
+            log.error("Failed to get pending payments count via Dubbo", e);
+            return 0L;
+        }
     }
 
     /**
      * Get payment statistics
-     * Placeholder for future payment-specific metrics
      * @return map of payment statistics
      */
     public Map<String, Long> getPaymentStatistics() {
-        // Placeholder for actual implementation
-        return new HashMap<>();
+        try {
+            GetPaymentStatisticsResponse response = paymentService.getPaymentStatistics(
+                    GetPaymentStatisticsRequest.getDefaultInstance()
+            );
+            Map<String, Long> stats = new HashMap<>();
+            PaymentStatistics statistics = response.getStatistics();
+            stats.put("totalPayments", statistics.getTotalPayments());
+            stats.put("successPayments", statistics.getSuccessPayments());
+            stats.put("failedPayments", statistics.getFailedPayments());
+            stats.put("pendingPayments", statistics.getPendingPayments());
+            return stats;
+        } catch (Exception e) {
+            log.error("Failed to get payment statistics via Dubbo", e);
+            return new HashMap<>();
+        }
     }
 }

@@ -33,4 +33,28 @@ public interface AdminOrderMapper extends BaseMapper<AdminOrderDO> {
      */
     @Select("SELECT COUNT(*) FROM tb_order WHERE delete_status = 0 AND status = 0")
     Long selectPendingPaymentsCount();
+    
+    /**
+     * Get hot products based on sales count
+     * @param limit max number of products to return
+     * @return list of maps with productId, productName, salesCount, salesAmount
+     */
+    @Select("SELECT p.id as productId, p.name as productName, COUNT(oi.id) as salesCount, SUM(oi.price * oi.quantity) as salesAmount " +
+            "FROM tb_product p " +
+            "LEFT JOIN tb_order_item oi ON p.id = oi.product_id " +
+            "LEFT JOIN tb_order o ON oi.order_id = o.id AND o.delete_status = 0 AND o.status = 3 " +
+            "WHERE p.delete_status = 0 " +
+            "GROUP BY p.id, p.name " +
+            "ORDER BY salesCount DESC, salesAmount DESC LIMIT #{limit}")
+    List<Map<String, Object>> selectHotProducts(@Param("limit") int limit);
+    
+    /**
+     * Get sales by hour for today
+     * @return list of maps with hour, sales (total amount), orders (count)
+     */
+    @Select("SELECT HOUR(created_at) as hour, SUM(order_amount) as sales, COUNT(*) as orders " +
+            "FROM tb_order " +
+            "WHERE delete_status = 0 AND status = 3 AND DATE(created_at) = CURDATE() " +
+            "GROUP BY HOUR(created_at) ORDER BY hour")
+    List<Map<String, Object>> selectSalesByHourToday();
 }

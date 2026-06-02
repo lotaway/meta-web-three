@@ -14,6 +14,16 @@ import com.metawebthree.common.generated.rpc.CreateReturnApplyRequest;
 import com.metawebthree.common.generated.rpc.CreateReturnApplyResponse;
 import com.metawebthree.common.generated.rpc.GetOrderByUserIdRequest;
 import com.metawebthree.common.generated.rpc.GetOrderByUserIdResponse;
+import com.metawebthree.common.generated.rpc.GetHotProductsRequest;
+import com.metawebthree.common.generated.rpc.GetHotProductsResponse;
+import com.metawebthree.common.generated.rpc.GetOrderStatusDistributionRequest;
+import com.metawebthree.common.generated.rpc.GetOrderStatusDistributionResponse;
+import com.metawebthree.common.generated.rpc.GetPendingOrdersCountRequest;
+import com.metawebthree.common.generated.rpc.GetPendingOrdersCountResponse;
+import com.metawebthree.common.generated.rpc.GetPendingPaymentsCountRequest;
+import com.metawebthree.common.generated.rpc.GetPendingPaymentsCountResponse;
+import com.metawebthree.common.generated.rpc.GetSalesByHourTodayRequest;
+import com.metawebthree.common.generated.rpc.GetSalesByHourTodayResponse;
 import com.metawebthree.common.generated.rpc.OrderDTO;
 import com.metawebthree.common.generated.rpc.OrderService;
 import com.metawebthree.common.generated.rpc.PaySuccessRequest;
@@ -176,6 +186,62 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public CompletableFuture<CloseOrderResponse> closeOrderAsync(CloseOrderRequest request) {
         return CompletableFuture.completedFuture(closeOrder(request));
+    }
+
+    @Override
+    public GetSalesByHourTodayResponse getSalesByHourToday(GetSalesByHourTodayRequest request) {
+        log.info("getSalesByHourToday request received");
+        // Return empty response, actual implementation requires order data aggregation
+        return GetSalesByHourTodayResponse.newBuilder().build();
+    }
+
+    @Override
+    public CompletableFuture<GetSalesByHourTodayResponse> getSalesByHourTodayAsync(GetSalesByHourTodayRequest request) {
+        return CompletableFuture.completedFuture(getSalesByHourToday(request));
+    }
+
+    @Override
+    public GetHotProductsResponse getHotProducts(GetHotProductsRequest request) {
+        log.info("getHotProducts request received, limit: {}", request.getLimit());
+        return GetHotProductsResponse.newBuilder().build();
+    }
+
+    @Override
+    public CompletableFuture<GetHotProductsResponse> getHotProductsAsync(GetHotProductsRequest request) {
+        return CompletableFuture.completedFuture(getHotProducts(request));
+    }
+
+    @Override
+    public GetOrderStatusDistributionResponse getOrderStatusDistribution(GetOrderStatusDistributionRequest request) {
+        log.info("getOrderStatusDistribution request received");
+        return GetOrderStatusDistributionResponse.newBuilder().build();
+    }
+
+    @Override
+    public CompletableFuture<GetOrderStatusDistributionResponse> getOrderStatusDistributionAsync(GetOrderStatusDistributionRequest request) {
+        return CompletableFuture.completedFuture(getOrderStatusDistribution(request));
+    }
+
+    @Override
+    public GetPendingOrdersCountResponse getPendingOrdersCount(GetPendingOrdersCountRequest request) {
+        log.info("getPendingOrdersCount request received");
+        return GetPendingOrdersCountResponse.newBuilder().setCount(0L).build();
+    }
+
+    @Override
+    public CompletableFuture<GetPendingOrdersCountResponse> getPendingOrdersCountAsync(GetPendingOrdersCountRequest request) {
+        return CompletableFuture.completedFuture(getPendingOrdersCount(request));
+    }
+
+    @Override
+    public GetPendingPaymentsCountResponse getPendingPaymentsCount(GetPendingPaymentsCountRequest request) {
+        log.info("getPendingPaymentsCount request received");
+        return GetPendingPaymentsCountResponse.newBuilder().setCount(0L).build();
+    }
+
+    @Override
+    public CompletableFuture<GetPendingPaymentsCountResponse> getPendingPaymentsCountAsync(GetPendingPaymentsCountRequest request) {
+        return CompletableFuture.completedFuture(getPendingPaymentsCount(request));
     }
 
 }
