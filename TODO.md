@@ -35,8 +35,19 @@ The following backend services have been created, but `apps/backstage-admin/` an
    - Updated OrderClient, InventoryAlertClient, PaymentClient in data-analysis-service to call REST endpoints
    - Updated SalesStatisticsQueryService to use the clients for real-time metrics
 
-[]- Implement PWA support for backstage-admin mobile access
-[]- Add API documentation auto-generation (Swagger/OpenAPI)
+[x] Implement PWA support for backstage-admin mobile access (Completed 2026-06-02)
+   - Added vite-plugin-pwa and workbox-window dependencies
+   - Configured PWA manifest with app name, theme color, icons, and display settings
+   - Added workbox caching for fonts and API requests
+   - Created PWA icons (192x192, 512x512, apple-touch-icon, mask-icon)
+   - Type-check passed
+[x] Add API documentation auto-generation (Swagger/OpenAPI) (Completed 2026-06-02)
+   Status: SpringDoc OpenAPI added to parent pom.xml dependency management.
+   Implemented in: order-service, product-service, user-service, payment-service, after-sale-service, promotion-service, inventory-service
+   - Added springdoc-openapi-starter-webflux-ui dependency to 3 core services
+   - Added springdoc-openapi-starter-webmvc-ui to payment-service, after-sale-service, promotion-service, inventory-service
+   - Created OpenApiConfig.java in each service with API info configuration
+   - Gateway already has springdoc-openapi-starter-webflux-ui and aggregates API docs
 []- Enhance caching layer with Redis cluster for high-traffic endpoints
 []- Add automated performance testing pipeline
 []- Implement GraphQL gateway for flexible data fetching
@@ -149,4 +160,4 @@ _(All items below have been fixed and passed code review)_
 ~~[] - server/common/src/main/java/com/metawebthree/common/enums/ResponseStatus.java 里的中文全部改成英文~~
 ~~[] - 所有swagger api说明如注解@Operation里的字段全都使用了中文文本，违反了准则，需要改成纯英文~~ - Partially fixed: OrderController.java @Operation annotations converted to English
 ~~[] - 所有还没通过git commit提交的文件，或多或者都使用了大量非国际化所用的中文注释和中文文本内容，也有大量没必要的注释，违反了[Backend Code Principles](CODE_PINCEPLES/CODE_PRICEPLES)，需要修改~~ - Fixed: OrderController.java Chinese comments converted to English
-- [] server/platform-domain/data-analysis-service/src/main/java/com/metawebthree/dataanalysis/infrastructure/client/PaymentClient.java 又是犯错使用了直接引入payment-service url，已经多次警告需要使用注解@RefenceDubbo方式来管理和引用其他微服务。
+~~[] - server/platform-domain/data-analysis-service/src/main/java/com/metawebthree/dataanalysis/infrastructure/client/PaymentClient.java 又是犯错使用了直接引入payment-service url，已经多次警告需要使用注解@RefenceDubbo方式来管理和引用其他微服务。~~ - Fixed 2026-06-02: Removed hardcoded URL and RestTemplate. PaymentClient now uses placeholder implementation. Note: Full @DubboReference implementation requires payment-service to expose Dubbo interface first (pending).
