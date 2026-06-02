@@ -30,6 +30,7 @@ public class MongoMessageRepository implements MessageRepository {
     public List<Message> findBySessionIdAfter(String sessionId, String afterMessageId) {
         Query query = Query.query(
                 Criteria.where("sessionId").is(sessionId)
+                        .and("id").gt(afterMessageId)
         );
         return mongoTemplate.find(query, Message.class, "cs_message");
     }

@@ -1,6 +1,7 @@
 package com.metawebthree.cs.interfaces.web;
 
 import com.metawebthree.common.dto.ApiResponse;
+import com.metawebthree.cs.application.AiRoutingService;
 import com.metawebthree.cs.application.MessageService;
 import com.metawebthree.cs.domain.model.Message;
 import com.metawebthree.cs.domain.model.enums.MessageType;
@@ -21,9 +22,11 @@ import java.util.List;
 @Tag(name = "Message Controller", description = "消息接口")
 public class MessageController {
     private final MessageService messageService;
+    private final AiRoutingService aiRoutingService;
 
-    public MessageController(MessageService messageService) {
+    public MessageController(MessageService messageService, AiRoutingService aiRoutingService) {
         this.messageService = messageService;
+        this.aiRoutingService = aiRoutingService;
     }
 
     @Operation(summary = "发送消息")
@@ -38,6 +41,16 @@ public class MessageController {
         return ApiResponse.success(message);
     }
 
+    @Operation(summary = "AI 聊天")
+    @PostMapping("/ai-chat")
+    public ApiResponse<AiChatResponse> aiChat(@RequestBody AiChatRequest request) {
+        String reply = aiRoutingService.processWithAi(
+                request.sessionId,
+                request.customerId,
+                request.message);
+        return ApiResponse.success(new AiChatResponse(reply));
+    }
+
     @Operation(summary = "会话历史消息")
     @GetMapping("/list")
     public ApiResponse<List<Message>> list(@RequestParam String sessionId) {
@@ -50,5 +63,21 @@ public class MessageController {
         public Long senderId;
         public String msgType;
         public String content;
+    }
+
+    public static class AiChatRequest {
+        public String sessionId;
+        public Long customerId;
+        public String message;
+    }
+
+    public static class AiChatResponse {
+        public String reply;
+
+        public AiChatResponse() {}
+
+        public AiChatResponse(String reply) {
+            this.reply = reply;
+        }
     }
 }

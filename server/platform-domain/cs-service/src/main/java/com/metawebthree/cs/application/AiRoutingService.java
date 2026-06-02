@@ -3,12 +3,14 @@ package com.metawebthree.cs.application;
 import com.metawebthree.cs.domain.model.Conversation;
 import com.metawebthree.cs.domain.ports.AiChatPort;
 import com.metawebthree.cs.domain.repository.MessageRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Service
 public class AiRoutingService {
     private final AiChatPort aiChatPort;
     private final MessageRepository messageRepository;

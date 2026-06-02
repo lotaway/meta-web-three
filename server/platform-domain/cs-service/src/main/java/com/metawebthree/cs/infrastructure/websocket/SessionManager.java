@@ -8,6 +8,7 @@ public class SessionManager {
     private final ConcurrentHashMap<String, Session> agentConnections = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Session> customerConnections = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Session, String> sessionKeys = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Long> customerToAgentMap = new ConcurrentHashMap<>();
 
     public void registerAgent(Long agentId, Session session) {
         String key = "agent:" + agentId;
@@ -18,13 +19,28 @@ public class SessionManager {
         sessionKeys.put(session, key);
     }
 
-    public void registerCustomer(String sessionId, Session session) {
+    public void registerCustomer(String sessionId, Session session, Long agentId) {
         String key = "customer:" + sessionId;
         Session existing = customerConnections.put(key, session);
         if (existing != null && existing.isOpen()) {
             try { existing.close(); } catch (Exception e) { }
         }
         sessionKeys.put(session, key);
+        if (agentId != null) {
+            customerToAgentMap.put(sessionId, agentId);
+        }
+    }
+
+    public void registerCustomer(String sessionId, Session session) {
+        registerCustomer(sessionId, session, null);
+    }
+
+    public Long findAgentIdBySessionId(String sessionId) {
+        return customerToAgentMap.get(sessionId);
+    }
+
+    public void mapCustomerToAgent(String sessionId, Long agentId) {
+        customerToAgentMap.put(sessionId, agentId);
     }
 
     public void remove(Session session) {

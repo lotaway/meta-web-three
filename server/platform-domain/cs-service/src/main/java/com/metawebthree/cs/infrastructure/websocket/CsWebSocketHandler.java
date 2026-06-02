@@ -118,7 +118,7 @@ public class CsWebSocketHandler {
     }
 
     private Long findAgentIdBySession(String sessionId) {
-        return null;
+        return sessionManager.findAgentIdBySessionId(sessionId);
     }
 
     private void sendMessage(Session session, String message) throws IOException {

@@ -39,3 +39,36 @@ CREATE TABLE IF NOT EXISTS cs_transfer_log (
     reason VARCHAR(500),
     transfer_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS cs_faq (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    question VARCHAR(500) NOT NULL,
+    answer TEXT NOT NULL,
+    category VARCHAR(100),
+    keywords VARCHAR(1000),
+    hit_count INT DEFAULT 0,
+    relevance_score DOUBLE DEFAULT 0.0,
+    enabled BOOLEAN DEFAULT TRUE,
+    priority INT DEFAULT 0,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS cs_work_order (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    order_no VARCHAR(64) NOT NULL UNIQUE,
+    customer_id BIGINT NOT NULL,
+    agent_id BIGINT,
+    category VARCHAR(50),
+    ai_suggested_category VARCHAR(50),
+    confidence_score DOUBLE DEFAULT 0.0,
+    status VARCHAR(20) DEFAULT 'PENDING',
+    priority VARCHAR(20) DEFAULT 'MEDIUM',
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    resolution TEXT,
+    metadata JSONB,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    resolve_time TIMESTAMP
+);
