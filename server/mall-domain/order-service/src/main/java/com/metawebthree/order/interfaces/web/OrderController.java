@@ -113,7 +113,7 @@ public class OrderController {
         return ApiResponse.error(ResponseStatus.ORDER_STATUS_INVALID);
     }
 
-    @Operation(summary = "查询订单物流信息", description = "获取订单的物流公司和运单号")
+    @Operation(summary = "Query order logistics", description = "Get logistics company and tracking number")
     @GetMapping("/{id}/logistics")
     public ApiResponse<?> getLogistics(@PathVariable("id") Long id) {
         Map<String, Object> logistics = new HashMap<>();
@@ -168,7 +168,7 @@ public class OrderController {
         return ApiResponse.success(orderService.generateConfirmOrder(userId, cartIds));
     }
 
-    @Operation(summary = "申请订单退款", description = "提交退款/退货申请")
+    @Operation(summary = "Apply for order refund", description = "Submit refund/return request")
     @PostMapping("/{id}/refund")
     public ApiResponse<?> applyRefund(@PathVariable("id") Long id,
             @RequestHeader(HeaderConstants.USER_ID) Long userId,
@@ -195,7 +195,7 @@ public class OrderController {
         return ApiResponse.success();
     }
 
-    @Operation(summary = "查询退款状态", description = "获取订单的退款申请状态")
+    @Operation(summary = "Query refund status", description = "Get order refund application status")
     @GetMapping("/{id}/refund/status")
     public ApiResponse<?> getRefundStatus(@PathVariable("id") Long id) {
         List<OrderReturnApply> refunds = returnService.listByOrder(String.valueOf(id));
@@ -215,10 +215,10 @@ public class OrderController {
         return ApiResponse.error(ResponseStatus.ORDER_STATUS_INVALID);
     }
 
-    @Operation(summary = "自动取消超时订单", description = "取消超过指定时间未支付的订单")
+    @Operation(summary = "Auto cancel timeout orders", description = "Cancel orders not paid within specified time")
     @PostMapping("/cancelTimeOutOrder")
     public ApiResponse<Integer> cancelTimeOutOrder(
-            @Parameter(description = "超时时间（分钟），默认30分钟") 
+            @Parameter(description = "Timeout in minutes, default 30") 
             @RequestParam(defaultValue = "30") Integer timeoutMinutes) {
         int count = orderService.cancelTimeOutOrder(timeoutMinutes);
         return ApiResponse.success(count);
@@ -231,7 +231,7 @@ public class OrderController {
 
     // === Admin endpoints ===
 
-    @Operation(summary = "批量发货")
+    @Operation(summary = "Batch delivery")
     @PostMapping("/update/delivery")
     public ApiResponse<Void> updateDelivery(@RequestBody List<Map<String, Object>> deliveryList) {
         for (Map<String, Object> item : deliveryList) {
@@ -247,7 +247,7 @@ public class OrderController {
         return ApiResponse.success();
     }
 
-    @Operation(summary = "批量关闭订单")
+    @Operation(summary = "Batch close orders")
     @PostMapping("/update/close")
     public ApiResponse<Void> updateClose(@RequestParam String ids, @RequestParam String note) {
         List<Long> idList = Arrays.stream(ids.split(","))
@@ -257,7 +257,7 @@ public class OrderController {
         return ApiResponse.success();
     }
 
-    @Operation(summary = "修改收货人信息")
+    @Operation(summary = "Update receiver info")
     @PostMapping("/update/receiverInfo")
     public ApiResponse<Void> updateReceiverInfo(@RequestBody Map<String, Object> params) {
         Long orderId = Long.valueOf(String.valueOf(params.get("orderId")));
@@ -274,7 +274,7 @@ public class OrderController {
         return ApiResponse.success();
     }
 
-    @Operation(summary = "修改订单费用信息")
+    @Operation(summary = "Update order fee info")
     @PostMapping("/update/moneyInfo")
     public ApiResponse<Void> updateMoneyInfo(@RequestBody Map<String, Object> params) {
         Long orderId = Long.valueOf(String.valueOf(params.get("orderId")));
@@ -286,7 +286,7 @@ public class OrderController {
         return ApiResponse.success();
     }
 
-    @Operation(summary = "备注订单")
+    @Operation(summary = "Add order note")
     @PostMapping("/update/note")
     public ApiResponse<Void> updateNote(@RequestParam Long id, @RequestParam String note,
                                         @RequestParam(required = false) Integer status) {
@@ -296,7 +296,7 @@ public class OrderController {
         return ApiResponse.success();
     }
 
-    @Operation(summary = "批量删除订单")
+    @Operation(summary = "Batch delete orders")
     @PostMapping("/delete")
     public ApiResponse<Void> deleteOrders(@RequestParam String ids) {
         List<Long> idList = Arrays.stream(ids.split(","))
@@ -304,5 +304,57 @@ public class OrderController {
         adminOrderMapper.update(null, new UpdateWrapper<AdminOrderDO>()
                 .in("id", idList).set("delete_status", 1));
         return ApiResponse.success();
+    }
+
+    @Operation(summary = "Get order statistics", description = "Count orders by status and aggregate data")
+    @GetMapping("/statistics")
+    public ApiResponse<Map<String, Object>> getOrderStatistics() {
+        Map<String, Object> statistics = new HashMap<>();
+        
+        // Count orders by status
+        // Status: 0->PENDING; 1->PROCESSING; 2->SHIPPED; 3->DELIVERED; 4->CANCELLED; 5->INVALID
+        Map<String, Integer> statusDistribution = new HashMap<>();
+        
+        // Get count for each status
+        for (int status = 0; status <= 5; status++) {
+            Long count = adminOrderMapper.selectCount(
+                new LambdaQueryWrapper<AdminOrderDO>()
+                    .eq(AdminOrderDO::getStatus, status)
+                    .eq(AdminOrderDO::getDeleteStatus, 0)
+            );
+            String statusName = getStatusName(status);
+            statusDistribution.put(statusName, count.intValue());
+        }
+        
+        // Pending orders = PENDING(0) + PROCESSING(1)
+        Long pendingOrders = adminOrderMapper.selectCount(
+            new LambdaQueryWrapper<AdminOrderDO>()
+                .in(AdminOrderDO::getStatus, 0, 1)
+                .eq(AdminOrderDO::getDeleteStatus, 0)
+        );
+        
+        // Total orders
+        Long totalOrders = adminOrderMapper.selectCount(
+            new LambdaQueryWrapper<AdminOrderDO>()
+                .eq(AdminOrderDO::getDeleteStatus, 0)
+        );
+        
+        statistics.put("statusDistribution", statusDistribution);
+        statistics.put("pendingOrders", pendingOrders.intValue());
+        statistics.put("totalOrders", totalOrders.intValue());
+        
+        return ApiResponse.success(statistics);
+    }
+    
+    private String getStatusName(int status) {
+        switch (status) {
+            case 0: return "PENDING";
+            case 1: return "PROCESSING";
+            case 2: return "SHIPPED";
+            case 3: return "DELIVERED";
+            case 4: return "CANCELLED";
+            case 5: return "INVALID";
+            default: return "UNKNOWN";
+        }
     }
 }
