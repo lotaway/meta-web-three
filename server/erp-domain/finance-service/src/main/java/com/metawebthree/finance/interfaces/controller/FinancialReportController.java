@@ -45,4 +45,14 @@ public class FinancialReportController {
             @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         return ResponseEntity.ok(reportService.getTrialBalance(asOfDate));
     }
+    
+    @RequirePermission(ERPPermissions.FINANCIAL_REPORT_READ)
+    @GetMapping("/cash-flow-statement")
+    public ResponseEntity<Map<String, Object>> getCashFlowStatement(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
+            @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
+        return ResponseEntity.ok(reportService.getCashFlowStatement(startDate, endDate));
+    }
 }

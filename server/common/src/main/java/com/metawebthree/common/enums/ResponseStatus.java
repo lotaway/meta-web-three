@@ -48,7 +48,11 @@ public enum ResponseStatus {
     FILE_TOO_LARGE("1006", "文件大小超出限制"),
     FORBIDDEN("1007", "无权限访问"),
 
-    SYSTEM_ERROR("9999", "系统错误");
+    SYSTEM_ERROR("9999", "系统错误"),
+
+    // Finance AR/AP
+    AR_NOT_FOUND("9001", "应收账款不存在"),
+    AP_NOT_FOUND("9002", "应付账款不存在");
 
     private final String code;
     private final String message;
