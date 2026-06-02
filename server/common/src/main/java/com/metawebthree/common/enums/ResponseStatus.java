@@ -1,58 +1,58 @@
 package com.metawebthree.common.enums;
 
 public enum ResponseStatus {
-    SUCCESS("0000", "操作成功"),
+    SUCCESS("0000", "Operation successful"),
 
-    PARAM_VALIDATION_ERROR("1001", "参数校验失败"),
-    PARAM_MISSING_ERROR("1002", "参数缺失"),
-    PARAM_TYPE_ERROR("1003", "参数类型错误"),
+    PARAM_VALIDATION_ERROR("1001", "Parameter validation failed"),
+    PARAM_MISSING_ERROR("1002", "Parameter missing"),
+    PARAM_TYPE_ERROR("1003", "Parameter type error"),
 
-    USER_NOT_FOUND("2001", "用户不存在"),
-    USER_PASSWORD_ERROR("2002", "密码错误"),
-    USER_TOKEN_EXPIRED("2003", "Token已过期"),
-    USER_TOKEN_INVALID("2004", "Token无效"),
-    USER_WALLET_MISMATCH("2005", "钱包地址不匹配"),
+    USER_NOT_FOUND("2001", "User not found"),
+    USER_PASSWORD_ERROR("2002", "Password error"),
+    USER_TOKEN_EXPIRED("2003", "Token expired"),
+    USER_TOKEN_INVALID("2004", "Token invalid"),
+    USER_WALLET_MISMATCH("2005", "Wallet address mismatch"),
 
-    PRODUCT_NOT_FOUND("3001", "商品不存在"),
-    PRODUCT_OFF_SHELF("3002", "商品已下架"),
-    PRODUCT_CREATE_FAILED("3003", "商品创建失败"),
-    PRODUCT_UPDATE_FAILED("3004", "商品更新失败"),
-    PRODUCT_DELETE_FAILED("3005", "商品删除失败"),
-    PRODUCT_IMAGE_UPLOAD_FAILED("3006", "商品图片上传失败"),
+    PRODUCT_NOT_FOUND("3001", "Product not found"),
+    PRODUCT_OFF_SHELF("3002", "Product off shelf"),
+    PRODUCT_CREATE_FAILED("3003", "Product creation failed"),
+    PRODUCT_UPDATE_FAILED("3004", "Product update failed"),
+    PRODUCT_DELETE_FAILED("3005", "Product deletion failed"),
+    PRODUCT_IMAGE_UPLOAD_FAILED("3006", "Product image upload failed"),
 
-    ORDER_NOT_FOUND("4001", "订单不存在"),
-    ORDER_CREATE_FAILED("4002", "订单创建失败"),
-    ORDER_CANCEL_FAILED("4003", "订单取消失败"),
-    ORDER_STATUS_INVALID("4004", "订单状态不允许此操作"),
+    ORDER_NOT_FOUND("4001", "Order not found"),
+    ORDER_CREATE_FAILED("4002", "Order creation failed"),
+    ORDER_CANCEL_FAILED("4003", "Order cancellation failed"),
+    ORDER_STATUS_INVALID("4004", "Order status does not allow this operation"),
 
-    PAYMENT_INSUFFICIENT_BALANCE("5001", "余额不足"),
-    PAYMENT_EXCHANGE_FAILED("5002", "兑换失败"),
-    PAYMENT_PRICE_NOT_FOUND("5003", "价格不存在"),
+    PAYMENT_INSUFFICIENT_BALANCE("5001", "Insufficient balance"),
+    PAYMENT_EXCHANGE_FAILED("5002", "Exchange failed"),
+    PAYMENT_PRICE_NOT_FOUND("5003", "Price not found"),
 
-    MEDIA_NOT_FOUND("6001", "文件不存在"),
-    MEDIA_UPLOAD_FAILED("6002", "文件上传失败"),
-    MEDIA_DELETE_FAILED("6003", "文件删除失败"),
+    MEDIA_NOT_FOUND("6001", "File not found"),
+    MEDIA_UPLOAD_FAILED("6002", "File upload failed"),
+    MEDIA_DELETE_FAILED("6003", "File deletion failed"),
 
-    WAREHOUSE_NOT_FOUND("7001", "仓库不存在"),
-    INBOUND_ORDER_NOT_FOUND("7002", "入库单不存在"),
+    WAREHOUSE_NOT_FOUND("7001", "Warehouse not found"),
+    INBOUND_ORDER_NOT_FOUND("7002", "Inbound order not found"),
 
-    SUPPLIER_NOT_FOUND("8001", "供应商不存在"),
-    SUPPLIER_CREATE_FAILED("8002", "供应商创建失败"),
-    SUPPLIER_UPDATE_FAILED("8003", "供应商更新失败"),
-    SUPPLIER_DELETE_FAILED("8004", "供应商删除失败"),
-    SUPPLIER_VERIFICATION_FAILED("8005", "供应商资质审核失败"),
+    SUPPLIER_NOT_FOUND("8001", "Supplier not found"),
+    SUPPLIER_CREATE_FAILED("8002", "Supplier creation failed"),
+    SUPPLIER_UPDATE_FAILED("8003", "Supplier update failed"),
+    SUPPLIER_DELETE_FAILED("8004", "Supplier deletion failed"),
+    SUPPLIER_VERIFICATION_FAILED("8005", "Supplier verification failed"),
 
-    PARAM_ERROR("1000", "参数错误"),
-    METHOD_NOT_ALLOWED("1004", "不支持的请求方法"),
-    NOT_FOUND("1005", "资源不存在"),
-    FILE_TOO_LARGE("1006", "文件大小超出限制"),
-    FORBIDDEN("1007", "无权限访问"),
+    PARAM_ERROR("1000", "Parameter error"),
+    METHOD_NOT_ALLOWED("1004", "Request method not allowed"),
+    NOT_FOUND("1005", "Resource not found"),
+    FILE_TOO_LARGE("1006", "File size exceeds limit"),
+    FORBIDDEN("1007", "Access forbidden"),
 
-    SYSTEM_ERROR("9999", "系统错误"),
+    SYSTEM_ERROR("9999", "System error"),
 
     // Finance AR/AP
-    AR_NOT_FOUND("9001", "应收账款不存在"),
-    AP_NOT_FOUND("9002", "应付账款不存在");
+    AR_NOT_FOUND("9001", "Accounts receivable not found"),
+    AP_NOT_FOUND("9002", "Accounts payable not found");
 
     private final String code;
     private final String message;
