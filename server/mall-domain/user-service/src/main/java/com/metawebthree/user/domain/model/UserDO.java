@@ -30,4 +30,5 @@ public class UserDO extends BaseDO {
     private Integer integration;
     private Integer growth;
     private Long memberLevelId;
+    private Integer status;
 }
