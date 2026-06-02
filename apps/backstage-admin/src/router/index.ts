@@ -699,6 +699,22 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // Settlement Management Module
+  {
+    path: '/settlement',
+    component: Layout,
+    redirect: '/settlement/list',
+    name: 'settlement',
+    meta: { title: 'settlement.title', icon: 'money' },
+    children: [
+      {
+        path: 'list',
+        name: 'settlementList',
+        component: () => import('@/views/settlement/index.vue'),
+        meta: { title: 'settlement.list.title', icon: 'settlement-list' },
+      },
+    ],
+  },
   // Inventory Management Module
   {
     path: '/inventory',
