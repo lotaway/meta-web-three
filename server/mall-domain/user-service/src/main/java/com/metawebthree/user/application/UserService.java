@@ -6,6 +6,7 @@ import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.metawebthree.common.utils.UserRole;
 import com.metawebthree.user.domain.model.UserDO;
 import com.metawebthree.user.application.dto.SubTokenDTO;
+import com.metawebthree.user.application.dto.TokenResponseDTO;
 import com.metawebthree.user.application.dto.UserDTO;
 
 import java.util.List;
@@ -58,6 +59,12 @@ public interface UserService extends IService<UserDO> {
     void updatePassword(String telephone, String password, String authCode);
 
     String refreshToken(String oldToken);
+
+    TokenResponseDTO refreshTokenWithRotation(String refreshToken);
+
+    TokenResponseDTO generateTokens(Long userId, String userName, UserRole role);
+
+    boolean validateRefreshToken(String refreshToken);
 
     UserDTO validateUserByPhone(String telephone, String authCode);
 }

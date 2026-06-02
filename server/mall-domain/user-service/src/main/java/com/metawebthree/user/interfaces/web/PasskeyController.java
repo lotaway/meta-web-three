@@ -4,8 +4,10 @@ import com.metawebthree.common.constants.HeaderConstants;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.enums.ResponseStatus;
 import com.metawebthree.common.utils.UserJwtUtil;
+import com.metawebthree.common.utils.UserRole;
 import com.metawebthree.user.application.PasskeyService;
 import com.metawebthree.user.application.dto.LoginResponseDTO;
+import com.metawebthree.user.application.dto.TokenResponseDTO;
 import com.metawebthree.user.application.dto.UserDTO;
 import com.metawebthree.user.application.UserService;
 
@@ -72,13 +74,21 @@ public class PasskeyController {
             return ApiResponse.error(ResponseStatus.USER_NOT_FOUND);
         }
 
-        Map<String, Object> claims = new java.util.HashMap<>();
-        claims.put("userId", user.getId());
-        claims.put("name", user.getNickname());
-        claims.put("role", "USER");
+        // Generate tokens with refresh token support
+        TokenResponseDTO tokenResponse = userService.generateTokens(
+            user.getId(),
+            user.getNickname() != null ? user.getNickname() : "passkey",
+            UserRole.USER
+        );
 
-        String token = jwtUtil.generate(user.getId().toString(), claims);
-        return ApiResponse.success(new LoginResponseDTO(token, user, null, "passkey"));
+        return ApiResponse.success(LoginResponseDTO.builder()
+            .token(tokenResponse.getAccessToken())
+            .refreshToken(tokenResponse.getRefreshToken())
+            .refreshTokenExpiresAt(tokenResponse.getRefreshTokenExpiresAt())
+            .user(user)
+            .walletAddress(null)
+            .loginType("passkey")
+            .build());
     }
 
     @GetMapping("/list")

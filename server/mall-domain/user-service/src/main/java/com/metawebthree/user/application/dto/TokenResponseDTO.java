@@ -1,7 +1,8 @@
 package com.metawebthree.user.application.dto;
-import lombok.Data;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
@@ -10,11 +11,10 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LoginResponseDTO {
-    private String token;
+public class TokenResponseDTO {
+    private String accessToken;
     private String refreshToken;
+    private Date accessTokenExpiresAt;
     private Date refreshTokenExpiresAt;
-    private UserDTO user;
-    private String walletAddress;
-    private String loginType;
+    private Long expiresInSeconds;
 }

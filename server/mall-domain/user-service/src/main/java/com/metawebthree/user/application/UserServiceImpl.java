@@ -20,6 +20,7 @@ import com.metawebthree.user.domain.model.UserDO;
 import com.metawebthree.user.domain.model.UserRoleMappingDO;
 import com.metawebthree.user.domain.model.Web3UserDO;
 import com.metawebthree.user.application.dto.SubTokenDTO;
+import com.metawebthree.user.application.dto.TokenResponseDTO;
 import com.metawebthree.user.application.dto.UserDTO;
 import com.metawebthree.user.domain.ports.ReferralBindingPort;
 import com.metawebthree.user.infrastructure.persistence.mapper.TokenMappingMapper;
@@ -41,7 +42,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements UserService {
 
     private static final String AUTH_CODE_PREFIX = "auth:code:";
-    private static final long AUTH_CODE_EXPIRE_SECONDS = 300; // 5 分钟
+    private static final long AUTH_CODE_EXPIRE_SECONDS = 300; // 5 minutes
+    private static final String REFRESH_TOKEN_PREFIX = "refresh:token:";
+    private static final long ACCESS_TOKEN_EXPIRE_HOURS = 2; // Access token expires in 2 hours
+    private static final long REFRESH_TOKEN_EXPIRE_DAYS = 30; // Refresh token expires in 30 days
 
     private final PageConfigVO pageConfigVo;
 
@@ -352,12 +356,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         return authCode;
     }
 
-    /**
-     * 验证验证码是否正确
-     * @param telephone 手机号
-     * @param authCode 验证码
-     * @return 验证是否成功
-     */
     public boolean verifyAuthCode(String telephone, String authCode) {
         String key = AUTH_CODE_PREFIX + telephone;
         String storedCode = redisTemplate.opsForValue().get(key);
@@ -439,5 +437,117 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         dto.setEmail(user.getEmail());
         dto.setTypeId(user.getTypeId());
         return dto;
+    }
+
+    @Override
+    public TokenResponseDTO generateTokens(Long userId, String userName, UserRole role) {
+        // Generate access token (short-lived)
+        Date accessTokenExpireTime = new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRE_HOURS * DateEnum.ONE_HOUR.getValue());
+        String accessToken = jwtUtil.generate(
+            userId.toString(),
+            jwtUtil.generateClaimsMap(userName, role),
+            accessTokenExpireTime
+        );
+
+        // Generate refresh token (long-lived)
+        Date refreshTokenExpireTime = new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRE_DAYS * DateEnum.ONE_DAY.getValue());
+        String refreshToken = jwtUtil.generate(
+            userId.toString() + ":refresh",
+            jwtUtil.generateClaimsMap(userName, role),
+            refreshTokenExpireTime
+        );
+
+        // Store refresh token in Redis with userId mapping
+        String refreshTokenKey = REFRESH_TOKEN_PREFIX + refreshToken;
+        redisTemplate.opsForValue().set(
+            refreshTokenKey,
+            userId.toString(),
+            REFRESH_TOKEN_EXPIRE_DAYS,
+            TimeUnit.DAYS
+        );
+
+        log.info("Generated tokens for userId: {}, accessTokenExpiresAt: {}", userId, accessTokenExpireTime);
+
+        return TokenResponseDTO.builder()
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .accessTokenExpiresAt(accessTokenExpireTime)
+            .refreshTokenExpiresAt(refreshTokenExpireTime)
+            .expiresInSeconds(ACCESS_TOKEN_EXPIRE_HOURS * 3600L)
+            .build();
+    }
+
+    @Override
+    public TokenResponseDTO refreshTokenWithRotation(String refreshToken) {
+        try {
+            // Validate refresh token
+            if (!validateRefreshToken(refreshToken)) {
+                log.warn("Invalid refresh token");
+                return null;
+            }
+
+            // Decode refresh token to get user info
+            var claims = jwtUtil.tryDecode(refreshToken);
+            if (claims.isEmpty()) {
+                log.warn("Failed to decode refresh token");
+                return null;
+            }
+
+            if (jwtUtil.isTokenExpired(claims.get().getExpiration())) {
+                log.warn("Refresh token expired");
+                return null;
+            }
+
+            // Extract userId from token subject (format: userId:refresh)
+            String subject = claims.get().getSubject();
+            Long userId = Long.parseLong(subject.replace(":refresh", ""));
+            String userName = jwtUtil.getUserName(claims.get());
+            UserRole role = jwtUtil.getUserRole(claims.get());
+
+            // Invalidate old refresh token (rotation)
+            String oldRefreshTokenKey = REFRESH_TOKEN_PREFIX + refreshToken;
+            redisTemplate.delete(oldRefreshTokenKey);
+
+            // Generate new token pair
+            log.info("Rotating refresh token for userId: {}", userId);
+            return generateTokens(userId, userName, role);
+
+        } catch (Exception e) {
+            log.error("Failed to refresh token with rotation: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public boolean validateRefreshToken(String refreshToken) {
+        try {
+            // Check if refresh token exists in Redis
+            String refreshTokenKey = REFRESH_TOKEN_PREFIX + refreshToken;
+            String userId = redisTemplate.opsForValue().get(refreshTokenKey);
+            
+            if (userId == null) {
+                log.warn("Refresh token not found in Redis or expired");
+                return false;
+            }
+
+            // Also verify JWT structure
+            var claims = jwtUtil.tryDecode(refreshToken);
+            if (claims.isEmpty()) {
+                log.warn("Refresh token JWT is invalid");
+                return false;
+            }
+
+            // Check if token is expired
+            if (jwtUtil.isTokenExpired(claims.get().getExpiration())) {
+                log.warn("Refresh token JWT is expired");
+                redisTemplate.delete(refreshTokenKey);
+                return false;
+            }
+
+            return true;
+        } catch (Exception e) {
+            log.error("Failed to validate refresh token: {}", e.getMessage());
+            return false;
+        }
     }
 }

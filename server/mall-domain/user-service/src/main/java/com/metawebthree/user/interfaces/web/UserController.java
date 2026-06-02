@@ -11,6 +11,7 @@ import com.metawebthree.common.generated.rpc.OrderService;
 import com.metawebthree.common.utils.UserRole;
 import com.metawebthree.user.application.dto.LoginResponseDTO;
 import com.metawebthree.user.application.dto.SubTokenDTO;
+import com.metawebthree.user.application.dto.TokenResponseDTO;
 import com.metawebthree.user.application.dto.UserDTO;
 import com.metawebthree.user.application.UserService;
 import com.metawebthree.user.domain.model.UserDO;
@@ -107,10 +108,21 @@ public class UserController {
             return ApiResponse.error(ResponseStatus.USER_PASSWORD_ERROR, "Invalid credentials");
         }
 
-        Map<String, Object> claims = buildClaims(user);
-        String token = generateToken(user.getId().toString(), claims, expiresInHours);
+        // Generate tokens with refresh token support
+        TokenResponseDTO tokenResponse = userService.generateTokens(
+            user.getId(),
+            user.getNickname() != null ? user.getNickname() : email,
+            UserRole.tryValueOf(user.getTypeId()).orElse(UserRole.USER)
+        );
 
-        return ApiResponse.success(new LoginResponseDTO(token, user, null, "email"));
+        return ApiResponse.success(LoginResponseDTO.builder()
+            .token(tokenResponse.getAccessToken())
+            .refreshToken(tokenResponse.getRefreshToken())
+            .refreshTokenExpiresAt(tokenResponse.getRefreshTokenExpiresAt())
+            .user(user)
+            .walletAddress(null)
+            .loginType("email")
+            .build());
     }
 
     @GetMapping("/info")
@@ -180,15 +192,21 @@ public class UserController {
 
         UserDTO user = userService.findOrCreateUserByWallet(walletAddress);
 
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", user.getId());
-        claims.put("walletAddress", walletAddress);
-        claims.put("userRole", user.getUserRoleId());
-        claims.put("role", "USER");
+        // Generate tokens with refresh token support
+        TokenResponseDTO tokenResponse = userService.generateTokens(
+            user.getId(),
+            walletAddress,
+            UserRole.USER
+        );
 
-        String token = jwtUtil.generate(user.getId().toString(), claims);
-
-        return ApiResponse.success(new LoginResponseDTO(token, user, walletAddress, "wallet"));
+        return ApiResponse.success(LoginResponseDTO.builder()
+            .token(tokenResponse.getAccessToken())
+            .refreshToken(tokenResponse.getRefreshToken())
+            .refreshTokenExpiresAt(tokenResponse.getRefreshTokenExpiresAt())
+            .user(user)
+            .walletAddress(walletAddress)
+            .loginType("wallet")
+            .build());
     }
 
     @GetMapping("/checkWeb3SignerMessage")
@@ -273,6 +291,20 @@ public class UserController {
         } catch (Exception e) {
             log.error("Failed to create sub-token", e);
             return ApiResponse.error(ResponseStatus.SYSTEM_ERROR);
+        }
+    }
+
+    @PostMapping("/refreshToken")
+    public ApiResponse<TokenResponseDTO> refreshToken(@RequestParam String refreshToken) {
+        try {
+            TokenResponseDTO tokenResponse = userService.refreshTokenWithRotation(refreshToken);
+            if (tokenResponse == null) {
+                return ApiResponse.error(ResponseStatus.USER_TOKEN_INVALID, "Invalid or expired refresh token");
+            }
+            return ApiResponse.success(tokenResponse);
+        } catch (Exception e) {
+            log.error("Failed to refresh token: {}", e.getMessage());
+            return ApiResponse.error(ResponseStatus.USER_TOKEN_INVALID, "Failed to refresh token");
         }
     }
 }
