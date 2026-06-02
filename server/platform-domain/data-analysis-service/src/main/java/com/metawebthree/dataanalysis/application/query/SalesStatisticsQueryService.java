@@ -12,6 +12,8 @@ import com.metawebthree.dataanalysis.infrastructure.persistence.mapper.HourlySal
 import com.metawebthree.dataanalysis.infrastructure.persistence.mapper.ProductSalesMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -34,6 +36,7 @@ public class SalesStatisticsQueryService {
     private final InventoryAlertClient inventoryAlertClient;
     private final PaymentClient paymentClient;
 
+    @Cacheable(value = "sales-trend", key = "#startDate + '_' + #endDate", unless = "#result == null")
     public SalesTrendDTO getSalesTrend(String startDate, String endDate) {
         List<SalesStatisticsDO> records = salesStatisticsMapper.selectByDateRange(startDate, endDate);
         
@@ -71,6 +74,7 @@ public class SalesStatisticsQueryService {
         return result;
     }
 
+    @Cacheable(value = "realtime-dashboard", key = "'dashboard'", unless = "#result == null")
     public RealTimeDashboardDTO getRealTimeDashboard() {
         String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         SalesStatisticsDO todayRecord = salesStatisticsMapper.selectByDate(today);
@@ -289,5 +293,10 @@ public class SalesStatisticsQueryService {
         dto.setNewUserCount(record.getNewUserCount());
         dto.setActiveUserCount(record.getActiveUserCount());
         return dto;
+    }
+
+    @CacheEvict(value = {"realtime-dashboard", "sales-trend"}, allEntries = true)
+    public void evictDashboardCache() {
+        log.info("Dashboard cache evicted");
     }
 }
