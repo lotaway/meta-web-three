@@ -178,6 +178,67 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // mall-domain management
+  {
+    path: '/promotion',
+    component: Layout,
+    redirect: '/promotion/coupon',
+    name: 'promotion',
+    meta: { title: 'Promotion', icon: 'sms' },
+    children: [
+      {
+        path: 'coupon',
+        name: 'coupon',
+        component: () => import('@/views/promotion/coupon/index.vue'),
+        meta: { title: 'Coupon Management', icon: 'sms-coupon' },
+      },
+    ],
+  },
+  {
+    path: '/product',
+    component: Layout,
+    redirect: '/product/index',
+    name: 'product',
+    meta: { title: 'Product', icon: 'product' },
+    children: [
+      {
+        path: 'index',
+        name: 'productManage',
+        component: () => import('@/views/product/index.vue'),
+        meta: { title: 'Product Management', icon: 'product' },
+      },
+    ],
+  },
+  {
+    path: '/risk-control',
+    component: Layout,
+    redirect: '/risk-control/index',
+    name: 'risk-control',
+    meta: { title: 'Risk Control', icon: 'warning' },
+    children: [
+      {
+        path: 'index',
+        name: 'riskControl',
+        component: () => import('@/views/risk-control/index.vue'),
+        meta: { title: 'Risk Management', icon: 'warning' },
+      },
+    ],
+  },
+  {
+    path: '/recommendation',
+    component: Layout,
+    redirect: '/recommendation/index',
+    name: 'recommendation',
+    meta: { title: 'Recommendation', icon: 'recommend' },
+    children: [
+      {
+        path: 'index',
+        name: 'recommendationManage',
+        component: () => import('@/views/recommendation/index.vue'),
+        meta: { title: 'Recommendation Management', icon: 'recommend' },
+      },
+    ],
+  },
   {
     path: '/sms',
     component: Layout,

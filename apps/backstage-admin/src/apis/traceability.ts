@@ -3,12 +3,15 @@ import http from '@/utils/http'
 export interface ProductInfo {
   productId: string
   productName: string
-  batchNumber: string
+  batchNumber?: string
   productionDate?: string
   expirationDate?: string
   manufacturer?: string
+  category?: string
+  productionLocation?: string
   status: 'PRODUCED' | 'IN_TRANSIT' | 'DELIVERED' | 'SOLD' | 'EXPIRED'
-  registeredAt: string
+  isActive?: boolean
+  registeredAt?: string
 }
 
 export interface TraceRecord {
@@ -39,7 +42,19 @@ export interface TraceQueryParam {
   status?: string
 }
 
-// Product APIs
+export interface ProductListQuery {
+  status?: string
+  pageNum?: number
+  pageSize?: number
+}
+
+export interface ProductListResponse {
+  list: ProductInfo[]
+  total: number
+  pageNum: number
+  pageSize: number
+}
+
 export function registerProductAPI(data: {
   productId: string
   productName: string
@@ -55,11 +70,14 @@ export function getProductInfoAPI(productId: string) {
   return http<ProductInfo>({ url: `/api/traceability/product/${productId}`, method: 'get' })
 }
 
+export function getProductListAPI(params: ProductListQuery) {
+  return http<ProductListResponse>({ url: '/api/traceability/product/list', method: 'get', params })
+}
+
 export function getProductTraceIdsAPI(productId: string) {
   return http<number[]>({ url: `/api/traceability/product/${productId}/traces`, method: 'get' })
 }
 
-// Trace Record APIs
 export function createTraceRecordAPI(data: { productId: string; batchNumber: string }) {
   return http<{ traceId: number }>({ url: '/api/traceability/trace', method: 'post', data })
 }
@@ -72,7 +90,6 @@ export function getTraceEventsAPI(traceId: number) {
   return http<TraceEvent[]>({ url: `/api/traceability/trace/${traceId}/events`, method: 'get' })
 }
 
-// Event APIs
 export function addTraceEventAPI(traceId: number, data: {
   eventType: string
   location?: string
@@ -106,7 +123,6 @@ export function recordSaleAPI(traceId: number, data: {
   return http<void>({ url: `/api/traceability/trace/${traceId}/sale`, method: 'post', data })
 }
 
-// Verification API
 export function verifyProductAPI(productId: string, batchNumber: string) {
   return http<{ verified: boolean }>({
     url: '/api/traceability/verify',

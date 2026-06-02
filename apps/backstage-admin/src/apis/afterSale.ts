@@ -107,3 +107,59 @@ export function batchRejectAfterSaleAPI(ids: number[], reason: string) {
     data: ids,
   })
 }
+
+// ==================== Admin APIs ====================
+
+export function getAfterSaleListAdminAPI(params: AfterSaleQueryParam) {
+  return http<{ data: AfterSale[]; total: number; pageNum: number; pageSize: number }>({
+    url: '/api/admin/after-sale/list',
+    method: 'get',
+    params: params,
+  })
+}
+
+export function getAfterSaleByIdAdminAPI(id: number) {
+  return http<AfterSale>({
+    url: '/api/admin/after-sale/' + id,
+    method: 'get',
+  })
+}
+
+export function processAfterSaleAdminAPI(data: AfterSaleProcessParam) {
+  return http<AfterSale>({
+    url: '/api/admin/after-sale/process',
+    method: 'post',
+    data: data,
+  })
+}
+
+export function batchApproveAfterSaleAdminAPI(ids: number[]) {
+  return http<{ success: boolean; count: number }>({
+    url: '/api/admin/after-sale/batch-approve',
+    method: 'post',
+    data: ids,
+  })
+}
+
+export function batchRejectAfterSaleAdminAPI(ids: number[], reason: string) {
+  return http({
+    url: '/api/admin/after-sale/batch-reject',
+    method: 'post',
+    data: { ids, reason },
+  })
+}
+
+export function getAfterSaleStatisticsAdminAPI() {
+  return http<AfterSaleStatistic>({
+    url: '/api/admin/after-sale/statistics',
+    method: 'get',
+  })
+}
+
+export function exportAfterSaleAdminAPI(params: AfterSaleQueryParam) {
+  return http<AfterSale[]>({
+    url: '/api/admin/after-sale/export',
+    method: 'get',
+    params: params,
+  })
+}

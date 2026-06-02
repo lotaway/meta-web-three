@@ -70,7 +70,7 @@ const handleQuery = () => {
   listLoading.value = true
   getCartListWithPromotionAPI()
     .then((res) => {
-      list.value = res || []
+      list.value = res.data || []
       total.value = list.value.length
     })
     .catch(() => {

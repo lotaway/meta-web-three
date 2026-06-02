@@ -6,6 +6,7 @@ import { Search, Plus, View, Check, Van, Box, Money } from '@element-plus/icons-
 import {
   registerProductAPI,
   getProductInfoAPI,
+  getProductListAPI,
   getTraceRecordAPI,
   getTraceEventsAPI,
   createTraceRecordAPI,
@@ -76,12 +77,19 @@ const traceTypeOptions = [
 const getList = async () => {
   listLoading.value = true
   try {
-    const mockData = [
-      { id: 1, productId: 'P001', productName: 'Organic Rice', batchNumber: 'B20250601', status: 'PRODUCED', registeredAt: '2026-06-01T10:00:00Z' },
-      { id: 2, productId: 'P002', productName: 'Green Tea', batchNumber: 'B20250602', status: 'IN_TRANSIT', registeredAt: '2026-06-01T09:00:00Z' },
-      { id: 3, productId: 'P003', productName: 'Dried Fruits', batchNumber: 'B20250530', status: 'DELIVERED', registeredAt: '2026-05-30T14:00:00Z' }
-    ]
-    list.value = mockData
+    const res = await getProductListAPI({
+      pageNum: listQuery.value.pageNum,
+      pageSize: listQuery.value.pageSize,
+      status: listQuery.value.status || undefined
+    })
+    list.value = (res.data.list || []).map((item: any) => ({
+      id: item.productId,
+      productId: item.productId,
+      productName: item.productName,
+      batchNumber: item.batchNumber || '',
+      status: item.isActive ? 'PRODUCED' : 'EXPIRED',
+      registeredAt: item.productionDate || new Date().toISOString()
+    }))
   } catch (error) {
     ElMessage.error('Failed to load products')
   } finally {

@@ -15,13 +15,18 @@ export interface RecommendationItem {
 }
 
 export interface RecommendationRule {
-  id: number
+  id?: number
   ruleName: string
   scene: string
   type: string
-  isActive: boolean
-  createdAt: string
-  updatedAt: string
+  status?: string
+  priority?: number
+  maxItems?: number
+  conditions?: string
+  exclusions?: string
+  boostFactor?: number
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface RecommendationQueryParam {

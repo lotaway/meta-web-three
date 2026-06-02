@@ -130,18 +130,16 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance } from 'element-plus'
 import {
-  getAlertListAPI,
-  getAlertsByStatusAPI,
-  getAlertsByLevelAPI,
+  getInventoryAlertListAPI,
   getHighPriorityAlertsAPI,
-  resolveAlertAPI,
-  ignoreAlertAPI,
+  resolveInventoryAlertAPI,
+  ignoreInventoryAlertAPI,
   type InventoryAlert
 } from '@/apis/inventoryAlert'
 
 const queryParams = reactive({
-  status: null as number | null,
-  alertLevel: null as number | null
+  status: undefined as number | undefined,
+  alertLevel: undefined as number | undefined
 })
 
 const alertList = ref<InventoryAlert[]>([])
@@ -189,8 +187,8 @@ const updateStats = (list: InventoryAlert[]) => {
 
 const loadAlertList = async () => {
   try {
-    const response = await getAlertListAPI()
-    alertList.value = response.data || []
+    const response = await getInventoryAlertListAPI(queryParams)
+    alertList.value = response.data?.list || []
     updateStats(alertList.value)
   } catch (error) {
     ElMessage.error('Failed to load alerts')
@@ -199,15 +197,8 @@ const loadAlertList = async () => {
 
 const handleQuery = async () => {
   try {
-    let response
-    if (queryParams.status !== null) {
-      response = await getAlertsByStatusAPI(queryParams.status)
-    } else if (queryParams.alertLevel !== null) {
-      response = await getAlertsByLevelAPI(queryParams.alertLevel)
-    } else {
-      response = await getAlertListAPI()
-    }
-    alertList.value = response.data || []
+    const response = await getInventoryAlertListAPI(queryParams)
+    alertList.value = response.data?.list || []
     updateStats(alertList.value)
   } catch (error) {
     ElMessage.error('Failed to load alerts')
@@ -215,8 +206,8 @@ const handleQuery = async () => {
 }
 
 const resetQuery = () => {
-  queryParams.status = null
-  queryParams.alertLevel = null
+  queryParams.status = undefined
+  queryParams.alertLevel = undefined
   loadAlertList()
 }
 
@@ -238,7 +229,7 @@ const handleResolve = (row: InventoryAlert) => {
 
 const submitResolve = async () => {
   try {
-    await resolveAlertAPI(resolveForm.alertId, resolveForm.remark)
+    await resolveInventoryAlertAPI(resolveForm.alertId, resolveForm.remark)
     ElMessage.success('Alert resolved successfully')
     resolveDialogVisible.value = false
     loadAlertList()
@@ -254,7 +245,7 @@ const handleIgnore = async (row: InventoryAlert) => {
       cancelButtonText: 'Cancel',
       type: 'warning'
     })
-    await ignoreAlertAPI(row.id)
+    await ignoreInventoryAlertAPI(row.id)
     ElMessage.success('Alert ignored')
     loadAlertList()
   } catch {

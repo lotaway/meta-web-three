@@ -135,86 +135,86 @@ export interface DepartmentUpdateCommand {
 
 // Employee APIs
 export const getEmployeeById = (id: number) => {
-  return http<CommonResult<Employee>>({ url: `/api/hrm/employee/${id}`, method: 'get' })
+  return http<Employee>({ url: `/api/hrm/employee/${id}`, method: 'get' })
 }
 
 export const getAllEmployees = () => {
-  return http<CommonResult<Employee[]>>({ url: '/api/hrm/employee/list', method: 'get' })
+  return http<Employee[]>({ url: '/api/hrm/employee/list', method: 'get' })
 }
 
 export const getEmployeesByDepartment = (departmentId: number) => {
-  return http<CommonResult<Employee[]>>({ url: `/api/hrm/employee/department/${departmentId}`, method: 'get' })
+  return http<Employee[]>({ url: `/api/hrm/employee/department/${departmentId}`, method: 'get' })
 }
 
 export const getEmployeesByPosition = (positionId: number) => {
-  return http<CommonResult<Employee[]>>({ url: `/api/hrm/employee/position/${positionId}`, method: 'get' })
+  return http<Employee[]>({ url: `/api/hrm/employee/position/${positionId}`, method: 'get' })
 }
 
 export const getEmployeesByStatus = (status: number) => {
-  return http<CommonResult<Employee[]>>({ url: `/api/hrm/employee/status/${status}`, method: 'get' })
+  return http<Employee[]>({ url: `/api/hrm/employee/status/${status}`, method: 'get' })
 }
 
 export const getEmployeeByNo = (employeeNo: string) => {
-  return http<CommonResult<Employee>>({ url: `/api/hrm/employee/no/${employeeNo}`, method: 'get' })
+  return http<Employee>({ url: `/api/hrm/employee/no/${employeeNo}`, method: 'get' })
 }
 
 export const searchEmployees = (keywords: string) => {
-  return http<CommonResult<Employee[]>>({ url: '/api/hrm/employee/search', method: 'get', params: { keywords } })
+  return http<Employee[]>({ url: '/api/hrm/employee/search', method: 'get', params: { keywords } })
 }
 
 export const getFormalEmployees = () => {
-  return http<CommonResult<Employee[]>>({ url: '/api/hrm/employee/formal', method: 'get' })
+  return http<Employee[]>({ url: '/api/hrm/employee/formal', method: 'get' })
 }
 
 export const getProbationEmployees = () => {
-  return http<CommonResult<Employee[]>>({ url: '/api/hrm/employee/probation', method: 'get' })
+  return http<Employee[]>({ url: '/api/hrm/employee/probation', method: 'get' })
 }
 
 export const createEmployee = (data: EmployeeCreateCommand) => {
-  return http<CommonResult<Employee>>({ url: '/api/hrm/employee', method: 'post', data })
+  return http<Employee>({ url: '/api/hrm/employee', method: 'post', data })
 }
 
 export const updateEmployee = (data: EmployeeUpdateCommand) => {
-  return http<CommonResult<Employee>>({ url: '/api/hrm/employee', method: 'put', data })
+  return http<Employee>({ url: '/api/hrm/employee', method: 'put', data })
 }
 
 export const deleteEmployee = (id: number) => {
-  return http<CommonResult<void>>({ url: `/api/hrm/employee/${id}`, method: 'delete' })
+  return http<void>({ url: `/api/hrm/employee/${id}`, method: 'delete' })
 }
 
 // Department APIs
 export const getDepartmentById = (id: number) => {
-  return http<CommonResult<Department>>({ url: `/api/hrm/department/${id}`, method: 'get' })
+  return http<Department>({ url: `/api/hrm/department/${id}`, method: 'get' })
 }
 
 export const getAllDepartments = () => {
-  return http<CommonResult<Department[]>>({ url: '/api/hrm/department/list', method: 'get' })
+  return http<Department[]>({ url: '/api/hrm/department/list', method: 'get' })
 }
 
 export const getDepartmentTree = () => {
-  return http<CommonResult<Department[]>>({ url: '/api/hrm/department/tree', method: 'get' })
+  return http<Department[]>({ url: '/api/hrm/department/tree', method: 'get' })
 }
 
 export const getDepartmentChildren = (parentId: number) => {
-  return http<CommonResult<Department[]>>({ url: `/api/hrm/department/children/${parentId}`, method: 'get' })
+  return http<Department[]>({ url: `/api/hrm/department/children/${parentId}`, method: 'get' })
 }
 
 export const getDepartmentsByLevel = (level: number) => {
-  return http<CommonResult<Department[]>>({ url: `/api/hrm/department/level/${level}`, method: 'get' })
+  return http<Department[]>({ url: `/api/hrm/department/level/${level}`, method: 'get' })
 }
 
 export const getDepartmentByCode = (code: string) => {
-  return http<CommonResult<Department>>({ url: `/api/hrm/department/code/${code}`, method: 'get' })
+  return http<Department>({ url: `/api/hrm/department/code/${code}`, method: 'get' })
 }
 
 export const createDepartment = (data: DepartmentCreateCommand) => {
-  return http<CommonResult<Department>>({ url: '/api/hrm/department', method: 'post', data })
+  return http<Department>({ url: '/api/hrm/department', method: 'post', data })
 }
 
 export const updateDepartment = (data: DepartmentUpdateCommand) => {
-  return http<CommonResult<Department>>({ url: '/api/hrm/department', method: 'put', data })
+  return http<Department>({ url: '/api/hrm/department', method: 'put', data })
 }
 
 export const deleteDepartment = (id: number) => {
-  return http<CommonResult<void>>({ url: `/api/hrm/department/${id}`, method: 'delete' })
+  return http<void>({ url: `/api/hrm/department/${id}`, method: 'delete' })
 }

@@ -177,6 +177,10 @@ const submitForm = async () => {
 }
 
 const handleActivate = async (row: RecommendationRule) => {
+  if (!row.id) {
+    ElMessage.warning('Invalid rule ID')
+    return
+  }
   try {
     await activateRuleAPI(row.id)
     ElMessage.success('Rule activated successfully')
@@ -187,6 +191,10 @@ const handleActivate = async (row: RecommendationRule) => {
 }
 
 const handleDelete = async (row: RecommendationRule) => {
+  if (!row.id) {
+    ElMessage.warning('Invalid rule ID')
+    return
+  }
   try {
     await ElMessageBox.confirm('Are you sure to delete this rule?', 'Warning', {
       confirmButtonText: 'Confirm',

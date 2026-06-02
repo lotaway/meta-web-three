@@ -296,7 +296,7 @@ const handleSubmitEmployee = async () => {
         gender: empFormData.value.gender,
         birthday: empFormData.value.birthday,
         idCard: empFormData.value.idCard,
-        phone: empFormData.value.phone,
+        mobile: empFormData.value.mobile,
         email: empFormData.value.email,
         departmentId: empFormData.value.departmentId,
         departmentName: empFormData.value.departmentName,
@@ -324,7 +324,7 @@ const handleSubmitEmployee = async () => {
         gender: empFormData.value.gender,
         birthday: empFormData.value.birthday,
         idCard: empFormData.value.idCard,
-        phone: empFormData.value.phone,
+        mobile: empFormData.value.mobile,
         email: empFormData.value.email,
         departmentId: empFormData.value.departmentId,
         departmentName: empFormData.value.departmentName,
@@ -484,8 +484,7 @@ onMounted(() => {
         <el-card class="search-card">
           <el-form :inline="true" :model="{}" class="search-form">
             <el-form-item :label="t('hrm.department')">
-              <el-select :model-value="selectedDeptId" @change="handleDeptChange" clearable :placeholder="t('common.selectPlaceholder')">
-                <el-option :label="t('hrm.allDepartments')" :value="null" />
+              <el-select :model-value="selectedDeptId" @change="handleDeptChange" clearable placeholder="All Departments">
                 <el-option v-for="dept in deptList" :key="dept.id" :label="dept.departmentName" :value="dept.id!" />
               </el-select>
             </el-form-item>

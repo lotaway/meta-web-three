@@ -2,6 +2,124 @@ import type { CommonPage } from '@/types/common'
 import type { Recommendation, RecommendationRule } from '@/types/recommendation'
 import http from '@/utils/http'
 
+// ==================== Admin API for Recommendation Management ====================
+
+export interface RecommendationRuleQueryParams {
+  pageNum?: number
+  pageSize?: number
+  ruleName?: string
+  scene?: string
+  status?: string
+}
+
+export interface CreateRecommendationRuleParams {
+  ruleName: string
+  scene: string
+  type: string
+  priority?: number
+  maxItems?: number
+  conditions?: string
+  exclusions?: string
+  boostFactor?: number
+}
+
+export interface RecommendationQueryParams {
+  pageNum?: number
+  pageSize?: number
+  userId?: number
+  scene?: string
+}
+
+export interface RecommendationStatistics {
+  totalRules: number
+  activeRules: number
+  totalRecommendations: number
+}
+
+// Get recommendation rule list (admin)
+export function getRecommendationRuleListAPI(params: RecommendationRuleQueryParams) {
+  return http<CommonPage<RecommendationRule>>({
+    url: '/api/admin/recommendation/rule/list',
+    method: 'get',
+    params,
+  })
+}
+
+// Get recommendation rule by ID (admin)
+export function getRecommendationRuleByIdAPI(id: number) {
+  return http<RecommendationRule>({
+    url: `/api/admin/recommendation/rule/${id}`,
+    method: 'get',
+  })
+}
+
+// Create recommendation rule (admin)
+export function createRecommendationRuleAPI(data: CreateRecommendationRuleParams) {
+  return http<RecommendationRule>({
+    url: '/api/admin/recommendation/rule',
+    method: 'post',
+    data,
+  })
+}
+
+// Update recommendation rule (admin)
+export function updateRecommendationRuleAPI(id: number, data: Partial<CreateRecommendationRuleParams>) {
+  return http({
+    url: `/api/admin/recommendation/rule/${id}`,
+    method: 'put',
+    data,
+  })
+}
+
+// Delete recommendation rule (admin)
+export function deleteRecommendationRuleAPI(id: number) {
+  return http({
+    url: `/api/admin/recommendation/rule/${id}`,
+    method: 'delete',
+  })
+}
+
+// Activate recommendation rule
+export function activateRecommendationRuleAPI(id: number) {
+  return http({
+    url: `/api/admin/recommendation/rule/${id}/activate`,
+    method: 'put',
+  })
+}
+
+// Pause recommendation rule
+export function pauseRecommendationRuleAPI(id: number) {
+  return http({
+    url: `/api/admin/recommendation/rule/${id}/pause`,
+    method: 'put',
+  })
+}
+
+// Archive recommendation rule
+export function archiveRecommendationRuleAPI(id: number) {
+  return http({
+    url: `/api/admin/recommendation/rule/${id}/archive`,
+    method: 'put',
+  })
+}
+
+// Get recommendation records (admin)
+export function getRecommendationListAPI(params: RecommendationQueryParams) {
+  return http<CommonPage<Recommendation>>({
+    url: '/api/admin/recommendation/list',
+    method: 'get',
+    params,
+  })
+}
+
+// Get recommendation statistics
+export function getRecommendationStatisticsAPI() {
+  return http<RecommendationStatistics>({
+    url: '/api/admin/recommendation/statistics',
+    method: 'get',
+  })
+}
+
 // Re-export types for external usage
 export type { Recommendation, RecommendationRule }
 
