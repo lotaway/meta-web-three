@@ -23,6 +23,8 @@ export default {
     selectPlaceholder: '请选择',
     activate: '激活',
     deactivate: '停用',
+    home: '首页',
+    logout: '退出',
     loadFailed: '加载失败',
     createSuccess: '创建成功',
     createFailed: '创建失败',

@@ -5,8 +5,10 @@ import Hamburger from '@/components/Hamburger/index.vue'
 import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
 import { ArrowDown } from '@element-plus/icons-vue'
+import { getLocale, setLocale, t, type LocaleType } from '@/locales'
+import { ElMessage } from 'element-plus'
 
-// 定义组件名称
+// Define component name
 defineOptions({
   name: 'Navbar'
 })
@@ -17,15 +19,29 @@ const userStore = useUserStore()
 const sidebar = computed(() => appStore.sidebar)
 const avatar = computed(() => userStore.userInfo.avatar)
 
-// 处理开关侧边栏操作
+// Current locale
+const currentLang = computed(() => getLocale())
+
+// i18n text
+const homeText = computed(() => t('common.home'))
+const logoutText = computed(() => t('common.logout'))
+
+// Handle sidebar toggle
 const handleToggleSideBar = () => {
   appStore.toggleSideBar()
 }
 
-// 处理用户登出
+// Handle user logout
 const handleLogout = async () => {
   await userStore.userLogout()
-  // 为了重新实例化vue-router对象 避免bug
+  // Reload to reinitialize vue-router
+  location.reload()
+}
+
+// Handle language switch
+const handleSwitchLanguage = (lang: LocaleType) => {
+  setLocale(lang)
+  // Reload to apply new locale
   location.reload()
 }
 </script>
@@ -34,6 +50,27 @@ const handleLogout = async () => {
   <el-menu class="navbar" mode="horizontal">
     <hamburger class="hamburger-container" :toggle-click="handleToggleSideBar" :is-active="sidebar.opened"></hamburger>
     <breadcrumb></breadcrumb>
+    
+    <!-- Language Switcher -->
+    <el-dropdown class="language-container" trigger="click" @command="handleSwitchLanguage">
+      <div class="language-wrapper">
+        <span class="language-text">{{ currentLang === 'zh-CN' ? '中文' : 'EN' }}</span>
+        <el-icon class="el-icon-caret-bottom">
+          <arrow-down />
+        </el-icon>
+      </div>
+      <template #dropdown>
+        <el-dropdown-menu>
+          <el-dropdown-item :command="'zh-CN'" :disabled="currentLang === 'zh-CN'">
+            中文
+          </el-dropdown-item>
+          <el-dropdown-item :command="'en-US'" :disabled="currentLang === 'en-US'">
+            English
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </template>
+    </el-dropdown>
+    
     <el-dropdown class="avatar-container" trigger="click">
       <div class="avatar-wrapper">
         <img class="user-avatar" :src="avatar">
@@ -45,11 +82,11 @@ const handleLogout = async () => {
         <el-dropdown-menu class="user-dropdown">
           <router-link class="inlineBlock" to="/">
             <el-dropdown-item>
-              首页
+              {{ homeText }}
             </el-dropdown-item>
           </router-link>
           <el-dropdown-item divided>
-            <span @click="handleLogout" style="display:block;">退出</span>
+            <span @click="handleLogout" style="display:block;">{{ logoutText }}</span>
           </el-dropdown-item>
         </el-dropdown-menu>
       </template>
@@ -75,6 +112,29 @@ const handleLogout = async () => {
     right: 90px;
     top: 16px;
     color: red;
+  }
+
+  .language-container {
+    height: 50px;
+    display: inline-block;
+    position: absolute;
+    right: 120px;
+    cursor: pointer;
+
+    .language-wrapper {
+      display: flex;
+      align-items: center;
+      height: 50px;
+      
+      .language-text {
+        font-size: 14px;
+        margin-right: 5px;
+      }
+
+      .el-icon-caret-bottom {
+        font-size: 12px;
+      }
+    }
   }
 
   .avatar-container {

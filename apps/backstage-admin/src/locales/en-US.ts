@@ -23,6 +23,8 @@ export default {
     selectPlaceholder: 'Please select',
     activate: 'Activate',
     deactivate: 'Deactivate',
+    home: 'Home',
+    logout: 'Logout',
   },
   upload: {
     clickToUpload: 'Click to upload',

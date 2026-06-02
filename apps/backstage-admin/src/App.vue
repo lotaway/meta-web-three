@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ElConfigProvider } from 'element-plus'
-import zhCn from 'element-plus/es/locale/lang/zh-cn'
+import { currentElementLocale } from '@/locales'
 </script>
 
 <template>
-  <!-- 通过ConfigProvider全局设置国际化 -->
-  <el-config-provider :locale="zhCn">
+  <!-- Global i18n configuration for Element Plus -->
+  <el-config-provider :locale="currentElementLocale">
     <div id="app">
       <router-view />
     </div>
