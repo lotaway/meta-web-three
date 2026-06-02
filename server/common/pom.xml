@@ -15,28 +15,12 @@
   <packaging>jar</packaging>
 
   <dependencies>
-    <!-- Kept only dependencies truly specific to common module -->
     <!-- Spring Security Crypto (BCrypt) - needed for password encoding -->
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-crypto</artifactId>
     </dependency>
-    <!-- Elasticsearch Java Client -->
-    <dependency>
-      <groupId>co.elastic.clients</groupId>
-      <artifactId>elasticsearch-java</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.elasticsearch.client</groupId>
-      <artifactId>elasticsearch-rest-client</artifactId>
-      <version>${elasticsearch-java.version}</version>
-    </dependency>
-    <!-- MinIO Object Storage -->
-    <dependency>
-      <groupId>io.minio</groupId>
-      <artifactId>minio</artifactId>
-      <version>8.5.9</version>
-    </dependency>
+    <!-- Note: Elasticsearch, MinIO, Redis, Kafka, WebFlux, Caffeine dependencies are now in parent pom.xml and inherited by all modules -->
   </dependencies>
 
   <build>
