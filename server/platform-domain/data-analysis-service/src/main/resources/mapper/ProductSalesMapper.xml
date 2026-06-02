@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metawebthree.dataanalysis.infrastructure.persistence.mapper.ProductSalesMapper">
+
+    <resultMap id="BaseResultMap" type="com.metawebthree.dataanalysis.domain.entity.ProductSalesDO">
+        <id column="id" property="id"/>
+        <result column="date" property="date"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_name" property="productName"/>
+        <result column="category" property="category"/>
+        <result column="sales_count" property="salesCount"/>
+        <result column="sales_amount" property="salesAmount"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.metawebthree.dataanalysis.domain.entity.ProductSalesDO">
+        INSERT INTO product_sales (date, product_id, product_name, category, sales_count, sales_amount, create_time, update_time)
+        VALUES (#{date}, #{productId}, #{productName}, #{category}, #{salesCount}, #{salesAmount}, NOW(), NOW())
+    </insert>
+
+    <update id="updateById" parameterType="com.metawebthree.dataanalysis.domain.entity.ProductSalesDO">
+        UPDATE product_sales
+        SET date = #{date}, product_id = #{productId}, product_name = #{productName},
+            category = #{category}, sales_count = #{salesCount}, sales_amount = #{salesAmount}, 
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectByDateAndProductId" resultMap="BaseResultMap">
+        SELECT * FROM product_sales WHERE date = #{date} AND product_id = #{productId}
+    </select>
+
+    <select id="selectByDate" resultMap="BaseResultMap">
+        SELECT * FROM product_sales WHERE date = #{date} ORDER BY sales_count DESC
+    </select>
+
+    <select id="selectTopProducts" resultMap="BaseResultMap">
+        SELECT * FROM product_sales 
+        WHERE date = #{date} 
+        ORDER BY sales_count DESC 
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectByDateRange" resultMap="BaseResultMap">
+        SELECT * FROM product_sales 
+        WHERE date BETWEEN #{startDate} AND #{endDate} 
+        ORDER BY date DESC, sales_count DESC
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT * FROM product_sales ORDER BY date DESC, sales_count DESC
+    </select>
+
+</mapper>

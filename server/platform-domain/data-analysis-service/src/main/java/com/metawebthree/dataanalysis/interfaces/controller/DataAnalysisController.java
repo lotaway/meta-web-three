@@ -68,4 +68,9 @@ public class DataAnalysisController {
     public List<InventoryAnalysisDTO> getOverstockProducts() {
         return inventoryAnalysisQueryService.getOverstockProducts();
     }
+
+    @GetMapping("/dashboard/realtime")
+    public RealTimeDashboardDTO getRealTimeDashboard() {
+        return salesStatisticsQueryService.getRealTimeDashboard();
+    }
 }

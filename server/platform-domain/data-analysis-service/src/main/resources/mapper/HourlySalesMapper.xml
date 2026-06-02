@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metawebthree.dataanalysis.infrastructure.persistence.mapper.HourlySalesMapper">
+
+    <resultMap id="BaseResultMap" type="com.metawebthree.dataanalysis.domain.entity.HourlySalesDO">
+        <id column="id" property="id"/>
+        <result column="date" property="date"/>
+        <result column="hour" property="hour"/>
+        <result column="order_count" property="orderCount"/>
+        <result column="total_amount" property="totalAmount"/>
+        <result column="visitor_count" property="visitorCount"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.metawebthree.dataanalysis.domain.entity.HourlySalesDO">
+        INSERT INTO hourly_sales (date, hour, order_count, total_amount, visitor_count, create_time, update_time)
+        VALUES (#{date}, #{hour}, #{orderCount}, #{totalAmount}, #{visitorCount}, NOW(), NOW())
+    </insert>
+
+    <update id="updateById" parameterType="com.metawebthree.dataanalysis.domain.entity.HourlySalesDO">
+        UPDATE hourly_sales
+        SET date = #{date}, hour = #{hour}, order_count = #{orderCount},
+            total_amount = #{totalAmount}, visitor_count = #{visitorCount}, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectByDateAndHour" resultMap="BaseResultMap">
+        SELECT * FROM hourly_sales WHERE date = #{date} AND hour = #{hour}
+    </select>
+
+    <select id="selectByDate" resultMap="BaseResultMap">
+        SELECT * FROM hourly_sales WHERE date = #{date} ORDER BY hour ASC
+    </select>
+
+    <select id="selectByDateRange" resultMap="BaseResultMap">
+        SELECT * FROM hourly_sales WHERE date BETWEEN #{startDate} AND #{endDate} ORDER BY date, hour ASC
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT * FROM hourly_sales ORDER BY date DESC, hour DESC
+    </select>
+
+</mapper>
