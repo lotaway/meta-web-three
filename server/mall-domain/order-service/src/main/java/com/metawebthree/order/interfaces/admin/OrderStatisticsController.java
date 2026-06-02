@@ -1,7 +1,7 @@
 package com.metawebthree.order.interfaces.admin;
 
-import com.metawebthree.common.response.ApiResponse;
-import com.metawebthree.order.application.service.AdminOrderQueryService;
+import com.metawebthree.common.dto.ApiResponse;
+import com.metawebthree.order.application.AdminOrderQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
