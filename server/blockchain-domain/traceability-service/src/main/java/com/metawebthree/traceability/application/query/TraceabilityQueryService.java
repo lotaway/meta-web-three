@@ -12,6 +12,8 @@ import com.metawebthree.traceability.infrastructure.persistence.mapper.TraceReco
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,9 +26,13 @@ public class TraceabilityQueryService {
     private final TraceRecordMapper traceRecordMapper;
     private final TraceEventMapper traceEventMapper;
 
-    private static final String[] STATUS_NAMES = {
-        "Created", "ProductionCompleted", "InTransit", "Delivered", "Sold"
-    };
+    private enum ProductStatus {
+        CREATED,
+        PRODUCTION_COMPLETED,
+        IN_TRANSIT,
+        DELIVERED,
+        SOLD
+    }
 
     public TraceRecordDTO getTraceRecord(Long traceId) {
         TraceRecordDO record = traceRecordMapper.selectByTraceId(traceId);
@@ -41,7 +47,7 @@ public class TraceabilityQueryService {
         dto.setBatchNumber(record.getBatchNumber());
         dto.setProducer(record.getProducer());
         dto.setProductionTime(record.getProductionTime());
-        dto.setStatus(STATUS_NAMES[record.getStatus()]);
+        dto.setStatus(ProductStatus.values()[record.getStatus()].name());
 
         List<TraceEventDO> events = traceEventMapper.selectByTraceId(traceId);
         List<TraceEventDTO> eventDTOs = events.stream()
@@ -84,11 +90,46 @@ public class TraceabilityQueryService {
     public boolean verifyProduct(String productId, String batchNumber) {
         List<TraceRecordDO> records = traceRecordMapper.selectByProductId(productId);
         for (TraceRecordDO record : records) {
-            if (record.getBatchNumber().equals(batchNumber)) {
+            if (record.getBatchNumber() != null && record.getBatchNumber().equals(batchNumber)) {
                 return true;
             }
         }
         return false;
+    }
+
+    public List<ProductInfoDTO> listProducts(String status, Integer pageNum, Integer pageSize) {
+        LambdaQueryWrapper<ProductInfoDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(status != null && !status.isEmpty(), ProductInfoDO::getIsActive, "ACTIVE".equals(status));
+        wrapper.orderByDesc(ProductInfoDO::getCreateTime);
+
+        List<ProductInfoDO> products = productInfoMapper.selectList(wrapper);
+        int start = (pageNum - 1) * pageSize;
+        int end = Math.min(start + pageSize, products.size());
+        if (start >= products.size()) {
+            return List.of();
+        }
+
+        return products.subList(start, end).stream()
+            .map(this::toProductInfoDTO)
+            .collect(Collectors.toList());
+    }
+
+    public long countProducts(String status) {
+        LambdaQueryWrapper<ProductInfoDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(status != null && !status.isEmpty(), ProductInfoDO::getIsActive, "ACTIVE".equals(status));
+        return productInfoMapper.selectCount(wrapper);
+    }
+
+    private ProductInfoDTO toProductInfoDTO(ProductInfoDO doObj) {
+        ProductInfoDTO dto = new ProductInfoDTO();
+        dto.setProductId(doObj.getProductId());
+        dto.setProductName(doObj.getProductName());
+        dto.setCategory(doObj.getCategory());
+        dto.setManufacturer(doObj.getManufacturer());
+        dto.setProductionLocation(doObj.getProductionLocation());
+        dto.setProductionDate(doObj.getProductionDate());
+        dto.setIsActive(doObj.getIsActive());
+        return dto;
     }
 
     private TraceEventDTO toTraceEventDTO(TraceEventDO event) {

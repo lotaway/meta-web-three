@@ -131,4 +131,19 @@ public class TraceabilityController {
         boolean verified = queryService.verifyProduct(productId, batchNumber);
         return ResponseEntity.ok(Map.of("verified", verified));
     }
+
+    @GetMapping("/product/list")
+    public ResponseEntity<Map<String, Object>> listProducts(
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+        List<ProductInfoDTO> products = queryService.listProducts(status, pageNum, pageSize);
+        long total = queryService.countProducts(status);
+        return ResponseEntity.ok(Map.of(
+            "list", products,
+            "total", total,
+            "pageNum", pageNum,
+            "pageSize", pageSize
+        ));
+    }
 }
