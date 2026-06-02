@@ -15,10 +15,11 @@
   <packaging>jar</packaging>
 
   <dependencies>
-    <!-- Spring WebFlux for WebClient (non-blocking HTTP client) -->
+    <!-- Kept only dependencies truly specific to common module -->
+    <!-- Spring Security Crypto (BCrypt) - needed for password encoding -->
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-webflux</artifactId>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-crypto</artifactId>
     </dependency>
     <!-- Elasticsearch Java Client -->
     <dependency>
@@ -30,25 +31,11 @@
       <artifactId>elasticsearch-rest-client</artifactId>
       <version>${elasticsearch-java.version}</version>
     </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-    </dependency>
     <!-- MinIO Object Storage -->
     <dependency>
       <groupId>io.minio</groupId>
       <artifactId>minio</artifactId>
       <version>8.5.9</version>
-    </dependency>
-    <!-- Spring Security Crypto (BCrypt) -->
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-crypto</artifactId>
-    </dependency>
-    <!-- Spring Kafka -->
-    <dependency>
-      <groupId>org.springframework.kafka</groupId>
-      <artifactId>spring-kafka</artifactId>
     </dependency>
   </dependencies>
 
