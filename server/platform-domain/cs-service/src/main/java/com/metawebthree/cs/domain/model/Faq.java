@@ -1,12 +1,17 @@
 package com.metawebthree.cs.domain.model;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@TableName("cs_faq")
 public class Faq {
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String question;
     private String answer;

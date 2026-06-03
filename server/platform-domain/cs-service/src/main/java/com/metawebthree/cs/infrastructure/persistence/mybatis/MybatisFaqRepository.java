@@ -1,5 +1,7 @@
 package com.metawebthree.cs.infrastructure.persistence.mybatis;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.metawebthree.cs.domain.model.Faq;
 import com.metawebthree.cs.domain.repository.FaqRepository;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -40,8 +42,23 @@ public class MybatisFaqRepository implements FaqRepository {
     }
 
     @Override
+    public IPage<Faq> findAllPaged(Page<Faq> page) {
+        return faqMapper.selectPage(page, new LambdaQueryWrapper<Faq>()
+                .orderByDesc(Faq::getPriority)
+                .orderByDesc(Faq::getHitCount));
+    }
+
+    @Override
     public List<Faq> findByCategory(String category) {
         return faqMapper.findByCategory(category);
+    }
+
+    @Override
+    public IPage<Faq> findByCategoryPaged(Page<Faq> page, String category) {
+        return faqMapper.selectPage(page, new LambdaQueryWrapper<Faq>()
+                .eq(Faq::getCategory, category)
+                .orderByDesc(Faq::getPriority)
+                .orderByDesc(Faq::getHitCount));
     }
 
     @Override
@@ -52,6 +69,15 @@ public class MybatisFaqRepository implements FaqRepository {
     @Override
     public List<Faq> searchByKeyword(String keyword) {
         return faqMapper.searchByKeyword(keyword);
+    }
+
+    @Override
+    public IPage<Faq> searchByKeywordPaged(Page<Faq> page, String keyword) {
+        return faqMapper.selectPage(page, new LambdaQueryWrapper<Faq>()
+                .like(Faq::getQuestion, keyword)
+                .or().like(Faq::getAnswer, keyword)
+                .or().like(Faq::getKeywords, keyword)
+                .orderByDesc(Faq::getHitCount));
     }
 
     @Override
