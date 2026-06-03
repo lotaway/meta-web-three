@@ -10,10 +10,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-/**
- * Operation log entity for auditing user actions
- * Records who operated on what data at what time
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

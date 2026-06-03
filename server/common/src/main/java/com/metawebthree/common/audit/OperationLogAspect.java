@@ -20,16 +20,17 @@ import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
-/**
- * AOP aspect for automatic operation logging
- * Records who operated on what data at what time
- */
 @Aspect
 @Component
 public class OperationLogAspect {
 
     private static final Logger log = LoggerFactory.getLogger(OperationLogAspect.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final int MAX_PARAMS_LENGTH = 2000;
+    private static final int MAX_ERROR_MSG_LENGTH = 500;
+    private static final String STATUS_SUCCESS = "SUCCESS";
+    private static final String STATUS_FAILURE = "FAILURE";
+    private static final String UNKNOWN_ERROR = "Unknown error";
 
     @Autowired
     private OperationLogService operationLogService;
@@ -42,118 +43,120 @@ public class OperationLogAspect {
         com.metawebthree.common.annotations.LogMethod logMethod = method.getAnnotation(
                 com.metawebthree.common.annotations.LogMethod.class);
 
+        OperationLog operationLog = initOperationLog(logMethod, signature, method);
+        setUserInfoFromAuth(operationLog);
+        setRequestInfoFromContext(joinPoint, operationLog);
+        extractEntityInfo(joinPoint.getArgs(), operationLog);
+
+        return executeWithLogging(joinPoint, operationLog, startTime);
+    }
+
+    private Object executeWithLogging(ProceedingJoinPoint joinPoint, OperationLog operationLog, long startTime) throws Throwable {
+        try {
+            Object result = joinPoint.proceed();
+            operationLog.setStatus(STATUS_SUCCESS);
+            return result;
+        } catch (Exception e) {
+            operationLog.setStatus(STATUS_FAILURE);
+            operationLog.setErrorMessage(truncateErrorMessage(e));
+            throw e;
+        } finally {
+            operationLog.setExecutionTime(System.currentTimeMillis() - startTime);
+            saveOperationLog(operationLog);
+        }
+    }
+
+    private OperationLog initOperationLog(com.metawebthree.common.annotations.LogMethod logMethod,
+                                           MethodSignature signature, Method method) {
         OperationLog operationLog = new OperationLog();
         operationLog.setOperationTime(LocalDateTime.now());
         operationLog.setOperation(logMethod.value());
         operationLog.setMethod(signature.getDeclaringTypeName() + "." + method.getName());
+        return operationLog;
+    }
 
-        // Get current user info
+    private void setUserInfoFromAuth(OperationLog operationLog) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null && authentication.isAuthenticated()) {
                 String username = authentication.getName();
                 operationLog.setUsername(username);
-                // Try to extract userId from authentication details if available
                 if (authentication.getDetails() != null) {
                     operationLog.setUserId(tryExtractUserId(authentication));
                 }
             }
         } catch (Exception e) {
-            log.warn("Failed to extract user info: {}", e.getMessage());
+            log.error("Failed to extract user info", e);
         }
+    }
 
-        // Get request info
+    private void setRequestInfoFromContext(ProceedingJoinPoint joinPoint, OperationLog operationLog) {
         try {
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if (attributes != null) {
                 HttpServletRequest request = attributes.getRequest();
                 operationLog.setIp(getClientIp(request));
-                // Log request parameters
                 try {
                     String params = objectMapper.writeValueAsString(joinPoint.getArgs());
-                    operationLog.setParams(params.length() > 2000 ? params.substring(0, 2000) : params);
+                    operationLog.setParams(params.length() > MAX_PARAMS_LENGTH ? params.substring(0, MAX_PARAMS_LENGTH) : params);
                 } catch (JsonProcessingException e) {
                     operationLog.setParams(Arrays.toString(joinPoint.getArgs()));
                 }
             }
         } catch (Exception e) {
-            log.warn("Failed to extract request info: {}", e.getMessage());
+            log.error("Failed to extract request info", e);
         }
+    }
 
-        // Extract entity info from method parameters if available
-        extractEntityInfo(joinPoint.getArgs(), operationLog);
+    private String truncateErrorMessage(Exception e) {
+        String msg = e.getMessage();
+        if (msg == null) return UNKNOWN_ERROR;
+        return msg.length() > MAX_ERROR_MSG_LENGTH ? msg.substring(0, MAX_ERROR_MSG_LENGTH) : msg;
+    }
 
-        Object result = null;
+    private void saveOperationLog(OperationLog operationLog) {
         try {
-            result = joinPoint.proceed();
-            operationLog.setStatus("SUCCESS");
-            return result;
+            operationLogService.save(operationLog);
         } catch (Exception e) {
-            operationLog.setStatus("FAILURE");
-            operationLog.setErrorMessage(e.getMessage() != null ?
-                    e.getMessage().length() > 500 ? e.getMessage().substring(0, 500) : e.getMessage()
-                    : "Unknown error");
-            throw e;
-        } finally {
-            long endTime = System.currentTimeMillis();
-            operationLog.setExecutionTime(endTime - startTime);
-
-            // Save operation log asynchronously to avoid affecting main business logic
-            try {
-                operationLogService.save(operationLog);
-            } catch (Exception e) {
-                log.error("Failed to save operation log: {}", e.getMessage());
-            }
+            log.error("Failed to save operation log", e);
         }
     }
 
-    /**
-     * Extract user ID from authentication
-     */
     private Long tryExtractUserId(Authentication authentication) {
-        // This can be customized based on actual authentication structure
-        // For example, if Principal is a custom UserDetails implementation
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
-            // Custom logic to extract userId from UserDetails
-            // This depends on actual implementation
-        }
-        return null; // Return null if cannot extract
+        return null;
     }
 
-    /**
-     * Extract entity type and ID from method parameters
-     */
     private void extractEntityInfo(Object[] args, OperationLog operationLog) {
         if (args == null || args.length == 0) {
             return;
         }
-
         for (Object arg : args) {
-            if (arg == null) {
-                continue;
-            }
-
-            // Check if argument has getId() method (common for entities)
-            try {
-                Method getIdMethod = arg.getClass().getMethod("getId");
-                if (getIdMethod != null) {
-                    Object id = getIdMethod.invoke(arg);
-                    if (id != null) {
-                        operationLog.setEntityType(arg.getClass().getSimpleName());
-                        operationLog.setEntityId(Long.valueOf(id.toString()));
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                // Ignore, argument doesn't have getId() method
+            if (trySetEntityInfo(arg, operationLog)) {
+                break;
             }
         }
     }
 
-    /**
-     * Get client IP address
-     */
+    private boolean trySetEntityInfo(Object arg, OperationLog operationLog) {
+        if (arg == null) {
+            return false;
+        }
+        try {
+            Method getIdMethod = arg.getClass().getMethod("getId");
+            Object id = getIdMethod.invoke(arg);
+            if (id != null) {
+                operationLog.setEntityType(arg.getClass().getSimpleName());
+                operationLog.setEntityId(Long.valueOf(id.toString()));
+                return true;
+            }
+        } catch (NoSuchMethodException e) {
+            log.trace("Argument {} has no getId() method", arg.getClass().getName());
+        } catch (Exception e) {
+            log.warn("Error extracting entity info from {}", arg.getClass().getName(), e);
+        }
+        return false;
+    }
+
     private String getClientIp(HttpServletRequest request) {
         String[] headerNames = {
                 "X-Forwarded-For",
