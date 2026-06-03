@@ -84,9 +84,9 @@ springdoc:
   api-docs:
     path: /v3/api-docs
   group-configs:
-    - group: 'all'
-      paths-to-match: '/**'
-      packages-to-scan: 'com.metawebthree'
+    - group: "all"
+      paths-to-match: "/**"
+      packages-to-scan: "com.metawebthree"
 
 # Resilience4j 熔断与降级配置
 resilience4j:
@@ -128,6 +128,13 @@ resilience4j:
       backend:
         timeoutDuration: 3s
         cancelRunningFuture: true
+
+# Dubbo configuration
+dubbo:
+  application:
+    name: gateway
+  protocol:
+    port: 20881
 ---
 spring:
   config:

@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package com.metawebthree.common.generated.rpc;
+
+option java_multiple_files = true;
+
+service CategoryService {
+    rpc getCategoryById(GetCategoryByIdRequest) returns (GetCategoryByIdResponse);
+    rpc getCategories(GetCategoriesRequest) returns (GetCategoriesResponse);
+    rpc getCategoryTree(GetCategoryTreeRequest) returns (GetCategoryTreeResponse);
+}
+
+message GetCategoryByIdRequest {
+    int64 id = 1;
+}
+
+message GetCategoryByIdResponse {
+    CategoryDTO category = 1;
+}
+
+message GetCategoriesRequest {
+    int32 page = 1;
+    int32 size = 2;
+}
+
+message GetCategoriesResponse {
+    repeated CategoryDTO categories = 1;
+    int64 totalCount = 2;
+}
+
+message GetCategoryTreeRequest {
+}
+
+message GetCategoryTreeResponse {
+    repeated CategoryNodeDTO tree = 1;
+}
+
+message CategoryDTO {
+    int64 id = 1;
+    string name = 2;
+    int64 parentId = 3;
+    int32 sortOrder = 4;
+    string icon = 5;
+    bool enabled = 6;
+}
+
+message CategoryNodeDTO {
+    int64 id = 1;
+    string name = 2;
+    int64 parentId = 3;
+    int32 sortOrder = 4;
+    string icon = 5;
+    bool enabled = 6;
+    repeated CategoryNodeDTO children = 7;
+}
