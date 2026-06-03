@@ -2,10 +2,17 @@ package com.metawebthree.recommendation.interfaces.controller;
 
 import com.metawebthree.recommendation.application.command.RecommendationCommandService;
 import com.metawebthree.recommendation.application.query.RecommendationQueryService;
+import com.metawebthree.recommendation.application.query.RecommendationQueryService.RecommendationMetrics;
 import com.metawebthree.recommendation.domain.entity.Recommendation;
+import com.metawebthree.recommendation.domain.entity.RecommendationResult;
 import com.metawebthree.recommendation.domain.entity.RecommendationRule;
+import com.metawebthree.recommendation.domain.entity.UserBehavior;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -29,13 +36,13 @@ public class RecommendationController {
         String scene = (String) request.get("scene");
         String algorithm = (String) request.get("algorithm");
         int maxItems = (Integer) request.getOrDefault("maxItems", 10);
-        
-        Recommendation.RecommendationAlgorithm algo = 
+
+        Recommendation.RecommendationAlgorithm algo =
             Recommendation.RecommendationAlgorithm.valueOf(algorithm.toUpperCase());
-        
+
         Long recommendationId = commandService.generateRecommendation(
             userId, scene, algo, maxItems);
-        
+
         return ResponseEntity.ok(Map.of("recommendationId", recommendationId));
     }
 
@@ -72,12 +79,12 @@ public class RecommendationController {
         String ruleName = (String) request.get("ruleName");
         String scene = (String) request.get("scene");
         String type = (String) request.get("type");
-        
-        RecommendationRule.RuleType ruleType = 
+
+        RecommendationRule.RuleType ruleType =
             RecommendationRule.RuleType.valueOf(type.toUpperCase());
-        
+
         Long ruleId = commandService.createRule(ruleName, scene, ruleType);
-        
+
         return ResponseEntity.ok(Map.of("ruleId", ruleId));
     }
 
@@ -96,5 +103,73 @@ public class RecommendationController {
     @GetMapping("/rule/scene/{scene}")
     public ResponseEntity<?> getRulesByScene(@PathVariable String scene) {
         return ResponseEntity.ok(queryService.getRulesByScene(scene));
+    }
+
+    @GetMapping("/user/{userId}/algorithm/{algorithm}")
+    public ResponseEntity<List<RecommendationResult>> getRecommendationsByAlgorithm(
+            @PathVariable Long userId,
+            @PathVariable String algorithm,
+            @RequestParam(defaultValue = "10") int limit) {
+        RecommendationResult.RecommendationAlgorithm algo =
+            RecommendationResult.RecommendationAlgorithm.valueOf(algorithm.toUpperCase());
+        List<RecommendationResult> recommendations =
+            queryService.getRecommendationsByAlgorithm(userId, algo, limit);
+        return ResponseEntity.ok(recommendations);
+    }
+
+    @PostMapping("/user/{userId}/generate")
+    public ResponseEntity<List<RecommendationResult>> generateRecommendations(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "10") int limit) {
+        List<RecommendationResult> recommendations =
+            commandService.generateRecommendationsByAlgorithm(userId, null, limit);
+        return ResponseEntity.ok(recommendations);
+    }
+
+    @GetMapping("/behavior/user/{userId}")
+    public ResponseEntity<List<UserBehavior>> getBehaviorHistory(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "50") int limit) {
+        List<UserBehavior> behaviors = queryService.getUserBehaviorHistory(userId, limit);
+        return ResponseEntity.ok(behaviors);
+    }
+
+    @PostMapping("/{recommendationId}/click")
+    public ResponseEntity<Void> markAsClicked(@PathVariable Long recommendationId) {
+        commandService.markRecommendationClicked(recommendationId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{recommendationId}/purchase")
+    public ResponseEntity<Void> markAsPurchased(@PathVariable Long recommendationId) {
+        commandService.markRecommendationPurchased(recommendationId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/metrics/user/{userId}")
+    public ResponseEntity<RecommendationMetrics> getMetrics(@PathVariable Long userId) {
+        RecommendationMetrics metrics = queryService.getRecommendationMetrics(userId);
+        return ResponseEntity.ok(metrics);
+    }
+
+    @GetMapping("/user/{userId}/paginated")
+    public ResponseEntity<Page<RecommendationResult>> getRecommendationsPaginated(
+            @PathVariable Long userId,
+            @PageableDefault(size = 20) Pageable pageable) {
+        Page<RecommendationResult> page = queryService.getRecommendationsPaginated(userId, pageable);
+        return ResponseEntity.ok(page);
+    }
+
+    @PostMapping("/admin/update-similarity")
+    public ResponseEntity<String> updateSimilarityMatrix() {
+        commandService.updateProductSimilarities();
+        return ResponseEntity.ok("Similarity matrix update triggered");
+    }
+
+    @PostMapping("/admin/cleanup")
+    public ResponseEntity<String> cleanupOldData(
+            @RequestParam(defaultValue = "90") int daysToKeep) {
+        commandService.cleanupOldData(daysToKeep);
+        return ResponseEntity.ok("Cleanup completed");
     }
 }

@@ -1,34 +1,24 @@
-package com.metawebthree.product_recommendation.domain.model;
+package com.metawebthree.recommendation.domain.entity;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
 
-public class Recommendation {
+public class RecommendationResult {
+
+    public enum RecommendationAlgorithm {
+        USER_BASED_CF, ITEM_BASED_CF, CONTENT_BASED, POPULARITY, TRENDING, DEEP_LEARNING, HYBRID, CONTEXT_AWARE
+    }
+
     private Long id;
     private Long userId;
     private Long productId;
-    private BigDecimal score;
-    private RecommendationType type;
+    private Double score;
+    private RecommendationAlgorithm algorithm;
     private String reason;
-    private Map<String, Object> features;
+    private Integer position;
     private LocalDateTime createdAt;
     private LocalDateTime expiresAt;
-
-    public Recommendation() {
-    }
-
-    public Recommendation(Long id, Long userId, Long productId, BigDecimal score, 
-                          RecommendationType type, String reason) {
-        this.id = id;
-        this.userId = userId;
-        this.productId = productId;
-        this.score = score;
-        this.type = type;
-        this.reason = reason;
-        this.createdAt = LocalDateTime.now();
-    }
+    private Boolean isClicked;
+    private Boolean isPurchased;
 
     public Long getId() {
         return id;
@@ -54,20 +44,20 @@ public class Recommendation {
         this.productId = productId;
     }
 
-    public BigDecimal getScore() {
+    public Double getScore() {
         return score;
     }
 
-    public void setScore(BigDecimal score) {
+    public void setScore(Double score) {
         this.score = score;
     }
 
-    public RecommendationType getType() {
-        return type;
+    public RecommendationAlgorithm getAlgorithm() {
+        return algorithm;
     }
 
-    public void setType(RecommendationType type) {
-        this.type = type;
+    public void setAlgorithm(RecommendationAlgorithm algorithm) {
+        this.algorithm = algorithm;
     }
 
     public String getReason() {
@@ -78,12 +68,12 @@ public class Recommendation {
         this.reason = reason;
     }
 
-    public Map<String, Object> getFeatures() {
-        return features;
+    public Integer getPosition() {
+        return position;
     }
 
-    public void setFeatures(Map<String, Object> features) {
-        this.features = features;
+    public void setPosition(Integer position) {
+        this.position = position;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -102,7 +92,19 @@ public class Recommendation {
         this.expiresAt = expiresAt;
     }
 
-    public boolean isExpired() {
-        return expiresAt != null && LocalDateTime.now().isAfter(expiresAt);
+    public Boolean getIsClicked() {
+        return isClicked;
+    }
+
+    public void setIsClicked(Boolean isClicked) {
+        this.isClicked = isClicked;
+    }
+
+    public Boolean getIsPurchased() {
+        return isPurchased;
+    }
+
+    public void setIsPurchased(Boolean isPurchased) {
+        this.isPurchased = isPurchased;
     }
 }
