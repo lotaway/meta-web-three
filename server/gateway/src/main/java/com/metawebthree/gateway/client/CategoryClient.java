@@ -14,18 +14,13 @@ public class CategoryClient {
     @DubboReference
     private CategoryService categoryService;
 
-    /**
-     * Get category by ID
-     * @param id category ID
-     * @return category data map
-     */
     public Map<String, Object> getCategoryById(String id) {
         try {
             GetCategoryByIdRequest request = GetCategoryByIdRequest.newBuilder()
                     .setId(Long.parseLong(id))
                     .build();
             GetCategoryByIdResponse response = categoryService.getCategoryById(request);
-            
+
             Map<String, Object> result = new HashMap<>();
             CategoryDTO category = response.getCategory();
             if (category != null && category.getId() > 0) {
@@ -43,10 +38,6 @@ public class CategoryClient {
         return new HashMap<>();
     }
 
-    /**
-     * Get all categories
-     * @return categories connection
-     */
     public Map<String, Object> getCategories() {
         try {
             GetCategoriesRequest request = GetCategoriesRequest.newBuilder()
@@ -54,10 +45,10 @@ public class CategoryClient {
                     .setSize(100)
                     .build();
             GetCategoriesResponse response = categoryService.getCategories(request);
-            
+
             Map<String, Object> connection = new HashMap<>();
             List<Map<String, Object>> edges = new ArrayList<>();
-            
+
             for (CategoryDTO category : response.getCategoriesList()) {
                 Map<String, Object> edge = new HashMap<>();
                 Map<String, Object> node = new HashMap<>();
@@ -70,7 +61,7 @@ public class CategoryClient {
                 edge.put("node", node);
                 edges.add(edge);
             }
-            
+
             connection.put("edges", edges);
             connection.put("totalCount", response.getTotalCount());
             connection.put("pageInfo", Map.of(
@@ -84,15 +75,11 @@ public class CategoryClient {
         return createEmptyCategoriesConnection();
     }
 
-    /**
-     * Get category tree
-     * @return category tree
-     */
     public List<Map<String, Object>> getCategoryTree() {
         try {
             GetCategoryTreeRequest request = GetCategoryTreeRequest.newBuilder().build();
             GetCategoryTreeResponse response = categoryService.getCategoryTree(request);
-            
+
             List<Map<String, Object>> tree = new ArrayList<>();
             for (CategoryNodeDTO node : response.getTreeList()) {
                 tree.add(convertNodeToMap(node));
@@ -112,7 +99,7 @@ public class CategoryClient {
         map.put("sortOrder", node.getSortOrder());
         map.put("icon", node.getIcon());
         map.put("enabled", node.getEnabled());
-        
+
         if (node.getChildrenList() != null && !node.getChildrenList().isEmpty()) {
             List<Map<String, Object>> children = new ArrayList<>();
             for (CategoryNodeDTO child : node.getChildrenList()) {
@@ -120,7 +107,7 @@ public class CategoryClient {
             }
             map.put("children", children);
         }
-        
+
         return map;
     }
 

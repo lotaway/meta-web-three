@@ -150,32 +150,14 @@ public class GraphQLDataProvider {
     }
 
     public Object addToCart(DataFetchingEnvironment env) {
-        String productId = env.getArgument("productId");
-        Integer quantity = env.getArgument("quantity");
-        
-        Map<String, Object> cart = new HashMap<>();
-        cart.put("id", "1");
-        cart.put("userId", "1");
-        cart.put("itemCount", quantity);
-        cart.put("totalAmount", 99.99 * quantity);
-        return cart;
+        throw new UnsupportedOperationException("Cart operations require CartService - not yet implemented");
     }
 
     public Object removeFromCart(DataFetchingEnvironment env) {
-        Map<String, Object> cart = new HashMap<>();
-        cart.put("id", "1");
-        cart.put("userId", "1");
-        cart.put("itemCount", 0);
-        cart.put("totalAmount", 0.0);
-        return cart;
+        throw new UnsupportedOperationException("Cart operations require CartService - not yet implemented");
     }
 
     public Object clearCart(DataFetchingEnvironment env) {
-        Map<String, Object> cart = new HashMap<>();
-        cart.put("id", "1");
-        cart.put("userId", "1");
-        cart.put("itemCount", 0);
-        cart.put("totalAmount", 0.0);
-        return cart;
+        throw new UnsupportedOperationException("Cart operations require CartService - not yet implemented");
     }
 }

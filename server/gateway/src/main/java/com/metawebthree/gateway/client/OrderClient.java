@@ -14,18 +14,13 @@ public class OrderClient {
     @DubboReference
     private OrderService orderService;
 
-    /**
-     * Get order by ID
-     * @param id order ID
-     * @return order data map
-     */
     public Map<String, Object> getOrderById(String id) {
         try {
             GetOrderByUserIdRequest request = GetOrderByUserIdRequest.newBuilder()
                     .setId(Long.parseLong(id))
                     .build();
             GetOrderByUserIdResponse response = orderService.getOrderByUserId(request);
-            
+
             Map<String, Object> result = new HashMap<>();
             List<OrderDTO> orders = response.getOrdersList();
             OrderDTO order = orders.isEmpty() ? null : orders.get(0);
@@ -43,17 +38,11 @@ public class OrderClient {
         return new HashMap<>();
     }
 
-    /**
-     * Get order by order number
-     * @param orderNo order number
-     * @return order data map
-     */
     public Map<String, Object> getOrderByOrderNo(String orderNo) {
         try {
-            // GetOrderByUserIdRequest doesn't have setOrderNo, iterate through orders to find by orderNo
             GetOrderByUserIdRequest request = GetOrderByUserIdRequest.newBuilder().build();
             GetOrderByUserIdResponse response = orderService.getOrderByUserId(request);
-            
+
             Map<String, Object> result = new HashMap<>();
             for (OrderDTO order : response.getOrdersList()) {
                 if (orderNo.equals(order.getOrderNo())) {
@@ -71,21 +60,14 @@ public class OrderClient {
         return new HashMap<>();
     }
 
-    /**
-     * Get orders with pagination - uses statistics RPC
-     * @param page page number
-     * @param size page size
-     * @return orders connection
-     */
     public Map<String, Object> getOrders(int page, int size) {
         try {
-            // Get order status distribution
             GetOrderStatusDistributionRequest request = GetOrderStatusDistributionRequest.newBuilder().build();
             GetOrderStatusDistributionResponse response = orderService.getOrderStatusDistribution(request);
-            
+
             Map<String, Object> connection = new HashMap<>();
             List<Map<String, Object>> edges = new ArrayList<>();
-            
+
             response.getDistributionMap().forEach((status, count) -> {
                 Map<String, Object> edge = new HashMap<>();
                 Map<String, Object> node = new HashMap<>();
@@ -94,11 +76,10 @@ public class OrderClient {
                 edge.put("node", node);
                 edges.add(edge);
             });
-            
-            // Get total count
+
             GetPendingOrdersCountRequest countRequest = GetPendingOrdersCountRequest.newBuilder().build();
             GetPendingOrdersCountResponse countResponse = orderService.getPendingOrdersCount(countRequest);
-            
+
             connection.put("edges", edges);
             connection.put("totalCount", countResponse.getCount());
             connection.put("pageInfo", Map.of(
@@ -112,21 +93,11 @@ public class OrderClient {
         return createEmptyOrdersConnection(page, size);
     }
 
-    /**
-     * Create order - not implemented via Dubbo yet
-     * @param input order input
-     * @return created order
-     */
     public Map<String, Object> createOrder(Map<String, Object> input) {
-        log.warn("createOrder via Dubbo not implemented - requires REST fallback");
+        log.warn("createOrder via Dubbo not implemented - requires REST fallback to POST /api/orders with create order proto/RPC");
         return new HashMap<>();
     }
 
-    /**
-     * Cancel order
-     * @param id order ID
-     * @return true if success
-     */
     public boolean cancelOrder(String id) {
         try {
             CloseOrderRequest request = CloseOrderRequest.newBuilder()
@@ -140,20 +111,13 @@ public class OrderClient {
         return false;
     }
 
-    /**
-     * Pay order
-     * @param id order ID
-     * @param paymentMethod payment method
-     * @return true if success
-     */
     public boolean payOrder(String id, String paymentMethod) {
         try {
-            // Map payment method to pay type (1=WeChat, 2=Alipay, 3=Card, 4=Balance)
             int payType = switch (paymentMethod.toLowerCase()) {
                 case "wechat", "weixin" -> 1;
                 case "alipay", "zhifubao" -> 2;
                 case "card", "bankcard" -> 3;
-                default -> 4; // balance
+                default -> 4;
             };
             PaySuccessRequest request = PaySuccessRequest.newBuilder()
                     .setOrderId(Long.parseLong(id))
