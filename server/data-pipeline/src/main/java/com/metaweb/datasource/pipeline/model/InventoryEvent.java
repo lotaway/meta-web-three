@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 @Data
 public class InventoryEvent {
     private String eventId;
-    private String eventType; // STOCK_IN, STOCK_OUT, ADJUST, ALERT
+    private String eventType;
     private Long productId;
     private String productName;
     private Integer quantity;
@@ -16,10 +16,10 @@ public class InventoryEvent {
     private LocalDateTime eventTime;
     private String operator;
     private String remark;
-    
+
     public InventoryEvent() {
     }
-    
+
     public InventoryEvent(String eventId, String eventType, Long productId) {
         this.eventId = eventId;
         this.eventType = eventType;

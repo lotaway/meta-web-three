@@ -7,20 +7,19 @@ import java.time.LocalDateTime;
 @Data
 public class OrderEvent {
     private String eventId;
-    private String eventType; // CREATE, UPDATE, PAY, CANCEL, COMPLETE
+    private String eventType;
     private Long orderId;
     private Long userId;
     private BigDecimal totalAmount;
     private String status;
     private LocalDateTime eventTime;
-    private String productInfo; // JSON string of products
+    private String productInfo;
     private String paymentMethod;
     private Long merchantId;
-    
-    // Constructors
+
     public OrderEvent() {
     }
-    
+
     public OrderEvent(String eventId, String eventType, Long orderId, Long userId) {
         this.eventId = eventId;
         this.eventType = eventType;

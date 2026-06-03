@@ -14,76 +14,42 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 @Service
 public class EtlService {
-    
+
     @Autowired
     private ClickHouseRepository clickHouseRepository;
-    
-    /**
-     * Process and transform order event, then load to ClickHouse
-     */
+
+    private static final DateTimeFormatter YEAR_MONTH_FMT = DateTimeFormatter.ofPattern("yyyyMM");
+
     public void processOrderEvent(OrderEvent event) {
         try {
-            log.debug("Processing order event: {}", event.getOrderId());
-            
-            // Transform: Convert to ClickHouse-friendly format
             OrderAnalytics analytics = transformOrderEvent(event);
-            
-            // Load: Insert into ClickHouse
             clickHouseRepository.insertOrderAnalytics(analytics);
-            
-            log.debug("Successfully processed order event: {}", event.getOrderId());
-            
         } catch (Exception e) {
             log.error("Failed to process order event: {}", event.getOrderId(), e);
             throw new RuntimeException("ETL processing failed for order event", e);
         }
     }
-    
-    /**
-     * Process and transform inventory event, then load to ClickHouse
-     */
+
     public void processInventoryEvent(InventoryEvent event) {
         try {
-            log.debug("Processing inventory event: {}", event.getProductId());
-            
-            // Transform: Convert to ClickHouse-friendly format
             InventoryAnalytics analytics = transformInventoryEvent(event);
-            
-            // Load: Insert into ClickHouse
             clickHouseRepository.insertInventoryAnalytics(analytics);
-            
-            log.debug("Successfully processed inventory event: {}", event.getProductId());
-            
         } catch (Exception e) {
             log.error("Failed to process inventory event: {}", event.getProductId(), e);
             throw new RuntimeException("ETL processing failed for inventory event", e);
         }
     }
-    
-    /**
-     * Process and transform user behavior event, then load to ClickHouse
-     */
+
     public void processUserBehaviorEvent(UserBehaviorEvent event) {
         try {
-            log.debug("Processing user behavior event: {}", event.getEventId());
-            
-            // Transform: Convert to ClickHouse-friendly format
             UserBehaviorAnalytics analytics = transformUserBehaviorEvent(event);
-            
-            // Load: Insert into ClickHouse
             clickHouseRepository.insertUserBehaviorAnalytics(analytics);
-            
-            log.debug("Successfully processed user behavior event: {}", event.getEventId());
-            
         } catch (Exception e) {
             log.error("Failed to process user behavior event: {}", event.getEventId(), e);
             throw new RuntimeException("ETL processing failed for user behavior event", e);
         }
     }
-    
-    /**
-     * Transform OrderEvent to OrderAnalytics
-     */
+
     private OrderAnalytics transformOrderEvent(OrderEvent event) {
         OrderAnalytics analytics = new OrderAnalytics();
         analytics.setEventId(event.getEventId());
@@ -97,18 +63,12 @@ public class EtlService {
         analytics.setPaymentMethod(event.getPaymentMethod());
         analytics.setMerchantId(event.getMerchantId());
         analytics.setProcessedTime(LocalDateTime.now());
-        
-        // Calculate derived fields
-        analytics.setYearMonth(event.getEventTime().format(DateTimeFormatter.ofPattern("yyyyMM")));
+        analytics.setYearMonth(event.getEventTime().format(YEAR_MONTH_FMT));
         analytics.setDayOfWeek(event.getEventTime().getDayOfWeek().getValue());
         analytics.setHourOfDay(event.getEventTime().getHour());
-        
         return analytics;
     }
-    
-    /**
-     * Transform InventoryEvent to InventoryAnalytics
-     */
+
     private InventoryAnalytics transformInventoryEvent(InventoryEvent event) {
         InventoryAnalytics analytics = new InventoryAnalytics();
         analytics.setEventId(event.getEventId());
@@ -123,13 +83,9 @@ public class EtlService {
         analytics.setOperator(event.getOperator());
         analytics.setRemark(event.getRemark());
         analytics.setProcessedTime(LocalDateTime.now());
-        
         return analytics;
     }
-    
-    /**
-     * Transform UserBehaviorEvent to UserBehaviorAnalytics
-     */
+
     private UserBehaviorAnalytics transformUserBehaviorEvent(UserBehaviorEvent event) {
         UserBehaviorAnalytics analytics = new UserBehaviorAnalytics();
         analytics.setEventId(event.getEventId());
@@ -149,15 +105,12 @@ public class EtlService {
         analytics.setEventTime(event.getEventTime());
         analytics.setExtraData(event.getExtraData());
         analytics.setProcessedTime(LocalDateTime.now());
-        
-        // Parse user agent for additional insights
         if (event.getBrowser() != null) {
             analytics.setBrowserFamily(parseBrowserFamily(event.getBrowser()));
         }
-        
         return analytics;
     }
-    
+
     private String parseBrowserFamily(String browser) {
         if (browser == null) return "Unknown";
         browser = browser.toLowerCase();
@@ -167,10 +120,7 @@ public class EtlService {
         if (browser.contains("edge")) return "Edge";
         return "Other";
     }
-    
-    /**
-     * Inner classes for ClickHouse analytics tables
-     */
+
     @lombok.Data
     public static class OrderAnalytics {
         private String eventId;
@@ -188,7 +138,7 @@ public class EtlService {
         private Integer dayOfWeek;
         private Integer hourOfDay;
     }
-    
+
     @lombok.Data
     public static class InventoryAnalytics {
         private String eventId;
@@ -204,7 +154,7 @@ public class EtlService {
         private String remark;
         private LocalDateTime processedTime;
     }
-    
+
     @lombok.Data
     public static class UserBehaviorAnalytics {
         private String eventId;

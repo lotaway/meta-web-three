@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 @Data
 public class UserBehaviorEvent {
     private String eventId;
-    private String eventType; // PAGE_VIEW, PRODUCT_VIEW, ADD_TO_CART, SEARCH, CLICK, PURCHASE
+    private String eventType;
     private Long userId;
     private String sessionId;
     private String pageUrl;
@@ -14,17 +14,17 @@ public class UserBehaviorEvent {
     private Long productId;
     private String searchKeyword;
     private String category;
-    private Integer duration; // seconds
-    private String deviceType; // MOBILE, DESKTOP, TABLET
+    private Integer duration;
+    private String deviceType;
     private String browser;
     private String os;
     private String ipAddress;
     private LocalDateTime eventTime;
-    private String extraData; // JSON string for additional data
-    
+    private String extraData;
+
     public UserBehaviorEvent() {
     }
-    
+
     public UserBehaviorEvent(String eventId, String eventType, Long userId, String sessionId) {
         this.eventId = eventId;
         this.eventType = eventType;
