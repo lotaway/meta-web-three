@@ -108,9 +108,9 @@ public class CategoryServiceRpcImpl implements CategoryService {
                 .setId(category.getId())
                 .setName(category.getName() != null ? category.getName() : "")
                 .setParentId(category.getParentId() != null ? category.getParentId() : 0)
-                .setSortOrder(category.getSortOrder() != null ? category.getSortOrder() : 0)
+                .setSortOrder(category.getSort() != null ? category.getSort() : 0)
                 .setIcon(category.getIcon() != null ? category.getIcon() : "")
-                .setEnabled(category.getEnabled() != null ? category.getEnabled() : true)
+                .setEnabled(category.isDisplayedInNav())
                 .build();
     }
 
@@ -119,8 +119,8 @@ public class CategoryServiceRpcImpl implements CategoryService {
                 .setId(node.getId())
                 .setName(node.getName() != null ? node.getName() : "")
                 .setParentId(node.getParentId() != null ? node.getParentId() : 0)
-                .setSortOrder(node.getSortOrder() != null ? node.getSortOrder() : 0)
-                .setEnabled(node.getEnabled() != null ? node.getEnabled() : true);
+                .setSortOrder(node.getSort() != null ? node.getSort() : 0)
+                .setEnabled(node.isDisplayedInNav());
         
         if (node.getIcon() != null) {
             builder.setIcon(node.getIcon());
