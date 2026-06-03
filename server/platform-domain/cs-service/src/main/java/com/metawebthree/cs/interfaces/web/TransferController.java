@@ -5,6 +5,9 @@ import com.metawebthree.cs.application.TransferService;
 import com.metawebthree.cs.domain.model.TransferLog;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +24,7 @@ public class TransferController {
 
     @Operation(summary = "转接会话")
     @PostMapping("/transfer")
-    public ApiResponse<TransferLog> transfer(@RequestBody TransferRequest request) {
+    public ApiResponse<TransferLog> transfer(@Valid @RequestBody TransferRequest request) {
         TransferLog transferLog = transferService.transfer(
                 request.sessionId,
                 request.fromAgentId,
@@ -37,9 +40,16 @@ public class TransferController {
     }
 
     public static class TransferRequest {
+        @NotBlank(message = "sessionId cannot be blank")
         public String sessionId;
+
+        @NotNull(message = "fromAgentId cannot be null")
         public Long fromAgentId;
+
+        @NotNull(message = "toAgentId cannot be null")
         public Long toAgentId;
+
+        @NotBlank(message = "reason cannot be blank")
         public String reason;
     }
 }

@@ -8,6 +8,9 @@ import com.metawebthree.cs.domain.model.enums.MessageType;
 import com.metawebthree.cs.domain.model.enums.SenderType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,7 +46,7 @@ public class MessageController {
 
     @Operation(summary = "AI 聊天")
     @PostMapping("/ai-chat")
-    public ApiResponse<AiChatResponse> aiChat(@RequestBody AiChatRequest request) {
+    public ApiResponse<AiChatResponse> aiChat(@Valid @RequestBody AiChatRequest request) {
         String reply = aiRoutingService.processWithAi(
                 request.sessionId,
                 request.customerId,
@@ -66,8 +69,13 @@ public class MessageController {
     }
 
     public static class AiChatRequest {
+        @NotBlank(message = "sessionId cannot be blank")
         public String sessionId;
+
+        @NotNull(message = "customerId cannot be null")
         public Long customerId;
+
+        @NotBlank(message = "message cannot be blank")
         public String message;
     }
 
