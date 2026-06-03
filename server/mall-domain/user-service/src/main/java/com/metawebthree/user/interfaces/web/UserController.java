@@ -134,6 +134,17 @@ public class UserController {
         return ApiResponse.success(user);
     }
 
+    @GetMapping("/info-by-id")
+    public ApiResponse<UserDTO> infoById(@RequestParam Long id) {
+        // Internal endpoint for other services to query user info by userId
+        // This endpoint should be protected by service-to-service authentication in production
+        UserDTO user = userService.getUserById(id);
+        if (user == null) {
+            return ApiResponse.error(ResponseStatus.USER_NOT_FOUND);
+        }
+        return ApiResponse.success(user);
+    }
+
     @PutMapping("/info")
     public ApiResponse<Void> updateInfo(@RequestHeader(HeaderConstants.USER_ID) Long userId,
                                          @RequestBody Map<String, Object> params) {
