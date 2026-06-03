@@ -16,6 +16,7 @@ service UserService {
     rpc addGrowth(AddGrowthRequest) returns (AddGrowthResponse);
     
     rpc getUserPhone(GetUserPhoneRequest) returns (GetUserPhoneResponse);
+    rpc listUsers(ListUsersRequest) returns (ListUsersResponse);
 }
 
 message ReturnIntegrationRequest {
@@ -90,4 +91,26 @@ message GetUserPhoneResponse {
     string phone = 1;
     bool success = 2;
     string message = 3;
+}
+
+message ListUsersRequest {
+    int32 page = 1;
+    int32 size = 2;
+}
+
+message ListUsersResponse {
+    repeated UserInfoProto users = 1;
+    int32 total_count = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+
+message UserInfoProto {
+    int64 id = 1;
+    string username = 2;
+    string phone = 3;
+    string email = 4;
+    string avatar = 5;
+    int32 status = 6;
+    int64 createdAt = 7;
 }

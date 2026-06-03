@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.metawebthree.common.generated.rpc.CloseOrderRequest;
 import com.metawebthree.common.generated.rpc.CloseOrderResponse;
+import com.metawebthree.common.generated.rpc.CreateOrderRequest;
+import com.metawebthree.common.generated.rpc.CreateOrderResponse;
 import com.metawebthree.common.generated.rpc.CreateReturnApplyRequest;
 import com.metawebthree.common.generated.rpc.CreateReturnApplyResponse;
 import com.metawebthree.common.generated.rpc.GetOrderByUserIdRequest;
@@ -25,6 +27,7 @@ import com.metawebthree.common.generated.rpc.GetPendingPaymentsCountResponse;
 import com.metawebthree.common.generated.rpc.GetSalesByHourTodayRequest;
 import com.metawebthree.common.generated.rpc.GetSalesByHourTodayResponse;
 import com.metawebthree.common.generated.rpc.OrderDTO;
+import com.metawebthree.common.generated.rpc.OrderItemProto;
 import com.metawebthree.common.generated.rpc.OrderService;
 import com.metawebthree.common.generated.rpc.PaySuccessRequest;
 import com.metawebthree.common.generated.rpc.PaySuccessResponse;
@@ -32,6 +35,8 @@ import com.metawebthree.common.generated.rpc.QueryLogisticsRequest;
 import com.metawebthree.common.generated.rpc.QueryLogisticsResponse;
 import com.metawebthree.common.generated.rpc.google.type.Money;
 import com.metawebthree.order.domain.model.OrderDO;
+import com.metawebthree.order.domain.model.OrderItemDO;
+import com.metawebthree.order.infrastructure.persistence.mapper.OrderItemMapper;
 import com.metawebthree.order.infrastructure.persistence.mapper.OrderMapper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +47,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderMapper orderMapper;
+
+    @Autowired
+    private OrderItemMapper orderItemMapper;
 
     @Autowired
     private OrderApplicationService orderApplicationService;
@@ -111,6 +119,65 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public CompletableFuture<CreateReturnApplyResponse> createReturnApplyAsync(CreateReturnApplyRequest request) {
         return CompletableFuture.completedFuture(createReturnApply(request));
+    }
+
+    @Override
+    public CreateOrderResponse createOrder(CreateOrderRequest request) {
+        log.info("Dubbo RPC: createOrder called with userId: {}", request.getUserId());
+        try {
+            Long orderId = com.baomidou.mybatisplus.core.toolkit.IdWorker.getId();
+            String orderNo = String.valueOf(com.baomidou.mybatisplus.core.toolkit.IdWorker.getId());
+
+            java.math.BigDecimal total = java.math.BigDecimal.ZERO;
+            for (OrderItemProto item : request.getItemsList()) {
+                total = total.add(java.math.BigDecimal.valueOf(item.getPrice())
+                        .multiply(java.math.BigDecimal.valueOf(item.getQuantity())));
+            }
+
+            OrderDO order = OrderDO.builder()
+                    .id(orderId)
+                    .userId(request.getUserId())
+                    .orderNo(orderNo)
+                    .orderStatus("CREATED")
+                    .orderType("NORMAL")
+                    .orderAmount(total)
+                    .orderRemark(request.getOrderRemark())
+                    .build();
+            orderMapper.insert(order);
+
+            for (OrderItemProto item : request.getItemsList()) {
+                java.math.BigDecimal itemTotal = java.math.BigDecimal.valueOf(item.getPrice())
+                        .multiply(java.math.BigDecimal.valueOf(item.getQuantity()));
+                OrderItemDO orderItem = OrderItemDO.builder()
+                        .id(com.baomidou.mybatisplus.core.toolkit.IdWorker.getId())
+                        .orderId(orderId)
+                        .productId(item.getProductId())
+                        .productName(item.getProductName())
+                        .quantity(item.getQuantity())
+                        .unitPrice(java.math.BigDecimal.valueOf(item.getPrice()))
+                        .totalPrice(itemTotal)
+                        .build();
+                orderItemMapper.insert(orderItem);
+            }
+
+            return CreateOrderResponse.newBuilder()
+                    .setOrderId(orderId)
+                    .setOrderNo(orderNo)
+                    .setSuccess(true)
+                    .setMessage("Order created successfully")
+                    .build();
+        } catch (Exception e) {
+            log.error("Failed to create order", e);
+            return CreateOrderResponse.newBuilder()
+                    .setSuccess(false)
+                    .setMessage("Failed to create order: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @Override
+    public CompletableFuture<CreateOrderResponse> createOrderAsync(CreateOrderRequest request) {
+        return CompletableFuture.completedFuture(createOrder(request));
     }
 
     @Override

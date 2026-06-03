@@ -2,11 +2,9 @@ syntax = "proto3";
 
 package com.metawebthree.common.generated.rpc;
 
-// option cc_enable_arenas = true;
 option java_multiple_files = true;
 
 import "shared/web3/token.proto";
-// [From](https://github.com/googleapis)
 import "shared/google/type/money.proto";
 
 service OrderService {
@@ -15,11 +13,10 @@ service OrderService {
     rpc closeOrder(CloseOrderRequest) returns (CloseOrderResponse);
     rpc queryLogistics(QueryLogisticsRequest) returns (QueryLogisticsResponse);
     rpc createReturnApply(CreateReturnApplyRequest) returns (CreateReturnApplyResponse);
-    // Statistics RPCs
+    rpc createOrder(CreateOrderRequest) returns (CreateOrderResponse);
     rpc getOrderStatusDistribution(GetOrderStatusDistributionRequest) returns (GetOrderStatusDistributionResponse);
     rpc getPendingOrdersCount(GetPendingOrdersCountRequest) returns (GetPendingOrdersCountResponse);
     rpc getPendingPaymentsCount(GetPendingPaymentsCountRequest) returns (GetPendingPaymentsCountResponse);
-    // Analytics RPCs
     rpc getHotProducts(GetHotProductsRequest) returns (GetHotProductsResponse);
     rpc getSalesByHourToday(GetSalesByHourTodayRequest) returns (GetSalesByHourTodayResponse);
 }
@@ -84,7 +81,29 @@ message CreateReturnApplyResponse {
     string message = 2;
 }
 
-// Statistics messages
+message CreateOrderRequest {
+    int64 userId = 1;
+    repeated OrderItemProto items = 2;
+    string shippingAddress = 3;
+    string paymentMethod = 4;
+    string orderRemark = 5;
+}
+
+message OrderItemProto {
+    int64 productId = 1;
+    string productName = 2;
+    int32 quantity = 3;
+    double price = 4;
+    string sku = 5;
+}
+
+message CreateOrderResponse {
+    int64 orderId = 1;
+    string orderNo = 2;
+    bool success = 3;
+    string message = 4;
+}
+
 message GetOrderStatusDistributionRequest {
 }
 
@@ -106,7 +125,6 @@ message GetPendingPaymentsCountResponse {
     int64 count = 1;
 }
 
-// Analytics messages
 message GetHotProductsRequest {
     int32 limit = 1;
 }

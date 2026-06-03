@@ -4,6 +4,7 @@ import com.metawebthree.common.generated.rpc.*;
 import com.metawebthree.user.application.dto.UserDTO;
 import com.metawebthree.user.application.MemberLevelService;
 import com.metawebthree.user.domain.model.MemberLevelDO;
+import com.metawebthree.user.domain.model.UserDO;
 import com.metawebthree.user.infrastructure.persistence.mapper.UserMapper;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.stereotype.Service;
@@ -225,5 +226,43 @@ public class UserRPCServiceImpl implements UserService {
     @Override
     public CompletableFuture<GetUserPhoneResponse> getUserPhoneAsync(GetUserPhoneRequest request) {
         return CompletableFuture.completedFuture(getUserPhone(request));
+    }
+
+    @Override
+    public ListUsersResponse listUsers(ListUsersRequest request) {
+        log.info("Dubbo RPC: listUsers called with page: {}, size: {}", request.getPage(), request.getSize());
+        try {
+            int page = request.getPage() > 0 ? request.getPage() : 1;
+            int size = request.getSize() > 0 ? request.getSize() : 10;
+
+            com.baomidou.mybatisplus.core.metadata.IPage<UserDO> pageResult = userMapper.selectPage(
+                    new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(page, size),
+                    new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<UserDO>()
+                            .orderByDesc(UserDO::getId));
+
+            List<UserInfoProto> users = pageResult.getRecords().stream()
+                    .map(u -> UserInfoProto.newBuilder()
+                            .setId(u.getId() != null ? u.getId() : 0L)
+                            .setUsername(u.getUsername() != null ? u.getUsername() : "")
+                            .setPhone(u.getTelephone() != null ? u.getTelephone() : "")
+                            .setAvatar(u.getAvatar() != null ? u.getAvatar() : "")
+                            .build())
+                    .toList();
+
+            return ListUsersResponse.newBuilder()
+                    .addAllUsers(users)
+                    .setTotalCount((int) pageResult.getTotal())
+                    .setPage(page)
+                    .setSize(size)
+                    .build();
+        } catch (Exception e) {
+            log.error("Failed to list users", e);
+            return ListUsersResponse.newBuilder().build();
+        }
+    }
+
+    @Override
+    public CompletableFuture<ListUsersResponse> listUsersAsync(ListUsersRequest request) {
+        return CompletableFuture.completedFuture(listUsers(request));
     }
 }

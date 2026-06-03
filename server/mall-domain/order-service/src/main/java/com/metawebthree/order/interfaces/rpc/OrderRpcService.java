@@ -13,11 +13,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-/**
- * Dubbo RPC service implementation for order statistics
- * Exposes order statistics to other microservices
- */
-@Slf4j
 @DubboService
 @Component
 @RequiredArgsConstructor
@@ -90,52 +85,48 @@ public class OrderRpcService implements OrderService {
 
     @Override
     public GetHotProductsResponse getHotProducts(GetHotProductsRequest request) {
-        log.info("Dubbo call: getHotProducts, limit: {}", request.getLimit());
         try {
             int limit = request.getLimit() > 0 ? request.getLimit() : 10;
             List<Map<String, Object>> results = queryService.getHotProducts(limit);
-            
-            List<HotProductInfo> products = results.stream()
-                    .map(row -> HotProductInfo.newBuilder()
-                            .setProductId(getLongValue(row, "productId"))
-                            .setProductName(getStringValue(row, "productName", "Unknown"))
-                            .setSalesCount(getLongValue(row, "salesCount"))
-                            .setSalesAmount(getLongValue(row, "salesAmount"))
-                            .build())
-                    .collect(Collectors.toList());
-            
-            return GetHotProductsResponse.newBuilder()
-                    .addAllProducts(products)
-                    .build();
+            List<HotProductInfo> products = toHotProductInfos(results);
+            return GetHotProductsResponse.newBuilder().addAllProducts(products).build();
         } catch (Exception e) {
             log.error("Failed to get hot products", e);
-            return GetHotProductsResponse.newBuilder()
-                    .build();
+            return GetHotProductsResponse.newBuilder().build();
         }
+    }
+
+    private List<HotProductInfo> toHotProductInfos(List<Map<String, Object>> results) {
+        return results.stream()
+                .map(row -> HotProductInfo.newBuilder()
+                        .setProductId(getLongValue(row, "productId"))
+                        .setProductName(getStringValue(row, "productName", "Unknown"))
+                        .setSalesCount(getLongValue(row, "salesCount"))
+                        .setSalesAmount(getLongValue(row, "salesAmount"))
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Override
     public GetSalesByHourTodayResponse getSalesByHourToday(GetSalesByHourTodayRequest request) {
-        log.info("Dubbo call: getSalesByHourToday");
         try {
             List<Map<String, Object>> results = queryService.getSalesByHourToday();
-            
-            List<SalesByHourInfo> hourlyData = results.stream()
-                    .map(row -> SalesByHourInfo.newBuilder()
-                            .setHour(getIntValue(row, "hour"))
-                            .setSales(getLongValue(row, "sales"))
-                            .setOrders(getIntValue(row, "orders"))
-                            .build())
-                    .collect(Collectors.toList());
-            
-            return GetSalesByHourTodayResponse.newBuilder()
-                    .addAllHourlyData(hourlyData)
-                    .build();
+            List<SalesByHourInfo> hourlyData = toSalesByHourInfos(results);
+            return GetSalesByHourTodayResponse.newBuilder().addAllHourlyData(hourlyData).build();
         } catch (Exception e) {
             log.error("Failed to get sales by hour today", e);
-            return GetSalesByHourTodayResponse.newBuilder()
-                    .build();
+            return GetSalesByHourTodayResponse.newBuilder().build();
         }
+    }
+
+    private List<SalesByHourInfo> toSalesByHourInfos(List<Map<String, Object>> results) {
+        return results.stream()
+                .map(row -> SalesByHourInfo.newBuilder()
+                        .setHour(getIntValue(row, "hour"))
+                        .setSales(getLongValue(row, "sales"))
+                        .setOrders(getIntValue(row, "orders"))
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -152,7 +143,6 @@ public class OrderRpcService implements OrderService {
     public CreateReturnApplyResponse createReturnApply(CreateReturnApplyRequest request) {
         log.info("Dubbo call: createReturnApply, orderId: {}", request.getOrderId());
         try {
-            // Implementation would typically call order application service
             return CreateReturnApplyResponse.newBuilder()
                     .setSuccess(true)
                     .setMessage("Return apply created successfully")
