@@ -103,6 +103,55 @@ public class UserClient {
     }
 
     public Map<String, Object> getUsers(Integer page, Integer size) {
+        try {
+            ListUsersRequest request = ListUsersRequest.newBuilder()
+                    .setPage(page != null ? page : 0)
+                    .setSize(size != null ? size : 20)
+                    .build();
+            ListUsersResponse response = userService.listUsers(request);
+
+            return buildUsersConnection(
+                buildUserEdges(response.getUsersList()),
+                response.getTotalCount(),
+                response.getPage(),
+                response.getSize()
+            );
+        } catch (Exception e) {
+            log.error("Failed to get users: page={}, size={}, error: {}", page, size, e.getMessage());
+        }
+        return createEmptyUsersConnection(page);
+    }
+
+    private List<Map<String, Object>> buildUserEdges(List<UserInfoProto> users) {
+        List<Map<String, Object>> edges = new ArrayList<>();
+        for (UserInfoProto user : users) {
+            Map<String, Object> node = new HashMap<>();
+            node.put("id", user.getId());
+            node.put("username", user.getUsername());
+            node.put("phone", user.getPhone());
+            node.put("email", user.getEmail());
+            node.put("avatar", user.getAvatar());
+            node.put("status", user.getStatus());
+            node.put("createdAt", user.getCreatedAt());
+            Map<String, Object> edge = new HashMap<>();
+            edge.put("node", node);
+            edges.add(edge);
+        }
+        return edges;
+    }
+
+    private Map<String, Object> buildUsersConnection(List<Map<String, Object>> edges, int totalCount, int currentPage, int pageSize) {
+        Map<String, Object> connection = new HashMap<>();
+        connection.put("edges", edges);
+        connection.put("totalCount", totalCount);
+        connection.put("pageInfo", Map.of(
+            "hasNextPage", (currentPage + 1) * pageSize < totalCount,
+            "hasPreviousPage", currentPage > 0
+        ));
+        return connection;
+    }
+
+    private Map<String, Object> createEmptyUsersConnection(Integer page) {
         Map<String, Object> connection = new HashMap<>();
         connection.put("edges", new ArrayList<>());
         connection.put("totalCount", 0);
