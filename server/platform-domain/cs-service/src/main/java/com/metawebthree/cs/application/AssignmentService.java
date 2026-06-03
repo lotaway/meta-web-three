@@ -14,6 +14,10 @@ import com.metawebthree.common.generated.rpc.*;
 
 @Slf4j
 public class AssignmentService {
+    private static final Long GROUP_ID_PRODUCT = 1L;
+    private static final Long GROUP_ID_ORDER = 2L;
+    private static final Long GROUP_ID_AFTER_SALE = 3L;
+
     private final AgentRepository agentRepository;
     private final ConversationRepository conversationRepository;
 
@@ -51,7 +55,6 @@ public class AssignmentService {
     }
 
     private Long findAgentGroupId(Conversation conversation) {
-        // Try to determine agent group based on product category or order type
         Long productId = conversation.getProductId();
         Long orderId = conversation.getOrderId();
 
@@ -62,13 +65,20 @@ public class AssignmentService {
                         .build();
                 GetProductDetailResponse response = productService.getProductDetail(request);
                 if (response != null && response.hasProduct()) {
-                    // Currently returns null - group assignment can be enhanced later
-                    // with product category-based routing logic
-                    log.debug("Found product for conversation {}, category routing not implemented",
-                            conversation.getId());
+                    ProductDetailProto product = response.getProduct();
+                    long categoryId = product.getCategoryId();
+                    if (isElectronicsCategory(categoryId)) {
+                        return GROUP_ID_PRODUCT;
+                    }
+                    if (isFashionCategory(categoryId)) {
+                        return 2L;
+                    }
+                    if (isFoodCategory(categoryId)) {
+                        return 4L;
+                    }
                 }
             } catch (Exception e) {
-                log.warn("Failed to get product detail for productId {}: {}", productId, e.getMessage());
+                log.warn("failed to get product detail for productId {}: {}", productId, e.getMessage());
             }
         }
 
@@ -79,17 +89,35 @@ public class AssignmentService {
                         .build();
                 GetOrderByUserIdResponse response = orderService.getOrderByUserId(request);
                 if (response != null && response.getOrdersCount() > 0) {
-                    // Could determine group based on order type
-                    log.debug("Found order for conversation {}, type: {}",
-                            conversation.getId(), response.getOrders(0).getOrderType());
+                    String orderType = response.getOrders(0).getOrderType();
+                    if (isAfterSaleRelated(orderType)) {
+                        return GROUP_ID_AFTER_SALE;
+                    }
+                    return GROUP_ID_ORDER;
                 }
             } catch (Exception e) {
-                log.warn("Failed to get order detail for orderId {}: {}", orderId, e.getMessage());
+                log.warn("failed to get order detail for orderId {}: {}", orderId, e.getMessage());
             }
         }
 
-        // Return null to allow any available agent to handle the conversation
-        // Group assignment can be enhanced with more business logic
         return null;
+    }
+
+    private boolean isElectronicsCategory(long categoryId) {
+        return categoryId >= 1000 && categoryId < 2000;
+    }
+
+    private boolean isFashionCategory(long categoryId) {
+        return categoryId >= 2000 && categoryId < 3000;
+    }
+
+    private boolean isFoodCategory(long categoryId) {
+        return categoryId >= 3000 && categoryId < 4000;
+    }
+
+    private boolean isAfterSaleRelated(String orderType) {
+        if (orderType == null) return false;
+        String type = orderType.toLowerCase();
+        return type.contains("refund") || type.contains("return") || type.contains("售后");
     }
 }
