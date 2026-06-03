@@ -13,4 +13,12 @@ public interface ConversationRepository {
     List<Conversation> findByAgentId(Long agentId);
     List<Conversation> findByStatus(ConversationStatus status);
     List<Conversation> findByCustomerId(Long customerId);
+
+    // Paged queries
+    List<Conversation> findByAgentId(Long agentId, int offset, int limit);
+    long countByAgentId(Long agentId);
+    List<Conversation> findByCustomerId(Long customerId, int offset, int limit);
+    long countByCustomerId(Long customerId);
+    List<Conversation> findByStatus(ConversationStatus status, int offset, int limit);
+    long countByStatus(ConversationStatus status);
 }

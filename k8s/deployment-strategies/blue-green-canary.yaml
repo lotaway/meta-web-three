@@ -1,0 +1,254 @@
+# Canary / Blue-Green Deployment Strategies
+# Supports gradual rollout with traffic shifting and automated rollback
+# 
+# Usage:
+#   Blue-Green: kubectl apply -f k8s/deployment-strategies/blue-green.yaml
+#   Canary:     kubectl apply -f k8s/deployment-strategies/canary.yaml
+#
+# Prerequisites:
+#   - Istio or Nginx Ingress Controller installed
+#   - Services must have version labels for traffic routing
+
+---
+# ============================================
+# Blue-Green Deployment for order-service
+# ============================================
+# Blue deployment (current stable version)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service-blue
+  namespace: meta-web-three
+  labels:
+    app: order-service
+    version: blue
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: order-service
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: order-service
+        version: blue
+    spec:
+      containers:
+      - name: order-service
+        image: meta-web-three/order-service:latest
+        ports:
+        - containerPort: 10084
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
+        - name: SERVER_PORT
+          value: "10084"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 10084
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 10084
+          initialDelaySeconds: 30
+          periodSeconds: 10
+
+---
+# Green deployment (new version for switching)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service-green
+  namespace: meta-web-three
+  labels:
+    app: order-service
+    version: green
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: order-service
+      version: green
+  template:
+    metadata:
+      labels:
+        app: order-service
+        version: green
+    spec:
+      containers:
+      - name: order-service
+        image: meta-web-three/order-service:latest
+        ports:
+        - containerPort: 10084
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
+        - name: SERVER_PORT
+          value: "10084"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 10084
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 10084
+          initialDelaySeconds: 30
+          periodSeconds: 10
+
+---
+# Service that routes to active deployment (switch version label to toggle)
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service-active
+  namespace: meta-web-three
+spec:
+  selector:
+    app: order-service
+    version: blue  # Change to 'green' to switch traffic
+  ports:
+  - port: 10084
+    targetPort: 10084
+  type: ClusterIP
+
+---
+# ============================================
+# Canary Deployment for gateway using Istio VirtualService
+# ============================================
+# DestinationRule defining subsets for canary
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: gateway-destination
+  namespace: meta-web-three
+spec:
+  host: gateway
+  subsets:
+  - name: stable
+    labels:
+      version: stable
+  - name: canary
+    labels:
+      version: canary
+
+---
+# VirtualService for gradual traffic shifting
+# Adjust weight to control canary traffic percentage
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: gateway-canary
+  namespace: meta-web-three
+spec:
+  hosts:
+  - gateway
+  http:
+  - route:
+    - destination:
+        host: gateway
+        subset: stable
+      weight: 90  # 90% to stable
+    - destination:
+        host: gateway
+        subset: canary
+      weight: 10  # 10% to canary
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+    timeout: 10s
+
+---
+# Canary deployment for gateway (new version)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-canary
+  namespace: meta-web-three
+  labels:
+    app: gateway
+    version: canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+      version: canary
+  template:
+    metadata:
+      labels:
+        app: gateway
+        version: canary
+    spec:
+      containers:
+      - name: gateway
+        image: meta-web-three/gateway:canary
+        ports:
+        - containerPort: 10080
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 10080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 10080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+
+---
+# PodDisruptionBudget to ensure availability during deployments
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: order-service-pdb
+  namespace: meta-web-three
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: order-service
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: gateway-pdb
+  namespace: meta-web-three
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: gateway

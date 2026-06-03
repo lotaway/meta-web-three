@@ -34,4 +34,17 @@ public class MongoMessageRepository implements MessageRepository {
         );
         return mongoTemplate.find(query, Message.class, "cs_message");
     }
+
+    @Override
+    public List<Message> findBySessionId(String sessionId, int offset, int limit) {
+        Query query = Query.query(Criteria.where("sessionId").is(sessionId))
+                .skip(offset).limit(limit);
+        return mongoTemplate.find(query, Message.class, "cs_message");
+    }
+
+    @Override
+    public long countBySessionId(String sessionId) {
+        Query query = Query.query(Criteria.where("sessionId").is(sessionId));
+        return mongoTemplate.count(query, "cs_message");
+    }
 }

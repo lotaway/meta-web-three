@@ -60,6 +60,20 @@ public class MessageController {
         return ApiResponse.success(messageService.listBySession(sessionId));
     }
 
+    @Operation(summary = "分页查询会话历史消息")
+    @GetMapping("/listPaged")
+    public ApiResponse<java.util.Map<String, Object>> listPaged(
+            @RequestParam String sessionId,
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "20") int limit) {
+        java.util.Map<String, Object> mappings = new java.util.HashMap<>();
+        mappings.put("records", messageService.listBySessionPaged(sessionId, offset, limit));
+        mappings.put("total", messageService.countBySession(sessionId));
+        mappings.put("offset", offset);
+        mappings.put("limit", limit);
+        return ApiResponse.success(mappings);
+    }
+
     public static class SendRequest {
         public String sessionId;
         public String senderType;

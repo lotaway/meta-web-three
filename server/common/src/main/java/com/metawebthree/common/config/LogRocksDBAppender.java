@@ -67,10 +67,19 @@ public class LogRocksDBAppender extends AppenderBase<ILoggingEvent> {
             String message = eventObject.getFormattedMessage();
             String level = eventObject.getLevel().toString();
             String thread = eventObject.getThreadName();
-            String log = String.format("[%s] [%s] %s", level, thread, message);
+            long timestamp = eventObject.getTimeStamp();
+            String loggerName = eventObject.getLoggerName();
+            
+            // Store structured log with timestamp for querying
+            String log = String.format("%d|%s|%s|%s|%s", 
+                    timestamp, level, thread, loggerName, message);
+            
             byte[] seqKey = SEQ_KEY.getBytes();
             db.put(seqKey, String.valueOf(seq).getBytes());
-            byte[] key = String.format("%s:%d", SEQ_KEY, seq++).getBytes();
+            
+            // Use timestamp in key for time-based querying
+            String keyStr = String.format("%s:%d:%d", SEQ_KEY, timestamp, seq++);
+            byte[] key = keyStr.getBytes();
             db.put(key, log.getBytes());
         } catch (Exception e) {
             addError("Error writing log to RocksDB", e);

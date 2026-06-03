@@ -1,9 +1,11 @@
 package com.metawebthree.cs.configuration;
 
 import com.metawebthree.cs.application.AiRoutingService;
+import com.metawebthree.cs.application.SentimentAnalysisService;
 import com.metawebthree.cs.domain.ports.AiChatPort;
 import com.metawebthree.cs.domain.repository.MessageRepository;
 import com.metawebthree.cs.infrastructure.client.LocalLlmProviderClient;
+import com.metawebthree.cs.ai.tools.AiToolRegistry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +25,12 @@ public class CsConfig {
     }
 
     @Bean
-    public AiRoutingService aiRoutingService(AiChatPort aiChatPort, MessageRepository messageRepository) {
-        return new AiRoutingService(aiChatPort, messageRepository);
+    public AiRoutingService aiRoutingService(AiChatPort aiChatPort, MessageRepository messageRepository, AiToolRegistry aiToolRegistry) {
+        return new AiRoutingService(aiChatPort, messageRepository, aiToolRegistry);
+    }
+
+    @Bean
+    public SentimentAnalysisService sentimentAnalysisService() {
+        return new SentimentAnalysisService();
     }
 }

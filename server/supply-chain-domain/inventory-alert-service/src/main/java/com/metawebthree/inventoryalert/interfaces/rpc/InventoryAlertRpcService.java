@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Dubbo RPC service implementation for inventory alert queries
@@ -56,5 +57,17 @@ public class InventoryAlertRpcService implements InventoryAlertService {
                     .putAllDistribution(new HashMap<>())
                     .build();
         }
+    }
+
+    @Override
+    public CompletableFuture<GetLowStockAlertsCountResponse> getLowStockAlertsCountAsync(GetLowStockAlertsCountRequest request) {
+        log.info("Dubbo async call: getLowStockAlertsCount");
+        return CompletableFuture.completedFuture(getLowStockAlertsCount(request));
+    }
+
+    @Override
+    public CompletableFuture<GetAlertStatisticsResponse> getAlertStatisticsAsync(GetAlertStatisticsRequest request) {
+        log.info("Dubbo async call: getAlertStatistics");
+        return CompletableFuture.completedFuture(getAlertStatistics(request));
     }
 }

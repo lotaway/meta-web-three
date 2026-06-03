@@ -1,0 +1,102 @@
+# ===============================================
+# Service Governance Configuration Template
+# ===============================================
+# This file can be imported by all microservices
+# For Nacos Config Center, push this as: ${spring.application.name}-governance.yml
+# ===============================================
+
+service-governance:
+  enabled: true
+  
+  # Circuit Breaker Configuration (熔断器配置)
+  circuit-breaker:
+    enabled: true
+    sliding-window-size: 10
+    minimum-number-of-calls: 5
+    failure-rate-threshold: 50
+    slow-call-rate-threshold: 100
+    slow-call-duration-threshold: 2s
+    wait-duration-in-open-state: 10s
+    permitted-number-of-calls-in-half-open-state: 3
+    automatic-transition-from-open-to-half-open-enabled: true
+
+  # Rate Limiter Configuration (限流器配置)
+  rate-limiter:
+    enabled: true
+    limit-for-period: 100
+    limit-refresh-period: 1s
+    timeout-duration: 5s
+
+  # Retry Configuration (重试配置)
+  retry:
+    enabled: true
+    max-attempts: 3
+    wait-duration: 500ms
+    exponential-backoff-enabled: true
+    exponential-backoff-multiplier: 2.0
+
+---
+# ===============================================
+# Resilience4j Configuration (YAML format)
+# ===============================================
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        register-health-indicator: true
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 100
+        slow-call-duration-threshold: 2s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 10s
+    instances:
+      default:
+        base-config: default
+
+  ratelimiter:
+    configs:
+      default:
+        limit-for-period: 100
+        limit-refresh-period: 1s
+        timeout-duration: 5s
+    instances:
+      default:
+        base-config: default
+
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 500ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+    instances:
+      default:
+        base-config: default
+
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 3s
+        cancel-running-future: true
+
+---
+# ===============================================
+# Per-Service Configuration Examples
+# ===============================================
+# Override these for specific services based on their criticality
+#
+# Critical services (order, payment) - stricter thresholds:
+# resilience4j.circuitbreaker.instances.orderService:
+#   failure-rate-threshold: 40
+#   wait-duration-in-open-state: 30s
+#
+# Non-critical services - more lenient:
+# resilience4j.circuitbreaker.instances.recommendationService:
+#   failure-rate-threshold: 70
+#   wait-duration-in-open-state: 5s

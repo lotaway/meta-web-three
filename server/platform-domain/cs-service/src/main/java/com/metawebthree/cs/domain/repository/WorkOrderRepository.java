@@ -1,5 +1,7 @@
 package com.metawebthree.cs.domain.repository;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.metawebthree.cs.domain.model.WorkOrder;
 import com.metawebthree.cs.domain.model.enums.WorkOrderCategory;
 import com.metawebthree.cs.domain.model.enums.WorkOrderStatus;
@@ -28,4 +30,11 @@ public interface WorkOrderRepository {
     Long countByStatus(WorkOrderStatus status);
     
     Long countByCategory(WorkOrderCategory category);
+
+    // Paged queries
+    IPage<WorkOrder> findByCustomerIdPaged(Page<WorkOrder> page, Long customerId);
+    IPage<WorkOrder> findByAgentIdPaged(Page<WorkOrder> page, Long agentId);
+    IPage<WorkOrder> findByStatusPaged(Page<WorkOrder> page, WorkOrderStatus status);
+    IPage<WorkOrder> findByCategoryPaged(Page<WorkOrder> page, WorkOrderCategory category);
+    IPage<WorkOrder> findPendingPaged(Page<WorkOrder> page);
 }

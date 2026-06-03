@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.metawebthree.common.DO.BaseDO;
+import com.metawebthree.common.security.EncryptField;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,7 +24,9 @@ public class UserDO extends BaseDO {
     private String username;
     private String nickname;
     private String avatar;
+    @EncryptField
     private String email;
+    @EncryptField
     private String telephone;
     private String password;
     private Long typeId;

@@ -1,0 +1,294 @@
+# Resource optimization configurations for Kubernetes
+# Includes: resource quotas, limit ranges, priority classes, and optimized resource settings
+# Usage: kubectl apply -f k8s/resource-optimization/
+
+---
+# Resource Quota for namespace
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: meta-web-three-quota
+  namespace: meta-web-three
+spec:
+  hard:
+    requests.cpu: "20"
+    requests.memory: 40Gi
+    limits.cpu: "40"
+    limits.memory: 80Gi
+    pods: "100"
+    services: "50"
+    persistentvolumeclaims: "30"
+  scopes: []
+
+---
+# LimitRange to enforce default and maximum resource limits per pod
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: meta-web-three-limits
+  namespace: meta-web-three
+spec:
+  limits:
+  - type: Container
+    default:
+      cpu: "500m"
+      memory: 512Mi
+    defaultRequest:
+      cpu: 100m
+      memory: 256Mi
+    max:
+      cpu: "4"
+      memory: 8Gi
+    min:
+      cpu: 50m
+      memory: 128Mi
+  - type: Pod
+    max:
+      cpu: "8"
+      memory: 16Gi
+
+---
+# Priority classes for service scheduling
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: critical-service
+value: 1000000
+globalDefault: false
+description: "Critical services: gateway, payment, order"
+
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: standard-service
+value: 500000
+globalDefault: false
+description: "Standard services: product, user, cart, etc."
+
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: background-service
+value: 100000
+globalDefault: false
+description: "Background/batch services: reporting, analytics, etc."
+
+---
+# Optimized resource profiles for each service tier
+# Tier 1 (Critical): gateway, order-service, payment-service
+# Tier 2 (Standard): product-service, user-service, cart-service
+# Tier 3 (Background): reporting, analytics
+
+# Gateway - Tier 1
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-optimized
+  namespace: meta-web-three
+  labels:
+    app: gateway
+    tier: critical
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+        tier: critical
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10080"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      priorityClassName: critical-service
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - gateway
+              topologyKey: kubernetes.io/hostname
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: gateway
+      containers:
+      - name: gateway
+        image: meta-web-three/gateway:latest
+        ports:
+        - containerPort: 10080
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
+        - name: JAVA_OPTS
+          value: "-XX:+UseG1GC -XX:MaxRAMPercentage=75.0 -XX:+UseContainerSupport"
+        resources:
+          requests:
+            memory: "768Mi"
+            cpu: "500m"
+          limits:
+            memory: "1536Mi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 10080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 10080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 3
+        lifecycle:
+          preStop:
+            exec:
+              command: ["sh", "-c", "sleep 10"]
+
+---
+# Order Service - Tier 1 with topology spread and anti-affinity
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service-optimized
+  namespace: meta-web-three
+  labels:
+    app: order-service
+    tier: critical
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+        tier: critical
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10084"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      priorityClassName: critical-service
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - order-service
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: order-service
+        image: meta-web-three/order-service:latest
+        ports:
+        - containerPort: 10084
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
+        - name: JAVA_OPTS
+          value: "-XX:+UseG1GC -XX:MaxRAMPercentage=75.0 -XX:+UseContainerSupport"
+        resources:
+          requests:
+            memory: "768Mi"
+            cpu: "500m"
+          limits:
+            memory: "1536Mi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 10084
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 10084
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        lifecycle:
+          preStop:
+            exec:
+              command: ["sh", "-c", "sleep 10"]
+
+---
+# Product Service - Tier 2
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-service-optimized
+  namespace: meta-web-three
+  labels:
+    app: product-service
+    tier: standard
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: product-service
+  template:
+    metadata:
+      labels:
+        app: product-service
+        tier: standard
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10086"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      priorityClassName: standard-service
+      containers:
+      - name: product-service
+        image: meta-web-three/product-service:latest
+        ports:
+        - containerPort: 10086
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
+        - name: JAVA_OPTS
+          value: "-XX:+UseG1GC -XX:MaxRAMPercentage=75.0 -XX:+UseContainerSupport"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 10086
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 10086
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        lifecycle:
+          preStop:
+            exec:
+              command: ["sh", "-c", "sleep 10"]

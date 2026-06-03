@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Dubbo RPC service implementation for payment statistics
@@ -66,5 +67,17 @@ public class PaymentRpcService implements PaymentService {
                     .setStats(DailyPaymentStats.getDefaultInstance())
                     .build();
         }
+    }
+
+    @Override
+    public CompletableFuture<GetPaymentStatisticsResponse> getPaymentStatisticsAsync(GetPaymentStatisticsRequest request) {
+        log.info("Dubbo async call: getPaymentStatistics");
+        return CompletableFuture.completedFuture(getPaymentStatistics(request));
+    }
+
+    @Override
+    public CompletableFuture<GetDailyPaymentStatsResponse> getDailyPaymentStatsAsync(GetDailyPaymentStatsRequest request) {
+        log.info("Dubbo async call: getDailyPaymentStats for date: {}", request.getDate());
+        return CompletableFuture.completedFuture(getDailyPaymentStats(request));
     }
 }

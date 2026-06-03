@@ -35,6 +35,14 @@ public class MessageService {
         return messageRepository.findBySessionId(sessionId);
     }
 
+    public List<Message> listBySessionPaged(String sessionId, int offset, int limit) {
+        return messageRepository.findBySessionId(sessionId, offset, limit);
+    }
+
+    public long countBySession(String sessionId) {
+        return messageRepository.countBySessionId(sessionId);
+    }
+
     public List<Message> listAfter(String sessionId, String afterMessageId) {
         return messageRepository.findBySessionIdAfter(sessionId, afterMessageId);
     }

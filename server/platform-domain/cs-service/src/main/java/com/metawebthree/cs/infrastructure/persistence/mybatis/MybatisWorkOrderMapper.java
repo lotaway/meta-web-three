@@ -1,6 +1,8 @@
 package com.metawebthree.cs.infrastructure.persistence.mybatis;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.metawebthree.cs.domain.model.WorkOrder;
 import com.metawebthree.cs.domain.model.enums.WorkOrderCategory;
 import com.metawebthree.cs.domain.model.enums.WorkOrderStatus;
@@ -31,6 +33,21 @@ public interface MybatisWorkOrderMapper extends BaseMapper<WorkOrder> {
 
     @Select("SELECT COUNT(*) FROM cs_work_order WHERE category = #{category}")
     Long countByCategory(@Param("category") WorkOrderCategory category);
+
+    @Select("SELECT * FROM cs_work_order WHERE status IN ('PENDING', 'PROCESSING') ORDER BY priority DESC, create_time ASC")
+    IPage<WorkOrder> findPendingPaged(Page<WorkOrder> page);
+
+    @Select("SELECT * FROM cs_work_order WHERE category = #{category} ORDER BY create_time DESC")
+    IPage<WorkOrder> findByCategoryPaged(Page<WorkOrder> page, @Param("category") WorkOrderCategory category);
+
+    @Select("SELECT * FROM cs_work_order WHERE status = #{status} ORDER BY priority DESC, create_time ASC")
+    IPage<WorkOrder> findByStatusPaged(Page<WorkOrder> page, @Param("status") WorkOrderStatus status);
+
+    @Select("SELECT * FROM cs_work_order WHERE customer_id = #{customerId} ORDER BY create_time DESC")
+    IPage<WorkOrder> findByCustomerIdPaged(Page<WorkOrder> page, @Param("customerId") Long customerId);
+
+    @Select("SELECT * FROM cs_work_order WHERE agent_id = #{agentId} ORDER BY create_time DESC")
+    IPage<WorkOrder> findByAgentIdPaged(Page<WorkOrder> page, @Param("agentId") Long agentId);
 
     @Update("UPDATE cs_work_order SET status = #{status}, update_time = NOW() WHERE id = #{id}")
     void updateStatus(@Param("id") Long id, @Param("status") WorkOrderStatus status);

@@ -8,4 +8,8 @@ public interface MessageRepository {
     Message save(Message message);
     List<Message> findBySessionId(String sessionId);
     List<Message> findBySessionIdAfter(String sessionId, String afterMessageId);
+
+    // Paged queries
+    List<Message> findBySessionId(String sessionId, int offset, int limit);
+    long countBySessionId(String sessionId);
 }

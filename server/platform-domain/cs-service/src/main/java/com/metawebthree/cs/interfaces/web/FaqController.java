@@ -55,6 +55,21 @@ public class FaqController {
         return ApiResponse.success(faqService.getAllFaqs());
     }
 
+    @Operation(summary = "分页查询所有FAQ")
+    @GetMapping("/listPaged")
+    public ApiResponse<java.util.Map<String, Object>> listPaged(
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        com.baomidou.mybatisplus.core.metadata.IPage<Faq> page = faqService.getAllFaqsPaged(pageNum, pageSize);
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        result.put("records", page.getRecords());
+        result.put("total", page.getTotal());
+        result.put("pages", page.getPages());
+        result.put("current", page.getCurrent());
+        result.put("size", page.getSize());
+        return ApiResponse.success(result);
+    }
+
     @Operation(summary = "根据分类查询")
     @GetMapping("/listByCategory")
     public ApiResponse<List<Faq>> listByCategory(@RequestParam String category) {

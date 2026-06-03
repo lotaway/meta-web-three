@@ -57,4 +57,43 @@ public class MongoConversationRepository implements ConversationRepository {
         Query query = Query.query(Criteria.where("customerId").is(customerId));
         return mongoTemplate.find(query, Conversation.class, "cs_conversation");
     }
+
+    @Override
+    public List<Conversation> findByAgentId(Long agentId, int offset, int limit) {
+        Query query = Query.query(Criteria.where("agentId").is(agentId))
+                .skip(offset).limit(limit);
+        return mongoTemplate.find(query, Conversation.class, "cs_conversation");
+    }
+
+    @Override
+    public long countByAgentId(Long agentId) {
+        Query query = Query.query(Criteria.where("agentId").is(agentId));
+        return mongoTemplate.count(query, "cs_conversation");
+    }
+
+    @Override
+    public List<Conversation> findByCustomerId(Long customerId, int offset, int limit) {
+        Query query = Query.query(Criteria.where("customerId").is(customerId))
+                .skip(offset).limit(limit);
+        return mongoTemplate.find(query, Conversation.class, "cs_conversation");
+    }
+
+    @Override
+    public long countByCustomerId(Long customerId) {
+        Query query = Query.query(Criteria.where("customerId").is(customerId));
+        return mongoTemplate.count(query, "cs_conversation");
+    }
+
+    @Override
+    public List<Conversation> findByStatus(ConversationStatus status, int offset, int limit) {
+        Query query = Query.query(Criteria.where("status").is(status))
+                .skip(offset).limit(limit);
+        return mongoTemplate.find(query, Conversation.class, "cs_conversation");
+    }
+
+    @Override
+    public long countByStatus(ConversationStatus status) {
+        Query query = Query.query(Criteria.where("status").is(status));
+        return mongoTemplate.count(query, "cs_conversation");
+    }
 }

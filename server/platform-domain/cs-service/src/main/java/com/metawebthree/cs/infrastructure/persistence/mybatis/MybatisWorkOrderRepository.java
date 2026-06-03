@@ -5,6 +5,8 @@ import com.metawebthree.cs.domain.model.enums.WorkOrderCategory;
 import com.metawebthree.cs.domain.model.enums.WorkOrderStatus;
 import com.metawebthree.cs.domain.repository.WorkOrderRepository;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -78,5 +80,30 @@ public class MybatisWorkOrderRepository implements WorkOrderRepository {
     @Override
     public Long countByCategory(WorkOrderCategory category) {
         return workOrderMapper.countByCategory(category);
+    }
+
+    @Override
+    public IPage<WorkOrder> findPendingPaged(Page<WorkOrder> page) {
+        return workOrderMapper.findPendingPaged(page);
+    }
+
+    @Override
+    public IPage<WorkOrder> findByCategoryPaged(Page<WorkOrder> page, WorkOrderCategory category) {
+        return workOrderMapper.findByCategoryPaged(page, category);
+    }
+
+    @Override
+    public IPage<WorkOrder> findByStatusPaged(Page<WorkOrder> page, WorkOrderStatus status) {
+        return workOrderMapper.findByStatusPaged(page, status);
+    }
+
+    @Override
+    public IPage<WorkOrder> findByCustomerIdPaged(Page<WorkOrder> page, Long customerId) {
+        return workOrderMapper.findByCustomerIdPaged(page, customerId);
+    }
+
+    @Override
+    public IPage<WorkOrder> findByAgentIdPaged(Page<WorkOrder> page, Long agentId) {
+        return workOrderMapper.findByAgentIdPaged(page, agentId);
     }
 }

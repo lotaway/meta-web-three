@@ -1,0 +1,126 @@
+# Vertical Pod Autoscaler (VPA) recommendations for resource optimization
+# Note: VPA requires vpa recomender installed in cluster
+# Usage: kubectl apply -f k8s/autoscaling/vpa.yaml
+# Set updateMode to "Auto" only after verifying recommendations
+
+---
+# Gateway VPA
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: gateway-vpa
+  namespace: meta-web-three
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: gateway
+  updatePolicy:
+    updateMode: "Off"  # Start with Off to get recommendations, then switch to Auto
+  resourcePolicy:
+    containerPolicies:
+    - containerName: gateway
+      minAllowed:
+        cpu: 250m
+        memory: 512Mi
+      maxAllowed:
+        cpu: "2"
+        memory: 4Gi
+      controlledResources: ["cpu", "memory"]
+
+---
+# Order Service VPA
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: order-service-vpa
+  namespace: meta-web-three
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: order-service
+  updatePolicy:
+    updateMode: "Off"
+  resourcePolicy:
+    containerPolicies:
+    - containerName: order-service
+      minAllowed:
+        cpu: 250m
+        memory: 512Mi
+      maxAllowed:
+        cpu: "2"
+        memory: 2Gi
+      controlledResources: ["cpu", "memory"]
+
+---
+# Product Service VPA
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: product-service-vpa
+  namespace: meta-web-three
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: product-service
+  updatePolicy:
+    updateMode: "Off"
+  resourcePolicy:
+    containerPolicies:
+    - containerName: product-service
+      minAllowed:
+        cpu: 250m
+        memory: 512Mi
+      maxAllowed:
+        cpu: "2"
+        memory: 2Gi
+
+---
+# Payment Service VPA
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: payment-service-vpa
+  namespace: meta-web-three
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: payment-service
+  updatePolicy:
+    updateMode: "Off"
+  resourcePolicy:
+    containerPolicies:
+    - containerName: payment-service
+      minAllowed:
+        cpu: 250m
+        memory: 512Mi
+      maxAllowed:
+        cpu: "2"
+        memory: 2Gi
+
+---
+# User Service VPA
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: user-service-vpa
+  namespace: meta-web-three
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: user-service
+  updatePolicy:
+    updateMode: "Off"
+  resourcePolicy:
+    containerPolicies:
+    - containerName: user-service
+      minAllowed:
+        cpu: 250m
+        memory: 512Mi
+      maxAllowed:
+        cpu: "2"
+        memory: 2Gi

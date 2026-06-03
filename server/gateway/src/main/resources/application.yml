@@ -8,7 +8,7 @@ spring:
       maximum-pool-size: 2
       minimum-idle: 0
   profiles:
-    active: dev
+    active: ${PROFILE:dev}
   quartz:
     auto-startup: false
     job-store-type: memory
@@ -22,18 +22,49 @@ spring:
             locator:
               enabled: true # Enable discovery locator proxy
               lower-case-service-id: true
-    zookeeper:
+    nacos:
       discovery:
-        register: false
+        register-enabled: true
         instance-id: ${spring.application.name}:${server.port}
   main:
     web-application-type: reactive
+  
+# SkyWalking Agent Configuration
+skywalking:
+  agent:
+    service_name: ${spring.application.name}
+    collecter_backend_service: localhost:11800
+    agent_log_path: ./logs/skywalking
+    sample_n_per_3_secs: -1
+    agent_package_path: org.apache.skywalking.apm.plugin
+    log_report_path: ./logs/skywalking/logs
+    cause_exception_depth: 5
+    flush_interval: 10
+    sampling_rate: 10000
+    agent_instance_name: ${skywalking.agent.service_name}-instance
+    agent_namespace: default
+    ignore_suffix: .jpg,.jpeg,.js,.css,.png,.bmp,.gif,.ico,.mp3,.mp4,.html,.svg
 gateway:
   auth:
     authorization-header: Authorization
     token-prefix: "Bearer "
     protected-path-prefix: /
-    excluded-path-patterns:
+  api-key:
+    header-key: X-API-Key
+    header-secret: X-API-Secret
+    enabled: true
+    signature-enabled: true
+    protected-paths:
+      - /api/open/
+      - /developer/api/
+      - /open-api/
+    public-paths:
+      - /developer/register
+      - /developer/docs
+      - /oauth/authorize
+      - /oauth/token
+      - /actuator/health
+  excluded-path-patterns:
       # User — login/register
       - /user-service/user/signIn
       - /user-service/user/signInWithWallet
@@ -89,6 +120,7 @@ springdoc:
       packages-to-scan: "com.metawebthree"
 
 # Resilience4j 熔断与降级配置
+
 resilience4j:
   circuitbreaker:
     instances:
@@ -123,11 +155,91 @@ resilience4j:
         permittedNumberOfCallsInHalfOpenState: 2
         waitDurationInOpenState: 10s
         failureRateThreshold: 50
+      userService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 3
+        permittedNumberOfCallsInHalfOpenState: 2
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 40
+      inventoryService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 3
+        permittedNumberOfCallsInHalfOpenState: 2
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 40
   timelimiter:
     instances:
       backend:
         timeoutDuration: 3s
         cancelRunningFuture: true
+      productService:
+        timeoutDuration: 2s
+        cancelRunningFuture: true
+      orderService:
+        timeoutDuration: 3s
+        cancelRunningFuture: true
+      paymentService:
+        timeoutDuration: 5s
+        cancelRunningFuture: true
+  retry:
+    instances:
+      backend:
+        maxAttempts: 3
+        waitDuration: 1s
+        exponentialBackoffMultiplier: 2
+        retryExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.util.concurrent.TimeoutException
+          - java.io.IOException
+      productService:
+        maxAttempts: 2
+        waitDuration: 500ms
+        exponentialBackoffMultiplier: 1.5
+        retryExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.util.concurrent.TimeoutException
+      orderService:
+        maxAttempts: 3
+        waitDuration: 1s
+        exponentialBackoffMultiplier: 2
+        retryExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.util.concurrent.TimeoutException
+          - java.io.IOException
+  ratelimiter:
+    instances:
+      backend:
+        limitForPeriod: 100
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0
+      productService:
+        limitForPeriod: 50
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0
+      orderService:
+        limitForPeriod: 30
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0
+      paymentService:
+        limitForPeriod: 20
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0
+  bulkhead:
+    instances:
+      backend:
+        maxConcurrentCalls: 50
+        maxWaitDuration: 10ms
+      productService:
+        maxConcurrentCalls: 30
+        maxWaitDuration: 10ms
+      orderService:
+        maxConcurrentCalls: 20
+        maxWaitDuration: 10ms
+      paymentService:
+        maxConcurrentCalls: 10
+        maxWaitDuration: 10ms
 
 # Dubbo configuration
 dubbo:
