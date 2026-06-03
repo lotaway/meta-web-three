@@ -4,20 +4,5 @@ spring:
   profiles:
     active: ${PROFILE:dev}
   cloud:
-    nacos:
-      config:
-        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
-        username: ${NACOS_USERNAME:nacos}
-        password: ${NACOS_PASSWORD:nacos}
-        namespace: ${NACOS_NAMESPACE:dev}
-        group: ${NACOS_GROUP:DEFAULT_GROUP}
-        file-extension: yaml
-        refresh-enabled: true
-      discovery:
-        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
-        username: ${NACOS_USERNAME:nacos}
-        password: ${NACOS_PASSWORD:nacos}
-        namespace: ${NACOS_NAMESPACE:dev}
-        group: ${NACOS_GROUP:DEFAULT_GROUP}
-        register-enabled: true
-        instance-id: ${spring.application.name}:${server.port}
+    zookeeper:
+      connect-string: ${ZOOKEEPER_CONNECT_STRING:localhost:2181}

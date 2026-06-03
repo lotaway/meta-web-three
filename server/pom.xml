@@ -93,14 +93,6 @@
     </properties>
     <dependencyManagement>
         <dependencies>
-            <!-- Nacos Configuration Center & Service Discovery -->
-            <dependency>
-                <groupId>com.alibaba.cloud</groupId>
-                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
-                <version>2023.0.1.0</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
             <!-- will make spring core low to 5.3.39 not match spring boot 3.5.4(need 6.x)
             https://mvnrepository.com/artifact/org.apache.dubbo/dubbo-bom -->
             <!-- <dependency>
@@ -325,22 +317,11 @@
             <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- Nacos Configuration Center -->
+        <!-- Zookeeper Service Discovery -->
         <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
-        </dependency>
-        <!-- Nacos Service Discovery -->
-        <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-        </dependency>
-        <!--
-        https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-zookeeper-discovery -->
-        <!-- <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
-        </dependency> -->
+        </dependency>
         <!-- Spring Cloud Circuit Breaker -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -368,7 +349,6 @@
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo-registry-zookeeper</artifactId>
             <version>${dubbo.version}</version>
-            <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.javassist/javassist -->
         <dependency>

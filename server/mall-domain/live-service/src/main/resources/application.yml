@@ -4,18 +4,11 @@ server:
 spring:
   application:
     name: live-service
-  cloud:
-    nacos:
-      discovery:
-        server-addr: ${NACOS_SERVER:localhost:8848}
+  config:
+    import:
+      - optional:classpath:application-common.yml
 
 dubbo:
-  application:
-    name: live-service
   protocol:
     name: dubbo
     port: 20886
-  registry:
-    address: nacos://${NACOS_SERVER:localhost:8848}
-  consumer:
-    check: false

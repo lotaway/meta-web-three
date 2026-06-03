@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: after-sale-service
+  config:
+    import:
+      - optional:classpath:application-common.yml
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/meta_web_three?useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=Asia/Shanghai
@@ -15,12 +18,6 @@ mybatis:
   type-aliases-package: com.metawebthree.aftersale.domain.model
 
 dubbo:
-  application:
-    name: after-sale-service
   protocol:
     name: dubbo
     port: 20886
-  registry:
-    address: nacos://localhost:8848
-  consumer:
-    check: false
