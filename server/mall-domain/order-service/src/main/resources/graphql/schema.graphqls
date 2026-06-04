@@ -1,0 +1,61 @@
+extend type Query {
+    order(id: ID!): Order
+    orders(page: Int, size: Int, status: String): OrderConnection
+    orderByOrderNo(orderNo: String!): Order
+}
+
+extend type Mutation {
+    createOrder(input: CreateOrderInput!): Order
+    cancelOrder(id: ID!): Order
+    payOrder(id: ID!, paymentMethod: String!): Order
+}
+
+type Order @key(fields: "id") {
+    id: ID!
+    orderNo: String!
+    userId: ID!
+    totalAmount: Float!
+    status: String
+    items: [OrderItem]
+    shippingAddress: String
+    paymentMethod: String
+    createdAt: String
+    updatedAt: String
+}
+
+type OrderItem @key(fields: "id") {
+    id: ID!
+    productId: ID!
+    quantity: Int!
+    price: Float!
+    subtotal: Float!
+}
+
+input CreateOrderInput {
+    items: [OrderItemInput!]!
+    shippingAddress: String!
+    paymentMethod: String!
+}
+
+input OrderItemInput {
+    productId: ID!
+    quantity: Int!
+}
+
+type OrderConnection {
+    edges: [OrderEdge]
+    pageInfo: PageInfo
+    totalCount: Int
+}
+
+type OrderEdge {
+    node: Order
+    cursor: String
+}
+
+type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    startCursor: String
+    endCursor: String
+}

@@ -13,7 +13,7 @@ public class ProductEntityDO {
     @TableId(type = IdType.ASSIGN_ID)
     private Integer id;
     private Integer productId;
-    private String productArtno;
+    private String sku;
     private BigDecimal salePrice;
     private BigDecimal marketPrice;
     private Integer inventory;

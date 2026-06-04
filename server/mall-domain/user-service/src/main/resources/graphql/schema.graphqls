@@ -1,0 +1,33 @@
+extend type Query {
+    user(id: ID!): User
+    users(page: Int, size: Int): UserConnection
+}
+
+type User @key(fields: "id") {
+    id: ID!
+    username: String!
+    nickname: String
+    email: String
+    mobile: String
+    avatar: String
+    status: String
+    createdAt: String
+}
+
+type UserConnection {
+    edges: [UserEdge]
+    pageInfo: PageInfo
+    totalCount: Int
+}
+
+type UserEdge {
+    node: User
+    cursor: String
+}
+
+type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    startCursor: String
+    endCursor: String
+}

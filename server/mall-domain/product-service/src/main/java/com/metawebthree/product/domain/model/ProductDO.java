@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class ProductDO {
     @TableId(type = IdType.ASSIGN_ID)
     private Integer id;
-    private String productNo;
+    private String sku;
     private String productName;
     private Integer creator;
     private LocalDateTime createTime;

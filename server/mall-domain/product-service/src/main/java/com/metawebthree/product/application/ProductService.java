@@ -91,7 +91,7 @@ public class ProductService {
     private void mapBasicInfo(ProductDetailDTO detail, ProductDO product) {
         detail.setId(product.getId());
         detail.setGoodsName(product.getProductName());
-        detail.setGoodsNo(product.getProductNo());
+        detail.setGoodsNo(product.getSku());
         detail.setGoodsRemark(product.getProductRemark());
     }
 
@@ -114,7 +114,7 @@ public class ProductService {
         detail.setSalePrice(entity.getSalePrice());
         detail.setMarketPrice(entity.getMarketPrice());
         detail.setInventory(entity.getInventory() != null ? entity.getInventory() : 0);
-        detail.setGoodsArtno(entity.getProductArtno());
+        detail.setGoodsArtno(entity.getSku());
     }
 
     private void initCollections(ProductDetailDTO detail) {
@@ -191,7 +191,7 @@ public class ProductService {
         ProductDTO dto = new ProductDTO();
         dto.setId(item.getId());
         dto.setName(item.getProductName());
-        dto.setGoodsNo(item.getProductNo());
+        dto.setGoodsNo(item.getSku());
 
         // 使用已批量查询的数据
         if (stats != null) {

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.apache.dubbo.config.annotation.DubboService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.metawebthree.common.generated.rpc.CloseOrderRequest;
 import com.metawebthree.common.generated.rpc.CloseOrderResponse;
@@ -38,6 +37,8 @@ import com.metawebthree.common.generated.rpc.PaySuccessResponse;
 import com.metawebthree.common.generated.rpc.QueryLogisticsRequest;
 import com.metawebthree.common.generated.rpc.QueryLogisticsResponse;
 import com.metawebthree.common.generated.rpc.google.type.Money;
+import com.metawebthree.common.constants.PaginationConstants;
+import com.metawebthree.common.utils.ValidationUtils;
 import com.metawebthree.order.domain.model.OrderDO;
 import com.metawebthree.order.domain.model.OrderItemDO;
 import com.metawebthree.order.infrastructure.persistence.mapper.OrderItemMapper;
@@ -49,18 +50,24 @@ import lombok.extern.slf4j.Slf4j;
 @DubboService
 public class OrderServiceImpl implements OrderService {
 
-    @Autowired
-    private OrderMapper orderMapper;
+    private static final String DEFAULT_CURRENCY = "USD";
+    private static final long NANOS_PER_UNIT = 1_000_000_000L;
+    private static final String ORDER_STATUS_CREATED = "CREATED";
+    private static final String ORDER_TYPE_NORMAL = "NORMAL";
 
-    @Autowired
-    private OrderItemMapper orderItemMapper;
+    private final OrderMapper orderMapper;
+    private final OrderItemMapper orderItemMapper;
+    private final OrderApplicationService orderApplicationService;
 
-    @Autowired
-    private OrderApplicationService orderApplicationService;
+    public OrderServiceImpl(OrderMapper orderMapper, OrderItemMapper orderItemMapper, OrderApplicationService orderApplicationService) {
+        this.orderMapper = orderMapper;
+        this.orderItemMapper = orderItemMapper;
+        this.orderApplicationService = orderApplicationService;
+    }
 
     @Override
     public GetOrderByUserIdResponse getOrderByUserId(GetOrderByUserIdRequest request) {
-        Long userId = request.getId();
+        Long userId = request.getUserId();
         List<OrderDO> orders = orderMapper.selectList(
                 new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<OrderDO>()
                         .eq(OrderDO::getUserId, userId)
@@ -76,7 +83,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public GetOrderByOrderNoResponse getOrderByOrderNo(GetOrderByOrderNoRequest request) {
-        log.info("Dubbo RPC: getOrderByOrderNo, orderNo: {}", request.getOrderNo());
         OrderDO order = orderMapper.selectOne(
                 new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<OrderDO>()
                         .eq(OrderDO::getOrderNo, request.getOrderNo()));
@@ -93,20 +99,19 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ListOrdersResponse listOrders(ListOrdersRequest request) {
-        int page = request.getPage() > 0 ? request.getPage() : 1;
-        int size = request.getSize() > 0 ? request.getSize() : 10;
-        log.info("Dubbo RPC: listOrders, page: {}, size: {}", page, size);
+        int page = request.getPage() > 0 ? request.getPage() : PaginationConstants.DEFAULT_PAGE;
+        int size = request.getSize() > 0 ? request.getSize() : PaginationConstants.DEFAULT_SIZE;
 
-        long total = orderMapper.selectCount(null);
-        List<OrderDO> orders = orderMapper.selectList(
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<OrderDO> mpPage =
+                new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(page, size);
+        com.baomidou.mybatisplus.core.metadata.IPage<OrderDO> pageResult = orderMapper.selectPage(mpPage,
                 new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<OrderDO>()
-                        .orderByDesc(OrderDO::getCreatedAt)
-                        .last("limit " + size + " offset " + (page - 1) * size));
-        List<OrderDTO> dtos = orders.stream().map(this::toDto).toList();
+                        .orderByDesc(OrderDO::getCreatedAt));
+        List<OrderDTO> dtos = pageResult.getRecords().stream().map(this::toDto).toList();
         return ListOrdersResponse.newBuilder()
                 .setPage(page)
                 .setSize(size)
-                .setTotal(total)
+                .setTotal(pageResult.getTotal())
                 .addAllOrders(dtos)
                 .build();
     }
@@ -117,7 +122,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private OrderDTO toDto(OrderDO o) {
-        Money money = toMoney(o.getOrderAmount(), "USD");
+        Money money = toMoney(o.getOrderAmount(), DEFAULT_CURRENCY);
         return OrderDTO.newBuilder()
                 .setId(o.getId())
                 .setUserId(o.getUserId())
@@ -131,35 +136,26 @@ public class OrderServiceImpl implements OrderService {
 
     private Money toMoney(BigDecimal amount, String currency) {
         long units = amount.longValue();
-        BigDecimal nanosDecimal = amount.subtract(BigDecimal.valueOf(units)).multiply(BigDecimal.valueOf(1_000_000_000L));
-        int nanos = nanosDecimal.intValue();
+        BigDecimal nanosDecimal = amount.subtract(BigDecimal.valueOf(units)).multiply(BigDecimal.valueOf(NANOS_PER_UNIT));
+        int nanos = ValidationUtils.safeIntFromLong(nanosDecimal.longValue(), "nanos");
         return Money.newBuilder().setCurrencyCode(currency).setUnits(units).setNanos(nanos).build();
     }
 
     @Override
     public CreateReturnApplyResponse createReturnApply(CreateReturnApplyRequest request) {
-        log.info("Create return apply request received, orderId: {}", request.getOrderId());
-        try {
-            Long orderId = request.getOrderId();
-            String reason = request.getReason();
-            OrderDO order = orderMapper.selectById(orderId);
-            if (order == null) {
-                return CreateReturnApplyResponse.newBuilder()
-                        .setSuccess(false)
-                        .setMessage("Order not found")
-                        .build();
-            }
-            return CreateReturnApplyResponse.newBuilder()
-                    .setSuccess(true)
-                    .setMessage("Return apply created")
-                    .build();
-        } catch (Exception e) {
-            log.error("Failed to create return apply", e);
+        Long orderId = request.getOrderId();
+        String reason = request.getReason();
+        OrderDO order = orderMapper.selectById(orderId);
+        if (order == null) {
             return CreateReturnApplyResponse.newBuilder()
                     .setSuccess(false)
-                    .setMessage("Failed to create return apply: " + e.getMessage())
+                    .setMessage("Order not found")
                     .build();
         }
+        return CreateReturnApplyResponse.newBuilder()
+                .setSuccess(true)
+                .setMessage("Return apply created")
+                .build();
     }
 
     @Override
@@ -169,56 +165,53 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public CreateOrderResponse createOrder(CreateOrderRequest request) {
-        log.info("Dubbo RPC: createOrder called with userId: {}", request.getUserId());
-        try {
-            Long orderId = com.baomidou.mybatisplus.core.toolkit.IdWorker.getId();
-            String orderNo = String.valueOf(com.baomidou.mybatisplus.core.toolkit.IdWorker.getId());
-
-            java.math.BigDecimal total = java.math.BigDecimal.ZERO;
-            for (OrderItemProto item : request.getItemsList()) {
-                total = total.add(java.math.BigDecimal.valueOf(item.getPrice())
-                        .multiply(java.math.BigDecimal.valueOf(item.getQuantity())));
-            }
-
-            OrderDO order = OrderDO.builder()
-                    .id(orderId)
-                    .userId(request.getUserId())
-                    .orderNo(orderNo)
-                    .orderStatus("CREATED")
-                    .orderType("NORMAL")
-                    .orderAmount(total)
-                    .orderRemark(request.getOrderRemark())
-                    .build();
-            orderMapper.insert(order);
-
-            for (OrderItemProto item : request.getItemsList()) {
-                java.math.BigDecimal itemTotal = java.math.BigDecimal.valueOf(item.getPrice())
-                        .multiply(java.math.BigDecimal.valueOf(item.getQuantity()));
-                OrderItemDO orderItem = OrderItemDO.builder()
-                        .id(com.baomidou.mybatisplus.core.toolkit.IdWorker.getId())
-                        .orderId(orderId)
-                        .productId(item.getProductId())
-                        .productName(item.getProductName())
-                        .quantity(item.getQuantity())
-                        .unitPrice(java.math.BigDecimal.valueOf(item.getPrice()))
-                        .totalPrice(itemTotal)
-                        .build();
-                orderItemMapper.insert(orderItem);
-            }
-
-            return CreateOrderResponse.newBuilder()
-                    .setOrderId(orderId)
-                    .setOrderNo(orderNo)
-                    .setSuccess(true)
-                    .setMessage("Order created successfully")
-                    .build();
-        } catch (Exception e) {
-            log.error("Failed to create order", e);
-            return CreateOrderResponse.newBuilder()
-                    .setSuccess(false)
-                    .setMessage("Failed to create order: " + e.getMessage())
-                    .build();
+        if (request == null) {
+            return CreateOrderResponse.newBuilder().setSuccess(false).setMessage("Request must not be null").build();
         }
+        if (request.getItemsList().isEmpty()) {
+            return CreateOrderResponse.newBuilder().setSuccess(false).setMessage("Order must have at least one item").build();
+        }
+        Long orderId = com.baomidou.mybatisplus.core.toolkit.IdWorker.getId();
+        String orderNo = String.valueOf(com.baomidou.mybatisplus.core.toolkit.IdWorker.getId());
+
+        java.math.BigDecimal total = java.math.BigDecimal.ZERO;
+        for (OrderItemProto item : request.getItemsList()) {
+            total = total.add(java.math.BigDecimal.valueOf(item.getPrice())
+                    .multiply(java.math.BigDecimal.valueOf(item.getQuantity())));
+        }
+
+        OrderDO order = OrderDO.builder()
+                .id(orderId)
+                .userId(request.getUserId())
+                .orderNo(orderNo)
+                .orderStatus(ORDER_STATUS_CREATED)
+                .orderType(ORDER_TYPE_NORMAL)
+                .orderAmount(total)
+                .orderRemark(request.getOrderRemark())
+                .build();
+        orderMapper.insert(order);
+
+        for (OrderItemProto item : request.getItemsList()) {
+            java.math.BigDecimal itemTotal = java.math.BigDecimal.valueOf(item.getPrice())
+                    .multiply(java.math.BigDecimal.valueOf(item.getQuantity()));
+            OrderItemDO orderItem = OrderItemDO.builder()
+                    .id(com.baomidou.mybatisplus.core.toolkit.IdWorker.getId())
+                    .orderId(orderId)
+                    .productId(item.getProductId())
+                    .productName(item.getProductName())
+                    .quantity(item.getQuantity())
+                    .unitPrice(java.math.BigDecimal.valueOf(item.getPrice()))
+                    .totalPrice(itemTotal)
+                    .build();
+            orderItemMapper.insert(orderItem);
+        }
+
+        return CreateOrderResponse.newBuilder()
+                .setOrderId(orderId)
+                .setOrderNo(orderNo)
+                .setSuccess(true)
+                .setMessage("Order created successfully")
+                .build();
     }
 
     @Override
@@ -228,7 +221,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public QueryLogisticsResponse queryLogistics(QueryLogisticsRequest request) {
-        log.info("Query logistics request received, orderId: {}", request.getOrderId());
         return QueryLogisticsResponse.newBuilder()
                 .setLogisticsCompany("SF Express")
                 .setTrackingNumber("SF" + request.getOrderId())
@@ -245,26 +237,17 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public PaySuccessResponse paySuccess(PaySuccessRequest request) {
-        log.info("Pay success request received, orderId: {}", request.getOrderId());
-        try {
-            OrderDO order = orderMapper.selectById(request.getOrderId());
-            if (order == null) {
-                return PaySuccessResponse.newBuilder()
-                        .setSuccess(false)
-                        .setMessage("Order not found")
-                        .build();
-            }
-            return PaySuccessResponse.newBuilder()
-                    .setSuccess(true)
-                    .setMessage("Payment processed successfully")
-                    .build();
-        } catch (Exception e) {
-            log.error("Failed to process payment", e);
+        OrderDO order = orderMapper.selectById(request.getOrderId());
+        if (order == null) {
             return PaySuccessResponse.newBuilder()
                     .setSuccess(false)
-                    .setMessage("Failed to process payment: " + e.getMessage())
+                    .setMessage("Order not found")
                     .build();
         }
+        return PaySuccessResponse.newBuilder()
+                .setSuccess(true)
+                .setMessage("Payment processed successfully")
+                .build();
     }
 
     @Override
@@ -274,26 +257,17 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public CloseOrderResponse closeOrder(CloseOrderRequest request) {
-        log.info("Close order request received, orderIds: {}", request.getIds());
-        try {
-            String orderIds = request.getIds();
-            if (orderIds == null || orderIds.isEmpty()) {
-                return CloseOrderResponse.newBuilder()
-                        .setSuccess(false)
-                        .setMessage("Order ids is empty")
-                        .build();
-            }
-            return CloseOrderResponse.newBuilder()
-                    .setSuccess(true)
-                    .setMessage("Order closed successfully")
-                    .build();
-        } catch (Exception e) {
-            log.error("Failed to close order", e);
+        String orderIds = request.getIds();
+        if (orderIds == null || orderIds.isEmpty()) {
             return CloseOrderResponse.newBuilder()
                     .setSuccess(false)
-                    .setMessage("Failed to close order: " + e.getMessage())
+                    .setMessage("Order ids is empty")
                     .build();
         }
+        return CloseOrderResponse.newBuilder()
+                .setSuccess(true)
+                .setMessage("Order closed successfully")
+                .build();
     }
 
     @Override
@@ -303,8 +277,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public GetSalesByHourTodayResponse getSalesByHourToday(GetSalesByHourTodayRequest request) {
-        log.info("getSalesByHourToday request received");
-        // Return empty response, actual implementation requires order data aggregation
         return GetSalesByHourTodayResponse.newBuilder().build();
     }
 
@@ -315,7 +287,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public GetHotProductsResponse getHotProducts(GetHotProductsRequest request) {
-        log.info("getHotProducts request received, limit: {}", request.getLimit());
         return GetHotProductsResponse.newBuilder().build();
     }
 
@@ -326,7 +297,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public GetOrderStatusDistributionResponse getOrderStatusDistribution(GetOrderStatusDistributionRequest request) {
-        log.info("getOrderStatusDistribution request received");
         return GetOrderStatusDistributionResponse.newBuilder().build();
     }
 
@@ -337,7 +307,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public GetPendingOrdersCountResponse getPendingOrdersCount(GetPendingOrdersCountRequest request) {
-        log.info("getPendingOrdersCount request received");
         return GetPendingOrdersCountResponse.newBuilder().setCount(0L).build();
     }
 
@@ -348,7 +317,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public GetPendingPaymentsCountResponse getPendingPaymentsCount(GetPendingPaymentsCountRequest request) {
-        log.info("getPendingPaymentsCount request received");
         return GetPendingPaymentsCountResponse.newBuilder().setCount(0L).build();
     }
 

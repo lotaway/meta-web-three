@@ -56,7 +56,7 @@ public class EsProductApplicationService {
         Map<String, Object> doc = new HashMap<>();
         doc.put("id", product.getId());
         doc.put("productName", product.getProductName());
-        doc.put("productNo", product.getProductNo());
+        doc.put("sku", product.getSku());
         doc.put("productRemark", product.getProductRemark());
         doc.put("brandId", product.getBrandId());
         doc.put("categoryId", product.getCategoryId());

@@ -4,9 +4,10 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.apache.dubbo.config.annotation.DubboService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.metawebthree.common.generated.rpc.*;
+import com.metawebthree.common.constants.PaginationConstants;
+import com.metawebthree.common.utils.ValidationUtils;
 import com.metawebthree.product.dto.ProductDetailDTO;
 import com.metawebthree.product.infrastructure.persistence.mapper.ProductMapper;
 import com.metawebthree.product.infrastructure.persistence.mapper.ProductEntityMapper;
@@ -19,18 +20,19 @@ import lombok.extern.slf4j.Slf4j;
 @DubboService
 public class ProductServiceRpcImpl implements com.metawebthree.common.generated.rpc.ProductService {
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
+    private final ProductMapper productMapper;
+    private final ProductEntityMapper productEntityMapper;
 
-    @Autowired
-    private ProductMapper productMapper;
-
-    @Autowired
-    private ProductEntityMapper productEntityMapper;
+    public ProductServiceRpcImpl(ProductService productService, ProductMapper productMapper, ProductEntityMapper productEntityMapper) {
+        this.productService = productService;
+        this.productMapper = productMapper;
+        this.productEntityMapper = productEntityMapper;
+    }
 
     @Override
     public GetProductDetailResponse getProductDetail(GetProductDetailRequest request) {
-        ProductDetailDTO detail = productService.getProductDetail((int) request.getProductId());
+        ProductDetailDTO detail = productService.getProductDetail(ValidationUtils.safeIntFromLong(request.getProductId(), "productId"));
         if (detail == null) {
             return GetProductDetailResponse.newBuilder().build();
         }
@@ -58,21 +60,14 @@ public class ProductServiceRpcImpl implements com.metawebthree.common.generated.
 
     @Override
     public ListProductsResponse listProducts(ListProductsRequest request) {
-        log.info("Dubbo RPC: listProducts called with page: {}, size: {}, categoryId: {}",
-                request.getPage(), request.getSize(), request.getCategoryId());
-        try {
-            com.baomidou.mybatisplus.core.metadata.IPage<ProductDO> pageResult = queryListProducts(request);
-            List<ProductDetailProto> products = toProductDetailProtos(pageResult);
-            return ListProductsResponse.newBuilder()
-                    .addAllProducts(products)
-                    .setTotalCount((int) pageResult.getTotal())
-                    .setPage(request.getPage() > 0 ? request.getPage() : 1)
-                    .setSize(request.getSize() > 0 ? request.getSize() : 10)
-                    .build();
-        } catch (Exception e) {
-            log.error("Failed to list products", e);
-            return ListProductsResponse.newBuilder().build();
-        }
+        com.baomidou.mybatisplus.core.metadata.IPage<ProductDO> pageResult = queryListProducts(request);
+        List<ProductDetailProto> products = toProductDetailProtos(pageResult);
+        return ListProductsResponse.newBuilder()
+                .addAllProducts(products)
+                .setTotalCount((int) pageResult.getTotal())
+                .setPage(request.getPage() > 0 ? request.getPage() : PaginationConstants.DEFAULT_PAGE)
+                .setSize(request.getSize() > 0 ? request.getSize() : PaginationConstants.DEFAULT_SIZE)
+                .build();
     }
 
     @Override
@@ -82,13 +77,7 @@ public class ProductServiceRpcImpl implements com.metawebthree.common.generated.
 
     @Override
     public GetProductBySkuResponse getProductBySku(GetProductBySkuRequest request) {
-        log.info("Dubbo RPC: getProductBySku called with sku: {}", request.getSku());
-        try {
-            return buildGetProductBySkuResponse(request);
-        } catch (Exception e) {
-            log.error("Failed to get product by sku", e);
-            return GetProductBySkuResponse.newBuilder().build();
-        }
+        return buildGetProductBySkuResponse(request);
     }
 
     @Override
@@ -98,21 +87,12 @@ public class ProductServiceRpcImpl implements com.metawebthree.common.generated.
 
     @Override
     public CreateProductResponse createProduct(CreateProductRequest request) {
-        log.info("Dubbo RPC: createProduct called with name: {}, sku: {}", request.getName(), request.getSku());
-        try {
-            ProductDO product = saveProduct(request);
-            return CreateProductResponse.newBuilder()
-                    .setId(product.getId() != null ? product.getId() : 0L)
-                    .setSuccess(true)
-                    .setMessage("Product created successfully")
-                    .build();
-        } catch (Exception e) {
-            log.error("Failed to create product", e);
-            return CreateProductResponse.newBuilder()
-                    .setSuccess(false)
-                    .setMessage("Failed to create product: " + e.getMessage())
-                    .build();
-        }
+        ProductDO product = saveProduct(request);
+        return CreateProductResponse.newBuilder()
+                .setId(product.getId() != null ? product.getId() : 0L)
+                .setSuccess(true)
+                .setMessage("")
+                .build();
     }
 
     @Override
@@ -122,17 +102,19 @@ public class ProductServiceRpcImpl implements com.metawebthree.common.generated.
 
     @Override
     public UpdateProductResponse updateProduct(UpdateProductRequest request) {
-        log.info("Dubbo RPC: updateProduct called with id: {}", request.getId());
-        try {
-            ProductDO product = productMapper.selectById((int) request.getId());
-            if (product == null) return buildUpdateErrorResponse("Product not found");
-            applyProductUpdate(product, request);
-            applyEntityUpdate(request);
-            return buildUpdateSuccessResponse();
-        } catch (Exception e) {
-            log.error("Failed to update product", e);
-            return buildUpdateErrorResponse("Failed to update product: " + e.getMessage());
+        ProductDO product = productMapper.selectById(ValidationUtils.safeIntFromLong(request.getId(), "id"));
+        if (product == null) {
+            return UpdateProductResponse.newBuilder()
+                    .setSuccess(false)
+                    .setMessage("Product not found")
+                    .build();
         }
+        applyProductUpdate(product, request);
+        applyEntityUpdate(request);
+        return UpdateProductResponse.newBuilder()
+                .setSuccess(true)
+                .setMessage("Product updated successfully")
+                .build();
     }
 
     @Override
@@ -142,20 +124,11 @@ public class ProductServiceRpcImpl implements com.metawebthree.common.generated.
 
     @Override
     public DeleteProductResponse deleteProduct(DeleteProductRequest request) {
-        log.info("Dubbo RPC: deleteProduct called with id: {}", request.getId());
-        try {
-            int deleted = productMapper.deleteById((int) request.getId());
-            return DeleteProductResponse.newBuilder()
-                    .setSuccess(deleted > 0)
-                    .setMessage(deleted > 0 ? "Product deleted successfully" : "Product not found")
-                    .build();
-        } catch (Exception e) {
-            log.error("Failed to delete product", e);
-            return DeleteProductResponse.newBuilder()
-                    .setSuccess(false)
-                    .setMessage("Failed to delete product: " + e.getMessage())
-                    .build();
-        }
+        int deleted = productMapper.deleteById(ValidationUtils.safeIntFromLong(request.getId(), "id"));
+        return DeleteProductResponse.newBuilder()
+                .setSuccess(deleted > 0)
+                .setMessage(deleted > 0 ? "Product deleted successfully" : "Product not found")
+                .build();
     }
 
     @Override
@@ -164,8 +137,8 @@ public class ProductServiceRpcImpl implements com.metawebthree.common.generated.
     }
 
     private com.baomidou.mybatisplus.core.metadata.IPage<ProductDO> queryListProducts(ListProductsRequest request) {
-        int page = request.getPage() > 0 ? request.getPage() : 1;
-        int size = request.getSize() > 0 ? request.getSize() : 10;
+        int page = request.getPage() > 0 ? request.getPage() : PaginationConstants.DEFAULT_PAGE;
+        int size = request.getSize() > 0 ? request.getSize() : PaginationConstants.DEFAULT_SIZE;
 
         com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<ProductDO> wrapper =
                 new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<ProductDO>()
@@ -193,7 +166,7 @@ public class ProductServiceRpcImpl implements com.metawebthree.common.generated.
     private GetProductBySkuResponse buildGetProductBySkuResponse(GetProductBySkuRequest request) {
         List<ProductEntityDO> entities = productEntityMapper.selectList(
                 new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<ProductEntityDO>()
-                        .eq(ProductEntityDO::getProductArtno, request.getSku()));
+                        .eq(ProductEntityDO::getSku, request.getSku()));
         if (entities.isEmpty()) return GetProductBySkuResponse.newBuilder().build();
         ProductEntityDO entity = entities.get(0);
         ProductDO product = productMapper.selectById(entity.getProductId());
@@ -210,7 +183,7 @@ public class ProductServiceRpcImpl implements com.metawebthree.common.generated.
     private ProductDO saveProduct(CreateProductRequest request) {
         ProductDO product = new ProductDO();
         product.setProductName(request.getName());
-        product.setProductNo(request.getSku());
+        product.setSku(request.getSku());
         product.setProductRemark(request.getSubTitle());
         product.setCategoryId(request.getCategoryId());
         product.setCreateTime(java.time.LocalDateTime.now());
@@ -218,7 +191,7 @@ public class ProductServiceRpcImpl implements com.metawebthree.common.generated.
 
         ProductEntityDO entity = new ProductEntityDO();
         entity.setProductId(product.getId());
-        entity.setProductArtno(request.getSku());
+        entity.setSku(request.getSku());
         entity.setSalePrice(java.math.BigDecimal.valueOf(request.getPrice()));
         entity.setInventory(request.getStock());
         entity.setImageUrl(request.getPic());
@@ -232,7 +205,7 @@ public class ProductServiceRpcImpl implements com.metawebthree.common.generated.
             product.setProductName(request.getName());
         }
         if (!request.getSku().isEmpty()) {
-            product.setProductNo(request.getSku());
+            product.setSku(request.getSku());
         }
         if (!request.getSubTitle().isEmpty()) {
             product.setProductRemark(request.getSubTitle());
@@ -244,30 +217,16 @@ public class ProductServiceRpcImpl implements com.metawebthree.common.generated.
     }
 
     private void applyEntityUpdate(UpdateProductRequest request) {
-        if (request.getSku().isEmpty() && request.getPrice() == 0.0 && request.getStock() == 0 && request.getPic().isEmpty()) return;
         List<ProductEntityDO> entities = productEntityMapper.selectList(
                 new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<ProductEntityDO>()
-                        .eq(ProductEntityDO::getProductId, (int) request.getId()));
+                        .eq(ProductEntityDO::getProductId, ValidationUtils.safeIntFromLong(request.getId(), "id")));
         if (entities.isEmpty()) return;
         ProductEntityDO entity = entities.get(0);
-        if (!request.getSku().isEmpty()) entity.setProductArtno(request.getSku());
+        if (!request.getSku().isEmpty()) entity.setSku(request.getSku());
         if (request.getPrice() != 0.0) entity.setSalePrice(java.math.BigDecimal.valueOf(request.getPrice()));
         if (request.getStock() != 0) entity.setInventory(request.getStock());
         if (!request.getPic().isEmpty()) entity.setImageUrl(request.getPic());
         productEntityMapper.updateById(entity);
     }
 
-    private UpdateProductResponse buildUpdateErrorResponse(String message) {
-        return UpdateProductResponse.newBuilder()
-                .setSuccess(false)
-                .setMessage(message)
-                .build();
-    }
-
-    private UpdateProductResponse buildUpdateSuccessResponse() {
-        return UpdateProductResponse.newBuilder()
-                .setSuccess(true)
-                .setMessage("Product updated successfully")
-                .build();
-    }
 }

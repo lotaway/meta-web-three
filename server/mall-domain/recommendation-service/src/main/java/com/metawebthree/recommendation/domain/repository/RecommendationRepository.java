@@ -9,6 +9,8 @@ public interface RecommendationRepository {
     List<Recommendation> findByUserId(Long userId);
     List<Recommendation> findByUserIdAndScene(Long userId, String scene);
     List<Recommendation> findByStatus(Recommendation.RecommendationStatus status);
+    List<Recommendation> findAll();
+    long count();
     Recommendation save(Recommendation recommendation);
     void update(Recommendation recommendation);
     void deleteById(Long id);

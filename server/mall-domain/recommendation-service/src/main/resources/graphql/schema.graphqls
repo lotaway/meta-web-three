@@ -1,0 +1,90 @@
+extend type Query {
+    recommendations(userId: ID!, limit: Int): [RecommendationResult]
+    recommendationsByScene(userId: ID!, scene: String!, limit: Int): [RecommendationResult]
+    recommendationsByAlgorithm(userId: ID!, algorithm: String!, limit: Int): [RecommendationResult]
+    recommendation(id: ID!): Recommendation
+    recommendationMetrics(userId: ID!): RecommendationMetrics
+    userBehaviorHistory(userId: ID!, limit: Int): [UserBehavior]
+    rulesByScene(scene: String!): [RecommendationRule]
+}
+
+extend type Mutation {
+    generateRecommendation(userId: ID!, scene: String!, algorithm: String!, maxItems: Int): Recommendation
+    recordBehavior(userId: ID!, skuCode: String!, behaviorType: String!): Boolean
+    createRecommendationRule(ruleName: String!, scene: String!, type: String!): RecommendationRule
+    activateRecommendationRule(id: ID!): Boolean
+    deleteRecommendationRule(id: ID!): Boolean
+    markRecommendationClicked(id: ID!): Boolean
+    markRecommendationPurchased(id: ID!): Boolean
+}
+
+type Recommendation @key(fields: "id") {
+    id: ID!
+    userId: ID!
+    scene: String!
+    algorithm: String!
+    score: Float
+    status: String
+    items: [RecommendedItem]
+    clickCount: Int
+    conversionCount: Int
+    impressionCount: Int
+    createdAt: String
+    expiresAt: String
+}
+
+type RecommendedItem {
+    skuCode: String!
+    skuName: String
+    score: Float
+    rank: Int
+    reason: String
+}
+
+type RecommendationResult @key(fields: "id") {
+    id: ID!
+    userId: ID!
+    productId: ID!
+    score: Float
+    algorithm: String
+    reason: String
+    position: Int
+    isClicked: Boolean
+    isPurchased: Boolean
+    createdAt: String
+    expiresAt: String
+}
+
+type RecommendationMetrics {
+    totalRecommendations: Long!
+    clickedCount: Long!
+    purchasedCount: Long!
+    clickThroughRate: Float!
+    conversionRate: Float!
+}
+
+type RecommendationRule @key(fields: "id") {
+    id: ID!
+    ruleName: String!
+    scene: String!
+    type: String
+    status: String
+    priority: Int
+    maxItems: Int
+    conditions: String
+    exclusions: String
+    boostFactor: Float
+    createdAt: String
+    updatedAt: String
+}
+
+type UserBehavior @key(fields: "id") {
+    id: ID!
+    userId: ID!
+    productId: ID!
+    behaviorType: String!
+    behaviorValue: Float
+    timestamp: String
+    sessionId: String
+    source: String
+}

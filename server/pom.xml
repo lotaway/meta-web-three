@@ -90,6 +90,7 @@
         <protobuf.version>4.32.1</protobuf.version>
         <elasticsearch-java.version>9.2.2</elasticsearch-java.version>
         <springdoc.version>2.8.9</springdoc.version>
+        <federation-graphql-java.version>4.3.0</federation-graphql-java.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -480,6 +481,12 @@
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java-util</artifactId>
             <version>${protobuf.version}</version>
+        </dependency>
+        <!-- GraphQL Federation -->
+        <dependency>
+            <groupId>com.apollographql.federation</groupId>
+            <artifactId>federation-graphql-java-support</artifactId>
+            <version>${federation-graphql-java.version}</version>
         </dependency>
     </dependencies>
 

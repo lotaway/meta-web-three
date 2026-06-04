@@ -9,6 +9,9 @@ public interface RecommendationRuleRepository {
     List<RecommendationRule> findByScene(String scene);
     List<RecommendationRule> findByStatus(RecommendationRule.RuleStatus status);
     List<RecommendationRule> findBySceneAndStatus(String scene, RecommendationRule.RuleStatus status);
+    List<RecommendationRule> findAll();
+    List<RecommendationRule> findActiveRules();
+    long count();
     RecommendationRule save(RecommendationRule rule);
     void update(RecommendationRule rule);
     void deleteById(Long id);

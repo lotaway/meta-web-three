@@ -271,7 +271,7 @@ public class UserController {
     public ApiResponse<List<OrderDTO>> getOrderByUser(@RequestHeader Map<String, String> header,
             @RequestHeader(value = "Authorization", required = false) String authorization) {
         Long userId = extractUserId(authorization, header);
-        GetOrderByUserIdRequest request = GetOrderByUserIdRequest.newBuilder().setId(userId).build();
+        GetOrderByUserIdRequest request = GetOrderByUserIdRequest.newBuilder().setUserId(userId).build();
         List<OrderDTO> result = orderService.getOrderByUserId(request).getOrdersList();
         return ApiResponse.success(result);
     }

@@ -1,0 +1,25 @@
+extend type Query {
+    cart(userId: ID!): Cart
+}
+
+extend type Mutation {
+    addToCart(productId: ID!, quantity: Int!): Cart
+    removeFromCart(cartItemId: ID!): Cart
+    clearCart(userId: ID!): Cart
+}
+
+type Cart @key(fields: "id") {
+    id: ID!
+    userId: ID!
+    items: [CartItem]
+    totalAmount: Float!
+    itemCount: Int!
+}
+
+type CartItem @key(fields: "id") {
+    id: ID!
+    productId: ID!
+    quantity: Int!
+    price: Float!
+    subtotal: Float!
+}

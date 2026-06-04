@@ -135,13 +135,13 @@ public class RecommendationController {
     }
 
     @PostMapping("/{recommendationId}/click")
-    public ResponseEntity<Void> markAsClicked(@PathVariable Long recommendationId) {
+    public ResponseEntity<Void> markRecommendationClicked(@PathVariable Long recommendationId) {
         commandService.markRecommendationClicked(recommendationId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{recommendationId}/purchase")
-    public ResponseEntity<Void> markAsPurchased(@PathVariable Long recommendationId) {
+    public ResponseEntity<Void> markRecommendationPurchased(@PathVariable Long recommendationId) {
         commandService.markRecommendationPurchased(recommendationId);
         return ResponseEntity.ok().build();
     }

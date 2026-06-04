@@ -1,0 +1,85 @@
+extend type Query {
+    product(id: ID!): Product
+    products(page: Int, size: Int): ProductConnection
+    productBySku(sku: String!): Product
+    category(id: ID!): Category
+    categories(parentId: ID): CategoryConnection
+}
+
+extend type Mutation {
+    createProduct(input: CreateProductInput!): Product
+    updateProduct(id: ID!, input: UpdateProductInput!): Product
+    deleteProduct(id: ID!): Boolean
+}
+
+type Product @key(fields: "id") {
+    id: ID!
+    name: String!
+    sku: String!
+    price: Float!
+    stock: Int!
+    categoryId: ID
+    description: String
+    images: [String]
+    status: String
+    createdAt: String
+    updatedAt: String
+}
+
+input CreateProductInput {
+    name: String!
+    sku: String!
+    price: Float!
+    stock: Int!
+    categoryId: ID
+    description: String
+    images: [String]
+}
+
+input UpdateProductInput {
+    name: String
+    price: Float
+    stock: Int
+    categoryId: ID
+    description: String
+    images: [String]
+    status: String
+}
+
+type ProductConnection {
+    edges: [ProductEdge]
+    pageInfo: PageInfo
+    totalCount: Int
+}
+
+type ProductEdge {
+    node: Product
+    cursor: String
+}
+
+type Category @key(fields: "id") {
+    id: ID!
+    name: String!
+    parentId: ID
+    level: Int
+    sortOrder: Int
+    children: [Category]
+}
+
+type CategoryConnection {
+    edges: [CategoryEdge]
+    pageInfo: PageInfo
+    totalCount: Int
+}
+
+type CategoryEdge {
+    node: Category
+    cursor: String
+}
+
+type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    startCursor: String
+    endCursor: String
+}

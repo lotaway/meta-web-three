@@ -1,0 +1,24 @@
+extend type Query {
+    inventory(productId: ID!): Inventory
+    inventoryAlerts(status: String): [InventoryAlert]
+}
+
+type Inventory @key(fields: "productId") {
+    productId: ID!
+    quantity: Int!
+    availableQuantity: Int!
+    reservedQuantity: Int!
+    warehouseId: ID
+    updatedAt: String
+}
+
+type InventoryAlert @key(fields: "id") {
+    id: ID!
+    productId: ID!
+    alertType: String!
+    currentStock: Int!
+    threshold: Int!
+    status: String!
+    createdAt: String
+    resolvedAt: String
+}

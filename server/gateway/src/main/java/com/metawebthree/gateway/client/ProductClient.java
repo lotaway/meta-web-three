@@ -1,6 +1,9 @@
 package com.metawebthree.gateway.client;
 
+import com.metawebthree.common.enums.ResponseStatus;
+import com.metawebthree.common.exception.BusinessException;
 import com.metawebthree.common.generated.rpc.*;
+import com.metawebthree.common.utils.ValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;
@@ -17,14 +20,14 @@ public class ProductClient {
     public Map<String, Object> getProductById(String id) {
         try {
             GetProductDetailRequest request = GetProductDetailRequest.newBuilder()
-                    .setProductId(Long.parseLong(id))
+                    .setProductId(ValidationUtils.parseLong(id, "id"))
                     .build();
             GetProductDetailResponse response = productService.getProductDetail(request);
             return buildProductMap(response.getProduct());
         } catch (Exception e) {
             log.error("Failed to get product by id: {}, error: {}", id, e.getMessage());
+            throw new BusinessException(ResponseStatus.SYSTEM_ERROR, "Failed to get product by id: " + id, e);
         }
-        return new HashMap<>();
     }
 
     public Map<String, Object> getProductBySku(String sku) {
@@ -36,8 +39,8 @@ public class ProductClient {
             return buildProductMap(response.getProduct());
         } catch (Exception e) {
             log.error("Failed to get product by sku: {}, error: {}", sku, e.getMessage());
+            throw new BusinessException(ResponseStatus.SYSTEM_ERROR, "Failed to get product by sku: " + sku, e);
         }
-        return new HashMap<>();
     }
 
     public Map<String, Object> getProducts(int page, int size) {
@@ -56,12 +59,13 @@ public class ProductClient {
             );
         } catch (Exception e) {
             log.error("Failed to get products: page={}, size={}, error: {}", page, size, e.getMessage());
+            throw new BusinessException(ResponseStatus.SYSTEM_ERROR, "Failed to get products", e);
         }
-        return createEmptyProductsConnection(page, size);
     }
 
     public Map<String, Object> createProduct(Map<String, Object> input) {
         try {
+            if (input == null) throw new IllegalArgumentException("input must not be null");
             CreateProductResponse response = productService.createProduct(buildCreateProductRequest(input));
             Map<String, Object> result = new HashMap<>();
             result.put("id", response.getId());
@@ -70,31 +74,32 @@ public class ProductClient {
             return result;
         } catch (Exception e) {
             log.error("Failed to create product, error: {}", e.getMessage());
+            throw new BusinessException(ResponseStatus.SYSTEM_ERROR, "Failed to create product", e);
         }
-        return new HashMap<>();
     }
 
     public boolean updateProduct(String id, Map<String, Object> input) {
         try {
+            if (input == null) throw new IllegalArgumentException("input must not be null");
             UpdateProductResponse response = productService.updateProduct(buildUpdateProductRequest(id, input));
             return response.getSuccess();
         } catch (Exception e) {
             log.error("Failed to update product: id={}, error: {}", id, e.getMessage());
+            throw new BusinessException(ResponseStatus.SYSTEM_ERROR, "Failed to update product: " + id, e);
         }
-        return false;
     }
 
     public boolean deleteProduct(String id) {
         try {
             DeleteProductRequest request = DeleteProductRequest.newBuilder()
-                    .setId(Long.parseLong(id))
+                    .setId(ValidationUtils.parseLong(id, "id"))
                     .build();
             DeleteProductResponse response = productService.deleteProduct(request);
             return response.getSuccess();
         } catch (Exception e) {
             log.error("Failed to delete product: id={}, error: {}", id, e.getMessage());
+            throw new BusinessException(ResponseStatus.SYSTEM_ERROR, "Failed to delete product: " + id, e);
         }
-        return false;
     }
 
     private Map<String, Object> buildProductMap(ProductDetailProto product) {
@@ -135,29 +140,37 @@ public class ProductClient {
 
     private CreateProductRequest buildCreateProductRequest(Map<String, Object> input) {
         CreateProductRequest.Builder builder = CreateProductRequest.newBuilder();
-        if (input.containsKey("name")) builder.setName((String) input.get("name"));
-        if (input.containsKey("sku")) builder.setSku((String) input.get("sku"));
+        if (input.containsKey("name")) builder.setName(ValidationUtils.requireNonBlank((String) input.get("name"), "name"));
+        if (input.containsKey("sku")) builder.setSku(ValidationUtils.requireNonBlank((String) input.get("sku"), "sku"));
         if (input.containsKey("price")) builder.setPrice(((Number) input.get("price")).doubleValue());
-        if (input.containsKey("stock")) builder.setStock(((Number) input.get("stock")).intValue());
-        if (input.containsKey("pic")) builder.setPic((String) input.get("pic"));
-        if (input.containsKey("sub_title")) builder.setSubTitle((String) input.get("sub_title"));
-        if (input.containsKey("category_id")) builder.setCategoryId(((Number) input.get("category_id")).longValue());
-        if (input.containsKey("description")) builder.setDescription((String) input.get("description"));
+        if (input.containsKey("stock")) builder.setStock(ValidationUtils.parseInt(input.get("stock"), "stock"));
+        Object picVal = input.get("pic");
+        if (picVal instanceof String s) builder.setPic(s);
+        Object subTitleVal = input.get("sub_title");
+        if (subTitleVal instanceof String s) builder.setSubTitle(s);
+        if (input.containsKey("category_id")) builder.setCategoryId(ValidationUtils.parseLongSafe(input.get("category_id"), "category_id"));
+        Object descVal = input.get("description");
+        if (descVal instanceof String s) builder.setDescription(s);
         return builder.build();
     }
 
     private UpdateProductRequest buildUpdateProductRequest(String id, Map<String, Object> input) {
         UpdateProductRequest.Builder builder = UpdateProductRequest.newBuilder()
-                .setId(Long.parseLong(id));
-        if (input.containsKey("name")) builder.setName((String) input.get("name"));
-        if (input.containsKey("sku")) builder.setSku((String) input.get("sku"));
+                .setId(ValidationUtils.parseLong(id, "id"));
+        Object nameVal = input.get("name");
+        if (nameVal instanceof String s) builder.setName(s);
+        Object skuVal = input.get("sku");
+        if (skuVal instanceof String s) builder.setSku(s);
         if (input.containsKey("price")) builder.setPrice(((Number) input.get("price")).doubleValue());
-        if (input.containsKey("stock")) builder.setStock(((Number) input.get("stock")).intValue());
-        if (input.containsKey("pic")) builder.setPic((String) input.get("pic"));
-        if (input.containsKey("sub_title")) builder.setSubTitle((String) input.get("sub_title"));
-        if (input.containsKey("category_id")) builder.setCategoryId(((Number) input.get("category_id")).longValue());
-        if (input.containsKey("description")) builder.setDescription((String) input.get("description"));
-        if (input.containsKey("status")) builder.setStatus(((Number) input.get("status")).intValue());
+        if (input.containsKey("stock")) builder.setStock(ValidationUtils.parseInt(input.get("stock"), "stock"));
+        Object picVal = input.get("pic");
+        if (picVal instanceof String s) builder.setPic(s);
+        Object subTitleVal = input.get("sub_title");
+        if (subTitleVal instanceof String s) builder.setSubTitle(s);
+        if (input.containsKey("category_id")) builder.setCategoryId(ValidationUtils.parseLongSafe(input.get("category_id"), "category_id"));
+        Object descVal = input.get("description");
+        if (descVal instanceof String s) builder.setDescription(s);
+        if (input.containsKey("status")) builder.setStatus(ValidationUtils.parseInt(input.get("status"), "status"));
         return builder.build();
     }
 
