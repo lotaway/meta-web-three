@@ -34,6 +34,7 @@ The following backend services have been created, but lack corresponding admin a
    - ✅ Gateway FederationRouter 已更新：SUBGRAPH_URLS + ROOT_FIELD_OWNER 包含 cart
    - ✅ 编译验证：cart-service + gateway 编译通过
    - [ ] 需要端到端运行时验证：启动所有子图服务 + gateway，用 GraphQL 客户端请求跨子图联合查询（如通过 cart 查 product），验证 Federation 路由和实体解析正确
+   - [ ] server/gateway/src/main/java/com/metawebthree/gateway/graphql/FederationRouter.java 当前对引用的微服务使用了url这种硬性依赖的形式，是否可以调整为类似@DubboRefence的方式或者服务名的方式引用+延迟懒加载，而不是这种写死了服务名+端口
 
 [ ]- 实现事件溯源和CQRS模式 (Event Sourcing + CQRS，提升数据一致性和审计能力)
 
