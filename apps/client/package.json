@@ -14,7 +14,7 @@
     "lint": "npx expo lint",
     "build:sw": "cross-env NODE_ENV=production node tools/BuildSW.js",
     "debug:sw": "node tools/BuildSW.js --sourceMap",
-    "generate:api": "OPENAPI_ENV_FILES=.env.development,.env.local OPENAPI_API_HOST_ENV=NEXT_PUBLIC_BACK_API_HOST OPENAPI_API_DOC_HOST_ENV=NEXT_PUBLIC_BACK_API_DOC_HOST OPENAPI_RUNTIME_ENV_VAR='process.env.NEXT_PUBLIC_BACK_API_HOST' OPENAPI_TIMEOUT=120000 node ../tools/OpenApiToTS.js",
+    "generate:api": "OPENAPI_ENV_FILES=.env.development,.env.local OPENAPI_API_HOST_ENV=NEXT_PUBLIC_BACK_API_HOST OPENAPI_API_DOC_HOST_ENV=NEXT_PUBLIC_BACK_API_DOC_HOST OPENAPI_RUNTIME_ENV_VAR='process.env.NEXT_PUBLIC_BACK_API_HOST' OPENAPI_TIMEOUT=120000 node ../tools/OpenApiToTS.js && SCHEMA_ENV_FILES=.env.development,.env.local SCHEMA_API_HOST_ENV=NEXT_PUBLIC_BACK_API_HOST node ../tools/DownloadGraphQLSchema.js && node node_modules/@graphql-codegen/cli/cjs/bin.js --config codegen.ts",
     "generate:enum": "node tools/JEnumToTS.js",
     "generate:contract:abi": "node tools/CopyContractABIToTs.js",
     "pkg": "node tools/PackageOutput.js",

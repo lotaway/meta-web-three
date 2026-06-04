@@ -1,0 +1,87 @@
+query Recommendations($userId: ID!, $limit: Int) {
+  recommendations(userId: $userId, limit: $limit) {
+    id
+    userId
+    productId
+    score
+    algorithm
+    reason
+    position
+    isClicked
+    isPurchased
+    createdAt
+  }
+}
+
+query RecommendationsByScene($userId: ID!, $scene: String!, $limit: Int) {
+  recommendationsByScene(userId: $userId, scene: $scene, limit: $limit) {
+    id
+    userId
+    productId
+    score
+    algorithm
+    reason
+    position
+    isClicked
+    isPurchased
+    createdAt
+  }
+}
+
+query RecommendationMetrics($userId: ID!) {
+  recommendationMetrics(userId: $userId) {
+    totalRecommendations
+    clickedCount
+    purchasedCount
+    clickThroughRate
+    conversionRate
+  }
+}
+
+query UserBehaviorHistory($userId: ID!, $limit: Int) {
+  userBehaviorHistory(userId: $userId, limit: $limit) {
+    id
+    userId
+    productId
+    behaviorType
+    behaviorValue
+    timestamp
+    sessionId
+    source
+  }
+}
+
+mutation GenerateRecommendation($userId: ID!, $scene: String!, $algorithm: String!, $maxItems: Int) {
+  generateRecommendation(userId: $userId, scene: $scene, algorithm: $algorithm, maxItems: $maxItems) {
+    id
+    userId
+    scene
+    algorithm
+    score
+    status
+    items {
+      skuCode
+      skuName
+      score
+      rank
+      reason
+    }
+    clickCount
+    conversionCount
+    impressionCount
+    createdAt
+    expiresAt
+  }
+}
+
+mutation RecordBehavior($userId: ID!, $skuCode: String!, $behaviorType: String!) {
+  recordBehavior(userId: $userId, skuCode: $skuCode, behaviorType: $behaviorType)
+}
+
+mutation MarkRecommendationClicked($id: ID!) {
+  markRecommendationClicked(id: $id)
+}
+
+mutation MarkRecommendationPurchased($id: ID!) {
+  markRecommendationPurchased(id: $id)
+}

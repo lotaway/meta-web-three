@@ -4,6 +4,7 @@ import com.metawebthree.recommendation.domain.entity.Recommendation;
 import com.metawebthree.recommendation.domain.entity.RecommendationResult;
 import com.metawebthree.recommendation.domain.entity.RecommendationRule;
 import com.metawebthree.recommendation.domain.entity.UserBehavior;
+import com.metawebthree.recommendation.domain.repository.RecommendationRuleRepository;
 import com.metawebthree.recommendation.domain.repository.UserBehaviorRepository;
 import com.metawebthree.recommendation.domain.repository.RecommendationResultRepository;
 import com.metawebthree.recommendation.domain.service.RecommendationDomainService;
@@ -20,19 +21,22 @@ public class RecommendationCommandService {
     private final RecommendationEventPublisher eventPublisher;
     private final UserBehaviorRepository userBehaviorRepository;
     private final RecommendationResultRepository recommendationResultRepository;
+    private final RecommendationRuleRepository ruleRepository;
 
     public RecommendationCommandService(
             RecommendationDomainService domainService,
             RecommendationEventPublisher eventPublisher,
             UserBehaviorRepository userBehaviorRepository,
-            RecommendationResultRepository recommendationResultRepository) {
+            RecommendationResultRepository recommendationResultRepository,
+            RecommendationRuleRepository ruleRepository) {
         this.domainService = domainService;
         this.eventPublisher = eventPublisher;
         this.userBehaviorRepository = userBehaviorRepository;
         this.recommendationResultRepository = recommendationResultRepository;
+        this.ruleRepository = ruleRepository;
     }
 
-    public Long generateRecommendation(Long userId, String scene,
+    public Recommendation generateRecommendation(Long userId, String scene,
             Recommendation.RecommendationAlgorithm algorithm, int maxItems) {
 
         Recommendation recommendation = domainService.generateRecommendation(
@@ -41,7 +45,7 @@ public class RecommendationCommandService {
         eventPublisher.publishRecommendationGenerated(
             recommendation.getId(), userId, scene);
 
-        return recommendation.getId();
+        return recommendation;
     }
 
     public void recordBehavior(Long userId, String skuCode, String behaviorType) {
@@ -49,10 +53,10 @@ public class RecommendationCommandService {
         eventPublisher.publishUserBehaviorRecorded(userId, skuCode, behaviorType);
     }
 
-    public Long createRule(String ruleName, String scene, RecommendationRule.RuleType type) {
+    public RecommendationRule createRule(String ruleName, String scene, RecommendationRule.RuleType type) {
         RecommendationRule rule = domainService.createRule(ruleName, scene, type);
         eventPublisher.publishRuleCreated(rule.getId(), ruleName, scene);
-        return rule.getId();
+        return rule;
     }
 
     public void activateRule(Long ruleId) {

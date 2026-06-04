@@ -5,6 +5,7 @@ import graphql.schema.DataFetchingEnvironment;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.function.Function;
 
 @Component
 public class GraphQLDataProvider {
@@ -14,15 +15,18 @@ public class GraphQLDataProvider {
     private final UserClient userClient;
     private final CategoryClient categoryClient;
     private final InventoryClient inventoryClient;
+    private final RecommendationClient recommendationClient;
 
     public GraphQLDataProvider(ProductClient productClient, OrderClient orderClient,
                                 UserClient userClient, CategoryClient categoryClient,
-                                InventoryClient inventoryClient) {
+                                InventoryClient inventoryClient,
+                                RecommendationClient recommendationClient) {
         this.productClient = productClient;
         this.orderClient = orderClient;
         this.userClient = userClient;
         this.categoryClient = categoryClient;
         this.inventoryClient = inventoryClient;
+        this.recommendationClient = recommendationClient;
     }
 
     public Object getProduct(DataFetchingEnvironment env) {
@@ -159,5 +163,113 @@ public class GraphQLDataProvider {
 
     public Object clearCart(DataFetchingEnvironment env) {
         throw new UnsupportedOperationException("Cart operations require CartService - not yet implemented");
+    }
+
+    // ==================== Recommendation ====================
+
+    public Object getRecommendations(DataFetchingEnvironment env) {
+        Long userId = getUserIdRequired(env);
+        Integer limit = env.getArgument("limit");
+        limit = limit != null ? limit : 10;
+        return recommendationClient.getUserRecommendations(userId);
+    }
+
+    public Object getRecommendationsByScene(DataFetchingEnvironment env) {
+        Long userId = getUserIdRequired(env);
+        String scene = env.getArgument("scene");
+        return recommendationClient.getUserRecommendationsByScene(userId, scene);
+    }
+
+    public Object getRecommendationsByAlgorithm(DataFetchingEnvironment env) {
+        Long userId = getUserIdRequired(env);
+        String algorithm = env.getArgument("algorithm");
+        Integer limit = env.getArgument("limit");
+        limit = limit != null ? limit : 10;
+        return recommendationClient.getRecommendationsByAlgorithm(userId, algorithm, limit);
+    }
+
+    public Object getRecommendation(DataFetchingEnvironment env) {
+        String id = env.getArgument("id");
+        return recommendationClient.getRecommendationById(parseLongId(id));
+    }
+
+    public Object getRecommendationMetrics(DataFetchingEnvironment env) {
+        Long userId = getUserIdRequired(env);
+        return recommendationClient.getMetrics(userId);
+    }
+
+    public Object getUserBehaviorHistory(DataFetchingEnvironment env) {
+        Long userId = getUserIdRequired(env);
+        Integer limit = env.getArgument("limit");
+        limit = limit != null ? limit : 50;
+        return recommendationClient.getBehaviorHistory(userId, limit);
+    }
+
+    public Object getRulesByScene(DataFetchingEnvironment env) {
+        String scene = env.getArgument("scene");
+        return recommendationClient.getRulesByScene(scene);
+    }
+
+    public Object generateRecommendation(DataFetchingEnvironment env) {
+        Long userId = getUserIdRequired(env);
+        String scene = env.getArgument("scene");
+        String algorithm = env.getArgument("algorithm");
+        Integer maxItems = env.getArgument("maxItems");
+        maxItems = maxItems != null ? maxItems : 10;
+        return recommendationClient.generateRecommendation(userId, scene, algorithm, maxItems);
+    }
+
+    public Boolean recordBehavior(DataFetchingEnvironment env) {
+        Long userId = getUserIdRequired(env);
+        String skuCode = env.getArgument("skuCode");
+        String behaviorType = env.getArgument("behaviorType");
+        recommendationClient.recordBehavior(userId, skuCode, behaviorType);
+        return true;
+    }
+
+    public Object createRecommendationRule(DataFetchingEnvironment env) {
+        String ruleName = env.getArgument("ruleName");
+        String scene = env.getArgument("scene");
+        String type = env.getArgument("type");
+        return recommendationClient.createRule(ruleName, scene, type);
+    }
+
+    public Boolean activateRecommendationRule(DataFetchingEnvironment env) {
+        Long id = parseLongId(env.getArgument("id"));
+        recommendationClient.activateRule(id);
+        return true;
+    }
+
+    public Boolean deleteRecommendationRule(DataFetchingEnvironment env) {
+        Long id = parseLongId(env.getArgument("id"));
+        recommendationClient.deleteRule(id);
+        return true;
+    }
+
+    public Boolean markRecommendationClicked(DataFetchingEnvironment env) {
+        Long id = parseLongId(env.getArgument("id"));
+        recommendationClient.markAsClicked(id);
+        return true;
+    }
+
+    public Boolean markRecommendationPurchased(DataFetchingEnvironment env) {
+        Long id = parseLongId(env.getArgument("id"));
+        recommendationClient.markAsPurchased(id);
+        return true;
+    }
+
+    private Long getUserIdRequired(DataFetchingEnvironment env) {
+        String userId = env.getArgument("userId");
+        if (userId == null || userId.isEmpty()) {
+            throw new IllegalArgumentException("userId is required");
+        }
+        return Long.parseLong(userId);
+    }
+
+    private Long parseLongId(String id) {
+        if (id == null || id.isEmpty()) {
+            throw new IllegalArgumentException("id is required");
+        }
+        return Long.parseLong(id);
     }
 }

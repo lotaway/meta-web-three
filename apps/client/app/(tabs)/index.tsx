@@ -74,7 +74,7 @@ export default function HomeScreen() {
               <ProductGridSection
                 title={t('home.sections.hot_recommend')}
                 subtitle={t('home.sections.hot_recommend_subtitle')}
-                productList={mallHomeData?.hotProductList || []}
+                productList={mallHomeData?.recommendedProductList || []}
                 colors={colors}
                 onProductPress={navigateToProductDetail}
               />

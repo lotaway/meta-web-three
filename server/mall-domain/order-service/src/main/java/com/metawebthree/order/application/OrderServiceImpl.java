@@ -14,6 +14,8 @@ import com.metawebthree.common.generated.rpc.CreateOrderRequest;
 import com.metawebthree.common.generated.rpc.CreateOrderResponse;
 import com.metawebthree.common.generated.rpc.CreateReturnApplyRequest;
 import com.metawebthree.common.generated.rpc.CreateReturnApplyResponse;
+import com.metawebthree.common.generated.rpc.GetOrderByOrderNoRequest;
+import com.metawebthree.common.generated.rpc.GetOrderByOrderNoResponse;
 import com.metawebthree.common.generated.rpc.GetOrderByUserIdRequest;
 import com.metawebthree.common.generated.rpc.GetOrderByUserIdResponse;
 import com.metawebthree.common.generated.rpc.GetHotProductsRequest;
@@ -26,6 +28,8 @@ import com.metawebthree.common.generated.rpc.GetPendingPaymentsCountRequest;
 import com.metawebthree.common.generated.rpc.GetPendingPaymentsCountResponse;
 import com.metawebthree.common.generated.rpc.GetSalesByHourTodayRequest;
 import com.metawebthree.common.generated.rpc.GetSalesByHourTodayResponse;
+import com.metawebthree.common.generated.rpc.ListOrdersRequest;
+import com.metawebthree.common.generated.rpc.ListOrdersResponse;
 import com.metawebthree.common.generated.rpc.OrderDTO;
 import com.metawebthree.common.generated.rpc.OrderItemProto;
 import com.metawebthree.common.generated.rpc.OrderService;
@@ -68,6 +72,48 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public CompletableFuture<GetOrderByUserIdResponse> getOrderByUserIdAsync(GetOrderByUserIdRequest request) {
         return CompletableFuture.completedFuture(getOrderByUserId(request));
+    }
+
+    @Override
+    public GetOrderByOrderNoResponse getOrderByOrderNo(GetOrderByOrderNoRequest request) {
+        log.info("Dubbo RPC: getOrderByOrderNo, orderNo: {}", request.getOrderNo());
+        OrderDO order = orderMapper.selectOne(
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<OrderDO>()
+                        .eq(OrderDO::getOrderNo, request.getOrderNo()));
+        if (order == null) {
+            return GetOrderByOrderNoResponse.newBuilder().build();
+        }
+        return GetOrderByOrderNoResponse.newBuilder().setOrder(toDto(order)).build();
+    }
+
+    @Override
+    public CompletableFuture<GetOrderByOrderNoResponse> getOrderByOrderNoAsync(GetOrderByOrderNoRequest request) {
+        return CompletableFuture.completedFuture(getOrderByOrderNo(request));
+    }
+
+    @Override
+    public ListOrdersResponse listOrders(ListOrdersRequest request) {
+        int page = request.getPage() > 0 ? request.getPage() : 1;
+        int size = request.getSize() > 0 ? request.getSize() : 10;
+        log.info("Dubbo RPC: listOrders, page: {}, size: {}", page, size);
+
+        long total = orderMapper.selectCount(null);
+        List<OrderDO> orders = orderMapper.selectList(
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<OrderDO>()
+                        .orderByDesc(OrderDO::getCreatedAt)
+                        .last("limit " + size + " offset " + (page - 1) * size));
+        List<OrderDTO> dtos = orders.stream().map(this::toDto).toList();
+        return ListOrdersResponse.newBuilder()
+                .setPage(page)
+                .setSize(size)
+                .setTotal(total)
+                .addAllOrders(dtos)
+                .build();
+    }
+
+    @Override
+    public CompletableFuture<ListOrdersResponse> listOrdersAsync(ListOrdersRequest request) {
+        return CompletableFuture.completedFuture(listOrders(request));
     }
 
     private OrderDTO toDto(OrderDO o) {

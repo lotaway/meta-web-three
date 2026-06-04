@@ -45,6 +45,7 @@ export interface MallHomeContent {
   homeFlashPromotion: FlashPromotion | null;
   newProductList: ProductItem[];
   hotProductList: ProductItem[];
+  recommendedProductList: ProductItem[];
   subjectList: unknown[];
 }
 

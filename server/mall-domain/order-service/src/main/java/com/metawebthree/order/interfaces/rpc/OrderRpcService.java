@@ -179,6 +179,28 @@ public class OrderRpcService implements OrderService {
     }
 
     @Override
+    public GetOrderByOrderNoResponse getOrderByOrderNo(GetOrderByOrderNoRequest request) {
+        log.info("Dubbo call: getOrderByOrderNo, orderNo: {}", request.getOrderNo());
+        return GetOrderByOrderNoResponse.newBuilder().build();
+    }
+
+    @Override
+    public CompletableFuture<GetOrderByOrderNoResponse> getOrderByOrderNoAsync(GetOrderByOrderNoRequest request) {
+        return CompletableFuture.completedFuture(getOrderByOrderNo(request));
+    }
+
+    @Override
+    public ListOrdersResponse listOrders(ListOrdersRequest request) {
+        log.info("Dubbo call: listOrders, page: {}, size: {}", request.getPage(), request.getSize());
+        return ListOrdersResponse.newBuilder().build();
+    }
+
+    @Override
+    public CompletableFuture<ListOrdersResponse> listOrdersAsync(ListOrdersRequest request) {
+        return CompletableFuture.completedFuture(listOrders(request));
+    }
+
+    @Override
     public GetOrderByUserIdResponse getOrderByUserId(GetOrderByUserIdRequest request) {
         log.info("Dubbo call: getOrderByUserId, userId: {}", request.getId());
         return GetOrderByUserIdResponse.newBuilder().build();

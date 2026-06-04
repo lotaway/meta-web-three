@@ -9,6 +9,8 @@ import "shared/google/type/money.proto";
 
 service OrderService {
     rpc getOrderByUserId(GetOrderByUserIdRequest) returns (GetOrderByUserIdResponse);
+    rpc getOrderByOrderNo(GetOrderByOrderNoRequest) returns (GetOrderByOrderNoResponse);
+    rpc listOrders(ListOrdersRequest) returns (ListOrdersResponse);
     rpc paySuccess(PaySuccessRequest) returns (PaySuccessResponse);
     rpc closeOrder(CloseOrderRequest) returns (CloseOrderResponse);
     rpc queryLogistics(QueryLogisticsRequest) returns (QueryLogisticsResponse);
@@ -38,6 +40,26 @@ message OrderDTO {
     google.type.Money orderAmount = 6;
     web3.Token tokens = 7;
     string orderRemark = 8;
+}
+
+message GetOrderByOrderNoRequest {
+    string orderNo = 1;
+}
+
+message GetOrderByOrderNoResponse {
+    OrderDTO order = 1;
+}
+
+message ListOrdersRequest {
+    int32 page = 1;
+    int32 size = 2;
+}
+
+message ListOrdersResponse {
+    int32 page = 1;
+    int32 size = 2;
+    int64 total = 3;
+    repeated OrderDTO orders = 4;
 }
 
 message PaySuccessRequest {

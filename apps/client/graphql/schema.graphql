@@ -1,3 +1,5 @@
+scalar Long
+
 type Query {
     # Product queries
     product(id: ID!): Product

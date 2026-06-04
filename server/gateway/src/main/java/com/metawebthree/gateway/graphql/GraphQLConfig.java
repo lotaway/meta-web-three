@@ -74,6 +74,13 @@ public class GraphQLConfig implements WebFluxConfigurer {
                         .dataFetcher("categories", dataProvider::getCategories)
                         .dataFetcher("inventory", dataProvider::getInventory)
                         .dataFetcher("inventoryAlerts", dataProvider::getInventoryAlerts)
+                        .dataFetcher("recommendations", dataProvider::getRecommendations)
+                        .dataFetcher("recommendationsByScene", dataProvider::getRecommendationsByScene)
+                        .dataFetcher("recommendationsByAlgorithm", dataProvider::getRecommendationsByAlgorithm)
+                        .dataFetcher("recommendation", dataProvider::getRecommendation)
+                        .dataFetcher("recommendationMetrics", dataProvider::getRecommendationMetrics)
+                        .dataFetcher("userBehaviorHistory", dataProvider::getUserBehaviorHistory)
+                        .dataFetcher("rulesByScene", dataProvider::getRulesByScene)
                 )
                 .type("Mutation", wiring -> wiring
                         .dataFetcher("createOrder", dataProvider::createOrder)
@@ -85,6 +92,13 @@ public class GraphQLConfig implements WebFluxConfigurer {
                         .dataFetcher("addToCart", dataProvider::addToCart)
                         .dataFetcher("removeFromCart", dataProvider::removeFromCart)
                         .dataFetcher("clearCart", dataProvider::clearCart)
+                        .dataFetcher("generateRecommendation", dataProvider::generateRecommendation)
+                        .dataFetcher("recordBehavior", dataProvider::recordBehavior)
+                        .dataFetcher("createRecommendationRule", dataProvider::createRecommendationRule)
+                        .dataFetcher("activateRecommendationRule", dataProvider::activateRecommendationRule)
+                        .dataFetcher("deleteRecommendationRule", dataProvider::deleteRecommendationRule)
+                        .dataFetcher("markRecommendationClicked", dataProvider::markRecommendationClicked)
+                        .dataFetcher("markRecommendationPurchased", dataProvider::markRecommendationPurchased)
                 )
                 .build();
     }

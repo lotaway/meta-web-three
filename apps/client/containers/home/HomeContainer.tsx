@@ -1,7 +1,9 @@
 import React, { ReactNode, useEffect, useState } from 'react'
-import { toBrandItem, toProductItem, toAdvertiseItem, MallHomeContent } from '@/adapters/homeAdapter'
+import { toBrandItem, toProductItem, toAdvertiseItem, MallHomeContent, ProductItem } from '@/adapters/homeAdapter'
 import { brandApi, categoryApi, productApi, advertiseApi, API_BASE_URL } from '@/api/generated'
 import { ProductCategory } from '@/src/generated/api/models/ProductCategory'
+import { recommendationHooks } from '@/app/lib/api/graphql-hooks'
+import type { RecommendationsQuery } from '@/src/generated/graphql/types'
 
 export interface CategoryItem {
   id: number
@@ -27,6 +29,16 @@ function toCategoryItem(pc: ProductCategory): CategoryItem {
   }
 }
 
+function toRecommendationProductItem(data: NonNullable<RecommendationsQuery['recommendations']>[number]): ProductItem {
+  return {
+    id: Number(data?.productId),
+    name: data?.reason || `Recommend #${data?.productId}`,
+    pic: '',
+    price: 0,
+    subTitle: data?.score ? `Score: ${data.score.toFixed(2)}` : undefined,
+  }
+}
+
 export function HomeContainer({ children }: HomeContainerProps) {
   const [mallHomeData, setMallHomeData] = useState<MallHomeContent | null>(null)
   const [isDataLoaded, setIsDataLoaded] = useState(false)
@@ -45,6 +57,26 @@ export function HomeContainer({ children }: HomeContainerProps) {
           productApi.listProducts({ keyword: 'new' }),
           productApi.listProducts({ keyword: 'hot' }),
         ])
+
+        let recommendedProductList: ProductItem[] = []
+        try {
+          const recData = await recommendationHooks.generateRecommendation(1, 'home', 'HYBRID', 10)
+          const items = recData?.generateRecommendation?.items ?? []
+          recommendedProductList = items.map((item) => ({
+            id: Number(item?.skuCode ?? 0),
+            name: item?.skuName || `Product #${item?.skuCode}`,
+            pic: '',
+            price: 0,
+            subTitle: item?.reason || undefined,
+          }))
+        } catch {
+          try {
+            const fallbackRes = await productApi.listProducts({ keyword: 'hot' })
+            recommendedProductList = (fallbackRes.data ?? []).map(toProductItem)
+          } catch {
+            recommendedProductList = []
+          }
+        }
 
         let flashPromotion = null
         try {
@@ -81,6 +113,7 @@ export function HomeContainer({ children }: HomeContainerProps) {
           homeFlashPromotion: flashPromotion,
           newProductList: (newRes.data ?? []).map(toProductItem),
           hotProductList: (hotRes.data ?? []).map(toProductItem),
+          recommendedProductList,
           subjectList: [],
         })
       } catch {
@@ -90,6 +123,7 @@ export function HomeContainer({ children }: HomeContainerProps) {
           homeFlashPromotion: null,
           newProductList: [],
           hotProductList: [],
+          recommendedProductList: [],
           subjectList: [],
         })
       } finally {

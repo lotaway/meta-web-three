@@ -24,23 +24,21 @@ public class OrderClient {
             return buildOrderMap(orders.isEmpty() ? null : orders.get(0));
         } catch (Exception e) {
             log.error("Failed to get order by id: {}, error: {}", id, e.getMessage());
+            throw new RuntimeException("Failed to get order by id: " + id, e);
         }
-        return new HashMap<>();
     }
 
     public Map<String, Object> getOrderByOrderNo(String orderNo) {
         try {
-            GetOrderByUserIdRequest request = GetOrderByUserIdRequest.newBuilder().build();
-            GetOrderByUserIdResponse response = orderService.getOrderByUserId(request);
-            for (OrderDTO order : response.getOrdersList()) {
-                if (orderNo.equals(order.getOrderNo())) {
-                    return buildOrderMap(order);
-                }
-            }
+            GetOrderByOrderNoRequest request = GetOrderByOrderNoRequest.newBuilder()
+                    .setOrderNo(orderNo)
+                    .build();
+            GetOrderByOrderNoResponse response = orderService.getOrderByOrderNo(request);
+            return buildOrderMap(response.hasOrder() ? response.getOrder() : null);
         } catch (Exception e) {
             log.error("Failed to get order by orderNo: {}, error: {}", orderNo, e.getMessage());
+            throw new RuntimeException("Failed to get order by orderNo: " + orderNo, e);
         }
-        return new HashMap<>();
     }
 
     private Map<String, Object> buildOrderMap(OrderDTO order) {
@@ -56,21 +54,24 @@ public class OrderClient {
 
     public Map<String, Object> getOrders(int page, int size) {
         try {
-            GetOrderStatusDistributionRequest request = GetOrderStatusDistributionRequest.newBuilder().build();
-            GetOrderStatusDistributionResponse response = orderService.getOrderStatusDistribution(request);
-
-            GetPendingOrdersCountRequest countRequest = GetPendingOrdersCountRequest.newBuilder().build();
-            GetPendingOrdersCountResponse countResponse = orderService.getPendingOrdersCount(countRequest);
-
-            return buildOrdersConnection(
-                buildOrderEdges(response.getDistributionMap()),
-                countResponse.getCount(),
-                page
-            );
+            ListOrdersRequest request = ListOrdersRequest.newBuilder()
+                    .setPage(page)
+                    .setSize(size)
+                    .build();
+            ListOrdersResponse response = orderService.listOrders(request);
+            Map<String, Object> result = new HashMap<>();
+            result.put("page", response.getPage());
+            result.put("size", response.getSize());
+            result.put("total", response.getTotal());
+            List<Map<String, Object>> orderMaps = response.getOrdersList().stream()
+                    .map(this::buildOrderMap)
+                    .toList();
+            result.put("orders", orderMaps);
+            return result;
         } catch (Exception e) {
-            log.error("Failed to get orders: page={}, size={}, error: {}", page, size, e.getMessage());
+            log.error("Failed to list orders, page: {}, size: {}, error: {}", page, size, e.getMessage());
+            throw new RuntimeException("Failed to list orders", e);
         }
-        return createEmptyOrdersConnection(page, size);
     }
 
     public Map<String, Object> createOrder(Map<String, Object> input) {
@@ -87,8 +88,8 @@ public class OrderClient {
             return buildCreateOrderResult(response);
         } catch (Exception e) {
             log.error("Failed to create order, error: {}", e.getMessage());
+            throw new RuntimeException("Failed to create order", e);
         }
-        return new HashMap<>();
     }
 
     public boolean cancelOrder(String id) {
@@ -100,12 +101,15 @@ public class OrderClient {
             return response.getSuccess();
         } catch (Exception e) {
             log.error("Failed to cancel order: id={}, error: {}", id, e.getMessage());
+            throw new RuntimeException("Failed to cancel order: " + id, e);
         }
-        return false;
     }
 
     public boolean payOrder(String id, String paymentMethod) {
         try {
+            if (paymentMethod == null) {
+                throw new IllegalArgumentException("paymentMethod is required");
+            }
             int payType = switch (paymentMethod.toLowerCase()) {
                 case "wechat", "weixin" -> 1;
                 case "alipay", "zhifubao" -> 2;
@@ -120,32 +124,8 @@ public class OrderClient {
             return response.getSuccess();
         } catch (Exception e) {
             log.error("Failed to pay order: id={}, error: {}", id, e.getMessage());
+            throw new RuntimeException("Failed to pay order: " + id, e);
         }
-        return false;
-    }
-
-    private List<Map<String, Object>> buildOrderEdges(Map<Integer, Integer> distributionMap) {
-        List<Map<String, Object>> edges = new ArrayList<>();
-        distributionMap.forEach((status, count) -> {
-            Map<String, Object> edge = new HashMap<>();
-            Map<String, Object> node = new HashMap<>();
-            node.put("status", status);
-            node.put("count", count);
-            edge.put("node", node);
-            edges.add(edge);
-        });
-        return edges;
-    }
-
-    private Map<String, Object> buildOrdersConnection(List<Map<String, Object>> edges, long totalCount, int page) {
-        Map<String, Object> connection = new HashMap<>();
-        connection.put("edges", edges);
-        connection.put("totalCount", totalCount);
-        connection.put("pageInfo", Map.of(
-            "hasNextPage", false,
-            "hasPreviousPage", page > 0
-        ));
-        return connection;
     }
 
     private void parseOrderItems(Object itemsObj, CreateOrderRequest.Builder builder) {
@@ -170,16 +150,5 @@ public class OrderClient {
         result.put("success", response.getSuccess());
         result.put("message", response.getMessage());
         return result;
-    }
-
-    private Map<String, Object> createEmptyOrdersConnection(int page, int size) {
-        Map<String, Object> connection = new HashMap<>();
-        connection.put("edges", new ArrayList<>());
-        connection.put("totalCount", 0);
-        connection.put("pageInfo", Map.of(
-            "hasNextPage", false,
-            "hasPreviousPage", page > 0
-        ));
-        return connection;
     }
 }

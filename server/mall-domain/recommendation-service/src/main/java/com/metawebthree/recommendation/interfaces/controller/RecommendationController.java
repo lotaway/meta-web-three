@@ -30,20 +30,20 @@ public class RecommendationController {
     }
 
     @PostMapping("/generate")
-    public ResponseEntity<Map<String, Object>> generate(
+    public ResponseEntity<Recommendation> generate(
             @RequestBody Map<String, Object> request) {
-        Long userId = ((Number) request.get("userId")).longValue();
-        String scene = (String) request.get("scene");
-        String algorithm = (String) request.get("algorithm");
-        int maxItems = (Integer) request.getOrDefault("maxItems", 10);
+        Long userId = getLongRequired(request, "userId");
+        String scene = getStringRequired(request, "scene");
+        String algorithm = getStringRequired(request, "algorithm");
+        int maxItems = getIntOrDefault(request, "maxItems", 10);
 
         Recommendation.RecommendationAlgorithm algo =
             Recommendation.RecommendationAlgorithm.valueOf(algorithm.toUpperCase());
 
-        Long recommendationId = commandService.generateRecommendation(
+        Recommendation recommendation = commandService.generateRecommendation(
             userId, scene, algo, maxItems);
 
-        return ResponseEntity.ok(Map.of("recommendationId", recommendationId));
+        return ResponseEntity.ok(recommendation);
     }
 
     @GetMapping("/{id}")
@@ -66,26 +66,26 @@ public class RecommendationController {
 
     @PostMapping("/behavior")
     public ResponseEntity<Void> recordBehavior(@RequestBody Map<String, Object> request) {
-        Long userId = ((Number) request.get("userId")).longValue();
-        String skuCode = (String) request.get("skuCode");
-        String behaviorType = (String) request.get("behaviorType");
+        Long userId = getLongRequired(request, "userId");
+        String skuCode = getStringRequired(request, "skuCode");
+        String behaviorType = getStringRequired(request, "behaviorType");
         commandService.recordBehavior(userId, skuCode, behaviorType);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/rule")
-    public ResponseEntity<Map<String, Object>> createRule(
+    public ResponseEntity<RecommendationRule> createRule(
             @RequestBody Map<String, Object> request) {
-        String ruleName = (String) request.get("ruleName");
-        String scene = (String) request.get("scene");
-        String type = (String) request.get("type");
+        String ruleName = getStringRequired(request, "ruleName");
+        String scene = getStringRequired(request, "scene");
+        String type = getStringRequired(request, "type");
 
         RecommendationRule.RuleType ruleType =
             RecommendationRule.RuleType.valueOf(type.toUpperCase());
 
-        Long ruleId = commandService.createRule(ruleName, scene, ruleType);
+        RecommendationRule rule = commandService.createRule(ruleName, scene, ruleType);
 
-        return ResponseEntity.ok(Map.of("ruleId", ruleId));
+        return ResponseEntity.ok(rule);
     }
 
     @PostMapping("/rule/{id}/activate")
@@ -171,5 +171,29 @@ public class RecommendationController {
             @RequestParam(defaultValue = "90") int daysToKeep) {
         commandService.cleanupOldData(daysToKeep);
         return ResponseEntity.ok("Cleanup completed");
+    }
+
+    private Long getLongRequired(Map<String, Object> request, String key) {
+        Object value = request.get(key);
+        if (value == null) {
+            throw new IllegalArgumentException("Missing required field: " + key);
+        }
+        return ((Number) value).longValue();
+    }
+
+    private String getStringRequired(Map<String, Object> request, String key) {
+        Object value = request.get(key);
+        if (value == null) {
+            throw new IllegalArgumentException("Missing required field: " + key);
+        }
+        return (String) value;
+    }
+
+    private int getIntOrDefault(Map<String, Object> request, String key, int defaultValue) {
+        Object value = request.get(key);
+        if (value == null) {
+            return defaultValue;
+        }
+        return ((Integer) value);
     }
 }
