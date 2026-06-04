@@ -1,9 +1,9 @@
 server:
-  port: 8086
+  port: 10096
 
 spring:
   application:
-    name: supplier-service
+    name: mall-supplier-service
   config:
     import:
       - optional:classpath:application-common.yml

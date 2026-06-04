@@ -1,5 +1,5 @@
 server:
-  port: 10112
+  port: 10119
 spring:
   application:
     name: hrm-service
