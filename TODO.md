@@ -12,7 +12,7 @@ Guidelines:
 The following backend services have been created, but lack corresponding admin and operation pages. Each needs to be added:
 
 - mall-domain (11 services, most missing admin pages)
-- ai-domain (3 services: ai-warehouse, forecasting, risk-scorer) — recommendation-service 已合并到 mall-domain
+- ai-domain (3 services: ai-warehouse, forecasting, risk-scorer)
 - factory-domain / mes-service (production management admin)
 - blockchain-domain (2 services)
 - erp-domain (6 services: finance, HR, invoice, project, report, settlement)
@@ -23,22 +23,17 @@ The following backend services have been created, but lack corresponding admin a
 
 ### [Pending Features]
 
-[x]- 在[gateway](server/gateway/)里依旧使用了大量*Client.java文件里虚假实现的服务调用，再次明确按照[README.md](server/README.md)里的方式定义proto，接着使用[Makefile](Makefile)生成interface到[common](server/common/)里，让被调用的服务去实现这个interface，再让调用方也就是[gateway](server/gateway/)通过@DubboReference引入使用。
-   - ✅ proto 已添加 listProducts/getProductBySku/createProduct/updateProduct/deleteProduct (ProductService)、createOrder (OrderService)、listUsers (UserService)
-   - ✅ Makefile 执行 `make gen-java-dubbo` 已重新生成 Java 接口
-   - ✅ 后端已实现：ProductServiceRpcImpl (CRUD 6个方法)、OrderRpcService (createOrder)、UserRPCServiceImpl (listUsers)
-   - ✅ Gateway Client 已更新：ProductClient (6个真实 RPC)、OrderClient (createOrder 真实 RPC)、UserClient (getUsers 真实 RPC)
-   - ⏳ Cart 相关 GraphQL 操作（addToCart/removeFromCart/clearCart）暂抛异常，需实现 CartService 后启用
-
----
-
-### 2026 年功能优化方向 (2026-06-03 自动生成)
+[ ]- 在[gateway](server/gateway/)里依旧使用了大量*Client.java文件里虚假实现的服务调用，再次明确按照[README.md](server/README.md)里的方式定义proto，接着使用[Makefile](Makefile)生成interface到[common](server/common/)里，让被调用的服务去实现这个interface，再让调用方也就是[gateway](server/gateway/)通过@DubboReference引入使用。
 
 [ ]- 添加智能推荐系统 (AI推荐算法，基于用户行为个性化推荐商品)
 
 [ ]- 实现多租户SaaS架构 (支持多个商户/租户隔离，每个租户独立配置和数据)
 
 [ ]- 添加 GraphQL Federation 统一查询层 (整合多个微服务的GraphQL端点，提供统一API)
+   - ✅ 6 个子图端点：product(10082)、order(10084)、user(10083)、inventory(10105)、recommendation(10104)、cart(10089)
+   - ✅ Gateway FederationRouter 已更新：SUBGRAPH_URLS + ROOT_FIELD_OWNER 包含 cart
+   - ✅ 编译验证：cart-service + gateway 编译通过
+   - [ ] 需要端到端运行时验证：启动所有子图服务 + gateway，用 GraphQL 客户端请求跨子图联合查询（如通过 cart 查 product），验证 Federation 路由和实体解析正确
 
 [ ]- 实现事件溯源和CQRS模式 (Event Sourcing + CQRS，提升数据一致性和审计能力)
 
@@ -54,10 +49,4 @@ The following backend services have been created, but lack corresponding admin a
 
 [ ]- 实现可持续性追踪 (碳足迹计算、绿色物流、环保商品标签)
 
-[x]- [mall-recommand](server/mall-domain/recommendation-service/)已经存在，为什么还添加[另外的服务](server/ai-domain/recommendation-service/)？
-   - ✅ ai-domain/recommendation-service 的算法引擎已合并到 mall-domain/recommendation-service
-   - ✅ JPA/Hibernate 已全部转换为 MyBatis-Plus（3张新表：tb_user_behavior, tb_product_similarity, tb_recommendation_result）
-   - ✅ 新增 5 种推荐算法（User-CF, Item-CF, Content-Based, Popularity, Hybrid）
-   - ✅ 新增行为追踪/点击购买反馈/指标/分页端点
-   - ✅ 已删除 product-recommendation 死代码子包
-   - ✅ 已删除 ai-domain/recommendation-service
+[ ]- [mall-recommand](server/mall-domain/recommendation-service/)已经存在，为什么还添加[另外的服务](server/ai-domain/recommendation-service/)？
