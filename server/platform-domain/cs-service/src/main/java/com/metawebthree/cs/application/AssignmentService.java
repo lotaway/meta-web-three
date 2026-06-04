@@ -85,7 +85,7 @@ public class AssignmentService {
         if (orderId != null) {
             try {
                 GetOrderByUserIdRequest request = GetOrderByUserIdRequest.newBuilder()
-                        .setId(orderId)
+                        .setUserId(orderId)
                         .build();
                 GetOrderByUserIdResponse response = orderService.getOrderByUserId(request);
                 if (response != null && response.getOrdersCount() > 0) {

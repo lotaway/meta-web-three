@@ -21,7 +21,7 @@ public class OrderQueryPortImpl implements OrderQueryPort {
     public Optional<String> findOrderStatus(Long orderId) {
         try {
             GetOrderByUserIdRequest request = GetOrderByUserIdRequest.newBuilder()
-                    .setId(orderId)
+                    .setUserId(orderId)
                     .build();
             GetOrderByUserIdResponse response = orderService.getOrderByUserId(request);
             if (response != null && response.getOrdersCount() > 0) {
@@ -37,7 +37,7 @@ public class OrderQueryPortImpl implements OrderQueryPort {
     public Optional<String> findOrderJson(Long orderId) {
         try {
             GetOrderByUserIdRequest request = GetOrderByUserIdRequest.newBuilder()
-                    .setId(orderId)
+                    .setUserId(orderId)
                     .build();
             GetOrderByUserIdResponse response = orderService.getOrderByUserId(request);
             if (response != null && response.getOrdersCount() > 0) {

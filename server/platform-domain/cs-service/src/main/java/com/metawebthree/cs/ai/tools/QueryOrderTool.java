@@ -28,7 +28,7 @@ public class QueryOrderTool extends AiTool {
         try {
             Long orderId = Long.parseLong(orderIdObj.toString());
             GetOrderByUserIdRequest grpcRequest = GetOrderByUserIdRequest.newBuilder()
-                    .setId(orderId)
+                    .setUserId(orderId)
                     .build();
             GetOrderByUserIdResponse response = orderService.getOrderByUserId(grpcRequest);
             

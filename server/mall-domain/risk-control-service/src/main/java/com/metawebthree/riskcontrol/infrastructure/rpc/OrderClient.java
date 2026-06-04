@@ -16,7 +16,7 @@ public class OrderClient {
 
     public OrderDTO getOrderById(Long orderId) {
         GetOrderByUserIdRequest request = GetOrderByUserIdRequest.newBuilder()
-                .setId(orderId)
+                .setUserId(orderId)
                 .build();
         
         try {
