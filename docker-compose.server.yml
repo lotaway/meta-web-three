@@ -154,6 +154,84 @@ services:
     volumes:
       - promotion_service_data:/server/promotion
       - ./.aws:/.aws:ro
+  after-sale-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: after-sale-service
+    container_name: meta-web-three-after-sale-service
+    hostname: after-sale-service
+    ports:
+      - "10093:10093"
+    volumes:
+      - after-sale_service_data:/server/after-sale
+      - ./.aws:/.aws:ro
+  group-buying-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: group-buying-service
+    container_name: meta-web-three-group-buying-service
+    hostname: group-buying-service
+    ports:
+      - "10094:10094"
+    volumes:
+      - group-buying_service_data:/server/group-buying
+      - ./.aws:/.aws:ro
+  live-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: live-service
+    container_name: meta-web-three-live-service
+    hostname: live-service
+    ports:
+      - "10095:10095"
+    volumes:
+      - live_service_data:/server/live
+      - ./.aws:/.aws:ro
+  mall-supplier-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: mall-supplier-service
+    container_name: meta-web-three-mall-supplier-service
+    hostname: mall-supplier-service
+    ports:
+      - "10096:10096"
+    volumes:
+      - mall-supplier_service_data:/server/mall-supplier
+      - ./.aws:/.aws:ro
+  review-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: review-service
+    container_name: meta-web-three-review-service
+    hostname: review-service
+    ports:
+      - "10097:10097"
+    volumes:
+      - review_service_data:/server/review
+      - ./.aws:/.aws:ro
+  risk-control-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: risk-control-service
+    container_name: meta-web-three-risk-control-service
+    hostname: risk-control-service
+    ports:
+      - "10098:10098"
+    volumes:
+      - risk-control_service_data:/server/risk-control
+      - ./.aws:/.aws:ro
   user-action-service:
     <<: *java-service
     build:
@@ -179,6 +257,45 @@ services:
       - "10092:10092"
     volumes:
       - cs_service_data:/server/cs
+      - ./.aws:/.aws:ro
+  data-analysis-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: data-analysis-service
+    container_name: meta-web-three-data-analysis-service
+    hostname: data-analysis-service
+    ports:
+      - "10099:10099"
+    volumes:
+      - data-analysis_service_data:/server/data-analysis
+      - ./.aws:/.aws:ro
+  social-commerce-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: social-commerce-service
+    container_name: meta-web-three-social-commerce-service
+    hostname: social-commerce-service
+    ports:
+      - "10100:10100"
+    volumes:
+      - social-commerce_service_data:/server/social-commerce
+      - ./.aws:/.aws:ro
+  developer-portal-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: developer-portal-service
+    container_name: meta-web-three-developer-portal-service
+    hostname: developer-portal-service
+    ports:
+      - "10115:10115"
+    volumes:
+      - developer-portal_service_data:/server/developer-portal
       - ./.aws:/.aws:ro
   mes-service:
     <<: *java-service
@@ -206,6 +323,19 @@ services:
     volumes:
       - digital-twin_service_data:/server/digital-twin
       - ./.aws:/.aws:ro
+  production-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: production-service
+    container_name: meta-web-three-production-service
+    hostname: production-service
+    ports:
+      - "10116:10116"
+    volumes:
+      - production_service_data:/server/production
+      - ./.aws:/.aws:ro
   forecasting-service:
     <<: *java-service
     build:
@@ -231,6 +361,19 @@ services:
       - "10104:10104"
     volumes:
       - recommendation_service_data:/server/recommendation
+      - ./.aws:/.aws:ro
+  route-optimizer:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: route-optimizer
+    container_name: meta-web-three-route-optimizer
+    hostname: route-optimizer
+    ports:
+      - "10117:10117"
+    volumes:
+      - route-optimizer_service_data:/server/route-optimizer
       - ./.aws:/.aws:ro
   inventory-service:
     <<: *java-service
@@ -297,6 +440,19 @@ services:
     volumes:
       - supplier_service_data:/server/supplier
       - ./.aws:/.aws:ro
+  inventory-alert-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: inventory-alert-service
+    container_name: meta-web-three-inventory-alert-service
+    hostname: inventory-alert-service
+    ports:
+      - "10121:10121"
+    volumes:
+      - inventory-alert_service_data:/server/inventory-alert
+      - ./.aws:/.aws:ro
   finance-service:
     <<: *java-service
     build:
@@ -349,6 +505,32 @@ services:
     volumes:
       - settlement_service_data:/server/settlement
       - ./.aws:/.aws:ro
+  hrm-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: hrm-service
+    container_name: meta-web-three-hrm-service
+    hostname: hrm-service
+    ports:
+      - "10119:10119"
+    volumes:
+      - hrm_service_data:/server/hrm
+      - ./.aws:/.aws:ro
+  project-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: project-service
+    container_name: meta-web-three-project-service
+    hostname: project-service
+    ports:
+      - "10120:10120"
+    volumes:
+      - project_service_data:/server/project
+      - ./.aws:/.aws:ro
   wallet-service:
     <<: *java-service
     build:
@@ -361,6 +543,19 @@ services:
       - "10114:10114"
     volumes:
       - wallet_service_data:/server/wallet
+      - ./.aws:/.aws:ro
+  traceability-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: traceability-service
+    container_name: meta-web-three-traceability-service
+    hostname: traceability-service
+    ports:
+      - "10118:10118"
+    volumes:
+      - traceability_service_data:/server/traceability
       - ./.aws:/.aws:ro
 
 volumes:
@@ -376,17 +571,32 @@ volumes:
   promotion_service_data:
   user-action_service_data:
   cs_service_data:
+  after-sale_service_data:
+  group-buying_service_data:
+  live_service_data:
+  mall-supplier_service_data:
+  review_service_data:
+  risk-control_service_data:
+  data-analysis_service_data:
+  social-commerce_service_data:
+  developer-portal_service_data:
   mes_service_data:
   digital-twin_service_data:
+  production_service_data:
   forecasting_service_data:
   recommendation_service_data:
+  route-optimizer_service_data:
   inventory_service_data:
   warehouse_service_data:
   logistics_service_data:
   procurement_service_data:
   supplier_service_data:
+  inventory-alert_service_data:
   finance_service_data:
   invoice_service_data:
   reporting_service_data:
   settlement_service_data:
+  hrm_service_data:
+  project_service_data:
   wallet_service_data:
+  traceability_service_data:

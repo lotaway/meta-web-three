@@ -42,6 +42,36 @@ WORKDIR /app
 COPY --from=builder /build/server/mall-domain/promotion-service/target/promotion-service-*.jar promotion-service.jar
 ENTRYPOINT ["java", "-jar", "promotion-service.jar"]
 
+FROM eclipse-temurin:17-jre-jammy AS after-sale-service
+WORKDIR /app
+COPY --from=builder /build/server/mall-domain/after-sale-service/target/after-sale-service-*.jar after-sale-service.jar
+ENTRYPOINT ["java", "-jar", "after-sale-service.jar"]
+
+FROM eclipse-temurin:17-jre-jammy AS group-buying-service
+WORKDIR /app
+COPY --from=builder /build/server/mall-domain/group-buying-service/target/group-buying-service-*.jar group-buying-service.jar
+ENTRYPOINT ["java", "-jar", "group-buying-service.jar"]
+
+FROM eclipse-temurin:17-jre-jammy AS live-service
+WORKDIR /app
+COPY --from=builder /build/server/mall-domain/live-service/target/live-service-*.jar live-service.jar
+ENTRYPOINT ["java", "-jar", "live-service.jar"]
+
+FROM eclipse-temurin:17-jre-jammy AS mall-supplier-service
+WORKDIR /app
+COPY --from=builder /build/server/mall-domain/mall-supplier-service/target/mall-supplier-service-*.jar mall-supplier-service.jar
+ENTRYPOINT ["java", "-jar", "mall-supplier-service.jar"]
+
+FROM eclipse-temurin:17-jre-jammy AS review-service
+WORKDIR /app
+COPY --from=builder /build/server/mall-domain/review-service/target/review-service-*.jar review-service.jar
+ENTRYPOINT ["java", "-jar", "review-service.jar"]
+
+FROM eclipse-temurin:17-jre-jammy AS risk-control-service
+WORKDIR /app
+COPY --from=builder /build/server/mall-domain/risk-control-service/target/risk-control-service-*.jar risk-control-service.jar
+ENTRYPOINT ["java", "-jar", "risk-control-service.jar"]
+
 # platform-domain
 FROM eclipse-temurin:17-jre-jammy AS message-service
 WORKDIR /app
@@ -68,6 +98,21 @@ WORKDIR /app
 COPY --from=builder /build/server/platform-domain/cs-service/target/cs-service-*.jar cs-service.jar
 ENTRYPOINT ["java", "-jar", "cs-service.jar"]
 
+FROM eclipse-temurin:17-jre-jammy AS data-analysis-service
+WORKDIR /app
+COPY --from=builder /build/server/platform-domain/data-analysis-service/target/data-analysis-service-*.jar data-analysis-service.jar
+ENTRYPOINT ["java", "-jar", "data-analysis-service.jar"]
+
+FROM eclipse-temurin:17-jre-jammy AS social-commerce-service
+WORKDIR /app
+COPY --from=builder /build/server/platform-domain/social-commerce-service/target/social-commerce-service-*.jar social-commerce-service.jar
+ENTRYPOINT ["java", "-jar", "social-commerce-service.jar"]
+
+FROM eclipse-temurin:17-jre-jammy AS developer-portal-service
+WORKDIR /app
+COPY --from=builder /build/server/platform-domain/developer-portal-service/target/developer-portal-service-*.jar developer-portal-service.jar
+ENTRYPOINT ["java", "-jar", "developer-portal-service.jar"]
+
 # factory-domain
 FROM eclipse-temurin:17-jre-jammy AS mes-service
 WORKDIR /app
@@ -79,6 +124,11 @@ WORKDIR /app
 COPY --from=builder /build/server/factory-domain/digital-twin-service/target/digital-twin-service-*.jar digital-twin-service.jar
 ENTRYPOINT ["java", "-jar", "digital-twin-service.jar"]
 
+FROM eclipse-temurin:17-jre-jammy AS production-service
+WORKDIR /app
+COPY --from=builder /build/server/factory-domain/production-service/target/production-service-*.jar production-service.jar
+ENTRYPOINT ["java", "-jar", "production-service.jar"]
+
 # ai-domain
 FROM eclipse-temurin:17-jre-jammy AS forecasting-service
 WORKDIR /app
@@ -87,8 +137,13 @@ ENTRYPOINT ["java", "-jar", "forecasting-service.jar"]
 
 FROM eclipse-temurin:17-jre-jammy AS recommendation-service
 WORKDIR /app
-COPY --from=builder /build/server/ai-domain/recommendation-service/target/recommendation-service-*.jar recommendation-service.jar
+COPY --from=builder /build/server/mall-domain/recommendation-service/target/recommendation-service-*.jar recommendation-service.jar
 ENTRYPOINT ["java", "-jar", "recommendation-service.jar"]
+
+FROM eclipse-temurin:17-jre-jammy AS route-optimizer
+WORKDIR /app
+COPY --from=builder /build/server/ai-domain/route-optimizer/target/route-optimizer-*.jar route-optimizer.jar
+ENTRYPOINT ["java", "-jar", "route-optimizer.jar"]
 
 # supply-chain-domain
 FROM eclipse-temurin:17-jre-jammy AS inventory-service
@@ -116,6 +171,11 @@ WORKDIR /app
 COPY --from=builder /build/server/supply-chain-domain/supplier-service/target/supplier-service-*.jar supplier-service.jar
 ENTRYPOINT ["java", "-jar", "supplier-service.jar"]
 
+FROM eclipse-temurin:17-jre-jammy AS inventory-alert-service
+WORKDIR /app
+COPY --from=builder /build/server/supply-chain-domain/inventory-alert-service/target/inventory-alert-service-*.jar inventory-alert-service.jar
+ENTRYPOINT ["java", "-jar", "inventory-alert-service.jar"]
+
 # erp-domain
 FROM eclipse-temurin:17-jre-jammy AS finance-service
 WORKDIR /app
@@ -137,8 +197,23 @@ WORKDIR /app
 COPY --from=builder /build/server/erp-domain/settlement-service/target/settlement-service-*.jar settlement-service.jar
 ENTRYPOINT ["java", "-jar", "settlement-service.jar"]
 
+FROM eclipse-temurin:17-jre-jammy AS hrm-service
+WORKDIR /app
+COPY --from=builder /build/server/erp-domain/hrm-service/target/hrm-service-*.jar hrm-service.jar
+ENTRYPOINT ["java", "-jar", "hrm-service.jar"]
+
+FROM eclipse-temurin:17-jre-jammy AS project-service
+WORKDIR /app
+COPY --from=builder /build/server/erp-domain/project-service/target/project-service-*.jar project-service.jar
+ENTRYPOINT ["java", "-jar", "project-service.jar"]
+
 # blockchain-domain
 FROM eclipse-temurin:17-jre-jammy AS wallet-service
 WORKDIR /app
 COPY --from=builder /build/server/blockchain-domain/wallet-service/target/wallet-service-*.jar wallet-service.jar
 ENTRYPOINT ["java", "-jar", "wallet-service.jar"]
+
+FROM eclipse-temurin:17-jre-jammy AS traceability-service
+WORKDIR /app
+COPY --from=builder /build/server/blockchain-domain/traceability-service/target/traceability-service-*.jar traceability-service.jar
+ENTRYPOINT ["java", "-jar", "traceability-service.jar"]
