@@ -527,25 +527,6 @@ export const asyncRouterMap: RouteRecordExt[] = [
         component: () => import('@/views/mes/pokayoke/detail.vue'),
         meta: { title: 'mes.pokayoke.detail', hidden: true },
       },
-      // 生产任务模块
-      {
-        path: 'production-task',
-        name: 'productionTask',
-        component: () => import('@/views/mes/productionTask/index.vue'),
-        meta: { title: 'mes.productionTask.title', icon: 'mes-task' },
-      },
-      {
-        path: 'production-task/form',
-        name: 'productionTaskForm',
-        component: () => import('@/views/mes/productionTask/form.vue'),
-        meta: { title: 'mes.productionTask.form', hidden: true },
-      },
-      {
-        path: 'production-task/detail',
-        name: 'productionTaskDetail',
-        component: () => import('@/views/mes/productionTask/detail.vue'),
-        meta: { title: 'mes.productionTask.detail', hidden: true },
-      },
       // 排程管理
       {
         path: 'scheduling',
@@ -564,6 +545,44 @@ export const asyncRouterMap: RouteRecordExt[] = [
         name: 'schedulingDetail',
         component: () => import('@/views/mes/scheduling/detail.vue'),
         meta: { title: 'mes.scheduling.detail', hidden: true },
+      },
+      // 人员工时
+      {
+        path: 'labor',
+        name: 'labor',
+        component: () => import('@/views/mes/labor/index.vue'),
+        meta: { title: 'mes.labor.title', icon: 'mes-labor' },
+      },
+      {
+        path: 'labor/form',
+        name: 'laborForm',
+        component: () => import('@/views/mes/labor/form.vue'),
+        meta: { title: 'mes.labor.form', hidden: true },
+      },
+      {
+        path: 'labor/detail',
+        name: 'laborDetail',
+        component: () => import('@/views/mes/labor/detail.vue'),
+        meta: { title: 'mes.labor.detail', hidden: true },
+      },
+      // 生产任务模块
+      {
+        path: 'production-task',
+        name: 'productionTask',
+        component: () => import('@/views/mes/productionTask/index.vue'),
+        meta: { title: 'mes.productionTask.title', icon: 'mes-task' },
+      },
+      {
+        path: 'production-task/form',
+        name: 'productionTaskForm',
+        component: () => import('@/views/mes/productionTask/form.vue'),
+        meta: { title: 'mes.productionTask.form', hidden: true },
+      },
+      {
+        path: 'production-task/detail',
+        name: 'productionTaskDetail',
+        component: () => import('@/views/mes/productionTask/detail.vue'),
+        meta: { title: 'mes.productionTask.detail', hidden: true },
       },
       // 工单管理
       {

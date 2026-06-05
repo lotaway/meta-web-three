@@ -92,6 +92,24 @@ public class TraceModel {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void enableProcessTrace(Boolean enable) {
+        initRelationConfig();
+        this.relationConfig.setEnableProcessTrace(enable);
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void enableQualityTrace(Boolean enable) {
+        initRelationConfig();
+        this.relationConfig.setEnableQualityTrace(enable);
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void enableEquipmentTrace(Boolean enable) {
+        initRelationConfig();
+        this.relationConfig.setEnableEquipmentTrace(enable);
+        this.updatedAt = LocalDateTime.now();
+    }
+
     public void addTraceLevel(String levelCode, String levelName, TraceType traceType, 
                               String parentLevelCode, Boolean isRequired) {
         initRelationConfig();
@@ -151,5 +169,7 @@ public class TraceModel {
     public Boolean getIsEnabled() { return isEnabled; }
     public void setIsEnabled(Boolean isEnabled) { this.isEnabled = isEnabled; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

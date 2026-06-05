@@ -31,8 +31,6 @@ The following backend services have been created, but lack corresponding admin a
 - [ ] 添加 GraphQL Federation 统一查询层 (整合多个微服务的GraphQL端点，提供统一API)
    - [ ] 需要端到端运行时验证：启动所有子图服务 + gateway，用 GraphQL 客户端请求跨子图联合查询（如通过 cart 查 product），验证 Federation 路由和实体解析正确
 
-- [] [关于ERC/MES方面的汇总改进意见](./TODO_ERP.md) 按照这个进行完善
-
 - [ ] 实现多租户SaaS架构
 
 - [ ] 实现事件溯源和CQRS模式 (Event Sourcing + CQRS，提升数据一致性和审计能力)
@@ -48,3 +46,88 @@ The following backend services have been created, but lack corresponding admin a
 - [ ] 添加语音电商功能 (Voice Commerce，语音搜索、语音下单)
 
 - [ ] 实现可持续性追踪 (碳足迹计算、绿色物流、环保商品标签)
+
+---
+
+### [ERP/MES/SupplyChain 缺失模块实现]
+
+基于 `TODO_ERP.md` 分析对比现有代码后，确认以下真正缺失的功能模块，按优先级排列：
+
+#### MES 领域 (高优先级)
+
+- [x] **[MES] 有限产能排程 (Finite Capacity Scheduling)**: `server/factory-domain/mes-service` 中添加排程引擎
+   - [x] 定义排程数据模型：`ScheduleOrder`, `ScheduleResource`, `ScheduleResult` (含内嵌 `ScheduleOperation`, `TimeSlot`, `ScheduleConflict`)
+   - [x] 实现基础排程算法：前向排程(Forward Scheduling)、后向排程(Backward Scheduling) — `SchedulingDomainServiceImpl`
+   - [x] 实现约束检查：资源可用性 (`ScheduleResource.isAvailable()`), 冲突报告 (`ScheduleConflict`)
+   - [x] 添加调度 REST API：`/api/mes/scheduling/orders|resources|forward|backward`
+   - [x] 添加后台调度管理页面：`views/mes/scheduling/index.vue` (工单列表+资源管理.含前向/后向排程按钮,工序展开,调度结果报警)
+
+- [x] **[MES] 人员/工时跟踪 (Labor & Time Tracking)**: 记录操作员资质、工时、考勤及人员到工作中心的分配
+   - [x] 定义领域实体：`Operator`, `OperatorSkill`, `WorkCenterAssignment`, `TimeRecord`, `Attendance`
+   - [x] 实现工时记录：员工报工、工时核算、产出记录 (clockIn/Out, submit/approve flow)
+   - [x] 实现工作中心分配：人员 → 工位/产线绑定
+   - [x] 添加 REST API：`/api/mes/labor/operators|attendance|time-records|assignments`
+   - [x] 添加后台管理页面：`views/mes/labor/index.vue` (含 4 个 Tab: 操作员/考勤/工时/分配)
+
+- [x] **[MES] 制造可追溯性完善 (Manufacturing Genealogy)**: 在已有 TraceModel/TraceRecord 基础上补全"制造族谱"
+    - [x] 完善溯源数据模型：连接成品 → 批次原料 → 设备 → 操作员 → 工艺参数
+    - [x] 实现自动收集：工单完工时自动关联原料批次、设备、操作员
+    - [x] 添加批次追溯查询 API：正向(原料→成品)和反向(成品→原料)
+    - [ ] 添加后台追溯查询页面：`views/mes/traceability/index.vue`
+
+- [ ] **[MES] 实时数据采集集成 (SCADA Integration)**: 基于已有 Equipment.mqttTopic 字段构建完整数据采集层
+   - [ ] 实现 MQTT 设备数据消费者：订阅设备 topic，解析遥测数据
+   - [ ] 定义采集数据模型：`TelemetryRecord`, `TelemetryMetric`, `DeviceCommand`
+   - [ ] 实现设备命令下发：从 MES 下发参数配置到设备
+   - [ ] 实现实时状态看板：设备 OEE、生产进度、异常告警
+
+#### 供应链领域 (中优先级)
+
+- [ ] **[Supply Chain] 退货管理 (RMA - Return Material Authorization)**: 逆向物流模块
+   - [ ] 定义领域实体：`RmaOrder`, `RmaOrderItem`, `RmaInspection`, `RmaDisposition`, `ReturnShipping`
+   - [ ] 实现退换货流程：退货申请 → 质检 → 处理决定(退款/换货/维修) → 返仓/报废
+   - [ ] 实现与库存服务集成：RMA 质检通过后自动触发入库
+   - [ ] 实现与结算服务集成：退款自动触发结算
+   - [ ] 添加 REST API + Protobuf 定义
+   - [ ] 添加 Protobuf 定义：`protos/supply-chain/RmaService.proto`
+   - [ ] 添加后台管理页面：`views/rma/*` 系列页面
+
+- [ ] **[Supply Chain] 分布式订单管理 (DOM)**: 跨仓库订单承诺、寻源和履行
+   - [ ] 定义领域实体：`DomOrder`, `DomOrderLine`, `FulfillmentPlan`, `SourcingRule`
+   - [ ] 实现订单寻源：根据库存、距离、成本自动选择最优仓库
+   - [ ] 实现可用量承诺(ATP)检查
+   - [ ] 添加 REST API
+   - [ ] 添加后台管理页面
+
+#### ERP 领域 (中优先级)
+
+- [ ] **[ERP] 客户关系管理 (CRM)**: 销售管道、商机跟踪、客户服务工单、营销活动
+   - [ ] 创建 `crm-service` 模块（基于 backend-api 父 POM）
+   - [ ] 定义领域实体：`Lead`, `Opportunity`, `SalesPipeline`, `CustomerServiceTicket`, `Campaign`, `Contact`
+   - [ ] 实现销售管道：商机创建 → 阶段推进 → 赢单/输单
+   - [ ] 实现客户服务工单：创建 → 分配 → 处理 → 关闭
+   - [ ] 实现与用户服务集成：客户数据同步
+   - [ ] 添加 REST API + GraphQL 端点
+   - [ ] 添加 Protobuf 定义：`protos/erp/CrmService.proto`
+   - [ ] 添加后台管理页面：`views/crm/*` 系列页面
+
+- [ ] **[ERP] BI 商业智能与分析层**: 仪表板、即席查询、数据可视化
+   - [ ] 基于现有 `reporting-service` 扩展：添加 OLAP 聚合查询能力
+   - [ ] 实现销售分析看板：销量趋势、品类分布、区域对比
+   - [ ] 实现财务分析看板：收入/成本/利润趋势、预算执行率
+   - [ ] 实现库存分析看板：周转率、ABC分析、安全库存预警
+   - [ ] 实现生产分析看板：OEE、良品率、计划达成率
+   - [ ] 添加后台 BI 看板页面：`views/bi/*` 系列页面
+
+#### 跨领域基础能力
+
+- [ ] **[Cross] Protobuf 定义补齐**: 当前缺少 ERP 和 MES 领域的 protobuf 定义
+   - [ ] 创建 `protos/erp/` 目录：定义 FinanceService, HrmService, InvoiceService, CrmService
+   - [ ] 创建 `protos/factory/` 目录：定义 MesService, SchedulingService, QualityService, EquipmentService
+   - [ ] 运行 `make` 生成多语言接口代码
+
+- [ ] **[Cross] ERP-MES 数据闭环集成**: 打通 ERP 生产订单 → MES 报工 → 财务成本核算
+   - [ ] ERP 生产订单发布时发送领域事件(MQ/Kafka)到 MES
+   - [ ] MES 工单报工完成后发送完工事件到 ERP
+   - [ ] 财务成本核算模块监听完工事件自动归集成本
+   - [ ] 实现端到端集成测试

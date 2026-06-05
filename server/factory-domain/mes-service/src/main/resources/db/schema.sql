@@ -662,3 +662,116 @@ CREATE TABLE IF NOT EXISTS mes_schedule_resource (
     INDEX idx_workshop_id (workshop_id),
     INDEX idx_status (status)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '排程资源表';
+
+-- =====================
+-- V15: labor & time tracking
+-- =====================
+-- 操作员表
+CREATE TABLE IF NOT EXISTS mes_operator (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    operator_code VARCHAR(64) NOT NULL UNIQUE COMMENT '操作员编码',
+    operator_name VARCHAR(128) NOT NULL COMMENT '操作员姓名',
+    department VARCHAR(64) COMMENT '部门',
+    job_title VARCHAR(64) COMMENT '岗位',
+    shift_group VARCHAR(32) COMMENT '班次组',
+    status VARCHAR(32) DEFAULT 'ACTIVE' COMMENT '状态: ACTIVE/INACTIVE/ON_LEAVE/TERMINATED',
+    phone VARCHAR(32) COMMENT '电话',
+    email VARCHAR(128) COMMENT '邮箱',
+    id_card_no VARCHAR(32) COMMENT '身份证号',
+    hire_date DATETIME COMMENT '入职日期',
+    remark VARCHAR(512) COMMENT '备注',
+    created_by VARCHAR(64) COMMENT '创建人',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_operator_code (operator_code),
+    INDEX idx_department (department),
+    INDEX idx_status (status)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '操作员表';
+
+-- 操作员技能表
+CREATE TABLE IF NOT EXISTS mes_operator_skill (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    operator_id BIGINT NOT NULL COMMENT '操作员ID',
+    skill_code VARCHAR(64) NOT NULL COMMENT '技能编码',
+    skill_name VARCHAR(128) COMMENT '技能名称',
+    skill_level VARCHAR(32) DEFAULT 'TRAINEE' COMMENT '技能等级: TRAINEE/JUNIOR/MIDDLE/SENIOR/MASTER',
+    certified BOOLEAN DEFAULT FALSE COMMENT '是否认证',
+    certified_at DATETIME COMMENT '认证时间',
+    expiry_at DATETIME COMMENT '到期时间',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_operator_id (operator_id),
+    INDEX idx_skill_code (skill_code),
+    FOREIGN KEY (operator_id) REFERENCES mes_operator (id) ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '操作员技能表';
+
+-- 工作中心分配表
+CREATE TABLE IF NOT EXISTS mes_work_center_assignment (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    operator_id BIGINT NOT NULL COMMENT '操作员ID',
+    work_center_id VARCHAR(64) NOT NULL COMMENT '工作中心ID',
+    work_center_name VARCHAR(128) COMMENT '工作中心名称',
+    start_date DATE COMMENT '开始日期',
+    end_date DATE COMMENT '结束日期',
+    shift_type VARCHAR(32) DEFAULT 'DAY' COMMENT '班次: DAY/NIGHT/MIDDLE/ROTATING',
+    status VARCHAR(32) DEFAULT 'ACTIVE' COMMENT '状态: ACTIVE/INACTIVE',
+    remark VARCHAR(512) COMMENT '备注',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_operator_id (operator_id),
+    INDEX idx_work_center_id (work_center_id),
+    INDEX idx_status (status),
+    FOREIGN KEY (operator_id) REFERENCES mes_operator (id) ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '工作中心分配表';
+
+-- 工时记录表
+CREATE TABLE IF NOT EXISTS mes_time_record (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    operator_id BIGINT NOT NULL COMMENT '操作员ID',
+    operator_code VARCHAR(64) COMMENT '操作员编码',
+    operator_name VARCHAR(128) COMMENT '操作员姓名',
+    work_order_no VARCHAR(64) COMMENT '工单编号',
+    task_no VARCHAR(64) COMMENT '任务编号',
+    operation_code VARCHAR(64) COMMENT '工序编码',
+    work_center_id VARCHAR(64) COMMENT '工作中心ID',
+    record_date DATE COMMENT '记录日期',
+    start_time DATETIME COMMENT '开始时间',
+    end_time DATETIME COMMENT '结束时间',
+    total_hours DECIMAL(12, 2) DEFAULT 0 COMMENT '总工时(小时)',
+    record_type VARCHAR(32) DEFAULT 'REGULAR' COMMENT '类型: REGULAR/OVERTIME/VACATION/SICK',
+    status VARCHAR(32) DEFAULT 'DRAFT' COMMENT '状态: DRAFT/SUBMITTED/APPROVED/REJECTED',
+    approved_by VARCHAR(64) COMMENT '审批人',
+    approved_at DATETIME COMMENT '审批时间',
+    remark VARCHAR(512) COMMENT '备注',
+    created_by VARCHAR(64) COMMENT '创建人',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_operator_id (operator_id),
+    INDEX idx_record_date (record_date),
+    INDEX idx_work_order_no (work_order_no),
+    INDEX idx_status (status),
+    FOREIGN KEY (operator_id) REFERENCES mes_operator (id) ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '工时记录表';
+
+-- 考勤表
+CREATE TABLE IF NOT EXISTS mes_attendance (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    operator_id BIGINT NOT NULL COMMENT '操作员ID',
+    operator_code VARCHAR(64) COMMENT '操作员编码',
+    operator_name VARCHAR(128) COMMENT '操作员姓名',
+    attendance_date DATE COMMENT '考勤日期',
+    clock_in TIME COMMENT '签到时间',
+    clock_out TIME COMMENT '签退时间',
+    scheduled_start TIME COMMENT '应到时间',
+    scheduled_end TIME COMMENT '应退时间',
+    status VARCHAR(32) DEFAULT 'ABSENT' COMMENT '状态: PRESENT/LATE/ABSENT/HALF_DAY/OVERTIME/VACATION/SICK/BUSINESS_TRIP',
+    overtime BOOLEAN DEFAULT FALSE COMMENT '是否加班',
+    remark VARCHAR(512) COMMENT '备注',
+    created_by VARCHAR(64) COMMENT '创建人',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_operator_id (operator_id),
+    INDEX idx_attendance_date (attendance_date),
+    INDEX idx_status (status),
+    FOREIGN KEY (operator_id) REFERENCES mes_operator (id) ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '考勤表';

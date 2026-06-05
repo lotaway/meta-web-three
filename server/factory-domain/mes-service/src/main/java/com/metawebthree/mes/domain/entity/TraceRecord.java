@@ -18,7 +18,7 @@ public class TraceRecord {
     private LocalDateTime createdAt;
 
     public enum TraceType {
-        PRODUCT, BATCH, MATERIAL, SN
+        PRODUCT, BATCH, MATERIAL, SN, WORK_ORDER, PROCESS, QC, EQUIPMENT, OPERATOR
     }
 
     public enum TraceSource {
@@ -142,4 +142,17 @@ public class TraceRecord {
     public List<TraceRelation> getRelations() { return relations; }
     public void setRelations(List<TraceRelation> relations) { this.relations = relations; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public static class TraceChain {
+        private TraceRecord root;
+        private List<TraceRecord> forwardPath;
+        private List<TraceRecord> backwardPath;
+
+        public TraceRecord getRoot() { return root; }
+        public void setRoot(TraceRecord root) { this.root = root; }
+        public List<TraceRecord> getForwardPath() { return forwardPath; }
+        public void setForwardPath(List<TraceRecord> forwardPath) { this.forwardPath = forwardPath; }
+        public List<TraceRecord> getBackwardPath() { return backwardPath; }
+        public void setBackwardPath(List<TraceRecord> backwardPath) { this.backwardPath = backwardPath; }
+    }
 }
