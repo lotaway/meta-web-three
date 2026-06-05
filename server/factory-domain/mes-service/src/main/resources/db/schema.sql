@@ -588,3 +588,77 @@ CREATE TABLE IF NOT EXISTS mes_process_route (
     INDEX idx_status (status),
     INDEX idx_effective_expiry (effective_date, expiry_date)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '工艺路线表';
+
+-- =====================
+-- V14: scheduling
+-- =====================
+-- 排程订单表
+CREATE TABLE IF NOT EXISTS mes_schedule_order (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    schedule_no VARCHAR(64) NOT NULL UNIQUE COMMENT '排程编号',
+    order_no VARCHAR(64) NOT NULL COMMENT '工单编号',
+    product_code VARCHAR(64) COMMENT '产品编码',
+    product_name VARCHAR(128) COMMENT '产品名称',
+    quantity DECIMAL(18, 4) DEFAULT 0 COMMENT '数量',
+    completed_quantity DECIMAL(18, 4) DEFAULT 0 COMMENT '已完成数量',
+    due_date DATETIME COMMENT '到期时间',
+    scheduled_start_time DATETIME COMMENT '计划开始时间',
+    scheduled_end_time DATETIME COMMENT '计划结束时间',
+    actual_start_time DATETIME COMMENT '实际开始时间',
+    actual_end_time DATETIME COMMENT '实际结束时间',
+    priority VARCHAR(32) DEFAULT 'NORMAL' COMMENT '优先级: LOW/NORMAL/HIGH/URGENT',
+    status VARCHAR(32) DEFAULT 'PENDING' COMMENT '状态: PENDING/SCHEDULED/IN_PROGRESS/COMPLETED/DELAYED/CANCELLED',
+    workshop_id VARCHAR(64) COMMENT '车间ID',
+    route_code VARCHAR(64) COMMENT '工艺路线编码',
+    remark VARCHAR(512) COMMENT '备注',
+    created_by VARCHAR(64) COMMENT '创建人',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_schedule_no (schedule_no),
+    INDEX idx_order_no (order_no),
+    INDEX idx_workshop_id (workshop_id),
+    INDEX idx_status (status),
+    INDEX idx_priority (priority),
+    INDEX idx_due_date (due_date)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '排程订单表';
+
+-- 排程工序表
+CREATE TABLE IF NOT EXISTS mes_schedule_operation (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    schedule_order_id BIGINT NOT NULL COMMENT '排程订单ID',
+    operation_code VARCHAR(64) NOT NULL COMMENT '工序编码',
+    operation_name VARCHAR(128) COMMENT '工序名称',
+    sequence_no INT DEFAULT 1 COMMENT '工序序号',
+    resource_code VARCHAR(64) COMMENT '资源编码',
+    resource_name VARCHAR(128) COMMENT '资源名称',
+    setup_time_minutes DECIMAL(12, 2) DEFAULT 0 COMMENT '准备时间(分钟)',
+    processing_time_minutes DECIMAL(12, 2) DEFAULT 0 COMMENT '加工时间(分钟)',
+    teardown_time_minutes DECIMAL(12, 2) DEFAULT 0 COMMENT '收尾时间(分钟)',
+    status VARCHAR(32) DEFAULT 'PENDING' COMMENT '状态: PENDING/SCHEDULED/IN_PROGRESS/COMPLETED/BLOCKED',
+    scheduled_start_time DATETIME COMMENT '计划开始时间',
+    scheduled_end_time DATETIME COMMENT '计划结束时间',
+    INDEX idx_schedule_order_id (schedule_order_id),
+    INDEX idx_operation_code (operation_code),
+    INDEX idx_resource_code (resource_code),
+    INDEX idx_status (status),
+    FOREIGN KEY (schedule_order_id) REFERENCES mes_schedule_order (id) ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '排程工序表';
+
+-- 排程资源表
+CREATE TABLE IF NOT EXISTS mes_schedule_resource (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    resource_code VARCHAR(64) NOT NULL UNIQUE COMMENT '资源编码',
+    resource_name VARCHAR(128) NOT NULL COMMENT '资源名称',
+    resource_type VARCHAR(32) NOT NULL COMMENT '资源类型: EQUIPMENT/WORK_CENTER/LABOR/TOOL',
+    status VARCHAR(32) DEFAULT 'AVAILABLE' COMMENT '状态: AVAILABLE/OCCUPIED/MAINTENANCE/OFFLINE',
+    workshop_id VARCHAR(64) COMMENT '车间ID',
+    capacity_per_shift DOUBLE COMMENT '每班产能',
+    calendar_code VARCHAR(64) COMMENT '日历编码',
+    description VARCHAR(512) COMMENT '描述',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_resource_code (resource_code),
+    INDEX idx_resource_type (resource_type),
+    INDEX idx_workshop_id (workshop_id),
+    INDEX idx_status (status)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '排程资源表';
