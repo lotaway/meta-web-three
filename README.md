@@ -16,11 +16,12 @@ meta-web-three/
 ```
 
 ### apps/ 前端应用
-- backstage-admin - 商城管理后台
-- client - 客户端 App
+- backstage-admin - 商城管理后台（后台管理系统，Vue 3 + Element Plus）
+- client - 客户端 App（React Native / Expo，面向用户的移动端业务；包含支付、业务页面等）
+- digital-twin - 数字孪生前端（AI 驱动的数字孪生与知识问答桌面端，Electron/React；并配套三维场景与交互）
 
 ### server/ 后端微服务
-详见 [server/README.md](./server/README.md)
+详见 [Server-README.md](./server/README.md)
 
 ### protos/ 消息定义
 按领域拆分：mall/, supply-chain/, erp/, ai/, blockchain/, shared/

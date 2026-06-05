@@ -142,9 +142,31 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 - 公共配置
 - 分布式 ID 生成器
 
-## 通讯方式
+## 添加新服务清单
 
-结合`../protos`里的消息结构使用dubbo+grpc+protobuf进行通讯，借助`../Makefile`脚本生成胶水代码，再使用`@DubboReference`来跨服务调用方法体。protobuf的使用参考monorepo根目录的`../README.md`
+添加一个新微服务时，需按以下清单逐项完成，否则会导致构建或运行失败：
+
+1. `protos/` 下新建 `.proto` 文件定义服务接口和消息结构
+2. 在项目根目录执行 `make gen`，借助 `Makefile` 生成 Java 胶水代码到 `common` 模块
+3. 在 `server/<domain>/<service>/` 下新建 Spring Boot 项目，实现 `common` 中的接口
+4. 调用方通过以下方式引用该服务：
+   - Java 服务：调用方使用 `@DubboReference` 注入接口并调用
+   - 非 Java 服务：通过 ZK + gRPC 方式，结合生成的 proto 代码进行调用
+5. 在 `scripts/server-services-registry.sh` 中按 `服务名|模块路径(相对server/)|HTTP端口` 格式追加一行注册服务
+6. 若新服务暴露 GraphQL 端点（`/graphql`），在 `gateway/.../graphql/FederationRouter.java` 中的以下四处注册：
+   - `SUBGRAPH_URLS`：添加 `服务名 → http://<service-name>/graphql` 映射
+   - `ROOT_FIELD_OWNER`：添加该服务暴露的所有根查询/变更字段
+   - `ENTITY_TYPES`：添加该服务定义的 Federation entity 类型
+   - `buildCombinedSdl()`：添加该服务的 GraphQL 类型定义
+7. 在 `server/Dockerfile` 中新增 `FROM eclipse-temurin:17-jre-jammy AS <service-name>` 构建阶段
+8. 在 `docker-compose.server.yml` 中新增 service 定义（参考已有服务模板 `<<: *java-service`），含 `hostname`、`ports`、`volumes` 等
+9. 对照下方端口表分配未占用的端口（10101+ 为新增领域服务）
+10. 在 `allow-ports-firework.sh` 的 `PORTS` 数组中添加该服务的端口号
+
+说明：
+- `run-server.sh` 会自动读取 `scripts/server-services-registry.sh` 中的服务列表，无需手动修改
+- 服务的 `spring.application.name` 必须与 `SUBGRAPH_URLS` 中的服务名一致，才能被 `@LoadBalanced RestTemplate` 通过 Zookeeper 服务发现正确路由
+- 服务暴露 GraphQL Federation 端点时，需在 `gateway` 的 `pom.xml` 中添加对应的 `common` 模块 RPC client（如已有则跳过），然后在 `gateway/client/` 下添加相应的 `@DubboReference` Client 类
 
 ## AWS S3 Configuration
 
