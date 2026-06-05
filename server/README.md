@@ -162,6 +162,7 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 8. 在 `docker-compose.server.yml` 中新增 service 定义（参考已有服务模板 `<<: *java-service`），含 `hostname`、`ports`、`volumes` 等
 9. 对照下方端口表分配未占用的端口（10101+ 为新增领域服务）
 10. 在 `allow-ports-firework.sh` 的 `PORTS` 数组中添加该服务的端口号
+11. **K8s 配置最简补齐**：为该服务添加 Kubernetes 部署/访问 yaml（放在 `k8s/services/`），并在需要的话加入 `k8s/services/extended-domain-services.yaml` 以纳入一键部署；最终以 `k8s/deploy-all.yaml` 为入口完成落地。
 
 说明：
 - `run-server.sh` 会自动读取 `scripts/server-services-registry.sh` 中的服务列表，无需手动修改
@@ -189,29 +190,14 @@ aws_secret_access_key=s3_secret_key
 ### 服务目录结构
 
 ```
-<service>/
-├── src/
-├── db/
+<domain>/<service>/
+├── src/main/resources/db/
 │     ├── schema.sql      -- 表结构定义
 │     └── migration/      -- 未来使用 Flyway / Liquibase 进行迁移
 │           ├── V1__init.sql
 │           ├── V2__add_index.sql
 │           └── ...
 ```
-
-### 当前已有 Schema 的服务
-
-| 服务 | Schema 路径 |
-|-----|-------------|
-| cart-service | `cart-service/src/main/resources/db/schema.sql` |
-| order-service | `order-service/src/main/resources/db/schema.sql` |
-| product-service | `product-service/src/main/resources/db/schema.sql` |
-| media-service | `media-service/src/main/resources/db/schema.sql` |
-| user-service | `user-service/src/main/resources/db/schema.sql` |
-| promotion-service | `promotion-service/src/main/resources/db/schema.sql` |
-| user-action-service | `user-action-service/src/main/resources/db/schema.sql` |
-| commission-service | `commission-service/src/main/resources/db/schema.sql` |
-| payment-service | `payment-service/src/main/resources/db/schema.sql` |
 
 ### ID 生成策略
 
