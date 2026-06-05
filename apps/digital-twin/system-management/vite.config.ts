@@ -38,6 +38,15 @@ export default defineConfig({
     'import.meta.env.VITE_DIGITAL_TWIN_WS_URL': JSON.stringify(
       process.env.VITE_DIGITAL_TWIN_WS_URL || '',
     ),
+    'import.meta.env.VITE_MES_API_URL': JSON.stringify(
+      process.env.VITE_MES_API_URL || '',
+    ),
+    'import.meta.env.VITE_MES_API_HOST': JSON.stringify(
+      process.env.VITE_MES_API_HOST || 'localhost',
+    ),
+    'import.meta.env.VITE_MES_API_PORT': JSON.stringify(
+      process.env.VITE_MES_API_PORT || '8080',
+    ),
   },
   plugins: [
     react(),

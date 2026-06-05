@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import styled from 'styled-components'
-import { FactoryScene, Device, Alert, DeviceStatus, AlertPanel, DeviceChart, StatsCard, AudioMonitor } from '../components/digital-twin'
+import { FactoryScene, Device, Alert, DeviceStatus, AlertPanel, DeviceChart, StatsCard, AudioMonitor, ScadaPanel, TraceabilityPanel } from '../components/digital-twin'
 import { AlertRuleList } from '../components/digital-twin/alert-rule'
 import { ToastContainer } from '../components/Toast'
 import { useDigitalTwinData } from '../hooks/useDigitalTwinData'
@@ -147,7 +147,7 @@ interface DigitalTwinPageProps {
 }
 
 export default function DigitalTwinPage({ onClose }: DigitalTwinPageProps) {
-  const [activeTab, setActiveTab] = useState<'devices' | 'alerts' | 'charts' | 'rules'>('devices')
+  const [activeTab, setActiveTab] = useState<'devices' | 'alerts' | 'charts' | 'rules' | 'scada' | 'trace'>('devices')
   const [showRules, setShowRules] = useState(false)
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [notifEnabled, setNotifEnabled] = useState(true)
@@ -246,6 +246,12 @@ export default function DigitalTwinPage({ onClose }: DigitalTwinPageProps) {
           </Tab>
           <Tab $active={activeTab === 'rules'} onClick={() => setActiveTab('rules')}>
             规则配置
+          </Tab>
+          <Tab $active={activeTab === 'scada'} onClick={() => setActiveTab('scada')}>
+            SCADA
+          </Tab>
+          <Tab $active={activeTab === 'trace'} onClick={() => setActiveTab('trace')}>
+            追溯
           </Tab>
         </TabBar>
 
@@ -351,6 +357,17 @@ export default function DigitalTwinPage({ onClose }: DigitalTwinPageProps) {
 
           {activeTab === 'rules' && (
             <AlertRuleList />
+          )}
+
+          {activeTab === 'scada' && (
+            <ScadaPanel
+              equipmentCode={selectedDevice?.code}
+              equipmentName={selectedDevice?.name}
+            />
+          )}
+
+          {activeTab === 'trace' && (
+            <TraceabilityPanel />
           )}
         </PanelContent>
       </RightPanel>

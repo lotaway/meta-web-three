@@ -81,6 +81,17 @@ The following backend services have been created, but lack corresponding admin a
    - [x] 实现设备命令下发：从 MES 下发参数配置到设备 (`MqttCommandPublisher`, `ScadaDomainService.dispatchCommand`)
    - [x] 实现实时状态看板：设备 OEE、生产进度、异常告警 (SCADA 监控后台页面 + REST API)
 
+**数字孪生MES集成**:
+- [ ] **[验收] 数字孪生 MES API 连通性验证**: `apps/digital-twin/system-management/src/renderer/services/mes-api.ts` — 确认 mesApi 各方法能正确调用 `mes-service` 的 SCADA/追溯端点
+- [ ] **[验收] SCADA 面板设备遥测实时展示**: `apps/digital-twin/system-management/src/renderer/components/digital-twin/scada/ScadaPanel.tsx` — 验证左侧选中设备后，面板展示实时遥测指标（温度/压力/转速等），超限值红色告警
+- [ ] **[验收] SCADA 指令下发与响应**: `ScadaPanel.tsx` — 验证指令类型选择 + JSON 参数发送后，最近指令列表能显示状态变化（PENDING→SENT→EXECUTED/FAILED）
+- [ ] **[验收] 追溯面板完整链查询**: `apps/digital-twin/system-management/src/renderer/components/digital-twin/traceability/TraceabilityPanel.tsx` — 验证输入追溯码后完整链视图展示根节点 + 正向路径 + 反向路径
+- [ ] **[验收] 追溯面板正向/反向追溯**: `TraceabilityPanel.tsx` — 验证单独正向/反向追溯按钮返回正确节点列表
+- [ ] **[验收] 数字孪生标签页集成**: `apps/digital-twin/system-management/src/renderer/pages/DigitalTwinPage.tsx` — 验证右侧面板新增 SCADA / 追溯标签页正常切换渲染，无白屏或 JS 错误
+- [ ] **[验收] MES API 环境变量配置**: `apps/digital-twin/system-management/vite.config.ts` + `.env.example` — 验证 `VITE_MES_API_URL/HOST/PORT` 注入正确，数字孪生启动时可连接 mes-service
+- [ ] **[安全] SCADA 指令鉴权**: 设备指令下发端点 `/api/mes/scada/commands` 需确认已集成 Spring Security 权限校验，防止未授权操作产线设备
+- [ ] **[安全] 追溯数据访问控制**: 追溯链查询接口需校验用户权限，防止越权访问非授权产品的批次追溯数据
+
 #### 供应链领域 (中优先级)
 
 - [ ] **[Supply Chain] 退货管理 (RMA - Return Material Authorization)**: 逆向物流模块

@@ -14,3 +14,9 @@ export { DeviceChart, StatsCard } from './charts/DeviceChart'
 
 // Audio components
 export { AudioMonitor } from './audio/AudioMonitor'
+
+// SCADA components
+export { ScadaPanel } from './scada/ScadaPanel'
+
+// Traceability components
+export { TraceabilityPanel } from './traceability/TraceabilityPanel'
