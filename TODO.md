@@ -1,11 +1,6 @@
 # TODO
 
-Guidelines: 
-* Code should follow the [Frontend Code Principles](CODE_PINCEPLES/FRONTEND_PRICEPLES) and [Backend Code Principles](CODE_PINCEPLES/CODE_PRICEPLES), and be checked against the [Check Rules](CODE_PINCEPLES/CHECK_RULE.md). 
-* All text in code (comments, logs, variable names, etc.) must use English uniformly, except for i18n text.
-* After adding a backend service or feature, consider whether a corresponding admin page needs to be added to [backstage-admin](apps/backstage-admin/) or [digital-twin](apps/digital-twin/) or [Customer Client](apps/client/)
-
----
+[Guideline](./README.md)
 
 ### [Backend Admin Missing]
 
