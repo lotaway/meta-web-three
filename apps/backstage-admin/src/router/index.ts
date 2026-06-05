@@ -546,6 +546,25 @@ export const asyncRouterMap: RouteRecordExt[] = [
         component: () => import('@/views/mes/productionTask/detail.vue'),
         meta: { title: 'mes.productionTask.detail', hidden: true },
       },
+      // 排程管理
+      {
+        path: 'scheduling',
+        name: 'scheduling',
+        component: () => import('@/views/mes/scheduling/index.vue'),
+        meta: { title: 'mes.scheduling.title', icon: 'mes-scheduling' },
+      },
+      {
+        path: 'scheduling/form',
+        name: 'schedulingForm',
+        component: () => import('@/views/mes/scheduling/form.vue'),
+        meta: { title: 'mes.scheduling.form', hidden: true },
+      },
+      {
+        path: 'scheduling/detail',
+        name: 'schedulingDetail',
+        component: () => import('@/views/mes/scheduling/detail.vue'),
+        meta: { title: 'mes.scheduling.detail', hidden: true },
+      },
       // 工单管理
       {
         path: 'workOrder',
