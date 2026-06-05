@@ -565,6 +565,20 @@ export const asyncRouterMap: RouteRecordExt[] = [
         component: () => import('@/views/mes/labor/detail.vue'),
         meta: { title: 'mes.labor.detail', hidden: true },
       },
+      // 制造追溯
+      {
+        path: 'traceability',
+        name: 'mesTraceability',
+        component: () => import('@/views/mes/traceability/index.vue'),
+        meta: { title: 'mes.traceability.title', icon: 'mes-trace' },
+      },
+      // SCADA 监控
+      {
+        path: 'scada',
+        name: 'mesScada',
+        component: () => import('@/views/mes/scada/index.vue'),
+        meta: { title: 'mes.scada.title', icon: 'monitor' },
+      },
       // 生产任务模块
       {
         path: 'production-task',

@@ -73,13 +73,13 @@ The following backend services have been created, but lack corresponding admin a
     - [x] 完善溯源数据模型：连接成品 → 批次原料 → 设备 → 操作员 → 工艺参数
     - [x] 实现自动收集：工单完工时自动关联原料批次、设备、操作员
     - [x] 添加批次追溯查询 API：正向(原料→成品)和反向(成品→原料)
-    - [ ] 添加后台追溯查询页面：`views/mes/traceability/index.vue`
+    - [x] 添加后台追溯查询页面：`views/mes/traceability/index.vue`
 
-- [ ] **[MES] 实时数据采集集成 (SCADA Integration)**: 基于已有 Equipment.mqttTopic 字段构建完整数据采集层
-   - [ ] 实现 MQTT 设备数据消费者：订阅设备 topic，解析遥测数据
-   - [ ] 定义采集数据模型：`TelemetryRecord`, `TelemetryMetric`, `DeviceCommand`
-   - [ ] 实现设备命令下发：从 MES 下发参数配置到设备
-   - [ ] 实现实时状态看板：设备 OEE、生产进度、异常告警
+- [x] **[MES] 实时数据采集集成 (SCADA Integration)**: 基于已有 Equipment.mqttTopic 字段构建完整数据采集层
+   - [x] 实现 MQTT 设备数据消费者：订阅设备 topic，解析遥测数据 (`MqttTelemetrySubscriber`, `MqttTelemetryService`)
+   - [x] 定义采集数据模型：`TelemetryRecord`, `TelemetryMetric`, `DeviceCommand`
+   - [x] 实现设备命令下发：从 MES 下发参数配置到设备 (`MqttCommandPublisher`, `ScadaDomainService.dispatchCommand`)
+   - [x] 实现实时状态看板：设备 OEE、生产进度、异常告警 (SCADA 监控后台页面 + REST API)
 
 #### 供应链领域 (中优先级)
 
