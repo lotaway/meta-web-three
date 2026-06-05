@@ -7,6 +7,7 @@ import graphql.schema.idl.*;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,12 +26,12 @@ public class FederationRouter {
 
     static final Map<String, String> SUBGRAPH_URLS = new LinkedHashMap<>();
     static {
-        SUBGRAPH_URLS.put("product", "http://product-service:10082/graphql");
-        SUBGRAPH_URLS.put("order", "http://order-service:10084/graphql");
-        SUBGRAPH_URLS.put("user", "http://user-service:10083/graphql");
-        SUBGRAPH_URLS.put("inventory", "http://inventory-service:10105/graphql");
-        SUBGRAPH_URLS.put("recommendation", "http://recommendation-service:10104/graphql");
-        SUBGRAPH_URLS.put("cart", "http://cart-service:10089/graphql");
+        SUBGRAPH_URLS.put("product", "http://product-service/graphql");
+        SUBGRAPH_URLS.put("order", "http://order-service/graphql");
+        SUBGRAPH_URLS.put("user", "http://user-service/graphql");
+        SUBGRAPH_URLS.put("inventory", "http://inventory-service/graphql");
+        SUBGRAPH_URLS.put("recommendation", "http://recommendation-service/graphql");
+        SUBGRAPH_URLS.put("cart", "http://cart-service/graphql");
     }
 
     static final Map<String, String> ROOT_FIELD_OWNER = new HashMap<>();
@@ -78,7 +79,7 @@ public class FederationRouter {
         ROOT_FIELD_OWNER.put("clearCart", "cart");
     }
 
-    public FederationRouter(RestTemplate restTemplate) {
+    public FederationRouter(@LoadBalanced RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
