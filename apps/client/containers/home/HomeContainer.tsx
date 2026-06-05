@@ -1,8 +1,10 @@
-import React, { ReactNode, useEffect, useState } from 'react'
+import React, { ReactNode, useEffect, useState, useCallback } from 'react'
 import { toBrandItem, toProductItem, toAdvertiseItem, MallHomeContent, ProductItem } from '@/adapters/homeAdapter'
 import { brandApi, categoryApi, productApi, advertiseApi, API_BASE_URL } from '@/api/generated'
 import { ProductCategory } from '@/src/generated/api/models/ProductCategory'
 import { recommendationHooks } from '@/app/lib/api/graphql-hooks'
+import { useAuth } from '@/contexts/AuthContext'
+import { router } from 'expo-router'
 import type { RecommendationsQuery } from '@/src/generated/graphql/types'
 
 export interface CategoryItem {
@@ -15,6 +17,7 @@ export interface HomeContainerState {
   mallHomeData: MallHomeContent | null
   isDataLoaded: boolean
   fetchProductCategoryList: (parentId: number) => Promise<{ data: CategoryItem[] }>
+  onRecommendProductPress: (productId: number) => void
 }
 
 interface HomeContainerProps {
@@ -40,6 +43,8 @@ function toRecommendationProductItem(data: NonNullable<RecommendationsQuery['rec
 }
 
 export function HomeContainer({ children }: HomeContainerProps) {
+  const { userId: authUserId } = useAuth()
+  const userId = authUserId ?? 1
   const [mallHomeData, setMallHomeData] = useState<MallHomeContent | null>(null)
   const [isDataLoaded, setIsDataLoaded] = useState(false)
 
@@ -60,7 +65,7 @@ export function HomeContainer({ children }: HomeContainerProps) {
 
         let recommendedProductList: ProductItem[] = []
         try {
-          const recData = await recommendationHooks.generateRecommendation(1, 'home', 'HYBRID', 10)
+          const recData = await recommendationHooks.generateRecommendation(userId, 'home', 'HYBRID', 10)
           const items = recData?.generateRecommendation?.items ?? []
           recommendedProductList = items.map((item) => ({
             id: Number(item?.skuCode ?? 0),
@@ -69,6 +74,7 @@ export function HomeContainer({ children }: HomeContainerProps) {
             price: 0,
             subTitle: item?.reason || undefined,
           }))
+          recommendationHooks.recordBehavior(userId, 'home', 'VIEW').catch(() => {})
         } catch {
           try {
             const fallbackRes = await productApi.listProducts({ keyword: 'hot' })
@@ -132,7 +138,12 @@ export function HomeContainer({ children }: HomeContainerProps) {
     }
 
     loadMallContent()
-  }, [])
+  }, [userId])
 
-  return <>{children({ mallHomeData, isDataLoaded, fetchProductCategoryList })}</>
+  const onRecommendProductPress = useCallback((productId: number) => {
+    recommendationHooks.recordBehavior(userId, String(productId), 'CLICK').catch(() => {})
+    router.push({ pathname: '/product/[id]', params: { id: productId } })
+  }, [userId])
+
+  return <>{children({ mallHomeData, isDataLoaded, fetchProductCategoryList, onRecommendProductPress })}</>
 }

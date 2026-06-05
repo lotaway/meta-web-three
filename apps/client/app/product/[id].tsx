@@ -17,6 +17,8 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useCart } from '@/hooks/useCart';
 import { API_BASE_URL } from '@/api/generated';
 import { ProductDetailContainer } from '@/containers/product/ProductDetailContainer';
+import { recommendationHooks } from '@/app/lib/api/graphql-hooks';
+import { useAuth } from '@/contexts/AuthContext';
 import RenderHTML from 'react-native-render-html';
 import { SkuSelector, SpecGroup, SKUInfo } from '@/components/product/SkuSelector';
 import { ProductInfo } from '@/components/product/ProductInfo';
@@ -113,10 +115,17 @@ function useProductDetailLogic(t: any, id: any) {
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
   const { width: contentWidth } = useWindowDimensions();
-  const { addItem } = useCart();  
+  const { addItem } = useCart();
+  const { userId } = useAuth();
   const [skuSelectorVisible, setSkuSelectorVisible] = useState(false);
   const [skuActionType, setSkuActionType] = useState<'cart' | 'buy'>('cart');
   const [flashInfo, setFlashInfo] = useState<any>(null);
+
+  useEffect(() => {
+    if (userId && id) {
+      recommendationHooks.recordBehavior(userId, String(id), 'VIEW').catch(() => {})
+    }
+  }, [userId, id])
 
   useEffect(() => {
     (async () => {
@@ -140,6 +149,9 @@ function useProductDetailLogic(t: any, id: any) {
     if (closeOnly) return;
     if (skuActionType === 'cart') {
       addItem({ productId: Number(id), quantity, skuId: Number(sku?.skuId ?? id) });
+      if (userId) {
+        recommendationHooks.recordBehavior(userId, String(id), 'CART').catch(() => {})
+      }
       Alert.alert(t('common.success'), t('home.product.added_to_cart'));
     } else if (skuActionType === 'buy' && flashInfo) {
       router.push({

@@ -10,9 +10,7 @@ import com.metawebthree.recommendation.infrastructure.persistence.entity.Recomme
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -128,13 +126,44 @@ public class RecommendationAdminService {
     public Map<String, Object> getStatistics() {
         long totalRules = ruleRepository.count();
         long activeRules = ruleRepository.findActiveRules().size();
-        long totalRecs = recommendationRepository.count();
+        List<Recommendation> all = recommendationRepository.findAll();
+        long totalRecs = all.size();
 
-        return Map.of(
-            "totalRules", totalRules,
-            "activeRules", activeRules,
-            "totalRecommendations", totalRecs
-        );
+        long totalClicks = all.stream()
+            .mapToLong(r -> r.getClickCount() != null ? r.getClickCount() : 0)
+            .sum();
+        long totalConversions = all.stream()
+            .mapToLong(r -> r.getConversionCount() != null ? r.getConversionCount() : 0)
+            .sum();
+        long totalImpressions = all.stream()
+            .mapToLong(r -> r.getImpressionCount() != null ? r.getImpressionCount() : 0)
+            .sum();
+        double avgCtr = totalImpressions > 0
+            ? Math.round((double) totalClicks / totalImpressions * 10000.0) / 100.0
+            : 0.0;
+        double avgConversionRate = totalClicks > 0
+            ? Math.round((double) totalConversions / totalClicks * 10000.0) / 100.0
+            : 0.0;
+
+        Map<String, Long> sceneDistribution = all.stream()
+            .filter(r -> r.getScene() != null)
+            .collect(Collectors.groupingBy(Recommendation::getScene, Collectors.counting()));
+        Map<String, Long> algorithmDistribution = all.stream()
+            .filter(r -> r.getAlgorithm() != null)
+            .collect(Collectors.groupingBy(
+                r -> r.getAlgorithm().name(), Collectors.counting()));
+
+        Map<String, Object> stats = new LinkedHashMap<>();
+        stats.put("totalRules", totalRules);
+        stats.put("activeRules", activeRules);
+        stats.put("totalRecommendations", totalRecs);
+        stats.put("totalClicks", totalClicks);
+        stats.put("totalConversions", totalConversions);
+        stats.put("avgClickThroughRate", avgCtr);
+        stats.put("avgConversionRate", avgConversionRate);
+        stats.put("sceneDistribution", sceneDistribution);
+        stats.put("algorithmDistribution", algorithmDistribution);
+        return stats;
     }
 
     private RecommendationRuleDO toRuleDO(RecommendationRule rule) {

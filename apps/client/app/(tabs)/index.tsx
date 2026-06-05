@@ -37,7 +37,7 @@ export default function HomeScreen() {
 
   return (
     <HomeContainer>
-      {({ mallHomeData, isDataLoaded }) => {
+      {({ mallHomeData, isDataLoaded, onRecommendProductPress }) => {
         if (!isDataLoaded) {
           return (
             <View style={[styles.container, styles.center]}>
@@ -76,7 +76,7 @@ export default function HomeScreen() {
                 subtitle={t('home.sections.hot_recommend_subtitle')}
                 productList={mallHomeData?.recommendedProductList || []}
                 colors={colors}
-                onProductPress={navigateToProductDetail}
+                onProductPress={onRecommendProductPress}
               />
 
               <View style={styles.footerSpacer} />

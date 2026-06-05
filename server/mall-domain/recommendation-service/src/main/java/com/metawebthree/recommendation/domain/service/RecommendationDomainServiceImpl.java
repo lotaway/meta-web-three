@@ -268,11 +268,57 @@ public class RecommendationDomainServiceImpl implements RecommendationDomainServ
 
     @Override
     public void updateProductSimilarityMatrix() {
-        log.warn("updateProductSimilarityMatrix not yet implemented");
+        log.info("Starting product similarity matrix update");
+        List<UserBehavior> allBehaviors = userBehaviorRepository.findAll();
+        Set<Long> productIds = allBehaviors.stream()
+            .map(UserBehavior::getProductId)
+            .collect(Collectors.toSet());
+        List<Long> productIdList = new ArrayList<>(productIds);
+        int count = 0;
+        for (int i = 0; i < productIdList.size(); i++) {
+            for (int j = i + 1; j < productIdList.size(); j++) {
+                Long pid1 = productIdList.get(i);
+                Long pid2 = productIdList.get(j);
+                if (productSimilarityRepository.existsSimilarity(pid1, pid2)) {
+                    continue;
+                }
+                double jaccardSim = RecommendationCalculationUtils.calculateJaccardSimilarity(
+                    userBehaviorRepository, pid1, pid2);
+                if (jaccardSim > 0.1) {
+                    ProductSimilarity ps = new ProductSimilarity();
+                    ps.setProductId1(pid1);
+                    ps.setProductId2(pid2);
+                    ps.setSimilarityScore(jaccardSim);
+                    ps.setAlgorithm(ProductSimilarity.SimilarityAlgorithm.HYBRID);
+                    ps.setLastUpdated(LocalDateTime.now());
+                    ps.setUpdateCount(1);
+                    productSimilarityRepository.save(ps);
+                    count++;
+                }
+            }
+        }
+        log.info("Product similarity matrix update completed: {} similarities added", count);
     }
 
     @Override
     public void updateUserSimilarityMatrix() {
-        log.warn("updateUserSimilarityMatrix not yet implemented");
+        log.info("Starting user similarity matrix update");
+        List<UserBehavior> allBehaviors = userBehaviorRepository.findAll();
+        Set<Long> userIds = allBehaviors.stream()
+            .map(UserBehavior::getUserId)
+            .collect(Collectors.toSet());
+        List<Long> userIdList = new ArrayList<>(userIds);
+        int count = 0;
+        for (int i = 0; i < userIdList.size(); i++) {
+            for (int j = i + 1; j < userIdList.size(); j++) {
+                Long uid1 = userIdList.get(i);
+                Long uid2 = userIdList.get(j);
+                double cosineSim = calculateUserSimilarity(uid1, uid2);
+                if (cosineSim > 0.3) {
+                    count++;
+                }
+            }
+        }
+        log.info("User similarity matrix update completed: {} similar pairs found", count);
     }
 }

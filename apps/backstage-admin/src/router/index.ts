@@ -346,8 +346,8 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
       {
         path: 'recommendation',
+        redirect: '/recommendation/index',
         name: 'recommendation',
-        component: () => import('@/views/sms/recommendation/index.vue'),
         meta: { title: '推荐规则管理', icon: 'sms-recommend' },
       },
     ],

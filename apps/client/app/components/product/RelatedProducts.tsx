@@ -64,7 +64,12 @@ export function RelatedProducts({ productId, userId = 1, scene = 'similar', colo
             <TouchableOpacity
               key={item?.id ?? index}
               style={[styles.card, { backgroundColor: themeColors.background }]}
-              onPress={() => router.push({ pathname: '/product/[id]', params: { id: productIdNum } })}
+              onPress={() => {
+                if (item?.id) {
+                  recommendationHooks.markClicked(Number(item.id)).catch(() => {})
+                }
+                router.push({ pathname: '/product/[id]', params: { id: productIdNum } })
+              }}
             >
               <View style={[styles.imagePlaceholder, { backgroundColor: themeColors.primary + '15' }]}>
                 <Text style={[styles.imagePlaceholderText, { color: themeColors.primary }]}>
