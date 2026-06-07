@@ -2,26 +2,41 @@ import ExpoModulesCore
 
 public class AlipayModule: Module {
   private var appId: String = ""
-  
+
   public func definition() -> ModuleDefinition {
     Name("AlipayModule")
-    
-    AsyncFunction("init") { (appId: String) in
+
+    Function("init") { (appId: String) in
       self.appId = appId
     }
-    
-    AsyncFunction("pay") { (params: [String: Any]) -> [String: Any] in
-      guard let orderString = params["orderString"] as? String else {
-        throw NSError(domain: "INVALID_ORDER", code: 400, userInfo: [NSLocalizedDescriptionKey: "orderString is required"])
+
+    AsyncFunction("pay") { (params: [String: Any], promise: Promise) in
+      guard let orderString = params["orderString"] as? String, !orderString.isEmpty else {
+        promise.reject("INVALID_ORDER", "orderString is required")
+        return
       }
-      
-      // Note: Alipay SDK integration requires additional setup
-      // This is a placeholder - the actual SDK call would need proper pod integration
-      return ["success": false, "error": "Alipay SDK not linked - requires pod 'AlipaySDK-iOS' properly integrated"]
-    }
-    
-    Function("getSdkVersion") { () -> String in
-      return "1.0.0"
+
+      AlipaySDK.defaultService().payOrder(
+        orderString,
+        fromScheme: "alipaydemo",
+        callback: { resultDict in
+          guard let resultDict = resultDict else {
+            promise.reject("UNKNOWN", "No response from Alipay")
+            return
+          }
+
+          let resultStatus = resultDict["resultStatus"] as? String ?? ""
+          if resultStatus == "9000" {
+            let result = resultDict["result"] as? String ?? ""
+            promise.resolve(result)
+          } else if resultStatus == "6001" {
+            promise.reject("6001", "User canceled")
+          } else {
+            let memo = resultDict["memo"] as? String ?? "Unknown error"
+            promise.reject(resultStatus, memo)
+          }
+        }
+      )
     }
   }
 }

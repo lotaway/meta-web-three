@@ -59,5 +59,36 @@ target 'metawebthreeapp' do
       :mac_catalyst_enabled => false,
       :ccache_enabled => ccache_enabled?(podfile_properties),
     )
+
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = ''
+      end
+    end
+
+    # Directly patch the xcconfig files
+    pods_target = File.join(installer.sandbox.root, 'Target Support Files', 'Pods-metawebthreeapp')
+    if Dir.exist?(pods_target)
+      Dir.glob(File.join(pods_target, '*.xcconfig')).each do |f|
+        content = File.read(f)
+        content.gsub!(/^EXCLUDED_ARCHS\[sdk=iphonesimulator\*\] = arm64\n?/, '')
+        File.write(f, content)
+      end
+    end
+
+    # Add local dev pod module maps to the main app xcconfig for Swift module imports
+    dev_modules = %w[AlipayModule WechatPayModule ScannerModule]
+    %w[debug release].each do |config_name|
+      xcconfig_path = File.join(installer.sandbox.root, 'Target Support Files', "Pods-metawebthreeapp", "Pods-metawebthreeapp.#{config_name}.xcconfig")
+      next unless File.exist?(xcconfig_path)
+      content = File.read(xcconfig_path)
+      fsp_line = content.lines.find { |l| l.start_with?('FRAMEWORK_SEARCH_PATHS') }
+      missing = dev_modules.reject { |m| fsp_line&.include?('"' + m + '"') }
+      unless missing.empty?
+        additions = missing.map { |m| '"${PODS_CONFIGURATION_BUILD_DIR}/' + m + '"' }.join(' ')
+        content.sub!('FRAMEWORK_SEARCH_PATHS = $(inherited)', "FRAMEWORK_SEARCH_PATHS = $(inherited) #{additions}")
+      end
+      File.write(xcconfig_path, content)
+    end
   end
 end
