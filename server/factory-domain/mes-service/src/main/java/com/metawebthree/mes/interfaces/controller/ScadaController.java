@@ -7,6 +7,7 @@ import com.metawebthree.mes.domain.repository.scada.DeviceCommandRepository;
 import com.metawebthree.mes.domain.repository.scada.TelemetryRecordRepository;
 import com.metawebthree.mes.domain.service.scada.ScadaDomainService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -21,8 +22,8 @@ public class ScadaController {
     private final DeviceCommandRepository deviceCommandRepository;
 
     public ScadaController(ScadaDomainService scadaDomainService,
-                            TelemetryRecordRepository telemetryRecordRepository,
-                            DeviceCommandRepository deviceCommandRepository) {
+            TelemetryRecordRepository telemetryRecordRepository,
+            DeviceCommandRepository deviceCommandRepository) {
         this.scadaDomainService = scadaDomainService;
         this.telemetryRecordRepository = telemetryRecordRepository;
         this.deviceCommandRepository = deviceCommandRepository;
@@ -31,7 +32,7 @@ public class ScadaController {
     @PostMapping("/telemetry/ingest")
     public ResponseEntity<TelemetryRecord> ingestTelemetry(@RequestBody IngestTelemetryRequest req) {
         return ResponseEntity.ok(scadaDomainService.ingestTelemetry(
-            req.getEquipmentCode(), req.getTopic(), req.getPayload(), req.getCollectTime()));
+                req.getEquipmentCode(), req.getTopic(), req.getPayload(), req.getCollectTime()));
     }
 
     @GetMapping("/telemetry/{equipmentCode}")
@@ -47,53 +48,110 @@ public class ScadaController {
             @RequestParam String start,
             @RequestParam String end) {
         return ResponseEntity.ok(telemetryRecordRepository.findByEquipmentCodeAndTimeRange(
-            equipmentCode, LocalDateTime.parse(start), LocalDateTime.parse(end)));
+                equipmentCode, LocalDateTime.parse(start), LocalDateTime.parse(end)));
     }
 
     @PostMapping("/commands")
+    @RequirePermission(MesPermissions.SCADA_COMMAND_DISPATCH)
     public ResponseEntity<DeviceCommand> dispatchCommand(@RequestBody DispatchCommandRequest req) {
         return ResponseEntity.ok(scadaDomainService.dispatchCommand(
-            req.getEquipmentCode(), req.getCommandType(), req.getPayload(), req.getCreatedBy()));
+                req.getEquipmentCode(), req.getCommandType(), req.getPayload(), req.getCreatedBy()));
     }
 
     @GetMapping("/commands/{equipmentCode}")
+    @RequirePermission(MesPermissions.SCADA_COMMAND_READ)
     public ResponseEntity<List<DeviceCommand>> getCommands(
             @PathVariable String equipmentCode,
             @RequestParam(required = false) String status) {
         if (status != null) {
             return ResponseEntity.ok(deviceCommandRepository.findByEquipmentCodeAndStatus(
-                equipmentCode, DeviceCommand.CommandStatus.valueOf(status)));
+                    equipmentCode, DeviceCommand.CommandStatus.valueOf(status)));
         }
         return ResponseEntity.ok(deviceCommandRepository.findByEquipmentCode(equipmentCode));
     }
 
     @GetMapping("/commands/status/{commandCode}")
+    @RequirePermission(MesPermissions.SCADA_COMMAND_READ)
     public ResponseEntity<DeviceCommand> getCommandStatus(@PathVariable String commandCode) {
         return deviceCommandRepository.findByCommandCode(commandCode)
-            .map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+                .map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     public static class IngestTelemetryRequest {
-        private String equipmentCode; private String topic; private String payload; private LocalDateTime collectTime;
-        public String getEquipmentCode() { return equipmentCode; }
-        public void setEquipmentCode(String equipmentCode) { this.equipmentCode = equipmentCode; }
-        public String getTopic() { return topic; }
-        public void setTopic(String topic) { this.topic = topic; }
-        public String getPayload() { return payload; }
-        public void setPayload(String payload) { this.payload = payload; }
-        public LocalDateTime getCollectTime() { return collectTime; }
-        public void setCollectTime(LocalDateTime collectTime) { this.collectTime = collectTime; }
+        private String equipmentCode;
+        private String topic;
+        private String payload;
+        private LocalDateTime collectTime;
+
+        public String getEquipmentCode() {
+            return equipmentCode;
+        }
+
+        public void setEquipmentCode(String equipmentCode) {
+            this.equipmentCode = equipmentCode;
+        }
+
+        public String getTopic() {
+            return topic;
+        }
+
+        public void setTopic(String topic) {
+            this.topic = topic;
+        }
+
+        public String getPayload() {
+            return payload;
+        }
+
+        public void setPayload(String payload) {
+            this.payload = payload;
+        }
+
+        public LocalDateTime getCollectTime() {
+            return collectTime;
+        }
+
+        public void setCollectTime(LocalDateTime collectTime) {
+            this.collectTime = collectTime;
+        }
     }
 
     public static class DispatchCommandRequest {
-        private String equipmentCode; private CommandType commandType; private String payload; private String createdBy;
-        public String getEquipmentCode() { return equipmentCode; }
-        public void setEquipmentCode(String equipmentCode) { this.equipmentCode = equipmentCode; }
-        public CommandType getCommandType() { return commandType; }
-        public void setCommandType(CommandType commandType) { this.commandType = commandType; }
-        public String getPayload() { return payload; }
-        public void setPayload(String payload) { this.payload = payload; }
-        public String getCreatedBy() { return createdBy; }
-        public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
+        private String equipmentCode;
+        private CommandType commandType;
+        private String payload;
+        private String createdBy;
+
+        public String getEquipmentCode() {
+            return equipmentCode;
+        }
+
+        public void setEquipmentCode(String equipmentCode) {
+            this.equipmentCode = equipmentCode;
+        }
+
+        public CommandType getCommandType() {
+            return commandType;
+        }
+
+        public void setCommandType(CommandType commandType) {
+            this.commandType = commandType;
+        }
+
+        public String getPayload() {
+            return payload;
+        }
+
+        public void setPayload(String payload) {
+            this.payload = payload;
+        }
+
+        public String getCreatedBy() {
+            return createdBy;
+        }
+
+        public void setCreatedBy(String createdBy) {
+            this.createdBy = createdBy;
+        }
     }
 }

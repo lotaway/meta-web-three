@@ -31,22 +31,6 @@ The following backend services have been created, but lack corresponding admin a
 - [ ] 添加 GraphQL Federation 统一查询层 (整合多个微服务的GraphQL端点，提供统一API)
    - [ ] 需要端到端运行时验证：启动所有子图服务 + gateway，用 GraphQL 客户端请求跨子图联合查询（如通过 cart 查 product），验证 Federation 路由和实体解析正确
 
-- [ ] 实现多租户SaaS架构
-
-- [ ] 实现事件溯源和CQRS模式 (Event Sourcing + CQRS，提升数据一致性和审计能力)
-
-- [ ] 添加无服务器函数计算 (Serverless，应对突发高并发场景，如秒杀活动)
-
-- [ ] 实现边缘计算集成 (Edge Computing，CDN级缓存和计算，降低延迟)
-
-- [ ] 添加区块链集成 (供应链透明化、NFT会员积分、商品溯源)
-
-- [ ] 实现AR/VR购物体验 (3D商品展示、虚拟试穿、沉浸式购物)
-
-- [ ] 添加语音电商功能 (Voice Commerce，语音搜索、语音下单)
-
-- [ ] 实现可持续性追踪 (碳足迹计算、绿色物流、环保商品标签)
-
 ---
 
 ### [ERP/MES/SupplyChain 缺失模块实现]
@@ -82,15 +66,15 @@ The following backend services have been created, but lack corresponding admin a
    - [x] 实现实时状态看板：设备 OEE、生产进度、异常告警 (SCADA 监控后台页面 + REST API)
 
 **数字孪生MES集成**:
-- [ ] **[验收] 数字孪生 MES API 连通性验证**: `apps/digital-twin/system-management/src/renderer/services/mes-api.ts` — 确认 mesApi 各方法能正确调用 `mes-service` 的 SCADA/追溯端点
-- [ ] **[验收] SCADA 面板设备遥测实时展示**: `apps/digital-twin/system-management/src/renderer/components/digital-twin/scada/ScadaPanel.tsx` — 验证左侧选中设备后，面板展示实时遥测指标（温度/压力/转速等），超限值红色告警
-- [ ] **[验收] SCADA 指令下发与响应**: `ScadaPanel.tsx` — 验证指令类型选择 + JSON 参数发送后，最近指令列表能显示状态变化（PENDING→SENT→EXECUTED/FAILED）
-- [ ] **[验收] 追溯面板完整链查询**: `apps/digital-twin/system-management/src/renderer/components/digital-twin/traceability/TraceabilityPanel.tsx` — 验证输入追溯码后完整链视图展示根节点 + 正向路径 + 反向路径
-- [ ] **[验收] 追溯面板正向/反向追溯**: `TraceabilityPanel.tsx` — 验证单独正向/反向追溯按钮返回正确节点列表
-- [ ] **[验收] 数字孪生标签页集成**: `apps/digital-twin/system-management/src/renderer/pages/DigitalTwinPage.tsx` — 验证右侧面板新增 SCADA / 追溯标签页正常切换渲染，无白屏或 JS 错误
-- [ ] **[验收] MES API 环境变量配置**: `apps/digital-twin/system-management/vite.config.ts` + `.env.example` — 验证 `VITE_MES_API_URL/HOST/PORT` 注入正确，数字孪生启动时可连接 mes-service
-- [ ] **[安全] SCADA 指令鉴权**: 设备指令下发端点 `/api/mes/scada/commands` 需确认已集成 Spring Security 权限校验，防止未授权操作产线设备
-- [ ] **[安全] 追溯数据访问控制**: 追溯链查询接口需校验用户权限，防止越权访问非授权产品的批次追溯数据
+- [x] **[验收] 数字孪生 MES API 连通性验证**: `apps/digital-twin/system-management/src/renderer/services/mes-api.ts` — 确认 mesApi 各方法能正确调用 `mes-service` 的 SCADA/追溯端点
+- [x] **[验收] SCADA 面板设备遥测实时展示**: `apps/digital-twin/system-management/src/renderer/components/digital-twin/scada/ScadaPanel.tsx` — 验证左侧选中设备后，面板展示实时遥测指标（温度/压力/转速等），超限值红色告警
+- [x] **[验收] SCADA 指令下发与响应**: `ScadaPanel.tsx` — 验证指令类型选择 + JSON 参数发送后，最近指令列表能显示状态变化（PENDING→SENT→EXECUTED/FAILED）
+- [x] **[验收] 追溯面板完整链查询**: `apps/digital-twin/system-management/src/renderer/components/digital-twin/traceability/TraceabilityPanel.tsx` — 验证输入追溯码后完整链视图展示根节点 + 正向路径 + 反向路径
+- [x] **[验收] 追溯面板正向/反向追溯**: `TraceabilityPanel.tsx` — 验证单独正向/反向追溯按钮返回正确节点列表
+- [x] **[验收] 数字孪生标签页集成**: `apps/digital-twin/system-management/src/renderer/pages/DigitalTwinPage.tsx` — 验证右侧面板新增 SCADA / 追溯标签页正常切换渲染，无白屏或 JS 错误
+- [x] **[验收] MES API 环境变量配置**: `apps/digital-twin/system-management/vite.config.ts` + `.env.example` — 验证 `VITE_MES_API_URL/HOST/PORT` 注入正确，数字孪生启动时可连接 mes-service
+- [x] **[安全] SCADA 指令鉴权**: 设备指令下发端点 `/api/mes/scada/commands` 需确认已集成 Spring Security 权限校验，防止未授权操作产线设备
+- [x] **[安全] 追溯数据访问控制**: 追溯链查询接口需校验用户权限，防止越权访问非授权产品的批次追溯数据
 
 #### 供应链领域 (中优先级)
 
@@ -142,3 +126,21 @@ The following backend services have been created, but lack corresponding admin a
    - [ ] MES 工单报工完成后发送完工事件到 ERP
    - [ ] 财务成本核算模块监听完工事件自动归集成本
    - [ ] 实现端到端集成测试
+
+# 待决议功能
+
+- [ ] 实现多租户SaaS架构
+
+- [ ] 实现事件溯源和CQRS模式 (Event Sourcing + CQRS，提升数据一致性和审计能力)
+
+- [ ] 添加无服务器函数计算 (Serverless，应对突发高并发场景，如秒杀活动)
+
+- [ ] 实现边缘计算集成 (Edge Computing，CDN级缓存和计算，降低延迟)
+
+- [ ] 添加区块链集成 (供应链透明化、NFT会员积分、商品溯源)
+
+- [ ] 实现AR/VR购物体验 (3D商品展示、虚拟试穿、沉浸式购物)
+
+- [ ] 添加语音电商功能 (Voice Commerce，语音搜索、语音下单)
+
+- [ ] 实现可持续性追踪 (碳足迹计算、绿色物流、环保商品标签)
