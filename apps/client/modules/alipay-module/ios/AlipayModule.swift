@@ -1,3 +1,4 @@
+import AlipaySDK
 import ExpoModulesCore
 
 public class AlipayModule: Module {

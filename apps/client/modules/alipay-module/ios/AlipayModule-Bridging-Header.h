@@ -1,1 +1,1 @@
-#import <AlipaySDK/CoreSDK/ALipaySDK.h>
+#import <AlipaySDK/AlipaySDK.h>
