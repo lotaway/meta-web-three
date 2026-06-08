@@ -1,5 +1,5 @@
-import { ApiClient, apiClient } from '../api/client'
-import { ApiError } from '../api/errors'
+import { ApiClient, apiClient } from '../../../app/lib/api/client'
+import { ApiError } from '../../../app/lib/api/errors'
 
 const mockFetch = jest.fn()
 

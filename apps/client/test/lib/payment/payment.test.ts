@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { pay, type PayResult } from '../app/lib/payment'
+import { pay, type PayResult } from '../../../app/lib/payment'
 
 vi.mock('wechat-pay-module', () => {
   const mock = {

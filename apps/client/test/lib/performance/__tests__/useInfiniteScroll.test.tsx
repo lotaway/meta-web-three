@@ -4,7 +4,7 @@ import {
   useThrottle,
   useMemoizedFn,
   useVirtualizedList,
-} from '../performance/useInfiniteScroll'
+} from '../../../../app/lib/performance/useInfiniteScroll'
 
 jest.useFakeTimers()
 

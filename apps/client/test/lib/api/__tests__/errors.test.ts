@@ -1,4 +1,4 @@
-import { ApiError, ErrorCodes, isApiError, getErrorMessage } from '../api/errors'
+import { ApiError, ErrorCodes, isApiError, getErrorMessage } from '../../../app/lib/api/errors'
 
 describe('api/errors', () => {
   describe('ApiError', () => {

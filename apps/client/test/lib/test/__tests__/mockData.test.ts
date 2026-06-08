@@ -10,7 +10,7 @@ import {
   generateAddress,
   generateHomeContent,
   generatePageData,
-} from '../test/mockData'
+} from '../../../../app/lib/test/mockData'
 
 describe('mockData', () => {
   describe('generateProduct', () => {

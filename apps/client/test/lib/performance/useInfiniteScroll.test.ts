@@ -1,4 +1,4 @@
-import { useDebounce, useThrottle, useMemoizedFn, useInfiniteScroll } from '../performance/useInfiniteScroll'
+import { useDebounce, useThrottle, useMemoizedFn, useInfiniteScroll } from '../../../app/lib/performance/useInfiniteScroll'
 
 jest.useFakeTimers()
 

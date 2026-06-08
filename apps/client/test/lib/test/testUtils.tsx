@@ -1,7 +1,7 @@
 import { render, RenderOptions, RenderResult } from '@testing-library/react-native'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import React, { ReactElement, ReactNode } from 'react'
-import { ApiClient, apiClient } from '../api/client'
+import { ApiClient, apiClient } from '../../../app/lib/api/client'
 
 export * from '@testing-library/react-native'
 

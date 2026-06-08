@@ -1,12 +1,17 @@
 // Learn more https://docs.expo.io/guides/customizing-metro
 // const path = require('path');
-const { getDefaultConfig } = require('expo/metro-config');
+const { getDefaultConfig } = require('expo/metro-config')
 // const { withMetroConfig } = require('react-native-monorepo-config');
 
 // const root = path.resolve(__dirname, './native/appsdk');
 
 /** @type {import('expo/metro-config').MetroConfig} */
-const config = getDefaultConfig(__dirname);
+const config = getDefaultConfig(__dirname)
+
+config.resolver.blockList = [
+  /.*\/__tests__\/.*/,
+  /.*\.(test|spec)\.[jt]sx?$/,
+]
 
 module.exports = config
 
