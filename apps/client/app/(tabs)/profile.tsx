@@ -18,10 +18,10 @@ import { useAuth } from '@/contexts/AuthContext'
 import PasskeyAuthDemo from '@/components/PasskeyAuthDemo'
 import { FEATURE_PASSKEY_ENABLED } from '@/constants/Features'
 import { userApi, notificationApi, couponApi, DEFAULT_USER_ID } from '@/api/generated'
-import ProfileHeader from '@/app/components/profile/ProfileHeader'
-import UserStatsSection from '@/app/components/profile/UserStatsSection'
-import OrderQuickLinksSection from '@/app/components/profile/OrderQuickLinksSection'
-import ProfileMenuCell from '@/app/components/profile/ProfileMenuCell'
+import ProfileHeader from '@/components/profile/ProfileHeader'
+import UserStatsSection from '@/components/profile/UserStatsSection'
+import OrderQuickLinksSection from '@/components/profile/OrderQuickLinksSection'
+import ProfileMenuCell from '@/components/profile/ProfileMenuCell'
 
 interface MallUserAccount {
   id?: number

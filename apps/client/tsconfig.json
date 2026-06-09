@@ -7,13 +7,22 @@
     "strict": true,
     "paths": {
       "@/components/order/*": [
-        "app/components/order/*"
+        "src/components/order/*"
       ],
       "@/components/profile/*": [
-        "app/components/profile/*"
+        "src/components/profile/*"
       ],
       "@/components/product/*": [
-        "app/components/product/*"
+        "src/components/product/*"
+      ],
+      "@/components/checkout/*": [
+        "src/components/checkout/*"
+      ],
+      "@/components/refund/*": [
+        "src/components/refund/*"
+      ],
+      "@/lib/*": [
+        "src/lib/*"
       ],
       "@/*": [
         "./*"

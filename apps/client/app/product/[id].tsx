@@ -17,7 +17,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useCart } from '@/hooks/useCart';
 import { API_BASE_URL } from '@/api/generated';
 import { ProductDetailContainer } from '@/containers/product/ProductDetailContainer';
-import { recommendationHooks } from '@/app/lib/api/graphql-hooks';
+import { recommendationHooks } from '@/lib/api/graphql-hooks';
 import { useAuth } from '@/contexts/AuthContext';
 import RenderHTML from 'react-native-render-html';
 import { SkuSelector, SpecGroup, SKUInfo } from '@/components/product/SkuSelector';

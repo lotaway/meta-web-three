@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { recommendationHooks } from '@/app/lib/api/graphql-hooks';
+import { recommendationHooks } from '@/lib/api/graphql-hooks';
 import type { RecommendationsBySceneQuery } from '@/src/generated/graphql/types';
 import { router } from 'expo-router';
 
