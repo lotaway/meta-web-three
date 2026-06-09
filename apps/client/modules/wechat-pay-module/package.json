@@ -2,19 +2,7 @@
   "name": "wechat-pay-module",
   "version": "1.0.0",
   "description": "Wechat Pay Expo Module",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
-  "scripts": {
-    "build": "expo-module build",
-    "clean": "expo-module clean",
-    "lint": "expo-module lint",
-    "test": "expo-module test",
-    "prepare": "expo-module prepare",
-    "prepublishOnly": "expo-module prepublishOnly",
-    "expo-module": "expo-module",
-    "open:ios": "xed example/ios",
-    "open:android": "open -a \"Android Studio\" example/android"
-  },
+  "main": "index.ts",
   "keywords": [
     "react-native",
     "expo",
@@ -34,12 +22,12 @@
     "expo": "^55.0.18",
     "react-native": "0.82.1"
   },
-"peerDependencies": {
-        "expo": "*",
-        "react": "*",
-        "react-native": "*"
-    },
-    "dependencies": {
-        "expo-modules-core": "*"
-    }
+  "peerDependencies": {
+    "expo": "*",
+    "react": "*",
+    "react-native": "*"
+  },
+  "dependencies": {
+    "expo-modules-core": "*"
+  }
 }
