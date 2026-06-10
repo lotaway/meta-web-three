@@ -12,25 +12,26 @@
     <artifactId>order-service</artifactId>
 
     <dependencies>
+        <!-- Common Module -->
         <dependency>
             <groupId>com.metawebthree</groupId>
             <artifactId>common</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <!-- Event SDK -->
         <dependency>
             <groupId>com.metawebthree</groupId>
             <artifactId>event-sdk</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <!-- GraphQL Federation -->
         <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka</artifactId>
+            <groupId>com.apollographql.federation</groupId>
+            <artifactId>federation-graphql-java-support</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
+            <groupId>com.graphql-java</groupId>
+            <artifactId>graphql-java</artifactId>
         </dependency>
-
     </dependencies>
 </project>

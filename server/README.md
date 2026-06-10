@@ -37,6 +37,18 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 
 ## 微服务功能说明
 
+### server - 父项目
+
+主要负责引入所有基础依赖库
+
+### common - 公共模块
+**职责**: 跨服务共享的基础能力，也负责增强依赖库+公共配置
+- 统一错误处理
+- 通用工具类
+- 常量定义
+- 公共配置
+- 分布式 ID 生成器
+
 ### gateway - API 网关
 **职责**: 统一 API 入口，负责请求路由、负载均衡、限流、鉴权、日志
 - 请求路由与转发
@@ -133,14 +145,6 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 - 工单创建与流转
 - 常见问题管理
 - 满意度评价
-
-### common - 公共模块
-**职责**: 跨服务共享的基础能力
-- 统一错误处理
-- 通用工具类
-- 常量定义
-- 公共配置
-- 分布式 ID 生成器
 
 ## 添加新服务清单
 

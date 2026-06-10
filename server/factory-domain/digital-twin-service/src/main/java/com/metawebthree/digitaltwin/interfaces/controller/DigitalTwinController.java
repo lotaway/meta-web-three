@@ -4,24 +4,14 @@ import com.metawebthree.digitaltwin.application.command.DigitalTwinCommandServic
 import com.metawebthree.digitaltwin.application.query.DigitalTwinQueryService;
 import com.metawebthree.digitaltwin.domain.entity.Device;
 import com.metawebthree.digitaltwin.domain.entity.Alert;
-import com.metawebthree.common.annotations.RequirePermission;
-import com.metawebthree.digitaltwin.common.DigitalTwinPermissions;
-import com.metawebthree.digitaltwin.interfaces.dto.*;
-import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/digital-twin")
+@CrossOrigin(origins = {"http://localhost:5173", "http://127.0.0.1:5173"})
 public class DigitalTwinController {
-
-    private static final Logger logger = LoggerFactory.getLogger(DigitalTwinController.class);
-    private static final double DEFAULT_Z_COORDINATE = 0.0;
-    private static final double DEFAULT_ROTATION = 0.0;
-    private static final int MAX_PAGE_SIZE = 100;
 
     private final DigitalTwinCommandService commandService;
     private final DigitalTwinQueryService queryService;
@@ -33,66 +23,48 @@ public class DigitalTwinController {
         this.queryService = queryService;
     }
 
-    @RequirePermission(DigitalTwinPermissions.DEVICE_CREATE)
+    // Device endpoints
     @PostMapping("/device")
-    public ResponseEntity<Map<String, Object>> registerDevice(
-            @Valid @RequestBody RegisterDeviceRequest request,
-            @RequestHeader(value = "X-User-Id", required = false) String userId,
-            @RequestHeader(value = "X-User-Role", required = false) String userRole) {
-        logger.info("Register device by user: {}, role: {}", userId, userRole);
-        Long id = commandService.registerDevice(
-            request.getDeviceCode(),
-            request.getDeviceName(),
-            request.getDeviceType(),
-            request.getWorkshopId(),
-            request.getProductionLineId()
-        );
+    public ResponseEntity<Map<String, Object>> registerDevice(@RequestBody Map<String, Object> request) {
+        String deviceCode = (String) request.get("deviceCode");
+        String deviceName = (String) request.get("deviceName");
+        String deviceType = (String) request.get("deviceType");
+        String workshopId = (String) request.get("workshopId");
+        String productionLineId = (String) request.get("productionLineId");
+        
+        Long id = commandService.registerDevice(deviceCode, deviceName, deviceType, workshopId, productionLineId);
         return ResponseEntity.ok(Map.of("deviceId", id));
     }
 
-    @RequirePermission(DigitalTwinPermissions.DEVICE_UPDATE)
     @PostMapping("/device/{deviceCode}/status")
     public ResponseEntity<Void> updateDeviceStatus(
             @PathVariable String deviceCode,
-            @Valid @RequestBody UpdateDeviceStatusRequest request,
-            @RequestHeader(value = "X-User-Id", required = false) String userId,
-            @RequestHeader(value = "X-User-Role", required = false) String userRole) {
-        logger.info("Update device status by user: {}, role: {}", userId, userRole);
-        Device.DeviceStatus deviceStatus;
-        try {
-            deviceStatus = Device.DeviceStatus.valueOf(request.getStatus().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            logger.warn("Invalid device status value: {}", request.getStatus());
-            return ResponseEntity.badRequest().build();
-        }
+            @RequestBody Map<String, Object> request) {
+        String status = (String) request.get("status");
+        Device.DeviceStatus deviceStatus = Device.DeviceStatus.valueOf(status.toUpperCase());
         commandService.updateDeviceStatus(deviceCode, deviceStatus);
         return ResponseEntity.ok().build();
     }
 
-    @RequirePermission(DigitalTwinPermissions.DEVICE_UPDATE)
     @PostMapping("/device/{deviceCode}/heartbeat")
-    public ResponseEntity<Void> deviceHeartbeat(
-            @PathVariable String deviceCode,
-            @RequestHeader(value = "X-User-Id", required = false) String userId) {
+    public ResponseEntity<Void> deviceHeartbeat(@PathVariable String deviceCode) {
         commandService.deviceHeartbeat(deviceCode);
         return ResponseEntity.ok().build();
     }
 
-    @RequirePermission(DigitalTwinPermissions.DEVICE_UPDATE)
     @PostMapping("/device/{deviceCode}/position")
     public ResponseEntity<Void> updateDevicePosition(
             @PathVariable String deviceCode,
-            @Valid @RequestBody UpdateDevicePositionRequest request,
-            @RequestHeader(value = "X-User-Id", required = false) String userId) {
-        Double x = request.getX();
-        Double y = request.getY();
-        Double z = request.getZ() != null ? request.getZ() : DEFAULT_Z_COORDINATE;
-        Double rotation = DEFAULT_ROTATION;
+            @RequestBody Map<String, Object> request) {
+        Double x = ((Number) request.get("x")).doubleValue();
+        Double y = ((Number) request.get("y")).doubleValue();
+        Double z = ((Number) request.get("z")).doubleValue();
+        Double rotation = request.get("rotation") != null ? 
+            ((Number) request.get("rotation")).doubleValue() : 0.0;
         commandService.updateDevicePosition(deviceCode, x, y, z, rotation);
         return ResponseEntity.ok().build();
     }
 
-    @RequirePermission(DigitalTwinPermissions.DEVICE_READ)
     @GetMapping("/device/{id}")
     public ResponseEntity<?> getDevice(@PathVariable Long id) {
         return queryService.getDeviceById(id)
@@ -100,28 +72,22 @@ public class DigitalTwinController {
             .orElse(ResponseEntity.notFound().build());
     }
 
-    @RequirePermission(DigitalTwinPermissions.DEVICE_READ)
     @GetMapping("/devices")
-    public ResponseEntity<?> getAllDevices(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        int limitedSize = Math.min(size, MAX_PAGE_SIZE);
-        return ResponseEntity.ok(queryService.getDevicesPaginated(page, limitedSize));
+    public ResponseEntity<?> getAllDevices() {
+        return ResponseEntity.ok(queryService.getAllDevices());
     }
 
-    @RequirePermission(DigitalTwinPermissions.DEVICE_READ)
     @GetMapping("/workshop/{workshopId}/devices")
     public ResponseEntity<?> getWorkshopDevices(@PathVariable String workshopId) {
         return ResponseEntity.ok(queryService.getWorkshopDevices(workshopId));
     }
 
-    @RequirePermission(DigitalTwinPermissions.DEVICE_READ)
     @GetMapping("/devices/online")
     public ResponseEntity<?> getOnlineDevices() {
         return ResponseEntity.ok(queryService.getOnlineDevices());
     }
 
-    @RequirePermission(DigitalTwinPermissions.WORKSHOP_CREATE)
+    // Workshop endpoints
     @PostMapping("/workshop")
     public ResponseEntity<Map<String, Object>> createWorkshop(@RequestBody Map<String, Object> request) {
         String workshopCode = (String) request.get("workshopCode");
@@ -132,16 +98,12 @@ public class DigitalTwinController {
         return ResponseEntity.ok(Map.of("workshopId", id));
     }
 
-    @RequirePermission(DigitalTwinPermissions.WORKSHOP_READ)
     @GetMapping("/workshops")
-    public ResponseEntity<?> getAllWorkshops(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        int limitedSize = Math.min(size, MAX_PAGE_SIZE);
-        return ResponseEntity.ok(queryService.getWorkshopsPaginated(page, limitedSize));
+    public ResponseEntity<?> getAllWorkshops() {
+        return ResponseEntity.ok(queryService.getAllWorkshops());
     }
 
-    @RequirePermission(DigitalTwinPermissions.PRODUCTION_LINE_CREATE)
+    // ProductionLine endpoints
     @PostMapping("/production-line")
     public ResponseEntity<Map<String, Object>> createProductionLine(@RequestBody Map<String, Object> request) {
         String lineCode = (String) request.get("lineCode");
@@ -153,16 +115,12 @@ public class DigitalTwinController {
         return ResponseEntity.ok(Map.of("lineId", id));
     }
 
-    @RequirePermission(DigitalTwinPermissions.PRODUCTION_LINE_READ)
     @GetMapping("/production-lines")
-    public ResponseEntity<?> getAllProductionLines(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        int limitedSize = Math.min(size, MAX_PAGE_SIZE);
-        return ResponseEntity.ok(queryService.getProductionLinesPaginated(page, limitedSize));
+    public ResponseEntity<?> getAllProductionLines() {
+        return ResponseEntity.ok(queryService.getAllProductionLines());
     }
 
-    @RequirePermission(DigitalTwinPermissions.ALERT_CREATE)
+    // Alert endpoints
     @PostMapping("/alert")
     public ResponseEntity<Map<String, Object>> createAlert(@RequestBody Map<String, Object> request) {
         String deviceCode = (String) request.get("deviceCode");
@@ -179,7 +137,6 @@ public class DigitalTwinController {
         return ResponseEntity.ok(Map.of("alertId", id));
     }
 
-    @RequirePermission(DigitalTwinPermissions.ALERT_ACK)
     @PostMapping("/alert/{id}/acknowledge")
     public ResponseEntity<Void> acknowledgeAlert(
             @PathVariable Long id,
@@ -189,7 +146,6 @@ public class DigitalTwinController {
         return ResponseEntity.ok().build();
     }
 
-    @RequirePermission(DigitalTwinPermissions.ALERT_RESOLVE)
     @PostMapping("/alert/{id}/resolve")
     public ResponseEntity<Void> resolveAlert(
             @PathVariable Long id,
@@ -200,13 +156,12 @@ public class DigitalTwinController {
         return ResponseEntity.ok().build();
     }
 
-    @RequirePermission(DigitalTwinPermissions.ALERT_READ)
     @GetMapping("/alerts/active")
     public ResponseEntity<?> getActiveAlerts() {
         return ResponseEntity.ok(queryService.getActiveAlerts());
     }
 
-    @RequirePermission(DigitalTwinPermissions.STATS_READ)
+    // Statistics
     @GetMapping("/stats/summary")
     public ResponseEntity<?> getStatsSummary() {
         return ResponseEntity.ok(Map.of(

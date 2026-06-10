@@ -11,11 +11,20 @@
     </parent>
     <artifactId>product-service</artifactId>
     <dependencies>
+        <!-- Common Module -->
         <dependency>
             <groupId>com.metawebthree</groupId>
             <artifactId>common</artifactId>
             <version>1.0.0</version>
         </dependency>
-
+        <!-- GraphQL Federation subgraph support -->
+        <dependency>
+            <groupId>com.apollographql.federation</groupId>
+            <artifactId>federation-graphql-java-support</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.graphql-java</groupId>
+            <artifactId>graphql-java</artifactId>
+        </dependency>
     </dependencies>
 </project>

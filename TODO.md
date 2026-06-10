@@ -17,14 +17,11 @@ The following backend services have been created, but lack corresponding admin a
 
 ### Recommendation Service Problem
 
-- [x] 检查[智能推荐系统](server/mall-domain/recommendation-service/)是否已经实现完善，对应到[前端](apps/client/)和[后台](apps/backstage-admin/) (AI推荐算法，基于用户行为个性化推荐商品)，智能推荐系统已实现完善但存在以下待修复问题：
-- [x] **[严重] 前端行为追踪链路未接通**: `recordBehavior`、`markClicked`、`markPurchased` mutation 在前端已定义但未被任何组件调用（`apps/client/app/(tabs)/index.tsx` 商品曝光/点击、`apps/client/app/product/[id].tsx` 详情页浏览/加购、`apps/client/app/components/product/RelatedProducts.tsx` 推荐点击/购买均需接入）
-- [x] **[严重] 首页推荐硬编码 userId=1**: `apps/client/containers/home/HomeContainer.tsx:61` 写死 `userId=1`，所有用户看到相同的推荐结果，应改为从 auth context 获取当前登录用户ID
-- [x] **[中] 测试覆盖严重不足**: 仅1个测试文件10个测试方法（仅覆盖 `RecommendationDomainServiceImpl`），缺少5种算法单元测试、应用层测试、GraphQL DataFetcher 测试、仓储层集成测试、控制器集成测试
-- [x] **[中] 缺少 Dockerfile**: 与 `user-service`、`product-service`、`order-service`、`payment-service` 等同类服务相比，推荐服务无法容器化部署
-- [x] **[中] 缺少离线计算/定时任务**: 流行度推荐依赖预计算结果但无 `@Scheduled` 自动计算；商品相似度矩阵需手动触发更新，无自动定时更新机制
-- [x] **[低] 后台管理功能冗余**: `src/views/recommendation/index.vue`（规则类型 BOOST/FILTER/RE_RANK/EXCLUDE）与 `src/views/sms/recommendation/index.vue`（规则类型 COLLABORATIVE/CONTENT_BASED/HYBRID/POPULARITY）两个推荐规则管理入口功能重叠，建议统一合并
-- [x] **[低] 后台缺少推荐效果数据看板**: 后端 `/api/admin/recommendation/statistics` 已提供统计数据，但后台管理缺少对应数据展示页面（CTR趋势图、转化率、推荐覆盖率等）
+- [ ] 检查[智能推荐系统](server/mall-domain/recommendation-service/)是否已经实现完善，对应到[前端](apps/client/)和[后台](apps/backstage-admin/) (AI推荐算法，基于用户行为个性化推荐商品)，智能推荐系统已实现完善但存在以下待修复问题：
+- [ ] **[中] markPurchased 调用链路缺失**: `apps/client/src/lib/api/graphql-hooks.ts:113` 定义了 `markPurchased` mutation，但项目中无任何组件调用（订单完成后应调用标记购买行为）；建议在订单确认流程或结算完成页面接入
+- [ ] **[中] 测试覆盖严重不足**: 仅4个测试文件，缺少5种算法单元测试、应用层测试、GraphQL DataFetcher 测试、仓储层集成测试、控制器集成测试；建议补充 `RecommendationAlgorithmTest`、`DataFetcherTest`、`ControllerIntegrationTest`
+- [ ] **[中] 缺少离线计算/定时任务**: 流行度推荐依赖预计算结果但无 `@Scheduled` 自动计算；商品相似度矩阵需手动触发更新，无自动定时更新机制
+- [ ] **[低] 后台管理功能冗余**: `src/views/recommendation/index.vue`（规则类型 BOOST/FILTER/RE_RANK/EXCLUDE）与 `src/views/sms/recommendation/index.vue`（规则类型 COLLABORATIVE/CONTENT_BASED/HYBRID/POPULARITY）两个推荐规则管理入口功能重叠，建议统一合并
 
 ### [Pending Features]
 
@@ -39,42 +36,49 @@ The following backend services have been created, but lack corresponding admin a
 
 #### MES 领域 (高优先级)
 
-- [x] **[MES] 有限产能排程 (Finite Capacity Scheduling)**: `server/factory-domain/mes-service` 中添加排程引擎
-   - [x] 定义排程数据模型：`ScheduleOrder`, `ScheduleResource`, `ScheduleResult` (含内嵌 `ScheduleOperation`, `TimeSlot`, `ScheduleConflict`)
-   - [x] 实现基础排程算法：前向排程(Forward Scheduling)、后向排程(Backward Scheduling) — `SchedulingDomainServiceImpl`
-   - [x] 实现约束检查：资源可用性 (`ScheduleResource.isAvailable()`), 冲突报告 (`ScheduleConflict`)
-   - [x] 添加调度 REST API：`/api/mes/scheduling/orders|resources|forward|backward`
-   - [x] 添加后台调度管理页面：`views/mes/scheduling/index.vue` (工单列表+资源管理.含前向/后向排程按钮,工序展开,调度结果报警)
+- [ ] **[MES] 有限产能排程 (Finite Capacity Scheduling)**: `server/factory-domain/mes-service` 中添加排程引擎 [代码质量不达标: 异常被吞, 前端文件超长, 缺少单元测试]
+   - [ ] 定义排程数据模型：`ScheduleOrder`, `ScheduleResource`, `ScheduleResult` (含内嵌 `ScheduleOperation`, `TimeSlot`, `ScheduleConflict`) [需修复 SchedulingDomainServiceImpl 异常吞并问题]
+   - [ ] 实现基础排程算法：前向排程(Forward Scheduling)、后向排程(Backward Scheduling) — `SchedulingDomainServiceImpl` [需修复异常吞并: 第78行和第141行catch Exception后仅记录日志未重新抛出]
+   - [ ] 实现约束检查：资源可用性 (`ScheduleResource.isAvailable()`), 冲突报告 (`ScheduleConflict`)
+   - [ ] 添加调度 REST API：`/api/mes/scheduling/orders|resources|forward|backward`
+   - [ ] 添加后台调度管理页面：`views/mes/scheduling/index.vue` (工单列表+资源管理.含前向/后向排程按钮,工序展开,调度结果报警) [需拆分为多个组件, 当前989行超出500行限制]
 
-- [x] **[MES] 人员/工时跟踪 (Labor & Time Tracking)**: 记录操作员资质、工时、考勤及人员到工作中心的分配
-   - [x] 定义领域实体：`Operator`, `OperatorSkill`, `WorkCenterAssignment`, `TimeRecord`, `Attendance`
-   - [x] 实现工时记录：员工报工、工时核算、产出记录 (clockIn/Out, submit/approve flow)
-   - [x] 实现工作中心分配：人员 → 工位/产线绑定
-   - [x] 添加 REST API：`/api/mes/labor/operators|attendance|time-records|assignments`
-   - [x] 添加后台管理页面：`views/mes/labor/index.vue` (含 4 个 Tab: 操作员/考勤/工时/分配)
+- [ ] **[MES] 人员/工时跟踪 (Labor & Time Tracking)**: 记录操作员资质、工时、考勤及人员到工作中心的分配 [代码质量不达标: 缺少单元测试]
+   - [ ] 定义领域实体：`Operator`, `OperatorSkill`, `WorkCenterAssignment`, `TimeRecord`, `Attendance`
+   - [ ] 实现工时记录：员工报工、工时核算、产出记录 (clockIn/Out, submit/approve flow)
+   - [ ] 实现工作中心分配：人员 → 工位/产线绑定
+   - [ ] 添加 REST API：`/api/mes/labor/operators|attendance|time-records|assignments`
+   - [ ] 添加后台管理页面：`views/mes/labor/index.vue` (含 4 个 Tab: 操作员/考勤/工时/分配)
 
-- [x] **[MES] 制造可追溯性完善 (Manufacturing Genealogy)**: 在已有 TraceModel/TraceRecord 基础上补全"制造族谱"
-    - [x] 完善溯源数据模型：连接成品 → 批次原料 → 设备 → 操作员 → 工艺参数
-    - [x] 实现自动收集：工单完工时自动关联原料批次、设备、操作员
-    - [x] 添加批次追溯查询 API：正向(原料→成品)和反向(成品→原料)
-    - [x] 添加后台追溯查询页面：`views/mes/traceability/index.vue`
+- [ ] **[MES] 制造可追溯性完善 (Manufacturing Genealogy)**: 在已有 TraceModel/TraceRecord 基础上补全"制造族谱" [代码质量不达标: 缺少单元测试]
+    - [ ] 完善溯源数据模型：连接成品 → 批次原料 → 设备 → 操作员 → 工艺参数
+    - [ ] 实现自动收集：工单完工时自动关联原料批次、设备、操作员
+    - [ ] 添加批次追溯查询 API：正向(原料→成品)和反向(成品→原料)
+    - [ ] 添加后台追溯查询页面：`views/mes/traceability/index.vue`
 
-- [x] **[MES] 实时数据采集集成 (SCADA Integration)**: 基于已有 Equipment.mqttTopic 字段构建完整数据采集层
-   - [x] 实现 MQTT 设备数据消费者：订阅设备 topic，解析遥测数据 (`MqttTelemetrySubscriber`, `MqttTelemetryService`)
-   - [x] 定义采集数据模型：`TelemetryRecord`, `TelemetryMetric`, `DeviceCommand`
-   - [x] 实现设备命令下发：从 MES 下发参数配置到设备 (`MqttCommandPublisher`, `ScadaDomainService.dispatchCommand`)
-   - [x] 实现实时状态看板：设备 OEE、生产进度、异常告警 (SCADA 监控后台页面 + REST API)
+- [ ] **[MES] 实时数据采集集成 (SCADA Integration)**: 基于已有 Equipment.mqttTopic 字段构建完整数据采集层 [代码质量不达标: 异常吞并]
+   - [ ] 实现 MQTT 设备数据消费者：订阅设备 topic，解析遥测数据 (`MqttTelemetrySubscriber`, `MqttTelemetryService`)
+   - [ ] 定义采集数据模型：`TelemetryRecord`, `TelemetryMetric`, `DeviceCommand`
+   - [ ] 实现设备命令下发：从 MES 下发参数配置到设备 (`MqttCommandPublisher`, `ScadaDomainService.dispatchCommand`)
+   - [ ] 实现实时状态看板：设备 OEE、生产进度、异常告警 (SCADA 监控后台页面 + REST API)
 
-**数字孪生MES集成**:
-- [x] **[验收] 数字孪生 MES API 连通性验证**: `apps/digital-twin/system-management/src/renderer/services/mes-api.ts` — 确认 mesApi 各方法能正确调用 `mes-service` 的 SCADA/追溯端点
-- [x] **[验收] SCADA 面板设备遥测实时展示**: `apps/digital-twin/system-management/src/renderer/components/digital-twin/scada/ScadaPanel.tsx` — 验证左侧选中设备后，面板展示实时遥测指标（温度/压力/转速等），超限值红色告警
-- [x] **[验收] SCADA 指令下发与响应**: `ScadaPanel.tsx` — 验证指令类型选择 + JSON 参数发送后，最近指令列表能显示状态变化（PENDING→SENT→EXECUTED/FAILED）
-- [x] **[验收] 追溯面板完整链查询**: `apps/digital-twin/system-management/src/renderer/components/digital-twin/traceability/TraceabilityPanel.tsx` — 验证输入追溯码后完整链视图展示根节点 + 正向路径 + 反向路径
-- [x] **[验收] 追溯面板正向/反向追溯**: `TraceabilityPanel.tsx` — 验证单独正向/反向追溯按钮返回正确节点列表
-- [x] **[验收] 数字孪生标签页集成**: `apps/digital-twin/system-management/src/renderer/pages/DigitalTwinPage.tsx` — 验证右侧面板新增 SCADA / 追溯标签页正常切换渲染，无白屏或 JS 错误
-- [x] **[验收] MES API 环境变量配置**: `apps/digital-twin/system-management/vite.config.ts` + `.env.example` — 验证 `VITE_MES_API_URL/HOST/PORT` 注入正确，数字孪生启动时可连接 mes-service
-- [x] **[安全] SCADA 指令鉴权**: 设备指令下发端点 `/api/mes/scada/commands` 需确认已集成 Spring Security 权限校验，防止未授权操作产线设备
-- [x] **[安全] 追溯数据访问控制**: 追溯链查询接口需校验用户权限，防止越权访问非授权产品的批次追溯数据
+**数字孪生MES集成** [代码质量不达标: 前端编译错误, 异常吞并]:
+- [ ] **[验收] 数字孪生 MES API 连通性验证**: `apps/digital-twin/system-management/src/renderer/services/mes-api.ts` — 确认 mesApi 各方法能正确调用 `mes-service` 的 SCADA/追溯端点 [getTraceChain 存在异常吞并, 需修复]
+- [ ] **[验收] SCADA 面板设备遥测实时展示**: `apps/digital-twin/system-management/src/renderer/components/digital-twin/scada/ScadaPanel.tsx` — 验证左侧选中设备后，面板展示实时遥测指标（温度/压力/转速等），超限值红色告警
+- [ ] **[验收] SCADA 指令下发与响应**: `ScadaPanel.tsx` — 验证指令类型选择 + JSON 参数发送后，最近指令列表能显示状态变化（PENDING→SENT→EXECUTED/FAILED）
+- [ ] **[验收] 追溯面板完整链查询**: `apps/digital-twin/system-management/src/renderer/components/digital-twin/traceability/TraceabilityPanel.tsx` — 验证输入追溯码后完整链视图展示根节点 + 正向路径 + 反向路径
+- [ ] **[验收] 追溯面板正向/反向追溯**: `TraceabilityPanel.tsx` — 验证单独正向/反向追溯按钮返回正确节点列表
+- [ ] **[验收] 数字孪生标签页集成**: `apps/digital-twin/system-management/src/renderer/pages/DigitalTwinPage.tsx` — 验证右侧面板新增 SCADA / 追溯标签页正常切换渲染，无白屏或 JS 错误
+- [ ] **[验收] MES API 环境变量配置**: `apps/digital-twin/system-management/vite.config.ts` + `.env.example` — 验证 `VITE_MES_API_URL/HOST/PORT` 注入正确，数字孪生启动时可连接 mes-service
+- [ ] **[安全] SCADA 指令鉴权**: 设备指令下发端点 `/api/mes/scada/commands` 需确认已集成 Spring Security 权限校验，防止未授权操作产线设备
+- [ ] **[安全] 追溯数据访问控制**: 追溯链查询接口需校验用户权限，防止越权访问非授权产品的批次追溯数据
+
+#### 编译错误修复 (新增 - 紧急)
+
+- [ ] **[紧急] 修复前端TypeScript编译错误**: apps/backstage-admin 构建失败
+   - [ ] 修复 `src/locales/en-US.ts(774,7)` 和 `src/locales/en-US.ts(775,7)` 及 `src/locales/zh-CN.ts(835,7)` 和 `src/locales/zh-CN.ts(836,7)` 中重复的属性名 (error TS1117: An object literal cannot have multiple properties with the same name)
+   - [ ] 修复 `src/views/mes/scheduling/index.vue(592,29)` 类型不匹配: createResource 参数类型错误 (Argument of type '{ resourceCode: string; resourceName: string; resourceType: string; workshopId: string; capacityPerShift: number; description: string; }' is not assignable to parameter of type '{ resourceCode: string; resourceName: string; resourceType: ResourceType; workshopId: string; }')
+   - [ ] 修复 `src/views/recommendation/index.vue(118,5)` RecommendationStatistics 类型缺失必要属性 (Type 'RecommendationStatistics' is not assignable to type '{ totalRules: number; ... }')
 
 #### 供应链领域 (中优先级)
 

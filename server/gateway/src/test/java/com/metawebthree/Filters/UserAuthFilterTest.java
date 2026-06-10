@@ -107,6 +107,7 @@ public class UserAuthFilterTest {
                         "/user-service/admin/login",
                         "/actuator"),
                 java.util.List.of("/v3/api-docs", "/swagger-ui"),
+                java.util.List.of(),  // rbacExcludedPathPatterns
                 java.util.Map.of(),
                 java.util.Map.of());
     }
