@@ -51,10 +51,10 @@ The following backend services have been created, but lack corresponding admin a
    - [ ] 添加后台管理页面：`views/mes/labor/index.vue` (含 4 个 Tab: 操作员/考勤/工时/分配)
 
 - [ ] **[MES] 制造可追溯性完善 (Manufacturing Genealogy)**: 在已有 TraceModel/TraceRecord 基础上补全"制造族谱" [代码质量不达标: 缺少单元测试]
-    - [ ] 完善溯源数据模型：连接成品 → 批次原料 → 设备 → 操作员 → 工艺参数
-    - [ ] 实现自动收集：工单完工时自动关联原料批次、设备、操作员
-    - [ ] 添加批次追溯查询 API：正向(原料→成品)和反向(成品→原料)
-    - [ ] 添加后台追溯查询页面：`views/mes/traceability/index.vue`
+   - [ ] 完善溯源数据模型：连接成品 → 批次原料 → 设备 → 操作员 → 工艺参数
+   - [ ] 实现自动收集：工单完工时自动关联原料批次、设备、操作员
+   - [ ] 添加批次追溯查询 API：正向(原料→成品)和反向(成品→原料)
+   - [ ] 添加后台追溯查询页面：`views/mes/traceability/index.vue`
 
 - [ ] **[MES] 实时数据采集集成 (SCADA Integration)**: 基于已有 Equipment.mqttTopic 字段构建完整数据采集层 [代码质量不达标: 异常吞并]
    - [ ] 实现 MQTT 设备数据消费者：订阅设备 topic，解析遥测数据 (`MqttTelemetrySubscriber`, `MqttTelemetryService`)
@@ -131,6 +131,19 @@ The following backend services have been created, but lack corresponding admin a
    - [ ] 财务成本核算模块监听完工事件自动归集成本
    - [ ] 实现端到端集成测试
 
+### [Digital Twin UI 交互流程未完整恢复]（新任务）
+
+- [ ] **[Digital Twin] 右侧面板 Tab 与告警/通知/SCADA/追溯功能链路未完整闭环**
+  - [ ] 在 `apps/digital-twin/system-management/src/renderer/pages/DigitalTwinPage.tsx` 中确认并恢复完整 UI 流程：
+    - [ ] ToastContainer（告警/动作反馈）渲染挂载
+    - [ ] 右侧 Tab：规则配置（rules）、SCADA（scada）、追溯（trace）三块的入口与状态切换
+    - [ ] rules Tab：`AlertRuleList` 规则配置列表能正常加载与分页/编辑（若存在交互）
+    - [ ] scada Tab：`ScadaPanel` 能基于选中设备展示遥测与指令下发
+    - [ ] trace Tab：`TraceabilityPanel` 能展示完整链路并支持正向/反向追溯
+    - [ ] 设备未选中时的占位逻辑从“点击提示”改为可指导的体验（并确保不会影响三块 Tab 的挂载）
+    - [ ] charts Tab 的声音/通知开关（soundEnabled/notifEnabled）与 `AudioMonitor`/通知告警触发的接入
+  - [ ] 校验环境变量/端口提示：异常文案应基于 `DIGITAL_TWIN_API_BASE_URL` 推导端口，而非写死 10102。
+
 # 待决议功能
 
 - [ ] 实现多租户SaaS架构
@@ -148,3 +161,4 @@ The following backend services have been created, but lack corresponding admin a
 - [ ] 添加语音电商功能 (Voice Commerce，语音搜索、语音下单)
 
 - [ ] 实现可持续性追踪 (碳足迹计算、绿色物流、环保商品标签)
+
