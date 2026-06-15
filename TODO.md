@@ -15,13 +15,9 @@ The following backend services have been created, but lack corresponding admin a
 - supply-chain-domain (6 services: inventory alert, inventory, logistics, procurement, supplier, warehouse)
 
 
-### Recommendation Service Problem
+### ~~Recommendation Service Problem~~ 已完成
 
-- [ ] 检查[智能推荐系统](server/mall-domain/recommendation-service/)是否已经实现完善，对应到[前端](apps/client/)和[后台](apps/backstage-admin/) (AI推荐算法，基于用户行为个性化推荐商品)，智能推荐系统已实现完善但存在以下待修复问题：
-- [ ] **[中] markPurchased 调用链路缺失**: `apps/client/src/lib/api/graphql-hooks.ts:113` 定义了 `markPurchased` mutation，但项目中无任何组件调用（订单完成后应调用标记购买行为）；建议在订单确认流程或结算完成页面接入
-- [ ] **[中] 测试覆盖严重不足**: 仅4个测试文件，缺少5种算法单元测试、应用层测试、GraphQL DataFetcher 测试、仓储层集成测试、控制器集成测试；建议补充 `RecommendationAlgorithmTest`、`DataFetcherTest`、`ControllerIntegrationTest`
-- [ ] **[中] 缺少离线计算/定时任务**: 流行度推荐依赖预计算结果但无 `@Scheduled` 自动计算；商品相似度矩阵需手动触发更新，无自动定时更新机制
-- [ ] **[低] 后台管理功能冗余**: `src/views/recommendation/index.vue`（规则类型 BOOST/FILTER/RE_RANK/EXCLUDE）与 `src/views/sms/recommendation/index.vue`（规则类型 COLLABORATIVE/CONTENT_BASED/HYBRID/POPULARITY）两个推荐规则管理入口功能重叠，建议统一合并
+智能推荐系统已检查修复，所有4项问题已解决。修改详情见 git log。
 
 ### [Pending Features]
 
@@ -77,8 +73,8 @@ The following backend services have been created, but lack corresponding admin a
 
 - [ ] **[紧急] 修复前端TypeScript编译错误**: apps/backstage-admin 构建失败
    - [ ] 修复 `src/locales/en-US.ts(774,7)` 和 `src/locales/en-US.ts(775,7)` 及 `src/locales/zh-CN.ts(835,7)` 和 `src/locales/zh-CN.ts(836,7)` 中重复的属性名 (error TS1117: An object literal cannot have multiple properties with the same name)
-   - [ ] 修复 `src/views/mes/scheduling/index.vue(592,29)` 类型不匹配: createResource 参数类型错误 (Argument of type '{ resourceCode: string; resourceName: string; resourceType: string; workshopId: string; capacityPerShift: number; description: string; }' is not assignable to parameter of type '{ resourceCode: string; resourceName: string; resourceType: ResourceType; workshopId: string; }')
-   - [ ] 修复 `src/views/recommendation/index.vue(118,5)` RecommendationStatistics 类型缺失必要属性 (Type 'RecommendationStatistics' is not assignable to type '{ totalRules: number; ... }')
+   - [ ] 修复 `src/views/mes/scheduling/index.vue(592,29)` 类型不匹配: createResource 参数类型错误
+   - [x] 修复 `src/views/recommendation/index.vue(118,5)` RecommendationStatistics 类型缺失必要属性
 
 #### 供应链领域 (中优先级)
 
@@ -143,6 +139,53 @@ The following backend services have been created, but lack corresponding admin a
     - [ ] 设备未选中时的占位逻辑从“点击提示”改为可指导的体验（并确保不会影响三块 Tab 的挂载）
     - [ ] charts Tab 的声音/通知开关（soundEnabled/notifEnabled）与 `AudioMonitor`/通知告警触发的接入
   - [ ] 校验环境变量/端口提示：异常文案应基于 `DIGITAL_TWIN_API_BASE_URL` 推导端口，而非写死 10102。
+
+### [扫描发现的虚假/占位符/内存实现]（新增）
+
+基于 `server/` 全量 Java 源代码扫描，发现以下未在 TODO 中记录的虚假/占位符实现，按优先级排列。
+
+#### Critical — 内存 Map Repository（重启丢数据，无真实数据库）
+
+- [ ] **[Critical] AI 域 RouteOptimizer 内存 Repository**: `ai-domain/route-optimizer/.../VehicleRepositoryImpl.java` 和 `RoutePlanRepositoryImpl.java` — 使用 ConcurrentHashMap 存储，系统重启即丢失，且无 JPA/MyBatis 注解
+- [ ] **[Critical] AI 域 ForecastingService 内存 Repository**: `ai-domain/forecasting-service/.../SalesHistoryRepositoryImpl.java`、`SalesForecastRepositoryImpl.java`、`ForecastModelRepositoryImpl.java` — ConcurrentHashMap + AtomicLong 自增 ID 模拟持久化，无数据库配置
+- [ ] **[Critical] Blockchain WalletService 内存 Repository**: `blockchain-domain/wallet-service/.../WalletRepositoryImpl.java` — ConcurrentHashMap 存储，重启丢失所有钱包数据
+- [ ] **[Critical] SupplyChain 库存盘点内存 Repository**: `supply-chain-domain/inventory-service/.../StockCheckRepositoryImpl.java` 等系列 — ConcurrentHashMap 存储，无真实盘点记录持久化
+- [ ] **[Critical] Common AuditLogRepository**: `common/.../AuditLogRepository.java` — ConcurrentHashMap 存储，审计日志重启即清空
+
+#### Critical — 伪算法/占位符实现
+
+- [ ] **[Critical] ForecastingDomainServiceImpl 伪训练**: `ai-domain/forecasting-service/.../ForecastingDomainServiceImpl.java` — 使用 `Math.random()` 模拟训练精度和预测结果，无真实 ML 模型调用
+- [ ] **[Critical] RouteOptimizerDomainServiceImpl 伪调度**: `ai-domain/route-optimizer/.../RouteOptimizerDomainServiceImpl.java` — 最近邻算法仅按 sequence 排序，无真实路径优化逻辑
+- [ ] **[Critical] RiskControlServiceImpl 风控失效**: `payment-service/.../RiskControlServiceImpl.java` — `isBlacklistedAddress()` 始终返回 false，风控形同虚设
+- [ ] **[Critical] BlockchainServiceStubImpl 伪链交互**: `blockchain-domain/.../BlockchainServiceStubImpl.java` — 所有方法仅打印日志后返回 null/0/空集合，无真实区块链交易
+- [ ] **[Critical] MinioStorageService.getFileContent 未实现**: `common/.../MinioStorageService.java` — `getFileContent` 方法 throw `UnsupportedOperationException`
+- [ ] **[Critical] GraphQLDataProvider 购物车查询抛异常**: `gateway/.../GraphQLDataProvider.java` — 3 个购物车相关方法直接 throw `UnsupportedOperationException("GraphQLDataProvider")`
+- [ ] **[Critical] LiveService ProductClient 返回 null**: `live-service/.../ProductClient.java` — `getProductById()` 始终返回 `Mono.empty()`，导致直播关联商品查询全部失效
+
+#### Critical — 异常吞噬
+
+- [ ] **[Critical] Gateway UserClient 异常被吞**: `gateway/.../UserClient.java` — 多处 `try-catch` 仅记录日志后返回 null/空，不抛异常，导致上游无法感知下游失败
+- [ ] **[Critical] PromotionServiceRpcImpl NumberFormatException 被吞**: `promotion-service/.../PromotionServiceRpcImpl.java:127` — 解析数字失败时仅 `log.warn` 后 return，不抛异常
+
+#### Medium — System.err.println / printStackTrace 替代日志
+
+- [ ] **[Medium] Common 模块多处使用 System.err.println**: `common/.../LogQueryService.java`、`AlertService.java` — 应改为 logger.error
+- [ ] **[Medium] Common 模块多处使用 e.printStackTrace()**: `common/.../TelegramAuth.java`、`SecretUtilsKey.java`、`OAuth1Utils.java` — 应改为 logger.error
+- [ ] **[Medium] Common 模块多处使用 System.out.println**: `common/.../AlgorithmUtils.java`、`LogRocksDBAppender.java` — 应改为 logger.info
+- [ ] **[Medium] Gateway CircuitBreakerFilter System.err.println**: `gateway/.../CircuitBreakerFilter.java` — 应改为 logger.warn
+
+#### Medium — 代码规范问题
+
+- [ ] **[Medium] @Deprecated 无替代说明**: `factory-domain/mes-service/.../CodeRule.java:151`、`payment-service/.../ReconciliationServiceImpl.java:71` — @Deprecated 注解应标注 `forRemoval` 和 `since` 参数
+- [ ] **[Medium] UserService.updateUser 默认实现仅为占位符**: `user-service/.../UserService.java:42` — interface default 方法，直接 return 0，无真实逻辑
+- [ ] **[Medium] PasskeyServiceImpl.encodePublicKey 始终返回空串**: `user-service/.../PasskeyServiceImpl.java:160` — 密钥编码方法 return ""，无法用于真实密钥交换
+- [ ] **[Medium] DecisionServiceImpl 日志冗余**: `payment-service/.../DecisionServiceImpl.java:158` — `e.printStackTrace()` + `log.error` 同时使用，应统一
+
+#### Medium — TODO 残留
+
+- [ ] **[Medium] ProductService 核心方法仅含 TODO**: `product-service/.../ProductService.java` — `createProduct()` 和 `updateProduct()` 方法体仅包含 `// TODO` 注释，无任何实现逻辑
+- [ ] **[Medium] PaymentRpcService 统计接口返回硬编码 0**: `payment-service/.../PaymentRpcService.java` — `getPaymentStatistics()` 和 `getDailyPaymentStats()` 所有数值返回 0
+- [ ] **[Medium] ApiDocumentationService 订阅过滤 TODO**: `platform-domain/developer-portal-service/.../ApiDocumentationService.java:398` — 订阅状态过滤逻辑留空
 
 # 待决议功能
 
