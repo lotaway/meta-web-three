@@ -98,6 +98,9 @@ apps/client/web-build/
 !debug.keystore
 *.jks
 
+# Generated schema collection
+/temp
+
 # Data
 /volumes
 

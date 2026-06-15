@@ -74,12 +74,11 @@ else
     echo "Warning: Schema cleanup failed, tables may already exist."
 fi
 
-# Find all schema.sql files (excluding target directories)
-# Note: Since the script is now in 'server/', we look in current directory
-SQL_FILES=$(find . -name "schema.sql" -not -path "*/target/*")
+# Find all schema.sql files in the temp/ directory
+SQL_FILES=$(ls -1 temp/*.sql 2>/dev/null)
 
 if [ -z "$SQL_FILES" ]; then
-    echo "No schema.sql files found."
+    echo "No schema files found in temp/ directory."
     exit 0
 fi
 
