@@ -1,5 +1,4 @@
 -- schema.sql
--- 采购服务数据库表结构
 
 -- =====================
 -- V1: procurement init

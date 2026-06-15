@@ -1,9 +1,9 @@
 -- Digital Twin Service - Database Schema Extension
 -- Warehouse Management Module
 
--- Warehouses (仓库)
+-- Warehouses
 CREATE TABLE IF NOT EXISTS warehouses (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     warehouse_code VARCHAR(50) NOT NULL UNIQUE,
     warehouse_name VARCHAR(100) NOT NULL,
     description VARCHAR(500),
@@ -22,9 +22,9 @@ CREATE TABLE IF NOT EXISTS warehouses (
     CONSTRAINT chk_warehouse_status CHECK (status IN ('PLANNING', 'CONSTRUCTION', 'OPERATING', 'MAINTENANCE', 'DECOMMISSIONED'))
 );
 
--- Shelves (货架)
+-- Shelves
 CREATE TABLE IF NOT EXISTS shelves (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     shelf_code VARCHAR(50) NOT NULL UNIQUE,
     warehouse_code VARCHAR(50) NOT NULL,
     zone VARCHAR(50),
@@ -47,9 +47,9 @@ CREATE TABLE IF NOT EXISTS shelves (
     CONSTRAINT chk_shelf_status CHECK (status IN ('EMPTY', 'OCCUPIED', 'FULL', 'MAINTENANCE', 'OUT_OF_SERVICE'))
 );
 
--- Inventory Items (库存物料)
+-- Inventory Items
 CREATE TABLE IF NOT EXISTS inventory_items (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     item_code VARCHAR(50) NOT NULL UNIQUE,
     sku VARCHAR(50) NOT NULL,
     item_name VARCHAR(200) NOT NULL,
@@ -70,9 +70,9 @@ CREATE TABLE IF NOT EXISTS inventory_items (
     CONSTRAINT chk_inventory_status CHECK (status IN ('NORMAL', 'LOW', 'CRITICAL', 'EXPIRED', 'OUT_OF_STOCK'))
 );
 
--- Inventory Alerts (库存告警)
+-- Inventory Alerts
 CREATE TABLE IF NOT EXISTS inventory_alerts (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     alert_code VARCHAR(50) NOT NULL UNIQUE,
     warehouse_code VARCHAR(50),
     shelf_code VARCHAR(50),
@@ -97,9 +97,9 @@ CREATE TABLE IF NOT EXISTS inventory_alerts (
     CONSTRAINT chk_inv_alert_status CHECK (status IN ('TRIGGERED', 'ACKNOWLEDGED', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'))
 );
 
--- Inventory Movement Logs (库存变动日志 - 时序数据)
+-- Inventory Movement Logs (-)
 CREATE TABLE IF NOT EXISTS inventory_movement_logs (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     item_code VARCHAR(50) NOT NULL,
     movement_type VARCHAR(20) NOT NULL,
     quantity_change DECIMAL(12, 2) NOT NULL,

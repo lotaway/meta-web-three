@@ -1,9 +1,6 @@
--- 报表服务数据库初始化
--- 销售报表、库存报表、财务报表
 
--- 销售报表表
 CREATE TABLE IF NOT EXISTS rp_sales_report (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id BIGSERIAL PRIMARY KEY,
     report_no VARCHAR(64) NOT NULL UNIQUE,
     type VARCHAR(32) NOT NULL,
     report_date TIMESTAMP,
@@ -17,15 +14,14 @@ CREATE TABLE IF NOT EXISTS rp_sales_report (
     category_breakdown TEXT,
     product_ranking TEXT,
     channel_breakdown TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_report_no (report_no),
-    INDEX idx_type (type),
-    INDEX idx_report_date (report_date)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX IF NOT EXISTS idx_report_no ON rp_sales_report (report_no);
+CREATE INDEX IF NOT EXISTS idx_type ON rp_sales_report (type);
+CREATE INDEX IF NOT EXISTS idx_report_date ON rp_sales_report (report_date);
 
--- 库存报表表
 CREATE TABLE IF NOT EXISTS rp_inventory_report (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id BIGSERIAL PRIMARY KEY,
     report_no VARCHAR(64) NOT NULL UNIQUE,
     type VARCHAR(32) NOT NULL,
     report_date TIMESTAMP,
@@ -38,15 +34,14 @@ CREATE TABLE IF NOT EXISTS rp_inventory_report (
     warehouse_breakdown TEXT,
     category_breakdown TEXT,
     low_stock_items TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_report_no (report_no),
-    INDEX idx_type (type),
-    INDEX idx_report_date (report_date)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX IF NOT EXISTS idx_report_no ON rp_inventory_report (report_no);
+CREATE INDEX IF NOT EXISTS idx_type ON rp_inventory_report (type);
+CREATE INDEX IF NOT EXISTS idx_report_date ON rp_inventory_report (report_date);
 
--- 财务报表表
 CREATE TABLE IF NOT EXISTS rp_financial_report (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id BIGSERIAL PRIMARY KEY,
     report_no VARCHAR(64) NOT NULL UNIQUE,
     type VARCHAR(32) NOT NULL,
     report_date TIMESTAMP,
@@ -60,15 +55,14 @@ CREATE TABLE IF NOT EXISTS rp_financial_report (
     current_ratio DECIMAL(5, 2) DEFAULT 0,
     receivables_by_customer TEXT,
     payables_by_supplier TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_report_no (report_no),
-    INDEX idx_type (type),
-    INDEX idx_report_date (report_date)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX IF NOT EXISTS idx_report_no ON rp_financial_report (report_no);
+CREATE INDEX IF NOT EXISTS idx_type ON rp_financial_report (type);
+CREATE INDEX IF NOT EXISTS idx_report_date ON rp_financial_report (report_date);
 
--- 报表订阅表
 CREATE TABLE IF NOT EXISTS report_subscription (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
     user_name VARCHAR(128),
     report_type VARCHAR(32) NOT NULL,
@@ -81,9 +75,9 @@ CREATE TABLE IF NOT EXISTS report_subscription (
     next_send_time TIMESTAMP,
     last_send_time TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_user_id (user_id),
-    INDEX idx_report_type (report_type),
-    INDEX idx_enabled (enabled),
-    INDEX idx_next_send_time (next_send_time)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX IF NOT EXISTS idx_user_id ON report_subscription (user_id);
+CREATE INDEX IF NOT EXISTS idx_report_type ON report_subscription (report_type);
+CREATE INDEX IF NOT EXISTS idx_enabled ON report_subscription (enabled);
+CREATE INDEX IF NOT EXISTS idx_next_send_time ON report_subscription (next_send_time);

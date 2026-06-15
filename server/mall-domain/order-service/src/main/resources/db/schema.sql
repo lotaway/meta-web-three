@@ -145,43 +145,43 @@ CREATE TABLE IF NOT EXISTS tb_order_operate_log (
 
 -- Saga Transaction Instance Table
 CREATE TABLE IF NOT EXISTS tb_saga_instance (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    saga_id VARCHAR(64) NOT NULL COMMENT 'Saga transaction ID',
-    biz_id VARCHAR(64) COMMENT 'Business ID (e.g., order ID)',
-    saga_type VARCHAR(32) NOT NULL COMMENT 'Saga type: ORDER_PAYMENT_SAGA',
-    status VARCHAR(32) NOT NULL DEFAULT 'RUNNING' COMMENT 'Status: RUNNING/COMPLETED/COMPENSATED/FAILED',
-    current_step VARCHAR(32) COMMENT 'Current executing step',
-    start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Start time',
-    end_time TIMESTAMP COMMENT 'End time',
-    error_message VARCHAR(1024) COMMENT 'Error message if failed',
+    id BIGSERIAL PRIMARY KEY,
+    saga_id VARCHAR(64) NOT NULL,  -- Saga transaction ID,
+    biz_id VARCHAR(64),  -- Business ID (e.g., order ID),
+    saga_type VARCHAR(32) NOT NULL,  -- Saga type: ORDER_PAYMENT_SAGA,
+    status VARCHAR(32) NOT NULL DEFAULT 'RUNNING',  -- Status: RUNNING/COMPLETED/COMPENSATED/FAILED,
+    current_step VARCHAR(32),  -- Current executing step,
+    start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Start time,
+    end_time TIMESTAMP,  -- End time,
+    error_message VARCHAR(1024),  -- Error message if failed,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY uk_saga_id (saga_id),
-    INDEX idx_biz_id (biz_id),
-    INDEX idx_status (status),
-    INDEX idx_saga_type (saga_type)
-) COMMENT 'Saga transaction instance table';
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uk_saga_id UNIQUE (saga_id)
+)  -- Saga transaction instance table;
+CREATE INDEX IF NOT EXISTS idx_biz_id ON tb_saga_instance (biz_id);
+CREATE INDEX IF NOT EXISTS idx_status ON tb_saga_instance (status);
+CREATE INDEX IF NOT EXISTS idx_saga_type ON tb_saga_instance (saga_type);
 
 -- Saga Step Execution Table
 CREATE TABLE IF NOT EXISTS tb_saga_step (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    saga_id VARCHAR(64) NOT NULL COMMENT 'Saga transaction ID',
-    step_name VARCHAR(64) NOT NULL COMMENT 'Step name',
-    step_order INT NOT NULL COMMENT 'Step execution order',
-    service_name VARCHAR(64) NOT NULL COMMENT 'Target service name',
-    compensable BOOLEAN DEFAULT TRUE COMMENT 'Whether this step can be compensated',
-    status VARCHAR(32) NOT NULL DEFAULT 'PENDING' COMMENT 'Status: PENDING/RUNNING/COMPLETED/COMPENSATED/FAILED',
-    request_data TEXT COMMENT 'Request data JSON',
-    response_data TEXT COMMENT 'Response data JSON',
-    compensation_data TEXT COMMENT 'Compensation data JSON',
-    retry_count INT DEFAULT 0 COMMENT 'Retry count',
-    max_retries INT DEFAULT 3 COMMENT 'Max retries',
-    error_message VARCHAR(1024) COMMENT 'Error message if failed',
-    start_time TIMESTAMP COMMENT 'Step start time',
-    end_time TIMESTAMP COMMENT 'Step end time',
+    id BIGSERIAL PRIMARY KEY,
+    saga_id VARCHAR(64) NOT NULL,  -- Saga transaction ID,
+    step_name VARCHAR(64) NOT NULL,  -- Step name,
+    step_order INT NOT NULL,  -- Step execution order,
+    service_name VARCHAR(64) NOT NULL,  -- Target service name,
+    compensable BOOLEAN DEFAULT TRUE,  -- Whether this step can be compensated,
+    status VARCHAR(32) NOT NULL DEFAULT 'PENDING',  -- Status: PENDING/RUNNING/COMPLETED/COMPENSATED/FAILED,
+    request_data TEXT,  -- Request data JSON,
+    response_data TEXT,  -- Response data JSON,
+    compensation_data TEXT,  -- Compensation data JSON,
+    retry_count INT DEFAULT 0,  -- Retry count,
+    max_retries INT DEFAULT 3,  -- Max retries,
+    error_message VARCHAR(1024),  -- Error message if failed,
+    start_time TIMESTAMP,  -- Step start time,
+    end_time TIMESTAMP,  -- Step end time,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_saga_id (saga_id),
-    INDEX idx_status (status),
-    INDEX idx_step_order (step_order)
-) COMMENT 'Saga step execution table';
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)  -- Saga step execution table;
+CREATE INDEX IF NOT EXISTS idx_saga_id ON tb_saga_step (saga_id);
+CREATE INDEX IF NOT EXISTS idx_status ON tb_saga_step (status);
+CREATE INDEX IF NOT EXISTS idx_step_order ON tb_saga_step (step_order);
