@@ -34,6 +34,12 @@ export interface RecommendationStatistics {
   totalRules: number
   activeRules: number
   totalRecommendations: number
+  totalClicks: number
+  totalConversions: number
+  avgClickThroughRate: number
+  avgConversionRate: number
+  sceneDistribution: Record<string, number>
+  algorithmDistribution: Record<string, number>
 }
 
 // Get recommendation rule list (admin)

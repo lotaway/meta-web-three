@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/recommendation")
@@ -143,6 +144,27 @@ public class RecommendationController {
     @PostMapping("/{recommendationId}/purchase")
     public ResponseEntity<Void> markRecommendationPurchased(@PathVariable Long recommendationId) {
         commandService.markRecommendationPurchased(recommendationId);
+        return ResponseEntity.ok().build();
+    }
+
+    @SuppressWarnings("unchecked")
+    @PostMapping("/purchase-by-product")
+    public ResponseEntity<Void> markPurchasedByProduct(@RequestBody Map<String, Object> request) {
+        Long userId = getLongRequired(request, "userId");
+        Long productId = getLongRequired(request, "productId");
+        commandService.markPurchasedByProduct(userId, productId);
+        return ResponseEntity.ok().build();
+    }
+
+    @SuppressWarnings("unchecked")
+    @PostMapping("/purchase-by-products")
+    public ResponseEntity<Void> markPurchasedByProducts(@RequestBody Map<String, Object> request) {
+        Long userId = getLongRequired(request, "userId");
+        List<Object> productIdObjs = (List<Object>) request.get("productIds");
+        List<Long> productIds = productIdObjs.stream()
+                .map(obj -> ((Number) obj).longValue())
+                .collect(Collectors.toList());
+        commandService.markPurchasedByProducts(userId, productIds);
         return ResponseEntity.ok().build();
     }
 

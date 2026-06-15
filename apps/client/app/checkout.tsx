@@ -13,6 +13,7 @@ import { useColorScheme } from '@/hooks/useColorScheme'
 import { pay, type PayResult } from '@/lib/payment'
 import { DEFAULT_USER_ID, orderApi, payApi, addressApi, couponApi } from '@/api/generated'
 import type { ApiResponseLong, ApiResponseMapStringObject, ApiResponseMapStringString, OrderItemCreate, MemberReceiveAddressDTO } from '@/src/generated/api/models'
+import { recommendationHooks } from '@/lib/api/graphql-hooks'
 import AddressSection from '@/components/checkout/AddressSection'
 import ProductListSection from '@/components/checkout/ProductListSection'
 import CouponSection from '@/components/checkout/CouponSection'
@@ -320,6 +321,10 @@ export default function CheckoutScreen() {
   const handlePayResult = (result: PayResult, orderId: number) => {
     switch (result.status) {
       case 'success':
+        recommendationHooks.markPurchasedByProducts(
+          DEFAULT_USER_ID,
+          checkoutItems.map(item => item.id),
+        ).catch(() => {})
         Alert.alert('支付成功', `订单号: ${orderId}`, [
           { text: '确定', onPress: () => router.replace('/(tabs)/cart') },
         ])

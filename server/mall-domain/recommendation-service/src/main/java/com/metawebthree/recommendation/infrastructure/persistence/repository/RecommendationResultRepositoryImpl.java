@@ -2,9 +2,11 @@ package com.metawebthree.recommendation.infrastructure.persistence.repository;
 
 import com.metawebthree.recommendation.domain.entity.RecommendationResult;
 import com.metawebthree.recommendation.domain.repository.RecommendationResultRepository;
+import com.metawebthree.recommendation.infrastructure.config.RecommendationAlgorithmProperties;
 import com.metawebthree.recommendation.infrastructure.persistence.entity.RecommendationResultDO;
 import com.metawebthree.recommendation.infrastructure.persistence.mapper.RecommendationResultMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,9 +17,13 @@ import org.springframework.stereotype.Repository;
 public class RecommendationResultRepositoryImpl implements RecommendationResultRepository {
 
     private final RecommendationResultMapper recommendationResultMapper;
+    private final int batchSize;
 
-    public RecommendationResultRepositoryImpl(RecommendationResultMapper recommendationResultMapper) {
+    public RecommendationResultRepositoryImpl(
+            RecommendationResultMapper recommendationResultMapper,
+            RecommendationAlgorithmProperties properties) {
         this.recommendationResultMapper = recommendationResultMapper;
+        this.batchSize = properties.getBatch().getBatchSize();
     }
 
     @Override
@@ -112,6 +118,30 @@ public class RecommendationResultRepositoryImpl implements RecommendationResultR
         wrapper.eq(RecommendationResultDO::getProductId, productId)
             .eq(RecommendationResultDO::getIsPurchased, 1);
         return recommendationResultMapper.selectCount(wrapper);
+    }
+
+    @Override
+    public List<RecommendationResult> findByUserIdAndProductId(Long userId, Long productId) {
+        LambdaQueryWrapper<RecommendationResultDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(RecommendationResultDO::getUserId, userId)
+            .eq(RecommendationResultDO::getProductId, productId)
+            .gt(RecommendationResultDO::getExpiresAt, LocalDateTime.now());
+        return recommendationResultMapper.selectList(wrapper).stream()
+            .map(this::toDomain)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public void markPurchasedByUserIdAndProductIds(Long userId, List<Long> productIds) {
+        RecommendationResultDO updateEntity = new RecommendationResultDO();
+        updateEntity.setIsPurchased(1);
+        for (int i = 0; i < productIds.size(); i += batchSize) {
+            List<Long> batch = productIds.subList(i, Math.min(i + batchSize, productIds.size()));
+            LambdaUpdateWrapper<RecommendationResultDO> wrapper = new LambdaUpdateWrapper<>();
+            wrapper.eq(RecommendationResultDO::getUserId, userId)
+                .in(RecommendationResultDO::getProductId, batch);
+            recommendationResultMapper.update(updateEntity, wrapper);
+        }
     }
 
     @Override

@@ -23,6 +23,8 @@ recommendation:
       industry-average: 1.2
       high-threshold: 2.5
       low-threshold: 0.5
+    batch:
+      batch-size: 500
 ---
 spring:
   config:

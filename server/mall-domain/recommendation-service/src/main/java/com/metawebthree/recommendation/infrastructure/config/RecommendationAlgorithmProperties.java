@@ -9,6 +9,7 @@ public class RecommendationAlgorithmProperties {
     private CTR ctr = new CTR();
     private Conversion conversion = new Conversion();
     private Behavior behavior = new Behavior();
+    private Batch batch = new Batch();
     private int similarUserMaxCount = 20;
     private int recommendationExpiryDays = 7;
     private double popularityBaseScore = 100.0;
@@ -21,6 +22,8 @@ public class RecommendationAlgorithmProperties {
     public void setConversion(Conversion conversion) { this.conversion = conversion; }
     public Behavior getBehavior() { return behavior; }
     public void setBehavior(Behavior behavior) { this.behavior = behavior; }
+    public Batch getBatch() { return batch; }
+    public void setBatch(Batch batch) { this.batch = batch; }
     public int getSimilarUserMaxCount() { return similarUserMaxCount; }
     public void setSimilarUserMaxCount(int similarUserMaxCount) { this.similarUserMaxCount = similarUserMaxCount; }
     public int getRecommendationExpiryDays() { return recommendationExpiryDays; }
@@ -77,6 +80,13 @@ public class RecommendationAlgorithmProperties {
         public void setHighThreshold(double highThreshold) { this.highThreshold = highThreshold; }
         public double getLowThreshold() { return lowThreshold; }
         public void setLowThreshold(double lowThreshold) { this.lowThreshold = lowThreshold; }
+    }
+
+    public static class Batch {
+        private int batchSize = 500;
+
+        public int getBatchSize() { return batchSize; }
+        public void setBatchSize(int batchSize) { this.batchSize = batchSize; }
     }
 
     public static class Behavior {

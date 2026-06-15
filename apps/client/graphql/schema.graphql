@@ -57,6 +57,8 @@ type Mutation {
     deleteRecommendationRule(id: ID!): Boolean
     markRecommendationClicked(id: ID!): Boolean
     markRecommendationPurchased(id: ID!): Boolean
+    markPurchasedByProduct(userId: ID!, productId: ID!): Boolean
+    markPurchasedByProducts(userId: ID!, productIds: [ID!]!): Boolean
 }
 
 # Product types

@@ -85,3 +85,11 @@ mutation MarkRecommendationClicked($id: ID!) {
 mutation MarkRecommendationPurchased($id: ID!) {
   markRecommendationPurchased(id: $id)
 }
+
+mutation MarkPurchasedByProduct($userId: ID!, $productId: ID!) {
+  markPurchasedByProduct(userId: $userId, productId: $productId)
+}
+
+mutation MarkPurchasedByProducts($userId: ID!, $productIds: [ID!]!) {
+  markPurchasedByProducts(userId: $userId, productIds: $productIds)
+}

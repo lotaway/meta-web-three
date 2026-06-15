@@ -12,6 +12,7 @@ import com.metawebthree.recommendation.infrastructure.event.RecommendationEventP
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -127,6 +128,18 @@ public class RecommendationCommandService {
 
     public void markRecommendationPurchased(Long recommendationId) {
         recommendationResultRepository.markAsPurchased(recommendationId);
+    }
+
+    public void markPurchasedByProduct(Long userId, Long productId) {
+        List<RecommendationResult> results = recommendationResultRepository.findByUserIdAndProductId(userId, productId);
+        for (RecommendationResult result : results) {
+            result.setIsPurchased(true);
+            recommendationResultRepository.save(result);
+        }
+    }
+
+    public void markPurchasedByProducts(Long userId, List<Long> productIds) {
+        recommendationResultRepository.markPurchasedByUserIdAndProductIds(userId, productIds);
     }
 
     public void updateProductSimilarities() {

@@ -16,6 +16,10 @@ import {
   type MarkRecommendationClickedMutationVariables,
   type MarkRecommendationPurchasedMutation,
   type MarkRecommendationPurchasedMutationVariables,
+  type MarkPurchasedByProductMutation,
+  type MarkPurchasedByProductMutationVariables,
+  type MarkPurchasedByProductsMutation,
+  type MarkPurchasedByProductsMutationVariables,
 } from '@/src/generated/graphql/types'
 
 interface GraphQLResponse<T> {
@@ -82,6 +86,14 @@ const MUTATE_PURCHASE = `mutation MarkRecommendationPurchased($id: ID!) {
   markRecommendationPurchased(id: $id)
 }`
 
+const MUTATE_PURCHASE_BY_PRODUCT = `mutation MarkPurchasedByProduct($userId: ID!, $productId: ID!) {
+  markPurchasedByProduct(userId: $userId, productId: $productId)
+}`
+
+const MUTATE_PURCHASE_BY_PRODUCTS = `mutation MarkPurchasedByProducts($userId: ID!, $productIds: [ID!]!) {
+  markPurchasedByProducts(userId: $userId, productIds: $productIds)
+}`
+
 export const recommendationHooks = {
   getRecommendations: (userId: number, limit = 10) =>
     query<RecommendationsQuery, RecommendationsQueryVariables>(GET_RECOMMENDATIONS, { userId: String(userId), limit }),
@@ -113,4 +125,12 @@ export const recommendationHooks = {
   markPurchased: (id: number) =>
     mutate<MarkRecommendationPurchasedMutation, MarkRecommendationPurchasedMutationVariables>(
       MUTATE_PURCHASE, { id: String(id) }),
+
+  markPurchasedByProduct: (userId: number, productId: number) =>
+    mutate<MarkPurchasedByProductMutation, MarkPurchasedByProductMutationVariables>(
+      MUTATE_PURCHASE_BY_PRODUCT, { userId: String(userId), productId: String(productId) }),
+
+  markPurchasedByProducts: (userId: number, productIds: number[]) =>
+    mutate<MarkPurchasedByProductsMutation, MarkPurchasedByProductsMutationVariables>(
+      MUTATE_PURCHASE_BY_PRODUCTS, { userId: String(userId), productIds: productIds.map(id => String(id)) }),
 }

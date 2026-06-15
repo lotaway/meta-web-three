@@ -95,6 +95,8 @@ public class RecommendationSubgraphConfig {
                         .dataFetcher("deleteRecommendationRule", this::deleteRecommendationRuleDataFetcher)
                         .dataFetcher("markRecommendationClicked", this::markRecommendationClickedDataFetcher)
                         .dataFetcher("markRecommendationPurchased", this::markRecommendationPurchasedDataFetcher)
+                        .dataFetcher("markPurchasedByProduct", this::markPurchasedByProductDataFetcher)
+                        .dataFetcher("markPurchasedByProducts", this::markPurchasedByProductsDataFetcher)
                 )
                 .build();
     }
@@ -258,6 +260,21 @@ public class RecommendationSubgraphConfig {
     private Boolean markRecommendationPurchasedDataFetcher(DataFetchingEnvironment env) {
         String id = env.getArgument("id");
         commandService.markRecommendationPurchased(Long.valueOf(id));
+        return true;
+    }
+
+    private Boolean markPurchasedByProductDataFetcher(DataFetchingEnvironment env) {
+        Long userId = Long.parseLong(env.getArgument("userId"));
+        Long productId = Long.parseLong(env.getArgument("productId"));
+        commandService.markPurchasedByProduct(userId, productId);
+        return true;
+    }
+
+    private Boolean markPurchasedByProductsDataFetcher(DataFetchingEnvironment env) {
+        Long userId = Long.parseLong(env.getArgument("userId"));
+        List<String> productIdStrings = env.getArgument("productIds");
+        List<Long> productIds = productIdStrings.stream().map(Long::parseLong).collect(Collectors.toList());
+        commandService.markPurchasedByProducts(userId, productIds);
         return true;
     }
 

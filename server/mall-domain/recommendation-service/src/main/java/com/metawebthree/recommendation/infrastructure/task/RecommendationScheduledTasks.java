@@ -5,6 +5,7 @@ import com.metawebthree.recommendation.domain.entity.ProductSimilarity;
 import com.metawebthree.recommendation.domain.entity.RecommendationResult;
 import com.metawebthree.recommendation.domain.entity.UserBehavior;
 import com.metawebthree.recommendation.domain.repository.ProductSimilarityRepository;
+import com.metawebthree.recommendation.domain.repository.RecommendationResultRepository;
 import com.metawebthree.recommendation.domain.repository.UserBehaviorRepository;
 import com.metawebthree.recommendation.domain.service.RecommendationCalculationUtils;
 import com.metawebthree.recommendation.infrastructure.config.RecommendationAlgorithmProperties;
@@ -23,16 +24,19 @@ public class RecommendationScheduledTasks {
     private final RecommendationCommandService commandService;
     private final UserBehaviorRepository userBehaviorRepository;
     private final ProductSimilarityRepository productSimilarityRepository;
+    private final RecommendationResultRepository recommendationResultRepository;
     private final RecommendationAlgorithmProperties algorithmProperties;
 
     public RecommendationScheduledTasks(
             RecommendationCommandService commandService,
             UserBehaviorRepository userBehaviorRepository,
             ProductSimilarityRepository productSimilarityRepository,
+            RecommendationResultRepository recommendationResultRepository,
             RecommendationAlgorithmProperties algorithmProperties) {
         this.commandService = commandService;
         this.userBehaviorRepository = userBehaviorRepository;
         this.productSimilarityRepository = productSimilarityRepository;
+        this.recommendationResultRepository = recommendationResultRepository;
         this.algorithmProperties = algorithmProperties;
     }
 
@@ -59,14 +63,18 @@ public class RecommendationScheduledTasks {
                     .collect(Collectors.toList());
             LocalDateTime now = LocalDateTime.now();
             int expiryDays = algorithmProperties.getRecommendationExpiryDays();
+            List<RecommendationResult> results = new ArrayList<>();
             for (Long productId : sortedProducts) {
                 RecommendationResult result = RecommendationCalculationUtils.createRecommendationResult(
                         0L, productId, productPopularity.get(productId),
                         RecommendationResult.RecommendationAlgorithm.POPULARITY, expiryDays);
                 result.setCreatedAt(now);
                 result.setExpiresAt(now.plusDays(expiryDays));
+                results.add(result);
             }
-            log.info("Popularity recommendation computation completed, processed {} products", sortedProducts.size());
+            results.forEach(recommendationResultRepository::save);
+            log.info("Popularity recommendation computation completed, processed {} products and saved {} results",
+                    sortedProducts.size(), results.size());
         } catch (Exception e) {
             log.error("Failed to compute popularity recommendations", e);
         }

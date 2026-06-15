@@ -17,4 +17,6 @@ public interface RecommendationResultRepository {
     Long countPurchasesByProductId(Long productId);
     List<RecommendationResult> findAll();
     void deleteById(Long id);
+    List<RecommendationResult> findByUserIdAndProductId(Long userId, Long productId);
+    void markPurchasedByUserIdAndProductIds(Long userId, List<Long> productIds);
 }
