@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS supplier (
     id BIGSERIAL PRIMARY KEY,
     supplier_code VARCHAR(64) NOT NULL UNIQUE,
     supplier_name VARCHAR(128) NOT NULL,
-    supplier_type VARCHAR(32), -- RAW_MATERIAL/PACKAGING/EQUIPMENT/SERVICES
+    supplier_type VARCHAR(32), -- RAW_MATERIAL/PACKAGING/EQUIPMENT/SERVICES,
     business_license VARCHAR(64),
     tax_id VARCHAR(64),
     province VARCHAR(64),
@@ -18,13 +18,13 @@ CREATE TABLE IF NOT EXISTS supplier (
     contact VARCHAR(128),
     phone VARCHAR(32),
     email VARCHAR(128),
-    status VARCHAR(32) DEFAULT 'ACTIVE', -- ACTIVE/INACTIVE/SUSPENDED
+    status VARCHAR(32) DEFAULT 'ACTIVE', -- ACTIVE/INACTIVE/SUSPENDED,
     credit_limit DECIMAL(15,2),
-    payment_terms VARCHAR(64), -- NET_30/NET_60/NET_90
-    category VARCHAR(64)
+    payment_terms VARCHAR(64), -- NET_30/NET_60/NET_90,
+    category VARCHAR(64),
     score INTEGER DEFAULT 0,
-    level VARCHAR(32), -- A/B/C/D
-    assessment_level VARCHAR(32), -- EXCELLENT/GOOD/FAIR/POOR
+    level VARCHAR(32), -- A/B/C/D,
+    assessment_level VARCHAR(32), -- EXCELLENT/GOOD/FAIR/POOR,
     contact_person VARCHAR(128),
     contact_phone VARCHAR(32),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS supplier_shipment_notice (
     warehouse_id BIGINT,
     expected_shipment_date TIMESTAMP,
     actual_shipment_date TIMESTAMP,
-    shipment_method VARCHAR(32), -- EXPRESS/OCEAN/AIR/LAND
+    shipment_method VARCHAR(32), -- EXPRESS/OCEAN/AIR/LAND,
     carrier_name VARCHAR(128),
     carrier_contact VARCHAR(64),
     tracking_number VARCHAR(128),
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS supplier_shipment_notice (
     total_quantity DECIMAL(15,3),
     total_weight DECIMAL(15,3),
     total_volume DECIMAL(15,3),
-    status VARCHAR(32) DEFAULT 'DRAFT', -- DRAFT/SUBMITTED/CONFIRMED/IN_TRANSIT/DELIVERED/CANCELLED
+    status VARCHAR(32) DEFAULT 'DRAFT', -- DRAFT/SUBMITTED/CONFIRMED/IN_TRANSIT/DELIVERED/CANCELLED,
     remark TEXT,
     confirmer VARCHAR(128),
     confirmed_at TIMESTAMP,
@@ -106,7 +106,7 @@ CREATE TABLE IF NOT EXISTS supplier_reconciliation (
     settled_amount DECIMAL(15,2) DEFAULT 0,
     pending_amount DECIMAL(15,2) DEFAULT 0,
     currency VARCHAR(8) DEFAULT 'CNY',
-    status VARCHAR(32) DEFAULT 'PENDING', -- PENDING/SUBMITTED/CONFIRMED/REJECTED/PAID
+    status VARCHAR(32) DEFAULT 'PENDING', -- PENDING/SUBMITTED/CONFIRMED/REJECTED/PAID,
     submitted_at TIMESTAMP,
     confirmed_at TIMESTAMP,
     confirmed_by VARCHAR(128),
@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS supplier_reconciliation_item (
     invoiced_amount DECIMAL(15,2),
     settled_amount DECIMAL(15,2),
     pending_amount DECIMAL(15,2),
-    status VARCHAR(32), -- PENDING/CONFIRMED/REJECTED
+    status VARCHAR(32), -- PENDING/CONFIRMED/REJECTED,
     remark TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP,
@@ -148,25 +148,25 @@ CREATE INDEX idx_reconciliation_item_order ON supplier_reconciliation_item(order
 CREATE TABLE IF NOT EXISTS supplier_performance (
     id BIGSERIAL PRIMARY KEY,
  supplier_id BIGINT NOT NULL, -- ID,
-    supplier_code VARCHAR(50)
-    supplier_name VARCHAR(200)
-    period_start DATE NOT NULL
-    period_end DATE NOT NULL
+    supplier_code VARCHAR(50),
+    supplier_name VARCHAR(200),
+    period_start DATE NOT NULL,
+    period_end DATE NOT NULL,
  on_time_delivery_rate DECIMAL(5, 2), -- (0-100),
  quality_pass_rate DECIMAL(5, 2), -- (0-100),
  price_competitiveness_score DECIMAL(5, 2), -- (0-100),
  overall_score DECIMAL(5, 2), -- (0-100),
  assessment_level VARCHAR(10), -- (A/B/C/D),
-    total_orders INT
-    on_time_delivery_count INT
-    qualified_count INT
-    total_quality_check_count INT
-    market_avg_price DECIMAL(18, 2)
-    supplier_price DECIMAL(18, 2)
-    remark VARCHAR(500)
-    assessor VARCHAR(100)
-    assessment_date TIMESTAMP
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    total_orders INT,
+    on_time_delivery_count INT,
+    qualified_count INT,
+    total_quality_check_count INT,
+    market_avg_price DECIMAL(18, 2),
+    supplier_price DECIMAL(18, 2),
+    remark VARCHAR(500),
+    assessor VARCHAR(100),
+    assessment_date TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_supplier_performance_supplier_id ON supplier_performance (supplier_id);

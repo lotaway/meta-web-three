@@ -1,5 +1,4 @@
--- Product Service Schema (PMS + CMS relevant)
--- Aligned with mall-admin-web and mall-app-web requirements
+-- Product Service Schema (PMS + CMS relevant);
 
 CREATE TABLE IF NOT EXISTS tb_product_category (
     id BIGINT PRIMARY KEY,

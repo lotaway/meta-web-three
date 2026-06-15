@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS mes_process_flow_template (
     template_name VARCHAR(128) NOT NULL,
     description VARCHAR(512),
     version INT DEFAULT 1,
- flow_data TEXT, -- JSON
-    status VARCHAR(32) DEFAULT 'DRAFT', -- DRAFT/PUBLISHED/ARCHIVED
+ flow_data TEXT, -- JSON,
+    status VARCHAR(32) DEFAULT 'DRAFT', -- DRAFT/PUBLISHED/ARCHIVED,
     created_by BIGINT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_by BIGINT,
@@ -25,9 +25,9 @@ CREATE TABLE IF NOT EXISTS mes_process_node_type (
     id BIGINT PRIMARY KEY,
     node_type_code VARCHAR(64) NOT NULL UNIQUE,
     node_type_name VARCHAR(128) NOT NULL,
-    category VARCHAR(32) NOT NULL, -- START/END/TASK/GATEWAY/SERVICE/EQUIPMENT/SUB_PROCESS
+    category VARCHAR(32) NOT NULL, -- START/END/TASK/GATEWAY/SERVICE/EQUIPMENT/SUB_PROCESS,
     icon VARCHAR(32),
-    config_schema TEXT, -- JSON Schema for node configuration
+    config_schema TEXT, -- JSON Schema for node configuration,
     description VARCHAR(512),
     enabled BOOLEAN DEFAULT TRUE,
     sort_order INT DEFAULT 0,
@@ -41,11 +41,11 @@ CREATE TABLE IF NOT EXISTS mes_process_flow_instance (
     instance_code VARCHAR(64) NOT NULL UNIQUE,
     template_id BIGINT NOT NULL,
     template_name VARCHAR(128),
-    business_type VARCHAR(64), -- WORK_ORDER/QC/MAINTENANCE/ANDON etc.
-    business_key VARCHAR(128), -- Reference to business entity
+    business_type VARCHAR(64), -- WORK_ORDER/QC/MAINTENANCE/ANDON etc.,
+    business_key VARCHAR(128), -- Reference to business entity,
     current_node_id VARCHAR(64),
     current_node_name VARCHAR(128),
-    status VARCHAR(32) DEFAULT 'RUNNING', -- RUNNING/SUSPENDED/COMPLETED/TERMINATED
+    status VARCHAR(32) DEFAULT 'RUNNING', -- RUNNING/SUSPENDED/COMPLETED/TERMINATED,
     flow_data TEXT,
     started_at TIMESTAMP,
     started_by BIGINT,
@@ -80,7 +80,7 @@ INSERT INTO
         description,
         enabled,
         deleted
-    )
+)
 VALUES (
         1,
         'start',
@@ -190,7 +190,7 @@ VALUES (
         'Nested sub-process node',
         TRUE,
         FALSE
-    )
+)
 ON CONFLICT (node_type_code) DO NOTHING;
 
 -- =====================
@@ -224,13 +224,13 @@ CREATE TABLE IF NOT EXISTS mes_pokayoke_rule (
     id BIGINT PRIMARY KEY,
     rule_code VARCHAR(64) NOT NULL UNIQUE,
     rule_name VARCHAR(128) NOT NULL,
-    rule_type VARCHAR(32) NOT NULL, -- MATERIAL_CHECK/SEQUENCE_CHECK/PARAMETER_CHECK/QUALITY_CHECK
-    status VARCHAR(32) DEFAULT 'DRAFT', -- DRAFT/ACTIVE/INACTIVE
+    rule_type VARCHAR(32) NOT NULL, -- MATERIAL_CHECK/SEQUENCE_CHECK/PARAMETER_CHECK/QUALITY_CHECK,
+    status VARCHAR(32) DEFAULT 'DRAFT', -- DRAFT/ACTIVE/INACTIVE,
     workstation_id BIGINT,
     process_code VARCHAR(64),
     product_code VARCHAR(64),
-    trigger_condition VARCHAR(64), -- ON_MATERIAL_SCAN/ON_TASK_START/ON_TASK_COMPLETE/ON_PARAMETER_RECORD/MANUAL_TRIGGER
-    actions_json TEXT, -- JSON array of CheckAction
+    trigger_condition VARCHAR(64), -- ON_MATERIAL_SCAN/ON_TASK_START/ON_TASK_COMPLETE/ON_PARAMETER_RECORD/MANUAL_TRIGGER,
+    actions_json TEXT, -- JSON array of CheckAction,
     priority INT DEFAULT 0,
     enabled BOOLEAN DEFAULT TRUE,
     description VARCHAR(512),
@@ -255,13 +255,13 @@ CREATE TABLE IF NOT EXISTS mes_report_template (
     id BIGINT PRIMARY KEY,
     template_code VARCHAR(64) NOT NULL UNIQUE,
     template_name VARCHAR(128) NOT NULL,
-    report_type VARCHAR(32) NOT NULL, -- LIST/CROSS/CHART/GROUP
+    report_type VARCHAR(32) NOT NULL, -- LIST/CROSS/CHART/GROUP,
     description VARCHAR(512),
- config_json TEXT,    datasource_type VARCHAR(32), -- MES/EXTERNAL/API
-    datasource_config TEXT
- query_sql TEXT, -- SQL
-    parameters_json TEXT
-    status VARCHAR(32) DEFAULT 'DRAFT', -- DRAFT/PUBLISHED/ARCHIVED
+ config_json TEXT,    datasource_type VARCHAR(32), -- MES/EXTERNAL/API,
+    datasource_config TEXT,
+ query_sql TEXT, -- SQL,
+    parameters_json TEXT,
+    status VARCHAR(32) DEFAULT 'DRAFT', -- DRAFT/PUBLISHED/ARCHIVED,
     version INT DEFAULT 1,
     created_by BIGINT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -274,8 +274,8 @@ CREATE TABLE IF NOT EXISTS mes_report_datasource (
     id BIGINT PRIMARY KEY,
     datasource_code VARCHAR(64) NOT NULL UNIQUE,
     datasource_name VARCHAR(128) NOT NULL,
-    datasource_type VARCHAR(32) NOT NULL, -- MES/ORACLE/MYSQL/POSTGRESQL/REST_API
- connection_config TEXT, -- JSON
+    datasource_type VARCHAR(32) NOT NULL, -- MES/ORACLE/MYSQL/POSTGRESQL/REST_API,
+ connection_config TEXT, -- JSON,
     description VARCHAR(512),
     enabled BOOLEAN DEFAULT TRUE,
     created_by BIGINT,
@@ -300,13 +300,13 @@ CREATE TABLE IF NOT EXISTS mes_dashboard_template (
     id BIGINT PRIMARY KEY,
     template_code VARCHAR(64) NOT NULL UNIQUE,
     template_name VARCHAR(128) NOT NULL,
-    template_type VARCHAR(32) NOT NULL, -- PRODUCTION/QUALITY/EQUIPMENT/OEE
+    template_type VARCHAR(32) NOT NULL, -- PRODUCTION/QUALITY/EQUIPMENT/OEE,
     description VARCHAR(512),
-    layout_json TEXT
- components_json TEXT, -- JSON
-    datasource_config TEXT
-    refresh_interval INT DEFAULT 30
-    status VARCHAR(32) DEFAULT 'DRAFT', -- DRAFT/PUBLISHED/ARCHIVED
+    layout_json TEXT,
+ components_json TEXT, -- JSON,
+    datasource_config TEXT,
+    refresh_interval INT DEFAULT 30,
+    status VARCHAR(32) DEFAULT 'DRAFT', -- DRAFT/PUBLISHED/ARCHIVED,
     created_by BIGINT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_by BIGINT,
@@ -318,9 +318,9 @@ CREATE TABLE IF NOT EXISTS mes_dashboard_component (
     id BIGINT PRIMARY KEY,
     component_code VARCHAR(64) NOT NULL UNIQUE,
     component_name VARCHAR(128) NOT NULL,
-    component_type VARCHAR(32) NOT NULL, -- CHART/TABLE/DIAGRAM/INDICATOR
- config_schema TEXT, -- Schema
-    default_config TEXT
+    component_type VARCHAR(32) NOT NULL, -- CHART/TABLE/DIAGRAM/INDICATOR,
+ config_schema TEXT, -- Schema,
+    default_config TEXT,
     icon VARCHAR(32),
     description VARCHAR(512),
     enabled BOOLEAN DEFAULT TRUE,
@@ -341,15 +341,15 @@ CREATE INDEX idx_dashboard_component_type ON mes_dashboard_component (component_
 -- =====================
 CREATE TABLE IF NOT EXISTS mes_qc_defect_code (
     id BIGSERIAL PRIMARY KEY,
-    defect_code VARCHAR(50) NOT NULL UNIQUE
-    defect_name VARCHAR(100) NOT NULL
+    defect_code VARCHAR(50) NOT NULL UNIQUE,
+    defect_name VARCHAR(100) NOT NULL,
  category VARCHAR(30) NOT NULL, -- : DIMENSIONAL, SURFACE, MATERIAL, ASSEMBLY, ELECTRICAL, FUNCTIONAL, PACKAGING, OTHER,
  severity VARCHAR(20) NOT NULL, -- : CRITICAL, MAJOR, MINOR,
-    is_critical BOOLEAN DEFAULT FALSE
-    description VARCHAR(500)
-    disposition_guide VARCHAR(500)
-    is_enabled BOOLEAN DEFAULT TRUE
-    sort_order INTEGER DEFAULT 0
+    is_critical BOOLEAN DEFAULT FALSE,
+    description VARCHAR(500),
+    disposition_guide VARCHAR(500),
+    is_enabled BOOLEAN DEFAULT TRUE,
+    sort_order INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -378,7 +378,7 @@ CREATE TABLE IF NOT EXISTS mes_qc_trigger_rule (
     is_enabled BOOLEAN DEFAULT TRUE,  -- Is Enabled,
     priority INT DEFAULT 0,  -- Priority,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Created At,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Updated At
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Updated At
 );
 CREATE INDEX IF NOT EXISTS idx_rule_code ON mes_qc_trigger_rule (rule_code);
 CREATE INDEX IF NOT EXISTS idx_trigger_type ON mes_qc_trigger_rule (trigger_type);
@@ -397,7 +397,7 @@ CREATE TABLE IF NOT EXISTS mes_qc_non_conformance (
     is_enabled BOOLEAN DEFAULT TRUE,  -- Is Enabled,
     sort_order INT DEFAULT 0,  -- Sort Order,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Created At,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Updated At
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Updated At
 );
 CREATE INDEX IF NOT EXISTS idx_disposition_code ON mes_qc_non_conformance (disposition_code);
 CREATE INDEX IF NOT EXISTS idx_type ON mes_qc_non_conformance (type);
@@ -418,7 +418,7 @@ CREATE TABLE IF NOT EXISTS mes_qc_spc_control_chart (
     sampling_config_json TEXT,  -- Sampling Config JSON,
     is_enabled BOOLEAN DEFAULT TRUE,  -- Is Enabled,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Created At,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Updated At
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Updated At
 );
 CREATE INDEX IF NOT EXISTS idx_chart_code ON mes_qc_spc_control_chart (chart_code);
 CREATE INDEX IF NOT EXISTS idx_chart_type ON mes_qc_spc_control_chart (chart_type);
@@ -453,7 +453,7 @@ CREATE TABLE IF NOT EXISTS mes_work_report (
     status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',  -- Status: DRAFT, SUBMITTED, QUALITY_CHECKED, CONFIRMED, CANCELLED,
     created_by VARCHAR(50),  -- Created By,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Created At,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Updated At
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Updated At
 );
 CREATE INDEX IF NOT EXISTS idx_report_no ON mes_work_report (report_no);
 CREATE INDEX IF NOT EXISTS idx_task_id ON mes_work_report (task_id);
@@ -469,15 +469,15 @@ CREATE INDEX IF NOT EXISTS idx_report_time ON mes_work_report (report_time);
 -- Workstation  table
 CREATE TABLE IF NOT EXISTS mes_workstation (
     id BIGSERIAL PRIMARY KEY,
-    workstation_code VARCHAR(50) NOT NULL UNIQUE
-    workstation_name VARCHAR(100) NOT NULL
+    workstation_code VARCHAR(50) NOT NULL UNIQUE,
+    workstation_name VARCHAR(100) NOT NULL,
  workshop_id VARCHAR(50), -- ID,
-    workshop_name VARCHAR(100)
+    workshop_name VARCHAR(100),
  type VARCHAR(50) NOT NULL, -- : ASSEMBLY/INSPECTION/PACKAGING/STORAGE/MATERIAL_PREP/TESTING/REWORK/OTHER,
  status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE', -- : ACTIVE/INACTIVE/MAINTENANCE/FAULT,
-    location VARCHAR(200)
+    location VARCHAR(200),
  capacity INT, -- /,
-    description VARCHAR(500)
+    description VARCHAR(500),
  equipment_ids TEXT, -- ID JSON,
  equipment_codes TEXT, -- JSON,
  tool_ids TEXT, -- ID JSON,
@@ -485,7 +485,7 @@ CREATE TABLE IF NOT EXISTS mes_workstation (
  operator_ids TEXT, -- ID JSON,
  operator_names TEXT, -- JSON,
  extension_fields TEXT, -- JSON,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_workstation_code ON mes_workstation (workstation_code);
@@ -499,17 +499,17 @@ CREATE INDEX IF NOT EXISTS idx_status ON mes_workstation (status);
 -- Parameter Group Template  table
 CREATE TABLE IF NOT EXISTS mes_parameter_group_template (
     id BIGSERIAL PRIMARY KEY,
-    template_code VARCHAR(50) NOT NULL UNIQUE
-    template_name VARCHAR(100) NOT NULL
-    product_type VARCHAR(50)
-    description VARCHAR(500)
+    template_code VARCHAR(50) NOT NULL UNIQUE,
+    template_name VARCHAR(100) NOT NULL,
+    product_type VARCHAR(50),
+    description VARCHAR(500),
  status VARCHAR(50) NOT NULL DEFAULT 'DRAFT', -- : DRAFT/ACTIVE/INACTIVE/ARCHIVED,
-    display_order INT DEFAULT 0
+    display_order INT DEFAULT 0,
  parameter_ids TEXT, -- ID JSON,
  parameter_codes TEXT, -- JSON,
-    created_by VARCHAR(50)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    updated_by VARCHAR(50)
+    created_by VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_by VARCHAR(50),
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_template_code ON mes_parameter_group_template (template_code);
@@ -519,28 +519,28 @@ CREATE INDEX IF NOT EXISTS idx_status ON mes_parameter_group_template (status);
 -- Process Parameter  table
 CREATE TABLE IF NOT EXISTS mes_process_parameter (
     id BIGSERIAL PRIMARY KEY,
-    param_code VARCHAR(50) NOT NULL UNIQUE
-    param_name VARCHAR(100) NOT NULL
+    param_code VARCHAR(50) NOT NULL UNIQUE,
+    param_name VARCHAR(100) NOT NULL,
  route_id BIGINT, -- ID,
-    route_code VARCHAR(50)
-    step_no INT
-    step_code VARCHAR(50)
+    route_code VARCHAR(50),
+    step_no INT,
+    step_code VARCHAR(50),
  param_type VARCHAR(50), -- : TEMPERATURE/PRESSURE/SPEED/TIME/CURRENT/VOLTAGE/FORCE/LENGTH/ANGLE/WEIGHT/VOLUME/SPEED_PER_MINUTE/HUMIDITY/QUALITY/COUNT/OTHER,
  data_type VARCHAR(50), -- : INTEGER/DECIMAL/TEXT/BOOLEAN,
-    unit VARCHAR(20)
-    standard_value DECIMAL(18,4)
-    upper_limit DECIMAL(18,4)
-    lower_limit DECIMAL(18,4)
+    unit VARCHAR(20),
+    standard_value DECIMAL(18,4),
+    upper_limit DECIMAL(18,4),
+    lower_limit DECIMAL(18,4),
  collection_method VARCHAR(50), -- : MANUAL/AUTO_SENSOR/PLC/BARCODE,
-    device_address VARCHAR(100)
-    is_required SMALLINT(1) DEFAULT 0
-    validation_rule VARCHAR(200)
-    alarm_threshold DECIMAL(18,4)
-    display_order INT DEFAULT 0
-    param_group VARCHAR(50)
-    remark VARCHAR(500)
+    device_address VARCHAR(100),
+    is_required SMALLINT DEFAULT 0,
+    validation_rule VARCHAR(200),
+    alarm_threshold DECIMAL(18,4),
+    display_order INT DEFAULT 0,
+    param_group VARCHAR(50),
+    remark VARCHAR(500),
  status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE', -- : ACTIVE/INACTIVE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_param_code ON mes_process_parameter (param_code);
@@ -556,15 +556,15 @@ CREATE INDEX IF NOT EXISTS idx_status ON mes_process_parameter (status);
 -- Process Route  table
 CREATE TABLE IF NOT EXISTS mes_process_route (
     id BIGSERIAL PRIMARY KEY,
-    route_code VARCHAR(50) NOT NULL UNIQUE
-    route_name VARCHAR(100) NOT NULL
-    product_code VARCHAR(50)
-    version INT NOT NULL DEFAULT 1
+    route_code VARCHAR(50) NOT NULL UNIQUE,
+    route_name VARCHAR(100) NOT NULL,
+    product_code VARCHAR(50),
+    version INT NOT NULL DEFAULT 1,
  status VARCHAR(50) NOT NULL DEFAULT 'DRAFT', -- : DRAFT/ACTIVE/ARCHIVED,
-    effective_date TIMESTAMP
-    expiry_date TIMESTAMP
+    effective_date TIMESTAMP,
+    expiry_date TIMESTAMP,
  steps TEXT, -- JSON ,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_route_code ON mes_process_route (route_code);
@@ -578,24 +578,24 @@ CREATE INDEX IF NOT EXISTS idx_effective_expiry ON mes_process_route (effective_
 -- =====================
 CREATE TABLE IF NOT EXISTS mes_schedule_order (
     id BIGSERIAL PRIMARY KEY,
-    schedule_no VARCHAR(64) NOT NULL UNIQUE
-    order_no VARCHAR(64) NOT NULL
-    product_code VARCHAR(64)
-    product_name VARCHAR(128)
-    quantity DECIMAL(18, 4) DEFAULT 0
-    completed_quantity DECIMAL(18, 4) DEFAULT 0
-    due_date TIMESTAMP
-    scheduled_start_time TIMESTAMP
-    scheduled_end_time TIMESTAMP
-    actual_start_time TIMESTAMP
-    actual_end_time TIMESTAMP
+    schedule_no VARCHAR(64) NOT NULL UNIQUE,
+    order_no VARCHAR(64) NOT NULL,
+    product_code VARCHAR(64),
+    product_name VARCHAR(128),
+    quantity DECIMAL(18, 4) DEFAULT 0,
+    completed_quantity DECIMAL(18, 4) DEFAULT 0,
+    due_date TIMESTAMP,
+    scheduled_start_time TIMESTAMP,
+    scheduled_end_time TIMESTAMP,
+    actual_start_time TIMESTAMP,
+    actual_end_time TIMESTAMP,
  priority VARCHAR(32) DEFAULT 'NORMAL', -- : LOW/NORMAL/HIGH/URGENT,
  status VARCHAR(32) DEFAULT 'PENDING', -- : PENDING/SCHEDULED/IN_PROGRESS/COMPLETED/DELAYED/CANCELLED,
  workshop_id VARCHAR(64), -- ID,
-    route_code VARCHAR(64)
-    remark VARCHAR(512)
-    created_by VARCHAR(64)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    route_code VARCHAR(64),
+    remark VARCHAR(512),
+    created_by VARCHAR(64),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_schedule_no ON mes_schedule_order (schedule_no);
@@ -608,17 +608,17 @@ CREATE INDEX IF NOT EXISTS idx_due_date ON mes_schedule_order (due_date);
 CREATE TABLE IF NOT EXISTS mes_schedule_operation (
     id BIGSERIAL PRIMARY KEY,
  schedule_order_id BIGINT NOT NULL, -- ID,
-    operation_code VARCHAR(64) NOT NULL
-    operation_name VARCHAR(128)
-    sequence_no INT DEFAULT 1
-    resource_code VARCHAR(64)
-    resource_name VARCHAR(128)
-    setup_time_minutes DECIMAL(12, 2) DEFAULT 0
-    processing_time_minutes DECIMAL(12, 2) DEFAULT 0
-    teardown_time_minutes DECIMAL(12, 2) DEFAULT 0
+    operation_code VARCHAR(64) NOT NULL,
+    operation_name VARCHAR(128),
+    sequence_no INT DEFAULT 1,
+    resource_code VARCHAR(64),
+    resource_name VARCHAR(128),
+    setup_time_minutes DECIMAL(12, 2) DEFAULT 0,
+    processing_time_minutes DECIMAL(12, 2) DEFAULT 0,
+    teardown_time_minutes DECIMAL(12, 2) DEFAULT 0,
  status VARCHAR(32) DEFAULT 'PENDING', -- : PENDING/SCHEDULED/IN_PROGRESS/COMPLETED/BLOCKED,
-    scheduled_start_time TIMESTAMP
-    scheduled_end_time TIMESTAMP
+    scheduled_start_time TIMESTAMP,
+    scheduled_end_time TIMESTAMP,
     FOREIGN KEY (schedule_order_id) REFERENCES mes_schedule_order (id) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_schedule_order_id ON mes_schedule_operation (schedule_order_id);
@@ -628,15 +628,15 @@ CREATE INDEX IF NOT EXISTS idx_status ON mes_schedule_operation (status);
 
 CREATE TABLE IF NOT EXISTS mes_schedule_resource (
     id BIGSERIAL PRIMARY KEY,
-    resource_code VARCHAR(64) NOT NULL UNIQUE
-    resource_name VARCHAR(128) NOT NULL
+    resource_code VARCHAR(64) NOT NULL UNIQUE,
+    resource_name VARCHAR(128) NOT NULL,
  resource_type VARCHAR(32) NOT NULL, -- : EQUIPMENT/WORK_CENTER/LABOR/TOOL,
  status VARCHAR(32) DEFAULT 'AVAILABLE', -- : AVAILABLE/OCCUPIED/MAINTENANCE/OFFLINE,
  workshop_id VARCHAR(64), -- ID,
-    capacity_per_shift DOUBLE
-    calendar_code VARCHAR(64)
-    description VARCHAR(512)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    capacity_per_shift DOUBLE PRECISION,
+    calendar_code VARCHAR(64),
+    description VARCHAR(512),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_resource_code ON mes_schedule_resource (resource_code);
@@ -649,19 +649,19 @@ CREATE INDEX IF NOT EXISTS idx_status ON mes_schedule_resource (status);
 -- =====================
 CREATE TABLE IF NOT EXISTS mes_operator (
     id BIGSERIAL PRIMARY KEY,
-    operator_code VARCHAR(64) NOT NULL UNIQUE
-    operator_name VARCHAR(128) NOT NULL
-    department VARCHAR(64)
-    job_title VARCHAR(64)
-    shift_group VARCHAR(32)
+    operator_code VARCHAR(64) NOT NULL UNIQUE,
+    operator_name VARCHAR(128) NOT NULL,
+    department VARCHAR(64),
+    job_title VARCHAR(64),
+    shift_group VARCHAR(32),
  status VARCHAR(32) DEFAULT 'ACTIVE', -- : ACTIVE/INACTIVE/ON_LEAVE/TERMINATED,
-    phone VARCHAR(32)
-    email VARCHAR(128)
-    id_card_no VARCHAR(32)
-    hire_date TIMESTAMP
-    remark VARCHAR(512)
-    created_by VARCHAR(64)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    phone VARCHAR(32),
+    email VARCHAR(128),
+    id_card_no VARCHAR(32),
+    hire_date TIMESTAMP,
+    remark VARCHAR(512),
+    created_by VARCHAR(64),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_operator_code ON mes_operator (operator_code);
@@ -671,14 +671,14 @@ CREATE INDEX IF NOT EXISTS idx_status ON mes_operator (status);
 CREATE TABLE IF NOT EXISTS mes_operator_skill (
     id BIGSERIAL PRIMARY KEY,
  operator_id BIGINT NOT NULL, -- ID,
-    skill_code VARCHAR(64) NOT NULL
-    skill_name VARCHAR(128)
+    skill_code VARCHAR(64) NOT NULL,
+    skill_name VARCHAR(128),
  skill_level VARCHAR(32) DEFAULT 'TRAINEE', -- : TRAINEE/JUNIOR/MIDDLE/SENIOR/MASTER,
-    certified BOOLEAN DEFAULT FALSE
-    certified_at TIMESTAMP
-    expiry_at TIMESTAMP
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    certified BOOLEAN DEFAULT FALSE,
+    certified_at TIMESTAMP,
+    expiry_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (operator_id) REFERENCES mes_operator (id) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_operator_id ON mes_operator_skill (operator_id);
@@ -688,14 +688,14 @@ CREATE TABLE IF NOT EXISTS mes_work_center_assignment (
     id BIGSERIAL PRIMARY KEY,
  operator_id BIGINT NOT NULL, -- ID,
  work_center_id VARCHAR(64) NOT NULL, -- ID,
-    work_center_name VARCHAR(128)
-    start_date DATE
-    end_date DATE
+    work_center_name VARCHAR(128),
+    start_date DATE,
+    end_date DATE,
  shift_type VARCHAR(32) DEFAULT 'DAY', -- : DAY/NIGHT/MIDDLE/ROTATING,
  status VARCHAR(32) DEFAULT 'ACTIVE', -- : ACTIVE/INACTIVE,
-    remark VARCHAR(512)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    remark VARCHAR(512),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (operator_id) REFERENCES mes_operator (id) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_operator_id ON mes_work_center_assignment (operator_id);
@@ -705,24 +705,24 @@ CREATE INDEX IF NOT EXISTS idx_status ON mes_work_center_assignment (status);
 CREATE TABLE IF NOT EXISTS mes_time_record (
     id BIGSERIAL PRIMARY KEY,
  operator_id BIGINT NOT NULL, -- ID,
-    operator_code VARCHAR(64)
-    operator_name VARCHAR(128)
-    work_order_no VARCHAR(64)
-    task_no VARCHAR(64)
-    operation_code VARCHAR(64)
+    operator_code VARCHAR(64),
+    operator_name VARCHAR(128),
+    work_order_no VARCHAR(64),
+    task_no VARCHAR(64),
+    operation_code VARCHAR(64),
  work_center_id VARCHAR(64), -- ID,
-    record_date DATE
-    start_time TIMESTAMP
-    end_time TIMESTAMP
-    total_hours DECIMAL(12, 2) DEFAULT 0
+    record_date DATE,
+    start_time TIMESTAMP,
+    end_time TIMESTAMP,
+    total_hours DECIMAL(12, 2) DEFAULT 0,
  record_type VARCHAR(32) DEFAULT 'REGULAR', -- : REGULAR/OVERTIME/VACATION/SICK,
  status VARCHAR(32) DEFAULT 'DRAFT', -- : DRAFT/SUBMITTED/APPROVED/REJECTED,
-    approved_by VARCHAR(64)
-    approved_at TIMESTAMP
-    remark VARCHAR(512)
-    created_by VARCHAR(64)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    approved_by VARCHAR(64),
+    approved_at TIMESTAMP,
+    remark VARCHAR(512),
+    created_by VARCHAR(64),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (operator_id) REFERENCES mes_operator (id) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_operator_id ON mes_time_record (operator_id);
@@ -733,19 +733,19 @@ CREATE INDEX IF NOT EXISTS idx_status ON mes_time_record (status);
 CREATE TABLE IF NOT EXISTS mes_attendance (
     id BIGSERIAL PRIMARY KEY,
  operator_id BIGINT NOT NULL, -- ID,
-    operator_code VARCHAR(64)
-    operator_name VARCHAR(128)
-    attendance_date DATE
-    clock_in TIME
-    clock_out TIME
-    scheduled_start TIME
-    scheduled_end TIME
+    operator_code VARCHAR(64),
+    operator_name VARCHAR(128),
+    attendance_date DATE,
+    clock_in TIME,
+    clock_out TIME,
+    scheduled_start TIME,
+    scheduled_end TIME,
  status VARCHAR(32) DEFAULT 'ABSENT', -- : PRESENT/LATE/ABSENT/HALF_DAY/OVERTIME/VACATION/SICK/BUSINESS_TRIP,
-    overtime BOOLEAN DEFAULT FALSE
-    remark VARCHAR(512)
-    created_by VARCHAR(64)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    overtime BOOLEAN DEFAULT FALSE,
+    remark VARCHAR(512),
+    created_by VARCHAR(64),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (operator_id) REFERENCES mes_operator (id) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_operator_id ON mes_attendance (operator_id);

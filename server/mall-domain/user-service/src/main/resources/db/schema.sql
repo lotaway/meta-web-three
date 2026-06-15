@@ -1,5 +1,4 @@
--- User Service Schema (UMS + RBAC)
--- Aligned with mall-admin-web and mall-app-web requirements
+-- User Service Schema (UMS + RBAC);
 
 -- Base users (unified for now or keeping separation if needed)
 CREATE TABLE IF NOT EXISTS tb_user (
@@ -10,8 +9,8 @@ CREATE TABLE IF NOT EXISTS tb_user (
     avatar VARCHAR(255),
     email VARCHAR(100) UNIQUE,
     phone VARCHAR(32) UNIQUE,
-    status SMALLINT DEFAULT 1, -- 0->disabled, 1->enabled
-    gender INT DEFAULT 0, -- 0->unknown, 1->male, 2->female
+    status SMALLINT DEFAULT 1, -- 0->disabled, 1->enabled,
+    gender INT DEFAULT 0, -- 0->unknown, 1->male, 2->female,
     birthday DATE,
     city VARCHAR(100),
     job VARCHAR(100),
@@ -131,7 +130,7 @@ CREATE TABLE IF NOT EXISTS tb_member_login_log (
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ip VARCHAR(64),
     city VARCHAR(64),
-    login_type INT, -- 0->PC, 1->APP, 2->Web3
+    login_type INT, -- 0->PC, 1->APP, 2->Web3,
     province VARCHAR(64)
 );
 

@@ -1,14 +1,14 @@
 CREATE TABLE IF NOT EXISTS work_station_binding (
     id BIGSERIAL PRIMARY KEY,
-    workstation_code VARCHAR(50) NOT NULL
+    workstation_code VARCHAR(50) NOT NULL,
  binding_type VARCHAR(20) NOT NULL, -- : EQUIPMENT, TOOL, PERSONNEL,
  target_code VARCHAR(50) NOT NULL, -- (//),
-    target_name VARCHAR(100)
-    target_type VARCHAR(50)
-    quantity INTEGER DEFAULT 1
-    is_primary BOOLEAN DEFAULT FALSE
+    target_name VARCHAR(100),
+    target_type VARCHAR(50),
+    quantity INTEGER DEFAULT 1,
+    is_primary BOOLEAN DEFAULT FALSE,
  status VARCHAR(20) DEFAULT 'ACTIVE', -- : ACTIVE, INACTIVE,
-    remark VARCHAR(500)
+    remark VARCHAR(500),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(workstation_code, binding_type, target_code)

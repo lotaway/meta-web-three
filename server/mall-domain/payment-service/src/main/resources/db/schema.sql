@@ -1,6 +1,5 @@
 -- Payment Service Schema
 
-
 CREATE TABLE IF NOT EXISTS Exchange_Orders (
     id BIGSERIAL PRIMARY KEY,
     order_no VARCHAR(64) NOT NULL UNIQUE,
@@ -110,12 +109,14 @@ COMMENT ON COLUMN User_Kyc.level IS 'KYC level: L0, L1, L2, L3';
 COMMENT ON COLUMN User_Kyc.status IS 'KYC status: PENDING, APPROVED, REJECTED, EXPIRED';
 
 CREATE OR REPLACE FUNCTION update_updated_at()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
 BEGIN
     NEW.updated_at = NOW();
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 DROP TRIGGER IF EXISTS user_kyc_updated ON User_Kyc;
 CREATE TRIGGER user_kyc_updated

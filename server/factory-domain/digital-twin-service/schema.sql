@@ -132,23 +132,23 @@ CREATE INDEX IF NOT EXISTS idx_inventory_movement_logs_item ON inventory_movemen
 CREATE INDEX IF NOT EXISTS idx_inventory_movement_logs_time ON inventory_movement_logs(recorded_at);
 
 -- Foreign Key Constraints
-ALTER TABLE shelves ADD CONSTRAINT fk_shelf_warehouse 
+ALTER TABLE shelves ADD CONSTRAINT fk_shelf_warehouse
     FOREIGN KEY (warehouse_code) REFERENCES warehouses(warehouse_code);
 
-ALTER TABLE inventory_items ADD CONSTRAINT fk_inventory_shelf 
+ALTER TABLE inventory_items ADD CONSTRAINT fk_inventory_shelf
     FOREIGN KEY (shelf_code) REFERENCES shelves(shelf_code);
 
-ALTER TABLE inventory_alerts ADD CONSTRAINT fk_inv_alert_warehouse 
+ALTER TABLE inventory_alerts ADD CONSTRAINT fk_inv_alert_warehouse
     FOREIGN KEY (warehouse_code) REFERENCES warehouses(warehouse_code);
 
-ALTER TABLE inventory_alerts ADD CONSTRAINT fk_inv_alert_shelf 
+ALTER TABLE inventory_alerts ADD CONSTRAINT fk_inv_alert_shelf
     FOREIGN KEY (shelf_code) REFERENCES shelves(shelf_code);
 
-ALTER TABLE inventory_alerts ADD CONSTRAINT fk_inv_alert_item 
+ALTER TABLE inventory_alerts ADD CONSTRAINT fk_inv_alert_item
     FOREIGN KEY (item_code) REFERENCES inventory_items(item_code);
 
-ALTER TABLE inventory_movement_logs ADD CONSTRAINT fk_movement_item 
+ALTER TABLE inventory_movement_logs ADD CONSTRAINT fk_movement_item
     FOREIGN KEY (item_code) REFERENCES inventory_items(item_code);
 
-ALTER TABLE inventory_movement_logs ADD CONSTRAINT fk_movement_shelf 
+ALTER TABLE inventory_movement_logs ADD CONSTRAINT fk_movement_shelf
     FOREIGN KEY (shelf_code) REFERENCES shelves(shelf_code);

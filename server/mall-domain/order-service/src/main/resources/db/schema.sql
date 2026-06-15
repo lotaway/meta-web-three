@@ -1,5 +1,4 @@
--- Order Service Schema (OMS)
--- Aligned with mall-admin-web and mall-app-web requirements
+-- Order Service Schema (OMS);
 
 CREATE TABLE IF NOT EXISTS tb_order (
     id BIGINT PRIMARY KEY,
@@ -157,7 +156,7 @@ CREATE TABLE IF NOT EXISTS tb_saga_instance (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uk_saga_id UNIQUE (saga_id)
-)  -- Saga transaction instance table;
+);
 CREATE INDEX IF NOT EXISTS idx_biz_id ON tb_saga_instance (biz_id);
 CREATE INDEX IF NOT EXISTS idx_status ON tb_saga_instance (status);
 CREATE INDEX IF NOT EXISTS idx_saga_type ON tb_saga_instance (saga_type);
@@ -181,7 +180,7 @@ CREATE TABLE IF NOT EXISTS tb_saga_step (
     end_time TIMESTAMP,  -- Step end time,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)  -- Saga step execution table;
+);
 CREATE INDEX IF NOT EXISTS idx_saga_id ON tb_saga_step (saga_id);
 CREATE INDEX IF NOT EXISTS idx_status ON tb_saga_step (status);
 CREATE INDEX IF NOT EXISTS idx_step_order ON tb_saga_step (step_order);

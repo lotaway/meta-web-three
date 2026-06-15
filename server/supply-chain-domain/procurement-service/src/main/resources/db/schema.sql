@@ -9,12 +9,12 @@ CREATE TABLE IF NOT EXISTS procurement_order (
     order_no VARCHAR(64) NOT NULL UNIQUE,
     supplier_code VARCHAR(64),
     warehouse_id BIGINT,
-    purchase_type VARCHAR(32), -- STOCK/PRODUCTION
-    status VARCHAR(32) DEFAULT 'DRAFT', -- DRAFT/PENDING/APPROVED/REJECTED/COMPLETED/CANCELLED
+    purchase_type VARCHAR(32), -- STOCK/PRODUCTION,
+    status VARCHAR(32) DEFAULT 'DRAFT', -- DRAFT/PENDING/APPROVED/REJECTED/COMPLETED/CANCELLED,
     total_amount DECIMAL(15,2) DEFAULT 0,
     currency VARCHAR(8) DEFAULT 'CNY',
-    payment_terms VARCHAR(64), -- NET_30/NET_60/NET_90
-    delivery_terms VARCHAR(64), -- FOB/CIF/EXW
+    payment_terms VARCHAR(64), -- NET_30/NET_60/NET_90,
+    delivery_terms VARCHAR(64), -- FOB/CIF/EXW,
     remark TEXT,
     approver VARCHAR(128),
     approved_at TIMESTAMP,

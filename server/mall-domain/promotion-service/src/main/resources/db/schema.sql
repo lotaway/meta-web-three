@@ -1,18 +1,17 @@
--- Promotion Service Schema (SMS)
--- Aligned with mall-admin-web and mall-app-web requirements
+-- Promotion Service Schema (SMS);
 
 CREATE TABLE IF NOT EXISTS tb_coupon (
     id BIGINT PRIMARY KEY,
-    type INT DEFAULT 0, -- 0->all, 1->member, 2->buy, 3->register
+    type INT DEFAULT 0, -- 0->all, 1->member, 2->buy, 3->register,
     name VARCHAR(100) NOT NULL,
-    platform INT DEFAULT 0, -- 0->all, 1->mobile, 2->pc
+    platform INT DEFAULT 0, -- 0->all, 1->mobile, 2->pc,
     count INT DEFAULT 0,
     amount DECIMAL(10, 2) DEFAULT 0.00,
     per_limit INT DEFAULT 1,
     min_point DECIMAL(10, 2) DEFAULT 0.00,
     start_time TIMESTAMP,
     end_time TIMESTAMP,
-    use_type INT DEFAULT 0, -- 0->all, 1->category, 2->product
+    use_type INT DEFAULT 0, -- 0->all, 1->category, 2->product,
     note VARCHAR(255),
     publish_count INT DEFAULT 0,
     use_count INT DEFAULT 0,
@@ -28,9 +27,9 @@ CREATE TABLE IF NOT EXISTS tb_coupon_history (
     member_id BIGINT NOT NULL,
     coupon_code VARCHAR(64),
     member_nickname VARCHAR(64),
-    get_type INT DEFAULT 0, -- 0->direct, 1->system
+    get_type INT DEFAULT 0, -- 0->direct, 1->system,
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    use_status INT DEFAULT 0, -- 0->unused, 1->used, 2->expired
+    use_status INT DEFAULT 0, -- 0->unused, 1->used, 2->expired,
     use_time TIMESTAMP,
     order_id BIGINT,
     order_sn VARCHAR(64)
@@ -94,7 +93,7 @@ CREATE TABLE IF NOT EXISTS tb_flash_promotion_log (
 CREATE TABLE IF NOT EXISTS tb_home_advertise (
     id BIGINT PRIMARY KEY,
     name VARCHAR(100),
-    type INT DEFAULT 0, -- 0->pc, 1->app
+    type INT DEFAULT 0, -- 0->pc, 1->app,
     pic VARCHAR(255),
     start_time TIMESTAMP,
     end_time TIMESTAMP,
@@ -154,7 +153,7 @@ CREATE TABLE IF NOT EXISTS tb_cms_subject (
     show_status SMALLINT DEFAULT 1,
     forward_count INT DEFAULT 0,
     category_name VARCHAR(100),
-    content LONGTEXT
+    content TEXT
 );
 
 CREATE TABLE IF NOT EXISTS tb_cms_subject_category (
@@ -172,5 +171,5 @@ CREATE TABLE IF NOT EXISTS tb_cms_prefrence_area (
     sub_title VARCHAR(200),
     sort INT DEFAULT 0,
     show_status SMALLINT DEFAULT 1,
-    pic BLOB
+    pic BYTEA
 );

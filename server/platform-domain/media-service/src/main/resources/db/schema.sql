@@ -4,13 +4,14 @@
 -- \c metawebthree;
 
 CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
 BEGIN
     NEW.updated_at = CURRENT_TIMESTAMP;
     RETURN NEW;
 END;
-
-$$ LANGUAGE plpgsql;
+$$;
 
 DROP TABLE IF EXISTS "Artwork";
 
@@ -44,31 +45,31 @@ CREATE TABLE IF NOT EXISTS "Artwork_Tag" (
 CREATE TABLE IF NOT EXISTS "People" (
     "id" BIGSERIAL PRIMARY KEY,
     "name" VARCHAR NOT NULL,
-    "types" BIGINT[] DEFAULT '{}', -- List of Table People_Type IDs
+    "types" BIGINT[] DEFAULT '{}', -- List of Table People_Type IDs,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS "People_Type" (
     "id" BIGSERIAL PRIMARY KEY,
-    "type" VARCHAR NOT NULL UNIQUE, -- Such as Director, Editor, Actor, Voicer
+    "type" VARCHAR NOT NULL UNIQUE, -- Such as Director, Editor, Actor, Voicer,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS "Artwork" (
     "id" BIGSERIAL PRIMARY KEY,
-    "series" VARCHAR(255) DEFAULT '', -- Batman Prequel
-    "title" VARCHAR NOT NULL, -- Batman Begins
-    "cover" VARCHAR(255) DEFAULT '', -- cover image URL
+    "series" VARCHAR(255) DEFAULT '', -- Batman Prequel,
+    "title" VARCHAR NOT NULL, -- Batman Begins,
+    "cover" VARCHAR(255) DEFAULT '', -- cover image URL,
     "link" VARCHAR(255) DEFAULT '',
-    "subtitle" VARCHAR(255) DEFAULT '', -- Behind the scenes
+    "subtitle" VARCHAR(255) DEFAULT '', -- Behind the scenes,
     "season" SMALLINT DEFAULT 1,
     "episode" SMALLINT DEFAULT 1,
     "category_id" BIGINT REFERENCES "Artwork_Category" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    "tags" BIGINT[] DEFAULT '{}', -- List of Table Tag IDs
+    "tags" BIGINT[] DEFAULT '{}', -- List of Table Tag IDs,
     "year_tag" SMALLINT DEFAULT 0,
-    "acts" BIGINT[] DEFAULT '{}', -- List of Table People_Type type=Actor IDs
+    "acts" BIGINT[] DEFAULT '{}', -- List of Table People_Type type=Actor IDs,
     "director" BIGINT REFERENCES "People" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -80,15 +81,16 @@ FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
 CREATE OR REPLACE FUNCTION update_year_tag_column()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
 BEGIN
     IF NEW.created_at IS NOT NULL THEN
         NEW.year_tag = EXTRACT(YEAR FROM NEW.created_at);
     END IF;
     RETURN NEW;
 END;
-
-$$ LANGUAGE plpgsql;
+$$;
 
 CREATE TRIGGER update_video_tag_created_at
 BEFORE INSERT ON "Artwork"

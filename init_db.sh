@@ -74,7 +74,7 @@ else
     echo "Warning: Schema cleanup failed, tables may already exist."
 fi
 
-# Find all schema.sql files in the temp/ directory
+# Find all schema.sql files in the temp/ directory, use [collect-schemas.sh](./collect-schemas.sh) to generate
 SQL_FILES=$(ls -1 temp/*.sql 2>/dev/null)
 
 if [ -z "$SQL_FILES" ]; then

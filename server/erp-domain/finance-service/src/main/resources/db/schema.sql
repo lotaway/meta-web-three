@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS finance_account (
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',  -- Account status: ACTIVE, FROZEN, CLOSED,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- Creation time,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- Update time,
-    version INT NOT NULL DEFAULT 0  -- Optimistic lock version,
+    version INT NOT NULL DEFAULT 0  -- Optimistic lock version
 );
 CREATE INDEX IF NOT EXISTS idx_account_no ON finance_account (account_no);
 CREATE INDEX IF NOT EXISTS idx_status ON finance_account (status);
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS finance_voucher (
     approved_by VARCHAR(50),  -- Approver username,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- Creation time,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- Update time,
-    version INT NOT NULL DEFAULT 0  -- Optimistic lock version,
+    version INT NOT NULL DEFAULT 0  -- Optimistic lock version
 );
 CREATE INDEX IF NOT EXISTS idx_voucher_no ON finance_voucher (voucher_no);
 CREATE INDEX IF NOT EXISTS idx_status ON finance_voucher (status);
@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS accounts_receivable (
     creator_name VARCHAR(50),  -- Creator name,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- Creation time,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- Update time,
-    is_active BOOLEAN NOT NULL DEFAULT TRUE  -- Is active,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE  -- Is active
 );
 CREATE INDEX IF NOT EXISTS idx_ar_code ON accounts_receivable (ar_code);
 CREATE INDEX IF NOT EXISTS idx_customer_id ON accounts_receivable (customer_id);
@@ -143,7 +143,7 @@ CREATE TABLE IF NOT EXISTS accounts_payable (
     creator_name VARCHAR(50),  -- Creator name,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- Creation time,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- Update time,
-    is_active BOOLEAN NOT NULL DEFAULT TRUE  -- Is active,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE  -- Is active
 );
 CREATE INDEX IF NOT EXISTS idx_ap_code ON accounts_payable (ap_code);
 CREATE INDEX IF NOT EXISTS idx_supplier_id ON accounts_payable (supplier_id);
