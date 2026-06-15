@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Parse -y flag to skip confirmation
+SKIP_CONFIRM=false
+while getopts "y" opt; do
+    case $opt in
+        y) SKIP_CONFIRM=true ;;
+        *) echo "Usage: $0 [-y]"; exit 1 ;;
+    esac
+done
+
 # Load environment variables from .env file and strip carriage returns (\r)
 if [ -f .env ]; then
     # More robust way to load .env, handling CRLF and spaces
@@ -44,6 +53,26 @@ if [ "$DB_NAME" != "postgres" ]; then
     fi
 fi
 
+
+# Confirm destructive operation unless -y is passed
+if [ "$SKIP_CONFIRM" = false ]; then
+    echo ""
+    echo "⚠️ WARNING: This will DROP ALL TABLES in database '$DB_NAME' and re-create them."
+    read -p "Are you sure? (yes/no): " CONFIRM
+    if [ "$CONFIRM" != "yes" ]; then
+        echo "Aborted."
+        exit 0
+    fi
+fi
+
+# Clean existing schema (drop all tables) to allow idempotent re-run
+echo "Cleaning existing database schema..."
+psql "$DB_URL" -c "DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public;"
+if [ $? -eq 0 ]; then
+    echo "Schema cleaned ✅"
+else
+    echo "Warning: Schema cleanup failed, tables may already exist."
+fi
 
 # Find all schema.sql files (excluding target directories)
 # Note: Since the script is now in 'server/', we look in current directory
