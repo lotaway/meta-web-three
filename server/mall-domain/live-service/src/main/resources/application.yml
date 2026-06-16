@@ -1,14 +1,27 @@
 server:
   port: 10095
-
 spring:
   application:
     name: live-service
-  config:
-    import:
-      - optional:classpath:application-common.yml
-
+  profiles:
+    active: dev
 dubbo:
   protocol:
     name: dubbo
     port: 20886
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+    import:
+      - optional:classpath:application-common.yml
+      - optional:classpath:application-common-dev.yml
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import:
+      - optional:classpath:application-common.yml
+      - optional:classpath:application-common-prod.yml

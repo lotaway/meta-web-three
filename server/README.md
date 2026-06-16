@@ -152,7 +152,7 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 
 1. `protos/` 下新建 `.proto` 文件定义服务接口和消息结构
 2. 在项目根目录执行 `make gen`，借助 `Makefile` 生成 Java 胶水代码到 `common` 模块
-3. 在 `server/<domain>/<service>/` 下新建 Spring Boot 项目，实现 `common` 中的接口
+3. 在 `server/<domain>/<service>/` 下新建 Spring Boot 项目，实现 `common` 中的接口；**`application.yml` 必须参照 `server/_templates/application-service.yml` 模板编写**
 4. 调用方通过以下方式引用该服务：
    - Java 服务：调用方使用 `@DubboReference` 注入接口并调用
    - 非 Java 服务：通过 ZK + gRPC 方式，结合生成的 proto 代码进行调用
@@ -172,6 +172,34 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 - `run-server.sh` 会自动读取 `scripts/server-services-registry.sh` 中的服务列表，无需手动修改
 - 服务的 `spring.application.name` 必须与 `SUBGRAPH_URLS` 中的服务名一致，才能被 `@LoadBalanced RestTemplate` 通过 Zookeeper 服务发现正确路由
 - 服务暴露 GraphQL Federation 端点时，需在 `gateway` 的 `pom.xml` 中添加对应的 `common` 模块 RPC client（如已有则跳过），然后在 `gateway/client/` 下添加相应的 `@DubboReference` Client 类
+
+## 微服务必填配置清单
+
+以下配置项在各微服务的 `application.yml`（或 profile 文件）中**无有效默认值**（占位符 `your_*` / 空值），启动服务前必须替换为真实值，否则对应功能将运行失败。
+
+| 微服务 | 配置项 | 当前值 | 说明 |
+|--------|--------|--------|------|
+| payment-service | `payment.fiat.alipay.app-id` | `your_alipay_app_id` |  支付宝 AppID，占位符 |
+| payment-service | `payment.fiat.alipay.private-key` | `your_alipay_private_key` | 支付宝应用私钥（RSA2），占位符 |
+| payment-service | `payment.fiat.alipay.public-key` | `your_alipay_public_key` | 支付宝公钥，占位符 |
+| payment-service | `payment.fiat.wechat.app-id` | `your_wechat_app_id` | 微信 AppID，占位符 |
+| payment-service | `payment.fiat.wechat.mch-id` | `your_wechat_mch_id` | 微信商户号，占位符 |
+| payment-service | `payment.fiat.wechat.api-key` | `your_wechat_api_key` | 微信 APIv2 密钥，占位符 |
+| payment-service | `payment.fiat.wechat.cert-path` | `/path/to/wechat/cert.p12` | 微信商户证书路径，占位符 |
+| payment-service | `payment.crypto.wallet.api.key` | `your_api_key` | 区块链钱包 API Key，占位符 |
+| payment-service | `payment.crypto.wallet.hot-wallet.*` | `your_*_hot_wallet_address` | 热钱包地址（BTC/ETH/USDT），占位符 |
+| payment-service | `payment.crypto.wallet.cold-wallet.*` | `your_*_cold_wallet_address` | 冷钱包地址（BTC/ETH/USDT），占位符 |
+| payment-service | `payment.reconciliation.payment-platform-api-url` | 空字符串 | 对账平台 API 地址为空；若启用对账功能需配置 |
+| payment-service | `payment.reconciliation.message-service-url` | 空字符串 | 消息服务地址为空；若启用对账通知需配置 |
+| payment-service | `payment.reconciliation.dingtalk-webhook-url` | 空字符串 | 钉钉告警 Webhook 为空；若启用对账告警需配置 |
+| wallet-service | `blockchain.evm.rpc-url` | `https://mainnet.infura.io/v3/YOUR_PROJECT_ID` | Infura Project ID `YOUR_PROJECT_ID` 为占位符 |
+| user-service | `x.apikey` | `your-api-key` | `user-service/src/main/resources/application-dev.yml` 中的占位符（dev profile 自动加载） |
+| user-service | `x.secret` | `your-secret-key` | 同上 |
+
+### 其他注意事项
+
+- **traceability-service**（`blockchain-domain`）和 **project-service**（`erp-domain`）：使用 MySQL 代替 common 的 PostgreSQL，在 dev 分段的 `datasource` 中单独配置了 MySQL 连接。
+- **data-pipeline**：独立服务，未使用 common 模块，需自行配置 Kafka、RocketMQ、ClickHouse 连接信息。
 
 ## AWS S3 Configuration
 

@@ -20,8 +20,8 @@ spring:
       - optional:classpath:application-common-dev.yml
   data:
     mongodb:
-      host: 192.168.1.194
-      port: 27017
+      host: ${MONGODB_HOST:localhost}
+      port: ${MONGODB_PORT:27017}
       database: metawebthree_cs
 ---
 spring:

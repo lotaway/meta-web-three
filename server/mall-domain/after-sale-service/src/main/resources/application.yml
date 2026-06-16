@@ -1,23 +1,35 @@
 server:
   port: 10093
-
 spring:
   application:
     name: after-sale-service
+  profiles:
+    active: dev
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.metawebthree.aftersale.domain.model
+dubbo:
+  protocol:
+    name: dubbo
+    port: 20886
+---
+spring:
   config:
+    activate:
+      on-profile: dev
     import:
       - optional:classpath:application-common.yml
+      - optional:classpath:application-common-dev.yml
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/meta_web_three?useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=Asia/Shanghai
     username: root
     password: root
-
-mybatis:
-  mapper-locations: classpath:mapper/*.xml
-  type-aliases-package: com.metawebthree.aftersale.domain.model
-
-dubbo:
-  protocol:
-    name: dubbo
-    port: 20886
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import:
+      - optional:classpath:application-common.yml
+      - optional:classpath:application-common-prod.yml
