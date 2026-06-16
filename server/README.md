@@ -198,7 +198,7 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 
 ### 其他注意事项
 
-- **traceability-service**（`blockchain-domain`）和 **project-service**（`erp-domain`）：使用 MySQL 代替 common 的 PostgreSQL，在 dev 分段的 `datasource` 中单独配置了 MySQL 连接。
+- 所有微服务统一使用 **PostgreSQL**作为关系型数据库，禁止使用 MySQL。common 模块已配置 PostgreSQL 驱动和默认连接，各服务无需重复声明 datasource（除非需要多数据源）。
 - **data-pipeline**：独立服务，未使用 common 模块，需自行配置 Kafka、RocketMQ、ClickHouse 连接信息。
 
 ## AWS S3 Configuration

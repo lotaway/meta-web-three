@@ -13,11 +13,6 @@ spring:
     import:
       - optional:classpath:application-common.yml
       - optional:classpath:application-common-dev.yml
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/meta_web_three?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
-    username: root
-    password: root
 ---
 spring:
   config:

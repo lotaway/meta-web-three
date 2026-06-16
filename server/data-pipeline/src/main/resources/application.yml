@@ -7,10 +7,10 @@ spring:
   
   datasource:
     primary:
-      jdbc-url: jdbc:mysql://localhost:3306/meta_web_three?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
-      username: root
-      password: root
-      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:postgresql://localhost:5432/metawebthree?useUnicode=true&characterEncoding=utf-8
+      username: admin
+      password: 123123
+      driver-class-name: org.postgresql.Driver
   
   jpa:
     hibernate:
@@ -18,7 +18,7 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
   
   data:
     redis:
