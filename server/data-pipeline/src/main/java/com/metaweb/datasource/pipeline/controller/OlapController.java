@@ -111,12 +111,6 @@ public class OlapController {
         return ResponseEntity.ok(olapQueryService.getTopN(domain, dimension, metric, n, startTime, endTime));
     }
 
-    @PostMapping("/init-materialized-views")
-    public ResponseEntity<Map<String, Object>> initMaterializedViews() {
-        olapQueryService.createMaterializedViews();
-        return ResponseEntity.ok(Map.of("status", "ok", "message", "Materialized views created"));
-    }
-
     @lombok.Data
     public static class DiceRequest {
         private OlapDomain domain;

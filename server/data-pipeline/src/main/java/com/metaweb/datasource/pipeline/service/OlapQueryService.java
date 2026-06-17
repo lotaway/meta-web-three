@@ -181,61 +181,6 @@ public class OlapQueryService {
         return meta;
     }
 
-    public void createMaterializedViews() {
-        try {
-            createMvOrderDaily();
-            createMvUserBehaviorDaily();
-            createMvInventoryDaily();
-        } catch (Exception e) {
-            log.warn("Failed to create materialized views (may already exist or ClickHouse unavailable): {}", e.getMessage());
-        }
-    }
-
-    private void createMvOrderDaily() {
-        clickHouseJdbcTemplate.execute("""
-            CREATE MATERIALIZED VIEW IF NOT EXISTS meta_web_analytics.mv_order_daily
-            ENGINE = SummingMergeTree()
-            PARTITION BY toYYYYMM(day)
-            ORDER BY (day, event_type, status, payment_method)
-            AS SELECT toDate(event_time) AS day, event_type, status, payment_method,
-                      count() AS order_count, sum(total_amount) AS total_amount,
-                      uniqExact(user_id) AS unique_users, uniqExact(order_id) AS unique_orders
-               FROM meta_web_analytics.order_analytics
-               GROUP BY day, event_type, status, payment_method
-            """);
-        log.info("Created materialized view: mv_order_daily");
-    }
-
-    private void createMvUserBehaviorDaily() {
-        clickHouseJdbcTemplate.execute("""
-            CREATE MATERIALIZED VIEW IF NOT EXISTS meta_web_analytics.mv_user_behavior_daily
-            ENGINE = SummingMergeTree()
-            PARTITION BY toYYYYMM(day)
-            ORDER BY (day, event_type, device_type, browser_family)
-            AS SELECT toDate(event_time) AS day, event_type, device_type, browser_family, category,
-                      count() AS event_count, uniqExact(user_id) AS unique_users,
-                      uniqExact(session_id) AS unique_sessions, sum(duration) AS total_duration
-               FROM meta_web_analytics.user_behavior_analytics
-               GROUP BY day, event_type, device_type, browser_family, category
-            """);
-        log.info("Created materialized view: mv_user_behavior_daily");
-    }
-
-    private void createMvInventoryDaily() {
-        clickHouseJdbcTemplate.execute("""
-            CREATE MATERIALIZED VIEW IF NOT EXISTS meta_web_analytics.mv_inventory_daily
-            ENGINE = SummingMergeTree()
-            PARTITION BY toYYYYMM(day)
-            ORDER BY (day, event_type, warehouse_id)
-            AS SELECT toDate(event_time) AS day, event_type, warehouse_id,
-                      count() AS event_count, uniqExact(product_id) AS unique_products,
-                      sum(quantity) AS total_quantity
-               FROM meta_web_analytics.inventory_analytics
-               GROUP BY day, event_type, warehouse_id
-            """);
-        log.info("Created materialized view: mv_inventory_daily");
-    }
-
     private String buildSelectClause(OlapQueryRequest request) {
         StringBuilder sql = new StringBuilder("SELECT ");
         if (request.getTimeGranularity() != null) {

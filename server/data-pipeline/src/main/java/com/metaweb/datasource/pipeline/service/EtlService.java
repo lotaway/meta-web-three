@@ -1,9 +1,12 @@
 package com.metaweb.datasource.pipeline.service;
 
-import com.metaweb.datasource.pipeline.model.OrderEvent;
 import com.metaweb.datasource.pipeline.model.InventoryEvent;
+import com.metaweb.datasource.pipeline.model.OrderEvent;
 import com.metaweb.datasource.pipeline.model.UserBehaviorEvent;
 import com.metaweb.datasource.pipeline.repository.ClickHouseRepository;
+import com.metaweb.datasource.pipeline.repository.entity.InventoryAnalytics;
+import com.metaweb.datasource.pipeline.repository.entity.OrderAnalytics;
+import com.metaweb.datasource.pipeline.repository.entity.UserBehaviorAnalytics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -119,61 +122,5 @@ public class EtlService {
         if (browser.contains("safari")) return "Safari";
         if (browser.contains("edge")) return "Edge";
         return "Other";
-    }
-
-    @lombok.Data
-    public static class OrderAnalytics {
-        private String eventId;
-        private String eventType;
-        private Long orderId;
-        private Long userId;
-        private java.math.BigDecimal totalAmount;
-        private String status;
-        private LocalDateTime eventTime;
-        private String productInfo;
-        private String paymentMethod;
-        private Long merchantId;
-        private LocalDateTime processedTime;
-        private String yearMonth;
-        private Integer dayOfWeek;
-        private Integer hourOfDay;
-    }
-
-    @lombok.Data
-    public static class InventoryAnalytics {
-        private String eventId;
-        private String eventType;
-        private Long productId;
-        private String productName;
-        private Integer quantity;
-        private Integer availableQty;
-        private Integer reservedQty;
-        private String warehouseId;
-        private LocalDateTime eventTime;
-        private String operator;
-        private String remark;
-        private LocalDateTime processedTime;
-    }
-
-    @lombok.Data
-    public static class UserBehaviorAnalytics {
-        private String eventId;
-        private String eventType;
-        private Long userId;
-        private String sessionId;
-        private String pageUrl;
-        private String referrer;
-        private Long productId;
-        private String searchKeyword;
-        private String category;
-        private Integer duration;
-        private String deviceType;
-        private String browser;
-        private String os;
-        private String ipAddress;
-        private LocalDateTime eventTime;
-        private String extraData;
-        private LocalDateTime processedTime;
-        private String browserFamily;
     }
 }

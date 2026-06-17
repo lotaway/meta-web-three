@@ -20,9 +20,8 @@ public class DataLineageController {
 
     @PostMapping("/initialize")
     public ResponseEntity<Map<String, Object>> initialize() {
-        lineageService.initialize();
         lineageService.autoRegisterPipelineLineage();
-        return ResponseEntity.ok(Map.of("status", "ok", "message", "Lineage tables initialized and pipeline lineage registered"));
+        return ResponseEntity.ok(Map.of("status", "ok", "message", "Pipeline lineage registered"));
     }
 
     @GetMapping("/graph")

@@ -17,11 +17,6 @@ public class DataLineageService {
     @Autowired
     private LineageRepository lineageRepository;
 
-    public void initialize() {
-        lineageRepository.initTables();
-        log.info("Data lineage tables initialized");
-    }
-
     public LineageNode registerNode(String nodeId, String name, NodeType type, String system,
                                       String database, String table, List<String> fields,
                                       Map<String, String> metadata) {
