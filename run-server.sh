@@ -25,10 +25,10 @@ done < <(server_all_ports | sort -u)
 sleep 2
 
 echo "==> Installing event-sdk"
-(cd "$ROOT_DIR/shared/event-sdk" && mvn install -DskipTests -q)
+(cd "$ROOT_DIR/shared/event-sdk" && mvn install -Dmaven.test.skip=true -q)
 
 echo "==> Building backend modules with tests skipped"
-(cd "$SERVER_DIR" && mvn clean install -DskipTests)
+(cd "$SERVER_DIR" && mvn clean install -Dmaven.test.skip=true)
 
 echo "==> Starting services"
 for entry in "${SERVER_JAVA_SERVICES[@]}"; do
