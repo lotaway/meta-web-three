@@ -72,7 +72,7 @@ public class ClickHouseRepository {
             ) ENGINE = MergeTree()
             PARTITION BY toYYYYMM(event_time)
             ORDER BY (event_time, order_id)
-            SETTINGS index_granularity = """ + INDEX_GRANULARITY + """
+            SETTINGS index_granularity = " + INDEX_GRANULARITY + "
         """);
     }
 
@@ -85,7 +85,7 @@ public class ClickHouseRepository {
             ) ENGINE = MergeTree()
             PARTITION BY toYYYYMM(event_time)
             ORDER BY (event_time, product_id)
-            SETTINGS index_granularity = """ + INDEX_GRANULARITY + """
+            SETTINGS index_granularity = " + INDEX_GRANULARITY + "
         """);
     }
 
@@ -100,7 +100,7 @@ public class ClickHouseRepository {
             ) ENGINE = MergeTree()
             PARTITION BY toYYYYMM(event_time)
             ORDER BY (event_time, user_id, session_id)
-            SETTINGS index_granularity = """ + INDEX_GRANULARITY + """
+            SETTINGS index_granularity = " + INDEX_GRANULARITY + "
         """);
     }
 

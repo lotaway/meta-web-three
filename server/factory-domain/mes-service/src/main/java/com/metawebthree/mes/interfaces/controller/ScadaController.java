@@ -1,5 +1,7 @@
 package com.metawebthree.mes.interfaces.controller;
 
+import com.metawebthree.common.MesPermissions;
+import com.metawebthree.common.annotations.RequirePermission;
 import com.metawebthree.mes.domain.entity.scada.DeviceCommand;
 import com.metawebthree.mes.domain.entity.scada.DeviceCommand.CommandType;
 import com.metawebthree.mes.domain.entity.scada.TelemetryRecord;

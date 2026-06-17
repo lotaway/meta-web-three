@@ -2,6 +2,7 @@ package com.metawebthree.recommendation.domain.service;
 
 import com.metawebthree.recommendation.domain.entity.ProductSimilarity;
 import com.metawebthree.recommendation.domain.entity.Recommendation;
+import com.metawebthree.recommendation.domain.entity.UserBehavior;
 import com.metawebthree.recommendation.domain.entity.Recommendation.RecommendedItem;
 import com.metawebthree.recommendation.domain.entity.RecommendationResult;
 import com.metawebthree.recommendation.domain.entity.RecommendationRule;
