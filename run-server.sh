@@ -34,6 +34,9 @@ sleep 2
 echo "==> Installing event-sdk"
 (cd "$ROOT_DIR/shared/event-sdk" && mvn install -Dmaven.test.skip=true -q)
 
+echo "==> Compiling then Install common"
+(cd "$SERVER_DIR" && mvn install -pl common -Dmaven.test.skip=true -q)
+
 echo "==> Building backend modules with tests skipped"
 (cd "$SERVER_DIR" && mvn clean install -Dmaven.test.skip=true)
 
