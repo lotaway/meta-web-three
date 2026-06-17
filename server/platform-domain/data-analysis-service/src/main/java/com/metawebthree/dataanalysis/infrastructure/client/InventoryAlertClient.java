@@ -11,15 +11,11 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Client for inventory-alert-service metrics
- * Uses @DubboReference to invoke inventory-alert-service Dubbo interfaces
- */
 @Slf4j
 @Component
 public class InventoryAlertClient {
 
-    @DubboReference
+    @DubboReference(check = false, lazy = true)
     private InventoryAlertService inventoryAlertService;
 
     /**

@@ -10,15 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Client for order-service metrics
- * Uses @DubboReference to invoke order-service Dubbo interfaces
- */
 @Slf4j
 @Component
 public class OrderClient {
 
-    @DubboReference
+    @DubboReference(check = false, lazy = true)
     private OrderService orderService;
 
     /**

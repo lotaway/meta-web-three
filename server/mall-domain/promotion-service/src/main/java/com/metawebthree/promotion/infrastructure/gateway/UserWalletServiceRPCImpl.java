@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserWalletServiceRPCImpl implements UserWalletService {
 
-    @DubboReference(check = false)
+    @DubboReference(check = false, lazy = true)
     private UserService userService;
 
     @Override

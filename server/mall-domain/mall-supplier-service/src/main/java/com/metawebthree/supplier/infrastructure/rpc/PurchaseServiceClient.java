@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PurchaseServiceClient {
 
-    @DubboReference
+    @DubboReference(check = false, lazy = true)
     private ProcurementService procurementService;
 
     public GetPurchaseOrderResponse getPurchaseOrder(String purchaseOrderNo) {

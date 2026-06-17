@@ -12,10 +12,10 @@ import java.util.*;
 @Component
 public class InventoryClient {
 
-    @DubboReference
+    @DubboReference(check = false, lazy = true)
     private InventoryService inventoryService;
 
-    @DubboReference
+    @DubboReference(check = false, lazy = true)
     private InventoryAlertService inventoryAlertService;
 
     public Map<String, Object> getInventoryByProductId(String productId) {

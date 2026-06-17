@@ -11,7 +11,7 @@ import java.util.*;
 @Component
 public class CategoryClient {
 
-    @DubboReference
+    @DubboReference(check = false, lazy = true)
     private CategoryService categoryService;
 
     public Map<String, Object> getCategoryById(String id) {

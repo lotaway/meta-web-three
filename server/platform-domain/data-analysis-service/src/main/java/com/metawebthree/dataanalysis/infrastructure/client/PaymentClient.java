@@ -8,17 +8,11 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Client for payment-service metrics
- * Uses @DubboReference to invoke payment-service Dubbo interfaces
- * Note: Pending payments data is primarily fetched from order-service via OrderClient
- * This client provides additional payment-specific metrics
- */
 @Slf4j
 @Component
 public class PaymentClient {
 
-    @DubboReference
+    @DubboReference(check = false, lazy = true)
     private PaymentService paymentService;
 
     /**

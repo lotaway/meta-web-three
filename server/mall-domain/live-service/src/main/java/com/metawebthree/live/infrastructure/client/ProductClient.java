@@ -11,7 +11,7 @@ public class ProductClient implements ProductPort {
 
     private static final Logger logger = LoggerFactory.getLogger(ProductClient.class);
 
-    @DubboReference
+    @DubboReference(check = false, lazy = true)
     private Object productService;
 
     @Override

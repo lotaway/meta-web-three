@@ -15,7 +15,7 @@ import java.util.*;
 @Component
 public class OrderClient {
 
-    @DubboReference
+    @DubboReference(check = false, lazy = true)
     private OrderService orderService;
 
     public Map<String, Object> getOrderById(String id) {

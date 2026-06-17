@@ -15,7 +15,7 @@ import java.time.ZoneOffset;
 @Component
 public class CommissionClient implements CommissionSettlementPort {
 
-    @DubboReference(check = false)
+    @DubboReference(check = false, lazy = true)
     private CommissionService commissionService;
 
     @Override

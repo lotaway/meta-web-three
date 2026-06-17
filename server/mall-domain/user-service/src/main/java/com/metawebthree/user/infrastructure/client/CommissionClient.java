@@ -10,7 +10,7 @@ import com.metawebthree.user.domain.ports.ReferralBindingPort;
 @Component
 public class CommissionClient implements ReferralBindingPort {
 
-    @DubboReference(check = false)
+    @DubboReference(check = false, lazy = true)
     private CommissionService commissionService;
 
     @Override

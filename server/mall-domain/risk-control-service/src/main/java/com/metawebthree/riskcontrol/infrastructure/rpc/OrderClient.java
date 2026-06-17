@@ -11,7 +11,7 @@ import java.util.List;
 @Component
 public class OrderClient {
 
-    @DubboReference
+    @DubboReference(check = false, lazy = true)
     private OrderService orderService;
 
     public OrderDTO getOrderById(Long orderId) {

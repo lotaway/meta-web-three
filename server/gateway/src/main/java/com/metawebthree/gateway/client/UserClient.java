@@ -11,7 +11,7 @@ import java.util.*;
 @Component
 public class UserClient {
 
-    @DubboReference
+    @DubboReference(check = false, lazy = true)
     private UserService userService;
 
     public Map<String, Object> getUserById(String id) {

@@ -14,7 +14,7 @@ import java.util.*;
 @Component
 public class ProductClient {
 
-    @DubboReference
+    @DubboReference(check = false, lazy = true)
     private ProductService productService;
 
     public Map<String, Object> getProductById(String id) {

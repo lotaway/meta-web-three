@@ -11,7 +11,7 @@ import java.util.List;
 @Component
 public class InventoryClient {
 
-    @DubboReference
+    @DubboReference(check = false, lazy = true)
     private InventoryService inventoryService;
 
     /**

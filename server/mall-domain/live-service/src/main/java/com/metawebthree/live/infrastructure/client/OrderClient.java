@@ -11,7 +11,7 @@ public class OrderClient implements OrderPort {
 
     private static final Logger logger = LoggerFactory.getLogger(OrderClient.class);
 
-    @DubboReference
+    @DubboReference(check = false, lazy = true)
     private Object orderService;
 
     @Override

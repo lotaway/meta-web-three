@@ -154,7 +154,7 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 2. 在项目根目录执行 `make gen`，借助 `Makefile` 生成 Java 胶水代码到 `common` 模块
 3. 在 `server/<domain>/<service>/` 下新建 Spring Boot 项目，实现 `common` 中的接口；**`application.yml` 必须参照 `server/_templates/application-service.yml` 模板编写**
 4. 调用方通过以下方式引用该服务：
-   - Java 服务：调用方使用 `@DubboReference` 注入接口并调用
+   - Java 服务：调用方使用 `@DubboReference(check = false, lazy = true)` 注入服务并调用服务接口方法
    - 非 Java 服务：通过 ZK + gRPC 方式，结合生成的 proto 代码进行调用
 5. 在 `scripts/server-services-registry.sh` 中按 `服务名|模块路径(相对server/)|HTTP端口` 格式追加一行注册服务
 6. 若新服务暴露 GraphQL 端点（`/graphql`），在 `gateway/.../graphql/FederationRouter.java` 中的以下四处注册：

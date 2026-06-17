@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class OrderClient {
 
-    @DubboReference
+    @DubboReference(check = false, lazy = true)
     private OrderService orderService;
 
     /**
