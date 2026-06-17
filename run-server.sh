@@ -2,6 +2,13 @@
 
 set -euo pipefail
 
+# 显式指定 profile：--dev → dev，否则 → production
+if [[ "$*" == *--dev* ]]; then
+  export SPRING_PROFILES_ACTIVE=dev
+else
+  export SPRING_PROFILES_ACTIVE=production
+fi
+
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SERVER_DIR="$ROOT_DIR/server"
 LOG_DIR="$ROOT_DIR/logs/run-server"
