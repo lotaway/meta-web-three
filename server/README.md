@@ -13,6 +13,7 @@
 - - ai-domain/ AI 域
 - - erp-domain/ ERP 域
 - - blockchain-domain/ 区块链域
+- - data-pipeline/ 数据管道（独立模块，不属于任何域）
 
 本地多服务启动：`./run-server.sh`（服务列表见 `scripts/server-services-registry.sh`）。
 
@@ -32,6 +33,7 @@ docker compose -f docker-compose.yml -f docker-compose.server.yml up -d product-
 | 10105-10109 | inventory、warehouse、logistics、procurement、supplier | supply-chain |
 | 10110-10113 | finance、invoice、reporting、settlement | erp |
 | 10114 | wallet | blockchain |
+| 10122 | data-pipeline | 数据管道（独立模块） |
 
 K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 
@@ -107,6 +109,16 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 - 拼团活动
 - 秒杀活动
 - 营销规则计算
+
+### data-pipeline - 数据管道服务
+**职责**: ETL 数据处理与 OLAP 分析，负责消费事件、写入 ClickHouse
+- 消费 Kafka/RocketMQ 事件（订单、库存、用户行为）
+- 数据转换与清洗（维度字段补充）
+- 写入 ClickHouse 分析表
+- OLAP 多维查询接口
+- 数据血缘追踪（lineage）
+- WebSocket 实时看板推送
+- **注意**: 该模块为独立服务，不继承 common 模块的默认配置；依赖 ClickHouse 作为分析数据库
 
 ### media-service - 多媒体服务
 **职责**: 文件与媒体管理，负责图片、视频、文档存储
@@ -195,11 +207,13 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 | wallet-service | `blockchain.evm.rpc-url` | `https://mainnet.infura.io/v3/YOUR_PROJECT_ID` | Infura Project ID `YOUR_PROJECT_ID` 为占位符 |
 | user-service | `x.apikey` | `your-api-key` | `user-service/src/main/resources/application-dev.yml` 中的占位符（dev profile 自动加载） |
 | user-service | `x.secret` | `your-secret-key` | 同上 |
+| data-pipeline | `clickhouse.url` | `jdbc:clickhouse://localhost:8123/meta_web_analytics` | ClickHouse JDBC 连接 URL；Docker 内需改为 `jdbc:clickhouse://clickhouse:8123/meta_web_analytics` |
 
 ### 其他注意事项
 
 - 所有微服务统一使用 **PostgreSQL**作为关系型数据库，禁止使用 MySQL。common 模块已配置 PostgreSQL 驱动和默认连接，各服务无需重复声明 datasource（除非需要多数据源）。
-- **data-pipeline**：独立服务，未使用 common 模块，需自行配置 Kafka、RocketMQ、ClickHouse 连接信息。
+- **data-pipeline**：已依赖 common 模块，继承公共配置（datasource、Redis、Dubbo 等）；Kafka、RocketMQ 消费者组、ClickHouse 连接信息在 `application.yml` 默认 profile 中配置。
+- **ClickHouse**：作为 data-pipeline 的分析数据库，已纳入 `docker-compose.env.yml`；启动前 `.env` 中 `CLICKHOUSE_HOST` / `CLICKHOUSE_PORT` / `CLICKHOUSE_USER` / `CLICKHOUSE_PASSWORD` 可留空使用默认值。
 
 ## AWS S3 Configuration
 

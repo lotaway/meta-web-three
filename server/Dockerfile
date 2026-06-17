@@ -207,6 +207,12 @@ WORKDIR /app
 COPY --from=builder /build/server/erp-domain/project-service/target/project-service-*.jar project-service.jar
 ENTRYPOINT ["java", "-jar", "project-service.jar"]
 
+# data-pipeline
+FROM eclipse-temurin:17-jre-jammy AS data-pipeline
+WORKDIR /app
+COPY --from=builder /build/server/data-pipeline/target/data-pipeline-*.jar data-pipeline.jar
+ENTRYPOINT ["java", "-jar", "data-pipeline.jar"]
+
 # blockchain-domain
 FROM eclipse-temurin:17-jre-jammy AS wallet-service
 WORKDIR /app

@@ -557,6 +557,19 @@ services:
     volumes:
       - traceability_service_data:/server/traceability
       - ./.aws:/.aws:ro
+  data-pipeline:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: data-pipeline
+    container_name: meta-web-three-data-pipeline
+    hostname: data-pipeline
+    ports:
+      - "10122:10122"
+    volumes:
+      - data_pipeline_data:/server/data-pipeline
+      - ./.aws:/.aws:ro
 
 volumes:
   gateway_data:
@@ -600,3 +613,4 @@ volumes:
   project_service_data:
   wallet_service_data:
   traceability_service_data:
+  data_pipeline_data:

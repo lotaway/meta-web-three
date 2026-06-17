@@ -62,7 +62,7 @@ This service consumes events from Kafka topics, transforms them into analytics-r
 
 ```yaml
 server:
-  port: 8090
+  port: 10122
 
 spring:
   application:
