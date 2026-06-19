@@ -9,7 +9,7 @@ public class ProductionTaskTest {
     @Test
     void testCreateProductionTask() {
         ProductionTask task = new ProductionTask();
-        task.create("PT-2026-001", 1L, "WS-001", "PC-001", 100, "OP-001");
+        task.create("PT-2026-001", 1L, 1L, "PC-001", 100, "OP-001");
         
         assertEquals("PT-2026-001", task.getTaskNo());
         assertEquals(1L, task.getWorkOrderId());
@@ -28,7 +28,7 @@ public class ProductionTaskTest {
     @Test
     void testStartPendingTask() {
         ProductionTask task = new ProductionTask();
-        task.create("PT-2026-001", 1L, "WS-001", "PC-001", 100, "OP-001");
+        task.create("PT-2026-001", 1L, 1L, "PC-001", 100, "OP-001");
         
         assertEquals(ProductionTask.TaskStatus.PENDING, task.getStatus());
         task.start();
@@ -39,7 +39,7 @@ public class ProductionTaskTest {
     @Test
     void testStartNonPendingTaskThrowsException() {
         ProductionTask task = new ProductionTask();
-        task.create("PT-2026-001", 1L, "WS-001", "PC-001", 100, "OP-001");
+        task.create("PT-2026-001", 1L, 1L, "PC-001", 100, "OP-001");
         task.start();
         
         assertThrows(IllegalStateException.class, () -> task.start());
@@ -48,10 +48,10 @@ public class ProductionTaskTest {
     @Test
     void testCompleteInProgressTask() {
         ProductionTask task = new ProductionTask();
-        task.create("PT-2026-001", 1L, "WS-001", "PC-001", 100, "OP-001");
+        task.create("PT-2026-001", 1L, 1L, "PC-001", 100, "OP-001");
         task.start();
         
-        task.complete(90, 10);
+        task.complete(90, 10, 0);
         assertEquals(ProductionTask.TaskStatus.QUALITY_CHECK, task.getStatus());
         assertEquals(90, task.getQualifiedQuantity());
         assertEquals(10, task.getDefectiveQuantity());
@@ -62,17 +62,17 @@ public class ProductionTaskTest {
     @Test
     void testCompleteNonInProgressTaskThrowsException() {
         ProductionTask task = new ProductionTask();
-        task.create("PT-2026-001", 1L, "WS-001", "PC-001", 100, "OP-001");
+        task.create("PT-2026-001", 1L, 1L, "PC-001", 100, "OP-001");
         
-        assertThrows(IllegalStateException.class, () -> task.complete(100, 0));
+        assertThrows(IllegalStateException.class, () -> task.complete(100, 0, 0));
     }
     
     @Test
     void testPassQualityCheck() {
         ProductionTask task = new ProductionTask();
-        task.create("PT-2026-001", 1L, "WS-001", "PC-001", 100, "OP-001");
+        task.create("PT-2026-001", 1L, 1L, "PC-001", 100, "OP-001");
         task.start();
-        task.complete(90, 10);
+        task.complete(90, 10, 0);
         
         task.passQualityCheck();
         assertEquals(ProductionTask.TaskStatus.COMPLETED, task.getStatus());
@@ -81,7 +81,7 @@ public class ProductionTaskTest {
     @Test
     void testPassQualityCheckNotInQualityCheckThrowsException() {
         ProductionTask task = new ProductionTask();
-        task.create("PT-2026-001", 1L, "WS-001", "PC-001", 100, "OP-001");
+        task.create("PT-2026-001", 1L, 1L, "PC-001", 100, "OP-001");
         task.start();
         
         assertThrows(IllegalStateException.class, () -> task.passQualityCheck());
@@ -90,9 +90,9 @@ public class ProductionTaskTest {
     @Test
     void testFailQualityCheck() {
         ProductionTask task = new ProductionTask();
-        task.create("PT-2026-001", 1L, "WS-001", "PC-001", 100, "OP-001");
+        task.create("PT-2026-001", 1L, 1L, "PC-001", 100, "OP-001");
         task.start();
-        task.complete(90, 10);
+        task.complete(90, 10, 0);
         
         task.failQualityCheck();
         assertEquals(ProductionTask.TaskStatus.REWORK, task.getStatus());
@@ -101,7 +101,7 @@ public class ProductionTaskTest {
     @Test
     void testFailQualityCheckNotInQualityCheckThrowsException() {
         ProductionTask task = new ProductionTask();
-        task.create("PT-2026-001", 1L, "WS-001", "PC-001", 100, "OP-001");
+        task.create("PT-2026-001", 1L, 1L, "PC-001", 100, "OP-001");
         task.start();
         
         assertThrows(IllegalStateException.class, () -> task.failQualityCheck());
@@ -110,7 +110,7 @@ public class ProductionTaskTest {
     @Test
     void testScrap() {
         ProductionTask task = new ProductionTask();
-        task.create("PT-2026-001", 1L, "WS-001", "PC-001", 100, "OP-001");
+        task.create("PT-2026-001", 1L, 1L, "PC-001", 100, "OP-001");
         task.start();
         
         task.scrap();
@@ -121,14 +121,14 @@ public class ProductionTaskTest {
     void testFullTaskLifecycle() {
         ProductionTask task = new ProductionTask();
         
-        task.create("PT-2026-001", 1L, "WS-001", "PC-001", 100, "OP-001");
+        task.create("PT-2026-001", 1L, 1L, "PC-001", 100, "OP-001");
         assertEquals(ProductionTask.TaskStatus.PENDING, task.getStatus());
         
         task.start();
         assertEquals(ProductionTask.TaskStatus.IN_PROGRESS, task.getStatus());
         assertNotNull(task.getStartTime());
         
-        task.complete(95, 5);
+        task.complete(95, 5, 0);
         assertEquals(ProductionTask.TaskStatus.QUALITY_CHECK, task.getStatus());
         assertEquals(95, task.getQualifiedQuantity());
         assertEquals(5, task.getDefectiveQuantity());
@@ -143,9 +143,9 @@ public class ProductionTaskTest {
     void testTaskLifecycleWithRework() {
         ProductionTask task = new ProductionTask();
         
-        task.create("PT-2026-001", 1L, "WS-001", "PC-001", 100, "OP-001");
+        task.create("PT-2026-001", 1L, 1L, "PC-001", 100, "OP-001");
         task.start();
-        task.complete(80, 20);
+        task.complete(80, 20, 0);
         task.failQualityCheck();
         
         assertEquals(ProductionTask.TaskStatus.REWORK, task.getStatus());
@@ -154,10 +154,10 @@ public class ProductionTaskTest {
     @Test
     void testCompleteWithZeroQualified() {
         ProductionTask task = new ProductionTask();
-        task.create("PT-2026-001", 1L, "WS-001", "PC-001", 100, "OP-001");
+        task.create("PT-2026-001", 1L, 1L, "PC-001", 100, "OP-001");
         task.start();
         
-        task.complete(0, 100);
+        task.complete(0, 100, 0);
         assertEquals(0, task.getQualifiedQuantity());
         assertEquals(100, task.getDefectiveQuantity());
         assertEquals(100, task.getCompletedQuantity());

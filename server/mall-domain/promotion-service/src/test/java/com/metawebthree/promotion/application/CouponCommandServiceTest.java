@@ -131,6 +131,16 @@ public class CouponCommandServiceTest {
         }
 
         @Override
+        public void update(CouponType couponType) {
+            items.put(couponType.getId(), couponType);
+        }
+
+        @Override
+        public List<CouponType> listAll() {
+            return new ArrayList<>(items.values());
+        }
+
+        @Override
         public List<CouponType> listEnabledActive(LocalDateTime now) {
             List<CouponType> result = new ArrayList<>();
             for (CouponType type : items.values()) {

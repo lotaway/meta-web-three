@@ -110,7 +110,7 @@ public class SopDocumentTest {
         SopDocument doc = new SopDocument();
         doc.create("SOP-001", "组装SOP", "PDF", "组装工艺");
         
-        doc.bindRoute("ROUTE-001", "产品A工艺", 1, "PC-001", "组装", "WS-001", "组装工位");
+        doc.bindRoute("ROUTE-001", "产品A工艺", 1, "PC-001", "组装", 1L, "组装工位");
         
         assertNotNull(doc.getRouteBindings());
         assertEquals(1, doc.getRouteBindings().size());
@@ -119,7 +119,7 @@ public class SopDocumentTest {
         assertEquals("ROUTE-001", binding.getRouteCode());
         assertEquals(1, binding.getStepNo());
         assertEquals("PC-001", binding.getProcessCode());
-        assertEquals("WS-001", binding.getWorkstationId());
+        assertEquals(1L, binding.getWorkstationId());
         assertTrue(binding.getIsActive());
     }
     
@@ -128,8 +128,8 @@ public class SopDocumentTest {
         SopDocument doc = new SopDocument();
         doc.create("SOP-001", "组装SOP", "PDF", "组装工艺");
         
-        doc.bindRoute("ROUTE-001", "产品A工艺", 1, "PC-001", "组装", "WS-001", "组装工位");
-        doc.bindRoute("ROUTE-001", "产品A工艺", 2, "PC-002", "测试", "WS-002", "测试工位");
+        doc.bindRoute("ROUTE-001", "产品A工艺", 1, "PC-001", "组装", 1L, "组装工位");
+        doc.bindRoute("ROUTE-001", "产品A工艺", 2, "PC-002", "测试", 2L, "测试工位");
         
         assertEquals(2, doc.getRouteBindings().size());
         
@@ -144,8 +144,8 @@ public class SopDocumentTest {
         SopDocument doc = new SopDocument();
         doc.create("SOP-001", "组装SOP", "PDF", "组装工艺");
         
-        doc.bindRoute("ROUTE-001", "产品A工艺", 1, "PC-001", "组装", "WS-001", "组装工位");
-        doc.bindRoute("ROUTE-001", "产品A工艺", 2, "PC-002", "测试", "WS-002", "测试工位");
+        doc.bindRoute("ROUTE-001", "产品A工艺", 1, "PC-001", "组装", 1L, "组装工位");
+        doc.bindRoute("ROUTE-001", "产品A工艺", 2, "PC-002", "测试", 2L, "测试工位");
         
         doc.unbindRoute("ROUTE-001", null);
         
@@ -165,7 +165,7 @@ public class SopDocumentTest {
         doc.addVersion("sop-v1.pdf", "/files/sop-v1.pdf", "admin", "初始版本");
         assertEquals(1, doc.getCurrentVersionNo());
         
-        doc.bindRoute("ROUTE-001", "产品A工艺", 1, "PC-001", "组装", "WS-001", "组装工位");
+        doc.bindRoute("ROUTE-001", "产品A工艺", 1, "PC-001", "组装", 1L, "组装工位");
         assertEquals(1, doc.getRouteBindings().size());
         
         doc.archive();

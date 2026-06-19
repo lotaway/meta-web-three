@@ -57,8 +57,7 @@ class ProcessRouteControllerIntegrationTest {
         doNothing().when(mesEventPublisher).publishWorkOrderReleased(anyLong());
         doNothing().when(mesEventPublisher).publishWorkOrderStarted(anyLong());
         doNothing().when(mesEventPublisher).publishWorkOrderCompleted(anyLong());
-        doNothing().when(mesEventPublisher).publishProcessRouteActivated(anyLong());
-        doNothing().when(mesEventPublisher).publishProcessRouteArchived(anyLong());
+
 
         testRoute = new ProcessRoute();
         testRoute.create("TEST-001", "Test Route", "P001");
@@ -68,7 +67,7 @@ class ProcessRouteControllerIntegrationTest {
         step1.setStepNo(1);
         step1.setProcessCode("PC-001");
         step1.setProcessName("Assembly");
-        step1.setWorkstationId("WS-001");
+        step1.setWorkstationId(1L);
         step1.setStandardTime(300);
         steps.add(step1);
         
@@ -76,7 +75,7 @@ class ProcessRouteControllerIntegrationTest {
         step2.setStepNo(2);
         step2.setProcessCode("PC-002");
         step2.setProcessName("Testing");
-        step2.setWorkstationId("WS-002");
+        step2.setWorkstationId(2L);
         step2.setStandardTime(120);
         step2.setPredecessorStepNo(1);
         steps.add(step2);
@@ -102,7 +101,7 @@ class ProcessRouteControllerIntegrationTest {
             stepDto.setStepNo(1);
             stepDto.setProcessCode("PC-001");
             stepDto.setProcessName("Assembly");
-            stepDto.setWorkstationId("WS-001");
+            stepDto.setWorkstationId(1L);
             stepDto.setStandardTime(300);
             steps.add(stepDto);
             request.setSteps(steps);

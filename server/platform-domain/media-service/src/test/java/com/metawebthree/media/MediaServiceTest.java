@@ -15,13 +15,13 @@ import org.commonmark.parser.Parser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -36,7 +36,7 @@ import com.metawebthree.media.infrastructure.persistence.mapper.PeopleMapper;
 import com.metawebthree.media.infrastructure.persistence.mapper.PeopleTypeMapper;
 import com.metawebthree.media.utils.DefaultMarkdownVisitor;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ComponentScan(basePackages = {
         "com.metawebthree.media",

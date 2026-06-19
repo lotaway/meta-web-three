@@ -2,7 +2,7 @@ package com.metawebthree.media;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,7 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
@@ -18,7 +18,7 @@ import com.metawebthree.media.application.ExcelService;
 import com.metawebthree.media.domain.model.ArtWorkDO;
 import com.metawebthree.media.infrastructure.persistence.mapper.ArtWorkMapper;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ComponentScan(basePackages = {
         "com.metawebthree.media",
@@ -43,10 +43,10 @@ public class ExcelServiceTest {
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         HttpHeaders headers = response.getHeaders();
         String contentType = headers.getContentType().toString();
-        Assertions.assertTrue("Content-Type should indicate Excel file",
-                contentType.contains("spreadsheetml") || contentType.contains("excel"));
+        Assertions.assertTrue(contentType.contains("spreadsheetml") || contentType.contains("excel"),
+                "Content-Type should indicate Excel file");
         byte[] content = response.getBody();
-        Assertions.assertTrue("File content too short", content.length >= 2);
+        Assertions.assertTrue(content.length >= 2, "File content too short");
     }
 
     @Test

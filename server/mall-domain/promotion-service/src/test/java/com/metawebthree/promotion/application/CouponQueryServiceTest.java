@@ -69,6 +69,16 @@ public class CouponQueryServiceTest {
         }
 
         @Override
+        public void update(CouponType couponType) {
+            store.put(couponType.getId(), couponType);
+        }
+
+        @Override
+        public List<CouponType> listAll() {
+            return new ArrayList<>(store.values());
+        }
+
+        @Override
         public List<CouponType> listEnabledActive(LocalDateTime now) {
             List<CouponType> result = new ArrayList<>();
             for (CouponType type : store.values()) {

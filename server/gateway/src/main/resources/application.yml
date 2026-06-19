@@ -16,12 +16,10 @@ spring:
       initialize-schema: never
   cloud:
     gateway:
-      server:
-        webflux:
-          discovery:
-            locator:
-              enabled: true # Enable discovery locator proxy
-              lower-case-service-id: true
+      discovery:
+        locator:
+          enabled: true # Enable discovery locator proxy
+          lower-case-service-id: true
   main:
     web-application-type: reactive
   
@@ -88,21 +86,21 @@ gateway:
       - /actuator/**
       # WebSocket - digital twin real-time communication
       - /ws/digital-twin
-    excluded-path-keywords:
-      - /v3/api-docs
-      - /swagger-ui
-    rbac-excluded-path-patterns:
-      # Login & registration — skip role check even if user is authenticated
-      - /user-service/user/signIn
-      - /user-service/user/signInWithWallet
-      - /user-service/user/create
-      - /user-service/sso/**
-      # Actuator & docs
-      - /actuator/**
-      - /v3/api-docs
-      - /swagger-ui
-      # WebSocket — real-time communication
-      - /ws/**
+  excluded-path-keywords:
+    - /v3/api-docs
+    - /swagger-ui
+  rbac-excluded-path-patterns:
+    # Login & registration — skip role check even if user is authenticated
+    - /user-service/user/signIn
+    - /user-service/user/signInWithWallet
+    - /user-service/user/create
+    - /user-service/sso/**
+    # Actuator & docs
+    - /actuator/**
+    - /v3/api-docs
+    - /swagger-ui
+    # WebSocket — real-time communication
+    - /ws/**
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

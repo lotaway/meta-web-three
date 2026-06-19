@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.recommendation.domain.entity.RecommendationResult;
+import com.metawebthree.recommendation.infrastructure.config.RecommendationAlgorithmProperties;
 import com.metawebthree.recommendation.infrastructure.persistence.entity.RecommendationResultDO;
 import com.metawebthree.recommendation.infrastructure.persistence.mapper.RecommendationResultMapper;
 
@@ -30,7 +31,7 @@ class RecommendationResultRepositoryImplTest {
 
     @BeforeEach
     void setUp() {
-        repository = new RecommendationResultRepositoryImpl(recommendationResultMapper);
+        repository = new RecommendationResultRepositoryImpl(recommendationResultMapper, new RecommendationAlgorithmProperties());
     }
 
     @Test
@@ -125,7 +126,7 @@ class RecommendationResultRepositoryImplTest {
         doEntity.setIsClicked(0);
 
         when(recommendationResultMapper.selectById(1L)).thenReturn(doEntity);
-        when(recommendationResultMapper.updateById(any())).thenReturn(1);
+        when(recommendationResultMapper.updateById(any(RecommendationResultDO.class))).thenReturn(1);
 
         repository.markAsClicked(1L);
 
@@ -140,7 +141,7 @@ class RecommendationResultRepositoryImplTest {
         doEntity.setIsPurchased(0);
 
         when(recommendationResultMapper.selectById(1L)).thenReturn(doEntity);
-        when(recommendationResultMapper.updateById(any())).thenReturn(1);
+        when(recommendationResultMapper.updateById(any(RecommendationResultDO.class))).thenReturn(1);
 
         repository.markAsPurchased(1L);
 
