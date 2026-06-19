@@ -3,7 +3,6 @@ package com.metawebthree.inventory.application;
 import com.metawebthree.inventory.domain.entity.alert.InventoryAlert;
 import com.metawebthree.inventory.domain.entity.alert.InventoryAlertConfig;
 import com.metawebthree.inventory.domain.repository.alert.InventoryAlertRepository;
-import com.metawebthree.inventory.application.command.CreateAlertCommand;
 import com.metawebthree.inventory.application.dto.AlertNotificationDTO;
 import com.metawebthree.inventory.application.event.InventoryAlertCreatedEvent;
 import lombok.RequiredArgsConstructor;

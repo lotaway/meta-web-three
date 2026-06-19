@@ -1,7 +1,5 @@
 package com.metawebthree.finance.domain.service;
 
-import com.metawebthree.finance.domain.entity.Account;
-import com.metawebthree.finance.domain.entity.AccountSubject;
 import com.metawebthree.finance.domain.entity.FinancialRatio;
 import com.metawebthree.finance.domain.repository.AccountRepository;
 import com.metawebthree.finance.domain.repository.AccountSubjectRepository;
@@ -10,7 +8,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 @Service

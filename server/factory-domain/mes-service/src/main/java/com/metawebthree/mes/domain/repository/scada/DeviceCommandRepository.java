@@ -2,7 +2,6 @@ package com.metawebthree.mes.domain.repository.scada;
 
 import com.metawebthree.mes.domain.entity.scada.DeviceCommand;
 import com.metawebthree.mes.domain.entity.scada.DeviceCommand.CommandStatus;
-import com.metawebthree.mes.domain.entity.scada.DeviceCommand.CommandType;
 import java.util.List;
 import java.util.Optional;
 

@@ -3,7 +3,6 @@ package com.metawebthree.aftersale.domain.repository;
 import com.metawebthree.aftersale.application.dto.AfterSaleQueryDTO;
 import com.metawebthree.aftersale.domain.model.AfterSaleOrderDO;
 import java.util.List;
-import java.util.Map;
 
 public interface AfterSaleRepository {
     AfterSaleOrderDO save(AfterSaleOrderDO afterSaleOrder);

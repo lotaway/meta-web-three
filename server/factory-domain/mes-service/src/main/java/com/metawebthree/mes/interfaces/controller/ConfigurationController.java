@@ -5,8 +5,6 @@ import com.metawebthree.mes.application.command.ConfigurationCommandService;
 import com.metawebthree.mes.application.query.ConfigurationQueryService;
 import com.metawebthree.mes.common.MesPermissions;
 import com.metawebthree.mes.domain.config.WorkOrderType;
-import com.metawebthree.mes.domain.entity.CodeRule;
-import com.metawebthree.mes.domain.entity.EntityExtensionFieldValue;
 import com.metawebthree.mes.interfaces.dto.CodeRuleDTO;
 import com.metawebthree.mes.interfaces.dto.CreateWorkOrderTypeRequest;
 import com.metawebthree.mes.interfaces.dto.DataDictionaryDTO;

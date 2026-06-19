@@ -9,7 +9,6 @@ import com.metawebthree.mes.domain.repository.scada.DeviceCommandRepository;
 import com.metawebthree.mes.domain.repository.scada.TelemetryRecordRepository;
 import com.metawebthree.mes.domain.service.scada.ScadaDomainService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;

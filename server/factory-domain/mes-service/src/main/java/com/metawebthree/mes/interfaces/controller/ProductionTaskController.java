@@ -4,7 +4,6 @@ import com.metawebthree.common.annotations.RequirePermission;
 import com.metawebthree.mes.application.command.ProductionTaskCommandService;
 import com.metawebthree.mes.application.query.ProductionTaskQueryService;
 import com.metawebthree.mes.common.MesPermissions;
-import com.metawebthree.mes.domain.entity.EntityExtensionFieldValue;
 import com.metawebthree.mes.domain.entity.ProductionTask;
 import com.metawebthree.mes.interfaces.dto.EntityExtensionFieldValueDTO;
 import com.metawebthree.mes.interfaces.dto.ProductionTaskDTO;

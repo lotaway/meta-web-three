@@ -1,8 +1,6 @@
 package com.metawebthree.mes.interfaces.dto;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import com.metawebthree.mes.domain.entity.DefectCode;
 

@@ -1,11 +1,8 @@
 package com.metawebthree.inventoryalert.interfaces.admin;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.enums.ResponseStatus;
 import com.metawebthree.inventoryalert.application.dto.InventoryAlertDTO;
-import com.metawebthree.inventoryalert.application.dto.ThresholdConfigDTO;
 import com.metawebthree.inventoryalert.application.service.InventoryAlertApplicationService;
 import com.metawebthree.inventoryalert.domain.model.AlertLevel;
 import com.metawebthree.inventoryalert.domain.model.AlertStatus;
@@ -14,7 +11,6 @@ import com.metawebthree.inventoryalert.domain.repository.InventoryAlertRepositor
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

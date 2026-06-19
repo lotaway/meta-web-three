@@ -1,7 +1,6 @@
 package com.metawebthree.digitaltwin.application.query;
 
 import com.metawebthree.digitaltwin.domain.entity.InventoryAlert;
-import com.metawebthree.digitaltwin.domain.entity.InventoryAlert.AlertLevel;
 import com.metawebthree.digitaltwin.domain.entity.InventoryAlert.AlertStatus;
 import com.metawebthree.digitaltwin.domain.entity.InventoryItem;
 import com.metawebthree.digitaltwin.domain.entity.InventoryItem.ItemStatus;

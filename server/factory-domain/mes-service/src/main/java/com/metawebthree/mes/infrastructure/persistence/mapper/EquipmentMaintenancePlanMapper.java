@@ -2,7 +2,6 @@ package com.metawebthree.mes.infrastructure.persistence.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.metawebthree.mes.infrastructure.persistence.dataobject.EquipmentMaintenancePlanDO;
-import com.metawebthree.mes.infrastructure.persistence.dataobject.EquipmentMaintenanceItemDO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;

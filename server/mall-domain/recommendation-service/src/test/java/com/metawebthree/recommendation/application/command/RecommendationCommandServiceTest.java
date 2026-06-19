@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import com.metawebthree.recommendation.domain.entity.Recommendation;
-import com.metawebthree.recommendation.domain.entity.RecommendationResult;
 import com.metawebthree.recommendation.domain.entity.RecommendationRule;
 import com.metawebthree.recommendation.domain.entity.UserBehavior;
 import com.metawebthree.recommendation.domain.repository.RecommendationResultRepository;

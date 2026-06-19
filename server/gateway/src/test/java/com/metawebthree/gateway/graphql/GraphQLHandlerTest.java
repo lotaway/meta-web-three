@@ -3,7 +3,6 @@ package com.metawebthree.gateway.graphql;
 import graphql.GraphQL;
 import org.junit.jupiter.api.*;
 import org.mockito.*;
-import org.springframework.http.MediaType;
 import org.springframework.mock.web.reactive.function.server.MockServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.client.RestTemplate;

@@ -1,7 +1,6 @@
 package com.metawebthree.digitaltwin.domain.entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class Device {
     private Long id;

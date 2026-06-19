@@ -1,7 +1,6 @@
 package com.meta.common.audit;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 public class AuditLog {
 

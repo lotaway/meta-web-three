@@ -16,7 +16,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.metawebthree.socialcommerce.domain.model.ShareRewardConfigDO;
 import com.metawebthree.socialcommerce.domain.model.ShareRecordDO;
 import com.metawebthree.socialcommerce.domain.model.DistributionRelationDO;
 import com.metawebthree.socialcommerce.domain.model.CommunityDO;

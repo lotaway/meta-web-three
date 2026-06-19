@@ -20,7 +20,6 @@ import com.metawebthree.product.dto.ProductDTO;
 import com.metawebthree.product.dto.ProductDetailDTO;
 import com.metawebthree.product.application.ProductCategoryApplicationService;
 import com.metawebthree.product.domain.model.AdminProductDO;
-import com.metawebthree.product.domain.model.ProductCategory;
 import com.metawebthree.product.infrastructure.persistence.mapper.AdminProductMapper;
 import com.metawebthree.product.infrastructure.persistence.mapper.ProductMapper;
 import com.metawebthree.product.interfaces.web.dto.ProductCategoryNode;

@@ -1,8 +1,6 @@
 package com.metawebthree.mes.domain.entity;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 public class AndonType {
     

@@ -5,7 +5,6 @@ import com.metawebthree.finance.domain.repository.AccountRepository;
 import com.metawebthree.finance.infrastructure.event.FinanceDomainEventPublisher;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
-import java.util.List;
 
 @Service
 public class AccountCommandService {

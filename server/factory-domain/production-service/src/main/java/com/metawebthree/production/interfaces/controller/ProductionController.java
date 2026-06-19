@@ -3,7 +3,6 @@ package com.metawebthree.production.interfaces.controller;
 import com.metawebthree.production.application.command.ProductionCommandService;
 import com.metawebthree.production.application.query.ProductionQueryService;
 import com.metawebthree.production.domain.entity.ProductionOrder;
-import com.metawebthree.production.domain.entity.ProductionSchedule;
 import com.metawebthree.production.domain.entity.WorkStation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -6,7 +6,6 @@ import com.metawebthree.media.domain.model.PeopleDO;
 import io.lettuce.core.dynamic.annotation.Param;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;

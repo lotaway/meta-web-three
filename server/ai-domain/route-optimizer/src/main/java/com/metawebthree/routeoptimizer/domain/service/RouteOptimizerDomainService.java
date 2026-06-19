@@ -3,9 +3,6 @@ package com.metawebthree.routeoptimizer.domain.service;
 import com.metawebthree.routeoptimizer.domain.entity.RoutePlan;
 import com.metawebthree.routeoptimizer.domain.entity.RoutePoint;
 import com.metawebthree.routeoptimizer.domain.entity.Vehicle;
-import com.metawebthree.routeoptimizer.domain.repository.RoutePlanRepository;
-import com.metawebthree.routeoptimizer.domain.repository.VehicleRepository;
-import java.util.Comparator;
 import java.util.List;
 
 public interface RouteOptimizerDomainService {

@@ -7,7 +7,6 @@ import com.alipay.api.request.AlipayTradeAppPayRequest;
 import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
 import com.alipay.api.response.AlipayTradePagePayResponse;
-import com.alipay.api.AlipayConstants;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.metawebthree.common.generated.rpc.OrderService;
 import com.metawebthree.common.generated.rpc.PaySuccessRequest;
@@ -22,8 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Iterator;
-import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 @Slf4j

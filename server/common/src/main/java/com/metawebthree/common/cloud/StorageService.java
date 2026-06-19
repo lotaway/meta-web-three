@@ -2,7 +2,6 @@ package com.metawebthree.common.cloud;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStream;
 
 /**
  * 存储服务抽象接口

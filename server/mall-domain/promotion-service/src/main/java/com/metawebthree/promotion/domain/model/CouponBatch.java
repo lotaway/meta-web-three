@@ -1,7 +1,6 @@
 package com.metawebthree.promotion.domain.model;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class CouponBatch {
     private String id;

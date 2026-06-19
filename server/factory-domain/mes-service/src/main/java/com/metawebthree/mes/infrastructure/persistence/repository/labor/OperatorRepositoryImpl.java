@@ -12,7 +12,6 @@ import com.metawebthree.mes.infrastructure.persistence.mapper.labor.OperatorMapp
 import com.metawebthree.mes.infrastructure.persistence.mapper.labor.OperatorSkillMapper;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

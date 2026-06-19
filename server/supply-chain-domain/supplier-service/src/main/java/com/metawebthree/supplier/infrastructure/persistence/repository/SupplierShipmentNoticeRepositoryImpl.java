@@ -10,7 +10,6 @@ import com.metawebthree.supplier.infrastructure.persistence.mapper.SupplierShipm
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

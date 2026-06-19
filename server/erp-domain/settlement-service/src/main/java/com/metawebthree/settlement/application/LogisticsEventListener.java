@@ -1,7 +1,6 @@
 package com.metawebthree.settlement.application;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.metawebthree.settlement.domain.service.LogisticsSettlementDomainService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,5 @@
 package com.metawebthree.finance.application.command.budget.dto;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public class BudgetCreateCommand {

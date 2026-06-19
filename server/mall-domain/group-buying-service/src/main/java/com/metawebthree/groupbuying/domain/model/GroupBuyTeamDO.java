@@ -1,6 +1,5 @@
 package com.metawebthree.groupbuying.domain.model;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 import com.baomidou.mybatisplus.annotation.TableName;

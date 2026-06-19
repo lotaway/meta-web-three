@@ -2,7 +2,6 @@ package com.metawebthree.logistics.application;
 
 import com.metawebthree.logistics.application.dto.LogisticsOrderDTO;
 import com.metawebthree.logistics.domain.entity.LogisticsOrder;
-import com.metawebthree.logistics.domain.entity.TrackingEvent;
 import com.metawebthree.logistics.infrastructure.event.LogisticsDomainEventPublisher;
 import com.metawebthree.logistics.infrastructure.persistence.repository.LogisticsOrderRepository;
 import org.springframework.stereotype.Service;

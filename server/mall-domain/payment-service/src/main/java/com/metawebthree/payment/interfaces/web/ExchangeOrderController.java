@@ -1,7 +1,6 @@
 package com.metawebthree.payment.interfaces.web;
 
 import com.metawebthree.common.constants.HeaderConstants;
-import com.metawebthree.common.constants.RequestHeaderKeys;
 import com.metawebthree.payment.application.dto.ExchangeOrderRequest;
 import com.metawebthree.payment.application.dto.ExchangeOrderResponse;
 import com.metawebthree.payment.application.ExchangeOrderServiceImpl;

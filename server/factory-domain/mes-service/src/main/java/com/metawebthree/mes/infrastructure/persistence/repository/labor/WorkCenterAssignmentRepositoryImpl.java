@@ -9,7 +9,6 @@ import com.metawebthree.mes.infrastructure.persistence.dataobject.labor.WorkCent
 import com.metawebthree.mes.infrastructure.persistence.mapper.labor.WorkCenterAssignmentMapper;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

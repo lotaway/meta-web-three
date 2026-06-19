@@ -4,7 +4,6 @@ import com.metawebthree.finance.domain.entity.Account;
 import com.metawebthree.finance.infrastructure.persistence.dataobject.AccountDO;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
 
 @Component
 public class AccountConverter {

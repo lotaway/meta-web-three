@@ -6,11 +6,7 @@ import com.metawebthree.aftersale.domain.repository.AfterSaleRepository;
 import com.metawebthree.aftersale.infrastructure.persistence.mapper.AfterSaleMapper;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public class AfterSaleRepositoryImpl implements AfterSaleRepository {

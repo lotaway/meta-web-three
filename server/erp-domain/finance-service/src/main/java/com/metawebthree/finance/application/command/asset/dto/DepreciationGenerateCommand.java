@@ -1,6 +1,5 @@
 package com.metawebthree.finance.application.command.asset.dto;
 
-import java.math.BigDecimal;
 
 public class DepreciationGenerateCommand {
     private String depreciationPeriod;

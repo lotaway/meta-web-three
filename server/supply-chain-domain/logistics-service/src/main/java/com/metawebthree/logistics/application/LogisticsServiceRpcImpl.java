@@ -2,7 +2,6 @@ package com.metawebthree.logistics.application;
 
 import com.metawebthree.logistics.application.dto.LogisticsOrderDTO;
 import org.springframework.stereotype.Service;
-import java.util.List;
 
 @Service
 public class LogisticsServiceRpcImpl {

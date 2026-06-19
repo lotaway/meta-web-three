@@ -5,9 +5,7 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.ReactiveDiscoveryClient;
 import org.springframework.cloud.zookeeper.discovery.reactive.ZookeeperReactiveDiscoveryClient;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import java.util.List;
 
 @Slf4j
 public class FaultTolerantZookeeperDiscoveryClient implements ReactiveDiscoveryClient {

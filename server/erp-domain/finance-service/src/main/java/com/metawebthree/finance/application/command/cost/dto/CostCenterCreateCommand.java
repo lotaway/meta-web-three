@@ -1,7 +1,6 @@
 package com.metawebthree.finance.application.command.cost.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 public class CostCenterCreateCommand {
     private String costCenterCode;

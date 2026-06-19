@@ -8,11 +8,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metawebthree.recommendation.application.command.RecommendationCommandService;
 import com.metawebthree.recommendation.application.query.RecommendationQueryService;
 import com.metawebthree.recommendation.domain.entity.Recommendation;
-import com.metawebthree.recommendation.domain.entity.RecommendationResult;
 import com.metawebthree.recommendation.domain.entity.RecommendationRule;
 import com.metawebthree.recommendation.domain.entity.UserBehavior;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

@@ -1,6 +1,5 @@
 package com.metawebthree.notification.application.dto;
 
-import java.time.LocalDateTime;
 
 public class NotificationDTO {
     private Long id;
