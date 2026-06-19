@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import lombok.Data;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -153,6 +155,7 @@ public class AppPushNotificationSender implements NotificationSender {
     
     // Internal classes
     
+    @Data
     private static class PushRequest {
         private Long userId;
         private String deviceToken;
@@ -161,40 +164,17 @@ public class AppPushNotificationSender implements NotificationSender {
         private String extraData;
         private String provider;
         private long timestamp;
-        
-        // Getters and setters
-        public Long getUserId() { return userId; }
-        public void setUserId(Long userId) { this.userId = userId; }
-        public String getDeviceToken() { return deviceToken; }
-        public void setDeviceToken(String deviceToken) { this.deviceToken = deviceToken; }
-        public String getTitle() { return title; }
-        public void setTitle(String title) { this.title = title; }
-        public String getBody() { return body; }
-        public void setBody(String body) { this.body = body; }
-        public String getExtraData() { return extraData; }
-        public void setExtraData(String extraData) { this.extraData = extraData; }
-        public String getProvider() { return provider; }
-        public void setProvider(String provider) { this.provider = provider; }
-        public long getTimestamp() { return timestamp; }
-        public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
     }
     
+    @Data
     private static class PushResponse {
         private boolean success;
         private String messageId;
         private String provider;
         private String errorMessage;
-        
-        public boolean isSuccess() { return success; }
-        public void setSuccess(boolean success) { this.success = success; }
-        public String getMessageId() { return messageId; }
-        public void setMessageId(String messageId) { this.messageId = messageId; }
-        public String getProvider() { return provider; }
-        public void setProvider(String provider) { this.provider = provider; }
-        public String getErrorMessage() { return errorMessage; }
-        public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
     }
     
+    @Data
     private static class PushRecord {
         private Long userId;
         private String deviceToken;
@@ -202,18 +182,5 @@ public class AppPushNotificationSender implements NotificationSender {
         private String messageId;
         private long sendTime;
         private String status;
-        
-        public Long getUserId() { return userId; }
-        public void setUserId(Long userId) { this.userId = userId; }
-        public String getDeviceToken() { return deviceToken; }
-        public void setDeviceToken(String deviceToken) { this.deviceToken = deviceToken; }
-        public String getTitle() { return title; }
-        public void setTitle(String title) { this.title = title; }
-        public String getMessageId() { return messageId; }
-        public void setMessageId(String messageId) { this.messageId = messageId; }
-        public long getSendTime() { return sendTime; }
-        public void setSendTime(long sendTime) { this.sendTime = sendTime; }
-        public String getStatus() { return status; }
-        public void setStatus(String status) { this.status = status; }
     }
 }

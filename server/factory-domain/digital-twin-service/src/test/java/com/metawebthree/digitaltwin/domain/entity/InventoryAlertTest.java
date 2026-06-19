@@ -136,14 +136,14 @@ class InventoryAlertTest {
 
     @Test
     void shouldAutoEscalate_shouldReturnTrueForCriticalLevel() {
-        alert.setLevel(InventoryAlert.AlertLevel.CRITICAL);
+        alert.setAlertLevel(InventoryAlert.AlertLevel.CRITICAL);
         
         assertTrue(alert.shouldAutoEscalate());
     }
 
     @Test
     void shouldAutoEscalate_shouldReturnTrueForErrorNotAcknowledged() {
-        alert.setLevel(InventoryAlert.AlertLevel.ERROR);
+        alert.setAlertLevel(InventoryAlert.AlertLevel.ERROR);
         alert.setAcknowledgedAt(null);
         
         assertTrue(alert.shouldAutoEscalate());
@@ -151,7 +151,7 @@ class InventoryAlertTest {
 
     @Test
     void shouldAutoEscalate_shouldReturnFalseForInfoAcknowledged() {
-        alert.setLevel(InventoryAlert.AlertLevel.INFO);
+        alert.setAlertLevel(InventoryAlert.AlertLevel.INFO);
         alert.acknowledge("admin");
         
         assertFalse(alert.shouldAutoEscalate());
@@ -182,16 +182,16 @@ class InventoryAlertTest {
     void getSeverityScore_shouldReturnCorrectValue() {
         assertEquals(4, alert.getSeverityScore()); // CRITICAL=4, ERROR=3, WARNING=2, INFO=1
         
-        alert.setLevel(InventoryAlert.AlertLevel.CRITICAL);
+        alert.setAlertLevel(InventoryAlert.AlertLevel.CRITICAL);
         assertEquals(4, alert.getSeverityScore());
         
-        alert.setLevel(InventoryAlert.AlertLevel.ERROR);
+        alert.setAlertLevel(InventoryAlert.AlertLevel.ERROR);
         assertEquals(3, alert.getSeverityScore());
         
-        alert.setLevel(InventoryAlert.AlertLevel.WARNING);
+        alert.setAlertLevel(InventoryAlert.AlertLevel.WARNING);
         assertEquals(2, alert.getSeverityScore());
         
-        alert.setLevel(InventoryAlert.AlertLevel.INFO);
+        alert.setAlertLevel(InventoryAlert.AlertLevel.INFO);
         assertEquals(1, alert.getSeverityScore());
     }
 }

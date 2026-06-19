@@ -13,8 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Map;
-
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -46,7 +45,7 @@ class DigitalTwinCommandServiceTest {
 
         Long result = service.registerDevice("DEV-001", "Test Device", "SENSOR", "WS001", "PL001");
 
-        assertEquals(1L, result);
+        assertEquals(Long.valueOf(1L), result);
         verify(domainService).registerDevice("DEV-001", "Test Device", "SENSOR", "WS001", "PL001");
         verify(eventPublisher).publishDeviceRegistered("DEV-001");
     }

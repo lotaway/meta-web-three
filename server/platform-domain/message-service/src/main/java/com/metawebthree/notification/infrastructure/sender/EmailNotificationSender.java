@@ -7,6 +7,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
+import lombok.Data;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -91,22 +93,12 @@ public class EmailNotificationSender implements NotificationSender {
     }
     
     // Internal record class
+    @Data
     private static class EmailRecord {
         private Long userId;
         private String email;
         private String subject;
         private long sendTime;
         private String status;
-        
-        public Long getUserId() { return userId; }
-        public void setUserId(Long userId) { this.userId = userId; }
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
-        public String getSubject() { return subject; }
-        public void setSubject(String subject) { this.subject = subject; }
-        public long getSendTime() { return sendTime; }
-        public void setSendTime(long sendTime) { this.sendTime = sendTime; }
-        public String getStatus() { return status; }
-        public void setStatus(String status) { this.status = status; }
     }
 }

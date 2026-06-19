@@ -70,7 +70,7 @@ class DigitalTwinDomainServiceImplTest {
         device.setStatus(Device.DeviceStatus.OFFLINE);
         
         when(deviceRepository.findByDeviceCode("DEV-001")).thenReturn(Optional.of(device));
-        when(deviceRepository.update(any(Device.class))).thenReturn(device);
+        doNothing().when(deviceRepository).update(any(Device.class));
 
         service.updateDeviceStatus("DEV-001", Device.DeviceStatus.ONLINE);
 
@@ -94,7 +94,7 @@ class DigitalTwinDomainServiceImplTest {
         device.setStatus(Device.DeviceStatus.IDLE);
         
         when(deviceRepository.findByDeviceCode("DEV-001")).thenReturn(Optional.of(device));
-        when(deviceRepository.update(any(Device.class))).thenReturn(device);
+        doNothing().when(deviceRepository).update(any(Device.class));
 
         service.updateDeviceStatus("DEV-001", Device.DeviceStatus.RUNNING);
 
@@ -108,7 +108,7 @@ class DigitalTwinDomainServiceImplTest {
         device.setStatus(Device.DeviceStatus.RUNNING);
         
         when(deviceRepository.findByDeviceCode("DEV-001")).thenReturn(Optional.of(device));
-        when(deviceRepository.update(any(Device.class))).thenReturn(device);
+        doNothing().when(deviceRepository).update(any(Device.class));
 
         service.updateDeviceStatus("DEV-001", Device.DeviceStatus.ERROR);
 
@@ -121,7 +121,7 @@ class DigitalTwinDomainServiceImplTest {
         device.setDeviceCode("DEV-001");
         
         when(deviceRepository.findByDeviceCode("DEV-001")).thenReturn(Optional.of(device));
-        when(deviceRepository.update(any(Device.class))).thenReturn(device);
+        doNothing().when(deviceRepository).update(any(Device.class));
 
         service.deviceHeartbeat("DEV-001");
 
@@ -143,7 +143,7 @@ class DigitalTwinDomainServiceImplTest {
         device.setDeviceCode("DEV-001");
         
         when(deviceRepository.findByDeviceCode("DEV-001")).thenReturn(Optional.of(device));
-        when(deviceRepository.update(any(Device.class))).thenReturn(device);
+        doNothing().when(deviceRepository).update(any(Device.class));
 
         service.updateDevicePosition("DEV-001", 10.0, 20.0, 5.0, 90.0);
 
@@ -199,7 +199,7 @@ class DigitalTwinDomainServiceImplTest {
         workshop.setStatus(Workshop.WorkshopStatus.CONSTRUCTION);
         
         when(workshopRepository.findByWorkshopCode("WS001")).thenReturn(Optional.of(workshop));
-        when(workshopRepository.update(any(Workshop.class))).thenReturn(workshop);
+        doNothing().when(workshopRepository).update(any(Workshop.class));
 
         service.updateWorkshopStatus("WS001", Workshop.WorkshopStatus.OPERATING);
 
@@ -244,7 +244,7 @@ class DigitalTwinDomainServiceImplTest {
         line.setStatus(ProductionLine.ProductionLineStatus.IDLE);
         
         when(productionLineRepository.findByLineCode("PL001")).thenReturn(Optional.of(line));
-        when(productionLineRepository.update(any(ProductionLine.class))).thenReturn(line);
+        doNothing().when(productionLineRepository).update(any(ProductionLine.class));
 
         service.updateProductionLineStatus("PL001", ProductionLine.ProductionLineStatus.RUNNING);
 
@@ -258,7 +258,7 @@ class DigitalTwinDomainServiceImplTest {
         line.setCurrentOutput(0);
         
         when(productionLineRepository.findByLineCode("PL001")).thenReturn(Optional.of(line));
-        when(productionLineRepository.update(any(ProductionLine.class))).thenReturn(line);
+        doNothing().when(productionLineRepository).update(any(ProductionLine.class));
 
         service.updateProductionLineOutput("PL001", 50);
 
@@ -301,7 +301,7 @@ class DigitalTwinDomainServiceImplTest {
         alert.setStatus(Alert.AlertStatus.TRIGGERED);
         
         when(alertRepository.findById(1L)).thenReturn(Optional.of(alert));
-        when(alertRepository.update(any(Alert.class))).thenReturn(alert);
+        doNothing().when(alertRepository).update(any(Alert.class));
 
         service.acknowledgeAlert(1L, "admin");
 
@@ -316,7 +316,7 @@ class DigitalTwinDomainServiceImplTest {
         alert.setStatus(Alert.AlertStatus.ACKNOWLEDGED);
         
         when(alertRepository.findById(1L)).thenReturn(Optional.of(alert));
-        when(alertRepository.update(any(Alert.class))).thenReturn(alert);
+        doNothing().when(alertRepository).update(any(Alert.class));
 
         service.resolveAlert(1L, "Fixed the issue", "admin");
 

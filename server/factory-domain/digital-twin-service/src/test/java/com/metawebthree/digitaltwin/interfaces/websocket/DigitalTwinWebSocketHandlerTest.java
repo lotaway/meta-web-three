@@ -63,7 +63,7 @@ class DigitalTwinWebSocketHandlerTest {
     }
 
     @Test
-    void handleTransportError_shouldRemoveSession() {
+    void handleTransportError_shouldRemoveSession() throws IOException {
         Map<String, Object> attributes = new ConcurrentHashMap<>();
         attributes.put("userId", "user-001");
         

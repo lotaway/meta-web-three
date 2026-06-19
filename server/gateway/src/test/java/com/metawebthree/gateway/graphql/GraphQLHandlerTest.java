@@ -33,7 +33,7 @@ class GraphQLHandlerTest {
     void setUp() {
         restTemplate = Mockito.mock(RestTemplate.class);
         federationRouter = new FederationRouter(restTemplate);
-        federationRouter.init();
+        federationRouter.graphQL();
         graphQL = federationRouter.getGraphQL();
         graphQLHandler = new GraphQLHandler(graphQL, federationRouter);
     }

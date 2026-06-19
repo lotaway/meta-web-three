@@ -32,7 +32,7 @@ class FederationRouterTest {
     void setUp() {
         restTemplate = Mockito.mock(RestTemplate.class);
         federationRouter = new FederationRouter(restTemplate);
-        federationRouter.init();
+        federationRouter.graphQL();
     }
 
     // ── Schema Bootstrap ──────────────────────────────────────────────

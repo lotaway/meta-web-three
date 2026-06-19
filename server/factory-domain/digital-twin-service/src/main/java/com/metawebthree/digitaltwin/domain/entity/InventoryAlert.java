@@ -3,6 +3,9 @@ package com.metawebthree.digitaltwin.domain.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import lombok.Data;
+
+@Data
 public class InventoryAlert {
     private Long id;
     private String alertCode;
@@ -10,7 +13,7 @@ public class InventoryAlert {
     private String shelfCode;
     private String itemCode;
     private AlertType alertType;
-    private AlertLevel level;
+    private AlertLevel alertLevel;
     private String title;
     private String description;
     private BigDecimal currentQuantity;
@@ -44,7 +47,7 @@ public class InventoryAlert {
         this.alertCode = alertCode;
         this.itemCode = itemCode;
         this.alertType = alertType;
-        this.level = level;
+        this.alertLevel = level;
         this.title = title;
         this.status = AlertStatus.TRIGGERED;
         this.occurredAt = LocalDateTime.now();
@@ -83,163 +86,31 @@ public class InventoryAlert {
                 || status == AlertStatus.IN_PROGRESS;
     }
 
-    public Long getId() {
-        return id;
+    public boolean isAcknowledged() {
+        return status == AlertStatus.ACKNOWLEDGED;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Long getResolutionTimeMinutes() {
+        if (acknowledgedAt == null || resolvedAt == null) return null;
+        return java.time.Duration.between(acknowledgedAt, resolvedAt).toMinutes();
     }
 
-    public String getAlertCode() {
-        return alertCode;
+    public boolean shouldAutoEscalate() {
+        return alertLevel == AlertLevel.CRITICAL
+                || (alertLevel == AlertLevel.ERROR && status == AlertStatus.TRIGGERED);
     }
 
-    public void setAlertCode(String alertCode) {
-        this.alertCode = alertCode;
+    public boolean isOverdue(int hours) {
+        return acknowledgedAt != null
+                && acknowledgedAt.plusHours(hours).isBefore(LocalDateTime.now());
     }
 
-    public String getWarehouseCode() {
-        return warehouseCode;
-    }
-
-    public void setWarehouseCode(String warehouseCode) {
-        this.warehouseCode = warehouseCode;
-    }
-
-    public String getShelfCode() {
-        return shelfCode;
-    }
-
-    public void setShelfCode(String shelfCode) {
-        this.shelfCode = shelfCode;
-    }
-
-    public String getItemCode() {
-        return itemCode;
-    }
-
-    public void setItemCode(String itemCode) {
-        this.itemCode = itemCode;
-    }
-
-    public AlertType getAlertType() {
-        return alertType;
-    }
-
-    public void setAlertType(AlertType alertType) {
-        this.alertType = alertType;
-    }
-
-    public AlertLevel getLevel() {
-        return level;
-    }
-
-    public void setLevel(AlertLevel level) {
-        this.level = level;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public BigDecimal getCurrentQuantity() {
-        return currentQuantity;
-    }
-
-    public void setCurrentQuantity(BigDecimal currentQuantity) {
-        this.currentQuantity = currentQuantity;
-    }
-
-    public BigDecimal getThresholdValue() {
-        return thresholdValue;
-    }
-
-    public void setThresholdValue(BigDecimal thresholdValue) {
-        this.thresholdValue = thresholdValue;
-    }
-
-    public AlertStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(AlertStatus status) {
-        this.status = status;
-    }
-
-    public String getSolution() {
-        return solution;
-    }
-
-    public void setSolution(String solution) {
-        this.solution = solution;
-    }
-
-    public String getAcknowledgedBy() {
-        return acknowledgedBy;
-    }
-
-    public void setAcknowledgedBy(String acknowledgedBy) {
-        this.acknowledgedBy = acknowledgedBy;
-    }
-
-    public String getResolvedBy() {
-        return resolvedBy;
-    }
-
-    public void setResolvedBy(String resolvedBy) {
-        this.resolvedBy = resolvedBy;
-    }
-
-    public LocalDateTime getOccurredAt() {
-        return occurredAt;
-    }
-
-    public void setOccurredAt(LocalDateTime occurredAt) {
-        this.occurredAt = occurredAt;
-    }
-
-    public LocalDateTime getAcknowledgedAt() {
-        return acknowledgedAt;
-    }
-
-    public void setAcknowledgedAt(LocalDateTime acknowledgedAt) {
-        this.acknowledgedAt = acknowledgedAt;
-    }
-
-    public LocalDateTime getResolvedAt() {
-        return resolvedAt;
-    }
-
-    public void setResolvedAt(LocalDateTime resolvedAt) {
-        this.resolvedAt = resolvedAt;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+    public int getSeverityScore() {
+        return switch (alertLevel) {
+            case CRITICAL -> 4;
+            case ERROR -> 3;
+            case WARNING -> 2;
+            case INFO -> 1;
+        };
     }
 }

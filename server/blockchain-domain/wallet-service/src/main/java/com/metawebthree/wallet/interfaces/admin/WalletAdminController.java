@@ -4,17 +4,14 @@ import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.enums.ResponseStatus;
 import com.metawebthree.wallet.application.dto.WalletDTO;
 import com.metawebthree.wallet.application.query.WalletQueryService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/wallet")
 public class WalletAdminController {
 
-    @Autowired
     private WalletQueryService queryService;
 
     @GetMapping("/list")

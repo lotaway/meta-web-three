@@ -5,9 +5,6 @@ import com.metawebthree.common.enums.ResponseStatus;
 import com.metawebthree.traceability.application.command.AddTraceEventCommand;
 import com.metawebthree.traceability.application.command.CreateTraceCommand;
 import com.metawebthree.traceability.application.command.RegisterProductCommand;
-import com.metawebthree.traceability.application.dto.ProductInfoDTO;
-import com.metawebthree.traceability.application.dto.TraceEventDTO;
-import com.metawebthree.traceability.application.dto.TraceRecordDTO;
 import com.metawebthree.traceability.domain.entity.ProductInfoDO;
 import com.metawebthree.traceability.domain.entity.TraceEventDO;
 import com.metawebthree.traceability.domain.entity.TraceRecordDO;
@@ -19,8 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

@@ -1,6 +1,7 @@
 package com.metawebthree.reporting.domain.entity;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 public class FinancialReport {
@@ -56,7 +57,7 @@ public class FinancialReport {
         this.currentLiabilities = currentLiabilities;
         this.workingCapital = currentAssets.subtract(currentLiabilities);
         this.currentRatio = currentLiabilities.compareTo(BigDecimal.ZERO) > 0 ?
-            currentAssets.divide(currentLiabilities, 2, BigDecimal.ROUND_HALF_UP) : BigDecimal.ZERO;
+            currentAssets.divide(currentLiabilities, 2, RoundingMode.HALF_UP) : BigDecimal.ZERO;
     }
 
     public Long getId() { return id; }

@@ -56,7 +56,13 @@ public class Warehouse {
             return BigDecimal.ZERO;
         }
         return usedArea.multiply(BigDecimal.valueOf(100))
-                .divide(totalArea, 2, BigDecimal.ROUND_HALF_UP);
+                .divide(totalArea, 2, java.math.RoundingMode.HALF_UP);
+    }
+
+    public void updateArea(BigDecimal totalArea, BigDecimal usedArea) {
+        this.totalArea = totalArea;
+        this.usedArea = usedArea;
+        this.updatedAt = LocalDateTime.now();
     }
 
     public Long getId() {

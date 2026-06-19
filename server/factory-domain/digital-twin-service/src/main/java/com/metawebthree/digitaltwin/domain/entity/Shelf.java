@@ -106,6 +106,14 @@ public class Shelf {
         }
     }
 
+    public BigDecimal calculateUtilizationRate() {
+        if (maxWeight == null || maxWeight.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+        return currentWeight.multiply(BigDecimal.valueOf(100))
+                .divide(maxWeight, 2, java.math.RoundingMode.HALF_UP);
+    }
+
     public Long getId() {
         return id;
     }

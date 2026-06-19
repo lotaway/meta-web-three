@@ -2,14 +2,17 @@ package com.metawebthree.gateway.graphql;
 
 import com.apollographql.federation.graphqljava.Federation;
 import graphql.*;
+import graphql.language.FloatValue;
+import graphql.language.IntValue;
+import graphql.language.StringValue;
 import graphql.schema.*;
 import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.SchemaParser;
 import graphql.schema.idl.TypeDefinitionRegistry;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -97,13 +100,40 @@ public class FederationRouter {
         TYPE_TO_OWNER.put("CartItem", "cart");
     }
 
+    private static final GraphQLScalarType LONG = GraphQLScalarType.newScalar()
+            .name("Long")
+            .coercing(new Coercing<Long, Long>() {
+                @Override
+                public Long serialize(Object dataFetcherResult) {
+                    if (dataFetcherResult instanceof Long) return (Long) dataFetcherResult;
+                    if (dataFetcherResult instanceof Number) return ((Number) dataFetcherResult).longValue();
+                    return Long.parseLong(dataFetcherResult.toString());
+                }
+
+                @Override
+                public Long parseValue(Object input) {
+                    if (input instanceof Long) return (Long) input;
+                    if (input instanceof Number) return ((Number) input).longValue();
+                    return Long.parseLong(input.toString());
+                }
+
+                @Override
+                public Long parseLiteral(Object literal) {
+                    if (literal instanceof StringValue) return Long.parseLong(((StringValue) literal).getValue());
+                    if (literal instanceof IntValue) return ((IntValue) literal).getValue().longValue();
+                    if (literal instanceof FloatValue) return ((FloatValue) literal).getValue().longValue();
+                    return null;
+                }
+            })
+            .build();
+
     public FederationRouter(@LoadBalanced RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
-    @PostConstruct
-    public void init() {
-        log.info("FederationRouter initializing...");
+    @Bean
+    public GraphQL graphQL() {
+        log.info("FederationRouter building GraphQL schema...");
         String sdl = buildCombinedSdl();
         log.debug("Supergraph SDL:\n{}", sdl);
         TypeDefinitionRegistry registry = new SchemaParser().parse(sdl);
@@ -178,6 +208,7 @@ public class FederationRouter {
                 .build();
         this.graphQL = GraphQL.newGraphQL(schema).build();
         log.info("FederationRouter initialized with supergraph schema");
+        return this.graphQL;
     }
 
     private String buildEntitiesQuery(String typeName, int count) {
@@ -298,6 +329,7 @@ public class FederationRouter {
     /** Build RuntimeWiring with DataFetchers that proxy to subgraphs. */
     private RuntimeWiring buildRuntimeWiring() {
         return RuntimeWiring.newRuntimeWiring()
+                .scalar(LONG)
                 // ── Product ─────────────────────────────────────────────────
                 .type("Query", wiring -> wiring
                         .dataFetcher("product", env -> proxy(env, "product", "product",
@@ -475,15 +507,12 @@ public class FederationRouter {
      */
     private String buildCombinedSdl() {
         StringBuilder sb = new StringBuilder();
-        // Federation v2 service SDL type (required by Federation.transform)
-        sb.append("type _Service { sdl: String! }\n");
-        sb.append("type _Entity {}\n");
-        sb.append("union _EntityOrUser = _Entity\n");
+        // Federation infrastructure is injected by Federation.transform()
+        // Only declare scalars not provided by graphql-java
+        sb.append("scalar Long\n");
 
         // Root types — just signatures; concrete types live in schema.graphqls
         sb.append("type Query {\n");
-        sb.append("  _service: _Service!\n");
-        sb.append("  _entities(representations: [_Any!]!): [_Entity]!\n");
         sb.append("  product(id: ID!): Product\n");
         sb.append("  products(page: Int, size: Int): ProductConnection\n");
         sb.append("  productBySku(sku: String!): Product\n");
