@@ -15,9 +15,22 @@ The following backend services have been created, but lack corresponding admin a
 - supply-chain-domain (6 services: inventory alert, inventory, logistics, procurement, supplier, warehouse)
 
 
-### ~~Recommendation Service Problem~~ 已完成
-
-智能推荐系统已检查修复，所有4项问题已解决。修改详情见 git log。
+- [ ] ~~Recommendation Service Problem~~ 已完成
+   - **未通过检查** - 存在多个严重问题，需要修复：
+   - **后端问题**：
+     1. 使用静态Map存储业务状态（违反"禁止隐式共享状态"）：[RecommendationDomainServiceImpl.java:33-34](file:///c:\Users\57669\workspace\project\meta-web-three\server\mall-domain\recommendation-service\src\main\java\com\metawebthree\recommendation\domain\service\RecommendationDomainServiceImpl.java#L33-L34) 的 `RECOMMENDATION_CLICKS` 和 `RECOMMENDATION_CONVERSIONS` 是静态ConcurrentHashMap，系统重启会丢失数据，且在分布式环境下无法共享。建议：改为数据库持久化或使用Redis等分布式缓存。
+     2. 函数过长（违反"单函数不超过20行"）：[RecommendationDomainServiceImpl.java:197-227](file:///c:\Users\57669\workspace\project\meta-web-three\server\mall-domain\recommendation-service\src\main\java\com\metawebthree\recommendation\domain\service\RecommendationDomainServiceImpl.java#L197-L227) 的 `updateProductSimilarityMatrix` 方法31行，[RecommendationDomainServiceImpl.java:229-251](file:///c:\Users\57669\workspace\project\meta-web-three\server\mall-domain\recommendation-service\src\main\java\com\metawebthree\recommendation\domain\service\RecommendationDomainServiceImpl.java#L229-L251) 的 `updateUserSimilarityMatrix` 方法23行。建议：拆分为更小的函数。
+     3. 异常处理不当（违反"禁止吞异常"）：[RecommendationDomainServiceImpl.java:127](file:///c:\Users\57669\workspace\project\meta-web-three\server\mall-domain\recommendation-service\src\main\java\com\metawebthree\recommendation\domain\service\RecommendationDomainServiceImpl.java#L127) 和 [RecommendationDomainServiceImpl.java:141](file:///c:\Users\57669\workspace\project\meta-web-three\server\mall-domain\recommendation-service\src\main\java\com\metawebthree\recommendation\domain\service\RecommendationDomainServiceImpl.java#L141) 使用 `orElseThrow` 抛出 `IllegalArgumentException`，但未提供详细的错误上下文。建议：使用自定义异常类，包含更多错误信息。
+     4. 魔法数字（违反"禁止硬编码环境变量、路径、密钥、魔法数字"）：[RecommendationDomainServiceImpl.java:207](file:///c:\Users\57669\workspace\project\meta-web-three\server\mall-domain\recommendation-service\src\main\java\com\metawebthree\recommendation\domain\service\RecommendationDomainServiceImpl.java#L207) 的 `0.1` 和 [RecommendationDomainServiceImpl.java:238](file:///c:\Users\57669\workspace\project\meta-web-three\server\mall-domain\recommendation-service\src\main\java\com\metawebthree\recommendation\domain\service\RecommendationDomainServiceImpl.java#L238) 的 `0.3`。建议：提取为常量并添加注释说明其业务含义。
+     5. 缺少输入校验（违反"不确定输入必须显式校验"）：[RecommendationCommandService.java:21](file:///c:\Users\57669\workspace\project\meta-web-three\server\mall-domain\recommendation-service\src\main\java\com\metawebthree\recommendation\application\command\RecommendationCommandService.java#L21) 的 `generateRecommendation` 方法未对 `userId`、`scene`、`algorithm`、`maxItems` 进行校验。建议：添加参数校验逻辑。
+     6. 类型转换不安全（违反"不确定输入必须显式校验"）：[RecommendationController.java:210](file:///c:\Users\57669\workspace\project\meta-web-three\server\mall-domain\recommendation-service\src\main\java\com\metawebthree\recommendation\interfaces\controller\RecommendationController.java#L210) 的 `getIntOrDefault` 方法直接进行类型转换，未进行安全校验。建议：添加类型检查和异常处理。
+     7. 缺少单元测试（违反"核心业务逻辑与底层能力必须有单元测试"）：推荐服务的核心业务逻辑（如协同过滤、内容过滤等算法）缺少单元测试。建议：为核心算法添加完整的单元测试。
+   - **前端问题**：
+     1. 文件过长（违反"单文件不超过500行"）：[index.vue](file:///c:\Users\57669\workspace\project\meta-web-three\apps\backstage-admin\src\views\recommendation\index.vue) 文件563行，超出500行限制。建议：拆分为多个组件。
+     2. 错误处理不当（违反"不得存在未处理的运行时错误"）：[index.vue:105](file:///c:\Users\57669\workspace\project\meta-web-three\apps\backstage-admin\src\views\recommendation\index.vue#L105) 的 `getStatistics` 方法 catch 块中未记录错误详情。建议：记录错误日志以便调试。
+     3. 硬编码文本（违反"禁止硬编码"）：[index.vue:145](file:///c:\Users\57669\workspace\project\meta-web-three\apps\backstage-admin\src\views\recommendation\index.vue#L145) 的 "Delete this rule?" 硬编码，未使用国际化。建议：使用 `t()` 函数进行国际化处理。
+     4. 接口重复定义（违反"接口变更必须版本化或向后兼容"）：[recommendation.ts](file:///c:\Users\57669\workspace\project\meta-web-three\apps\backstage-admin\src\apis\recommendation.ts) 中 `RecommendationRuleQueryParams` 和 `RecommendationQueryParams` 被重复定义。建议：统一接口定义，避免重复。
+     5. 类型转换风险（违反"不确定输入必须显式校验"）：[recommendation.ts:216](file:///c:\Users\57669\workspace\project\meta-web-three\apps\backstage-admin\src\apis\recommendation.ts#L216) 的 `markPurchasedByProduct` 方法直接进行类型转换，未进行安全校验。建议：添加类型检查和异常处理。
 
 ### [Pending Features]
 
