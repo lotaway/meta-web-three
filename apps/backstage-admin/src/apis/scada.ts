@@ -68,3 +68,81 @@ export function getCommandListAPI(equipmentCode: string, status?: CommandStatus)
 export function getCommandStatusAPI(commandCode: string) {
   return http<DeviceCommand>({ url: `/api/mes/scada/commands/status/${commandCode}`, method: 'get' })
 }
+
+export interface DashboardMetrics {
+  totalEquipment: number
+  onlineEquipment: number
+  runningEquipment: number
+  idleEquipment: number
+  warningEquipment: number
+  errorEquipment: number
+  offlineEquipment: number
+  avgOee: number
+  todayOutput: number
+  activeAlerts: number
+  pendingWorkOrders: number
+}
+
+export interface EquipmentStatusSummary {
+  equipmentId: number
+  equipmentCode: string
+  equipmentName: string
+  status: string
+  oee: number
+  todayOutput: number
+  lastHeartbeat: string
+  currentTaskNo: string
+}
+
+export interface AlertSummary {
+  id: number
+  eventNo: string
+  levelCode: string
+  levelName: string
+  equipmentId: string
+  equipmentCode: string
+  equipmentName: string
+  description: string
+  status: string
+  occurredAt: string
+  reporterName: string
+}
+
+export interface ProductionStats {
+  totalWorkOrders: number
+  inProgressWorkOrders: number
+  completedWorkOrders: number
+  pendingWorkOrders: number
+  todayOutput: number
+  todayPlannedOutput: number
+  totalTasks: number
+  completedTasks: number
+  completionRate: number
+}
+
+export function getDashboardMetricsAPI(workshopId?: string) {
+  return http<DashboardMetrics>({ url: '/api/mes/scada/dashboard/metrics', method: 'get', params: workshopId ? { workshopId } : {} })
+}
+
+export function getEquipmentStatusSummaryAPI(workshopId?: string) {
+  return http<EquipmentStatusSummary[]>({ url: '/api/mes/scada/dashboard/equipment', method: 'get', params: workshopId ? { workshopId } : {} })
+}
+
+export function getActiveAlertsAPI(workshopId?: string) {
+  return http<AlertSummary[]>({ url: '/api/mes/scada/dashboard/alerts', method: 'get', params: workshopId ? { workshopId } : {} })
+}
+
+export function getProductionStatsAPI(workshopId?: string) {
+  return http<ProductionStats>({ url: '/api/mes/scada/dashboard/production', method: 'get', params: workshopId ? { workshopId } : {} })
+}
+
+export interface Workshop {
+  id: string
+  workshopCode: string
+  workshopName: string
+  description?: string
+}
+
+export function getWorkshopListAPI() {
+  return http<Workshop[]>({ url: '/api/digital-twin/workshops', method: 'get' })
+}

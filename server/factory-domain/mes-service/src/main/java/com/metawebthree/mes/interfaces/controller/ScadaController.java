@@ -78,6 +78,34 @@ public class ScadaController {
                 .map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/dashboard/metrics")
+    @RequirePermission(MesPermissions.SCADA_READ)
+    public ResponseEntity<ScadaDomainService.DashboardMetrics> getDashboardMetrics(
+            @RequestParam(required = false) String workshopId) {
+        return ResponseEntity.ok(scadaDomainService.getDashboardMetrics(workshopId));
+    }
+
+    @GetMapping("/dashboard/equipment")
+    @RequirePermission(MesPermissions.SCADA_READ)
+    public ResponseEntity<List<ScadaDomainService.EquipmentStatusSummary>> getEquipmentStatusSummary(
+            @RequestParam(required = false) String workshopId) {
+        return ResponseEntity.ok(scadaDomainService.getEquipmentStatusSummary(workshopId));
+    }
+
+    @GetMapping("/dashboard/alerts")
+    @RequirePermission(MesPermissions.SCADA_READ)
+    public ResponseEntity<List<ScadaDomainService.AlertSummary>> getActiveAlerts(
+            @RequestParam(required = false) String workshopId) {
+        return ResponseEntity.ok(scadaDomainService.getActiveAlerts(workshopId));
+    }
+
+    @GetMapping("/dashboard/production")
+    @RequirePermission(MesPermissions.SCADA_READ)
+    public ResponseEntity<ScadaDomainService.ProductionStats> getProductionStats(
+            @RequestParam(required = false) String workshopId) {
+        return ResponseEntity.ok(scadaDomainService.getProductionStats(workshopId));
+    }
+
     public static class IngestTelemetryRequest {
         private String equipmentCode;
         private String topic;

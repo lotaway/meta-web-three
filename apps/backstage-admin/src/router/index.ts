@@ -579,6 +579,12 @@ export const asyncRouterMap: RouteRecordExt[] = [
         component: () => import('@/views/mes/scada/index.vue'),
         meta: { title: 'mes.scada.title', icon: 'monitor' },
       },
+      {
+        path: 'scada/dashboard',
+        name: 'mesScadaDashboard',
+        component: () => import('@/views/mes/scada/dashboard.vue'),
+        meta: { title: 'mes.scada.dashboard', icon: 'monitor' },
+      },
       // 生产任务模块
       {
         path: 'production-task',
