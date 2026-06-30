@@ -36,7 +36,7 @@ public class WorkOrder {
     private static final String DEFAULT_STATUS_MACHINE_CODE = "WORK_ORDER_DEFAULT";
 
     public enum WorkOrderStatus {
-        DRAFT, RELEASED, IN_PROGRESS, PAUSED, COMPLETED, CANCELLED
+        DRAFT, RELEASED, IN_PROGRESS, PAUSED, COMPLETED, CANCELLED, PENDING
     }
     
     public static final java.util.Map<String, WorkOrderStatus> STATUS_CODE_MAP = 

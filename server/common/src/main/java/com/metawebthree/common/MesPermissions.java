@@ -5,6 +5,7 @@ public final class MesPermissions {
     private MesPermissions() {}
 
     // SCADA 权限
+    public static final String SCADA_READ = "mes:scada:read";
     public static final String SCADA_TELEMETRY_READ = "mes:scada:telemetry:read";
     public static final String SCADA_COMMAND_DISPATCH = "mes:scada:command:dispatch";
     public static final String SCADA_COMMAND_READ = "mes:scada:command:read";
