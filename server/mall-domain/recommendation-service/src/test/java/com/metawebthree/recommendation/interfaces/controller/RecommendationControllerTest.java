@@ -8,11 +8,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metawebthree.recommendation.application.command.RecommendationCommandService;
 import com.metawebthree.recommendation.application.query.RecommendationQueryService;
 import com.metawebthree.recommendation.domain.entity.Recommendation;
-import com.metawebthree.recommendation.domain.entity.RecommendationResult;
 import com.metawebthree.recommendation.domain.entity.RecommendationRule;
 import com.metawebthree.recommendation.domain.entity.UserBehavior;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,7 +18,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.bean.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -187,9 +185,7 @@ class RecommendationControllerTest {
 
     @Test
     void getMetrics_shouldReturn200() throws Exception {
-        var metrics = new RecommendationQueryService.RecommendationMetrics();
-        metrics.setTotalRecommendations(100L);
-        metrics.setClickedCount(10L);
+        var metrics = new RecommendationQueryService.RecommendationMetrics(100L, 10L, 5L, 10.0, 5.0);
 
         when(queryService.getRecommendationMetrics(1L)).thenReturn(metrics);
 

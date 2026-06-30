@@ -14,49 +14,33 @@ The following backend services have been created, but lack corresponding admin a
 - platform-domain (7 services: commission, customer service, data analysis, media, message, notification, user behavior)
 - supply-chain-domain (6 services: inventory alert, inventory, logistics, procurement, supplier, warehouse)
 
-
-### ~~Recommendation Service Problem~~ 已完成
-
-智能推荐系统已检查修复，所有4项问题已解决。修改详情见 git log。
-
-### [Pending Features]
-
-- [ ] 添加 GraphQL Federation 统一查询层 (整合多个微服务的GraphQL端点，提供统一API)
-   - [ ] 需要端到端运行时验证：启动所有子图服务 + gateway，用 GraphQL 客户端请求跨子图联合查询（如通过 cart 查 product），验证 Federation 路由和实体解析正确
-
----
-
-### [ERP/MES/SupplyChain 缺失模块实现]
-
-基于 `TODO_ERP.md` 分析对比现有代码后，确认以下真正缺失的功能模块，按优先级排列：
-
 #### MES 领域 (高优先级)
 
 - [ ] **[MES] 有限产能排程 (Finite Capacity Scheduling)**: `server/factory-domain/mes-service` 中添加排程引擎 [代码质量不达标: 异常被吞, 前端文件超长, 缺少单元测试]
-   - [ ] 定义排程数据模型：`ScheduleOrder`, `ScheduleResource`, `ScheduleResult` (含内嵌 `ScheduleOperation`, `TimeSlot`, `ScheduleConflict`) [需修复 SchedulingDomainServiceImpl 异常吞并问题]
-   - [ ] 实现基础排程算法：前向排程(Forward Scheduling)、后向排程(Backward Scheduling) — `SchedulingDomainServiceImpl` [需修复异常吞并: 第78行和第141行catch Exception后仅记录日志未重新抛出]
-   - [ ] 实现约束检查：资源可用性 (`ScheduleResource.isAvailable()`), 冲突报告 (`ScheduleConflict`)
-   - [ ] 添加调度 REST API：`/api/mes/scheduling/orders|resources|forward|backward`
-   - [ ] 添加后台调度管理页面：`views/mes/scheduling/index.vue` (工单列表+资源管理.含前向/后向排程按钮,工序展开,调度结果报警) [需拆分为多个组件, 当前989行超出500行限制]
+   - [x] 定义排程数据模型：`ScheduleOrder`, `ScheduleResource`, `ScheduleResult` (含内嵌 `ScheduleOperation`, `TimeSlot`, `ScheduleConflict`) [需修复 SchedulingDomainServiceImpl 异常吞并问题]
+   - [x] 实现基础排程算法：前向排程(Forward Scheduling)、后向排程(Backward Scheduling) — `SchedulingDomainServiceImpl` [需修复异常吞并: 第78行和第141行catch Exception后仅记录日志未重新抛出]
+   - [x] 实现约束检查：资源可用性 (`ScheduleResource.isAvailable()`), 冲突报告 (`ScheduleConflict`)
+   - [x] 添加调度 REST API：`/api/mes/scheduling/orders|resources|forward|backward`
+   - [x] 添加后台调度管理页面：`views/mes/scheduling/index.vue` (工单列表+资源管理.含前向/后向排程按钮,工序展开,调度结果报警) [需拆分为多个组件, 当前989行超出500行限制]
 
 - [ ] **[MES] 人员/工时跟踪 (Labor & Time Tracking)**: 记录操作员资质、工时、考勤及人员到工作中心的分配 [代码质量不达标: 缺少单元测试]
-   - [ ] 定义领域实体：`Operator`, `OperatorSkill`, `WorkCenterAssignment`, `TimeRecord`, `Attendance`
-   - [ ] 实现工时记录：员工报工、工时核算、产出记录 (clockIn/Out, submit/approve flow)
-   - [ ] 实现工作中心分配：人员 → 工位/产线绑定
-   - [ ] 添加 REST API：`/api/mes/labor/operators|attendance|time-records|assignments`
-   - [ ] 添加后台管理页面：`views/mes/labor/index.vue` (含 4 个 Tab: 操作员/考勤/工时/分配)
+   - [x] 定义领域实体：`Operator`, `OperatorSkill`, `WorkCenterAssignment`, `TimeRecord`, `Attendance`
+   - [x] 实现工时记录：员工报工、工时核算、产出记录 (clockIn/Out, submit/approve flow)
+   - [x] 实现工作中心分配：人员 → 工位/产线绑定
+   - [x] 添加 REST API：`/api/mes/labor/operators|attendance|time-records|assignments`
+   - [x] 添加后台管理页面：`views/mes/labor/index.vue` (含 4 个 Tab: 操作员/考勤/工时/分配)
 
 - [ ] **[MES] 制造可追溯性完善 (Manufacturing Genealogy)**: 在已有 TraceModel/TraceRecord 基础上补全"制造族谱" [代码质量不达标: 缺少单元测试]
-   - [ ] 完善溯源数据模型：连接成品 → 批次原料 → 设备 → 操作员 → 工艺参数
-   - [ ] 实现自动收集：工单完工时自动关联原料批次、设备、操作员
-   - [ ] 添加批次追溯查询 API：正向(原料→成品)和反向(成品→原料)
-   - [ ] 添加后台追溯查询页面：`views/mes/traceability/index.vue`
+   - [x] 完善溯源数据模型：连接成品 → 批次原料 → 设备 → 操作员 → 工艺参数
+   - [x] 实现自动收集：工单完工时自动关联原料批次、设备、操作员
+   - [x] 添加批次追溯查询 API：正向(原料→成品)和反向(成品→原料)
+   - [x] 添加后台追溯查询页面：`views/mes/traceability/index.vue`
 
 - [ ] **[MES] 实时数据采集集成 (SCADA Integration)**: 基于已有 Equipment.mqttTopic 字段构建完整数据采集层 [代码质量不达标: 异常吞并]
-   - [ ] 实现 MQTT 设备数据消费者：订阅设备 topic，解析遥测数据 (`MqttTelemetrySubscriber`, `MqttTelemetryService`)
-   - [ ] 定义采集数据模型：`TelemetryRecord`, `TelemetryMetric`, `DeviceCommand`
-   - [ ] 实现设备命令下发：从 MES 下发参数配置到设备 (`MqttCommandPublisher`, `ScadaDomainService.dispatchCommand`)
-   - [ ] 实现实时状态看板：设备 OEE、生产进度、异常告警 (SCADA 监控后台页面 + REST API)
+   - [x] 实现 MQTT 设备数据消费者：订阅设备 topic，解析遥测数据 (`MqttTelemetrySubscriber`, `MqttTelemetryService`)
+   - [x] 定义采集数据模型：`TelemetryRecord`, `TelemetryMetric`, `DeviceCommand`
+   - [x] 实现设备命令下发：从 MES 下发参数配置到设备 (`MqttCommandPublisher`, `ScadaDomainService.dispatchCommand`)
+   - [x] 实现实时状态看板：设备 OEE、生产进度、异常告警 (SCADA 监控后台页面 + REST API)
 
 **数字孪生MES集成** [代码质量不达标: 前端编译错误, 异常吞并]:
 - [ ] **[验收] 数字孪生 MES API 连通性验证**: `apps/digital-twin/system-management/src/renderer/services/mes-api.ts` — 确认 mesApi 各方法能正确调用 `mes-service` 的 SCADA/追溯端点 [getTraceChain 存在异常吞并, 需修复]

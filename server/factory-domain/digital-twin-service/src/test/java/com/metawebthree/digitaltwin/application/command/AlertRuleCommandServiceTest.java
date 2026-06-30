@@ -41,7 +41,7 @@ class AlertRuleCommandServiceTest {
         rule.setOperator(ComparisonOperator.GREATER_THAN);
         rule.setThresholdValue(80.0);
         rule.setLevel(AlertRuleLevel.WARNING);
-        rule.setAlertType(AlertType.THRESHOLD);
+        rule.setAlertType(AlertType.TEMPERATURE_HIGH);
         rule.setEnabled(true);
         rule.setCreatedBy("admin");
         return rule;
@@ -50,15 +50,15 @@ class AlertRuleCommandServiceTest {
     private AlertRuleCommandService.CreateAlertRuleRequest createBaseRequest() {
         return new AlertRuleCommandService.CreateAlertRuleRequest(
             "RULE-001", "Temperature Alert", "Alert when temperature exceeds limit",
-            "SENSOR", "TEMPERATURE", "GREATER_THAN", 80.0, "WARNING", "THRESHOLD",
+            "SENSOR", "TEMPERATURE", "GREATER_THAN", 80.0, "WARNING", "TEMPERATURE_HIGH",
             "Temperature exceeded", "Temperature is {value}°C");
     }
 
     private void prepareCreateMock(AlertRule rule) {
         when(domainService.createRule(anyString(), anyString(), anyString(), anyString(),
-            any(AlertRule.MetricType.class), any(AlertRule.ComparisonOperator.class), anyDouble(),
+            any(AlertRule.MetricType.class), any(AlertRule.ComparisonOperator.class), (Double)anyDouble(),
             any(AlertRule.AlertRuleLevel.class), any(AlertRule.AlertType.class),
-            anyString(), anyString(), anyString(), anyString()))
+            anyString(), anyString(), anyString()))
             .thenReturn(rule);
     }
 
@@ -79,7 +79,7 @@ class AlertRuleCommandServiceTest {
     void createRule_shouldThrowExceptionWhenRuleCodeBlank() {
         AlertRuleCommandService.CreateAlertRuleRequest request = new AlertRuleCommandService.CreateAlertRuleRequest(
             "", "Temperature Alert", "Alert when temperature exceeds limit",
-            "SENSOR", "TEMPERATURE", "GREATER_THAN", 80.0, "WARNING", "THRESHOLD",
+            "SENSOR", "TEMPERATURE", "GREATER_THAN", 80.0, "WARNING", "TEMPERATURE_HIGH",
             "Temperature exceeded", "Temperature is {value}°C"
         );
 
@@ -90,7 +90,7 @@ class AlertRuleCommandServiceTest {
     void createRule_shouldThrowExceptionWhenRuleNameBlank() {
         AlertRuleCommandService.CreateAlertRuleRequest request = new AlertRuleCommandService.CreateAlertRuleRequest(
             "RULE-001", "", "Alert when temperature exceeds limit",
-            "SENSOR", "TEMPERATURE", "GREATER_THAN", 80.0, "WARNING", "THRESHOLD",
+            "SENSOR", "TEMPERATURE", "GREATER_THAN", 80.0, "WARNING", "TEMPERATURE_HIGH",
             "Temperature exceeded", "Temperature is {value}°C"
         );
 
@@ -101,7 +101,7 @@ class AlertRuleCommandServiceTest {
     void createRule_shouldThrowExceptionWhenThresholdNull() {
         AlertRuleCommandService.CreateAlertRuleRequest request = new AlertRuleCommandService.CreateAlertRuleRequest(
             "RULE-001", "Temperature Alert", "Alert when temperature exceeds limit",
-            "SENSOR", "TEMPERATURE", "GREATER_THAN", null, "WARNING", "THRESHOLD",
+            "SENSOR", "TEMPERATURE", "GREATER_THAN", null, "WARNING", "TEMPERATURE_HIGH",
             "Temperature exceeded", "Temperature is {value}°C"
         );
 
@@ -119,7 +119,7 @@ class AlertRuleCommandServiceTest {
     private AlertRuleCommandService.UpdateAlertRuleRequest createUpdateRequest() {
         return new AlertRuleCommandService.UpdateAlertRuleRequest(
             "Updated Temperature Alert", "Updated description", "SENSOR",
-            "TEMPERATURE", "GREATER_THAN", 90.0, 60, "ERROR", "THRESHOLD",
+            "TEMPERATURE", "GREATER_THAN", 90.0, 60, "ERROR", "TEMPERATURE_HIGH",
             "Temperature exceeded", "Temperature is {value}°C", 300, 20, "EMAIL");
     }
 

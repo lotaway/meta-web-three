@@ -3,7 +3,6 @@ package com.metawebthree.mes.domain.service.scheduling;
 import com.metawebthree.mes.domain.entity.scheduling.ScheduleOrder;
 import com.metawebthree.mes.domain.entity.scheduling.ScheduleOrder.ScheduleOperation;
 import com.metawebthree.mes.domain.entity.scheduling.ScheduleOrder.ScheduleOperationStatus;
-import com.metawebthree.mes.domain.entity.scheduling.ScheduleOrder.ScheduleStatus;
 import com.metawebthree.mes.domain.entity.scheduling.ScheduleResource;
 import com.metawebthree.mes.domain.entity.scheduling.ScheduleResource.ResourceStatus;
 import com.metawebthree.mes.domain.entity.scheduling.ScheduleResult;

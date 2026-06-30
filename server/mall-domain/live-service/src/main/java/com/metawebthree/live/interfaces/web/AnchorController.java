@@ -4,7 +4,6 @@ import com.metawebthree.live.application.LiveApplicationService;
 import com.metawebthree.live.domain.model.*;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController

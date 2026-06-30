@@ -86,7 +86,7 @@ public class ProcessRouteTest {
         step1.setStepNo(1);
         step1.setProcessCode("PC-001");
         step1.setProcessName("组装");
-        step1.setWorkstationId("WS-001");
+        step1.setWorkstationId(1L);
         step1.setStandardTime(300);
         step1.setQualityCheckpoint("IPQC");
         steps.add(step1);
@@ -95,7 +95,7 @@ public class ProcessRouteTest {
         step2.setStepNo(2);
         step2.setProcessCode("PC-002");
         step2.setProcessName("测试");
-        step2.setWorkstationId("WS-002");
+        step2.setWorkstationId(2L);
         step2.setStandardTime(120);
         step2.setQualityCheckpoint("FQC");
         steps.add(step2);
@@ -320,7 +320,7 @@ public class ProcessRouteTest {
         step.setStepNo(stepNo);
         step.setProcessCode(processCode);
         step.setProcessName(processName);
-        step.setWorkstationId("WS-" + stepNo);
+        step.setWorkstationId((long) stepNo);
         step.setStandardTime(300);
         return step;
     }

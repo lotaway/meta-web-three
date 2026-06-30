@@ -1,6 +1,5 @@
 package com.metawebthree.mes.domain.entity;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class WorkReport {

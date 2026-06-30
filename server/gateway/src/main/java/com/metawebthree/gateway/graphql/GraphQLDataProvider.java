@@ -5,7 +5,6 @@ import graphql.schema.DataFetchingEnvironment;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.function.Function;
 
 @Component
 public class GraphQLDataProvider {

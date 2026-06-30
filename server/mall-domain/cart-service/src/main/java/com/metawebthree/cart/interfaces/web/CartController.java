@@ -2,11 +2,9 @@ package com.metawebthree.cart.interfaces.web;
 
 import com.metawebthree.cart.application.CartService;
 import com.metawebthree.common.constants.HeaderConstants;
-import com.metawebthree.common.constants.RequestHeaderKeys;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.cart.dto.CartItemDTO;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;

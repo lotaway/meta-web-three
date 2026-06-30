@@ -1,7 +1,7 @@
 package com.metawebthree.digitaltwin.application.query;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.metadata.Page;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.metawebthree.digitaltwin.domain.entity.Alert;
 import com.metawebthree.digitaltwin.domain.entity.Device;
 import com.metawebthree.digitaltwin.domain.entity.ProductionLine;
@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -109,7 +108,6 @@ class DigitalTwinQueryServiceTest {
         IPage<Device> page = new Page<>(1, 10);
         page.setRecords(List.of(device));
         page.setTotal(1);
-        page.setPages(1);
         
         when(deviceRepository.findPaginated(1, 10)).thenReturn(page);
 
@@ -181,7 +179,6 @@ class DigitalTwinQueryServiceTest {
         IPage<Workshop> page = new Page<>(1, 10);
         page.setRecords(List.of(workshop));
         page.setTotal(1);
-        page.setPages(1);
         
         when(workshopRepository.findPaginated(1, 10)).thenReturn(page);
 
@@ -225,7 +222,6 @@ class DigitalTwinQueryServiceTest {
         IPage<ProductionLine> page = new Page<>(1, 10);
         page.setRecords(List.of(line));
         page.setTotal(1);
-        page.setPages(1);
         
         when(productionLineRepository.findPaginated(1, 10)).thenReturn(page);
 

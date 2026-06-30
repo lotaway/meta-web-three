@@ -43,7 +43,7 @@ class AlertRuleQueryServiceTest {
         rule.setOperator(ComparisonOperator.GREATER_THAN);
         rule.setThresholdValue(80.0);
         rule.setLevel(AlertRuleLevel.WARNING);
-        rule.setAlertType(AlertType.THRESHOLD);
+        rule.setAlertType(AlertType.TEMPERATURE_HIGH);
         rule.setEnabled(enabled);
         rule.setCreatedBy("admin");
         rule.setCreatedAt(java.time.LocalDateTime.now());

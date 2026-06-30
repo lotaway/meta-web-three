@@ -161,7 +161,7 @@ public class InventoryCommandService {
             eventPublisher.publishInventoryAlertCreated(
                     alert.getWarehouseCode(),
                     alert.getAlertCode(),
-                    alert.getLevel().name(),
+                    alert.getAlertLevel().name(),
                     alert.getDescription());
         }
     }

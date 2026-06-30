@@ -9,7 +9,6 @@ import com.metawebthree.mes.domain.repository.trace.TraceRecordRepository;
 import com.metawebthree.mes.domain.service.trace.TraceDomainService;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 public class TraceCommandService {

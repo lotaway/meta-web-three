@@ -1,10 +1,10 @@
 package com.metawebthree.event;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;

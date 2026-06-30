@@ -1,6 +1,5 @@
 package com.metawebthree.common.alert;
 
-import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthComponent;
 import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;

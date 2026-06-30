@@ -4,11 +4,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
-import org.springframework.web.socket.core.WebSocketClient;
+import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.concurrent.CountDownLatch;
@@ -138,7 +137,7 @@ class DigitalTwinWebSocketIntegrationTest {
             @Override
             public void afterConnectionEstablished(org.springframework.web.socket.WebSocketSession session) {
                 try {
-                    session.close(org.springframework.web.socket.CloseStatus.NORMAL_CLOSURE);
+                    session.close(org.springframework.web.socket.CloseStatus.NORMAL);
                 } catch (Exception e) {
                     log.error("Failed to close connection", e);
                     throw new RuntimeException("Failed to close connection", e);

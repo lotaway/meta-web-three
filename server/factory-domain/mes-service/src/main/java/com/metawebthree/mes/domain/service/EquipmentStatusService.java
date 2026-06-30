@@ -1,7 +1,6 @@
 package com.metawebthree.mes.domain.service;
 
 import com.metawebthree.mes.domain.entity.Equipment;
-import com.metawebthree.mes.domain.entity.EquipmentStatusCode;
 import com.metawebthree.mes.domain.entity.EquipmentStatusConfig;
 import com.metawebthree.mes.domain.entity.EquipmentStatusTransition;
 import com.metawebthree.mes.domain.repository.EquipmentRepository;

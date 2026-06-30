@@ -5,7 +5,6 @@ import com.metawebthree.mes.domain.entity.SopDocument;
 import com.metawebthree.mes.domain.entity.SopRouteBinding;
 import com.metawebthree.mes.domain.repository.SopDocumentRepository;
 import com.metawebthree.mes.domain.repository.SopRouteBindingRepository;
-import com.metawebthree.mes.infrastructure.persistence.dataobject.SopDocumentDO;
 import com.metawebthree.mes.infrastructure.persistence.dataobject.SopRouteBindingDO;
 import com.metawebthree.mes.infrastructure.persistence.mapper.SopDocumentMapper;
 import com.metawebthree.mes.infrastructure.persistence.mapper.SopRouteBindingMapper;

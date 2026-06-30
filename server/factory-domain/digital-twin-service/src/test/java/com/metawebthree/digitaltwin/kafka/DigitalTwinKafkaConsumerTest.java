@@ -1,6 +1,6 @@
 package com.metawebthree.digitaltwin.kafka;
 
-import com.metawebthree.digitaltwin.infrastructure.event.DigitalTwinEventPublisher;
+import com.metawebthree.digitaltwin.application.ai.WarehouseAIService;
 import com.metawebthree.digitaltwin.interfaces.websocket.DigitalTwinWebSocketHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,7 +9,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -19,13 +21,18 @@ class DigitalTwinKafkaConsumerTest {
     @Mock
     private DigitalTwinWebSocketHandler webSocketHandler;
     @Mock
-    private DigitalTwinEventPublisher eventPublisher;
+    private WarehouseAIService aiService;
 
     private DigitalTwinKafkaConsumer consumer;
 
     @BeforeEach
     void setUp() {
-        consumer = new DigitalTwinKafkaConsumer(webSocketHandler, eventPublisher);
+        consumer = new DigitalTwinKafkaConsumer(webSocketHandler, aiService);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> mapMatcher(String expectedType) {
+        return argThat((Map<String, Object> map) -> expectedType.equals(map.get("type")));
     }
 
     @Test
@@ -34,9 +41,7 @@ class DigitalTwinKafkaConsumerTest {
         
         consumer.consumeDeviceStatusChanged(message);
 
-        verify(webSocketHandler).broadcast(argThat(map -> 
-            "DEVICE_STATUS_CHANGED".equals(map.get("type"))
-        ));
+        verify(webSocketHandler).broadcast(mapMatcher("DEVICE_STATUS_CHANGED"));
     }
 
     @Test
@@ -45,9 +50,7 @@ class DigitalTwinKafkaConsumerTest {
         
         consumer.consumeDevicePositionUpdated(message);
 
-        verify(webSocketHandler).broadcast(argThat(map -> 
-            "DEVICE_POSITION_UPDATED".equals(map.get("type"))
-        ));
+        verify(webSocketHandler).broadcast(mapMatcher("DEVICE_POSITION_UPDATED"));
     }
 
     @Test
@@ -65,9 +68,7 @@ class DigitalTwinKafkaConsumerTest {
         
         consumer.consumeAlertCreated(message);
 
-        verify(webSocketHandler).broadcast(argThat(map -> 
-            "ALERT_CREATED".equals(map.get("type"))
-        ));
+        verify(webSocketHandler).broadcast(mapMatcher("ALERT_CREATED"));
     }
 
     @Test
@@ -76,9 +77,7 @@ class DigitalTwinKafkaConsumerTest {
         
         consumer.consumeProductionOutputUpdated(message);
 
-        verify(webSocketHandler).broadcast(argThat(map -> 
-            "PRODUCTION_OUTPUT_UPDATED".equals(map.get("type"))
-        ));
+        verify(webSocketHandler).broadcast(mapMatcher("PRODUCTION_OUTPUT_UPDATED"));
     }
 
     @Test
@@ -87,9 +86,7 @@ class DigitalTwinKafkaConsumerTest {
         
         consumer.consumeAgvPositionUpdated(message);
 
-        verify(webSocketHandler).broadcast(argThat(map -> 
-            "AGV_POSITION_UPDATED".equals(map.get("type"))
-        ));
+        verify(webSocketHandler).broadcast(mapMatcher("AGV_POSITION_UPDATED"));
     }
 
     @Test

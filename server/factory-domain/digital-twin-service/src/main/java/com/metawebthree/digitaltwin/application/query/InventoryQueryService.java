@@ -1,7 +1,6 @@
 package com.metawebthree.digitaltwin.application.query;
 
 import com.metawebthree.digitaltwin.domain.entity.InventoryAlert;
-import com.metawebthree.digitaltwin.domain.entity.InventoryAlert.AlertLevel;
 import com.metawebthree.digitaltwin.domain.entity.InventoryAlert.AlertStatus;
 import com.metawebthree.digitaltwin.domain.entity.InventoryItem;
 import com.metawebthree.digitaltwin.domain.entity.InventoryItem.ItemStatus;
@@ -156,7 +155,7 @@ public class InventoryQueryService {
         summary.shelfCode = alert.getShelfCode();
         summary.itemCode = alert.getItemCode();
         summary.alertType = alert.getAlertType() != null ? alert.getAlertType().name() : null;
-        summary.level = alert.getLevel() != null ? alert.getLevel().name() : null;
+        summary.level = alert.getAlertLevel() != null ? alert.getAlertLevel().name() : null;
         summary.title = alert.getTitle();
         summary.description = alert.getDescription();
         summary.currentQuantity = alert.getCurrentQuantity();

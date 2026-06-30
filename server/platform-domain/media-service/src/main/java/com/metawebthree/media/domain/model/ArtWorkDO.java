@@ -1,7 +1,5 @@
 package com.metawebthree.media.domain.model;
 
-import java.sql.Array;
-import java.util.List;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;

@@ -12,7 +12,6 @@ import com.metawebthree.recommendation.infrastructure.event.RecommendationEventP
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service

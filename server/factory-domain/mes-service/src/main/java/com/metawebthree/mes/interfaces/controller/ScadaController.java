@@ -9,7 +9,6 @@ import com.metawebthree.mes.domain.repository.scada.DeviceCommandRepository;
 import com.metawebthree.mes.domain.repository.scada.TelemetryRecordRepository;
 import com.metawebthree.mes.domain.service.scada.ScadaDomainService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -77,6 +76,34 @@ public class ScadaController {
     public ResponseEntity<DeviceCommand> getCommandStatus(@PathVariable String commandCode) {
         return deviceCommandRepository.findByCommandCode(commandCode)
                 .map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/dashboard/metrics")
+    @RequirePermission(MesPermissions.SCADA_READ)
+    public ResponseEntity<ScadaDomainService.DashboardMetrics> getDashboardMetrics(
+            @RequestParam(required = false) String workshopId) {
+        return ResponseEntity.ok(scadaDomainService.getDashboardMetrics(workshopId));
+    }
+
+    @GetMapping("/dashboard/equipment")
+    @RequirePermission(MesPermissions.SCADA_READ)
+    public ResponseEntity<List<ScadaDomainService.EquipmentStatusSummary>> getEquipmentStatusSummary(
+            @RequestParam(required = false) String workshopId) {
+        return ResponseEntity.ok(scadaDomainService.getEquipmentStatusSummary(workshopId));
+    }
+
+    @GetMapping("/dashboard/alerts")
+    @RequirePermission(MesPermissions.SCADA_READ)
+    public ResponseEntity<List<ScadaDomainService.AlertSummary>> getActiveAlerts(
+            @RequestParam(required = false) String workshopId) {
+        return ResponseEntity.ok(scadaDomainService.getActiveAlerts(workshopId));
+    }
+
+    @GetMapping("/dashboard/production")
+    @RequirePermission(MesPermissions.SCADA_READ)
+    public ResponseEntity<ScadaDomainService.ProductionStats> getProductionStats(
+            @RequestParam(required = false) String workshopId) {
+        return ResponseEntity.ok(scadaDomainService.getProductionStats(workshopId));
     }
 
     public static class IngestTelemetryRequest {

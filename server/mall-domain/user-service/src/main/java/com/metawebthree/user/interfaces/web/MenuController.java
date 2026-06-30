@@ -1,6 +1,5 @@
 package com.metawebthree.user.interfaces.web;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.common.annotations.RequirePermission;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.user.application.MenuService;

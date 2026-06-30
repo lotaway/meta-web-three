@@ -95,7 +95,7 @@ class ProductServiceRpcImplTest {
         product.setProductRemark("Remark");
         product.setCreateTime(LocalDateTime.now());
 
-        IPage<ProductDO> pageResult = new Page<>(page, size, 1);
+        Page<ProductDO> pageResult = new Page<>(page, size, 1);
         pageResult.setRecords(List.of(product));
 
         when(productMapper.selectPage(any(Page.class), any(LambdaQueryWrapper.class)))
@@ -121,7 +121,7 @@ class ProductServiceRpcImplTest {
         product.setProductName("Categorized Product");
         product.setCreateTime(LocalDateTime.now());
 
-        IPage<ProductDO> pageResult = new Page<>(1, 10, 1);
+        Page<ProductDO> pageResult = new Page<>(1, 10, 1);
         pageResult.setRecords(List.of(product));
 
         when(productMapper.selectPage(any(Page.class), any(LambdaQueryWrapper.class)))
@@ -157,7 +157,7 @@ class ProductServiceRpcImplTest {
         verify(productMapper).insert(productCaptor.capture());
         ProductDO savedProduct = productCaptor.getValue();
         assertEquals("New Product", savedProduct.getProductName());
-        assertEquals("SKU-001", savedProduct.getProductNo());
+        assertEquals("SKU-001", savedProduct.getSku());
         assertEquals("A new product", savedProduct.getProductRemark());
         assertEquals(10L, savedProduct.getCategoryId().longValue());
         assertNotNull(savedProduct.getCreateTime());

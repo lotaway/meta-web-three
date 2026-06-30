@@ -12,16 +12,16 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -36,7 +36,7 @@ import com.metawebthree.media.infrastructure.persistence.mapper.PeopleMapper;
 import com.metawebthree.media.infrastructure.persistence.mapper.PeopleTypeMapper;
 import com.metawebthree.media.utils.DefaultMarkdownVisitor;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ComponentScan(basePackages = {
         "com.metawebthree.media",
@@ -76,7 +76,7 @@ public class MediaServiceTest {
         UpdateWrapper<ArtWorkDO> updateWrapper = new UpdateWrapper<ArtWorkDO>().eq("series", "骑士的沙丘").set("director",
                 matchPeopleDO.getId());
         int result = artWorkMapper.update(updateWrapper);
-        Assert.assertTrue(result > 0);
+        Assertions.assertTrue(result > 0);
     }
 
     public PeopleTypeDO getOrCreatePeopleType(PeopleTypeDO targetPeopleTypeDO) {
@@ -84,7 +84,7 @@ public class MediaServiceTest {
                 .select(PeopleTypeDO::getId).eq(PeopleTypeDO::getType, targetPeopleTypeDO.getType()));
         if (matchPeopleTypeDO.equals(null)) {
             int getTypeResult = peopleTypeMapper.insert(targetPeopleTypeDO);
-            Assert.assertEquals(1, getTypeResult);
+            Assertions.assertEquals(1, getTypeResult);
         }
         return matchPeopleTypeDO;
     }
@@ -95,7 +95,7 @@ public class MediaServiceTest {
         PeopleDO matchPeopleDO = peopleMapper.selectOne(queryWrapper);
         if (matchPeopleDO.equals(null)) {
             int result = peopleMapper.insert(matchPeopleDO);
-            Assert.assertEquals(1, result);
+            Assertions.assertEquals(1, result);
         }
         return matchPeopleDO;
     }
@@ -114,7 +114,7 @@ public class MediaServiceTest {
                 new MPJLambdaWrapper<ArtWorkDO>()
                         .select(ArtWorkDO::getId)
                         .like(ArtWorkDO::getSubtitle, "undefined"));
-        Assert.assertNull(errorColumn);
+        Assertions.assertNull(errorColumn);
     }
 
     @Test
@@ -122,8 +122,8 @@ public class MediaServiceTest {
     public void fixArtworkSeriesError() throws IOException {
         Node document = analyzeFile();
         List<Integer> results = processArtworks(document);
-        Assert.assertTrue(results.size() > 0);
-        Assert.assertTrue(results.stream().allMatch(i -> i > 0));
+        Assertions.assertTrue(results.size() > 0);
+        Assertions.assertTrue(results.stream().allMatch(i -> i > 0));
     }
 
     public Node analyzeFile() throws IOException {

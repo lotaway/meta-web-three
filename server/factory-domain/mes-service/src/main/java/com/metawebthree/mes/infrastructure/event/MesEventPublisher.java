@@ -4,7 +4,6 @@ import com.metawebthree.common.event.DomainEventPublisher;
 import com.metawebthree.mes.domain.event.*;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;

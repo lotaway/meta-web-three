@@ -10,6 +10,8 @@ import org.springframework.web.client.RestTemplate;
 
 import com.metawebthree.notification.domain.ports.UserQueryPort;
 
+import lombok.Data;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -209,7 +211,7 @@ public class SmsNotificationSender implements NotificationSender {
     }
     
     // Internal classes for SMS communication
-    
+    @Data
     private static class SmsRequest {
         private String appKey;
         private String appSecret;
@@ -217,38 +219,17 @@ public class SmsNotificationSender implements NotificationSender {
         private String phone;
         private String message;
         private long timestamp;
-        
-        // Getters and setters
-        public String getAppKey() { return appKey; }
-        public void setAppKey(String appKey) { this.appKey = appKey; }
-        public String getAppSecret() { return appSecret; }
-        public void setAppSecret(String appSecret) { this.appSecret = appSecret; }
-        public Long getUserId() { return userId; }
-        public void setUserId(Long userId) { this.userId = userId; }
-        public String getPhone() { return phone; }
-        public void setPhone(String phone) { this.phone = phone; }
-        public String getMessage() { return message; }
-        public void setMessage(String message) { this.message = message; }
-        public long getTimestamp() { return timestamp; }
-        public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
     }
     
+    @Data
     private static class SmsResponse {
         private boolean success;
         private String messageId;
         private String phone;
         private String errorMessage;
-        
-        public boolean isSuccess() { return success; }
-        public void setSuccess(boolean success) { this.success = success; }
-        public String getMessageId() { return messageId; }
-        public void setMessageId(String messageId) { this.messageId = messageId; }
-        public String getPhone() { return phone; }
-        public void setPhone(String phone) { this.phone = phone; }
-        public String getErrorMessage() { return errorMessage; }
-        public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
     }
     
+    @Data
     private static class SmsRecord {
         private Long userId;
         private String phone;
@@ -256,18 +237,5 @@ public class SmsNotificationSender implements NotificationSender {
         private String messageId;
         private long sendTime;
         private String status;
-        
-        public Long getUserId() { return userId; }
-        public void setUserId(Long userId) { this.userId = userId; }
-        public String getPhone() { return phone; }
-        public void setPhone(String phone) { this.phone = phone; }
-        public String getMessage() { return message; }
-        public void setMessage(String message) { this.message = message; }
-        public String getMessageId() { return messageId; }
-        public void setMessageId(String messageId) { this.messageId = messageId; }
-        public long getSendTime() { return sendTime; }
-        public void setSendTime(long sendTime) { this.sendTime = sendTime; }
-        public String getStatus() { return status; }
-        public void setStatus(String status) { this.status = status; }
     }
 }

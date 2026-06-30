@@ -1,7 +1,5 @@
 package com.metawebthree.common.trace;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Represents an edge (call relationship) between two services in the topology

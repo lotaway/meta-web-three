@@ -1,7 +1,6 @@
 package com.metawebthree.inventoryalert.application.service;
 
 import com.metawebthree.inventoryalert.application.dto.InventoryAlertDTO;
-import com.metawebthree.inventoryalert.application.dto.ThresholdConfigDTO;
 import com.metawebthree.inventoryalert.domain.model.AlertLevel;
 import com.metawebthree.inventoryalert.domain.model.AlertStatus;
 import com.metawebthree.inventoryalert.domain.model.InventoryAlertDO;

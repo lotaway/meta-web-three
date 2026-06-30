@@ -90,6 +90,12 @@ public class InventoryItem {
         return expiryDate.isBefore(LocalDate.now().plusDays(daysThreshold));
     }
 
+    public BigDecimal calculateReorderQuantity() {
+        if (maxQuantity == null) return BigDecimal.ZERO;
+        BigDecimal needed = maxQuantity.subtract(quantity);
+        return needed.compareTo(BigDecimal.ZERO) > 0 ? needed : BigDecimal.ZERO;
+    }
+
     public Long getId() {
         return id;
     }

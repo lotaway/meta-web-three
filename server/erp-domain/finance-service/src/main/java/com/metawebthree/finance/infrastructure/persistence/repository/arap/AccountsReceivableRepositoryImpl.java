@@ -1,6 +1,5 @@
 package com.metawebthree.finance.infrastructure.persistence.repository.arap;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.finance.domain.entity.arap.AccountsReceivable;
 import com.metawebthree.finance.domain.entity.arap.AccountsReceivable.ArStatus;
 import com.metawebthree.finance.domain.repository.arap.AccountsReceivableRepository;

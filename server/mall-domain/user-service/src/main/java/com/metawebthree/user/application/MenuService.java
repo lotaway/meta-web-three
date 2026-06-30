@@ -1,7 +1,6 @@
 package com.metawebthree.user.application;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.metawebthree.user.domain.model.MenuDO;
 import com.metawebthree.user.infrastructure.persistence.mapper.MenuMapper;

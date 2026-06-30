@@ -46,7 +46,7 @@ public class InventoryAlertFieldAssigner {
 
     private static void assignAlertInfo(InventoryAlert alert, InventoryAlertDO alertDO) {
         alert.setAlertType(parseAlertType(alertDO.getAlertType()));
-        alert.setLevel(parseLevel(alertDO.getLevel()));
+        alert.setAlertLevel(parseLevel(alertDO.getLevel()));
         alert.setTitle(alertDO.getTitle());
         alert.setDescription(alertDO.getDescription());
     }
@@ -90,7 +90,7 @@ public class InventoryAlertFieldAssigner {
 
     private static void assignAlertInfo(InventoryAlertDO alertDO, InventoryAlert alert) {
         alertDO.setAlertType(alert.getAlertType() != null ? alert.getAlertType().name() : null);
-        alertDO.setLevel(alert.getLevel() != null ? alert.getLevel().name() : null);
+        alertDO.setLevel(alert.getAlertLevel() != null ? alert.getAlertLevel().name() : null);
         alertDO.setTitle(alert.getTitle());
         alertDO.setDescription(alert.getDescription());
     }

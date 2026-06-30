@@ -1,7 +1,6 @@
 package com.metawebthree.common.metrics;
 
 import com.metawebthree.common.alert.AlertService;
-import io.micrometer.core.instrument.MeterRegistry;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

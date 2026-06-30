@@ -18,12 +18,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * API Key Authentication Filter for Gateway
@@ -228,7 +226,7 @@ public class ApiKeyAuthFilter implements GlobalFilter, Ordered {
     private String extractDeveloperId(String apiKeyId) {
         try {
             WebClient client = webClientBuilder.build();
-            Map response = client.get()
+            Map<String, String> response = client.get()
                 .uri(developerPortalUrl + "/developer/api-keys/" + apiKeyId)
                 .retrieve()
                 .bodyToMono(Map.class)

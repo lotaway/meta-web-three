@@ -3,7 +3,6 @@ package com.metawebthree.mes.domain.service;
 import com.metawebthree.mes.domain.entity.PokaYokeRule;
 import com.metawebthree.mes.domain.entity.ProductionTask;
 import com.metawebthree.mes.domain.entity.ProcessRoute;
-import com.metawebthree.mes.domain.entity.ProcessParameter;
 
 import java.util.ArrayList;
 import java.util.List;

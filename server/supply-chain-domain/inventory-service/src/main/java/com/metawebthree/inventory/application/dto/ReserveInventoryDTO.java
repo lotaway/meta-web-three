@@ -1,7 +1,6 @@
 package com.metawebthree.inventory.application.dto;
 
 import lombok.Data;
-import java.math.BigDecimal;
 
 @Data
 public class ReserveInventoryDTO {

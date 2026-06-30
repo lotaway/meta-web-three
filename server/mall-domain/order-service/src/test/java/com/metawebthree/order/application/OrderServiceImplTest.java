@@ -92,7 +92,7 @@ class OrderServiceImplTest {
                 .orderAmount(BigDecimal.valueOf(50.0))
                 .build();
 
-        IPage<OrderDO> pageResult = new Page<>(page, size, 1);
+        Page<OrderDO> pageResult = new Page<>(page, size, 1);
         pageResult.setRecords(List.of(order));
 
         when(orderMapper.selectPage(any(Page.class), any(LambdaQueryWrapper.class)))
@@ -164,7 +164,7 @@ class OrderServiceImplTest {
 
         assertFalse(response.getSuccess());
         assertEquals("Request must not be null", response.getMessage());
-        verify(orderMapper, never()).insert(any());
+        verify(orderMapper, never()).insert(any(OrderDO.class));
     }
 
     @Test
@@ -177,6 +177,6 @@ class OrderServiceImplTest {
 
         assertFalse(response.getSuccess());
         assertEquals("Order must have at least one item", response.getMessage());
-        verify(orderMapper, never()).insert(any());
-    }
+        verify(orderMapper, never()).insert(any(OrderDO.class));
+}
 }

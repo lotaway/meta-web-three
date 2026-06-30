@@ -1,6 +1,5 @@
 package com.metawebthree.payment.application;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metawebthree.common.annotations.LogMethod;
 import com.metawebthree.payment.domain.exception.ExternalServiceException;

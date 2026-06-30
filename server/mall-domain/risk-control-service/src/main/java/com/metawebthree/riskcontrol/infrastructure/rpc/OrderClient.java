@@ -6,7 +6,6 @@ import com.metawebthree.common.generated.rpc.*;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 
 @Component
 public class OrderClient {

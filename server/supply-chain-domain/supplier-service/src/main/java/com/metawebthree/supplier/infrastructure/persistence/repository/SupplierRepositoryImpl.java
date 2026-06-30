@@ -1,6 +1,5 @@
 package com.metawebthree.supplier.infrastructure.persistence.repository;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.supplier.domain.entity.Supplier;
 import com.metawebthree.supplier.domain.repository.SupplierRepository;
 import com.metawebthree.supplier.infrastructure.persistence.dataobject.SupplierDO;

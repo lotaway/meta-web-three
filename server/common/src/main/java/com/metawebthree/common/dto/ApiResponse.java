@@ -4,7 +4,6 @@ import com.metawebthree.common.enums.ResponseStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.util.Objects;
 
 @Data
 @Schema(description = "通用 API 响应")

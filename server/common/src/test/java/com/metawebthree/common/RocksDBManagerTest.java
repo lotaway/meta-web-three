@@ -2,8 +2,8 @@ package com.metawebthree.common;
 
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.metawebthree.common.utils.RocksDBManager;
 
@@ -23,14 +23,14 @@ public class RocksDBManagerTest {
         
         rocksDBManager.saveLog(topic, type, productLog);
         List<ProductLog> result = rocksDBManager.getLogs(topic, type, ProductLog.class);
-        Assert.assertTrue(result.size() > 0);
+        Assertions.assertTrue(result.size() > 0);
         var log = result.get(0);
-        Assert.assertEquals(productLog.productId, log.productId);
-        Assert.assertEquals(productLog.quantity, log.quantity);
+        Assertions.assertEquals(productLog.productId, log.productId);
+        Assertions.assertEquals(productLog.quantity, log.quantity);
         
         rocksDBManager.clean(topic, type);
         List<ProductLog> clearResult = rocksDBManager.getLogs(topic, type, ProductLog.class);
-        Assert.assertEquals(0, clearResult.size());
+        Assertions.assertEquals(0, clearResult.size());
         rocksDBManager.close();
     }
 

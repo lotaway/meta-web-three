@@ -2,7 +2,6 @@ package com.metawebthree.cs.application;
 
 import com.metawebthree.cs.ai.tools.AiTool;
 import com.metawebthree.cs.ai.tools.AiToolRegistry;
-import com.metawebthree.cs.domain.model.Conversation;
 import com.metawebthree.cs.domain.model.Message;
 import com.metawebthree.cs.domain.model.enums.SenderType;
 import com.metawebthree.cs.domain.ports.AiChatPort;
