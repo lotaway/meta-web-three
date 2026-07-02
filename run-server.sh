@@ -6,7 +6,7 @@ set -euo pipefail
 if [[ "$*" == *--dev* ]]; then
   export SPRING_PROFILES_ACTIVE=dev
 else
-  export SPRING_PROFILES_ACTIVE=production
+  export SPRING_PROFILES_ACTIVE=prod
 fi
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
