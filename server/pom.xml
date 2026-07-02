@@ -32,6 +32,7 @@
         <module>mall-domain/after-sale-service</module>
         <module>mall-domain/review-service</module>
         <module>mall-domain/live-service</module>
+        <module>mall-domain/group-buying-service</module>
         <!-- platform-domain -->
         <module>platform-domain/message-service</module>
         <module>platform-domain/media-service</module>
