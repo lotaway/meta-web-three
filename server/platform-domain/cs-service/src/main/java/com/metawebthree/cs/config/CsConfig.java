@@ -25,7 +25,6 @@ import com.metawebthree.cs.ai.tools.QueryLogisticsTool;
 import com.metawebthree.cs.ai.tools.QueryOrderTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -33,9 +32,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 @Configuration
 public class CsConfig {
     private static final Logger log = LoggerFactory.getLogger(CsConfig.class);
-
-    @Value("${gateway.url:http://localhost:10081}")
-    private String gatewayUrl;
 
     @Bean
     public SessionManager sessionManager() {
