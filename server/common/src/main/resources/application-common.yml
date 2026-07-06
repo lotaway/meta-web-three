@@ -98,6 +98,10 @@ dubbo:
     timeout: 30000
     address: ${spring.cloud.zookeeper.connect-string}
     group: /dev/metawebthree/dubbo # Separated from Spring Cloud to avoid JSON parsing conflict
+  config-center:
+    check: false
+  metadata-report:
+    check: false
   provider:
     timeout: 10000 # service call timeout
   protocol:
