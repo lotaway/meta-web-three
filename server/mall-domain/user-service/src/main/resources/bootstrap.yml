@@ -3,6 +3,4 @@ spring:
     name: user-service
   profiles:
     active: ${PROFILE:dev}
-  cloud:
-    zookeeper:
-      connect-string: ${ZOOKEEPER_CONNECT_STRING:localhost:2181}
+
