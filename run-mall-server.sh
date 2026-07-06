@@ -10,7 +10,7 @@ fi
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SERVER_DIR="$ROOT_DIR/server"
-LOG_DIR="$ROOT_DIR/logs/run-mall-server"
+LOG_DIR="$ROOT_DIR/logs/run-server"
 REGISTRY="$ROOT_DIR/scripts/server-services-registry.sh"
 
 source "$REGISTRY"
@@ -77,7 +77,7 @@ for entry in "${MALL_SERVICES[@]}"; do
   name="$(server_service_name "$entry")"
   log_file="$LOG_DIR/${name}.log"
   started=false
-  for _ in {1..60}; do
+  for _ in {1..60}; do 
     if grep -q "Started .*Application in" "$log_file" 2>/dev/null; then
       echo "✓ $name 启动成功"
       started=true
