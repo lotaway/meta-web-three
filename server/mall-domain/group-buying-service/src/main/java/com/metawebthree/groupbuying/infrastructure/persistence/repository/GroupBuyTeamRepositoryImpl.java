@@ -40,6 +40,30 @@ public class GroupBuyTeamRepositoryImpl implements GroupBuyTeamRepository {
     }
 
     @Override
+    public GroupBuyTeamDO findByTeamNo(String teamNo) {
+        return teamMapper.selectOne(
+            new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<GroupBuyTeamDO>()
+                .eq(GroupBuyTeamDO::getTeamNo, teamNo)
+        );
+    }
+
+    @Override
+    public List<GroupBuyTeamDO> findByLeaderId(Long leaderId) {
+        return teamMapper.selectList(
+            new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<GroupBuyTeamDO>()
+                .eq(GroupBuyTeamDO::getLeaderId, leaderId)
+        );
+    }
+
+    @Override
+    public List<GroupBuyTeamDO> findByStatus(String status) {
+        return teamMapper.selectList(
+            new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<GroupBuyTeamDO>()
+                .eq(GroupBuyTeamDO::getStatus, status)
+        );
+    }
+
+    @Override
     public void delete(Long id) {
         teamMapper.deleteById(id);
     }
