@@ -39,7 +39,7 @@
     "create:module": "npx create-expo-module --local modules/appsdk",
     "create:sdk": "npx create-react-native-library@latest ../turbo-module/appsdk",
     "update:sdk": "yarn upgrade react-native-appsdk",
-    "open:AndroidStudio": "open -a '/Applications/Android Studio.app' ./android",
+    "open:AndroidStudio": "node scripts/open-android.js",
     "build:android": "cd android && ./gradlew :app:generateDebugSources",
     "build:ios": "npm run pod",
     "edit:ios": "open ios/metawebthreeapp.xcworkspace",
