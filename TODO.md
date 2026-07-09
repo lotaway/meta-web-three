@@ -2,6 +2,17 @@
 
 [Guideline](./README.md)
 
+#### 客户端构建与脚本修复 (新增)
+
+- [ ] **[客户端] yarn install 失败 — react-native-appsdk postinstall (bob build) 报错**: `apps/client/node_modules/react-native-appsdk` 的 `postinstall: bob build` 执行失败，导致 `yarn install` 无法完成。需要排查 bob build 的具体错误并修复（可能是依赖缺失或构建配置问题）
+- [ ] **[客户端] 跨平台脚本兼容性**: `apps/client/package.json` 中以下脚本仍使用 Unix 环境变量语法 (`KEY=VALUE command`)，在 Windows 上会报错 `'KEY' is not recognized as an internal or external command`：
+  - `build:sw`: `cross-env NODE_ENV=production node tools/BuildSW.js` — 已安装 `cross-env`，但需验证
+  - `deploy:android`: `export NODE_ENV=production && eas build ...`
+  - `deploy:ios`: `export NODE_ENV=production && eas build ...`  
+  - `deploy`: `export NODE_ENV=production && eas build ...`
+  - `pod`: `RCT_NEW_ARCH_ENABLED=1 npx pod-install`
+  - `generate:api`: 已通过 `tools/generate-api.js` 包装解决
+
 ### [Backend Admin Missing]
 
 The following backend services have been created, but lack corresponding admin and operation pages. Each needs to be added:
