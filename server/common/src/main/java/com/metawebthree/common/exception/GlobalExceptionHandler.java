@@ -15,7 +15,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -24,8 +23,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     @org.springframework.web.bind.annotation.ResponseStatus(HttpStatus.OK)
-    public ApiResponse<?> handleBusinessException(BusinessException e, HttpServletRequest request) {
-        log.warn("业务异常: {} - {}", request.getRequestURI(), e.getMessage());
+    public ApiResponse<?> handleBusinessException(BusinessException e) {
+        log.warn("业务异常: {}", e.getMessage());
         return ApiResponse.error(e.getStatus(), e.getMessage());
     }
 
@@ -93,15 +92,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     @org.springframework.web.bind.annotation.ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ApiResponse<?> handleException(Exception e, HttpServletRequest request) {
-        log.error("系统异常: {} - {}", request.getRequestURI(), e.getMessage(), e);
+    public ApiResponse<?> handleException(Exception e) {
+        log.error("系统异常: {}", e.getMessage(), e);
         return ApiResponse.error(ResponseStatus.SYSTEM_ERROR);
     }
 
     @ExceptionHandler(Throwable.class)
     @org.springframework.web.bind.annotation.ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ApiResponse<?> handleThrowable(Throwable e, HttpServletRequest request) {
-        log.error("系统错误: {} - {}", request.getRequestURI(), e.getMessage(), e);
+    public ApiResponse<?> handleThrowable(Throwable e) {
+        log.error("系统错误: {}", e.getMessage(), e);
         return ApiResponse.error(ResponseStatus.SYSTEM_ERROR);
     }
 }

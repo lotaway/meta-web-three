@@ -4,15 +4,15 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.stereotype.Component;
-
-import java.lang.reflect.Method;
 
 /**
  * AOP aspect for monitoring method execution and triggering alerts on exceptions
  */
 @Aspect
 @Component
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 public class AlertAspect {
     
     @Autowired
@@ -21,7 +21,7 @@ public class AlertAspect {
     /**
      * Monitor service layer methods for exceptions and performance issues
      */
-    @Around("@within(org.springframework.stereotype.Service) || @within(org.apache.dubbo.config.annotation.DubboService)")
+    @Around("(@within(org.springframework.stereotype.Service) || @within(org.apache.dubbo.config.annotation.DubboService)) && !target(com.metawebthree.common.metrics.PerformanceMetricsService)")
     public Object monitorServiceMethod(ProceedingJoinPoint joinPoint) throws Throwable {
         String className = joinPoint.getTarget().getClass().getSimpleName();
         String methodName = joinPoint.getSignature().getName();

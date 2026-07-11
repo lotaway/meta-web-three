@@ -58,7 +58,7 @@ public class ServiceGovernanceAutoConfiguration {
     @ConditionalOnMissingBean
     public CircuitBreakerRegistry circuitBreakerRegistry(CircuitBreakerConfig defaultCircuitBreakerConfig) {
         CircuitBreakerRegistry registry = CircuitBreakerRegistry.ofDefaults();
-        registry.addConfiguration("default", defaultCircuitBreakerConfig);
+        registry.addConfiguration("standard", defaultCircuitBreakerConfig);
         log.info("Applied default CircuitBreaker configuration");
         return registry;
     }
@@ -84,7 +84,7 @@ public class ServiceGovernanceAutoConfiguration {
     @ConditionalOnMissingBean
     public RateLimiterRegistry rateLimiterRegistry(RateLimiterConfig defaultRateLimiterConfig) {
         RateLimiterRegistry registry = RateLimiterRegistry.ofDefaults();
-        registry.addConfiguration("default", defaultRateLimiterConfig);
+        registry.addConfiguration("standard", defaultRateLimiterConfig);
         log.info("Applied default RateLimiter configuration");
         return registry;
     }
@@ -111,7 +111,7 @@ public class ServiceGovernanceAutoConfiguration {
     @ConditionalOnMissingBean
     public RetryRegistry retryRegistry(RetryConfig defaultRetryConfig) {
         RetryRegistry registry = RetryRegistry.ofDefaults();
-        registry.addConfiguration("default", defaultRetryConfig);
+        registry.addConfiguration("standard", defaultRetryConfig);
         log.info("Applied default Retry configuration");
         return registry;
     }
