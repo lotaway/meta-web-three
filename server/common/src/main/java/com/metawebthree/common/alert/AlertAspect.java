@@ -21,7 +21,7 @@ public class AlertAspect {
     /**
      * Monitor service layer methods for exceptions and performance issues
      */
-    @Around("(@within(org.springframework.stereotype.Service) || @within(org.apache.dubbo.config.annotation.DubboService)) && !target(com.metawebthree.common.metrics.PerformanceMetricsService)")
+    @Around("(@within(org.springframework.stereotype.Service) || @within(org.apache.dubbo.config.annotation.DubboService)) && !within(com.metawebthree.common..*)")
     public Object monitorServiceMethod(ProceedingJoinPoint joinPoint) throws Throwable {
         String className = joinPoint.getTarget().getClass().getSimpleName();
         String methodName = joinPoint.getSignature().getName();

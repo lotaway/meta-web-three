@@ -26,7 +26,7 @@ public class PerformanceMetricsAspect {
     /**
      * Monitor all service and Dubbo service methods
      */
-    @Around("(@within(org.springframework.stereotype.Service) || @within(org.apache.dubbo.config.annotation.DubboService)) && !target(com.metawebthree.common.metrics.PerformanceMetricsService)")
+    @Around("(@within(org.springframework.stereotype.Service) || @within(org.apache.dubbo.config.annotation.DubboService)) && !within(com.metawebthree.common..*)")
     public Object monitorPerformance(ProceedingJoinPoint joinPoint) throws Throwable {
         String className = joinPoint.getTarget().getClass().getSimpleName();
         String methodName = joinPoint.getSignature().getName();
