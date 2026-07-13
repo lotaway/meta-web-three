@@ -1,8 +1,11 @@
 const { spawnSync } = require('child_process')
 const path = require('path')
 
+const clientDir = path.resolve(__dirname, '..')
+
 const env = {
   ...process.env,
+  NODE_PATH: process.env.NODE_PATH || path.resolve(clientDir, 'node_modules'),
   OPENAPI_ENV_FILES: '.env.development,.env.local',
   OPENAPI_API_HOST_ENV: 'NEXT_PUBLIC_BACK_API_HOST',
   OPENAPI_API_DOC_HOST_ENV: 'NEXT_PUBLIC_BACK_API_DOC_HOST',
@@ -14,18 +17,28 @@ function run(script, args) {
   const result = spawnSync('node', [script, ...args], {
     stdio: 'inherit',
     env,
-    cwd: __dirname,
+    cwd: clientDir,
   })
   if (result.status !== 0) {
     process.exit(result.status)
   }
 }
 
+// Step 1: Download OpenAPI docs + generate TypeScript
 run(path.resolve(__dirname, '../../tools/OpenApiToTS.js'), [])
 
+// Step 2: Download GraphQL schema
 env.SCHEMA_ENV_FILES = '.env.development,.env.local'
 env.SCHEMA_API_HOST_ENV = 'NEXT_PUBLIC_BACK_API_HOST'
 run(path.resolve(__dirname, '../../tools/DownloadGraphQLSchema.js'), [])
 
-const codegenPath = path.resolve(__dirname, '../node_modules/@graphql-codegen/cli/cjs/bin.js')
-run(codegenPath, ['--config', 'codegen.ts'])
+// Step 3: Generate TypeScript from GraphQL
+const codegenResult = spawnSync('npx', ['graphql-codegen', '--config', 'codegen.ts'], {
+  stdio: 'inherit',
+  env,
+  cwd: clientDir,
+  shell: true,
+})
+if (codegenResult.status !== 0) {
+  process.exit(codegenResult.status)
+}

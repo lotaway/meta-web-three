@@ -115,6 +115,10 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/typescript": "^4.1.0",
+    "@graphql-codegen/typescript-operations": "^4.4.0",
+    "@openapitools/openapi-generator-cli": "^2.18.4",
     "@react-native-community/cli": "latest",
     "@types/jest": "^29.5.0",
     "@types/react": "~19.1.10",
