@@ -38,20 +38,22 @@ echo "==> Compiling then Install common"
 (cd "$SERVER_DIR" && mvn clean install -pl common -Dmaven.test.skip=true -q)
 
 echo "==> Building backend modules with tests skipped"
-(cd "$SERVER_DIR" && mvn clean install -Dmaven.test.skip=true)
+(cd "$SERVER_DIR" && mvn install -Dmaven.test.skip=true -T 4)
 
 echo "==> Starting services"
 for entry in "${SERVER_JAVA_SERVICES[@]}"; do
   name="$(server_service_name "$entry")"
   module="$(server_service_module "$entry")"
   log_file="$LOG_DIR/${name}.log"
-  (
-    cd "$SERVER_DIR"
-    exec mvn spring-boot:run -pl "$module"
-  ) >"$log_file" 2>&1 &
+  jar_file=$(find "$SERVER_DIR/$module/target" -maxdepth 1 -name "$name-*.jar" 2>/dev/null | head -1 || true)
+  if [ -z "$jar_file" ]; then
+    echo "⚠ $name: JAR not found at $module/target/ (skip)"
+    continue
+  fi
+  java -Dspring.profiles.active="$SPRING_PROFILES_ACTIVE" -jar "$jar_file" >"$log_file" 2>&1 &
   pid=$!
   pids+=("$pid")
-  echo "Starting $name ($module, PID: $pid, log: $log_file)"
+  echo "Starting $name (PID: $pid)"
 done
 
 echo "==> 所有服务启动命令已提交 (PID 记录完成，Ctrl+C 停止)"
