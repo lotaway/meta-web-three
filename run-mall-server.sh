@@ -63,7 +63,7 @@ for entry in "${MALL_SERVICES[@]}"; do
     echo "⚠ $name: JAR not found at $module/target/ (skip)"
     continue
   fi
-  java -Dspring.profiles.active="$SPRING_PROFILES_ACTIVE" -jar "$jar_file" >"$log_file" 2>&1 &
+  java -Dspring.profiles.active="$SPRING_PROFILES_ACTIVE" -XX:TieredStopAtLevel=1 -jar "$jar_file" >"$log_file" 2>&1 &
   pid=$!
   pids+=("$pid")
   echo "Starting $name (PID: $pid)"
