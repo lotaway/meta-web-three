@@ -18,7 +18,8 @@
     ".": {
       "source": "./src/index.tsx",
       "types": "./lib/typescript/src/index.d.ts",
-      "require": "./lib/module/index.js"
+      "require": "./lib/module/index.js",
+      "default": "./lib/module/index.js"
     },
     "./package.json": "./package.json"
   },
