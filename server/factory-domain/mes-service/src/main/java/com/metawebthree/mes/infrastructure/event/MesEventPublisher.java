@@ -4,6 +4,7 @@ import com.metawebthree.common.event.DomainEventPublisher;
 import com.metawebthree.mes.domain.event.*;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +13,7 @@ import java.util.Map;
  * MES Domain Event Publisher using Kafka for async event distribution.
  */
 @Slf4j
+@Component
 public class MesEventPublisher {
 
     // Explicit logger (Lombok @Slf4j annotation processor not working)

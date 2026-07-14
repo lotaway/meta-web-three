@@ -3,7 +3,9 @@ package com.metawebthree.digitaltwin.application.query;
 import com.metawebthree.digitaltwin.domain.entity.AlertRule;
 import com.metawebthree.digitaltwin.domain.service.AlertRuleDomainService;
 import java.util.List;
+import org.springframework.stereotype.Service;
 
+@Service
 public class AlertRuleQueryService {
     private final AlertRuleDomainService domainService;
 
