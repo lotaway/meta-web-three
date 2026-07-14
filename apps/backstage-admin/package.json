@@ -13,7 +13,7 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix --cache",
-    "generate:api": "OPENAPI_ENV_FILES=.env,.env.local OPENAPI_API_HOST_ENV=VITE_BASE_SERVER_URL OPENAPI_API_DOC_HOST_ENV=VITE_API_DOC_HOST OPENAPI_RUNTIME_ENV_VAR='import.meta.env.VITE_BASE_SERVER_URL' OPENAPI_TIMEOUT=180000 OPENAPI_USE_NPX=true OPENAPI_DEFAULT_HOST='http://localhost:10081' node ../tools/OpenApiToTS.js",
+    "generate:api": "node tools/generate-api.cjs",
     "generate:enum": "node tools/JEnumToTS.js"
   },
   "dependencies": {
