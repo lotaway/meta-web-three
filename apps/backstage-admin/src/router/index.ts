@@ -898,6 +898,80 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // BI (Business Intelligence) Module
+  {
+    path: '/bi',
+    component: Layout,
+    redirect: '/bi/dashboard',
+    name: 'bi',
+    meta: { title: 'bi.title', icon: 'data-analysis' },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'biDashboard',
+        component: () => import('@/views/bi/index.vue'),
+        meta: { title: 'bi.dashboard', icon: 'bi-dashboard' },
+      },
+      {
+        path: 'sales',
+        name: 'biSales',
+        component: () => import('@/views/bi/sales.vue'),
+        meta: { title: 'bi.salesAnalysis', icon: 'bi-sales' },
+      },
+      {
+        path: 'financial',
+        name: 'biFinancial',
+        component: () => import('@/views/bi/financial.vue'),
+        meta: { title: 'bi.financialAnalysis', icon: 'bi-financial' },
+      },
+    ],
+  },
+  // CRM Customer Relationship Management
+  {
+    path: '/crm',
+    component: Layout,
+    redirect: '/crm/dashboard',
+    name: 'crm',
+    meta: { title: 'crm.title', icon: 'user' },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'crmDashboard',
+        component: () => import('@/views/crm/index.vue'),
+        meta: { title: 'crm.dashboard.title', icon: 'crm-dashboard' },
+      },
+      {
+        path: 'leads',
+        name: 'crmLeads',
+        component: () => import('@/views/crm/leads/index.vue'),
+        meta: { title: 'crm.lead.title', icon: 'crm-leads' },
+      },
+      {
+        path: 'opportunities',
+        name: 'crmOpportunities',
+        component: () => import('@/views/crm/opportunities/index.vue'),
+        meta: { title: 'crm.opportunity.title', icon: 'crm-opportunity' },
+      },
+      {
+        path: 'tickets',
+        name: 'crmTickets',
+        component: () => import('@/views/crm/tickets/index.vue'),
+        meta: { title: 'crm.ticket.title', icon: 'crm-ticket' },
+      },
+      {
+        path: 'campaigns',
+        name: 'crmCampaigns',
+        component: () => import('@/views/crm/campaigns/index.vue'),
+        meta: { title: 'crm.campaign.title', icon: 'crm-campaign' },
+      },
+      {
+        path: 'contacts',
+        name: 'crmContacts',
+        component: () => import('@/views/crm/contacts/index.vue'),
+        meta: { title: 'crm.contact.title', icon: 'crm-contact' },
+      },
+    ],
+  },
 ]
 
 // createWebHistory（History 模式）地址格式（需要服务器配置）：http://domain.com/admin/home
