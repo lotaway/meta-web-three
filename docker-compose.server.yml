@@ -571,6 +571,28 @@ services:
       - data_pipeline_data:/server/data-pipeline
       - ./.aws:/.aws:ro
 
+  rma-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: rma-service
+    container_name: meta-web-three-rma
+    hostname: rma-service
+    ports:
+      - "10123:10123"
+
+  dom-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: dom-service
+    container_name: meta-web-three-dom
+    hostname: dom-service
+    ports:
+      - "10124:10124"
+
 volumes:
   gateway_data:
   product_service_data:
