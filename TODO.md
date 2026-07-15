@@ -2,17 +2,6 @@
 
 [Guideline](./README.md)
 
-#### 客户端构建与脚本修复 (新增)
-
-- [ ] **[客户端] yarn install 失败 — react-native-appsdk postinstall (bob build) 报错**: `apps/client/node_modules/react-native-appsdk` 的 `postinstall: bob build` 执行失败，导致 `yarn install` 无法完成。需要排查 bob build 的具体错误并修复（可能是依赖缺失或构建配置问题）
-- [ ] **[客户端] 跨平台脚本兼容性**: `apps/client/package.json` 中以下脚本仍使用 Unix 环境变量语法 (`KEY=VALUE command`)，在 Windows 上会报错 `'KEY' is not recognized as an internal or external command`：
-  - `build:sw`: `cross-env NODE_ENV=production node tools/BuildSW.js` — 已安装 `cross-env`，但需验证
-  - `deploy:android`: `export NODE_ENV=production && eas build ...`
-  - `deploy:ios`: `export NODE_ENV=production && eas build ...`  
-  - `deploy`: `export NODE_ENV=production && eas build ...`
-  - `pod`: `RCT_NEW_ARCH_ENABLED=1 npx pod-install`
-  - `generate:api`: 已通过 `tools/generate-api.js` 包装解决
-
 ### [Backend Admin Missing]
 
 The following backend services have been created, but lack corresponding admin and operation pages. Each needs to be added:
@@ -24,45 +13,6 @@ The following backend services have been created, but lack corresponding admin a
 - erp-domain (6 services: finance, HR, invoice, project, report, settlement)
 - platform-domain (7 services: commission, customer service, data analysis, media, message, notification, user behavior)
 - supply-chain-domain (6 services: inventory alert, inventory, logistics, procurement, supplier, warehouse)
-
-#### MES 领域 (高优先级)
-
-- [ ] **[MES] 有限产能排程 (Finite Capacity Scheduling)**: `server/factory-domain/mes-service` 中添加排程引擎 [代码质量不达标: 异常被吞, 前端文件超长, 缺少单元测试]
-   - [x] 定义排程数据模型：`ScheduleOrder`, `ScheduleResource`, `ScheduleResult` (含内嵌 `ScheduleOperation`, `TimeSlot`, `ScheduleConflict`) [需修复 SchedulingDomainServiceImpl 异常吞并问题]
-   - [x] 实现基础排程算法：前向排程(Forward Scheduling)、后向排程(Backward Scheduling) — `SchedulingDomainServiceImpl` [需修复异常吞并: 第78行和第141行catch Exception后仅记录日志未重新抛出]
-   - [x] 实现约束检查：资源可用性 (`ScheduleResource.isAvailable()`), 冲突报告 (`ScheduleConflict`)
-   - [x] 添加调度 REST API：`/api/mes/scheduling/orders|resources|forward|backward`
-   - [x] 添加后台调度管理页面：`views/mes/scheduling/index.vue` (工单列表+资源管理.含前向/后向排程按钮,工序展开,调度结果报警) [需拆分为多个组件, 当前989行超出500行限制]
-
-- [ ] **[MES] 人员/工时跟踪 (Labor & Time Tracking)**: 记录操作员资质、工时、考勤及人员到工作中心的分配 [代码质量不达标: 缺少单元测试]
-   - [x] 定义领域实体：`Operator`, `OperatorSkill`, `WorkCenterAssignment`, `TimeRecord`, `Attendance`
-   - [x] 实现工时记录：员工报工、工时核算、产出记录 (clockIn/Out, submit/approve flow)
-   - [x] 实现工作中心分配：人员 → 工位/产线绑定
-   - [x] 添加 REST API：`/api/mes/labor/operators|attendance|time-records|assignments`
-   - [x] 添加后台管理页面：`views/mes/labor/index.vue` (含 4 个 Tab: 操作员/考勤/工时/分配)
-
-- [ ] **[MES] 制造可追溯性完善 (Manufacturing Genealogy)**: 在已有 TraceModel/TraceRecord 基础上补全"制造族谱" [代码质量不达标: 缺少单元测试]
-   - [x] 完善溯源数据模型：连接成品 → 批次原料 → 设备 → 操作员 → 工艺参数
-   - [x] 实现自动收集：工单完工时自动关联原料批次、设备、操作员
-   - [x] 添加批次追溯查询 API：正向(原料→成品)和反向(成品→原料)
-   - [x] 添加后台追溯查询页面：`views/mes/traceability/index.vue`
-
-- [ ] **[MES] 实时数据采集集成 (SCADA Integration)**: 基于已有 Equipment.mqttTopic 字段构建完整数据采集层 [代码质量不达标: 异常吞并]
-   - [x] 实现 MQTT 设备数据消费者：订阅设备 topic，解析遥测数据 (`MqttTelemetrySubscriber`, `MqttTelemetryService`)
-   - [x] 定义采集数据模型：`TelemetryRecord`, `TelemetryMetric`, `DeviceCommand`
-   - [x] 实现设备命令下发：从 MES 下发参数配置到设备 (`MqttCommandPublisher`, `ScadaDomainService.dispatchCommand`)
-   - [x] 实现实时状态看板：设备 OEE、生产进度、异常告警 (SCADA 监控后台页面 + REST API)
-
-**数字孪生MES集成** [代码质量不达标: 前端编译错误, 异常吞并]:
-- [ ] **[验收] 数字孪生 MES API 连通性验证**: `apps/digital-twin/system-management/src/renderer/services/mes-api.ts` — 确认 mesApi 各方法能正确调用 `mes-service` 的 SCADA/追溯端点 [getTraceChain 存在异常吞并, 需修复]
-- [ ] **[验收] SCADA 面板设备遥测实时展示**: `apps/digital-twin/system-management/src/renderer/components/digital-twin/scada/ScadaPanel.tsx` — 验证左侧选中设备后，面板展示实时遥测指标（温度/压力/转速等），超限值红色告警
-- [ ] **[验收] SCADA 指令下发与响应**: `ScadaPanel.tsx` — 验证指令类型选择 + JSON 参数发送后，最近指令列表能显示状态变化（PENDING→SENT→EXECUTED/FAILED）
-- [ ] **[验收] 追溯面板完整链查询**: `apps/digital-twin/system-management/src/renderer/components/digital-twin/traceability/TraceabilityPanel.tsx` — 验证输入追溯码后完整链视图展示根节点 + 正向路径 + 反向路径
-- [ ] **[验收] 追溯面板正向/反向追溯**: `TraceabilityPanel.tsx` — 验证单独正向/反向追溯按钮返回正确节点列表
-- [ ] **[验收] 数字孪生标签页集成**: `apps/digital-twin/system-management/src/renderer/pages/DigitalTwinPage.tsx` — 验证右侧面板新增 SCADA / 追溯标签页正常切换渲染，无白屏或 JS 错误
-- [ ] **[验收] MES API 环境变量配置**: `apps/digital-twin/system-management/vite.config.ts` + `.env.example` — 验证 `VITE_MES_API_URL/HOST/PORT` 注入正确，数字孪生启动时可连接 mes-service
-- [ ] **[安全] SCADA 指令鉴权**: 设备指令下发端点 `/api/mes/scada/commands` 需确认已集成 Spring Security 权限校验，防止未授权操作产线设备
-- [ ] **[安全] 追溯数据访问控制**: 追溯链查询接口需校验用户权限，防止越权访问非授权产品的批次追溯数据
 
 #### 编译错误修复 (新增 - 紧急)
 
