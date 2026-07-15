@@ -1,320 +1,264 @@
-scalar Long
+directive @extends on OBJECT | INTERFACE
 
-type Query {
-    # Product queries
-    product(id: ID!): Product
-    products(page: Int, size: Int): ProductConnection
-    productBySku(sku: String!): Product
-    
-    # Order queries
-    order(id: ID!): Order
-    orders(page: Int, size: Int, status: String): OrderConnection
-    orderByOrderNo(orderNo: String!): Order
-    
-    # User queries
-    user(id: ID!): User
-    users(page: Int, size: Int): UserConnection
-    
-    # Category queries
-    category(id: ID!): Category
-    categories(parentId: ID): CategoryConnection
-    
-    # Inventory queries
-    inventory(productId: ID!): Inventory
-    inventoryAlerts(status: String): [InventoryAlert]
-    
-    # Recommendation queries
-    recommendations(userId: ID!, limit: Int): [RecommendationResult]
-    recommendationsByScene(userId: ID!, scene: String!, limit: Int): [RecommendationResult]
-    recommendationsByAlgorithm(userId: ID!, algorithm: String!, limit: Int): [RecommendationResult]
-    recommendation(id: ID!): Recommendation
-    recommendationMetrics(userId: ID!): RecommendationMetrics
-    userBehaviorHistory(userId: ID!, limit: Int): [UserBehavior]
-    rulesByScene(scene: String!): [RecommendationRule]
-}
+directive @external on FIELD_DEFINITION
 
-type Mutation {
-    # Order mutations
-    createOrder(input: CreateOrderInput!): Order
-    cancelOrder(id: ID!): Order
-    payOrder(id: ID!, paymentMethod: String!): Order
-    
-    # Product mutations
-    createProduct(input: CreateProductInput!): Product
-    updateProduct(id: ID!, input: UpdateProductInput!): Product
-    deleteProduct(id: ID!): Boolean
-    
-    # Cart mutations
-    addToCart(productId: ID!, quantity: Int!): Cart
-    removeFromCart(productId: ID!): Cart
-    clearCart: Cart
-    
-    # Recommendation mutations
-    generateRecommendation(userId: ID!, scene: String!, algorithm: String!, maxItems: Int): Recommendation
-    recordBehavior(userId: ID!, skuCode: String!, behaviorType: String!): Boolean
-    createRecommendationRule(ruleName: String!, scene: String!, type: String!): RecommendationRule
-    activateRecommendationRule(id: ID!): Boolean
-    deleteRecommendationRule(id: ID!): Boolean
-    markRecommendationClicked(id: ID!): Boolean
-    markRecommendationPurchased(id: ID!): Boolean
-    markPurchasedByProduct(userId: ID!, productId: ID!): Boolean
-    markPurchasedByProducts(userId: ID!, productIds: [ID!]!): Boolean
-}
+directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
 
-# Product types
-type Product {
-    id: ID!
-    name: String!
-    sku: String!
-    price: Float!
-    stock: Int!
-    category: Category
-    description: String
-    images: [String]
-    status: String
-    createdAt: String
-    updatedAt: String
-}
+directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
 
-input CreateProductInput {
-    name: String!
-    sku: String!
-    price: Float!
-    stock: Int!
-    categoryId: ID
-    description: String
-    images: [String]
-}
+directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
 
-input UpdateProductInput {
-    name: String
-    price: Float
-    stock: Int
-    categoryId: ID
-    description: String
-    images: [String]
-    status: String
-}
+"""Indicates an Input Object is a OneOf Input Object."""
+directive @oneOf on INPUT_OBJECT
 
-type ProductConnection {
-    edges: [ProductEdge]
-    pageInfo: PageInfo
-    totalCount: Int
-}
-
-type ProductEdge {
-    node: Product
-    cursor: String
-}
-
-# Order types
-type Order {
-    id: ID!
-    orderNo: String!
-    userId: ID!
-    user: User
-    totalAmount: Float!
-    status: String
-    items: [OrderItem]
-    shippingAddress: String
-    paymentMethod: String
-    createdAt: String
-    updatedAt: String
-}
-
-type OrderItem {
-    id: ID!
-    productId: ID!
-    product: Product
-    quantity: Int!
-    price: Float!
-    subtotal: Float!
-}
-
-input CreateOrderInput {
-    items: [OrderItemInput!]!
-    shippingAddress: String!
-    paymentMethod: String!
-}
-
-input OrderItemInput {
-    productId: ID!
-    quantity: Int!
-}
-
-type OrderConnection {
-    edges: [OrderEdge]
-    pageInfo: PageInfo
-    totalCount: Int
-}
-
-type OrderEdge {
-    node: Order
-    cursor: String
-}
-
-# User types
-type User {
-    id: ID!
-    username: String!
-    nickname: String
-    email: String
-    mobile: String
-    avatar: String
-    status: String
-    createdAt: String
-}
-
-type UserConnection {
-    edges: [UserEdge]
-    pageInfo: PageInfo
-    totalCount: Int
-}
-
-type UserEdge {
-    node: User
-    cursor: String
-}
-
-# Category types
-type Category {
-    id: ID!
-    name: String!
-    parentId: ID
-    level: Int
-    sortOrder: Int
-    children: [Category]
-}
-
-type CategoryConnection {
-    edges: [CategoryEdge]
-    pageInfo: PageInfo
-    totalCount: Int
-}
-
-type CategoryEdge {
-    node: Category
-    cursor: String
-}
-
-# Inventory types
-type Inventory {
-    id: ID!
-    productId: ID!
-    product: Product
-    quantity: Int!
-    availableQuantity: Int!
-    reservedQuantity: Int!
-    warehouseId: ID
-    updatedAt: String
-}
-
-type InventoryAlert {
-    id: ID!
-    productId: ID!
-    product: Product
-    alertType: String!
-    currentStock: Int!
-    threshold: Int!
-    status: String!
-    createdAt: String
-    resolvedAt: String
-}
-
-# Cart types
 type Cart {
-    id: ID!
-    userId: ID!
-    items: [CartItem]
-    totalAmount: Float!
-    itemCount: Int!
+  id: ID!
+  userId: ID!
+  totalAmount: Float!
+  itemCount: Int!
 }
 
 type CartItem {
-    id: ID!
-    productId: ID!
-    product: Product
-    quantity: Int!
-    price: Float!
-    subtotal: Float!
+  id: ID!
+  productId: ID!
+  quantity: Int!
+  price: Float!
+  subtotal: Float!
 }
 
-# Recommendation types
+type Category {
+  id: ID!
+  name: String!
+  parentId: ID
+}
+
+type CategoryConnection {
+  edges: [CategoryEdge]
+  pageInfo: PageInfo
+  totalCount: Int
+}
+
+type CategoryEdge {
+  node: Category
+  cursor: String
+}
+
+input CreateOrderInput {
+  items: [OrderItemInput!]!
+  shippingAddress: String!
+  paymentMethod: String!
+}
+
+input CreateProductInput {
+  name: String!
+  sku: String!
+  price: Float!
+  stock: Int!
+  categoryId: ID
+  description: String
+  images: [String]
+}
+
+type Inventory {
+  productId: ID!
+  quantity: Int!
+  availableQuantity: Int!
+}
+
+type InventoryAlert {
+  id: ID!
+  productId: ID!
+  alertType: String!
+  status: String!
+}
+
+""""""
+scalar Long
+
+type Mutation {
+  createProduct(input: CreateProductInput!): Product
+  updateProduct(id: ID!, input: UpdateProductInput!): Product
+  deleteProduct(id: ID!): Boolean
+  createOrder(input: CreateOrderInput!): Order
+  cancelOrder(id: ID!): Order
+  payOrder(id: ID!, paymentMethod: String!): Order
+  addToCart(productId: ID!, quantity: Int!): Cart
+  removeFromCart(cartItemId: ID!): Cart
+  clearCart: Cart
+  generateRecommendation(userId: ID!, scene: String!, algorithm: String!, maxItems: Int): Recommendation
+  recordBehavior(userId: ID!, skuCode: String!, behaviorType: String!): Boolean
+  createRecommendationRule(ruleName: String!, scene: String!, type: String!): RecommendationRule
+  activateRecommendationRule(id: ID!): Boolean
+  deleteRecommendationRule(id: ID!): Boolean
+  markRecommendationClicked(id: ID!): Boolean
+  markRecommendationPurchased(id: ID!): Boolean
+}
+
+type Order {
+  id: ID!
+  orderNo: String!
+  userId: ID!
+  totalAmount: Float!
+  status: String
+}
+
+type OrderConnection {
+  edges: [OrderEdge]
+  pageInfo: PageInfo
+  totalCount: Int
+}
+
+type OrderEdge {
+  node: Order
+  cursor: String
+}
+
+type OrderItem {
+  id: ID!
+  productId: ID!
+  quantity: Int!
+  price: Float!
+  subtotal: Float!
+}
+
+input OrderItemInput {
+  productId: ID!
+  quantity: Int!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type Product {
+  id: ID!
+  name: String!
+  sku: String!
+  price: Float!
+  stock: Int!
+}
+
+type ProductConnection {
+  edges: [ProductEdge]
+  pageInfo: PageInfo
+  totalCount: Int
+}
+
+type ProductEdge {
+  node: Product
+  cursor: String
+}
+
+type Query {
+  product(id: ID!): Product
+  products(page: Int, size: Int): ProductConnection
+  productBySku(sku: String!): Product
+  category(id: ID!): Category
+  categories(parentId: ID): CategoryConnection
+  order(id: ID!): Order
+  orders(page: Int, size: Int, status: String): OrderConnection
+  orderByOrderNo(orderNo: String!): Order
+  user(id: ID!): User
+  users(page: Int, size: Int): UserConnection
+  inventory(productId: ID!): Inventory
+  inventoryAlerts(status: String): [InventoryAlert]
+  recommendations(userId: ID!, limit: Int): [RecommendationResult]
+  recommendationsByScene(userId: ID!, scene: String!, limit: Int): [RecommendationResult]
+  recommendationsByAlgorithm(userId: ID!, algorithm: String!, limit: Int): [RecommendationResult]
+  recommendation(id: ID!): Recommendation
+  recommendationMetrics(userId: ID!): RecommendationMetrics
+  userBehaviorHistory(userId: ID!, limit: Int): [UserBehavior]
+  rulesByScene(scene: String!): [RecommendationRule]
+  cart(userId: ID!): Cart
+  _service: _Service!
+  _entities(representations: [_Any!]!): [_Entity]!
+}
+
 type Recommendation {
-    id: ID!
-    userId: ID!
-    scene: String!
-    algorithm: String!
-    score: Float
-    status: String
-    items: [RecommendedItem]
-    clickCount: Int
-    conversionCount: Int
-    impressionCount: Int
-    createdAt: String
-    expiresAt: String
-}
-
-type RecommendedItem {
-    skuCode: String!
-    skuName: String
-    score: Float
-    rank: Int
-    reason: String
-}
-
-type RecommendationResult {
-    id: ID!
-    userId: ID!
-    productId: ID!
-    score: Float
-    algorithm: String
-    reason: String
-    position: Int
-    isClicked: Boolean
-    isPurchased: Boolean
-    createdAt: String
-    expiresAt: String
+  id: ID!
+  userId: ID!
+  scene: String!
+  algorithm: String!
+  status: String
 }
 
 type RecommendationMetrics {
-    totalRecommendations: Long!
-    clickedCount: Long!
-    purchasedCount: Long!
-    clickThroughRate: Float!
-    conversionRate: Float!
+  totalRecommendations: Long!
+  clickedCount: Long!
+  purchasedCount: Long!
+  clickThroughRate: Float!
+  conversionRate: Float!
+}
+
+type RecommendationResult {
+  id: ID!
+  userId: ID!
+  productId: ID!
+  score: Float
+  algorithm: String
 }
 
 type RecommendationRule {
-    id: ID!
-    ruleName: String!
-    scene: String!
-    type: String
-    status: String
-    priority: Int
-    maxItems: Int
-    conditions: String
-    exclusions: String
-    boostFactor: Float
-    createdAt: String
-    updatedAt: String
+  id: ID!
+  ruleName: String!
+  scene: String!
+  type: String
+  status: String
+}
+
+type RecommendedItem {
+  skuCode: String!
+  skuName: String
+  score: Float
+  rank: Int
+  reason: String
+}
+
+input UpdateProductInput {
+  name: String
+  price: Float
+  stock: Int
+  categoryId: ID
+  description: String
+  images: [String]
+  status: String
+}
+
+type User {
+  id: ID!
+  username: String!
+  nickname: String
+  email: String
 }
 
 type UserBehavior {
-    id: ID!
-    userId: ID!
-    productId: ID!
-    behaviorType: String!
-    behaviorValue: Float
-    timestamp: String
-    sessionId: String
-    source: String
+  id: ID!
+  userId: ID!
+  productId: ID!
+  behaviorType: String!
 }
 
-# Common types
-type PageInfo {
-    hasNextPage: Boolean!
-    hasPreviousPage: Boolean!
-    startCursor: String
-    endCursor: String
+type UserConnection {
+  edges: [UserEdge]
+  pageInfo: PageInfo
+  totalCount: Int
+}
+
+type UserEdge {
+  node: User
+  cursor: String
+}
+
+scalar _Any
+
+union _Entity = Order | InventoryAlert | Category | User | RecommendationRule | Product | UserBehavior | CartItem | RecommendationResult | Recommendation | OrderItem | Inventory | Cart
+
+""""""
+scalar _FieldSet
+
+type _Service {
+  sdl: String!
 }

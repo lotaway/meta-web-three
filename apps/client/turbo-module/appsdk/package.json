@@ -8,7 +8,7 @@
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
-    "postinstall": "[ -d lib ] || bob build",
+    "postinstall": "bob build",
     "build": "bob build",
     "deploy": "npm pack && mv react-native-appsdk-*.tgz ../app/react-native-appsdk.tgz"
   },
@@ -18,7 +18,8 @@
     ".": {
       "source": "./src/index.tsx",
       "types": "./lib/typescript/src/index.d.ts",
-      "require": "./lib/module/index.js"
+      "require": "./lib/module/index.js",
+      "default": "./lib/module/index.js"
     },
     "./package.json": "./package.json"
   },

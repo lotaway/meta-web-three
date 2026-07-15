@@ -31,7 +31,7 @@ public class MqttTelemetryService {
                     scadaDomainService.ingestTelemetry(equipmentCode, topic, payload, null);
                 }
             } catch (Exception e) {
-                log.error("Failed to process telemetry from {}: {}", topic, e.getMessage());
+                log.error("Failed to process telemetry from {}: {}", topic, e);
             }
         });
         subscriber.connect();

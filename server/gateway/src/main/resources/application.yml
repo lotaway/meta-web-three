@@ -7,6 +7,8 @@ spring:
     hikari:
       maximum-pool-size: 2
       minimum-idle: 0
+      connection-timeout: 5000
+      initialization-fail-timeout: -1
   profiles:
     active: ${PROFILE:dev}
   quartz:

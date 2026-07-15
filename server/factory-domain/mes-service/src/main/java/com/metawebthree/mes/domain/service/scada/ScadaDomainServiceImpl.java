@@ -68,7 +68,7 @@ public class ScadaDomainServiceImpl implements ScadaDomainService {
                 record.getMetrics().add(metric);
             }
         } catch (Exception e) {
-            log.warn("Failed to parse telemetry payload for {}: {}", equipmentCode, e.getMessage());
+            log.warn("Failed to parse telemetry payload for {}: {}", equipmentCode, e);
         }
         return telemetryRecordRepository.save(record);
     }

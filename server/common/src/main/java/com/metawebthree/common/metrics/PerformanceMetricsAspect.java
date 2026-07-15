@@ -1,5 +1,7 @@
 package com.metawebthree.common.metrics;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+
 import com.metawebthree.common.alert.AlertService;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Component;
  */
 @Aspect
 @Component
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 public class PerformanceMetricsAspect {
     
     @Autowired
@@ -23,7 +26,7 @@ public class PerformanceMetricsAspect {
     /**
      * Monitor all service and Dubbo service methods
      */
-    @Around("@within(org.springframework.stereotype.Service) || @within(org.apache.dubbo.config.annotation.DubboService)")
+    @Around("(@within(org.springframework.stereotype.Service) || @within(org.apache.dubbo.config.annotation.DubboService)) && !within(com.metawebthree.common..*)")
     public Object monitorPerformance(ProceedingJoinPoint joinPoint) throws Throwable {
         String className = joinPoint.getTarget().getClass().getSimpleName();
         String methodName = joinPoint.getSignature().getName();

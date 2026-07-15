@@ -771,8 +771,6 @@ export default {
       cancelSuccess: 'Order cancelled',
       orders: 'Schedule Orders',
       resources: 'Resources',
-      resourceCode: 'Resource Code',
-      resourceName: 'Resource Name',
       resourceType: 'Resource Type',
       resourceTypeEQUIPMENT: 'Equipment',
       resourceTypeWORK_CENTER: 'Work Center',

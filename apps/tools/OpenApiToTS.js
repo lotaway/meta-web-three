@@ -8,7 +8,7 @@
 //   OPENAPI_OUTPUT_DIR       - output dir relative to cwd (default: src/generated/api)
 //   OPENAPI_RUNTIME_ENV_VAR  - runtime env expression (default: import.meta.env.VITE_BASE_SERVER_URL)
 //   OPENAPI_TIMEOUT          - timeout in ms (default: 180000)
-//   OPENAPI_USE_NPX          - set "true" to use npx prefix (default: false)
+//   OPENAPI_USE_NPX          - (deprecated, always uses npx now)
 //   OPENAPI_DEFAULT_HOST     - fallback host (default: http://localhost:10081)
 
 const fs = require("node:fs")
@@ -103,15 +103,11 @@ function generateCode(config, inputPath) {
   ]
 
   return new Promise((resolve, reject) => {
-    const child = config.useNpx
-      ? spawn("npx", ["openapi-generator", ...args], {
-          stdio: "inherit",
-          cwd: projectRoot,
-        })
-      : spawn("openapi-generator", args, {
-          stdio: "inherit",
-          cwd: projectRoot,
-        })
+    const child = spawn("npx", ["@openapitools/openapi-generator-cli", ...args], {
+      stdio: "inherit",
+      cwd: projectRoot,
+      shell: true,
+    })
 
     const timeout = setTimeout(() => {
       child.kill()

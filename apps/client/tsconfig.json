@@ -45,7 +45,6 @@
     "test/**",
     "modules/*/example",
     "modules/scanner-module/src/ScannerModuleView.web.tsx",
-    "node_modules",
-    "src/generated/api/apis/index.ts"
+    "node_modules"
   ]
 }

@@ -832,8 +832,6 @@ export default {
       cancelSuccess: '订单已取消',
       orders: '排程订单',
       resources: '排程资源',
-      resourceCode: '资源编码',
-      resourceName: '资源名称',
       resourceType: '资源类型',
       resourceTypeEQUIPMENT: '设备',
       resourceTypeWORK_CENTER: '工作中心',

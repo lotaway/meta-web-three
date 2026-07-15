@@ -174,6 +174,8 @@ export function createResourceAPI(data: {
   resourceName: string
   resourceType: ResourceType
   workshopId: string
+  capacityPerShift?: number
+  description?: string
 }) {
   return http<ScheduleResource>({ url: '/api/mes/scheduling/resources', method: 'post', data })
 }
