@@ -58,6 +58,7 @@
         <module>erp-domain/reporting-service</module>
         <module>erp-domain/settlement-service</module>
         <module>erp-domain/hrm-service</module>
+        <module>erp-domain/crm-service</module>
         <!-- blockchain-domain -->
         <module>blockchain-domain/wallet-service</module>
         <module>blockchain-domain/traceability-service</module>

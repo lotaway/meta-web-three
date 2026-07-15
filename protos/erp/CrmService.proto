@@ -1,0 +1,447 @@
+syntax = "proto3";
+
+package com.metawebthree.erp.generated.rpc;
+
+option java_multiple_files = true;
+
+import "shared/google/type/money.proto";
+
+service CrmService {
+    // Lead
+    rpc getLead(GetLeadRequest) returns (GetLeadResponse);
+    rpc listLeads(ListLeadsRequest) returns (ListLeadsResponse);
+    rpc createLead(CreateLeadRequest) returns (CreateLeadResponse);
+    rpc updateLead(UpdateLeadRequest) returns (UpdateLeadResponse);
+    rpc deleteLead(DeleteLeadRequest) returns (DeleteLeadResponse);
+    rpc convertLead(ConvertLeadRequest) returns (ConvertLeadResponse);
+    rpc disqualifyLead(DisqualifyLeadRequest) returns (DisqualifyLeadResponse);
+
+    // Opportunity
+    rpc getOpportunity(GetOpportunityRequest) returns (GetOpportunityResponse);
+    rpc listOpportunities(ListOpportunitiesRequest) returns (ListOpportunitiesResponse);
+    rpc createOpportunity(CreateOpportunityRequest) returns (CreateOpportunityResponse);
+    rpc updateOpportunity(UpdateOpportunityRequest) returns (UpdateOpportunityResponse);
+    rpc deleteOpportunity(DeleteOpportunityRequest) returns (DeleteOpportunityResponse);
+    rpc advanceOpportunityStage(AdvanceOpportunityStageRequest) returns (AdvanceOpportunityStageResponse);
+    rpc closeOpportunityWon(CloseOpportunityWonRequest) returns (CloseOpportunityWonResponse);
+    rpc closeOpportunityLost(CloseOpportunityLostRequest) returns (CloseOpportunityLostResponse);
+    rpc getPipelineSummary(GetPipelineSummaryRequest) returns (GetPipelineSummaryResponse);
+
+    // Customer Service Ticket
+    rpc getTicket(GetTicketRequest) returns (GetTicketResponse);
+    rpc listTickets(ListTicketsRequest) returns (ListTicketsResponse);
+    rpc createTicket(CreateTicketRequest) returns (CreateTicketResponse);
+    rpc updateTicket(UpdateTicketRequest) returns (UpdateTicketResponse);
+    rpc deleteTicket(DeleteTicketRequest) returns (DeleteTicketResponse);
+    rpc assignTicket(AssignTicketRequest) returns (AssignTicketResponse);
+    rpc updateTicketStatus(UpdateTicketStatusRequest) returns (UpdateTicketStatusResponse);
+
+    // Campaign
+    rpc getCampaign(GetCampaignRequest) returns (GetCampaignResponse);
+    rpc listCampaigns(ListCampaignsRequest) returns (ListCampaignsResponse);
+    rpc createCampaign(CreateCampaignRequest) returns (CreateCampaignResponse);
+    rpc updateCampaign(UpdateCampaignRequest) returns (UpdateCampaignResponse);
+    rpc deleteCampaign(DeleteCampaignRequest) returns (DeleteCampaignResponse);
+
+    // Contact
+    rpc getContact(GetContactRequest) returns (GetContactResponse);
+    rpc listContacts(ListContactsRequest) returns (ListContactsResponse);
+    rpc createContact(CreateContactRequest) returns (CreateContactResponse);
+    rpc updateContact(UpdateContactRequest) returns (UpdateContactResponse);
+    rpc deleteContact(DeleteContactRequest) returns (DeleteContactResponse);
+}
+
+// Lead messages
+message LeadProto {
+    int64 id = 1;
+    string leadNo = 2;
+    string name = 3;
+    string company = 4;
+    string title = 5;
+    string email = 6;
+    string phone = 7;
+    string mobile = 8;
+    string source = 9;
+    string status = 10;
+    int32 score = 11;
+    string industry = 12;
+    string city = 13;
+    string description = 14;
+    string assignedTo = 15;
+    int64 createdAt = 16;
+    int64 updatedAt = 17;
+}
+
+message GetLeadRequest { int64 id = 1; }
+message GetLeadResponse { LeadProto lead = 1; }
+
+message ListLeadsRequest {
+    string status = 1;
+    string source = 2;
+    string keywords = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListLeadsResponse {
+    repeated LeadProto leads = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+
+message CreateLeadRequest {
+    string name = 1;
+    string company = 2;
+    string title = 3;
+    string email = 4;
+    string phone = 5;
+    string mobile = 6;
+    string source = 7;
+    string industry = 8;
+    string city = 9;
+    string description = 10;
+    string assignedTo = 11;
+}
+message CreateLeadResponse { LeadProto lead = 1; }
+
+message UpdateLeadRequest {
+    int64 id = 1;
+    string name = 2;
+    string company = 3;
+    string title = 4;
+    string email = 5;
+    string phone = 6;
+    string mobile = 7;
+    string source = 8;
+    string industry = 9;
+    string city = 10;
+    string description = 11;
+    string assignedTo = 12;
+}
+message UpdateLeadResponse { LeadProto lead = 1; }
+
+message DeleteLeadRequest { int64 id = 1; }
+message DeleteLeadResponse { bool success = 1; }
+
+message ConvertLeadRequest {
+    int64 leadId = 1;
+    double amount = 2;
+    string stage = 3;
+}
+message ConvertLeadResponse {
+    int64 opportunityId = 1;
+    bool success = 2;
+}
+
+message DisqualifyLeadRequest {
+    int64 leadId = 1;
+    string reason = 2;
+}
+message DisqualifyLeadResponse { bool success = 1; }
+
+// Opportunity messages
+message OpportunityProto {
+    int64 id = 1;
+    string opportunityNo = 2;
+    string title = 3;
+    int64 leadId = 4;
+    int64 customerId = 5;
+    int64 contactId = 6;
+    int64 pipelineId = 7;
+    string stage = 8;
+    double amount = 9;
+    int32 probability = 10;
+    string expectedCloseDate = 11;
+    string actualCloseDate = 12;
+    string competitor = 13;
+    string description = 14;
+    string assignedTo = 15;
+    int64 createdAt = 16;
+    int64 updatedAt = 17;
+}
+
+message GetOpportunityRequest { int64 id = 1; }
+message GetOpportunityResponse { OpportunityProto opportunity = 1; }
+
+message ListOpportunitiesRequest {
+    string stage = 1;
+    int64 pipelineId = 2;
+    string keywords = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListOpportunitiesResponse {
+    repeated OpportunityProto opportunities = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+
+message CreateOpportunityRequest {
+    string title = 1;
+    int64 leadId = 2;
+    int64 customerId = 3;
+    int64 contactId = 4;
+    int64 pipelineId = 5;
+    string stage = 6;
+    double amount = 7;
+    int32 probability = 8;
+    string expectedCloseDate = 9;
+    string competitor = 10;
+    string description = 11;
+    string assignedTo = 12;
+}
+message CreateOpportunityResponse { OpportunityProto opportunity = 1; }
+
+message UpdateOpportunityRequest {
+    int64 id = 1;
+    string title = 2;
+    double amount = 3;
+    int32 probability = 4;
+    string expectedCloseDate = 5;
+    string competitor = 6;
+    string description = 7;
+    string assignedTo = 8;
+}
+message UpdateOpportunityResponse { OpportunityProto opportunity = 1; }
+
+message DeleteOpportunityRequest { int64 id = 1; }
+message DeleteOpportunityResponse { bool success = 1; }
+
+message AdvanceOpportunityStageRequest { int64 id = 1; }
+message AdvanceOpportunityStageResponse {
+    OpportunityProto opportunity = 1;
+    bool success = 2;
+}
+
+message CloseOpportunityWonRequest {
+    int64 id = 1;
+    double actualAmount = 2;
+}
+message CloseOpportunityWonResponse { bool success = 1; }
+
+message CloseOpportunityLostRequest {
+    int64 id = 1;
+    string reason = 2;
+}
+message CloseOpportunityLostResponse { bool success = 1; }
+
+message GetPipelineSummaryRequest {}
+message PipelineStageCount {
+    string stage = 1;
+    int32 count = 2;
+    double totalAmount = 3;
+}
+message GetPipelineSummaryResponse {
+    repeated PipelineStageCount stages = 1;
+    int32 totalCount = 2;
+    double totalAmount = 3;
+}
+
+// Ticket messages
+message TicketProto {
+    int64 id = 1;
+    string ticketNo = 2;
+    string title = 3;
+    int64 customerId = 4;
+    int64 contactId = 5;
+    int64 orderId = 6;
+    string type = 7;
+    string priority = 8;
+    string status = 9;
+    string assignedTo = 10;
+    string description = 11;
+    string resolution = 12;
+    int64 createdAt = 13;
+    int64 updatedAt = 14;
+}
+
+message GetTicketRequest { int64 id = 1; }
+message GetTicketResponse { TicketProto ticket = 1; }
+
+message ListTicketsRequest {
+    string status = 1;
+    string priority = 2;
+    string type = 3;
+    string keywords = 4;
+    int32 page = 5;
+    int32 size = 6;
+}
+message ListTicketsResponse {
+    repeated TicketProto tickets = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+
+message CreateTicketRequest {
+    string title = 1;
+    int64 customerId = 2;
+    int64 contactId = 3;
+    int64 orderId = 4;
+    string type = 5;
+    string priority = 6;
+    string description = 7;
+    string assignedTo = 8;
+}
+message CreateTicketResponse { TicketProto ticket = 1; }
+
+message UpdateTicketRequest {
+    int64 id = 1;
+    string title = 2;
+    string description = 3;
+    string priority = 4;
+}
+message UpdateTicketResponse { TicketProto ticket = 1; }
+
+message DeleteTicketRequest { int64 id = 1; }
+message DeleteTicketResponse { bool success = 1; }
+
+message AssignTicketRequest {
+    int64 id = 1;
+    string assignedTo = 2;
+}
+message AssignTicketResponse { bool success = 1; }
+
+message UpdateTicketStatusRequest {
+    int64 id = 1;
+    string status = 2;
+    string resolution = 3;
+}
+message UpdateTicketStatusResponse { bool success = 1; }
+
+// Campaign messages
+message CampaignProto {
+    int64 id = 1;
+    string name = 2;
+    string description = 3;
+    string type = 4;
+    string status = 5;
+    string startDate = 6;
+    string endDate = 7;
+    double budget = 8;
+    double actualCost = 9;
+    double expectedRevenue = 10;
+    string targetAudience = 11;
+    int32 leadsGenerated = 12;
+    int32 convertedCustomers = 13;
+    double roi = 14;
+    int64 createdAt = 15;
+    int64 updatedAt = 16;
+}
+
+message GetCampaignRequest { int64 id = 1; }
+message GetCampaignResponse { CampaignProto campaign = 1; }
+
+message ListCampaignsRequest {
+    string status = 1;
+    string type = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListCampaignsResponse {
+    repeated CampaignProto campaigns = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+
+message CreateCampaignRequest {
+    string name = 1;
+    string description = 2;
+    string type = 3;
+    string status = 4;
+    string startDate = 5;
+    string endDate = 6;
+    double budget = 7;
+    double expectedRevenue = 8;
+    string targetAudience = 9;
+}
+message CreateCampaignResponse { CampaignProto campaign = 1; }
+
+message UpdateCampaignRequest {
+    int64 id = 1;
+    string name = 2;
+    string description = 3;
+    string type = 4;
+    string status = 5;
+    string startDate = 6;
+    string endDate = 7;
+    double budget = 8;
+    double expectedRevenue = 9;
+    string targetAudience = 10;
+}
+message UpdateCampaignResponse { CampaignProto campaign = 1; }
+
+message DeleteCampaignRequest { int64 id = 1; }
+message DeleteCampaignResponse { bool success = 1; }
+
+// Contact messages
+message ContactProto {
+    int64 id = 1;
+    string firstName = 2;
+    string lastName = 3;
+    string email = 4;
+    string phone = 5;
+    string mobile = 6;
+    string position = 7;
+    string department = 8;
+    int64 customerId = 9;
+    bool isPrimary = 10;
+    string address = 11;
+    string city = 12;
+    string province = 13;
+    int64 createdAt = 14;
+    int64 updatedAt = 15;
+}
+
+message GetContactRequest { int64 id = 1; }
+message GetContactResponse { ContactProto contact = 1; }
+
+message ListContactsRequest {
+    int64 customerId = 1;
+    string keywords = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListContactsResponse {
+    repeated ContactProto contacts = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+
+message CreateContactRequest {
+    string firstName = 1;
+    string lastName = 2;
+    string email = 3;
+    string phone = 4;
+    string mobile = 5;
+    string position = 6;
+    string department = 7;
+    int64 customerId = 8;
+    bool isPrimary = 9;
+    string address = 10;
+    string city = 11;
+    string province = 12;
+}
+message CreateContactResponse { ContactProto contact = 1; }
+
+message UpdateContactRequest {
+    int64 id = 1;
+    string firstName = 2;
+    string lastName = 3;
+    string email = 4;
+    string phone = 5;
+    string mobile = 6;
+    string position = 7;
+    string department = 8;
+    bool isPrimary = 9;
+    string address = 10;
+    string city = 11;
+    string province = 12;
+}
+message UpdateContactResponse { ContactProto contact = 1; }
+
+message DeleteContactRequest { int64 id = 1; }
+message DeleteContactResponse { bool success = 1; }
