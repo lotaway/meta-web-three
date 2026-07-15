@@ -125,6 +125,14 @@ The following backend services have been created, but lack corresponding admin a
 - [ ] **[Medium] PaymentRpcService 统计接口返回硬编码 0**: `payment-service/.../PaymentRpcService.java` — `getPaymentStatistics()` 和 `getDailyPaymentStats()` 所有数值返回 0
 - [ ] **[Medium] ApiDocumentationService 订阅过滤 TODO**: `platform-domain/developer-portal-service/.../ApiDocumentationService.java:398` — 订阅状态过滤逻辑留空
 
+### [GitHub Issues]
+
+- [ ] **[#1] Solana 商城模板集成**: Token, NFT, SFT 创建与管理；Token 作为商品销售；活动和佣金功能
+  - [ ] Token/NFT/SFT 创建和管理合约
+  - [ ] Token 作为商品销售的商城前端集成
+  - [ ] 活动与佣金功能
+  - 链接: https://github.com/lotaway/meta-web-three/issues/1
+
 # 待决议功能
 
 - [ ] 实现多租户SaaS架构
