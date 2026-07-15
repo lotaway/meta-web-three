@@ -48,7 +48,8 @@ export const mesApi = {
         params: { traceCode },
       })
       return data
-    } catch {
+    } catch (e) {
+      console.error('Failed to fetch trace chain:', e)
       return null
     }
   },

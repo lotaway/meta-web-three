@@ -109,7 +109,7 @@ export function ScadaPanel({ equipmentCode, equipmentName }: ScadaPanelProps) {
       mesApi.fetchCommands(equipmentCode),
     ])
       .then(([t, c]) => { setTelemetry(t); setCommands(c) })
-      .catch(() => {})
+      .catch((e) => { console.error('Failed to fetch telemetry/commands:', e) })
       .finally(() => setLoading(false))
   }, [equipmentCode])
 
@@ -123,7 +123,9 @@ export function ScadaPanel({ equipmentCode, equipmentName }: ScadaPanelProps) {
       setCmdPayload('')
       const list = await mesApi.fetchCommands(equipmentCode)
       setCommands(list)
-    } catch { /* ignore */ }
+    } catch (e) {
+      console.error('Failed to dispatch command:', e)
+    }
     setSending(false)
   }
 

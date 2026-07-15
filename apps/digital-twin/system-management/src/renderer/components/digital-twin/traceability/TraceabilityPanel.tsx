@@ -69,7 +69,7 @@ export function TraceabilityPanel() {
       const result = await mesApi.getTraceChain(traceCode)
       if (result) { setChain(result); setMode('chain'); setRecords([]) }
       else { setError('未找到该追溯码的追溯链') }
-    } catch { setError('查询失败') }
+    } catch (e) { console.error('查询失败', e); setError('查询失败') }
     setLoading(false)
   }
 
@@ -79,7 +79,7 @@ export function TraceabilityPanel() {
     try {
       const list = await mesApi.forwardTrace(traceCode)
       setRecords(list); setMode('forward'); setChain(null)
-    } catch { setError('正向追溯查询失败') }
+    } catch (e) { console.error('正向追溯查询失败', e); setError('正向追溯查询失败') }
     setLoading(false)
   }
 
@@ -89,7 +89,7 @@ export function TraceabilityPanel() {
     try {
       const list = await mesApi.backwardTrace(traceCode)
       setRecords(list); setMode('backward'); setChain(null)
-    } catch { setError('反向追溯查询失败') }
+    } catch (e) { console.error('反向追溯查询失败', e); setError('反向追溯查询失败') }
     setLoading(false)
   }
 
