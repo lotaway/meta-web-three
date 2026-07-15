@@ -75,7 +75,7 @@ public class SchedulingDomainServiceImpl implements SchedulingDomainService {
                     scheduled.add(order);
                 }
             } catch (Exception e) {
-                log.error("Failed to schedule order {}: {}", order.getOrderNo(), e.getMessage());
+                log.error("Failed to schedule order {}: {}", order.getOrderNo(), e);
                 conflicts.add(new ScheduleConflict(order.getOrderNo(), order.getProductCode(),
                     "N/A", "SCHEDULING_ERROR", e.getMessage()));
             }
@@ -138,7 +138,7 @@ public class SchedulingDomainServiceImpl implements SchedulingDomainService {
                     scheduled.add(order);
                 }
             } catch (Exception e) {
-                log.error("Failed to backward schedule order {}: {}", order.getOrderNo(), e.getMessage());
+                log.error("Failed to backward schedule order {}: {}", order.getOrderNo(), e);
                 conflicts.add(new ScheduleConflict(order.getOrderNo(), order.getProductCode(),
                     "N/A", "SCHEDULING_ERROR", e.getMessage()));
             }

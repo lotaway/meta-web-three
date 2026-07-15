@@ -31,12 +31,14 @@ public class ScadaController {
     }
 
     @PostMapping("/telemetry/ingest")
+    @RequirePermission(MesPermissions.SCADA_TELEMETRY_READ)
     public ResponseEntity<TelemetryRecord> ingestTelemetry(@RequestBody IngestTelemetryRequest req) {
         return ResponseEntity.ok(scadaDomainService.ingestTelemetry(
                 req.getEquipmentCode(), req.getTopic(), req.getPayload(), req.getCollectTime()));
     }
 
     @GetMapping("/telemetry/{equipmentCode}")
+    @RequirePermission(MesPermissions.SCADA_TELEMETRY_READ)
     public ResponseEntity<List<TelemetryRecord>> getTelemetry(
             @PathVariable String equipmentCode,
             @RequestParam(defaultValue = "10") int limit) {
@@ -44,6 +46,7 @@ public class ScadaController {
     }
 
     @GetMapping("/telemetry/{equipmentCode}/range")
+    @RequirePermission(MesPermissions.SCADA_TELEMETRY_READ)
     public ResponseEntity<List<TelemetryRecord>> getTelemetryByRange(
             @PathVariable String equipmentCode,
             @RequestParam String start,

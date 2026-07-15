@@ -44,7 +44,7 @@ public class MqttTelemetrySubscriber {
             client.subscribe(topicFilter, this::handleMessage);
             log.info("MQTT subscriber connected to {} subscribed to {}", brokerUrl, topicFilter);
         } catch (MqttException e) {
-            log.error("MQTT subscriber connection failed: {}", e.getMessage());
+            log.error("MQTT subscriber connection failed: {}", e);
         }
     }
 

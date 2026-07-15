@@ -21,7 +21,14 @@ public class MesPermissionChecker implements PermissionChecker {
             MesPermissions.EQUIPMENT_READ, MesPermissions.EQUIPMENT_CREATE, MesPermissions.EQUIPMENT_UPDATE, MesPermissions.EQUIPMENT_DELETE, MesPermissions.EQUIPMENT_BREAKDOWN, MesPermissions.EQUIPMENT_REPAIR,
             MesPermissions.PROCESS_ROUTE_READ, MesPermissions.PROCESS_ROUTE_CREATE, MesPermissions.PROCESS_ROUTE_UPDATE, MesPermissions.PROCESS_ROUTE_DELETE,
             MesPermissions.PROCESS_PARAMETER_READ, MesPermissions.PROCESS_PARAMETER_CREATE, MesPermissions.PROCESS_PARAMETER_UPDATE, MesPermissions.PROCESS_PARAMETER_DELETE,
-            MesPermissions.CONFIG_READ, MesPermissions.CONFIG_CREATE, MesPermissions.CONFIG_UPDATE, MesPermissions.CONFIG_DELETE
+            MesPermissions.CONFIG_READ, MesPermissions.CONFIG_CREATE, MesPermissions.CONFIG_UPDATE, MesPermissions.CONFIG_DELETE,
+            MesPermissions.SCADA_READ, MesPermissions.SCADA_TELEMETRY_READ, MesPermissions.SCADA_COMMAND_DISPATCH, MesPermissions.SCADA_COMMAND_READ,
+            MesPermissions.TRACE_READ, MesPermissions.TRACE_FORWARD, MesPermissions.TRACE_BACKWARD, MesPermissions.TRACE_CHAIN, MesPermissions.TRACE_CREATE, MesPermissions.TRACE_UPDATE, MesPermissions.TRACE_DELETE,
+            MesPermissions.SCHEDULING_READ, MesPermissions.SCHEDULING_CREATE, MesPermissions.SCHEDULING_UPDATE, MesPermissions.SCHEDULING_DELETE, MesPermissions.SCHEDULING_FORWARD, MesPermissions.SCHEDULING_BACKWARD,
+            MesPermissions.LABOR_OPERATOR_READ, MesPermissions.LABOR_OPERATOR_CREATE, MesPermissions.LABOR_OPERATOR_UPDATE, MesPermissions.LABOR_OPERATOR_DELETE,
+            MesPermissions.LABOR_ATTENDANCE_READ, MesPermissions.LABOR_ATTENDANCE_CREATE,
+            MesPermissions.LABOR_TIME_RECORD_READ, MesPermissions.LABOR_TIME_RECORD_CREATE,
+            MesPermissions.LABOR_ASSIGNMENT_READ, MesPermissions.LABOR_ASSIGNMENT_CREATE
         ),
         "OPERATOR", Set.of(
             MesPermissions.WORK_ORDER_READ, MesPermissions.WORK_ORDER_CREATE, MesPermissions.WORK_ORDER_UPDATE, MesPermissions.WORK_ORDER_RELEASE,
@@ -29,7 +36,11 @@ public class MesPermissionChecker implements PermissionChecker {
             MesPermissions.EQUIPMENT_READ, MesPermissions.EQUIPMENT_UPDATE, MesPermissions.EQUIPMENT_BREAKDOWN, MesPermissions.EQUIPMENT_REPAIR,
             MesPermissions.PROCESS_ROUTE_READ,
             MesPermissions.PROCESS_PARAMETER_READ, MesPermissions.PROCESS_PARAMETER_CREATE, MesPermissions.PROCESS_PARAMETER_UPDATE,
-            MesPermissions.CONFIG_READ
+            MesPermissions.CONFIG_READ,
+            MesPermissions.SCADA_READ, MesPermissions.SCADA_TELEMETRY_READ, MesPermissions.SCADA_COMMAND_READ,
+            MesPermissions.TRACE_READ, MesPermissions.TRACE_FORWARD, MesPermissions.TRACE_BACKWARD, MesPermissions.TRACE_CHAIN,
+            MesPermissions.SCHEDULING_READ,
+            MesPermissions.LABOR_OPERATOR_READ, MesPermissions.LABOR_ATTENDANCE_READ, MesPermissions.LABOR_TIME_RECORD_READ
         ),
         "VIEWER", Set.of(
             MesPermissions.WORK_ORDER_READ,
@@ -37,7 +48,11 @@ public class MesPermissionChecker implements PermissionChecker {
             MesPermissions.EQUIPMENT_READ,
             MesPermissions.PROCESS_ROUTE_READ,
             MesPermissions.PROCESS_PARAMETER_READ,
-            MesPermissions.CONFIG_READ
+            MesPermissions.CONFIG_READ,
+            MesPermissions.SCADA_READ, MesPermissions.SCADA_TELEMETRY_READ, MesPermissions.SCADA_COMMAND_READ,
+            MesPermissions.TRACE_READ, MesPermissions.TRACE_FORWARD, MesPermissions.TRACE_BACKWARD, MesPermissions.TRACE_CHAIN,
+            MesPermissions.SCHEDULING_READ,
+            MesPermissions.LABOR_OPERATOR_READ, MesPermissions.LABOR_ATTENDANCE_READ, MesPermissions.LABOR_TIME_RECORD_READ
         )
     );
 
