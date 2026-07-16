@@ -234,6 +234,14 @@ export function getOlapMetadata() {
   })
 }
 
+export function getProductionAnalytics(startDate: string, endDate: string) {
+  return http<Record<string, any>>({
+    url: '/api/analytics/production',
+    method: 'get',
+    params: { startDate, endDate },
+  })
+}
+
 export function getSalesFunnel() {
   return http<Record<string, any>>({
     url: '/api/olap/sales-funnel',

@@ -99,7 +99,7 @@ import { ref, onMounted, computed } from 'vue'
 import { t } from '@/locales'
 import {
   getSalesTrend, getCategoryDistribution, getRegionalComparison,
-  getFinancialSummary, getSafetyStockAlerts, getSalesFunnel,
+  getFinancialSummary, getSafetyStockAlerts, getProductionAnalytics, getSalesFunnel,
 } from '@/apis/bi'
 import type { CategoryDistribution, FinancialSummary } from '@/apis/bi'
 
@@ -116,6 +116,12 @@ const regionList = ref<{ region: string; salesAmount: number; orderCount: number
 const financialData = ref<FinancialSummary>({ totalRevenue: 0, totalCost: 0, grossProfit: 0, netProfit: 0, orderCount: 0 })
 const inventoryOverview = ref({ totalProducts: 0, totalQuantity: 0, lowStockCount: 0, totalValue: 0 })
 const safetyAlerts = ref<any[]>([])
+const productionData = ref<{ totalOutput: number; defectCount: number; yieldRate: number; dailyData: any[] }>({
+  totalOutput: 0,
+  defectCount: 0,
+  yieldRate: 0,
+  dailyData: [],
+})
 
 const salesRevenue = computed(() => salesTrendRows.value.reduce((s, r) => s + r.amount, 0))
 const salesCost = computed(() => salesRevenue.value * 0.6)
@@ -129,9 +135,9 @@ const inventoryTotalProducts = computed(() => inventoryOverview.value.totalProdu
 const inventoryTotalQty = computed(() => inventoryOverview.value.totalQuantity)
 const inventoryTotalValue = computed(() => inventoryOverview.value.totalValue)
 const inventoryLowStock = computed(() => inventoryOverview.value.lowStockCount)
-const productionYield = computed(() => 0.97)
-const productionOutput = computed(() => 1280)
-const productionDefects = computed(() => 38)
+const productionYield = computed(() => productionData.value.yieldRate)
+const productionOutput = computed(() => productionData.value.totalOutput)
+const productionDefects = computed(() => productionData.value.defectCount)
 
 const formatMoney = (v: number | undefined | null) => {
   if (v == null) return '0.00'
@@ -195,9 +201,21 @@ async function loadInventoryData() {
   } catch (e) { console.error('Failed to load inventory data', e) }
 }
 
+async function loadProductionData() {
+  try {
+    const res = await getProductionAnalytics(dateRange.value[0], dateRange.value[1]) as any
+    productionData.value = {
+      totalOutput: res.totalOutput || 0,
+      defectCount: res.defectCount || 0,
+      yieldRate: res.yieldRate ?? 0,
+      dailyData: res.dailyData || [],
+    }
+  } catch (e) { console.error('Failed to load production data', e) }
+}
+
 async function loadAll() {
   loading.value = true
-  await Promise.all([loadSalesData(), loadFinancialData(), loadInventoryData()])
+  await Promise.all([loadSalesData(), loadFinancialData(), loadInventoryData(), loadProductionData()])
   loading.value = false
 }
 

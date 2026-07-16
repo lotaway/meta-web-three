@@ -1,6 +1,7 @@
 # TODO
 
-[Guideline](./README.md)
+[Project Guideline](./README.md)
+[Backend Guideline](./server/README.md)
 
 ### [Backend Admin Missing]
 
@@ -41,30 +42,31 @@ The following backend services have been created, but lack corresponding admin a
 
 #### ERP 领域 (中优先级)
 
-- [ ] **[ERP] 客户关系管理 (CRM)**: 销售管道、商机跟踪、客户服务工单、营销活动
-   - [ ] 创建 `crm-service` 模块（基于 backend-api 父 POM）
-   - [ ] 定义领域实体：`Lead`, `Opportunity`, `SalesPipeline`, `CustomerServiceTicket`, `Campaign`, `Contact`
-   - [ ] 实现销售管道：商机创建 → 阶段推进 → 赢单/输单
-   - [ ] 实现客户服务工单：创建 → 分配 → 处理 → 关闭
-   - [ ] 实现与用户服务集成：客户数据同步
-   - [ ] 添加 REST API + GraphQL 端点
-   - [ ] 添加 Protobuf 定义：`protos/erp/CrmService.proto`
-   - [ ] 添加后台管理页面：`views/crm/*` 系列页面
+- [x] **[ERP] 客户关系管理 (CRM)**: 销售管道、商机跟踪、客户服务工单、营销活动
+   - [x] 创建 `crm-service` 模块（基于 backend-api 父 POM）
+   - [x] 定义领域实体：`Lead`, `Opportunity`, `SalesPipeline`, `CustomerServiceTicket`, `Campaign`, `Contact`
+   - [x] 实现销售管道：商机创建 → 阶段推进 → 赢单/输单
+   - [x] 实现客户服务工单：创建 → 分配 → 处理 → 关闭
+   - [x] 实现与用户服务集成：客户数据同步（UserServiceClient + /api/crm/leads/sync/* 端点）
+   - [x] 添加 REST API + GraphQL 端点（Apollo Federation 子图，POST /graphql）
+   - [x] 添加 Protobuf 定义：`protos/erp/CrmService.proto`
+   - [x] 添加后台管理页面：`views/crm/*` 系列页面
 
-- [ ] **[ERP] BI 商业智能与分析层**: 仪表板、即席查询、数据可视化
-   - [ ] 基于现有 `reporting-service` 扩展：添加 OLAP 聚合查询能力
-   - [ ] 实现销售分析看板：销量趋势、品类分布、区域对比
-   - [ ] 实现财务分析看板：收入/成本/利润趋势、预算执行率
-   - [ ] 实现库存分析看板：周转率、ABC分析、安全库存预警
-   - [ ] 实现生产分析看板：OEE、良品率、计划达成率
-   - [ ] 添加后台 BI 看板页面：`views/bi/*` 系列页面
+- [x] **[ERP] BI 商业智能与分析层**: 仪表板、即席查询、数据可视化
+   - [x] 基于现有 `reporting-service` 扩展：添加 OLAP 聚合查询能力（OLAP 实现在 data-pipeline 服务）
+   - [x] 实现销售分析看板：销量趋势、品类分布、区域对比（对接 data-analysis-service）
+   - [x] 实现财务分析看板：收入/成本/利润趋势、预算执行率（对接 data-analysis-service）
+   - [x] 实现库存分析看板：周转率、ABC分析、安全库存预警（对接 data-analysis-service）
+   - [x] 实现生产分析看板：OEE、良品率、计划达成率（data-pipeline 新增 PRODUCTION 域 + /api/analytics/production 端点）
+   - [x] 添加后台 BI 看板页面：`views/bi/*` 系列页面
 
 #### 跨领域基础能力
 
 - [ ] **[Cross] Protobuf 定义补齐**: 当前缺少 ERP 和 MES 领域的 protobuf 定义
-   - [ ] 创建 `protos/erp/` 目录：定义 FinanceService, HrmService, InvoiceService, CrmService
+   - [x] CrmService.proto 已创建并生成 Java 胶水代码（`make gen-java-dubbo`）
+   - [ ] 创建 `protos/erp/` 目录：定义 FinanceService, HrmService, InvoiceService, CrmService（CRM 已完成）
    - [ ] 创建 `protos/factory/` 目录：定义 MesService, SchedulingService, QualityService, EquipmentService
-   - [ ] 运行 `make` 生成多语言接口代码
+   - [ ] 运行 `make` 生成多语言接口代码（Java Dubbo 代码已完成）
 
 - [ ] **[Cross] ERP-MES 数据闭环集成**: 打通 ERP 生产订单 → MES 报工 → 财务成本核算
    - [ ] ERP 生产订单发布时发送领域事件(MQ/Kafka)到 MES

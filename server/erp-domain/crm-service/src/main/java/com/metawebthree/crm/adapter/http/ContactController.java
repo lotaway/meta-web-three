@@ -1,6 +1,7 @@
 package com.metawebthree.crm.adapter.http;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.metawebthree.crm.adapter.client.UserServiceClient;
 import com.metawebthree.crm.adapter.vo.Result;
 import com.metawebthree.crm.domain.entity.Contact;
 import com.metawebthree.crm.domain.exception.ContactNotFoundException;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/crm/contacts")
@@ -16,6 +18,7 @@ import java.util.List;
 public class ContactController {
 
     private final ContactRepository contactRepository;
+    private final UserServiceClient userServiceClient;
 
     @GetMapping("/{id}")
     public Result<Contact> getById(@PathVariable Long id) {
@@ -54,5 +57,14 @@ public class ContactController {
     public Result<Void> delete(@PathVariable Long id) {
         contactRepository.deleteById(id);
         return Result.success();
+    }
+
+    @GetMapping("/sync/customer/{userId}")
+    public Result<Map<String, Object>> syncCustomerData(@PathVariable Long userId) {
+        Map<String, Object> user = userServiceClient.getUserById(userId);
+        if (user.isEmpty()) {
+            return Result.error("Customer not found in user-service");
+        }
+        return Result.success(user);
     }
 }

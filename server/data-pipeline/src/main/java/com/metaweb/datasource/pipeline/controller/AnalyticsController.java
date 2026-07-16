@@ -59,6 +59,15 @@ public class AnalyticsController {
         GROUP BY hour ORDER BY hour
         """;
 
+    private static final String PRODUCTION_ANALYTICS_SQL = """
+        SELECT toDate(event_time) as date,
+               COUNT(*) as output,
+               SUM(if(status IN ('COMPLETED','DELIVERED','SHIPPED'), 1, 0)) as good_output,
+               SUM(if(status IN ('CANCELLED','RETURNED','REFUNDED'), 1, 0)) as defect_count
+        FROM meta_web_analytics.order_analytics
+        WHERE 1=1
+        """;
+
     @Autowired
     private ClickHouseRepository clickHouseRepository;
 
@@ -172,6 +181,48 @@ public class AnalyticsController {
             health.put("error", e.getMessage());
             health.put("timestamp", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             return ResponseEntity.internalServerError().body(health);
+        }
+    }
+
+    @GetMapping("/production")
+    public ResponseEntity<Map<String, Object>> getProductionAnalytics(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        try {
+            List<Object> params = new ArrayList<>();
+            StringBuilder sql = new StringBuilder(PRODUCTION_ANALYTICS_SQL);
+            if (startDate != null && !startDate.isEmpty()) {
+                sql.append("AND event_time >= toDate(?) ");
+                params.add(startDate);
+            }
+            if (endDate != null && !endDate.isEmpty()) {
+                sql.append("AND event_time < toDate(?) + INTERVAL 1 DAY ");
+                params.add(endDate);
+            }
+            sql.append("GROUP BY date ORDER BY date DESC LIMIT 90");
+
+            List<Map<String, Object>> dailyData = clickHouseJdbcTemplate.queryForList(sql.toString(), params.toArray());
+
+            long totalOutput = 0;
+            long totalGood = 0;
+            long totalDefects = 0;
+            for (Map<String, Object> row : dailyData) {
+                totalOutput += ((Number) row.getOrDefault("output", 0)).longValue();
+                totalGood += ((Number) row.getOrDefault("good_output", 0)).longValue();
+                totalDefects += ((Number) row.getOrDefault("defect_count", 0)).longValue();
+            }
+
+            Map<String, Object> stats = new LinkedHashMap<>();
+            stats.put("dailyData", dailyData);
+            stats.put("totalOutput", totalOutput);
+            stats.put("totalGood", totalGood);
+            stats.put("defectCount", totalDefects);
+            stats.put("yieldRate", totalOutput > 0 ? (double) totalGood / totalOutput : 0);
+            stats.put("generatedAt", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            log.error("Failed to query production analytics", e);
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
         }
     }
 

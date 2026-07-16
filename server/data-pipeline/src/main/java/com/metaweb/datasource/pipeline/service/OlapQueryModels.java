@@ -10,7 +10,7 @@ import java.util.Map;
 public class OlapQueryModels {
 
     public enum OlapDomain {
-        ORDER, INVENTORY, USER_BEHAVIOR
+        ORDER, INVENTORY, USER_BEHAVIOR, PRODUCTION
     }
 
     public enum TimeGranularity {

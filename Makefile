@@ -27,7 +27,7 @@ install:
 # Generate Java Dubbo code (uses Maven plugin in server/common)
 gen-java-dubbo:
 	@echo "Generating Java Dubbo code..."
-	@cd $(JAVA_DIR) && mvn -q -DskipTests protobuf:compile protobuf:compile-custom
+	@cd $(JAVA_DIR) && mvn -q -DskipTests protobuf:generate
 
 # Generate Python code for risk-scorer
 gen-python:

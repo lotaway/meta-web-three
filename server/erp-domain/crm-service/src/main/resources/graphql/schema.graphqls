@@ -1,0 +1,159 @@
+extend type Query {
+    lead(id: ID!): Lead
+    leads(status: String, source: String, keyword: String, page: Int, size: Int): LeadConnection
+    opportunity(id: ID!): Opportunity
+    opportunities(stage: String, keyword: String, page: Int, size: Int): OpportunityConnection
+    ticket(id: ID!): Ticket
+    tickets(status: String, priority: String, page: Int, size: Int): TicketConnection
+    campaign(id: ID!): Campaign
+    campaigns(status: String, type: String, page: Int, size: Int): CampaignConnection
+    contact(id: ID!): Contact
+    contacts(customerId: ID, keyword: String, page: Int, size: Int): ContactConnection
+}
+
+type Lead @key(fields: "id") {
+    id: ID!
+    leadNo: String!
+    name: String!
+    company: String
+    email: String
+    phone: String
+    source: String
+    status: String
+    score: Int
+    industry: String
+    city: String
+    description: String
+    assignedTo: String
+    createdAt: String
+    updatedAt: String
+}
+
+type Opportunity @key(fields: "id") {
+    id: ID!
+    opportunityNo: String!
+    title: String!
+    leadId: ID
+    customerId: ID
+    stage: String
+    amount: Float
+    probability: Int
+    expectedCloseDate: String
+    actualCloseDate: String
+    competitor: String
+    description: String
+    assignedTo: String
+    createdAt: String
+    updatedAt: String
+}
+
+type Ticket @key(fields: "id") {
+    id: ID!
+    ticketNo: String!
+    title: String!
+    customerId: ID
+    orderId: ID
+    type: String
+    priority: String
+    status: String
+    assignedTo: String
+    description: String
+    resolution: String
+    createdAt: String
+    updatedAt: String
+}
+
+type Campaign @key(fields: "id") {
+    id: ID!
+    name: String!
+    description: String
+    type: String
+    status: String
+    startDate: String
+    endDate: String
+    budget: Float
+    actualCost: Float
+    expectedRevenue: Float
+    leadsGenerated: Int
+    convertedCustomers: Int
+    createdAt: String
+    updatedAt: String
+}
+
+type Contact @key(fields: "id") {
+    id: ID!
+    firstName: String!
+    lastName: String
+    email: String
+    phone: String
+    mobile: String
+    position: String
+    department: String
+    customerId: ID
+    isPrimary: Boolean
+    city: String
+    createdAt: String
+    updatedAt: String
+}
+
+type LeadConnection {
+    edges: [LeadEdge]
+    totalCount: Int
+    pageInfo: PageInfo
+}
+
+type LeadEdge {
+    node: Lead
+    cursor: String
+}
+
+type OpportunityConnection {
+    edges: [OpportunityEdge]
+    totalCount: Int
+    pageInfo: PageInfo
+}
+
+type OpportunityEdge {
+    node: Opportunity
+    cursor: String
+}
+
+type TicketConnection {
+    edges: [TicketEdge]
+    totalCount: Int
+    pageInfo: PageInfo
+}
+
+type TicketEdge {
+    node: Ticket
+    cursor: String
+}
+
+type CampaignConnection {
+    edges: [CampaignEdge]
+    totalCount: Int
+    pageInfo: PageInfo
+}
+
+type CampaignEdge {
+    node: Campaign
+    cursor: String
+}
+
+type ContactConnection {
+    edges: [ContactEdge]
+    totalCount: Int
+    pageInfo: PageInfo
+}
+
+type ContactEdge {
+    node: Contact
+    cursor: String
+}
+
+type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    startCursor: String
+    endCursor: String
+}

@@ -531,6 +531,19 @@ services:
     volumes:
       - project_service_data:/server/project
       - ./.aws:/.aws:ro
+  crm-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: crm-service
+    container_name: meta-web-three-crm-service
+    hostname: crm-service
+    ports:
+      - "10124:10124"
+    volumes:
+      - crm_service_data:/server/crm
+      - ./.aws:/.aws:ro
   wallet-service:
     <<: *java-service
     build:
@@ -611,6 +624,7 @@ volumes:
   settlement_service_data:
   hrm_service_data:
   project_service_data:
+  crm_service_data:
   wallet_service_data:
   traceability_service_data:
   data_pipeline_data:

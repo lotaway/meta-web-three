@@ -34,6 +34,7 @@ docker compose -f docker-compose.yml -f docker-compose.server.yml up -d product-
 | 10110-10113 | finance、invoice、reporting、settlement | erp |
 | 10114 | wallet | blockchain |
 | 10122 | data-pipeline | 数据管道（独立模块） |
+| 10124 | crm-service | erp |
 
 K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 
@@ -153,6 +154,15 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 
 ### cs-service - 客服服务
 **职责**: 客户服务与售后支持
+
+### crm-service - CRM 服务
+**职责**: 客户关系管理，负责线索、商机、客户、工单、营销活动管理
+- 线索池管理（多渠道线索录入、评分、分配）
+- 商机管理（销售阶段跟踪、赢率预测、Pipeline 管理）
+- 客户联系人管理
+- 客服工单管理
+- 营销活动管理（预算、ROI 追踪）
+- CRM 数据看板
 - 客服对话管理
 - 工单创建与流转
 - 常见问题管理

@@ -1,5 +1,6 @@
 package com.metawebthree.crm.adapter.http;
 
+import com.metawebthree.crm.adapter.client.UserServiceClient;
 import com.metawebthree.crm.adapter.vo.Result;
 import com.metawebthree.crm.application.command.LeadCommandService;
 import com.metawebthree.crm.application.query.LeadQueryService;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/crm/leads")
@@ -17,6 +19,7 @@ public class LeadController {
 
     private final LeadQueryService leadQueryService;
     private final LeadCommandService leadCommandService;
+    private final UserServiceClient userServiceClient;
 
     @GetMapping("/{id}")
     public Result<Lead> getById(@PathVariable Long id) {
@@ -73,5 +76,19 @@ public class LeadController {
     public Result<Void> disqualify(@PathVariable Long id, @RequestParam String reason) {
         leadCommandService.disqualify(id, reason);
         return Result.success();
+    }
+
+    @GetMapping("/sync/users")
+    public Result<List<Map<String, Object>>> syncUsers(@RequestParam(required = false) String keyword) {
+        List<Map<String, Object>> users = keyword != null ?
+                userServiceClient.searchUsers(keyword) :
+                userServiceClient.searchUsers("");
+        return Result.success(users);
+    }
+
+    @GetMapping("/sync/user/{userId}")
+    public Result<Map<String, Object>> syncUserById(@PathVariable Long userId) {
+        Map<String, Object> user = userServiceClient.getUserById(userId);
+        return user.isEmpty() ? Result.error("User not found") : Result.success(user);
     }
 }

@@ -36,6 +36,7 @@ public class FederationRouter {
         SUBGRAPH_URLS.put("inventory", "http://inventory-service/graphql");
         SUBGRAPH_URLS.put("recommendation", "http://recommendation-service/graphql");
         SUBGRAPH_URLS.put("cart", "http://cart-service/graphql");
+        SUBGRAPH_URLS.put("crm", "http://crm-service/graphql");
     }
 
     static final Map<String, String> ROOT_FIELD_OWNER = new LinkedHashMap<>();
@@ -81,6 +82,17 @@ public class FederationRouter {
         ROOT_FIELD_OWNER.put("addToCart", "cart");
         ROOT_FIELD_OWNER.put("removeFromCart", "cart");
         ROOT_FIELD_OWNER.put("clearCart", "cart");
+
+        ROOT_FIELD_OWNER.put("lead", "crm");
+        ROOT_FIELD_OWNER.put("leads", "crm");
+        ROOT_FIELD_OWNER.put("opportunity", "crm");
+        ROOT_FIELD_OWNER.put("opportunities", "crm");
+        ROOT_FIELD_OWNER.put("ticket", "crm");
+        ROOT_FIELD_OWNER.put("tickets", "crm");
+        ROOT_FIELD_OWNER.put("campaign", "crm");
+        ROOT_FIELD_OWNER.put("campaigns", "crm");
+        ROOT_FIELD_OWNER.put("contact", "crm");
+        ROOT_FIELD_OWNER.put("contacts", "crm");
     }
 
     static final Map<String, String> TYPE_TO_OWNER = new HashMap<>();
@@ -98,6 +110,11 @@ public class FederationRouter {
         TYPE_TO_OWNER.put("UserBehavior", "recommendation");
         TYPE_TO_OWNER.put("Cart", "cart");
         TYPE_TO_OWNER.put("CartItem", "cart");
+        TYPE_TO_OWNER.put("Lead", "crm");
+        TYPE_TO_OWNER.put("Opportunity", "crm");
+        TYPE_TO_OWNER.put("Ticket", "crm");
+        TYPE_TO_OWNER.put("Campaign", "crm");
+        TYPE_TO_OWNER.put("Contact", "crm");
     }
 
     private static final GraphQLScalarType LONG = GraphQLScalarType.newScalar()
@@ -261,6 +278,21 @@ public class FederationRouter {
                 break;
             case "CartItem":
                 sb.append(" ... on CartItem { __typename id productId quantity price subtotal }");
+                break;
+            case "Lead":
+                sb.append(" ... on Lead { __typename id leadNo name company email phone source status score industry city description assignedTo createdAt updatedAt }");
+                break;
+            case "Opportunity":
+                sb.append(" ... on Opportunity { __typename id opportunityNo title leadId customerId stage amount probability expectedCloseDate actualCloseDate competitor description assignedTo createdAt updatedAt }");
+                break;
+            case "Ticket":
+                sb.append(" ... on Ticket { __typename id ticketNo title customerId orderId type priority status assignedTo description resolution createdAt updatedAt }");
+                break;
+            case "Campaign":
+                sb.append(" ... on Campaign { __typename id name description type status startDate endDate budget actualCost expectedRevenue leadsGenerated convertedCustomers createdAt updatedAt }");
+                break;
+            case "Contact":
+                sb.append(" ... on Contact { __typename id firstName lastName email phone mobile position department customerId isPrimary city createdAt updatedAt }");
                 break;
             default:
                 sb.append(" __typename");
@@ -534,6 +566,16 @@ public class FederationRouter {
         sb.append("  userBehaviorHistory(userId: ID!, limit: Int): [UserBehavior]\n");
         sb.append("  rulesByScene(scene: String!): [RecommendationRule]\n");
         sb.append("  cart(userId: ID!): Cart\n");
+        sb.append("  lead(id: ID!): Lead\n");
+        sb.append("  leads(status: String, source: String, keyword: String, page: Int, size: Int): LeadConnection\n");
+        sb.append("  opportunity(id: ID!): Opportunity\n");
+        sb.append("  opportunities(stage: String, keyword: String, page: Int, size: Int): OpportunityConnection\n");
+        sb.append("  ticket(id: ID!): Ticket\n");
+        sb.append("  tickets(status: String, priority: String, page: Int, size: Int): TicketConnection\n");
+        sb.append("  campaign(id: ID!): Campaign\n");
+        sb.append("  campaigns(status: String, type: String, page: Int, size: Int): CampaignConnection\n");
+        sb.append("  contact(id: ID!): Contact\n");
+        sb.append("  contacts(customerId: ID, keyword: String, page: Int, size: Int): ContactConnection\n");
         sb.append("}\n");
 
         sb.append("type Mutation {\n");
@@ -580,6 +622,16 @@ public class FederationRouter {
         sb.append("type Cart @key(fields: \"id\") { id: ID! userId: ID! totalAmount: Float! itemCount: Int! }\n");
         sb.append(
                 "type CartItem @key(fields: \"id\") { id: ID! productId: ID! quantity: Int! price: Float! subtotal: Float! }\n");
+        sb.append(
+                "type Lead @key(fields: \"id\") { id: ID! leadNo: String! name: String! company: String email: String phone: String source: String status: String score: Int }\n");
+        sb.append(
+                "type Opportunity @key(fields: \"id\") { id: ID! opportunityNo: String! title: String! leadId: ID customerId: ID stage: String amount: Float probability: Int }\n");
+        sb.append(
+                "type Ticket @key(fields: \"id\") { id: ID! ticketNo: String! title: String! customerId: ID orderId: ID type: String priority: String status: String assignedTo: String }\n");
+        sb.append(
+                "type Campaign @key(fields: \"id\") { id: ID! name: String! description: String type: String status: String startDate: String endDate: String budget: Float actualCost: Float expectedRevenue: Float }\n");
+        sb.append(
+                "type Contact @key(fields: \"id\") { id: ID! firstName: String! lastName: String email: String phone: String mobile: String position: String department: String customerId: ID isPrimary: Boolean city: String }\n");
 
         // Connection / pagination types
         sb.append("type ProductConnection { edges: [ProductEdge] pageInfo: PageInfo totalCount: Int }\n");
@@ -590,6 +642,16 @@ public class FederationRouter {
         sb.append("type UserEdge { node: User cursor: String }\n");
         sb.append("type CategoryConnection { edges: [CategoryEdge] pageInfo: PageInfo totalCount: Int }\n");
         sb.append("type CategoryEdge { node: Category cursor: String }\n");
+        sb.append("type LeadConnection { edges: [LeadEdge] pageInfo: PageInfo totalCount: Int }\n");
+        sb.append("type LeadEdge { node: Lead cursor: String }\n");
+        sb.append("type OpportunityConnection { edges: [OpportunityEdge] pageInfo: PageInfo totalCount: Int }\n");
+        sb.append("type OpportunityEdge { node: Opportunity cursor: String }\n");
+        sb.append("type TicketConnection { edges: [TicketEdge] pageInfo: PageInfo totalCount: Int }\n");
+        sb.append("type TicketEdge { node: Ticket cursor: String }\n");
+        sb.append("type CampaignConnection { edges: [CampaignEdge] pageInfo: PageInfo totalCount: Int }\n");
+        sb.append("type CampaignEdge { node: Campaign cursor: String }\n");
+        sb.append("type ContactConnection { edges: [ContactEdge] pageInfo: PageInfo totalCount: Int }\n");
+        sb.append("type ContactEdge { node: Contact cursor: String }\n");
         sb.append(
                 "type PageInfo { hasNextPage: Boolean! hasPreviousPage: Boolean! startCursor: String endCursor: String }\n");
         sb.append(
