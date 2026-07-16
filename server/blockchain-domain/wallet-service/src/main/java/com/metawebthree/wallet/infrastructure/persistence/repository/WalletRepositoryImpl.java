@@ -4,46 +4,47 @@ import com.metawebthree.wallet.domain.entity.Wallet;
 import com.metawebthree.wallet.domain.repository.WalletRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class WalletRepositoryImpl implements WalletRepository {
 
-    private final Map<Long, Wallet> walletMap = new ConcurrentHashMap<>();
-    private final AtomicLong idGenerator = new AtomicLong(1);
+    private final WalletMapper walletMapper;
+
+    public WalletRepositoryImpl(WalletMapper walletMapper) {
+        this.walletMapper = walletMapper;
+    }
 
     @Override
     public Optional<Wallet> findById(Long id) {
-        return Optional.ofNullable(walletMap.get(id));
+        return Optional.ofNullable(walletMapper.selectById(id));
     }
 
     @Override
     public Optional<Wallet> findByUserIdAndChainType(String userId, String chainType) {
-        return walletMap.values().stream()
-                .filter(w -> w.getUserId().equals(userId) && w.getChainType().equals(chainType))
-                .findFirst();
+        return walletMapper.findByUserIdAndChainType(userId, chainType);
     }
 
     @Override
     public List<Wallet> findAll() {
-        return new ArrayList<>(walletMap.values());
+        return walletMapper.selectList(null);
     }
 
     @Override
     public Wallet save(Wallet wallet) {
         if (wallet.getId() == null) {
-            wallet.setId(idGenerator.getAndIncrement());
+            walletMapper.insert(wallet);
+        } else {
+            walletMapper.updateById(wallet);
         }
-        walletMap.put(wallet.getId(), wallet);
         return wallet;
     }
 
     @Override
     public void delete(Wallet wallet) {
         if (wallet != null && wallet.getId() != null) {
-            walletMap.remove(wallet.getId());
+            walletMapper.deleteById(wallet.getId());
         }
     }
 }

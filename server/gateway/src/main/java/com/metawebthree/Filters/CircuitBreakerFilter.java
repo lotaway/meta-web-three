@@ -18,6 +18,9 @@ import org.springframework.web.server.ServerWebExchange;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import reactor.core.publisher.Mono;
 
 /**
@@ -27,6 +30,8 @@ import reactor.core.publisher.Mono;
  */
 @Component
 public class CircuitBreakerFilter implements GlobalFilter, Ordered {
+
+    private static final Logger logger = LoggerFactory.getLogger(CircuitBreakerFilter.class);
 
     private final ObjectMapper objectMapper;
     
@@ -114,9 +119,9 @@ public class CircuitBreakerFilter implements GlobalFilter, Ordered {
         DataBuffer buffer = response.bufferFactory().wrap(json.getBytes(StandardCharsets.UTF_8));
         
         // 记录熔断日志
-        System.err.println("[CircuitBreaker] Fallback triggered: service=" + serviceName + 
-                          ", error=" + throwable.getClass().getSimpleName() + 
-                          ", path=" + exchange.getRequest().getPath().value());
+        logger.warn("[CircuitBreaker] Fallback triggered: service={}, error={}, path={}",
+                serviceName, throwable.getClass().getSimpleName(), exchange.getRequest().getPath().value(),
+                throwable);
         
         return response.writeWith(Mono.just(buffer));
     }

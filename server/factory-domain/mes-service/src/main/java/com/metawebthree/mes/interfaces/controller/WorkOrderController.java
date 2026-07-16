@@ -33,7 +33,7 @@ public class WorkOrderController {
     public ResponseEntity<WorkOrderDTO> create(@RequestBody CreateRequest request) {
         WorkOrder workOrder;
         if (request.getTypeCode() != null && !request.getTypeCode().isEmpty()) {
-            workOrder = commandService.createWorkOrderWithType(
+            workOrder = commandService.prepareCreateWorkOrderWithType(
                     request.getWorkOrderNo(),
                     request.getProductCode(),
                     request.getProductName(),
@@ -43,7 +43,7 @@ public class WorkOrderController {
                     request.getTypeCode()
             );
         } else {
-            workOrder = commandService.createWorkOrder(
+            workOrder = commandService.prepareCreateWorkOrder(
                     request.getWorkOrderNo(),
                     request.getProductCode(),
                     request.getProductName(),
@@ -52,6 +52,7 @@ public class WorkOrderController {
                     request.getProcessRouteId()
             );
         }
+        commandService.saveWorkOrder(workOrder);
         return ResponseEntity.status(HttpStatus.CREATED).body(WorkOrderDTO.fromEntity(workOrder));
     }
     
@@ -60,7 +61,7 @@ public class WorkOrderController {
     public ResponseEntity<WorkOrderDTO> update(
             @PathVariable Long id,
             @RequestBody UpdateRequest request) {
-        WorkOrder workOrder = commandService.updateWorkOrder(
+        WorkOrder workOrder = commandService.prepareUpdateOrder(
                 id,
                 request.getProductCode(),
                 request.getProductName(),
@@ -71,41 +72,47 @@ public class WorkOrderController {
                 request.getPlannedStartTime(),
                 request.getPlannedEndTime()
         );
+        commandService.saveUpdateOrder(workOrder);
         return ResponseEntity.ok(WorkOrderDTO.fromEntity(workOrder));
     }
     
     @PostMapping("/{id}/release")
     @RequirePermission(MesPermissions.WORK_ORDER_RELEASE)
     public ResponseEntity<WorkOrderDTO> release(@PathVariable Long id) {
-        WorkOrder workOrder = commandService.releaseWorkOrder(id);
+        WorkOrder workOrder = commandService.prepareRelease(id);
+        commandService.saveRelease(workOrder);
         return ResponseEntity.ok(WorkOrderDTO.fromEntity(workOrder));
     }
     
     @PostMapping("/{id}/start")
     @RequirePermission(MesPermissions.WORK_ORDER_UPDATE)
     public ResponseEntity<WorkOrderDTO> start(@PathVariable Long id) {
-        WorkOrder workOrder = commandService.startWorkOrder(id);
+        WorkOrder workOrder = commandService.prepareStart(id);
+        commandService.saveStart(workOrder);
         return ResponseEntity.ok(WorkOrderDTO.fromEntity(workOrder));
     }
     
     @PostMapping("/{id}/pause")
     @RequirePermission(MesPermissions.WORK_ORDER_UPDATE)
     public ResponseEntity<WorkOrderDTO> pause(@PathVariable Long id) {
-        WorkOrder workOrder = commandService.pauseWorkOrder(id);
+        WorkOrder workOrder = commandService.preparePause(id);
+        commandService.savePause(workOrder);
         return ResponseEntity.ok(WorkOrderDTO.fromEntity(workOrder));
     }
     
     @PostMapping("/{id}/resume")
     @RequirePermission(MesPermissions.WORK_ORDER_UPDATE)
     public ResponseEntity<WorkOrderDTO> resume(@PathVariable Long id) {
-        WorkOrder workOrder = commandService.resumeWorkOrder(id);
+        WorkOrder workOrder = commandService.prepareResume(id);
+        commandService.saveResume(workOrder);
         return ResponseEntity.ok(WorkOrderDTO.fromEntity(workOrder));
     }
     
     @PostMapping("/{id}/complete")
     @RequirePermission(MesPermissions.WORK_ORDER_UPDATE)
     public ResponseEntity<WorkOrderDTO> complete(@PathVariable Long id) {
-        WorkOrder workOrder = commandService.completeWorkOrder(id);
+        WorkOrder workOrder = commandService.prepareComplete(id);
+        commandService.saveComplete(workOrder);
         return ResponseEntity.ok(WorkOrderDTO.fromEntity(workOrder));
     }
     
@@ -116,10 +123,11 @@ public class WorkOrderController {
             @RequestBody(required = false) CancelRequest request) {
         WorkOrder workOrder;
         if (request != null && request.getReason() != null) {
-            workOrder = commandService.cancelWorkOrderWithReason(id, request.getReason());
+            workOrder = commandService.prepareCancelWithReason(id, request.getReason());
         } else {
-            workOrder = commandService.cancelWorkOrder(id);
+            workOrder = commandService.prepareCancel(id);
         }
+        commandService.saveCancel(workOrder);
         return ResponseEntity.ok(WorkOrderDTO.fromEntity(workOrder));
     }
     
@@ -128,7 +136,8 @@ public class WorkOrderController {
     public ResponseEntity<WorkOrderDTO> updateProgress(
             @PathVariable Long id,
             @RequestBody ProgressRequest request) {
-        WorkOrder workOrder = commandService.updateProgress(id, request.getQuantity());
+        WorkOrder workOrder = commandService.prepareUpdateProgress(id, request.getQuantity());
+        commandService.saveUpdateProgress(workOrder);
         return ResponseEntity.ok(WorkOrderDTO.fromEntity(workOrder));
     }
     
@@ -137,12 +146,14 @@ public class WorkOrderController {
     public ResponseEntity<List<WorkOrderDTO>> split(
             @PathVariable Long id,
             @RequestBody SplitRequest request) {
-        List<WorkOrderDTO> childOrders = commandService.splitWorkOrder(
+        List<WorkOrder> childOrders = commandService.prepareSplit(
                 id, request.getSplitType(), request.getSplitCount()
-        ).stream()
+        );
+        commandService.saveSplitOrders(childOrders);
+        List<WorkOrderDTO> childDTOs = childOrders.stream()
                 .map(WorkOrderDTO::fromEntity)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(childOrders);
+        return ResponseEntity.ok(childDTOs);
     }
     
     @DeleteMapping("/{id}")

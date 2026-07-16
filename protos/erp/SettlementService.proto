@@ -4,8 +4,65 @@ package com.metawebthree.erp.generated.rpc;
 
 option java_multiple_files = true;
 
+enum SettlementStatus {
+    SETTLEMENT_STATUS_UNSPECIFIED = 0;
+    SETTLEMENT_STATUS_PENDING = 1;
+    SETTLEMENT_STATUS_PROCESSING = 2;
+    SETTLEMENT_STATUS_COMPLETED = 3;
+    SETTLEMENT_STATUS_FAILED = 4;
+    SETTLEMENT_STATUS_CANCELLED = 5;
+}
+
+enum SettlementChannel {
+    SETTLEMENT_CHANNEL_UNSPECIFIED = 0;
+    SETTLEMENT_CHANNEL_BANK = 1;
+    SETTLEMENT_CHANNEL_ALIPAY = 2;
+    SETTLEMENT_CHANNEL_WECHAT = 3;
+    SETTLEMENT_CHANNEL_OTHER = 4;
+}
+
+enum LogisticsSettlementStatus {
+    LOGISTICS_SETTLEMENT_STATUS_UNSPECIFIED = 0;
+    LOGISTICS_SETTLEMENT_STATUS_PENDING = 1;
+    LOGISTICS_SETTLEMENT_STATUS_CONFIRMED = 2;
+    LOGISTICS_SETTLEMENT_STATUS_COMPLETED = 3;
+}
+
+enum SplitRuleType {
+    SPLIT_RULE_TYPE_UNSPECIFIED = 0;
+    SPLIT_RULE_TYPE_PERCENTAGE = 1;
+    SPLIT_RULE_TYPE_FIXED = 2;
+}
+
+enum SplitRuleStatus {
+    SPLIT_RULE_STATUS_UNSPECIFIED = 0;
+    SPLIT_RULE_STATUS_ACTIVE = 1;
+    SPLIT_RULE_STATUS_INACTIVE = 2;
+}
+
+enum ReconciliationType {
+    RECONCILIATION_TYPE_UNSPECIFIED = 0;
+    RECONCILIATION_TYPE_DAILY = 1;
+    RECONCILIATION_TYPE_WEEKLY = 2;
+    RECONCILIATION_TYPE_MONTHLY = 3;
+}
+
+enum ReconciliationChannel {
+    RECONCILIATION_CHANNEL_UNSPECIFIED = 0;
+    RECONCILIATION_CHANNEL_BANK = 1;
+    RECONCILIATION_CHANNEL_ALIPAY = 2;
+    RECONCILIATION_CHANNEL_WECHAT = 3;
+    RECONCILIATION_CHANNEL_OTHER = 4;
+}
+
+enum ReconciliationStatus {
+    RECONCILIATION_STATUS_UNSPECIFIED = 0;
+    RECONCILIATION_STATUS_UNMATCHED = 1;
+    RECONCILIATION_STATUS_MATCHED = 2;
+    RECONCILIATION_STATUS_SETTLED = 3;
+}
+
 service SettlementService {
-    // Settlement Order
     rpc getSettlementOrder(GetSettlementOrderRequest) returns (GetSettlementOrderResponse);
     rpc listSettlementOrders(ListSettlementOrdersRequest) returns (ListSettlementOrdersResponse);
     rpc createSettlementOrder(CreateSettlementOrderRequest) returns (CreateSettlementOrderResponse);
@@ -16,27 +73,23 @@ service SettlementService {
     rpc cancelSettlement(CancelSettlementRequest) returns (CancelSettlementResponse);
     rpc applyRefund(ApplyRefundRequest) returns (ApplyRefundResponse);
 
-    // Logistics Settlement
     rpc getLogisticsSettlement(GetLogisticsSettlementRequest) returns (GetLogisticsSettlementResponse);
     rpc listLogisticsSettlements(ListLogisticsSettlementsRequest) returns (ListLogisticsSettlementsResponse);
     rpc createLogisticsSettlement(CreateLogisticsSettlementRequest) returns (CreateLogisticsSettlementResponse);
     rpc confirmLogisticsSettlement(ConfirmLogisticsSettlementRequest) returns (ConfirmLogisticsSettlementResponse);
     rpc completeLogisticsSettlement(CompleteLogisticsSettlementRequest) returns (CompleteLogisticsSettlementResponse);
 
-    // Split Rule
     rpc getSplitRule(GetSplitRuleRequest) returns (GetSplitRuleResponse);
     rpc listSplitRules(ListSplitRulesRequest) returns (ListSplitRulesResponse);
     rpc createSplitRule(CreateSplitRuleRequest) returns (CreateSplitRuleResponse);
     rpc updateSplitRule(UpdateSplitRuleRequest) returns (UpdateSplitRuleResponse);
     rpc deleteSplitRule(DeleteSplitRuleRequest) returns (DeleteSplitRuleResponse);
 
-    // Reconciliation Record
     rpc getReconciliationRecord(GetReconciliationRecordRequest) returns (GetReconciliationRecordResponse);
     rpc listReconciliationRecords(ListReconciliationRecordsRequest) returns (ListReconciliationRecordsResponse);
     rpc createReconciliationRecord(CreateReconciliationRecordRequest) returns (CreateReconciliationRecordResponse);
 }
 
-// ===== Settlement Order =====
 message SettlementOrderProto {
     int64 id = 1;
     string settlementNo = 2;
@@ -47,9 +100,9 @@ message SettlementOrderProto {
     double settlementAmount = 7;
     double commissionAmount = 8;
     double refundAmount = 9;
-    string status = 10;
-    string channel = 11;
-    string settlementDate = 12;
+    SettlementStatus status = 10;
+    SettlementChannel channel = 11;
+    int64 settlementDate = 12;
     string description = 13;
     int64 createdAt = 14;
     int64 updatedAt = 15;
@@ -58,10 +111,10 @@ message SettlementOrderProto {
 message GetSettlementOrderRequest { int64 id = 1; }
 message GetSettlementOrderResponse { SettlementOrderProto settlementOrder = 1; }
 message ListSettlementOrdersRequest {
-    string status = 1;
+    SettlementStatus status = 1;
     int64 merchantId = 2;
-    string startDate = 3;
-    string endDate = 4;
+    int64 startDate = 3;
+    int64 endDate = 4;
     int32 page = 5;
     int32 size = 6;
 }
@@ -78,7 +131,7 @@ message CreateSettlementOrderRequest {
     string merchantName = 4;
     double orderAmount = 5;
     double settlementAmount = 6;
-    string channel = 7;
+    SettlementChannel channel = 7;
     string description = 8;
 }
 message CreateSettlementOrderResponse { SettlementOrderProto settlementOrder = 1; }
@@ -105,7 +158,6 @@ message ApplyRefundRequest {
 }
 message ApplyRefundResponse { bool success = 1; }
 
-// ===== Logistics Settlement =====
 message LogisticsSettlementProto {
     int64 id = 1;
     string settlementNo = 2;
@@ -117,10 +169,10 @@ message LogisticsSettlementProto {
     double handlingFee = 8;
     double discount = 9;
     double totalAmount = 10;
-    string status = 11;
+    LogisticsSettlementStatus status = 11;
     string billingCycle = 12;
-    string settlementDate = 13;
-    string paidAt = 14;
+    int64 settlementDate = 13;
+    int64 paidAt = 14;
     string remark = 15;
     int64 createdAt = 16;
     int64 updatedAt = 17;
@@ -128,7 +180,7 @@ message LogisticsSettlementProto {
 message GetLogisticsSettlementRequest { int64 id = 1; }
 message GetLogisticsSettlementResponse { LogisticsSettlementProto logisticsSettlement = 1; }
 message ListLogisticsSettlementsRequest {
-    string status = 1;
+    LogisticsSettlementStatus status = 1;
     int64 carrierId = 2;
     int32 page = 3;
     int32 size = 4;
@@ -155,28 +207,27 @@ message ConfirmLogisticsSettlementResponse { bool success = 1; }
 message CompleteLogisticsSettlementRequest { int64 id = 1; }
 message CompleteLogisticsSettlementResponse { bool success = 1; }
 
-// ===== Split Rule =====
 message SplitRuleProto {
     int64 id = 1;
     string ruleNo = 2;
     string ruleName = 3;
-    string type = 4;
+    SplitRuleType type = 4;
     int64 merchantId = 5;
     double ratio = 6;
     double fixedAmount = 7;
     double minAmount = 8;
     double maxAmount = 9;
-    string status = 10;
+    SplitRuleStatus status = 10;
     int32 priority = 11;
-    string effectiveDate = 12;
-    string expireDate = 13;
+    int64 effectiveDate = 12;
+    int64 expireDate = 13;
     int64 createdAt = 14;
     int64 updatedAt = 15;
 }
 message GetSplitRuleRequest { int64 id = 1; }
 message GetSplitRuleResponse { SplitRuleProto splitRule = 1; }
 message ListSplitRulesRequest {
-    string status = 1;
+    SplitRuleStatus status = 1;
     int64 merchantId = 2;
     int32 page = 3;
     int32 size = 4;
@@ -190,12 +241,12 @@ message ListSplitRulesResponse {
 message CreateSplitRuleRequest {
     string ruleNo = 1;
     string ruleName = 2;
-    string type = 3;
+    SplitRuleType type = 3;
     int64 merchantId = 4;
     double ratio = 5;
     double fixedAmount = 6;
-    string effectiveDate = 7;
-    string expireDate = 8;
+    int64 effectiveDate = 7;
+    int64 expireDate = 8;
 }
 message CreateSplitRuleResponse { SplitRuleProto splitRule = 1; }
 message UpdateSplitRuleRequest {
@@ -203,26 +254,25 @@ message UpdateSplitRuleRequest {
     string ruleName = 2;
     double ratio = 3;
     double fixedAmount = 4;
-    string status = 5;
+    SplitRuleStatus status = 5;
 }
 message UpdateSplitRuleResponse { SplitRuleProto splitRule = 1; }
 message DeleteSplitRuleRequest { int64 id = 1; }
 message DeleteSplitRuleResponse { bool success = 1; }
 
-// ===== Reconciliation Record =====
 message ReconciliationRecordProto {
     int64 id = 1;
     string recordNo = 2;
-    string type = 3;
-    string reconcileDate = 4;
-    string channel = 5;
+    ReconciliationType type = 3;
+    int64 reconcileDate = 4;
+    ReconciliationChannel channel = 5;
     double totalAmount = 6;
     int32 totalCount = 7;
     double matchedAmount = 8;
     int32 matchedCount = 9;
     double unmatchedAmount = 10;
     int32 unmatchedCount = 11;
-    string status = 12;
+    ReconciliationStatus status = 12;
     string remark = 13;
     int64 createdAt = 14;
     int64 updatedAt = 15;
@@ -230,8 +280,8 @@ message ReconciliationRecordProto {
 message GetReconciliationRecordRequest { int64 id = 1; }
 message GetReconciliationRecordResponse { ReconciliationRecordProto record = 1; }
 message ListReconciliationRecordsRequest {
-    string status = 1;
-    string type = 2;
+    ReconciliationStatus status = 1;
+    ReconciliationType type = 2;
     int32 page = 3;
     int32 size = 4;
 }
@@ -243,8 +293,8 @@ message ListReconciliationRecordsResponse {
 }
 message CreateReconciliationRecordRequest {
     string recordNo = 1;
-    string type = 2;
-    string channel = 3;
+    ReconciliationType type = 2;
+    ReconciliationChannel channel = 3;
     double totalAmount = 4;
     int32 totalCount = 5;
     string remark = 6;

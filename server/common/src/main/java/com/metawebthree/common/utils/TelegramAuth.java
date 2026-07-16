@@ -1,5 +1,8 @@
 package com.metawebthree.common.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -13,6 +16,9 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 public class TelegramAuth {
+
+    private static final Logger logger = LoggerFactory.getLogger(TelegramAuth.class);
+
     private String token;
 
     public boolean validatyLogin(String authData, String hash) {
@@ -35,10 +41,10 @@ public class TelegramAuth {
             String calcHash = Base64.getEncoder().encodeToString(data);
             return calcHash.equalsIgnoreCase(hash);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            logger.error("HMAC algorithm not available", e);
             return false;
         } catch (InvalidKeyException e) {
-            e.printStackTrace();
+            logger.error("Invalid key for Telegram authentication", e);
             return false;
         }
     }

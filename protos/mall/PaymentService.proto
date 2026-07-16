@@ -24,11 +24,11 @@ message GetPaymentStatisticsResponse {
 }
 
 message GetDailyPaymentStatsRequest {
-    string date = 1;  // Format: yyyy-MM-dd
+    int64 date = 1;
 }
 
 message DailyPaymentStats {
-    string date = 1;
+    int64 date = 1;
     int64 successCount = 2;
     int64 successAmount = 3;
     int64 failedCount = 4;

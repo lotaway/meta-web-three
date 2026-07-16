@@ -41,9 +41,7 @@ public class MinioStorageService implements StorageService {
 
     @Override
     public byte[] getFile(String objectName) {
-        // MinioService 目前没有 getFile 方法，需要添加
-        // 或者通过其他方式获取
-        throw new UnsupportedOperationException("MinIO 获取文件内容暂未实现");
+        return minioService.getFile(objectName);
     }
 
     @Override

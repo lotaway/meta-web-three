@@ -217,8 +217,8 @@ const fetchLeads = async () => {
     const res = await listLeads({ ...queryParams, page: page.value, pageSize: pageSize.value })
     leads.value = res.data.records
     total.value = res.data.total
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to fetch leads:', e)
   } finally {
     loading.value = false
   }
@@ -278,8 +278,9 @@ const handleSave = async () => {
     }
     dialogVisible.value = false
     fetchLeads()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to save lead:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 
@@ -288,8 +289,9 @@ const handleDelete = async (id: number) => {
     await deleteLead(id)
     ElMessage.success(t('message.deleteSuccess'))
     fetchLeads()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to delete lead:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 
@@ -298,8 +300,9 @@ const handleConvert = async (row: Lead) => {
     await convertLead(row.id!)
     ElMessage.success(t('crm.lead.convertSuccess'))
     fetchLeads()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to convert lead:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 
@@ -316,8 +319,9 @@ const handleDisqualify = async () => {
     ElMessage.success(t('crm.lead.disqualifySuccess'))
     disqualifyVisible.value = false
     fetchLeads()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to disqualify lead:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 

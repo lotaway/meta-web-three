@@ -10,7 +10,6 @@ service InventoryAlertService {
 }
 
 message GetLowStockAlertsCountRequest {
-    // Request empty, just need to call the method
 }
 
 message GetLowStockAlertsCountResponse {
@@ -18,7 +17,6 @@ message GetLowStockAlertsCountResponse {
 }
 
 message GetAlertStatisticsRequest {
-    // Request empty
 }
 
 message AlertStatistics {

@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Plus, View, Check, Close, Edit, Delete } from '@element-plus/icons-vue'
+import { Search, Plus, View, Check, Edit, Close } from '@element-plus/icons-vue'
 import {
   getRmaListAPI,
   getRmaByIdAPI,
@@ -13,11 +13,14 @@ import {
   executeRmaDispositionAPI,
   cancelRmaAPI,
   type RmaOrder,
-  type RmaQueryParam,
-  type RmaInspection,
-  type RmaDisposition
+  type RmaQueryParam
 } from '@/apis/rma'
 import { formatDateTime } from '@/utils/datetime'
+import { RMA_STATUS, STATUS_TAG_TYPE_MAP } from './constants'
+import RmaFormDialog from './RmaFormDialog.vue'
+import RmaDetailDialog from './RmaDetailDialog.vue'
+import RmaInspectionDialog from './RmaInspectionDialog.vue'
+import RmaDispositionDialog from './RmaDispositionDialog.vue'
 
 const { t } = useI18n()
 
@@ -33,82 +36,38 @@ const total = ref(0)
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
 const dialogLoading = ref(false)
-const currentAction = ref('')
 
 const detailVisible = ref(false)
 const detailData = ref<RmaOrder | null>(null)
 
 const inspectionVisible = ref(false)
-const inspectionForm = ref<RmaInspection>({
-  inspector: '',
-  result: 'PASS',
-  conclusion: '',
-  remark: ''
-})
 
 const dispositionVisible = ref(false)
-const dispositionForm = ref<RmaDisposition>({
-  dispositionType: 'REFUND',
-  refundAmount: 0,
-  replacementSkuCode: '',
-  replacementQuantity: 0,
-  remark: ''
-})
 
-const formData = ref<RmaOrder>({
-  rmaNo: '',
-  orderNo: '',
-  returnType: 'REFUND',
-  customerId: undefined,
-  customerName: '',
-  contactPhone: '',
-  reasonCode: '',
-  reasonDescription: '',
-  warehouseId: undefined,
-  status: 'PENDING',
-  items: []
-})
-
-const returnTypeOptions = [
-  { label: t('rma.returnTypeREFUND'), value: 'REFUND' },
-  { label: t('rma.returnTypeREPLACEMENT'), value: 'REPLACEMENT' },
-  { label: t('rma.returnTypeREPAIR'), value: 'REPAIR' }
-]
+const currentAction = ref('')
+const currentRmaId = ref<number | null>(null)
 
 const statusOptions = [
-  { label: t('rma.statusPENDING'), value: 'PENDING' },
-  { label: t('rma.statusAWAITING_INSPECTION'), value: 'AWAITING_INSPECTION' },
-  { label: t('rma.statusINSPECTED'), value: 'INSPECTED' },
-  { label: t('rma.statusAWAITING_DISPOSITION'), value: 'AWAITING_DISPOSITION' },
-  { label: t('rma.statusDISPOSED'), value: 'DISPOSED' },
-  { label: t('rma.statusCOMPLETED'), value: 'COMPLETED' },
-  { label: t('rma.statusCANCELLED'), value: 'CANCELLED' }
-]
-
-const inspectionResultOptions = [
-  { label: 'PASS', value: 'PASS' },
-  { label: 'FAIL', value: 'FAIL' },
-  { label: 'PARTIAL', value: 'PARTIAL' }
-]
-
-const dispositionTypeOptions = [
-  { label: t('rma.returnTypeREFUND'), value: 'REFUND' },
-  { label: t('rma.returnTypeREPLACEMENT'), value: 'REPLACEMENT' },
-  { label: t('rma.returnTypeREPAIR'), value: 'REPAIR' },
-  { label: 'SCRAP', value: 'SCRAP' },
-  { label: 'RETURN_TO_SUPPLIER', value: 'RETURN_TO_SUPPLIER' }
+  { label: t('rma.statusPENDING'), value: RMA_STATUS.PENDING },
+  { label: t('rma.statusAWAITING_INSPECTION'), value: RMA_STATUS.AWAITING_INSPECTION },
+  { label: t('rma.statusINSPECTED'), value: RMA_STATUS.INSPECTED },
+  { label: t('rma.statusAWAITING_DISPOSITION'), value: RMA_STATUS.AWAITING_DISPOSITION },
+  { label: t('rma.statusDISPOSED'), value: RMA_STATUS.DISPOSED },
+  { label: t('rma.statusCOMPLETED'), value: RMA_STATUS.COMPLETED },
+  { label: t('rma.statusCANCELLED'), value: RMA_STATUS.CANCELLED }
 ]
 
 const getList = async () => {
   listLoading.value = true
   try {
     const response = await getRmaListAPI(listQuery.value)
-    listLoading.value = false
     list.value = response.data || []
     total.value = response.total || 0
-  } catch (error) {
+  } catch (error: any) {
+    console.error('Failed to load RMA orders:', error)
+    ElMessage.error(error.message || 'Failed to load RMA orders')
+  } finally {
     listLoading.value = false
-    ElMessage.error('Failed to load RMA orders')
   }
 }
 
@@ -143,31 +102,39 @@ const handleSizeChange = (size: number) => {
 const handleAdd = () => {
   currentAction.value = 'create'
   dialogTitle.value = t('rma.createRma')
-  formData.value = {
-    rmaNo: '',
-    orderNo: '',
-    returnType: 'REFUND',
-    customerId: undefined,
-    customerName: '',
-    contactPhone: '',
-    reasonCode: '',
-    reasonDescription: '',
-    warehouseId: undefined,
-    status: 'PENDING',
-    items: []
-  }
   dialogVisible.value = true
 }
 
-const handleSubmit = async () => {
+const handleSubmit = async (form: {
+  orderNo: string
+  returnType: string
+  customerId: number | undefined
+  customerName: string
+  contactPhone: string
+  reasonCode: string
+  reasonDescription: string
+  warehouseId: number | undefined
+  items: Array<{ skuCode: string; skuName: string; expectedQuantity: number; unitPrice: number }>
+}) => {
   dialogLoading.value = true
   try {
-    await createRmaAPI(formData.value)
+    await createRmaAPI({
+      orderNo: form.orderNo,
+      returnType: form.returnType,
+      customerId: form.customerId ?? '',
+      customerName: form.customerName,
+      contactPhone: form.contactPhone,
+      reasonCode: form.reasonCode,
+      reasonDescription: form.reasonDescription,
+      warehouseId: form.warehouseId,
+      items: form.items
+    })
     ElMessage.success(t('rma.createSuccess'))
     dialogVisible.value = false
     getList()
-  } catch (error) {
-    ElMessage.error('Failed to create RMA order')
+  } catch (error: any) {
+    console.error('Failed to create RMA order:', error)
+    ElMessage.error(error.message || 'Failed to create RMA order')
   } finally {
     dialogLoading.value = false
   }
@@ -175,11 +142,12 @@ const handleSubmit = async () => {
 
 const handleView = async (row: RmaOrder) => {
   try {
-    const response = await getRmaByIdAPI(row.rmaNo)
+    const response = await getRmaByIdAPI(row.id!)
     detailData.value = response.data
     detailVisible.value = true
-  } catch (error) {
-    ElMessage.error('Failed to load RMA detail')
+  } catch (error: any) {
+    console.error('Failed to load RMA detail:', error)
+    ElMessage.error(error.message || 'Failed to load RMA detail')
   }
 }
 
@@ -190,67 +158,54 @@ const handleSubmitInspection = async (row: RmaOrder) => {
       cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
-    await submitRmaForInspectionAPI(row.rmaNo)
+    await submitRmaForInspectionAPI(row.id!)
     ElMessage.success(t('rma.submitSuccess'))
     getList()
-  } catch (error) {
+  } catch (error: any) {
     if (error !== 'cancel') {
-      ElMessage.error('Failed to submit for inspection')
+      console.error('Failed to submit for inspection:', error)
+      ElMessage.error(error.message || 'Failed to submit for inspection')
     }
   }
 }
 
-const handleRecordInspection = async (row: RmaOrder) => {
+const handleRecordInspection = (row: RmaOrder) => {
   currentAction.value = 'inspection'
-  dialogTitle.value = t('rma.recordInspection')
-  inspectionForm.value = {
-    inspector: '',
-    result: 'PASS',
-    conclusion: '',
-    remark: ''
-  }
+  currentRmaId.value = row.id ?? null
   inspectionVisible.value = true
 }
 
-const submitInspection = async () => {
+const submitInspection = async (form: { inspector: string; result: string; conclusion: string; remark: string }) => {
   dialogLoading.value = true
   try {
-    await recordRmaInspectionAPI(currentRmaNo.value, inspectionForm.value)
+    await recordRmaInspectionAPI(currentRmaId.value!, form)
     ElMessage.success(t('rma.recordSuccess'))
     inspectionVisible.value = false
     getList()
-  } catch (error) {
-    ElMessage.error('Failed to record inspection')
+  } catch (error: any) {
+    console.error('Failed to record inspection:', error)
+    ElMessage.error(error.message || 'Failed to record inspection')
   } finally {
     dialogLoading.value = false
   }
 }
 
-const currentRmaNo = ref('')
-
 const handleMakeDisposition = (row: RmaOrder) => {
   currentAction.value = 'disposition'
-  currentRmaNo.value = row.rmaNo
-  dialogTitle.value = t('rma.makeDisposition')
-  dispositionForm.value = {
-    dispositionType: 'REFUND',
-    refundAmount: 0,
-    replacementSkuCode: '',
-    replacementQuantity: 0,
-    remark: ''
-  }
+  currentRmaId.value = row.id ?? null
   dispositionVisible.value = true
 }
 
-const submitDisposition = async () => {
+const submitDisposition = async (form: { dispositionType: string; refundAmount: number; replacementSkuCode: string; replacementQuantity: number; remark: string }) => {
   dialogLoading.value = true
   try {
-    await makeRmaDispositionAPI(currentRmaNo.value, dispositionForm.value)
+    await makeRmaDispositionAPI(currentRmaId.value!, form)
     ElMessage.success(t('rma.dispositionSuccess'))
     dispositionVisible.value = false
     getList()
-  } catch (error) {
-    ElMessage.error('Failed to make disposition')
+  } catch (error: any) {
+    console.error('Failed to make disposition:', error)
+    ElMessage.error(error.message || 'Failed to make disposition')
   } finally {
     dialogLoading.value = false
   }
@@ -263,12 +218,13 @@ const handleExecuteDisposition = async (row: RmaOrder) => {
       cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
-    await executeRmaDispositionAPI(row.rmaNo)
+    await executeRmaDispositionAPI(row.id!)
     ElMessage.success(t('rma.executeSuccess'))
     getList()
-  } catch (error) {
+  } catch (error: any) {
     if (error !== 'cancel') {
-      ElMessage.error('Failed to execute disposition')
+      console.error('Failed to execute disposition:', error)
+      ElMessage.error(error.message || 'Failed to execute disposition')
     }
   }
 }
@@ -280,50 +236,23 @@ const handleCancel = async (row: RmaOrder) => {
       cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
-    await cancelRmaAPI(row.rmaNo)
+    await cancelRmaAPI(row.id!)
     ElMessage.success(t('rma.cancelSuccess'))
     getList()
-  } catch (error) {
+  } catch (error: any) {
     if (error !== 'cancel') {
-      ElMessage.error('Failed to cancel RMA')
+      console.error('Failed to cancel RMA:', error)
+      ElMessage.error(error.message || 'Failed to cancel RMA')
     }
   }
 }
 
-const addItem = () => {
-  if (!formData.value.items) {
-    formData.value.items = []
-  }
-  formData.value.items.push({
-    skuCode: '',
-    skuName: '',
-    expectedQuantity: 1,
-    unitPrice: 0
-  })
-}
-
-const removeItem = (index: number) => {
-  formData.value.items?.splice(index, 1)
-}
-
-type StatusTagType = 'primary' | 'success' | 'warning' | 'danger' | 'info'
-
-const getStatusType = (status: string): StatusTagType => {
-  const statusMap: Record<string, StatusTagType> = {
-    PENDING: 'info',
-    AWAITING_INSPECTION: 'warning',
-    INSPECTED: 'primary',
-    AWAITING_DISPOSITION: 'warning',
-    DISPOSED: 'success',
-    COMPLETED: 'success',
-    CANCELLED: 'danger'
-  }
-  return statusMap[status] || 'info'
+const getStatusType = (status: string): string => {
+  return STATUS_TAG_TYPE_MAP[status] || 'info'
 }
 
 const getStatusLabel = (status: string) => {
-  const key = `rma.status${status}`
-  return t(key)
+  return t(`rma.status${status}`)
 }
 
 const formatAmount = (amount?: number) => {
@@ -388,7 +317,7 @@ const formatAmount = (amount?: number) => {
               {{ t('common.detail') }}
             </el-button>
             <el-button
-              v-if="row.status === 'PENDING'"
+              v-if="row.status === RMA_STATUS.PENDING"
               type="warning"
               size="small"
               :icon="Check"
@@ -397,7 +326,7 @@ const formatAmount = (amount?: number) => {
               {{ t('rma.submitInspection') }}
             </el-button>
             <el-button
-              v-if="row.status === 'AWAITING_INSPECTION'"
+              v-if="row.status === RMA_STATUS.AWAITING_INSPECTION"
               type="primary"
               size="small"
               :icon="Edit"
@@ -406,7 +335,7 @@ const formatAmount = (amount?: number) => {
               {{ t('rma.recordInspection') }}
             </el-button>
             <el-button
-              v-if="row.status === 'INSPECTED'"
+              v-if="row.status === RMA_STATUS.INSPECTED"
               type="warning"
               size="small"
               :icon="Edit"
@@ -415,7 +344,7 @@ const formatAmount = (amount?: number) => {
               {{ t('rma.makeDisposition') }}
             </el-button>
             <el-button
-              v-if="row.status === 'AWAITING_DISPOSITION'"
+              v-if="row.status === RMA_STATUS.AWAITING_DISPOSITION"
               type="success"
               size="small"
               :icon="Check"
@@ -424,7 +353,7 @@ const formatAmount = (amount?: number) => {
               {{ t('rma.executeDisposition') }}
             </el-button>
             <el-button
-              v-if="row.status === 'PENDING' || row.status === 'AWAITING_INSPECTION'"
+              v-if="row.status === RMA_STATUS.PENDING || row.status === RMA_STATUS.AWAITING_INSPECTION"
               type="danger"
               size="small"
               :icon="Close"
@@ -446,145 +375,29 @@ const formatAmount = (amount?: number) => {
       />
     </el-card>
 
-    <el-dialog
-      v-model="dialogVisible"
+    <RmaFormDialog
+      v-model:visible="dialogVisible"
       :title="dialogTitle"
-      width="700px"
-      :close-on-click-modal="false"
-    >
-      <el-form :model="formData" label-width="140px">
-        <el-form-item :label="t('rma.orderNo')" required>
-          <el-input v-model="formData.orderNo" :placeholder="t('common.placeholderSuffix') + t('rma.orderNo')" />
-        </el-form-item>
-        <el-form-item :label="t('rma.returnType')" required>
-          <el-select v-model="formData.returnType" :placeholder="t('common.selectPlaceholder')">
-            <el-option v-for="item in returnTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="t('rma.customerName')" required>
-          <el-input v-model="formData.customerName" :placeholder="t('common.placeholderSuffix') + t('rma.customerName')" />
-        </el-form-item>
-        <el-form-item :label="t('rma.contactPhone')">
-          <el-input v-model="formData.contactPhone" :placeholder="t('common.placeholderSuffix') + t('rma.contactPhone')" />
-        </el-form-item>
-        <el-form-item :label="t('rma.reasonCode')">
-          <el-input v-model="formData.reasonCode" :placeholder="t('common.placeholderSuffix') + t('rma.reasonCode')" />
-        </el-form-item>
-        <el-form-item :label="t('rma.reasonDescription')">
-          <el-input v-model="formData.reasonDescription" type="textarea" :rows="2" />
-        </el-form-item>
-        <el-form-item label="Items" required>
-          <div class="items-wrapper">
-            <div v-for="(item, index) in formData.items" :key="index" class="item-row">
-              <el-input v-model="item.skuCode" placeholder="SKU Code" style="width: 120px" />
-              <el-input v-model="item.skuName" placeholder="SKU Name" style="width: 140px" />
-              <el-input-number v-model="item.expectedQuantity" :min="1" :max="99999" size="small" />
-              <el-input-number v-model="item.unitPrice" :min="0" :precision="2" size="small" />
-              <el-button type="danger" size="small" :icon="Delete" @click="removeItem(index)" />
-            </div>
-            <el-button type="primary" size="small" @click="addItem">+ Add Item</el-button>
-          </div>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="dialogVisible = false">{{ t('common.cancel') }}</el-button>
-        <el-button type="primary" :loading="dialogLoading" @click="handleSubmit">{{ t('common.submit') }}</el-button>
-      </template>
-    </el-dialog>
+      :loading="dialogLoading"
+      @submit="handleSubmit"
+    />
 
-    <el-dialog
-      v-model="detailVisible"
-      :title="t('rma.viewRma')"
-      width="800px"
-      :close-on-click-modal="false"
-    >
-      <template v-if="detailData">
-        <el-descriptions :column="2" border>
-          <el-descriptions-item :label="t('rma.rmaNo')">{{ detailData.rmaNo }}</el-descriptions-item>
-          <el-descriptions-item :label="t('rma.orderNo')">{{ detailData.orderNo }}</el-descriptions-item>
-          <el-descriptions-item :label="t('rma.returnType')">{{ t(`rma.returnType${detailData.returnType}`) || detailData.returnType }}</el-descriptions-item>
-          <el-descriptions-item :label="t('rma.customerName')">{{ detailData.customerName }}</el-descriptions-item>
-          <el-descriptions-item :label="t('rma.contactPhone')">{{ detailData.contactPhone || '-' }}</el-descriptions-item>
-          <el-descriptions-item :label="t('rma.status')">
-            <el-tag :type="getStatusType(detailData.status)">{{ getStatusLabel(detailData.status) }}</el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item :label="t('rma.reasonCode')">{{ detailData.reasonCode || '-' }}</el-descriptions-item>
-          <el-descriptions-item :label="t('rma.reasonDescription')">{{ detailData.reasonDescription || '-' }}</el-descriptions-item>
-          <el-descriptions-item :label="t('rma.totalQuantity')">{{ detailData.totalQuantity ?? '-' }}</el-descriptions-item>
-          <el-descriptions-item :label="t('rma.totalAmount')">{{ formatAmount(detailData.totalAmount) }}</el-descriptions-item>
-        </el-descriptions>
-        <el-table :data="detailData.items" border stripe class="detail-items-table">
-          <el-table-column label="SKU Code" prop="skuCode" min-width="120" />
-          <el-table-column label="SKU Name" prop="skuName" min-width="140" />
-          <el-table-column label="Expected Qty" prop="expectedQuantity" min-width="100" />
-          <el-table-column label="Unit Price" min-width="100">
-            <template #default="{ row }">{{ formatAmount(row.unitPrice) }}</template>
-          </el-table-column>
-        </el-table>
-      </template>
-      <template #footer>
-        <el-button @click="detailVisible = false">{{ t('common.close') || 'Close' }}</el-button>
-      </template>
-    </el-dialog>
+    <RmaDetailDialog
+      v-model:visible="detailVisible"
+      :detail-data="detailData"
+    />
 
-    <el-dialog
-      v-model="inspectionVisible"
-      :title="t('rma.recordInspection')"
-      width="500px"
-      :close-on-click-modal="false"
-    >
-      <el-form :model="inspectionForm" label-width="120px">
-        <el-form-item :label="t('rma.inspector') || 'Inspector'" required>
-          <el-input v-model="inspectionForm.inspector" placeholder="Enter inspector" />
-        </el-form-item>
-        <el-form-item label="Result" required>
-          <el-select v-model="inspectionForm.result">
-            <el-option v-for="item in inspectionResultOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="Conclusion">
-          <el-input v-model="inspectionForm.conclusion" type="textarea" :rows="2" />
-        </el-form-item>
-        <el-form-item label="Remark">
-          <el-input v-model="inspectionForm.remark" type="textarea" :rows="2" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="inspectionVisible = false">{{ t('common.cancel') }}</el-button>
-        <el-button type="primary" :loading="dialogLoading" @click="submitInspection">{{ t('common.submit') }}</el-button>
-      </template>
-    </el-dialog>
+    <RmaInspectionDialog
+      v-model:visible="inspectionVisible"
+      :loading="dialogLoading"
+      @submit="submitInspection"
+    />
 
-    <el-dialog
-      v-model="dispositionVisible"
-      :title="t('rma.makeDisposition')"
-      width="500px"
-      :close-on-click-modal="false"
-    >
-      <el-form :model="dispositionForm" label-width="160px">
-        <el-form-item :label="t('rma.dispositionType') || 'Disposition Type'" required>
-          <el-select v-model="dispositionForm.dispositionType">
-            <el-option v-for="item in dispositionTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="t('rma.refundAmount') || 'Refund Amount'">
-          <el-input-number v-model="dispositionForm.refundAmount" :min="0" :precision="2" />
-        </el-form-item>
-        <el-form-item :label="t('rma.replacementSkuCode') || 'Replacement SKU'">
-          <el-input v-model="dispositionForm.replacementSkuCode" placeholder="Enter SKU code" />
-        </el-form-item>
-        <el-form-item :label="t('rma.replacementQuantity') || 'Replacement Qty'">
-          <el-input-number v-model="dispositionForm.replacementQuantity" :min="0" />
-        </el-form-item>
-        <el-form-item label="Remark">
-          <el-input v-model="dispositionForm.remark" type="textarea" :rows="2" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="dispositionVisible = false">{{ t('common.cancel') }}</el-button>
-        <el-button type="primary" :loading="dialogLoading" @click="submitDisposition">{{ t('common.submit') }}</el-button>
-      </template>
-    </el-dialog>
+    <RmaDispositionDialog
+      v-model:visible="dispositionVisible"
+      :loading="dialogLoading"
+      @submit="submitDisposition"
+    />
   </div>
 </template>
 
@@ -605,21 +418,5 @@ const formatAmount = (amount?: number) => {
 
 .table-card {
   min-height: 400px;
-}
-
-.detail-items-table {
-  margin-top: 16px;
-}
-
-.items-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.item-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
 }
 </style>

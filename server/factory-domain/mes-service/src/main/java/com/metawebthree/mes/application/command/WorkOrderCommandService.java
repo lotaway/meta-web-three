@@ -2,45 +2,48 @@ package com.metawebthree.mes.application.command;
 
 import com.metawebthree.mes.domain.entity.WorkOrder;
 import com.metawebthree.mes.domain.repository.WorkOrderRepository;
-import com.metawebthree.mes.infrastructure.event.MesCrossDomainEventPublisher;
+import com.metawebthree.mes.application.event.CrossDomainEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class WorkOrderCommandService {
-    
+
     private final WorkOrderRepository workOrderRepository;
-    private final MesCrossDomainEventPublisher crossDomainEventPublisher;
-    
+    private final CrossDomainEventPublisher crossDomainEventPublisher;
+
     public WorkOrderCommandService(WorkOrderRepository workOrderRepository,
-                                   MesCrossDomainEventPublisher crossDomainEventPublisher) {
+                                   CrossDomainEventPublisher crossDomainEventPublisher) {
         this.workOrderRepository = workOrderRepository;
         this.crossDomainEventPublisher = crossDomainEventPublisher;
     }
-    
-    public WorkOrder createWorkOrder(String workOrderNo, String productCode, String productName,
-                                     Integer quantity, String workshopId, String processRouteId) {
+
+    public WorkOrder prepareCreateWorkOrder(String workOrderNo, String productCode, String productName,
+                                             Integer quantity, String workshopId, String processRouteId) {
         WorkOrder workOrder = new WorkOrder();
         workOrder.create(workOrderNo, productCode, productName, quantity, workshopId, processRouteId);
-        return workOrderRepository.save(workOrder);
+        return workOrder;
     }
-    
-    public WorkOrder createWorkOrderWithType(String workOrderNo, String productCode, String productName,
-                                             Integer quantity, String workshopId, String processRouteId,
-                                             String typeCode) {
+
+    public void saveWorkOrder(WorkOrder workOrder) {
+        workOrderRepository.save(workOrder);
+    }
+
+    public WorkOrder prepareCreateWorkOrderWithType(String workOrderNo, String productCode, String productName,
+                                                     Integer quantity, String workshopId, String processRouteId,
+                                                     String typeCode) {
         WorkOrder workOrder = new WorkOrder();
         workOrder.createWithType(workOrderNo, productCode, productName, quantity, workshopId, processRouteId, typeCode);
-        return workOrderRepository.save(workOrder);
+        return workOrder;
     }
-    
-    public WorkOrder updateWorkOrder(Long id, String productCode, String productName, Integer quantity,
-                                     String workshopId, String processRouteId, String priority,
-                                     LocalDateTime plannedStartTime, LocalDateTime plannedEndTime) {
-        WorkOrder workOrder = workOrderRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Work order not found: " + id));
-        
+
+    public WorkOrder prepareUpdateOrder(Long id, String productCode, String productName, Integer quantity,
+                                        String workshopId, String processRouteId, String priority,
+                                        LocalDateTime plannedStartTime, LocalDateTime plannedEndTime) {
+        WorkOrder workOrder = findWorkOrderOrThrow(id);
         workOrder.setProductCode(productCode);
         workOrder.setProductName(productName);
         workOrder.setQuantity(quantity);
@@ -51,117 +54,144 @@ public class WorkOrderCommandService {
         }
         workOrder.setPlannedStartTime(plannedStartTime);
         workOrder.setPlannedEndTime(plannedEndTime);
-        
-        workOrderRepository.update(workOrder);
         return workOrder;
     }
-    
-    public WorkOrder releaseWorkOrder(Long id) {
-        WorkOrder workOrder = workOrderRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Work order not found: " + id));
+
+    public void saveUpdateOrder(WorkOrder workOrder) {
+        workOrderRepository.update(workOrder);
+    }
+
+    public WorkOrder prepareRelease(Long id) {
+        WorkOrder workOrder = findWorkOrderOrThrow(id);
         workOrder.release();
-        workOrderRepository.update(workOrder);
         return workOrder;
     }
-    
-    public WorkOrder startWorkOrder(Long id) {
-        WorkOrder workOrder = workOrderRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Work order not found: " + id));
+
+    public void saveRelease(WorkOrder workOrder) {
+        workOrderRepository.update(workOrder);
+    }
+
+    public WorkOrder prepareStart(Long id) {
+        WorkOrder workOrder = findWorkOrderOrThrow(id);
         workOrder.start();
-        workOrderRepository.update(workOrder);
         return workOrder;
     }
-    
-    public WorkOrder pauseWorkOrder(Long id) {
-        WorkOrder workOrder = workOrderRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Work order not found: " + id));
+
+    public void saveStart(WorkOrder workOrder) {
+        workOrderRepository.update(workOrder);
+    }
+
+    public WorkOrder preparePause(Long id) {
+        WorkOrder workOrder = findWorkOrderOrThrow(id);
         workOrder.pause();
-        workOrderRepository.update(workOrder);
         return workOrder;
     }
-    
-    public WorkOrder resumeWorkOrder(Long id) {
-        WorkOrder workOrder = workOrderRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Work order not found: " + id));
+
+    public void savePause(WorkOrder workOrder) {
+        workOrderRepository.update(workOrder);
+    }
+
+    public WorkOrder prepareResume(Long id) {
+        WorkOrder workOrder = findWorkOrderOrThrow(id);
         workOrder.resume();
-        workOrderRepository.update(workOrder);
         return workOrder;
     }
-    
-    public WorkOrder completeWorkOrder(Long id) {
-        WorkOrder workOrder = workOrderRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Work order not found: " + id));
-        workOrder.complete();
+
+    public void saveResume(WorkOrder workOrder) {
         workOrderRepository.update(workOrder);
+    }
+
+    public WorkOrder prepareComplete(Long id) {
+        WorkOrder workOrder = findWorkOrderOrThrow(id);
+        workOrder.complete();
+        return workOrder;
+    }
+
+    public void saveComplete(WorkOrder workOrder) {
+        workOrderRepository.update(workOrder);
+    }
+
+    public void notifyWorkOrderCompleted(Long id) {
+        WorkOrder workOrder = findWorkOrderOrThrow(id);
         crossDomainEventPublisher.publishWorkOrderCompleted(
                 workOrder.getId(), workOrder.getWorkOrderNo(),
                 workOrder.getProductCode(), workOrder.getQuantity());
-        return workOrder;
     }
-    
-    public WorkOrder cancelWorkOrder(Long id) {
-        WorkOrder workOrder = workOrderRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Work order not found: " + id));
+
+    public WorkOrder prepareCancel(Long id) {
+        WorkOrder workOrder = findWorkOrderOrThrow(id);
         workOrder.cancel();
-        workOrderRepository.update(workOrder);
         return workOrder;
     }
-    
-    public WorkOrder cancelWorkOrderWithReason(Long id, String reason) {
-        WorkOrder workOrder = workOrderRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Work order not found: " + id));
+
+    public void saveCancel(WorkOrder workOrder) {
+        workOrderRepository.update(workOrder);
+    }
+
+    public WorkOrder prepareCancelWithReason(Long id, String reason) {
+        WorkOrder workOrder = findWorkOrderOrThrow(id);
         workOrder.cancelWithReason(reason);
-        workOrderRepository.update(workOrder);
         return workOrder;
     }
-    
-    public WorkOrder updateProgress(Long id, Integer quantity) {
-        WorkOrder workOrder = workOrderRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Work order not found: " + id));
+
+    public WorkOrder prepareUpdateProgress(Long id, Integer quantity) {
+        WorkOrder workOrder = findWorkOrderOrThrow(id);
         workOrder.updateProgress(quantity);
-        workOrderRepository.update(workOrder);
         return workOrder;
     }
-    
+
+    public void saveUpdateProgress(WorkOrder workOrder) {
+        workOrderRepository.update(workOrder);
+    }
+
     public void deleteWorkOrder(Long id) {
         workOrderRepository.deleteById(id);
     }
-    
-    public List<WorkOrder> splitWorkOrder(Long id, String splitType, Integer splitCount) {
-        WorkOrder parentOrder = workOrderRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Work order not found: " + id));
-        
+
+    public List<WorkOrder> prepareSplit(Long id, String splitType, Integer splitCount) {
+        WorkOrder parentOrder = findWorkOrderOrThrow(id);
         if (parentOrder.getQuantity() == null || parentOrder.getQuantity() <= 0) {
             throw new IllegalArgumentException("Invalid quantity for split");
         }
-        
         int quantityPerChild = parentOrder.getQuantity() / splitCount;
         int remainder = parentOrder.getQuantity() % splitCount;
-        
-        java.util.ArrayList<WorkOrder> childOrders = new java.util.ArrayList<>();
-        
+        List<WorkOrder> childOrders = new ArrayList<>();
         for (int i = 1; i <= splitCount; i++) {
-            WorkOrder child = new WorkOrder();
-            String childWorkOrderNo = parentOrder.getWorkOrderNo() + "-S" + i;
-            int childQuantity = quantityPerChild + (i <= remainder ? 1 : 0);
-            
-            child.createWithType(childWorkOrderNo, parentOrder.getProductCode(), 
-                    parentOrder.getProductName(), childQuantity, 
-                    parentOrder.getWorkshopId(), parentOrder.getProcessRouteId(),
-                    parentOrder.getTypeCode());
-            
-            child.setParentWorkOrderId(parentOrder.getId());
-            child.setSplitRuleId(parentOrder.getSplitRuleId());
-            child.setSplitSequence(i);
-            child.setSplitType(splitType);
-            child.setPriority(parentOrder.getPriority());
-            child.setPlannedStartTime(parentOrder.getPlannedStartTime());
-            child.setPlannedEndTime(parentOrder.getPlannedEndTime());
-            
-            workOrderRepository.save(child);
+            WorkOrder child = buildChildOrder(parentOrder, splitType, i, quantityPerChild + (i <= remainder ? 1 : 0));
             childOrders.add(child);
         }
-        
         return childOrders;
+    }
+
+    public void saveSplitOrders(List<WorkOrder> childOrders) {
+        for (WorkOrder child : childOrders) {
+            workOrderRepository.save(child);
+        }
+    }
+
+    private WorkOrder findWorkOrderOrThrow(Long id) {
+        return workOrderRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Work order not found: " + id));
+    }
+
+    private WorkOrder buildChildOrder(WorkOrder parent, String splitType, int sequence, int quantity) {
+        WorkOrder child = new WorkOrder();
+        child.createWithType(
+            parent.getWorkOrderNo() + "-S" + sequence,
+            parent.getProductCode(),
+            parent.getProductName(),
+            quantity,
+            parent.getWorkshopId(),
+            parent.getProcessRouteId(),
+            parent.getTypeCode()
+        );
+        child.setParentWorkOrderId(parent.getId());
+        child.setSplitRuleId(parent.getSplitRuleId());
+        child.setSplitSequence(sequence);
+        child.setSplitType(splitType);
+        child.setPriority(parent.getPriority());
+        child.setPlannedStartTime(parent.getPlannedStartTime());
+        child.setPlannedEndTime(parent.getPlannedEndTime());
+        return child;
     }
 }

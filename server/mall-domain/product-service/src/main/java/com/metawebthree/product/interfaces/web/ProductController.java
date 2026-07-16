@@ -54,9 +54,9 @@ public class ProductController {
 
     @Operation(summary = "Create a new product")
     @PostMapping
-    public ApiResponse<Void> createProduct() {
-        productService.createProduct();
-        return ApiResponse.success();
+    public ApiResponse<Integer> createProduct(@RequestBody ProductDTO product) {
+        Integer id = productService.createProduct(product);
+        return ApiResponse.success(id);
     }
 
     @Operation(summary = "List products with filters")

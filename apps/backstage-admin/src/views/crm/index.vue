@@ -157,8 +157,8 @@ const fetchDashboardData = async () => {
     stats.value.openTickets = ticketsRes.data.total
     stats.value.activeCampaigns = campaignsRes.data.total
     pipelineSummary.value = pipelineRes.data
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to fetch dashboard data:', e)
   }
 }
 

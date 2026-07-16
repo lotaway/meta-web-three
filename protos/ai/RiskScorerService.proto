@@ -7,6 +7,21 @@ option java_outer_classname = "RiskScorerServiceProto";
 
 import "ai/DeviceRiskTag.proto";
 
+enum Scene {
+    SCENE_UNSPECIFIED = 0;
+    SCENE_LOGIN = 1;
+    SCENE_REGISTER = 2;
+    SCENE_ORDER = 3;
+    SCENE_PAYMENT = 4;
+}
+
+enum RiskDecision {
+    RISK_DECISION_UNSPECIFIED = 0;
+    RISK_DECISION_APPROVE = 1;
+    RISK_DECISION_REVIEW = 2;
+    RISK_DECISION_REJECT = 3;
+}
+
 service RiskScorerService {
     rpc test (TestRequest) returns (TestResponse);
     rpc score(ScoreRequest) returns (ScoreResponse);
@@ -31,11 +46,11 @@ message TestResponse {
 }
 
 message ScoreRequest {
-    string scene = 1;
+    Scene scene = 1;
     map<string, Feature> features = 2;
 }
 
 message ScoreResponse {
     int32 score = 1;
-    string decision = 2;
+    RiskDecision decision = 2;
 }

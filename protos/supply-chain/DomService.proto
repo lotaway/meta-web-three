@@ -4,6 +4,26 @@ package com.metawebthree.supplychain.generated.rpc;
 
 option java_multiple_files = true;
 
+enum DomOrderStatus {
+    DOM_ORDER_STATUS_UNSPECIFIED = 0;
+}
+
+enum DomOrderPriority {
+    DOM_ORDER_PRIORITY_UNSPECIFIED = 0;
+}
+
+enum DomSourcingStrategy {
+    DOM_SOURCING_STRATEGY_UNSPECIFIED = 0;
+}
+
+enum DomOrderLineStatus {
+    DOM_ORDER_LINE_STATUS_UNSPECIFIED = 0;
+}
+
+enum SourcingRuleType {
+    SOURCING_RULE_TYPE_UNSPECIFIED = 0;
+}
+
 service DomService {
     rpc getDomOrder(GetDomOrderRequest) returns (GetDomOrderResponse);
     rpc listDomOrders(ListDomOrdersRequest) returns (ListDomOrdersResponse);
@@ -23,7 +43,7 @@ message GetDomOrderResponse {
 }
 
 message ListDomOrdersRequest {
-    string status = 1;
+    DomOrderStatus status = 1;
     string domOrderNo = 2;
     int32 pageNum = 3;
     int32 pageSize = 4;
@@ -41,7 +61,7 @@ message CreateDomOrderRequest {
     string customerId = 2;
     string customerName = 3;
     string region = 4;
-    string sourcingStrategy = 5;
+    DomSourcingStrategy sourcingStrategy = 5;
     repeated DomOrderLineDTO items = 6;
 }
 
@@ -96,14 +116,14 @@ message DomOrderDTO {
     string originalOrderNo = 3;
     string customerId = 4;
     string customerName = 5;
-    string status = 6;
+    DomOrderStatus status = 6;
     double totalAmount = 7;
     string currency = 8;
-    string priority = 9;
-    string sourcingStrategy = 10;
+    DomOrderPriority priority = 9;
+    DomSourcingStrategy sourcingStrategy = 10;
     string region = 11;
-    string createdAt = 12;
-    string updatedAt = 13;
+    int64 createdAt = 12;
+    int64 updatedAt = 13;
     repeated DomOrderLineDTO lines = 14;
     FulfillmentPlanDTO fulfillmentPlan = 15;
 }
@@ -118,7 +138,7 @@ message DomOrderLineDTO {
     int64 warehouseId = 7;
     string warehouseName = 8;
     double unitPrice = 9;
-    string status = 10;
+    DomOrderLineStatus status = 10;
 }
 
 message FulfillmentPlanDTO {
@@ -129,15 +149,15 @@ message FulfillmentPlanDTO {
     int32 fulfilledLines = 5;
     int32 partiallyFulfilledLines = 6;
     int32 unfulfilledLines = 7;
-    string status = 8;
-    string createdAt = 9;
-    string updatedAt = 10;
+    DomOrderStatus status = 8;
+    int64 createdAt = 9;
+    int64 updatedAt = 10;
 }
 
 message SourcingRuleDTO {
     int64 id = 1;
     string ruleName = 2;
-    string ruleType = 3;
+    SourcingRuleType ruleType = 3;
     int32 priority = 4;
     string warehouseIds = 5;
     string region = 6;

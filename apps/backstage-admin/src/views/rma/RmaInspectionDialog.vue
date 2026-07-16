@@ -1,0 +1,77 @@
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { INSPECTION_RESULT } from './constants'
+
+const { t } = useI18n()
+
+const props = defineProps<{
+  visible: boolean
+  loading: boolean
+}>()
+
+const emit = defineEmits<{
+  'update:visible': [value: boolean]
+  submit: [form: {
+    inspector: string
+    result: string
+    conclusion: string
+    remark: string
+  }]
+}>()
+
+const inspectionForm = ref({
+  inspector: '',
+  result: INSPECTION_RESULT.PASS,
+  conclusion: '',
+  remark: ''
+})
+
+const inspectionResultOptions = [
+  { label: 'PASS', value: INSPECTION_RESULT.PASS },
+  { label: 'FAIL', value: INSPECTION_RESULT.FAIL },
+  { label: 'PARTIAL', value: INSPECTION_RESULT.PARTIAL }
+]
+
+watch(() => props.visible, (val) => {
+  if (val) {
+    inspectionForm.value = {
+      inspector: '',
+      result: INSPECTION_RESULT.PASS,
+      conclusion: '',
+      remark: ''
+    }
+  }
+})
+</script>
+
+<template>
+  <el-dialog
+    :model-value="props.visible"
+    :title="t('rma.recordInspection')"
+    width="500px"
+    :close-on-click-modal="false"
+    @update:model-value="emit('update:visible', $event)"
+  >
+    <el-form :model="inspectionForm" label-width="120px">
+      <el-form-item :label="t('rma.inspector') || 'Inspector'" required>
+        <el-input v-model="inspectionForm.inspector" placeholder="Enter inspector" />
+      </el-form-item>
+      <el-form-item label="Result" required>
+        <el-select v-model="inspectionForm.result">
+          <el-option v-for="item in inspectionResultOptions" :key="item.value" :label="item.label" :value="item.value" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="Conclusion">
+        <el-input v-model="inspectionForm.conclusion" type="textarea" :rows="2" />
+      </el-form-item>
+      <el-form-item label="Remark">
+        <el-input v-model="inspectionForm.remark" type="textarea" :rows="2" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="emit('update:visible', false)">{{ t('common.cancel') }}</el-button>
+      <el-button type="primary" :loading="props.loading" @click="emit('submit', inspectionForm)">{{ t('common.submit') }}</el-button>
+    </template>
+  </el-dialog>
+</template>

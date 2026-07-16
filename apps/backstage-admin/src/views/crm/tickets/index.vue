@@ -215,8 +215,8 @@ const fetchTickets = async () => {
     const res = await listTickets({ ...queryParams, page: page.value, pageSize: pageSize.value })
     tickets.value = res.data.records
     total.value = res.data.total
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to fetch tickets:', e)
   } finally {
     loading.value = false
   }
@@ -267,8 +267,9 @@ const handleSave = async () => {
     }
     dialogVisible.value = false
     fetchTickets()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to save ticket:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 
@@ -277,8 +278,9 @@ const handleDelete = async (id: number) => {
     await deleteTicket(id)
     ElMessage.success(t('message.deleteSuccess'))
     fetchTickets()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to delete ticket:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 
@@ -295,8 +297,9 @@ const handleAssign = async () => {
     ElMessage.success(t('crm.ticket.assignSuccess'))
     assignVisible.value = false
     fetchTickets()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to assign ticket:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 
@@ -305,8 +308,9 @@ const handleStatusUpdate = async (row: CustomerServiceTicket, status: string) =>
     await updateTicketStatus(row.id!, status)
     ElMessage.success(t('crm.ticket.statusUpdateSuccess'))
     fetchTickets()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to update ticket status:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 
@@ -323,8 +327,9 @@ const handleResolve = async () => {
     ElMessage.success(t('crm.ticket.resolveSuccess'))
     resolveVisible.value = false
     fetchTickets()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to resolve ticket:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 

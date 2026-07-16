@@ -1,5 +1,6 @@
 package com.metawebthree.rma.domain.entity;
 
+import com.metawebthree.rma.domain.RmaOrderStatus;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -10,7 +11,7 @@ public class RmaOrder {
     private String rmaNo;
     private String orderNo;
     private String returnType;
-    private String status;
+    private RmaOrderStatus status;
     private Long customerId;
     private String customerName;
     private String contactPhone;
@@ -26,18 +27,18 @@ public class RmaOrder {
     private Integer version;
 
     public boolean canInspect() {
-        return "PENDING".equals(status);
+        return RmaOrderStatus.PENDING == status;
     }
 
     public boolean canDispose() {
-        return "INSPECTED".equals(status);
+        return RmaOrderStatus.INSPECTED == status;
     }
 
     public boolean canComplete() {
-        return "DISPOSED".equals(status);
+        return RmaOrderStatus.DISPOSED == status;
     }
 
     public boolean canCancel() {
-        return "PENDING".equals(status) || "AWAITING_INSPECTION".equals(status);
+        return RmaOrderStatus.PENDING == status || RmaOrderStatus.AWAITING_INSPECTION == status;
     }
 }

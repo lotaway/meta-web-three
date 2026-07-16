@@ -1,89 +1,89 @@
 package com.metawebthree.inventory.infrastructure.persistence.repository.stockcheck;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.inventory.domain.entity.stockcheck.StockCheckRecord;
 import com.metawebthree.inventory.domain.repository.stockcheck.StockCheckRecordRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
+@RequiredArgsConstructor
 public class StockCheckRecordRepositoryImpl implements StockCheckRecordRepository {
 
-    private final Map<Long, StockCheckRecord> storage = new ConcurrentHashMap<>();
-    private final AtomicLong idGenerator = new AtomicLong(1);
+    private final StockCheckRecordMapper mapper;
 
     @Override
     public StockCheckRecord save(StockCheckRecord record) {
         if (record.getId() == null) {
-            record.setId(idGenerator.getAndIncrement());
-            record.setVersion(0);
+            mapper.insert(record);
         } else {
-            record.setVersion(record.getVersion() + 1);
+            mapper.updateById(record);
         }
-        storage.put(record.getId(), record);
         return record;
     }
 
     @Override
     public Optional<StockCheckRecord> findById(Long id) {
-        return Optional.ofNullable(storage.get(id))
+        return Optional.ofNullable(mapper.selectById(id))
                 .filter(r -> !Boolean.TRUE.equals(r.getDeleted()));
     }
 
     @Override
     public List<StockCheckRecord> findByPlanId(Long planId) {
-        return storage.values().stream()
-                .filter(r -> planId.equals(r.getPlanId()))
-                .filter(r -> !Boolean.TRUE.equals(r.getDeleted()))
-                .collect(Collectors.toList());
+        return mapper.selectList(
+                new LambdaQueryWrapper<StockCheckRecord>()
+                        .eq(StockCheckRecord::getPlanId, planId)
+                        .eq(StockCheckRecord::getDeleted, false));
     }
 
     @Override
     public List<StockCheckRecord> findByPlanNo(String planNo) {
-        return storage.values().stream()
-                .filter(r -> planNo.equals(r.getPlanNo()))
-                .filter(r -> !Boolean.TRUE.equals(r.getDeleted()))
-                .collect(Collectors.toList());
+        return mapper.selectList(
+                new LambdaQueryWrapper<StockCheckRecord>()
+                        .eq(StockCheckRecord::getPlanNo, planNo)
+                        .eq(StockCheckRecord::getDeleted, false));
     }
 
     @Override
     public List<StockCheckRecord> findByWarehouseId(Long warehouseId) {
-        return storage.values().stream()
-                .filter(r -> warehouseId.equals(r.getWarehouseId()))
-                .filter(r -> !Boolean.TRUE.equals(r.getDeleted()))
-                .collect(Collectors.toList());
+        return mapper.selectList(
+                new LambdaQueryWrapper<StockCheckRecord>()
+                        .eq(StockCheckRecord::getWarehouseId, warehouseId)
+                        .eq(StockCheckRecord::getDeleted, false));
     }
 
     @Override
     public List<StockCheckRecord> findByStatus(String status) {
-        return storage.values().stream()
-                .filter(r -> status.equals(r.getStatus()))
-                .filter(r -> !Boolean.TRUE.equals(r.getDeleted()))
-                .collect(Collectors.toList());
+        return mapper.selectList(
+                new LambdaQueryWrapper<StockCheckRecord>()
+                        .eq(StockCheckRecord::getStatus, status)
+                        .eq(StockCheckRecord::getDeleted, false));
     }
 
     @Override
     public List<StockCheckRecord> findBySkuCode(String skuCode) {
-        return storage.values().stream()
-                .filter(r -> skuCode.equals(r.getSkuCode()))
-                .filter(r -> !Boolean.TRUE.equals(r.getDeleted()))
-                .collect(Collectors.toList());
+        return mapper.selectList(
+                new LambdaQueryWrapper<StockCheckRecord>()
+                        .eq(StockCheckRecord::getSkuCode, skuCode)
+                        .eq(StockCheckRecord::getDeleted, false));
     }
 
     @Override
     public List<StockCheckRecord> findHasDifference(Long planId) {
-        return storage.values().stream()
-                .filter(r -> planId.equals(r.getPlanId()))
-                .filter(StockCheckRecord::hasDifference)
-                .filter(r -> !Boolean.TRUE.equals(r.getDeleted()))
-                .collect(Collectors.toList());
+        return mapper.selectList(
+                new LambdaQueryWrapper<StockCheckRecord>()
+                        .eq(StockCheckRecord::getPlanId, planId)
+                        .eq(StockCheckRecord::getDeleted, false)
+                        .isNotNull(StockCheckRecord::getDifferenceQuantity)
+                        .ne(StockCheckRecord::getDifferenceQuantity, BigDecimal.ZERO));
     }
 
     @Override
     public void deleteById(Long id) {
-        storage.remove(id);
+        mapper.deleteById(id);
     }
 }

@@ -25,19 +25,21 @@ public class ReportController {
 
     @RequirePermission(ERPPermissions.SALES_REPORT_CREATE)
     @PostMapping("/sales/daily")
-    public ResponseEntity<Long> generateDailySalesReport(
+    public ResponseEntity<Void> generateDailySalesReport(
             @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
             @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
-        return ResponseEntity.ok(salesReportService.generateDailyReport());
+        salesReportService.generateDailyReport();
+        return ResponseEntity.ok().build();
     }
 
     @RequirePermission(ERPPermissions.SALES_REPORT_CREATE)
     @PostMapping("/sales/monthly")
-    public ResponseEntity<Long> generateMonthlySalesReport(
+    public ResponseEntity<Void> generateMonthlySalesReport(
             @RequestParam int year, @RequestParam int month,
             @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
             @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
-        return ResponseEntity.ok(salesReportService.generateMonthlyReport(year, month));
+        salesReportService.generateMonthlyReport(year, month);
+        return ResponseEntity.ok().build();
     }
 
     @RequirePermission(ERPPermissions.SALES_REPORT_READ)
@@ -58,19 +60,21 @@ public class ReportController {
 
     @RequirePermission(ERPPermissions.INVENTORY_REPORT_CREATE)
     @PostMapping("/inventory/daily")
-    public ResponseEntity<Long> generateDailyInventoryReport(
+    public ResponseEntity<Void> generateDailyInventoryReport(
             @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
             @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
-        return ResponseEntity.ok(inventoryReportService.generateDailyReport());
+        inventoryReportService.generateDailyReport();
+        return ResponseEntity.ok().build();
     }
 
     @RequirePermission(ERPPermissions.INVENTORY_REPORT_CREATE)
     @PostMapping("/inventory/monthly")
-    public ResponseEntity<Long> generateMonthlyInventoryReport(
+    public ResponseEntity<Void> generateMonthlyInventoryReport(
             @RequestParam int year, @RequestParam int month,
             @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
             @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
-        return ResponseEntity.ok(inventoryReportService.generateMonthlyReport(year, month));
+        inventoryReportService.generateMonthlyReport(year, month);
+        return ResponseEntity.ok().build();
     }
 
     @RequirePermission(ERPPermissions.INVENTORY_REPORT_READ)
@@ -91,34 +95,38 @@ public class ReportController {
 
     @RequirePermission(ERPPermissions.FINANCIAL_REPORT_CREATE)
     @PostMapping("/financial/receivable")
-    public ResponseEntity<Long> generateReceivableReport(
+    public ResponseEntity<Void> generateReceivableReport(
             @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
             @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
-        return ResponseEntity.ok(financialReportService.generateReceivableReport());
+        financialReportService.generateReceivableReport();
+        return ResponseEntity.ok().build();
     }
 
     @RequirePermission(ERPPermissions.FINANCIAL_REPORT_CREATE)
     @PostMapping("/financial/payable")
-    public ResponseEntity<Long> generatePayableReport(
+    public ResponseEntity<Void> generatePayableReport(
             @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
             @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
-        return ResponseEntity.ok(financialReportService.generatePayableReport());
+        financialReportService.generatePayableReport();
+        return ResponseEntity.ok().build();
     }
 
     @RequirePermission(ERPPermissions.FINANCIAL_REPORT_CREATE)
     @PostMapping("/financial/aging")
-    public ResponseEntity<Long> generateAgingReport(
+    public ResponseEntity<Void> generateAgingReport(
             @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
             @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
-        return ResponseEntity.ok(financialReportService.generateAgingReport());
+        financialReportService.generateAgingReport();
+        return ResponseEntity.ok().build();
     }
 
     @RequirePermission(ERPPermissions.FINANCIAL_REPORT_CREATE)
     @PostMapping("/financial/working-capital")
-    public ResponseEntity<Long> generateWorkingCapitalReport(
+    public ResponseEntity<Void> generateWorkingCapitalReport(
             @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
             @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
-        return ResponseEntity.ok(financialReportService.generateWorkingCapitalReport());
+        financialReportService.generateWorkingCapitalReport();
+        return ResponseEntity.ok().build();
     }
 
     @RequirePermission(ERPPermissions.FINANCIAL_REPORT_READ)

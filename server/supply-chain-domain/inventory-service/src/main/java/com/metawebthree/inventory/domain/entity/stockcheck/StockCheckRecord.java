@@ -1,5 +1,8 @@
 package com.metawebthree.inventory.domain.entity.stockcheck;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -9,7 +12,9 @@ import java.time.LocalDateTime;
  * 记录每次实际盘点的数据
  */
 @Data
+@TableName("tb_stock_check_record")
 public class StockCheckRecord {
+    @TableId(type = IdType.AUTO)
     private Long id;
     private Long planId;
     private String planNo;

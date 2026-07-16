@@ -1,6 +1,7 @@
 package com.metawebthree.dom.infrastructure.persistence.converter;
 
 import com.metawebthree.dom.domain.entity.FulfillmentPlan;
+import com.metawebthree.dom.domain.entity.FulfillmentPlanStatus;
 import com.metawebthree.dom.infrastructure.persistence.dataobject.FulfillmentPlanDO;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +20,7 @@ public class FulfillmentPlanConverter {
         entity.setFulfilledLines(doObj.getFulfilledLines());
         entity.setPartiallyFulfilledLines(doObj.getPartiallyFulfilledLines());
         entity.setUnfulfilledLines(doObj.getUnfulfilledLines());
-        entity.setStatus(doObj.getStatus());
+        entity.setStatus(doObj.getStatus() != null ? FulfillmentPlanStatus.valueOf(doObj.getStatus()) : null);
         entity.setCreatedAt(doObj.getCreatedAt());
         entity.setUpdatedAt(doObj.getUpdatedAt());
         return entity;
@@ -37,7 +38,7 @@ public class FulfillmentPlanConverter {
         doObj.setFulfilledLines(entity.getFulfilledLines());
         doObj.setPartiallyFulfilledLines(entity.getPartiallyFulfilledLines());
         doObj.setUnfulfilledLines(entity.getUnfulfilledLines());
-        doObj.setStatus(entity.getStatus());
+        doObj.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
         doObj.setCreatedAt(entity.getCreatedAt());
         doObj.setUpdatedAt(entity.getUpdatedAt());
         return doObj;

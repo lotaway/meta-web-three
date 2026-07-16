@@ -46,6 +46,13 @@ public class FinancialReport {
         this.createdAt = LocalDateTime.now();
     }
 
+    public void generateWorkingCapitalReport(LocalDateTime reportDate) {
+        this.reportNo = "WC-" + reportDate.toLocalDate().toString().replace("-", "");
+        this.type = ReportType.WORKING_CAPITAL;
+        this.reportDate = reportDate;
+        this.createdAt = LocalDateTime.now();
+    }
+
     public void setReceivableMetrics(BigDecimal totalReceivable, BigDecimal totalPayable) {
         this.totalReceivable = totalReceivable;
         this.totalPayable = totalPayable;

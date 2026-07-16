@@ -6,6 +6,10 @@ option java_multiple_files = true;
 
 import "shared/google/type/money.proto";
 
+enum SupplierStatus {
+    SUPPLIER_STATUS_UNSPECIFIED = 0;
+}
+
 service SupplierService {
     rpc getSupplier(GetSupplierRequest) returns (GetSupplierResponse);
     rpc listSuppliers(ListSuppliersRequest) returns (ListSuppliersResponse);
@@ -27,12 +31,12 @@ message GetSupplierResponse {
     string address = 6;
     string category = 7;
     float rating = 8;
-    string status = 9;
+    SupplierStatus status = 9;
 }
 
 message ListSuppliersRequest {
     string category = 1;
-    string status = 2;
+    SupplierStatus status = 2;
     int32 page = 3;
     int32 pageSize = 4;
 }
@@ -49,7 +53,7 @@ message SupplierDTO {
     string contactPhone = 4;
     string category = 5;
     float rating = 6;
-    string status = 7;
+    SupplierStatus status = 7;
 }
 
 message CreateSupplierRequest {

@@ -1,10 +1,7 @@
 package com.metawebthree.dom.application;
 
 import com.metawebthree.dom.application.dto.*;
-import com.metawebthree.dom.domain.entity.DomOrder;
-import com.metawebthree.dom.domain.entity.DomOrderLine;
-import com.metawebthree.dom.domain.entity.FulfillmentPlan;
-import com.metawebthree.dom.domain.entity.SourcingRule;
+import com.metawebthree.dom.domain.entity.*;
 import com.metawebthree.dom.domain.repository.DomOrderLineRepository;
 import com.metawebthree.dom.domain.repository.DomOrderRepository;
 import com.metawebthree.dom.domain.repository.FulfillmentPlanRepository;
@@ -46,7 +43,9 @@ public class DomApplicationServiceImpl implements DomApplicationService {
         order.setCustomerId(request.getCustomerId());
         order.setCustomerName(request.getCustomerName());
         order.setRegion(request.getRegion());
-        order.setSourcingStrategy(request.getSourcingStrategy());
+        order.setSourcingStrategy(request.getSourcingStrategy() != null
+                ? SourcingStrategy.valueOf(request.getSourcingStrategy())
+                : null);
         order.setTotalAmount(BigDecimal.ZERO);
         order.setPriority(0);
         order.setCurrency("CNY");
@@ -65,25 +64,30 @@ public class DomApplicationServiceImpl implements DomApplicationService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         order.setTotalAmount(total);
 
-        DomOrder saved = domDomainService.createDomOrder(order, lines);
+        DomOrder built = domDomainService.createDomOrder(order, lines);
+        domDomainService.saveDomOrder(built, lines);
 
-        List<DomOrderLine> savedLines = domOrderLineRepository.findByDomOrderId(saved.getId());
+        List<DomOrderLine> savedLines = domOrderLineRepository.findByDomOrderId(built.getId());
 
-        String strategy = request.getSourcingStrategy() != null ? request.getSourcingStrategy() : "BALANCED";
+        SourcingStrategy strategy = request.getSourcingStrategy() != null
+                ? SourcingStrategy.valueOf(request.getSourcingStrategy())
+                : SourcingStrategy.BALANCED;
 
-        saved = domDomainService.checkAvailability(saved, savedLines);
+        boolean allPass = domDomainService.checkAvailability(built, savedLines);
+        domDomainService.saveAvailabilityResult(built, savedLines, allPass);
 
-        if ("SOURCING".equals(saved.getStatus())) {
-            savedLines = domOrderLineRepository.findByDomOrderId(saved.getId());
-            List<DomOrderLine> sourcedLines = domDomainService.sourceOrder(saved, savedLines, strategy);
-            if (sourcedLines.stream().anyMatch(l -> "SOURCED".equals(l.getStatus()))) {
-                savedLines = domOrderLineRepository.findByDomOrderId(saved.getId());
-                FulfillmentPlan plan = domDomainService.createFulfillmentPlan(saved, sourcedLines);
+        if (allPass) {
+            savedLines = domOrderLineRepository.findByDomOrderId(built.getId());
+            List<DomOrderLine> sourcedLines = domDomainService.sourceOrder(built, savedLines, strategy);
+            domDomainService.saveSourcingResult(built, sourcedLines);
+            if (sourcedLines.stream().anyMatch(l -> l.getStatus() == DomOrderLineStatus.SOURCED)) {
+                FulfillmentPlan plan = domDomainService.createFulfillmentPlan(built, sourcedLines);
+                domDomainService.saveFulfillmentPlan(built, plan);
             }
         }
 
-        return toDomOrderDTO(domOrderRepository.findById(saved.getId()).orElse(saved),
-                domOrderLineRepository.findByDomOrderId(saved.getId()));
+        return toDomOrderDTO(domOrderRepository.findById(built.getId()).orElse(built),
+                domOrderLineRepository.findByDomOrderId(built.getId()));
     }
 
     @Override
@@ -110,7 +114,7 @@ public class DomApplicationServiceImpl implements DomApplicationService {
     public List<DomOrderDTO> listDomOrders(DomQueryParam param) {
         List<DomOrder> orders;
         if (param.getStatus() != null && !param.getStatus().isEmpty()) {
-            orders = domOrderRepository.findByStatus(param.getStatus());
+            orders = domOrderRepository.findByStatus(DomOrderStatus.valueOf(param.getStatus()));
         } else {
             orders = domOrderRepository.findAll();
         }
@@ -128,9 +132,10 @@ public class DomApplicationServiceImpl implements DomApplicationService {
         DomOrder order = domOrderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("DOM order not found: " + orderId));
         List<DomOrderLine> lines = domOrderLineRepository.findByDomOrderId(orderId);
-        DomOrder updated = domDomainService.checkAvailability(order, lines);
+        boolean allPass = domDomainService.checkAvailability(order, lines);
+        domDomainService.saveAvailabilityResult(order, lines, allPass);
         List<DomOrderLine> updatedLines = domOrderLineRepository.findByDomOrderId(orderId);
-        return toDomOrderDTO(updated, updatedLines);
+        return toDomOrderDTO(domOrderRepository.findById(orderId).orElse(order), updatedLines);
     }
 
     @Override
@@ -139,12 +144,16 @@ public class DomApplicationServiceImpl implements DomApplicationService {
         DomOrder order = domOrderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("DOM order not found: " + orderId));
         List<DomOrderLine> lines = domOrderLineRepository.findByDomOrderId(orderId);
-        String strategy = order.getSourcingStrategy() != null ? order.getSourcingStrategy() : "BALANCED";
+        SourcingStrategy strategy = order.getSourcingStrategy() != null
+                ? order.getSourcingStrategy()
+                : SourcingStrategy.BALANCED;
         List<DomOrderLine> sourcedLines = domDomainService.sourceOrder(order, lines, strategy);
+        domDomainService.saveSourcingResult(order, sourcedLines);
 
-        if (sourcedLines.stream().anyMatch(l -> "SOURCED".equals(l.getStatus()))) {
+        if (sourcedLines.stream().anyMatch(l -> l.getStatus() == DomOrderLineStatus.SOURCED)) {
             List<DomOrderLine> updatedLines = domOrderLineRepository.findByDomOrderId(orderId);
-            domDomainService.createFulfillmentPlan(order, updatedLines);
+            FulfillmentPlan plan = domDomainService.createFulfillmentPlan(order, updatedLines);
+            domDomainService.saveFulfillmentPlan(order, plan);
         }
 
         List<DomOrderLine> finalLines = domOrderLineRepository.findByDomOrderId(orderId);
@@ -159,6 +168,7 @@ public class DomApplicationServiceImpl implements DomApplicationService {
         FulfillmentPlan plan = fulfillmentPlanRepository.findByDomOrderId(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Fulfillment plan not found for order: " + orderId));
         FulfillmentPlan approved = domDomainService.approveFulfillmentPlan(plan.getId());
+        domDomainService.saveApprovedPlan(order, approved);
         return toFulfillmentPlanDTO(approved);
     }
 
@@ -166,6 +176,7 @@ public class DomApplicationServiceImpl implements DomApplicationService {
     @Transactional
     public DomOrderDTO cancelDomOrder(Long orderId) {
         DomOrder order = domDomainService.cancelDomOrder(orderId);
+        domDomainService.saveCancelledOrder(order);
         List<DomOrderLine> lines = domOrderLineRepository.findByDomOrderId(orderId);
         return toDomOrderDTO(order, lines);
     }
@@ -224,11 +235,11 @@ public class DomApplicationServiceImpl implements DomApplicationService {
         dto.setOriginalOrderNo(order.getOriginalOrderNo());
         dto.setCustomerId(order.getCustomerId());
         dto.setCustomerName(order.getCustomerName());
-        dto.setStatus(order.getStatus());
+        dto.setStatus(order.getStatus() != null ? order.getStatus().name() : null);
         dto.setTotalAmount(order.getTotalAmount());
         dto.setCurrency(order.getCurrency());
         dto.setPriority(order.getPriority());
-        dto.setSourcingStrategy(order.getSourcingStrategy());
+        dto.setSourcingStrategy(order.getSourcingStrategy() != null ? order.getSourcingStrategy().name() : null);
         dto.setRegion(order.getRegion());
         dto.setCreatedAt(order.getCreatedAt());
         dto.setUpdatedAt(order.getUpdatedAt());
@@ -252,7 +263,7 @@ public class DomApplicationServiceImpl implements DomApplicationService {
         dto.setWarehouseId(line.getWarehouseId());
         dto.setWarehouseName(line.getWarehouseName());
         dto.setUnitPrice(line.getUnitPrice());
-        dto.setStatus(line.getStatus());
+        dto.setStatus(line.getStatus() != null ? line.getStatus().name() : null);
         dto.setCreatedAt(line.getCreatedAt());
         return dto;
     }
@@ -269,7 +280,7 @@ public class DomApplicationServiceImpl implements DomApplicationService {
         dto.setFulfilledLines(plan.getFulfilledLines());
         dto.setPartiallyFulfilledLines(plan.getPartiallyFulfilledLines());
         dto.setUnfulfilledLines(plan.getUnfulfilledLines());
-        dto.setStatus(plan.getStatus());
+        dto.setStatus(plan.getStatus() != null ? plan.getStatus().name() : null);
         dto.setCreatedAt(plan.getCreatedAt());
         dto.setUpdatedAt(plan.getUpdatedAt());
         return dto;

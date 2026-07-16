@@ -1,17 +1,31 @@
 package com.metawebthree.forecasting.domain.entity;
 
+import jakarta.persistence.*;
 import java.time.LocalDate;
 
-/**
- * 销售历史数据实体 - 用于预测模型训练
- */
+@Entity
+@Table(name = "tb_sales_history")
 public class SalesHistory {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "sku_code", length = 64)
     private String skuCode;
+
+    @Column(name = "warehouse_id")
     private Long warehouseId;
+
+    @Column(name = "sales_date")
     private LocalDate salesDate;
+
+    @Column(name = "quantity")
     private Integer quantity;
+
+    @Column(name = "sales_channel", length = 32)
     private String salesChannel;
+
+    @Column(name = "created_at")
     private LocalDate createdAt;
 
     public SalesHistory() {

@@ -4,6 +4,13 @@ package com.metawebthree.common.generated.rpc;
 
 option java_multiple_files = true;
 
+enum CouponStatus {
+    COUPON_STATUS_UNSPECIFIED = 0;
+    COUPON_STATUS_UNUSED = 1;
+    COUPON_STATUS_USED = 2;
+    COUPON_STATUS_EXPIRED = 3;
+}
+
 service PromotionService {
     rpc listCouponTypesByProduct(ListCouponTypesByProductRequest) returns (ListCouponTypesByProductResponse);
     rpc returnCoupon(ReturnCouponRequest) returns (ReturnCouponResponse);
@@ -37,7 +44,7 @@ message CouponProto {
     int64 orderId = 4;
     int64 useTime = 5;
     int64 receiveTime = 6;
-    string status = 7;
+    CouponStatus status = 7;
 }
 
 message ListCouponTypesByProductRequest {

@@ -10,10 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class RouteOptimizerDomainServiceImpl implements RouteOptimizerDomainService {
@@ -62,8 +61,13 @@ public class RouteOptimizerDomainServiceImpl implements RouteOptimizerDomainServ
         plan.setStatus(RoutePlan.RouteStatus.OPTIMIZING);
         routePlanRepository.save(plan);
         
-        // Apply nearest neighbor algorithm for optimization
-        List<RoutePoint> optimizedPoints = optimizeUsingNearestNeighbor(plan.getPoints());
+        Vehicle vehicle = null;
+        if (plan.getVehicleCode() != null) {
+            vehicle = vehicleRepository.findByVehicleCode(plan.getVehicleCode()).orElse(null);
+        }
+        
+        List<RoutePoint> optimizedPoints = optimizeUsingNearestNeighbor(
+            plan.getPoints(), vehicle, plan.getOptimizationType());
         plan.getPoints().clear();
         plan.getPoints().addAll(optimizedPoints);
         
@@ -79,12 +83,111 @@ public class RouteOptimizerDomainServiceImpl implements RouteOptimizerDomainServ
         return routePlanRepository.save(plan);
     }
 
-    private List<RoutePoint> optimizeUsingNearestNeighbor(List<RoutePoint> points) {
+    private List<RoutePoint> optimizeUsingNearestNeighbor(List<RoutePoint> points,
+                                                           Vehicle vehicle,
+                                                           RoutePlan.OptimizationType optimizationType) {
         if (points.size() <= 2) return points;
-        
-        return points.stream()
-            .sorted(Comparator.comparingDouble(RoutePoint::getSequence))
-            .collect(Collectors.toList());
+
+        RoutePoint depot = points.stream()
+            .filter(p -> p.getType() == RoutePoint.PointType.WAREHOUSE)
+            .findFirst()
+            .orElse(points.get(0));
+
+        List<RoutePoint> remaining = new ArrayList<>(points);
+        remaining.remove(depot);
+
+        List<RoutePoint> optimized = new ArrayList<>();
+        optimized.add(depot);
+        depot.setSequence(1);
+
+        RoutePoint current = depot;
+        double elapsedMinutes = 0.0;
+
+        Double availableCapacity = null;
+        if (vehicle != null && vehicle.getMaxLoadCapacity() != null) {
+            availableCapacity = vehicle.getMaxLoadCapacity()
+                - (vehicle.getCurrentLoad() != null ? vehicle.getCurrentLoad() : 0.0);
+        }
+
+        int seq = 2;
+        while (!remaining.isEmpty()) {
+            RoutePoint best = null;
+            double bestScore = Double.MAX_VALUE;
+
+            for (RoutePoint candidate : remaining) {
+                if (availableCapacity != null && estimateDemand(candidate) > availableCapacity) {
+                    continue;
+                }
+
+                double distance = current.calculateDistanceTo(candidate);
+                double travelTimeMinutes = (distance / 30.0) * 60.0;
+                double arrivalTime = elapsedMinutes + travelTimeMinutes;
+                double serviceTime = candidate.getExpectedServiceDuration() != null
+                    ? candidate.getExpectedServiceDuration() : 15;
+
+                double score;
+                switch (optimizationType) {
+                    case TIME_MINIMIZE:
+                        score = travelTimeMinutes + serviceTime;
+                        break;
+                    case COST_MINIMIZE:
+                        score = distance * 2.5 + serviceTime * 0.5;
+                        break;
+                    case BALANCED:
+                        score = distance * 0.5 + serviceTime * 0.5;
+                        break;
+                    default:
+                        score = distance;
+                        break;
+                }
+
+                if (candidate.getEstimatedArrivalTime() != null) {
+                    double deadline = candidate.getEstimatedArrivalTime();
+                    if (arrivalTime > deadline) {
+                        score += (arrivalTime - deadline) * 100;
+                    } else {
+                        score -= (deadline - arrivalTime) * 0.1;
+                    }
+                }
+
+                if (score < bestScore) {
+                    bestScore = score;
+                    best = candidate;
+                }
+            }
+
+            if (best == null) {
+                best = remaining.get(0);
+            }
+
+            remaining.remove(best);
+            optimized.add(best);
+            best.setSequence(seq++);
+            best.setDistanceFromPrevious(current.calculateDistanceTo(best));
+
+            double travelTime = (best.getDistanceFromPrevious() / 30.0) * 60.0;
+            elapsedMinutes += travelTime;
+            elapsedMinutes += best.getExpectedServiceDuration() != null
+                ? best.getExpectedServiceDuration() : 15;
+
+            if (availableCapacity != null) {
+                availableCapacity -= estimateDemand(best);
+            }
+
+            current = best;
+        }
+
+        return optimized;
+    }
+
+    private double estimateDemand(RoutePoint point) {
+        if (point.getType() == RoutePoint.PointType.CUSTOMER
+            || point.getType() == RoutePoint.PointType.DROP_OFF
+            || point.getType() == RoutePoint.PointType.PICKUP
+            || point.getOrderCode() != null) {
+            return 1.0;
+        }
+        return 0.0;
     }
 
     @Override

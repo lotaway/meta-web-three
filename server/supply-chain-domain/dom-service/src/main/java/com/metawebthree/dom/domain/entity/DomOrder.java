@@ -11,11 +11,11 @@ public class DomOrder {
     private String originalOrderNo;
     private String customerId;
     private String customerName;
-    private String status;
+    private DomOrderStatus status;
     private BigDecimal totalAmount;
     private String currency;
     private Integer priority;
-    private String sourcingStrategy;
+    private SourcingStrategy sourcingStrategy;
     private String region;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

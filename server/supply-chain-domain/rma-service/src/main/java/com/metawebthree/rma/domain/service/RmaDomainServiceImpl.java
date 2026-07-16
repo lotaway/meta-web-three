@@ -1,5 +1,7 @@
 package com.metawebthree.rma.domain.service;
 
+import com.metawebthree.rma.domain.RmaOrderStatus;
+import com.metawebthree.rma.domain.RmaSequenceGenerator;
 import com.metawebthree.rma.domain.entity.RmaDisposition;
 import com.metawebthree.rma.domain.entity.RmaInspection;
 import com.metawebthree.rma.domain.entity.RmaOrder;
@@ -8,181 +10,174 @@ import com.metawebthree.rma.domain.repository.RmaDispositionRepository;
 import com.metawebthree.rma.domain.repository.RmaInspectionRepository;
 import com.metawebthree.rma.domain.repository.RmaOrderItemRepository;
 import com.metawebthree.rma.domain.repository.RmaOrderRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
-@Service
+
 public class RmaDomainServiceImpl implements RmaDomainService {
+
+    private static final Logger log = LoggerFactory.getLogger(RmaDomainServiceImpl.class);
+
+    private static final String CURRENCY_CNY = "CNY";
+    private static final String RMA_NO_PREFIX = "RMA";
+    private static final String RMA_NO_FORMAT = "%06d";
+    private static final int INITIAL_VERSION = 0;
 
     private final RmaOrderRepository rmaOrderRepository;
     private final RmaOrderItemRepository rmaOrderItemRepository;
     private final RmaInspectionRepository rmaInspectionRepository;
     private final RmaDispositionRepository rmaDispositionRepository;
-
-    private static final AtomicLong SEQ = new AtomicLong(1);
-    private static final Object SEQ_LOCK = new Object();
-    private static String SEQ_DATE = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+    private final RmaSequenceGenerator rmaSequenceGenerator;
 
     public RmaDomainServiceImpl(RmaOrderRepository rmaOrderRepository,
                                 RmaOrderItemRepository rmaOrderItemRepository,
                                 RmaInspectionRepository rmaInspectionRepository,
-                                RmaDispositionRepository rmaDispositionRepository) {
+                                RmaDispositionRepository rmaDispositionRepository,
+                                RmaSequenceGenerator rmaSequenceGenerator) {
         this.rmaOrderRepository = rmaOrderRepository;
         this.rmaOrderItemRepository = rmaOrderItemRepository;
         this.rmaInspectionRepository = rmaInspectionRepository;
         this.rmaDispositionRepository = rmaDispositionRepository;
+        this.rmaSequenceGenerator = rmaSequenceGenerator;
     }
 
     @Override
-    @Transactional
     public RmaOrder createRmaOrder(String orderNo, Long customerId, String customerName,
                                    String contactPhone, String reasonCode, String reasonDescription,
                                    Long warehouseId, String returnType, String createdBy,
                                    List<RmaOrderItem> items) {
-        RmaOrder order = new RmaOrder();
-        order.setRmaNo(generateRmaNo());
-        order.setOrderNo(orderNo);
-        order.setReturnType(returnType);
-        order.setStatus("PENDING");
-        order.setCustomerId(customerId);
-        order.setCustomerName(customerName);
-        order.setContactPhone(contactPhone);
-        order.setReasonCode(reasonCode);
-        order.setReasonDescription(reasonDescription);
-        order.setWarehouseId(warehouseId);
-        order.setTotalQuantity(items.stream().mapToInt(RmaOrderItem::getExpectedQuantity).sum());
-        order.setTotalAmount(items.stream()
-                .map(i -> i.getUnitPrice().multiply(BigDecimal.valueOf(i.getExpectedQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add));
-        order.setCurrency("CNY");
-        order.setCreatedBy(createdBy);
-        order.setCreatedAt(LocalDateTime.now());
-        order.setUpdatedAt(LocalDateTime.now());
-        order.setVersion(0);
-
-        RmaOrder saved = rmaOrderRepository.save(order);
-
-        for (RmaOrderItem item : items) {
-            item.setRmaId(saved.getId());
-            item.setCreatedAt(LocalDateTime.now());
-            rmaOrderItemRepository.save(item);
-        }
-
-        return saved;
+        RmaOrder order = buildOrder(orderNo, customerId, customerName, contactPhone,
+                reasonCode, reasonDescription, warehouseId, returnType, createdBy, items);
+        log.info("Built RMA order: rmaNo={}, orderNo={}, status={}", order.getRmaNo(), orderNo, order.getStatus());
+        return order;
     }
 
     @Override
-    @Transactional
+    public void saveRmaOrder(RmaOrder order) {
+        rmaOrderRepository.save(order);
+        log.info("Saved RMA order: id={}, rmaNo={}, status={}", order.getId(), order.getRmaNo(), order.getStatus());
+    }
+
+    @Override
+    public void saveRmaOrder(RmaOrder order, List<RmaOrderItem> items) {
+        RmaOrder saved = rmaOrderRepository.save(order);
+        if (items != null) {
+            for (RmaOrderItem item : items) {
+                item.setRmaId(saved.getId());
+                item.setCreatedAt(LocalDateTime.now());
+                rmaOrderItemRepository.save(item);
+            }
+        }
+        log.info("Saved RMA order with {} items: id={}, rmaNo={}", items != null ? items.size() : 0, saved.getId(), saved.getRmaNo());
+    }
+
+    @Override
+    public void saveInspection(RmaInspection inspection) {
+        rmaInspectionRepository.save(inspection);
+        log.info("Saved inspection: id={}, rmaId={}, result={}", inspection.getId(), inspection.getRmaId(), inspection.getResult());
+    }
+
+    @Override
+    public void saveDisposition(RmaDisposition disposition) {
+        rmaDispositionRepository.save(disposition);
+        log.info("Saved disposition: id={}, rmaId={}, type={}", disposition.getId(), disposition.getRmaId(), disposition.getDispositionType());
+    }
+
+    @Override
     public RmaOrder submitForInspection(Long rmaId) {
-        RmaOrder order = rmaOrderRepository.findById(rmaId)
-                .orElseThrow(() -> new IllegalArgumentException("RMA order not found: " + rmaId));
+        RmaOrder order = findOrderOrThrow(rmaId);
         if (!order.canInspect()) {
             throw new IllegalStateException("RMA order cannot be submitted for inspection, current status: " + order.getStatus());
         }
-        order.setStatus("AWAITING_INSPECTION");
+        order.setStatus(RmaOrderStatus.AWAITING_INSPECTION);
         order.setUpdatedAt(LocalDateTime.now());
-        return rmaOrderRepository.save(order);
+        log.info("Submitted RMA order for inspection: id={}, rmaNo={}, newStatus={}", rmaId, order.getRmaNo(), order.getStatus());
+        return order;
     }
 
     @Override
-    @Transactional
-    public RmaInspection recordInspection(Long rmaId, RmaInspection inspection) {
-        RmaOrder order = rmaOrderRepository.findById(rmaId)
-                .orElseThrow(() -> new IllegalArgumentException("RMA order not found: " + rmaId));
-        if (!"AWAITING_INSPECTION".equals(order.getStatus())) {
+    public RmaInspection recordInspection(RmaOrder order, RmaInspection inspection) {
+        if (RmaOrderStatus.AWAITING_INSPECTION != order.getStatus()) {
             throw new IllegalStateException("RMA order is not awaiting inspection, current status: " + order.getStatus());
         }
 
-        inspection.setRmaId(rmaId);
+        inspection.setRmaId(order.getId());
         inspection.setRmaNo(order.getRmaNo());
         inspection.setInspectionDate(LocalDateTime.now());
         inspection.setCreatedAt(LocalDateTime.now());
         inspection.setUpdatedAt(LocalDateTime.now());
-        RmaInspection saved = rmaInspectionRepository.save(inspection);
 
-        List<RmaOrderItem> items = rmaOrderItemRepository.findByRmaId(rmaId);
-        for (RmaOrderItem item : items) {
-            item.setInspectedQuantity(inspection.getTotalInspected() / items.size());
-            item.setAcceptedQuantity(inspection.getTotalPassed() / items.size());
-            rmaOrderItemRepository.save(item);
-        }
+        updateItemQuantities(order.getId(), inspection);
 
-        order.setStatus("INSPECTED");
+        order.setStatus(RmaOrderStatus.INSPECTED);
         order.setUpdatedAt(LocalDateTime.now());
-        rmaOrderRepository.save(order);
 
-        return saved;
+        log.info("Recorded inspection for order: id={}, rmaNo={}, result={}", order.getId(), order.getRmaNo(), inspection.getResult());
+        return inspection;
     }
 
     @Override
-    @Transactional
-    public RmaDisposition makeDisposition(Long rmaId, RmaDisposition disposition) {
-        RmaOrder order = rmaOrderRepository.findById(rmaId)
-                .orElseThrow(() -> new IllegalArgumentException("RMA order not found: " + rmaId));
+    public RmaDisposition makeDisposition(RmaOrder order, RmaDisposition disposition) {
         if (!order.canDispose()) {
             throw new IllegalStateException("RMA order cannot be disposed, current status: " + order.getStatus());
         }
 
-        disposition.setRmaId(rmaId);
+        disposition.setRmaId(order.getId());
         disposition.setRmaNo(order.getRmaNo());
         disposition.setDispositionDate(LocalDateTime.now());
         disposition.setCreatedAt(LocalDateTime.now());
         disposition.setUpdatedAt(LocalDateTime.now());
-        RmaDisposition saved = rmaDispositionRepository.save(disposition);
 
-        order.setStatus("AWAITING_DISPOSITION");
+        order.setStatus(RmaOrderStatus.AWAITING_DISPOSITION);
         order.setUpdatedAt(LocalDateTime.now());
-        rmaOrderRepository.save(order);
 
-        return saved;
+        log.info("Made disposition for order: id={}, rmaNo={}, type={}", order.getId(), order.getRmaNo(), disposition.getDispositionType());
+        return disposition;
     }
 
     @Override
-    @Transactional
     public RmaOrder executeDisposition(Long rmaId) {
-        RmaOrder order = rmaOrderRepository.findById(rmaId)
-                .orElseThrow(() -> new IllegalArgumentException("RMA order not found: " + rmaId));
-        if (!"AWAITING_DISPOSITION".equals(order.getStatus())) {
+        RmaOrder order = findOrderOrThrow(rmaId);
+        if (RmaOrderStatus.AWAITING_DISPOSITION != order.getStatus()) {
             throw new IllegalStateException("RMA order has no pending disposition, current status: " + order.getStatus());
         }
 
-        order.setStatus("DISPOSED");
+        order.setStatus(RmaOrderStatus.DISPOSED);
         order.setUpdatedAt(LocalDateTime.now());
-        return rmaOrderRepository.save(order);
+
+        log.info("Executed disposition for order: id={}, rmaNo={}", rmaId, order.getRmaNo());
+        return order;
     }
 
     @Override
-    @Transactional
     public RmaOrder completeRmaOrder(Long rmaId) {
-        RmaOrder order = rmaOrderRepository.findById(rmaId)
-                .orElseThrow(() -> new IllegalArgumentException("RMA order not found: " + rmaId));
+        RmaOrder order = findOrderOrThrow(rmaId);
         if (!order.canComplete()) {
             throw new IllegalStateException("RMA order cannot be completed, current status: " + order.getStatus());
         }
-        order.setStatus("COMPLETED");
+        order.setStatus(RmaOrderStatus.COMPLETED);
         order.setUpdatedAt(LocalDateTime.now());
-        return rmaOrderRepository.save(order);
+
+        log.info("Completed RMA order: id={}, rmaNo={}", rmaId, order.getRmaNo());
+        return order;
     }
 
     @Override
-    @Transactional
     public RmaOrder cancelRmaOrder(Long rmaId) {
-        RmaOrder order = rmaOrderRepository.findById(rmaId)
-                .orElseThrow(() -> new IllegalArgumentException("RMA order not found: " + rmaId));
+        RmaOrder order = findOrderOrThrow(rmaId);
         if (!order.canCancel()) {
             throw new IllegalStateException("RMA order cannot be cancelled, current status: " + order.getStatus());
         }
-        order.setStatus("CANCELLED");
+        order.setStatus(RmaOrderStatus.CANCELLED);
         order.setUpdatedAt(LocalDateTime.now());
-        return rmaOrderRepository.save(order);
+
+        log.info("Cancelled RMA order: id={}, rmaNo={}", rmaId, order.getRmaNo());
+        return order;
     }
 
     @Override
@@ -195,15 +190,61 @@ public class RmaDomainServiceImpl implements RmaDomainService {
         return rmaOrderRepository.findByRmaNo(rmaNo);
     }
 
-    private String generateRmaNo() {
-        String datePart = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        synchronized (SEQ_LOCK) {
-            if (!datePart.equals(SEQ_DATE)) {
-                SEQ.set(1);
-                SEQ_DATE = datePart;
-            }
-            long seq = SEQ.getAndIncrement();
-            return "RMA" + datePart + String.format("%06d", seq % 1000000);
+    private RmaOrder buildOrder(String orderNo, Long customerId, String customerName,
+                                String contactPhone, String reasonCode, String reasonDescription,
+                                Long warehouseId, String returnType, String createdBy,
+                                List<RmaOrderItem> items) {
+        RmaOrder order = new RmaOrder();
+        order.setRmaNo(rmaSequenceGenerator.generateRmaNo());
+        assignOrderDefaults(order, orderNo, customerId, customerName, contactPhone,
+                reasonCode, reasonDescription, warehouseId, returnType, createdBy, items);
+        return order;
+    }
+
+    private void assignOrderDefaults(RmaOrder order, String orderNo, Long customerId, String customerName,
+                                     String contactPhone, String reasonCode, String reasonDescription,
+                                     Long warehouseId, String returnType, String createdBy,
+                                     List<RmaOrderItem> items) {
+        order.setOrderNo(orderNo);
+        order.setReturnType(returnType);
+        order.setStatus(RmaOrderStatus.PENDING);
+        order.setCustomerId(customerId);
+        order.setCustomerName(customerName);
+        order.setContactPhone(contactPhone);
+        order.setReasonCode(reasonCode);
+        order.setReasonDescription(reasonDescription);
+        order.setWarehouseId(warehouseId);
+        order.setTotalQuantity(calcTotalQuantity(items));
+        order.setTotalAmount(calcTotalAmount(items));
+        order.setCurrency(CURRENCY_CNY);
+        order.setCreatedBy(createdBy);
+        order.setCreatedAt(LocalDateTime.now());
+        order.setUpdatedAt(LocalDateTime.now());
+        order.setVersion(INITIAL_VERSION);
+    }
+
+    private void updateItemQuantities(Long rmaId, RmaInspection inspection) {
+        List<RmaOrderItem> items = rmaOrderItemRepository.findByRmaId(rmaId);
+        if (items == null || items.isEmpty()) return;
+        for (RmaOrderItem item : items) {
+            item.setInspectedQuantity(inspection.getTotalInspected() / items.size());
+            item.setAcceptedQuantity(inspection.getTotalPassed() / items.size());
+            rmaOrderItemRepository.save(item);
         }
+    }
+
+    private int calcTotalQuantity(List<RmaOrderItem> items) {
+        return items.stream().mapToInt(RmaOrderItem::getExpectedQuantity).sum();
+    }
+
+    private BigDecimal calcTotalAmount(List<RmaOrderItem> items) {
+        return items.stream()
+                .map(i -> i.getUnitPrice().multiply(BigDecimal.valueOf(i.getExpectedQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private RmaOrder findOrderOrThrow(Long rmaId) {
+        return rmaOrderRepository.findById(rmaId)
+                .orElseThrow(() -> new IllegalArgumentException("RMA order not found: " + rmaId));
     }
 }

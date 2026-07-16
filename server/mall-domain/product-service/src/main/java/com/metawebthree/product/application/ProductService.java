@@ -228,13 +228,28 @@ public class ProductService {
                 });
     }
 
-    public void createProduct() {
-        // TODO: Map to domain entity and persist
-        Long id = IdWorker.getId();
+    public Integer createProduct(ProductDTO productDTO) {
+        if (productDTO.getName() == null || productDTO.getName().isEmpty()) {
+            throw new ProductDomainException(ProductErrorCode.CREATE_FAILED, "Product name is required");
+        }
+        ProductDO product = new ProductDO();
+        product.setProductName(productDTO.getName());
+        product.setSku(productDTO.getGoodsNo());
+        product.setCreateTime(LocalDateTime.now());
+        product.setShelved(false);
+        productMapper.insert(product);
+        return product.getId();
     }
 
     public void updateProduct(Long productId, byte[] description) {
-        // TODO: Load, update and persist
+        ProductDO product = productMapper.selectById(productId);
+        if (product == null) {
+            throw new ProductDomainException(ProductErrorCode.UPDATE_FAILED, "Product not found: " + productId);
+        }
+        if (description != null) {
+            product.setProductRemark(new String(description, java.nio.charset.StandardCharsets.UTF_8));
+        }
+        productMapper.updateById(product);
     }
 
     public void deleteProduct(String productId) {

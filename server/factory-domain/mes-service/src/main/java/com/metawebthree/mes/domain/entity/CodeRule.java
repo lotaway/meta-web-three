@@ -148,7 +148,7 @@ public class CodeRule {
         this.currentValue += this.step;
     }
     
-    @Deprecated
+    @Deprecated(forRemoval = true, since = "1.0.0")
     public String generateNextCode() {
         String code = peekNextCode();
         advanceSequence();

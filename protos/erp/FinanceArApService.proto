@@ -1,0 +1,150 @@
+syntax = "proto3";
+
+package com.metawebthree.erp.generated.rpc;
+
+option java_multiple_files = true;
+
+import "shared/google/type/money.proto";
+
+service FinanceArApService {
+    rpc getAccountsReceivable(GetAccountsReceivableRequest) returns (GetAccountsReceivableResponse);
+    rpc listAccountsReceivables(ListAccountsReceivablesRequest) returns (ListAccountsReceivablesResponse);
+    rpc createAccountsReceivable(CreateAccountsReceivableRequest) returns (CreateAccountsReceivableResponse);
+    rpc receiveAr(ReceiveArRequest) returns (ReceiveArResponse);
+    rpc writeOffAr(WriteOffArRequest) returns (WriteOffArResponse);
+    rpc getAccountsPayable(GetAccountsPayableRequest) returns (GetAccountsPayableResponse);
+    rpc listAccountsPayables(ListAccountsPayablesRequest) returns (ListAccountsPayablesResponse);
+    rpc createAccountsPayable(CreateAccountsPayableRequest) returns (CreateAccountsPayableResponse);
+    rpc payAp(PayApRequest) returns (PayApResponse);
+    rpc writeOffAp(WriteOffApRequest) returns (WriteOffApResponse);
+}
+
+enum ArStatus {
+    AR_STATUS_UNSPECIFIED = 0;
+    AR_STATUS_UNPAID = 1;
+    AR_STATUS_PARTIALLY_PAID = 2;
+    AR_STATUS_PAID = 3;
+    AR_STATUS_WRITTEN_OFF = 4;
+}
+
+enum ApStatus {
+    AP_STATUS_UNSPECIFIED = 0;
+    AP_STATUS_UNPAID = 1;
+    AP_STATUS_PARTIALLY_PAID = 2;
+    AP_STATUS_PAID = 3;
+    AP_STATUS_WRITTEN_OFF = 4;
+}
+
+message AccountsReceivableProto {
+    int64 id = 1;
+    string arCode = 2;
+    int64 customerId = 3;
+    string customerName = 4;
+    string businessType = 5;
+    string relatedDocumentType = 6;
+    string relatedDocumentNo = 7;
+    google.type.Money amount = 8;
+    google.type.Money receivedAmount = 9;
+    google.type.Money remainingAmount = 10;
+    int64 invoiceDate = 11;
+    int64 dueDate = 12;
+    int32 creditTerm = 13;
+    ArStatus status = 14;
+    string currency = 15;
+    double exchangeRate = 16;
+    google.type.Money originalAmount = 17;
+    string description = 18;
+    int64 createdAt = 19;
+    int64 updatedAt = 20;
+}
+
+message GetAccountsReceivableRequest { int64 id = 1; }
+message GetAccountsReceivableResponse { AccountsReceivableProto ar = 1; }
+message ListAccountsReceivablesRequest {
+    ArStatus status = 1;
+    int64 customerId = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListAccountsReceivablesResponse {
+    repeated AccountsReceivableProto ars = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateAccountsReceivableRequest {
+    string arCode = 1;
+    int64 customerId = 2;
+    string customerName = 3;
+    google.type.Money amount = 4;
+    int64 dueDate = 5;
+    string description = 6;
+}
+message CreateAccountsReceivableResponse { AccountsReceivableProto ar = 1; }
+message ReceiveArRequest {
+    int64 id = 1;
+    google.type.Money amount = 2;
+}
+message ReceiveArResponse { bool success = 1; }
+message WriteOffArRequest {
+    int64 id = 1;
+    string reason = 2;
+}
+message WriteOffArResponse { bool success = 1; }
+
+message AccountsPayableProto {
+    int64 id = 1;
+    string apCode = 2;
+    int64 supplierId = 3;
+    string supplierName = 4;
+    string businessType = 5;
+    string relatedDocumentType = 6;
+    string relatedDocumentNo = 7;
+    google.type.Money amount = 8;
+    google.type.Money paidAmount = 9;
+    google.type.Money remainingAmount = 10;
+    int64 invoiceDate = 11;
+    int64 dueDate = 12;
+    int32 creditTerm = 13;
+    ApStatus status = 14;
+    string currency = 15;
+    double exchangeRate = 16;
+    google.type.Money originalAmount = 17;
+    string description = 18;
+    int64 createdAt = 19;
+    int64 updatedAt = 20;
+}
+
+message GetAccountsPayableRequest { int64 id = 1; }
+message GetAccountsPayableResponse { AccountsPayableProto ap = 1; }
+message ListAccountsPayablesRequest {
+    ApStatus status = 1;
+    int64 supplierId = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListAccountsPayablesResponse {
+    repeated AccountsPayableProto aps = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateAccountsPayableRequest {
+    string apCode = 1;
+    int64 supplierId = 2;
+    string supplierName = 3;
+    google.type.Money amount = 4;
+    int64 dueDate = 5;
+    string description = 6;
+}
+message CreateAccountsPayableResponse { AccountsPayableProto ap = 1; }
+message PayApRequest {
+    int64 id = 1;
+    google.type.Money amount = 2;
+}
+message PayApResponse { bool success = 1; }
+message WriteOffApRequest {
+    int64 id = 1;
+    string reason = 2;
+}
+message WriteOffApResponse { bool success = 1; }

@@ -2,6 +2,7 @@ package com.metawebthree.dom.infrastructure.persistence.repository;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.dom.domain.entity.DomOrder;
+import com.metawebthree.dom.domain.entity.DomOrderStatus;
 import com.metawebthree.dom.domain.repository.DomOrderRepository;
 import com.metawebthree.dom.infrastructure.persistence.converter.DomOrderConverter;
 import com.metawebthree.dom.infrastructure.persistence.dataobject.DomOrderDO;
@@ -45,9 +46,9 @@ public class DomOrderRepositoryImpl implements DomOrderRepository {
     }
 
     @Override
-    public List<DomOrder> findByStatus(String status) {
+    public List<DomOrder> findByStatus(DomOrderStatus status) {
         LambdaQueryWrapper<DomOrderDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(DomOrderDO::getStatus, status);
+        wrapper.eq(DomOrderDO::getStatus, status.name());
         return domOrderMapper.selectList(wrapper).stream()
                 .map(domOrderConverter::toEntity)
                 .collect(Collectors.toList());

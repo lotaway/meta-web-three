@@ -1,31 +1,63 @@
 package com.metawebthree.forecasting.domain.entity;
 
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "tb_sales_forecast")
 public class SalesForecast {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "sku_code", length = 64)
     private String skuCode;
+
+    @Column(name = "sku_name", length = 128)
     private String skuName;
+
+    @Column(name = "warehouse_id")
     private Long warehouseId;
+
+    @Column(name = "forecast_date")
     private LocalDate forecastDate;
+
+    @Column(name = "forecast_quantity")
     private Integer forecastQuantity;
+
+    @Column(name = "actual_quantity")
     private Integer actualQuantity;
+
+    @Column(name = "forecast_amount", precision = 18, scale = 2)
     private BigDecimal forecastAmount;
+
+    @Column(name = "actual_amount", precision = 18, scale = 2)
     private BigDecimal actualAmount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 32)
     private ForecastStatus status;
+
+    @Column(name = "forecast_model", length = 64)
     private String forecastModel;
+
+    @Column(name = "confidence_level", precision = 5, scale = 2)
     private BigDecimal confidenceLevel;
+
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     public enum ForecastStatus {
         PENDING, GENERATED, CONFIRMED, ADJUSTED, ARCHIVED
     }
 
-    public void create(String skuCode, String skuName, Long warehouseId, 
-                      LocalDate forecastDate, Integer forecastQuantity, 
+    public void create(String skuCode, String skuName, Long warehouseId,
+                      LocalDate forecastDate, Integer forecastQuantity,
                       String forecastModel, BigDecimal confidenceLevel) {
         this.skuCode = skuCode;
         this.skuName = skuName;

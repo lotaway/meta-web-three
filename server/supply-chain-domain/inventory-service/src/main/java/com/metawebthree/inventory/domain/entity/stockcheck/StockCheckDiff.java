@@ -1,5 +1,8 @@
 package com.metawebthree.inventory.domain.entity.stockcheck;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -8,7 +11,9 @@ import java.time.LocalDateTime;
  * 盘点差异处理记录
  */
 @Data
+@TableName("tb_stock_check_diff")
 public class StockCheckDiff {
+    @TableId(type = IdType.AUTO)
     private Long id;
     private Long recordId;
     private Long planId;

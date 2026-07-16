@@ -12,7 +12,7 @@ public class FulfillmentPlan {
     private Integer fulfilledLines;
     private Integer partiallyFulfilledLines;
     private Integer unfulfilledLines;
-    private String status;
+    private FulfillmentPlanStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

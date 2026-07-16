@@ -223,3 +223,96 @@ CREATE INDEX IF NOT EXISTS idx_biz_id ON inventory_operation_log (biz_id);
 CREATE INDEX IF NOT EXISTS idx_operator_id ON inventory_operation_log (operator_id);
 CREATE INDEX IF NOT EXISTS idx_operated_at ON inventory_operation_log (operated_at);
 CREATE INDEX IF NOT EXISTS idx_result ON inventory_operation_log (result);
+
+-- stock-check module
+
+CREATE TABLE IF NOT EXISTS tb_stock_check_plan (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    plan_no VARCHAR(64) NOT NULL COMMENT '盘点计划编号',
+    plan_name VARCHAR(128) COMMENT '盘点计划名称',
+    check_type VARCHAR(32) COMMENT '盘点类型(FULL/SPOT/CYCLE)',
+    warehouse_id BIGINT COMMENT '仓库ID',
+    warehouse_name VARCHAR(128) COMMENT '仓库名称',
+    status VARCHAR(32) COMMENT '状态(DRAFT/PENDING/IN_PROGRESS/COMPLETED/CANCELLED)',
+    planned_start_time TIMESTAMP COMMENT '计划开始时间',
+    planned_end_time TIMESTAMP COMMENT '计划结束时间',
+    actual_start_time TIMESTAMP COMMENT '实际开始时间',
+    actual_end_time TIMESTAMP COMMENT '实际结束时间',
+    creator VARCHAR(64) COMMENT '创建人',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updater VARCHAR(64) COMMENT '更新人',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    remark VARCHAR(512) COMMENT '备注',
+    deleted TINYINT(1) DEFAULT 0 COMMENT '逻辑删除',
+    version INT DEFAULT 0 COMMENT '版本号',
+    CONSTRAINT uk_plan_no UNIQUE (plan_no)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='盘点计划';
+CREATE INDEX IF NOT EXISTS idx_scp_warehouse_id ON tb_stock_check_plan (warehouse_id);
+CREATE INDEX IF NOT EXISTS idx_scp_status ON tb_stock_check_plan (status);
+
+CREATE TABLE IF NOT EXISTS tb_stock_check_record (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    plan_id BIGINT COMMENT '盘点计划ID',
+    plan_no VARCHAR(64) COMMENT '盘点计划编号',
+    sku_code VARCHAR(64) COMMENT 'SKU',
+    product_name VARCHAR(128) COMMENT '产品名称',
+    location_code VARCHAR(32) COMMENT '库位编码',
+    warehouse_id BIGINT COMMENT '仓库ID',
+    book_quantity DECIMAL(19,2) COMMENT '账面数量',
+    check_quantity DECIMAL(19,2) COMMENT '盘点数量',
+    difference_quantity DECIMAL(19,2) COMMENT '差异数量',
+    difference_type VARCHAR(32) COMMENT '差异类型(NONE/SHORT/OVER)',
+    status VARCHAR(32) COMMENT '状态(PENDING/CONFIRMED/ADJUSTED)',
+    checker VARCHAR(64) COMMENT '盘点人',
+    check_time TIMESTAMP COMMENT '盘点时间',
+    remark VARCHAR(512) COMMENT '备注',
+    source_system VARCHAR(32) COMMENT '来源系统',
+    creator VARCHAR(64) COMMENT '创建人',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updater VARCHAR(64) COMMENT '更新人',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted TINYINT(1) DEFAULT 0 COMMENT '逻辑删除',
+    version INT DEFAULT 0 COMMENT '版本号'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='盘点记录';
+CREATE INDEX IF NOT EXISTS idx_scr_plan_id ON tb_stock_check_record (plan_id);
+CREATE INDEX IF NOT EXISTS idx_scr_sku_code ON tb_stock_check_record (sku_code);
+CREATE INDEX IF NOT EXISTS idx_scr_warehouse_id ON tb_stock_check_record (warehouse_id);
+CREATE INDEX IF NOT EXISTS idx_scr_status ON tb_stock_check_record (status);
+
+CREATE TABLE IF NOT EXISTS tb_stock_check_diff (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    record_id BIGINT COMMENT '盘点记录ID',
+    plan_id BIGINT COMMENT '盘点计划ID',
+    plan_no VARCHAR(64) COMMENT '盘点计划编号',
+    sku_code VARCHAR(64) COMMENT 'SKU',
+    product_name VARCHAR(128) COMMENT '产品名称',
+    location_code VARCHAR(32) COMMENT '库位编码',
+    warehouse_id BIGINT COMMENT '仓库ID',
+    book_quantity DECIMAL(19,2) COMMENT '账面数量',
+    check_quantity DECIMAL(19,2) COMMENT '盘点数量',
+    difference_quantity DECIMAL(19,2) COMMENT '差异数量',
+    difference_type VARCHAR(32) COMMENT '差异类型(SHORT/OVER)',
+    processing_status VARCHAR(32) COMMENT '处理状态(PENDING/PROCESSING/PROCESSED)',
+    approval_status VARCHAR(32) COMMENT '审批状态(PENDING/APPROVED/REJECTED)',
+    approver VARCHAR(64) COMMENT '审批人',
+    approval_time TIMESTAMP COMMENT '审批时间',
+    approval_remark VARCHAR(512) COMMENT '审批备注',
+    solution VARCHAR(256) COMMENT '处理方案',
+    processor VARCHAR(64) COMMENT '处理人',
+    process_time TIMESTAMP COMMENT '处理时间',
+    process_remark VARCHAR(512) COMMENT '处理备注',
+    source_system VARCHAR(32) COMMENT '来源系统',
+    creator VARCHAR(64) COMMENT '创建人',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updater VARCHAR(64) COMMENT '更新人',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted TINYINT(1) DEFAULT 0 COMMENT '逻辑删除',
+    version INT DEFAULT 0 COMMENT '版本号'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='盘点差异';
+CREATE INDEX IF NOT EXISTS idx_scd_record_id ON tb_stock_check_diff (record_id);
+CREATE INDEX IF NOT EXISTS idx_scd_plan_id ON tb_stock_check_diff (plan_id);
+CREATE INDEX IF NOT EXISTS idx_scd_sku_code ON tb_stock_check_diff (sku_code);
+CREATE INDEX IF NOT EXISTS idx_scd_warehouse_id ON tb_stock_check_diff (warehouse_id);
+CREATE INDEX IF NOT EXISTS idx_scd_processing_status ON tb_stock_check_diff (processing_status);
+CREATE INDEX IF NOT EXISTS idx_scd_approval_status ON tb_stock_check_diff (approval_status);
+

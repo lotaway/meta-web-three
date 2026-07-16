@@ -1,6 +1,7 @@
 package com.metawebthree.crm.interfaces.graphql;
 
 import com.apollographql.federation.graphqljava.Federation;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.crm.application.query.LeadQueryService;
 import com.metawebthree.crm.application.query.OpportunityQueryService;
 import com.metawebthree.crm.application.query.TicketQueryService;
@@ -17,6 +18,7 @@ import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.*;
+import lombok.Data;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
@@ -24,9 +26,12 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.metawebthree.crm.interfaces.graphql.dto.Connection;
+import com.metawebthree.crm.interfaces.graphql.dto.Edge;
+import com.metawebthree.crm.interfaces.graphql.dto.PageInfo;
 
 @Configuration
 public class CrmSubgraphConfig {
@@ -100,311 +105,445 @@ public class CrmSubgraphConfig {
         String typeName = (String) representation.get("__typename");
         Object idObj = representation.get("id");
         Long id = idObj instanceof Number ? ((Number) idObj).longValue() : Long.valueOf(idObj.toString());
+        return resolveRepresentation(typeName, id);
+    }
 
+    private Object resolveRepresentation(String typeName, Long id) {
         return switch (typeName) {
-            case "Lead" -> {
-                Lead lead = leadQueryService.getById(id);
-                yield lead != null ? leadToMap(lead) : null;
-            }
-            case "Opportunity" -> {
-                Opportunity opp = opportunityQueryService.getById(id);
-                yield opp != null ? opportunityToMap(opp) : null;
-            }
-            case "Ticket" -> {
-                CustomerServiceTicket ticket = ticketQueryService.getById(id);
-                yield ticket != null ? ticketToMap(ticket) : null;
-            }
-            case "Campaign" -> {
-                Campaign campaign = campaignRepository.selectById(id);
-                yield campaign != null ? campaignToMap(campaign) : null;
-            }
-            case "Contact" -> {
-                Contact contact = contactRepository.selectById(id);
-                yield contact != null ? contactToMap(contact) : null;
-            }
+            case "Lead" -> nullableDto(leadQueryService.getById(id), LeadDTO::from);
+            case "Opportunity" -> nullableDto(opportunityQueryService.getById(id), OpportunityDTO::from);
+            case "Ticket" -> nullableDto(ticketQueryService.getById(id), TicketDTO::from);
+            case "Campaign" -> nullableDto(campaignRepository.selectById(id), CampaignDTO::from);
+            case "Contact" -> nullableDto(contactRepository.selectById(id), ContactDTO::from);
             default -> null;
         };
     }
 
+    private <T, R> R nullableDto(T entity, java.util.function.Function<T, R> mapper) {
+        return entity != null ? mapper.apply(entity) : null;
+    }
+
     private GraphQLObjectType resolveEntityType(TypeResolutionEnvironment env) {
         Object src = env.getObject();
-        if (src instanceof Map) {
-            String typeName = (String) ((Map<?, ?>) src).get("__typename");
-            return env.getSchema().getObjectType(typeName);
+        if (src instanceof TypedNode node) {
+            return env.getSchema().getObjectType(node.__typename());
+        }
+        if (src instanceof Map<?, ?> map) {
+            return env.getSchema().getObjectType((String) map.get("__typename"));
         }
         return null;
     }
 
-    private Map<String, Object> leadDataFetcher(DataFetchingEnvironment env) {
-        Long id = Long.valueOf(env.getArgument("id"));
-        Lead lead = leadQueryService.getById(id);
-        return lead != null ? leadToMap(lead) : null;
+    private LeadDTO leadDataFetcher(DataFetchingEnvironment env) {
+        return nullableDto(leadQueryService.getById(argId(env)), LeadDTO::from);
     }
 
-    private Map<String, Object> leadsDataFetcher(DataFetchingEnvironment env) {
+    private Connection<LeadDTO> leadsDataFetcher(DataFetchingEnvironment env) {
+        List<Lead> leads = resolveLeads(env);
+        return pageResult(leads, LeadDTO::from, l -> l.getId().toString());
+    }
+
+    private OpportunityDTO opportunityDataFetcher(DataFetchingEnvironment env) {
+        return nullableDto(opportunityQueryService.getById(argId(env)), OpportunityDTO::from);
+    }
+
+    private Connection<OpportunityDTO> opportunitiesDataFetcher(DataFetchingEnvironment env) {
+        List<Opportunity> opportunities = resolveOpportunities(env);
+        return pageResult(opportunities, OpportunityDTO::from, o -> o.getId().toString());
+    }
+
+    private TicketDTO ticketDataFetcher(DataFetchingEnvironment env) {
+        return nullableDto(ticketQueryService.getById(argId(env)), TicketDTO::from);
+    }
+
+    private Connection<TicketDTO> ticketsDataFetcher(DataFetchingEnvironment env) {
+        List<CustomerServiceTicket> tickets = resolveTickets(env);
+        return pageResult(tickets, TicketDTO::from, t -> t.getId().toString());
+    }
+
+    private CampaignDTO campaignDataFetcher(DataFetchingEnvironment env) {
+        return nullableDto(campaignRepository.selectById(argId(env)), CampaignDTO::from);
+    }
+
+    private Connection<CampaignDTO> campaignsDataFetcher(DataFetchingEnvironment env) {
+        List<Campaign> campaigns = resolveCampaigns(env);
+        return pageResult(campaigns, CampaignDTO::from, c -> c.getId().toString());
+    }
+
+    private ContactDTO contactDataFetcher(DataFetchingEnvironment env) {
+        return nullableDto(contactRepository.selectById(argId(env)), ContactDTO::from);
+    }
+
+    private Connection<ContactDTO> contactsDataFetcher(DataFetchingEnvironment env) {
+        List<Contact> contacts = resolveContacts(env);
+        return pageResult(contacts, ContactDTO::from, c -> c.getId().toString());
+    }
+
+    private Long argId(DataFetchingEnvironment env) {
+        return Long.valueOf(env.getArgument("id"));
+    }
+
+    private List<Lead> resolveLeads(DataFetchingEnvironment env) {
+        String keyword = env.getArgument("keyword");
         String status = env.getArgument("status");
         String source = env.getArgument("source");
+        if (hasText(keyword)) return leadQueryService.search(keyword);
+        if (hasText(status)) return leadQueryService.listByStatus(status);
+        if (hasText(source)) return leadQueryService.listBySource(source);
+        return leadQueryService.listAll();
+    }
+
+    private List<Opportunity> resolveOpportunities(DataFetchingEnvironment env) {
         String keyword = env.getArgument("keyword");
-        List<Lead> leads;
-        if (keyword != null && !keyword.isBlank()) {
-            leads = leadQueryService.search(keyword);
-        } else if (status != null && !status.isBlank()) {
-            leads = leadQueryService.listByStatus(status);
-        } else if (source != null && !source.isBlank()) {
-            leads = leadQueryService.listBySource(source);
-        } else {
-            leads = leadQueryService.listAll();
-        }
-        List<Map<String, Object>> edges = leads.stream().map(lead -> {
-            Map<String, Object> edge = new LinkedHashMap<>();
-            edge.put("node", leadToMap(lead));
-            edge.put("cursor", lead.getId().toString());
-            return edge;
-        }).toList();
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("edges", edges);
-        result.put("totalCount", leads.size());
-        Map<String, Object> pageInfo = new LinkedHashMap<>();
-        pageInfo.put("hasNextPage", false);
-        pageInfo.put("hasPreviousPage", false);
-        result.put("pageInfo", pageInfo);
-        return result;
-    }
-
-    private Map<String, Object> opportunityDataFetcher(DataFetchingEnvironment env) {
-        Long id = Long.valueOf(env.getArgument("id"));
-        Opportunity opp = opportunityQueryService.getById(id);
-        return opp != null ? opportunityToMap(opp) : null;
-    }
-
-    private Map<String, Object> opportunitiesDataFetcher(DataFetchingEnvironment env) {
         String stage = env.getArgument("stage");
-        String keyword = env.getArgument("keyword");
-        List<Opportunity> opportunities;
-        if (keyword != null && !keyword.isBlank()) {
-            opportunities = opportunityQueryService.search(keyword);
-        } else if (stage != null && !stage.isBlank()) {
-            opportunities = opportunityQueryService.listByStage(stage);
-        } else {
-            opportunities = opportunityQueryService.listAll();
-        }
-        List<Map<String, Object>> edges = opportunities.stream().map(opp -> {
-            Map<String, Object> edge = new LinkedHashMap<>();
-            edge.put("node", opportunityToMap(opp));
-            edge.put("cursor", opp.getId().toString());
-            return edge;
-        }).toList();
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("edges", edges);
-        result.put("totalCount", opportunities.size());
-        Map<String, Object> pageInfo = new LinkedHashMap<>();
-        pageInfo.put("hasNextPage", false);
-        pageInfo.put("hasPreviousPage", false);
-        result.put("pageInfo", pageInfo);
-        return result;
+        if (hasText(keyword)) return opportunityQueryService.search(keyword);
+        if (hasText(stage)) return opportunityQueryService.listByStage(stage);
+        return opportunityQueryService.listAll();
     }
 
-    private Map<String, Object> ticketDataFetcher(DataFetchingEnvironment env) {
-        Long id = Long.valueOf(env.getArgument("id"));
-        CustomerServiceTicket ticket = ticketQueryService.getById(id);
-        return ticket != null ? ticketToMap(ticket) : null;
-    }
-
-    private Map<String, Object> ticketsDataFetcher(DataFetchingEnvironment env) {
-        String status = env.getArgument("status");
+    private List<CustomerServiceTicket> resolveTickets(DataFetchingEnvironment env) {
         String priority = env.getArgument("priority");
-        List<CustomerServiceTicket> tickets;
-        if (priority != null && !priority.isBlank()) {
-            tickets = ticketQueryService.listByPriority(priority);
-        } else if (status != null && !status.isBlank()) {
-            tickets = ticketQueryService.listByStatus(status);
-        } else {
-            tickets = ticketQueryService.listAll();
-        }
-        List<Map<String, Object>> edges = tickets.stream().map(ticket -> {
-            Map<String, Object> edge = new LinkedHashMap<>();
-            edge.put("node", ticketToMap(ticket));
-            edge.put("cursor", ticket.getId().toString());
-            return edge;
-        }).toList();
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("edges", edges);
-        result.put("totalCount", tickets.size());
-        Map<String, Object> pageInfo = new LinkedHashMap<>();
-        pageInfo.put("hasNextPage", false);
-        pageInfo.put("hasPreviousPage", false);
-        result.put("pageInfo", pageInfo);
-        return result;
+        String status = env.getArgument("status");
+        if (hasText(priority)) return ticketQueryService.listByPriority(priority);
+        if (hasText(status)) return ticketQueryService.listByStatus(status);
+        return ticketQueryService.listAll();
     }
 
-    private Map<String, Object> campaignDataFetcher(DataFetchingEnvironment env) {
-        Long id = Long.valueOf(env.getArgument("id"));
-        Campaign campaign = campaignRepository.selectById(id);
-        return campaign != null ? campaignToMap(campaign) : null;
-    }
-
-    private Map<String, Object> campaignsDataFetcher(DataFetchingEnvironment env) {
+    private List<Campaign> resolveCampaigns(DataFetchingEnvironment env) {
         String status = env.getArgument("status");
         String type = env.getArgument("type");
-        List<Campaign> campaigns = campaignRepository.selectList(null);
-        if (status != null && !status.isBlank()) {
-            campaigns = campaigns.stream().filter(c -> status.equals(c.getStatus())).toList();
-        }
-        if (type != null && !type.isBlank()) {
-            campaigns = campaigns.stream().filter(c -> type.equals(c.getType())).toList();
-        }
-        List<Map<String, Object>> edges = campaigns.stream().map(campaign -> {
-            Map<String, Object> edge = new LinkedHashMap<>();
-            edge.put("node", campaignToMap(campaign));
-            edge.put("cursor", campaign.getId().toString());
-            return edge;
-        }).toList();
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("edges", edges);
-        result.put("totalCount", campaigns.size());
-        Map<String, Object> pageInfo = new LinkedHashMap<>();
-        pageInfo.put("hasNextPage", false);
-        pageInfo.put("hasPreviousPage", false);
-        result.put("pageInfo", pageInfo);
-        return result;
+        LambdaQueryWrapper<Campaign> wrapper = new LambdaQueryWrapper<>();
+        if (hasText(status)) wrapper.eq(Campaign::getStatus, status);
+        if (hasText(type)) wrapper.eq(Campaign::getType, type);
+        return campaignRepository.selectList(wrapper);
     }
 
-    private Map<String, Object> contactDataFetcher(DataFetchingEnvironment env) {
-        Long id = Long.valueOf(env.getArgument("id"));
-        Contact contact = contactRepository.selectById(id);
-        return contact != null ? contactToMap(contact) : null;
-    }
-
-    private Map<String, Object> contactsDataFetcher(DataFetchingEnvironment env) {
+    private List<Contact> resolveContacts(DataFetchingEnvironment env) {
         String customerId = env.getArgument("customerId");
         String keyword = env.getArgument("keyword");
-        List<Contact> contacts = contactRepository.selectList(null);
-        if (customerId != null && !customerId.isBlank()) {
-            contacts = contacts.stream().filter(c -> c.getCustomerId() != null
-                    && c.getCustomerId().toString().equals(customerId)).toList();
+        LambdaQueryWrapper<Contact> wrapper = new LambdaQueryWrapper<>();
+        if (hasText(customerId)) wrapper.eq(Contact::getCustomerId, Long.valueOf(customerId));
+        if (hasText(keyword)) {
+            wrapper.and(w -> w.like(Contact::getFirstName, keyword)
+                    .or().like(Contact::getLastName, keyword)
+                    .or().like(Contact::getEmail, keyword)
+                    .or().like(Contact::getPhone, keyword));
         }
-        if (keyword != null && !keyword.isBlank()) {
-            String kw = keyword.toLowerCase();
-            contacts = contacts.stream().filter(c ->
-                    (c.getFirstName() != null && c.getFirstName().toLowerCase().contains(kw)) ||
-                    (c.getLastName() != null && c.getLastName().toLowerCase().contains(kw)) ||
-                    (c.getEmail() != null && c.getEmail().toLowerCase().contains(kw)) ||
-                    (c.getPhone() != null && c.getPhone().contains(kw))
-            ).toList();
+        return contactRepository.selectList(wrapper);
+    }
+
+    private static boolean hasText(String s) {
+        return s != null && !s.isBlank();
+    }
+
+    private static String str(Object obj) {
+        return obj != null ? obj.toString() : null;
+    }
+
+    private <T, R> Connection<R> pageResult(List<T> items,
+            java.util.function.Function<T, R> mapper,
+            java.util.function.Function<T, String> cursorFn) {
+        List<Edge<R>> edges = items.stream()
+                .map(item -> new Edge<>(cursorFn.apply(item), mapper.apply(item)))
+                .toList();
+        return new Connection<>(edges, items.size(), new PageInfo(false, null));
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // GraphQL DTO types
+    // ─────────────────────────────────────────────────────────────────
+
+    private interface TypedNode {
+        String __typename();
+    }
+
+    @Data
+    public static class LeadDTO implements TypedNode {
+        String __typename;
+        String id;
+        String leadNo;
+        String name;
+        String company;
+        String email;
+        String phone;
+        String source;
+        String status;
+        Integer score;
+        String industry;
+        String city;
+        String description;
+        String assignedTo;
+        String createdAt;
+        String updatedAt;
+
+        @Override
+        public String __typename() { return __typename; }
+
+        static LeadDTO from(Lead lead) {
+            LeadDTO dto = new LeadDTO();
+            dto.__typename = "Lead";
+            baseFields(dto, lead);
+            contactFields(dto, lead);
+            pipelineFields(dto, lead);
+            timestampFields(dto, lead);
+            return dto;
         }
-        List<Map<String, Object>> edges = contacts.stream().map(contact -> {
-            Map<String, Object> edge = new LinkedHashMap<>();
-            edge.put("node", contactToMap(contact));
-            edge.put("cursor", contact.getId().toString());
-            return edge;
-        }).toList();
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("edges", edges);
-        result.put("totalCount", contacts.size());
-        Map<String, Object> pageInfo = new LinkedHashMap<>();
-        pageInfo.put("hasNextPage", false);
-        pageInfo.put("hasPreviousPage", false);
-        result.put("pageInfo", pageInfo);
-        return result;
+
+        private static void baseFields(LeadDTO dto, Lead lead) {
+            dto.id = lead.getId().toString();
+            dto.leadNo = lead.getLeadNo();
+            dto.name = lead.getName();
+            dto.company = lead.getCompany();
+            dto.email = lead.getEmail();
+            dto.phone = lead.getPhone();
+        }
+
+        private static void contactFields(LeadDTO dto, Lead lead) {
+            dto.source = lead.getSource();
+            dto.status = lead.getStatus();
+            dto.score = lead.getScore();
+            dto.industry = lead.getIndustry();
+            dto.city = lead.getCity();
+        }
+
+        private static void pipelineFields(LeadDTO dto, Lead lead) {
+            dto.description = lead.getDescription();
+            dto.assignedTo = lead.getAssignedTo();
+        }
+
+        private static void timestampFields(LeadDTO dto, Lead lead) {
+            dto.createdAt = str(lead.getCreatedAt());
+            dto.updatedAt = str(lead.getUpdatedAt());
+        }
     }
 
-    private Map<String, Object> leadToMap(Lead lead) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("__typename", "Lead");
-        map.put("id", lead.getId().toString());
-        map.put("leadNo", lead.getLeadNo());
-        map.put("name", lead.getName());
-        map.put("company", lead.getCompany());
-        map.put("email", lead.getEmail());
-        map.put("phone", lead.getPhone());
-        map.put("source", lead.getSource());
-        map.put("status", lead.getStatus());
-        map.put("score", lead.getScore());
-        map.put("industry", lead.getIndustry());
-        map.put("city", lead.getCity());
-        map.put("description", lead.getDescription());
-        map.put("assignedTo", lead.getAssignedTo());
-        map.put("createdAt", lead.getCreatedAt() != null ? lead.getCreatedAt().toString() : null);
-        map.put("updatedAt", lead.getUpdatedAt() != null ? lead.getUpdatedAt().toString() : null);
-        return map;
+    @Data
+    public static class OpportunityDTO implements TypedNode {
+        String __typename;
+        String id;
+        String opportunityNo;
+        String title;
+        String leadId;
+        String customerId;
+        String stage;
+        Double amount;
+        Integer probability;
+        String expectedCloseDate;
+        String actualCloseDate;
+        String competitor;
+        String description;
+        String assignedTo;
+        String createdAt;
+        String updatedAt;
+
+        @Override
+        public String __typename() { return __typename; }
+
+        static OpportunityDTO from(Opportunity opp) {
+            OpportunityDTO dto = new OpportunityDTO();
+            dto.__typename = "Opportunity";
+            baseFields(dto, opp);
+            relationFields(dto, opp);
+            pipelineFields(dto, opp);
+            timestampFields(dto, opp);
+            return dto;
+        }
+
+        private static void baseFields(OpportunityDTO dto, Opportunity opp) {
+            dto.id = opp.getId().toString();
+            dto.opportunityNo = opp.getOpportunityNo();
+            dto.title = opp.getTitle();
+        }
+
+        private static void relationFields(OpportunityDTO dto, Opportunity opp) {
+            dto.leadId = opp.getLeadId() != null ? opp.getLeadId().toString() : null;
+            dto.customerId = opp.getCustomerId() != null ? opp.getCustomerId().toString() : null;
+        }
+
+        private static void pipelineFields(OpportunityDTO dto, Opportunity opp) {
+            dto.stage = opp.getStage();
+            dto.amount = opp.getAmount() != null ? opp.getAmount().doubleValue() : null;
+            dto.probability = opp.getProbability();
+            dto.expectedCloseDate = str(opp.getExpectedCloseDate());
+            dto.actualCloseDate = str(opp.getActualCloseDate());
+            dto.competitor = opp.getCompetitor();
+            dto.description = opp.getDescription();
+            dto.assignedTo = opp.getAssignedTo();
+        }
+
+        private static void timestampFields(OpportunityDTO dto, Opportunity opp) {
+            dto.createdAt = str(opp.getCreatedAt());
+            dto.updatedAt = str(opp.getUpdatedAt());
+        }
     }
 
-    private Map<String, Object> opportunityToMap(Opportunity opp) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("__typename", "Opportunity");
-        map.put("id", opp.getId().toString());
-        map.put("opportunityNo", opp.getOpportunityNo());
-        map.put("title", opp.getTitle());
-        map.put("leadId", opp.getLeadId() != null ? opp.getLeadId().toString() : null);
-        map.put("customerId", opp.getCustomerId() != null ? opp.getCustomerId().toString() : null);
-        map.put("stage", opp.getStage());
-        map.put("amount", opp.getAmount() != null ? opp.getAmount().doubleValue() : null);
-        map.put("probability", opp.getProbability());
-        map.put("expectedCloseDate", opp.getExpectedCloseDate() != null ? opp.getExpectedCloseDate().toString() : null);
-        map.put("actualCloseDate", opp.getActualCloseDate() != null ? opp.getActualCloseDate().toString() : null);
-        map.put("competitor", opp.getCompetitor());
-        map.put("description", opp.getDescription());
-        map.put("assignedTo", opp.getAssignedTo());
-        map.put("createdAt", opp.getCreatedAt() != null ? opp.getCreatedAt().toString() : null);
-        map.put("updatedAt", opp.getUpdatedAt() != null ? opp.getUpdatedAt().toString() : null);
-        return map;
+    @Data
+    public static class TicketDTO implements TypedNode {
+        String __typename;
+        String id;
+        String ticketNo;
+        String title;
+        String customerId;
+        String orderId;
+        String type;
+        String priority;
+        String status;
+        String assignedTo;
+        String description;
+        String resolution;
+        String createdAt;
+        String updatedAt;
+
+        @Override
+        public String __typename() { return __typename; }
+
+        static TicketDTO from(CustomerServiceTicket ticket) {
+            TicketDTO dto = new TicketDTO();
+            dto.__typename = "Ticket";
+            baseFields(dto, ticket);
+            relationFields(dto, ticket);
+            ticketFields(dto, ticket);
+            timestampFields(dto, ticket);
+            return dto;
+        }
+
+        private static void baseFields(TicketDTO dto, CustomerServiceTicket ticket) {
+            dto.id = ticket.getId().toString();
+            dto.ticketNo = ticket.getTicketNo();
+            dto.title = ticket.getTitle();
+        }
+
+        private static void relationFields(TicketDTO dto, CustomerServiceTicket ticket) {
+            dto.customerId = ticket.getCustomerId() != null ? ticket.getCustomerId().toString() : null;
+            dto.orderId = ticket.getOrderId() != null ? ticket.getOrderId().toString() : null;
+        }
+
+        private static void ticketFields(TicketDTO dto, CustomerServiceTicket ticket) {
+            dto.type = ticket.getType();
+            dto.priority = ticket.getPriority();
+            dto.status = ticket.getStatus();
+            dto.assignedTo = ticket.getAssignedTo();
+            dto.description = ticket.getDescription();
+            dto.resolution = ticket.getResolution();
+        }
+
+        private static void timestampFields(TicketDTO dto, CustomerServiceTicket ticket) {
+            dto.createdAt = str(ticket.getCreatedAt());
+            dto.updatedAt = str(ticket.getUpdatedAt());
+        }
     }
 
-    private Map<String, Object> ticketToMap(CustomerServiceTicket ticket) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("__typename", "Ticket");
-        map.put("id", ticket.getId().toString());
-        map.put("ticketNo", ticket.getTicketNo());
-        map.put("title", ticket.getTitle());
-        map.put("customerId", ticket.getCustomerId() != null ? ticket.getCustomerId().toString() : null);
-        map.put("orderId", ticket.getOrderId() != null ? ticket.getOrderId().toString() : null);
-        map.put("type", ticket.getType());
-        map.put("priority", ticket.getPriority());
-        map.put("status", ticket.getStatus());
-        map.put("assignedTo", ticket.getAssignedTo());
-        map.put("description", ticket.getDescription());
-        map.put("resolution", ticket.getResolution());
-        map.put("createdAt", ticket.getCreatedAt() != null ? ticket.getCreatedAt().toString() : null);
-        map.put("updatedAt", ticket.getUpdatedAt() != null ? ticket.getUpdatedAt().toString() : null);
-        return map;
+    @Data
+    public static class CampaignDTO implements TypedNode {
+        String __typename;
+        String id;
+        String name;
+        String description;
+        String type;
+        String status;
+        String startDate;
+        String endDate;
+        Double budget;
+        Double actualCost;
+        Double expectedRevenue;
+        Integer leadsGenerated;
+        Integer convertedCustomers;
+        String createdAt;
+        String updatedAt;
+
+        @Override
+        public String __typename() { return __typename; }
+
+        static CampaignDTO from(Campaign campaign) {
+            CampaignDTO dto = new CampaignDTO();
+            dto.__typename = "Campaign";
+            baseFields(dto, campaign);
+            dateFields(dto, campaign);
+            financialFields(dto, campaign);
+            timestampFields(dto, campaign);
+            return dto;
+        }
+
+        private static void baseFields(CampaignDTO dto, Campaign campaign) {
+            dto.id = campaign.getId().toString();
+            dto.name = campaign.getName();
+            dto.description = campaign.getDescription();
+            dto.type = campaign.getType();
+            dto.status = campaign.getStatus();
+        }
+
+        private static void dateFields(CampaignDTO dto, Campaign campaign) {
+            dto.startDate = str(campaign.getStartDate());
+            dto.endDate = str(campaign.getEndDate());
+        }
+
+        private static void financialFields(CampaignDTO dto, Campaign campaign) {
+            dto.budget = campaign.getBudget() != null ? campaign.getBudget().doubleValue() : null;
+            dto.actualCost = campaign.getActualCost() != null ? campaign.getActualCost().doubleValue() : null;
+            dto.expectedRevenue = campaign.getExpectedRevenue() != null ? campaign.getExpectedRevenue().doubleValue() : null;
+            dto.leadsGenerated = campaign.getLeadsGenerated();
+            dto.convertedCustomers = campaign.getConvertedCustomers();
+        }
+
+        private static void timestampFields(CampaignDTO dto, Campaign campaign) {
+            dto.createdAt = str(campaign.getCreatedAt());
+            dto.updatedAt = str(campaign.getUpdatedAt());
+        }
     }
 
-    private Map<String, Object> campaignToMap(Campaign campaign) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("__typename", "Campaign");
-        map.put("id", campaign.getId().toString());
-        map.put("name", campaign.getName());
-        map.put("description", campaign.getDescription());
-        map.put("type", campaign.getType());
-        map.put("status", campaign.getStatus());
-        map.put("startDate", campaign.getStartDate() != null ? campaign.getStartDate().toString() : null);
-        map.put("endDate", campaign.getEndDate() != null ? campaign.getEndDate().toString() : null);
-        map.put("budget", campaign.getBudget() != null ? campaign.getBudget().doubleValue() : null);
-        map.put("actualCost", campaign.getActualCost() != null ? campaign.getActualCost().doubleValue() : null);
-        map.put("expectedRevenue", campaign.getExpectedRevenue() != null ? campaign.getExpectedRevenue().doubleValue() : null);
-        map.put("leadsGenerated", campaign.getLeadsGenerated());
-        map.put("convertedCustomers", campaign.getConvertedCustomers());
-        map.put("createdAt", campaign.getCreatedAt() != null ? campaign.getCreatedAt().toString() : null);
-        map.put("updatedAt", campaign.getUpdatedAt() != null ? campaign.getUpdatedAt().toString() : null);
-        return map;
-    }
+    @Data
+    public static class ContactDTO implements TypedNode {
+        String __typename;
+        String id;
+        String firstName;
+        String lastName;
+        String email;
+        String phone;
+        String mobile;
+        String position;
+        String department;
+        String customerId;
+        Boolean isPrimary;
+        String city;
+        String createdAt;
+        String updatedAt;
 
-    private Map<String, Object> contactToMap(Contact contact) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("__typename", "Contact");
-        map.put("id", contact.getId().toString());
-        map.put("firstName", contact.getFirstName());
-        map.put("lastName", contact.getLastName());
-        map.put("email", contact.getEmail());
-        map.put("phone", contact.getPhone());
-        map.put("mobile", contact.getMobile());
-        map.put("position", contact.getPosition());
-        map.put("department", contact.getDepartment());
-        map.put("customerId", contact.getCustomerId() != null ? contact.getCustomerId().toString() : null);
-        map.put("isPrimary", contact.getIsPrimary());
-        map.put("city", contact.getCity());
-        map.put("createdAt", contact.getCreatedAt() != null ? contact.getCreatedAt().toString() : null);
-        map.put("updatedAt", contact.getUpdatedAt() != null ? contact.getUpdatedAt().toString() : null);
-        return map;
+        @Override
+        public String __typename() { return __typename; }
+
+        static ContactDTO from(Contact contact) {
+            ContactDTO dto = new ContactDTO();
+            dto.__typename = "Contact";
+            baseFields(dto, contact);
+            orgFields(dto, contact);
+            locationFields(dto, contact);
+            timestampFields(dto, contact);
+            return dto;
+        }
+
+        private static void baseFields(ContactDTO dto, Contact contact) {
+            dto.id = contact.getId().toString();
+            dto.firstName = contact.getFirstName();
+            dto.lastName = contact.getLastName();
+            dto.email = contact.getEmail();
+            dto.phone = contact.getPhone();
+            dto.mobile = contact.getMobile();
+        }
+
+        private static void orgFields(ContactDTO dto, Contact contact) {
+            dto.position = contact.getPosition();
+            dto.department = contact.getDepartment();
+            dto.customerId = contact.getCustomerId() != null ? contact.getCustomerId().toString() : null;
+            dto.isPrimary = contact.getIsPrimary();
+        }
+
+        private static void locationFields(ContactDTO dto, Contact contact) {
+            dto.city = contact.getCity();
+        }
+
+        private static void timestampFields(ContactDTO dto, Contact contact) {
+            dto.createdAt = str(contact.getCreatedAt());
+            dto.updatedAt = str(contact.getUpdatedAt());
+        }
     }
 }

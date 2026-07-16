@@ -123,7 +123,9 @@ public class PromotionServiceRpcImpl implements com.metawebthree.common.generate
                 if (coupon.getOrderNo() != null) {
                     try {
                         protoBuilder.setOrderId(Long.parseLong(coupon.getOrderNo()));
-                    } catch (NumberFormatException ignored) {}
+                    } catch (NumberFormatException e) {
+                        throw new IllegalArgumentException("Invalid number format", e);
+                    }
                 }
                 if (coupon.getUsedAt() != null) {
                     protoBuilder.setUseTime(coupon.getUsedAt().toEpochSecond(java.time.ZoneOffset.UTC));

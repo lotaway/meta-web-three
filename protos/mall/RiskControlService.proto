@@ -5,6 +5,17 @@ package com.metawebthree.common.generated.rpc;
 option java_multiple_files = true;
 option java_outer_classname = "RiskControlServiceProto";
 
+import "mall/OrderService.proto";
+import "ai/RiskScorerService.proto";
+
+enum RiskLevel {
+    RISK_LEVEL_UNSPECIFIED = 0;
+    RISK_LEVEL_LOW = 1;
+    RISK_LEVEL_MEDIUM = 2;
+    RISK_LEVEL_HIGH = 3;
+    RISK_LEVEL_CRITICAL = 4;
+}
+
 service RiskControlService {
     rpc assessOrderRisk (OrderRiskRequest) returns (RiskResponse);
     rpc assessPaymentRisk (PaymentRiskRequest) returns (RiskResponse);
@@ -17,7 +28,7 @@ message OrderRiskRequest {
     string user_id = 1;
     string order_id = 2;
     double amount = 3;
-    string order_type = 4;
+    OrderType order_type = 4;
     map<string, string> ext_data = 5;
 }
 
@@ -25,7 +36,7 @@ message PaymentRiskRequest {
     string user_id = 1;
     string payment_id = 2;
     double amount = 3;
-    string payment_method = 4;
+    PaymentMethod payment_method = 4;
     map<string, string> ext_data = 5;
 }
 
@@ -54,7 +65,7 @@ message BatchRiskResponse {
 message RiskResponse {
     string event_id = 1;
     int32 risk_score = 2;
-    string risk_level = 3;
-    string decision = 4;
+    RiskLevel risk_level = 3;
+    RiskDecision decision = 4;
     string details = 5;
 }

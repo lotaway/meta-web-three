@@ -5,74 +5,54 @@ import com.metawebthree.routeoptimizer.domain.repository.RoutePlanRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class RoutePlanRepositoryImpl implements RoutePlanRepository {
-    private final Map<Long, RoutePlan> storage = new ConcurrentHashMap<>();
-    private final Map<String, RoutePlan> codeIndex = new ConcurrentHashMap<>();
-    private Long idGenerator = 1L;
+    private final RoutePlanJpaRepository repository;
+
+    public RoutePlanRepositoryImpl(RoutePlanJpaRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public Optional<RoutePlan> findById(Long id) {
-        return Optional.ofNullable(storage.get(id));
+        return repository.findById(id);
     }
 
     @Override
     public Optional<RoutePlan> findByPlanCode(String planCode) {
-        return Optional.ofNullable(codeIndex.get(planCode));
+        return repository.findByPlanCode(planCode);
     }
 
     @Override
     public List<RoutePlan> findByStatus(RoutePlan.RouteStatus status) {
-        return storage.values().stream()
-            .filter(plan -> plan.getStatus() == status)
-            .collect(Collectors.toList());
+        return repository.findByStatus(status);
     }
 
     @Override
     public List<RoutePlan> findByVehicleCode(String vehicleCode) {
-        return storage.values().stream()
-            .filter(plan -> vehicleCode.equals(plan.getVehicleCode()))
-            .collect(Collectors.toList());
+        return repository.findByVehicleCode(vehicleCode);
     }
 
     @Override
     public List<RoutePlan> findAll() {
-        return new ArrayList<>(storage.values());
+        return repository.findAll();
     }
 
     @Override
     public RoutePlan save(RoutePlan routePlan) {
-        if (routePlan.getId() == null) {
-            routePlan.setId(idGenerator++);
-        }
-        storage.put(routePlan.getId(), routePlan);
-        if (routePlan.getPlanCode() != null) {
-            codeIndex.put(routePlan.getPlanCode(), routePlan);
-        }
-        return routePlan;
+        return repository.save(routePlan);
     }
 
     @Override
     public void delete(RoutePlan routePlan) {
-        if (routePlan.getId() != null) {
-            storage.remove(routePlan.getId());
-        }
-        if (routePlan.getPlanCode() != null) {
-            codeIndex.remove(routePlan.getPlanCode());
-        }
+        repository.delete(routePlan);
     }
 
     @Override
     public List<RoutePlan> findByPlannedStartTimeBetween(LocalDateTime start, LocalDateTime end) {
-        return storage.values().stream()
-            .filter(plan -> {
-                LocalDateTime plannedStart = plan.getPlannedStartTime();
-                return plannedStart != null && !plannedStart.isBefore(start) && !plannedStart.isAfter(end);
-            })
-            .collect(Collectors.toList());
+        return repository.findByPlannedStartTimeBetween(start, end);
     }
 }

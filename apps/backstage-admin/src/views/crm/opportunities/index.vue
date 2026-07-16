@@ -203,8 +203,8 @@ const fetchOpportunities = async () => {
     const res = await listOpportunities({ ...queryParams, page: page.value, pageSize: pageSize.value })
     opportunities.value = res.data.records
     total.value = res.data.total
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to fetch opportunities:', e)
   } finally {
     loading.value = false
   }
@@ -217,8 +217,8 @@ const fetchPipelineSummary = async () => {
       label: t('crm.stage.' + s),
       count: res.data.counts[i],
     }))
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to fetch pipeline summary:', e)
   }
 }
 
@@ -269,8 +269,9 @@ const handleSave = async () => {
     }
     dialogVisible.value = false
     fetchOpportunities()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to save opportunity:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 
@@ -279,8 +280,9 @@ const handleDelete = async (id: number) => {
     await deleteOpportunity(id)
     ElMessage.success(t('message.deleteSuccess'))
     fetchOpportunities()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to delete opportunity:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 
@@ -289,8 +291,9 @@ const handleAdvance = async (row: Opportunity) => {
     await advanceStage(row.id!)
     ElMessage.success(t('crm.opportunity.advanceSuccess'))
     fetchOpportunities()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to advance opportunity:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 
@@ -308,8 +311,9 @@ const handleCloseWon = async () => {
     ElMessage.success(t('crm.opportunity.closeWonSuccess'))
     closeWonVisible.value = false
     fetchOpportunities()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to close won:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 
@@ -326,8 +330,9 @@ const handleCloseLost = async () => {
     ElMessage.success(t('crm.opportunity.closeLostSuccess'))
     closeLostVisible.value = false
     fetchOpportunities()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to close lost:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 

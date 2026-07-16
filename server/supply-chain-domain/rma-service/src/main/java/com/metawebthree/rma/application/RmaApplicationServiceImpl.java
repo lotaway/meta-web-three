@@ -73,6 +73,7 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
                 items
         );
 
+        rmaDomainService.saveRmaOrder(order, items);
         eventPublisher.publish(new RmaCreatedEvent(this, order.getId(), order.getRmaNo()));
 
         return toOrderDTO(order);
@@ -107,6 +108,7 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
     @Transactional
     public RmaOrderDTO submitForInspection(Long rmaId) {
         RmaOrder order = rmaDomainService.submitForInspection(rmaId);
+        rmaDomainService.saveRmaOrder(order);
         return toOrderDTO(order);
     }
 
@@ -123,10 +125,12 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
         inspection.setTotalFailed(totalFailed);
         inspection.setRemark(remark);
 
-        RmaInspection saved = rmaDomainService.recordInspection(rmaId, inspection);
-
         RmaOrder order = rmaDomainService.getRmaOrder(rmaId)
                 .orElseThrow(() -> new IllegalArgumentException("RMA order not found"));
+
+        RmaInspection saved = rmaDomainService.recordInspection(order, inspection);
+        rmaDomainService.saveInspection(saved);
+        rmaDomainService.saveRmaOrder(order);
 
         eventPublisher.publish(new RmaInspectionCompletedEvent(this, rmaId, order.getRmaNo(),
                 saved.getResult(), saved.getTotalPassed()));
@@ -143,10 +147,13 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
         disposition.setDispositionBy(dispositionBy);
         disposition.setRemark(remark);
 
-        rmaDomainService.makeDisposition(rmaId, disposition);
-
         RmaOrder order = rmaDomainService.getRmaOrder(rmaId)
                 .orElseThrow(() -> new IllegalArgumentException("RMA order not found"));
+
+        rmaDomainService.makeDisposition(order, disposition);
+        rmaDomainService.saveDisposition(disposition);
+        rmaDomainService.saveRmaOrder(order);
+
         return toOrderDTO(order);
     }
 
@@ -154,6 +161,8 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
     @Transactional
     public RmaOrderDTO executeDisposition(Long rmaId) {
         RmaOrder order = rmaDomainService.executeDisposition(rmaId);
+        rmaDomainService.saveRmaOrder(order);
+
         RmaDisposition disposition = rmaDispositionRepository.findByRmaId(rmaId)
                 .orElse(null);
 
@@ -169,6 +178,7 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
     @Transactional
     public RmaOrderDTO completeRma(Long rmaId) {
         RmaOrder order = rmaDomainService.completeRmaOrder(rmaId);
+        rmaDomainService.saveRmaOrder(order);
         eventPublisher.publish(new RmaCompletedEvent(this, rmaId, order.getRmaNo()));
         return toOrderDTO(order);
     }
@@ -177,6 +187,7 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
     @Transactional
     public RmaOrderDTO cancelRma(Long rmaId) {
         RmaOrder order = rmaDomainService.cancelRmaOrder(rmaId);
+        rmaDomainService.saveRmaOrder(order);
         return toOrderDTO(order);
     }
 
@@ -196,7 +207,7 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
         dto.setRmaNo(order.getRmaNo());
         dto.setOrderNo(order.getOrderNo());
         dto.setReturnType(order.getReturnType());
-        dto.setStatus(order.getStatus());
+        dto.setStatus(order.getStatus() != null ? order.getStatus().name() : null);
         dto.setCustomerId(order.getCustomerId());
         dto.setCustomerName(order.getCustomerName());
         dto.setContactPhone(order.getContactPhone());

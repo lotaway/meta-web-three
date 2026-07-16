@@ -4,8 +4,56 @@ package com.metawebthree.erp.generated.rpc;
 
 option java_multiple_files = true;
 
+enum ProjectStatus {
+    PROJECT_STATUS_UNSPECIFIED = 0;
+    PROJECT_STATUS_PLANNING = 1;
+    PROJECT_STATUS_IN_PROGRESS = 2;
+    PROJECT_STATUS_ON_HOLD = 3;
+    PROJECT_STATUS_COMPLETED = 4;
+    PROJECT_STATUS_CANCELLED = 5;
+}
+
+enum TaskStatus {
+    TASK_STATUS_UNSPECIFIED = 0;
+    TASK_STATUS_TODO = 1;
+    TASK_STATUS_IN_PROGRESS = 2;
+    TASK_STATUS_COMPLETED = 3;
+    TASK_STATUS_CANCELLED = 4;
+}
+
+enum TimeEntryStatus {
+    TIME_ENTRY_STATUS_UNSPECIFIED = 0;
+    TIME_ENTRY_STATUS_PENDING = 1;
+    TIME_ENTRY_STATUS_APPROVED = 2;
+    TIME_ENTRY_STATUS_REJECTED = 3;
+}
+
+enum WorkType {
+    WORK_TYPE_UNSPECIFIED = 0;
+    WORK_TYPE_DEVELOPMENT = 1;
+    WORK_TYPE_DESIGN = 2;
+    WORK_TYPE_TESTING = 3;
+    WORK_TYPE_MEETING = 4;
+    WORK_TYPE_OTHER = 5;
+}
+
+enum CostRecordStatus {
+    COST_RECORD_STATUS_UNSPECIFIED = 0;
+    COST_RECORD_STATUS_PENDING = 1;
+    COST_RECORD_STATUS_APPROVED = 2;
+    COST_RECORD_STATUS_REJECTED = 3;
+}
+
+enum CostType {
+    COST_TYPE_UNSPECIFIED = 0;
+    COST_TYPE_LABOR = 1;
+    COST_TYPE_MATERIAL = 2;
+    COST_TYPE_EQUIPMENT = 3;
+    COST_TYPE_TRAVEL = 4;
+    COST_TYPE_OTHER = 5;
+}
+
 service ProjectService {
-    // Project
     rpc getProject(GetProjectRequest) returns (GetProjectResponse);
     rpc listProjects(ListProjectsRequest) returns (ListProjectsResponse);
     rpc createProject(CreateProjectRequest) returns (CreateProjectResponse);
@@ -14,7 +62,6 @@ service ProjectService {
     rpc updateProjectStatus(UpdateProjectStatusRequest) returns (UpdateProjectStatusResponse);
     rpc updateProjectProgress(UpdateProjectProgressRequest) returns (UpdateProjectProgressResponse);
 
-    // Task
     rpc getTask(GetTaskRequest) returns (GetTaskResponse);
     rpc listTasks(ListTasksRequest) returns (ListTasksResponse);
     rpc createTask(CreateTaskRequest) returns (CreateTaskResponse);
@@ -23,7 +70,6 @@ service ProjectService {
     rpc updateTaskStatus(UpdateTaskStatusRequest) returns (UpdateTaskStatusResponse);
     rpc updateTaskProgress(UpdateTaskProgressRequest) returns (UpdateTaskProgressResponse);
 
-    // Time Entry
     rpc getTimeEntry(GetTimeEntryRequest) returns (GetTimeEntryResponse);
     rpc listTimeEntries(ListTimeEntriesRequest) returns (ListTimeEntriesResponse);
     rpc createTimeEntry(CreateTimeEntryRequest) returns (CreateTimeEntryResponse);
@@ -32,26 +78,24 @@ service ProjectService {
     rpc approveTimeEntry(ApproveTimeEntryRequest) returns (ApproveTimeEntryResponse);
     rpc rejectTimeEntry(RejectTimeEntryRequest) returns (RejectTimeEntryResponse);
 
-    // Cost Record
     rpc getCostRecord(GetCostRecordRequest) returns (GetCostRecordResponse);
     rpc listCostRecords(ListCostRecordsRequest) returns (ListCostRecordsResponse);
     rpc createCostRecord(CreateCostRecordRequest) returns (CreateCostRecordResponse);
     rpc deleteCostRecord(DeleteCostRecordRequest) returns (DeleteCostRecordResponse);
 }
 
-// ===== Project =====
 message ProjectProto {
     int64 id = 1;
     string projectCode = 2;
     string projectName = 3;
     string description = 4;
-    string status = 5;
+    ProjectStatus status = 5;
     int64 departmentId = 6;
     string departmentName = 7;
     int64 managerId = 8;
     string managerName = 9;
-    string startDate = 10;
-    string endDate = 11;
+    int64 startDate = 10;
+    int64 endDate = 11;
     double budgetAmount = 12;
     double usedAmount = 13;
     string currency = 14;
@@ -64,7 +108,7 @@ message ProjectProto {
 message GetProjectRequest { int64 id = 1; }
 message GetProjectResponse { ProjectProto project = 1; }
 message ListProjectsRequest {
-    string status = 1;
+    ProjectStatus status = 1;
     int64 departmentId = 2;
     string keywords = 3;
     int32 page = 4;
@@ -82,8 +126,8 @@ message CreateProjectRequest {
     string description = 3;
     int64 departmentId = 4;
     int64 managerId = 5;
-    string startDate = 6;
-    string endDate = 7;
+    int64 startDate = 6;
+    int64 endDate = 7;
     double budgetAmount = 8;
     string currency = 9;
     string remark = 10;
@@ -93,7 +137,7 @@ message UpdateProjectRequest {
     int64 id = 1;
     string projectName = 2;
     string description = 3;
-    string endDate = 4;
+    int64 endDate = 4;
     double budgetAmount = 5;
     string remark = 6;
 }
@@ -102,7 +146,7 @@ message DeleteProjectRequest { int64 id = 1; }
 message DeleteProjectResponse { bool success = 1; }
 message UpdateProjectStatusRequest {
     int64 id = 1;
-    string status = 2;
+    ProjectStatus status = 2;
 }
 message UpdateProjectStatusResponse { bool success = 1; }
 message UpdateProjectProgressRequest {
@@ -111,23 +155,22 @@ message UpdateProjectProgressRequest {
 }
 message UpdateProjectProgressResponse { bool success = 1; }
 
-// ===== Task =====
 message TaskProto {
     int64 id = 1;
     int64 projectId = 2;
     string taskCode = 3;
     string taskName = 4;
     string description = 5;
-    string status = 6;
+    TaskStatus status = 6;
     int64 parentId = 7;
     int32 level = 8;
     int32 sort = 9;
     int64 assigneeId = 10;
     string assigneeName = 11;
-    string plannedStartDate = 12;
-    string plannedEndDate = 13;
-    string actualStartDate = 14;
-    string actualEndDate = 15;
+    int64 plannedStartDate = 12;
+    int64 plannedEndDate = 13;
+    int64 actualStartDate = 14;
+    int64 actualEndDate = 15;
     int32 progress = 16;
     int32 estimatedHours = 17;
     int32 actualHours = 18;
@@ -140,7 +183,7 @@ message GetTaskRequest { int64 id = 1; }
 message GetTaskResponse { TaskProto task = 1; }
 message ListTasksRequest {
     int64 projectId = 1;
-    string status = 2;
+    TaskStatus status = 2;
     int64 assigneeId = 3;
     int32 page = 4;
     int32 size = 5;
@@ -158,8 +201,8 @@ message CreateTaskRequest {
     string description = 4;
     int64 parentId = 5;
     int64 assigneeId = 6;
-    string plannedStartDate = 7;
-    string plannedEndDate = 8;
+    int64 plannedStartDate = 7;
+    int64 plannedEndDate = 8;
     int32 estimatedHours = 9;
     string remark = 10;
 }
@@ -169,7 +212,7 @@ message UpdateTaskRequest {
     string taskName = 2;
     string description = 3;
     int64 assigneeId = 4;
-    string plannedEndDate = 5;
+    int64 plannedEndDate = 5;
     string remark = 6;
 }
 message UpdateTaskResponse { TaskProto task = 1; }
@@ -177,7 +220,7 @@ message DeleteTaskRequest { int64 id = 1; }
 message DeleteTaskResponse { bool success = 1; }
 message UpdateTaskStatusRequest {
     int64 id = 1;
-    string status = 2;
+    TaskStatus status = 2;
 }
 message UpdateTaskStatusResponse { bool success = 1; }
 message UpdateTaskProgressRequest {
@@ -187,7 +230,6 @@ message UpdateTaskProgressRequest {
 }
 message UpdateTaskProgressResponse { bool success = 1; }
 
-// ===== Time Entry =====
 message TimeEntryProto {
     int64 id = 1;
     int64 projectId = 2;
@@ -196,14 +238,14 @@ message TimeEntryProto {
     string taskName = 5;
     int64 employeeId = 6;
     string employeeName = 7;
-    string workDate = 8;
+    int64 workDate = 8;
     double hours = 9;
-    string workType = 10;
+    WorkType workType = 10;
     string description = 11;
-    string status = 12;
+    TimeEntryStatus status = 12;
     int64 approverId = 13;
     string approverName = 14;
-    string approvedAt = 15;
+    int64 approvedAt = 15;
     string remark = 16;
     int64 createdAt = 17;
     int64 updatedAt = 18;
@@ -213,7 +255,7 @@ message GetTimeEntryResponse { TimeEntryProto timeEntry = 1; }
 message ListTimeEntriesRequest {
     int64 projectId = 1;
     int64 employeeId = 2;
-    string status = 3;
+    TimeEntryStatus status = 3;
     int32 page = 4;
     int32 size = 5;
 }
@@ -227,9 +269,9 @@ message CreateTimeEntryRequest {
     int64 projectId = 1;
     int64 taskId = 2;
     int64 employeeId = 3;
-    string workDate = 4;
+    int64 workDate = 4;
     double hours = 5;
-    string workType = 6;
+    WorkType workType = 6;
     string description = 7;
 }
 message CreateTimeEntryResponse { TimeEntryProto timeEntry = 1; }
@@ -252,19 +294,18 @@ message RejectTimeEntryRequest {
 }
 message RejectTimeEntryResponse { bool success = 1; }
 
-// ===== Cost Record =====
 message CostRecordProto {
     int64 id = 1;
     int64 projectId = 2;
     string projectName = 3;
-    string costType = 4;
+    CostType costType = 4;
     string costCode = 5;
     string costName = 6;
     double amount = 7;
     string currency = 8;
-    string costDate = 9;
+    int64 costDate = 9;
     string description = 10;
-    string status = 11;
+    CostRecordStatus status = 11;
     int64 departmentId = 12;
     string departmentName = 13;
     string remark = 14;
@@ -275,7 +316,7 @@ message GetCostRecordRequest { int64 id = 1; }
 message GetCostRecordResponse { CostRecordProto costRecord = 1; }
 message ListCostRecordsRequest {
     int64 projectId = 1;
-    string costType = 2;
+    CostType costType = 2;
     int32 page = 3;
     int32 size = 4;
 }
@@ -287,11 +328,11 @@ message ListCostRecordsResponse {
 }
 message CreateCostRecordRequest {
     int64 projectId = 1;
-    string costType = 2;
+    CostType costType = 2;
     string costCode = 3;
     double amount = 4;
     string currency = 5;
-    string costDate = 6;
+    int64 costDate = 6;
     string description = 7;
     int64 departmentId = 8;
 }

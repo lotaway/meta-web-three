@@ -176,8 +176,8 @@ const fetchCampaigns = async () => {
     const res = await listCampaigns({ ...queryParams, page: page.value, pageSize: pageSize.value })
     campaigns.value = res.data.records
     total.value = res.data.total
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to fetch campaigns:', e)
   } finally {
     loading.value = false
   }
@@ -230,8 +230,9 @@ const handleSave = async () => {
     }
     dialogVisible.value = false
     fetchCampaigns()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to save campaign:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 
@@ -240,8 +241,9 @@ const handleDelete = async (id: number) => {
     await deleteCampaign(id)
     ElMessage.success(t('message.deleteSuccess'))
     fetchCampaigns()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to delete campaign:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 
@@ -250,8 +252,9 @@ const handleStatusChange = async (row: Campaign, status: string) => {
     await updateCampaign({ id: row.id, status })
     ElMessage.success(t('crm.campaign.statusUpdateSuccess'))
     fetchCampaigns()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to update campaign status:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 

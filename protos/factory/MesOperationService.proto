@@ -1,0 +1,465 @@
+syntax = "proto3";
+
+package com.metawebthree.factory.generated.rpc;
+
+option java_multiple_files = true;
+
+enum AndonEventStatus {
+    ANDON_EVENT_STATUS_UNSPECIFIED = 0;
+    ANDON_EVENT_STATUS_TRIGGERED = 1;
+    ANDON_EVENT_STATUS_ACKNOWLEDGED = 2;
+    ANDON_EVENT_STATUS_RESOLVED = 3;
+    ANDON_EVENT_STATUS_CLOSED = 4;
+    ANDON_EVENT_STATUS_ESCALATED = 5;
+}
+
+enum AndonTriggerMethod {
+    ANDON_TRIGGER_METHOD_UNSPECIFIED = 0;
+    ANDON_TRIGGER_METHOD_MANUAL = 1;
+    ANDON_TRIGGER_METHOD_AUTOMATIC = 2;
+    ANDON_TRIGGER_METHOD_SCHEDULED = 3;
+}
+
+enum AndonTypeStatus {
+    ANDON_TYPE_STATUS_UNSPECIFIED = 0;
+    ANDON_TYPE_STATUS_ACTIVE = 1;
+    ANDON_TYPE_STATUS_INACTIVE = 2;
+}
+
+enum TraceType {
+    TRACE_TYPE_UNSPECIFIED = 0;
+    TRACE_TYPE_PRODUCTION = 1;
+    TRACE_TYPE_QUALITY = 2;
+    TRACE_TYPE_MATERIAL = 3;
+    TRACE_TYPE_EQUIPMENT = 4;
+}
+
+enum OperatorStatus {
+    OPERATOR_STATUS_UNSPECIFIED = 0;
+    OPERATOR_STATUS_ACTIVE = 1;
+    OPERATOR_STATUS_INACTIVE = 2;
+    OPERATOR_STATUS_ON_LEAVE = 3;
+    OPERATOR_STATUS_TERMINATED = 4;
+}
+
+enum AttendanceStatus {
+    ATTENDANCE_STATUS_UNSPECIFIED = 0;
+    ATTENDANCE_STATUS_PRESENT = 1;
+    ATTENDANCE_STATUS_ABSENT = 2;
+    ATTENDANCE_STATUS_LATE = 3;
+    ATTENDANCE_STATUS_EARLY_LEAVE = 4;
+    ATTENDANCE_STATUS_OVERTIME = 5;
+}
+
+enum TimeRecordStatus {
+    TIME_RECORD_STATUS_UNSPECIFIED = 0;
+    TIME_RECORD_STATUS_DRAFT = 1;
+    TIME_RECORD_STATUS_SUBMITTED = 2;
+    TIME_RECORD_STATUS_APPROVED = 3;
+    TIME_RECORD_STATUS_REJECTED = 4;
+}
+
+enum TelemetryQuality {
+    TELEMETRY_QUALITY_UNSPECIFIED = 0;
+    TELEMETRY_QUALITY_GOOD = 1;
+    TELEMETRY_QUALITY_WARNING = 2;
+    TELEMETRY_QUALITY_ALARM = 3;
+    TELEMETRY_QUALITY_INVALID = 4;
+}
+
+enum DeviceCommandStatus {
+    DEVICE_COMMAND_STATUS_UNSPECIFIED = 0;
+    DEVICE_COMMAND_STATUS_PENDING = 1;
+    DEVICE_COMMAND_STATUS_SENT = 2;
+    DEVICE_COMMAND_STATUS_DELIVERED = 3;
+    DEVICE_COMMAND_STATUS_EXECUTED = 4;
+    DEVICE_COMMAND_STATUS_FAILED = 5;
+    DEVICE_COMMAND_STATUS_CANCELLED = 6;
+}
+
+enum MaterialRequirementStatus {
+    MATERIAL_REQUIREMENT_STATUS_UNSPECIFIED = 0;
+    MATERIAL_REQUIREMENT_STATUS_PENDING = 1;
+    MATERIAL_REQUIREMENT_STATUS_PARTIALLY_ISSUED = 2;
+    MATERIAL_REQUIREMENT_STATUS_ISSUED = 3;
+    MATERIAL_REQUIREMENT_STATUS_CANCELLED = 4;
+}
+
+service MesOperationService {
+    rpc getAndonEvent(GetAndonEventRequest) returns (GetAndonEventResponse);
+    rpc listAndonEvents(ListAndonEventsRequest) returns (ListAndonEventsResponse);
+    rpc triggerAndon(TriggerAndonRequest) returns (TriggerAndonResponse);
+    rpc acknowledgeAndon(AcknowledgeAndonRequest) returns (AcknowledgeAndonResponse);
+    rpc resolveAndon(ResolveAndonRequest) returns (ResolveAndonResponse);
+    rpc closeAndon(CloseAndonRequest) returns (CloseAndonResponse);
+    rpc escalateAndon(EscalateAndonRequest) returns (EscalateAndonResponse);
+    rpc createAndonType(CreateAndonTypeRequest) returns (CreateAndonTypeResponse);
+    rpc listAndonTypes(ListAndonTypesRequest) returns (ListAndonTypesResponse);
+
+    rpc getTraceRecord(GetTraceRecordRequest) returns (GetTraceRecordResponse);
+    rpc listTraceRecords(ListTraceRecordsRequest) returns (ListTraceRecordsResponse);
+    rpc createTraceRecord(CreateTraceRecordRequest) returns (CreateTraceRecordResponse);
+    rpc forwardTrace(ForwardTraceRequest) returns (ForwardTraceResponse);
+    rpc backwardTrace(BackwardTraceRequest) returns (BackwardTraceResponse);
+
+    rpc getOperator(GetOperatorRequest) returns (GetOperatorResponse);
+    rpc listOperators(ListOperatorsRequest) returns (ListOperatorsResponse);
+    rpc createOperator(CreateOperatorRequest) returns (CreateOperatorResponse);
+    rpc updateOperator(UpdateOperatorRequest) returns (UpdateOperatorResponse);
+    rpc getAttendance(GetAttendanceRequest) returns (GetAttendanceResponse);
+    rpc listAttendances(ListAttendancesRequest) returns (ListAttendancesResponse);
+    rpc createAttendance(CreateAttendanceRequest) returns (CreateAttendanceResponse);
+    rpc listTimeRecords(ListTimeRecordsRequest) returns (ListTimeRecordsResponse);
+    rpc createTimeRecord(CreateTimeRecordRequest) returns (CreateTimeRecordResponse);
+
+    rpc getTelemetryRecord(GetTelemetryRecordRequest) returns (GetTelemetryRecordResponse);
+    rpc listTelemetryRecords(ListTelemetryRecordsRequest) returns (ListTelemetryRecordsResponse);
+    rpc sendDeviceCommand(SendDeviceCommandRequest) returns (SendDeviceCommandResponse);
+    rpc listDeviceCommands(ListDeviceCommandsRequest) returns (ListDeviceCommandsResponse);
+
+    rpc getMaterialRequirement(GetMaterialRequirementRequest) returns (GetMaterialRequirementResponse);
+    rpc listMaterialRequirements(ListMaterialRequirementsRequest) returns (ListMaterialRequirementsResponse);
+    rpc createMaterialRequirement(CreateMaterialRequirementRequest) returns (CreateMaterialRequirementResponse);
+}
+
+message AndonEventProto {
+    int64 id = 1;
+    string eventNo = 2;
+    int64 andonTypeId = 3;
+    string andonTypeCode = 4;
+    string andonTypeName = 5;
+    int64 andonLevelId = 6;
+    string levelCode = 7;
+    string levelName = 8;
+    AndonTriggerMethod triggerMethod = 9;
+    string workshopId = 10;
+    int64 workstationId = 11;
+    string equipmentId = 12;
+    string productCode = 13;
+    string workOrderNo = 14;
+    string description = 15;
+    string reporterId = 16;
+    string reporterName = 17;
+    AndonEventStatus status = 18;
+    string currentHandlerId = 19;
+    string currentHandlerName = 20;
+    int64 occurredAt = 21;
+    int64 acknowledgedAt = 22;
+    int64 resolvedAt = 23;
+    int32 escalationCount = 24;
+    int64 createdAt = 25;
+    int64 updatedAt = 26;
+}
+message GetAndonEventRequest { int64 id = 1; }
+message GetAndonEventResponse { AndonEventProto andonEvent = 1; }
+message ListAndonEventsRequest {
+    AndonEventStatus status = 1;
+    string workshopId = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListAndonEventsResponse {
+    repeated AndonEventProto andonEvents = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message TriggerAndonRequest {
+    int64 andonTypeId = 1;
+    int64 andonLevelId = 2;
+    string workshopId = 3;
+    int64 workstationId = 4;
+    string description = 5;
+    string reporterId = 6;
+}
+message TriggerAndonResponse { AndonEventProto andonEvent = 1; }
+message AcknowledgeAndonRequest {
+    int64 id = 1;
+    string handlerId = 2;
+}
+message AcknowledgeAndonResponse { bool success = 1; }
+message ResolveAndonRequest {
+    int64 id = 1;
+    string solution = 2;
+}
+message ResolveAndonResponse { bool success = 1; }
+message CloseAndonRequest { int64 id = 1; }
+message CloseAndonResponse { bool success = 1; }
+message EscalateAndonRequest { int64 id = 1; }
+message EscalateAndonResponse { bool success = 1; }
+
+message AndonTypeProto {
+    int64 id = 1;
+    string typeCode = 2;
+    string typeName = 3;
+    string category = 4;
+    string description = 5;
+    bool requirePhoto = 6;
+    int32 defaultEscalationMinutes = 7;
+    AndonTypeStatus status = 8;
+    int64 createdAt = 9;
+    int64 updatedAt = 10;
+}
+message CreateAndonTypeRequest {
+    string typeCode = 1;
+    string typeName = 2;
+    string category = 3;
+    string description = 4;
+}
+message CreateAndonTypeResponse { AndonTypeProto andonType = 1; }
+message ListAndonTypesRequest { AndonTypeStatus status = 1; int32 page = 2; int32 size = 3; }
+message ListAndonTypesResponse { repeated AndonTypeProto andonTypes = 1; int32 totalCount = 2; int32 page = 3; int32 size = 4; }
+
+message TraceRelationProto {
+    string relatedCode = 1;
+    string relatedType = 2;
+    string relationType = 3;
+    int32 quantity = 4;
+}
+message TraceRecordProto {
+    int64 id = 1;
+    string traceCode = 2;
+    TraceType traceType = 3;
+    string productCode = 4;
+    string batchNo = 5;
+    string sn = 6;
+    string sourceTraceCode = 7;
+    string source = 8;
+    int64 createdAt = 9;
+    repeated TraceRelationProto relations = 10;
+}
+message GetTraceRecordRequest { int64 id = 1; }
+message GetTraceRecordResponse { TraceRecordProto traceRecord = 1; }
+message ListTraceRecordsRequest { string productCode = 1; string batchNo = 2; int32 page = 3; int32 size = 4; }
+message ListTraceRecordsResponse { repeated TraceRecordProto traceRecords = 1; int32 totalCount = 2; int32 page = 3; int32 size = 4; }
+message CreateTraceRecordRequest { string traceCode = 1; TraceType traceType = 2; string productCode = 3; string batchNo = 4; string source = 5; repeated TraceRelationProto relations = 6; }
+message CreateTraceRecordResponse { TraceRecordProto traceRecord = 1; }
+message ForwardTraceRequest { string traceCode = 1; }
+message ForwardTraceResponse { repeated TraceRecordProto traceRecords = 1; }
+message BackwardTraceRequest { string traceCode = 1; }
+message BackwardTraceResponse { repeated TraceRecordProto traceRecords = 1; }
+
+message OperatorProto {
+    int64 id = 1;
+    string operatorCode = 2;
+    string operatorName = 3;
+    string department = 4;
+    string jobTitle = 5;
+    string shiftGroup = 6;
+    OperatorStatus status = 7;
+    string phone = 8;
+    string email = 9;
+    string remark = 10;
+    int64 createdAt = 11;
+    int64 updatedAt = 12;
+}
+message GetOperatorRequest { int64 id = 1; }
+message GetOperatorResponse { OperatorProto operator = 1; }
+message ListOperatorsRequest {
+    OperatorStatus status = 1;
+    string department = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListOperatorsResponse {
+    repeated OperatorProto operators = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateOperatorRequest {
+    string operatorCode = 1;
+    string operatorName = 2;
+    string department = 3;
+    string jobTitle = 4;
+    string shiftGroup = 5;
+    string phone = 6;
+}
+message CreateOperatorResponse { OperatorProto operator = 1; }
+message UpdateOperatorRequest {
+    int64 id = 1;
+    string operatorName = 2;
+    string department = 3;
+    string jobTitle = 4;
+    OperatorStatus status = 5;
+}
+message UpdateOperatorResponse { OperatorProto operator = 1; }
+
+message AttendanceProto {
+    int64 id = 1;
+    int64 operatorId = 2;
+    string operatorCode = 3;
+    string operatorName = 4;
+    int64 attendanceDate = 5;
+    int64 clockIn = 6;
+    int64 clockOut = 7;
+    AttendanceStatus status = 8;
+    string remark = 9;
+    int64 createdAt = 10;
+}
+message GetAttendanceRequest { int64 id = 1; }
+message GetAttendanceResponse { AttendanceProto attendance = 1; }
+message ListAttendancesRequest {
+    int64 operatorId = 1;
+    int64 startDate = 2;
+    int64 endDate = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListAttendancesResponse {
+    repeated AttendanceProto attendances = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateAttendanceRequest {
+    int64 operatorId = 1;
+    int64 attendanceDate = 2;
+    int64 clockIn = 3;
+    int64 clockOut = 4;
+    AttendanceStatus status = 5;
+    string remark = 6;
+}
+message CreateAttendanceResponse { AttendanceProto attendance = 1; }
+
+message TimeRecordProto {
+    int64 id = 1;
+    int64 operatorId = 2;
+    string operatorCode = 3;
+    string operatorName = 4;
+    string workOrderNo = 5;
+    string taskNo = 6;
+    int64 recordDate = 7;
+    int64 startTime = 8;
+    int64 endTime = 9;
+    double totalHours = 10;
+    string recordType = 11;
+    TimeRecordStatus status = 12;
+    string remark = 13;
+    int64 createdAt = 14;
+}
+message ListTimeRecordsRequest {
+    int64 operatorId = 1;
+    int64 startDate = 2;
+    int64 endDate = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListTimeRecordsResponse {
+    repeated TimeRecordProto timeRecords = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateTimeRecordRequest {
+    int64 operatorId = 1;
+    string workOrderNo = 2;
+    string taskNo = 3;
+    int64 recordDate = 4;
+    int64 startTime = 5;
+    int64 endTime = 6;
+    string recordType = 7;
+    string remark = 8;
+}
+message CreateTimeRecordResponse { TimeRecordProto timeRecord = 1; }
+
+message TelemetryMetricProto {
+    string metricCode = 1;
+    string metricName = 2;
+    double value = 3;
+    string unit = 4;
+    TelemetryQuality quality = 5;
+    double upperLimit = 6;
+    double lowerLimit = 7;
+}
+message TelemetryRecordProto {
+    int64 id = 1;
+    string equipmentCode = 2;
+    string topic = 3;
+    int64 collectTime = 4;
+    int64 createdAt = 5;
+    repeated TelemetryMetricProto metrics = 6;
+}
+message GetTelemetryRecordRequest { int64 id = 1; }
+message GetTelemetryRecordResponse { TelemetryRecordProto telemetryRecord = 1; }
+message ListTelemetryRecordsRequest {
+    string equipmentCode = 1;
+    int64 startTime = 2;
+    int64 endTime = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListTelemetryRecordsResponse {
+    repeated TelemetryRecordProto telemetryRecords = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+
+message DeviceCommandProto {
+    int64 id = 1;
+    string commandCode = 2;
+    string equipmentCode = 3;
+    string commandType = 4;
+    string payload = 5;
+    DeviceCommandStatus status = 6;
+    string createdBy = 7;
+    int64 createdAt = 8;
+    int64 executedAt = 9;
+    string resultMessage = 10;
+}
+message SendDeviceCommandRequest {
+    string equipmentCode = 1;
+    string commandType = 2;
+    string payload = 3;
+    string createdBy = 4;
+}
+message SendDeviceCommandResponse { DeviceCommandProto command = 1; }
+message ListDeviceCommandsRequest {
+    string equipmentCode = 1;
+    DeviceCommandStatus status = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListDeviceCommandsResponse {
+    repeated DeviceCommandProto commands = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+
+message MaterialRequirementItemProto {
+    int64 id = 1;
+    string materialCode = 2;
+    string materialName = 3;
+    string materialSpec = 4;
+    string unitCode = 5;
+    double requiredQuantity = 6;
+    double issuedQuantity = 7;
+    string batchNo = 8;
+    MaterialRequirementStatus status = 9;
+    string remark = 10;
+}
+message MaterialRequirementProto {
+    int64 id = 1;
+    string requirementNo = 2;
+    string workOrderNo = 3;
+    string productCode = 4;
+    string productName = 5;
+    int32 quantity = 6;
+    string bomVersion = 7;
+    MaterialRequirementStatus status = 8;
+    string warehouseId = 9;
+    string workshopId = 10;
+    string requirementType = 11;
+    int64 requiredDate = 12;
+    int64 createdAt = 13;
+    int64 updatedAt = 14;
+    repeated MaterialRequirementItemProto items = 15;
+}
+message GetMaterialRequirementRequest { int64 id = 1; }
+message GetMaterialRequirementResponse { MaterialRequirementProto requirement = 1; }
+message ListMaterialRequirementsRequest { string workOrderNo = 1; MaterialRequirementStatus status = 2; int32 page = 3; int32 size = 4; }
+message ListMaterialRequirementsResponse { repeated MaterialRequirementProto requirements = 1; int32 totalCount = 2; int32 page = 3; int32 size = 4; }
+message CreateMaterialRequirementRequest { string requirementNo = 1; string workOrderNo = 2; string productCode = 3; string warehouseId = 4; string requirementType = 5; repeated MaterialRequirementItemProto items = 6; }
+message CreateMaterialRequirementResponse { MaterialRequirementProto requirement = 1; }

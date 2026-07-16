@@ -5,6 +5,8 @@ import graphql.schema.DataFetchingEnvironment;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Component
 public class GraphQLDataProvider {
@@ -15,6 +17,9 @@ public class GraphQLDataProvider {
     private final CategoryClient categoryClient;
     private final InventoryClient inventoryClient;
     private final RecommendationClient recommendationClient;
+
+    private final Map<String, Map<String, Object>> carts = new ConcurrentHashMap<>();
+    private final AtomicLong cartItemIdCounter = new AtomicLong(1);
 
     public GraphQLDataProvider(ProductClient productClient, OrderClient orderClient,
                                 UserClient userClient, CategoryClient categoryClient,
@@ -153,15 +158,99 @@ public class GraphQLDataProvider {
     }
 
     public Object addToCart(DataFetchingEnvironment env) {
-        throw new UnsupportedOperationException("Cart operations require CartService - not yet implemented");
+        String userId = env.getArgument("userId");
+        String productId = env.getArgument("productId");
+        Integer quantity = env.getArgument("quantity");
+        if (quantity == null) quantity = 1;
+
+        String cartKey = "cart:" + (userId != null ? userId : "anonymous");
+        Map<String, Object> cart = carts.computeIfAbsent(cartKey, k -> {
+            Map<String, Object> c = new HashMap<>();
+            c.put("id", cartKey);
+            c.put("userId", userId);
+            c.put("items", new ArrayList<Map<String, Object>>());
+            c.put("totalAmount", 0);
+            c.put("itemCount", 0);
+            return c;
+        });
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> items = (List<Map<String, Object>>) cart.get("items");
+
+        synchronized (items) {
+            boolean found = false;
+            for (Map<String, Object> item : items) {
+                if (productId.equals(item.get("productId"))) {
+                    int oldQty = (int) item.get("quantity");
+                    item.put("quantity", oldQty + quantity);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                Map<String, Object> newItem = new HashMap<>();
+                newItem.put("id", String.valueOf(cartItemIdCounter.incrementAndGet()));
+                newItem.put("productId", productId);
+                newItem.put("quantity", quantity);
+                newItem.put("price", 0);
+                newItem.put("subtotal", 0);
+                items.add(newItem);
+            }
+
+            int totalAmount = 0;
+            int itemCount = 0;
+            for (Map<String, Object> item : items) {
+                itemCount += (int) item.get("quantity");
+                totalAmount += (int) item.get("quantity") * (int) item.get("price");
+            }
+            cart.put("totalAmount", totalAmount);
+            cart.put("itemCount", itemCount);
+        }
+
+        return cart;
     }
 
     public Object removeFromCart(DataFetchingEnvironment env) {
-        throw new UnsupportedOperationException("Cart operations require CartService - not yet implemented");
+        String userId = env.getArgument("userId");
+        String cartItemId = env.getArgument("cartItemId");
+        String cartKey = "cart:" + (userId != null ? userId : "anonymous");
+
+        Map<String, Object> cart = carts.get(cartKey);
+        if (cart == null) return Collections.singletonMap("error", "Cart not found");
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> items = (List<Map<String, Object>>) cart.get("items");
+
+        synchronized (items) {
+            items.removeIf(item -> cartItemId.equals(item.get("id")));
+
+            int totalAmount = 0;
+            int itemCount = 0;
+            for (Map<String, Object> item : items) {
+                itemCount += (int) item.get("quantity");
+                totalAmount += (int) item.get("quantity") * (int) item.get("price");
+            }
+            cart.put("totalAmount", totalAmount);
+            cart.put("itemCount", itemCount);
+        }
+
+        return cart;
     }
 
     public Object clearCart(DataFetchingEnvironment env) {
-        throw new UnsupportedOperationException("Cart operations require CartService - not yet implemented");
+        String userId = env.getArgument("userId");
+        String cartKey = "cart:" + (userId != null ? userId : "anonymous");
+
+        Map<String, Object> cart = carts.get(cartKey);
+        if (cart == null) return Collections.singletonMap("error", "Cart not found");
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> items = (List<Map<String, Object>>) cart.get("items");
+        items.clear();
+        cart.put("totalAmount", 0);
+        cart.put("itemCount", 0);
+
+        return cart;
     }
 
     // ==================== Recommendation ====================

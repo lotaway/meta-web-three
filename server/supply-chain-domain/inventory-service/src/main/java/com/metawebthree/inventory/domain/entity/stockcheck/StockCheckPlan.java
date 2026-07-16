@@ -1,5 +1,9 @@
 package com.metawebthree.inventory.domain.entity.stockcheck;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -8,7 +12,9 @@ import java.util.List;
  * 盘点计划实体
  */
 @Data
+@TableName("tb_stock_check_plan")
 public class StockCheckPlan {
+    @TableId(type = IdType.AUTO)
     private Long id;
     private String planNo;
     private String planName;
@@ -28,6 +34,7 @@ public class StockCheckPlan {
     private Boolean deleted;
     private Integer version;
 
+    @TableField(exist = false)
     private List<StockCheckPlanDetail> details;
 
     public static final String TYPE_FULL = "FULL";

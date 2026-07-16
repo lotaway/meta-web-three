@@ -6,6 +6,10 @@ option java_multiple_files = true;
 
 import "shared/google/type/money.proto";
 
+enum ProcurementStatus {
+    PROCUREMENT_STATUS_UNSPECIFIED = 0;
+}
+
 service ProcurementService {
     rpc createPurchaseOrder(CreatePurchaseOrderRequest) returns (CreatePurchaseOrderResponse);
     rpc getPurchaseOrder(GetPurchaseOrderRequest) returns (GetPurchaseOrderResponse);
@@ -16,7 +20,7 @@ service ProcurementService {
 message CreatePurchaseOrderRequest {
     string supplierCode = 1;
     repeated PurchaseOrderItem items = 2;
-    string expectedDeliveryDate = 3;
+    int64 expectedDeliveryDate = 3;
     string remark = 4;
 }
 
@@ -40,8 +44,8 @@ message GetPurchaseOrderResponse {
     string purchaseOrderNo = 1;
     string supplierCode = 2;
     repeated PurchaseOrderItem items = 3;
-    string status = 4;
-    string expectedDeliveryDate = 5;
+    ProcurementStatus status = 4;
+    int64 expectedDeliveryDate = 5;
     google.type.Money totalAmount = 6;
 }
 

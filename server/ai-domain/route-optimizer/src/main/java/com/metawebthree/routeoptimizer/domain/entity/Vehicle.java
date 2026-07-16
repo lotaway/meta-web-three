@@ -1,27 +1,71 @@
 package com.metawebthree.routeoptimizer.domain.entity;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "tb_vehicle")
 public class Vehicle {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "vehicle_code", unique = true)
     private String vehicleCode;
+
+    @Column(name = "vehicle_number", unique = true)
     private String vehicleNumber;
+
+    @Column(name = "vehicle_type")
     private String vehicleType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private VehicleStatus status;
+
+    @Column(name = "max_load_capacity")
     private Double maxLoadCapacity;
+
+    @Column(name = "current_load")
     private Double currentLoad;
+
+    @Column(name = "fuel_capacity")
     private Double fuelCapacity;
+
+    @Column(name = "current_fuel")
     private Double currentFuel;
+
+    @Column(name = "fuel_efficiency")
     private Double fuelEfficiency;
+
+    @Column(name = "driver_name")
     private String driverName;
+
+    @Column(name = "driver_phone")
     private String driverPhone;
+
+    @Column(name = "latitude")
     private Double latitude;
+
+    @Column(name = "longitude")
     private Double longitude;
+
+    @Column(name = "last_location_update")
     private LocalDateTime lastLocationUpdate;
+
+    @Column(name = "current_route_plan_code")
     private String currentRoutePlanCode;
+
+    @Column(name = "total_deliveries")
     private Integer totalDeliveries;
+
+    @Column(name = "total_distance")
     private Double totalDistance;
+
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     public enum VehicleStatus {

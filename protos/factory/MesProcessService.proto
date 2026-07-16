@@ -1,0 +1,235 @@
+syntax = "proto3";
+
+package com.metawebthree.factory.generated.rpc;
+
+option java_multiple_files = true;
+
+enum ProcessRouteStatus {
+    PROCESS_ROUTE_STATUS_UNSPECIFIED = 0;
+    PROCESS_ROUTE_STATUS_DRAFT = 1;
+    PROCESS_ROUTE_STATUS_ACTIVE = 2;
+    PROCESS_ROUTE_STATUS_INACTIVE = 3;
+    PROCESS_ROUTE_STATUS_ARCHIVED = 4;
+}
+
+enum BomStatus {
+    BOM_STATUS_UNSPECIFIED = 0;
+    BOM_STATUS_DRAFT = 1;
+    BOM_STATUS_ACTIVE = 2;
+    BOM_STATUS_INACTIVE = 3;
+    BOM_STATUS_ARCHIVED = 4;
+}
+
+enum ProcessParameterStatus {
+    PROCESS_PARAMETER_STATUS_UNSPECIFIED = 0;
+    PROCESS_PARAMETER_STATUS_ACTIVE = 1;
+    PROCESS_PARAMETER_STATUS_INACTIVE = 2;
+}
+
+service MesProcessService {
+    rpc getProcessRoute(GetProcessRouteRequest) returns (GetProcessRouteResponse);
+    rpc listProcessRoutes(ListProcessRoutesRequest) returns (ListProcessRoutesResponse);
+    rpc createProcessRoute(CreateProcessRouteRequest) returns (CreateProcessRouteResponse);
+    rpc updateProcessRoute(UpdateProcessRouteRequest) returns (UpdateProcessRouteResponse);
+    rpc deleteProcessRoute(DeleteProcessRouteRequest) returns (DeleteProcessRouteResponse);
+    rpc activateProcessRoute(ActivateProcessRouteRequest) returns (ActivateProcessRouteResponse);
+
+    rpc getBom(GetBomRequest) returns (GetBomResponse);
+    rpc listBoms(ListBomsRequest) returns (ListBomsResponse);
+    rpc createBom(CreateBomRequest) returns (CreateBomResponse);
+    rpc updateBom(UpdateBomRequest) returns (UpdateBomResponse);
+    rpc deleteBom(DeleteBomRequest) returns (DeleteBomResponse);
+
+    rpc getProcessParameter(GetProcessParameterRequest) returns (GetProcessParameterResponse);
+    rpc listProcessParameters(ListProcessParametersRequest) returns (ListProcessParametersResponse);
+    rpc createProcessParameter(CreateProcessParameterRequest) returns (CreateProcessParameterResponse);
+    rpc updateProcessParameter(UpdateProcessParameterRequest) returns (UpdateProcessParameterResponse);
+    rpc deleteProcessParameter(DeleteProcessParameterRequest) returns (DeleteProcessParameterResponse);
+}
+
+message ProcessStepProto {
+    int32 stepNo = 1;
+    string processCode = 2;
+    string processName = 3;
+    int64 workstationId = 4;
+    int32 standardTime = 5;
+    string qualityCheckpoint = 6;
+    int32 predecessorStepNo = 7;
+    int32 successorStepNo = 8;
+}
+message ProcessRouteProto {
+    int64 id = 1;
+    string routeCode = 2;
+    string routeName = 3;
+    string productCode = 4;
+    int32 version = 5;
+    ProcessRouteStatus status = 6;
+    int64 effectiveDate = 7;
+    int64 expiryDate = 8;
+    int64 createdAt = 9;
+    int64 updatedAt = 10;
+    repeated ProcessStepProto steps = 11;
+}
+message GetProcessRouteRequest { int64 id = 1; }
+message GetProcessRouteResponse { ProcessRouteProto processRoute = 1; }
+message ListProcessRoutesRequest {
+    ProcessRouteStatus status = 1;
+    string productCode = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListProcessRoutesResponse {
+    repeated ProcessRouteProto processRoutes = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateProcessRouteRequest {
+    string routeCode = 1;
+    string routeName = 2;
+    string productCode = 3;
+    int64 effectiveDate = 4;
+    repeated ProcessStepProto steps = 5;
+}
+message CreateProcessRouteResponse { ProcessRouteProto processRoute = 1; }
+message UpdateProcessRouteRequest {
+    int64 id = 1;
+    string routeName = 2;
+    int64 expiryDate = 3;
+    repeated ProcessStepProto steps = 4;
+}
+message UpdateProcessRouteResponse { ProcessRouteProto processRoute = 1; }
+message DeleteProcessRouteRequest { int64 id = 1; }
+message DeleteProcessRouteResponse { bool success = 1; }
+message ActivateProcessRouteRequest { int64 id = 1; }
+message ActivateProcessRouteResponse { bool success = 1; }
+
+message BomItemProto {
+    int64 id = 1;
+    int64 bomId = 2;
+    string materialCode = 3;
+    string materialName = 4;
+    string materialSpec = 5;
+    string unitCode = 6;
+    double quantity = 7;
+    double scrapRate = 8;
+    int32 sequence = 9;
+    string level = 10;
+    string itemType = 11;
+    string position = 12;
+    string remark = 13;
+}
+message BomProto {
+    int64 id = 1;
+    string bomCode = 2;
+    string productCode = 3;
+    string productName = 4;
+    string version = 5;
+    BomStatus versionStatus = 6;
+    int64 effectiveDate = 7;
+    int64 expiryDate = 8;
+    string bomType = 9;
+    string processRouteId = 10;
+    string description = 11;
+    BomStatus status = 12;
+    int32 itemCount = 13;
+    int64 createdAt = 14;
+    int64 updatedAt = 15;
+    repeated BomItemProto items = 16;
+}
+message GetBomRequest { int64 id = 1; }
+message GetBomResponse { BomProto bom = 1; }
+message ListBomsRequest {
+    string productCode = 1;
+    BomStatus status = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListBomsResponse {
+    repeated BomProto boms = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateBomRequest {
+    string bomCode = 1;
+    string productCode = 2;
+    string productName = 3;
+    string bomType = 4;
+    int64 effectiveDate = 5;
+    string description = 6;
+    repeated BomItemProto items = 7;
+}
+message CreateBomResponse { BomProto bom = 1; }
+message UpdateBomRequest {
+    int64 id = 1;
+    string description = 2;
+    repeated BomItemProto items = 3;
+}
+message UpdateBomResponse { BomProto bom = 1; }
+message DeleteBomRequest { int64 id = 1; }
+message DeleteBomResponse { bool success = 1; }
+
+message ProcessParameterProto {
+    int64 id = 1;
+    string paramCode = 2;
+    string paramName = 3;
+    int64 routeId = 4;
+    string routeCode = 5;
+    int32 stepNo = 6;
+    string paramType = 7;
+    string dataType = 8;
+    string unit = 9;
+    double standardValue = 10;
+    double upperLimit = 11;
+    double lowerLimit = 12;
+    string collectionMethod = 13;
+    bool isRequired = 14;
+    string validationRule = 15;
+    int32 displayOrder = 16;
+    string paramGroup = 17;
+    string remark = 18;
+    ProcessParameterStatus status = 19;
+    int64 createdAt = 20;
+    int64 updatedAt = 21;
+}
+message GetProcessParameterRequest { int64 id = 1; }
+message GetProcessParameterResponse { ProcessParameterProto parameter = 1; }
+message ListProcessParametersRequest {
+    int64 routeId = 1;
+    int32 stepNo = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListProcessParametersResponse {
+    repeated ProcessParameterProto parameters = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateProcessParameterRequest {
+    string paramCode = 1;
+    string paramName = 2;
+    int64 routeId = 3;
+    int32 stepNo = 4;
+    string paramType = 5;
+    string unit = 6;
+    double standardValue = 7;
+    double upperLimit = 8;
+    double lowerLimit = 9;
+    string collectionMethod = 10;
+    string paramGroup = 11;
+    string remark = 12;
+}
+message CreateProcessParameterResponse { ProcessParameterProto parameter = 1; }
+message UpdateProcessParameterRequest {
+    int64 id = 1;
+    string paramName = 2;
+    double standardValue = 3;
+    double upperLimit = 4;
+    double lowerLimit = 5;
+    string remark = 6;
+}
+message UpdateProcessParameterResponse { ProcessParameterProto parameter = 1; }
+message DeleteProcessParameterRequest { int64 id = 1; }
+message DeleteProcessParameterResponse { bool success = 1; }

@@ -4,34 +4,27 @@ import com.metawebthree.forecasting.domain.entity.SalesHistory;
 import com.metawebthree.forecasting.domain.repository.SalesHistoryRepository;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @Repository
 public class SalesHistoryRepositoryImpl implements SalesHistoryRepository {
 
-    private final Map<String, List<SalesHistory>> storage = new ConcurrentHashMap<>();
+    private final SalesHistoryJpaRepository jpaRepository;
 
-    private String buildKey(String skuCode, Long warehouseId) {
-        return skuCode + "_" + warehouseId;
+    public SalesHistoryRepositoryImpl(SalesHistoryJpaRepository jpaRepository) {
+        this.jpaRepository = jpaRepository;
     }
 
     @Override
     public List<SalesHistory> findBySkuCodeAndWarehouseId(String skuCode, Long warehouseId) {
-        String key = buildKey(skuCode, warehouseId);
-        return new ArrayList<>(storage.getOrDefault(key, new ArrayList<>()));
+        return jpaRepository.findBySkuCodeAndWarehouseId(skuCode, warehouseId);
     }
 
     @Override
     public List<SalesHistory> findBySkuCodeAndWarehouseIdAndSalesDateBetween(
             String skuCode, Long warehouseId, LocalDate startDate, LocalDate endDate) {
-        return findBySkuCodeAndWarehouseId(skuCode, warehouseId).stream()
-            .filter(h -> !h.getSalesDate().isBefore(startDate) && !h.getSalesDate().isAfter(endDate))
-            .sorted((a, b) -> a.getSalesDate().compareTo(b.getSalesDate()))
-            .collect(Collectors.toList());
+        return jpaRepository.findBySkuCodeAndWarehouseIdAndSalesDateBetweenOrderBySalesDateAsc(
+            skuCode, warehouseId, startDate, endDate);
     }
 
     @Override
@@ -45,15 +38,11 @@ public class SalesHistoryRepositoryImpl implements SalesHistoryRepository {
 
     @Override
     public SalesHistory save(SalesHistory salesHistory) {
-        String key = buildKey(salesHistory.getSkuCode(), salesHistory.getWarehouseId());
-        storage.computeIfAbsent(key, k -> new ArrayList<>()).add(salesHistory);
-        return salesHistory;
+        return jpaRepository.save(salesHistory);
     }
 
     @Override
     public void saveBatch(List<SalesHistory> salesHistoryList) {
-        for (SalesHistory salesHistory : salesHistoryList) {
-            save(salesHistory);
-        }
+        jpaRepository.saveAll(salesHistoryList);
     }
 }

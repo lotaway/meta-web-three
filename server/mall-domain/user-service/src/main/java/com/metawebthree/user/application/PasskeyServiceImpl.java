@@ -155,6 +155,13 @@ public class PasskeyServiceImpl implements PasskeyService {
     }
 
     private String encodePublicKey(Map<String, Object> response) {
+        Object publicKeyObj = response.get("publicKey");
+        if (publicKeyObj instanceof byte[]) {
+            return Base64.getEncoder().encodeToString((byte[]) publicKeyObj);
+        } else if (publicKeyObj instanceof String s) {
+            return s;
+        }
+        log.warn("No valid public key in attestation response");
         return "";
     }
 }

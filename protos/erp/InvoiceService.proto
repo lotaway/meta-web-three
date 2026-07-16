@@ -4,6 +4,23 @@ package com.metawebthree.erp.generated.rpc;
 
 option java_multiple_files = true;
 
+enum InvoiceType {
+    INVOICE_TYPE_UNSPECIFIED = 0;
+    INVOICE_TYPE_VAT_SPECIAL = 1;
+    INVOICE_TYPE_VAT_NORMAL = 2;
+    INVOICE_TYPE_ELECTRONIC = 3;
+    INVOICE_TYPE_GENERAL = 4;
+}
+
+enum InvoiceStatus {
+    INVOICE_STATUS_UNSPECIFIED = 0;
+    INVOICE_STATUS_DRAFT = 1;
+    INVOICE_STATUS_ISSUED = 2;
+    INVOICE_STATUS_PRINTED = 3;
+    INVOICE_STATUS_VOIDED = 4;
+    INVOICE_STATUS_RED_FLUSHED = 5;
+}
+
 service InvoiceService {
     rpc getInvoice(GetInvoiceRequest) returns (GetInvoiceResponse);
     rpc listInvoices(ListInvoicesRequest) returns (ListInvoicesResponse);
@@ -26,13 +43,13 @@ message InvoiceProto {
     string customerAddress = 7;
     string customerBank = 8;
     string customerAccount = 9;
-    string type = 10;
-    string status = 11;
+    InvoiceType type = 10;
+    InvoiceStatus status = 11;
     double amount = 12;
     double taxAmount = 13;
     double totalAmount = 14;
     string taxRate = 15;
-    string issueDate = 16;
+    int64 issueDate = 16;
     string issuer = 17;
     string remark = 18;
     int64 createdAt = 19;
@@ -42,10 +59,10 @@ message InvoiceProto {
 message GetInvoiceRequest { int64 id = 1; }
 message GetInvoiceResponse { InvoiceProto invoice = 1; }
 message ListInvoicesRequest {
-    string status = 1;
+    InvoiceStatus status = 1;
     int64 customerId = 2;
-    string startDate = 3;
-    string endDate = 4;
+    int64 startDate = 3;
+    int64 endDate = 4;
     int32 page = 5;
     int32 size = 6;
 }
@@ -61,7 +78,7 @@ message CreateInvoiceRequest {
     int64 customerId = 3;
     string customerName = 4;
     string customerTaxNo = 5;
-    string type = 6;
+    InvoiceType type = 6;
     double amount = 7;
     double taxAmount = 8;
     double taxRate = 9;

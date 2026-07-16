@@ -155,7 +155,6 @@ public class DecisionServiceImpl implements DecisionService {
             Object result = engine.eval(expr);
             return result instanceof Boolean bReuslt && bReuslt;
         } catch (ScriptException e) {
-            e.printStackTrace();
             log.error("Error in eval rule", e);
             return false;
         }

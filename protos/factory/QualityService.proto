@@ -4,8 +4,68 @@ package com.metawebthree.factory.generated.rpc;
 
 option java_multiple_files = true;
 
+enum InspectionPlanStatus {
+    INSPECTION_PLAN_STATUS_UNSPECIFIED = 0;
+    INSPECTION_PLAN_STATUS_DRAFT = 1;
+    INSPECTION_PLAN_STATUS_ACTIVE = 2;
+    INSPECTION_PLAN_STATUS_INACTIVE = 3;
+    INSPECTION_PLAN_STATUS_ARCHIVED = 4;
+}
+
+enum InspectionItemStatus {
+    INSPECTION_ITEM_STATUS_UNSPECIFIED = 0;
+    INSPECTION_ITEM_STATUS_ACTIVE = 1;
+    INSPECTION_ITEM_STATUS_INACTIVE = 2;
+}
+
+enum InspectionTypeStatus {
+    INSPECTION_TYPE_STATUS_UNSPECIFIED = 0;
+    INSPECTION_TYPE_STATUS_ACTIVE = 1;
+    INSPECTION_TYPE_STATUS_INACTIVE = 2;
+}
+
+enum SeverityLevel {
+    SEVERITY_LEVEL_UNSPECIFIED = 0;
+    SEVERITY_LEVEL_LOW = 1;
+    SEVERITY_LEVEL_MEDIUM = 2;
+    SEVERITY_LEVEL_HIGH = 3;
+    SEVERITY_LEVEL_CRITICAL = 4;
+}
+
+enum NonConformanceType {
+    NON_CONFORMANCE_TYPE_UNSPECIFIED = 0;
+    NON_CONFORMANCE_TYPE_PRODUCT = 1;
+    NON_CONFORMANCE_TYPE_PROCESS = 2;
+    NON_CONFORMANCE_TYPE_SYSTEM = 3;
+}
+
+enum NonConformanceStatus {
+    NON_CONFORMANCE_STATUS_UNSPECIFIED = 0;
+    NON_CONFORMANCE_STATUS_OPEN = 1;
+    NON_CONFORMANCE_STATUS_INVESTIGATING = 2;
+    NON_CONFORMANCE_STATUS_RESOLVED = 3;
+    NON_CONFORMANCE_STATUS_CLOSED = 4;
+}
+
+enum ChartType {
+    CHART_TYPE_UNSPECIFIED = 0;
+    CHART_TYPE_X_BAR_R = 1;
+    CHART_TYPE_X_BAR_S = 2;
+    CHART_TYPE_P = 3;
+    CHART_TYPE_NP = 4;
+    CHART_TYPE_C = 5;
+    CHART_TYPE_U = 6;
+    CHART_TYPE_I_MR = 7;
+}
+
+enum SpcChartStatus {
+    SPC_CHART_STATUS_UNSPECIFIED = 0;
+    SPC_CHART_STATUS_ACTIVE = 1;
+    SPC_CHART_STATUS_INACTIVE = 2;
+    SPC_CHART_STATUS_ARCHIVED = 3;
+}
+
 service QualityService {
-    // Inspection Plan
     rpc getInspectionPlan(GetInspectionPlanRequest) returns (GetInspectionPlanResponse);
     rpc listInspectionPlans(ListInspectionPlansRequest) returns (ListInspectionPlansResponse);
     rpc createInspectionPlan(CreateInspectionPlanRequest) returns (CreateInspectionPlanResponse);
@@ -14,41 +74,35 @@ service QualityService {
     rpc activateInspectionPlan(ActivateInspectionPlanRequest) returns (ActivateInspectionPlanResponse);
     rpc deactivateInspectionPlan(DeactivateInspectionPlanRequest) returns (DeactivateInspectionPlanResponse);
 
-    // Inspection Item
     rpc getInspectionItem(GetInspectionItemRequest) returns (GetInspectionItemResponse);
     rpc listInspectionItems(ListInspectionItemsRequest) returns (ListInspectionItemsResponse);
     rpc createInspectionItem(CreateInspectionItemRequest) returns (CreateInspectionItemResponse);
     rpc updateInspectionItem(UpdateInspectionItemRequest) returns (UpdateInspectionItemResponse);
     rpc deleteInspectionItem(DeleteInspectionItemRequest) returns (DeleteInspectionItemResponse);
 
-    // Inspection Type
     rpc getInspectionType(GetInspectionTypeRequest) returns (GetInspectionTypeResponse);
     rpc listInspectionTypes(ListInspectionTypesRequest) returns (ListInspectionTypesResponse);
     rpc createInspectionType(CreateInspectionTypeRequest) returns (CreateInspectionTypeResponse);
     rpc updateInspectionType(UpdateInspectionTypeRequest) returns (UpdateInspectionTypeResponse);
     rpc deleteInspectionType(DeleteInspectionTypeRequest) returns (DeleteInspectionTypeResponse);
 
-    // Defect Code
     rpc getDefectCode(GetDefectCodeRequest) returns (GetDefectCodeResponse);
     rpc listDefectCodes(ListDefectCodesRequest) returns (ListDefectCodesResponse);
     rpc createDefectCode(CreateDefectCodeRequest) returns (CreateDefectCodeResponse);
     rpc updateDefectCode(UpdateDefectCodeRequest) returns (UpdateDefectCodeResponse);
     rpc deleteDefectCode(DeleteDefectCodeRequest) returns (DeleteDefectCodeResponse);
 
-    // Non-Conformance
     rpc getNonConformance(GetNonConformanceRequest) returns (GetNonConformanceResponse);
     rpc listNonConformances(ListNonConformancesRequest) returns (ListNonConformancesResponse);
     rpc createNonConformance(CreateNonConformanceRequest) returns (CreateNonConformanceResponse);
     rpc updateNonConformanceStatus(UpdateNonConformanceStatusRequest) returns (UpdateNonConformanceStatusResponse);
 
-    // SPC Control Chart
     rpc getSpcControlChart(GetSpcControlChartRequest) returns (GetSpcControlChartResponse);
     rpc listSpcControlCharts(ListSpcControlChartsRequest) returns (ListSpcControlChartsResponse);
     rpc createSpcControlChart(CreateSpcControlChartRequest) returns (CreateSpcControlChartResponse);
     rpc updateSpcControlChart(UpdateSpcControlChartRequest) returns (UpdateSpcControlChartResponse);
 }
 
-// ===== Inspection Plan =====
 message QcPlanItemProto {
     int64 id = 1;
     int64 planId = 2;
@@ -74,9 +128,9 @@ message InspectionPlanProto {
     string acceptNumber = 12;
     string rejectNumber = 13;
     string dispositionRule = 14;
-    string status = 15;
-    string effectiveDate = 16;
-    string expirationDate = 17;
+    InspectionPlanStatus status = 15;
+    int64 effectiveDate = 16;
+    int64 expirationDate = 17;
     string remark = 18;
     int64 createdAt = 19;
     int64 updatedAt = 20;
@@ -86,7 +140,7 @@ message InspectionPlanProto {
 message GetInspectionPlanRequest { int64 id = 1; }
 message GetInspectionPlanResponse { InspectionPlanProto inspectionPlan = 1; }
 message ListInspectionPlansRequest {
-    string status = 1;
+    InspectionPlanStatus status = 1;
     string inspectionType = 2;
     int32 page = 3;
     int32 size = 4;
@@ -122,7 +176,6 @@ message ActivateInspectionPlanResponse { bool success = 1; }
 message DeactivateInspectionPlanRequest { int64 id = 1; }
 message DeactivateInspectionPlanResponse { bool success = 1; }
 
-// ===== Inspection Item =====
 message InspectionItemProto {
     int64 id = 1;
     string itemCode = 2;
@@ -137,7 +190,7 @@ message InspectionItemProto {
     string inspectionTool = 11;
     int32 severity = 12;
     bool isMandatory = 13;
-    string status = 14;
+    InspectionItemStatus status = 14;
     string remark = 15;
     int64 createdAt = 16;
     int64 updatedAt = 17;
@@ -146,7 +199,7 @@ message GetInspectionItemRequest { int64 id = 1; }
 message GetInspectionItemResponse { InspectionItemProto inspectionItem = 1; }
 message ListInspectionItemsRequest {
     string itemCategory = 1;
-    string status = 2;
+    InspectionItemStatus status = 2;
     int32 page = 3;
     int32 size = 4;
 }
@@ -182,7 +235,6 @@ message UpdateInspectionItemResponse { InspectionItemProto inspectionItem = 1; }
 message DeleteInspectionItemRequest { int64 id = 1; }
 message DeleteInspectionItemResponse { bool success = 1; }
 
-// ===== Inspection Type =====
 message InspectionTypeProto {
     int64 id = 1;
     string typeCode = 2;
@@ -194,7 +246,7 @@ message InspectionTypeProto {
     int32 defaultTimeoutHours = 8;
     bool requireCertificate = 9;
     bool requireTestReport = 10;
-    string status = 11;
+    InspectionTypeStatus status = 11;
     int64 createdAt = 12;
     int64 updatedAt = 13;
 }
@@ -202,7 +254,7 @@ message GetInspectionTypeRequest { int64 id = 1; }
 message GetInspectionTypeResponse { InspectionTypeProto inspectionType = 1; }
 message ListInspectionTypesRequest {
     string category = 1;
-    string status = 2;
+    InspectionTypeStatus status = 2;
     int32 page = 3;
     int32 size = 4;
 }
@@ -223,19 +275,18 @@ message UpdateInspectionTypeRequest {
     int64 id = 1;
     string typeName = 2;
     string description = 3;
-    string status = 4;
+    InspectionTypeStatus status = 4;
 }
 message UpdateInspectionTypeResponse { InspectionTypeProto inspectionType = 1; }
 message DeleteInspectionTypeRequest { int64 id = 1; }
 message DeleteInspectionTypeResponse { bool success = 1; }
 
-// ===== Defect Code =====
 message DefectCodeProto {
     int64 id = 1;
     string defectCode = 2;
     string defectName = 3;
     string category = 4;
-    string severity = 5;
+    SeverityLevel severity = 5;
     bool isCritical = 6;
     string description = 7;
     string dispositionGuide = 8;
@@ -247,7 +298,7 @@ message GetDefectCodeRequest { int64 id = 1; }
 message GetDefectCodeResponse { DefectCodeProto defectCode = 1; }
 message ListDefectCodesRequest {
     string category = 1;
-    string severity = 2;
+    SeverityLevel severity = 2;
     int32 page = 3;
     int32 size = 4;
 }
@@ -261,7 +312,7 @@ message CreateDefectCodeRequest {
     string defectCode = 1;
     string defectName = 2;
     string category = 3;
-    string severity = 4;
+    SeverityLevel severity = 4;
     bool isCritical = 5;
     string description = 6;
     string dispositionGuide = 7;
@@ -270,7 +321,7 @@ message CreateDefectCodeResponse { DefectCodeProto defectCode = 1; }
 message UpdateDefectCodeRequest {
     int64 id = 1;
     string defectName = 2;
-    string severity = 3;
+    SeverityLevel severity = 3;
     string dispositionGuide = 4;
     bool isEnabled = 5;
 }
@@ -278,31 +329,30 @@ message UpdateDefectCodeResponse { DefectCodeProto defectCode = 1; }
 message DeleteDefectCodeRequest { int64 id = 1; }
 message DeleteDefectCodeResponse { bool success = 1; }
 
-// ===== Non-Conformance =====
 message NonConformanceProto {
     int64 id = 1;
     string ncCode = 2;
     string ncName = 3;
-    string type = 4;
+    NonConformanceType type = 4;
     string source = 5;
     string defectCode = 6;
     string description = 7;
-    string severity = 8;
-    string status = 9;
+    SeverityLevel severity = 8;
+    NonConformanceStatus status = 9;
     string disposition = 10;
     string responsiblePerson = 11;
     string correctiveAction = 12;
     string preventiveAction = 13;
-    string dueDate = 14;
-    string closedDate = 15;
+    int64 dueDate = 14;
+    int64 closedDate = 15;
     int64 createdAt = 16;
     int64 updatedAt = 17;
 }
 message GetNonConformanceRequest { int64 id = 1; }
 message GetNonConformanceResponse { NonConformanceProto nonConformance = 1; }
 message ListNonConformancesRequest {
-    string status = 1;
-    string severity = 2;
+    NonConformanceStatus status = 1;
+    SeverityLevel severity = 2;
     int32 page = 3;
     int32 size = 4;
 }
@@ -315,29 +365,28 @@ message ListNonConformancesResponse {
 message CreateNonConformanceRequest {
     string ncCode = 1;
     string ncName = 2;
-    string type = 3;
+    NonConformanceType type = 3;
     string defectCode = 4;
     string description = 5;
-    string severity = 6;
+    SeverityLevel severity = 6;
     string responsiblePerson = 7;
     string correctiveAction = 8;
-    string dueDate = 9;
+    int64 dueDate = 9;
 }
 message CreateNonConformanceResponse { NonConformanceProto nonConformance = 1; }
 message UpdateNonConformanceStatusRequest {
     int64 id = 1;
-    string status = 2;
+    NonConformanceStatus status = 2;
     string disposition = 3;
-    string closedDate = 4;
+    int64 closedDate = 4;
 }
 message UpdateNonConformanceStatusResponse { bool success = 1; }
 
-// ===== SPC Control Chart =====
 message SpcControlChartProto {
     int64 id = 1;
     string chartCode = 2;
     string chartName = 3;
-    string chartType = 4;
+    ChartType chartType = 4;
     int64 inspectionItemId = 5;
     double centerLine = 6;
     double upperControlLimit = 7;
@@ -345,7 +394,7 @@ message SpcControlChartProto {
     double upperSpecLimit = 9;
     double lowerSpecLimit = 10;
     int32 sampleSize = 11;
-    string status = 12;
+    SpcChartStatus status = 12;
     string remark = 13;
     int64 createdAt = 14;
     int64 updatedAt = 15;
@@ -353,8 +402,8 @@ message SpcControlChartProto {
 message GetSpcControlChartRequest { int64 id = 1; }
 message GetSpcControlChartResponse { SpcControlChartProto chart = 1; }
 message ListSpcControlChartsRequest {
-    string chartType = 1;
-    string status = 2;
+    ChartType chartType = 1;
+    SpcChartStatus status = 2;
     int32 page = 3;
     int32 size = 4;
 }
@@ -367,7 +416,7 @@ message ListSpcControlChartsResponse {
 message CreateSpcControlChartRequest {
     string chartCode = 1;
     string chartName = 2;
-    string chartType = 3;
+    ChartType chartType = 3;
     int64 inspectionItemId = 4;
     double centerLine = 5;
     double upperControlLimit = 6;
@@ -381,7 +430,7 @@ message UpdateSpcControlChartRequest {
     double centerLine = 3;
     double upperControlLimit = 4;
     double lowerControlLimit = 5;
-    string status = 6;
+    SpcChartStatus status = 6;
     string remark = 7;
 }
 message UpdateSpcControlChartResponse { SpcControlChartProto chart = 1; }

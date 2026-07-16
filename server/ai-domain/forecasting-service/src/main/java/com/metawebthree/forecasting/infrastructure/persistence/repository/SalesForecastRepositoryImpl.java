@@ -4,78 +4,61 @@ import com.metawebthree.forecasting.domain.entity.SalesForecast;
 import com.metawebthree.forecasting.domain.repository.SalesForecastRepository;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class SalesForecastRepositoryImpl implements SalesForecastRepository {
 
-    private final Map<Long, SalesForecast> storage = new ConcurrentHashMap<>();
-    private final AtomicLong idGenerator = new AtomicLong(1);
+    private final SalesForecastJpaRepository jpaRepository;
+
+    public SalesForecastRepositoryImpl(SalesForecastJpaRepository jpaRepository) {
+        this.jpaRepository = jpaRepository;
+    }
 
     @Override
     public Optional<SalesForecast> findById(Long id) {
-        return Optional.ofNullable(storage.get(id));
+        return jpaRepository.findById(id);
     }
 
     @Override
     public List<SalesForecast> findBySkuCode(String skuCode) {
-        return storage.values().stream()
-            .filter(f -> f.getSkuCode().equals(skuCode))
-            .collect(Collectors.toList());
+        return jpaRepository.findBySkuCode(skuCode);
     }
 
     @Override
     public List<SalesForecast> findByWarehouseId(Long warehouseId) {
-        return storage.values().stream()
-            .filter(f -> f.getWarehouseId().equals(warehouseId))
-            .collect(Collectors.toList());
+        return jpaRepository.findByWarehouseId(warehouseId);
     }
 
     @Override
     public List<SalesForecast> findByForecastDate(LocalDate forecastDate) {
-        return storage.values().stream()
-            .filter(f -> f.getForecastDate().equals(forecastDate))
-            .collect(Collectors.toList());
+        return jpaRepository.findByForecastDate(forecastDate);
     }
 
     @Override
     public List<SalesForecast> findBySkuCodeAndForecastDateBetween(
             String skuCode, LocalDate startDate, LocalDate endDate) {
-        return storage.values().stream()
-            .filter(f -> f.getSkuCode().equals(skuCode))
-            .filter(f -> !f.getForecastDate().isBefore(startDate))
-            .filter(f -> !f.getForecastDate().isAfter(endDate))
-            .collect(Collectors.toList());
+        return jpaRepository.findBySkuCodeAndForecastDateBetween(skuCode, startDate, endDate);
     }
 
     @Override
     public List<SalesForecast> findByStatus(SalesForecast.ForecastStatus status) {
-        return storage.values().stream()
-            .filter(f -> f.getStatus() == status)
-            .collect(Collectors.toList());
+        return jpaRepository.findByStatus(status);
     }
 
     @Override
     public SalesForecast save(SalesForecast forecast) {
-        if (forecast.getId() == null) {
-            forecast.setId(idGenerator.getAndIncrement());
-        }
-        storage.put(forecast.getId(), forecast);
-        return forecast;
+        return jpaRepository.save(forecast);
     }
 
     @Override
     public void update(SalesForecast forecast) {
-        if (forecast.getId() != null && storage.containsKey(forecast.getId())) {
-            storage.put(forecast.getId(), forecast);
-        }
+        jpaRepository.save(forecast);
     }
 
     @Override
     public void deleteById(Long id) {
-        storage.remove(id);
+        jpaRepository.deleteById(id);
     }
 }

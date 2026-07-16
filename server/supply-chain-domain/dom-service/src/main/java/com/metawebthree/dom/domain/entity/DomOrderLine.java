@@ -15,6 +15,6 @@ public class DomOrderLine {
     private Long warehouseId;
     private String warehouseName;
     private BigDecimal unitPrice;
-    private String status;
+    private DomOrderLineStatus status;
     private LocalDateTime createdAt;
 }

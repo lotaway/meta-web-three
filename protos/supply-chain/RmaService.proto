@@ -4,6 +4,30 @@ package com.metawebthree.supplychain.generated.rpc;
 
 option java_multiple_files = true;
 
+enum RmaStatus {
+    RMA_STATUS_UNSPECIFIED = 0;
+}
+
+enum RmaReturnType {
+    RMA_RETURN_TYPE_UNSPECIFIED = 0;
+}
+
+enum RmaInspectionResult {
+    RMA_INSPECTION_RESULT_UNSPECIFIED = 0;
+}
+
+enum RmaInspectionConclusion {
+    RMA_INSPECTION_CONCLUSION_UNSPECIFIED = 0;
+}
+
+enum RmaDispositionType {
+    RMA_DISPOSITION_TYPE_UNSPECIFIED = 0;
+}
+
+enum RmaShippingStatus {
+    RMA_SHIPPING_STATUS_UNSPECIFIED = 0;
+}
+
 service RmaService {
     rpc getRmaOrder(GetRmaOrderRequest) returns (GetRmaOrderResponse);
     rpc listRmaOrders(ListRmaOrdersRequest) returns (ListRmaOrdersResponse);
@@ -24,7 +48,7 @@ message GetRmaOrderResponse {
 }
 
 message ListRmaOrdersRequest {
-    string status = 1;
+    RmaStatus status = 1;
     int32 pageNum = 2;
     int32 pageSize = 3;
 }
@@ -38,7 +62,7 @@ message ListRmaOrdersResponse {
 
 message CreateRmaOrderRequest {
     string orderNo = 1;
-    string returnType = 2;
+    RmaReturnType returnType = 2;
     string customerId = 3;
     string customerName = 4;
     string contactPhone = 5;
@@ -66,8 +90,8 @@ message SubmitForInspectionResponse {
 message RecordInspectionRequest {
     int64 rmaId = 1;
     string inspector = 2;
-    string result = 3;
-    string conclusion = 4;
+    RmaInspectionResult result = 3;
+    RmaInspectionConclusion conclusion = 4;
     string remark = 5;
 }
 
@@ -78,7 +102,7 @@ message RecordInspectionResponse {
 
 message MakeDispositionRequest {
     int64 rmaId = 1;
-    string dispositionType = 2;
+    RmaDispositionType dispositionType = 2;
     double refundAmount = 3;
     string replacementSkuCode = 4;
     int32 replacementQuantity = 5;
@@ -113,8 +137,8 @@ message RmaOrderDTO {
     int64 id = 1;
     string rmaNo = 2;
     string orderNo = 3;
-    string returnType = 4;
-    string status = 5;
+    RmaReturnType returnType = 4;
+    RmaStatus status = 5;
     string customerId = 6;
     string customerName = 7;
     string contactPhone = 8;
@@ -125,8 +149,8 @@ message RmaOrderDTO {
     double totalAmount = 13;
     string currency = 14;
     string createdBy = 15;
-    string createdAt = 16;
-    string updatedAt = 17;
+    int64 createdAt = 16;
+    int64 updatedAt = 17;
     repeated RmaOrderItemDTO items = 18;
     RmaInspectionDTO inspection = 19;
     RmaDispositionDTO disposition = 20;
@@ -151,9 +175,9 @@ message RmaInspectionDTO {
     int64 rmaId = 2;
     string rmaNo = 3;
     string inspector = 4;
-    string inspectionDate = 5;
-    string result = 6;
-    string conclusion = 7;
+    int64 inspectionDate = 5;
+    RmaInspectionResult result = 6;
+    RmaInspectionConclusion conclusion = 7;
     int32 totalInspected = 8;
     int32 totalPassed = 9;
     int32 totalFailed = 10;
@@ -164,14 +188,14 @@ message RmaDispositionDTO {
     int64 id = 1;
     int64 rmaId = 2;
     string rmaNo = 3;
-    string dispositionType = 4;
+    RmaDispositionType dispositionType = 4;
     double refundAmount = 5;
     string replacementSkuCode = 6;
     int32 replacementQuantity = 7;
     int32 scrapQuantity = 8;
     string scrapReason = 9;
     string dispositionBy = 10;
-    string dispositionDate = 11;
+    int64 dispositionDate = 11;
     string remark = 12;
 }
 
@@ -184,7 +208,7 @@ message ReturnShippingDTO {
     string shippingMethod = 6;
     string originAddress = 7;
     string destinationAddress = 8;
-    string shippingDate = 9;
-    string estimatedArrivalDate = 10;
-    string status = 11;
+    int64 shippingDate = 9;
+    int64 estimatedArrivalDate = 10;
+    RmaShippingStatus status = 11;
 }

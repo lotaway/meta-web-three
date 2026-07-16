@@ -1,6 +1,7 @@
 package com.metawebthree.dom.domain.repository;
 
 import com.metawebthree.dom.domain.entity.DomOrder;
+import com.metawebthree.dom.domain.entity.DomOrderStatus;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,7 +13,7 @@ public interface DomOrderRepository {
 
     Optional<DomOrder> findByOriginalOrderNo(String originalOrderNo);
 
-    List<DomOrder> findByStatus(String status);
+    List<DomOrder> findByStatus(DomOrderStatus status);
 
     List<DomOrder> findAll();
 

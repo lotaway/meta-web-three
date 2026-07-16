@@ -4,8 +4,42 @@ package com.metawebthree.factory.generated.rpc;
 
 option java_multiple_files = true;
 
+enum EquipmentStatus {
+    EQUIPMENT_STATUS_UNSPECIFIED = 0;
+    EQUIPMENT_STATUS_RUNNING = 1;
+    EQUIPMENT_STATUS_IDLE = 2;
+    EQUIPMENT_STATUS_MAINTENANCE = 3;
+    EQUIPMENT_STATUS_BREAKDOWN = 4;
+    EQUIPMENT_STATUS_OFFLINE = 5;
+}
+
+enum MaintenancePlanStatus {
+    MAINTENANCE_PLAN_STATUS_UNSPECIFIED = 0;
+    MAINTENANCE_PLAN_STATUS_DRAFT = 1;
+    MAINTENANCE_PLAN_STATUS_ACTIVE = 2;
+    MAINTENANCE_PLAN_STATUS_INACTIVE = 3;
+    MAINTENANCE_PLAN_STATUS_COMPLETED = 4;
+}
+
+enum ChecklistTemplateType {
+    CHECKLIST_TEMPLATE_TYPE_UNSPECIFIED = 0;
+    CHECKLIST_TEMPLATE_TYPE_DAILY = 1;
+    CHECKLIST_TEMPLATE_TYPE_WEEKLY = 2;
+    CHECKLIST_TEMPLATE_TYPE_MONTHLY = 3;
+    CHECKLIST_TEMPLATE_TYPE_PRE_OPERATION = 4;
+    CHECKLIST_TEMPLATE_TYPE_POST_OPERATION = 5;
+    CHECKLIST_TEMPLATE_TYPE_MAINTENANCE = 6;
+}
+
+enum ChecklistRecordStatus {
+    CHECKLIST_RECORD_STATUS_UNSPECIFIED = 0;
+    CHECKLIST_RECORD_STATUS_DRAFT = 1;
+    CHECKLIST_RECORD_STATUS_SUBMITTED = 2;
+    CHECKLIST_RECORD_STATUS_APPROVED = 3;
+    CHECKLIST_RECORD_STATUS_REJECTED = 4;
+}
+
 service EquipmentService {
-    // Equipment
     rpc getEquipment(GetEquipmentRequest) returns (GetEquipmentResponse);
     rpc listEquipment(ListEquipmentRequest) returns (ListEquipmentResponse);
     rpc createEquipment(CreateEquipmentRequest) returns (CreateEquipmentResponse);
@@ -17,14 +51,12 @@ service EquipmentService {
     rpc repairEquipment(RepairEquipmentRequest) returns (RepairEquipmentResponse);
     rpc updateEquipmentStatus(UpdateEquipmentStatusRequest) returns (UpdateEquipmentStatusResponse);
 
-    // Equipment Type
     rpc getEquipmentType(GetEquipmentTypeRequest) returns (GetEquipmentTypeResponse);
     rpc listEquipmentTypes(ListEquipmentTypesRequest) returns (ListEquipmentTypesResponse);
     rpc createEquipmentType(CreateEquipmentTypeRequest) returns (CreateEquipmentTypeResponse);
     rpc updateEquipmentType(UpdateEquipmentTypeRequest) returns (UpdateEquipmentTypeResponse);
     rpc deleteEquipmentType(DeleteEquipmentTypeRequest) returns (DeleteEquipmentTypeResponse);
 
-    // Maintenance Plan
     rpc getMaintenancePlan(GetMaintenancePlanRequest) returns (GetMaintenancePlanResponse);
     rpc listMaintenancePlans(ListMaintenancePlansRequest) returns (ListMaintenancePlansResponse);
     rpc createMaintenancePlan(CreateMaintenancePlanRequest) returns (CreateMaintenancePlanResponse);
@@ -33,7 +65,6 @@ service EquipmentService {
     rpc activateMaintenancePlan(ActivateMaintenancePlanRequest) returns (ActivateMaintenancePlanResponse);
     rpc deactivateMaintenancePlan(DeactivateMaintenancePlanRequest) returns (DeactivateMaintenancePlanResponse);
 
-    // Checklist
     rpc getChecklistTemplate(GetChecklistTemplateRequest) returns (GetChecklistTemplateResponse);
     rpc listChecklistTemplates(ListChecklistTemplatesRequest) returns (ListChecklistTemplatesResponse);
     rpc createChecklistTemplate(CreateChecklistTemplateRequest) returns (CreateChecklistTemplateResponse);
@@ -42,7 +73,6 @@ service EquipmentService {
     rpc createChecklistRecord(CreateChecklistRecordRequest) returns (CreateChecklistRecordResponse);
 }
 
-// ===== Equipment =====
 message EquipmentProto {
     int64 id = 1;
     string equipmentCode = 2;
@@ -52,12 +82,12 @@ message EquipmentProto {
     string workshopId = 6;
     int64 workstationId = 7;
     string statusCode = 8;
-    string status = 9;
+    EquipmentStatus status = 9;
     string currentTaskNo = 10;
     double utilizationRate = 11;
     int32 todayOutput = 12;
-    string lastMaintenanceTime = 13;
-    string nextMaintenanceTime = 14;
+    int64 lastMaintenanceTime = 13;
+    int64 nextMaintenanceTime = 14;
     int64 totalRunningSeconds = 15;
     string digitalTwinDeviceCode = 16;
     double positionX = 17;
@@ -65,7 +95,7 @@ message EquipmentProto {
     double positionZ = 19;
     string ipAddress = 20;
     string macAddress = 21;
-    string lastHeartbeat = 22;
+    int64 lastHeartbeat = 22;
     int64 createdAt = 23;
     int64 updatedAt = 24;
 }
@@ -74,7 +104,7 @@ message GetEquipmentRequest { int64 id = 1; }
 message GetEquipmentResponse { EquipmentProto equipment = 1; }
 message ListEquipmentRequest {
     string workshopId = 1;
-    string status = 2;
+    EquipmentStatus status = 2;
     int64 equipmentTypeId = 3;
     int32 page = 4;
     int32 size = 5;
@@ -124,7 +154,6 @@ message UpdateEquipmentStatusRequest {
 }
 message UpdateEquipmentStatusResponse { bool success = 1; }
 
-// ===== Equipment Type =====
 message EquipmentTypeAttributeProto {
     int64 id = 1;
     int64 equipmentTypeId = 2;
@@ -187,7 +216,6 @@ message UpdateEquipmentTypeResponse { EquipmentTypeProto equipmentType = 1; }
 message DeleteEquipmentTypeRequest { int64 id = 1; }
 message DeleteEquipmentTypeResponse { bool success = 1; }
 
-// ===== Maintenance Plan =====
 message MaintenancePlanItemProto {
     int64 id = 1;
     int64 planId = 2;
@@ -209,10 +237,10 @@ message MaintenancePlanProto {
     int32 intervalValue = 9;
     string intervalUnit = 10;
     int32 estimatedDurationMinutes = 11;
-    string status = 12;
+    MaintenancePlanStatus status = 12;
     bool isActive = 13;
-    string lastExecutionTime = 14;
-    string nextExecutionTime = 15;
+    int64 lastExecutionTime = 14;
+    int64 nextExecutionTime = 15;
     string remark = 16;
     int64 createdAt = 17;
     int64 updatedAt = 18;
@@ -222,7 +250,7 @@ message GetMaintenancePlanRequest { int64 id = 1; }
 message GetMaintenancePlanResponse { MaintenancePlanProto maintenancePlan = 1; }
 message ListMaintenancePlansRequest {
     int64 equipmentId = 1;
-    string status = 2;
+    MaintenancePlanStatus status = 2;
     int32 page = 3;
     int32 size = 4;
 }
@@ -259,7 +287,6 @@ message ActivateMaintenancePlanResponse { bool success = 1; }
 message DeactivateMaintenancePlanRequest { int64 id = 1; }
 message DeactivateMaintenancePlanResponse { bool success = 1; }
 
-// ===== Checklist =====
 message ChecklistItemProto {
     int64 id = 1;
     string itemCode = 2;
@@ -272,7 +299,7 @@ message ChecklistTemplateProto {
     int64 id = 1;
     string templateCode = 2;
     string templateName = 3;
-    string type = 4;
+    ChecklistTemplateType type = 4;
     string description = 5;
     bool isActive = 6;
     int64 createdAt = 7;
@@ -282,7 +309,7 @@ message ChecklistTemplateProto {
 message GetChecklistTemplateRequest { int64 id = 1; }
 message GetChecklistTemplateResponse { ChecklistTemplateProto template = 1; }
 message ListChecklistTemplatesRequest {
-    string type = 1;
+    ChecklistTemplateType type = 1;
     bool isActive = 2;
     int32 page = 3;
     int32 size = 4;
@@ -296,7 +323,7 @@ message ListChecklistTemplatesResponse {
 message CreateChecklistTemplateRequest {
     string templateCode = 1;
     string templateName = 2;
-    string type = 3;
+    ChecklistTemplateType type = 3;
     string description = 4;
     repeated ChecklistItemProto items = 5;
 }
@@ -320,8 +347,8 @@ message ChecklistRecordProto {
     int64 maintenancePlanId = 7;
     string operatorId = 8;
     string operatorName = 9;
-    string checkTime = 10;
-    string status = 11;
+    int64 checkTime = 10;
+    ChecklistRecordStatus status = 11;
     string remark = 12;
     int64 createdAt = 13;
     repeated ChecklistRecordItemProto items = 14;

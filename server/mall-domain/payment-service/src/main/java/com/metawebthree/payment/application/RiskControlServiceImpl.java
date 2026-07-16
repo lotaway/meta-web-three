@@ -26,6 +26,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +35,8 @@ import java.util.Map;
 public class RiskControlServiceImpl {
 
     private final ExchangeOrderRepository exchangeOrderRepository;
+
+    private final Set<String> blacklistedAddresses = ConcurrentHashMap.newKeySet();
 
     @DubboReference(check = false, lazy = true)
     private RiskScorerService riskScorerService;
@@ -173,8 +177,16 @@ public class RiskControlServiceImpl {
         }
     }
 
+    public void addBlacklistedAddress(String walletAddress) {
+        blacklistedAddresses.add(walletAddress);
+    }
+
+    public boolean removeBlacklistedAddress(String walletAddress) {
+        return blacklistedAddresses.remove(walletAddress);
+    }
+
     private boolean isBlacklistedAddress(String walletAddress) {
-        return false;
+        return blacklistedAddresses.contains(walletAddress);
     }
 
     private boolean isValidAddressFormat(String walletAddress) {

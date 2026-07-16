@@ -148,7 +148,6 @@ public class ForecastingDomainServiceImpl implements ForecastingDomainService {
         model.startTraining();
         modelRepository.update(model);
         
-        // Real model training - calculate accuracy based on algorithm and historical data
         String algorithm = model.getAlgorithm();
         Integer trainingDays = model.getTrainingDays();
         
@@ -156,44 +155,76 @@ public class ForecastingDomainServiceImpl implements ForecastingDomainService {
             trainingDays = 30;
         }
         
-        // Try to get recent sales history for training
-        // In a real system, this would iterate through all SKU-warehouse combinations
-        // For now, we'll use algorithm-based default accuracy since we don't have
-        // a way to enumerate all SKU-warehouse pairs without additional infrastructure
-        BigDecimal calculatedAccuracy = calculateAlgorithmBasedAccuracy(algorithm, trainingDays);
+        BigDecimal accuracy = computeAccuracyFromTrainingData(
+            model.getFeatureConfig(), algorithm, trainingDays);
         
-        model.completeTraining(calculatedAccuracy);
+        model.completeTraining(accuracy);
         modelRepository.update(model);
     }
 
-    /**
-     * Calculate accuracy based on algorithm characteristics and training data volume
-     */
-    private BigDecimal calculateAlgorithmBasedAccuracy(String algorithm, Integer trainingDays) {
-        // Base accuracy varies by algorithm
-        double baseAccuracy;
-        switch (algorithm != null ? algorithm.toUpperCase() : "SMA") {
-            case "WMA":
-                baseAccuracy = 78.0; // Weighted gives more weight to recent data
-                break;
-            case "EXPONENTIAL_SMOOTHING":
-                baseAccuracy = 74.0; // Good for trending data
-                break;
-            case "SMA":
-            default:
-                baseAccuracy = 80.0; // Simple and reliable for stable data
-                break;
+    private BigDecimal computeAccuracyFromTrainingData(
+            String featureConfig, String algorithm, Integer trainingDays) {
+        
+        List<String[]> pairs = parseSkuWarehousePairs(featureConfig);
+        
+        if (pairs.isEmpty()) {
+            return calculateDefaultAccuracy(algorithm);
         }
         
-        // Adjust based on training days (more data = potentially better accuracy)
-        double adjustmentFactor = Math.min(1.0, trainingDays / 90.0);
-        double adjustedAccuracy = baseAccuracy * (0.9 + 0.1 * adjustmentFactor);
+        double totalAccuracy = 0;
+        int validScopes = 0;
         
-        // Add small random variation to simulate real-world variance
-        double variation = (Math.random() * 6 - 3); // -3 to +3
-        double finalAccuracy = Math.max(65, Math.min(92, adjustedAccuracy + variation));
+        for (String[] pair : pairs) {
+            String skuCode = pair[0];
+            if (skuCode == null || skuCode.trim().isEmpty()) continue;
+            
+            Long warehouseId = null;
+            if (pair.length > 1 && pair[1] != null && !pair[1].trim().isEmpty()) {
+                try {
+                    warehouseId = Long.parseLong(pair[1].trim());
+                } catch (NumberFormatException e) {
+                    continue;
+                }
+            }
+            
+            if (warehouseId == null) continue;
+            
+            List<SalesHistory> history = salesHistoryRepository
+                .findRecentBySkuCodeAndWarehouseId(skuCode.trim(), warehouseId, trainingDays);
+            
+            if (history == null || history.size() < 10) continue;
+            
+            history.sort((a, b) -> a.getSalesDate().compareTo(b.getSalesDate()));
+            
+            BigDecimal accuracy = calculateTrainingAccuracy(history, algorithm);
+            if (accuracy != null && accuracy.compareTo(BigDecimal.ZERO) > 0) {
+                totalAccuracy += accuracy.doubleValue();
+                validScopes++;
+            }
+        }
         
-        return BigDecimal.valueOf(finalAccuracy).setScale(2, java.math.RoundingMode.HALF_UP);
+        if (validScopes == 0) {
+            return calculateDefaultAccuracy(algorithm);
+        }
+        
+        double avgAccuracy = totalAccuracy / validScopes;
+        return BigDecimal.valueOf(Math.min(95, Math.max(60, avgAccuracy)))
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+    
+    private List<String[]> parseSkuWarehousePairs(String featureConfig) {
+        List<String[]> pairs = new ArrayList<>();
+        if (featureConfig == null || featureConfig.trim().isEmpty()) {
+            return pairs;
+        }
+        String[] entries = featureConfig.split(",");
+        for (String entry : entries) {
+            String[] parts = entry.trim().split(":");
+            if (parts.length >= 1 && !parts[0].trim().isEmpty()) {
+                pairs.add(parts);
+            }
+        }
+        return pairs;
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.metawebthree.common.cloud;
 
 import io.minio.BucketExistsArgs;
+import io.minio.GetObjectArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -102,6 +104,31 @@ public class MinioService {
             return objectName.substring(objectName.indexOf(minioConfig.getBucketName()) + minioConfig.getBucketName().length() + 1);
         }
         return objectName;
+    }
+
+    /**
+     * 获取文件内容
+     */
+    public byte[] getFile(String objectName) {
+        try {
+            String key = extractObjectKey(objectName);
+            try (InputStream stream = minioClient.getObject(
+                    GetObjectArgs.builder()
+                            .bucket(minioConfig.getBucketName())
+                            .object(key)
+                            .build())) {
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                byte[] data = new byte[8192];
+                int n;
+                while ((n = stream.read(data, 0, data.length)) != -1) {
+                    buffer.write(data, 0, n);
+                }
+                return buffer.toByteArray();
+            }
+        } catch (Exception e) {
+            log.error("Failed to get file from MinIO: {}", objectName, e);
+            throw new RuntimeException("Failed to get file from MinIO: " + e.getMessage(), e);
+        }
     }
 
     /**

@@ -6,12 +6,17 @@ import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.WeakKeyException;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 
 public class SecretUtilsKey {
+
+    private static final Logger logger = LoggerFactory.getLogger(SecretUtilsKey.class);
+
     public static Key getKey(String path) throws IOException {
         Key key = null;
         File destFile = new File(path);
@@ -20,7 +25,7 @@ public class SecretUtilsKey {
             try {
                 key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
             } catch (WeakKeyException e) {
-                e.printStackTrace();
+                logger.error("Weak key detected, generating new key", e);
             }
         }
         if (key == null) {

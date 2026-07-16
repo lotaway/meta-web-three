@@ -1,5 +1,7 @@
 package com.metawebthree.common.alert;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.health.HealthComponent;
 import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +16,9 @@ import java.util.Map;
  */
 @Service
 public class AlertService {
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(AlertService.class);
+
     @Autowired
     private HealthEndpoint healthEndpoint;
     
@@ -75,7 +79,7 @@ public class AlertService {
         alertHistory.put(key, record);
         
         // Log alert for real-time monitoring
-        System.err.println("[ALERT] " + alertType + ": " + message);
+        logger.error("[ALERT] {}: {}", alertType, message);
     }
     
     /**

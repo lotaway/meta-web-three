@@ -33,7 +33,7 @@ public class ProductionTaskController {
     @PostMapping
     @RequirePermission(MesPermissions.TASK_CREATE)
     public ResponseEntity<ProductionTaskDTO> create(@RequestBody CreateRequest request) {
-        ProductionTask task = commandService.createTask(
+        ProductionTask task = commandService.prepareCreateTask(
                 request.getTaskNo(),
                 request.getWorkOrderId(),
                 request.getWorkstationId(),
@@ -41,13 +41,15 @@ public class ProductionTaskController {
                 request.getQuantity(),
                 request.getOperatorId()
         );
+        commandService.saveTask(task);
         return ResponseEntity.status(HttpStatus.CREATED).body(ProductionTaskDTO.fromEntity(task));
     }
     
     @PostMapping("/{id}/start")
     @RequirePermission(MesPermissions.TASK_START)
     public ResponseEntity<ProductionTaskDTO> start(@PathVariable Long id) {
-        ProductionTask task = commandService.startTask(id);
+        ProductionTask task = commandService.prepareStartTask(id);
+        commandService.saveStartTask(task);
         return ResponseEntity.ok(ProductionTaskDTO.fromEntity(task));
     }
     
@@ -56,25 +58,29 @@ public class ProductionTaskController {
     public ResponseEntity<ProductionTaskDTO> complete(
             @PathVariable Long id,
             @RequestBody CompleteRequest request) {
-        ProductionTask task = commandService.completeTask(id, request.getQualified(), request.getDefective());
+        ProductionTask task = commandService.prepareCompleteTask(id, request.getQualified(), request.getDefective());
+        commandService.saveCompleteTask(task, request.getQualified(), request.getDefective());
         return ResponseEntity.ok(ProductionTaskDTO.fromEntity(task));
     }
     
     @PostMapping("/{id}/quality/pass")
     public ResponseEntity<ProductionTaskDTO> passQualityCheck(@PathVariable Long id) {
-        ProductionTask task = commandService.passQualityCheck(id);
+        ProductionTask task = commandService.preparePassQualityCheck(id);
+        commandService.savePassQualityCheck(task);
         return ResponseEntity.ok(ProductionTaskDTO.fromEntity(task));
     }
     
     @PostMapping("/{id}/quality/fail")
     public ResponseEntity<ProductionTaskDTO> failQualityCheck(@PathVariable Long id) {
-        ProductionTask task = commandService.failQualityCheck(id);
+        ProductionTask task = commandService.prepareFailQualityCheck(id);
+        commandService.saveFailQualityCheck(task);
         return ResponseEntity.ok(ProductionTaskDTO.fromEntity(task));
     }
     
     @PostMapping("/{id}/scrap")
     public ResponseEntity<ProductionTaskDTO> scrap(@PathVariable Long id) {
-        ProductionTask task = commandService.scrapTask(id);
+        ProductionTask task = commandService.prepareScrapTask(id);
+        commandService.saveScrapTask(task);
         return ResponseEntity.ok(ProductionTaskDTO.fromEntity(task));
     }
     
@@ -83,13 +89,14 @@ public class ProductionTaskController {
     public ResponseEntity<ProductionTaskDTO> update(
             @PathVariable Long id,
             @RequestBody UpdateRequest request) {
-        ProductionTask task = commandService.updateTask(
+        ProductionTask task = commandService.prepareUpdateTask(
                 id,
                 request.getWorkstationId(),
                 request.getProcessCode(),
                 request.getQuantity(),
                 request.getOperatorId()
         );
+        commandService.saveUpdateTask(task);
         return ResponseEntity.ok(ProductionTaskDTO.fromEntity(task));
     }
     

@@ -1,28 +1,72 @@
 package com.metawebthree.routeoptimizer.domain.entity;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Table(name = "tb_route_plan")
 public class RoutePlan {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "plan_code", unique = true)
     private String planCode;
+
+    @Column(name = "plan_name")
     private String planName;
+
+    @Column(name = "vehicle_code")
     private String vehicleCode;
+
+    @Column(name = "driver_name")
     private String driverName;
+
+    @Column(name = "driver_phone")
     private String driverPhone;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private RouteStatus status;
+
+    @Column(name = "total_distance")
     private Double totalDistance;
+
+    @Column(name = "estimated_duration")
     private Integer estimatedDuration;
+
+    @Column(name = "planned_start_time")
     private LocalDateTime plannedStartTime;
+
+    @Column(name = "planned_end_time")
     private LocalDateTime plannedEndTime;
+
+    @Column(name = "actual_start_time")
     private LocalDateTime actualStartTime;
+
+    @Column(name = "actual_end_time")
     private LocalDateTime actualEndTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "optimization_type")
     private OptimizationType optimizationType;
+
+    @Column(name = "total_cost")
     private Double totalCost;
+
+    @Column(name = "remarks")
     private String remarks;
+
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "route_plan_id")
     private List<RoutePoint> points;
 
     public enum RouteStatus {

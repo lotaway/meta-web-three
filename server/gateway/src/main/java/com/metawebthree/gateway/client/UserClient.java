@@ -27,8 +27,8 @@ public class UserClient {
             return result;
         } catch (Exception e) {
             log.error("Failed to get user by id: {}, error: {}", id, e.getMessage());
+            throw new RuntimeException("Failed to call UserService", e);
         }
-        return new HashMap<>();
     }
 
     public Map<String, Object> getUserByWalletAddress(String walletAddress) {
@@ -44,8 +44,8 @@ public class UserClient {
             return result;
         } catch (Exception e) {
             log.error("Failed to get user by wallet address: {}, error: {}", walletAddress, e.getMessage());
+            throw new RuntimeException("Failed to call UserService", e);
         }
-        return new HashMap<>();
     }
 
     public String getWalletAddressByUserId(Long userId) {
@@ -57,8 +57,8 @@ public class UserClient {
             return response.getWalletAddress();
         } catch (Exception e) {
             log.error("Failed to get wallet address by userId: {}, error: {}", userId, e.getMessage());
+            throw new RuntimeException("Failed to call UserService", e);
         }
-        return "";
     }
 
     public long getUserIntegration(Long userId) {
@@ -70,8 +70,8 @@ public class UserClient {
             return response.getIntegration();
         } catch (Exception e) {
             log.error("Failed to get user integration: userId={}, error: {}", userId, e.getMessage());
+            throw new RuntimeException("Failed to call UserService", e);
         }
-        return 0;
     }
 
     public boolean addIntegration(Long userId, long amount) {
@@ -84,8 +84,8 @@ public class UserClient {
             return response.getSuccess();
         } catch (Exception e) {
             log.error("Failed to add integration: userId={}, amount={}, error: {}", userId, amount, e.getMessage());
+            throw new RuntimeException("Failed to call UserService", e);
         }
-        return false;
     }
 
     public boolean addGrowth(Long userId, long amount) {
@@ -98,8 +98,8 @@ public class UserClient {
             return response.getSuccess();
         } catch (Exception e) {
             log.error("Failed to add growth: userId={}, amount={}, error: {}", userId, amount, e.getMessage());
+            throw new RuntimeException("Failed to call UserService", e);
         }
-        return false;
     }
 
     public Map<String, Object> getUsers(Integer page, Integer size) {
@@ -118,8 +118,8 @@ public class UserClient {
             );
         } catch (Exception e) {
             log.error("Failed to get users: page={}, size={}, error: {}", page, size, e.getMessage());
+            throw new RuntimeException("Failed to call UserService", e);
         }
-        return createEmptyUsersConnection(page);
     }
 
     private List<Map<String, Object>> buildUserEdges(List<UserInfoProto> users) {

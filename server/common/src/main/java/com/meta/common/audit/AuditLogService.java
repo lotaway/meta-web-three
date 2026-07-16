@@ -1,5 +1,6 @@
 package com.meta.common.audit;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +39,9 @@ public class AuditLogService {
                 auditLog.setOperationTime(LocalDateTime.now());
             }
 
-            AuditLog saved = auditLogRepository.save(auditLog);
-            logger.debug("Audit log saved: {}", saved);
-            return saved;
+            auditLogRepository.insert(auditLog);
+            logger.debug("Audit log saved: {}", auditLog);
+            return auditLog;
         } catch (Exception e) {
             logger.error("Failed to save audit log", e);
             throw new RuntimeException("Failed to save audit log", e);
@@ -77,31 +78,63 @@ public class AuditLogService {
     }
 
     public AuditLog findById(Long id) {
-        return auditLogRepository.findById(id);
+        return auditLogRepository.selectById(id);
     }
 
     public List<AuditLog> findAll() {
-        return auditLogRepository.findAll();
+        return auditLogRepository.selectList(null);
     }
 
     public List<AuditLog> findByCondition(AuditLogQueryCondition condition) {
-        return auditLogRepository.findByCondition(condition);
+        QueryWrapper<AuditLog> wrapper = new QueryWrapper<>();
+        if (condition.getUserId() != null) {
+            wrapper.eq("user_id", condition.getUserId());
+        }
+        if (condition.getUsername() != null) {
+            wrapper.eq("username", condition.getUsername());
+        }
+        if (condition.getOperationType() != null) {
+            wrapper.eq("operation_type", condition.getOperationType());
+        }
+        if (condition.getResourceType() != null) {
+            wrapper.eq("resource_type", condition.getResourceType());
+        }
+        if (condition.getResourceId() != null) {
+            wrapper.eq("resource_id", condition.getResourceId());
+        }
+        if (condition.getResult() != null) {
+            wrapper.eq("result", condition.getResult());
+        }
+        if (condition.getStartTime() != null) {
+            wrapper.ge("operation_time", condition.getStartTime());
+        }
+        if (condition.getEndTime() != null) {
+            wrapper.le("operation_time", condition.getEndTime());
+        }
+        if (condition.getIpAddress() != null) {
+            wrapper.eq("ip_address", condition.getIpAddress());
+        }
+        if (condition.getRequestUrl() != null) {
+            wrapper.eq("request_url", condition.getRequestUrl());
+        }
+        wrapper.orderByDesc("operation_time");
+        return auditLogRepository.selectList(wrapper);
     }
 
     public List<AuditLog> findByTimeRange(LocalDateTime startTime, LocalDateTime endTime) {
-        return auditLogRepository.findByTimeRange(startTime, endTime);
+        return auditLogRepository.findByOperationTimeBetweenOrderByOperationTimeDesc(startTime, endTime);
     }
 
     public List<AuditLog> findByUsername(String username) {
-        return auditLogRepository.findByUsername(username);
+        return auditLogRepository.findByUsernameOrderByOperationTimeDesc(username);
     }
 
     public List<AuditLog> findByOperationType(String operationType) {
-        return auditLogRepository.findByOperationType(operationType);
+        return auditLogRepository.findByOperationTypeOrderByOperationTimeDesc(operationType);
     }
 
     public List<AuditLog> findByResourceType(String resourceType) {
-        return auditLogRepository.findByResourceType(resourceType);
+        return auditLogRepository.findByResourceTypeOrderByOperationTimeDesc(resourceType);
     }
 
     public int cleanupBefore(LocalDateTime time) {
@@ -109,11 +142,11 @@ public class AuditLogService {
     }
 
     public long count() {
-        return auditLogRepository.count();
+        return auditLogRepository.selectCount(null);
     }
 
     public void clearAll() {
-        auditLogRepository.deleteAll();
+        auditLogRepository.delete(null);
     }
 
     private String getClientIpAddress(HttpServletRequest request) {

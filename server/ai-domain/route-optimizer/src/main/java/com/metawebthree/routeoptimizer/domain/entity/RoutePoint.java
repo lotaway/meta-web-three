@@ -1,27 +1,72 @@
 package com.metawebthree.routeoptimizer.domain.entity;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "tb_route_point")
 public class RoutePoint {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "point_code", unique = true)
     private String pointCode;
+
+    @Column(name = "point_name")
     private String pointName;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
     private PointType type;
+
+    @Column(name = "latitude")
     private Double latitude;
+
+    @Column(name = "longitude")
     private Double longitude;
+
+    @Column(name = "address")
     private String address;
+
+    @Column(name = "contact_person")
     private String contactPerson;
+
+    @Column(name = "contact_phone")
     private String contactPhone;
+
+    @Column(name = "sequence")
     private Integer sequence;
+
+    @Column(name = "estimated_arrival_time")
     private Double estimatedArrivalTime;
+
+    @Column(name = "actual_arrival_time")
     private Double actualArrivalTime;
+
+    @Column(name = "expected_service_duration")
     private Integer expectedServiceDuration;
+
+    @Column(name = "actual_service_duration")
     private Integer actualServiceDuration;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private PointStatus status;
+
+    @Column(name = "distance_from_previous")
     private Double distanceFromPrevious;
+
+    @Column(name = "order_code")
     private String orderCode;
+
+    @Column(name = "remarks")
     private String remarks;
+
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     public enum PointType {

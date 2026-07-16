@@ -4,23 +4,43 @@ package com.metawebthree.erp.generated.rpc;
 
 option java_multiple_files = true;
 
+enum ReportType {
+    REPORT_TYPE_UNSPECIFIED = 0;
+    REPORT_TYPE_DAILY = 1;
+    REPORT_TYPE_WEEKLY = 2;
+    REPORT_TYPE_MONTHLY = 3;
+    REPORT_TYPE_QUARTERLY = 4;
+    REPORT_TYPE_YEARLY = 5;
+}
+
+enum ReportFrequency {
+    REPORT_FREQUENCY_UNSPECIFIED = 0;
+    REPORT_FREQUENCY_DAILY = 1;
+    REPORT_FREQUENCY_WEEKLY = 2;
+    REPORT_FREQUENCY_MONTHLY = 3;
+    REPORT_FREQUENCY_QUARTERLY = 4;
+}
+
+enum ReportChannel {
+    REPORT_CHANNEL_UNSPECIFIED = 0;
+    REPORT_CHANNEL_EMAIL = 1;
+    REPORT_CHANNEL_WEBHOOK = 2;
+    REPORT_CHANNEL_SMS = 3;
+}
+
 service ReportingService {
-    // Sales Report
     rpc getSalesReport(GetSalesReportRequest) returns (GetSalesReportResponse);
     rpc listSalesReports(ListSalesReportsRequest) returns (ListSalesReportsResponse);
     rpc generateSalesReport(GenerateSalesReportRequest) returns (GenerateSalesReportResponse);
 
-    // Inventory Report
     rpc getInventoryReport(GetInventoryReportRequest) returns (GetInventoryReportResponse);
     rpc listInventoryReports(ListInventoryReportsRequest) returns (ListInventoryReportsResponse);
     rpc generateInventoryReport(GenerateInventoryReportRequest) returns (GenerateInventoryReportResponse);
 
-    // Financial Report
     rpc getFinancialReport(GetFinancialReportRequest) returns (GetFinancialReportResponse);
     rpc listFinancialReports(ListFinancialReportsRequest) returns (ListFinancialReportsResponse);
     rpc generateFinancialReport(GenerateFinancialReportRequest) returns (GenerateFinancialReportResponse);
 
-    // Report Subscription
     rpc getReportSubscription(GetReportSubscriptionRequest) returns (GetReportSubscriptionResponse);
     rpc listReportSubscriptions(ListReportSubscriptionsRequest) returns (ListReportSubscriptionsResponse);
     rpc createReportSubscription(CreateReportSubscriptionRequest) returns (CreateReportSubscriptionResponse);
@@ -29,14 +49,13 @@ service ReportingService {
     rpc toggleReportSubscription(ToggleReportSubscriptionRequest) returns (ToggleReportSubscriptionResponse);
 }
 
-// ===== Sales Report =====
 message SalesReportProto {
     int64 id = 1;
     string reportNo = 2;
-    string type = 3;
-    string reportDate = 4;
-    string startDate = 5;
-    string endDate = 6;
+    ReportType type = 3;
+    int64 reportDate = 4;
+    int64 startDate = 5;
+    int64 endDate = 6;
     double totalSalesAmount = 7;
     int32 totalOrderCount = 8;
     double averageOrderAmount = 9;
@@ -50,7 +69,7 @@ message SalesReportProto {
 message GetSalesReportRequest { int64 id = 1; }
 message GetSalesReportResponse { SalesReportProto salesReport = 1; }
 message ListSalesReportsRequest {
-    string type = 1;
+    ReportType type = 1;
     int32 page = 2;
     int32 size = 3;
 }
@@ -61,18 +80,17 @@ message ListSalesReportsResponse {
     int32 size = 4;
 }
 message GenerateSalesReportRequest {
-    string type = 1;
-    string startDate = 2;
-    string endDate = 3;
+    ReportType type = 1;
+    int64 startDate = 2;
+    int64 endDate = 3;
 }
 message GenerateSalesReportResponse { SalesReportProto salesReport = 1; }
 
-// ===== Inventory Report =====
 message InventoryReportProto {
     int64 id = 1;
     string reportNo = 2;
-    string type = 3;
-    string reportDate = 4;
+    ReportType type = 3;
+    int64 reportDate = 4;
     double totalInventoryValue = 5;
     int32 totalSkuCount = 6;
     int32 totalQuantity = 7;
@@ -87,7 +105,7 @@ message InventoryReportProto {
 message GetInventoryReportRequest { int64 id = 1; }
 message GetInventoryReportResponse { InventoryReportProto inventoryReport = 1; }
 message ListInventoryReportsRequest {
-    string type = 1;
+    ReportType type = 1;
     int32 page = 2;
     int32 size = 3;
 }
@@ -98,17 +116,16 @@ message ListInventoryReportsResponse {
     int32 size = 4;
 }
 message GenerateInventoryReportRequest {
-    string type = 1;
+    ReportType type = 1;
     string warehouseId = 2;
 }
 message GenerateInventoryReportResponse { InventoryReportProto inventoryReport = 1; }
 
-// ===== Financial Report =====
 message FinancialReportProto {
     int64 id = 1;
     string reportNo = 2;
-    string type = 3;
-    string reportDate = 4;
+    ReportType type = 3;
+    int64 reportDate = 4;
     double totalReceivable = 5;
     double totalPayable = 6;
     double netReceivable = 7;
@@ -124,7 +141,7 @@ message FinancialReportProto {
 message GetFinancialReportRequest { int64 id = 1; }
 message GetFinancialReportResponse { FinancialReportProto financialReport = 1; }
 message ListFinancialReportsRequest {
-    string type = 1;
+    ReportType type = 1;
     int32 page = 2;
     int32 size = 3;
 }
@@ -135,25 +152,24 @@ message ListFinancialReportsResponse {
     int32 size = 4;
 }
 message GenerateFinancialReportRequest {
-    string type = 1;
-    string reportDate = 2;
+    ReportType type = 1;
+    int64 reportDate = 2;
 }
 message GenerateFinancialReportResponse { FinancialReportProto financialReport = 1; }
 
-// ===== Report Subscription =====
 message ReportSubscriptionProto {
     int64 id = 1;
     int64 userId = 2;
     string userName = 3;
-    string reportType = 4;
-    string frequency = 5;
+    ReportType reportType = 4;
+    ReportFrequency frequency = 5;
     string cronExpression = 6;
-    string channel = 7;
+    ReportChannel channel = 7;
     string recipient = 8;
     string webhookUrl = 9;
     bool enabled = 10;
-    string nextSendTime = 11;
-    string lastSendTime = 12;
+    int64 nextSendTime = 11;
+    int64 lastSendTime = 12;
     int64 createdAt = 13;
     int64 updatedAt = 14;
 }
@@ -172,15 +188,15 @@ message ListReportSubscriptionsResponse {
 }
 message CreateReportSubscriptionRequest {
     int64 userId = 1;
-    string reportType = 2;
-    string frequency = 3;
-    string channel = 4;
+    ReportType reportType = 2;
+    ReportFrequency frequency = 3;
+    ReportChannel channel = 4;
     string recipient = 5;
 }
 message CreateReportSubscriptionResponse { ReportSubscriptionProto subscription = 1; }
 message UpdateReportSubscriptionRequest {
     int64 id = 1;
-    string frequency = 2;
+    ReportFrequency frequency = 2;
     string recipient = 3;
 }
 message UpdateReportSubscriptionResponse { ReportSubscriptionProto subscription = 1; }

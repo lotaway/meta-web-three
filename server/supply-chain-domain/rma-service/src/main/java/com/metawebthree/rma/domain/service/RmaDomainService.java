@@ -14,17 +14,25 @@ public interface RmaDomainService {
                             Long warehouseId, String returnType, String createdBy,
                             List<RmaOrderItem> items);
 
+    void saveRmaOrder(RmaOrder order);
+
+    void saveRmaOrder(RmaOrder order, List<RmaOrderItem> items);
+
+    void saveInspection(RmaInspection inspection);
+
+    void saveDisposition(RmaDisposition disposition);
+
     RmaOrder submitForInspection(Long rmaId);
 
-    RmaInspection recordInspection(Long rmaId, RmaInspection inspection);
+    RmaInspection recordInspection(RmaOrder order, RmaInspection inspection);
 
-    RmaDisposition makeDisposition(Long rmaId, RmaDisposition disposition);
+    RmaDisposition makeDisposition(RmaOrder order, RmaDisposition disposition);
 
     RmaOrder executeDisposition(Long rmaId);
 
-    RmaOrder cancelRmaOrder(Long rmaId);
-
     RmaOrder completeRmaOrder(Long rmaId);
+
+    RmaOrder cancelRmaOrder(Long rmaId);
 
     Optional<RmaOrder> getRmaOrder(Long rmaId);
 

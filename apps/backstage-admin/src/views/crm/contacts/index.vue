@@ -143,8 +143,8 @@ const fetchContacts = async () => {
     const res = await listContacts({ ...queryParams, page: page.value, pageSize: pageSize.value })
     contacts.value = res.data.records
     total.value = res.data.total
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to fetch contacts:', e)
   } finally {
     loading.value = false
   }
@@ -198,8 +198,9 @@ const handleSave = async () => {
     }
     dialogVisible.value = false
     fetchContacts()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to save contact:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 
@@ -208,8 +209,9 @@ const handleDelete = async (id: number) => {
     await deleteContact(id)
     ElMessage.success(t('message.deleteSuccess'))
     fetchContacts()
-  } catch {
-    // silent
+  } catch (e) {
+    console.error('Failed to delete contact:', e)
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 

@@ -1,5 +1,6 @@
 package com.metawebthree.rma.infrastructure.persistence.converter;
 
+import com.metawebthree.rma.domain.RmaOrderStatus;
 import com.metawebthree.rma.domain.entity.RmaOrder;
 import com.metawebthree.rma.infrastructure.persistence.dataobject.RmaOrderDO;
 import org.springframework.stereotype.Component;
@@ -16,7 +17,7 @@ public class RmaOrderConverter {
         entity.setRmaNo(doObj.getRmaNo());
         entity.setOrderNo(doObj.getOrderNo());
         entity.setReturnType(doObj.getReturnType());
-        entity.setStatus(doObj.getStatus());
+        entity.setStatus(doObj.getStatus() != null ? RmaOrderStatus.valueOf(doObj.getStatus()) : null);
         entity.setCustomerId(doObj.getCustomerId());
         entity.setCustomerName(doObj.getCustomerName());
         entity.setContactPhone(doObj.getContactPhone());
@@ -42,7 +43,7 @@ public class RmaOrderConverter {
         doObj.setRmaNo(entity.getRmaNo());
         doObj.setOrderNo(entity.getOrderNo());
         doObj.setReturnType(entity.getReturnType());
-        doObj.setStatus(entity.getStatus());
+        doObj.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
         doObj.setCustomerId(entity.getCustomerId());
         doObj.setCustomerName(entity.getCustomerName());
         doObj.setContactPhone(entity.getContactPhone());

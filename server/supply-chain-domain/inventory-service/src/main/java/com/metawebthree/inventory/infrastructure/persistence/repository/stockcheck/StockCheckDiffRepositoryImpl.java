@@ -1,97 +1,95 @@
 package com.metawebthree.inventory.infrastructure.persistence.repository.stockcheck;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.inventory.domain.entity.stockcheck.StockCheckDiff;
 import com.metawebthree.inventory.domain.repository.stockcheck.StockCheckDiffRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
+@RequiredArgsConstructor
 public class StockCheckDiffRepositoryImpl implements StockCheckDiffRepository {
 
-    private final Map<Long, StockCheckDiff> storage = new ConcurrentHashMap<>();
-    private final AtomicLong idGenerator = new AtomicLong(1);
+    private final StockCheckDiffMapper mapper;
 
     @Override
     public StockCheckDiff save(StockCheckDiff diff) {
         if (diff.getId() == null) {
-            diff.setId(idGenerator.getAndIncrement());
-            diff.setVersion(0);
+            mapper.insert(diff);
         } else {
-            diff.setVersion(diff.getVersion() + 1);
+            mapper.updateById(diff);
         }
-        storage.put(diff.getId(), diff);
         return diff;
     }
 
     @Override
     public Optional<StockCheckDiff> findById(Long id) {
-        return Optional.ofNullable(storage.get(id))
+        return Optional.ofNullable(mapper.selectById(id))
                 .filter(d -> !Boolean.TRUE.equals(d.getDeleted()));
     }
 
     @Override
     public List<StockCheckDiff> findByPlanId(Long planId) {
-        return storage.values().stream()
-                .filter(d -> planId.equals(d.getPlanId()))
-                .filter(d -> !Boolean.TRUE.equals(d.getDeleted()))
-                .collect(Collectors.toList());
+        return mapper.selectList(
+                new LambdaQueryWrapper<StockCheckDiff>()
+                        .eq(StockCheckDiff::getPlanId, planId)
+                        .eq(StockCheckDiff::getDeleted, false));
     }
 
     @Override
     public List<StockCheckDiff> findByPlanNo(String planNo) {
-        return storage.values().stream()
-                .filter(d -> planNo.equals(d.getPlanNo()))
-                .filter(d -> !Boolean.TRUE.equals(d.getDeleted()))
-                .collect(Collectors.toList());
+        return mapper.selectList(
+                new LambdaQueryWrapper<StockCheckDiff>()
+                        .eq(StockCheckDiff::getPlanNo, planNo)
+                        .eq(StockCheckDiff::getDeleted, false));
     }
 
     @Override
     public List<StockCheckDiff> findByWarehouseId(Long warehouseId) {
-        return storage.values().stream()
-                .filter(d -> warehouseId.equals(d.getWarehouseId()))
-                .filter(d -> !Boolean.TRUE.equals(d.getDeleted()))
-                .collect(Collectors.toList());
+        return mapper.selectList(
+                new LambdaQueryWrapper<StockCheckDiff>()
+                        .eq(StockCheckDiff::getWarehouseId, warehouseId)
+                        .eq(StockCheckDiff::getDeleted, false));
     }
 
     @Override
     public List<StockCheckDiff> findByProcessingStatus(String status) {
-        return storage.values().stream()
-                .filter(d -> status.equals(d.getProcessingStatus()))
-                .filter(d -> !Boolean.TRUE.equals(d.getDeleted()))
-                .collect(Collectors.toList());
+        return mapper.selectList(
+                new LambdaQueryWrapper<StockCheckDiff>()
+                        .eq(StockCheckDiff::getProcessingStatus, status)
+                        .eq(StockCheckDiff::getDeleted, false));
     }
 
     @Override
     public List<StockCheckDiff> findByApprovalStatus(String status) {
-        return storage.values().stream()
-                .filter(d -> status.equals(d.getApprovalStatus()))
-                .filter(d -> !Boolean.TRUE.equals(d.getDeleted()))
-                .collect(Collectors.toList());
+        return mapper.selectList(
+                new LambdaQueryWrapper<StockCheckDiff>()
+                        .eq(StockCheckDiff::getApprovalStatus, status)
+                        .eq(StockCheckDiff::getDeleted, false));
     }
 
     @Override
     public List<StockCheckDiff> findPendingApproval() {
-        return storage.values().stream()
-                .filter(d -> StockCheckDiff.APPROVAL_STATUS_PENDING.equals(d.getApprovalStatus()))
-                .filter(StockCheckDiff::needsApproval)
-                .filter(d -> !Boolean.TRUE.equals(d.getDeleted()))
-                .collect(Collectors.toList());
+        return mapper.selectList(
+                new LambdaQueryWrapper<StockCheckDiff>()
+                        .eq(StockCheckDiff::getApprovalStatus, StockCheckDiff.APPROVAL_STATUS_PENDING)
+                        .eq(StockCheckDiff::getDeleted, false)
+                        .apply("ABS(difference_quantity) > {0}", 10));
     }
 
     @Override
     public List<StockCheckDiff> findBySkuCode(String skuCode) {
-        return storage.values().stream()
-                .filter(d -> skuCode.equals(d.getSkuCode()))
-                .filter(d -> !Boolean.TRUE.equals(d.getDeleted()))
-                .collect(Collectors.toList());
+        return mapper.selectList(
+                new LambdaQueryWrapper<StockCheckDiff>()
+                        .eq(StockCheckDiff::getSkuCode, skuCode)
+                        .eq(StockCheckDiff::getDeleted, false));
     }
 
     @Override
     public void deleteById(Long id) {
-        storage.remove(id);
+        mapper.deleteById(id);
     }
 }

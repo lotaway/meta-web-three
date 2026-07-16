@@ -1,0 +1,315 @@
+syntax = "proto3";
+
+package com.metawebthree.erp.generated.rpc;
+
+option java_multiple_files = true;
+
+import "shared/google/type/money.proto";
+
+service FinanceCostService {
+    rpc getCostCenter(GetCostCenterRequest) returns (GetCostCenterResponse);
+    rpc listCostCenters(ListCostCentersRequest) returns (ListCostCentersResponse);
+    rpc createCostCenter(CreateCostCenterRequest) returns (CreateCostCenterResponse);
+    rpc updateCostCenter(UpdateCostCenterRequest) returns (UpdateCostCenterResponse);
+    rpc getStandardCost(GetStandardCostRequest) returns (GetStandardCostResponse);
+    rpc listStandardCosts(ListStandardCostsRequest) returns (ListStandardCostsResponse);
+    rpc createStandardCost(CreateStandardCostRequest) returns (CreateStandardCostResponse);
+    rpc getActualCost(GetActualCostRequest) returns (GetActualCostResponse);
+    rpc listActualCosts(ListActualCostsRequest) returns (ListActualCostsResponse);
+    rpc createActualCost(CreateActualCostRequest) returns (CreateActualCostResponse);
+    rpc getCostVariance(GetCostVarianceRequest) returns (GetCostVarianceResponse);
+    rpc listCostVariances(ListCostVariancesRequest) returns (ListCostVariancesResponse);
+    rpc getExchangeRate(GetExchangeRateRequest) returns (GetExchangeRateResponse);
+    rpc listExchangeRates(ListExchangeRatesRequest) returns (ListExchangeRatesResponse);
+    rpc createExchangeRate(CreateExchangeRateRequest) returns (CreateExchangeRateResponse);
+    rpc updateExchangeRate(UpdateExchangeRateRequest) returns (UpdateExchangeRateResponse);
+    rpc listFinancialRatios(ListFinancialRatiosRequest) returns (ListFinancialRatiosResponse);
+    rpc getFinancialRatio(GetFinancialRatioRequest) returns (GetFinancialRatioResponse);
+}
+
+enum CostCenterType {
+    COST_CENTER_TYPE_UNSPECIFIED = 0;
+    COST_CENTER_TYPE_PRODUCTION = 1;
+    COST_CENTER_TYPE_ADMINISTRATIVE = 2;
+    COST_CENTER_TYPE_SALES = 3;
+    COST_CENTER_TYPE_RESEARCH = 4;
+}
+
+enum CostCenterStatus {
+    COST_CENTER_STATUS_UNSPECIFIED = 0;
+    COST_CENTER_STATUS_ACTIVE = 1;
+    COST_CENTER_STATUS_FROZEN = 2;
+    COST_CENTER_STATUS_CLOSED = 3;
+}
+
+enum StandardCostStatus {
+    STANDARD_COST_STATUS_UNSPECIFIED = 0;
+    STANDARD_COST_STATUS_DRAFT = 1;
+    STANDARD_COST_STATUS_ACTIVE = 2;
+    STANDARD_COST_STATUS_EXPIRED = 3;
+}
+
+enum ExchangeRateType {
+    EXCHANGE_RATE_TYPE_UNSPECIFIED = 0;
+    EXCHANGE_RATE_TYPE_SPOT = 1;
+    EXCHANGE_RATE_TYPE_FORWARD = 2;
+    EXCHANGE_RATE_TYPE_AVERAGE = 3;
+    EXCHANGE_RATE_TYPE_CLOSING = 4;
+}
+
+enum FinancialRatioType {
+    FINANCIAL_RATIO_TYPE_UNSPECIFIED = 0;
+    FINANCIAL_RATIO_TYPE_CURRENT_RATIO = 1;
+    FINANCIAL_RATIO_TYPE_QUICK_RATIO = 2;
+    FINANCIAL_RATIO_TYPE_DEBT_RATIO = 3;
+    FINANCIAL_RATIO_TYPE_PROFIT_MARGIN = 4;
+    FINANCIAL_RATIO_TYPE_ROE = 5;
+    FINANCIAL_RATIO_TYPE_ROA = 6;
+    FINANCIAL_RATIO_TYPE_INVENTORY_TURNOVER = 7;
+}
+
+message CostCenterProto {
+    int64 id = 1;
+    string costCenterCode = 2;
+    string costCenterName = 3;
+    CostCenterType type = 4;
+    int64 parentId = 5;
+    int64 departmentId = 6;
+    string departmentName = 7;
+    string managerName = 8;
+    CostCenterStatus status = 9;
+    google.type.Money budgetAmount = 10;
+    google.type.Money actualCost = 11;
+    string currency = 12;
+    string description = 13;
+    int64 createdAt = 14;
+    int64 updatedAt = 15;
+}
+message GetCostCenterRequest { int64 id = 1; }
+message GetCostCenterResponse { CostCenterProto costCenter = 1; }
+message ListCostCentersRequest {
+    CostCenterStatus status = 1;
+    CostCenterType type = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListCostCentersResponse {
+    repeated CostCenterProto costCenters = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateCostCenterRequest {
+    string costCenterCode = 1;
+    string costCenterName = 2;
+    CostCenterType type = 3;
+    int64 departmentId = 4;
+    string description = 5;
+}
+message CreateCostCenterResponse { CostCenterProto costCenter = 1; }
+message UpdateCostCenterRequest {
+    int64 id = 1;
+    string costCenterName = 2;
+    CostCenterStatus status = 3;
+    string description = 4;
+}
+message UpdateCostCenterResponse { CostCenterProto costCenter = 1; }
+
+message StandardCostProto {
+    int64 id = 1;
+    string productCode = 2;
+    string productName = 3;
+    string productCategory = 4;
+    google.type.Money standardMaterialCost = 5;
+    google.type.Money standardLaborCost = 6;
+    google.type.Money standardOverheadCost = 7;
+    google.type.Money standardTotalCost = 8;
+    double standardQuantity = 9;
+    string unit = 10;
+    int64 effectiveDate = 11;
+    int64 expirationDate = 12;
+    StandardCostStatus status = 13;
+    string version = 14;
+    string currency = 15;
+    string remark = 16;
+    int64 createdAt = 17;
+    int64 updatedAt = 18;
+}
+message GetStandardCostRequest { int64 id = 1; }
+message GetStandardCostResponse { StandardCostProto standardCost = 1; }
+message ListStandardCostsRequest {
+    StandardCostStatus status = 1;
+    string productCategory = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListStandardCostsResponse {
+    repeated StandardCostProto standardCosts = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateStandardCostRequest {
+    string productCode = 1;
+    string productName = 2;
+    google.type.Money standardMaterialCost = 3;
+    google.type.Money standardLaborCost = 4;
+    google.type.Money standardOverheadCost = 5;
+    double standardQuantity = 6;
+    string unit = 7;
+    int64 effectiveDate = 8;
+    string currency = 9;
+}
+message CreateStandardCostResponse { StandardCostProto standardCost = 1; }
+
+message ActualCostProto {
+    int64 id = 1;
+    string productCode = 2;
+    string productName = 3;
+    string productionOrderNo = 4;
+    int64 costCenterId = 5;
+    string costCenterName = 6;
+    int64 costDate = 7;
+    google.type.Money actualMaterialCost = 8;
+    google.type.Money actualLaborCost = 9;
+    google.type.Money actualOverheadCost = 10;
+    google.type.Money actualTotalCost = 11;
+    double quantity = 12;
+    string unit = 13;
+    string currency = 14;
+    string remark = 15;
+    int64 createdAt = 16;
+    int64 updatedAt = 17;
+}
+message GetActualCostRequest { int64 id = 1; }
+message GetActualCostResponse { ActualCostProto actualCost = 1; }
+message ListActualCostsRequest {
+    string productCode = 1;
+    int64 startDate = 2;
+    int64 endDate = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListActualCostsResponse {
+    repeated ActualCostProto actualCosts = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateActualCostRequest {
+    string productCode = 1;
+    string productName = 2;
+    string productionOrderNo = 3;
+    int64 costCenterId = 4;
+    int64 costDate = 5;
+    google.type.Money actualMaterialCost = 6;
+    google.type.Money actualLaborCost = 7;
+    google.type.Money actualOverheadCost = 8;
+    double quantity = 9;
+    string unit = 10;
+    string currency = 11;
+    string remark = 12;
+}
+message CreateActualCostResponse { ActualCostProto actualCost = 1; }
+
+message CostVarianceProto {
+    int64 id = 1;
+    string productCode = 2;
+    string productName = 3;
+    string productionOrderNo = 4;
+    int64 varianceDate = 5;
+    google.type.Money standardMaterialCost = 6;
+    google.type.Money actualMaterialCost = 7;
+    google.type.Money materialVariance = 8;
+    google.type.Money standardLaborCost = 9;
+    google.type.Money actualLaborCost = 10;
+    google.type.Money laborVariance = 11;
+    google.type.Money standardOverheadCost = 12;
+    google.type.Money actualOverheadCost = 13;
+    google.type.Money overheadVariance = 14;
+    google.type.Money standardTotalCost = 15;
+    google.type.Money actualTotalCost = 16;
+    google.type.Money totalVariance = 17;
+    string varianceType = 18;
+    string analysis = 19;
+    int64 createdAt = 20;
+    int64 updatedAt = 21;
+}
+message GetCostVarianceRequest { int64 id = 1; }
+message GetCostVarianceResponse { CostVarianceProto variance = 1; }
+message ListCostVariancesRequest {
+    string productCode = 1;
+    int64 startDate = 2;
+    int64 endDate = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListCostVariancesResponse {
+    repeated CostVarianceProto variances = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+
+message ExchangeRateProto {
+    int64 id = 1;
+    string sourceCurrency = 2;
+    string targetCurrency = 3;
+    double rate = 4;
+    int64 effectiveDate = 5;
+    ExchangeRateType rateType = 6;
+    bool isActive = 7;
+    int64 createdAt = 8;
+    int64 updatedAt = 9;
+}
+message GetExchangeRateRequest { int64 id = 1; }
+message GetExchangeRateResponse { ExchangeRateProto exchangeRate = 1; }
+message ListExchangeRatesRequest {
+    string sourceCurrency = 1;
+    string targetCurrency = 2;
+    ExchangeRateType rateType = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListExchangeRatesResponse {
+    repeated ExchangeRateProto exchangeRates = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateExchangeRateRequest {
+    string sourceCurrency = 1;
+    string targetCurrency = 2;
+    double rate = 3;
+    int64 effectiveDate = 4;
+    ExchangeRateType rateType = 5;
+}
+message CreateExchangeRateResponse { ExchangeRateProto exchangeRate = 1; }
+message UpdateExchangeRateRequest {
+    int64 id = 1;
+    double rate = 2;
+    bool isActive = 3;
+}
+message UpdateExchangeRateResponse { ExchangeRateProto exchangeRate = 1; }
+
+message FinancialRatioProto {
+    int64 id = 1;
+    FinancialRatioType ratioType = 2;
+    double value = 3;
+    string period = 4;
+    int64 calculatedAt = 5;
+}
+message GetFinancialRatioRequest { int64 id = 1; }
+message GetFinancialRatioResponse { FinancialRatioProto ratio = 1; }
+message ListFinancialRatiosRequest {
+    FinancialRatioType ratioType = 1;
+    string period = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListFinancialRatiosResponse {
+    repeated FinancialRatioProto ratios = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}

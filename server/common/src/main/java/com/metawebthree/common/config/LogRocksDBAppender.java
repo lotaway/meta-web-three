@@ -22,7 +22,7 @@ public class LogRocksDBAppender extends AppenderBase<ILoggingEvent> {
         // var supportUtil = new JavaUtil();
         // String instanceId = supportUtil.getInstanceId();
         Properties properties = System.getProperties();
-        System.out.println("properties: " + properties);
+        addInfo("properties: " + properties);
         String serviceName = System.getProperty("APPLICATION_NAME");
         if (serviceName == null) {
             serviceName = System.getProperty("spring.boot.project.name", "default");
@@ -36,7 +36,7 @@ public class LogRocksDBAppender extends AppenderBase<ILoggingEvent> {
             String path = new File(sj.toString()).getAbsolutePath();
             boolean result = createDirectory(path);
             if (!result) {
-                System.out.println("Warning: Log directory created failed.");
+                addWarn("Log directory creation failed.");
             }
             db = RocksDB.open(options, path);
             byte[] preSeq = db.get(SEQ_KEY.getBytes());

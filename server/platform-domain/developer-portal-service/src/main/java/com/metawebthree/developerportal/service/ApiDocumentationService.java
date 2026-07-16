@@ -1,10 +1,14 @@
 package com.metawebthree.developerportal.service;
 
+import com.metawebthree.developerportal.entity.ApiSubscription;
+import com.metawebthree.developerportal.entity.ApiSubscription.SubscriptionStatus;
+import com.metawebthree.developerportal.repository.ApiSubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -390,14 +394,43 @@ public class ApiDocumentationService {
     /**
      * Generate API documentation for a specific developer based on their subscriptions
      */
+    private final ApiSubscriptionRepository apiSubscriptionRepository;
+
     public Map<String, Object> generatePersonalizedDocumentation(String developerId, String baseUrl) {
-        // Generate full documentation
         Map<String, Object> fullDoc = generateOpenApiDocumentation(baseUrl);
-        
-        // TODO: Filter paths based on developer's active subscriptions
-        // For now, return full documentation
-        
+
+        List<ApiSubscription> activeSubscriptions = apiSubscriptionRepository
+                .findByDeveloperIdAndStatus(developerId, SubscriptionStatus.ACTIVE);
+
+        Set<String> allowedPatterns = activeSubscriptions.stream()
+                .map(ApiSubscription::getApiPattern)
+                .collect(Collectors.toSet());
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> paths = (Map<String, Object>) fullDoc.get("paths");
+        Map<String, Object> filteredPaths = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : paths.entrySet()) {
+            String path = entry.getKey();
+            boolean matched = allowedPatterns.isEmpty() || allowedPatterns.stream()
+                    .anyMatch(pattern -> pathMatchesPattern(path, pattern));
+            if (matched) {
+                filteredPaths.put(entry.getKey(), entry.getValue());
+            }
+        }
+        fullDoc.put("paths", filteredPaths);
+
         return fullDoc;
+    }
+
+    private boolean pathMatchesPattern(String path, String pattern) {
+        if (pattern.endsWith("/**")) {
+            String prefix = pattern.substring(0, pattern.length() - 3);
+            return path.startsWith(prefix);
+        } else if (pattern.endsWith("/*")) {
+            String prefix = pattern.substring(0, pattern.length() - 2);
+            return path.startsWith(prefix) && !path.substring(prefix.length()).contains("/");
+        }
+        return path.equals(pattern);
     }
 
     /**

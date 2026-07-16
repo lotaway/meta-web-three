@@ -1,6 +1,7 @@
 package com.metawebthree.dom.infrastructure.persistence.converter;
 
 import com.metawebthree.dom.domain.entity.DomOrderLine;
+import com.metawebthree.dom.domain.entity.DomOrderLineStatus;
 import com.metawebthree.dom.infrastructure.persistence.dataobject.DomOrderLineDO;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +22,7 @@ public class DomOrderLineConverter {
         entity.setWarehouseId(doObj.getWarehouseId());
         entity.setWarehouseName(doObj.getWarehouseName());
         entity.setUnitPrice(doObj.getUnitPrice());
-        entity.setStatus(doObj.getStatus());
+        entity.setStatus(doObj.getStatus() != null ? DomOrderLineStatus.valueOf(doObj.getStatus()) : null);
         entity.setCreatedAt(doObj.getCreatedAt());
         return entity;
     }
@@ -40,7 +41,7 @@ public class DomOrderLineConverter {
         doObj.setWarehouseId(entity.getWarehouseId());
         doObj.setWarehouseName(entity.getWarehouseName());
         doObj.setUnitPrice(entity.getUnitPrice());
-        doObj.setStatus(entity.getStatus());
+        doObj.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
         doObj.setCreatedAt(entity.getCreatedAt());
         return doObj;
     }

@@ -4,7 +4,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class AlgorithmUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(AlgorithmUtils.class);
 
     public static int[] testData() throws IOException {
         File file = new File("./AlgorithmData.txt");
@@ -36,7 +41,7 @@ public class AlgorithmUtils {
         long startTime = System.currentTimeMillis();
         int result = maxArea(testData());
         long endTime = System.currentTimeMillis();
-        System.out.println(result + ", time:" + (endTime - startTime) / 1000);
+        logger.info("{} time:{}", result, (endTime - startTime) / 1000);
     }
 
     /*

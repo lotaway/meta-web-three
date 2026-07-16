@@ -9,7 +9,13 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class OAuth1Utils {
+
+    private static final Logger logger = LoggerFactory.getLogger(OAuth1Utils.class);
+
     private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
     private static final String ENCODING = "UTF-8";
 
@@ -46,7 +52,7 @@ public class OAuth1Utils {
             mac.init(spec);
             byteHMAC = mac.doFinal(data.getBytes());
         } catch (InvalidKeyException e) {
-            e.printStackTrace();
+            logger.error("Invalid key for HMAC-SHA1 signature", e);
         } catch (NoSuchAlgorithmException ignore) {
         }
         String oauth = Base64.getEncoder().encodeToString(byteHMAC);

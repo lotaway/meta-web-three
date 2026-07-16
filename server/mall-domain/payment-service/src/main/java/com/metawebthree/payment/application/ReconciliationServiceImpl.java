@@ -68,7 +68,7 @@ public class ReconciliationServiceImpl {
         log.info("Daily reconciliation task completed");
     }
 
-    @Deprecated
+    @Deprecated(forRemoval = true, since = "1.0.0")
     public void dailyReconciliation() {
         executeDailyReconciliation();
     }

@@ -1,31 +1,14 @@
 package com.metawebthree.dom.domain.service;
 
-import com.metawebthree.dom.domain.entity.DomOrder;
-import com.metawebthree.dom.domain.entity.DomOrderLine;
-import com.metawebthree.dom.domain.entity.FulfillmentPlan;
+import com.metawebthree.dom.domain.entity.*;
 import com.metawebthree.dom.domain.repository.DomOrderLineRepository;
 import com.metawebthree.dom.domain.repository.DomOrderRepository;
 import com.metawebthree.dom.domain.repository.FulfillmentPlanRepository;
-import com.metawebthree.dom.infrastructure.event.DomDomainEventPublisher;
-import com.metawebthree.dom.infrastructure.rpc.InventoryServiceClient;
-import com.metawebthree.dom.infrastructure.rpc.WarehouseServiceClient;
-import com.metawebthree.dom.infrastructure.rpc.WarehouseServiceClient.WarehouseInfo;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
-@Service
 public class DomDomainServiceImpl implements DomDomainService {
-
-    private static final AtomicLong SEQ_COUNTER = new AtomicLong(0);
-    private static final List<Long> ALL_WAREHOUSES = Arrays.asList(1L, 2L, 3L);
 
     private final DomOrderRepository domOrderRepository;
     private final DomOrderLineRepository domOrderLineRepository;
@@ -33,227 +16,222 @@ public class DomDomainServiceImpl implements DomDomainService {
     private final InventoryServiceClient inventoryServiceClient;
     private final WarehouseServiceClient warehouseServiceClient;
     private final DomDomainEventPublisher eventPublisher;
+    private final DomSequenceGenerator sequenceGenerator;
+    private final DomSourcingProperties sourcingProperties;
 
     public DomDomainServiceImpl(DomOrderRepository domOrderRepository,
                                 DomOrderLineRepository domOrderLineRepository,
                                 FulfillmentPlanRepository fulfillmentPlanRepository,
                                 InventoryServiceClient inventoryServiceClient,
                                 WarehouseServiceClient warehouseServiceClient,
-                                DomDomainEventPublisher eventPublisher) {
+                                DomDomainEventPublisher eventPublisher,
+                                DomSequenceGenerator sequenceGenerator,
+                                DomSourcingProperties sourcingProperties) {
         this.domOrderRepository = domOrderRepository;
         this.domOrderLineRepository = domOrderLineRepository;
         this.fulfillmentPlanRepository = fulfillmentPlanRepository;
         this.inventoryServiceClient = inventoryServiceClient;
         this.warehouseServiceClient = warehouseServiceClient;
         this.eventPublisher = eventPublisher;
+        this.sequenceGenerator = sequenceGenerator;
+        this.sourcingProperties = sourcingProperties;
     }
 
     @Override
-    @Transactional
     public DomOrder createDomOrder(DomOrder order, List<DomOrderLine> lines) {
-        String domOrderNo = generateDomOrderNo();
+        String domOrderNo = sequenceGenerator.generateDomOrderNo();
         order.setDomOrderNo(domOrderNo);
-        order.setStatus("PENDING");
+        order.setStatus(DomOrderStatus.PENDING);
         order.setCreatedAt(LocalDateTime.now());
         order.setUpdatedAt(LocalDateTime.now());
         order.setVersion(0);
-        DomOrder saved = domOrderRepository.save(order);
+        return order;
+    }
 
+    @Override
+    public void saveDomOrder(DomOrder order, List<DomOrderLine> lines) {
+        DomOrder saved = domOrderRepository.save(order);
         for (DomOrderLine line : lines) {
             line.setDomOrderId(saved.getId());
-            line.setStatus("PENDING");
+            line.setStatus(DomOrderLineStatus.PENDING);
             line.setFulfilledQuantity(0);
             line.setCreatedAt(LocalDateTime.now());
             domOrderLineRepository.save(line);
         }
-
         eventPublisher.publishDomOrderCreated(saved);
-        return saved;
     }
 
     @Override
-    @Transactional
-    public DomOrder checkAvailability(DomOrder order, List<DomOrderLine> lines) {
+    public boolean checkAvailability(DomOrder order, List<DomOrderLine> lines) {
         boolean allPass = true;
         for (DomOrderLine line : lines) {
-            int totalAvailable = 0;
-            for (Long warehouseId : ALL_WAREHOUSES) {
-                Integer qty = inventoryServiceClient.checkInventory(line.getSkuCode(), warehouseId);
-                totalAvailable += (qty != null ? qty : 0);
-            }
-            if (totalAvailable >= line.getQuantity()) {
-                line.setStatus("ATP_PASS");
-            } else {
-                line.setStatus("ATP_FAIL");
+            int totalAvailable = sumInventoryAcrossWarehouses(line.getSkuCode());
+            line.setStatus(totalAvailable >= line.getQuantity()
+                    ? DomOrderLineStatus.ATP_PASS
+                    : DomOrderLineStatus.ATP_FAIL);
+            if (line.getStatus() == DomOrderLineStatus.ATP_FAIL) {
                 allPass = false;
             }
-            domOrderLineRepository.save(line);
         }
+        return allPass;
+    }
 
-        if (allPass) {
-            order.setStatus("SOURCING");
-        } else {
-            order.setStatus("ATP_FAILED");
+    private int sumInventoryAcrossWarehouses(String skuCode) {
+        int total = 0;
+        for (Long warehouseId : sourcingProperties.getWarehouseIds()) {
+            Integer qty = inventoryServiceClient.checkInventory(skuCode, warehouseId);
+            total += (qty != null ? qty : 0);
         }
-        order.setUpdatedAt(LocalDateTime.now());
-        return domOrderRepository.save(order);
+        return total;
     }
 
     @Override
-    @Transactional
-    public List<DomOrderLine> sourceOrder(DomOrder order, List<DomOrderLine> lines, String strategy) {
-        String region = order.getRegion();
-        List<DomOrderLine> sourcedLines = new ArrayList<>();
-
+    public void saveAvailabilityResult(DomOrder order, List<DomOrderLine> lines, boolean allPass) {
         for (DomOrderLine line : lines) {
-            if (!"ATP_PASS".equals(line.getStatus())) {
-                continue;
-            }
+            domOrderLineRepository.save(line);
+        }
+        order.setStatus(allPass ? DomOrderStatus.SOURCING : DomOrderStatus.ATP_FAILED);
+        order.setUpdatedAt(LocalDateTime.now());
+        domOrderRepository.save(order);
+    }
 
-            List<WarehouseScore> scored = new ArrayList<>();
-            for (Long warehouseId : ALL_WAREHOUSES) {
-                Integer available = inventoryServiceClient.checkInventory(line.getSkuCode(), warehouseId);
-                if (available == null || available < line.getQuantity()) {
-                    continue;
-                }
-                Double distance = warehouseServiceClient.getWarehouseDistance(region, warehouseId);
-                WarehouseInfo info = warehouseServiceClient.getWarehouse(warehouseId);
-                double shippingCost = distance * 0.5;
-                double handlingCost = 10.0;
-                double totalCost = shippingCost + handlingCost;
-
-                double distanceScore = 0.0;
-                double costScore = 0.0;
-
-                if ("NEAREST_WAREHOUSE".equals(strategy)) {
-                    distanceScore = 100.0 / (distance + 1);
-                } else if ("LOWEST_COST".equals(strategy)) {
-                    costScore = 1000.0 / (totalCost + 1);
-                } else if ("BALANCED".equals(strategy)) {
-                    distanceScore = 100.0 / (distance + 1);
-                    costScore = 1000.0 / (totalCost + 1);
-                }
-
-                double finalScore;
-                if ("NEAREST_WAREHOUSE".equals(strategy)) {
-                    finalScore = distanceScore;
-                } else if ("LOWEST_COST".equals(strategy)) {
-                    finalScore = costScore;
-                } else {
-                    finalScore = 0.5 * distanceScore + 0.5 * costScore;
-                }
-
-                scored.add(new WarehouseScore(warehouseId, info != null ? info.getName() : "WH-" + warehouseId, finalScore, totalCost, distance));
-            }
-
-            if (scored.isEmpty()) {
+    @Override
+    public List<DomOrderLine> sourceOrder(DomOrder order, List<DomOrderLine> lines, SourcingStrategy strategy) {
+        List<DomOrderLine> sourcedLines = new ArrayList<>();
+        for (DomOrderLine line : lines) {
+            if (line.getStatus() != DomOrderLineStatus.ATP_PASS) continue;
+            List<WarehouseScore> scored = scoreWarehouses(line, order.getRegion(), strategy);
+            try {
+                DomOrderLine result = selectBestSource(scored, line);
+                sourcedLines.add(result);
+            } catch (SourcingFailedException e) {
                 DomOrderLine failedLine = new DomOrderLine();
                 failedLine.setId(line.getId());
                 failedLine.setSkuCode(line.getSkuCode());
                 failedLine.setSkuName(line.getSkuName());
                 failedLine.setQuantity(line.getQuantity());
-                failedLine.setStatus("SOURCING_FAILED");
+                failedLine.setStatus(DomOrderLineStatus.SOURCING_FAILED);
                 sourcedLines.add(failedLine);
-                continue;
             }
-
-            scored.sort((a, b) -> Double.compare(b.score, a.score));
-            WarehouseScore best = scored.get(0);
-
-            line.setWarehouseId(best.warehouseId);
-            line.setWarehouseName(best.warehouseName);
-            line.setStatus("SOURCED");
-            domOrderLineRepository.save(line);
-            sourcedLines.add(line);
         }
-
-        boolean allSourced = sourcedLines.stream().allMatch(l -> "SOURCED".equals(l.getStatus()));
-        if (allSourced) {
-            order.setStatus("SOURCING_COMPLETED");
-        } else {
-            order.setStatus("ATP_FAILED");
-        }
-        order.setUpdatedAt(LocalDateTime.now());
-        domOrderRepository.save(order);
-
         return sourcedLines;
     }
 
     @Override
-    @Transactional
+    public void saveSourcingResult(DomOrder order, List<DomOrderLine> lines) {
+        boolean allSourced = lines.stream().allMatch(l -> l.getStatus() == DomOrderLineStatus.SOURCED);
+        order.setStatus(allSourced ? DomOrderStatus.SOURCING_COMPLETED : DomOrderStatus.ATP_FAILED);
+        order.setUpdatedAt(LocalDateTime.now());
+        domOrderRepository.save(order);
+    }
+
+    private List<WarehouseScore> scoreWarehouses(DomOrderLine line, String region, SourcingStrategy strategy) {
+        List<WarehouseScore> scored = new ArrayList<>();
+        for (Long warehouseId : sourcingProperties.getWarehouseIds()) {
+            Integer available = inventoryServiceClient.checkInventory(line.getSkuCode(), warehouseId);
+            if (available == null || available < line.getQuantity()) continue;
+
+            Double distance = warehouseServiceClient.getWarehouseDistance(region, warehouseId);
+            WarehouseInfo info = warehouseServiceClient.getWarehouse(warehouseId);
+            double totalCost = distance * sourcingProperties.getShippingCostPerKm() + sourcingProperties.getHandlingCostFlat();
+
+            double distanceScore = sourcingProperties.getDistanceScoreFactor() / (distance + 1);
+            double costScore = sourcingProperties.getCostScoreFactor() / (totalCost + 1);
+            double finalScore = calculateFinalScore(strategy, distanceScore, costScore);
+
+            String name = info != null ? info.getName() : sourcingProperties.getWhNamePrefix() + warehouseId;
+            scored.add(new WarehouseScore(warehouseId, name, finalScore, totalCost, distance));
+        }
+        return scored;
+    }
+
+    private double calculateFinalScore(SourcingStrategy strategy, double distanceScore, double costScore) {
+        switch (strategy) {
+            case NEAREST_WAREHOUSE: return distanceScore;
+            case LOWEST_COST: return costScore;
+            default: return sourcingProperties.getBalancedDistanceWeight() * distanceScore
+                    + sourcingProperties.getBalancedCostWeight() * costScore;
+        }
+    }
+
+    private DomOrderLine selectBestSource(List<WarehouseScore> scored, DomOrderLine line) {
+        if (scored.isEmpty()) {
+            throw new SourcingFailedException("No suitable warehouse found for sku: " + line.getSkuCode());
+        }
+        scored.sort((a, b) -> Double.compare(b.score, a.score));
+        WarehouseScore best = scored.get(0);
+        line.setWarehouseId(best.warehouseId);
+        line.setWarehouseName(best.warehouseName);
+        line.setStatus(DomOrderLineStatus.SOURCED);
+        return line;
+    }
+
+    @Override
     public FulfillmentPlan createFulfillmentPlan(DomOrder order, List<DomOrderLine> sourcedLines) {
         FulfillmentPlan plan = new FulfillmentPlan();
         plan.setDomOrderId(order.getId());
         plan.setDomOrderNo(order.getDomOrderNo());
         plan.setTotalLines(sourcedLines.size());
 
-        long fulfilled = sourcedLines.stream().filter(l -> "SOURCED".equals(l.getStatus())).count();
-        long unfulfilled = sourcedLines.stream().filter(l -> "SOURCING_FAILED".equals(l.getStatus())).count();
+        long fulfilled = sourcedLines.stream().filter(l -> l.getStatus() == DomOrderLineStatus.SOURCED).count();
+        long unfulfilled = sourcedLines.stream().filter(l -> l.getStatus() == DomOrderLineStatus.SOURCING_FAILED).count();
 
         plan.setFulfilledLines((int) fulfilled);
         plan.setUnfulfilledLines((int) unfulfilled);
         plan.setPartiallyFulfilledLines(0);
-        plan.setStatus("DRAFT");
+        plan.setStatus(FulfillmentPlanStatus.DRAFT);
         plan.setCreatedAt(LocalDateTime.now());
         plan.setUpdatedAt(LocalDateTime.now());
-
-        FulfillmentPlan saved = fulfillmentPlanRepository.save(plan);
-
-        eventPublisher.publishDomOrderSourced(order, saved);
-        return saved;
+        return plan;
     }
 
     @Override
-    @Transactional
+    public void saveFulfillmentPlan(DomOrder order, FulfillmentPlan plan) {
+        FulfillmentPlan saved = fulfillmentPlanRepository.save(plan);
+        eventPublisher.publishDomOrderSourced(order, saved);
+    }
+
+    @Override
     public FulfillmentPlan approveFulfillmentPlan(Long planId) {
         FulfillmentPlan plan = fulfillmentPlanRepository.findById(planId)
                 .orElseThrow(() -> new IllegalArgumentException("Fulfillment plan not found: " + planId));
-
-        if (!"DRAFT".equals(plan.getStatus())) {
+        if (plan.getStatus() != FulfillmentPlanStatus.DRAFT) {
             throw new IllegalStateException("Plan is not in DRAFT status, current: " + plan.getStatus());
         }
-
-        plan.setStatus("APPROVED");
+        plan.setStatus(FulfillmentPlanStatus.APPROVED);
         plan.setUpdatedAt(LocalDateTime.now());
-        FulfillmentPlan saved = fulfillmentPlanRepository.save(plan);
-
-        DomOrder order = domOrderRepository.findById(plan.getDomOrderId())
-                .orElseThrow(() -> new IllegalArgumentException("DOM order not found: " + plan.getDomOrderId()));
-        order.setStatus("FULFILLED");
-        order.setUpdatedAt(LocalDateTime.now());
-        domOrderRepository.save(order);
-
-        eventPublisher.publishDomOrderFulfilled(order, saved);
-        return saved;
+        return plan;
     }
 
     @Override
-    @Transactional
+    public void saveApprovedPlan(DomOrder order, FulfillmentPlan plan) {
+        FulfillmentPlan saved = fulfillmentPlanRepository.save(plan);
+        order.setStatus(DomOrderStatus.FULFILLED);
+        order.setUpdatedAt(LocalDateTime.now());
+        domOrderRepository.save(order);
+        eventPublisher.publishDomOrderFulfilled(order, saved);
+    }
+
+    @Override
     public DomOrder cancelDomOrder(Long orderId) {
         DomOrder order = domOrderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("DOM order not found: " + orderId));
-
-        if ("CANCELLED".equals(order.getStatus()) || "FULFILLED".equals(order.getStatus())) {
+        if (order.getStatus() == DomOrderStatus.CANCELLED || order.getStatus() == DomOrderStatus.FULFILLED) {
             throw new IllegalStateException("Cannot cancel order in status: " + order.getStatus());
         }
-
-        order.setStatus("CANCELLED");
+        order.setStatus(DomOrderStatus.CANCELLED);
         order.setUpdatedAt(LocalDateTime.now());
-        DomOrder saved = domOrderRepository.save(order);
-
-        List<DomOrderLine> lines = domOrderLineRepository.findByDomOrderId(orderId);
-        for (DomOrderLine line : lines) {
-            line.setStatus("CANCELLED");
-            domOrderLineRepository.save(line);
-        }
-
-        return saved;
+        return order;
     }
 
-    private String generateDomOrderNo() {
-        String datePart = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        long seq = SEQ_COUNTER.incrementAndGet() % 1000000;
-        return "DOM" + datePart + String.format("%06d", seq);
+    @Override
+    public void saveCancelledOrder(DomOrder order) {
+        DomOrder saved = domOrderRepository.save(order);
+        List<DomOrderLine> lines = domOrderLineRepository.findByDomOrderId(saved.getId());
+        for (DomOrderLine line : lines) {
+            line.setStatus(DomOrderLineStatus.CANCELLED);
+            domOrderLineRepository.save(line);
+        }
     }
 
     static class WarehouseScore {

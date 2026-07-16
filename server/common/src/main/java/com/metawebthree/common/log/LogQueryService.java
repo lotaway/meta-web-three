@@ -5,6 +5,8 @@ import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 import org.rocksdb.RocksIterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +23,9 @@ import java.util.StringJoiner;
  */
 @Service
 public class LogQueryService {
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(LogQueryService.class);
+
     @Value("${logging.data-path:logs/rocksdb-logs}")
     private String logPath;
     
@@ -50,7 +54,7 @@ public class LogQueryService {
             
             db = RocksDB.open(options, path);
         } catch (RocksDBException e) {
-            System.err.println("Failed to open RocksDB for log querying: " + e.getMessage());
+            logger.error("Failed to open RocksDB for log querying", e);
         }
     }
     
@@ -83,7 +87,7 @@ public class LogQueryService {
                 iterator.next();
             }
         } catch (Exception e) {
-            System.err.println("Error querying logs: " + e.getMessage());
+            logger.error("Error querying logs", e);
         }
         
         return results;
@@ -183,7 +187,7 @@ public class LogQueryService {
                 iterator.next();
             }
         } catch (Exception e) {
-            System.err.println("Error getting log statistics: " + e.getMessage());
+            logger.error("Error getting log statistics", e);
         }
         
         return stats;
