@@ -1,0 +1,917 @@
+syntax = "proto3";
+
+package com.metawebthree.factory.generated.rpc;
+
+option java_multiple_files = true;
+
+service MesService {
+    // Work Order
+    rpc getWorkOrder(GetWorkOrderRequest) returns (GetWorkOrderResponse);
+    rpc listWorkOrders(ListWorkOrdersRequest) returns (ListWorkOrdersResponse);
+    rpc createWorkOrder(CreateWorkOrderRequest) returns (CreateWorkOrderResponse);
+    rpc updateWorkOrder(UpdateWorkOrderRequest) returns (UpdateWorkOrderResponse);
+    rpc deleteWorkOrder(DeleteWorkOrderRequest) returns (DeleteWorkOrderResponse);
+    rpc releaseWorkOrder(ReleaseWorkOrderRequest) returns (ReleaseWorkOrderResponse);
+    rpc startWorkOrder(StartWorkOrderRequest) returns (StartWorkOrderResponse);
+    rpc completeWorkOrder(CompleteWorkOrderRequest) returns (CompleteWorkOrderResponse);
+    rpc cancelWorkOrder(CancelWorkOrderRequest) returns (CancelWorkOrderResponse);
+    rpc pauseWorkOrder(PauseWorkOrderRequest) returns (PauseWorkOrderResponse);
+    rpc resumeWorkOrder(ResumeWorkOrderRequest) returns (ResumeWorkOrderResponse);
+
+    // Production Task
+    rpc getProductionTask(GetProductionTaskRequest) returns (GetProductionTaskResponse);
+    rpc listProductionTasks(ListProductionTasksRequest) returns (ListProductionTasksResponse);
+    rpc createProductionTask(CreateProductionTaskRequest) returns (CreateProductionTaskResponse);
+    rpc startProductionTask(StartProductionTaskRequest) returns (StartProductionTaskResponse);
+    rpc completeProductionTask(CompleteProductionTaskRequest) returns (CompleteProductionTaskResponse);
+    rpc failQualityCheck(FailQualityCheckRequest) returns (FailQualityCheckResponse);
+    rpc scrapProductionTask(ScrapProductionTaskRequest) returns (ScrapProductionTaskResponse);
+
+    // Process Route
+    rpc getProcessRoute(GetProcessRouteRequest) returns (GetProcessRouteResponse);
+    rpc listProcessRoutes(ListProcessRoutesRequest) returns (ListProcessRoutesResponse);
+    rpc createProcessRoute(CreateProcessRouteRequest) returns (CreateProcessRouteResponse);
+    rpc updateProcessRoute(UpdateProcessRouteRequest) returns (UpdateProcessRouteResponse);
+    rpc deleteProcessRoute(DeleteProcessRouteRequest) returns (DeleteProcessRouteResponse);
+    rpc activateProcessRoute(ActivateProcessRouteRequest) returns (ActivateProcessRouteResponse);
+
+    // BOM
+    rpc getBom(GetBomRequest) returns (GetBomResponse);
+    rpc listBoms(ListBomsRequest) returns (ListBomsResponse);
+    rpc createBom(CreateBomRequest) returns (CreateBomResponse);
+    rpc updateBom(UpdateBomRequest) returns (UpdateBomResponse);
+    rpc deleteBom(DeleteBomRequest) returns (DeleteBomResponse);
+
+    // Work Report
+    rpc getWorkReport(GetWorkReportRequest) returns (GetWorkReportResponse);
+    rpc listWorkReports(ListWorkReportsRequest) returns (ListWorkReportsResponse);
+    rpc createWorkReport(CreateWorkReportRequest) returns (CreateWorkReportResponse);
+
+    // Workstation
+    rpc getWorkstation(GetWorkstationRequest) returns (GetWorkstationResponse);
+    rpc listWorkstations(ListWorkstationsRequest) returns (ListWorkstationsResponse);
+    rpc createWorkstation(CreateWorkstationRequest) returns (CreateWorkstationResponse);
+    rpc updateWorkstation(UpdateWorkstationRequest) returns (UpdateWorkstationResponse);
+
+    // Andon
+    rpc getAndonEvent(GetAndonEventRequest) returns (GetAndonEventResponse);
+    rpc listAndonEvents(ListAndonEventsRequest) returns (ListAndonEventsResponse);
+    rpc triggerAndon(TriggerAndonRequest) returns (TriggerAndonResponse);
+    rpc acknowledgeAndon(AcknowledgeAndonRequest) returns (AcknowledgeAndonResponse);
+    rpc resolveAndon(ResolveAndonRequest) returns (ResolveAndonResponse);
+    rpc closeAndon(CloseAndonRequest) returns (CloseAndonResponse);
+    rpc escalateAndon(EscalateAndonRequest) returns (EscalateAndonResponse);
+    rpc createAndonType(CreateAndonTypeRequest) returns (CreateAndonTypeResponse);
+    rpc listAndonTypes(ListAndonTypesRequest) returns (ListAndonTypesResponse);
+
+    // Trace
+    rpc getTraceRecord(GetTraceRecordRequest) returns (GetTraceRecordResponse);
+    rpc listTraceRecords(ListTraceRecordsRequest) returns (ListTraceRecordsResponse);
+    rpc createTraceRecord(CreateTraceRecordRequest) returns (CreateTraceRecordResponse);
+    rpc forwardTrace(ForwardTraceRequest) returns (ForwardTraceResponse);
+    rpc backwardTrace(BackwardTraceRequest) returns (BackwardTraceResponse);
+
+    // Labor
+    rpc getOperator(GetOperatorRequest) returns (GetOperatorResponse);
+    rpc listOperators(ListOperatorsRequest) returns (ListOperatorsResponse);
+    rpc createOperator(CreateOperatorRequest) returns (CreateOperatorResponse);
+    rpc updateOperator(UpdateOperatorRequest) returns (UpdateOperatorResponse);
+    rpc getAttendance(GetAttendanceRequest) returns (GetAttendanceResponse);
+    rpc listAttendances(ListAttendancesRequest) returns (ListAttendancesResponse);
+    rpc createAttendance(CreateAttendanceRequest) returns (CreateAttendanceResponse);
+    rpc listTimeRecords(ListTimeRecordsRequest) returns (ListTimeRecordsResponse);
+    rpc createTimeRecord(CreateTimeRecordRequest) returns (CreateTimeRecordResponse);
+
+    // SCADA
+    rpc getTelemetryRecord(GetTelemetryRecordRequest) returns (GetTelemetryRecordResponse);
+    rpc listTelemetryRecords(ListTelemetryRecordsRequest) returns (ListTelemetryRecordsResponse);
+    rpc sendDeviceCommand(SendDeviceCommandRequest) returns (SendDeviceCommandResponse);
+    rpc listDeviceCommands(ListDeviceCommandsRequest) returns (ListDeviceCommandsResponse);
+
+    // Process Parameter
+    rpc getProcessParameter(GetProcessParameterRequest) returns (GetProcessParameterResponse);
+    rpc listProcessParameters(ListProcessParametersRequest) returns (ListProcessParametersResponse);
+    rpc createProcessParameter(CreateProcessParameterRequest) returns (CreateProcessParameterResponse);
+    rpc updateProcessParameter(UpdateProcessParameterRequest) returns (UpdateProcessParameterResponse);
+    rpc deleteProcessParameter(DeleteProcessParameterRequest) returns (DeleteProcessParameterResponse);
+
+    // Material Requirement
+    rpc getMaterialRequirement(GetMaterialRequirementRequest) returns (GetMaterialRequirementResponse);
+    rpc listMaterialRequirements(ListMaterialRequirementsRequest) returns (ListMaterialRequirementsResponse);
+    rpc createMaterialRequirement(CreateMaterialRequirementRequest) returns (CreateMaterialRequirementResponse);
+}
+
+// ===== Work Order =====
+message WorkOrderProto {
+    int64 id = 1;
+    string workOrderNo = 2;
+    string productCode = 3;
+    string productName = 4;
+    int32 quantity = 5;
+    int32 completedQuantity = 6;
+    string status = 7;
+    string typeCode = 8;
+    string priority = 9;
+    string workshopId = 10;
+    string processRouteId = 11;
+    int64 parentWorkOrderId = 12;
+    int32 splitSequence = 13;
+    string plannedStartTime = 14;
+    string plannedEndTime = 15;
+    string actualStartTime = 16;
+    string actualEndTime = 17;
+    int64 createdAt = 18;
+    int64 updatedAt = 19;
+}
+
+message GetWorkOrderRequest { int64 id = 1; }
+message GetWorkOrderResponse { WorkOrderProto workOrder = 1; }
+message ListWorkOrdersRequest {
+    string status = 1;
+    string workshopId = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListWorkOrdersResponse {
+    repeated WorkOrderProto workOrders = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateWorkOrderRequest {
+    string workOrderNo = 1;
+    string productCode = 2;
+    string productName = 3;
+    int32 quantity = 4;
+    string priority = 5;
+    string workshopId = 6;
+    string processRouteId = 7;
+    string plannedStartTime = 8;
+    string plannedEndTime = 9;
+}
+message CreateWorkOrderResponse { WorkOrderProto workOrder = 1; }
+message UpdateWorkOrderRequest {
+    int64 id = 1;
+    string productName = 2;
+    int32 quantity = 3;
+    string plannedEndTime = 4;
+}
+message UpdateWorkOrderResponse { WorkOrderProto workOrder = 1; }
+message DeleteWorkOrderRequest { int64 id = 1; }
+message DeleteWorkOrderResponse { bool success = 1; }
+message ReleaseWorkOrderRequest { int64 id = 1; }
+message ReleaseWorkOrderResponse { bool success = 1; }
+message StartWorkOrderRequest { int64 id = 1; }
+message StartWorkOrderResponse { bool success = 1; }
+message CompleteWorkOrderRequest { int64 id = 1; }
+message CompleteWorkOrderResponse { bool success = 1; }
+message CancelWorkOrderRequest { int64 id = 1; }
+message CancelWorkOrderResponse { bool success = 1; }
+message PauseWorkOrderRequest { int64 id = 1; }
+message PauseWorkOrderResponse { bool success = 1; }
+message ResumeWorkOrderRequest { int64 id = 1; }
+message ResumeWorkOrderResponse { bool success = 1; }
+
+// ===== Production Task =====
+message ProductionTaskProto {
+    int64 id = 1;
+    string taskNo = 2;
+    int64 workOrderId = 3;
+    int64 workstationId = 4;
+    string processCode = 5;
+    string status = 6;
+    int32 quantity = 7;
+    int32 completedQuantity = 8;
+    int32 qualifiedQuantity = 9;
+    int32 defectiveQuantity = 10;
+    int32 actualDurationMinutes = 11;
+    string operatorId = 12;
+    string startTime = 13;
+    string endTime = 14;
+    int64 createdAt = 15;
+    int64 updatedAt = 16;
+}
+
+message GetProductionTaskRequest { int64 id = 1; }
+message GetProductionTaskResponse { ProductionTaskProto task = 1; }
+message ListProductionTasksRequest {
+    int64 workOrderId = 1;
+    string status = 2;
+    int64 workstationId = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListProductionTasksResponse {
+    repeated ProductionTaskProto tasks = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateProductionTaskRequest {
+    string taskNo = 1;
+    int64 workOrderId = 2;
+    int64 workstationId = 3;
+    string processCode = 4;
+    int32 quantity = 5;
+    string operatorId = 6;
+}
+message CreateProductionTaskResponse { ProductionTaskProto task = 1; }
+message StartProductionTaskRequest { int64 id = 1; }
+message StartProductionTaskResponse { bool success = 1; }
+message CompleteProductionTaskRequest {
+    int64 id = 1;
+    int32 qualifiedQuantity = 2;
+    int32 defectiveQuantity = 3;
+}
+message CompleteProductionTaskResponse { bool success = 1; }
+message FailQualityCheckRequest {
+    int64 id = 1;
+    string reason = 2;
+}
+message FailQualityCheckResponse { bool success = 1; }
+message ScrapProductionTaskRequest {
+    int64 id = 1;
+    string reason = 2;
+}
+message ScrapProductionTaskResponse { bool success = 1; }
+
+// ===== Process Route =====
+message ProcessStepProto {
+    int32 stepNo = 1;
+    string processCode = 2;
+    string processName = 3;
+    int64 workstationId = 4;
+    int32 standardTime = 5;
+    string qualityCheckpoint = 6;
+    int32 predecessorStepNo = 7;
+    int32 successorStepNo = 8;
+}
+message ProcessRouteProto {
+    int64 id = 1;
+    string routeCode = 2;
+    string routeName = 3;
+    string productCode = 4;
+    int32 version = 5;
+    string status = 6;
+    string effectiveDate = 7;
+    string expiryDate = 8;
+    int64 createdAt = 9;
+    int64 updatedAt = 10;
+    repeated ProcessStepProto steps = 11;
+}
+message GetProcessRouteRequest { int64 id = 1; }
+message GetProcessRouteResponse { ProcessRouteProto processRoute = 1; }
+message ListProcessRoutesRequest {
+    string status = 1;
+    string productCode = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListProcessRoutesResponse {
+    repeated ProcessRouteProto processRoutes = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateProcessRouteRequest {
+    string routeCode = 1;
+    string routeName = 2;
+    string productCode = 3;
+    string effectiveDate = 4;
+    repeated ProcessStepProto steps = 5;
+}
+message CreateProcessRouteResponse { ProcessRouteProto processRoute = 1; }
+message UpdateProcessRouteRequest {
+    int64 id = 1;
+    string routeName = 2;
+    string expiryDate = 3;
+    repeated ProcessStepProto steps = 4;
+}
+message UpdateProcessRouteResponse { ProcessRouteProto processRoute = 1; }
+message DeleteProcessRouteRequest { int64 id = 1; }
+message DeleteProcessRouteResponse { bool success = 1; }
+message ActivateProcessRouteRequest { int64 id = 1; }
+message ActivateProcessRouteResponse { bool success = 1; }
+
+// ===== BOM =====
+message BomItemProto {
+    int64 id = 1;
+    int64 bomId = 2;
+    string materialCode = 3;
+    string materialName = 4;
+    string materialSpec = 5;
+    string unitCode = 6;
+    double quantity = 7;
+    double scrapRate = 8;
+    int32 sequence = 9;
+    string level = 10;
+    string itemType = 11;
+    string position = 12;
+    string remark = 13;
+}
+message BomProto {
+    int64 id = 1;
+    string bomCode = 2;
+    string productCode = 3;
+    string productName = 4;
+    string version = 5;
+    string versionStatus = 6;
+    string effectiveDate = 7;
+    string expiryDate = 8;
+    string bomType = 9;
+    string processRouteId = 10;
+    string description = 11;
+    string status = 12;
+    int32 itemCount = 13;
+    int64 createdAt = 14;
+    int64 updatedAt = 15;
+    repeated BomItemProto items = 16;
+}
+message GetBomRequest { int64 id = 1; }
+message GetBomResponse { BomProto bom = 1; }
+message ListBomsRequest {
+    string productCode = 1;
+    string status = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListBomsResponse {
+    repeated BomProto boms = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateBomRequest {
+    string bomCode = 1;
+    string productCode = 2;
+    string productName = 3;
+    string bomType = 4;
+    string effectiveDate = 5;
+    string description = 6;
+    repeated BomItemProto items = 7;
+}
+message CreateBomResponse { BomProto bom = 1; }
+message UpdateBomRequest {
+    int64 id = 1;
+    string description = 2;
+    repeated BomItemProto items = 3;
+}
+message UpdateBomResponse { BomProto bom = 1; }
+message DeleteBomRequest { int64 id = 1; }
+message DeleteBomResponse { bool success = 1; }
+
+// ===== Work Report =====
+message WorkReportProto {
+    int64 id = 1;
+    string reportNo = 2;
+    int64 taskId = 3;
+    string taskNo = 4;
+    int64 workOrderId = 5;
+    string workOrderNo = 6;
+    string workstationName = 7;
+    string processCode = 8;
+    string processName = 9;
+    int32 stepNo = 10;
+    string operatorId = 11;
+    string operatorName = 12;
+    string reportTime = 13;
+    int32 quantity = 14;
+    int32 qualifiedQuantity = 15;
+    int32 defectiveQuantity = 16;
+    int32 durationMinutes = 17;
+    string remarks = 18;
+    string status = 19;
+    int64 createdAt = 20;
+}
+message GetWorkReportRequest { int64 id = 1; }
+message GetWorkReportResponse { WorkReportProto workReport = 1; }
+message ListWorkReportsRequest {
+    int64 workOrderId = 1;
+    int64 taskId = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListWorkReportsResponse {
+    repeated WorkReportProto workReports = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateWorkReportRequest {
+    string reportNo = 1;
+    int64 taskId = 2;
+    int64 workOrderId = 3;
+    string processCode = 4;
+    string operatorId = 5;
+    int32 quantity = 6;
+    int32 qualifiedQuantity = 7;
+    int32 defectiveQuantity = 8;
+    int32 durationMinutes = 9;
+    string remarks = 10;
+}
+message CreateWorkReportResponse { WorkReportProto workReport = 1; }
+
+// ===== Workstation =====
+message WorkstationProto {
+    int64 id = 1;
+    string workstationCode = 2;
+    string workstationName = 3;
+    string workshopId = 4;
+    string workshopName = 5;
+    string type = 6;
+    string status = 7;
+    string location = 8;
+    int32 capacity = 9;
+    string description = 10;
+    int64 createdAt = 11;
+    int64 updatedAt = 12;
+}
+message GetWorkstationRequest { int64 id = 1; }
+message GetWorkstationResponse { WorkstationProto workstation = 1; }
+message ListWorkstationsRequest {
+    string workshopId = 1;
+    string status = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListWorkstationsResponse {
+    repeated WorkstationProto workstations = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateWorkstationRequest {
+    string workstationCode = 1;
+    string workstationName = 2;
+    string workshopId = 3;
+    string type = 4;
+    int32 capacity = 5;
+    string description = 6;
+}
+message CreateWorkstationResponse { WorkstationProto workstation = 1; }
+message UpdateWorkstationRequest {
+    int64 id = 1;
+    string workstationName = 2;
+    string status = 3;
+    string description = 4;
+}
+message UpdateWorkstationResponse { WorkstationProto workstation = 1; }
+
+// ===== Andon =====
+message AndonEventProto {
+    int64 id = 1;
+    string eventNo = 2;
+    int64 andonTypeId = 3;
+    string andonTypeCode = 4;
+    string andonTypeName = 5;
+    int64 andonLevelId = 6;
+    string levelCode = 7;
+    string levelName = 8;
+    string triggerMethod = 9;
+    string workshopId = 10;
+    int64 workstationId = 11;
+    string equipmentId = 12;
+    string productCode = 13;
+    string workOrderNo = 14;
+    string description = 15;
+    string reporterId = 16;
+    string reporterName = 17;
+    string status = 18;
+    string currentHandlerId = 19;
+    string currentHandlerName = 20;
+    string occurredAt = 21;
+    string acknowledgedAt = 22;
+    string resolvedAt = 23;
+    int32 escalationCount = 24;
+    int64 createdAt = 25;
+    int64 updatedAt = 26;
+}
+message GetAndonEventRequest { int64 id = 1; }
+message GetAndonEventResponse { AndonEventProto andonEvent = 1; }
+message ListAndonEventsRequest {
+    string status = 1;
+    string workshopId = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListAndonEventsResponse {
+    repeated AndonEventProto andonEvents = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message TriggerAndonRequest {
+    int64 andonTypeId = 1;
+    int64 andonLevelId = 2;
+    string workshopId = 3;
+    int64 workstationId = 4;
+    string description = 5;
+    string reporterId = 6;
+}
+message TriggerAndonResponse { AndonEventProto andonEvent = 1; }
+message AcknowledgeAndonRequest {
+    int64 id = 1;
+    string handlerId = 2;
+}
+message AcknowledgeAndonResponse { bool success = 1; }
+message ResolveAndonRequest {
+    int64 id = 1;
+    string solution = 2;
+}
+message ResolveAndonResponse { bool success = 1; }
+message CloseAndonRequest { int64 id = 1; }
+message CloseAndonResponse { bool success = 1; }
+message EscalateAndonRequest { int64 id = 1; }
+message EscalateAndonResponse { bool success = 1; }
+
+message AndonTypeProto {
+    int64 id = 1;
+    string typeCode = 2;
+    string typeName = 3;
+    string category = 4;
+    string description = 5;
+    bool requirePhoto = 6;
+    int32 defaultEscalationMinutes = 7;
+    string status = 8;
+    int64 createdAt = 9;
+    int64 updatedAt = 10;
+}
+message CreateAndonTypeRequest {
+    string typeCode = 1;
+    string typeName = 2;
+    string category = 3;
+    string description = 4;
+}
+message CreateAndonTypeResponse { AndonTypeProto andonType = 1; }
+message ListAndonTypesRequest {
+    string status = 1;
+    int32 page = 2;
+    int32 size = 3;
+}
+message ListAndonTypesResponse {
+    repeated AndonTypeProto andonTypes = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+
+// ===== Trace =====
+message TraceRelationProto {
+    string relatedCode = 1;
+    string relatedType = 2;
+    string relationType = 3;
+    int32 quantity = 4;
+}
+message TraceRecordProto {
+    int64 id = 1;
+    string traceCode = 2;
+    string traceType = 3;
+    string productCode = 4;
+    string batchNo = 5;
+    string sn = 6;
+    string sourceTraceCode = 7;
+    string source = 8;
+    int64 createdAt = 9;
+    repeated TraceRelationProto relations = 10;
+}
+message GetTraceRecordRequest { int64 id = 1; }
+message GetTraceRecordResponse { TraceRecordProto traceRecord = 1; }
+message ListTraceRecordsRequest {
+    string productCode = 1;
+    string batchNo = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListTraceRecordsResponse {
+    repeated TraceRecordProto traceRecords = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateTraceRecordRequest {
+    string traceCode = 1;
+    string traceType = 2;
+    string productCode = 3;
+    string batchNo = 4;
+    string source = 5;
+    repeated TraceRelationProto relations = 6;
+}
+message CreateTraceRecordResponse { TraceRecordProto traceRecord = 1; }
+message ForwardTraceRequest { string traceCode = 1; }
+message ForwardTraceResponse {
+    repeated TraceRecordProto traceRecords = 1;
+}
+message BackwardTraceRequest { string traceCode = 1; }
+message BackwardTraceResponse {
+    repeated TraceRecordProto traceRecords = 1;
+}
+
+// ===== Labor =====
+message OperatorProto {
+    int64 id = 1;
+    string operatorCode = 2;
+    string operatorName = 3;
+    string department = 4;
+    string jobTitle = 5;
+    string shiftGroup = 6;
+    string status = 7;
+    string phone = 8;
+    string email = 9;
+    string remark = 10;
+    int64 createdAt = 11;
+    int64 updatedAt = 12;
+}
+message GetOperatorRequest { int64 id = 1; }
+message GetOperatorResponse { OperatorProto operator = 1; }
+message ListOperatorsRequest {
+    string status = 1;
+    string department = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListOperatorsResponse {
+    repeated OperatorProto operators = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateOperatorRequest {
+    string operatorCode = 1;
+    string operatorName = 2;
+    string department = 3;
+    string jobTitle = 4;
+    string shiftGroup = 5;
+    string phone = 6;
+}
+message CreateOperatorResponse { OperatorProto operator = 1; }
+message UpdateOperatorRequest {
+    int64 id = 1;
+    string operatorName = 2;
+    string department = 3;
+    string jobTitle = 4;
+    string status = 5;
+}
+message UpdateOperatorResponse { OperatorProto operator = 1; }
+
+message AttendanceProto {
+    int64 id = 1;
+    int64 operatorId = 2;
+    string operatorCode = 3;
+    string operatorName = 4;
+    string attendanceDate = 5;
+    string clockIn = 6;
+    string clockOut = 7;
+    string status = 8;
+    string remark = 9;
+    int64 createdAt = 10;
+}
+message GetAttendanceRequest { int64 id = 1; }
+message GetAttendanceResponse { AttendanceProto attendance = 1; }
+message ListAttendancesRequest {
+    int64 operatorId = 1;
+    string startDate = 2;
+    string endDate = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListAttendancesResponse {
+    repeated AttendanceProto attendances = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateAttendanceRequest {
+    int64 operatorId = 1;
+    string attendanceDate = 2;
+    string clockIn = 3;
+    string clockOut = 4;
+    string status = 5;
+    string remark = 6;
+}
+message CreateAttendanceResponse { AttendanceProto attendance = 1; }
+
+message TimeRecordProto {
+    int64 id = 1;
+    int64 operatorId = 2;
+    string operatorCode = 3;
+    string operatorName = 4;
+    string workOrderNo = 5;
+    string taskNo = 6;
+    string recordDate = 7;
+    string startTime = 8;
+    string endTime = 9;
+    double totalHours = 10;
+    string recordType = 11;
+    string status = 12;
+    string remark = 13;
+    int64 createdAt = 14;
+}
+message ListTimeRecordsRequest {
+    int64 operatorId = 1;
+    string startDate = 2;
+    string endDate = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListTimeRecordsResponse {
+    repeated TimeRecordProto timeRecords = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateTimeRecordRequest {
+    int64 operatorId = 1;
+    string workOrderNo = 2;
+    string taskNo = 3;
+    string recordDate = 4;
+    string startTime = 5;
+    string endTime = 6;
+    string recordType = 7;
+    string remark = 8;
+}
+message CreateTimeRecordResponse { TimeRecordProto timeRecord = 1; }
+
+// ===== SCADA =====
+message TelemetryMetricProto {
+    string metricCode = 1;
+    string metricName = 2;
+    double value = 3;
+    string unit = 4;
+    string quality = 5;
+    double upperLimit = 6;
+    double lowerLimit = 7;
+}
+message TelemetryRecordProto {
+    int64 id = 1;
+    string equipmentCode = 2;
+    string topic = 3;
+    string collectTime = 4;
+    int64 createdAt = 5;
+    repeated TelemetryMetricProto metrics = 6;
+}
+message GetTelemetryRecordRequest { int64 id = 1; }
+message GetTelemetryRecordResponse { TelemetryRecordProto telemetryRecord = 1; }
+message ListTelemetryRecordsRequest {
+    string equipmentCode = 1;
+    string startTime = 2;
+    string endTime = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListTelemetryRecordsResponse {
+    repeated TelemetryRecordProto telemetryRecords = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+
+message DeviceCommandProto {
+    int64 id = 1;
+    string commandCode = 2;
+    string equipmentCode = 3;
+    string commandType = 4;
+    string payload = 5;
+    string status = 6;
+    string createdBy = 7;
+    int64 createdAt = 8;
+    string executedAt = 9;
+    string resultMessage = 10;
+}
+message SendDeviceCommandRequest {
+    string equipmentCode = 1;
+    string commandType = 2;
+    string payload = 3;
+    string createdBy = 4;
+}
+message SendDeviceCommandResponse { DeviceCommandProto command = 1; }
+message ListDeviceCommandsRequest {
+    string equipmentCode = 1;
+    string status = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListDeviceCommandsResponse {
+    repeated DeviceCommandProto commands = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+
+// ===== Process Parameter =====
+message ProcessParameterProto {
+    int64 id = 1;
+    string paramCode = 2;
+    string paramName = 3;
+    int64 routeId = 4;
+    string routeCode = 5;
+    int32 stepNo = 6;
+    string paramType = 7;
+    string dataType = 8;
+    string unit = 9;
+    double standardValue = 10;
+    double upperLimit = 11;
+    double lowerLimit = 12;
+    string collectionMethod = 13;
+    bool isRequired = 14;
+    string validationRule = 15;
+    int32 displayOrder = 16;
+    string paramGroup = 17;
+    string remark = 18;
+    string status = 19;
+    int64 createdAt = 20;
+    int64 updatedAt = 21;
+}
+message GetProcessParameterRequest { int64 id = 1; }
+message GetProcessParameterResponse { ProcessParameterProto parameter = 1; }
+message ListProcessParametersRequest {
+    int64 routeId = 1;
+    int32 stepNo = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListProcessParametersResponse {
+    repeated ProcessParameterProto parameters = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateProcessParameterRequest {
+    string paramCode = 1;
+    string paramName = 2;
+    int64 routeId = 3;
+    int32 stepNo = 4;
+    string paramType = 5;
+    string unit = 6;
+    double standardValue = 7;
+    double upperLimit = 8;
+    double lowerLimit = 9;
+    string collectionMethod = 10;
+    string paramGroup = 11;
+    string remark = 12;
+}
+message CreateProcessParameterResponse { ProcessParameterProto parameter = 1; }
+message UpdateProcessParameterRequest {
+    int64 id = 1;
+    string paramName = 2;
+    double standardValue = 3;
+    double upperLimit = 4;
+    double lowerLimit = 5;
+    string remark = 6;
+}
+message UpdateProcessParameterResponse { ProcessParameterProto parameter = 1; }
+message DeleteProcessParameterRequest { int64 id = 1; }
+message DeleteProcessParameterResponse { bool success = 1; }
+
+// ===== Material Requirement =====
+message MaterialRequirementItemProto {
+    int64 id = 1;
+    string materialCode = 2;
+    string materialName = 3;
+    string materialSpec = 4;
+    string unitCode = 5;
+    double requiredQuantity = 6;
+    double issuedQuantity = 7;
+    string batchNo = 8;
+    string status = 9;
+    string remark = 10;
+}
+message MaterialRequirementProto {
+    int64 id = 1;
+    string requirementNo = 2;
+    string workOrderNo = 3;
+    string productCode = 4;
+    string productName = 5;
+    int32 quantity = 6;
+    string bomVersion = 7;
+    string status = 8;
+    string warehouseId = 9;
+    string workshopId = 10;
+    string requirementType = 11;
+    string requiredDate = 12;
+    int64 createdAt = 13;
+    int64 updatedAt = 14;
+    repeated MaterialRequirementItemProto items = 15;
+}
+message GetMaterialRequirementRequest { int64 id = 1; }
+message GetMaterialRequirementResponse { MaterialRequirementProto requirement = 1; }
+message ListMaterialRequirementsRequest {
+    string workOrderNo = 1;
+    string status = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListMaterialRequirementsResponse {
+    repeated MaterialRequirementProto requirements = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateMaterialRequirementRequest {
+    string requirementNo = 1;
+    string workOrderNo = 2;
+    string productCode = 3;
+    string warehouseId = 4;
+    string requirementType = 5;
+    repeated MaterialRequirementItemProto items = 6;
+}
+message CreateMaterialRequirementResponse { MaterialRequirementProto requirement = 1; }

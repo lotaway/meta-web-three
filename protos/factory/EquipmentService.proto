@@ -1,0 +1,351 @@
+syntax = "proto3";
+
+package com.metawebthree.factory.generated.rpc;
+
+option java_multiple_files = true;
+
+service EquipmentService {
+    // Equipment
+    rpc getEquipment(GetEquipmentRequest) returns (GetEquipmentResponse);
+    rpc listEquipment(ListEquipmentRequest) returns (ListEquipmentResponse);
+    rpc createEquipment(CreateEquipmentRequest) returns (CreateEquipmentResponse);
+    rpc updateEquipment(UpdateEquipmentRequest) returns (UpdateEquipmentResponse);
+    rpc deleteEquipment(DeleteEquipmentRequest) returns (DeleteEquipmentResponse);
+    rpc startEquipmentTask(StartEquipmentTaskRequest) returns (StartEquipmentTaskResponse);
+    rpc completeEquipmentTask(CompleteEquipmentTaskRequest) returns (CompleteEquipmentTaskResponse);
+    rpc reportEquipmentBreakdown(ReportEquipmentBreakdownRequest) returns (ReportEquipmentBreakdownResponse);
+    rpc repairEquipment(RepairEquipmentRequest) returns (RepairEquipmentResponse);
+    rpc updateEquipmentStatus(UpdateEquipmentStatusRequest) returns (UpdateEquipmentStatusResponse);
+
+    // Equipment Type
+    rpc getEquipmentType(GetEquipmentTypeRequest) returns (GetEquipmentTypeResponse);
+    rpc listEquipmentTypes(ListEquipmentTypesRequest) returns (ListEquipmentTypesResponse);
+    rpc createEquipmentType(CreateEquipmentTypeRequest) returns (CreateEquipmentTypeResponse);
+    rpc updateEquipmentType(UpdateEquipmentTypeRequest) returns (UpdateEquipmentTypeResponse);
+    rpc deleteEquipmentType(DeleteEquipmentTypeRequest) returns (DeleteEquipmentTypeResponse);
+
+    // Maintenance Plan
+    rpc getMaintenancePlan(GetMaintenancePlanRequest) returns (GetMaintenancePlanResponse);
+    rpc listMaintenancePlans(ListMaintenancePlansRequest) returns (ListMaintenancePlansResponse);
+    rpc createMaintenancePlan(CreateMaintenancePlanRequest) returns (CreateMaintenancePlanResponse);
+    rpc updateMaintenancePlan(UpdateMaintenancePlanRequest) returns (UpdateMaintenancePlanResponse);
+    rpc deleteMaintenancePlan(DeleteMaintenancePlanRequest) returns (DeleteMaintenancePlanResponse);
+    rpc activateMaintenancePlan(ActivateMaintenancePlanRequest) returns (ActivateMaintenancePlanResponse);
+    rpc deactivateMaintenancePlan(DeactivateMaintenancePlanRequest) returns (DeactivateMaintenancePlanResponse);
+
+    // Checklist
+    rpc getChecklistTemplate(GetChecklistTemplateRequest) returns (GetChecklistTemplateResponse);
+    rpc listChecklistTemplates(ListChecklistTemplatesRequest) returns (ListChecklistTemplatesResponse);
+    rpc createChecklistTemplate(CreateChecklistTemplateRequest) returns (CreateChecklistTemplateResponse);
+    rpc getChecklistRecord(GetChecklistRecordRequest) returns (GetChecklistRecordResponse);
+    rpc listChecklistRecords(ListChecklistRecordsRequest) returns (ListChecklistRecordsResponse);
+    rpc createChecklistRecord(CreateChecklistRecordRequest) returns (CreateChecklistRecordResponse);
+}
+
+// ===== Equipment =====
+message EquipmentProto {
+    int64 id = 1;
+    string equipmentCode = 2;
+    string equipmentName = 3;
+    int64 equipmentTypeId = 4;
+    string equipmentTypeCode = 5;
+    string workshopId = 6;
+    int64 workstationId = 7;
+    string statusCode = 8;
+    string status = 9;
+    string currentTaskNo = 10;
+    double utilizationRate = 11;
+    int32 todayOutput = 12;
+    string lastMaintenanceTime = 13;
+    string nextMaintenanceTime = 14;
+    int64 totalRunningSeconds = 15;
+    string digitalTwinDeviceCode = 16;
+    double positionX = 17;
+    double positionY = 18;
+    double positionZ = 19;
+    string ipAddress = 20;
+    string macAddress = 21;
+    string lastHeartbeat = 22;
+    int64 createdAt = 23;
+    int64 updatedAt = 24;
+}
+
+message GetEquipmentRequest { int64 id = 1; }
+message GetEquipmentResponse { EquipmentProto equipment = 1; }
+message ListEquipmentRequest {
+    string workshopId = 1;
+    string status = 2;
+    int64 equipmentTypeId = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListEquipmentResponse {
+    repeated EquipmentProto equipment = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateEquipmentRequest {
+    string equipmentCode = 1;
+    string equipmentName = 2;
+    int64 equipmentTypeId = 3;
+    string workshopId = 4;
+    int64 workstationId = 5;
+    string ipAddress = 6;
+    string macAddress = 7;
+}
+message CreateEquipmentResponse { EquipmentProto equipment = 1; }
+message UpdateEquipmentRequest {
+    int64 id = 1;
+    string equipmentName = 2;
+    int64 workstationId = 3;
+    string ipAddress = 4;
+}
+message UpdateEquipmentResponse { EquipmentProto equipment = 1; }
+message DeleteEquipmentRequest { int64 id = 1; }
+message DeleteEquipmentResponse { bool success = 1; }
+message StartEquipmentTaskRequest {
+    int64 id = 1;
+    string taskNo = 2;
+}
+message StartEquipmentTaskResponse { bool success = 1; }
+message CompleteEquipmentTaskRequest { int64 id = 1; }
+message CompleteEquipmentTaskResponse { bool success = 1; }
+message ReportEquipmentBreakdownRequest {
+    int64 id = 1;
+    string reason = 2;
+}
+message ReportEquipmentBreakdownResponse { bool success = 1; }
+message RepairEquipmentRequest { int64 id = 1; }
+message RepairEquipmentResponse { bool success = 1; }
+message UpdateEquipmentStatusRequest {
+    int64 id = 1;
+    string statusCode = 2;
+}
+message UpdateEquipmentStatusResponse { bool success = 1; }
+
+// ===== Equipment Type =====
+message EquipmentTypeAttributeProto {
+    int64 id = 1;
+    int64 equipmentTypeId = 2;
+    string attributeCode = 3;
+    string attributeName = 4;
+    string dataType = 5;
+    string defaultValue = 6;
+    bool isRequired = 7;
+    string validationRule = 8;
+    string description = 9;
+    int32 sortOrder = 10;
+}
+message EquipmentTypeProto {
+    int64 id = 1;
+    string typeCode = 2;
+    string typeName = 3;
+    string description = 4;
+    string category = 5;
+    int64 statusMachineId = 6;
+    string icon = 7;
+    int32 sortOrder = 8;
+    bool isActive = 9;
+    int64 createdAt = 10;
+    int64 updatedAt = 11;
+    repeated EquipmentTypeAttributeProto attributes = 12;
+}
+
+message GetEquipmentTypeRequest { int64 id = 1; }
+message GetEquipmentTypeResponse { EquipmentTypeProto equipmentType = 1; }
+message ListEquipmentTypesRequest {
+    string category = 1;
+    bool isActive = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListEquipmentTypesResponse {
+    repeated EquipmentTypeProto equipmentTypes = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateEquipmentTypeRequest {
+    string typeCode = 1;
+    string typeName = 2;
+    string description = 3;
+    string category = 4;
+    string icon = 5;
+    repeated EquipmentTypeAttributeProto attributes = 6;
+}
+message CreateEquipmentTypeResponse { EquipmentTypeProto equipmentType = 1; }
+message UpdateEquipmentTypeRequest {
+    int64 id = 1;
+    string typeName = 2;
+    string description = 3;
+    string icon = 4;
+    bool isActive = 5;
+    repeated EquipmentTypeAttributeProto attributes = 6;
+}
+message UpdateEquipmentTypeResponse { EquipmentTypeProto equipmentType = 1; }
+message DeleteEquipmentTypeRequest { int64 id = 1; }
+message DeleteEquipmentTypeResponse { bool success = 1; }
+
+// ===== Maintenance Plan =====
+message MaintenancePlanItemProto {
+    int64 id = 1;
+    int64 planId = 2;
+    string itemCode = 3;
+    string itemName = 4;
+    string description = 5;
+    bool isMandatory = 6;
+    int32 estDurationMinutes = 7;
+}
+message MaintenancePlanProto {
+    int64 id = 1;
+    string planCode = 2;
+    string planName = 3;
+    int64 equipmentId = 4;
+    string equipmentCode = 5;
+    string equipmentName = 6;
+    string maintenanceType = 7;
+    string frequencyType = 8;
+    int32 intervalValue = 9;
+    string intervalUnit = 10;
+    int32 estimatedDurationMinutes = 11;
+    string status = 12;
+    bool isActive = 13;
+    string lastExecutionTime = 14;
+    string nextExecutionTime = 15;
+    string remark = 16;
+    int64 createdAt = 17;
+    int64 updatedAt = 18;
+    repeated MaintenancePlanItemProto items = 19;
+}
+message GetMaintenancePlanRequest { int64 id = 1; }
+message GetMaintenancePlanResponse { MaintenancePlanProto maintenancePlan = 1; }
+message ListMaintenancePlansRequest {
+    int64 equipmentId = 1;
+    string status = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListMaintenancePlansResponse {
+    repeated MaintenancePlanProto maintenancePlans = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateMaintenancePlanRequest {
+    string planCode = 1;
+    string planName = 2;
+    int64 equipmentId = 3;
+    string maintenanceType = 4;
+    string frequencyType = 5;
+    int32 intervalValue = 6;
+    string intervalUnit = 7;
+    string remark = 8;
+    repeated MaintenancePlanItemProto items = 9;
+}
+message CreateMaintenancePlanResponse { MaintenancePlanProto maintenancePlan = 1; }
+message UpdateMaintenancePlanRequest {
+    int64 id = 1;
+    string planName = 2;
+    int32 intervalValue = 3;
+    string remark = 4;
+    repeated MaintenancePlanItemProto items = 5;
+}
+message UpdateMaintenancePlanResponse { MaintenancePlanProto maintenancePlan = 1; }
+message DeleteMaintenancePlanRequest { int64 id = 1; }
+message DeleteMaintenancePlanResponse { bool success = 1; }
+message ActivateMaintenancePlanRequest { int64 id = 1; }
+message ActivateMaintenancePlanResponse { bool success = 1; }
+message DeactivateMaintenancePlanRequest { int64 id = 1; }
+message DeactivateMaintenancePlanResponse { bool success = 1; }
+
+// ===== Checklist =====
+message ChecklistItemProto {
+    int64 id = 1;
+    string itemCode = 2;
+    string itemName = 3;
+    string description = 4;
+    bool isMandatory = 5;
+    int32 sortOrder = 6;
+}
+message ChecklistTemplateProto {
+    int64 id = 1;
+    string templateCode = 2;
+    string templateName = 3;
+    string type = 4;
+    string description = 5;
+    bool isActive = 6;
+    int64 createdAt = 7;
+    int64 updatedAt = 8;
+    repeated ChecklistItemProto items = 9;
+}
+message GetChecklistTemplateRequest { int64 id = 1; }
+message GetChecklistTemplateResponse { ChecklistTemplateProto template = 1; }
+message ListChecklistTemplatesRequest {
+    string type = 1;
+    bool isActive = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListChecklistTemplatesResponse {
+    repeated ChecklistTemplateProto templates = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateChecklistTemplateRequest {
+    string templateCode = 1;
+    string templateName = 2;
+    string type = 3;
+    string description = 4;
+    repeated ChecklistItemProto items = 5;
+}
+message CreateChecklistTemplateResponse { ChecklistTemplateProto template = 1; }
+
+message ChecklistRecordItemProto {
+    int64 checklistItemId = 1;
+    string itemCode = 2;
+    string itemName = 3;
+    bool isPassed = 4;
+    string actualValue = 5;
+    string remark = 6;
+}
+message ChecklistRecordProto {
+    int64 id = 1;
+    string recordNo = 2;
+    int64 templateId = 3;
+    string templateName = 4;
+    int64 equipmentId = 5;
+    string equipmentCode = 6;
+    int64 maintenancePlanId = 7;
+    string operatorId = 8;
+    string operatorName = 9;
+    string checkTime = 10;
+    string status = 11;
+    string remark = 12;
+    int64 createdAt = 13;
+    repeated ChecklistRecordItemProto items = 14;
+}
+message GetChecklistRecordRequest { int64 id = 1; }
+message GetChecklistRecordResponse { ChecklistRecordProto record = 1; }
+message ListChecklistRecordsRequest {
+    int64 equipmentId = 1;
+    int64 templateId = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListChecklistRecordsResponse {
+    repeated ChecklistRecordProto records = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateChecklistRecordRequest {
+    string recordNo = 1;
+    int64 templateId = 2;
+    int64 equipmentId = 3;
+    string operatorId = 4;
+    string remark = 5;
+    repeated ChecklistRecordItemProto items = 6;
+}
+message CreateChecklistRecordResponse { ChecklistRecordProto record = 1; }

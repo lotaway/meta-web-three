@@ -71,6 +71,7 @@ Desktop.ini
 .vscode/
 .project
 .classpath
+.factorypath
 .c9/
 *.launch
 .settings/

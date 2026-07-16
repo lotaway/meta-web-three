@@ -91,7 +91,14 @@ public enum EventType {
     LOGISTICS_CREATED("logistics.created"),
     LOGISTICS_TRACKING_UPDATED("logistics.tracking_updated"),
     LOGISTICS_DISPATCHED("logistics.dispatched"),
-    LOGISTICS_DELIVERED("logistics.delivered");
+    LOGISTICS_DELIVERED("logistics.delivered"),
+
+    // ERP-MES Cross-Domain Integration Events
+    PRODUCTION_ORDER_RELEASED("production.order_released"),
+    MES_WORK_ORDER_COMPLETED("mes.work_order_completed"),
+    MES_WORK_ORDER_STARTED("mes.work_order_started"),
+    MES_TASK_COMPLETED("mes.task_completed"),
+    COST_ACCOUNTING_TRIGGERED("finance.cost_accounting_triggered");
 
     private final String topic;
 

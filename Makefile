@@ -14,6 +14,8 @@ PROTO_MALL := $(wildcard $(PROTO_DIR)/mall/*.proto)
 PROTO_SUPPLY_CHAIN := $(wildcard $(PROTO_DIR)/supply-chain/*.proto)
 PROTO_AI := $(wildcard $(PROTO_DIR)/ai/*.proto)
 PROTO_PLATFORM := $(wildcard $(PROTO_DIR)/platform/*.proto)
+PROTO_ERP := $(wildcard $(PROTO_DIR)/erp/*.proto)
+PROTO_FACTORY := $(wildcard $(PROTO_DIR)/factory/*.proto)
 PROTO_SHARED := $(wildcard $(PROTO_DIR)/shared/*.proto)
 
 all: gen-java-dubbo gen-python
@@ -42,6 +44,26 @@ gen-python:
 	fi
 
 # Generate for specific domain
+gen-erp:
+	@echo "Generating code for ERP domain..."
+	@mkdir -p $(JAVA_OUT)
+	@if [ -n "$(PROTO_ERP)" ]; then \
+		protoc -I=$(PROTO_DIR) \
+			--java_out=$(JAVA_OUT) \
+			--grpc-java_out=$(JAVA_OUT) \
+			$(PROTO_ERP); \
+	fi
+
+gen-factory:
+	@echo "Generating code for Factory domain..."
+	@mkdir -p $(JAVA_OUT)
+	@if [ -n "$(PROTO_FACTORY)" ]; then \
+		protoc -I=$(PROTO_DIR) \
+			--java_out=$(JAVA_OUT) \
+			--grpc-java_out=$(JAVA_OUT) \
+			$(PROTO_FACTORY); \
+	fi
+
 gen-mall:
 	@echo "Generating code for Mall domain..."
 	@mkdir -p $(JAVA_OUT)
@@ -79,6 +101,8 @@ list-protos:
 	@echo "  Mall: $(PROTO_MALL)"
 	@echo "  Supply Chain: $(PROTO_SUPPLY_CHAIN)"
 	@echo "  AI: $(PROTO_AI)"
+	@echo "  ERP: $(PROTO_ERP)"
+	@echo "  Factory: $(PROTO_FACTORY)"
 	@echo "  Platform: $(PROTO_PLATFORM)"
 	@echo "  Shared: $(PROTO_SHARED)"
 
@@ -88,4 +112,4 @@ clean:
 	@rm -rf $(PYTHON_DIR)/*_pb2.py $(PYTHON_DIR)/*_pb2.pyi $(PYTHON_DIR)/*_pb2_grpc.py
 	@cd $(JAVA_DIR) && mvn -q clean 2>/dev/null || true
 
-.PHONY: all install gen-java-dubbo gen-python gen-mall gen-supply-chain gen-ai list-protos clean
+.PHONY: all install gen-java-dubbo gen-python gen-erp gen-factory gen-mall gen-supply-chain gen-ai list-protos clean

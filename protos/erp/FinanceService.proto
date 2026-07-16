@@ -1,0 +1,905 @@
+syntax = "proto3";
+
+package com.metawebthree.erp.generated.rpc;
+
+option java_multiple_files = true;
+
+import "shared/google/type/money.proto";
+
+service FinanceService {
+    // Account
+    rpc getAccount(GetAccountRequest) returns (GetAccountResponse);
+    rpc listAccounts(ListAccountsRequest) returns (ListAccountsResponse);
+    rpc createAccount(CreateAccountRequest) returns (CreateAccountResponse);
+    rpc updateAccount(UpdateAccountRequest) returns (UpdateAccountResponse);
+    rpc deleteAccount(DeleteAccountRequest) returns (DeleteAccountResponse);
+    rpc freezeAccount(FreezeAccountRequest) returns (FreezeAccountResponse);
+    rpc unfreezeAccount(UnfreezeAccountRequest) returns (UnfreezeAccountResponse);
+    rpc closeAccount(CloseAccountRequest) returns (CloseAccountResponse);
+    rpc creditAccount(CreditAccountRequest) returns (CreditAccountResponse);
+    rpc debitAccount(DebitAccountRequest) returns (DebitAccountResponse);
+
+    // AccountSubject
+    rpc getAccountSubject(GetAccountSubjectRequest) returns (GetAccountSubjectResponse);
+    rpc listAccountSubjects(ListAccountSubjectsRequest) returns (ListAccountSubjectsResponse);
+    rpc createAccountSubject(CreateAccountSubjectRequest) returns (CreateAccountSubjectResponse);
+    rpc updateAccountSubject(UpdateAccountSubjectRequest) returns (UpdateAccountSubjectResponse);
+    rpc deleteAccountSubject(DeleteAccountSubjectRequest) returns (DeleteAccountSubjectResponse);
+
+    // Voucher
+    rpc getVoucher(GetVoucherRequest) returns (GetVoucherResponse);
+    rpc listVouchers(ListVouchersRequest) returns (ListVouchersResponse);
+    rpc createVoucher(CreateVoucherRequest) returns (CreateVoucherResponse);
+    rpc updateVoucher(UpdateVoucherRequest) returns (UpdateVoucherResponse);
+    rpc deleteVoucher(DeleteVoucherRequest) returns (DeleteVoucherResponse);
+    rpc approveVoucher(ApproveVoucherRequest) returns (ApproveVoucherResponse);
+    rpc rejectVoucher(RejectVoucherRequest) returns (RejectVoucherResponse);
+    rpc postVoucher(PostVoucherRequest) returns (PostVoucherResponse);
+
+    // Accounts Receivable
+    rpc getAccountsReceivable(GetAccountsReceivableRequest) returns (GetAccountsReceivableResponse);
+    rpc listAccountsReceivables(ListAccountsReceivablesRequest) returns (ListAccountsReceivablesResponse);
+    rpc createAccountsReceivable(CreateAccountsReceivableRequest) returns (CreateAccountsReceivableResponse);
+    rpc receiveAr(ReceiveArRequest) returns (ReceiveArResponse);
+    rpc writeOffAr(WriteOffArRequest) returns (WriteOffArResponse);
+
+    // Accounts Payable
+    rpc getAccountsPayable(GetAccountsPayableRequest) returns (GetAccountsPayableResponse);
+    rpc listAccountsPayables(ListAccountsPayablesRequest) returns (ListAccountsPayablesResponse);
+    rpc createAccountsPayable(CreateAccountsPayableRequest) returns (CreateAccountsPayableResponse);
+    rpc payAp(PayApRequest) returns (PayApResponse);
+    rpc writeOffAp(WriteOffApRequest) returns (WriteOffApResponse);
+
+    // General Ledger
+    rpc getGeneralLedger(GetGeneralLedgerRequest) returns (GetGeneralLedgerResponse);
+    rpc listGeneralLedgers(ListGeneralLedgersRequest) returns (ListGeneralLedgersResponse);
+    rpc postLedger(PostLedgerRequest) returns (PostLedgerResponse);
+    rpc closeLedger(CloseLedgerRequest) returns (CloseLedgerResponse);
+
+    // Budget
+    rpc getBudget(GetBudgetRequest) returns (GetBudgetResponse);
+    rpc listBudgets(ListBudgetsRequest) returns (ListBudgetsResponse);
+    rpc createBudget(CreateBudgetRequest) returns (CreateBudgetResponse);
+    rpc updateBudget(UpdateBudgetRequest) returns (UpdateBudgetResponse);
+    rpc deleteBudget(DeleteBudgetRequest) returns (DeleteBudgetResponse);
+    rpc adjustBudget(AdjustBudgetRequest) returns (AdjustBudgetResponse);
+
+    // Cash Management
+    rpc getBankAccount(GetBankAccountRequest) returns (GetBankAccountResponse);
+    rpc listBankAccounts(ListBankAccountsRequest) returns (ListBankAccountsResponse);
+    rpc createBankAccount(CreateBankAccountRequest) returns (CreateBankAccountResponse);
+    rpc updateBankAccount(UpdateBankAccountRequest) returns (UpdateBankAccountResponse);
+    rpc getCashPlan(GetCashPlanRequest) returns (GetCashPlanResponse);
+    rpc listCashPlans(ListCashPlansRequest) returns (ListCashPlansResponse);
+    rpc createCashPlan(CreateCashPlanRequest) returns (CreateCashPlanResponse);
+    rpc createCashTransfer(CreateCashTransferRequest) returns (CreateCashTransferResponse);
+    rpc approveCashTransfer(ApproveCashTransferRequest) returns (ApproveCashTransferResponse);
+    rpc executeCashTransfer(ExecuteCashTransferRequest) returns (ExecuteCashTransferResponse);
+
+    // Cost Accounting
+    rpc getCostCenter(GetCostCenterRequest) returns (GetCostCenterResponse);
+    rpc listCostCenters(ListCostCentersRequest) returns (ListCostCentersResponse);
+    rpc createCostCenter(CreateCostCenterRequest) returns (CreateCostCenterResponse);
+    rpc updateCostCenter(UpdateCostCenterRequest) returns (UpdateCostCenterResponse);
+    rpc getStandardCost(GetStandardCostRequest) returns (GetStandardCostResponse);
+    rpc listStandardCosts(ListStandardCostsRequest) returns (ListStandardCostsResponse);
+    rpc createStandardCost(CreateStandardCostRequest) returns (CreateStandardCostResponse);
+    rpc getActualCost(GetActualCostRequest) returns (GetActualCostResponse);
+    rpc listActualCosts(ListActualCostsRequest) returns (ListActualCostsResponse);
+    rpc createActualCost(CreateActualCostRequest) returns (CreateActualCostResponse);
+    rpc getCostVariance(GetCostVarianceRequest) returns (GetCostVarianceResponse);
+    rpc listCostVariances(ListCostVariancesRequest) returns (ListCostVariancesResponse);
+
+    // Exchange Rate
+    rpc getExchangeRate(GetExchangeRateRequest) returns (GetExchangeRateResponse);
+    rpc listExchangeRates(ListExchangeRatesRequest) returns (ListExchangeRatesResponse);
+    rpc createExchangeRate(CreateExchangeRateRequest) returns (CreateExchangeRateResponse);
+    rpc updateExchangeRate(UpdateExchangeRateRequest) returns (UpdateExchangeRateResponse);
+
+    // Financial Ratio
+    rpc listFinancialRatios(ListFinancialRatiosRequest) returns (ListFinancialRatiosResponse);
+    rpc getFinancialRatio(GetFinancialRatioRequest) returns (GetFinancialRatioResponse);
+}
+
+// ===== Account =====
+message AccountProto {
+    int64 id = 1;
+    string accountNo = 2;
+    string accountName = 3;
+    string type = 4;
+    double balance = 5;
+    string status = 6;
+    int64 createdAt = 7;
+    int64 updatedAt = 8;
+}
+
+message GetAccountRequest { int64 id = 1; }
+message GetAccountResponse { AccountProto account = 1; }
+message ListAccountsRequest {
+    string status = 1;
+    string type = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListAccountsResponse {
+    repeated AccountProto accounts = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateAccountRequest {
+    string accountNo = 1;
+    string accountName = 2;
+    string type = 3;
+    double balance = 4;
+}
+message CreateAccountResponse { AccountProto account = 1; }
+message UpdateAccountRequest {
+    int64 id = 1;
+    string accountName = 2;
+}
+message UpdateAccountResponse { AccountProto account = 1; }
+message DeleteAccountRequest { int64 id = 1; }
+message DeleteAccountResponse { bool success = 1; }
+message FreezeAccountRequest { int64 id = 1; }
+message FreezeAccountResponse { bool success = 1; }
+message UnfreezeAccountRequest { int64 id = 1; }
+message UnfreezeAccountResponse { bool success = 1; }
+message CloseAccountRequest { int64 id = 1; }
+message CloseAccountResponse { bool success = 1; }
+message CreditAccountRequest {
+    int64 id = 1;
+    double amount = 2;
+}
+message CreditAccountResponse { bool success = 1; }
+message DebitAccountRequest {
+    int64 id = 1;
+    double amount = 2;
+}
+message DebitAccountResponse { bool success = 1; }
+
+// ===== AccountSubject =====
+message AccountSubjectProto {
+    int64 id = 1;
+    string subjectCode = 2;
+    string subjectName = 3;
+    string direction = 4;
+    int64 parentId = 5;
+    int32 level = 6;
+    string status = 7;
+    double balance = 8;
+    int64 createdAt = 9;
+    int64 updatedAt = 10;
+}
+
+message GetAccountSubjectRequest { int64 id = 1; }
+message GetAccountSubjectResponse { AccountSubjectProto subject = 1; }
+message ListAccountSubjectsRequest {
+    string status = 1;
+    int32 page = 2;
+    int32 size = 3;
+}
+message ListAccountSubjectsResponse {
+    repeated AccountSubjectProto subjects = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateAccountSubjectRequest {
+    string subjectCode = 1;
+    string subjectName = 2;
+    string direction = 3;
+    int64 parentId = 4;
+    int32 level = 5;
+}
+message CreateAccountSubjectResponse { AccountSubjectProto subject = 1; }
+message UpdateAccountSubjectRequest {
+    int64 id = 1;
+    string subjectName = 2;
+    string status = 3;
+}
+message UpdateAccountSubjectResponse { AccountSubjectProto subject = 1; }
+message DeleteAccountSubjectRequest { int64 id = 1; }
+message DeleteAccountSubjectResponse { bool success = 1; }
+
+// ===== Voucher =====
+message VoucherLineProto {
+    int64 subjectId = 1;
+    double debitAmount = 2;
+    double creditAmount = 3;
+    string foreignCurrency = 4;
+    double foreignDebitAmount = 5;
+    double foreignCreditAmount = 6;
+}
+
+message VoucherProto {
+    int64 id = 1;
+    string voucherNo = 2;
+    string type = 3;
+    string voucherDate = 4;
+    string description = 5;
+    string status = 6;
+    string currency = 7;
+    double exchangeRate = 8;
+    string createdBy = 9;
+    string approvedBy = 10;
+    int64 createdAt = 11;
+    int64 updatedAt = 12;
+    repeated VoucherLineProto lines = 13;
+}
+
+message GetVoucherRequest { int64 id = 1; }
+message GetVoucherResponse { VoucherProto voucher = 1; }
+message ListVouchersRequest {
+    string status = 1;
+    string type = 2;
+    string startDate = 3;
+    string endDate = 4;
+    int32 page = 5;
+    int32 size = 6;
+}
+message ListVouchersResponse {
+    repeated VoucherProto vouchers = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateVoucherRequest {
+    string type = 1;
+    string voucherDate = 2;
+    string description = 3;
+    string currency = 4;
+    double exchangeRate = 5;
+    string createdBy = 6;
+    repeated VoucherLineProto lines = 7;
+}
+message CreateVoucherResponse { VoucherProto voucher = 1; }
+message UpdateVoucherRequest {
+    int64 id = 1;
+    string description = 2;
+    repeated VoucherLineProto lines = 3;
+}
+message UpdateVoucherResponse { VoucherProto voucher = 1; }
+message DeleteVoucherRequest { int64 id = 1; }
+message DeleteVoucherResponse { bool success = 1; }
+message ApproveVoucherRequest {
+    int64 id = 1;
+    string approvedBy = 2;
+}
+message ApproveVoucherResponse { bool success = 1; }
+message RejectVoucherRequest {
+    int64 id = 1;
+    string reason = 2;
+}
+message RejectVoucherResponse { bool success = 1; }
+message PostVoucherRequest { int64 id = 1; }
+message PostVoucherResponse { bool success = 1; }
+
+// ===== Accounts Receivable =====
+message AccountsReceivableProto {
+    int64 id = 1;
+    string arCode = 2;
+    int64 customerId = 3;
+    string customerName = 4;
+    string businessType = 5;
+    string relatedDocumentType = 6;
+    string relatedDocumentNo = 7;
+    double amount = 8;
+    double receivedAmount = 9;
+    double remainingAmount = 10;
+    string invoiceDate = 11;
+    string dueDate = 12;
+    int32 creditTerm = 13;
+    string status = 14;
+    string currency = 15;
+    double exchangeRate = 16;
+    double originalAmount = 17;
+    string description = 18;
+    int64 createdAt = 19;
+    int64 updatedAt = 20;
+}
+
+message GetAccountsReceivableRequest { int64 id = 1; }
+message GetAccountsReceivableResponse { AccountsReceivableProto ar = 1; }
+message ListAccountsReceivablesRequest {
+    string status = 1;
+    int64 customerId = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListAccountsReceivablesResponse {
+    repeated AccountsReceivableProto ars = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateAccountsReceivableRequest {
+    string arCode = 1;
+    int64 customerId = 2;
+    string customerName = 3;
+    double amount = 4;
+    string dueDate = 5;
+    string description = 6;
+}
+message CreateAccountsReceivableResponse { AccountsReceivableProto ar = 1; }
+message ReceiveArRequest {
+    int64 id = 1;
+    double amount = 2;
+}
+message ReceiveArResponse { bool success = 1; }
+message WriteOffArRequest {
+    int64 id = 1;
+    string reason = 2;
+}
+message WriteOffArResponse { bool success = 1; }
+
+// ===== Accounts Payable =====
+message AccountsPayableProto {
+    int64 id = 1;
+    string apCode = 2;
+    int64 supplierId = 3;
+    string supplierName = 4;
+    string businessType = 5;
+    string relatedDocumentType = 6;
+    string relatedDocumentNo = 7;
+    double amount = 8;
+    double paidAmount = 9;
+    double remainingAmount = 10;
+    string invoiceDate = 11;
+    string dueDate = 12;
+    int32 creditTerm = 13;
+    string status = 14;
+    string currency = 15;
+    double exchangeRate = 16;
+    double originalAmount = 17;
+    string description = 18;
+    int64 createdAt = 19;
+    int64 updatedAt = 20;
+}
+
+message GetAccountsPayableRequest { int64 id = 1; }
+message GetAccountsPayableResponse { AccountsPayableProto ap = 1; }
+message ListAccountsPayablesRequest {
+    string status = 1;
+    int64 supplierId = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListAccountsPayablesResponse {
+    repeated AccountsPayableProto aps = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateAccountsPayableRequest {
+    string apCode = 1;
+    int64 supplierId = 2;
+    string supplierName = 3;
+    double amount = 4;
+    string dueDate = 5;
+    string description = 6;
+}
+message CreateAccountsPayableResponse { AccountsPayableProto ap = 1; }
+message PayApRequest {
+    int64 id = 1;
+    double amount = 2;
+}
+message PayApResponse { bool success = 1; }
+message WriteOffApRequest {
+    int64 id = 1;
+    string reason = 2;
+}
+message WriteOffApResponse { bool success = 1; }
+
+// ===== General Ledger =====
+message GeneralLedgerEntryProto {
+    int64 id = 1;
+    int64 subjectId = 2;
+    string subjectCode = 3;
+    string subjectName = 4;
+    double debitAmount = 5;
+    double creditAmount = 6;
+    string voucherNo = 7;
+    string voucherDate = 8;
+    string description = 9;
+}
+message GeneralLedgerProto {
+    int64 id = 1;
+    string ledgerNo = 2;
+    int32 periodYear = 3;
+    int32 periodMonth = 4;
+    string status = 5;
+    double totalDebit = 6;
+    double totalCredit = 7;
+    string createdBy = 8;
+    int64 createdAt = 9;
+    int64 updatedAt = 10;
+    repeated GeneralLedgerEntryProto entries = 11;
+}
+
+message GetGeneralLedgerRequest { int64 id = 1; }
+message GetGeneralLedgerResponse { GeneralLedgerProto ledger = 1; }
+message ListGeneralLedgersRequest {
+    int32 periodYear = 1;
+    int32 periodMonth = 2;
+    string status = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListGeneralLedgersResponse {
+    repeated GeneralLedgerProto ledgers = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message PostLedgerRequest { int64 id = 1; }
+message PostLedgerResponse { bool success = 1; }
+message CloseLedgerRequest {
+    int32 periodYear = 1;
+    int32 periodMonth = 2;
+}
+message CloseLedgerResponse { bool success = 1; }
+
+// ===== Budget =====
+message BudgetLineProto {
+    int64 id = 1;
+    int64 budgetId = 2;
+    string subjectCode = 3;
+    string subjectName = 4;
+    double budgetAmount = 5;
+    double usedAmount = 6;
+    double adjustedAmount = 7;
+}
+message BudgetProto {
+    int64 id = 1;
+    string budgetCode = 2;
+    string budgetName = 3;
+    string type = 4;
+    string period = 5;
+    int64 departmentId = 6;
+    string departmentName = 7;
+    string status = 8;
+    double totalAmount = 9;
+    double usedAmount = 10;
+    double adjustedAmount = 11;
+    string currency = 12;
+    string remark = 13;
+    int64 createdAt = 14;
+    int64 updatedAt = 15;
+    repeated BudgetLineProto lines = 16;
+}
+
+message GetBudgetRequest { int64 id = 1; }
+message GetBudgetResponse { BudgetProto budget = 1; }
+message ListBudgetsRequest {
+    string status = 1;
+    string type = 2;
+    int64 departmentId = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListBudgetsResponse {
+    repeated BudgetProto budgets = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateBudgetRequest {
+    string budgetCode = 1;
+    string budgetName = 2;
+    string type = 3;
+    string period = 4;
+    int64 departmentId = 5;
+    double totalAmount = 6;
+    string currency = 7;
+    string remark = 8;
+    repeated BudgetLineProto lines = 9;
+}
+message CreateBudgetResponse { BudgetProto budget = 1; }
+message UpdateBudgetRequest {
+    int64 id = 1;
+    string budgetName = 2;
+    string remark = 3;
+}
+message UpdateBudgetResponse { BudgetProto budget = 1; }
+message DeleteBudgetRequest { int64 id = 1; }
+message DeleteBudgetResponse { bool success = 1; }
+message AdjustBudgetRequest {
+    int64 budgetId = 1;
+    string adjustmentNo = 2;
+    string type = 3;
+    string subjectCode = 4;
+    double amount = 5;
+    string reason = 6;
+}
+message AdjustBudgetResponse { bool success = 1; }
+
+// ===== Bank Account =====
+message BankAccountProto {
+    int64 id = 1;
+    string accountCode = 2;
+    string accountName = 3;
+    string bankName = 4;
+    string accountNumber = 5;
+    string accountType = 6;
+    string status = 7;
+    double balance = 8;
+    double frozenAmount = 9;
+    string currency = 10;
+    string remark = 11;
+    int64 createdAt = 12;
+    int64 updatedAt = 13;
+}
+
+message GetBankAccountRequest { int64 id = 1; }
+message GetBankAccountResponse { BankAccountProto bankAccount = 1; }
+message ListBankAccountsRequest {
+    string status = 1;
+    int32 page = 2;
+    int32 size = 3;
+}
+message ListBankAccountsResponse {
+    repeated BankAccountProto bankAccounts = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateBankAccountRequest {
+    string accountCode = 1;
+    string accountName = 2;
+    string bankName = 3;
+    string accountNumber = 4;
+    string currency = 5;
+}
+message CreateBankAccountResponse { BankAccountProto bankAccount = 1; }
+message UpdateBankAccountRequest {
+    int64 id = 1;
+    string accountName = 2;
+    string status = 3;
+}
+message UpdateBankAccountResponse { BankAccountProto bankAccount = 1; }
+
+// ===== Cash Plan =====
+message CashPlanLineProto {
+    int64 id = 1;
+    int64 cashPlanId = 2;
+    string categoryCode = 3;
+    string categoryName = 4;
+    string flowDirection = 5;
+    double plannedAmount = 6;
+    double actualAmount = 7;
+    string plannedDate = 8;
+    string remark = 9;
+}
+message CashPlanProto {
+    int64 id = 1;
+    string planCode = 2;
+    string planName = 3;
+    string type = 4;
+    string period = 5;
+    string startDate = 6;
+    string endDate = 7;
+    string status = 8;
+    double totalAmount = 9;
+    double inflowAmount = 10;
+    double outflowAmount = 11;
+    string currency = 12;
+    int64 departmentId = 13;
+    string departmentName = 14;
+    string remark = 15;
+    int64 createdAt = 16;
+    int64 updatedAt = 17;
+    repeated CashPlanLineProto lines = 18;
+}
+message GetCashPlanRequest { int64 id = 1; }
+message GetCashPlanResponse { CashPlanProto cashPlan = 1; }
+message ListCashPlansRequest {
+    string status = 1;
+    string type = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListCashPlansResponse {
+    repeated CashPlanProto cashPlans = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateCashPlanRequest {
+    string planCode = 1;
+    string planName = 2;
+    string type = 3;
+    string startDate = 4;
+    string endDate = 5;
+    double totalAmount = 6;
+    int64 departmentId = 7;
+    repeated CashPlanLineProto lines = 8;
+}
+message CreateCashPlanResponse { CashPlanProto cashPlan = 1; }
+
+// ===== Cash Transfer =====
+message CashTransferProto {
+    int64 id = 1;
+    string transferNo = 2;
+    int64 fromAccountId = 3;
+    string fromAccountName = 4;
+    int64 toAccountId = 5;
+    string toAccountName = 6;
+    double amount = 7;
+    string currency = 8;
+    string status = 9;
+    string type = 10;
+    string purpose = 11;
+    string transferDate = 12;
+    string remark = 13;
+    int64 createdAt = 14;
+    int64 updatedAt = 15;
+}
+message CreateCashTransferRequest {
+    int64 fromAccountId = 1;
+    int64 toAccountId = 2;
+    double amount = 3;
+    string currency = 4;
+    string type = 5;
+    string purpose = 6;
+}
+message CreateCashTransferResponse { CashTransferProto transfer = 1; }
+message ApproveCashTransferRequest {
+    int64 id = 1;
+    string approvedBy = 2;
+}
+message ApproveCashTransferResponse { bool success = 1; }
+message ExecuteCashTransferRequest { int64 id = 1; }
+message ExecuteCashTransferResponse { bool success = 1; }
+
+// ===== Cost Center =====
+message CostCenterProto {
+    int64 id = 1;
+    string costCenterCode = 2;
+    string costCenterName = 3;
+    string type = 4;
+    int64 parentId = 5;
+    int64 departmentId = 6;
+    string departmentName = 7;
+    string managerName = 8;
+    string status = 9;
+    double budgetAmount = 10;
+    double actualCost = 11;
+    string currency = 12;
+    string description = 13;
+    int64 createdAt = 14;
+    int64 updatedAt = 15;
+}
+message GetCostCenterRequest { int64 id = 1; }
+message GetCostCenterResponse { CostCenterProto costCenter = 1; }
+message ListCostCentersRequest {
+    string status = 1;
+    string type = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListCostCentersResponse {
+    repeated CostCenterProto costCenters = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateCostCenterRequest {
+    string costCenterCode = 1;
+    string costCenterName = 2;
+    string type = 3;
+    int64 departmentId = 4;
+    string description = 5;
+}
+message CreateCostCenterResponse { CostCenterProto costCenter = 1; }
+message UpdateCostCenterRequest {
+    int64 id = 1;
+    string costCenterName = 2;
+    string status = 3;
+    string description = 4;
+}
+message UpdateCostCenterResponse { CostCenterProto costCenter = 1; }
+
+// ===== Standard Cost =====
+message StandardCostProto {
+    int64 id = 1;
+    string productCode = 2;
+    string productName = 3;
+    string productCategory = 4;
+    double standardMaterialCost = 5;
+    double standardLaborCost = 6;
+    double standardOverheadCost = 7;
+    double standardTotalCost = 8;
+    double standardQuantity = 9;
+    string unit = 10;
+    string effectiveDate = 11;
+    string expirationDate = 12;
+    string status = 13;
+    string version = 14;
+    string currency = 15;
+    string remark = 16;
+    int64 createdAt = 17;
+    int64 updatedAt = 18;
+}
+message GetStandardCostRequest { int64 id = 1; }
+message GetStandardCostResponse { StandardCostProto standardCost = 1; }
+message ListStandardCostsRequest {
+    string status = 1;
+    string productCategory = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListStandardCostsResponse {
+    repeated StandardCostProto standardCosts = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateStandardCostRequest {
+    string productCode = 1;
+    string productName = 2;
+    double standardMaterialCost = 3;
+    double standardLaborCost = 4;
+    double standardOverheadCost = 5;
+    double standardQuantity = 6;
+    string unit = 7;
+    string effectiveDate = 8;
+    string currency = 9;
+}
+message CreateStandardCostResponse { StandardCostProto standardCost = 1; }
+
+// ===== Actual Cost =====
+message ActualCostProto {
+    int64 id = 1;
+    string productCode = 2;
+    string productName = 3;
+    string productionOrderNo = 4;
+    int64 costCenterId = 5;
+    string costCenterName = 6;
+    string costDate = 7;
+    double actualMaterialCost = 8;
+    double actualLaborCost = 9;
+    double actualOverheadCost = 10;
+    double actualTotalCost = 11;
+    double quantity = 12;
+    string unit = 13;
+    string currency = 14;
+    string remark = 15;
+    int64 createdAt = 16;
+    int64 updatedAt = 17;
+}
+message GetActualCostRequest { int64 id = 1; }
+message GetActualCostResponse { ActualCostProto actualCost = 1; }
+message ListActualCostsRequest {
+    string productCode = 1;
+    string startDate = 2;
+    string endDate = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListActualCostsResponse {
+    repeated ActualCostProto actualCosts = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateActualCostRequest {
+    string productCode = 1;
+    string productName = 2;
+    string productionOrderNo = 3;
+    int64 costCenterId = 4;
+    string costDate = 5;
+    double actualMaterialCost = 6;
+    double actualLaborCost = 7;
+    double actualOverheadCost = 8;
+    double quantity = 9;
+    string unit = 10;
+    string currency = 11;
+    string remark = 12;
+}
+message CreateActualCostResponse { ActualCostProto actualCost = 1; }
+
+// ===== Cost Variance =====
+message CostVarianceProto {
+    int64 id = 1;
+    string productCode = 2;
+    string productName = 3;
+    string productionOrderNo = 4;
+    string varianceDate = 5;
+    double standardMaterialCost = 6;
+    double actualMaterialCost = 7;
+    double materialVariance = 8;
+    double standardLaborCost = 9;
+    double actualLaborCost = 10;
+    double laborVariance = 11;
+    double standardOverheadCost = 12;
+    double actualOverheadCost = 13;
+    double overheadVariance = 14;
+    double standardTotalCost = 15;
+    double actualTotalCost = 16;
+    double totalVariance = 17;
+    string varianceType = 18;
+    string analysis = 19;
+    int64 createdAt = 20;
+    int64 updatedAt = 21;
+}
+message GetCostVarianceRequest { int64 id = 1; }
+message GetCostVarianceResponse { CostVarianceProto variance = 1; }
+message ListCostVariancesRequest {
+    string productCode = 1;
+    string startDate = 2;
+    string endDate = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListCostVariancesResponse {
+    repeated CostVarianceProto variances = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+
+// ===== Exchange Rate =====
+message ExchangeRateProto {
+    int64 id = 1;
+    string sourceCurrency = 2;
+    string targetCurrency = 3;
+    double rate = 4;
+    string effectiveDate = 5;
+    string rateType = 6;
+    bool isActive = 7;
+    int64 createdAt = 8;
+    int64 updatedAt = 9;
+}
+message GetExchangeRateRequest { int64 id = 1; }
+message GetExchangeRateResponse { ExchangeRateProto exchangeRate = 1; }
+message ListExchangeRatesRequest {
+    string sourceCurrency = 1;
+    string targetCurrency = 2;
+    string rateType = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListExchangeRatesResponse {
+    repeated ExchangeRateProto exchangeRates = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateExchangeRateRequest {
+    string sourceCurrency = 1;
+    string targetCurrency = 2;
+    double rate = 3;
+    string effectiveDate = 4;
+    string rateType = 5;
+}
+message CreateExchangeRateResponse { ExchangeRateProto exchangeRate = 1; }
+message UpdateExchangeRateRequest {
+    int64 id = 1;
+    double rate = 2;
+    bool isActive = 3;
+}
+message UpdateExchangeRateResponse { ExchangeRateProto exchangeRate = 1; }
+
+// ===== Financial Ratio =====
+message FinancialRatioProto {
+    int64 id = 1;
+    string ratioType = 2;
+    double value = 3;
+    string period = 4;
+    string calculatedAt = 5;
+}
+message GetFinancialRatioRequest { int64 id = 1; }
+message GetFinancialRatioResponse { FinancialRatioProto ratio = 1; }
+message ListFinancialRatiosRequest {
+    string ratioType = 1;
+    string period = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListFinancialRatiosResponse {
+    repeated FinancialRatioProto ratios = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}

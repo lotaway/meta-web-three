@@ -1,0 +1,387 @@
+syntax = "proto3";
+
+package com.metawebthree.factory.generated.rpc;
+
+option java_multiple_files = true;
+
+service QualityService {
+    // Inspection Plan
+    rpc getInspectionPlan(GetInspectionPlanRequest) returns (GetInspectionPlanResponse);
+    rpc listInspectionPlans(ListInspectionPlansRequest) returns (ListInspectionPlansResponse);
+    rpc createInspectionPlan(CreateInspectionPlanRequest) returns (CreateInspectionPlanResponse);
+    rpc updateInspectionPlan(UpdateInspectionPlanRequest) returns (UpdateInspectionPlanResponse);
+    rpc deleteInspectionPlan(DeleteInspectionPlanRequest) returns (DeleteInspectionPlanResponse);
+    rpc activateInspectionPlan(ActivateInspectionPlanRequest) returns (ActivateInspectionPlanResponse);
+    rpc deactivateInspectionPlan(DeactivateInspectionPlanRequest) returns (DeactivateInspectionPlanResponse);
+
+    // Inspection Item
+    rpc getInspectionItem(GetInspectionItemRequest) returns (GetInspectionItemResponse);
+    rpc listInspectionItems(ListInspectionItemsRequest) returns (ListInspectionItemsResponse);
+    rpc createInspectionItem(CreateInspectionItemRequest) returns (CreateInspectionItemResponse);
+    rpc updateInspectionItem(UpdateInspectionItemRequest) returns (UpdateInspectionItemResponse);
+    rpc deleteInspectionItem(DeleteInspectionItemRequest) returns (DeleteInspectionItemResponse);
+
+    // Inspection Type
+    rpc getInspectionType(GetInspectionTypeRequest) returns (GetInspectionTypeResponse);
+    rpc listInspectionTypes(ListInspectionTypesRequest) returns (ListInspectionTypesResponse);
+    rpc createInspectionType(CreateInspectionTypeRequest) returns (CreateInspectionTypeResponse);
+    rpc updateInspectionType(UpdateInspectionTypeRequest) returns (UpdateInspectionTypeResponse);
+    rpc deleteInspectionType(DeleteInspectionTypeRequest) returns (DeleteInspectionTypeResponse);
+
+    // Defect Code
+    rpc getDefectCode(GetDefectCodeRequest) returns (GetDefectCodeResponse);
+    rpc listDefectCodes(ListDefectCodesRequest) returns (ListDefectCodesResponse);
+    rpc createDefectCode(CreateDefectCodeRequest) returns (CreateDefectCodeResponse);
+    rpc updateDefectCode(UpdateDefectCodeRequest) returns (UpdateDefectCodeResponse);
+    rpc deleteDefectCode(DeleteDefectCodeRequest) returns (DeleteDefectCodeResponse);
+
+    // Non-Conformance
+    rpc getNonConformance(GetNonConformanceRequest) returns (GetNonConformanceResponse);
+    rpc listNonConformances(ListNonConformancesRequest) returns (ListNonConformancesResponse);
+    rpc createNonConformance(CreateNonConformanceRequest) returns (CreateNonConformanceResponse);
+    rpc updateNonConformanceStatus(UpdateNonConformanceStatusRequest) returns (UpdateNonConformanceStatusResponse);
+
+    // SPC Control Chart
+    rpc getSpcControlChart(GetSpcControlChartRequest) returns (GetSpcControlChartResponse);
+    rpc listSpcControlCharts(ListSpcControlChartsRequest) returns (ListSpcControlChartsResponse);
+    rpc createSpcControlChart(CreateSpcControlChartRequest) returns (CreateSpcControlChartResponse);
+    rpc updateSpcControlChart(UpdateSpcControlChartRequest) returns (UpdateSpcControlChartResponse);
+}
+
+// ===== Inspection Plan =====
+message QcPlanItemProto {
+    int64 id = 1;
+    int64 planId = 2;
+    int64 itemId = 3;
+    int32 itemSequence = 4;
+    bool isMandatory = 5;
+    string inspectionMethod = 6;
+    string samplingRule = 7;
+    int32 sortOrder = 8;
+}
+message InspectionPlanProto {
+    int64 id = 1;
+    string planCode = 2;
+    string planName = 3;
+    string inspectionType = 4;
+    string applicableProductTypes = 5;
+    int32 version = 6;
+    string samplingPlanCode = 7;
+    string samplingType = 8;
+    string aql = 9;
+    string inspectionLevel = 10;
+    int32 sampleSize = 11;
+    string acceptNumber = 12;
+    string rejectNumber = 13;
+    string dispositionRule = 14;
+    string status = 15;
+    string effectiveDate = 16;
+    string expirationDate = 17;
+    string remark = 18;
+    int64 createdAt = 19;
+    int64 updatedAt = 20;
+    repeated QcPlanItemProto planItems = 21;
+}
+
+message GetInspectionPlanRequest { int64 id = 1; }
+message GetInspectionPlanResponse { InspectionPlanProto inspectionPlan = 1; }
+message ListInspectionPlansRequest {
+    string status = 1;
+    string inspectionType = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListInspectionPlansResponse {
+    repeated InspectionPlanProto inspectionPlans = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateInspectionPlanRequest {
+    string planCode = 1;
+    string planName = 2;
+    string inspectionType = 3;
+    string samplingType = 4;
+    string aql = 5;
+    string inspectionLevel = 6;
+    string dispositionRule = 7;
+    string remark = 8;
+}
+message CreateInspectionPlanResponse { InspectionPlanProto inspectionPlan = 1; }
+message UpdateInspectionPlanRequest {
+    int64 id = 1;
+    string planName = 2;
+    string dispositionRule = 3;
+    string remark = 4;
+}
+message UpdateInspectionPlanResponse { InspectionPlanProto inspectionPlan = 1; }
+message DeleteInspectionPlanRequest { int64 id = 1; }
+message DeleteInspectionPlanResponse { bool success = 1; }
+message ActivateInspectionPlanRequest { int64 id = 1; }
+message ActivateInspectionPlanResponse { bool success = 1; }
+message DeactivateInspectionPlanRequest { int64 id = 1; }
+message DeactivateInspectionPlanResponse { bool success = 1; }
+
+// ===== Inspection Item =====
+message InspectionItemProto {
+    int64 id = 1;
+    string itemCode = 2;
+    string itemName = 3;
+    string itemCategory = 4;
+    string dataType = 5;
+    string unit = 6;
+    double standardValue = 7;
+    double upperLimit = 8;
+    double lowerLimit = 9;
+    string inspectionMethod = 10;
+    string inspectionTool = 11;
+    int32 severity = 12;
+    bool isMandatory = 13;
+    string status = 14;
+    string remark = 15;
+    int64 createdAt = 16;
+    int64 updatedAt = 17;
+}
+message GetInspectionItemRequest { int64 id = 1; }
+message GetInspectionItemResponse { InspectionItemProto inspectionItem = 1; }
+message ListInspectionItemsRequest {
+    string itemCategory = 1;
+    string status = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListInspectionItemsResponse {
+    repeated InspectionItemProto inspectionItems = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateInspectionItemRequest {
+    string itemCode = 1;
+    string itemName = 2;
+    string itemCategory = 3;
+    string dataType = 4;
+    string unit = 5;
+    double standardValue = 6;
+    double upperLimit = 7;
+    double lowerLimit = 8;
+    string inspectionMethod = 9;
+    int32 severity = 10;
+    string remark = 11;
+}
+message CreateInspectionItemResponse { InspectionItemProto inspectionItem = 1; }
+message UpdateInspectionItemRequest {
+    int64 id = 1;
+    string itemName = 2;
+    double standardValue = 3;
+    double upperLimit = 4;
+    double lowerLimit = 5;
+    string remark = 6;
+}
+message UpdateInspectionItemResponse { InspectionItemProto inspectionItem = 1; }
+message DeleteInspectionItemRequest { int64 id = 1; }
+message DeleteInspectionItemResponse { bool success = 1; }
+
+// ===== Inspection Type =====
+message InspectionTypeProto {
+    int64 id = 1;
+    string typeCode = 2;
+    string typeName = 3;
+    string category = 4;
+    string description = 5;
+    string defaultSamplingPlan = 6;
+    string defaultAql = 7;
+    int32 defaultTimeoutHours = 8;
+    bool requireCertificate = 9;
+    bool requireTestReport = 10;
+    string status = 11;
+    int64 createdAt = 12;
+    int64 updatedAt = 13;
+}
+message GetInspectionTypeRequest { int64 id = 1; }
+message GetInspectionTypeResponse { InspectionTypeProto inspectionType = 1; }
+message ListInspectionTypesRequest {
+    string category = 1;
+    string status = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListInspectionTypesResponse {
+    repeated InspectionTypeProto inspectionTypes = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateInspectionTypeRequest {
+    string typeCode = 1;
+    string typeName = 2;
+    string category = 3;
+    string description = 4;
+}
+message CreateInspectionTypeResponse { InspectionTypeProto inspectionType = 1; }
+message UpdateInspectionTypeRequest {
+    int64 id = 1;
+    string typeName = 2;
+    string description = 3;
+    string status = 4;
+}
+message UpdateInspectionTypeResponse { InspectionTypeProto inspectionType = 1; }
+message DeleteInspectionTypeRequest { int64 id = 1; }
+message DeleteInspectionTypeResponse { bool success = 1; }
+
+// ===== Defect Code =====
+message DefectCodeProto {
+    int64 id = 1;
+    string defectCode = 2;
+    string defectName = 3;
+    string category = 4;
+    string severity = 5;
+    bool isCritical = 6;
+    string description = 7;
+    string dispositionGuide = 8;
+    bool isEnabled = 9;
+    int64 createdAt = 10;
+    int64 updatedAt = 11;
+}
+message GetDefectCodeRequest { int64 id = 1; }
+message GetDefectCodeResponse { DefectCodeProto defectCode = 1; }
+message ListDefectCodesRequest {
+    string category = 1;
+    string severity = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListDefectCodesResponse {
+    repeated DefectCodeProto defectCodes = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateDefectCodeRequest {
+    string defectCode = 1;
+    string defectName = 2;
+    string category = 3;
+    string severity = 4;
+    bool isCritical = 5;
+    string description = 6;
+    string dispositionGuide = 7;
+}
+message CreateDefectCodeResponse { DefectCodeProto defectCode = 1; }
+message UpdateDefectCodeRequest {
+    int64 id = 1;
+    string defectName = 2;
+    string severity = 3;
+    string dispositionGuide = 4;
+    bool isEnabled = 5;
+}
+message UpdateDefectCodeResponse { DefectCodeProto defectCode = 1; }
+message DeleteDefectCodeRequest { int64 id = 1; }
+message DeleteDefectCodeResponse { bool success = 1; }
+
+// ===== Non-Conformance =====
+message NonConformanceProto {
+    int64 id = 1;
+    string ncCode = 2;
+    string ncName = 3;
+    string type = 4;
+    string source = 5;
+    string defectCode = 6;
+    string description = 7;
+    string severity = 8;
+    string status = 9;
+    string disposition = 10;
+    string responsiblePerson = 11;
+    string correctiveAction = 12;
+    string preventiveAction = 13;
+    string dueDate = 14;
+    string closedDate = 15;
+    int64 createdAt = 16;
+    int64 updatedAt = 17;
+}
+message GetNonConformanceRequest { int64 id = 1; }
+message GetNonConformanceResponse { NonConformanceProto nonConformance = 1; }
+message ListNonConformancesRequest {
+    string status = 1;
+    string severity = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListNonConformancesResponse {
+    repeated NonConformanceProto nonConformances = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateNonConformanceRequest {
+    string ncCode = 1;
+    string ncName = 2;
+    string type = 3;
+    string defectCode = 4;
+    string description = 5;
+    string severity = 6;
+    string responsiblePerson = 7;
+    string correctiveAction = 8;
+    string dueDate = 9;
+}
+message CreateNonConformanceResponse { NonConformanceProto nonConformance = 1; }
+message UpdateNonConformanceStatusRequest {
+    int64 id = 1;
+    string status = 2;
+    string disposition = 3;
+    string closedDate = 4;
+}
+message UpdateNonConformanceStatusResponse { bool success = 1; }
+
+// ===== SPC Control Chart =====
+message SpcControlChartProto {
+    int64 id = 1;
+    string chartCode = 2;
+    string chartName = 3;
+    string chartType = 4;
+    int64 inspectionItemId = 5;
+    double centerLine = 6;
+    double upperControlLimit = 7;
+    double lowerControlLimit = 8;
+    double upperSpecLimit = 9;
+    double lowerSpecLimit = 10;
+    int32 sampleSize = 11;
+    string status = 12;
+    string remark = 13;
+    int64 createdAt = 14;
+    int64 updatedAt = 15;
+}
+message GetSpcControlChartRequest { int64 id = 1; }
+message GetSpcControlChartResponse { SpcControlChartProto chart = 1; }
+message ListSpcControlChartsRequest {
+    string chartType = 1;
+    string status = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListSpcControlChartsResponse {
+    repeated SpcControlChartProto charts = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateSpcControlChartRequest {
+    string chartCode = 1;
+    string chartName = 2;
+    string chartType = 3;
+    int64 inspectionItemId = 4;
+    double centerLine = 5;
+    double upperControlLimit = 6;
+    double lowerControlLimit = 7;
+    string remark = 8;
+}
+message CreateSpcControlChartResponse { SpcControlChartProto chart = 1; }
+message UpdateSpcControlChartRequest {
+    int64 id = 1;
+    string chartName = 2;
+    double centerLine = 3;
+    double upperControlLimit = 4;
+    double lowerControlLimit = 5;
+    string status = 6;
+    string remark = 7;
+}
+message UpdateSpcControlChartResponse { SpcControlChartProto chart = 1; }

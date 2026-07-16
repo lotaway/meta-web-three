@@ -1,0 +1,225 @@
+syntax = "proto3";
+
+package com.metawebthree.erp.generated.rpc;
+
+option java_multiple_files = true;
+
+service HrmService {
+    // Employee
+    rpc getEmployee(GetEmployeeRequest) returns (GetEmployeeResponse);
+    rpc listEmployees(ListEmployeesRequest) returns (ListEmployeesResponse);
+    rpc createEmployee(CreateEmployeeRequest) returns (CreateEmployeeResponse);
+    rpc updateEmployee(UpdateEmployeeRequest) returns (UpdateEmployeeResponse);
+    rpc deleteEmployee(DeleteEmployeeRequest) returns (DeleteEmployeeResponse);
+    rpc transferEmployee(TransferEmployeeRequest) returns (TransferEmployeeResponse);
+    rpc resignEmployee(ResignEmployeeRequest) returns (ResignEmployeeResponse);
+
+    // Department
+    rpc getDepartment(GetDepartmentRequest) returns (GetDepartmentResponse);
+    rpc listDepartments(ListDepartmentsRequest) returns (ListDepartmentsResponse);
+    rpc createDepartment(CreateDepartmentRequest) returns (CreateDepartmentResponse);
+    rpc updateDepartment(UpdateDepartmentRequest) returns (UpdateDepartmentResponse);
+    rpc deleteDepartment(DeleteDepartmentRequest) returns (DeleteDepartmentResponse);
+    rpc getDepartmentTree(GetDepartmentTreeRequest) returns (GetDepartmentTreeResponse);
+
+    // Position
+    rpc getPosition(GetPositionRequest) returns (GetPositionResponse);
+    rpc listPositions(ListPositionsRequest) returns (ListPositionsResponse);
+    rpc createPosition(CreatePositionRequest) returns (CreatePositionResponse);
+    rpc updatePosition(UpdatePositionRequest) returns (UpdatePositionResponse);
+    rpc deletePosition(DeletePositionRequest) returns (DeletePositionResponse);
+}
+
+// ===== Employee =====
+message EmployeeProto {
+    int64 id = 1;
+    string employeeNo = 2;
+    string name = 3;
+    int32 gender = 4;
+    string mobile = 5;
+    string email = 6;
+    string idCard = 7;
+    string birthday = 8;
+    string nativePlace = 9;
+    string nation = 10;
+    int32 maritalStatus = 11;
+    string politicalStatus = 12;
+    int32 education = 13;
+    string graduateSchool = 14;
+    string major = 15;
+    string hireDate = 16;
+    string formalDate = 17;
+    int64 departmentId = 18;
+    int64 positionId = 19;
+    string workLocation = 20;
+    int32 status = 21;
+    string contractStartDate = 22;
+    string contractEndDate = 23;
+    string emergencyContact = 24;
+    string emergencyPhone = 25;
+    string bankAccount = 26;
+    string bankName = 27;
+    string socialSecurityNo = 28;
+    string housingFundNo = 29;
+    string photoUrl = 30;
+    string remark = 31;
+    int64 createdAt = 32;
+    int64 updatedAt = 33;
+}
+
+message GetEmployeeRequest { int64 id = 1; }
+message GetEmployeeResponse { EmployeeProto employee = 1; }
+message ListEmployeesRequest {
+    int32 status = 1;
+    int64 departmentId = 2;
+    int64 positionId = 3;
+    string keywords = 4;
+    int32 page = 5;
+    int32 size = 6;
+}
+message ListEmployeesResponse {
+    repeated EmployeeProto employees = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateEmployeeRequest {
+    string employeeNo = 1;
+    string name = 2;
+    int32 gender = 3;
+    string mobile = 4;
+    string email = 5;
+    string idCard = 6;
+    string birthday = 7;
+    string hireDate = 8;
+    int64 departmentId = 9;
+    int64 positionId = 10;
+    int32 education = 11;
+    string remark = 12;
+}
+message CreateEmployeeResponse { EmployeeProto employee = 1; }
+message UpdateEmployeeRequest {
+    int64 id = 1;
+    string name = 2;
+    string mobile = 3;
+    string email = 4;
+    string remark = 5;
+}
+message UpdateEmployeeResponse { EmployeeProto employee = 1; }
+message DeleteEmployeeRequest { int64 id = 1; }
+message DeleteEmployeeResponse { bool success = 1; }
+message TransferEmployeeRequest {
+    int64 id = 1;
+    int64 departmentId = 2;
+    int64 positionId = 3;
+}
+message TransferEmployeeResponse { bool success = 1; }
+message ResignEmployeeRequest {
+    int64 id = 1;
+    string resignDate = 2;
+    string reason = 3;
+}
+message ResignEmployeeResponse { bool success = 1; }
+
+// ===== Department =====
+message DepartmentProto {
+    int64 id = 1;
+    string code = 2;
+    string name = 3;
+    int64 parentId = 4;
+    int32 level = 5;
+    int32 sortOrder = 6;
+    int64 leaderId = 7;
+    int32 status = 8;
+    string remark = 9;
+    int64 createdAt = 10;
+    int64 updatedAt = 11;
+}
+message GetDepartmentRequest { int64 id = 1; }
+message GetDepartmentResponse { DepartmentProto department = 1; }
+message ListDepartmentsRequest {
+    int32 status = 1;
+    int64 parentId = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListDepartmentsResponse {
+    repeated DepartmentProto departments = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateDepartmentRequest {
+    string code = 1;
+    string name = 2;
+    int64 parentId = 3;
+    int32 sortOrder = 4;
+    int64 leaderId = 5;
+    string remark = 6;
+}
+message CreateDepartmentResponse { DepartmentProto department = 1; }
+message UpdateDepartmentRequest {
+    int64 id = 1;
+    string name = 2;
+    int64 leaderId = 3;
+    int32 status = 4;
+    string remark = 5;
+}
+message UpdateDepartmentResponse { DepartmentProto department = 1; }
+message DeleteDepartmentRequest { int64 id = 1; }
+message DeleteDepartmentResponse { bool success = 1; }
+message GetDepartmentTreeRequest {}
+message DepartmentTreeNode {
+    DepartmentProto department = 1;
+    repeated DepartmentTreeNode children = 2;
+}
+message GetDepartmentTreeResponse { repeated DepartmentTreeNode nodes = 1; }
+
+// ===== Position =====
+message PositionProto {
+    int64 id = 1;
+    string code = 2;
+    string name = 3;
+    int64 departmentId = 4;
+    int32 level = 5;
+    double baseSalary = 6;
+    int32 status = 7;
+    string description = 8;
+    string requirements = 9;
+    int64 createdAt = 10;
+    int64 updatedAt = 11;
+}
+message GetPositionRequest { int64 id = 1; }
+message GetPositionResponse { PositionProto position = 1; }
+message ListPositionsRequest {
+    int32 status = 1;
+    int64 departmentId = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListPositionsResponse {
+    repeated PositionProto positions = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreatePositionRequest {
+    string code = 1;
+    string name = 2;
+    int64 departmentId = 3;
+    int32 level = 4;
+    double baseSalary = 5;
+    string description = 6;
+    string requirements = 7;
+}
+message CreatePositionResponse { PositionProto position = 1; }
+message UpdatePositionRequest {
+    int64 id = 1;
+    string name = 2;
+    double baseSalary = 3;
+    string description = 4;
+    string requirements = 5;
+}
+message UpdatePositionResponse { PositionProto position = 1; }
+message DeletePositionRequest { int64 id = 1; }
+message DeletePositionResponse { bool success = 1; }

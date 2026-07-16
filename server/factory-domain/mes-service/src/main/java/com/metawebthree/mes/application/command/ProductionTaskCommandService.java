@@ -3,11 +3,14 @@ package com.metawebthree.mes.application.command;
 import com.metawebthree.mes.domain.entity.EntityExtensionFieldValue;
 import com.metawebthree.mes.domain.entity.PokaYokeRule;
 import com.metawebthree.mes.domain.entity.ProductionTask;
+import com.metawebthree.mes.domain.entity.WorkOrder;
 import com.metawebthree.mes.domain.entity.WorkReport;
 import com.metawebthree.mes.domain.repository.EntityExtensionFieldValueRepository;
 import com.metawebthree.mes.domain.repository.ProductionTaskRepository;
+import com.metawebthree.mes.domain.repository.WorkOrderRepository;
 import com.metawebthree.mes.domain.repository.WorkReportRepository;
 import com.metawebthree.mes.domain.service.PokaYokeService;
+import com.metawebthree.mes.infrastructure.event.MesCrossDomainEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,16 +30,22 @@ public class ProductionTaskCommandService {
     private final EntityExtensionFieldValueRepository extensionFieldValueRepository;
     private final WorkReportRepository workReportRepository;
     private final PokaYokeService pokaYokeService;
+    private final MesCrossDomainEventPublisher crossDomainEventPublisher;
+    private final WorkOrderRepository workOrderRepository;
     
     public ProductionTaskCommandService(
             ProductionTaskRepository repository,
             EntityExtensionFieldValueRepository extensionFieldValueRepository,
             WorkReportRepository workReportRepository,
-            PokaYokeService pokaYokeService) {
+            PokaYokeService pokaYokeService,
+            MesCrossDomainEventPublisher crossDomainEventPublisher,
+            WorkOrderRepository workOrderRepository) {
         this.repository = repository;
         this.extensionFieldValueRepository = extensionFieldValueRepository;
         this.workReportRepository = workReportRepository;
         this.pokaYokeService = pokaYokeService;
+        this.crossDomainEventPublisher = crossDomainEventPublisher;
+        this.workOrderRepository = workOrderRepository;
     }
     
     public ProductionTask createTask(String taskNo, Long workOrderId, Long workstationId,
@@ -87,6 +96,13 @@ public class ProductionTaskCommandService {
         repository.update(task);
         
         createWorkReport(task, qualified, defective, durationMinutes, parameterValuesJson);
+        
+        workOrderRepository.findById(task.getWorkOrderId()).ifPresent(workOrder ->
+            crossDomainEventPublisher.publishTaskCompleted(
+                task.getId(), task.getTaskNo(), workOrder.getId(),
+                workOrder.getWorkOrderNo(), workOrder.getProductCode(),
+                qualified, defective)
+        );
         
         return task;
     }

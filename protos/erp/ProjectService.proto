@@ -1,0 +1,300 @@
+syntax = "proto3";
+
+package com.metawebthree.erp.generated.rpc;
+
+option java_multiple_files = true;
+
+service ProjectService {
+    // Project
+    rpc getProject(GetProjectRequest) returns (GetProjectResponse);
+    rpc listProjects(ListProjectsRequest) returns (ListProjectsResponse);
+    rpc createProject(CreateProjectRequest) returns (CreateProjectResponse);
+    rpc updateProject(UpdateProjectRequest) returns (UpdateProjectResponse);
+    rpc deleteProject(DeleteProjectRequest) returns (DeleteProjectResponse);
+    rpc updateProjectStatus(UpdateProjectStatusRequest) returns (UpdateProjectStatusResponse);
+    rpc updateProjectProgress(UpdateProjectProgressRequest) returns (UpdateProjectProgressResponse);
+
+    // Task
+    rpc getTask(GetTaskRequest) returns (GetTaskResponse);
+    rpc listTasks(ListTasksRequest) returns (ListTasksResponse);
+    rpc createTask(CreateTaskRequest) returns (CreateTaskResponse);
+    rpc updateTask(UpdateTaskRequest) returns (UpdateTaskResponse);
+    rpc deleteTask(DeleteTaskRequest) returns (DeleteTaskResponse);
+    rpc updateTaskStatus(UpdateTaskStatusRequest) returns (UpdateTaskStatusResponse);
+    rpc updateTaskProgress(UpdateTaskProgressRequest) returns (UpdateTaskProgressResponse);
+
+    // Time Entry
+    rpc getTimeEntry(GetTimeEntryRequest) returns (GetTimeEntryResponse);
+    rpc listTimeEntries(ListTimeEntriesRequest) returns (ListTimeEntriesResponse);
+    rpc createTimeEntry(CreateTimeEntryRequest) returns (CreateTimeEntryResponse);
+    rpc updateTimeEntry(UpdateTimeEntryRequest) returns (UpdateTimeEntryResponse);
+    rpc deleteTimeEntry(DeleteTimeEntryRequest) returns (DeleteTimeEntryResponse);
+    rpc approveTimeEntry(ApproveTimeEntryRequest) returns (ApproveTimeEntryResponse);
+    rpc rejectTimeEntry(RejectTimeEntryRequest) returns (RejectTimeEntryResponse);
+
+    // Cost Record
+    rpc getCostRecord(GetCostRecordRequest) returns (GetCostRecordResponse);
+    rpc listCostRecords(ListCostRecordsRequest) returns (ListCostRecordsResponse);
+    rpc createCostRecord(CreateCostRecordRequest) returns (CreateCostRecordResponse);
+    rpc deleteCostRecord(DeleteCostRecordRequest) returns (DeleteCostRecordResponse);
+}
+
+// ===== Project =====
+message ProjectProto {
+    int64 id = 1;
+    string projectCode = 2;
+    string projectName = 3;
+    string description = 4;
+    string status = 5;
+    int64 departmentId = 6;
+    string departmentName = 7;
+    int64 managerId = 8;
+    string managerName = 9;
+    string startDate = 10;
+    string endDate = 11;
+    double budgetAmount = 12;
+    double usedAmount = 13;
+    string currency = 14;
+    int32 progress = 15;
+    string remark = 16;
+    int64 createdAt = 17;
+    int64 updatedAt = 18;
+}
+
+message GetProjectRequest { int64 id = 1; }
+message GetProjectResponse { ProjectProto project = 1; }
+message ListProjectsRequest {
+    string status = 1;
+    int64 departmentId = 2;
+    string keywords = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListProjectsResponse {
+    repeated ProjectProto projects = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateProjectRequest {
+    string projectCode = 1;
+    string projectName = 2;
+    string description = 3;
+    int64 departmentId = 4;
+    int64 managerId = 5;
+    string startDate = 6;
+    string endDate = 7;
+    double budgetAmount = 8;
+    string currency = 9;
+    string remark = 10;
+}
+message CreateProjectResponse { ProjectProto project = 1; }
+message UpdateProjectRequest {
+    int64 id = 1;
+    string projectName = 2;
+    string description = 3;
+    string endDate = 4;
+    double budgetAmount = 5;
+    string remark = 6;
+}
+message UpdateProjectResponse { ProjectProto project = 1; }
+message DeleteProjectRequest { int64 id = 1; }
+message DeleteProjectResponse { bool success = 1; }
+message UpdateProjectStatusRequest {
+    int64 id = 1;
+    string status = 2;
+}
+message UpdateProjectStatusResponse { bool success = 1; }
+message UpdateProjectProgressRequest {
+    int64 id = 1;
+    int32 progress = 2;
+}
+message UpdateProjectProgressResponse { bool success = 1; }
+
+// ===== Task =====
+message TaskProto {
+    int64 id = 1;
+    int64 projectId = 2;
+    string taskCode = 3;
+    string taskName = 4;
+    string description = 5;
+    string status = 6;
+    int64 parentId = 7;
+    int32 level = 8;
+    int32 sort = 9;
+    int64 assigneeId = 10;
+    string assigneeName = 11;
+    string plannedStartDate = 12;
+    string plannedEndDate = 13;
+    string actualStartDate = 14;
+    string actualEndDate = 15;
+    int32 progress = 16;
+    int32 estimatedHours = 17;
+    int32 actualHours = 18;
+    string remark = 19;
+    int64 createdAt = 20;
+    int64 updatedAt = 21;
+}
+
+message GetTaskRequest { int64 id = 1; }
+message GetTaskResponse { TaskProto task = 1; }
+message ListTasksRequest {
+    int64 projectId = 1;
+    string status = 2;
+    int64 assigneeId = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListTasksResponse {
+    repeated TaskProto tasks = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateTaskRequest {
+    int64 projectId = 1;
+    string taskCode = 2;
+    string taskName = 3;
+    string description = 4;
+    int64 parentId = 5;
+    int64 assigneeId = 6;
+    string plannedStartDate = 7;
+    string plannedEndDate = 8;
+    int32 estimatedHours = 9;
+    string remark = 10;
+}
+message CreateTaskResponse { TaskProto task = 1; }
+message UpdateTaskRequest {
+    int64 id = 1;
+    string taskName = 2;
+    string description = 3;
+    int64 assigneeId = 4;
+    string plannedEndDate = 5;
+    string remark = 6;
+}
+message UpdateTaskResponse { TaskProto task = 1; }
+message DeleteTaskRequest { int64 id = 1; }
+message DeleteTaskResponse { bool success = 1; }
+message UpdateTaskStatusRequest {
+    int64 id = 1;
+    string status = 2;
+}
+message UpdateTaskStatusResponse { bool success = 1; }
+message UpdateTaskProgressRequest {
+    int64 id = 1;
+    int32 progress = 2;
+    int32 actualHours = 3;
+}
+message UpdateTaskProgressResponse { bool success = 1; }
+
+// ===== Time Entry =====
+message TimeEntryProto {
+    int64 id = 1;
+    int64 projectId = 2;
+    string projectName = 3;
+    int64 taskId = 4;
+    string taskName = 5;
+    int64 employeeId = 6;
+    string employeeName = 7;
+    string workDate = 8;
+    double hours = 9;
+    string workType = 10;
+    string description = 11;
+    string status = 12;
+    int64 approverId = 13;
+    string approverName = 14;
+    string approvedAt = 15;
+    string remark = 16;
+    int64 createdAt = 17;
+    int64 updatedAt = 18;
+}
+message GetTimeEntryRequest { int64 id = 1; }
+message GetTimeEntryResponse { TimeEntryProto timeEntry = 1; }
+message ListTimeEntriesRequest {
+    int64 projectId = 1;
+    int64 employeeId = 2;
+    string status = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListTimeEntriesResponse {
+    repeated TimeEntryProto timeEntries = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateTimeEntryRequest {
+    int64 projectId = 1;
+    int64 taskId = 2;
+    int64 employeeId = 3;
+    string workDate = 4;
+    double hours = 5;
+    string workType = 6;
+    string description = 7;
+}
+message CreateTimeEntryResponse { TimeEntryProto timeEntry = 1; }
+message UpdateTimeEntryRequest {
+    int64 id = 1;
+    double hours = 2;
+    string description = 3;
+}
+message UpdateTimeEntryResponse { TimeEntryProto timeEntry = 1; }
+message DeleteTimeEntryRequest { int64 id = 1; }
+message DeleteTimeEntryResponse { bool success = 1; }
+message ApproveTimeEntryRequest {
+    int64 id = 1;
+    int64 approverId = 2;
+}
+message ApproveTimeEntryResponse { bool success = 1; }
+message RejectTimeEntryRequest {
+    int64 id = 1;
+    string reason = 2;
+}
+message RejectTimeEntryResponse { bool success = 1; }
+
+// ===== Cost Record =====
+message CostRecordProto {
+    int64 id = 1;
+    int64 projectId = 2;
+    string projectName = 3;
+    string costType = 4;
+    string costCode = 5;
+    string costName = 6;
+    double amount = 7;
+    string currency = 8;
+    string costDate = 9;
+    string description = 10;
+    string status = 11;
+    int64 departmentId = 12;
+    string departmentName = 13;
+    string remark = 14;
+    int64 createdAt = 15;
+    int64 updatedAt = 16;
+}
+message GetCostRecordRequest { int64 id = 1; }
+message GetCostRecordResponse { CostRecordProto costRecord = 1; }
+message ListCostRecordsRequest {
+    int64 projectId = 1;
+    string costType = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message ListCostRecordsResponse {
+    repeated CostRecordProto costRecords = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateCostRecordRequest {
+    int64 projectId = 1;
+    string costType = 2;
+    string costCode = 3;
+    double amount = 4;
+    string currency = 5;
+    string costDate = 6;
+    string description = 7;
+    int64 departmentId = 8;
+}
+message CreateCostRecordResponse { CostRecordProto costRecord = 1; }
+message DeleteCostRecordRequest { int64 id = 1; }
+message DeleteCostRecordResponse { bool success = 1; }

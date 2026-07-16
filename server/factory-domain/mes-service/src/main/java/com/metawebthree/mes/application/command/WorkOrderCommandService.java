@@ -2,6 +2,7 @@ package com.metawebthree.mes.application.command;
 
 import com.metawebthree.mes.domain.entity.WorkOrder;
 import com.metawebthree.mes.domain.repository.WorkOrderRepository;
+import com.metawebthree.mes.infrastructure.event.MesCrossDomainEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -11,9 +12,12 @@ import java.util.List;
 public class WorkOrderCommandService {
     
     private final WorkOrderRepository workOrderRepository;
+    private final MesCrossDomainEventPublisher crossDomainEventPublisher;
     
-    public WorkOrderCommandService(WorkOrderRepository workOrderRepository) {
+    public WorkOrderCommandService(WorkOrderRepository workOrderRepository,
+                                   MesCrossDomainEventPublisher crossDomainEventPublisher) {
         this.workOrderRepository = workOrderRepository;
+        this.crossDomainEventPublisher = crossDomainEventPublisher;
     }
     
     public WorkOrder createWorkOrder(String workOrderNo, String productCode, String productName,
@@ -89,6 +93,9 @@ public class WorkOrderCommandService {
                 .orElseThrow(() -> new IllegalArgumentException("Work order not found: " + id));
         workOrder.complete();
         workOrderRepository.update(workOrder);
+        crossDomainEventPublisher.publishWorkOrderCompleted(
+                workOrder.getId(), workOrder.getWorkOrderNo(),
+                workOrder.getProductCode(), workOrder.getQuantity());
         return workOrder;
     }
     

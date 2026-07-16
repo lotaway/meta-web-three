@@ -1,0 +1,195 @@
+syntax = "proto3";
+
+package com.metawebthree.factory.generated.rpc;
+
+option java_multiple_files = true;
+
+service SchedulingService {
+    // Schedule Order
+    rpc getScheduleOrder(GetScheduleOrderRequest) returns (GetScheduleOrderResponse);
+    rpc listScheduleOrders(ListScheduleOrdersRequest) returns (ListScheduleOrdersResponse);
+    rpc createScheduleOrder(CreateScheduleOrderRequest) returns (CreateScheduleOrderResponse);
+    rpc updateScheduleOrder(UpdateScheduleOrderRequest) returns (UpdateScheduleOrderResponse);
+    rpc deleteScheduleOrder(DeleteScheduleOrderRequest) returns (DeleteScheduleOrderResponse);
+    rpc startScheduleOrder(StartScheduleOrderRequest) returns (StartScheduleOrderResponse);
+    rpc completeScheduleOrder(CompleteScheduleOrderRequest) returns (CompleteScheduleOrderResponse);
+    rpc cancelScheduleOrder(CancelScheduleOrderRequest) returns (CancelScheduleOrderResponse);
+    rpc delayScheduleOrder(DelayScheduleOrderRequest) returns (DelayScheduleOrderResponse);
+
+    // Schedule Resource
+    rpc getScheduleResource(GetScheduleResourceRequest) returns (GetScheduleResourceResponse);
+    rpc listScheduleResources(ListScheduleResourcesRequest) returns (ListScheduleResourcesResponse);
+    rpc createScheduleResource(CreateScheduleResourceRequest) returns (CreateScheduleResourceResponse);
+    rpc updateScheduleResource(UpdateScheduleResourceRequest) returns (UpdateScheduleResourceResponse);
+
+    // Scheduling Engine
+    rpc forwardScheduling(ForwardSchedulingRequest) returns (SchedulingResponse);
+    rpc backwardScheduling(BackwardSchedulingRequest) returns (SchedulingResponse);
+}
+
+// ===== Schedule Order =====
+message ScheduleOperationProto {
+    int64 id = 1;
+    int64 scheduleOrderId = 2;
+    string operationCode = 3;
+    string operationName = 4;
+    int32 sequenceNo = 5;
+    string resourceCode = 6;
+    string resourceName = 7;
+    double setupTimeMinutes = 8;
+    double processingTimeMinutes = 9;
+    string status = 10;
+    string scheduledStartTime = 11;
+    string scheduledEndTime = 12;
+}
+message ScheduleOrderProto {
+    int64 id = 1;
+    string scheduleNo = 2;
+    string orderNo = 3;
+    string productCode = 4;
+    string productName = 5;
+    double quantity = 6;
+    double completedQuantity = 7;
+    string dueDate = 8;
+    string scheduledStartTime = 9;
+    string scheduledEndTime = 10;
+    string actualStartTime = 11;
+    string actualEndTime = 12;
+    string priority = 13;
+    string status = 14;
+    string workshopId = 15;
+    string routeCode = 16;
+    string remark = 17;
+    int64 createdAt = 18;
+    int64 updatedAt = 19;
+    repeated ScheduleOperationProto operations = 20;
+}
+
+message GetScheduleOrderRequest { int64 id = 1; }
+message GetScheduleOrderResponse { ScheduleOrderProto scheduleOrder = 1; }
+message ListScheduleOrdersRequest {
+    string status = 1;
+    string workshopId = 2;
+    string priority = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListScheduleOrdersResponse {
+    repeated ScheduleOrderProto scheduleOrders = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateScheduleOrderRequest {
+    string scheduleNo = 1;
+    string orderNo = 2;
+    string productCode = 3;
+    string productName = 4;
+    double quantity = 5;
+    string dueDate = 6;
+    string priority = 7;
+    string workshopId = 8;
+    string routeCode = 9;
+    string remark = 10;
+}
+message CreateScheduleOrderResponse { ScheduleOrderProto scheduleOrder = 1; }
+message UpdateScheduleOrderRequest {
+    int64 id = 1;
+    string priority = 2;
+    string dueDate = 3;
+    string remark = 4;
+}
+message UpdateScheduleOrderResponse { ScheduleOrderProto scheduleOrder = 1; }
+message DeleteScheduleOrderRequest { int64 id = 1; }
+message DeleteScheduleOrderResponse { bool success = 1; }
+message StartScheduleOrderRequest { int64 id = 1; }
+message StartScheduleOrderResponse { bool success = 1; }
+message CompleteScheduleOrderRequest { int64 id = 1; }
+message CompleteScheduleOrderResponse { bool success = 1; }
+message CancelScheduleOrderRequest { int64 id = 1; }
+message CancelScheduleOrderResponse { bool success = 1; }
+message DelayScheduleOrderRequest {
+    int64 id = 1;
+    string newDueDate = 2;
+}
+message DelayScheduleOrderResponse { bool success = 1; }
+
+// ===== Schedule Resource =====
+message TimeSlotProto {
+    string startTime = 1;
+    string endTime = 2;
+    int64 scheduleOrderId = 3;
+    string scheduleNo = 4;
+}
+message ScheduleResourceProto {
+    int64 id = 1;
+    string resourceCode = 2;
+    string resourceName = 3;
+    string resourceType = 4;
+    string status = 5;
+    string workshopId = 6;
+    double capacityPerShift = 7;
+    string description = 8;
+    int64 createdAt = 9;
+    int64 updatedAt = 10;
+    repeated TimeSlotProto occupiedSlots = 11;
+}
+message GetScheduleResourceRequest { int64 id = 1; }
+message GetScheduleResourceResponse { ScheduleResourceProto resource = 1; }
+message ListScheduleResourcesRequest {
+    string resourceType = 1;
+    string status = 2;
+    string workshopId = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListScheduleResourcesResponse {
+    repeated ScheduleResourceProto resources = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateScheduleResourceRequest {
+    string resourceCode = 1;
+    string resourceName = 2;
+    string resourceType = 3;
+    string workshopId = 4;
+    double capacityPerShift = 5;
+    string description = 6;
+}
+message CreateScheduleResourceResponse { ScheduleResourceProto resource = 1; }
+message UpdateScheduleResourceRequest {
+    int64 id = 1;
+    string resourceName = 2;
+    string status = 3;
+    double capacityPerShift = 4;
+}
+message UpdateScheduleResourceResponse { ScheduleResourceProto resource = 1; }
+
+// ===== Scheduling Engine =====
+message ScheduleConflictProto {
+    string orderNo = 1;
+    string productCode = 2;
+    string resourceCode = 3;
+    string constraintType = 4;
+    string description = 5;
+}
+message SchedulingResponseProto {
+    string status = 1;
+    string direction = 2;
+    repeated ScheduleOrderProto scheduledOrders = 3;
+    repeated ScheduleConflictProto conflicts = 4;
+    string computedAt = 5;
+    int32 totalOrders = 6;
+    int32 scheduledCount = 7;
+    int32 failedCount = 8;
+}
+message ForwardSchedulingRequest {
+    string workshopId = 1;
+    string startTime = 2;
+}
+message BackwardSchedulingRequest {
+    string workshopId = 1;
+    string endTime = 2;
+}
+message SchedulingResponse { SchedulingResponseProto result = 1; }

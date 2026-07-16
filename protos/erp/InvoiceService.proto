@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+package com.metawebthree.erp.generated.rpc;
+
+option java_multiple_files = true;
+
+service InvoiceService {
+    rpc getInvoice(GetInvoiceRequest) returns (GetInvoiceResponse);
+    rpc listInvoices(ListInvoicesRequest) returns (ListInvoicesResponse);
+    rpc createInvoice(CreateInvoiceRequest) returns (CreateInvoiceResponse);
+    rpc updateInvoice(UpdateInvoiceRequest) returns (UpdateInvoiceResponse);
+    rpc deleteInvoice(DeleteInvoiceRequest) returns (DeleteInvoiceResponse);
+    rpc issueInvoice(IssueInvoiceRequest) returns (IssueInvoiceResponse);
+    rpc printInvoice(PrintInvoiceRequest) returns (PrintInvoiceResponse);
+    rpc voidInvoice(VoidInvoiceRequest) returns (VoidInvoiceResponse);
+    rpc redFlushInvoice(RedFlushInvoiceRequest) returns (RedFlushInvoiceResponse);
+}
+
+message InvoiceProto {
+    int64 id = 1;
+    string invoiceNo = 2;
+    string orderNo = 3;
+    int64 customerId = 4;
+    string customerName = 5;
+    string customerTaxNo = 6;
+    string customerAddress = 7;
+    string customerBank = 8;
+    string customerAccount = 9;
+    string type = 10;
+    string status = 11;
+    double amount = 12;
+    double taxAmount = 13;
+    double totalAmount = 14;
+    string taxRate = 15;
+    string issueDate = 16;
+    string issuer = 17;
+    string remark = 18;
+    int64 createdAt = 19;
+    int64 updatedAt = 20;
+}
+
+message GetInvoiceRequest { int64 id = 1; }
+message GetInvoiceResponse { InvoiceProto invoice = 1; }
+message ListInvoicesRequest {
+    string status = 1;
+    int64 customerId = 2;
+    string startDate = 3;
+    string endDate = 4;
+    int32 page = 5;
+    int32 size = 6;
+}
+message ListInvoicesResponse {
+    repeated InvoiceProto invoices = 1;
+    int32 totalCount = 2;
+    int32 page = 3;
+    int32 size = 4;
+}
+message CreateInvoiceRequest {
+    string invoiceNo = 1;
+    string orderNo = 2;
+    int64 customerId = 3;
+    string customerName = 4;
+    string customerTaxNo = 5;
+    string type = 6;
+    double amount = 7;
+    double taxAmount = 8;
+    double taxRate = 9;
+    string remark = 10;
+}
+message CreateInvoiceResponse { InvoiceProto invoice = 1; }
+message UpdateInvoiceRequest {
+    int64 id = 1;
+    string remark = 2;
+}
+message UpdateInvoiceResponse { InvoiceProto invoice = 1; }
+message DeleteInvoiceRequest { int64 id = 1; }
+message DeleteInvoiceResponse { bool success = 1; }
+message IssueInvoiceRequest {
+    int64 id = 1;
+    string issuer = 2;
+}
+message IssueInvoiceResponse { bool success = 1; }
+message PrintInvoiceRequest { int64 id = 1; }
+message PrintInvoiceResponse { bool success = 1; }
+message VoidInvoiceRequest {
+    int64 id = 1;
+    string reason = 2;
+}
+message VoidInvoiceResponse { bool success = 1; }
+message RedFlushInvoiceRequest {
+    int64 id = 1;
+    string reason = 2;
+}
+message RedFlushInvoiceResponse { bool success = 1; }
