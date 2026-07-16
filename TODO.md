@@ -15,30 +15,23 @@ The following backend services have been created, but lack corresponding admin a
 - platform-domain (7 services: commission, customer service, data analysis, media, message, notification, user behavior)
 - supply-chain-domain (6 services: inventory alert, inventory, logistics, procurement, supplier, warehouse)
 
-#### 编译错误修复 (新增 - 紧急)
-
-- [ ] **[紧急] 修复前端TypeScript编译错误**: apps/backstage-admin 构建失败
-   - [ ] 修复 `src/locales/en-US.ts(774,7)` 和 `src/locales/en-US.ts(775,7)` 及 `src/locales/zh-CN.ts(835,7)` 和 `src/locales/zh-CN.ts(836,7)` 中重复的属性名 (error TS1117: An object literal cannot have multiple properties with the same name)
-   - [ ] 修复 `src/views/mes/scheduling/index.vue(592,29)` 类型不匹配: createResource 参数类型错误
-   - [x] 修复 `src/views/recommendation/index.vue(118,5)` RecommendationStatistics 类型缺失必要属性
-
 #### 供应链领域 (中优先级)
 
-- [ ] **[Supply Chain] 退货管理 (RMA - Return Material Authorization)**: 逆向物流模块
-   - [ ] 定义领域实体：`RmaOrder`, `RmaOrderItem`, `RmaInspection`, `RmaDisposition`, `ReturnShipping`
-   - [ ] 实现退换货流程：退货申请 → 质检 → 处理决定(退款/换货/维修) → 返仓/报废
-   - [ ] 实现与库存服务集成：RMA 质检通过后自动触发入库
-   - [ ] 实现与结算服务集成：退款自动触发结算
-   - [ ] 添加 REST API + Protobuf 定义
-   - [ ] 添加 Protobuf 定义：`protos/supply-chain/RmaService.proto`
-   - [ ] 添加后台管理页面：`views/rma/*` 系列页面
+- [x] **[Supply Chain] 退货管理 (RMA - Return Material Authorization)**: 逆向物流模块
+   - [x] 定义领域实体：`RmaOrder`, `RmaOrderItem`, `RmaInspection`, `RmaDisposition`, `ReturnShipping`
+   - [x] 实现退换货流程：退货申请 → 质检 → 处理决定(退款/换货/维修) → 返仓/报废
+   - [x] 实现与库存服务集成：RMA 质检通过后自动触发入库
+   - [x] 实现与结算服务集成：退款自动触发结算
+   - [x] 添加 REST API + Protobuf 定义
+   - [x] 添加 Protobuf 定义：`protos/supply-chain/RmaService.proto`
+   - [x] 添加后台管理页面：`views/rma/*` 系列页面
 
-- [ ] **[Supply Chain] 分布式订单管理 (DOM)**: 跨仓库订单承诺、寻源和履行
-   - [ ] 定义领域实体：`DomOrder`, `DomOrderLine`, `FulfillmentPlan`, `SourcingRule`
-   - [ ] 实现订单寻源：根据库存、距离、成本自动选择最优仓库
-   - [ ] 实现可用量承诺(ATP)检查
-   - [ ] 添加 REST API
-   - [ ] 添加后台管理页面
+- [x] **[Supply Chain] 分布式订单管理 (DOM)**: 跨仓库订单承诺、寻源和履行
+   - [x] 定义领域实体：`DomOrder`, `DomOrderLine`, `FulfillmentPlan`, `SourcingRule`
+   - [x] 实现订单寻源：根据库存、距离、成本自动选择最优仓库
+   - [x] 实现可用量承诺(ATP)检查
+   - [x] 添加 REST API
+   - [x] 添加后台管理页面
 
 #### ERP 领域 (中优先级)
 
@@ -133,6 +126,14 @@ The following backend services have been created, but lack corresponding admin a
 - [ ] **[Medium] ProductService 核心方法仅含 TODO**: `product-service/.../ProductService.java` — `createProduct()` 和 `updateProduct()` 方法体仅包含 `// TODO` 注释，无任何实现逻辑
 - [ ] **[Medium] PaymentRpcService 统计接口返回硬编码 0**: `payment-service/.../PaymentRpcService.java` — `getPaymentStatistics()` 和 `getDailyPaymentStats()` 所有数值返回 0
 - [ ] **[Medium] ApiDocumentationService 订阅过滤 TODO**: `platform-domain/developer-portal-service/.../ApiDocumentationService.java:398` — 订阅状态过滤逻辑留空
+
+### [GitHub Issues]
+
+- [ ] **[#1] Solana 商城模板集成**: Token, NFT, SFT 创建与管理；Token 作为商品销售；活动和佣金功能
+  - [ ] Token/NFT/SFT 创建和管理合约
+  - [ ] Token 作为商品销售的商城前端集成
+  - [ ] 活动与佣金功能
+  - 链接: https://github.com/lotaway/meta-web-three/issues/1
 
 # 待决议功能
 

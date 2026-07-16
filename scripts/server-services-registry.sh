@@ -45,8 +45,10 @@ SERVER_JAVA_SERVICES=(
   "hrm-service|erp-domain/hrm-service|10119"
   "project-service|erp-domain/project-service|10120"
   "inventory-alert-service|supply-chain-domain/inventory-alert-service|10121"
+  "rma-service|supply-chain-domain/rma-service|10123"
+  "dom-service|supply-chain-domain/dom-service|10124"
   "data-pipeline|data-pipeline|10122"
-  "crm-service|erp-domain/crm-service|10124"
+  "crm-service|erp-domain/crm-service|10125"
 )
 
 server_service_name() { echo "${1%%|*}"; }

@@ -822,6 +822,38 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // RMA (Return Material Authorization) Module
+  {
+    path: '/rma',
+    component: Layout,
+    redirect: '/rma/list',
+    name: 'rma',
+    meta: { title: 'rma.title', icon: 'truck' },
+    children: [
+      {
+        path: 'list',
+        name: 'rmaList',
+        component: () => import('@/views/rma/index.vue'),
+        meta: { title: 'rma.list.title', icon: 'list' },
+      },
+    ],
+  },
+  // Distributed Order Management Module
+  {
+    path: '/dom',
+    component: Layout,
+    redirect: '/dom/list',
+    name: 'dom',
+    meta: { title: 'dom.title', icon: 'order' },
+    children: [
+      {
+        path: 'list',
+        name: 'domList',
+        component: () => import('@/views/dom/index.vue'),
+        meta: { title: 'dom.list.title', icon: 'list' },
+      },
+    ],
+  },
   // Review Management Module
   {
     path: '/review',

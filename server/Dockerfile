@@ -218,6 +218,19 @@ WORKDIR /app
 COPY --from=builder /build/server/data-pipeline/target/data-pipeline-*.jar data-pipeline.jar
 ENTRYPOINT ["java", "-jar", "data-pipeline.jar"]
 
+# supply-chain-domain (continued)
+FROM eclipse-temurin:17-jre-jammy AS rma-service
+COPY --from=builder /build/server/supply-chain-domain/rma-service/target/rma-service-*.jar /app/app.jar
+WORKDIR /app
+EXPOSE 10123
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
+FROM eclipse-temurin:17-jre-jammy AS dom-service
+COPY --from=builder /build/server/supply-chain-domain/dom-service/target/dom-service-*.jar /app/app.jar
+WORKDIR /app
+EXPOSE 10124
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
 # blockchain-domain
 FROM eclipse-temurin:17-jre-jammy AS wallet-service
 WORKDIR /app

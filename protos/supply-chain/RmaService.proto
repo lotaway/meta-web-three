@@ -1,0 +1,190 @@
+syntax = "proto3";
+
+package com.metawebthree.supplychain.generated.rpc;
+
+option java_multiple_files = true;
+
+service RmaService {
+    rpc getRmaOrder(GetRmaOrderRequest) returns (GetRmaOrderResponse);
+    rpc listRmaOrders(ListRmaOrdersRequest) returns (ListRmaOrdersResponse);
+    rpc createRmaOrder(CreateRmaOrderRequest) returns (CreateRmaOrderResponse);
+    rpc submitForInspection(SubmitForInspectionRequest) returns (SubmitForInspectionResponse);
+    rpc recordInspection(RecordInspectionRequest) returns (RecordInspectionResponse);
+    rpc makeDisposition(MakeDispositionRequest) returns (MakeDispositionResponse);
+    rpc executeDisposition(ExecuteDispositionRequest) returns (ExecuteDispositionResponse);
+    rpc cancelRmaOrder(CancelRmaOrderRequest) returns (CancelRmaOrderResponse);
+}
+
+message GetRmaOrderRequest {
+    int64 id = 1;
+}
+
+message GetRmaOrderResponse {
+    RmaOrderDTO rmaOrder = 1;
+}
+
+message ListRmaOrdersRequest {
+    string status = 1;
+    int32 pageNum = 2;
+    int32 pageSize = 3;
+}
+
+message ListRmaOrdersResponse {
+    repeated RmaOrderDTO rmaOrders = 1;
+    int32 total = 2;
+    int32 pageNum = 3;
+    int32 pageSize = 4;
+}
+
+message CreateRmaOrderRequest {
+    string orderNo = 1;
+    string returnType = 2;
+    string customerId = 3;
+    string customerName = 4;
+    string contactPhone = 5;
+    string reasonCode = 6;
+    string reasonDescription = 7;
+    int64 warehouseId = 8;
+    repeated RmaOrderItemDTO items = 9;
+}
+
+message CreateRmaOrderResponse {
+    string rmaNo = 1;
+    bool success = 2;
+    string message = 3;
+}
+
+message SubmitForInspectionRequest {
+    int64 rmaId = 1;
+}
+
+message SubmitForInspectionResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message RecordInspectionRequest {
+    int64 rmaId = 1;
+    string inspector = 2;
+    string result = 3;
+    string conclusion = 4;
+    string remark = 5;
+}
+
+message RecordInspectionResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message MakeDispositionRequest {
+    int64 rmaId = 1;
+    string dispositionType = 2;
+    double refundAmount = 3;
+    string replacementSkuCode = 4;
+    int32 replacementQuantity = 5;
+    string remark = 6;
+}
+
+message MakeDispositionResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message ExecuteDispositionRequest {
+    int64 rmaId = 1;
+}
+
+message ExecuteDispositionResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message CancelRmaOrderRequest {
+    int64 rmaId = 1;
+    string reason = 2;
+}
+
+message CancelRmaOrderResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message RmaOrderDTO {
+    int64 id = 1;
+    string rmaNo = 2;
+    string orderNo = 3;
+    string returnType = 4;
+    string status = 5;
+    string customerId = 6;
+    string customerName = 7;
+    string contactPhone = 8;
+    string reasonCode = 9;
+    string reasonDescription = 10;
+    int64 warehouseId = 11;
+    int32 totalQuantity = 12;
+    double totalAmount = 13;
+    string currency = 14;
+    string createdBy = 15;
+    string createdAt = 16;
+    string updatedAt = 17;
+    repeated RmaOrderItemDTO items = 18;
+    RmaInspectionDTO inspection = 19;
+    RmaDispositionDTO disposition = 20;
+    ReturnShippingDTO returnShipping = 21;
+}
+
+message RmaOrderItemDTO {
+    int64 id = 1;
+    int64 rmaId = 2;
+    string skuCode = 3;
+    string skuName = 4;
+    int32 expectedQuantity = 5;
+    int32 inspectedQuantity = 6;
+    int32 acceptedQuantity = 7;
+    double unitPrice = 8;
+    string reasonCode = 9;
+    string reasonDescription = 10;
+}
+
+message RmaInspectionDTO {
+    int64 id = 1;
+    int64 rmaId = 2;
+    string rmaNo = 3;
+    string inspector = 4;
+    string inspectionDate = 5;
+    string result = 6;
+    string conclusion = 7;
+    int32 totalInspected = 8;
+    int32 totalPassed = 9;
+    int32 totalFailed = 10;
+    string remark = 11;
+}
+
+message RmaDispositionDTO {
+    int64 id = 1;
+    int64 rmaId = 2;
+    string rmaNo = 3;
+    string dispositionType = 4;
+    double refundAmount = 5;
+    string replacementSkuCode = 6;
+    int32 replacementQuantity = 7;
+    int32 scrapQuantity = 8;
+    string scrapReason = 9;
+    string dispositionBy = 10;
+    string dispositionDate = 11;
+    string remark = 12;
+}
+
+message ReturnShippingDTO {
+    int64 id = 1;
+    int64 rmaId = 2;
+    string rmaNo = 3;
+    string carrier = 4;
+    string trackingNo = 5;
+    string shippingMethod = 6;
+    string originAddress = 7;
+    string destinationAddress = 8;
+    string shippingDate = 9;
+    string estimatedArrivalDate = 10;
+    string status = 11;
+}

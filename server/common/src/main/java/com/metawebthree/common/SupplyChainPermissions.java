@@ -62,4 +62,11 @@ public final class SupplyChainPermissions {
     public static final String PORTAL_RECONCILIATION_CONFIRM = "sc:portal:reconciliation:confirm";
     public static final String PORTAL_RECONCILIATION_REJECT = "sc:portal:reconciliation:reject";
     public static final String PORTAL_RECONCILIATION_PAID = "sc:portal:reconciliation:paid";
+
+    // RMA permissions
+    public static final String RMA_READ   = "sc:rma:read";
+    public static final String RMA_CREATE = "sc:rma:create";
+    public static final String RMA_UPDATE = "sc:rma:update";
+    public static final String RMA_CANCEL = "sc:rma:cancel";
+    public static final String RMA_ADMIN  = "sc:rma:admin";
 }

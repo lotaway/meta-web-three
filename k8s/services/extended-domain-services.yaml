@@ -875,12 +875,12 @@ spec:
       - name: crm-service
         image: meta-web-three/crm-service:latest
         ports:
-        - containerPort: 10124
+        - containerPort: 10125
         env:
         - name: SPRING_PROFILES_ACTIVE
           value: "dev"
         - name: SERVER_PORT
-          value: "10124"
+          value: "10125"
         volumeMounts:
         - name: app-config
           mountPath: /app/config
@@ -911,8 +911,8 @@ spec:
   selector:
     app: crm-service
   ports:
-  - port: 10124
-    targetPort: 10124
+  - port: 10125
+    targetPort: 10125
   type: ClusterIP
 ---
 apiVersion: apps/v1

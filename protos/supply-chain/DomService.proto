@@ -1,0 +1,145 @@
+syntax = "proto3";
+
+package com.metawebthree.supplychain.generated.rpc;
+
+option java_multiple_files = true;
+
+service DomService {
+    rpc getDomOrder(GetDomOrderRequest) returns (GetDomOrderResponse);
+    rpc listDomOrders(ListDomOrdersRequest) returns (ListDomOrdersResponse);
+    rpc createDomOrder(CreateDomOrderRequest) returns (CreateDomOrderResponse);
+    rpc checkAvailability(CheckAvailabilityRequest) returns (CheckAvailabilityResponse);
+    rpc sourceOrder(SourceOrderRequest) returns (SourceOrderResponse);
+    rpc approveFulfillment(ApproveFulfillmentRequest) returns (ApproveFulfillmentResponse);
+    rpc cancelDomOrder(CancelDomOrderRequest) returns (CancelDomOrderResponse);
+}
+
+message GetDomOrderRequest {
+    int64 id = 1;
+}
+
+message GetDomOrderResponse {
+    DomOrderDTO domOrder = 1;
+}
+
+message ListDomOrdersRequest {
+    string status = 1;
+    string domOrderNo = 2;
+    int32 pageNum = 3;
+    int32 pageSize = 4;
+}
+
+message ListDomOrdersResponse {
+    repeated DomOrderDTO domOrders = 1;
+    int32 total = 2;
+    int32 pageNum = 3;
+    int32 pageSize = 4;
+}
+
+message CreateDomOrderRequest {
+    string originalOrderNo = 1;
+    string customerId = 2;
+    string customerName = 3;
+    string region = 4;
+    string sourcingStrategy = 5;
+    repeated DomOrderLineDTO items = 6;
+}
+
+message CreateDomOrderResponse {
+    string domOrderNo = 1;
+    bool success = 2;
+    string message = 3;
+}
+
+message CheckAvailabilityRequest {
+    int64 domOrderId = 1;
+}
+
+message CheckAvailabilityResponse {
+    bool success = 1;
+    string message = 2;
+    repeated DomOrderLineDTO lineResults = 3;
+}
+
+message SourceOrderRequest {
+    int64 domOrderId = 1;
+}
+
+message SourceOrderResponse {
+    bool success = 1;
+    string message = 2;
+    FulfillmentPlanDTO fulfillmentPlan = 3;
+}
+
+message ApproveFulfillmentRequest {
+    int64 domOrderId = 1;
+}
+
+message ApproveFulfillmentResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message CancelDomOrderRequest {
+    int64 domOrderId = 1;
+    string reason = 2;
+}
+
+message CancelDomOrderResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message DomOrderDTO {
+    int64 id = 1;
+    string domOrderNo = 2;
+    string originalOrderNo = 3;
+    string customerId = 4;
+    string customerName = 5;
+    string status = 6;
+    double totalAmount = 7;
+    string currency = 8;
+    string priority = 9;
+    string sourcingStrategy = 10;
+    string region = 11;
+    string createdAt = 12;
+    string updatedAt = 13;
+    repeated DomOrderLineDTO lines = 14;
+    FulfillmentPlanDTO fulfillmentPlan = 15;
+}
+
+message DomOrderLineDTO {
+    int64 id = 1;
+    int64 domOrderId = 2;
+    string skuCode = 3;
+    string skuName = 4;
+    int32 quantity = 5;
+    int32 fulfilledQuantity = 6;
+    int64 warehouseId = 7;
+    string warehouseName = 8;
+    double unitPrice = 9;
+    string status = 10;
+}
+
+message FulfillmentPlanDTO {
+    int64 id = 1;
+    int64 domOrderId = 2;
+    string domOrderNo = 3;
+    int32 totalLines = 4;
+    int32 fulfilledLines = 5;
+    int32 partiallyFulfilledLines = 6;
+    int32 unfulfilledLines = 7;
+    string status = 8;
+    string createdAt = 9;
+    string updatedAt = 10;
+}
+
+message SourcingRuleDTO {
+    int64 id = 1;
+    string ruleName = 2;
+    string ruleType = 3;
+    int32 priority = 4;
+    string warehouseIds = 5;
+    string region = 6;
+    bool enabled = 7;
+}

@@ -540,7 +540,7 @@ services:
     container_name: meta-web-three-crm-service
     hostname: crm-service
     ports:
-      - "10124:10124"
+      - "10125:10125"
     volumes:
       - crm_service_data:/server/crm
       - ./.aws:/.aws:ro
@@ -583,6 +583,28 @@ services:
     volumes:
       - data_pipeline_data:/server/data-pipeline
       - ./.aws:/.aws:ro
+
+  rma-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: rma-service
+    container_name: meta-web-three-rma
+    hostname: rma-service
+    ports:
+      - "10123:10123"
+
+  dom-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: dom-service
+    container_name: meta-web-three-dom
+    hostname: dom-service
+    ports:
+      - "10124:10124"
 
 volumes:
   gateway_data:

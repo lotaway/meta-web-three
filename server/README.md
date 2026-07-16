@@ -34,7 +34,9 @@ docker compose -f docker-compose.yml -f docker-compose.server.yml up -d product-
 | 10110-10113 | finance、invoice、reporting、settlement | erp |
 | 10114 | wallet | blockchain |
 | 10122 | data-pipeline | 数据管道（独立模块） |
-| 10124 | crm-service | erp |
+| 10123 | rma-service | supply-chain |
+| 10124 | dom-service | supply-chain |
+| 10125 | crm-service | erp |
 
 K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 
