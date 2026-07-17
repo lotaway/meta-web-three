@@ -15,6 +15,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OpportunityCommandService {
 
+    private static final String STAGE_CLOSED_WON = "CLOSED_WON";
+    private static final String STAGE_CLOSED_LOST = "CLOSED_LOST";
+
     private final OpportunityRepository opportunityRepository;
 
     private static final List<String> STAGES = Arrays.asList(
@@ -62,7 +65,7 @@ public class OpportunityCommandService {
         if (opportunity == null) {
             throw new OpportunityNotFoundException(id);
         }
-        opportunity.setStage("CLOSED_WON");
+        opportunity.setStage(STAGE_CLOSED_WON);
         opportunity.setActualCloseDate(LocalDate.now());
         opportunityRepository.updateById(opportunity);
         return opportunity;
@@ -74,7 +77,7 @@ public class OpportunityCommandService {
         if (opportunity == null) {
             throw new OpportunityNotFoundException(id);
         }
-        opportunity.setStage("CLOSED_LOST");
+        opportunity.setStage(STAGE_CLOSED_LOST);
         opportunity.setDescription(reason);
         opportunity.setActualCloseDate(LocalDate.now());
         opportunityRepository.updateById(opportunity);

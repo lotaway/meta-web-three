@@ -137,8 +137,8 @@ public class PromotionServiceRpcImpl implements com.metawebthree.common.generate
             }
         } catch (Exception e) {
             log.error("获取用户优惠券失败 - userId: {}, error: {}", request.getUserId(), e.getMessage(), e);
+            throw new RuntimeException("获取用户优惠券失败 - userId: " + request.getUserId(), e);
         }
-        return responseBuilder.build();
     }
 
     @Override

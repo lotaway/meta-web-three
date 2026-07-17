@@ -35,15 +35,7 @@ public class ProductClient implements ProductPort {
 
     @Override
     public Object getProductById(Long productId) {
-        logger.info("Fetching product via RPC: productId={}", productId);
-        // Attempt real RPC first, fall back to local stub
-        if (productService != null) {
-            try {
-                logger.info("Attempting RPC call for productId={}", productId);
-            } catch (Exception e) {
-                logger.warn("RPC call failed for productId={}, falling back to local stub", productId, e);
-            }
-        }
+        logger.info("Fetching product: productId={}", productId);
         Map<String, Object> product = localProducts.get(productId);
         if (product == null) {
             logger.warn("Product not found: productId={}", productId);

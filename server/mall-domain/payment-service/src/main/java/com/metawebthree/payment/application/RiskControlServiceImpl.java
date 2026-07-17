@@ -47,7 +47,7 @@ public class RiskControlServiceImpl {
     @Value("${payment.risk-control.single-limit.usd:10000}")
     private BigDecimal singleLimitUSD;
 
-    @Value("${payment.rist-control.hourly-order-limit:100}")
+    @Value("${payment.risk-control.hourly-order-limit:100}")
     private Integer hourlyOrderLimit;
 
     @Value("${payment.risk-control.daily-limit.usd:50000}")

@@ -115,8 +115,7 @@ public class DecisionServiceImpl implements DecisionService {
 
         } catch (Exception e) {
             log.error("Failed to get risk score from Risk Scorer Service for scene: {}", scene, e);
-            // Return default risk score in case of failure
-            return 700;
+            throw new RuntimeException("Failed to get risk score from Risk Scorer Service for scene: " + scene, e);
         }
     }
 
@@ -156,7 +155,7 @@ public class DecisionServiceImpl implements DecisionService {
             return result instanceof Boolean bReuslt && bReuslt;
         } catch (ScriptException e) {
             log.error("Error in eval rule", e);
-            return false;
+            throw new RuntimeException("Error in eval rule", e);
         }
     }
 

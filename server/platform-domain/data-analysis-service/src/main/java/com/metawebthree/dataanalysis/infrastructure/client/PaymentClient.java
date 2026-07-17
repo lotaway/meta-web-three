@@ -22,8 +22,6 @@ public class PaymentClient {
      * @return count of pending payments
      */
     public Long getPendingPaymentsCount() {
-        // Primary source is order-service
-        // This is a fallback for payment-specific data
         try {
             GetPaymentStatisticsResponse response = paymentService.getPaymentStatistics(
                     GetPaymentStatisticsRequest.getDefaultInstance()

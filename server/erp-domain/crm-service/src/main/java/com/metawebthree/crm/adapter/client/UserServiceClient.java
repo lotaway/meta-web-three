@@ -27,7 +27,7 @@ public class UserServiceClient {
             return result;
         } catch (Exception e) {
             log.error("Failed to get user by id: {}, error: {}", userId, e.getMessage());
-            return Collections.emptyMap();
+            throw new RuntimeException("Failed to get user by id: " + userId, e);
         }
     }
 
@@ -54,7 +54,7 @@ public class UserServiceClient {
             return users;
         } catch (Exception e) {
             log.error("Failed to search users, error: {}", e.getMessage());
-            return Collections.emptyList();
+            throw new RuntimeException("Failed to search users", e);
         }
     }
 
@@ -71,7 +71,7 @@ public class UserServiceClient {
             return stats;
         } catch (Exception e) {
             log.error("Failed to get user statistics, error: {}", e.getMessage());
-            return Collections.emptyMap();
+            throw new RuntimeException("Failed to get user statistics", e);
         }
     }
 }

@@ -78,36 +78,27 @@ public class SalesStatisticsQueryService {
         String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         SalesStatisticsDO todayRecord = salesStatisticsMapper.selectByDate(today);
         
-        // Get last week same day for comparison
         String lastWeekDate = LocalDate.now().minusWeeks(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         SalesStatisticsDO lastWeekRecord = salesStatisticsMapper.selectByDate(lastWeekDate);
         
-        // Get last month same day for comparison
         String lastMonthDate = LocalDate.now().minusMonths(1).format(DateTimeFormatter.ISO_LOCAL_DATE);
         SalesStatisticsDO lastMonthRecord = salesStatisticsMapper.selectByDate(lastMonthDate);
         
-        // Query hot products from database
         List<RealTimeDashboardDTO.HotProductDTO> hotProducts = queryHotProducts(today);
         
-        // Query sales by hour from database
         List<RealTimeDashboardDTO.SalesByHourDTO> salesByHour = querySalesByHour(today);
         
-        // Query order status distribution (would need order-service RPC call)
         Map<String, Integer> orderStatusDistribution = queryOrderStatusDistribution();
         
-        // Query category sales distribution from product sales data
         Map<String, BigDecimal> categorySalesDistribution = queryCategorySalesDistribution(today);
         
-        // Get real-time metrics from database or other services
         Long pendingOrders = queryPendingOrdersCount();
         Long lowStockAlerts = queryLowStockAlertsCount();
         Long pendingPayments = queryPendingPaymentsCount();
         
-        // Calculate growth rates
         BigDecimal weekOverWeekGrowth = calculateGrowthRate(todayRecord, lastWeekRecord);
         BigDecimal monthOverMonthGrowth = calculateGrowthRate(todayRecord, lastMonthRecord);
         
-        // Build real-time dashboard data
         return RealTimeDashboardDTO.builder()
                 .todaySales(todayRecord != null && todayRecord.getTotalAmount() != null ? 
                         BigDecimal.valueOf(todayRecord.getTotalAmount()) : BigDecimal.ZERO)
@@ -154,9 +145,6 @@ public class SalesStatisticsQueryService {
                 .setScale(2, RoundingMode.HALF_UP);
     }
 
-    /**
-     * Query hot products from product_sales table
-     */
     private List<RealTimeDashboardDTO.HotProductDTO> queryHotProducts(String date) {
         try {
             List<ProductSalesDO> products = productSalesMapper.selectTopProducts(date, 5);
@@ -174,13 +162,9 @@ public class SalesStatisticsQueryService {
         } catch (Exception e) {
             log.warn("Failed to query hot products from database: {}", e.getMessage());
         }
-        // Fallback: return empty list if no data
         return new ArrayList<>();
     }
 
-    /**
-     * Query sales by hour from hourly_sales table
-     */
     private List<RealTimeDashboardDTO.SalesByHourDTO> querySalesByHour(String date) {
         try {
             List<HourlySalesDO> hourlyData = hourlySalesMapper.selectByDate(date);
@@ -197,18 +181,12 @@ public class SalesStatisticsQueryService {
         } catch (Exception e) {
             log.warn("Failed to query sales by hour from database: {}", e.getMessage());
         }
-        // Fallback: return empty list if no data
         return new ArrayList<>();
     }
 
-    /**
-     * Query order status distribution
-     * Calls order-service via REST API
-     */
     private Map<String, Integer> queryOrderStatusDistribution() {
         try {
             Map<String, Long> distribution = orderClient.getOrderStatusDistribution();
-            // Convert Long values to Integer for the DTO
             Map<String, Integer> result = new HashMap<>();
             distribution.forEach((k, v) -> result.put(k, v != null ? v.intValue() : 0));
             return result;
@@ -218,9 +196,6 @@ public class SalesStatisticsQueryService {
         }
     }
 
-    /**
-     * Query category sales distribution from product sales data
-     */
     private Map<String, BigDecimal> queryCategorySalesDistribution(String date) {
         try {
             List<ProductSalesDO> products = productSalesMapper.selectByDate(date);
@@ -242,10 +217,6 @@ public class SalesStatisticsQueryService {
         return new HashMap<>();
     }
 
-    /**
-     * Query pending orders count from order-service
-     * Calls order-service via REST API
-     */
     private Long queryPendingOrdersCount() {
         try {
             return orderClient.getPendingOrdersCount();
@@ -255,10 +226,6 @@ public class SalesStatisticsQueryService {
         }
     }
 
-    /**
-     * Query low stock alerts count from inventory-alert-service
-     * Calls inventory-alert-service via REST API
-     */
     private Long queryLowStockAlertsCount() {
         try {
             return inventoryAlertClient.getLowStockAlertsCount();
@@ -268,10 +235,6 @@ public class SalesStatisticsQueryService {
         }
     }
 
-    /**
-     * Query pending payments count from order-service
-     * Pending payments are tracked in order status
-     */
     private Long queryPendingPaymentsCount() {
         try {
             return orderClient.getPendingPaymentsCount();

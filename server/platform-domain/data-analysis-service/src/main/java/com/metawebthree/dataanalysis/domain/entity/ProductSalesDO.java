@@ -2,9 +2,6 @@ package com.metawebthree.dataanalysis.domain.entity;
 
 import java.time.LocalDateTime;
 
-/**
- * Entity for product sales statistics (hot products)
- */
 public class ProductSalesDO {
     private Long id;
     private String date;

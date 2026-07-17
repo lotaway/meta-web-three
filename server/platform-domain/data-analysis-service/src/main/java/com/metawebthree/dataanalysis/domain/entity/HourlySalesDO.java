@@ -2,9 +2,6 @@ package com.metawebthree.dataanalysis.domain.entity;
 
 import java.time.LocalDateTime;
 
-/**
- * Entity for hourly sales statistics
- */
 public class HourlySalesDO {
     private Long id;
     private String date;

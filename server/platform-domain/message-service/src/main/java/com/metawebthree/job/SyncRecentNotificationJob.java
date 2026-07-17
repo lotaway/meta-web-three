@@ -26,7 +26,7 @@ public class SyncRecentNotificationJob implements Job {
                     new SyncRecentNotificationJob().execute(null);
                     return true;
                 } catch (JobExecutionException e) {
-                    e.printStackTrace();
+                    log.error("Failed to sync recent notifications", e);
                     return false;
                 }
             });

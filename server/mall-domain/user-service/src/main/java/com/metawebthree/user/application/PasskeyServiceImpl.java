@@ -162,6 +162,6 @@ public class PasskeyServiceImpl implements PasskeyService {
             return s;
         }
         log.warn("No valid public key in attestation response");
-        return "";
+        throw new IllegalArgumentException("No valid public key in attestation response");
     }
 }

@@ -17,6 +17,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class LeadController {
 
+    private static final String USER_NOT_FOUND = "User not found";
+
     private final LeadQueryService leadQueryService;
     private final LeadCommandService leadCommandService;
     private final UserServiceClient userServiceClient;
@@ -89,6 +91,6 @@ public class LeadController {
     @GetMapping("/sync/user/{userId}")
     public Result<Map<String, Object>> syncUserById(@PathVariable Long userId) {
         Map<String, Object> user = userServiceClient.getUserById(userId);
-        return user.isEmpty() ? Result.error("User not found") : Result.success(user);
+        return user.isEmpty() ? Result.error(USER_NOT_FOUND) : Result.success(user);
     }
 }

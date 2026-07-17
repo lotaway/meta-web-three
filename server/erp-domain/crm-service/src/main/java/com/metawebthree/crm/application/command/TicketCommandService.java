@@ -14,6 +14,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TicketCommandService {
 
+    private static final String TICKET_STATUS_OPEN = "OPEN";
+    private static final String TICKET_STATUS_ASSIGNED = "ASSIGNED";
+
     private final CustomerServiceTicketRepository ticketRepository;
 
     private static final List<String> STATUS_FLOW = Arrays.asList(
@@ -22,7 +25,7 @@ public class TicketCommandService {
 
     @Transactional
     public CustomerServiceTicket create(CustomerServiceTicket ticket) {
-        ticket.setStatus("OPEN");
+        ticket.setStatus(TICKET_STATUS_OPEN);
         ticketRepository.insert(ticket);
         return ticket;
     }
@@ -34,8 +37,8 @@ public class TicketCommandService {
             throw new TicketNotFoundException(id);
         }
         ticket.setAssignedTo(assignedTo);
-        if ("OPEN".equals(ticket.getStatus())) {
-            ticket.setStatus("ASSIGNED");
+        if (TICKET_STATUS_OPEN.equals(ticket.getStatus())) {
+            ticket.setStatus(TICKET_STATUS_ASSIGNED);
         }
         ticketRepository.updateById(ticket);
         return ticket;

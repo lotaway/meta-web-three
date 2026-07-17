@@ -13,12 +13,16 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class LeadCommandService {
 
+    private static final String LEAD_STATUS_NEW = "NEW";
+    private static final String LEAD_STATUS_CONVERTED = "CONVERTED";
+    private static final String LEAD_STATUS_DISQUALIFIED = "DISQUALIFIED";
+
     private final LeadRepository leadRepository;
     private final OpportunityRepository opportunityRepository;
 
     @Transactional
     public Lead create(Lead lead) {
-        lead.setStatus("NEW");
+lead.setStatus(LEAD_STATUS_NEW);
         leadRepository.insert(lead);
         return lead;
     }
@@ -44,7 +48,7 @@ public class LeadCommandService {
         if (lead == null) {
             throw new LeadNotFoundException(leadId);
         }
-        lead.setStatus("CONVERTED");
+        lead.setStatus(LEAD_STATUS_CONVERTED);
         leadRepository.updateById(lead);
 
         opportunity.setLeadId(leadId);
@@ -58,7 +62,7 @@ public class LeadCommandService {
         if (lead == null) {
             throw new LeadNotFoundException(leadId);
         }
-        lead.setStatus("DISQUALIFIED");
+        lead.setStatus(LEAD_STATUS_DISQUALIFIED);
         lead.setDescription(reason);
         leadRepository.updateById(lead);
     }

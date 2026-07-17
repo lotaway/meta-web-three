@@ -57,9 +57,7 @@ public class PaymentRpcService implements PaymentService {
                     .build();
         } catch (Exception e) {
             log.error("Failed to get payment statistics", e);
-            return GetPaymentStatisticsResponse.newBuilder()
-                    .setStatistics(PaymentStatistics.getDefaultInstance())
-                    .build();
+            throw new RuntimeException("Failed to get payment statistics", e);
         }
     }
 
@@ -97,9 +95,7 @@ public class PaymentRpcService implements PaymentService {
                     .build();
         } catch (Exception e) {
             log.error("Failed to get daily payment stats", e);
-            return GetDailyPaymentStatsResponse.newBuilder()
-                    .setStats(DailyPaymentStats.getDefaultInstance())
-                    .build();
+            throw new RuntimeException("Failed to get daily payment stats", e);
         }
     }
 
