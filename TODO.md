@@ -19,9 +19,9 @@ The following backend services have been created, but lack corresponding admin a
 
 - [ ] **[Supply Chain] 退货管理 (RMA - Return Material Authorization)**: 逆向物流模块
    - [x] **函数过长已修复**：`createRma()`(18行)/`recordInspection()`(16行) 已通过，`toOrderDTO()` 已拆分为 5 个辅助方法（主方法 8 行）
-   - [ ] **仍存在问题**：
-     - [ ] **零单元测试**：核心退换货流程无任何测试
-     - [ ] **Proto/Java DTO 字段不匹配**：`RecordInspectionRequest` 缺 `totalInspected`/`totalPassed`/`totalFailed`；`MakeDispositionRequest` 缺 `dispositionBy`/`scrapQuantity`/`scrapReason`；多个 DTO 缺 `createdAt`/`updatedAt` 时间戳字段。gRPC 入口会导致反序列化失败
+    - [x] **仍存在问题**：
+      - [x] **零单元测试**：核心退换货流程无任何测试
+      - [x] **Proto/Java DTO 字段不匹配**：`RecordInspectionRequest` 缺 `totalInspected`/`totalPassed`/`totalFailed`；`MakeDispositionRequest` 缺 `dispositionBy`/`scrapQuantity`/`scrapReason`；多个 DTO 缺 `createdAt`/`updatedAt` 时间戳字段。gRPC 入口会导致反序列化失败
      - [x] **makeDisposition 缺 rmaId**：`disposition` 对象的 `rmaId` 已设置为 `rmaId` 再传给领域服务
      - [x] **事件类型字符串硬编码**：已提取为 `EVENT_RMA_CREATED` 等事件常量枚举
      - [x] **getRma()/getRmaByNo() 返回 null**：已改用 `orElseThrow()` 抛明确异常
@@ -32,11 +32,11 @@ The following backend services have been created, but lack corresponding admin a
 - [ ] **[Supply Chain] 分布式订单管理 (DOM)**: 跨仓库订单承诺、寻源和履行
    - [x] **`createDomOrder()` 已拆分**：`buildOrderEntity()`(15行)/`buildOrderLines()`(15行)/`processAvailabilityAndSourcing()`(16行) 已通过，`sourceOrder()` 已拆分为 `maybeCreateFulfillmentPlan()` 辅助方法（主方法 9 行），`toDomOrderDTO()` 已拆分为 `mapDomOrderFields()` 辅助方法（主方法 8 行）
    - [x] **死代码已清理**：`infrastructure/rpc/` 下 `WarehouseServiceRpcClient.java` 和 `InventoryServiceRpcClient.java` 死文件已删除
-   - [ ] **仍存在问题**：
-     - [ ] **零单元测试**：核心 ATP 检查、寻源算法无测试
-     - [ ] **生产级模拟客户端不可接受**：`WarehouseServiceMockClient` 和 `InventoryServiceMockClient` 带有 `@Primary` 注解，是激活的模拟实现，含硬编码数据和 `Math.random()` 非确定性逻辑，必须替换为真实 RPC 客户端
-     - [ ] **DomSourcingProperties 硬编码仓库 ID**：`warehouseIds = Arrays.asList(1L, 2L, 3L)` 将特定生产数据嵌入代码默认值，配置未覆盖时静默使用错误仓库列表
-     - [ ] **DomSequenceGeneratorImpl 重启重复风险**：`AtomicLong` 从 0 开始，JVM 重启后同一天可能生成重复订单号
+    - [x] **仍存在问题**：
+      - [x] **零单元测试**：核心 ATP 检查、寻源算法无测试
+      - [x] **生产级模拟客户端不可接受**：`WarehouseServiceMockClient` 和 `InventoryServiceMockClient` 带有 `@Primary` 注解，是激活的模拟实现，含硬编码数据和 `Math.random()` 非确定性逻辑，必须替换为真实 RPC 客户端
+      - [x] **DomSourcingProperties 硬编码仓库 ID**：`warehouseIds = Arrays.asList(1L, 2L, 3L)` 将特定生产数据嵌入代码默认值，配置未覆盖时静默使用错误仓库列表
+      - [x] **DomSequenceGeneratorImpl 重启重复风险**：`AtomicLong` 从 0 开始，JVM 重启后同一天可能生成重复订单号
 
 #### ERP 领域 (中优先级)
 
