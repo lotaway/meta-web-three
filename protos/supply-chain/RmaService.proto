@@ -118,7 +118,10 @@ message RecordInspectionRequest {
     string inspector = 2;
     RmaInspectionResult result = 3;
     RmaInspectionConclusion conclusion = 4;
-    string remark = 5;
+    int32 totalInspected = 5;
+    int32 totalPassed = 6;
+    int32 totalFailed = 7;
+    string remark = 8;
 }
 
 message RecordInspectionResponse {
@@ -129,10 +132,13 @@ message RecordInspectionResponse {
 message MakeDispositionRequest {
     int64 rmaId = 1;
     RmaDispositionType dispositionType = 2;
-    double refundAmount = 3;
-    string replacementSkuCode = 4;
-    int32 replacementQuantity = 5;
-    string remark = 6;
+    string dispositionBy = 3;
+    double refundAmount = 4;
+    string replacementSkuCode = 5;
+    int32 replacementQuantity = 6;
+    int32 scrapQuantity = 7;
+    string scrapReason = 8;
+    string remark = 9;
 }
 
 message MakeDispositionResponse {
@@ -194,6 +200,7 @@ message RmaOrderItemDTO {
     double unitPrice = 8;
     string reasonCode = 9;
     string reasonDescription = 10;
+    int64 createdAt = 11;
 }
 
 message RmaInspectionDTO {
@@ -208,6 +215,8 @@ message RmaInspectionDTO {
     int32 totalPassed = 9;
     int32 totalFailed = 10;
     string remark = 11;
+    int64 createdAt = 12;
+    int64 updatedAt = 13;
 }
 
 message RmaDispositionDTO {
@@ -223,6 +232,8 @@ message RmaDispositionDTO {
     string dispositionBy = 10;
     int64 dispositionDate = 11;
     string remark = 12;
+    int64 createdAt = 13;
+    int64 updatedAt = 14;
 }
 
 message ReturnShippingDTO {
@@ -237,4 +248,6 @@ message ReturnShippingDTO {
     int64 shippingDate = 9;
     int64 estimatedArrivalDate = 10;
     RmaShippingStatus status = 11;
+    int64 createdAt = 12;
+    int64 updatedAt = 13;
 }

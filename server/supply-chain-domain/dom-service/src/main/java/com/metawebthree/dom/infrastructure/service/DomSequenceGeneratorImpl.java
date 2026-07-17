@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Component
 public class DomSequenceGeneratorImpl implements DomSequenceGenerator {
 
-    private final AtomicLong seqCounter = new AtomicLong(0);
+    private final AtomicLong seqCounter = new AtomicLong(System.currentTimeMillis() % 1000000);
 
     @Override
     public String generateDomOrderNo() {

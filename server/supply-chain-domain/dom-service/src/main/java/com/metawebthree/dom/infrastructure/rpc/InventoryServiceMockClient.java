@@ -1,13 +1,13 @@
 package com.metawebthree.dom.infrastructure.rpc;
 
 import com.metawebthree.dom.domain.service.InventoryServiceClient;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
-@Primary
+@Profile("dev")
 public class InventoryServiceMockClient implements InventoryServiceClient {
 
     private final Map<String, Integer> mockInventory = new HashMap<>();

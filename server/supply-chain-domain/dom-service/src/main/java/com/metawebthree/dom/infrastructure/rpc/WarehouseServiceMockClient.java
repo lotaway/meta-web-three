@@ -2,13 +2,13 @@ package com.metawebthree.dom.infrastructure.rpc;
 
 import com.metawebthree.dom.domain.service.WarehouseInfo;
 import com.metawebthree.dom.domain.service.WarehouseServiceClient;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
-@Primary
+@Profile("dev")
 public class WarehouseServiceMockClient implements WarehouseServiceClient {
 
     private final Map<Long, WarehouseInfo> warehouseMap;

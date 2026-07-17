@@ -1,10 +1,17 @@
 package com.metawebthree.dom.domain.service;
 
+import jakarta.validation.constraints.NotEmpty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import jakarta.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.List;
 
 public class DomSourcingProperties {
 
+    private static final Logger log = LoggerFactory.getLogger(DomSourcingProperties.class);
+
+    @NotEmpty(message = "At least one warehouse ID must be configured")
     private List<Long> warehouseIds = Arrays.asList(1L, 2L, 3L);
     private double shippingCostPerKm = 0.5;
     private double handlingCostFlat = 10.0;
@@ -37,4 +44,12 @@ public class DomSourcingProperties {
 
     public String getWhNamePrefix() { return whNamePrefix; }
     public void setWhNamePrefix(String whNamePrefix) { this.whNamePrefix = whNamePrefix; }
+
+    @PostConstruct
+    public void validate() {
+        if (warehouseIds == null || warehouseIds.isEmpty()) {
+            log.warn("No warehouse IDs configured via dom.sourcing.warehouse-ids, using defaults [1L, 2L, 3L]");
+            this.warehouseIds = Arrays.asList(1L, 2L, 3L);
+        }
+    }
 }
