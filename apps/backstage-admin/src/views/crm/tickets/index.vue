@@ -217,6 +217,7 @@ const fetchTickets = async () => {
     total.value = res.data.total
   } catch (e) {
     console.error('Failed to fetch tickets:', e)
+    ElMessage.error('Failed to load tickets')
   } finally {
     loading.value = false
   }

@@ -115,6 +115,7 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
 import { t } from '@/locales'
+import { ElMessage } from 'element-plus'
 import { listLeads, listOpportunities, listTickets, listCampaigns, getPipelineSummary } from '@/apis/crm'
 import type { Lead, Opportunity, CustomerServiceTicket, PipelineSummary } from '@/apis/crm'
 
@@ -159,6 +160,7 @@ const fetchDashboardData = async () => {
     pipelineSummary.value = pipelineRes.data
   } catch (e) {
     console.error('Failed to fetch dashboard data:', e)
+    ElMessage.error('Failed to load CRM dashboard data')
   }
 }
 

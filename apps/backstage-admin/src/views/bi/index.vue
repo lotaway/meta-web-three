@@ -97,6 +97,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { t } from '@/locales'
+import { ElMessage } from 'element-plus'
 import {
   getSalesTrend, getCategoryDistribution, getRegionalComparison,
   getFinancialSummary, getSafetyStockAlerts, getProductionAnalytics, getSalesFunnel,
@@ -160,12 +161,12 @@ async function loadSalesData() {
         orderCount: trend.orderCounts[i] || 0,
       }))
     }
-  } catch (e) { console.error('Failed to load sales trend', e) }
+  } catch (e) { console.error('Failed to load sales trend', e); ElMessage.error('Failed to load sales trend') }
 
   try {
     const catRes = await getCategoryDistribution(dateRange.value[0], dateRange.value[1])
     categoryList.value = (catRes as any)?.data || (Array.isArray(catRes) ? catRes : [])
-  } catch (e) { console.error('Failed to load category distribution', e) }
+  } catch (e) { console.error('Failed to load category distribution', e); ElMessage.error('Failed to load category distribution') }
 
   try {
     const regionRes = await getRegionalComparison(dateRange.value[0], dateRange.value[1])
@@ -177,7 +178,7 @@ async function loadSalesData() {
         orderCount: row.count || row.orderCount || 0,
       }))
     }
-  } catch (e) { console.error('Failed to load regional comparison', e) }
+  } catch (e) { console.error('Failed to load regional comparison', e); ElMessage.error('Failed to load regional comparison') }
 }
 
 async function loadFinancialData() {
@@ -191,14 +192,14 @@ async function loadFinancialData() {
       netProfit: d.todayProfit || d.netProfit || 0,
       orderCount: d.todayOrders || d.orderCount || 0,
     }
-  } catch (e) { console.error('Failed to load financial data', e) }
+  } catch (e) { console.error('Failed to load financial data', e); ElMessage.error('Failed to load financial data') }
 }
 
 async function loadInventoryData() {
   try {
     const res = await getSafetyStockAlerts()
     safetyAlerts.value = (res as any)?.data || (Array.isArray(res) ? res : [])
-  } catch (e) { console.error('Failed to load inventory data', e) }
+  } catch (e) { console.error('Failed to load inventory data', e); ElMessage.error('Failed to load inventory data') }
 }
 
 async function loadProductionData() {
@@ -210,7 +211,7 @@ async function loadProductionData() {
       yieldRate: res.yieldRate ?? 0,
       dailyData: res.dailyData || [],
     }
-  } catch (e) { console.error('Failed to load production data', e) }
+  } catch (e) { console.error('Failed to load production data', e); ElMessage.error('Failed to load production data') }
 }
 
 async function loadAll() {

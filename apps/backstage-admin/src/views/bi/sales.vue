@@ -49,6 +49,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { t } from '@/locales'
+import { ElMessage } from 'element-plus'
 import { getSalesTrend, getCategoryDistribution, getRegionalComparison } from '@/apis/bi'
 import type { CategoryDistribution } from '@/apis/bi'
 
@@ -75,12 +76,12 @@ async function loadData() {
         date: d, amount: trend.amounts[i] || 0, orderCount: trend.orderCounts[i] || 0,
       }))
     }
-  } catch (e) { console.error(e) }
+  } catch (e) { console.error(e); ElMessage.error('Failed to load sales trend') }
 
   try {
     const catRes = await getCategoryDistribution(dateRange.value[0], dateRange.value[1])
     categoryList.value = (catRes as any)?.data || (Array.isArray(catRes) ? catRes : [])
-  } catch (e) { console.error(e) }
+  } catch (e) { console.error(e); ElMessage.error('Failed to load category distribution') }
 
   try {
     const regionRes = await getRegionalComparison(dateRange.value[0], dateRange.value[1])
@@ -92,7 +93,7 @@ async function loadData() {
         orderCount: row.count || 0,
       }))
     }
-  } catch (e) { console.error(e) }
+  } catch (e) { console.error(e); ElMessage.error('Failed to load regional comparison') }
   loading.value = false
 }
 

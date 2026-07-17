@@ -145,6 +145,7 @@ const fetchContacts = async () => {
     total.value = res.data.total
   } catch (e) {
     console.error('Failed to fetch contacts:', e)
+    ElMessage.error('Failed to load contacts')
   } finally {
     loading.value = false
   }

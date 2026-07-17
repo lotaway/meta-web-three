@@ -219,6 +219,7 @@ const fetchLeads = async () => {
     total.value = res.data.total
   } catch (e) {
     console.error('Failed to fetch leads:', e)
+    ElMessage.error('Failed to load leads')
   } finally {
     loading.value = false
   }

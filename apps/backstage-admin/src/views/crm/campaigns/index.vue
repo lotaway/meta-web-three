@@ -178,6 +178,7 @@ const fetchCampaigns = async () => {
     total.value = res.data.total
   } catch (e) {
     console.error('Failed to fetch campaigns:', e)
+    ElMessage.error('Failed to load campaigns')
   } finally {
     loading.value = false
   }

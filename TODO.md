@@ -17,56 +17,63 @@ The following backend services have been created, but lack corresponding admin a
 
 #### 供应链领域 (中优先级)
 
-- [x] **[Supply Chain] 退货管理 (RMA - Return Material Authorization)**: 逆向物流模块
-   - [x] 定义领域实体：`RmaOrder`, `RmaOrderItem`, `RmaInspection`, `RmaDisposition`, `ReturnShipping`
-   - [x] 实现退换货流程：退货申请 → 质检 → 处理决定(退款/换货/维修) → 返仓/报废
-   - [x] 实现与库存服务集成：RMA 质检通过后自动触发入库
-   - [x] 实现与结算服务集成：退款自动触发结算
-   - [x] 添加 REST API + Protobuf 定义
-   - [x] 添加 Protobuf 定义：`protos/supply-chain/RmaService.proto`
-   - [x] 添加后台管理页面：`views/rma/*` 系列页面
+- [ ] **[Supply Chain] 退货管理 (RMA - Return Material Authorization)**: 逆向物流模块
+   - [ ] **已修复**：FE/BE API 协议不匹配（改为 @RequestBody DTO），库存/结算集成（添加 EventListener + Stub 服务），硬编码值（提取为常量），函数返回值+副作用混合（6 个领域方法已拆分）
+   - [ ] **仍存在问题**：
+     - [ ] **Protobuf 枚举全部为空**：6 个枚举只有 UNSPECIFIED=0，无实际值
+     - [ ] **函数超 20 行**：`createRma()` 30 行，`toOrderDTO()` 34 行，`recordInspection()` 23 行
+     - [ ] **零单元测试**：核心退换货流程无任何测试
+     - [ ] **前端对话框固定宽度无响应式**：4 个对话框使用固定 px 宽度
 
-- [x] **[Supply Chain] 分布式订单管理 (DOM)**: 跨仓库订单承诺、寻源和履行
-   - [x] 定义领域实体：`DomOrder`, `DomOrderLine`, `FulfillmentPlan`, `SourcingRule`
-   - [x] 实现订单寻源：根据库存、距离、成本自动选择最优仓库
-   - [x] 实现可用量承诺(ATP)检查
-   - [x] 添加 REST API
-   - [x] 添加后台管理页面
+- [ ] **[Supply Chain] 分布式订单管理 (DOM)**: 跨仓库订单承诺、寻源和履行
+   - [ ] **已修复**：FE/BE 类型不匹配（`row.id` 替换 `row.domOrderNo`），字段名不一致（`items`→`lines`），状态值不匹配（移除无效枚举），分页未实现（添加 Page 查询），硬编码值（提取常量）
+   - [ ] **仍存在问题**：
+     - [ ] **函数超 20 行**：`createDomOrder()` 52 行（超 32 行）
+     - [ ] **领域层引入 Spring 注解**：`DomSourcingProperties` 在 domain 包中使用 `@Component`/`@ConfigurationProperties`
+     - [ ] **缺少输入校验**：Controller 方法缺少 `@Valid`，请求体字段无校验注解
+     - [ ] **隐式共享状态**：`DomSequenceGeneratorImpl` 静态 `AtomicLong` + `WarehouseServiceMockClient` 静态 Map
+     - [ ] **死代码**：`infrastructure/rpc/` 下 3 个文件与 `domain/service/` 完全重复
+     - [ ] **零单元测试**：核心 ATP 检查、寻源算法无测试
 
 #### ERP 领域 (中优先级)
 
-- [x] **[ERP] 客户关系管理 (CRM)**: 销售管道、商机跟踪、客户服务工单、营销活动
-   - [x] 创建 `crm-service` 模块（基于 backend-api 父 POM）
-   - [x] 定义领域实体：`Lead`, `Opportunity`, `SalesPipeline`, `CustomerServiceTicket`, `Campaign`, `Contact`
-   - [x] 实现销售管道：商机创建 → 阶段推进 → 赢单/输单
-   - [x] 实现客户服务工单：创建 → 分配 → 处理 → 关闭
-   - [x] 实现与用户服务集成：客户数据同步（UserServiceClient + /api/crm/leads/sync/* 端点）
-   - [x] 添加 REST API + GraphQL 端点（Apollo Federation 子图，POST /graphql）
-   - [x] 添加 Protobuf 定义：`protos/erp/CrmService.proto`
-   - [x] 添加后台管理页面：`views/crm/*` 系列页面
+- [ ] **[ERP] 客户关系管理 (CRM)**: 销售管道、商机跟踪、客户服务工单、营销活动
+   - [ ] **已修复**：FE/BE API 路径（单数→复数），HTTP 方法（assignTicket POST→PUT），参数传递（body→params/去除 body），异常被吞（UserServiceClient 改为抛出 Runtime），硬编码字符串（提取常量），前端 catch 块（添加 ElMessage.error）
+   - [ ] **仍存在问题**：
+     - [ ] **文件超 500 行**：`CrmSubgraphConfig.java` 550 行
+     - [ ] **领域层依赖 MyBatis Plus**：所有 Repository `extends BaseMapper<T>` 引入 ORM 到领域层
+     - [ ] **应用层依赖 MyBatis Plus**：`LeadQueryService`/`OpportunityQueryService`/`TicketQueryService` 导入 `LambdaQueryWrapper`
+     - [ ] **DDD 分层违规**：`ContactController`/`CampaignController` 直接注入 Repository 绕过应用层
+     - [ ] **缺少输入校验**：GraphQL 控制器对 `env.getArgument("id")` 无 null 检查
+     - [ ] **零单元测试**：无 `src/test/` 目录
 
-- [x] **[ERP] BI 商业智能与分析层**: 仪表板、即席查询、数据可视化
-   - [x] 基于现有 `reporting-service` 扩展：添加 OLAP 聚合查询能力（OLAP 实现在 data-pipeline 服务）
-   - [x] 实现销售分析看板：销量趋势、品类分布、区域对比（对接 data-analysis-service）
-   - [x] 实现财务分析看板：收入/成本/利润趋势、预算执行率（对接 data-analysis-service）
-   - [x] 实现库存分析看板：周转率、ABC分析、安全库存预警（对接 data-analysis-service）
-   - [x] 实现生产分析看板：OEE、良品率、计划达成率（data-pipeline 新增 PRODUCTION 域 + /api/analytics/production 端点）
-   - [x] 添加后台 BI 看板页面：`views/bi/*` 系列页面
+- [ ] **[ERP] BI 商业智能与分析层**: 仪表板、即席查询、数据可视化
+   - [ ] **已修复**：PRODUCTION 域（添加表/维度/指标映射，改用 OLAP 服务），硬编码值（重命名为描述性常量名），异常被吞（sendEmail 改为抛出），前端错误反馈（添加 ElMessage.error）
+   - [ ] **仍存在问题**：
+     - [ ] **函数超 20 行**：`appendSalesReportContent()` 37 行，`appendFinancialReportContent()` 45 行，`bfsImpact()` 28 行
+     - [ ] **DDD 分层违规**：`application/query/` 服务包含领域逻辑（毛利率计算、报表聚合）
+     - [ ] **领域层使用 Lombok**：`@Builder`/`@Getter`/`@ToString` 在领域实体中
+     - [ ] **缺少输入校验**：OLAP/报表 API 无 `@Valid` 或参数校验
+     - [ ] **使用已废弃 API**：`BigDecimal.ROUND_HALF_UP` (Java 9+ 废弃)
+     - [ ] **零单元测试**：无测试覆盖
+     - [ ] **前端 API 路径不匹配**：`getInventoryTurnover()` 调用 `/api/v1/analysis/inventory/overview` 但后端为 `/api/analytics/inventory`
+     - [ ] **前端缺少库存/生产专用页面**：TODO 要求 views/bi/* 系列页面，但库存和生产嵌入在 index.vue 标签页
+     - [ ] **前端无响应式**：`el-col :span="6"` 无 `:xs`/`:sm` 断点，手机端溢出
 
-- [x] **[Cross] ERP-MES 数据闭环集成**: 打通 ERP 生产订单 → MES 报工 → 财务成本核算
-   - [x] ERP 生产订单发布时发送领域事件(MQ/Kafka)到 MES
-   - [x] MES 工单报工完成后发送完工事件到 ERP
-   - [x] 财务成本核算模块监听完工事件自动归集成本
-   - [x] 实现端到端集成测试
+- [ ] **[Cross] ERP-MES 数据闭环集成**: 打通 ERP 生产订单 → MES 报工 → 财务成本核算
+   - [ ] **已修复**：异常被吞（改为抛出 RuntimeException），领域层依赖 Spring（移除 `extends ApplicationEvent`），隐式共享状态（WorkOrder static→instance），事件未显式建模（Map→typed records），事件名用字符串（改用 EventType 枚举），日志违规（debug→info），接口命名不一致（Processor/EventListener 统一）
+   - [ ] **仍存在问题**：
+     - [ ] **硬编码 TOPIC/Kafka 配置**：topic 名、JSON 格式字符串全部硬编码
+     - [ ] **函数超 20 行**：集成测试 2 个函数分别 33 行和 26 行
+     - [ ] **通过修改现有代码实现**：`WorkOrderCommandService` 被大幅重构，添加了非原有职责的方法
+     - [ ] **零单元测试**：`MesDomainServiceImpl`、`ProductionEventProcessor`、`MesCrossDomainEventPublisher` 均无测试
 
-### [技术栈违规：部分模块使用了 JPA/MySQL 而非 MyBatis Plus/PostgreSQL]
+### [技术栈违规：部分模块使用了 JPA/MySQL 而非 MyBatis Plus/PostgreSQL]（部分已修复）
 
-- [ ] **[Critical] forecasting-service** — 3 个实体使用 JPA `@Entity`/`@Id`/`@Column` 注解；pom.xml 含 `spring-boot-starter-data-jpa` + `mysql-connector-j`。需改为 MyBatis Plus + PostgreSQL。
-- [ ] **[Critical] route-optimizer** — 3 个实体使用 JPA `@Entity`/`@Id`/`@Column` 注解；pom.xml 含 `spring-boot-starter-data-jpa`。需改为 MyBatis Plus + PostgreSQL。
-- [ ] **[Critical] developer-portal-service** — 5 个实体使用 JPA `@Entity`/`@Id`/`@Column` 注解；pom.xml 含 `spring-boot-starter-data-jpa` + `mysql-connector-j`。需改为 MyBatis Plus + PostgreSQL。
-- [ ] **[Medium] data-analysis-service** — pom.xml 含 `spring-boot-starter-data-jpa` + `mysql-connector-j`，但代码未使用 JPA。需清理 pom.xml 中多余依赖。
-- [ ] **[Medium] data-pipeline** — pom.xml 含 `spring-boot-starter-data-jpa`，但实体已使用 MyBatis Plus `@TableName`。需清理 pom.xml 中多余依赖。
-- [ ] **[Medium] traceability-service** — pom.xml 含 `spring-boot-starter-data-jpa`，但实体已使用 MyBatis Plus `@TableName`。需清理 pom.xml 中多余依赖。
+- [ ] **[Critical] forecasting-service** — **已修复**：注释（已删除），函数超 20 行（已拆分 helper），save 返回值+副作用（已改 void），硬编码魔法数字（已提取常量），事件名字符串（改用枚举）。**仍存在问题**：`catch (NumberFormatException e) { continue; }` 静默吞异常
+- [ ] **[Critical] route-optimizer** — **已修复**：注释（已删除），save 返回值+副作用（已改 void）。**仍存在问题**：`RoutePlan` 中 `@TableField(exist = false) List<RoutePoint> points` 持久化细节泄漏到领域模型
+- [ ] **[Critical] developer-portal-service** — **已修复**：注释已全部删除，save 返回值+副作用（已改 void）。**仍存在问题**：BCrypt 简化版实现待完善，文件超 500 行（630行），计费费率和配额硬编码
+- [ ] **[Medium] data-analysis-service** — **已修复**：注释已删除。**仍存在问题**：实体未标注 MyBatis Plus `@TableName` 注解
 
 ### [Digital Twin UI 交互流程未完整恢复]（新任务）
 
@@ -96,19 +103,29 @@ The following backend services have been created, but lack corresponding admin a
 - [x] **[Critical] BlockchainServiceStubImpl 伪链交互** — 实现本地内存钱包状态跟踪
 - [x] **[Critical] MinioStorageService.getFileContent 未实现** — 实现 MinioClient.getObject() 调用
 - [x] **[Critical] GraphQLDataProvider 购物车查询抛异常** — 实现 addToCart/removeFromCart/clearCart
-- [x] **[Critical] LiveService ProductClient 返回 null** — 实现内存商品存储和真实查询
+- [x] **[Critical] LiveService ProductClient 返回 null** — **已修复**：移除空的 RPC try-catch，直接使用本地存储
 - [x] **[Critical] Gateway UserClient 异常被吞** — try-catch 改为重新抛出 RuntimeException
 - [x] **[Critical] PromotionServiceRpcImpl NumberFormatException 被吞** — 改为抛出 IllegalArgumentException
-- [x] **[Medium] Common 模块 System.err.println** — 改为 logger.error
-- [x] **[Medium] Common 模块 e.printStackTrace()** — 改为 logger.error
-- [x] **[Medium] Common 模块 System.out.println** — 改为 logger.info/addInfo
+- [x] **[Medium] Common 模块 System.err.println** — **已修复**：`MQConsumer.java` test 方法 + `System.out.printf` 已移除；`SyncRecentNotificationJob.java` `e.printStackTrace()` 已改为 log.error
+- [x] **[Medium] Common 模块 e.printStackTrace()** — 已改为 logger.error
+- [x] **[Medium] Common 模块 System.out.println** — **已修复**：`MQConsumer.java` 遗留已清理
 - [x] **[Medium] Gateway CircuitBreakerFilter System.err.println** — 改为 logger.warn
 - [x] **[Medium] @Deprecated 无替代说明** — 添加 forRemoval 和 since 参数
 - [x] **[Medium] UserService.updateUser 占位符** — 改为抛出 UnsupportedOperationException
-- [x] **[Medium] PasskeyServiceImpl.encodePublicKey 空串** — 实现 Base64 编码
+- [x] **[Medium] PasskeyServiceImpl.encodePublicKey 空串** — **已修复**：空字符串 fallback 改为 `throw IllegalArgumentException`
 - [x] **[Medium] DecisionServiceImpl 日志冗余** — 移除 e.printStackTrace()
 - [x] **[Medium] PaymentRpcService 统计接口硬编码 0** — 注入 ExchangeOrderRepository 实现真实数据库查询
 - [x] **[Medium] ApiDocumentationService 订阅过滤 TODO** — 实现订阅状态过滤逻辑
+
+### [代码规范审核新增违规项]（非原有 TODO 项，审核中新发现）
+
+- [x] **[Medium] RiskControlServiceImpl 属性名拼写错误**：`payment.rist-control.hourly-order-limit` → `payment.risk-control.hourly-order-limit` — **已修复**
+- [x] **[Medium] PromotionServiceRpcImpl.getUserCoupons 异常被吞**：catch `Exception` 后返回空 response — **已修复**（改为抛出 RuntimeException）
+- [x] **[Medium] DecisionServiceImpl.getRiskScore 异常被吞**：catch `Exception` 后返回默认值 700 — **已修复**（改为抛出 RuntimeException）
+- [x] **[Medium] DecisionServiceImpl.eval 异常被吞**：catch `ScriptException` 后返回 false — **已修复**（改为抛出 RuntimeException）
+- [x] **[Medium] PaymentRpcService.getPaymentStatistics 异常被吞**：catch `Exception` 后返回默认实例 — **已修复**（改为抛出 RuntimeException）
+- [x] **[Medium] PaymentRpcService.getDailyPaymentStats 异常被吞**：catch `Exception` 后返回默认实例 — **已修复**（改为抛出 RuntimeException）
+- [x] **[Low] MQConsumer 生产类中包含 test() 方法**：已移除 — **已修复**
 
 
 ### [GitHub Issues]

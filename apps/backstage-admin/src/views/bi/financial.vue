@@ -24,6 +24,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { t } from '@/locales'
+import { ElMessage } from 'element-plus'
 import { getFinancialSummary } from '@/apis/bi'
 import type { FinancialSummary } from '@/apis/bi'
 
@@ -54,7 +55,7 @@ async function loadData() {
       netProfit: d.todayProfit || d.netProfit || 0,
       orderCount: d.todayOrders || d.orderCount || 0,
     }
-  } catch (e) { console.error(e) }
+  } catch (e) { console.error(e); ElMessage.error('Failed to load financial data') }
   loading.value = false
 }
 

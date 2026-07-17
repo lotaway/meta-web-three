@@ -205,6 +205,7 @@ const fetchOpportunities = async () => {
     total.value = res.data.total
   } catch (e) {
     console.error('Failed to fetch opportunities:', e)
+    ElMessage.error('Failed to load opportunities')
   } finally {
     loading.value = false
   }
