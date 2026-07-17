@@ -1,6 +1,7 @@
 package com.metawebthree.finance.domain.entity.budget;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 public class BudgetLine {
@@ -48,7 +49,7 @@ public class BudgetLine {
         if (base.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
-        return usedAmount.divide(base, 4, BigDecimal.ROUND_HALF_UP)
+        return usedAmount.divide(base, 4, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100));
     }
 

@@ -16,10 +16,10 @@
       <!-- Sales Analysis -->
       <el-tab-pane :label="t('bi.salesAnalysis')" name="sales">
         <el-row :gutter="20" class="stat-cards">
-          <el-col :span="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatMoney(salesRevenue) }}</div><div class="stat-label">{{ t('bi.totalRevenue') }}</div></div></el-card></el-col>
-          <el-col :span="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatMoney(salesCost) }}</div><div class="stat-label">{{ t('bi.totalCost') }}</div></div></el-card></el-col>
-          <el-col :span="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatMoney(salesProfit) }}</div><div class="stat-label">{{ t('bi.grossProfit') }}</div></div></el-card></el-col>
-          <el-col :span="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ salesOrders }}</div><div class="stat-label">{{ t('bi.totalOrders') }}</div></div></el-card></el-col>
+          <el-col :xs="24" :sm="12" :md="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatMoney(salesRevenue) }}</div><div class="stat-label">{{ t('bi.totalRevenue') }}</div></div></el-card></el-col>
+          <el-col :xs="24" :sm="12" :md="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatMoney(salesCost) }}</div><div class="stat-label">{{ t('bi.totalCost') }}</div></div></el-card></el-col>
+          <el-col :xs="24" :sm="12" :md="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatMoney(salesProfit) }}</div><div class="stat-label">{{ t('bi.grossProfit') }}</div></div></el-card></el-col>
+          <el-col :xs="24" :sm="12" :md="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ salesOrders }}</div><div class="stat-label">{{ t('bi.totalOrders') }}</div></div></el-card></el-col>
         </el-row>
         <el-card class="section-card" v-loading="loading">
           <template #header><span>{{ t('bi.salesTrend') }}</span></template>
@@ -30,7 +30,7 @@
           </el-table>
         </el-card>
         <el-row :gutter="20" class="section-row">
-          <el-col :span="12">
+          <el-col :xs="24" :sm="12">
             <el-card v-loading="loading">
               <template #header><span>{{ t('bi.categoryDistribution') }}</span></template>
               <el-table :data="categoryList" stripe size="small" max-height="300" empty-text="暂无数据">
@@ -40,7 +40,7 @@
               </el-table>
             </el-card>
           </el-col>
-          <el-col :span="12">
+          <el-col :xs="24" :sm="12">
             <el-card v-loading="loading">
               <template #header><span>{{ t('bi.regionalComparison') }}</span></template>
               <el-table :data="regionList" stripe size="small" max-height="300" empty-text="暂无数据">
@@ -56,20 +56,20 @@
       <!-- Financial Analysis -->
       <el-tab-pane :label="t('bi.financialAnalysis')" name="financial">
         <el-row :gutter="20" class="stat-cards">
-          <el-col :span="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatMoney(financialRevenue) }}</div><div class="stat-label">{{ t('bi.revenue') }}</div></div></el-card></el-col>
-          <el-col :span="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ financialOrders }}</div><div class="stat-label">{{ t('bi.totalOrders') }}</div></div></el-card></el-col>
-          <el-col :span="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatMoney(financialProfit) }}</div><div class="stat-label">{{ t('bi.netProfit') }}</div></div></el-card></el-col>
-          <el-col :span="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatPercent(financialMargin) }}</div><div class="stat-label">{{ t('bi.grossMargin') }}</div></div></el-card></el-col>
+          <el-col :xs="24" :sm="12" :md="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatMoney(financialRevenue) }}</div><div class="stat-label">{{ t('bi.revenue') }}</div></div></el-card></el-col>
+          <el-col :xs="24" :sm="12" :md="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ financialOrders }}</div><div class="stat-label">{{ t('bi.totalOrders') }}</div></div></el-card></el-col>
+          <el-col :xs="24" :sm="12" :md="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatMoney(financialProfit) }}</div><div class="stat-label">{{ t('bi.netProfit') }}</div></div></el-card></el-col>
+          <el-col :xs="24" :sm="12" :md="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatPercent(financialMargin) }}</div><div class="stat-label">{{ t('bi.grossMargin') }}</div></div></el-card></el-col>
         </el-row>
       </el-tab-pane>
 
       <!-- Inventory Analysis -->
       <el-tab-pane :label="t('bi.inventoryAnalysis')" name="inventory">
         <el-row :gutter="20" class="stat-cards">
-          <el-col :span="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ inventoryTotalProducts }}</div><div class="stat-label">{{ t('bi.totalProducts') }}</div></div></el-card></el-col>
-          <el-col :span="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ inventoryTotalQty }}</div><div class="stat-label">{{ t('bi.totalQuantity') }}</div></div></el-card></el-col>
-          <el-col :span="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ inventoryTotalValue }}</div><div class="stat-label">{{ t('bi.inventoryValue') }}</div></div></el-card></el-col>
-          <el-col :span="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value warning">{{ inventoryLowStock }}</div><div class="stat-label">{{ t('bi.safetyStockAlert') }}</div></div></el-card></el-col>
+          <el-col :xs="24" :sm="12" :md="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ inventoryTotalProducts }}</div><div class="stat-label">{{ t('bi.totalProducts') }}</div></div></el-card></el-col>
+          <el-col :xs="24" :sm="12" :md="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ inventoryTotalQty }}</div><div class="stat-label">{{ t('bi.totalQuantity') }}</div></div></el-card></el-col>
+          <el-col :xs="24" :sm="12" :md="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ inventoryTotalValue }}</div><div class="stat-label">{{ t('bi.inventoryValue') }}</div></div></el-card></el-col>
+          <el-col :xs="24" :sm="12" :md="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value warning">{{ inventoryLowStock }}</div><div class="stat-label">{{ t('bi.safetyStockAlert') }}</div></div></el-card></el-col>
         </el-row>
         <el-card class="section-card" v-loading="loading">
           <template #header><span>{{ t('bi.safetyStockAlert') }}</span></template>
@@ -85,9 +85,9 @@
       <!-- Production Analysis -->
       <el-tab-pane :label="t('bi.productionAnalysis')" name="production">
         <el-row :gutter="20" class="stat-cards">
-          <el-col :span="8"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatPercent(productionYield) }}</div><div class="stat-label">{{ t('bi.yieldRate') }}</div></div></el-card></el-col>
-          <el-col :span="8"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ productionOutput }}</div><div class="stat-label">{{ t('bi.productionOutput') }}</div></div></el-card></el-col>
-          <el-col :span="8"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ productionDefects }}</div><div class="stat-label">{{ t('bi.defectCount') }}</div></div></el-card></el-col>
+          <el-col :xs="24" :sm="12" :md="8"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatPercent(productionYield) }}</div><div class="stat-label">{{ t('bi.yieldRate') }}</div></div></el-card></el-col>
+          <el-col :xs="24" :sm="12" :md="8"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ productionOutput }}</div><div class="stat-label">{{ t('bi.productionOutput') }}</div></div></el-card></el-col>
+          <el-col :xs="24" :sm="12" :md="8"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ productionDefects }}</div><div class="stat-label">{{ t('bi.defectCount') }}</div></div></el-card></el-col>
         </el-row>
       </el-tab-pane>
     </el-tabs>

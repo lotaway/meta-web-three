@@ -1,6 +1,7 @@
 package com.metawebthree.finance.domain.entity.cost;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -73,7 +74,7 @@ public class StandardCost {
         if (standardQuantity == null || standardQuantity.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
-        return standardTotalCost.divide(standardQuantity, 4, BigDecimal.ROUND_HALF_UP);
+        return standardTotalCost.divide(standardQuantity, 4, RoundingMode.HALF_UP);
     }
 
     public boolean isEffective() {

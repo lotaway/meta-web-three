@@ -1,6 +1,7 @@
 package com.metawebthree.mes.domain.entity;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 public class ProcessParameter {
@@ -107,7 +108,7 @@ public class ProcessParameter {
             return null;
         }
         return actualValue.subtract(standardValue)
-                          .divide(standardValue, 4, BigDecimal.ROUND_HALF_UP)
+                          .divide(standardValue, 4, RoundingMode.HALF_UP)
                           .multiply(new BigDecimal("100"));
     }
     

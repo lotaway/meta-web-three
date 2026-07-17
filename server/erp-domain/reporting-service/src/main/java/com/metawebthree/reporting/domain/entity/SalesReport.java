@@ -1,6 +1,7 @@
 package com.metawebthree.reporting.domain.entity;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 public class SalesReport {
@@ -47,7 +48,7 @@ public class SalesReport {
         this.totalSalesAmount = totalSalesAmount;
         this.totalOrderCount = totalOrderCount;
         this.averageOrderAmount = totalOrderCount > 0 ? 
-            totalSalesAmount.divide(BigDecimal.valueOf(totalOrderCount), 2, BigDecimal.ROUND_HALF_UP) : BigDecimal.ZERO;
+            totalSalesAmount.divide(BigDecimal.valueOf(totalOrderCount), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO;
         this.grossProfit = grossProfit;
         this.profitMargin = profitMargin;
     }

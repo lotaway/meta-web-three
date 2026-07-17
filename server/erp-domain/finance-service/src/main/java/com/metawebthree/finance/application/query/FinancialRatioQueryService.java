@@ -9,6 +9,7 @@ import com.metawebthree.finance.domain.repository.FinancialRatioRepository;
 import com.metawebthree.finance.domain.service.FinancialRatioDomainService;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -87,7 +88,7 @@ public class FinancialRatioQueryService {
         List<Account> allAccounts = accountRepository.findAll();
         BigDecimal count = BigDecimal.valueOf(allAccounts.size());
         if (count.compareTo(BigDecimal.ZERO) > 0) {
-            return total.divide(count, 2, BigDecimal.ROUND_HALF_UP);
+            return total.divide(count, 2, RoundingMode.HALF_UP);
         }
         return total;
     }
@@ -102,7 +103,7 @@ public class FinancialRatioQueryService {
         List<Account> allAccounts = accountRepository.findAll();
         BigDecimal count = BigDecimal.valueOf(allAccounts.size());
         if (count.compareTo(BigDecimal.ZERO) > 0) {
-            return total.divide(count, 2, BigDecimal.ROUND_HALF_UP);
+            return total.divide(count, 2, RoundingMode.HALF_UP);
         }
         return total;
     }
@@ -140,7 +141,7 @@ public class FinancialRatioQueryService {
                 ratios.stream()
                         .map(FinancialRatio::getValue)
                         .reduce(BigDecimal.ZERO, BigDecimal::add)
-                        .divide(BigDecimal.valueOf(ratios.size()), 2, BigDecimal.ROUND_HALF_UP);
+                        .divide(BigDecimal.valueOf(ratios.size()), 2, RoundingMode.HALF_UP);
         
         Map<String, Object> result = new HashMap<>();
         result.put("ratioType", ratioType);
@@ -182,7 +183,7 @@ public class FinancialRatioQueryService {
             BigDecimal change = BigDecimal.ZERO;
             if (value1.compareTo(BigDecimal.ZERO) != 0) {
                 change = value2.subtract(value1)
-                        .divide(value1, 4, BigDecimal.ROUND_HALF_UP)
+                        .divide(value1, 4, RoundingMode.HALF_UP)
                         .multiply(BigDecimal.valueOf(100));
             }
             

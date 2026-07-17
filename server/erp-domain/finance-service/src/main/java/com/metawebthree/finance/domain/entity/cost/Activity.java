@@ -1,6 +1,7 @@
 package com.metawebthree.finance.domain.entity.cost;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 public class Activity {
@@ -51,14 +52,14 @@ public class Activity {
         this.totalCost = this.totalCost.add(cost);
         this.driverQuantity = this.driverQuantity.add(driverQuantity);
         if (this.driverQuantity.compareTo(BigDecimal.ZERO) > 0) {
-            this.driverRate = this.totalCost.divide(this.driverQuantity, 4, BigDecimal.ROUND_HALF_UP);
+            this.driverRate = this.totalCost.divide(this.driverQuantity, 4, RoundingMode.HALF_UP);
         }
         this.updatedAt = LocalDateTime.now();
     }
 
     public void calculateRate() {
         if (driverQuantity != null && driverQuantity.compareTo(BigDecimal.ZERO) > 0) {
-            this.driverRate = totalCost.divide(driverQuantity, 4, BigDecimal.ROUND_HALF_UP);
+            this.driverRate = totalCost.divide(driverQuantity, 4, RoundingMode.HALF_UP);
         }
     }
 

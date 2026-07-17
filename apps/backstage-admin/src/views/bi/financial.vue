@@ -5,10 +5,10 @@
     </div>
 
     <el-row :gutter="20" class="stat-cards">
-      <el-col :span="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatMoney(financialData.totalRevenue) }}</div><div class="stat-label">{{ t('bi.revenue') }}</div></div></el-card></el-col>
-      <el-col :span="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ financialData.orderCount }}</div><div class="stat-label">{{ t('bi.totalOrders') }}</div></div></el-card></el-col>
-      <el-col :span="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatMoney(financialData.netProfit) }}</div><div class="stat-label">{{ t('bi.netProfit') }}</div></div></el-card></el-col>
-      <el-col :span="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatPercent(grossMargin) }}</div><div class="stat-label">{{ t('bi.grossMargin') }}</div></div></el-card></el-col>
+      <el-col :xs="24" :sm="12" :md="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatMoney(financialData.totalRevenue) }}</div><div class="stat-label">{{ t('bi.revenue') }}</div></div></el-card></el-col>
+      <el-col :xs="24" :sm="12" :md="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ financialData.orderCount }}</div><div class="stat-label">{{ t('bi.totalOrders') }}</div></div></el-card></el-col>
+      <el-col :xs="24" :sm="12" :md="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatMoney(financialData.netProfit) }}</div><div class="stat-label">{{ t('bi.netProfit') }}</div></div></el-card></el-col>
+      <el-col :xs="24" :sm="12" :md="6"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatPercent(grossMargin) }}</div><div class="stat-label">{{ t('bi.grossMargin') }}</div></div></el-card></el-col>
     </el-row>
 
     <el-card v-loading="loading">

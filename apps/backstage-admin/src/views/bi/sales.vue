@@ -8,8 +8,8 @@
     </div>
 
     <el-row :gutter="20" class="stat-cards">
-      <el-col :span="8"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatMoney(totalAmount) }}</div><div class="stat-label">{{ t('bi.totalRevenue') }}</div></div></el-card></el-col>
-      <el-col :span="8"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ totalOrders }}</div><div class="stat-label">{{ t('bi.totalOrders') }}</div></div></el-card></el-col>
+      <el-col :xs="24" :sm="12" :md="8"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatMoney(totalAmount) }}</div><div class="stat-label">{{ t('bi.totalRevenue') }}</div></div></el-card></el-col>
+      <el-col :xs="24" :sm="12" :md="8"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ totalOrders }}</div><div class="stat-label">{{ t('bi.totalOrders') }}</div></div></el-card></el-col>
     </el-row>
 
     <el-card v-loading="loading">
@@ -22,7 +22,7 @@
     </el-card>
 
     <el-row :gutter="20" class="section-row">
-      <el-col :span="12">
+      <el-col :xs="24" :sm="12">
         <el-card v-loading="loading">
           <template #header><span>{{ t('bi.categoryDistribution') }}</span></template>
           <el-table :data="categoryList" stripe size="small" max-height="300" empty-text="暂无数据">
@@ -32,7 +32,7 @@
           </el-table>
         </el-card>
       </el-col>
-      <el-col :span="12">
+      <el-col :xs="24" :sm="12">
         <el-card v-loading="loading">
           <template #header><span>{{ t('bi.regionalComparison') }}</span></template>
           <el-table :data="regionRows" stripe size="small" max-height="300" empty-text="暂无数据">

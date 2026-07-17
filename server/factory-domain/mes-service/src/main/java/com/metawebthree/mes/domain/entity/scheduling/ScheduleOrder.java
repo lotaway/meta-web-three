@@ -1,6 +1,7 @@
 package com.metawebthree.mes.domain.entity.scheduling;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -138,7 +139,7 @@ public class ScheduleOrder {
     public BigDecimal getCompletionRate() {
         if (quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) return BigDecimal.ZERO;
         return completedQuantity != null
-            ? completedQuantity.multiply(BigDecimal.valueOf(100)).divide(quantity, 2, BigDecimal.ROUND_HALF_UP)
+            ? completedQuantity.multiply(BigDecimal.valueOf(100)).divide(quantity, 2, RoundingMode.HALF_UP)
             : BigDecimal.ZERO;
     }
 

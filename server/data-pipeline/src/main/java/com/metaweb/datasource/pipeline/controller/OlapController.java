@@ -2,6 +2,9 @@ package com.metaweb.datasource.pipeline.controller;
 
 import com.metaweb.datasource.pipeline.service.OlapQueryModels.*;
 import com.metaweb.datasource.pipeline.service.OlapQueryService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -69,7 +72,7 @@ public class OlapController {
     }
 
     @PostMapping("/dice")
-    public ResponseEntity<OlapQueryResult> dice(@RequestBody DiceRequest request) {
+    public ResponseEntity<OlapQueryResult> dice(@Valid @RequestBody DiceRequest request) {
         return ResponseEntity.ok(olapQueryService.dice(request.getDomain(), request.getFilters(),
                 request.getDimensions(), request.getMetrics(), request.getTimeGranularity(),
                 request.getStartTime(), request.getEndTime()));
@@ -113,6 +116,7 @@ public class OlapController {
 
     @lombok.Data
     public static class DiceRequest {
+        @NotNull
         private OlapDomain domain;
         private List<OlapFilter> filters;
         private List<String> dimensions;

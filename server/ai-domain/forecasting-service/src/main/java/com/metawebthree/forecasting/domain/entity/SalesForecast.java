@@ -2,6 +2,7 @@ package com.metawebthree.forecasting.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -108,7 +109,7 @@ public class SalesForecast {
         int diff = Math.abs(actualQuantity - forecastQuantity);
         return BigDecimal.valueOf(100).subtract(
             BigDecimal.valueOf(diff).multiply(BigDecimal.valueOf(100))
-                .divide(BigDecimal.valueOf(forecastQuantity), 2, BigDecimal.ROUND_HALF_UP)
+                .divide(BigDecimal.valueOf(forecastQuantity), 2, RoundingMode.HALF_UP)
         );
     }
 

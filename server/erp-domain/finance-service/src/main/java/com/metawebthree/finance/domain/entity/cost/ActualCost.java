@@ -1,6 +1,7 @@
 package com.metawebthree.finance.domain.entity.cost;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -59,7 +60,7 @@ public class ActualCost {
         if (quantity == null || quantity.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
-        return actualTotalCost.divide(quantity, 4, BigDecimal.ROUND_HALF_UP);
+        return actualTotalCost.divide(quantity, 4, RoundingMode.HALF_UP);
     }
 
     public void updateActualCost(BigDecimal materialCost, BigDecimal laborCost, BigDecimal overheadCost) {

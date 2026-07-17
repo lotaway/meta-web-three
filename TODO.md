@@ -50,23 +50,23 @@ The following backend services have been created, but lack corresponding admin a
 - [ ] **[ERP] BI 商业智能与分析层**: 仪表板、即席查询、数据可视化
    - [x] **已修复**：PRODUCTION 域（添加表/维度/指标映射，改用 OLAP 服务），硬编码值（重命名为描述性常量名），异常被吞（sendEmail 改为抛出），前端错误反馈（添加 ElMessage.error）
    - [x] **前端 API 路径已修正**：`getInventoryTurnover()` URL 从 `/api/v1/analysis/inventory/overview` 改为 `/api/analytics/inventory`
-   - [ ] **仍存在问题**：
-     - [ ] **函数超 20 行**：`appendSalesReportContent()` 37 行，`appendFinancialReportContent()` 45 行，`bfsImpact()` 28 行
-     - [ ] **DDD 分层违规**：`application/query/` 服务包含领域逻辑（毛利率计算、报表聚合）
-     - [ ] **领域层使用 Lombok**：`@Builder`/`@Getter`/`@ToString` 在领域实体中
-     - [ ] **缺少输入校验**：OLAP/报表 API 无 `@Valid` 或参数校验
-     - [ ] **使用已废弃 API**：`BigDecimal.ROUND_HALF_UP` (Java 9+ 废弃)
-     - [ ] **零单元测试**：无测试覆盖
-     - [ ] **前端缺少库存/生产专用页面**：TODO 要求 views/bi/* 系列页面，但库存和生产嵌入在 index.vue 标签页
-     - [ ] **前端无响应式**：`el-col :span="6"` 无 `:xs`/`:sm` 断点，手机端溢出
+- [ ] **仍存在问题**：
+      - [x] **函数超 20 行已修复**：`appendSalesReportContent()` 拆分为 `appendDailySalesSummary()`+`appendMonthlySalesSummary()` (主方法 5 行)，`appendFinancialReportContent()` 拆分为 `appendReceivableSummary()`+`appendWorkingCapitalSummary()` (主方法 9 行)
+      - [x] **缺少输入校验已修复**：OLAP `DiceRequest` 添加 `@NotNull domain`+`@Valid`；报表 API 添加 `@Valid`+`@NotNull`/`@NotBlank`/`@Email`
+      - [x] **使用已废弃 API 已修复**：`BigDecimal.ROUND_HALF_UP` 已全部替换为 `RoundingMode.HALF_UP` (全部 19 处仓库+报表+BI)
+      - [x] **前端已添加响应式**：`index.vue`/`sales.vue`/`financial.vue` 的 `el-col` 添加 `:xs`/`:sm`/`:md` 断点
+      - [ ] **DDD 分层违规**：`application/query/` 服务包含领域逻辑（毛利率计算、报表聚合）
+      - [ ] **领域层使用 Lombok**：`@Builder`/`@Getter`/`@ToString` 在领域实体中
+      - [ ] **零单元测试**：无测试覆盖
+      - [ ] **前端缺少库存/生产专用页面**：TODO 要求 views/bi/* 系列页面，但库存和生产嵌入在 index.vue 标签页
 
 - [ ] **[Cross] ERP-MES 数据闭环集成**: 打通 ERP 生产订单 → MES 报工 → 财务成本核算
    - [x] **已修复**：异常被吞（改为抛出 RuntimeException），领域层依赖 Spring（移除 `extends ApplicationEvent`），隐式共享状态（WorkOrder static→instance），事件未显式建模（Map→typed records），事件名用字符串（改用 EventType 枚举），日志违规（debug→info），接口命名不一致（Processor/EventListener 统一）
    - [x] **硬编码 TOPIC 已修复**：集成测试 4 处硬编码 topic 字符串替换为 `EventType.MES_WORK_ORDER_COMPLETED_TOPIC`/`MES_TASK_COMPLETED_TOPIC`/`PRODUCTION_EVENTS_TOPIC` 常量
-   - [ ] **仍存在问题**：
-     - [ ] **函数超 20 行**：集成测试 2 个函数分别 33 行和 26 行
-     - [ ] **通过修改现有代码实现**：`WorkOrderCommandService` 被大幅重构，添加了非原有职责的方法
-     - [ ] **零单元测试**：`MesDomainServiceImpl`、`ProductionEventProcessor`、`MesCrossDomainEventPublisher` 均无测试
+- [ ] **仍存在问题**：
+      - [x] **函数超 20 行已修复**：集成测试 2 个函数拆分为 `publishWorkOrderCompletion()`+`assertActualCostCreated()`+`publishOrderCreatedEvent()`+`assertCostQuantityPositive()` (主方法均 <15 行)
+      - [ ] **通过修改现有代码实现**：`WorkOrderCommandService` 被大幅重构，添加了非原有职责的方法
+      - [ ] **零单元测试**：`MesDomainServiceImpl`、`ProductionEventProcessor`、`MesCrossDomainEventPublisher` 均无测试
 
 ### [Digital Twin UI 交互流程] （已验证完整）
 

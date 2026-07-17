@@ -2,6 +2,7 @@ package com.metawebthree.finance.domain.service;
 
 import com.metawebthree.finance.domain.entity.cost.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class CostAccountingDomainService {
         if (activity.getDriverQuantity() == null || activity.getDriverQuantity().compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
-        return activity.getTotalCost().divide(activity.getDriverQuantity(), 4, BigDecimal.ROUND_HALF_UP);
+        return activity.getTotalCost().divide(activity.getDriverQuantity(), 4, RoundingMode.HALF_UP);
     }
 
     public BigDecimal calculateProductCost(List<Activity> activities, BigDecimal driverQuantity) {

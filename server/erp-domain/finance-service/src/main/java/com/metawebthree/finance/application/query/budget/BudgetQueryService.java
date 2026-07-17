@@ -7,6 +7,7 @@ import com.metawebthree.finance.domain.repository.budget.BudgetRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -136,7 +137,7 @@ public class BudgetQueryService {
         BigDecimal budgetAmt = result.getBudgetAmount();
         if (budgetAmt.compareTo(BigDecimal.ZERO) != 0) {
             result.setVarianceRate(result.getVariance()
-                .divide(budgetAmt, 4, BigDecimal.ROUND_HALF_UP)
+                .divide(budgetAmt, 4, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100)));
         } else {
             result.setVarianceRate(BigDecimal.ZERO);

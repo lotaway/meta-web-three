@@ -100,11 +100,14 @@ public class ReportDeliveryService {
     
     private void appendSalesReportContent(StringBuilder content) {
         content.append("【本期销售概况】\n");
-        
         LocalDateTime now = LocalDateTime.now();
+        appendDailySalesSummary(content, now);
+        appendMonthlySalesSummary(content, now);
+    }
+
+    private void appendDailySalesSummary(StringBuilder content, LocalDateTime now) {
         LocalDateTime dayStart = now.toLocalDate().atStartOfDay();
         LocalDateTime dayEnd = now.toLocalDate().atTime(23, 59, 59);
-        
         List<SalesReport> todayReports = salesReportRepository.findByDateRange(dayStart, dayEnd);
         BigDecimal todaySales = todayReports.stream()
             .map(SalesReport::getTotalSalesAmount)
@@ -113,10 +116,12 @@ public class ReportDeliveryService {
         int todayOrders = todayReports.stream()
             .mapToInt(r -> r.getTotalOrderCount() != null ? r.getTotalOrderCount() : 0)
             .sum();
-        
         content.append("  📊 今日销售额: ").append(formatAmount(todaySales)).append(" 元\n");
         content.append("  📦 今日订单数: ").append(todayOrders).append(" 单\n");
-        
+    }
+
+    private void appendMonthlySalesSummary(StringBuilder content, LocalDateTime now) {
+        LocalDateTime dayEnd = now.toLocalDate().atTime(23, 59, 59);
         LocalDateTime monthStart = now.withDayOfMonth(1).toLocalDate().atStartOfDay();
         List<SalesReport> monthReports = salesReportRepository.findByDateRange(monthStart, dayEnd);
         BigDecimal monthSales = monthReports.stream()
@@ -126,11 +131,9 @@ public class ReportDeliveryService {
         int monthOrders = monthReports.stream()
             .mapToInt(r -> r.getTotalOrderCount() != null ? r.getTotalOrderCount() : 0)
             .sum();
-        
         content.append("\n【本月累计】\n");
         content.append("  💰 月销售额: ").append(formatAmount(monthSales)).append(" 元\n");
         content.append("  📋 月订单数: ").append(monthOrders).append(" 单\n");
-        
         if (monthOrders > 0) {
             BigDecimal avgOrder = monthSales.divide(BigDecimal.valueOf(monthOrders), 2, RoundingMode.HALF_UP);
             content.append("  📈 客单价: ").append(formatAmount(avgOrder)).append(" 元\n");
@@ -157,36 +160,36 @@ public class ReportDeliveryService {
     
     private void appendFinancialReportContent(StringBuilder content) {
         content.append("【财务概况】\n");
-        
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime monthStart = now.withDayOfMonth(1).toLocalDate().atStartOfDay();
         LocalDateTime monthEnd = now.toLocalDate().atTime(23, 59, 59);
-        
         List<FinancialReport> reports = financialReportRepository.findByDateRange(monthStart, monthEnd);
-        
+        appendReceivableSummary(content, reports);
+        appendWorkingCapitalSummary(content, reports);
+    }
+
+    private void appendReceivableSummary(StringBuilder content, List<FinancialReport> reports) {
         BigDecimal totalReceivable = reports.stream()
             .map(FinancialReport::getTotalReceivable)
             .filter(Objects::nonNull)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
         BigDecimal totalPayable = reports.stream()
             .map(FinancialReport::getTotalPayable)
             .filter(Objects::nonNull)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
         BigDecimal netReceivable = totalReceivable.subtract(totalPayable);
-        
         content.append("  📥 应收账款: ").append(formatAmount(totalReceivable)).append(" 元\n");
         content.append("  📤 应付账款: ").append(formatAmount(totalPayable)).append(" 元\n");
         content.append("  📊 净应收: ").append(formatAmount(netReceivable)).append(" 元\n");
-        
+    }
+
+    private void appendWorkingCapitalSummary(StringBuilder content, List<FinancialReport> reports) {
         content.append("\n【营运资金】\n");
         BigDecimal workingCapital = reports.stream()
             .map(FinancialReport::getWorkingCapital)
             .filter(Objects::nonNull)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
         content.append("  营运资金: ").append(formatAmount(workingCapital)).append(" 元\n");
-        
         BigDecimal currentRatio = BigDecimal.ZERO;
         long ratioCount = reports.stream()
             .map(FinancialReport::getCurrentRatio)

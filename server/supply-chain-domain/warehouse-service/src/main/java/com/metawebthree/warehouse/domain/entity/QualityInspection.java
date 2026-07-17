@@ -2,6 +2,7 @@ package com.metawebthree.warehouse.domain.entity;
 
 import lombok.Data;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -69,7 +70,7 @@ public class QualityInspection {
         if (this.inspectedQuantity != null && this.inspectedQuantity > 0) {
             BigDecimal unqualified = BigDecimal.valueOf(this.unqualifiedQuantity != null ? this.unqualifiedQuantity : 0);
             BigDecimal inspected = BigDecimal.valueOf(this.inspectedQuantity);
-            this.defectRate = unqualified.multiply(BigDecimal.valueOf(100)).divide(inspected, 2, BigDecimal.ROUND_HALF_UP);
+            this.defectRate = unqualified.multiply(BigDecimal.valueOf(100)).divide(inspected, 2, RoundingMode.HALF_UP);
         }
     }
 

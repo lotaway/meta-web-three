@@ -1,6 +1,7 @@
 package com.metawebthree.mes.domain.entity.labor;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -56,7 +57,7 @@ public class TimeRecord {
         }
         this.endTime = endTime;
         long minutes = ChronoUnit.MINUTES.between(this.startTime, endTime);
-        this.totalHours = BigDecimal.valueOf(minutes).divide(BigDecimal.valueOf(60), 2, BigDecimal.ROUND_HALF_UP);
+        this.totalHours = BigDecimal.valueOf(minutes).divide(BigDecimal.valueOf(60), 2, RoundingMode.HALF_UP);
         this.updatedAt = LocalDateTime.now();
     }
 

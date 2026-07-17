@@ -1,6 +1,7 @@
 package com.metawebthree.finance.domain.entity.cost;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 public class ResourcePool {
@@ -57,7 +58,7 @@ public class ResourcePool {
         if (totalBudget == null || totalBudget.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
-        return allocatedAmount.divide(totalBudget, 4, BigDecimal.ROUND_HALF_UP)
+        return allocatedAmount.divide(totalBudget, 4, RoundingMode.HALF_UP)
                 .multiply(new BigDecimal("100"));
     }
 

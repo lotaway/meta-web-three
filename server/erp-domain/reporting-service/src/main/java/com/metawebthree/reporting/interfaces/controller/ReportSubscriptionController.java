@@ -5,6 +5,10 @@ import com.metawebthree.reporting.domain.entity.ReportSubscription.Channel;
 import com.metawebthree.reporting.domain.entity.ReportSubscription.Frequency;
 import com.metawebthree.reporting.domain.entity.ReportSubscription.ReportType;
 import com.metawebthree.reporting.domain.service.ReportSubscriptionService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +24,7 @@ public class ReportSubscriptionController {
     private final ReportSubscriptionService subscriptionService;
 
     @PostMapping("/email")
-    public ResponseEntity<Long> createEmailSubscription(@RequestBody CreateEmailSubscriptionRequest request) {
+    public ResponseEntity<Long> createEmailSubscription(@Valid @RequestBody CreateEmailSubscriptionRequest request) {
         Long id = subscriptionService.createSubscription(
                 request.getUserId(),
                 request.getUserName(),
@@ -33,7 +37,7 @@ public class ReportSubscriptionController {
     }
 
     @PostMapping("/dingtalk")
-    public ResponseEntity<Long> createDingTalkSubscription(@RequestBody CreateDingTalkSubscriptionRequest request) {
+    public ResponseEntity<Long> createDingTalkSubscription(@Valid @RequestBody CreateDingTalkSubscriptionRequest request) {
         Long id = subscriptionService.createDingTalkSubscription(
                 request.getUserId(),
                 request.getUserName(),
@@ -47,7 +51,7 @@ public class ReportSubscriptionController {
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateSubscription(
             @PathVariable Long id,
-            @RequestBody UpdateSubscriptionRequest request) {
+            @Valid @RequestBody UpdateSubscriptionRequest request) {
         subscriptionService.updateSubscription(
                 id,
                 request.getFrequency(),
@@ -89,19 +93,29 @@ public class ReportSubscriptionController {
 
     @Data
     public static class CreateEmailSubscriptionRequest {
+        @NotNull
         private Long userId;
+        @NotBlank
         private String userName;
+        @NotNull
         private ReportType reportType;
+        @NotNull
         private Frequency frequency;
+        @NotBlank @Email
         private String recipient;
     }
 
     @Data
     public static class CreateDingTalkSubscriptionRequest {
+        @NotNull
         private Long userId;
+        @NotBlank
         private String userName;
+        @NotNull
         private ReportType reportType;
+        @NotNull
         private Frequency frequency;
+        @NotBlank
         private String webhookUrl;
     }
 

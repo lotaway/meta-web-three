@@ -1,6 +1,7 @@
 package com.metawebthree.finance.domain.entity.cash;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 public class CashPlanLine {
@@ -44,7 +45,7 @@ public class CashPlanLine {
         if (plannedAmount.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
-        return getVariance().divide(plannedAmount, 4, BigDecimal.ROUND_HALF_UP)
+        return getVariance().divide(plannedAmount, 4, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100));
     }
 

@@ -49,26 +49,29 @@ public class ErpMesIntegrationTest {
 
     @Test
     void testMesWorkOrderCompletionTriggersCostAccounting() throws Exception {
+        publishWorkOrderCompletion("TEST-PROD-001", 500, "WO-2026-001", 10001L);
+        Thread.sleep(2000);
+        assertActualCostCreated("TEST-PROD-001", "WO-2026-001");
+    }
+
+    private void publishWorkOrderCompletion(String productCode, int quantity, String workOrderNo, Long workOrderId) throws Exception {
         Map<String, Object> eventData = new HashMap<>();
         eventData.put("eventId", UUID.randomUUID().toString());
         eventData.put("eventType", "WORK_ORDER_COMPLETED");
-        eventData.put("workOrderId", 10001L);
-        eventData.put("workOrderNo", "WO-2026-001");
-        eventData.put("productCode", "TEST-PROD-001");
-        eventData.put("quantity", 500);
-
+        eventData.put("workOrderId", workOrderId);
+        eventData.put("workOrderNo", workOrderNo);
+        eventData.put("productCode", productCode);
+        eventData.put("quantity", quantity);
         String message = objectMapper.writeValueAsString(eventData);
-
         kafkaTemplate.send(EventType.MES_WORK_ORDER_COMPLETED_TOPIC, message).get();
+    }
 
-        Thread.sleep(2000);
-
-        List<ActualCost> costs = actualCostRepository.findByProductCode("TEST-PROD-001");
+    private void assertActualCostCreated(String productCode, String expectedOrderNo) {
+        List<ActualCost> costs = actualCostRepository.findByProductCode(productCode);
         assertFalse(costs.isEmpty(), "Expected at least one actual cost record to be created");
-
         ActualCost cost = costs.get(costs.size() - 1);
-        assertEquals("WO-2026-001", cost.getProductionOrderNo());
-        assertEquals("TEST-PROD-001", cost.getProductCode());
+        assertEquals(expectedOrderNo, cost.getProductionOrderNo());
+        assertEquals(productCode, cost.getProductCode());
     }
 
     @Test
@@ -93,29 +96,22 @@ public class ErpMesIntegrationTest {
 
     @Test
     void testEndToEndFlow() throws Exception {
-        String productionEvent = "{\"event\":\"ORDER_CREATED\",\"orderCode\":\"PO-2026-001\",\"productCode\":\"PROD-X\"}";
-        kafkaTemplate.send(EventType.PRODUCTION_EVENTS_TOPIC, productionEvent).get();
+        publishOrderCreatedEvent("PO-2026-001", "PROD-X");
         Thread.sleep(1000);
-
-        Map<String, Object> completionEvent = new HashMap<>();
-        completionEvent.put("eventId", UUID.randomUUID().toString());
-        completionEvent.put("eventType", "WORK_ORDER_COMPLETED");
-        completionEvent.put("workOrderId", 10002L);
-        completionEvent.put("workOrderNo", "WO-PO-2026-001");
-        completionEvent.put("productCode", "PROD-X");
-        completionEvent.put("quantity", 200);
-
-        String completionMessage = objectMapper.writeValueAsString(completionEvent);
-        kafkaTemplate.send(EventType.MES_WORK_ORDER_COMPLETED_TOPIC, completionMessage).get();
-
+        publishWorkOrderCompletion("PROD-X", 200, "WO-PO-2026-001", 10002L);
         Thread.sleep(2000);
+        assertActualCostCreated("PROD-X", "WO-PO-2026-001");
+        assertCostQuantityPositive("PROD-X");
+    }
 
-        List<ActualCost> costs = actualCostRepository.findByProductCode("PROD-X");
-        assertFalse(costs.isEmpty(), "End-to-end flow should create actual cost records");
+    private void publishOrderCreatedEvent(String orderCode, String productCode) throws Exception {
+        String productionEvent = "{\"event\":\"ORDER_CREATED\",\"orderCode\":\"" + orderCode + "\",\"productCode\":\"" + productCode + "\"}";
+        kafkaTemplate.send(EventType.PRODUCTION_EVENTS_TOPIC, productionEvent).get();
+    }
 
+    private void assertCostQuantityPositive(String productCode) {
+        List<ActualCost> costs = actualCostRepository.findByProductCode(productCode);
         ActualCost cost = costs.get(costs.size() - 1);
-        assertEquals("WO-PO-2026-001", cost.getProductionOrderNo());
-        assertEquals("PROD-X", cost.getProductCode());
         assertNotNull(cost.getQuantity());
         assertTrue(cost.getQuantity().compareTo(java.math.BigDecimal.ZERO) > 0,
             "Quantity should be greater than zero");

@@ -3,6 +3,7 @@ package com.metawebthree.warehouse.domain.service;
 import com.metawebthree.warehouse.domain.entity.QualityInspection;
 import com.metawebthree.warehouse.domain.entity.QualityInspectionItem;
 import com.metawebthree.warehouse.domain.entity.QualityStandard;
+import java.math.RoundingMode;
 import com.metawebthree.warehouse.domain.entity.DefectRecord;
 import org.springframework.stereotype.Service;
 
@@ -58,7 +59,7 @@ public class QualityInspectionDomainService {
         
         // 不良率判断
         BigDecimal thresholdRate = BigDecimal.valueOf(threshold)
-            .divide(BigDecimal.valueOf(inspection.getTotalQuantity()), 4, BigDecimal.ROUND_HALF_UP)
+            .divide(BigDecimal.valueOf(inspection.getTotalQuantity()), 4, RoundingMode.HALF_UP)
             .multiply(BigDecimal.valueOf(100));
         
         return defectRate.compareTo(thresholdRate) <= 0;
@@ -111,7 +112,7 @@ public class QualityInspectionDomainService {
         if (totalInspected > 0) {
             BigDecimal rate = BigDecimal.valueOf(totalUnqualified)
                 .multiply(BigDecimal.valueOf(100))
-                .divide(BigDecimal.valueOf(totalInspected), 2, BigDecimal.ROUND_HALF_UP);
+                .divide(BigDecimal.valueOf(totalInspected), 2, RoundingMode.HALF_UP);
             inspection.setDefectRate(rate);
         }
         
