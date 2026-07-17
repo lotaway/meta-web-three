@@ -4,9 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-/**
- * API Subscription Request DTO
- */
 @Data
 public class ApiSubscriptionRequest {
 

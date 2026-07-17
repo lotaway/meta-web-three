@@ -1,48 +1,45 @@
 package com.metawebthree.forecasting.domain.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "tb_forecast_model")
+@TableName("tb_forecast_model")
 public class ForecastModel {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Column(name = "model_name", length = 128)
+    @TableField("model_name")
     private String modelName;
 
-    @Column(name = "model_type", length = 64)
+    @TableField("model_type")
     private String modelType;
 
-    @Column(name = "model_version", length = 32)
+    @TableField("model_version")
     private String modelVersion;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 32)
+    @TableField("status")
     private ModelStatus status;
 
-    @Column(name = "accuracy", precision = 5, scale = 2)
+    @TableField("accuracy")
     private BigDecimal accuracy;
 
-    @Column(name = "training_days")
+    @TableField("training_days")
     private Integer trainingDays;
 
-    @Column(name = "feature_config", columnDefinition = "TEXT")
+    @TableField("feature_config")
     private String featureConfig;
 
-    @Column(name = "algorithm", length = 64)
+    @TableField("algorithm")
     private String algorithm;
 
-    @Column(name = "trained_at")
+    @TableField("trained_at")
     private LocalDateTime trainedAt;
 
-    @Column(name = "created_at")
+    @TableField("created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @TableField("updated_at")
     private LocalDateTime updatedAt;
 
     public enum ModelStatus {
@@ -101,7 +98,6 @@ public class ForecastModel {
                accuracy.compareTo(BigDecimal.valueOf(70)) >= 0;
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getModelName() { return modelName; }

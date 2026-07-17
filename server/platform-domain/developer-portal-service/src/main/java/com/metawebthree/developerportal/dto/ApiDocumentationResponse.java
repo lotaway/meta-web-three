@@ -3,10 +3,6 @@ package com.metawebthree.developerportal.dto;
 import lombok.Data;
 import java.util.List;
 
-/**
- * OpenAPI Documentation Response DTO
- * Provides API documentation in OpenAPI 3.0 format
- */
 @Data
 public class ApiDocumentationResponse {
 
@@ -39,7 +35,6 @@ public class ApiDocumentationResponse {
 
     @Data
     public static class Paths {
-        // Dynamic paths based on available APIs
     }
 
     @Data
@@ -89,6 +84,5 @@ public class ApiDocumentationResponse {
 
     @Data
     public static class Schemas {
-        // Dynamic schemas based on API models
     }
 }

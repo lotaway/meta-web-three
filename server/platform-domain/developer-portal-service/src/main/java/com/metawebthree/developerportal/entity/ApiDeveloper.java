@@ -1,147 +1,70 @@
 package com.metawebthree.developerportal.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 
-/**
- * API Developer Registration Entity
- * Represents a third-party developer who wants to access open APIs
- */
 @Data
-@Entity
-@Table(name = "api_developer")
+@TableName("api_developer")
 public class ApiDeveloper {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    /**
-     * Developer unique identifier
-     */
-    @Column(name = "developer_id", unique = true, nullable = false, length = 64)
+    @TableField("developer_id")
     private String developerId;
 
-    /**
-     * Developer email for contact
-     */
-    @Column(name = "email", unique = true, nullable = false, length = 128)
+    @TableField("email")
     private String email;
 
-    /**
-     * Developer name / Company name
-     */
-    @Column(name = "name", nullable = false, length = 128)
+    @TableField("name")
     private String name;
 
-    /**
-     * Contact phone number
-     */
-    @Column(name = "phone", length = 32)
+    @TableField("phone")
     private String phone;
 
-    /**
-     * Company description
-     */
-    @Column(name = "description", columnDefinition = "TEXT")
+    @TableField("description")
     private String description;
 
-    /**
-     * Developer status: PENDING, APPROVED, SUSPENDED, REJECTED
-     */
-    @Column(name = "status", nullable = false, length = 32)
-    @Enumerated(EnumType.STRING)
+    @TableField("status")
     private DeveloperStatus status = DeveloperStatus.PENDING;
 
-    /**
-     * Approval/rejection reason
-     */
-    @Column(name = "review_note", columnDefinition = "TEXT")
+    @TableField("review_note")
     private String reviewNote;
 
-    /**
-     * Approved by admin
-     */
-    @Column(name = "reviewed_by", length = 64)
+    @TableField("reviewed_by")
     private String reviewedBy;
 
-    /**
-     * Approval/rejection timestamp
-     */
-    @Column(name = "reviewed_at")
+    @TableField("reviewed_at")
     private LocalDateTime reviewedAt;
 
-    /**
-     * Total API call quota per day
-     */
-    @Column(name = "daily_quota", nullable = false)
+    @TableField("daily_quota")
     private Integer dailyQuota = 10000;
 
-    /**
-     * Monthly quota
-     */
-    @Column(name = "monthly_quota", nullable = false)
+    @TableField("monthly_quota")
     private Integer monthlyQuota = 100000;
 
-    /**
-     * Current billing plan: FREE, BASIC, PROFESSIONAL, ENTERPRISE
-     */
-    @Column(name = "billing_plan", nullable = false, length = 32)
-    @Enumerated(EnumType.STRING)
+    @TableField("billing_plan")
     private BillingPlan billingPlan = BillingPlan.FREE;
 
-    /**
-     * Account balance (in cents)
-     */
-    @Column(name = "balance", nullable = false)
+    @TableField("balance")
     private Long balance = 0L;
 
-    /**
-     * Created timestamp
-     */
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @TableField("created_at")
     private LocalDateTime createdAt;
 
-    /**
-     * Last updated timestamp
-     */
-    @Column(name = "updated_at", nullable = false)
+    @TableField("updated_at")
     private LocalDateTime updatedAt;
 
-    @PrePersist
-    public void prePersist() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-        if (updatedAt == null) {
-            updatedAt = LocalDateTime.now();
-        }
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
-    /**
-     * Developer status enumeration
-     */
     public enum DeveloperStatus {
-        PENDING,      // Registration pending approval
-        APPROVED,     // Approved, can use APIs
-        SUSPENDED,    // Suspended due to violation or payment issues
-        REJECTED      // Registration rejected
+        PENDING, APPROVED, SUSPENDED, REJECTED
     }
 
-    /**
-     * Billing plan enumeration
-     */
     public enum BillingPlan {
-        FREE(0, 10000, 100000),           // Free tier
-        BASIC(2900, 50000, 500000),       // $29/month
-        PROFESSIONAL(9900, 200000, 2000000), // $99/month
-        ENTERPRISE(0, Integer.MAX_VALUE, Integer.MAX_VALUE); // Custom pricing
+        FREE(0, 10000, 100000),
+        BASIC(2900, 50000, 500000),
+        PROFESSIONAL(9900, 200000, 2000000),
+        ENTERPRISE(0, Integer.MAX_VALUE, Integer.MAX_VALUE);
 
         private final int monthlyFeeCents;
         private final int dailyQuota;
@@ -153,16 +76,8 @@ public class ApiDeveloper {
             this.monthlyQuota = monthlyQuota;
         }
 
-        public int getMonthlyFeeCents() {
-            return monthlyFeeCents;
-        }
-
-        public int getDailyQuota() {
-            return dailyQuota;
-        }
-
-        public int getMonthlyQuota() {
-            return monthlyQuota;
-        }
+        public int getMonthlyFeeCents() { return monthlyFeeCents; }
+        public int getDailyQuota() { return dailyQuota; }
+        public int getMonthlyQuota() { return monthlyQuota; }
     }
 }

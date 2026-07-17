@@ -13,10 +13,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-/**
- * API Usage Statistics Controller
- * Handles usage tracking and billing queries
- */
 @Tag(name = "API Usage Statistics", description = "API usage tracking and billing")
 @RestController
 @RequestMapping("/developer/usage")
@@ -75,7 +71,7 @@ public class ApiUsageStatsController {
     ) {
         boolean exceeded = statsService.hasExceededQuota(developerId, dailyQuota, monthlyQuota);
         Map<String, Long> usage = statsService.getCurrentUsage(developerId);
-        
+
         Map<String, Object> response = Map.of(
             "developerId", developerId,
             "dailyQuota", dailyQuota,
@@ -84,7 +80,7 @@ public class ApiUsageStatsController {
             "monthlyUsage", usage.get("monthlyRequests"),
             "quotaExceeded", exceeded
         );
-        
+
         return ResponseEntity.ok(response);
     }
 }

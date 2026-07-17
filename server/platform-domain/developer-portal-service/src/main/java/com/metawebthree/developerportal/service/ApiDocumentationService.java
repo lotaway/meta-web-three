@@ -14,14 +14,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ApiDocumentationService {
 
-    /**
-     * Generate OpenAPI documentation for all available APIs
-     */
     public Map<String, Object> generateOpenApiDocumentation(String baseUrl) {
         Map<String, Object> openapi = new LinkedHashMap<>();
         openapi.put("openapi", "3.0.0");
-        
-        // Info
+
         Map<String, Object> info = new LinkedHashMap<>();
         info.put("title", "Meta Web Three API Platform");
         info.put("description", "Comprehensive API platform for e-commerce, AI, blockchain, and enterprise services");
@@ -32,8 +28,7 @@ public class ApiDocumentationService {
             "url", "https://developer.metawebthree.com"
         ));
         openapi.put("info", info);
-        
-        // Servers
+
         List<Map<String, String>> servers = new ArrayList<>();
         servers.add(Map.of(
             "url", baseUrl != null ? baseUrl : "https://api.metawebthree.com",
@@ -44,35 +39,27 @@ public class ApiDocumentationService {
             "description", "Sandbox server for testing"
         ));
         openapi.put("servers", servers);
-        
-        // Paths
+
         Map<String, Object> paths = generatePaths();
         openapi.put("paths", paths);
-        
-        // Components
+
         Map<String, Object> components = generateComponents();
         openapi.put("components", components);
-        
-        // Security
+
         List<Map<String, List<String>>> security = new ArrayList<>();
         security.add(Map.of("ApiKeyAuth", Collections.emptyList()));
         security.add(Map.of("OAuth2", Arrays.asList("read", "write")));
         openapi.put("security", security);
-        
-        // Tags
+
         List<Map<String, String>> tags = generateTags();
         openapi.put("tags", tags);
-        
+
         return openapi;
     }
 
-    /**
-     * Generate API paths for all available services
-     */
     private Map<String, Object> generatePaths() {
         Map<String, Object> paths = new LinkedHashMap<>();
-        
-        // User Service APIs
+
         addPath(paths, "/user-service/api/v1/users/{userId}", "get", Map.of(
             "summary", "Get user by ID",
             "tags", Collections.singletonList("User Service"),
@@ -85,8 +72,7 @@ public class ApiDocumentationService {
                 "404", Map.of("description", "User not found")
             )
         ));
-        
-        // Product Service APIs
+
         addPath(paths, "/product-service/api/v1/products", "get", Map.of(
             "summary", "List products",
             "tags", Collections.singletonList("Product Service"),
@@ -100,7 +86,7 @@ public class ApiDocumentationService {
                 "200", Map.of("description", "Success", "content", Map.of("application/json", Map.of("schema", Map.of("$ref", "#/components/schemas/ProductList"))))
             )
         ));
-        
+
         addPath(paths, "/product-service/api/v1/products/{productId}", "get", Map.of(
             "summary", "Get product details",
             "tags", Collections.singletonList("Product Service"),
@@ -113,8 +99,7 @@ public class ApiDocumentationService {
                 "404", Map.of("description", "Product not found")
             )
         ));
-        
-        // Order Service APIs
+
         addPath(paths, "/order-service/api/v1/orders", "get", Map.of(
             "summary", "List orders",
             "tags", Collections.singletonList("Order Service"),
@@ -128,7 +113,7 @@ public class ApiDocumentationService {
                 "200", Map.of("description", "Success", "content", Map.of("application/json", Map.of("schema", Map.of("$ref", "#/components/schemas/OrderList"))))
             )
         ));
-        
+
         addPath(paths, "/order-service/api/v1/orders", "post", Map.of(
             "summary", "Create order",
             "tags", Collections.singletonList("Order Service"),
@@ -142,8 +127,7 @@ public class ApiDocumentationService {
                 "400", Map.of("description", "Invalid request")
             )
         ));
-        
-        // Inventory Service APIs
+
         addPath(paths, "/inventory-service/api/v1/inventory/{productId}", "get", Map.of(
             "summary", "Get inventory",
             "tags", Collections.singletonList("Inventory Service"),
@@ -155,8 +139,7 @@ public class ApiDocumentationService {
                 "200", Map.of("description", "Success", "content", Map.of("application/json", Map.of("schema", Map.of("$ref", "#/components/schemas/Inventory"))))
             )
         ));
-        
-        // Payment Service APIs
+
         addPath(paths, "/payment-service/api/v1/payments", "post", Map.of(
             "summary", "Process payment",
             "tags", Collections.singletonList("Payment Service"),
@@ -170,13 +153,10 @@ public class ApiDocumentationService {
                 "400", Map.of("description", "Payment failed")
             )
         ));
-        
+
         return paths;
     }
 
-    /**
-     * Add a path operation
-     */
     private void addPath(Map<String, Object> paths, String path, String method, Map<String, Object> operation) {
         if (!paths.containsKey(path)) {
             paths.put(path, new LinkedHashMap<>());
@@ -186,22 +166,18 @@ public class ApiDocumentationService {
         pathItem.put(method, operation);
     }
 
-    /**
-     * Generate components (schemas and security schemes)
-     */
     private Map<String, Object> generateComponents() {
         Map<String, Object> components = new LinkedHashMap<>();
-        
-        // Security Schemes
+
         Map<String, Object> securitySchemes = new LinkedHashMap<>();
-        
+
         securitySchemes.put("ApiKeyAuth", Map.of(
             "type", "apiKey",
             "in", "header",
             "name", "X-API-Key",
             "description", "API Key authentication"
         ));
-        
+
         securitySchemes.put("OAuth2", Map.of(
             "type", "oauth2",
             "flows", Map.of(
@@ -223,12 +199,11 @@ public class ApiDocumentationService {
                 )
             )
         ));
-        
+
         components.put("securitySchemes", securitySchemes);
-        
-        // Schemas
+
         Map<String, Object> schemas = new LinkedHashMap<>();
-        
+
         schemas.put("User", Map.of(
             "type", "object",
             "properties", Map.of(
@@ -239,7 +214,7 @@ public class ApiDocumentationService {
                 "createdAt", Map.of("type", "string", "format", "date-time")
             )
         ));
-        
+
         schemas.put("Product", Map.of(
             "type", "object",
             "properties", Map.of(
@@ -251,7 +226,7 @@ public class ApiDocumentationService {
                 "stock", Map.of("type", "integer")
             )
         ));
-        
+
         schemas.put("ProductList", Map.of(
             "type", "object",
             "properties", Map.of(
@@ -262,7 +237,7 @@ public class ApiDocumentationService {
                 "number", Map.of("type", "integer")
             )
         ));
-        
+
         schemas.put("Order", Map.of(
             "type", "object",
             "properties", Map.of(
@@ -274,7 +249,7 @@ public class ApiDocumentationService {
                 "createdAt", Map.of("type", "string", "format", "date-time")
             )
         ));
-        
+
         schemas.put("OrderItem", Map.of(
             "type", "object",
             "properties", Map.of(
@@ -284,7 +259,7 @@ public class ApiDocumentationService {
                 "price", Map.of("type", "number")
             )
         ));
-        
+
         schemas.put("OrderList", Map.of(
             "type", "object",
             "properties", Map.of(
@@ -293,7 +268,7 @@ public class ApiDocumentationService {
                 "totalPages", Map.of("type", "integer")
             )
         ));
-        
+
         schemas.put("CreateOrderRequest", Map.of(
             "type", "object",
             "required", Arrays.asList("items", "addressId"),
@@ -310,7 +285,7 @@ public class ApiDocumentationService {
                 "remark", Map.of("type", "string")
             )
         ));
-        
+
         schemas.put("Inventory", Map.of(
             "type", "object",
             "properties", Map.of(
@@ -320,7 +295,7 @@ public class ApiDocumentationService {
                 "reservedQty", Map.of("type", "integer")
             )
         ));
-        
+
         schemas.put("PaymentRequest", Map.of(
             "type", "object",
             "required", Arrays.asList("orderId", "paymentMethod"),
@@ -330,7 +305,7 @@ public class ApiDocumentationService {
                 "amount", Map.of("type", "number")
             )
         ));
-        
+
         schemas.put("PaymentResult", Map.of(
             "type", "object",
             "properties", Map.of(
@@ -341,7 +316,7 @@ public class ApiDocumentationService {
                 "paidAt", Map.of("type", "string", "format", "date-time")
             )
         ));
-        
+
         schemas.put("Error", Map.of(
             "type", "object",
             "properties", Map.of(
@@ -351,49 +326,43 @@ public class ApiDocumentationService {
                 "path", Map.of("type", "string")
             )
         ));
-        
+
         components.put("schemas", schemas);
-        
+
         return components;
     }
 
-    /**
-     * Generate API tags
-     */
     private List<Map<String, String>> generateTags() {
         List<Map<String, String>> tags = new ArrayList<>();
-        
+
         tags.add(Map.of(
             "name", "User Service",
             "description", "User management and authentication APIs"
         ));
-        
+
         tags.add(Map.of(
             "name", "Product Service",
             "description", "Product catalog and category management APIs"
         ));
-        
+
         tags.add(Map.of(
             "name", "Order Service",
             "description", "Order creation and management APIs"
         ));
-        
+
         tags.add(Map.of(
             "name", "Inventory Service",
             "description", "Inventory management and stock check APIs"
         ));
-        
+
         tags.add(Map.of(
             "name", "Payment Service",
             "description", "Payment processing APIs"
         ));
-        
+
         return tags;
     }
 
-    /**
-     * Generate API documentation for a specific developer based on their subscriptions
-     */
     private final ApiSubscriptionRepository apiSubscriptionRepository;
 
     public Map<String, Object> generatePersonalizedDocumentation(String developerId, String baseUrl) {
@@ -433,12 +402,9 @@ public class ApiDocumentationService {
         return path.equals(pattern);
     }
 
-    /**
-     * Generate API client SDK code samples
-     */
     public Map<String, String> generateSdkSamples(String language) {
         Map<String, String> samples = new LinkedHashMap<>();
-        
+
         switch (language.toLowerCase()) {
             case "java":
                 samples.put("java", generateJavaSample());
@@ -459,7 +425,7 @@ public class ApiDocumentationService {
                 samples.put("javascript", generateJavaScriptSample());
                 samples.put("curl", generateCurlSample());
         }
-        
+
         return samples;
     }
 
@@ -553,47 +519,38 @@ public class ApiDocumentationService {
             """;
     }
 
-    /**
-     * Generate sandbox test data
-     */
     public Map<String, Object> generateSandboxTestData(String developerId) {
         Map<String, Object> sandboxData = new LinkedHashMap<>();
-        
-        // Test Users
+
         sandboxData.put("testUsers", Arrays.asList(
             Map.of("userId", "sandbox-user-001", "username", "test_user_1", "email", "test1@sandbox.metawebthree.com"),
             Map.of("userId", "sandbox-user-002", "username", "test_user_2", "email", "test2@sandbox.metawebthree.com")
         ));
-        
-        // Test Products
+
         sandboxData.put("testProducts", Arrays.asList(
             Map.of("productId", "sandbox-product-001", "name", "Sandbox Test Product 1", "price", 99.99, "stock", 100),
             Map.of("productId", "sandbox-product-002", "name", "Sandbox Test Product 2", "price", 199.99, "stock", 50),
             Map.of("productId", "sandbox-product-003", "name", "Sandbox Test Product 3", "price", 299.99, "stock", 25)
         ));
-        
-        // Test Addresses
+
         sandboxData.put("testAddresses", Arrays.asList(
             Map.of("addressId", "sandbox-address-001", "recipient", "Test Recipient", "phone", "13800138000", 
                 "province", "Guangdong", "city", "Shenzhen", "district", "Nanshan", "detail", "Test Address 123"),
             Map.of("addressId", "sandbox-address-002", "recipient", "Test Recipient 2", "phone", "13900139000",
                 "province", "Beijing", "city", "Beijing", "district", "Chaoyang", "detail", "Test Road 456")
         ));
-        
-        // Test Orders
+
         sandboxData.put("testOrders", Arrays.asList(
             Map.of("orderId", "sandbox-order-001", "status", "PENDING", "totalAmount", 199.98,
                 "items", Arrays.asList(Map.of("productId", "sandbox-product-001", "quantity", 2, "price", 99.99)))
         ));
-        
-        // Test Payment Methods
+
         sandboxData.put("testPaymentMethods", Arrays.asList(
             Map.of("method", "ALIPAY", "description", "Alipay Sandbox - Test payment will always succeed"),
             Map.of("method", "WECHAT", "description", "WeChat Pay Sandbox - Test payment will always succeed"),
             Map.of("method", "BANK_CARD", "description", "Bank Card Sandbox - Use test card: 4242424242424242")
         ));
-        
-        // Sandbox Configuration
+
         sandboxData.put("sandboxConfig", Map.of(
             "baseUrl", "https://sandbox-api.metawebthree.com",
             "rateLimit", 1000,
@@ -605,19 +562,14 @@ public class ApiDocumentationService {
                 "test_refund_flow"
             )
         ));
-        
+
         log.info("Generated sandbox test data for developer: {}", developerId);
         return sandboxData;
     }
 
-    /**
-     * Reset sandbox environment for a developer
-     */
     public Map<String, Object> resetSandboxEnvironment(String developerId) {
-        // In a real implementation, this would clear all sandbox data for the developer
-        // and regenerate fresh test data
         log.info("Sandbox environment reset for developer: {}", developerId);
-        
+
         return Map.of(
             "developerId", developerId,
             "status", "reset_complete",

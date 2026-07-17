@@ -1,72 +1,71 @@
 package com.metawebthree.routeoptimizer.domain.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "tb_route_point")
+@TableName("tb_route_point")
 public class RoutePoint {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Column(name = "point_code", unique = true)
+    @TableField("route_plan_id")
+    private Long routePlanId;
+
+    @TableField("point_code")
     private String pointCode;
 
-    @Column(name = "point_name")
+    @TableField("point_name")
     private String pointName;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type")
+    @TableField("type")
     private PointType type;
 
-    @Column(name = "latitude")
+    @TableField("latitude")
     private Double latitude;
 
-    @Column(name = "longitude")
+    @TableField("longitude")
     private Double longitude;
 
-    @Column(name = "address")
+    @TableField("address")
     private String address;
 
-    @Column(name = "contact_person")
+    @TableField("contact_person")
     private String contactPerson;
 
-    @Column(name = "contact_phone")
+    @TableField("contact_phone")
     private String contactPhone;
 
-    @Column(name = "sequence")
+    @TableField("sequence")
     private Integer sequence;
 
-    @Column(name = "estimated_arrival_time")
+    @TableField("estimated_arrival_time")
     private Double estimatedArrivalTime;
 
-    @Column(name = "actual_arrival_time")
+    @TableField("actual_arrival_time")
     private Double actualArrivalTime;
 
-    @Column(name = "expected_service_duration")
+    @TableField("expected_service_duration")
     private Integer expectedServiceDuration;
 
-    @Column(name = "actual_service_duration")
+    @TableField("actual_service_duration")
     private Integer actualServiceDuration;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
+    @TableField("status")
     private PointStatus status;
 
-    @Column(name = "distance_from_previous")
+    @TableField("distance_from_previous")
     private Double distanceFromPrevious;
 
-    @Column(name = "order_code")
+    @TableField("order_code")
     private String orderCode;
 
-    @Column(name = "remarks")
+    @TableField("remarks")
     private String remarks;
 
-    @Column(name = "created_at")
+    @TableField("created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @TableField("updated_at")
     private LocalDateTime updatedAt;
 
     public enum PointType {
@@ -124,9 +123,10 @@ public class RoutePoint {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+    public Long getRoutePlanId() { return routePlanId; }
+    public void setRoutePlanId(Long routePlanId) { this.routePlanId = routePlanId; }
     public String getPointCode() { return pointCode; }
     public void setPointCode(String pointCode) { this.pointCode = pointCode; }
     public String getPointName() { return pointName; }

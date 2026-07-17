@@ -10,7 +10,7 @@ public interface RoutePlanRepository {
     List<RoutePlan> findByStatus(RoutePlan.RouteStatus status);
     List<RoutePlan> findByVehicleCode(String vehicleCode);
     List<RoutePlan> findAll();
-    RoutePlan save(RoutePlan routePlan);
+    void save(RoutePlan routePlan);
     void delete(RoutePlan routePlan);
     List<RoutePlan> findByPlannedStartTimeBetween(java.time.LocalDateTime start, java.time.LocalDateTime end);
 }

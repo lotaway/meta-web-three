@@ -1,72 +1,67 @@
 package com.metawebthree.routeoptimizer.domain.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "tb_route_plan")
+@TableName("tb_route_plan")
 public class RoutePlan {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Column(name = "plan_code", unique = true)
+    @TableField("plan_code")
     private String planCode;
 
-    @Column(name = "plan_name")
+    @TableField("plan_name")
     private String planName;
 
-    @Column(name = "vehicle_code")
+    @TableField("vehicle_code")
     private String vehicleCode;
 
-    @Column(name = "driver_name")
+    @TableField("driver_name")
     private String driverName;
 
-    @Column(name = "driver_phone")
+    @TableField("driver_phone")
     private String driverPhone;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
+    @TableField("status")
     private RouteStatus status;
 
-    @Column(name = "total_distance")
+    @TableField("total_distance")
     private Double totalDistance;
 
-    @Column(name = "estimated_duration")
+    @TableField("estimated_duration")
     private Integer estimatedDuration;
 
-    @Column(name = "planned_start_time")
+    @TableField("planned_start_time")
     private LocalDateTime plannedStartTime;
 
-    @Column(name = "planned_end_time")
+    @TableField("planned_end_time")
     private LocalDateTime plannedEndTime;
 
-    @Column(name = "actual_start_time")
+    @TableField("actual_start_time")
     private LocalDateTime actualStartTime;
 
-    @Column(name = "actual_end_time")
+    @TableField("actual_end_time")
     private LocalDateTime actualEndTime;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "optimization_type")
+    @TableField("optimization_type")
     private OptimizationType optimizationType;
 
-    @Column(name = "total_cost")
+    @TableField("total_cost")
     private Double totalCost;
 
-    @Column(name = "remarks")
+    @TableField("remarks")
     private String remarks;
 
-    @Column(name = "created_at")
+    @TableField("created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @TableField("updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "route_plan_id")
+    @TableField(exist = false)
     private List<RoutePoint> points;
 
     public enum RouteStatus {
@@ -119,7 +114,6 @@ public class RoutePlan {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getPlanCode() { return planCode; }

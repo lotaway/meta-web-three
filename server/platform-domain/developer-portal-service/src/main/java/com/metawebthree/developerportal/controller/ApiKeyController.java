@@ -12,10 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * API Key Controller
- * Handles API key management for developers
- */
 @Tag(name = "API Keys", description = "API key management for developers")
 @RestController
 @RequestMapping("/developer/api-keys")

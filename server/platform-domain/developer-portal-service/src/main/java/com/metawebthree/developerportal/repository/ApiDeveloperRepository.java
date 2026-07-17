@@ -1,47 +1,50 @@
 package com.metawebthree.developerportal.repository;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.metawebthree.developerportal.entity.ApiDeveloper;
-import com.metawebthree.developerportal.entity.ApiDeveloper.DeveloperStatus;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * API Developer Repository
- */
-@Repository
-public interface ApiDeveloperRepository extends JpaRepository<ApiDeveloper, Long> {
+@Mapper
+public interface ApiDeveloperRepository extends BaseMapper<ApiDeveloper> {
 
-    /**
-     * Find developer by developer ID
-     */
-    Optional<ApiDeveloper> findByDeveloperId(String developerId);
+    default Optional<ApiDeveloper> findByDeveloperId(String developerId) {
+        return Optional.ofNullable(
+            selectOne(new QueryWrapper<ApiDeveloper>().eq("developer_id", developerId)));
+    }
 
-    /**
-     * Find developer by email
-     */
-    Optional<ApiDeveloper> findByEmail(String email);
+    default Optional<ApiDeveloper> findByEmail(String email) {
+        return Optional.ofNullable(
+            selectOne(new QueryWrapper<ApiDeveloper>().eq("email", email)));
+    }
 
-    /**
-     * Find all developers by status
-     */
-    List<ApiDeveloper> findByStatus(DeveloperStatus status);
+    default List<ApiDeveloper> findByStatus(ApiDeveloper.DeveloperStatus status) {
+        return selectList(new QueryWrapper<ApiDeveloper>().eq("status", status));
+    }
 
-    /**
-     * Check if email exists
-     */
-    boolean existsByEmail(String email);
+    default boolean existsByEmail(String email) {
+        return selectCount(new QueryWrapper<ApiDeveloper>().eq("email", email)) > 0;
+    }
 
-    /**
-     * Check if developer ID exists
-     */
-    boolean existsByDeveloperId(String developerId);
+    default boolean existsByDeveloperId(String developerId) {
+        return selectCount(new QueryWrapper<ApiDeveloper>().eq("developer_id", developerId)) > 0;
+    }
 
-    /**
-     * Find developers with balance below threshold
-     */
-    @org.springframework.data.jpa.repository.Query("SELECT d FROM ApiDeveloper d WHERE d.balance < :thresholdCents AND d.status = 'APPROVED'")
-    List<ApiDeveloper> findByBalanceBelowThreshold(@org.springframework.data.repository.query.Param("thresholdCents") long thresholdCents);
+    @Select("SELECT * FROM api_developer WHERE balance < #{thresholdCents} AND status = 'APPROVED'")
+    List<ApiDeveloper> findByBalanceBelowThreshold(long thresholdCents);
+
+    default void save(ApiDeveloper entity) {
+        if (entity.getId() == null) {
+            insert(entity);
+        } else {
+            updateById(entity);
+        }
+    }
+
+    default void delete(ApiDeveloper entity) {
+        deleteById(entity.getId());
+    }
 }

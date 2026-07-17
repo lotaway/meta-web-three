@@ -13,10 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Developer Portal Controller
- * Handles developer registration and management
- */
 @Tag(name = "Developer Portal", description = "API for third-party developer management")
 @RestController
 @RequestMapping("/developer")
@@ -24,8 +20,6 @@ import java.util.Map;
 public class DeveloperController {
 
     private final ApiDeveloperService developerService;
-
-    // ==================== Developer Registration ====================
 
     @Operation(summary = "Register as a new developer", description = "Submit registration for API access")
     @PostMapping("/register")
@@ -47,8 +41,6 @@ public class DeveloperController {
         DeveloperResponse response = developerService.getDeveloperByEmail(email);
         return ResponseEntity.ok(response);
     }
-
-    // ==================== Admin: Approval Management ====================
 
     @Operation(summary = "Get pending developers", description = "List all developers awaiting approval (Admin only)")
     @GetMapping("/admin/pending")
@@ -106,8 +98,6 @@ public class DeveloperController {
         return ResponseEntity.ok(response);
     }
 
-    // ==================== Billing Plan Management ====================
-
     @Operation(summary = "Update billing plan", description = "Change developer's billing plan")
     @PostMapping("/{developerId}/billing-plan")
     public ResponseEntity<DeveloperResponse> updateBillingPlan(
@@ -118,14 +108,14 @@ public class DeveloperController {
         if (planStr == null) {
             return ResponseEntity.badRequest().build();
         }
-        
+
         com.metawebthree.developerportal.entity.ApiDeveloper.BillingPlan plan;
         try {
             plan = com.metawebthree.developerportal.entity.ApiDeveloper.BillingPlan.valueOf(planStr.toUpperCase());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
-        
+
         DeveloperResponse response = developerService.updateBillingPlan(developerId, plan);
         return ResponseEntity.ok(response);
     }

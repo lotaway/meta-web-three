@@ -11,7 +11,7 @@ public interface ForecastModelRepository {
         String modelType, ForecastModel.ModelStatus status);
     List<ForecastModel> findByStatus(ForecastModel.ModelStatus status);
     List<ForecastModel> findAll();
-    ForecastModel save(ForecastModel model);
+    void save(ForecastModel model);
     void update(ForecastModel model);
     void deleteById(Long id);
 }

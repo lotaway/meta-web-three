@@ -6,6 +6,8 @@ import com.metawebthree.forecasting.domain.entity.SalesHistory;
 import com.metawebthree.forecasting.domain.repository.SalesForecastRepository;
 import com.metawebthree.forecasting.domain.repository.ForecastModelRepository;
 import com.metawebthree.forecasting.domain.repository.SalesHistoryRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -17,6 +19,23 @@ import java.util.stream.Collectors;
 
 @Service
 public class ForecastingDomainServiceImpl implements ForecastingDomainService {
+
+    private static final int DEFAULT_HISTORY_DAYS = 90;
+    private static final int MIN_TRAINING_DAYS = 7;
+    private static final int TRAIN_SPLIT_PERCENT = 75;
+    private static final double DEFAULT_ALPHA = 0.3;
+    private static final int EFFECTIVENESS_THRESHOLD = 80;
+    private static final int ACCURACY_WEIGHT = 70;
+    private static final int RANKING_LIMIT = 10;
+    private static final int PARAM_PENALTY_THRESHOLD = 95;
+    private static final int PARAM_PENALTY_FLOOR = 60;
+    private static final int DEFAULT_TRAINING_DAYS = 30;
+    private static final int DEFAULT_WMA_ACCURACY = 72;
+    private static final int DEFAULT_SMA_ACCURACY = 78;
+    private static final int DEPLOY_THRESHOLD_PERCENT = 70;
+    private static final String DEFAULT_ALGORITHM = "SMA";
+
+    private static final Logger log = LoggerFactory.getLogger(ForecastingDomainServiceImpl.class);
 
     private final SalesForecastRepository forecastRepository;
     private final ForecastModelRepository modelRepository;
@@ -45,60 +64,55 @@ public class ForecastingDomainServiceImpl implements ForecastingDomainService {
         SalesForecast forecast = new SalesForecast();
         forecast.create(skuCode, skuName, warehouseId, forecastDate, quantity,
                         modelName, model.getAccuracy());
-        return forecastRepository.save(forecast);
+        forecastRepository.save(forecast);
+        return forecast;
     }
 
     @Override
     public SalesForecast createForecastWithAlgorithm(String skuCode, String skuName,
             Long warehouseId, LocalDate forecastDate, String algorithm, Integer windowSize) {
         
-        // Get historical sales data (last 90 days)
-        List<SalesHistory> salesHistoryList = salesHistoryRepository
-                .findRecentBySkuCodeAndWarehouseId(skuCode, warehouseId, 90);
-        
-        if (salesHistoryList == null || salesHistoryList.isEmpty()) {
-            throw new IllegalArgumentException("No sales history data available for SKU: " + skuCode);
-        }
-        
-        // Sort by date
-        salesHistoryList.sort((a, b) -> a.getSalesDate().compareTo(b.getSalesDate()));
-        
-        // Extract sales quantities
-        List<Integer> salesData = salesHistoryList.stream()
-                .map(SalesHistory::getQuantity)
-                .collect(Collectors.toList());
-        
-        // Calculate predicted quantity based on algorithm
-        Integer predictedQuantity;
-        int confidenceLevel;
+        List<Integer> salesData = getSalesHistoryData(skuCode, warehouseId);
         
         if (windowSize == null || windowSize <= 0) {
-            windowSize = 7;
+            windowSize = MIN_TRAINING_DAYS;
         }
         
-        switch (algorithm != null ? algorithm.toUpperCase() : "SMA") {
-            case "WMA":
-                predictedQuantity = calculateWeightedMovingAverage(salesData, windowSize);
-                confidenceLevel = 75;
-                break;
-            case "EXPONENTIAL_SMOOTHING":
-                predictedQuantity = calculateExponentialSmoothing(salesData);
-                confidenceLevel = 70;
-                break;
-            case "SMA":
-            default:
-                predictedQuantity = calculateSimpleMovingAverage(salesData, windowSize);
-                confidenceLevel = 80;
-                break;
-        }
-        
-        // Calculate model accuracy based on historical prediction error
+        Integer predictedQuantity = predictByAlgorithm(salesData, algorithm, windowSize);
         BigDecimal accuracy = calculateModelAccuracy(salesData, algorithm, windowSize);
         
         SalesForecast forecast = new SalesForecast();
         forecast.create(skuCode, skuName, warehouseId, forecastDate, predictedQuantity,
                         algorithm, accuracy);
-        return forecastRepository.save(forecast);
+        forecastRepository.save(forecast);
+        return forecast;
+    }
+
+    private List<Integer> getSalesHistoryData(String skuCode, Long warehouseId) {
+        List<SalesHistory> salesHistoryList = salesHistoryRepository
+                .findRecentBySkuCodeAndWarehouseId(skuCode, warehouseId, DEFAULT_HISTORY_DAYS);
+        
+        if (salesHistoryList == null || salesHistoryList.isEmpty()) {
+            throw new IllegalArgumentException("No sales history data available for SKU: " + skuCode);
+        }
+        
+        salesHistoryList.sort((a, b) -> a.getSalesDate().compareTo(b.getSalesDate()));
+        
+        return salesHistoryList.stream()
+                .map(SalesHistory::getQuantity)
+                .collect(Collectors.toList());
+    }
+
+    private Integer predictByAlgorithm(List<Integer> salesData, String algorithm, Integer windowSize) {
+        switch (algorithm != null ? algorithm.toUpperCase() : DEFAULT_ALGORITHM) {
+            case "WMA":
+                return calculateWeightedMovingAverage(salesData, windowSize);
+            case "EXPONENTIAL_SMOOTHING":
+                return calculateExponentialSmoothing(salesData);
+            case "SMA":
+            default:
+                return calculateSimpleMovingAverage(salesData, windowSize);
+        }
     }
 
     @Override
@@ -137,7 +151,8 @@ public class ForecastingDomainServiceImpl implements ForecastingDomainService {
             String algorithm, String featureConfig, Integer trainingDays) {
         ForecastModel model = new ForecastModel();
         model.create(modelName, modelType, algorithm, featureConfig, trainingDays);
-        return modelRepository.save(model);
+        modelRepository.save(model);
+        return model;
     }
 
     @Override
@@ -152,7 +167,7 @@ public class ForecastingDomainServiceImpl implements ForecastingDomainService {
         Integer trainingDays = model.getTrainingDays();
         
         if (trainingDays == null || trainingDays <= 0) {
-            trainingDays = 30;
+            trainingDays = DEFAULT_TRAINING_DAYS;
         }
         
         BigDecimal accuracy = computeAccuracyFromTrainingData(
@@ -178,25 +193,10 @@ public class ForecastingDomainServiceImpl implements ForecastingDomainService {
             String skuCode = pair[0];
             if (skuCode == null || skuCode.trim().isEmpty()) continue;
             
-            Long warehouseId = null;
-            if (pair.length > 1 && pair[1] != null && !pair[1].trim().isEmpty()) {
-                try {
-                    warehouseId = Long.parseLong(pair[1].trim());
-                } catch (NumberFormatException e) {
-                    continue;
-                }
-            }
-            
+            Long warehouseId = parseWarehouseId(pair);
             if (warehouseId == null) continue;
             
-            List<SalesHistory> history = salesHistoryRepository
-                .findRecentBySkuCodeAndWarehouseId(skuCode.trim(), warehouseId, trainingDays);
-            
-            if (history == null || history.size() < 10) continue;
-            
-            history.sort((a, b) -> a.getSalesDate().compareTo(b.getSalesDate()));
-            
-            BigDecimal accuracy = calculateTrainingAccuracy(history, algorithm);
+            BigDecimal accuracy = processPairAccuracy(skuCode.trim(), warehouseId, algorithm, trainingDays);
             if (accuracy != null && accuracy.compareTo(BigDecimal.ZERO) > 0) {
                 totalAccuracy += accuracy.doubleValue();
                 validScopes++;
@@ -208,8 +208,34 @@ public class ForecastingDomainServiceImpl implements ForecastingDomainService {
         }
         
         double avgAccuracy = totalAccuracy / validScopes;
-        return BigDecimal.valueOf(Math.min(95, Math.max(60, avgAccuracy)))
+        return BigDecimal.valueOf(clampAccuracy(avgAccuracy))
                 .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private Long parseWarehouseId(String[] pair) {
+        if (pair.length > 1 && pair[1] != null && !pair[1].trim().isEmpty()) {
+            try {
+                return Long.parseLong(pair[1].trim());
+            } catch (NumberFormatException e) {
+                log.warn("Invalid number format", e);
+            }
+        }
+        return null;
+    }
+
+    private BigDecimal processPairAccuracy(String skuCode, Long warehouseId, String algorithm, Integer trainingDays) {
+        List<SalesHistory> history = salesHistoryRepository
+            .findRecentBySkuCodeAndWarehouseId(skuCode, warehouseId, trainingDays);
+        
+        if (history == null || history.size() < RANKING_LIMIT) return null;
+        
+        history.sort((a, b) -> a.getSalesDate().compareTo(b.getSalesDate()));
+        
+        return calculateTrainingAccuracy(history, algorithm);
+    }
+
+    private double clampAccuracy(double accuracy) {
+        return Math.min(PARAM_PENALTY_THRESHOLD, Math.max(PARAM_PENALTY_FLOOR, accuracy));
     }
     
     private List<String[]> parseSkuWarehousePairs(String featureConfig) {
@@ -227,15 +253,12 @@ public class ForecastingDomainServiceImpl implements ForecastingDomainService {
         return pairs;
     }
 
-    /**
-     * Calculate Simple Moving Average (SMA)
-     */
     public Integer calculateSimpleMovingAverage(List<Integer> salesData, Integer windowSize) {
         if (salesData == null || salesData.isEmpty()) {
             return 0;
         }
         if (windowSize == null || windowSize <= 0) {
-            windowSize = 7;
+            windowSize = MIN_TRAINING_DAYS;
         }
         if (windowSize > salesData.size()) {
             windowSize = salesData.size();
@@ -253,24 +276,18 @@ public class ForecastingDomainServiceImpl implements ForecastingDomainService {
         return count > 0 ? sum / count : 0;
     }
 
-    /**
-     * Calculate Weighted Moving Average (WMA)
-     * More recent data gets higher weight
-     */
     public Integer calculateWeightedMovingAverage(List<Integer> salesData, Integer windowSize) {
         if (salesData == null || salesData.isEmpty()) {
             return 0;
         }
         
         if (windowSize == null || windowSize <= 0) {
-            windowSize = 7;
+            windowSize = MIN_TRAINING_DAYS;
         }
         if (windowSize > salesData.size()) {
             windowSize = salesData.size();
         }
         
-        // Default weights: more recent = higher weight
-        // For window size 7: weights are [1,2,3,4,5,6,7] where 7 is most recent
         List<Integer> weights = new ArrayList<>();
         for (int i = 1; i <= windowSize; i++) {
             weights.add(i);
@@ -291,16 +308,12 @@ public class ForecastingDomainServiceImpl implements ForecastingDomainService {
         return weightSum > 0 ? sum / weightSum : 0;
     }
 
-    /**
-     * Calculate Exponential Smoothing
-     * Gives more weight to recent observations
-     */
     public Integer calculateExponentialSmoothing(List<Integer> salesData) {
         if (salesData == null || salesData.isEmpty()) {
             return 0;
         }
         
-        double alpha = 0.3; // Smoothing factor (0 < alpha < 1)
+        double alpha = DEFAULT_ALPHA;
         double forecast = salesData.get(0);
         
         for (int i = 1; i < salesData.size(); i++) {
@@ -312,19 +325,16 @@ public class ForecastingDomainServiceImpl implements ForecastingDomainService {
         return (int) Math.round(forecast);
     }
 
-    /**
-     * Calculate model accuracy based on historical prediction errors
-     */
     private BigDecimal calculateModelAccuracy(List<Integer> salesData, String algorithm, Integer windowSize) {
         if (salesData == null || salesData.size() < windowSize + 1) {
-            return BigDecimal.valueOf(70); // Default accuracy if not enough data
+            return BigDecimal.valueOf(ACCURACY_WEIGHT);
         }
         
         List<Integer> trainingData = salesData.subList(0, salesData.size() - 1);
         List<Integer> testData = salesData.subList(salesData.size() - 1, salesData.size());
         
         Integer predicted;
-        switch (algorithm != null ? algorithm.toUpperCase() : "SMA") {
+        switch (algorithm != null ? algorithm.toUpperCase() : DEFAULT_ALGORITHM) {
             case "WMA":
                 predicted = calculateWeightedMovingAverage(trainingData, windowSize);
                 break;
@@ -339,7 +349,7 @@ public class ForecastingDomainServiceImpl implements ForecastingDomainService {
         
         int actual = testData.get(0);
         if (actual == 0) {
-            return BigDecimal.valueOf(70);
+            return BigDecimal.valueOf(ACCURACY_WEIGHT);
         }
         
         double error = Math.abs(predicted - actual) / (double) actual;
@@ -348,29 +358,20 @@ public class ForecastingDomainServiceImpl implements ForecastingDomainService {
         return BigDecimal.valueOf(accuracy).setScale(2, RoundingMode.HALF_UP);
     }
 
-    /**
-     * Calculate training accuracy from historical data
-     */
     private BigDecimal calculateTrainingAccuracy(List<SalesHistory> salesHistoryList, String algorithm) {
         if (salesHistoryList == null || salesHistoryList.isEmpty()) {
-            // Generate simulated accuracy based on algorithm effectiveness
             return calculateDefaultAccuracy(algorithm);
         }
-        
-        // Group by SKU and warehouse
-        // For each group, calculate prediction accuracy
-        // This is simplified - in production would use cross-validation
         
         List<Integer> salesData = salesHistoryList.stream()
                 .map(SalesHistory::getQuantity)
                 .collect(Collectors.toList());
         
-        if (salesData.size() < 10) {
+        if (salesData.size() < RANKING_LIMIT) {
             return calculateDefaultAccuracy(algorithm);
         }
         
-        // Use hold-out validation: predict last N days from earlier data
-        int testSize = Math.min(7, salesData.size() / 3);
+        int testSize = Math.min(MIN_TRAINING_DAYS, salesData.size() / 3);
         List<Integer> trainingData = salesData.subList(0, salesData.size() - testSize);
         List<Integer> testData = salesData.subList(salesData.size() - testSize, salesData.size());
         
@@ -378,25 +379,7 @@ public class ForecastingDomainServiceImpl implements ForecastingDomainService {
         int validPredictions = 0;
         
         for (int i = 0; i < testData.size(); i++) {
-            // Get the window of data before the test point
-            int windowStart = trainingData.size() - 7 + i;
-            if (windowStart < 0) windowStart = 0;
-            List<Integer> window = new ArrayList<>(trainingData.subList(windowStart, trainingData.size()));
-            window.addAll(testData.subList(0, i));
-            
-            Integer predicted;
-            switch (algorithm != null ? algorithm.toUpperCase() : "SMA") {
-                case "WMA":
-                    predicted = calculateWeightedMovingAverage(window, 7);
-                    break;
-                case "EXPONENTIAL_SMOOTHING":
-                    predicted = calculateExponentialSmoothing(window);
-                    break;
-                case "SMA":
-                default:
-                    predicted = calculateSimpleMovingAverage(window, 7);
-                    break;
-            }
+            Integer predicted = predictForWindow(trainingData, testData, i, algorithm);
             
             int actual = testData.get(i);
             if (actual > 0) {
@@ -411,22 +394,36 @@ public class ForecastingDomainServiceImpl implements ForecastingDomainService {
         }
         
         double avgAccuracy = totalAccuracy / validPredictions * 100;
-        return BigDecimal.valueOf(Math.min(95, Math.max(60, avgAccuracy)))
+        return BigDecimal.valueOf(clampAccuracy(avgAccuracy))
                 .setScale(2, RoundingMode.HALF_UP);
     }
 
-    /**
-     * Calculate default accuracy based on algorithm type
-     */
-    private BigDecimal calculateDefaultAccuracy(String algorithm) {
-        switch (algorithm != null ? algorithm.toUpperCase() : "SMA") {
+    private Integer predictForWindow(List<Integer> trainingData, List<Integer> testData, int i, String algorithm) {
+        int windowStart = trainingData.size() - MIN_TRAINING_DAYS + i;
+        if (windowStart < 0) windowStart = 0;
+        List<Integer> window = new ArrayList<>(trainingData.subList(windowStart, trainingData.size()));
+        window.addAll(testData.subList(0, i));
+        
+        switch (algorithm != null ? algorithm.toUpperCase() : DEFAULT_ALGORITHM) {
             case "WMA":
-                return BigDecimal.valueOf(75);
+                return calculateWeightedMovingAverage(window, MIN_TRAINING_DAYS);
             case "EXPONENTIAL_SMOOTHING":
-                return BigDecimal.valueOf(72);
+                return calculateExponentialSmoothing(window);
             case "SMA":
             default:
-                return BigDecimal.valueOf(78);
+                return calculateSimpleMovingAverage(window, MIN_TRAINING_DAYS);
+        }
+    }
+
+    private BigDecimal calculateDefaultAccuracy(String algorithm) {
+        switch (algorithm != null ? algorithm.toUpperCase() : DEFAULT_ALGORITHM) {
+            case "WMA":
+                return BigDecimal.valueOf(TRAIN_SPLIT_PERCENT);
+            case "EXPONENTIAL_SMOOTHING":
+                return BigDecimal.valueOf(DEFAULT_WMA_ACCURACY);
+            case "SMA":
+            default:
+                return BigDecimal.valueOf(DEFAULT_SMA_ACCURACY);
         }
     }
 
@@ -436,7 +433,7 @@ public class ForecastingDomainServiceImpl implements ForecastingDomainService {
             .orElseThrow(() -> new IllegalArgumentException("Model not found"));
         
         if (!model.isReadyForDeployment()) {
-            throw new IllegalStateException("Model accuracy below threshold (70%)");
+            throw new IllegalStateException("Model accuracy below threshold (" + DEPLOY_THRESHOLD_PERCENT + "%)");
         }
         
         model.deploy();

@@ -15,10 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * API Usage Statistics Service
- * Handles usage tracking, billing, and quota management
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -26,9 +22,6 @@ public class ApiUsageStatsService {
 
     private final ApiUsageStatsRepository statsRepository;
 
-    /**
-     * Record an API call
-     */
     @Transactional
     public void recordApiCall(
         String developerId,
@@ -40,14 +33,12 @@ public class ApiUsageStatsService {
         long dataTransferredBytes,
         long billingAmountCents
     ) {
-        // Round to hour for aggregation
         LocalDateTime statTime = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS);
-        
-        // Find or create stats record
+
         List<ApiUsageStats> existing = statsRepository.findByDeveloperIdAndApiEndpointAndStatTimeBetween(
             developerId, apiEndpoint, statTime, statTime.plusHours(1)
         );
-        
+
         ApiUsageStats stats;
         if (existing.isEmpty()) {
             stats = new ApiUsageStats();
@@ -70,7 +61,6 @@ public class ApiUsageStatsService {
             } else {
                 stats.setErrorCount(stats.getErrorCount() + 1);
             }
-            // Update average response time
             double prevAvg = stats.getAvgResponseTimeMs() != null ? stats.getAvgResponseTimeMs() : 0;
             long prevCount = stats.getRequestCount() - 1;
             stats.setAvgResponseTimeMs(
@@ -79,13 +69,10 @@ public class ApiUsageStatsService {
             stats.setDataTransferredBytes(stats.getDataTransferredBytes() + dataTransferredBytes);
             stats.setBillingAmountCents(stats.getBillingAmountCents() + billingAmountCents);
         }
-        
+
         statsRepository.save(stats);
     }
 
-    /**
-     * Get usage statistics for a developer in time range
-     */
     public List<ApiUsageStatsResponse> getDeveloperStats(
         String developerId,
         LocalDateTime startTime,
@@ -94,15 +81,12 @@ public class ApiUsageStatsService {
         List<ApiUsageStats> stats = statsRepository.findByDeveloperIdAndStatTimeBetween(
             developerId, startTime, endTime
         );
-        
+
         return stats.stream()
             .map(this::toResponse)
             .collect(Collectors.toList());
     }
 
-    /**
-     * Get aggregated usage summary for a developer
-     */
     public Map<String, Object> getDeveloperUsageSummary(
         String developerId,
         LocalDateTime startTime,
@@ -111,33 +95,33 @@ public class ApiUsageStatsService {
         List<ApiUsageStats> stats = statsRepository.findByDeveloperIdAndStatTimeBetween(
             developerId, startTime, endTime
         );
-        
+
         long totalRequests = stats.stream()
             .mapToLong(ApiUsageStats::getRequestCount)
             .sum();
-        
+
         long totalSuccess = stats.stream()
             .mapToLong(ApiUsageStats::getSuccessCount)
             .sum();
-        
+
         long totalErrors = stats.stream()
             .mapToLong(ApiUsageStats::getErrorCount)
             .sum();
-        
+
         double avgResponseTime = stats.stream()
             .filter(s -> s.getAvgResponseTimeMs() != null)
             .mapToDouble(ApiUsageStats::getAvgResponseTimeMs)
             .average()
             .orElse(0.0);
-        
+
         long totalDataTransferred = stats.stream()
             .mapToLong(ApiUsageStats::getDataTransferredBytes)
             .sum();
-        
+
         long totalBilling = statsRepository.sumBillingAmountByDeveloperAndTimeRange(
             developerId, startTime, endTime
         );
-        
+
         Map<String, Object> summary = new HashMap<>();
         summary.put("developerId", developerId);
         summary.put("startTime", startTime);
@@ -150,13 +134,10 @@ public class ApiUsageStatsService {
         summary.put("dataTransferredBytes", totalDataTransferred);
         summary.put("billingAmountCents", totalBilling);
         summary.put("billingAmountFormatted", formatCurrency(totalBilling));
-        
+
         return summary;
     }
 
-    /**
-     * Get top API endpoints for a developer
-     */
     public List<Map<String, Object>> getTopEndpoints(
         String developerId,
         LocalDateTime startTime,
@@ -166,7 +147,7 @@ public class ApiUsageStatsService {
         List<Object[]> results = statsRepository.findTopEndpointsByDeveloper(
             developerId, startTime, endTime
         );
-        
+
         return results.stream()
             .limit(limit)
             .map(row -> {
@@ -178,60 +159,49 @@ public class ApiUsageStatsService {
             .collect(Collectors.toList());
     }
 
-    /**
-     * Check if developer has exceeded quota
-     */
     public boolean hasExceededQuota(String developerId, int dailyQuota, int monthlyQuota) {
-        // Check daily quota
         LocalDateTime dayStart = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
         Long dailyRequests = statsRepository.sumRequestCountByDeveloperAndTimeRange(
             developerId, dayStart, dayStart.plusDays(1)
         );
-        
+
         if (dailyRequests != null && dailyRequests >= dailyQuota) {
             log.warn("Developer {} exceeded daily quota: {}/{}", developerId, dailyRequests, dailyQuota);
             return true;
         }
-        
-        // Check monthly quota
+
         LocalDateTime monthStart = LocalDateTime.now().withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
         Long monthlyRequests = statsRepository.sumRequestCountByDeveloperAndTimeRange(
             developerId, monthStart, monthStart.plusMonths(1)
         );
-        
+
         if (monthlyRequests != null && monthlyRequests >= monthlyQuota) {
             log.warn("Developer {} exceeded monthly quota: {}/{}", developerId, monthlyRequests, monthlyQuota);
             return true;
         }
-        
+
         return false;
     }
 
-    /**
-     * Get current usage counts
-     */
     public Map<String, Long> getCurrentUsage(String developerId) {
         LocalDateTime dayStart = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
         LocalDateTime monthStart = LocalDateTime.now().withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
-        
+
         Long dailyRequests = statsRepository.sumRequestCountByDeveloperAndTimeRange(
             developerId, dayStart, dayStart.plusDays(1)
         );
-        
+
         Long monthlyRequests = statsRepository.sumRequestCountByDeveloperAndTimeRange(
             developerId, monthStart, monthStart.plusMonths(1)
         );
-        
+
         Map<String, Long> usage = new HashMap<>();
         usage.put("dailyRequests", dailyRequests != null ? dailyRequests : 0L);
         usage.put("monthlyRequests", monthlyRequests != null ? monthlyRequests : 0L);
-        
+
         return usage;
     }
 
-    /**
-     * Convert entity to response DTO
-     */
     private ApiUsageStatsResponse toResponse(ApiUsageStats stats) {
         ApiUsageStatsResponse response = new ApiUsageStatsResponse();
         response.setDeveloperId(stats.getDeveloperId());
@@ -251,9 +221,6 @@ public class ApiUsageStatsService {
         return response;
     }
 
-    /**
-     * Format cents to currency string
-     */
     private String formatCurrency(long cents) {
         return String.format("$%.2f", cents / 100.0);
     }

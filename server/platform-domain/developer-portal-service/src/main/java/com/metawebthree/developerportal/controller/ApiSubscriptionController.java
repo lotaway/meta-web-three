@@ -13,10 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-/**
- * API Subscription Controller
- * Handles API subscription approval and management
- */
 @Tag(name = "API Subscriptions", description = "API subscription management")
 @RestController
 @RequestMapping("/developer/subscriptions")
@@ -24,8 +20,6 @@ import java.util.Map;
 public class ApiSubscriptionController {
 
     private final ApiSubscriptionService subscriptionService;
-
-    // ==================== Developer: Subscription Management ====================
 
     @Operation(summary = "Request API subscription", description = "Submit a request to subscribe to specific API endpoints")
     @PostMapping("/{developerId}")
@@ -57,8 +51,6 @@ public class ApiSubscriptionController {
         ApiSubscriptionResponse response = subscriptionService.cancelSubscription(subscriptionId);
         return ResponseEntity.ok(response);
     }
-
-    // ==================== Admin: Approval Management ====================
 
     @Operation(summary = "Get pending subscriptions", description = "List all subscriptions awaiting approval (Admin only)")
     @GetMapping("/admin/pending")

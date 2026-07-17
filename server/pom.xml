@@ -37,6 +37,7 @@
         <module>platform-domain/message-service</module>
         <module>platform-domain/media-service</module>
         <module>platform-domain/commission-service</module>
+        <module>platform-domain/developer-portal-service</module>
         <module>platform-domain/user-action-service</module>
         <module>platform-domain/cs-service</module>
         <module>platform-domain/data-analysis-service</module>
@@ -45,6 +46,7 @@
         <module>factory-domain/digital-twin-service</module>
         <!-- ai-domain -->
         <module>ai-domain/forecasting-service</module>
+        <module>ai-domain/route-optimizer</module>
         <!-- supply-chain-domain -->
         <module>supply-chain-domain/inventory-service</module>
         <module>supply-chain-domain/warehouse-service</module>

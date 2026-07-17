@@ -2,9 +2,6 @@ package com.metawebthree.developerportal.dto;
 
 import lombok.Data;
 
-/**
- * API Usage Statistics Response DTO
- */
 @Data
 public class ApiUsageStatsResponse {
 

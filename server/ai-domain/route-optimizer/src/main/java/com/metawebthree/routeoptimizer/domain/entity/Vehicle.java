@@ -1,71 +1,68 @@
 package com.metawebthree.routeoptimizer.domain.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "tb_vehicle")
+@TableName("tb_vehicle")
 public class Vehicle {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Column(name = "vehicle_code", unique = true)
+    @TableField("vehicle_code")
     private String vehicleCode;
 
-    @Column(name = "vehicle_number", unique = true)
+    @TableField("vehicle_number")
     private String vehicleNumber;
 
-    @Column(name = "vehicle_type")
+    @TableField("vehicle_type")
     private String vehicleType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
+    @TableField("status")
     private VehicleStatus status;
 
-    @Column(name = "max_load_capacity")
+    @TableField("max_load_capacity")
     private Double maxLoadCapacity;
 
-    @Column(name = "current_load")
+    @TableField("current_load")
     private Double currentLoad;
 
-    @Column(name = "fuel_capacity")
+    @TableField("fuel_capacity")
     private Double fuelCapacity;
 
-    @Column(name = "current_fuel")
+    @TableField("current_fuel")
     private Double currentFuel;
 
-    @Column(name = "fuel_efficiency")
+    @TableField("fuel_efficiency")
     private Double fuelEfficiency;
 
-    @Column(name = "driver_name")
+    @TableField("driver_name")
     private String driverName;
 
-    @Column(name = "driver_phone")
+    @TableField("driver_phone")
     private String driverPhone;
 
-    @Column(name = "latitude")
+    @TableField("latitude")
     private Double latitude;
 
-    @Column(name = "longitude")
+    @TableField("longitude")
     private Double longitude;
 
-    @Column(name = "last_location_update")
+    @TableField("last_location_update")
     private LocalDateTime lastLocationUpdate;
 
-    @Column(name = "current_route_plan_code")
+    @TableField("current_route_plan_code")
     private String currentRoutePlanCode;
 
-    @Column(name = "total_deliveries")
+    @TableField("total_deliveries")
     private Integer totalDeliveries;
 
-    @Column(name = "total_distance")
+    @TableField("total_distance")
     private Double totalDistance;
 
-    @Column(name = "created_at")
+    @TableField("created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @TableField("updated_at")
     private LocalDateTime updatedAt;
 
     public enum VehicleStatus {
@@ -120,7 +117,6 @@ public class Vehicle {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getVehicleCode() { return vehicleCode; }

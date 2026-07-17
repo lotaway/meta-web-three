@@ -1,36 +1,43 @@
 package com.metawebthree.developerportal.repository;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.metawebthree.developerportal.entity.OAuthApplication;
-import com.metawebthree.developerportal.entity.OAuthApplication.AppStatus;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
+import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * OAuth Application Repository
- */
-@Repository
-public interface OAuthApplicationRepository extends JpaRepository<OAuthApplication, Long> {
+@Mapper
+public interface OAuthApplicationRepository extends BaseMapper<OAuthApplication> {
 
-    /**
-     * Find OAuth application by client ID
-     */
-    Optional<OAuthApplication> findByClientId(String clientId);
+    default Optional<OAuthApplication> findByClientId(String clientId) {
+        return Optional.ofNullable(
+            selectOne(new QueryWrapper<OAuthApplication>().eq("client_id", clientId)));
+    }
 
-    /**
-     * Find all OAuth applications by developer ID
-     */
-    List<OAuthApplication> findByDeveloperId(String developerId);
+    default List<OAuthApplication> findByDeveloperId(String developerId) {
+        return selectList(new QueryWrapper<OAuthApplication>().eq("developer_id", developerId));
+    }
 
-    /**
-     * Find all OAuth applications by developer ID and status
-     */
-    List<OAuthApplication> findByDeveloperIdAndStatus(String developerId, AppStatus status);
+    default List<OAuthApplication> findByDeveloperIdAndStatus(
+            String developerId, OAuthApplication.AppStatus status) {
+        return selectList(new QueryWrapper<OAuthApplication>()
+            .eq("developer_id", developerId).eq("status", status));
+    }
 
-    /**
-     * Check if client ID exists
-     */
-    boolean existsByClientId(String clientId);
+    default boolean existsByClientId(String clientId) {
+        return selectCount(new QueryWrapper<OAuthApplication>().eq("client_id", clientId)) > 0;
+    }
+
+    default void save(OAuthApplication entity) {
+        if (entity.getId() == null) {
+            insert(entity);
+        } else {
+            updateById(entity);
+        }
+    }
+
+    default void delete(OAuthApplication entity) {
+        deleteById(entity.getId());
+    }
 }

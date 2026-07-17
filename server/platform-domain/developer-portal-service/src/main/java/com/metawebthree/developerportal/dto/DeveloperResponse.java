@@ -4,9 +4,6 @@ import com.metawebthree.developerportal.entity.ApiDeveloper;
 import lombok.Data;
 import java.time.LocalDateTime;
 
-/**
- * Developer Response DTO
- */
 @Data
 public class DeveloperResponse {
 
@@ -26,9 +23,6 @@ public class DeveloperResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    /**
-     * Convert entity to DTO
-     */
     public static DeveloperResponse fromEntity(ApiDeveloper developer) {
         DeveloperResponse response = new DeveloperResponse();
         response.setDeveloperId(developer.getDeveloperId());

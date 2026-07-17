@@ -4,15 +4,12 @@ import com.metawebthree.developerportal.entity.OAuthApplication;
 import lombok.Data;
 import java.time.LocalDateTime;
 
-/**
- * OAuth Application Response DTO
- */
 @Data
 public class OAuthAppResponse {
 
     private Long id;
     private String clientId;
-    private String clientSecret; // Only returned on creation
+    private String clientSecret;
     private String developerId;
     private String name;
     private String description;
@@ -24,9 +21,6 @@ public class OAuthAppResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    /**
-     * Convert entity to DTO
-     */
     public static OAuthAppResponse fromEntity(OAuthApplication app) {
         OAuthAppResponse response = new OAuthAppResponse();
         response.setId(app.getId());

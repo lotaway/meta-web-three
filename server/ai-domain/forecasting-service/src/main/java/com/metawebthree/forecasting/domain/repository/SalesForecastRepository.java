@@ -13,7 +13,7 @@ public interface SalesForecastRepository {
     List<SalesForecast> findBySkuCodeAndForecastDateBetween(
         String skuCode, LocalDate startDate, LocalDate endDate);
     List<SalesForecast> findByStatus(SalesForecast.ForecastStatus status);
-    SalesForecast save(SalesForecast forecast);
+    void save(SalesForecast forecast);
     void update(SalesForecast forecast);
     void deleteById(Long id);
 }

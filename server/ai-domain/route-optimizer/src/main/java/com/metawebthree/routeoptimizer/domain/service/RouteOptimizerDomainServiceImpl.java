@@ -46,7 +46,8 @@ public class RouteOptimizerDomainServiceImpl implements RouteOptimizerDomainServ
         }
         
         logger.info("Created route plan: {}", plan.getPlanCode());
-        return routePlanRepository.save(plan);
+        routePlanRepository.save(plan);
+        return plan;
     }
 
     @Override
@@ -80,7 +81,8 @@ public class RouteOptimizerDomainServiceImpl implements RouteOptimizerDomainServ
         logger.info("Optimized route plan: {}, distance: {}km", 
             plan.getPlanCode(), plan.getTotalDistance());
         
-        return routePlanRepository.save(plan);
+        routePlanRepository.save(plan);
+        return plan;
     }
 
     private List<RoutePoint> optimizeUsingNearestNeighbor(List<RoutePoint> points,
@@ -212,7 +214,8 @@ public class RouteOptimizerDomainServiceImpl implements RouteOptimizerDomainServ
         plan.setUpdatedAt(LocalDateTime.now());
         logger.info("Assigned vehicle {} to route {}", vehicleCode, plan.getPlanCode());
         
-        return routePlanRepository.save(plan);
+        routePlanRepository.save(plan);
+        return plan;
     }
 
     @Override
@@ -231,7 +234,8 @@ public class RouteOptimizerDomainServiceImpl implements RouteOptimizerDomainServ
         }
         
         logger.info("Started route execution: {}", plan.getPlanCode());
-        return routePlanRepository.save(plan);
+        routePlanRepository.save(plan);
+        return plan;
     }
 
     @Override
@@ -251,7 +255,8 @@ public class RouteOptimizerDomainServiceImpl implements RouteOptimizerDomainServ
         }
         
         logger.info("Completed route: {}", plan.getPlanCode());
-        return routePlanRepository.save(plan);
+        routePlanRepository.save(plan);
+        return plan;
     }
 
     @Override
@@ -319,7 +324,8 @@ public class RouteOptimizerDomainServiceImpl implements RouteOptimizerDomainServ
         plan.setUpdatedAt(LocalDateTime.now());
         logger.info("Reordered points for route: {}", plan.getPlanCode());
         
-        return routePlanRepository.save(plan);
+        routePlanRepository.save(plan);
+        return plan;
     }
 
     @Override

@@ -12,10 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * OAuth Application Controller
- * Handles OAuth 2.0 application management
- */
 @Tag(name = "OAuth Applications", description = "OAuth 2.0 application management")
 @RestController
 @RequestMapping("/developer/oauth")

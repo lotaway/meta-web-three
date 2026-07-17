@@ -16,10 +16,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
-/**
- * API Billing Controller
- * Provides billing and quota management endpoints
- */
 @Slf4j
 @RestController
 @RequestMapping("/developer/billing")
@@ -30,9 +26,6 @@ public class ApiBillingController {
     private final ApiBillingService billingService;
     private final ApiDeveloperRepository developerRepository;
 
-    /**
-     * Get current billing summary (daily + monthly usage and quotas)
-     */
     @GetMapping("/summary")
     public ResponseEntity<?> getBillingSummary(@RequestParam String developerId) {
         try {
@@ -43,9 +36,6 @@ public class ApiBillingController {
         }
     }
 
-    /**
-     * Check if developer has exceeded quota
-     */
     @GetMapping("/quota-check")
     public ResponseEntity<?> checkQuota(
             @RequestParam String developerId,
@@ -62,9 +52,6 @@ public class ApiBillingController {
         }
     }
 
-    /**
-     * Get usage statistics for a time range
-     */
     @GetMapping("/usage")
     public ResponseEntity<?> getUsageStats(
             @RequestParam String developerId,
@@ -73,7 +60,7 @@ public class ApiBillingController {
         try {
             LocalDateTime start = LocalDateTime.parse(startTime, DateTimeFormatter.ISO_DATE_TIME);
             LocalDateTime end = LocalDateTime.parse(endTime, DateTimeFormatter.ISO_DATE_TIME);
-            
+
             var stats = billingService.getUsageStats(developerId, start, end);
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
@@ -81,9 +68,6 @@ public class ApiBillingController {
         }
     }
 
-    /**
-     * Calculate billing amount for an API call (for testing/preview)
-     */
     @GetMapping("/calculate")
     public ResponseEntity<?> calculateBilling(
             @RequestParam String developerId,
@@ -93,7 +77,7 @@ public class ApiBillingController {
         try {
             long amount = billingService.calculateBillingAmount(
                 developerId, apiEndpoint, responseTimeMs, dataTransferredBytes);
-            
+
             return ResponseEntity.ok(Map.of(
                 "developerId", developerId,
                 "apiEndpoint", apiEndpoint,
@@ -107,14 +91,11 @@ public class ApiBillingController {
         }
     }
 
-    /**
-     * Admin: Get all developers with low balance
-     */
     @GetMapping("/admin/low-balance")
     public ResponseEntity<?> getDevelopersWithLowBalance(
             @RequestParam @Min(value = 0, message = "Threshold must be non-negative") long thresholdCents) {
         List<ApiDeveloper> developers = developerRepository.findByBalanceBelowThreshold(thresholdCents);
-        
+
         List<Map<String, Object>> result = developers.stream()
             .map(d -> Map.<String, Object>of(
                 "developerId", d.getDeveloperId(),
@@ -124,7 +105,7 @@ public class ApiBillingController {
                 "billingPlan", d.getBillingPlan().name()
             ))
             .toList();
-        
+
         log.info("Found {} developers with balance below {} cents", result.size(), thresholdCents);
         return ResponseEntity.ok(Map.of(
             "thresholdCents", thresholdCents,
@@ -133,24 +114,21 @@ public class ApiBillingController {
         ));
     }
 
-    /**
-     * Admin: Top up developer balance
-     */
     @PostMapping("/admin/topup")
     public ResponseEntity<?> topUpBalance(
             @RequestParam @NotBlank(message = "Developer ID is required") String developerId,
             @RequestParam @Min(value = 1, message = "Amount must be positive") long amountCents) {
         ApiDeveloper developer = developerRepository.findByDeveloperId(developerId)
             .orElseThrow(() -> new IllegalArgumentException("Developer not found: " + developerId));
-        
+
         long previousBalance = developer.getBalance();
         long newBalance = previousBalance + amountCents;
         developer.setBalance(newBalance);
         developerRepository.save(developer);
-        
+
         log.info("Topped up balance for developer {}: {} + {} = {} cents", 
             developerId, previousBalance, amountCents, newBalance);
-        
+
         return ResponseEntity.ok(Map.of(
             "developerId", developerId,
             "previousBalanceCents", previousBalance,

@@ -10,6 +10,6 @@ public interface SalesHistoryRepository {
         String skuCode, Long warehouseId, LocalDate startDate, LocalDate endDate);
     List<SalesHistory> findRecentBySkuCodeAndWarehouseId(
         String skuCode, Long warehouseId, Integer days);
-    SalesHistory save(SalesHistory salesHistory);
+    void save(SalesHistory salesHistory);
     void saveBatch(List<SalesHistory> salesHistoryList);
 }

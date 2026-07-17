@@ -1,118 +1,53 @@
 package com.metawebthree.developerportal.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 
-/**
- * API Subscription Entity
- * Represents a developer's subscription to specific API endpoints
- */
 @Data
-@Entity
-@Table(name = "api_subscription")
+@TableName("api_subscription")
 public class ApiSubscription {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    /**
-     * Subscription ID
-     */
-    @Column(name = "subscription_id", unique = true, nullable = false, length = 64)
+    @TableField("subscription_id")
     private String subscriptionId;
 
-    /**
-     * Developer ID
-     */
-    @Column(name = "developer_id", nullable = false, length = 64)
+    @TableField("developer_id")
     private String developerId;
 
-    /**
-     * API endpoint pattern (e.g., /order-service/**, /product-service/api/v1/**)
-     */
-    @Column(name = "api_pattern", nullable = false, length = 256)
+    @TableField("api_pattern")
     private String apiPattern;
 
-    /**
-     * Subscription status: PENDING, APPROVED, ACTIVE, SUSPENDED, CANCELLED
-     */
-    @Column(name = "status", nullable = false, length = 32)
-    @Enumerated(EnumType.STRING)
+    @TableField("status")
     private SubscriptionStatus status = SubscriptionStatus.PENDING;
 
-    /**
-     * Approval/rejection note
-     */
-    @Column(name = "review_note", columnDefinition = "TEXT")
+    @TableField("review_note")
     private String reviewNote;
 
-    /**
-     * Approved by admin
-     */
-    @Column(name = "reviewed_by", length = 64)
+    @TableField("reviewed_by")
     private String reviewedBy;
 
-    /**
-     * Approval timestamp
-     */
-    @Column(name = "reviewed_at")
+    @TableField("reviewed_at")
     private LocalDateTime reviewedAt;
 
-    /**
-     * Subscription start time
-     */
-    @Column(name = "started_at")
+    @TableField("started_at")
     private LocalDateTime startedAt;
 
-    /**
-     * Subscription end time (null means ongoing)
-     */
-    @Column(name = "ended_at")
+    @TableField("ended_at")
     private LocalDateTime endedAt;
 
-    /**
-     * Reason for subscription (provided by developer)
-     */
-    @Column(name = "reason", columnDefinition = "TEXT")
+    @TableField("reason")
     private String reason;
 
-    /**
-     * Created timestamp
-     */
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @TableField("created_at")
     private LocalDateTime createdAt;
 
-    /**
-     * Last updated timestamp
-     */
-    @Column(name = "updated_at", nullable = false)
+    @TableField("updated_at")
     private LocalDateTime updatedAt;
 
-    @PrePersist
-    public void prePersist() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-        if (updatedAt == null) {
-            updatedAt = LocalDateTime.now();
-        }
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
-    /**
-     * Subscription status enumeration
-     */
     public enum SubscriptionStatus {
-        PENDING,    // Awaiting approval
-        APPROVED,   // Approved but not yet active
-        ACTIVE,     // Active and can be used
-        SUSPENDED,  // Temporarily suspended
-        CANCELLED   // Cancelled by developer or admin
+        PENDING, APPROVED, ACTIVE, SUSPENDED, CANCELLED
     }
 }

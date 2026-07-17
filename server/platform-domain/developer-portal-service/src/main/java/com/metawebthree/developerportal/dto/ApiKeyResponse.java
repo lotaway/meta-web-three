@@ -4,15 +4,12 @@ import com.metawebthree.developerportal.entity.ApiKey;
 import lombok.Data;
 import java.time.LocalDateTime;
 
-/**
- * API Key Response DTO
- */
 @Data
 public class ApiKeyResponse {
 
     private Long id;
     private String keyId;
-    private String keySecret; // Only returned on creation
+    private String keySecret;
     private String developerId;
     private String name;
     private ApiKey.KeyStatus status;
@@ -25,9 +22,6 @@ public class ApiKeyResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    /**
-     * Convert entity to DTO
-     */
     public static ApiKeyResponse fromEntity(ApiKey apiKey) {
         ApiKeyResponse response = new ApiKeyResponse();
         response.setId(apiKey.getId());

@@ -10,7 +10,7 @@ public interface VehicleRepository {
     Optional<Vehicle> findByVehicleNumber(String vehicleNumber);
     List<Vehicle> findByStatus(Vehicle.VehicleStatus status);
     List<Vehicle> findAll();
-    Vehicle save(Vehicle vehicle);
+    void save(Vehicle vehicle);
     void delete(Vehicle vehicle);
     List<Vehicle> findAvailableVehicles();
 }

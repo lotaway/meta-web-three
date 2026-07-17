@@ -39,17 +39,13 @@ public class ForecastingController {
         LocalDate forecastDate = LocalDate.parse((String) request.get("forecastDate"));
         Integer quantity = (Integer) request.get("quantity");
         String modelName = (String) request.get("modelName");
-        
+
         Long forecastId = commandService.createForecast(
             skuCode, skuName, warehouseId, forecastDate, quantity, modelName);
-        
+
         return ResponseEntity.ok(Map.of("forecastId", forecastId));
     }
 
-    /**
-     * Create forecast using specified algorithm (SMA, WMA, EXPONENTIAL_SMOOTHING)
-     * Quantity will be calculated based on historical sales data
-     */
     @PostMapping("/forecast/algorithm")
     public ResponseEntity<Map<String, Object>> createForecastWithAlgorithm(
             @RequestBody Map<String, Object> request) {
@@ -59,16 +55,13 @@ public class ForecastingController {
         LocalDate forecastDate = LocalDate.parse((String) request.get("forecastDate"));
         String algorithm = (String) request.getOrDefault("algorithm", "SMA");
         Integer windowSize = (Integer) request.getOrDefault("windowSize", 7);
-        
+
         Long forecastId = commandService.createForecastWithAlgorithm(
             skuCode, skuName, warehouseId, forecastDate, algorithm, windowSize);
-        
+
         return ResponseEntity.ok(Map.of("forecastId", forecastId));
     }
 
-    /**
-     * Generate sample sales history data for testing forecasting algorithms
-     */
     @PostMapping("/sales-history/sample")
     public ResponseEntity<Map<String, Object>> generateSampleSalesHistory(
             @RequestBody Map<String, Object> request) {
@@ -76,19 +69,18 @@ public class ForecastingController {
         Long warehouseId = ((Number) request.get("warehouseId")).longValue();
         Integer days = (Integer) request.getOrDefault("days", 90);
         Integer baseQuantity = (Integer) request.getOrDefault("baseQuantity", 100);
-        
+
         List<SalesHistory> salesHistoryList = IntStream.range(0, days)
             .mapToObj(i -> {
                 LocalDate date = LocalDate.now().minusDays(days - i - 1);
-                // Add some randomness and trend to the data
-                int quantity = baseQuantity + (int) (Math.random() * 40 - 20) 
-                    + (int) (Math.sin(i / 7.0) * 10); // Weekly pattern
+                int quantity = baseQuantity + (int) (Math.random() * 40 - 20)
+                    + (int) (Math.sin(i / 7.0) * 10);
                 return new SalesHistory(skuCode, warehouseId, date, Math.max(0, quantity));
             })
             .collect(Collectors.toList());
-        
+
         salesHistoryRepository.saveBatch(salesHistoryList);
-        
+
         return ResponseEntity.ok(Map.of(
             "message", "Sample sales history generated",
             "skuCode", skuCode,
@@ -154,10 +146,10 @@ public class ForecastingController {
         String algorithm = (String) request.get("algorithm");
         String featureConfig = (String) request.get("featureConfig");
         Integer trainingDays = (Integer) request.get("trainingDays");
-        
+
         Long modelId = commandService.createModel(
             modelName, modelType, algorithm, featureConfig, trainingDays);
-        
+
         return ResponseEntity.ok(Map.of("modelId", modelId));
     }
 

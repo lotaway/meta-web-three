@@ -1,55 +1,52 @@
 package com.metawebthree.forecasting.domain.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "tb_sales_forecast")
+@TableName("tb_sales_forecast")
 public class SalesForecast {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Column(name = "sku_code", length = 64)
+    @TableField("sku_code")
     private String skuCode;
 
-    @Column(name = "sku_name", length = 128)
+    @TableField("sku_name")
     private String skuName;
 
-    @Column(name = "warehouse_id")
+    @TableField("warehouse_id")
     private Long warehouseId;
 
-    @Column(name = "forecast_date")
+    @TableField("forecast_date")
     private LocalDate forecastDate;
 
-    @Column(name = "forecast_quantity")
+    @TableField("forecast_quantity")
     private Integer forecastQuantity;
 
-    @Column(name = "actual_quantity")
+    @TableField("actual_quantity")
     private Integer actualQuantity;
 
-    @Column(name = "forecast_amount", precision = 18, scale = 2)
+    @TableField("forecast_amount")
     private BigDecimal forecastAmount;
 
-    @Column(name = "actual_amount", precision = 18, scale = 2)
+    @TableField("actual_amount")
     private BigDecimal actualAmount;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 32)
+    @TableField("status")
     private ForecastStatus status;
 
-    @Column(name = "forecast_model", length = 64)
+    @TableField("forecast_model")
     private String forecastModel;
 
-    @Column(name = "confidence_level", precision = 5, scale = 2)
+    @TableField("confidence_level")
     private BigDecimal confidenceLevel;
 
-    @Column(name = "created_at")
+    @TableField("created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @TableField("updated_at")
     private LocalDateTime updatedAt;
 
     public enum ForecastStatus {
@@ -115,7 +112,6 @@ public class SalesForecast {
         );
     }
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getSkuCode() { return skuCode; }

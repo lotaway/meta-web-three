@@ -9,10 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-/**
- * Developer Portal Documentation Controller
- * Provides API documentation and SDK samples
- */
 @Tag(name = "Developer Portal Documentation", description = "API documentation and SDK resources")
 @RestController
 @RequestMapping("/developer/docs")
@@ -83,7 +79,7 @@ public class ApiDocumentationController {
                 "description", "Test your integration in sandbox environment"
             )
         );
-        
+
         return ResponseEntity.ok(guide);
     }
 
@@ -102,11 +98,9 @@ public class ApiDocumentationController {
             ),
             "incidents", java.util.Collections.emptyList()
         );
-        
+
         return ResponseEntity.ok(status);
     }
-
-    // ==================== Developer Sandbox ====================
 
     @Operation(summary = "Get sandbox test data", description = "Get test data for sandbox environment")
     @GetMapping("/sandbox/test-data/{developerId}")

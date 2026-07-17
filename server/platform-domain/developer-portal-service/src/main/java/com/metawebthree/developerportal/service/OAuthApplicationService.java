@@ -16,10 +16,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * OAuth Application Service
- * Handles OAuth 2.0 application registration and management
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -29,15 +25,11 @@ public class OAuthApplicationService {
     private final ApiDeveloperRepository developerRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    /**
-     * Register a new OAuth application
-     */
     @Transactional
     public OAuthAppResponse registerApplication(String developerId, OAuthAppCreateRequest request) {
-        // Validate developer exists and is approved
         ApiDeveloper developer = developerRepository.findByDeveloperId(developerId)
             .orElseThrow(() -> new IllegalArgumentException("Developer not found: " + developerId));
-        
+
         if (developer.getStatus() != ApiDeveloper.DeveloperStatus.APPROVED) {
             throw new IllegalStateException("Developer is not approved: " + developer.getStatus());
         }
@@ -56,195 +48,157 @@ public class OAuthApplicationService {
         app.setGrantTypes(request.getGrantTypes());
         app.setScopes(request.getScopes());
         app.setStatus(OAuthApplication.AppStatus.ACTIVE);
-        
-        app = oauthRepository.save(app);
+
+        oauthRepository.save(app);
         log.info("OAuth Application registered: {} for developer {}", clientId, developerId);
-        
-        // Return response with plain secret (only time it's shown)
+
         OAuthAppResponse response = OAuthAppResponse.fromEntity(app);
         response.setClientSecret(clientSecret);
         return response;
     }
 
-    /**
-     * Validate OAuth client credentials
-     */
     public boolean validateClient(String clientId, String clientSecret) {
         OAuthApplication app = oauthRepository.findByClientId(clientId).orElse(null);
-        
+
         if (app == null) {
             log.warn("OAuth client not found: {}", clientId);
             return false;
         }
-        
+
         if (app.getStatus() != OAuthApplication.AppStatus.ACTIVE) {
             log.warn("OAuth client is not active: {} - {}", clientId, app.getStatus());
             return false;
         }
-        
-        // Public clients (SPAs, mobile apps) don't have client secrets
+
         if (app.getAppType() == AppType.PUBLIC) {
             return true;
         }
-        
+
         if (!passwordEncoder.matches(clientSecret, app.getClientSecret())) {
             log.warn("OAuth client secret mismatch: {}", clientId);
             return false;
         }
-        
+
         return true;
     }
 
-    /**
-     * Get OAuth application by client ID
-     */
     public OAuthAppResponse getApplication(String clientId) {
         OAuthApplication app = oauthRepository.findByClientId(clientId)
             .orElseThrow(() -> new IllegalArgumentException("OAuth application not found: " + clientId));
         return OAuthAppResponse.fromEntity(app);
     }
 
-    /**
-     * Get all OAuth applications for a developer
-     */
     public List<OAuthAppResponse> getDeveloperApplications(String developerId) {
         return oauthRepository.findByDeveloperId(developerId).stream()
             .map(OAuthAppResponse::fromEntity)
             .collect(Collectors.toList());
     }
 
-    /**
-     * Update OAuth application
-     */
     @Transactional
     public OAuthAppResponse updateApplication(String clientId, OAuthAppCreateRequest request) {
         OAuthApplication app = oauthRepository.findByClientId(clientId)
             .orElseThrow(() -> new IllegalArgumentException("OAuth application not found: " + clientId));
-        
+
         app.setName(request.getName());
         app.setDescription(request.getDescription());
         app.setRedirectUris(request.getRedirectUris());
         app.setGrantTypes(request.getGrantTypes());
         app.setScopes(request.getScopes());
-        
-        app = oauthRepository.save(app);
+
+        oauthRepository.save(app);
         log.info("OAuth Application updated: {}", clientId);
-        
+
         return OAuthAppResponse.fromEntity(app);
     }
 
-    /**
-     * Regenerate client secret
-     */
     @Transactional
     public OAuthAppResponse regenerateClientSecret(String clientId) {
         OAuthApplication app = oauthRepository.findByClientId(clientId)
             .orElseThrow(() -> new IllegalArgumentException("OAuth application not found: " + clientId));
-        
+
         String newSecret = generateClientSecret();
         app.setClientSecret(passwordEncoder.encode(newSecret));
-        app = oauthRepository.save(app);
+        oauthRepository.save(app);
         log.info("OAuth client secret regenerated: {}", clientId);
-        
+
         OAuthAppResponse response = OAuthAppResponse.fromEntity(app);
         response.setClientSecret(newSecret);
         return response;
     }
 
-    /**
-     * Disable an OAuth application
-     */
     @Transactional
     public OAuthAppResponse disableApplication(String clientId) {
         OAuthApplication app = oauthRepository.findByClientId(clientId)
             .orElseThrow(() -> new IllegalArgumentException("OAuth application not found: " + clientId));
-        
+
         app.setStatus(OAuthApplication.AppStatus.DISABLED);
-        app = oauthRepository.save(app);
+        oauthRepository.save(app);
         log.info("OAuth Application disabled: {}", clientId);
-        
+
         return OAuthAppResponse.fromEntity(app);
     }
 
-    /**
-     * Enable a disabled OAuth application
-     */
     @Transactional
     public OAuthAppResponse enableApplication(String clientId) {
         OAuthApplication app = oauthRepository.findByClientId(clientId)
             .orElseThrow(() -> new IllegalArgumentException("OAuth application not found: " + clientId));
-        
+
         app.setStatus(OAuthApplication.AppStatus.ACTIVE);
-        app = oauthRepository.save(app);
+        oauthRepository.save(app);
         log.info("OAuth Application enabled: {}", clientId);
-        
+
         return OAuthAppResponse.fromEntity(app);
     }
 
-    /**
-     * Delete an OAuth application
-     */
     @Transactional
     public void deleteApplication(String clientId) {
         OAuthApplication app = oauthRepository.findByClientId(clientId)
             .orElseThrow(() -> new IllegalArgumentException("OAuth application not found: " + clientId));
-        
+
         oauthRepository.delete(app);
         log.info("OAuth Application deleted: {}", clientId);
     }
 
-    /**
-     * Check if redirect URI is valid for the application
-     */
     public boolean isValidRedirectUri(String clientId, String redirectUri) {
         OAuthApplication app = oauthRepository.findByClientId(clientId)
             .orElse(null);
-        
+
         if (app == null || app.getRedirectUris() == null) {
             return false;
         }
-        
+
         String[] allowedUris = app.getRedirectUris().split(",");
         for (String allowed : allowedUris) {
             if (allowed.trim().equals(redirectUri)) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
-    /**
-     * Check if grant type is allowed for the application
-     */
     public boolean isGrantTypeAllowed(String clientId, String grantType) {
         OAuthApplication app = oauthRepository.findByClientId(clientId)
             .orElse(null);
-        
+
         if (app == null || app.getGrantTypes() == null) {
             return false;
         }
-        
+
         String[] allowedTypes = app.getGrantTypes().split(",");
         for (String allowed : allowedTypes) {
             if (allowed.trim().equals(grantType)) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
-    /**
-     * Generate unique client ID
-     */
     private String generateClientId() {
         return "oauth_" + UUID.randomUUID().toString().replace("-", "").substring(0, 20);
     }
 
-    /**
-     * Generate client secret
-     */
     private String generateClientSecret() {
         return UUID.randomUUID().toString().replace("-", "") + 
                UUID.randomUUID().toString().replace("-", "").substring(0, 16);

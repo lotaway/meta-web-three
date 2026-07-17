@@ -24,7 +24,6 @@ public class RouteOptimizerController {
         this.queryService = queryService;
     }
 
-    // Route Plan APIs
     @PostMapping("/routes")
     public ResponseEntity<RoutePlan> createRoutePlan(@RequestBody Map<String, Object> request) {
         String planName = (String) request.get("planName");
@@ -84,7 +83,6 @@ public class RouteOptimizerController {
         return ResponseEntity.noContent().build();
     }
 
-    // Vehicle APIs
     @PostMapping("/vehicles")
     public ResponseEntity<Vehicle> createVehicle(@RequestBody Map<String, Object> request) {
         Vehicle vehicle = commandService.createVehicle(
@@ -126,7 +124,6 @@ public class RouteOptimizerController {
         return ResponseEntity.ok(commandService.updateVehicleLocation(code, latitude, longitude));
     }
 
-    // Dashboard APIs
     @GetMapping("/dashboard/pending-routes")
     public ResponseEntity<List<RoutePlan>> getPendingRoutes() {
         return ResponseEntity.ok(queryService.getPendingRoutes());

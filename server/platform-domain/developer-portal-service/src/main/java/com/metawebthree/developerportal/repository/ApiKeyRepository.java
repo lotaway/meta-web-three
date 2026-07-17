@@ -1,41 +1,42 @@
 package com.metawebthree.developerportal.repository;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.metawebthree.developerportal.entity.ApiKey;
-import com.metawebthree.developerportal.entity.ApiKey.KeyStatus;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
+import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * API Key Repository
- */
-@Repository
-public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
+@Mapper
+public interface ApiKeyRepository extends BaseMapper<ApiKey> {
 
-    /**
-     * Find API key by key ID
-     */
-    Optional<ApiKey> findByKeyId(String keyId);
+    default Optional<ApiKey> findByKeyId(String keyId) {
+        return Optional.ofNullable(
+            selectOne(new QueryWrapper<ApiKey>().eq("key_id", keyId)));
+    }
 
-    /**
-     * Find all API keys by developer ID
-     */
-    List<ApiKey> findByDeveloperId(String developerId);
+    default List<ApiKey> findByDeveloperId(String developerId) {
+        return selectList(new QueryWrapper<ApiKey>().eq("developer_id", developerId));
+    }
 
-    /**
-     * Find all API keys by developer ID and status
-     */
-    List<ApiKey> findByDeveloperIdAndStatus(String developerId, KeyStatus status);
+    default List<ApiKey> findByDeveloperIdAndStatus(String developerId, ApiKey.KeyStatus status) {
+        return selectList(new QueryWrapper<ApiKey>()
+            .eq("developer_id", developerId).eq("status", status));
+    }
 
-    /**
-     * Check if key ID exists
-     */
-    boolean existsByKeyId(String keyId);
+    default boolean existsByKeyId(String keyId) {
+        return selectCount(new QueryWrapper<ApiKey>().eq("key_id", keyId)) > 0;
+    }
 
-    /**
-     * Find all active keys
-     */
-    List<ApiKey> findByStatus(KeyStatus status);
+    default List<ApiKey> findByStatus(ApiKey.KeyStatus status) {
+        return selectList(new QueryWrapper<ApiKey>().eq("status", status));
+    }
+
+    default void save(ApiKey entity) {
+        if (entity.getId() == null) {
+            insert(entity);
+        } else {
+            updateById(entity);
+        }
+    }
 }

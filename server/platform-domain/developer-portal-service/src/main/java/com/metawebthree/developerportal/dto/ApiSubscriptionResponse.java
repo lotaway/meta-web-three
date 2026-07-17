@@ -4,9 +4,6 @@ import com.metawebthree.developerportal.entity.ApiSubscription;
 import lombok.Data;
 import java.time.LocalDateTime;
 
-/**
- * API Subscription Response DTO
- */
 @Data
 public class ApiSubscriptionResponse {
 
@@ -22,20 +19,11 @@ public class ApiSubscriptionResponse {
     private String reason;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    
-    /**
-     * Auto-generated API Key ID upon activation (only set when first activation)
-     */
+
     private String generatedKeyId;
-    
-    /**
-     * Auto-generated API Key Secret (only shown once)
-     */
+
     private String generatedKeySecret;
 
-    /**
-     * Convert entity to DTO
-     */
     public static ApiSubscriptionResponse fromEntity(ApiSubscription subscription) {
         ApiSubscriptionResponse response = new ApiSubscriptionResponse();
         response.setSubscriptionId(subscription.getSubscriptionId());

@@ -1,31 +1,29 @@
 package com.metawebthree.forecasting.domain.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "tb_sales_history")
+@TableName("tb_sales_history")
 public class SalesHistory {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Column(name = "sku_code", length = 64)
+    @TableField("sku_code")
     private String skuCode;
 
-    @Column(name = "warehouse_id")
+    @TableField("warehouse_id")
     private Long warehouseId;
 
-    @Column(name = "sales_date")
+    @TableField("sales_date")
     private LocalDate salesDate;
 
-    @Column(name = "quantity")
+    @TableField("quantity")
     private Integer quantity;
 
-    @Column(name = "sales_channel", length = 32)
+    @TableField("sales_channel")
     private String salesChannel;
 
-    @Column(name = "created_at")
+    @TableField("created_at")
     private LocalDate createdAt;
 
     public SalesHistory() {
@@ -46,60 +44,18 @@ public class SalesHistory {
         return salesDate.isAfter(LocalDate.now().minusDays(days));
     }
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getSkuCode() {
-        return skuCode;
-    }
-
-    public void setSkuCode(String skuCode) {
-        this.skuCode = skuCode;
-    }
-
-    public Long getWarehouseId() {
-        return warehouseId;
-    }
-
-    public void setWarehouseId(Long warehouseId) {
-        this.warehouseId = warehouseId;
-    }
-
-    public LocalDate getSalesDate() {
-        return salesDate;
-    }
-
-    public void setSalesDate(LocalDate salesDate) {
-        this.salesDate = salesDate;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public String getSalesChannel() {
-        return salesChannel;
-    }
-
-    public void setSalesChannel(String salesChannel) {
-        this.salesChannel = salesChannel;
-    }
-
-    public LocalDate getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDate createdAt) {
-        this.createdAt = createdAt;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getSkuCode() { return skuCode; }
+    public void setSkuCode(String skuCode) { this.skuCode = skuCode; }
+    public Long getWarehouseId() { return warehouseId; }
+    public void setWarehouseId(Long warehouseId) { this.warehouseId = warehouseId; }
+    public LocalDate getSalesDate() { return salesDate; }
+    public void setSalesDate(LocalDate salesDate) { this.salesDate = salesDate; }
+    public Integer getQuantity() { return quantity; }
+    public void setQuantity(Integer quantity) { this.quantity = quantity; }
+    public String getSalesChannel() { return salesChannel; }
+    public void setSalesChannel(String salesChannel) { this.salesChannel = salesChannel; }
+    public LocalDate getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDate createdAt) { this.createdAt = createdAt; }
 }
