@@ -8,7 +8,7 @@ import com.metawebthree.developerportal.repository.ApiDeveloperRepository;
 import com.metawebthree.developerportal.repository.ApiKeyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +24,7 @@ public class ApiKeyService {
 
     private final ApiKeyRepository apiKeyRepository;
     private final ApiDeveloperRepository developerRepository;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public ApiKeyResponse createApiKey(String developerId, ApiKeyCreateRequest request) {

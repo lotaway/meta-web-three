@@ -8,7 +8,7 @@ import com.metawebthree.developerportal.repository.ApiDeveloperRepository;
 import com.metawebthree.developerportal.repository.OAuthApplicationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +23,7 @@ public class OAuthApplicationService {
 
     private final OAuthApplicationRepository oauthRepository;
     private final ApiDeveloperRepository developerRepository;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public OAuthAppResponse registerApplication(String developerId, OAuthAppCreateRequest request) {

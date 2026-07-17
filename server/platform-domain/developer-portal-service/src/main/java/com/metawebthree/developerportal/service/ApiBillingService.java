@@ -19,6 +19,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ApiBillingService {
 
+    private static final int BASIC_CENTS_PER_REQUEST = 1;
+    private static final int PROFESSIONAL_CENTS_PER_REQUEST = 2;
+    private static final int ENTERPRISE_CENTS_PER_REQUEST = 5;
+    private static final double DATA_COST_CENTS_PER_MB = 1.0;
+    private static final int SLOW_REQUEST_MS_THRESHOLD = 1000;
+    private static final int SLOW_REQUEST_PENALTY_CENTS = 1;
+
     private final ApiUsageStatsRepository usageStatsRepository;
     private final ApiDeveloperRepository developerRepository;
 
@@ -63,21 +70,21 @@ public class ApiBillingService {
 
         switch (plan) {
             case BASIC:
-                amount += 1;
+                amount += BASIC_CENTS_PER_REQUEST;
                 break;
             case PROFESSIONAL:
-                amount += 2;
+                amount += PROFESSIONAL_CENTS_PER_REQUEST;
                 break;
             case ENTERPRISE:
-                amount += 5;
+                amount += ENTERPRISE_CENTS_PER_REQUEST;
                 break;
         }
 
         double dataMb = dataTransferredBytes / (1024.0 * 1024.0);
-        amount += (long) (dataMb * 1.0);
+        amount += (long) (dataMb * DATA_COST_CENTS_PER_MB);
 
-        if (responseTimeMs > 1000) {
-            amount += 1;
+        if (responseTimeMs > SLOW_REQUEST_MS_THRESHOLD) {
+            amount += SLOW_REQUEST_PENALTY_CENTS;
         }
 
         return amount;

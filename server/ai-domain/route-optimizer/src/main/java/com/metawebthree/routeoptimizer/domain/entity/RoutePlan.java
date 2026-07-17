@@ -61,7 +61,6 @@ public class RoutePlan {
     @TableField("updated_at")
     private LocalDateTime updatedAt;
 
-    @TableField(exist = false)
     private List<RoutePoint> points;
 
     public enum RouteStatus {

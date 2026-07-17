@@ -1,7 +1,9 @@
 package com.metawebthree.dataanalysis.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 
+@TableName("inventory_analysis")
 public class InventoryAnalysisDO {
     private Long id;
     private String productId;

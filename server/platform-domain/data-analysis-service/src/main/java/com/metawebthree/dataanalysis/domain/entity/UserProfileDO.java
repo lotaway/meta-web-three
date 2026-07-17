@@ -1,7 +1,9 @@
 package com.metawebthree.dataanalysis.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 
+@TableName("user_profile")
 public class UserProfileDO {
     private Long id;
     private Long userId;
