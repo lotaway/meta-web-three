@@ -74,7 +74,7 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
         );
 
         rmaDomainService.saveRmaOrder(order, items);
-        eventPublisher.publish(new RmaCreatedEvent(this, order.getId(), order.getRmaNo()));
+        eventPublisher.publish(new RmaCreatedEvent("RMA_CREATED", order.getId(), order.getRmaNo()));
 
         return toOrderDTO(order);
     }
@@ -114,16 +114,15 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
 
     @Override
     @Transactional
-    public RmaOrderDTO recordInspection(Long rmaId, String inspector, String result, String conclusion,
-                                         Integer totalInspected, Integer totalPassed, Integer totalFailed, String remark) {
+    public RmaOrderDTO recordInspection(Long rmaId, RecordInspectionRequest request) {
         RmaInspection inspection = new RmaInspection();
-        inspection.setInspector(inspector);
-        inspection.setResult(result);
-        inspection.setConclusion(conclusion);
-        inspection.setTotalInspected(totalInspected);
-        inspection.setTotalPassed(totalPassed);
-        inspection.setTotalFailed(totalFailed);
-        inspection.setRemark(remark);
+        inspection.setInspector(request.getInspector());
+        inspection.setResult(request.getResult());
+        inspection.setConclusion(request.getConclusion());
+        inspection.setTotalInspected(request.getTotalInspected());
+        inspection.setTotalPassed(request.getTotalPassed());
+        inspection.setTotalFailed(request.getTotalFailed());
+        inspection.setRemark(request.getRemark());
 
         RmaOrder order = rmaDomainService.getRmaOrder(rmaId)
                 .orElseThrow(() -> new IllegalArgumentException("RMA order not found"));
@@ -132,7 +131,7 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
         rmaDomainService.saveInspection(saved);
         rmaDomainService.saveRmaOrder(order);
 
-        eventPublisher.publish(new RmaInspectionCompletedEvent(this, rmaId, order.getRmaNo(),
+        eventPublisher.publish(new RmaInspectionCompletedEvent("RMA_INSPECTION_COMPLETED", rmaId, order.getRmaNo(),
                 saved.getResult(), saved.getTotalPassed()));
 
         return toOrderDTO(order);
@@ -140,12 +139,16 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
 
     @Override
     @Transactional
-    public RmaOrderDTO makeDisposition(Long rmaId, String dispositionType,
-                                        String dispositionBy, String remark) {
+    public RmaOrderDTO makeDisposition(Long rmaId, MakeDispositionRequest request) {
         RmaDisposition disposition = new RmaDisposition();
-        disposition.setDispositionType(dispositionType);
-        disposition.setDispositionBy(dispositionBy);
-        disposition.setRemark(remark);
+        disposition.setDispositionType(request.getDispositionType());
+        disposition.setDispositionBy(request.getDispositionBy());
+        disposition.setRefundAmount(request.getRefundAmount());
+        disposition.setReplacementSkuCode(request.getReplacementSkuCode());
+        disposition.setReplacementQuantity(request.getReplacementQuantity());
+        disposition.setScrapQuantity(request.getScrapQuantity());
+        disposition.setScrapReason(request.getScrapReason());
+        disposition.setRemark(request.getRemark());
 
         RmaOrder order = rmaDomainService.getRmaOrder(rmaId)
                 .orElseThrow(() -> new IllegalArgumentException("RMA order not found"));
@@ -167,7 +170,7 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
                 .orElse(null);
 
         if (disposition != null) {
-            eventPublisher.publish(new RmaDispositionExecutedEvent(this, rmaId, order.getRmaNo(),
+            eventPublisher.publish(new RmaDispositionExecutedEvent("RMA_DISPOSITION_EXECUTED", rmaId, order.getRmaNo(),
                     disposition.getDispositionType()));
         }
 
@@ -179,7 +182,7 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
     public RmaOrderDTO completeRma(Long rmaId) {
         RmaOrder order = rmaDomainService.completeRmaOrder(rmaId);
         rmaDomainService.saveRmaOrder(order);
-        eventPublisher.publish(new RmaCompletedEvent(this, rmaId, order.getRmaNo()));
+        eventPublisher.publish(new RmaCompletedEvent("RMA_COMPLETED", rmaId, order.getRmaNo()));
         return toOrderDTO(order);
     }
 

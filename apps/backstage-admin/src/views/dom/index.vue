@@ -42,7 +42,7 @@ const formData = ref<DomOrder>({
   region: '',
   sourcingStrategy: 'NEAREST_WAREHOUSE',
   status: 'PENDING',
-  items: []
+  lines: []
 })
 
 const strategyOptions = [
@@ -53,12 +53,10 @@ const strategyOptions = [
 
 const statusOptions = [
   { label: t('dom.statusPENDING'), value: 'PENDING' },
-  { label: t('dom.statusATP_CHECKING'), value: 'ATP_CHECKING' },
   { label: t('dom.statusATP_FAILED'), value: 'ATP_FAILED' },
   { label: t('dom.statusSOURCING'), value: 'SOURCING' },
   { label: t('dom.statusSOURCING_COMPLETED'), value: 'SOURCING_COMPLETED' },
   { label: t('dom.statusFULFILLED'), value: 'FULFILLED' },
-  { label: t('dom.statusPARTIALLY_FULFILLED'), value: 'PARTIALLY_FULFILLED' },
   { label: t('dom.statusCANCELLED'), value: 'CANCELLED' }
 ]
 
@@ -113,7 +111,7 @@ const handleAdd = () => {
     region: '',
     sourcingStrategy: 'NEAREST_WAREHOUSE',
     status: 'PENDING',
-    items: []
+    lines: []
   }
   dialogVisible.value = true
 }
@@ -121,7 +119,14 @@ const handleAdd = () => {
 const handleSubmit = async () => {
   dialogLoading.value = true
   try {
-    await createDomOrderAPI(formData.value)
+    await createDomOrderAPI({
+      originalOrderNo: formData.value.originalOrderNo,
+      customerId: formData.value.customerId,
+      customerName: formData.value.customerName,
+      region: formData.value.region,
+      sourcingStrategy: formData.value.sourcingStrategy,
+      items: formData.value.lines
+    })
     ElMessage.success(t('dom.createSuccess'))
     dialogVisible.value = false
     getList()
@@ -134,7 +139,7 @@ const handleSubmit = async () => {
 
 const handleView = async (row: DomOrder) => {
   try {
-    const response = await getDomByIdAPI(row.domOrderNo)
+    const response = await getDomByIdAPI(row.id)
     detailData.value = response.data
     detailVisible.value = true
   } catch (error) {
@@ -149,7 +154,7 @@ const handleCheckAtp = async (row: DomOrder) => {
       cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
-    await checkDomAvailabilityAPI(row.domOrderNo)
+    await checkDomAvailabilityAPI(row.id)
     ElMessage.success(t('dom.atpCheckSuccess'))
     getList()
   } catch (error) {
@@ -166,7 +171,7 @@ const handleSourceOrder = async (row: DomOrder) => {
       cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
-    await sourceDomOrderAPI(row.domOrderNo)
+    await sourceDomOrderAPI(row.id)
     ElMessage.success(t('dom.sourceSuccess'))
     getList()
   } catch (error) {
@@ -183,7 +188,7 @@ const handleApproveFulfillment = async (row: DomOrder) => {
       cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
-    await approveDomFulfillmentAPI(row.domOrderNo)
+    await approveDomFulfillmentAPI(row.id)
     ElMessage.success(t('dom.approveSuccess'))
     getList()
   } catch (error) {
@@ -200,7 +205,7 @@ const handleCancel = async (row: DomOrder) => {
       cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
-    await cancelDomOrderAPI(row.domOrderNo)
+    await cancelDomOrderAPI(row.id)
     ElMessage.success(t('dom.cancelSuccess'))
     getList()
   } catch (error) {
@@ -211,10 +216,10 @@ const handleCancel = async (row: DomOrder) => {
 }
 
 const addItem = () => {
-  if (!formData.value.items) {
-    formData.value.items = []
+  if (!formData.value.lines) {
+    formData.value.lines = []
   }
-  formData.value.items.push({
+  formData.value.lines.push({
     skuCode: '',
     skuName: '',
     quantity: 1,
@@ -223,7 +228,7 @@ const addItem = () => {
 }
 
 const removeItem = (index: number) => {
-  formData.value.items?.splice(index, 1)
+  formData.value.lines?.splice(index, 1)
 }
 
 type StatusTagType = 'primary' | 'success' | 'warning' | 'danger' | 'info'
@@ -231,12 +236,10 @@ type StatusTagType = 'primary' | 'success' | 'warning' | 'danger' | 'info'
 const getStatusType = (status: string): StatusTagType => {
   const statusMap: Record<string, StatusTagType> = {
     PENDING: 'info',
-    ATP_CHECKING: 'warning',
     ATP_FAILED: 'danger',
     SOURCING: 'warning',
     SOURCING_COMPLETED: 'primary',
     FULFILLED: 'success',
-    PARTIALLY_FULFILLED: 'warning',
     CANCELLED: 'info'
   }
   return statusMap[status] || 'info'
@@ -316,7 +319,7 @@ const formatAmount = (amount?: number) => {
               {{ t('dom.checkAtp') }}
             </el-button>
             <el-button
-              v-if="row.status === 'ATP_CHECKING' || row.status === 'ATP_FAILED'"
+              v-if="row.status === 'SOURCING'"
               type="primary"
               size="small"
               :icon="Edit"
@@ -334,7 +337,7 @@ const formatAmount = (amount?: number) => {
               {{ t('dom.approveFulfillment') }}
             </el-button>
             <el-button
-              v-if="row.status === 'PENDING' || row.status === 'ATP_CHECKING' || row.status === 'ATP_FAILED'"
+              v-if="row.status === 'PENDING' || row.status === 'ATP_FAILED'"
               type="danger"
               size="small"
               :icon="Close"
@@ -379,7 +382,7 @@ const formatAmount = (amount?: number) => {
         </el-form-item>
         <el-form-item label="Items" required>
           <div class="items-wrapper">
-            <div v-for="(item, index) in formData.items" :key="index" class="item-row">
+            <div v-for="(item, index) in formData.lines" :key="index" class="item-row">
               <el-input v-model="item.skuCode" placeholder="SKU Code" style="width: 120px" />
               <el-input v-model="item.skuName" placeholder="SKU Name" style="width: 140px" />
               <el-input-number v-model="item.quantity" :min="1" :max="99999" size="small" />
@@ -414,7 +417,7 @@ const formatAmount = (amount?: number) => {
           </el-descriptions-item>
           <el-descriptions-item :label="t('dom.totalAmount')">{{ formatAmount(detailData.totalAmount) }}</el-descriptions-item>
         </el-descriptions>
-        <el-table :data="detailData.items" border stripe class="detail-items-table">
+        <el-table :data="detailData.lines" border stripe class="detail-items-table">
           <el-table-column label="SKU Code" prop="skuCode" min-width="120" />
           <el-table-column label="SKU Name" prop="skuName" min-width="140" />
           <el-table-column label="Quantity" prop="quantity" min-width="80" />
@@ -422,9 +425,9 @@ const formatAmount = (amount?: number) => {
             <template #default="{ row }">{{ formatAmount(row.unitPrice) }}</template>
           </el-table-column>
         </el-table>
-        <div v-if="detailData.fulfillmentPlans && detailData.fulfillmentPlans.length > 0" class="fulfillment-section">
+        <div v-if="detailData.fulfillmentPlan && detailData.fulfillmentPlan.length > 0" class="fulfillment-section">
           <h4>Fulfillment Plans</h4>
-          <el-table :data="detailData.fulfillmentPlans" border stripe>
+          <el-table :data="detailData.fulfillmentPlan" border stripe>
             <el-table-column label="Warehouse" prop="warehouseName" min-width="120" />
             <el-table-column label="SKU Code" prop="skuCode" min-width="120" />
             <el-table-column label="Quantity" prop="quantity" min-width="80" />

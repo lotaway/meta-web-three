@@ -30,7 +30,7 @@ public class InventoryAlertAppService {
         
         if (config != null && config.getNotificationChannels() != null) {
             AlertNotificationDTO notification = buildNotification(savedAlert, config);
-            InventoryAlertCreatedEvent event = new InventoryAlertCreatedEvent(this, notification);
+            InventoryAlertCreatedEvent event = new InventoryAlertCreatedEvent("INVENTORY_ALERT_CREATED", notification);
             eventPublisher.publishEvent(event);
         }
         

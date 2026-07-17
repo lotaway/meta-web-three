@@ -15,7 +15,7 @@ public class RmaSequenceGeneratorImpl implements RmaSequenceGenerator {
     private static final String DATE_FORMAT = "yyyyMMdd";
     private static final String RMA_NO_PREFIX = "RMA";
     private static final String RMA_NO_FORMAT = "%06d";
-    private static final int SEQ_MOD = 1000000;
+    private static final int MAX_SEQUENCE = 1000000;
 
     private static String seqDate = LocalDate.now().format(DateTimeFormatter.ofPattern(DATE_FORMAT));
 
@@ -28,7 +28,7 @@ public class RmaSequenceGeneratorImpl implements RmaSequenceGenerator {
                 seqDate = datePart;
             }
             long seq = SEQ.getAndIncrement();
-            return RMA_NO_PREFIX + datePart + String.format(RMA_NO_FORMAT, seq % SEQ_MOD);
+            return RMA_NO_PREFIX + datePart + String.format(RMA_NO_FORMAT, seq % MAX_SEQUENCE);
         }
     }
 }

@@ -1,16 +1,19 @@
 package com.metawebthree.rma.application.event;
 
-import org.springframework.context.ApplicationEvent;
+public class RmaCreatedEvent {
 
-public class RmaCreatedEvent extends ApplicationEvent {
-
+    private final String eventType;
     private final Long rmaId;
     private final String rmaNo;
 
-    public RmaCreatedEvent(Object source, Long rmaId, String rmaNo) {
-        super(source);
+    public RmaCreatedEvent(String eventType, Long rmaId, String rmaNo) {
+        this.eventType = eventType;
         this.rmaId = rmaId;
         this.rmaNo = rmaNo;
+    }
+
+    public String getEventType() {
+        return eventType;
     }
 
     public Long getRmaId() {

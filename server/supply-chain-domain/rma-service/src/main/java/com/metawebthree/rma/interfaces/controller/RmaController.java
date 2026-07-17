@@ -5,6 +5,8 @@ import com.metawebthree.common.annotations.RequirePermission;
 import com.metawebthree.common.SupplyChainPermissions;
 import com.metawebthree.rma.application.RmaApplicationService;
 import com.metawebthree.rma.application.dto.CreateRmaRequest;
+import com.metawebthree.rma.application.dto.MakeDispositionRequest;
+import com.metawebthree.rma.application.dto.RecordInspectionRequest;
 import com.metawebthree.rma.application.dto.RmaOrderDTO;
 import com.metawebthree.rma.application.dto.RmaQueryParam;
 import org.springframework.web.bind.annotation.*;
@@ -54,24 +56,15 @@ public class RmaController {
     @RequirePermission(SupplyChainPermissions.RMA_UPDATE)
     @PostMapping("/{id}/record-inspection")
     public RmaOrderDTO recordInspection(@PathVariable Long id,
-                                         @RequestParam String inspector,
-                                         @RequestParam String result,
-                                         @RequestParam(required = false) String conclusion,
-                                         @RequestParam Integer totalInspected,
-                                         @RequestParam Integer totalPassed,
-                                         @RequestParam Integer totalFailed,
-                                         @RequestParam(required = false) String remark) {
-        return rmaApplicationService.recordInspection(id, inspector, result, conclusion,
-                totalInspected, totalPassed, totalFailed, remark);
+                                         @RequestBody RecordInspectionRequest request) {
+        return rmaApplicationService.recordInspection(id, request);
     }
 
     @RequirePermission(SupplyChainPermissions.RMA_UPDATE)
     @PostMapping("/{id}/disposition")
     public RmaOrderDTO makeDisposition(@PathVariable Long id,
-                                        @RequestParam String dispositionType,
-                                        @RequestParam String dispositionBy,
-                                        @RequestParam(required = false) String remark) {
-        return rmaApplicationService.makeDisposition(id, dispositionType, dispositionBy, remark);
+                                        @RequestBody MakeDispositionRequest request) {
+        return rmaApplicationService.makeDisposition(id, request);
     }
 
     @RequirePermission(SupplyChainPermissions.RMA_UPDATE)

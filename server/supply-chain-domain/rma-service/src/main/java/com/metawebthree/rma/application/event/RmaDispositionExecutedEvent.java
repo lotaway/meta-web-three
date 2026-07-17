@@ -1,18 +1,21 @@
 package com.metawebthree.rma.application.event;
 
-import org.springframework.context.ApplicationEvent;
+public class RmaDispositionExecutedEvent {
 
-public class RmaDispositionExecutedEvent extends ApplicationEvent {
-
+    private final String eventType;
     private final Long rmaId;
     private final String rmaNo;
     private final String dispositionType;
 
-    public RmaDispositionExecutedEvent(Object source, Long rmaId, String rmaNo, String dispositionType) {
-        super(source);
+    public RmaDispositionExecutedEvent(String eventType, Long rmaId, String rmaNo, String dispositionType) {
+        this.eventType = eventType;
         this.rmaId = rmaId;
         this.rmaNo = rmaNo;
         this.dispositionType = dispositionType;
+    }
+
+    public String getEventType() {
+        return eventType;
     }
 
     public Long getRmaId() {

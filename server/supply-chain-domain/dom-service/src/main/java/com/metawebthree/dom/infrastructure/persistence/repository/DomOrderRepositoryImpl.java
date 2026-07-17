@@ -1,6 +1,8 @@
 package com.metawebthree.dom.infrastructure.persistence.repository;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.metawebthree.dom.domain.entity.DomOrder;
 import com.metawebthree.dom.domain.entity.DomOrderStatus;
 import com.metawebthree.dom.domain.repository.DomOrderRepository;
@@ -59,6 +61,22 @@ public class DomOrderRepositoryImpl implements DomOrderRepository {
         return domOrderMapper.selectList(null).stream()
                 .map(domOrderConverter::toEntity)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public IPage<DomOrder> findPage(Page<DomOrder> page, DomOrderStatus status) {
+        Page<DomOrderDO> doPage = new Page<>(page.getCurrent(), page.getSize());
+        LambdaQueryWrapper<DomOrderDO> wrapper = new LambdaQueryWrapper<>();
+        if (status != null) {
+            wrapper.eq(DomOrderDO::getStatus, status.name());
+        }
+        wrapper.orderByDesc(DomOrderDO::getCreatedAt);
+        IPage<DomOrderDO> doResult = domOrderMapper.selectPage(doPage, wrapper);
+        IPage<DomOrder> result = new Page<>(doResult.getCurrent(), doResult.getSize(), doResult.getTotal());
+        result.setRecords(doResult.getRecords().stream()
+                .map(domOrderConverter::toEntity)
+                .collect(Collectors.toList()));
+        return result;
     }
 
     @Override

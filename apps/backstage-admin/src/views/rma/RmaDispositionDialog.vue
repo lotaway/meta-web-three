@@ -14,6 +14,7 @@ const emit = defineEmits<{
   'update:visible': [value: boolean]
   submit: [form: {
     dispositionType: string
+    dispositionBy: string
     refundAmount: number
     replacementSkuCode: string
     replacementQuantity: number
@@ -23,6 +24,7 @@ const emit = defineEmits<{
 
 const dispositionForm = ref({
   dispositionType: DISPOSITION_TYPE.REFUND,
+  dispositionBy: '',
   refundAmount: 0,
   replacementSkuCode: '',
   replacementQuantity: 0,
@@ -41,6 +43,7 @@ watch(() => props.visible, (val) => {
   if (val) {
     dispositionForm.value = {
       dispositionType: DISPOSITION_TYPE.REFUND,
+      dispositionBy: '',
       refundAmount: 0,
       replacementSkuCode: '',
       replacementQuantity: 0,
@@ -63,6 +66,9 @@ watch(() => props.visible, (val) => {
         <el-select v-model="dispositionForm.dispositionType">
           <el-option v-for="item in dispositionTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
+      </el-form-item>
+      <el-form-item :label="t('rma.dispositionBy') || 'Disposition By'" required>
+        <el-input v-model="dispositionForm.dispositionBy" placeholder="Enter disposition by" />
       </el-form-item>
       <el-form-item :label="t('rma.refundAmount') || 'Refund Amount'">
         <el-input-number v-model="dispositionForm.refundAmount" :min="0" :precision="2" />

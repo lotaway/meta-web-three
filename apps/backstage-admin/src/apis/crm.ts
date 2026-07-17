@@ -98,137 +98,137 @@ export interface PipelineSummary {
 
 // Lead APIs
 export const getLeadById = (id: number) => {
-  return http<Lead>({ url: `/api/crm/lead/${id}`, method: 'get' })
+  return http<Lead>({ url: `/api/crm/leads/${id}`, method: 'get' })
 }
 
 export const listLeads = (params: { status?: string; source?: string; keywords?: string; page?: number; pageSize?: number }) => {
-  return http<{ records: Lead[]; total: number }>({ url: '/api/crm/lead/list', method: 'get', params })
+  return http<{ records: Lead[]; total: number }>({ url: '/api/crm/leads/list', method: 'get', params })
 }
 
 export const createLead = (data: Partial<Lead>) => {
-  return http<Lead>({ url: '/api/crm/lead', method: 'post', data })
+  return http<Lead>({ url: '/api/crm/leads', method: 'post', data })
 }
 
 export const updateLead = (data: Partial<Lead>) => {
-  return http<Lead>({ url: '/api/crm/lead', method: 'put', data })
+  return http<Lead>({ url: '/api/crm/leads', method: 'put', data })
 }
 
 export const deleteLead = (id: number) => {
-  return http<void>({ url: `/api/crm/lead/${id}`, method: 'delete' })
+  return http<void>({ url: `/api/crm/leads/${id}`, method: 'delete' })
 }
 
 export const convertLead = (id: number) => {
-  return http<Opportunity>({ url: `/api/crm/lead/${id}/convert`, method: 'post' })
+  return http<Opportunity>({ url: `/api/crm/leads/${id}/convert`, method: 'post', data: {} })
 }
 
 export const disqualifyLead = (id: number, reason: string) => {
-  return http<void>({ url: `/api/crm/lead/${id}/disqualify`, method: 'post', data: { reason } })
+  return http<void>({ url: `/api/crm/leads/${id}/disqualify`, method: 'post', params: { reason } })
 }
 
 // Opportunity APIs
 export const getOpportunityById = (id: number) => {
-  return http<Opportunity>({ url: `/api/crm/opportunity/${id}`, method: 'get' })
+  return http<Opportunity>({ url: `/api/crm/opportunities/${id}`, method: 'get' })
 }
 
 export const listOpportunities = (params: { stage?: string; pipelineId?: number; keywords?: string; page?: number; pageSize?: number }) => {
-  return http<{ records: Opportunity[]; total: number }>({ url: '/api/crm/opportunity/list', method: 'get', params })
+  return http<{ records: Opportunity[]; total: number }>({ url: '/api/crm/opportunities/list', method: 'get', params })
 }
 
 export const createOpportunity = (data: Partial<Opportunity>) => {
-  return http<Opportunity>({ url: '/api/crm/opportunity', method: 'post', data })
+  return http<Opportunity>({ url: '/api/crm/opportunities', method: 'post', data })
 }
 
 export const updateOpportunity = (data: Partial<Opportunity>) => {
-  return http<Opportunity>({ url: '/api/crm/opportunity', method: 'put', data })
+  return http<Opportunity>({ url: '/api/crm/opportunities', method: 'put', data })
 }
 
 export const deleteOpportunity = (id: number) => {
-  return http<void>({ url: `/api/crm/opportunity/${id}`, method: 'delete' })
+  return http<void>({ url: `/api/crm/opportunities/${id}`, method: 'delete' })
 }
 
 export const advanceStage = (id: number) => {
-  return http<Opportunity>({ url: `/api/crm/opportunity/${id}/advance`, method: 'post' })
+  return http<Opportunity>({ url: `/api/crm/opportunities/${id}/advance`, method: 'post' })
 }
 
 export const closeWon = (id: number, data: { actualCloseDate: string; description?: string }) => {
-  return http<Opportunity>({ url: `/api/crm/opportunity/${id}/close-won`, method: 'post', data })
+  return http<Opportunity>({ url: `/api/crm/opportunities/${id}/close-won`, method: 'post' })
 }
 
 export const closeLost = (id: number, data: { reason: string; description?: string }) => {
-  return http<Opportunity>({ url: `/api/crm/opportunity/${id}/close-lost`, method: 'post', data })
+  return http<Opportunity>({ url: `/api/crm/opportunities/${id}/close-lost`, method: 'post', params: { reason: data.reason } })
 }
 
 export const getPipelineSummary = () => {
-  return http<PipelineSummary>({ url: '/api/crm/pipeline/summary', method: 'get' })
+  return http<PipelineSummary>({ url: '/api/crm/opportunities/summary', method: 'get' })
 }
 
 // Ticket APIs
 export const getTicketById = (id: number) => {
-  return http<CustomerServiceTicket>({ url: `/api/crm/ticket/${id}`, method: 'get' })
+  return http<CustomerServiceTicket>({ url: `/api/crm/tickets/${id}`, method: 'get' })
 }
 
 export const listTickets = (params: { status?: string; priority?: string; type?: string; keywords?: string; page?: number; pageSize?: number }) => {
-  return http<{ records: CustomerServiceTicket[]; total: number }>({ url: '/api/crm/ticket/list', method: 'get', params })
+  return http<{ records: CustomerServiceTicket[]; total: number }>({ url: '/api/crm/tickets/list', method: 'get', params })
 }
 
 export const createTicket = (data: Partial<CustomerServiceTicket>) => {
-  return http<CustomerServiceTicket>({ url: '/api/crm/ticket', method: 'post', data })
+  return http<CustomerServiceTicket>({ url: '/api/crm/tickets', method: 'post', data })
 }
 
 export const updateTicket = (data: Partial<CustomerServiceTicket>) => {
-  return http<CustomerServiceTicket>({ url: '/api/crm/ticket', method: 'put', data })
+  return http<CustomerServiceTicket>({ url: '/api/crm/tickets', method: 'put', data })
 }
 
 export const deleteTicket = (id: number) => {
-  return http<void>({ url: `/api/crm/ticket/${id}`, method: 'delete' })
+  return http<void>({ url: `/api/crm/tickets/${id}`, method: 'delete' })
 }
 
 export const assignTicket = (id: number, assignedTo: string) => {
-  return http<CustomerServiceTicket>({ url: `/api/crm/ticket/${id}/assign`, method: 'post', data: { assignedTo } })
+  return http<CustomerServiceTicket>({ url: `/api/crm/tickets/${id}/assign`, method: 'put', params: { assignedTo } })
 }
 
 export const updateTicketStatus = (id: number, status: string, resolution?: string) => {
-  return http<CustomerServiceTicket>({ url: `/api/crm/ticket/${id}/status`, method: 'put', data: { status, resolution } })
+  return http<CustomerServiceTicket>({ url: `/api/crm/tickets/${id}/status`, method: 'put', params: { status } })
 }
 
 // Campaign APIs
 export const getCampaignById = (id: number) => {
-  return http<Campaign>({ url: `/api/crm/campaign/${id}`, method: 'get' })
+  return http<Campaign>({ url: `/api/crm/campaigns/${id}`, method: 'get' })
 }
 
 export const listCampaigns = (params: { status?: string; type?: string; page?: number; pageSize?: number }) => {
-  return http<{ records: Campaign[]; total: number }>({ url: '/api/crm/campaign/list', method: 'get', params })
+  return http<{ records: Campaign[]; total: number }>({ url: '/api/crm/campaigns/list', method: 'get', params })
 }
 
 export const createCampaign = (data: Partial<Campaign>) => {
-  return http<Campaign>({ url: '/api/crm/campaign', method: 'post', data })
+  return http<Campaign>({ url: '/api/crm/campaigns', method: 'post', data })
 }
 
 export const updateCampaign = (data: Partial<Campaign>) => {
-  return http<Campaign>({ url: '/api/crm/campaign', method: 'put', data })
+  return http<Campaign>({ url: '/api/crm/campaigns', method: 'put', data })
 }
 
 export const deleteCampaign = (id: number) => {
-  return http<void>({ url: `/api/crm/campaign/${id}`, method: 'delete' })
+  return http<void>({ url: `/api/crm/campaigns/${id}`, method: 'delete' })
 }
 
 // Contact APIs
 export const getContactById = (id: number) => {
-  return http<Contact>({ url: `/api/crm/contact/${id}`, method: 'get' })
+  return http<Contact>({ url: `/api/crm/contacts/${id}`, method: 'get' })
 }
 
 export const listContacts = (params: { customerId?: number; keywords?: string; page?: number; pageSize?: number }) => {
-  return http<{ records: Contact[]; total: number }>({ url: '/api/crm/contact/list', method: 'get', params })
+  return http<{ records: Contact[]; total: number }>({ url: '/api/crm/contacts/list', method: 'get', params })
 }
 
 export const createContact = (data: Partial<Contact>) => {
-  return http<Contact>({ url: '/api/crm/contact', method: 'post', data })
+  return http<Contact>({ url: '/api/crm/contacts', method: 'post', data })
 }
 
 export const updateContact = (data: Partial<Contact>) => {
-  return http<Contact>({ url: '/api/crm/contact', method: 'put', data })
+  return http<Contact>({ url: '/api/crm/contacts', method: 'put', data })
 }
 
 export const deleteContact = (id: number) => {
-  return http<void>({ url: `/api/crm/contact/${id}`, method: 'delete' })
+  return http<void>({ url: `/api/crm/contacts/${id}`, method: 'delete' })
 }

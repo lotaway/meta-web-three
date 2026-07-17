@@ -175,7 +175,7 @@ const handleRecordInspection = (row: RmaOrder) => {
   inspectionVisible.value = true
 }
 
-const submitInspection = async (form: { inspector: string; result: string; conclusion: string; remark: string }) => {
+const submitInspection = async (form: { inspector: string; result: string; conclusion: string; totalInspected: number; totalPassed: number; totalFailed: number; remark: string }) => {
   dialogLoading.value = true
   try {
     await recordRmaInspectionAPI(currentRmaId.value!, form)
@@ -196,7 +196,7 @@ const handleMakeDisposition = (row: RmaOrder) => {
   dispositionVisible.value = true
 }
 
-const submitDisposition = async (form: { dispositionType: string; refundAmount: number; replacementSkuCode: string; replacementQuantity: number; remark: string }) => {
+const submitDisposition = async (form: { dispositionType: string; dispositionBy: string; refundAmount: number; replacementSkuCode: string; replacementQuantity: number; remark: string }) => {
   dialogLoading.value = true
   try {
     await makeRmaDispositionAPI(currentRmaId.value!, form)

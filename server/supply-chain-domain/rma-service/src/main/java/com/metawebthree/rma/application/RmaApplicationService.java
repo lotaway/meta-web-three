@@ -16,11 +16,9 @@ public interface RmaApplicationService {
 
     RmaOrderDTO submitForInspection(Long rmaId);
 
-    RmaOrderDTO recordInspection(Long rmaId, String inspector, String result, String conclusion,
-                                  Integer totalInspected, Integer totalPassed, Integer totalFailed, String remark);
+    RmaOrderDTO recordInspection(Long rmaId, RecordInspectionRequest request);
 
-    RmaOrderDTO makeDisposition(Long rmaId, String dispositionType,
-                                 String dispositionBy, String remark);
+    RmaOrderDTO makeDisposition(Long rmaId, MakeDispositionRequest request);
 
     RmaOrderDTO executeDisposition(Long rmaId);
 

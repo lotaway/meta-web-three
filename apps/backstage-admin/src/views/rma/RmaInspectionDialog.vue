@@ -16,6 +16,9 @@ const emit = defineEmits<{
     inspector: string
     result: string
     conclusion: string
+    totalInspected: number
+    totalPassed: number
+    totalFailed: number
     remark: string
   }]
 }>()
@@ -24,6 +27,9 @@ const inspectionForm = ref({
   inspector: '',
   result: INSPECTION_RESULT.PASS,
   conclusion: '',
+  totalInspected: 0,
+  totalPassed: 0,
+  totalFailed: 0,
   remark: ''
 })
 
@@ -39,6 +45,9 @@ watch(() => props.visible, (val) => {
       inspector: '',
       result: INSPECTION_RESULT.PASS,
       conclusion: '',
+      totalInspected: 0,
+      totalPassed: 0,
+      totalFailed: 0,
       remark: ''
     }
   }
@@ -61,6 +70,15 @@ watch(() => props.visible, (val) => {
         <el-select v-model="inspectionForm.result">
           <el-option v-for="item in inspectionResultOptions" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
+      </el-form-item>
+      <el-form-item label="Total Inspected" required>
+        <el-input-number v-model="inspectionForm.totalInspected" :min="0" />
+      </el-form-item>
+      <el-form-item label="Total Passed" required>
+        <el-input-number v-model="inspectionForm.totalPassed" :min="0" />
+      </el-form-item>
+      <el-form-item label="Total Failed" required>
+        <el-input-number v-model="inspectionForm.totalFailed" :min="0" />
       </el-form-item>
       <el-form-item label="Conclusion">
         <el-input v-model="inspectionForm.conclusion" type="textarea" :rows="2" />

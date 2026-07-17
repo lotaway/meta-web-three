@@ -1,5 +1,7 @@
 package com.metawebthree.dom.application;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.metawebthree.dom.application.dto.*;
 import com.metawebthree.dom.domain.entity.*;
 import com.metawebthree.dom.domain.repository.DomOrderLineRepository;
@@ -16,6 +18,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class DomApplicationServiceImpl implements DomApplicationService {
+
+    private static final String DEFAULT_CURRENCY = "CNY";
+    private static final int DEFAULT_PRIORITY = 0;
 
     private final DomDomainService domDomainService;
     private final DomOrderRepository domOrderRepository;
@@ -47,8 +52,8 @@ public class DomApplicationServiceImpl implements DomApplicationService {
                 ? SourcingStrategy.valueOf(request.getSourcingStrategy())
                 : null);
         order.setTotalAmount(BigDecimal.ZERO);
-        order.setPriority(0);
-        order.setCurrency("CNY");
+        order.setPriority(DEFAULT_PRIORITY);
+        order.setCurrency(DEFAULT_CURRENCY);
 
         List<DomOrderLine> lines = request.getItems().stream().map(item -> {
             DomOrderLine line = new DomOrderLine();
@@ -111,19 +116,20 @@ public class DomApplicationServiceImpl implements DomApplicationService {
     }
 
     @Override
-    public List<DomOrderDTO> listDomOrders(DomQueryParam param) {
-        List<DomOrder> orders;
-        if (param.getStatus() != null && !param.getStatus().isEmpty()) {
-            orders = domOrderRepository.findByStatus(DomOrderStatus.valueOf(param.getStatus()));
-        } else {
-            orders = domOrderRepository.findAll();
-        }
-        return orders.stream()
+    public IPage<DomOrderDTO> listDomOrders(DomQueryParam param) {
+        Page<DomOrder> page = new Page<>(param.getPageNum(), param.getPageSize());
+        DomOrderStatus status = param.getStatus() != null && !param.getStatus().isEmpty()
+                ? DomOrderStatus.valueOf(param.getStatus())
+                : null;
+        IPage<DomOrder> orderPage = domOrderRepository.findPage(page, status);
+        IPage<DomOrderDTO> dtoPage = new Page<>(orderPage.getCurrent(), orderPage.getSize(), orderPage.getTotal());
+        dtoPage.setRecords(orderPage.getRecords().stream()
                 .map(order -> {
                     List<DomOrderLine> lines = domOrderLineRepository.findByDomOrderId(order.getId());
                     return toDomOrderDTO(order, lines);
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
+        return dtoPage;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.metawebthree.dom.domain.repository;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.metawebthree.dom.domain.entity.DomOrder;
 import com.metawebthree.dom.domain.entity.DomOrderStatus;
 import java.util.List;
@@ -16,6 +18,8 @@ public interface DomOrderRepository {
     List<DomOrder> findByStatus(DomOrderStatus status);
 
     List<DomOrder> findAll();
+
+    IPage<DomOrder> findPage(Page<DomOrder> page, DomOrderStatus status);
 
     DomOrder save(DomOrder domOrder);
 }

@@ -1,21 +1,24 @@
 package com.metawebthree.rma.application.event;
 
-import org.springframework.context.ApplicationEvent;
+public class RmaInspectionCompletedEvent {
 
-public class RmaInspectionCompletedEvent extends ApplicationEvent {
-
+    private final String eventType;
     private final Long rmaId;
     private final String rmaNo;
     private final String inspectionResult;
     private final Integer acceptedQuantity;
 
-    public RmaInspectionCompletedEvent(Object source, Long rmaId, String rmaNo,
+    public RmaInspectionCompletedEvent(String eventType, Long rmaId, String rmaNo,
                                        String inspectionResult, Integer acceptedQuantity) {
-        super(source);
+        this.eventType = eventType;
         this.rmaId = rmaId;
         this.rmaNo = rmaNo;
         this.inspectionResult = inspectionResult;
         this.acceptedQuantity = acceptedQuantity;
+    }
+
+    public String getEventType() {
+        return eventType;
     }
 
     public Long getRmaId() {
