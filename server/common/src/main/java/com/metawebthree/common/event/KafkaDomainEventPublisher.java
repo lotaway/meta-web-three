@@ -10,9 +10,6 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Kafka-based implementation of DomainEventPublisher.
- */
 @Slf4j
 @Component
 public class KafkaDomainEventPublisher implements DomainEventPublisher {

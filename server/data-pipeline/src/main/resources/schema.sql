@@ -73,6 +73,16 @@ AS SELECT toDate(event_time) AS day, event_type, device_type, browser_family, ca
    FROM meta_web_analytics.user_behavior_analytics
    GROUP BY day, event_type, device_type, browser_family, category;
 
+CREATE TABLE IF NOT EXISTS meta_web_analytics.production_analytics (
+    event_id String, event_type String, product_id UInt64, product_name String,
+    product_line String, workshop String, status String,
+    output_qty UInt32, qualified_qty UInt32, defect_qty UInt32,
+    cycle_time Float32, event_time DateTime, processed_time DateTime
+) ENGINE = MergeTree()
+PARTITION BY toYYYYMM(event_time)
+ORDER BY (event_time, product_id)
+SETTINGS index_granularity = 8192;
+
 CREATE MATERIALIZED VIEW IF NOT EXISTS meta_web_analytics.mv_inventory_daily
 ENGINE = SummingMergeTree()
 PARTITION BY toYYYYMM(day)

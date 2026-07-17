@@ -10,8 +10,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @Component
@@ -31,40 +29,40 @@ public class MesCrossDomainEventPublisher implements CrossDomainEventPublisher {
     @Override
     public void publishWorkOrderCompleted(Long workOrderId, String workOrderNo,
                                            String productCode, Integer quantity) {
-        Map<String, Object> data = buildEventData(EventType.MES_WORK_ORDER_COMPLETED.name(), workOrderId, workOrderNo, productCode);
-        data.put("quantity", quantity);
-        publish(EventType.MES_WORK_ORDER_COMPLETED.getTopic(), data);
+        WorkOrderCompletedEvent event = new WorkOrderCompletedEvent(
+            UUID.randomUUID().toString(),
+            EventType.MES_WORK_ORDER_COMPLETED.name(),
+            Instant.now().toString(),
+            workOrderId, workOrderNo, productCode, quantity
+        );
+        publish(EventType.MES_WORK_ORDER_COMPLETED.getTopic(), event);
     }
 
     @Override
     public void publishTaskCompleted(Long taskId, String taskNo, Long workOrderId,
                                       String workOrderNo, String productCode,
                                       Integer qualified, Integer defective) {
-        Map<String, Object> data = buildEventData(EventType.MES_TASK_COMPLETED.name(), workOrderId, workOrderNo, productCode);
-        data.put("taskId", taskId);
-        data.put("taskNo", taskNo);
-        data.put("qualifiedQuantity", qualified);
-        data.put("defectiveQuantity", defective);
-        publish(EventType.MES_TASK_COMPLETED.getTopic(), data);
+        TaskCompletedEvent event = new TaskCompletedEvent(
+            UUID.randomUUID().toString(),
+            EventType.MES_TASK_COMPLETED.name(),
+            Instant.now().toString(),
+            workOrderId, workOrderNo, productCode,
+            taskId, taskNo, qualified, defective
+        );
+        publish(EventType.MES_TASK_COMPLETED.getTopic(), event);
     }
 
-    private Map<String, Object> buildEventData(String eventType, Long workOrderId, String workOrderNo, String productCode) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("eventId", UUID.randomUUID().toString());
-        data.put("eventType", eventType);
-        data.put("timestamp", Instant.now().toString());
-        data.put("workOrderId", workOrderId);
-        data.put("workOrderNo", workOrderNo);
-        data.put("productCode", productCode);
-        return data;
-    }
-
-    private void publish(String topic, Map<String, Object> data) {
+    private void publish(String topic, Object event) {
         try {
-            String message = objectMapper.writeValueAsString(data);
-            String key = data.get("workOrderId") != null
-                ? data.get("workOrderId").toString()
-                : data.get("taskId").toString();
+            String message = objectMapper.writeValueAsString(event);
+            String key;
+            if (event instanceof WorkOrderCompletedEvent w) {
+                key = w.workOrderId().toString();
+            } else if (event instanceof TaskCompletedEvent t) {
+                key = t.taskId().toString();
+            } else {
+                key = UUID.randomUUID().toString();
+            }
             kafkaTemplate.send(topic, key, message);
             log.info("Published cross-domain event: topic={}, key={}", topic, key);
         } catch (JsonProcessingException e) {
@@ -72,4 +70,13 @@ public class MesCrossDomainEventPublisher implements CrossDomainEventPublisher {
             throw new IllegalStateException("Failed to publish cross-domain event: " + topic, e);
         }
     }
+
+    private record WorkOrderCompletedEvent(String eventId, String eventType, String timestamp,
+                                            Long workOrderId, String workOrderNo, String productCode,
+                                            Integer quantity) {}
+
+    private record TaskCompletedEvent(String eventId, String eventType, String timestamp,
+                                       Long workOrderId, String workOrderNo, String productCode,
+                                       Long taskId, String taskNo,
+                                       Integer qualifiedQuantity, Integer defectiveQuantity) {}
 }

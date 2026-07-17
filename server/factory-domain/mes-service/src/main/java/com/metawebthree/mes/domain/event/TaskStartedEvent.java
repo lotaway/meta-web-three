@@ -3,8 +3,8 @@ package com.metawebthree.mes.domain.event;
 public class TaskStartedEvent extends MesEvent {
     private final Long taskId;
 
-    public TaskStartedEvent(Object source, Long taskId) {
-        super(source, MesEventType.TASK_STARTED);
+    public TaskStartedEvent(Long taskId) {
+        super(MesEventType.TASK_STARTED);
         this.taskId = taskId;
     }
 

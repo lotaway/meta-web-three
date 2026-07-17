@@ -4,8 +4,8 @@ public class WorkOrderCreatedEvent extends MesEvent {
     private final Long workOrderId;
     private final String workOrderNo;
 
-    public WorkOrderCreatedEvent(Object source, Long workOrderId, String workOrderNo) {
-        super(source, MesEventType.WORK_ORDER_CREATED);
+    public WorkOrderCreatedEvent(Long workOrderId, String workOrderNo) {
+        super(MesEventType.WORK_ORDER_CREATED);
         this.workOrderId = workOrderId;
         this.workOrderNo = workOrderNo;
     }

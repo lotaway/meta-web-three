@@ -14,9 +14,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Finance domain event publisher using Kafka.
- */
 @Slf4j
 @Component
 public class FinanceDomainEventPublisher {

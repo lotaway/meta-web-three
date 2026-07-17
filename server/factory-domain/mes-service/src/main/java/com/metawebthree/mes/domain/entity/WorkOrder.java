@@ -31,7 +31,7 @@ public class WorkOrder {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
-    private static StatusMachineService statusMachineService;
+    private transient StatusMachineService statusMachineService;
     
     private static final String DEFAULT_STATUS_MACHINE_CODE = "WORK_ORDER_DEFAULT";
 
@@ -59,8 +59,8 @@ public class WorkOrder {
         MANUAL
     }
     
-    public static void setStatusMachineService(StatusMachineService service) {
-        statusMachineService = service;
+    public void setStatusMachineService(StatusMachineService service) {
+        this.statusMachineService = service;
     }
 
     public void create(String workOrderNo, String productCode, String productName, 

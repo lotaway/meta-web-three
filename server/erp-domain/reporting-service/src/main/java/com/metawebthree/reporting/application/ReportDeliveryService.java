@@ -223,6 +223,7 @@ public class ReportDeliveryService {
             log.info("邮件发送成功: 主题={}, 收件人={}", title, subscription.getRecipient());
         } catch (Exception e) {
             log.error("邮件发送失败: {}", e.getMessage(), e);
+            throw new RuntimeException("邮件发送失败", e);
         }
     }
     

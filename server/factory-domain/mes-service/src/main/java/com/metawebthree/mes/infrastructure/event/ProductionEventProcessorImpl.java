@@ -12,14 +12,14 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
-public class ProductionOrderEventListener implements ProductionEventProcessor {
+public class ProductionEventProcessorImpl implements ProductionEventProcessor {
 
-    private static final Logger log = LoggerFactory.getLogger(ProductionOrderEventListener.class);
+    private static final Logger log = LoggerFactory.getLogger(ProductionEventProcessorImpl.class);
 
     private final MesDomainService mesDomainService;
     private final ObjectMapper objectMapper;
 
-    public ProductionOrderEventListener(MesDomainService mesDomainService,
+    public ProductionEventProcessorImpl(MesDomainService mesDomainService,
                                         ObjectMapper objectMapper) {
         this.mesDomainService = mesDomainService;
         this.objectMapper = objectMapper;
@@ -46,7 +46,7 @@ public class ProductionOrderEventListener implements ProductionEventProcessor {
         } else if (EventType.ORDER_CANCELLED.name().equals(event)) {
             handleOrderCancelled(eventData);
         } else {
-            log.debug("Ignoring production event type: {}", event);
+            log.info("Ignoring production event type: {}", event);
         }
     }
 

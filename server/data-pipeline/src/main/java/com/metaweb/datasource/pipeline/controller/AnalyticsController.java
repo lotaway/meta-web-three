@@ -1,6 +1,8 @@
 package com.metaweb.datasource.pipeline.controller;
 
 import com.metaweb.datasource.pipeline.repository.ClickHouseRepository;
+import com.metaweb.datasource.pipeline.service.OlapQueryModels;
+import com.metaweb.datasource.pipeline.service.OlapQueryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -59,21 +61,15 @@ public class AnalyticsController {
         GROUP BY hour ORDER BY hour
         """;
 
-    private static final String PRODUCTION_ANALYTICS_SQL = """
-        SELECT toDate(event_time) as date,
-               COUNT(*) as output,
-               SUM(if(status IN ('COMPLETED','DELIVERED','SHIPPED'), 1, 0)) as good_output,
-               SUM(if(status IN ('CANCELLED','RETURNED','REFUNDED'), 1, 0)) as defect_count
-        FROM meta_web_analytics.order_analytics
-        WHERE 1=1
-        """;
-
     @Autowired
     private ClickHouseRepository clickHouseRepository;
 
     @Autowired
     @Qualifier("clickHouseJdbcTemplate")
     private JdbcTemplate clickHouseJdbcTemplate;
+
+    @Autowired
+    private OlapQueryService olapQueryService;
 
     @GetMapping("/orders")
     public ResponseEntity<Map<String, Object>> getOrderAnalytics(
@@ -186,38 +182,30 @@ public class AnalyticsController {
 
     @GetMapping("/production")
     public ResponseEntity<Map<String, Object>> getProductionAnalytics(
-            @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
         try {
-            List<Object> params = new ArrayList<>();
-            StringBuilder sql = new StringBuilder(PRODUCTION_ANALYTICS_SQL);
-            if (startDate != null && !startDate.isEmpty()) {
-                sql.append("AND event_time >= toDate(?) ");
-                params.add(startDate);
-            }
-            if (endDate != null && !endDate.isEmpty()) {
-                sql.append("AND event_time < toDate(?) + INTERVAL 1 DAY ");
-                params.add(endDate);
-            }
-            sql.append("GROUP BY date ORDER BY date DESC LIMIT 90");
+            OlapQueryModels.TimeGranularity granularity = OlapQueryModels.TimeGranularity.DAY;
+            List<String> metrics = List.of("output_qty", "qualified_qty", "defect_qty");
+            OlapQueryModels.OlapQueryResult result = olapQueryService.rollUp(
+                    OlapQueryModels.OlapDomain.PRODUCTION, granularity, null, metrics, startDate, endDate);
 
-            List<Map<String, Object>> dailyData = clickHouseJdbcTemplate.queryForList(sql.toString(), params.toArray());
-
+            List<Map<String, Object>> dailyData = result.getRows();
             long totalOutput = 0;
-            long totalGood = 0;
+            long totalQualified = 0;
             long totalDefects = 0;
             for (Map<String, Object> row : dailyData) {
-                totalOutput += ((Number) row.getOrDefault("output", 0)).longValue();
-                totalGood += ((Number) row.getOrDefault("good_output", 0)).longValue();
-                totalDefects += ((Number) row.getOrDefault("defect_count", 0)).longValue();
+                totalOutput += ((Number) row.getOrDefault("output_qty", 0)).longValue();
+                totalQualified += ((Number) row.getOrDefault("qualified_qty", 0)).longValue();
+                totalDefects += ((Number) row.getOrDefault("defect_qty", 0)).longValue();
             }
 
             Map<String, Object> stats = new LinkedHashMap<>();
             stats.put("dailyData", dailyData);
             stats.put("totalOutput", totalOutput);
-            stats.put("totalGood", totalGood);
+            stats.put("totalQualified", totalQualified);
             stats.put("defectCount", totalDefects);
-            stats.put("yieldRate", totalOutput > 0 ? (double) totalGood / totalOutput : 0);
+            stats.put("yieldRate", totalOutput > 0 ? (double) totalQualified / totalOutput : 0);
             stats.put("generatedAt", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             return ResponseEntity.ok(stats);
         } catch (Exception e) {

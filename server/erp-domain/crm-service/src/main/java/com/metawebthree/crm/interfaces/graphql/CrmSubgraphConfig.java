@@ -249,10 +249,6 @@ public class CrmSubgraphConfig {
         return new Connection<>(edges, items.size(), new PageInfo(false, null));
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // GraphQL DTO types
-    // ─────────────────────────────────────────────────────────────────
-
     private interface TypedNode {
         String __typename();
     }

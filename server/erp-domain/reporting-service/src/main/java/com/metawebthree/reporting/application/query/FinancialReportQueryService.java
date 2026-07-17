@@ -13,11 +13,11 @@ import java.util.*;
 @Service
 public class FinancialReportQueryService {
 
-    private static final BigDecimal COST_RATIO = new BigDecimal("0.65");
-    private static final BigDecimal RECEIVABLE_RATIO = new BigDecimal("0.30");
-    private static final BigDecimal PAYABLE_RATIO = new BigDecimal("0.20");
-    private static final BigDecimal CURRENT_ASSETS_RATIO = new BigDecimal("0.6");
-    private static final BigDecimal CURRENT_LIABILITIES_RATIO = new BigDecimal("0.4");
+    private static final BigDecimal COST_TO_REVENUE_RATIO = new BigDecimal("0.65");
+    private static final BigDecimal RECEIVABLE_TO_REVENUE_RATIO = new BigDecimal("0.30");
+    private static final BigDecimal PAYABLE_TO_COGS_RATIO = new BigDecimal("0.20");
+    private static final BigDecimal CURRENT_ASSETS_TO_REVENUE_RATIO = new BigDecimal("0.6");
+    private static final BigDecimal CURRENT_LIABILITIES_TO_COGS_RATIO = new BigDecimal("0.4");
     private static final BigDecimal AGING_30_DAYS_RATIO = new BigDecimal("0.48");
     private static final BigDecimal AGING_60_DAYS_RATIO = new BigDecimal("0.26");
     private static final BigDecimal AGING_90_DAYS_RATIO = new BigDecimal("0.16");
@@ -120,23 +120,23 @@ public class FinancialReportQueryService {
     }
 
     private BigDecimal calcCogs(BigDecimal totalSales) {
-        return totalSales.multiply(COST_RATIO).setScale(2, RoundingMode.HALF_UP);
+        return totalSales.multiply(COST_TO_REVENUE_RATIO).setScale(2, RoundingMode.HALF_UP);
     }
 
     private BigDecimal calcReceivables(BigDecimal totalSales) {
-        return totalSales.multiply(RECEIVABLE_RATIO).setScale(2, RoundingMode.HALF_UP);
+        return totalSales.multiply(RECEIVABLE_TO_REVENUE_RATIO).setScale(2, RoundingMode.HALF_UP);
     }
 
     private BigDecimal calcPayables(BigDecimal cogs) {
-        return cogs.multiply(PAYABLE_RATIO).setScale(2, RoundingMode.HALF_UP);
+        return cogs.multiply(PAYABLE_TO_COGS_RATIO).setScale(2, RoundingMode.HALF_UP);
     }
 
     private BigDecimal calcCurrentAssets(BigDecimal totalSales) {
-        return totalSales.multiply(CURRENT_ASSETS_RATIO).setScale(2, RoundingMode.HALF_UP);
+        return totalSales.multiply(CURRENT_ASSETS_TO_REVENUE_RATIO).setScale(2, RoundingMode.HALF_UP);
     }
 
     private BigDecimal calcCurrentLiabilities(BigDecimal cogs) {
-        return cogs.multiply(CURRENT_LIABILITIES_RATIO).setScale(2, RoundingMode.HALF_UP);
+        return cogs.multiply(CURRENT_LIABILITIES_TO_COGS_RATIO).setScale(2, RoundingMode.HALF_UP);
     }
 
     private String buildReceivablesByCustomer(BigDecimal total) {

@@ -48,19 +48,6 @@ public class MQConsumer {
         consumer.start();
     }
 
-    public void test() throws MQClientException {
-        start("TestTopic", new MessageListenerConcurrently() {
-            @Override
-            public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> list, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
-                for (int i = 0; i < list.size(); i++) {
-                    MessageExt msg = list.get(i);
-                    System.out.printf("Message: %d, %s", i, Arrays.toString(msg.getBody()));
-                }
-                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
-            }
-        }, null);
-    }
-
     public void end() {
         consumer.shutdown();
     }

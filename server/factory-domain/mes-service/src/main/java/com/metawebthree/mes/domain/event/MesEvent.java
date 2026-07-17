@@ -1,12 +1,9 @@
 package com.metawebthree.mes.domain.event;
 
-import org.springframework.context.ApplicationEvent;
-
-public abstract class MesEvent extends ApplicationEvent {
+public abstract class MesEvent {
     private final MesEventType eventType;
 
-    public MesEvent(Object source, MesEventType eventType) {
-        super(source);
+    public MesEvent(MesEventType eventType) {
         this.eventType = eventType;
     }
 

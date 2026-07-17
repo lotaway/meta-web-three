@@ -5,8 +5,8 @@ public class TaskCompletedEvent extends MesEvent {
     private final Integer qualifiedQuantity;
     private final Integer defectiveQuantity;
 
-    public TaskCompletedEvent(Object source, Long taskId, Integer qualifiedQuantity, Integer defectiveQuantity) {
-        super(source, MesEventType.TASK_COMPLETED);
+    public TaskCompletedEvent(Long taskId, Integer qualifiedQuantity, Integer defectiveQuantity) {
+        super(MesEventType.TASK_COMPLETED);
         this.taskId = taskId;
         this.qualifiedQuantity = qualifiedQuantity;
         this.defectiveQuantity = defectiveQuantity;

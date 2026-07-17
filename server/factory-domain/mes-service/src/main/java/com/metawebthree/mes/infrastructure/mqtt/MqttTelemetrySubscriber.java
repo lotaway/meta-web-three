@@ -50,7 +50,7 @@ public class MqttTelemetrySubscriber {
 
     private void handleMessage(String topic, MqttMessage message) {
         String payload = new String(message.getPayload());
-        log.debug("MQTT received from {}: {}", topic, payload);
+        log.info("MQTT received from {}: {}", topic, payload);
         if (messageHandler != null) {
             messageHandler.accept(topic, payload);
         }

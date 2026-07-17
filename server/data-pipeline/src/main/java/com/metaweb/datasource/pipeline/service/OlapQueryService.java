@@ -24,19 +24,22 @@ public class OlapQueryService {
     private static final Map<OlapDomain, String> DOMAIN_TABLE = Map.of(
             OlapDomain.ORDER, "meta_web_analytics.order_analytics",
             OlapDomain.INVENTORY, "meta_web_analytics.inventory_analytics",
-            OlapDomain.USER_BEHAVIOR, "meta_web_analytics.user_behavior_analytics"
+            OlapDomain.USER_BEHAVIOR, "meta_web_analytics.user_behavior_analytics",
+            OlapDomain.PRODUCTION, "meta_web_analytics.production_analytics"
     );
 
     private static final Map<OlapDomain, List<String>> DOMAIN_DIMENSIONS = Map.of(
             OlapDomain.ORDER, List.of("event_type", "status", "payment_method", "year_month", "day_of_week", "hour_of_day", "user_id", "merchant_id"),
             OlapDomain.INVENTORY, List.of("event_type", "warehouse_id", "product_id", "operator"),
-            OlapDomain.USER_BEHAVIOR, List.of("event_type", "device_type", "browser_family", "os", "category")
+            OlapDomain.USER_BEHAVIOR, List.of("event_type", "device_type", "browser_family", "os", "category"),
+            OlapDomain.PRODUCTION, List.of("event_type", "product_line", "workshop", "status", "product_id")
     );
 
     private static final Map<OlapDomain, List<String>> DOMAIN_METRICS = Map.of(
             OlapDomain.ORDER, List.of("count", "total_amount_sum", "total_amount_avg", "unique_users", "unique_orders"),
             OlapDomain.INVENTORY, List.of("count", "quantity_sum", "available_qty_avg", "unique_products"),
-            OlapDomain.USER_BEHAVIOR, List.of("count", "unique_users", "unique_sessions", "duration_avg", "duration_sum")
+            OlapDomain.USER_BEHAVIOR, List.of("count", "unique_users", "unique_sessions", "duration_avg", "duration_sum"),
+            OlapDomain.PRODUCTION, List.of("count", "output_qty", "qualified_qty", "defect_qty", "cycle_time_avg")
     );
 
     public OlapQueryResult executeQuery(OlapQueryRequest request) {
@@ -368,6 +371,10 @@ public class OlapQueryService {
             case "unique_products" -> "uniqExact(product_id)";
             case "duration_avg" -> "avg(duration)";
             case "duration_sum" -> "sum(duration)";
+            case "output_qty" -> "sum(output_qty)";
+            case "qualified_qty" -> "sum(qualified_qty)";
+            case "defect_qty" -> "sum(defect_qty)";
+            case "cycle_time_avg" -> "avg(cycle_time)";
             default -> "count()";
         };
     }
