@@ -50,7 +50,7 @@ async function loadData() {
     const d = res as any
     financialData.value = {
       totalRevenue: d.todaySales || d.totalRevenue || 0,
-      totalCost: (d.todaySales || 0) * 0.6,
+      totalCost: d.totalCost || d.todayCost || 0,
       grossProfit: d.todayProfit || d.grossProfit || 0,
       netProfit: d.todayProfit || d.netProfit || 0,
       orderCount: d.todayOrders || d.orderCount || 0,

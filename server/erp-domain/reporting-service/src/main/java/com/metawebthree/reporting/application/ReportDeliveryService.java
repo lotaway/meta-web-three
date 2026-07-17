@@ -185,24 +185,28 @@ public class ReportDeliveryService {
 
     private void appendWorkingCapitalSummary(StringBuilder content, List<FinancialReport> reports) {
         content.append("\n【营运资金】\n");
-        BigDecimal workingCapital = reports.stream()
+        content.append("  营运资金: ").append(formatAmount(computeWorkingCapital(reports))).append(" 元\n");
+        content.append("  流动比率: ").append(computeCurrentRatio(reports)).append("\n");
+    }
+
+    private BigDecimal computeWorkingCapital(List<FinancialReport> reports) {
+        return reports.stream()
             .map(FinancialReport::getWorkingCapital)
             .filter(Objects::nonNull)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
-        content.append("  营运资金: ").append(formatAmount(workingCapital)).append(" 元\n");
-        BigDecimal currentRatio = BigDecimal.ZERO;
+    }
+
+    private BigDecimal computeCurrentRatio(List<FinancialReport> reports) {
         long ratioCount = reports.stream()
             .map(FinancialReport::getCurrentRatio)
             .filter(Objects::nonNull)
             .count();
-        if (ratioCount > 0) {
-            currentRatio = reports.stream()
-                .map(FinancialReport::getCurrentRatio)
-                .filter(Objects::nonNull)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .divide(BigDecimal.valueOf(ratioCount), 2, RoundingMode.HALF_UP);
-        }
-        content.append("  流动比率: ").append(currentRatio).append("\n");
+        if (ratioCount == 0) return BigDecimal.ZERO;
+        return reports.stream()
+            .map(FinancialReport::getCurrentRatio)
+            .filter(Objects::nonNull)
+            .reduce(BigDecimal.ZERO, BigDecimal::add)
+            .divide(BigDecimal.valueOf(ratioCount), 2, RoundingMode.HALF_UP);
     }
     
     private String formatAmount(BigDecimal amount) {
@@ -212,22 +216,14 @@ public class ReportDeliveryService {
 
     @Async
     private void sendEmail(ReportSubscription subscription, String content) {
-        log.info("发送邮件到: {}", subscription.getRecipient());
-        
         if (!emailEnabled) {
             log.warn("邮件发送未启用，邮件内容: {}", content);
             return;
         }
-        
-        try {
-            String title = getEmailTitle(subscription.getReportType());
-            String emailContent = buildEmailContent(title, content);
-            
-            log.info("邮件发送成功: 主题={}, 收件人={}", title, subscription.getRecipient());
-        } catch (Exception e) {
-            log.error("邮件发送失败: {}", e.getMessage(), e);
-            throw new RuntimeException("邮件发送失败", e);
-        }
+        log.info("发送邮件到: {}", subscription.getRecipient());
+        String title = getEmailTitle(subscription.getReportType());
+        String emailContent = buildEmailContent(title, content);
+        log.info("邮件发送成功: 主题={}, 收件人={}", title, subscription.getRecipient());
     }
     
     private String getEmailTitle(ReportType reportType) {
@@ -256,21 +252,10 @@ public class ReportDeliveryService {
     @Async
     private void sendDingTalk(ReportSubscription subscription, String content) {
         log.info("发送钉钉消息到 webhook: {}", subscription.getWebhookUrl());
-        
         try {
-            String message = buildDingTalkMessage(subscription.getReportType(), content);
-            
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            
-            HttpEntity<String> entity = new HttpEntity<>(message, headers);
-            
+            HttpEntity<String> entity = buildDingTalkRequest(subscription, content);
             ResponseEntity<String> response = restTemplate.postForEntity(
-                    subscription.getWebhookUrl(),
-                    entity,
-                    String.class
-            );
-            
+                    subscription.getWebhookUrl(), entity, String.class);
             if (response.getStatusCode() == HttpStatus.OK) {
                 log.info("钉钉消息发送成功");
             } else {
@@ -279,6 +264,13 @@ public class ReportDeliveryService {
         } catch (Exception e) {
             log.error("钉钉消息发送失败: {}", e.getMessage());
         }
+    }
+
+    private HttpEntity<String> buildDingTalkRequest(ReportSubscription subscription, String content) {
+        String message = buildDingTalkMessage(subscription.getReportType(), content);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new HttpEntity<>(message, headers);
     }
 
     private String buildDingTalkMessage(ReportType reportType, String content) {

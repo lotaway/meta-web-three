@@ -66,8 +66,7 @@ const totalOrders = computed(() => trendRows.value.reduce((s, r) => s + r.orderC
 
 const formatMoney = (v: number) => new Intl.NumberFormat('zh-CN', { minimumFractionDigits: 2 }).format(v || 0)
 
-async function loadData() {
-  loading.value = true
+async function loadSalesTrend() {
   try {
     const trendRes = await getSalesTrend(dateRange.value[0], dateRange.value[1])
     const trend = trendRes as any
@@ -77,12 +76,16 @@ async function loadData() {
       }))
     }
   } catch (e) { console.error(e); ElMessage.error('Failed to load sales trend') }
+}
 
+async function loadCategoryData() {
   try {
     const catRes = await getCategoryDistribution(dateRange.value[0], dateRange.value[1])
     categoryList.value = (catRes as any)?.data || (Array.isArray(catRes) ? catRes : [])
   } catch (e) { console.error(e); ElMessage.error('Failed to load category distribution') }
+}
 
+async function loadRegionalData() {
   try {
     const regionRes = await getRegionalComparison(dateRange.value[0], dateRange.value[1])
     const r = regionRes as any
@@ -94,6 +97,11 @@ async function loadData() {
       }))
     }
   } catch (e) { console.error(e); ElMessage.error('Failed to load regional comparison') }
+}
+
+async function loadData() {
+  loading.value = true
+  await Promise.all([loadSalesTrend(), loadCategoryData(), loadRegionalData()])
   loading.value = false
 }
 

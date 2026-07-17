@@ -22,6 +22,11 @@ import java.util.stream.Collectors;
 @Service
 public class RmaApplicationServiceImpl implements RmaApplicationService {
 
+    private static final String EVENT_RMA_CREATED = "RMA_CREATED";
+    private static final String EVENT_RMA_INSPECTION_COMPLETED = "RMA_INSPECTION_COMPLETED";
+    private static final String EVENT_RMA_DISPOSITION_EXECUTED = "RMA_DISPOSITION_EXECUTED";
+    private static final String EVENT_RMA_COMPLETED = "RMA_COMPLETED";
+
     private final RmaDomainService rmaDomainService;
     private final RmaOrderRepository rmaOrderRepository;
     private final RmaOrderItemRepository rmaOrderItemRepository;
@@ -56,7 +61,7 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
                 request.getWarehouseId(), request.getReturnType(), request.getCreatedBy(), items
         );
         rmaDomainService.saveRmaOrder(order, items);
-        eventPublisher.publish(new RmaCreatedEvent("RMA_CREATED", order.getId(), order.getRmaNo()));
+        eventPublisher.publish(new RmaCreatedEvent(EVENT_RMA_CREATED, order.getId(), order.getRmaNo()));
         return toOrderDTO(order);
     }
 
@@ -77,14 +82,14 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
     public RmaOrderDTO getRma(Long id) {
         return rmaOrderRepository.findById(id)
                 .map(this::toOrderDTO)
-                .orElse(null);
+                .orElseThrow(() -> new IllegalArgumentException("RMA order not found: " + id));
     }
 
     @Override
     public RmaOrderDTO getRmaByNo(String rmaNo) {
         return rmaDomainService.getRmaOrderByNo(rmaNo)
                 .map(this::toOrderDTO)
-                .orElse(null);
+                .orElseThrow(() -> new IllegalArgumentException("RMA order not found by no: " + rmaNo));
     }
 
     @Override
@@ -115,7 +120,7 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
         RmaInspection saved = rmaDomainService.recordInspection(order, inspection);
         rmaDomainService.saveInspection(saved);
         rmaDomainService.saveRmaOrder(order);
-        eventPublisher.publish(new RmaInspectionCompletedEvent("RMA_INSPECTION_COMPLETED", rmaId, order.getRmaNo(),
+        eventPublisher.publish(new RmaInspectionCompletedEvent(EVENT_RMA_INSPECTION_COMPLETED, rmaId, order.getRmaNo(),
                 saved.getResult(), saved.getTotalPassed()));
         return toOrderDTO(order);
     }
@@ -144,6 +149,7 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
         disposition.setScrapQuantity(request.getScrapQuantity());
         disposition.setScrapReason(request.getScrapReason());
         disposition.setRemark(request.getRemark());
+        disposition.setRmaId(rmaId);
 
         RmaOrder order = rmaDomainService.getRmaOrder(rmaId)
                 .orElseThrow(() -> new IllegalArgumentException("RMA order not found"));
@@ -165,7 +171,7 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
                 .orElse(null);
 
         if (disposition != null) {
-            eventPublisher.publish(new RmaDispositionExecutedEvent("RMA_DISPOSITION_EXECUTED", rmaId, order.getRmaNo(),
+            eventPublisher.publish(new RmaDispositionExecutedEvent(EVENT_RMA_DISPOSITION_EXECUTED, rmaId, order.getRmaNo(),
                     disposition.getDispositionType()));
         }
 
@@ -177,7 +183,7 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
     public RmaOrderDTO completeRma(Long rmaId) {
         RmaOrder order = rmaDomainService.completeRmaOrder(rmaId);
         rmaDomainService.saveRmaOrder(order);
-        eventPublisher.publish(new RmaCompletedEvent("RMA_COMPLETED", rmaId, order.getRmaNo()));
+        eventPublisher.publish(new RmaCompletedEvent(EVENT_RMA_COMPLETED, rmaId, order.getRmaNo()));
         return toOrderDTO(order);
     }
 
@@ -200,6 +206,15 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
     }
 
     private RmaOrderDTO toOrderDTO(RmaOrder order) {
+        RmaOrderDTO dto = mapOrderFields(order);
+        dto.setItems(fetchItems(order.getId()));
+        fetchInspection(order.getId()).ifPresent(dto::setInspection);
+        fetchDisposition(order.getId()).ifPresent(dto::setDisposition);
+        fetchShipping(order.getId()).ifPresent(dto::setShipping);
+        return dto;
+    }
+
+    private RmaOrderDTO mapOrderFields(RmaOrder order) {
         RmaOrderDTO dto = new RmaOrderDTO();
         dto.setId(order.getId());
         dto.setRmaNo(order.getRmaNo());
@@ -218,20 +233,24 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
         dto.setCreatedBy(order.getCreatedBy());
         dto.setCreatedAt(order.getCreatedAt());
         dto.setUpdatedAt(order.getUpdatedAt());
-
-        List<RmaOrderItem> items = rmaOrderItemRepository.findByRmaId(order.getId());
-        dto.setItems(items.stream().map(this::toItemDTO).collect(Collectors.toList()));
-
-        rmaInspectionRepository.findByRmaId(order.getId())
-                .ifPresent(inspection -> dto.setInspection(toInspectionDTO(inspection)));
-
-        rmaDispositionRepository.findByRmaId(order.getId())
-                .ifPresent(disposition -> dto.setDisposition(toDispositionDTO(disposition)));
-
-        returnShippingRepository.findByRmaId(order.getId())
-                .ifPresent(shipping -> dto.setShipping(toShippingDTO(shipping)));
-
         return dto;
+    }
+
+    private List<RmaOrderItemDTO> fetchItems(Long rmaId) {
+        return rmaOrderItemRepository.findByRmaId(rmaId).stream()
+                .map(this::toItemDTO).collect(Collectors.toList());
+    }
+
+    private java.util.Optional<RmaInspectionDTO> fetchInspection(Long rmaId) {
+        return rmaInspectionRepository.findByRmaId(rmaId).map(this::toInspectionDTO);
+    }
+
+    private java.util.Optional<RmaDispositionDTO> fetchDisposition(Long rmaId) {
+        return rmaDispositionRepository.findByRmaId(rmaId).map(this::toDispositionDTO);
+    }
+
+    private java.util.Optional<ReturnShippingDTO> fetchShipping(Long rmaId) {
+        return returnShippingRepository.findByRmaId(rmaId).map(this::toShippingDTO);
     }
 
     private RmaOrderItemDTO toItemDTO(RmaOrderItem item) {

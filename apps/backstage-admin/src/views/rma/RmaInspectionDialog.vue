@@ -23,10 +23,16 @@ const emit = defineEmits<{
   }]
 }>()
 
+const INSPECTION_CONCLUSION = {
+  NO_ISSUE: 'NO_ISSUE',
+  MINOR_DEFECT: 'MINOR_DEFECT',
+  MAJOR_DEFECT: 'MAJOR_DEFECT'
+}
+
 const inspectionForm = ref({
   inspector: '',
   result: INSPECTION_RESULT.PASS,
-  conclusion: '',
+  conclusion: INSPECTION_CONCLUSION.NO_ISSUE,
   totalInspected: 0,
   totalPassed: 0,
   totalFailed: 0,
@@ -39,12 +45,18 @@ const inspectionResultOptions = [
   { label: 'PARTIAL', value: INSPECTION_RESULT.PARTIAL }
 ]
 
+const inspectionConclusionOptions = [
+  { label: t('rma.conclusionNoIssue'), value: INSPECTION_CONCLUSION.NO_ISSUE },
+  { label: t('rma.conclusionMinorDefect'), value: INSPECTION_CONCLUSION.MINOR_DEFECT },
+  { label: t('rma.conclusionMajorDefect'), value: INSPECTION_CONCLUSION.MAJOR_DEFECT }
+]
+
 watch(() => props.visible, (val) => {
   if (val) {
     inspectionForm.value = {
       inspector: '',
       result: INSPECTION_RESULT.PASS,
-      conclusion: '',
+      conclusion: INSPECTION_CONCLUSION.NO_ISSUE,
       totalInspected: 0,
       totalPassed: 0,
       totalFailed: 0,
@@ -66,22 +78,24 @@ watch(() => props.visible, (val) => {
       <el-form-item :label="t('rma.inspector') || 'Inspector'" required>
         <el-input v-model="inspectionForm.inspector" placeholder="Enter inspector" />
       </el-form-item>
-      <el-form-item label="Result" required>
+      <el-form-item :label="t('rma.result') || 'Result'" required>
         <el-select v-model="inspectionForm.result">
           <el-option v-for="item in inspectionResultOptions" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
-      <el-form-item label="Total Inspected" required>
+      <el-form-item :label="t('rma.totalInspected') || 'Total Inspected'" required>
         <el-input-number v-model="inspectionForm.totalInspected" :min="0" />
       </el-form-item>
-      <el-form-item label="Total Passed" required>
+      <el-form-item :label="t('rma.totalPassed') || 'Total Passed'" required>
         <el-input-number v-model="inspectionForm.totalPassed" :min="0" />
       </el-form-item>
-      <el-form-item label="Total Failed" required>
+      <el-form-item :label="t('rma.totalFailed') || 'Total Failed'" required>
         <el-input-number v-model="inspectionForm.totalFailed" :min="0" />
       </el-form-item>
-      <el-form-item label="Conclusion">
-        <el-input v-model="inspectionForm.conclusion" type="textarea" :rows="2" />
+      <el-form-item :label="t('rma.conclusion') || 'Conclusion'">
+        <el-select v-model="inspectionForm.conclusion">
+          <el-option v-for="item in inspectionConclusionOptions" :key="item.value" :label="item.label" :value="item.value" />
+        </el-select>
       </el-form-item>
       <el-form-item label="Remark">
         <el-input v-model="inspectionForm.remark" type="textarea" :rows="2" />

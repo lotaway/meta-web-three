@@ -79,7 +79,7 @@ watch(() => props.visible, (val) => {
       <el-form-item :label="t('rma.replacementQuantity') || 'Replacement Qty'">
         <el-input-number v-model="dispositionForm.replacementQuantity" :min="0" />
       </el-form-item>
-      <el-form-item label="Remark">
+      <el-form-item :label="t('rma.remark') || 'Remark'">
         <el-input v-model="dispositionForm.remark" type="textarea" :rows="2" />
       </el-form-item>
     </el-form>

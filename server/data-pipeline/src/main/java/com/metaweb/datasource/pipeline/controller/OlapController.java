@@ -35,10 +35,10 @@ public class OlapController {
 
     @GetMapping("/drill-down")
     public ResponseEntity<DrillDownResult> drillDown(
-            @RequestParam OlapDomain domain,
-            @RequestParam String parentDimension,
-            @RequestParam String parentValue,
-            @RequestParam String childDimension,
+            @RequestParam @NotNull OlapDomain domain,
+            @RequestParam @NotEmpty String parentDimension,
+            @RequestParam @NotEmpty String parentValue,
+            @RequestParam @NotEmpty String childDimension,
             @RequestParam(required = false) List<String> metrics,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
@@ -48,8 +48,8 @@ public class OlapController {
 
     @GetMapping("/roll-up")
     public ResponseEntity<OlapQueryResult> rollUp(
-            @RequestParam OlapDomain domain,
-            @RequestParam TimeGranularity granularity,
+            @RequestParam @NotNull OlapDomain domain,
+            @RequestParam @NotNull TimeGranularity granularity,
             @RequestParam(required = false) List<String> dimensions,
             @RequestParam(required = false) List<String> metrics,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
@@ -59,10 +59,10 @@ public class OlapController {
 
     @GetMapping("/slice")
     public ResponseEntity<OlapQueryResult> slice(
-            @RequestParam OlapDomain domain,
-            @RequestParam String fixedDimension,
-            @RequestParam String fixedValue,
-            @RequestParam String viewDimension,
+            @RequestParam @NotNull OlapDomain domain,
+            @RequestParam @NotEmpty String fixedDimension,
+            @RequestParam @NotEmpty String fixedValue,
+            @RequestParam @NotEmpty String viewDimension,
             @RequestParam(required = false) List<String> metrics,
             @RequestParam(required = false) TimeGranularity timeGranularity,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
@@ -80,9 +80,9 @@ public class OlapController {
 
     @GetMapping("/pivot")
     public ResponseEntity<Map<String, Object>> pivot(
-            @RequestParam OlapDomain domain,
-            @RequestParam String rowDimension,
-            @RequestParam String colDimension,
+            @RequestParam @NotNull OlapDomain domain,
+            @RequestParam @NotEmpty String rowDimension,
+            @RequestParam @NotEmpty String colDimension,
             @RequestParam(defaultValue = "count") String metric,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
@@ -105,8 +105,8 @@ public class OlapController {
 
     @GetMapping("/top-n")
     public ResponseEntity<List<Map<String, Object>>> getTopN(
-            @RequestParam OlapDomain domain,
-            @RequestParam String dimension,
+            @RequestParam @NotNull OlapDomain domain,
+            @RequestParam @NotEmpty String dimension,
             @RequestParam(defaultValue = "count") String metric,
             @RequestParam(defaultValue = "10") Integer n,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,

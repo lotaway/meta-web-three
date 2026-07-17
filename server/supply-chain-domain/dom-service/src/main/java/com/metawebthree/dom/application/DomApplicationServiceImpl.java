@@ -89,13 +89,17 @@ public class DomApplicationServiceImpl implements DomApplicationService {
         boolean allPass = domDomainService.checkAvailability(built, savedLines);
         domDomainService.saveAvailabilityResult(built, savedLines, allPass);
         if (allPass) {
-            savedLines = domOrderLineRepository.findByDomOrderId(built.getId());
-            List<DomOrderLine> sourcedLines = domDomainService.sourceOrder(built, savedLines, strategy);
-            domDomainService.saveSourcingResult(built, sourcedLines);
-            if (sourcedLines.stream().anyMatch(l -> l.getStatus() == DomOrderLineStatus.SOURCED)) {
-                FulfillmentPlan plan = domDomainService.createFulfillmentPlan(built, sourcedLines);
-                domDomainService.saveFulfillmentPlan(built, plan);
-            }
+            createFulfillmentPlanForSourcedLines(built, strategy);
+        }
+    }
+
+    private void createFulfillmentPlanForSourcedLines(DomOrder built, SourcingStrategy strategy) {
+        List<DomOrderLine> lines = domOrderLineRepository.findByDomOrderId(built.getId());
+        List<DomOrderLine> sourcedLines = domDomainService.sourceOrder(built, lines, strategy);
+        domDomainService.saveSourcingResult(built, sourcedLines);
+        if (sourcedLines.stream().anyMatch(l -> l.getStatus() == DomOrderLineStatus.SOURCED)) {
+            FulfillmentPlan plan = domDomainService.createFulfillmentPlan(built, sourcedLines);
+            domDomainService.saveFulfillmentPlan(built, plan);
         }
     }
 
@@ -159,15 +163,17 @@ public class DomApplicationServiceImpl implements DomApplicationService {
                 : SourcingStrategy.BALANCED;
         List<DomOrderLine> sourcedLines = domDomainService.sourceOrder(order, lines, strategy);
         domDomainService.saveSourcingResult(order, sourcedLines);
+        maybeCreateFulfillmentPlan(order, orderId);
+        List<DomOrderLine> finalLines = domOrderLineRepository.findByDomOrderId(orderId);
+        return toDomOrderDTO(order, finalLines);
+    }
 
-        if (sourcedLines.stream().anyMatch(l -> l.getStatus() == DomOrderLineStatus.SOURCED)) {
-            List<DomOrderLine> updatedLines = domOrderLineRepository.findByDomOrderId(orderId);
+    private void maybeCreateFulfillmentPlan(DomOrder order, Long orderId) {
+        List<DomOrderLine> updatedLines = domOrderLineRepository.findByDomOrderId(orderId);
+        if (updatedLines.stream().anyMatch(l -> l.getStatus() == DomOrderLineStatus.SOURCED)) {
             FulfillmentPlan plan = domDomainService.createFulfillmentPlan(order, updatedLines);
             domDomainService.saveFulfillmentPlan(order, plan);
         }
-
-        List<DomOrderLine> finalLines = domOrderLineRepository.findByDomOrderId(orderId);
-        return toDomOrderDTO(order, finalLines);
     }
 
     @Override
@@ -236,9 +242,15 @@ public class DomApplicationServiceImpl implements DomApplicationService {
     }
 
     private DomOrderDTO toDomOrderDTO(DomOrder order, List<DomOrderLine> lines) {
-        if (order == null) {
-            return null;
+        if (order == null) return null;
+        DomOrderDTO dto = mapDomOrderFields(order);
+        if (lines != null) {
+            dto.setLines(lines.stream().map(this::toDomOrderLineDTO).collect(Collectors.toList()));
         }
+        return dto;
+    }
+
+    private DomOrderDTO mapDomOrderFields(DomOrder order) {
         DomOrderDTO dto = new DomOrderDTO();
         dto.setId(order.getId());
         dto.setDomOrderNo(order.getDomOrderNo());
@@ -253,9 +265,6 @@ public class DomApplicationServiceImpl implements DomApplicationService {
         dto.setRegion(order.getRegion());
         dto.setCreatedAt(order.getCreatedAt());
         dto.setUpdatedAt(order.getUpdatedAt());
-        if (lines != null) {
-            dto.setLines(lines.stream().map(this::toDomOrderLineDTO).collect(Collectors.toList()));
-        }
         return dto;
     }
 

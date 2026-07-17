@@ -20,28 +20,32 @@ public class CrmSubgraphController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public CompletableFuture<Map<String, Object>> execute(@RequestBody Map<String, Object> body) {
+        ExecutionInput input = buildExecutionInput(body);
+        return graphQL.executeAsync(input).thenApply(CrmSubgraphController::buildResponse);
+    }
+
+    private static ExecutionInput buildExecutionInput(Map<String, Object> body) {
         String query = (String) body.get("query");
         Map<String, Object> variables = (Map<String, Object>) body.get("variables");
         String operationName = (String) body.get("operationName");
-
         ExecutionInput.Builder builder = ExecutionInput.newExecutionInput().query(query);
         if (variables != null) builder.variables(variables);
         if (operationName != null && !operationName.isEmpty()) builder.operationName(operationName);
+        return builder.build();
+    }
 
-        return graphQL.executeAsync(builder.build())
-                .thenApply(result -> {
-                    Map<String, Object> response = new java.util.concurrent.ConcurrentHashMap<>();
-                    if (result.getErrors() != null && !result.getErrors().isEmpty()) {
-                        response.put("errors", result.getErrors().stream().map(e -> {
-                            Map<String, Object> err = new java.util.concurrent.ConcurrentHashMap<>();
-                            err.put("message", e.getMessage());
-                            return err;
-                        }).toList());
-                    }
-                    if (result.getData() != null) {
-                        response.put("data", result.getData());
-                    }
-                    return response;
-                });
+    private static Map<String, Object> buildResponse(graphql.ExecutionResult result) {
+        Map<String, Object> response = new java.util.concurrent.ConcurrentHashMap<>();
+        if (result.getErrors() != null && !result.getErrors().isEmpty()) {
+            response.put("errors", result.getErrors().stream().map(e -> {
+                Map<String, Object> err = new java.util.concurrent.ConcurrentHashMap<>();
+                err.put("message", e.getMessage());
+                return err;
+            }).toList());
+        }
+        if (result.getData() != null) {
+            response.put("data", result.getData());
+        }
+        return response;
     }
 }

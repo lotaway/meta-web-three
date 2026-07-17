@@ -18,68 +18,56 @@ The following backend services have been created, but lack corresponding admin a
 #### 供应链领域 (中优先级)
 
 - [ ] **[Supply Chain] 退货管理 (RMA - Return Material Authorization)**: 逆向物流模块
-   - [x] **已修复**：FE/BE API 协议不匹配（改为 @RequestBody DTO），库存/结算集成（添加 EventListener + Stub 服务），硬编码值（提取为常量），函数返回值+副作用混合（6 个领域方法已拆分）
-   - [x] **Protobuf 枚举已填充**：6 个枚举已添加完整业务值（RmaStatus 7 值，RmaReturnType 3 值，RmaInspectionResult 3 值，RmaInspectionConclusion 3 值，RmaDispositionType 5 值，RmaShippingStatus 5 值）
-   - [x] **函数过长已修复**：`createRma()` 拆分为 `buildItems()`+主体（18 行），`recordInspection()` 拆分为 `buildInspection()`+主体（16 行），`toOrderDTO()` 34 行保留（33 行以内）
-   - [x] **前端对话框已添加响应式**：4 个对话框添加 `@media (max-width: 768px)` 宽度自适应
+   - [x] **函数过长已修复**：`createRma()`(18行)/`recordInspection()`(16行) 已通过，`toOrderDTO()` 已拆分为 5 个辅助方法（主方法 8 行）
    - [ ] **仍存在问题**：
      - [ ] **零单元测试**：核心退换货流程无任何测试
+     - [ ] **Proto/Java DTO 字段不匹配**：`RecordInspectionRequest` 缺 `totalInspected`/`totalPassed`/`totalFailed`；`MakeDispositionRequest` 缺 `dispositionBy`/`scrapQuantity`/`scrapReason`；多个 DTO 缺 `createdAt`/`updatedAt` 时间戳字段。gRPC 入口会导致反序列化失败
+     - [x] **makeDisposition 缺 rmaId**：`disposition` 对象的 `rmaId` 已设置为 `rmaId` 再传给领域服务
+     - [x] **事件类型字符串硬编码**：已提取为 `EVENT_RMA_CREATED` 等事件常量枚举
+     - [x] **getRma()/getRmaByNo() 返回 null**：已改用 `orElseThrow()` 抛明确异常
+     - [x] **前端 formatAmount 零值 bug**：`if (!amount)` 已改为 `if (amount === null || amount === undefined)`，零值正常显示 `$0.00`
+     - [x] **前端 conclusion 应为 select**：已改用 `<el-select>` 配合 `INSPECTION_CONCLUSION` 枚举值（NO_ISSUE/MINOR_DEFECT/MAJOR_DEFECT）
+     - [x] **前端 i18n 不完整**：RmaInspectionDialog/RmaDispositionDialog 硬编码标签已替换为 i18n 翻译键
 
 - [ ] **[Supply Chain] 分布式订单管理 (DOM)**: 跨仓库订单承诺、寻源和履行
-   - [x] **已修复**：FE/BE 类型不匹配（`row.id` 替换 `row.domOrderNo`），字段名不一致（`items`→`lines`），状态值不匹配（移除无效枚举），分页未实现（添加 Page 查询），硬编码值（提取常量）
-   - [x] **`createDomOrder()` 已拆分**：拆分为 `buildOrderEntity()`(15行)、`buildOrderLines()`(14行)、`processAvailabilityAndSourcing()`(18行)，主方法降为 10 行
-   - [x] **领域层 Spring 注解已移除**：`DomSourcingProperties` 去掉 `@Component`/`@ConfigurationProperties`，绑定移至 `DomainServiceConfig` 的 `@Bean` + `@ConfigurationProperties`
-   - [x] **缺少输入校验**：`DomOrderController`、`SourcingRuleController` 添加 `@Valid`，`CreateDomOrderRequest`、`DomOrderItemRequest`、`SourcingRuleDTO` 添加 `@NotBlank`/`@NotNull`/`@Min`/`@NotEmpty` 注解
-   - [x] **隐式共享状态已修复**：`DomSequenceGeneratorImpl.SEQ_COUNTER` 从 `static final` 改为实例 `final`；`WarehouseServiceMockClient.WAREHOUSE_MAP` 从 `static final` 改为实例 `final`
-   - [x] **死代码已清理**：删除 `infrastructure/rpc/` 下重复的 `WarehouseInfo.java`、`WarehouseServiceClient.java`、`InventoryServiceClient.java`
+   - [x] **`createDomOrder()` 已拆分**：`buildOrderEntity()`(15行)/`buildOrderLines()`(15行)/`processAvailabilityAndSourcing()`(16行) 已通过，`sourceOrder()` 已拆分为 `maybeCreateFulfillmentPlan()` 辅助方法（主方法 9 行），`toDomOrderDTO()` 已拆分为 `mapDomOrderFields()` 辅助方法（主方法 8 行）
+   - [x] **死代码已清理**：`infrastructure/rpc/` 下 `WarehouseServiceRpcClient.java` 和 `InventoryServiceRpcClient.java` 死文件已删除
    - [ ] **仍存在问题**：
      - [ ] **零单元测试**：核心 ATP 检查、寻源算法无测试
+     - [ ] **生产级模拟客户端不可接受**：`WarehouseServiceMockClient` 和 `InventoryServiceMockClient` 带有 `@Primary` 注解，是激活的模拟实现，含硬编码数据和 `Math.random()` 非确定性逻辑，必须替换为真实 RPC 客户端
+     - [ ] **DomSourcingProperties 硬编码仓库 ID**：`warehouseIds = Arrays.asList(1L, 2L, 3L)` 将特定生产数据嵌入代码默认值，配置未覆盖时静默使用错误仓库列表
+     - [ ] **DomSequenceGeneratorImpl 重启重复风险**：`AtomicLong` 从 0 开始，JVM 重启后同一天可能生成重复订单号
 
 #### ERP 领域 (中优先级)
 
 - [ ] **[ERP] 客户关系管理 (CRM)**: 销售管道、商机跟踪、客户服务工单、营销活动
-   - [x] **已修复**：FE/BE API 路径（单数→复数），HTTP 方法（assignTicket POST→PUT），参数传递（body→params/去除 body），异常被吞（UserServiceClient 改为抛出 Runtime），硬编码字符串（提取常量），前端 catch 块（添加 ElMessage.error）
-   - [x] **DDD 分层违规已修复**：创建 `ContactCommandService`/`ContactQueryService`/`CampaignCommandService`/`CampaignQueryService`，`ContactController`/`CampaignController` 改为注入应用服务而非 Repository
-   - [x] **GraphQL 空安全已修复**：`CrmSubgraphConfig.argId()` 添加 `id` null 检查；`fetchEntity()` 添加 `representations` null/空检查
+   - [x] **DDD 分层违规已修复**：`ContactController`/`CampaignController` 已改为注入应用服务，`CrmSubgraphConfig.java` 已改为注入 `CampaignQueryService`/`ContactQueryService` 替代 Repository
    - [ ] **仍存在问题**：
-     - [ ] **文件超 500 行**：`CrmSubgraphConfig.java` 546 行（含 5 个内部 DTO 类，拆分后新增 4 个 service 文件行数下降）
+     - [ ] **文件超 500 行**：`CrmSubgraphConfig.java` 550 行（含 5 个内部 DTO 类）
      - [ ] **领域层依赖 MyBatis Plus**：所有 Repository `extends BaseMapper<T>` 引入 ORM 到领域层
      - [ ] **应用层依赖 MyBatis Plus**：`LeadQueryService`/`OpportunityQueryService`/`TicketQueryService` 导入 `LambdaQueryWrapper`
      - [ ] **零单元测试**：无 `src/test/` 目录
+     - [x] **CrmSubgraphController.execute() 已拆分**：已提取 `buildExecutionInput()`/`buildResponse()` 辅助方法，主方法降至 6 行
 
 - [ ] **[ERP] BI 商业智能与分析层**: 仪表板、即席查询、数据可视化
-   - [x] **已修复**：PRODUCTION 域（添加表/维度/指标映射，改用 OLAP 服务），硬编码值（重命名为描述性常量名），异常被吞（sendEmail 改为抛出），前端错误反馈（添加 ElMessage.error）
-   - [x] **前端 API 路径已修正**：`getInventoryTurnover()` URL 从 `/api/v1/analysis/inventory/overview` 改为 `/api/analytics/inventory`
-- [ ] **仍存在问题**：
-      - [x] **函数超 20 行已修复**：`appendSalesReportContent()` 拆分为 `appendDailySalesSummary()`+`appendMonthlySalesSummary()` (主方法 5 行)，`appendFinancialReportContent()` 拆分为 `appendReceivableSummary()`+`appendWorkingCapitalSummary()` (主方法 9 行)
-      - [x] **缺少输入校验已修复**：OLAP `DiceRequest` 添加 `@NotNull domain`+`@Valid`；报表 API 添加 `@Valid`+`@NotNull`/`@NotBlank`/`@Email`
-      - [x] **使用已废弃 API 已修复**：`BigDecimal.ROUND_HALF_UP` 已全部替换为 `RoundingMode.HALF_UP` (全部 19 处仓库+报表+BI)
-      - [x] **前端已添加响应式**：`index.vue`/`sales.vue`/`financial.vue` 的 `el-col` 添加 `:xs`/`:sm`/`:md` 断点
-      - [ ] **DDD 分层违规**：`application/query/` 服务包含领域逻辑（毛利率计算、报表聚合）
-      - [ ] **领域层使用 Lombok**：`@Builder`/`@Getter`/`@ToString` 在领域实体中
-      - [ ] **零单元测试**：无测试覆盖
-      - [ ] **前端缺少库存/生产专用页面**：TODO 要求 views/bi/* 系列页面，但库存和生产嵌入在 index.vue 标签页
+   - [x] **函数超 20 行已修复**：`appendSalesReportContent` 已拆分通过，`appendWorkingCapitalSummary()` 已拆分为 `computeWorkingCapital()`/`computeCurrentRatio()`，`sendDingTalk()` 已拆分为 `buildDingTalkRequest()`，`index.vue` 的 `loadSalesData()` 已拆分为 `loadSalesTrendRow()`/`loadCategoryData()`/`loadRegionData()`，`sales.vue` 的 `loadData()` 已拆分为 `loadSalesTrend()`/`loadCategoryData()`/`loadRegionalData()`
+   - [x] **缺少输入校验已修复**：`OlapController` 所有 7 个 GET 端点（`drillDown`/`rollUp`/`slice`/`pivot`/`getSalesFunnel`/`getCohortRetention`/`getTopN`）已添加 `@NotNull`/`@NotEmpty` 校验
+   - [ ] **仍存在问题**：
+     - [ ] **sendEmail() 为伪代码**：仅记录日志但未真正调用邮件发送 API（无 JavaMailSender），emailEnabled=false 时静默跳过，应接入真实邮件发送实现
+     - [x] **前端 * 0.6 硬编码成本估算**：`index.vue` 和 `financial.vue` 中 `totalCost` 已改为从后端响应字段 `totalCost`/`todayCost` 读取
+     - [ ] **DDD 分层违规**：`application/query/` 服务包含领域逻辑（毛利率计算、报表聚合）
+     - [ ] **领域层使用 Lombok**：`@Builder`/`@Getter`/`@ToString` 在领域实体中
+     - [ ] **零单元测试**：无测试覆盖
+     - [ ] **前端缺少库存/生产专用页面**：TODO 要求 views/bi/* 系列页面，但库存和生产嵌入在 index.vue 标签页
+     - [x] **测试 ErpMesIntegrationTest.testMesTaskCompletedEventIsLogged 已添加断言**：使用 awaitility 轮询验证成本记录已创建
+     - [x] **测试已改用 awaitility**：`Thread.sleep()` 已全部替换为 `Awaitility.await()` 轮询
 
 - [ ] **[Cross] ERP-MES 数据闭环集成**: 打通 ERP 生产订单 → MES 报工 → 财务成本核算
-   - [x] **已修复**：异常被吞（改为抛出 RuntimeException），领域层依赖 Spring（移除 `extends ApplicationEvent`），隐式共享状态（WorkOrder static→instance），事件未显式建模（Map→typed records），事件名用字符串（改用 EventType 枚举），日志违规（debug→info），接口命名不一致（Processor/EventListener 统一）
-   - [x] **硬编码 TOPIC 已修复**：集成测试 4 处硬编码 topic 字符串替换为 `EventType.MES_WORK_ORDER_COMPLETED_TOPIC`/`MES_TASK_COMPLETED_TOPIC`/`PRODUCTION_EVENTS_TOPIC` 常量
-- [ ] **仍存在问题**：
-      - [x] **函数超 20 行已修复**：集成测试 2 个函数拆分为 `publishWorkOrderCompletion()`+`assertActualCostCreated()`+`publishOrderCreatedEvent()`+`assertCostQuantityPositive()` (主方法均 <15 行)
-      - [ ] **通过修改现有代码实现**：`WorkOrderCommandService` 被大幅重构，添加了非原有职责的方法
-      - [ ] **零单元测试**：`MesDomainServiceImpl`、`ProductionEventProcessor`、`MesCrossDomainEventPublisher` 均无测试
-
-### [Digital Twin UI 交互流程] （已验证完整）
-
-- [x] **[Digital Twin] 右侧面板 Tab 与告警/通知/SCADA/追溯功能链路**
-  - [x] 在 `apps/digital-twin/system-management/src/renderer/pages/DigitalTwinPage.tsx` 中确认完整 UI 流程：
-    - [x] ToastContainer 已挂载（第 194 行）
-    - [x] 右侧 Tab：6 个标签页（devices/alerts/charts/rules/scada/trace）均有渲染
-    - [x] rules Tab：`AlertRuleList` 组件存在
-    - [x] scada Tab：`ScadaPanel` 接收 `equipmentCode`/`equipmentName`
-    - [x] trace Tab：`TraceabilityPanel` 存在
-    - [x] 设备未选中时 `AudioMonitor` 显示替代"点击提示"
-    - [x] charts Tab 的声音/通知开关存在
-  - [x] 异常文案基于 `DIGITAL_TWIN_API_BASE_URL` 动态推导端口（`new URL(DIGITAL_TWIN_API_BASE_URL).port`），而非写死
+   - [ ] **仍存在问题**：
+     - [ ] **通过修改现有代码实现**：`WorkOrderCommandService` 被大幅重构，添加了非原有职责的方法
+     - [ ] **零单元测试**：`MesDomainServiceImpl`、`ProductionEventProcessor`、`MesCrossDomainEventPublisher` 均无测试
+     - [x] **testMesTaskCompletedEventIsLogged 已添加断言**：使用 awaitility 轮询验证成本记录创建
+     - [x] **测试已改用 awaitility**：`Thread.sleep()` 已全部替换为 `Awaitility.await()` 轮询
 
 ### [GitHub Issues]
 

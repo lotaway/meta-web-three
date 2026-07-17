@@ -5,6 +5,7 @@ import com.metawebthree.event.EventType;
 import com.metawebthree.finance.application.command.cost.CostCommandService;
 import com.metawebthree.finance.domain.entity.cost.ActualCost;
 import com.metawebthree.finance.domain.repository.cost.ActualCostRepository;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,14 +45,22 @@ public class ErpMesIntegrationTest {
     @BeforeEach
     void setUp() {
         List<ActualCost> existing = actualCostRepository.findByProductCode("TEST-PROD-001");
-        existing.forEach(cost -> {
-        });
+        if (!existing.isEmpty()) {
+            existing.forEach(cost -> actualCostRepository.delete(cost));
+        }
+        existing = actualCostRepository.findByProductCode("PROD-X");
+        if (!existing.isEmpty()) {
+            existing.forEach(cost -> actualCostRepository.delete(cost));
+        }
     }
 
     @Test
     void testMesWorkOrderCompletionTriggersCostAccounting() throws Exception {
         publishWorkOrderCompletion("TEST-PROD-001", 500, "WO-2026-001", 10001L);
-        Thread.sleep(2000);
+        Awaitility.await()
+                .atMost(Duration.ofSeconds(5))
+                .pollInterval(Duration.ofMillis(200))
+                .until(() -> !actualCostRepository.findByProductCode("TEST-PROD-001").isEmpty());
         assertActualCostCreated("TEST-PROD-001", "WO-2026-001");
     }
 
@@ -91,15 +101,33 @@ public class ErpMesIntegrationTest {
 
         kafkaTemplate.send(EventType.MES_TASK_COMPLETED_TOPIC, message).get();
 
-        Thread.sleep(1000);
+        Awaitility.await()
+                .atMost(Duration.ofSeconds(5))
+                .pollInterval(Duration.ofMillis(200))
+                .until(() -> {
+                    List<ActualCost> costs = actualCostRepository.findByProductCode("TEST-PROD-001");
+                    return costs.stream().anyMatch(c -> "WO-2026-001".equals(c.getProductionOrderNo()));
+                });
+        List<ActualCost> costs = actualCostRepository.findByProductCode("TEST-PROD-001");
+        assertTrue(costs.stream().anyMatch(c -> "WO-2026-001".equals(c.getProductionOrderNo())),
+                "Expected cost record to be created for work order WO-2026-001");
     }
 
     @Test
     void testEndToEndFlow() throws Exception {
         publishOrderCreatedEvent("PO-2026-001", "PROD-X");
-        Thread.sleep(1000);
+        Awaitility.await()
+                .atMost(Duration.ofSeconds(5))
+                .pollInterval(Duration.ofMillis(200))
+                .until(() -> !actualCostRepository.findByProductCode("PROD-X").isEmpty());
         publishWorkOrderCompletion("PROD-X", 200, "WO-PO-2026-001", 10002L);
-        Thread.sleep(2000);
+        Awaitility.await()
+                .atMost(Duration.ofSeconds(5))
+                .pollInterval(Duration.ofMillis(200))
+                .until(() -> {
+                    List<ActualCost> costs = actualCostRepository.findByProductCode("PROD-X");
+                    return costs.stream().anyMatch(c -> "WO-PO-2026-001".equals(c.getProductionOrderNo()));
+                });
         assertActualCostCreated("PROD-X", "WO-PO-2026-001");
         assertCostQuantityPositive("PROD-X");
     }

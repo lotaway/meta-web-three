@@ -125,7 +125,7 @@ const productionData = ref<{ totalOutput: number; defectCount: number; yieldRate
 })
 
 const salesRevenue = computed(() => salesTrendRows.value.reduce((s, r) => s + r.amount, 0))
-const salesCost = computed(() => salesRevenue.value * 0.6)
+const salesCost = computed(() => financialData.value.totalCost)
 const salesProfit = computed(() => salesRevenue.value - salesCost.value)
 const salesOrders = computed(() => salesTrendRows.value.reduce((s, r) => s + r.orderCount, 0))
 const financialRevenue = computed(() => financialData.value.totalRevenue)
@@ -150,7 +150,7 @@ const formatPercent = (v: number | undefined | null) => {
   return (v * 100).toFixed(2) + '%'
 }
 
-async function loadSalesData() {
+async function loadSalesTrendRow() {
   try {
     const trendRes = await getSalesTrend(dateRange.value[0], dateRange.value[1])
     const trend = trendRes as any
@@ -162,12 +162,16 @@ async function loadSalesData() {
       }))
     }
   } catch (e) { console.error('Failed to load sales trend', e); ElMessage.error('Failed to load sales trend') }
+}
 
+async function loadCategoryData() {
   try {
     const catRes = await getCategoryDistribution(dateRange.value[0], dateRange.value[1])
     categoryList.value = (catRes as any)?.data || (Array.isArray(catRes) ? catRes : [])
   } catch (e) { console.error('Failed to load category distribution', e); ElMessage.error('Failed to load category distribution') }
+}
 
+async function loadRegionData() {
   try {
     const regionRes = await getRegionalComparison(dateRange.value[0], dateRange.value[1])
     const r = regionRes as any
@@ -187,7 +191,7 @@ async function loadFinancialData() {
     const d = res as any
     financialData.value = {
       totalRevenue: d.todaySales || d.totalRevenue || 0,
-      totalCost: (d.todaySales || 0) * 0.6,
+      totalCost: d.totalCost || d.todayCost || 0,
       grossProfit: d.todayProfit || d.grossProfit || 0,
       netProfit: d.todayProfit || d.netProfit || 0,
       orderCount: d.todayOrders || d.orderCount || 0,
@@ -216,7 +220,7 @@ async function loadProductionData() {
 
 async function loadAll() {
   loading.value = true
-  await Promise.all([loadSalesData(), loadFinancialData(), loadInventoryData(), loadProductionData()])
+  await Promise.all([loadSalesTrendRow(), loadCategoryData(), loadRegionData(), loadFinancialData(), loadInventoryData(), loadProductionData()])
   loading.value = false
 }
 

@@ -2,6 +2,8 @@ package com.metawebthree.crm.interfaces.graphql;
 
 import com.apollographql.federation.graphqljava.Federation;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.metawebthree.crm.application.query.CampaignQueryService;
+import com.metawebthree.crm.application.query.ContactQueryService;
 import com.metawebthree.crm.application.query.LeadQueryService;
 import com.metawebthree.crm.application.query.OpportunityQueryService;
 import com.metawebthree.crm.application.query.TicketQueryService;
@@ -10,8 +12,6 @@ import com.metawebthree.crm.domain.entity.Contact;
 import com.metawebthree.crm.domain.entity.CustomerServiceTicket;
 import com.metawebthree.crm.domain.entity.Lead;
 import com.metawebthree.crm.domain.entity.Opportunity;
-import com.metawebthree.crm.domain.repository.CampaignRepository;
-import com.metawebthree.crm.domain.repository.ContactRepository;
 import graphql.GraphQL;
 import graphql.TypeResolutionEnvironment;
 import graphql.schema.DataFetchingEnvironment;
@@ -39,21 +39,21 @@ public class CrmSubgraphConfig {
     private final LeadQueryService leadQueryService;
     private final OpportunityQueryService opportunityQueryService;
     private final TicketQueryService ticketQueryService;
-    private final CampaignRepository campaignRepository;
-    private final ContactRepository contactRepository;
+    private final CampaignQueryService campaignQueryService;
+    private final ContactQueryService contactQueryService;
     private final ResourcePatternResolver resourceResolver;
 
     public CrmSubgraphConfig(LeadQueryService leadQueryService,
                              OpportunityQueryService opportunityQueryService,
                              TicketQueryService ticketQueryService,
-                             CampaignRepository campaignRepository,
-                             ContactRepository contactRepository,
+                             CampaignQueryService campaignQueryService,
+                             ContactQueryService contactQueryService,
                              ResourcePatternResolver resourceResolver) {
         this.leadQueryService = leadQueryService;
         this.opportunityQueryService = opportunityQueryService;
         this.ticketQueryService = ticketQueryService;
-        this.campaignRepository = campaignRepository;
-        this.contactRepository = contactRepository;
+        this.campaignQueryService = campaignQueryService;
+        this.contactQueryService = contactQueryService;
         this.resourceResolver = resourceResolver;
     }
 
@@ -114,8 +114,8 @@ public class CrmSubgraphConfig {
             case "Lead" -> nullableDto(leadQueryService.getById(id), LeadDTO::from);
             case "Opportunity" -> nullableDto(opportunityQueryService.getById(id), OpportunityDTO::from);
             case "Ticket" -> nullableDto(ticketQueryService.getById(id), TicketDTO::from);
-            case "Campaign" -> nullableDto(campaignRepository.selectById(id), CampaignDTO::from);
-            case "Contact" -> nullableDto(contactRepository.selectById(id), ContactDTO::from);
+            case "Campaign" -> nullableDto(campaignQueryService.getById(id), CampaignDTO::from);
+            case "Contact" -> nullableDto(contactQueryService.getById(id), ContactDTO::from);
             default -> null;
         };
     }
@@ -163,7 +163,7 @@ public class CrmSubgraphConfig {
     }
 
     private CampaignDTO campaignDataFetcher(DataFetchingEnvironment env) {
-        return nullableDto(campaignRepository.selectById(argId(env)), CampaignDTO::from);
+        return nullableDto(campaignQueryService.getById(argId(env)), CampaignDTO::from);
     }
 
     private Connection<CampaignDTO> campaignsDataFetcher(DataFetchingEnvironment env) {
@@ -172,7 +172,7 @@ public class CrmSubgraphConfig {
     }
 
     private ContactDTO contactDataFetcher(DataFetchingEnvironment env) {
-        return nullableDto(contactRepository.selectById(argId(env)), ContactDTO::from);
+        return nullableDto(contactQueryService.getById(argId(env)), ContactDTO::from);
     }
 
     private Connection<ContactDTO> contactsDataFetcher(DataFetchingEnvironment env) {
@@ -216,24 +216,17 @@ public class CrmSubgraphConfig {
     private List<Campaign> resolveCampaigns(DataFetchingEnvironment env) {
         String status = env.getArgument("status");
         String type = env.getArgument("type");
-        LambdaQueryWrapper<Campaign> wrapper = new LambdaQueryWrapper<>();
-        if (hasText(status)) wrapper.eq(Campaign::getStatus, status);
-        if (hasText(type)) wrapper.eq(Campaign::getType, type);
-        return campaignRepository.selectList(wrapper);
+        if (hasText(status)) return campaignQueryService.listByStatus(status);
+        if (hasText(type)) return campaignQueryService.listByType(type);
+        return campaignQueryService.listAll();
     }
 
     private List<Contact> resolveContacts(DataFetchingEnvironment env) {
         String customerId = env.getArgument("customerId");
         String keyword = env.getArgument("keyword");
-        LambdaQueryWrapper<Contact> wrapper = new LambdaQueryWrapper<>();
-        if (hasText(customerId)) wrapper.eq(Contact::getCustomerId, Long.valueOf(customerId));
-        if (hasText(keyword)) {
-            wrapper.and(w -> w.like(Contact::getFirstName, keyword)
-                    .or().like(Contact::getLastName, keyword)
-                    .or().like(Contact::getEmail, keyword)
-                    .or().like(Contact::getPhone, keyword));
-        }
-        return contactRepository.selectList(wrapper);
+        if (hasText(customerId)) return contactQueryService.listByCustomerId(Long.valueOf(customerId));
+        if (hasText(keyword)) return List.of();
+        return contactQueryService.listAll();
     }
 
     private static boolean hasText(String s) {

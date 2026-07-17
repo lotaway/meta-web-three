@@ -24,7 +24,7 @@ const getStatusLabel = (status: string) => {
 }
 
 const formatAmount = (amount?: number) => {
-  if (!amount) return '-'
+  if (amount === null || amount === undefined) return '-'
   return `$${amount.toFixed(2)}`
 }
 </script>
