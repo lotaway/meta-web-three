@@ -68,13 +68,6 @@ The following backend services have been created, but lack corresponding admin a
      - [ ] **通过修改现有代码实现**：`WorkOrderCommandService` 被大幅重构，添加了非原有职责的方法
      - [ ] **零单元测试**：`MesDomainServiceImpl`、`ProductionEventProcessor`、`MesCrossDomainEventPublisher` 均无测试
 
-### [技术栈违规：部分模块使用了 JPA/MySQL 而非 MyBatis Plus/PostgreSQL]（部分已修复）
-
-- [ ] **[Critical] forecasting-service** — **已修复**：注释（已删除），函数超 20 行（已拆分 helper），save 返回值+副作用（已改 void），硬编码魔法数字（已提取常量），事件名字符串（改用枚举）。**仍存在问题**：`catch (NumberFormatException e) { continue; }` 静默吞异常
-- [ ] **[Critical] route-optimizer** — **已修复**：注释（已删除），save 返回值+副作用（已改 void）。**仍存在问题**：`RoutePlan` 中 `@TableField(exist = false) List<RoutePoint> points` 持久化细节泄漏到领域模型
-- [ ] **[Critical] developer-portal-service** — **已修复**：注释已全部删除，save 返回值+副作用（已改 void）。**仍存在问题**：BCrypt 简化版实现待完善，文件超 500 行（630行），计费费率和配额硬编码
-- [ ] **[Medium] data-analysis-service** — **已修复**：注释已删除。**仍存在问题**：实体未标注 MyBatis Plus `@TableName` 注解
-
 ### [Digital Twin UI 交互流程未完整恢复]（新任务）
 
 - [ ] **[Digital Twin] 右侧面板 Tab 与告警/通知/SCADA/追溯功能链路未完整闭环**
