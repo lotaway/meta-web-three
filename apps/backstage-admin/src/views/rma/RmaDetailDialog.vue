@@ -71,4 +71,10 @@ const formatAmount = (amount?: number) => {
 .detail-items-table {
   margin-top: 16px;
 }
+@media (max-width: 768px) {
+  :deep(.el-dialog) {
+    width: 92% !important;
+    max-width: 92% !important;
+  }
+}
 </style>

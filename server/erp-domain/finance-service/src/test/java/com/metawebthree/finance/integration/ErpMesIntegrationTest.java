@@ -1,6 +1,7 @@
 package com.metawebthree.finance.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.metawebthree.event.EventType;
 import com.metawebthree.finance.application.command.cost.CostCommandService;
 import com.metawebthree.finance.domain.entity.cost.ActualCost;
 import com.metawebthree.finance.domain.repository.cost.ActualCostRepository;
@@ -58,7 +59,7 @@ public class ErpMesIntegrationTest {
 
         String message = objectMapper.writeValueAsString(eventData);
 
-        kafkaTemplate.send("mes.work_order_completed", message).get();
+        kafkaTemplate.send(EventType.MES_WORK_ORDER_COMPLETED_TOPIC, message).get();
 
         Thread.sleep(2000);
 
@@ -85,7 +86,7 @@ public class ErpMesIntegrationTest {
 
         String message = objectMapper.writeValueAsString(eventData);
 
-        kafkaTemplate.send("mes.task_completed", message).get();
+        kafkaTemplate.send(EventType.MES_TASK_COMPLETED_TOPIC, message).get();
 
         Thread.sleep(1000);
     }
@@ -93,7 +94,7 @@ public class ErpMesIntegrationTest {
     @Test
     void testEndToEndFlow() throws Exception {
         String productionEvent = "{\"event\":\"ORDER_CREATED\",\"orderCode\":\"PO-2026-001\",\"productCode\":\"PROD-X\"}";
-        kafkaTemplate.send("production.events", productionEvent).get();
+        kafkaTemplate.send(EventType.PRODUCTION_EVENTS_TOPIC, productionEvent).get();
         Thread.sleep(1000);
 
         Map<String, Object> completionEvent = new HashMap<>();
@@ -105,7 +106,7 @@ public class ErpMesIntegrationTest {
         completionEvent.put("quantity", 200);
 
         String completionMessage = objectMapper.writeValueAsString(completionEvent);
-        kafkaTemplate.send("mes.work_order_completed", completionMessage).get();
+        kafkaTemplate.send(EventType.MES_WORK_ORDER_COMPLETED_TOPIC, completionMessage).get();
 
         Thread.sleep(2000);
 

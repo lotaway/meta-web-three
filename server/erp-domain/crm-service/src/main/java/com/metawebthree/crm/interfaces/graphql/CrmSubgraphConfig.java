@@ -101,6 +101,7 @@ public class CrmSubgraphConfig {
     @SuppressWarnings("unchecked")
     private Object fetchEntity(DataFetchingEnvironment env) {
         List<Map<String, Object>> representations = env.getArgument("representations");
+        if (representations == null || representations.isEmpty()) return null;
         Map<String, Object> representation = representations.get(0);
         String typeName = (String) representation.get("__typename");
         Object idObj = representation.get("id");
@@ -180,7 +181,10 @@ public class CrmSubgraphConfig {
     }
 
     private Long argId(DataFetchingEnvironment env) {
-        return Long.valueOf(env.getArgument("id"));
+        Object id = env.getArgument("id");
+        if (id == null) return null;
+        if (id instanceof Number) return ((Number) id).longValue();
+        return Long.valueOf(id.toString());
     }
 
     private List<Lead> resolveLeads(DataFetchingEnvironment env) {

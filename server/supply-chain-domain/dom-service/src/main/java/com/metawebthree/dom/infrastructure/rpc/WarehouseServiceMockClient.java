@@ -11,22 +11,23 @@ import java.util.Map;
 @Primary
 public class WarehouseServiceMockClient implements WarehouseServiceClient {
 
-    private static final Map<Long, WarehouseInfo> WAREHOUSE_MAP = new HashMap<>();
+    private final Map<Long, WarehouseInfo> warehouseMap;
 
     public WarehouseServiceMockClient() {
-        WAREHOUSE_MAP.put(1L, new WarehouseInfo(1L, "East China Warehouse", "华东", 31.23, 121.47));
-        WAREHOUSE_MAP.put(2L, new WarehouseInfo(2L, "North China Warehouse", "华北", 39.90, 116.40));
-        WAREHOUSE_MAP.put(3L, new WarehouseInfo(3L, "South China Warehouse", "华南", 23.13, 113.26));
+        warehouseMap = new HashMap<>();
+        warehouseMap.put(1L, new WarehouseInfo(1L, "East China Warehouse", "华东", 31.23, 121.47));
+        warehouseMap.put(2L, new WarehouseInfo(2L, "North China Warehouse", "华北", 39.90, 116.40));
+        warehouseMap.put(3L, new WarehouseInfo(3L, "South China Warehouse", "华南", 23.13, 113.26));
     }
 
     @Override
     public WarehouseInfo getWarehouse(Long warehouseId) {
-        return WAREHOUSE_MAP.get(warehouseId);
+        return warehouseMap.get(warehouseId);
     }
 
     @Override
     public Double getWarehouseDistance(String fromRegion, Long warehouseId) {
-        WarehouseInfo warehouse = WAREHOUSE_MAP.get(warehouseId);
+        WarehouseInfo warehouse = warehouseMap.get(warehouseId);
         if (warehouse == null) {
             return 9999.0;
         }

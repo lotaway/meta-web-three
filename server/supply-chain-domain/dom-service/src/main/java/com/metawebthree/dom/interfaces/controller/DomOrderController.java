@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.metawebthree.common.annotations.RequirePermission;
 import com.metawebthree.dom.application.DomApplicationService;
 import com.metawebthree.dom.application.dto.*;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -56,7 +57,7 @@ public class DomOrderController {
     @RequirePermission(DomPermissions.DOM_ORDER_CREATE)
     @PostMapping
     public DomOrderDTO create(
-            @RequestBody CreateDomOrderRequest request,
+            @Valid @RequestBody CreateDomOrderRequest request,
             @RequestHeader(value = "X-User-Id", defaultValue = DEFAULT_USER_ID) String userId,
             @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         return domApplicationService.createDomOrder(request);

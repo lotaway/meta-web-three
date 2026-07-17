@@ -49,7 +49,19 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
     @Override
     @Transactional
     public RmaOrderDTO createRma(CreateRmaRequest request) {
-        List<RmaOrderItem> items = request.getItems().stream().map(i -> {
+        List<RmaOrderItem> items = buildItems(request);
+        RmaOrder order = rmaDomainService.createRmaOrder(
+                request.getOrderNo(), request.getCustomerId(), request.getCustomerName(),
+                request.getContactPhone(), request.getReasonCode(), request.getReasonDescription(),
+                request.getWarehouseId(), request.getReturnType(), request.getCreatedBy(), items
+        );
+        rmaDomainService.saveRmaOrder(order, items);
+        eventPublisher.publish(new RmaCreatedEvent("RMA_CREATED", order.getId(), order.getRmaNo()));
+        return toOrderDTO(order);
+    }
+
+    private List<RmaOrderItem> buildItems(CreateRmaRequest request) {
+        return request.getItems().stream().map(i -> {
             RmaOrderItem item = new RmaOrderItem();
             item.setSkuCode(i.getSkuCode());
             item.setSkuName(i.getSkuName());
@@ -59,24 +71,6 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
             item.setReasonDescription(i.getReasonDescription());
             return item;
         }).collect(Collectors.toList());
-
-        RmaOrder order = rmaDomainService.createRmaOrder(
-                request.getOrderNo(),
-                request.getCustomerId(),
-                request.getCustomerName(),
-                request.getContactPhone(),
-                request.getReasonCode(),
-                request.getReasonDescription(),
-                request.getWarehouseId(),
-                request.getReturnType(),
-                request.getCreatedBy(),
-                items
-        );
-
-        rmaDomainService.saveRmaOrder(order, items);
-        eventPublisher.publish(new RmaCreatedEvent("RMA_CREATED", order.getId(), order.getRmaNo()));
-
-        return toOrderDTO(order);
     }
 
     @Override
@@ -115,6 +109,18 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
     @Override
     @Transactional
     public RmaOrderDTO recordInspection(Long rmaId, RecordInspectionRequest request) {
+        RmaInspection inspection = buildInspection(request);
+        RmaOrder order = rmaDomainService.getRmaOrder(rmaId)
+                .orElseThrow(() -> new IllegalArgumentException("RMA order not found"));
+        RmaInspection saved = rmaDomainService.recordInspection(order, inspection);
+        rmaDomainService.saveInspection(saved);
+        rmaDomainService.saveRmaOrder(order);
+        eventPublisher.publish(new RmaInspectionCompletedEvent("RMA_INSPECTION_COMPLETED", rmaId, order.getRmaNo(),
+                saved.getResult(), saved.getTotalPassed()));
+        return toOrderDTO(order);
+    }
+
+    private RmaInspection buildInspection(RecordInspectionRequest request) {
         RmaInspection inspection = new RmaInspection();
         inspection.setInspector(request.getInspector());
         inspection.setResult(request.getResult());
@@ -123,18 +129,7 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
         inspection.setTotalPassed(request.getTotalPassed());
         inspection.setTotalFailed(request.getTotalFailed());
         inspection.setRemark(request.getRemark());
-
-        RmaOrder order = rmaDomainService.getRmaOrder(rmaId)
-                .orElseThrow(() -> new IllegalArgumentException("RMA order not found"));
-
-        RmaInspection saved = rmaDomainService.recordInspection(order, inspection);
-        rmaDomainService.saveInspection(saved);
-        rmaDomainService.saveRmaOrder(order);
-
-        eventPublisher.publish(new RmaInspectionCompletedEvent("RMA_INSPECTION_COMPLETED", rmaId, order.getRmaNo(),
-                saved.getResult(), saved.getTotalPassed()));
-
-        return toOrderDTO(order);
+        return inspection;
     }
 
     @Override

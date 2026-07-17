@@ -43,18 +43,30 @@ public class DomApplicationServiceImpl implements DomApplicationService {
     @Override
     @Transactional
     public DomOrderDTO createDomOrder(CreateDomOrderRequest request) {
+        DomOrder order = buildOrderEntity(request);
+        List<DomOrderLine> lines = buildOrderLines(request, order);
+        DomOrder built = domDomainService.createDomOrder(order, lines);
+        domDomainService.saveDomOrder(built, lines);
+        processAvailabilityAndSourcing(built, request.getSourcingStrategy());
+        return toDomOrderDTO(domOrderRepository.findById(built.getId()).orElse(built),
+                domOrderLineRepository.findByDomOrderId(built.getId()));
+    }
+
+    private DomOrder buildOrderEntity(CreateDomOrderRequest request) {
         DomOrder order = new DomOrder();
         order.setOriginalOrderNo(request.getOriginalOrderNo());
         order.setCustomerId(request.getCustomerId());
         order.setCustomerName(request.getCustomerName());
         order.setRegion(request.getRegion());
         order.setSourcingStrategy(request.getSourcingStrategy() != null
-                ? SourcingStrategy.valueOf(request.getSourcingStrategy())
-                : null);
+                ? SourcingStrategy.valueOf(request.getSourcingStrategy()) : null);
         order.setTotalAmount(BigDecimal.ZERO);
         order.setPriority(DEFAULT_PRIORITY);
         order.setCurrency(DEFAULT_CURRENCY);
+        return order;
+    }
 
+    private List<DomOrderLine> buildOrderLines(CreateDomOrderRequest request, DomOrder order) {
         List<DomOrderLine> lines = request.getItems().stream().map(item -> {
             DomOrderLine line = new DomOrderLine();
             line.setSkuCode(item.getSkuCode());
@@ -63,24 +75,19 @@ public class DomApplicationServiceImpl implements DomApplicationService {
             line.setUnitPrice(item.getUnitPrice());
             return line;
         }).collect(Collectors.toList());
-
         BigDecimal total = lines.stream()
                 .map(l -> l.getUnitPrice().multiply(BigDecimal.valueOf(l.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         order.setTotalAmount(total);
+        return lines;
+    }
 
-        DomOrder built = domDomainService.createDomOrder(order, lines);
-        domDomainService.saveDomOrder(built, lines);
-
+    private void processAvailabilityAndSourcing(DomOrder built, String strategyStr) {
         List<DomOrderLine> savedLines = domOrderLineRepository.findByDomOrderId(built.getId());
-
-        SourcingStrategy strategy = request.getSourcingStrategy() != null
-                ? SourcingStrategy.valueOf(request.getSourcingStrategy())
-                : SourcingStrategy.BALANCED;
-
+        SourcingStrategy strategy = strategyStr != null
+                ? SourcingStrategy.valueOf(strategyStr) : SourcingStrategy.BALANCED;
         boolean allPass = domDomainService.checkAvailability(built, savedLines);
         domDomainService.saveAvailabilityResult(built, savedLines, allPass);
-
         if (allPass) {
             savedLines = domOrderLineRepository.findByDomOrderId(built.getId());
             List<DomOrderLine> sourcedLines = domDomainService.sourceOrder(built, savedLines, strategy);
@@ -90,9 +97,6 @@ public class DomApplicationServiceImpl implements DomApplicationService {
                 domDomainService.saveFulfillmentPlan(built, plan);
             }
         }
-
-        return toDomOrderDTO(domOrderRepository.findById(built.getId()).orElse(built),
-                domOrderLineRepository.findByDomOrderId(built.getId()));
     }
 
     @Override

@@ -1,11 +1,10 @@
 package com.metawebthree.crm.adapter.http;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.crm.adapter.client.UserServiceClient;
 import com.metawebthree.crm.adapter.vo.Result;
+import com.metawebthree.crm.application.command.ContactCommandService;
+import com.metawebthree.crm.application.query.ContactQueryService;
 import com.metawebthree.crm.domain.entity.Contact;
-import com.metawebthree.crm.domain.exception.ContactNotFoundException;
-import com.metawebthree.crm.domain.repository.ContactRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,45 +16,38 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ContactController {
 
-    private final ContactRepository contactRepository;
+    private final ContactQueryService contactQueryService;
+    private final ContactCommandService contactCommandService;
     private final UserServiceClient userServiceClient;
 
     @GetMapping("/{id}")
     public Result<Contact> getById(@PathVariable Long id) {
-        return Result.success(contactRepository.selectById(id));
+        return Result.success(contactQueryService.getById(id));
     }
 
     @GetMapping("/list")
     public Result<List<Contact>> listAll() {
-        return Result.success(contactRepository.selectList(null));
+        return Result.success(contactQueryService.listAll());
     }
 
     @GetMapping("/customer/{customerId}")
     public Result<List<Contact>> getByCustomer(@PathVariable Long customerId) {
-        LambdaQueryWrapper<Contact> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Contact::getCustomerId, customerId);
-        return Result.success(contactRepository.selectList(wrapper));
+        return Result.success(contactQueryService.listByCustomerId(customerId));
     }
 
     @PostMapping
     public Result<Contact> create(@RequestBody Contact contact) {
-        contactRepository.insert(contact);
-        return Result.success(contact);
+        return Result.success(contactCommandService.create(contact));
     }
 
     @PutMapping
     public Result<Contact> update(@RequestBody Contact contact) {
-        Contact existing = contactRepository.selectById(contact.getId());
-        if (existing == null) {
-            throw new ContactNotFoundException(contact.getId());
-        }
-        contactRepository.updateById(contact);
-        return Result.success(contact);
+        return Result.success(contactCommandService.update(contact));
     }
 
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
-        contactRepository.deleteById(id);
+        contactCommandService.delete(id);
         return Result.success();
     }
 

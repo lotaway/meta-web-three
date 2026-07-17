@@ -8,11 +8,18 @@ import com.metawebthree.dom.domain.service.WarehouseServiceClient;
 import com.metawebthree.dom.domain.service.DomDomainEventPublisher;
 import com.metawebthree.dom.domain.service.DomSequenceGenerator;
 import com.metawebthree.dom.domain.service.DomSourcingProperties;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class DomainServiceConfig {
+
+    @Bean
+    @ConfigurationProperties(prefix = "dom.sourcing")
+    public DomSourcingProperties domSourcingProperties() {
+        return new DomSourcingProperties();
+    }
 
     @Bean
     public DomDomainService domDomainService(

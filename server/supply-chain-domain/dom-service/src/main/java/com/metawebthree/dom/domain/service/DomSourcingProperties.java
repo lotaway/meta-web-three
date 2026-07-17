@@ -1,13 +1,8 @@
 package com.metawebthree.dom.domain.service;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
-
 import java.util.Arrays;
 import java.util.List;
 
-@Component
-@ConfigurationProperties(prefix = "dom.sourcing")
 public class DomSourcingProperties {
 
     private List<Long> warehouseIds = Arrays.asList(1L, 2L, 3L);

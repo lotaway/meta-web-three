@@ -159,7 +159,7 @@ export function getBudgetExecution(year: number, month: number) {
 
 export function getInventoryTurnover() {
   return http<InventoryTurnover[]>({
-    url: '/api/v1/analysis/inventory/overview',
+    url: '/api/analytics/inventory',
     method: 'get',
   })
 }

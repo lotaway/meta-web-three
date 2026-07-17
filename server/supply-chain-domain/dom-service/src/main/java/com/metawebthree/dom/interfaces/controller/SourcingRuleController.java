@@ -3,6 +3,7 @@ package com.metawebthree.dom.interfaces.controller;
 import com.metawebthree.common.annotations.RequirePermission;
 import com.metawebthree.dom.application.DomApplicationService;
 import com.metawebthree.dom.application.dto.SourcingRuleDTO;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class SourcingRuleController {
     @RequirePermission(DomPermissions.DOM_RULE_CREATE)
     @PostMapping
     public SourcingRuleDTO create(
-            @RequestBody SourcingRuleDTO rule,
+            @Valid @RequestBody SourcingRuleDTO rule,
             @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
             @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         return domApplicationService.createSourcingRule(rule);
@@ -38,7 +39,7 @@ public class SourcingRuleController {
     @PutMapping("/{id}")
     public SourcingRuleDTO update(
             @PathVariable Long id,
-            @RequestBody SourcingRuleDTO rule,
+            @Valid @RequestBody SourcingRuleDTO rule,
             @RequestHeader(value = "X-User-Id", defaultValue = "system") String userId,
             @RequestHeader(value = "X-User-Role", defaultValue = "") String userRole) {
         rule.setId(id);

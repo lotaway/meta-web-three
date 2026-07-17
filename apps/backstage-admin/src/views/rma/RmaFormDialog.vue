@@ -132,3 +132,12 @@ const removeItem = (index: number) => {
     </template>
   </el-dialog>
 </template>
+
+<style scoped>
+@media (max-width: 768px) {
+  :deep(.el-dialog) {
+    width: 92% !important;
+    max-width: 92% !important;
+  }
+}
+</style>

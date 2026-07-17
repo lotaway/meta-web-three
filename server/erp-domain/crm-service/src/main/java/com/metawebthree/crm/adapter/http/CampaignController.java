@@ -1,9 +1,9 @@
 package com.metawebthree.crm.adapter.http;
 
 import com.metawebthree.crm.adapter.vo.Result;
+import com.metawebthree.crm.application.command.CampaignCommandService;
+import com.metawebthree.crm.application.query.CampaignQueryService;
 import com.metawebthree.crm.domain.entity.Campaign;
-import com.metawebthree.crm.domain.exception.CampaignNotFoundException;
-import com.metawebthree.crm.domain.repository.CampaignRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,37 +14,32 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CampaignController {
 
-    private final CampaignRepository campaignRepository;
+    private final CampaignQueryService campaignQueryService;
+    private final CampaignCommandService campaignCommandService;
 
     @GetMapping("/{id}")
     public Result<Campaign> getById(@PathVariable Long id) {
-        return Result.success(campaignRepository.selectById(id));
+        return Result.success(campaignQueryService.getById(id));
     }
 
     @GetMapping("/list")
     public Result<List<Campaign>> listAll() {
-        return Result.success(campaignRepository.selectList(null));
+        return Result.success(campaignQueryService.listAll());
     }
 
     @PostMapping
     public Result<Campaign> create(@RequestBody Campaign campaign) {
-        campaignRepository.insert(campaign);
-        return Result.success(campaign);
+        return Result.success(campaignCommandService.create(campaign));
     }
 
     @PutMapping
     public Result<Campaign> update(@RequestBody Campaign campaign) {
-        Campaign existing = campaignRepository.selectById(campaign.getId());
-        if (existing == null) {
-            throw new CampaignNotFoundException(campaign.getId());
-        }
-        campaignRepository.updateById(campaign);
-        return Result.success(campaign);
+        return Result.success(campaignCommandService.update(campaign));
     }
 
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
-        campaignRepository.deleteById(id);
+        campaignCommandService.delete(id);
         return Result.success();
     }
 }

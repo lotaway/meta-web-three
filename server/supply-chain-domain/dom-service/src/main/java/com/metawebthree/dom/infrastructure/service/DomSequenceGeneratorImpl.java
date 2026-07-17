@@ -10,12 +10,12 @@ import java.util.concurrent.atomic.AtomicLong;
 @Component
 public class DomSequenceGeneratorImpl implements DomSequenceGenerator {
 
-    private static final AtomicLong SEQ_COUNTER = new AtomicLong(0);
+    private final AtomicLong seqCounter = new AtomicLong(0);
 
     @Override
     public String generateDomOrderNo() {
         String datePart = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        long seq = SEQ_COUNTER.incrementAndGet() % 1000000;
+        long seq = seqCounter.incrementAndGet() % 1000000;
         return "DOM" + datePart + String.format("%06d", seq);
     }
 }
