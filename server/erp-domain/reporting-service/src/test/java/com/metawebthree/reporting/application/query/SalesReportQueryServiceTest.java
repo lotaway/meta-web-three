@@ -51,6 +51,7 @@ class SalesReportQueryServiceTest {
 
         assertTrue(result.isPresent());
         assertEquals(1L, result.get().getId());
+        verify(repository).findById(1L);
     }
 
     @Test
@@ -60,6 +61,7 @@ class SalesReportQueryServiceTest {
         Optional<SalesReport> result = service.getById(99L);
 
         assertTrue(result.isEmpty());
+        verify(repository).findById(99L);
     }
 
     @Test
@@ -72,6 +74,7 @@ class SalesReportQueryServiceTest {
 
         assertEquals(1, result.size());
         assertEquals(SalesReport.ReportType.DAILY, result.get(0).getType());
+        verify(repository).findByType(SalesReport.ReportType.DAILY);
     }
 
     @Test
@@ -83,5 +86,6 @@ class SalesReportQueryServiceTest {
         List<SalesReport> result = service.listAll();
 
         assertEquals(2, result.size());
+        verify(repository).findAll();
     }
 }

@@ -28,25 +28,42 @@ class SalesReportDomainServiceTest {
         service = new SalesReportDomainService(repository);
     }
 
+    private List<SalesReport> twoDailyReports() {
+        SalesReport r1 = new SalesReport();
+        r1.setTotalSalesAmount(new BigDecimal("1000"));
+        r1.setTotalOrderCount(10);
+        r1.setCategoryBreakdown("Electronics");
+        r1.setChannelBreakdown("Online");
+        SalesReport r2 = new SalesReport();
+        r2.setTotalSalesAmount(new BigDecimal("2000"));
+        r2.setTotalOrderCount(20);
+        r2.setCategoryBreakdown("Clothing");
+        r2.setChannelBreakdown("Offline");
+        return List.of(r1, r2);
+    }
+
+    private List<SalesReport> twoMonthlyReports() {
+        SalesReport r1 = new SalesReport();
+        r1.setTotalSalesAmount(new BigDecimal("5000"));
+        r1.setTotalOrderCount(50);
+        r1.setCategoryBreakdown("Electronics");
+        r1.setProductRanking("Product A");
+        r1.setChannelBreakdown("Online");
+        SalesReport r2 = new SalesReport();
+        r2.setTotalSalesAmount(new BigDecimal("3000"));
+        r2.setTotalOrderCount(30);
+        r2.setCategoryBreakdown("Clothing");
+        r2.setProductRanking("Product B");
+        r2.setChannelBreakdown("Offline");
+        return List.of(r1, r2);
+    }
+
     @Test
     void generateDailyReport_withData_shouldCalculateCorrectly() {
         LocalDateTime now = LocalDateTime.of(2026, 7, 20, 14, 30);
         LocalDateTime dayStart = now.toLocalDate().atStartOfDay();
         LocalDateTime dayEnd = now.toLocalDate().atTime(23, 59, 59);
-
-        SalesReport existing1 = new SalesReport();
-        existing1.setTotalSalesAmount(new BigDecimal("1000"));
-        existing1.setTotalOrderCount(10);
-        existing1.setCategoryBreakdown("Electronics");
-        existing1.setChannelBreakdown("Online");
-
-        SalesReport existing2 = new SalesReport();
-        existing2.setTotalSalesAmount(new BigDecimal("2000"));
-        existing2.setTotalOrderCount(20);
-        existing2.setCategoryBreakdown("Clothing");
-        existing2.setChannelBreakdown("Offline");
-
-        when(repository.findByDateRange(dayStart, dayEnd)).thenReturn(List.of(existing1, existing2));
+        when(repository.findByDateRange(dayStart, dayEnd)).thenReturn(twoDailyReports());
 
         SalesReport result = service.generateDailyReport(now);
 
@@ -62,6 +79,7 @@ class SalesReportDomainServiceTest {
         assertNotNull(result.getProfitMargin());
         assertNotNull(result.getCategoryBreakdown());
         assertNotNull(result.getChannelBreakdown());
+        verify(repository).findByDateRange(dayStart, dayEnd);
     }
 
     @Test
@@ -69,7 +87,6 @@ class SalesReportDomainServiceTest {
         LocalDateTime now = LocalDateTime.of(2026, 7, 20, 14, 30);
         LocalDateTime dayStart = now.toLocalDate().atStartOfDay();
         LocalDateTime dayEnd = now.toLocalDate().atTime(23, 59, 59);
-
         when(repository.findByDateRange(dayStart, dayEnd)).thenReturn(List.of());
 
         SalesReport result = service.generateDailyReport(now);
@@ -82,6 +99,7 @@ class SalesReportDomainServiceTest {
         assertEquals(BigDecimal.ZERO, result.getProfitMargin());
         assertEquals("{}", result.getCategoryBreakdown());
         assertEquals("{}", result.getChannelBreakdown());
+        verify(repository).findByDateRange(dayStart, dayEnd);
     }
 
     @Test
@@ -89,22 +107,7 @@ class SalesReportDomainServiceTest {
         int year = 2026, month = 7;
         LocalDateTime startDate = LocalDateTime.of(year, month, 1, 0, 0);
         LocalDateTime endDate = startDate.plusMonths(1).minusSeconds(1);
-
-        SalesReport existing1 = new SalesReport();
-        existing1.setTotalSalesAmount(new BigDecimal("5000"));
-        existing1.setTotalOrderCount(50);
-        existing1.setCategoryBreakdown("Electronics");
-        existing1.setProductRanking("Product A");
-        existing1.setChannelBreakdown("Online");
-
-        SalesReport existing2 = new SalesReport();
-        existing2.setTotalSalesAmount(new BigDecimal("3000"));
-        existing2.setTotalOrderCount(30);
-        existing2.setCategoryBreakdown("Clothing");
-        existing2.setProductRanking("Product B");
-        existing2.setChannelBreakdown("Offline");
-
-        when(repository.findByDateRange(startDate, endDate)).thenReturn(List.of(existing1, existing2));
+        when(repository.findByDateRange(startDate, endDate)).thenReturn(twoMonthlyReports());
 
         SalesReport result = service.generateMonthlyReport(year, month);
 
@@ -117,6 +120,7 @@ class SalesReportDomainServiceTest {
         assertNotNull(result.getCategoryBreakdown());
         assertNotNull(result.getProductRanking());
         assertNotNull(result.getChannelBreakdown());
+        verify(repository).findByDateRange(startDate, endDate);
     }
 
     @Test
@@ -124,7 +128,6 @@ class SalesReportDomainServiceTest {
         int year = 2026, month = 7;
         LocalDateTime startDate = LocalDateTime.of(year, month, 1, 0, 0);
         LocalDateTime endDate = startDate.plusMonths(1).minusSeconds(1);
-
         when(repository.findByDateRange(startDate, endDate)).thenReturn(List.of());
 
         SalesReport result = service.generateMonthlyReport(year, month);
@@ -138,5 +141,6 @@ class SalesReportDomainServiceTest {
         assertEquals("{}", result.getCategoryBreakdown());
         assertEquals("[]", result.getProductRanking());
         assertEquals("{}", result.getChannelBreakdown());
+        verify(repository).findByDateRange(startDate, endDate);
     }
 }

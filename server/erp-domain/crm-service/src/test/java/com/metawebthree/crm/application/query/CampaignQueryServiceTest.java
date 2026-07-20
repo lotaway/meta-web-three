@@ -36,6 +36,7 @@ class CampaignQueryServiceTest {
         Campaign result = service.getById(1L);
 
         assertSame(campaign, result);
+        verify(campaignRepository).findById(1L);
     }
 
     @Test
@@ -45,6 +46,7 @@ class CampaignQueryServiceTest {
         Campaign result = service.getById(99L);
 
         assertNull(result);
+        verify(campaignRepository).findById(99L);
     }
 
     @Test
@@ -55,6 +57,7 @@ class CampaignQueryServiceTest {
         List<Campaign> result = service.listAll();
 
         assertSame(campaigns, result);
+        verify(campaignRepository).findAll();
     }
 
     @Test
@@ -65,6 +68,7 @@ class CampaignQueryServiceTest {
         List<Campaign> result = service.listByStatus("ACTIVE");
 
         assertSame(campaigns, result);
+        verify(campaignRepository).findByStatus("ACTIVE");
     }
 
     @Test
@@ -75,5 +79,6 @@ class CampaignQueryServiceTest {
         List<Campaign> result = service.listByType("EMAIL");
 
         assertSame(campaigns, result);
+        verify(campaignRepository).findByType("EMAIL");
     }
 }

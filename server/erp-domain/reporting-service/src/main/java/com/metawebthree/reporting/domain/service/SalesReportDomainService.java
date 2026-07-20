@@ -11,15 +11,25 @@ import java.util.stream.Collectors;
 
 public class SalesReportDomainService {
 
-    private static final BigDecimal DEFAULT_AVG_ORDER_AMOUNT = new BigDecimal("500.00");
-    private static final BigDecimal GROSS_PROFIT_RATE_DAILY = new BigDecimal("0.25");
-    private static final BigDecimal GROSS_PROFIT_RATE_MONTHLY = new BigDecimal("0.28");
     private static final int PRODUCT_RANKING_LIMIT = 10;
 
     private final SalesReportRepository repository;
+    private final BigDecimal defaultAvgOrderAmount;
+    private final BigDecimal grossProfitRateDaily;
+    private final BigDecimal grossProfitRateMonthly;
 
     public SalesReportDomainService(SalesReportRepository repository) {
+        this(repository, new BigDecimal("500.00"), new BigDecimal("0.25"), new BigDecimal("0.28"));
+    }
+
+    public SalesReportDomainService(SalesReportRepository repository,
+                                    BigDecimal defaultAvgOrderAmount,
+                                    BigDecimal grossProfitRateDaily,
+                                    BigDecimal grossProfitRateMonthly) {
         this.repository = repository;
+        this.defaultAvgOrderAmount = defaultAvgOrderAmount;
+        this.grossProfitRateDaily = grossProfitRateDaily;
+        this.grossProfitRateMonthly = grossProfitRateMonthly;
     }
 
     public SalesReport generateDailyReport(LocalDateTime now) {
@@ -31,7 +41,7 @@ public class SalesReportDomainService {
 
         BigDecimal totalSales = calculateTotalSales(dayStart, dayEnd);
         int orderCount = calculateOrderCountFromHistoricalData(dayStart, dayEnd, totalSales);
-        BigDecimal grossProfit = calcGrossProfit(totalSales, GROSS_PROFIT_RATE_DAILY);
+        BigDecimal grossProfit = calcGrossProfit(totalSales, grossProfitRateDaily);
         BigDecimal profitMargin = calcProfitMargin(grossProfit, totalSales, orderCount);
 
         report.setMetrics(totalSales, orderCount, grossProfit, profitMargin);
@@ -51,8 +61,8 @@ public class SalesReportDomainService {
 
         int orderCount = calculateOrderCountFromHistoricalData(startDate, endDate, totalSales);
         BigDecimal avgOrderAmount = orderCount > 0 ?
-            totalSales.divide(BigDecimal.valueOf(orderCount), 2, RoundingMode.HALF_UP) : DEFAULT_AVG_ORDER_AMOUNT;
-        BigDecimal grossProfit = calcGrossProfit(totalSales, GROSS_PROFIT_RATE_MONTHLY);
+            totalSales.divide(BigDecimal.valueOf(orderCount), 2, RoundingMode.HALF_UP) : defaultAvgOrderAmount;
+        BigDecimal grossProfit = calcGrossProfit(totalSales, grossProfitRateMonthly);
 
         report.setMetrics(totalSales, orderCount, avgOrderAmount, grossProfit);
         report.setCategoryBreakdown(calculateCategoryBreakdown(startDate, endDate));
@@ -69,7 +79,7 @@ public class SalesReportDomainService {
                 .mapToInt(SalesReport::getTotalOrderCount)
                 .sum();
         if (totalOrderCount == 0 && totalSales.compareTo(BigDecimal.ZERO) > 0) {
-            totalOrderCount = Math.max(totalSales.divide(DEFAULT_AVG_ORDER_AMOUNT, 0, RoundingMode.DOWN).intValue(), 1);
+            totalOrderCount = Math.max(totalSales.divide(defaultAvgOrderAmount, 0, RoundingMode.DOWN).intValue(), 1);
         }
         return totalOrderCount;
     }
@@ -119,12 +129,16 @@ public class SalesReportDomainService {
     private String toPercentageJson(Map<String, BigDecimal> sales) {
         BigDecimal total = sales.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         if (total.compareTo(BigDecimal.ZERO) <= 0) return "{}";
-        Map<String, String> breakdown = new LinkedHashMap<>();
+        StringBuilder sb = new StringBuilder("{");
+        boolean first = true;
         for (Map.Entry<String, BigDecimal> entry : sales.entrySet()) {
+            if (!first) sb.append(",");
+            first = false;
             BigDecimal pct = entry.getValue().multiply(BigDecimal.valueOf(100)).divide(total, 1, RoundingMode.HALF_UP);
-            breakdown.put(entry.getKey(), pct.toString() + "%");
+            sb.append("\"").append(entry.getKey()).append("\":\"").append(pct).append("%\"");
         }
-        return new com.fasterxml.jackson.databind.ObjectMapper().valueToTree(breakdown).toString();
+        sb.append("}");
+        return sb.toString();
     }
 
     private Map<String, Object> toProductItem(Map.Entry<String, BigDecimal> entry) {

@@ -7,11 +7,13 @@
         value-format="YYYY-MM-DD" @change="loadData" />
     </div>
 
+    <div v-loading="loading" class="stat-cards-wrapper">
     <el-row :gutter="20" class="stat-cards">
       <el-col :xs="24" :sm="12" :md="8"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ formatPercent(summaryYield) }}</div><div class="stat-label">{{ t('bi.yieldRate') }}</div></div></el-card></el-col>
       <el-col :xs="24" :sm="12" :md="8"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ totalOutput }}</div><div class="stat-label">{{ t('bi.productionOutput') }}</div></div></el-card></el-col>
       <el-col :xs="24" :sm="12" :md="8"><el-card shadow="hover"><div class="stat-card"><div class="stat-value">{{ totalDefects }}</div><div class="stat-label">{{ t('bi.defectCount') }}</div></div></el-card></el-col>
     </el-row>
+    </div>
 
     <el-card class="section-card" v-loading="loading">
       <template #header><span>{{ t('bi.yieldRate') }}</span></template>
@@ -95,7 +97,7 @@ onMounted(loadData)
 .bi-production { padding: 20px; }
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .page-header h2 { margin: 0; }
-.stat-cards { margin-bottom: 20px; }
+.stat-cards-wrapper { margin-bottom: 20px; min-height: 120px; }
 .stat-card { text-align: center; padding: 10px 0; }
 .stat-value { font-size: 28px; font-weight: 700; color: #409EFF; }
 .stat-label { font-size: 14px; color: #909399; margin-top: 8px; }

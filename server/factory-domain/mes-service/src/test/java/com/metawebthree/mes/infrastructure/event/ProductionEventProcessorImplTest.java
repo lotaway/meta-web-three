@@ -44,7 +44,7 @@ class ProductionEventProcessorImplTest {
     }
 
     @Test
-    void handleOrderCreated_whenServiceThrows_shouldLogAndNotRethrow() {
+    void handleOrderCreated_whenServiceThrows_shouldNotRethrow() {
         Map<String, Object> eventData = new HashMap<>();
         eventData.put("orderCode", "ORD-001");
         eventData.put("productCode", "P001");
