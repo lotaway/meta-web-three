@@ -17,9 +17,9 @@ The following backend services have been created, but lack corresponding admin a
 
 #### 供应链领域 (中优先级)
 
-- [ ] **[Supply Chain] 退货管理 (RMA - Return Material Authorization)**: 逆向物流模块
+- [x] **[Supply Chain] 退货管理 (RMA - Return Material Authorization)**: 逆向物流模块
 
-- [ ] **[Supply Chain] 分布式订单管理 (DOM)**: 跨仓库订单承诺、寻源和履行
+- [x] **[Supply Chain] 分布式订单管理 (DOM)**: 跨仓库订单承诺、寻源和履行
 
 #### ERP 领域 (中优先级)
 
