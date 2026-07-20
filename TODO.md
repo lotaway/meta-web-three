@@ -3,17 +3,29 @@
 [Project Guideline](./README.md)
 [Backend Guideline](./server/README.md)
 
-### [Backend Admin Missing]
+#### 待添加的后台管理页面
 
-The following backend services have been created, but lack corresponding admin and operation pages. Each needs to be added:
-
-- **mall-domain** (13 services: after-sale, cart, group-buying, live, mall-supplier, order, payment, product, promotion, recommendation, review, risk-control, user) — only order(oms), product(pms), promotion, recommendation, review, risk-control have pages. Missing: cart, group-buying, live, mall-supplier, payment, user (~6 missing)
-- **ai-domain** (3 services: ai-warehouse, forecasting, route-optimizer) — only forecasting + routing have pages. Missing: ai-warehouse
-- **factory-domain / mes-service** (3 services: digital-twin, mes, production) — only mes has pages. Missing: digital-twin, production
-- **blockchain-domain** (2 services: traceability, wallet) — ✅ **Both have pages** under `/blockchain`
-- **erp-domain** (7 services: crm, finance, hrm, invoice, project, reporting, settlement) — only crm, hrm, settlement, reporting have pages. Missing: finance, invoice, project
-- **platform-domain** (8 services: commission, cs, data-analysis, developer-portal, media, message, social-commerce, user-action) — only cs has pages. Missing: commission, data-analysis, developer-portal, media, message, social-commerce, user-action (~7 missing)
-- **supply-chain-domain** (8 services: dom, inventory-alert, inventory, logistics, procurement, rma, supplier, warehouse) — only dom, inventory(incl. alert), logistics, rma, supplier have pages. Missing: procurement, warehouse
+- [ ] **[mall-domain] 购物车管理** (cart-service)
+- [ ] **[mall-domain] 团购管理** (group-buying-service)
+- [ ] **[mall-domain] 直播管理** (live-service)
+- [ ] **[mall-domain] 供应商管理** (mall-supplier-service)
+- [ ] **[mall-domain] 支付管理** (payment-service)
+- [ ] **[mall-domain] 用户管理** (user-service)
+- [ ] **[ai-domain] AI 仓库管理** (ai-warehouse-service)
+- [ ] **[factory-domain] 数字孪生管理** (digital-twin-service)
+- [ ] **[factory-domain] 生产管理** (production-service)
+- [ ] **[erp-domain] 财务管理** (finance-service)
+- [ ] **[erp-domain] 发票管理** (invoice-service)
+- [ ] **[erp-domain] 项目管理** (project-service)
+- [ ] **[platform-domain] 佣金管理** (commission-service)
+- [ ] **[platform-domain] 数据分析** (data-analysis-service)
+- [ ] **[platform-domain] 开发者门户** (developer-portal-service)
+- [ ] **[platform-domain] 媒体管理** (media-service)
+- [ ] **[platform-domain] 消息管理** (message-service)
+- [ ] **[platform-domain] 社交电商** (social-commerce-service)
+- [ ] **[platform-domain] 用户行为分析** (user-action-service)
+- [ ] **[supply-chain-domain] 采购管理** (procurement-service)
+- [ ] **[supply-chain-domain] 仓库管理** (warehouse-service)
 
 ### [GitHub Issues]
 
