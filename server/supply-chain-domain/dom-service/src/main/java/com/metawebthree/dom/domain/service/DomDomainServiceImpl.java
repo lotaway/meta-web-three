@@ -120,7 +120,7 @@ public class DomDomainServiceImpl implements DomDomainService {
     @Override
     public void saveSourcingResult(DomOrder order, List<DomOrderLine> lines) {
         boolean allSourced = lines.stream().allMatch(l -> l.getStatus() == DomOrderLineStatus.SOURCED);
-        order.setStatus(allSourced ? DomOrderStatus.SOURCING_COMPLETED : DomOrderStatus.ATP_FAILED);
+        order.setStatus(allSourced ? DomOrderStatus.SOURCING_COMPLETED : DomOrderStatus.SOURCING_FAILED);
         order.setUpdatedAt(LocalDateTime.now());
         domOrderRepository.save(order);
     }

@@ -19,6 +19,7 @@ public class DomOrderDTO {
     private String sourcingStrategy;
     private String region;
     private List<DomOrderLineDTO> lines;
+    private FulfillmentPlanDTO fulfillmentPlan;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

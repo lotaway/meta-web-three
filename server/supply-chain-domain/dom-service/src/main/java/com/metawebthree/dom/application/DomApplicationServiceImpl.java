@@ -247,6 +247,8 @@ public class DomApplicationServiceImpl implements DomApplicationService {
         if (lines != null) {
             dto.setLines(lines.stream().map(this::toDomOrderLineDTO).collect(Collectors.toList()));
         }
+        fulfillmentPlanRepository.findByDomOrderId(order.getId())
+                .ifPresent(plan -> dto.setFulfillmentPlan(toFulfillmentPlanDTO(plan)));
         return dto;
     }
 
