@@ -2,23 +2,17 @@ package com.metawebthree.mes.application.command;
 
 import com.metawebthree.mes.domain.entity.WorkOrder;
 import com.metawebthree.mes.domain.repository.WorkOrderRepository;
-import com.metawebthree.mes.application.event.CrossDomainEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class WorkOrderCommandService {
 
     private final WorkOrderRepository workOrderRepository;
-    private final CrossDomainEventPublisher crossDomainEventPublisher;
 
-    public WorkOrderCommandService(WorkOrderRepository workOrderRepository,
-                                   CrossDomainEventPublisher crossDomainEventPublisher) {
+    public WorkOrderCommandService(WorkOrderRepository workOrderRepository) {
         this.workOrderRepository = workOrderRepository;
-        this.crossDomainEventPublisher = crossDomainEventPublisher;
     }
 
     public WorkOrder prepareCreateWorkOrder(String workOrderNo, String productCode, String productName,
@@ -111,13 +105,6 @@ public class WorkOrderCommandService {
         workOrderRepository.update(workOrder);
     }
 
-    public void notifyWorkOrderCompleted(Long id) {
-        WorkOrder workOrder = findWorkOrderOrThrow(id);
-        crossDomainEventPublisher.publishWorkOrderCompleted(
-                workOrder.getId(), workOrder.getWorkOrderNo(),
-                workOrder.getProductCode(), workOrder.getQuantity());
-    }
-
     public WorkOrder prepareCancel(Long id) {
         WorkOrder workOrder = findWorkOrderOrThrow(id);
         workOrder.cancel();
@@ -148,50 +135,8 @@ public class WorkOrderCommandService {
         workOrderRepository.deleteById(id);
     }
 
-    public List<WorkOrder> prepareSplit(Long id, String splitType, Integer splitCount) {
-        WorkOrder parentOrder = findWorkOrderOrThrow(id);
-        if (parentOrder.getQuantity() == null || parentOrder.getQuantity() <= 0) {
-            throw new IllegalArgumentException("Invalid quantity for split");
-        }
-        int quantityPerChild = parentOrder.getQuantity() / splitCount;
-        int remainder = parentOrder.getQuantity() % splitCount;
-        List<WorkOrder> childOrders = new ArrayList<>();
-        for (int i = 1; i <= splitCount; i++) {
-            WorkOrder child = buildChildOrder(parentOrder, splitType, i, quantityPerChild + (i <= remainder ? 1 : 0));
-            childOrders.add(child);
-        }
-        return childOrders;
-    }
-
-    public void saveSplitOrders(List<WorkOrder> childOrders) {
-        for (WorkOrder child : childOrders) {
-            workOrderRepository.save(child);
-        }
-    }
-
     private WorkOrder findWorkOrderOrThrow(Long id) {
         return workOrderRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Work order not found: " + id));
-    }
-
-    private WorkOrder buildChildOrder(WorkOrder parent, String splitType, int sequence, int quantity) {
-        WorkOrder child = new WorkOrder();
-        child.createWithType(
-            parent.getWorkOrderNo() + "-S" + sequence,
-            parent.getProductCode(),
-            parent.getProductName(),
-            quantity,
-            parent.getWorkshopId(),
-            parent.getProcessRouteId(),
-            parent.getTypeCode()
-        );
-        child.setParentWorkOrderId(parent.getId());
-        child.setSplitRuleId(parent.getSplitRuleId());
-        child.setSplitSequence(sequence);
-        child.setSplitType(splitType);
-        child.setPriority(parent.getPriority());
-        child.setPlannedStartTime(parent.getPlannedStartTime());
-        child.setPlannedEndTime(parent.getPlannedEndTime());
-        return child;
     }
 }

@@ -956,6 +956,18 @@ export const asyncRouterMap: RouteRecordExt[] = [
         component: () => import('@/views/bi/financial.vue'),
         meta: { title: 'bi.financialAnalysis', icon: 'bi-financial' },
       },
+      {
+        path: 'inventory',
+        name: 'biInventory',
+        component: () => import('@/views/bi/inventory.vue'),
+        meta: { title: 'bi.inventoryAnalysis', icon: 'bi-inventory' },
+      },
+      {
+        path: 'production',
+        name: 'biProduction',
+        component: () => import('@/views/bi/production.vue'),
+        meta: { title: 'bi.productionAnalysis', icon: 'bi-production' },
+      },
     ],
   },
   // CRM Customer Relationship Management

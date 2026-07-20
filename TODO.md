@@ -19,19 +19,20 @@ The following backend services have been created, but lack corresponding admin a
 
 #### ERP 领域 (中优先级)
 
-- [ ] **[ERP] 客户关系管理 (CRM)**: 销售管道、商机跟踪、客户服务工单、营销活动
-   - [ ] **零单元测试**：无 `src/test/` 目录
+- [x] **[ERP] 客户关系管理 (CRM)**: 销售管道、商机跟踪、客户服务工单、营销活动
+   - [x] **应用层依赖 MyBatis Plus**：已修复（前一阶段）
+   - [x] **零单元测试**：已为 LeadCommandService、OpportunityCommandService、TicketCommandService、CampaignQueryService 编写 29 个单元测试
 
-- [ ] **[ERP] BI 商业智能与分析层**: 仪表板、即席查询、数据可视化
-   - [ ] **sendEmail() 为伪代码**：仅记录日志但未真正调用邮件发送 API（无 JavaMailSender），emailEnabled=false 时静默跳过，应接入真实邮件发送实现
-   - [ ] **DDD 分层违规**：`application/query/` 服务包含领域逻辑（毛利率计算、报表聚合）
-   - [ ] **领域层使用 Lombok**：`@Builder`/`@Getter`/`@ToString` 在领域实体中
-   - [ ] **零单元测试**：无测试覆盖
-   - [ ] **前端缺少库存/生产专用页面**：TODO 要求 views/bi/* 系列页面，但库存和生产嵌入在 index.vue 标签页
+- [x] **[ERP] BI 商业智能与分析层**: 仪表板、即席查询、数据可视化
+   - [x] **sendEmail() 为伪代码**：已替换为真实 JavaMailSender，添加 `spring-boot-starter-mail` 依赖
+   - [x] **DDD 分层违规**：已将毛利率计算等从 SalesReportQueryService 提取到新创建的 SalesReportDomainService（领域层）
+   - [x] **领域层使用 Lombok**：InventoryReport 已移除 @Builder/@Getter/@ToString，改为手动 getter/toString + 静态工厂方法
+   - [x] **零单元测试**：已为 SalesReportDomainService、SalesReportQueryService、ReportDeliveryService 编写测试
+   - [x] **前端缺少库存/生产专用页面**：已创建 inventory.vue 和 production.vue，并在 router 中添加对应路由
 
-- [ ] **[Cross] ERP-MES 数据闭环集成**: 打通 ERP 生产订单 → MES 报工 → 财务成本核算
-   - [ ] **通过修改现有代码实现**：`WorkOrderCommandService` 被大幅重构，添加了非原有职责的方法
-   - [ ] **零单元测试**：`MesDomainServiceImpl`、`ProductionEventProcessor`、`MesCrossDomainEventPublisher` 均无测试
+- [x] **[Cross] ERP-MES 数据闭环集成**: 打通 ERP 生产订单 → MES 报工 → 财务成本核算
+   - [x] **通过修改现有代码实现**：已从 WorkOrderCommandService 移除 notifyWorkOrderCompleted（应由事件监听器处理）和 prepareSplit/saveSplitOrders（已由 WorkOrderSplitService 覆盖）
+   - [x] **零单元测试**：已为 MesDomainServiceImpl（13 个测试）、ProductionEventProcessorImpl（3 个测试）、MesCrossDomainEventPublisher（3 个测试）编写共计 19 个单元测试
 
 ### [GitHub Issues]
 

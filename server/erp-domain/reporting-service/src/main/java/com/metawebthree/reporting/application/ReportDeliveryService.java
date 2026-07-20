@@ -7,10 +7,13 @@ import com.metawebthree.reporting.domain.repository.FinancialReportRepository;
 import com.metawebthree.reporting.domain.repository.InventoryReportRepository;
 import com.metawebthree.reporting.domain.repository.SalesReportRepository;
 import com.metawebthree.reporting.domain.service.ReportSubscriptionService;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -32,12 +35,10 @@ public class ReportDeliveryService {
     private final InventoryReportRepository inventoryReportRepository;
     private final FinancialReportRepository financialReportRepository;
     private final RestTemplate restTemplate;
+    private final JavaMailSender mailSender;
 
     @Value("${report.email.from:noreply@metawebthree.com}")
     private String emailFrom;
-
-    @Value("${report.email.enabled:false}")
-    private boolean emailEnabled;
 
     public void processDueSubscriptions() {
         log.info("开始处理到期报表订阅任务");
@@ -216,14 +217,20 @@ public class ReportDeliveryService {
 
     @Async
     private void sendEmail(ReportSubscription subscription, String content) {
-        if (!emailEnabled) {
-            log.warn("邮件发送未启用，邮件内容: {}", content);
-            return;
-        }
-        log.info("发送邮件到: {}", subscription.getRecipient());
         String title = getEmailTitle(subscription.getReportType());
         String emailContent = buildEmailContent(title, content);
-        log.info("邮件发送成功: 主题={}, 收件人={}", title, subscription.getRecipient());
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(emailFrom);
+            helper.setTo(subscription.getRecipient());
+            helper.setSubject(title);
+            helper.setText(emailContent, true);
+            mailSender.send(message);
+            log.info("邮件发送成功: 主题={}, 收件人={}", title, subscription.getRecipient());
+        } catch (Exception e) {
+            log.error("邮件发送失败: 主题={}, 收件人={}, 错误={}", title, subscription.getRecipient(), e.getMessage(), e);
+        }
     }
     
     private String getEmailTitle(ReportType reportType) {

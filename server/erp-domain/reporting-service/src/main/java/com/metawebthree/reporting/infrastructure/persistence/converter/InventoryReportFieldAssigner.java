@@ -9,22 +9,13 @@ public class InventoryReportFieldAssigner {
     private static final Logger log = LoggerFactory.getLogger(InventoryReportFieldAssigner.class);
 
     public static InventoryReport assignToEntity(InventoryReportDO reportDO) {
-        return InventoryReport.builder()
-                .id(reportDO.getId())
-                .reportNo(reportDO.getReportNo())
-                .type(parseReportType(reportDO.getType()))
-                .reportDate(reportDO.getReportDate())
-                .totalInventoryValue(reportDO.getTotalInventoryValue())
-                .totalSkuCount(reportDO.getTotalSkuCount())
-                .totalQuantity(reportDO.getTotalQuantity())
-                .turnoverRate(reportDO.getTurnoverRate())
-                .slowMovingRate(reportDO.getSlowMovingRate())
-                .slowMovingCount(reportDO.getSlowMovingCount())
-                .warehouseBreakdown(reportDO.getWarehouseBreakdown())
-                .categoryBreakdown(reportDO.getCategoryBreakdown())
-                .lowStockItems(reportDO.getLowStockItems())
-                .createdAt(reportDO.getCreatedAt())
-                .build();
+        return InventoryReport.createWithAllFields(
+                reportDO.getId(), reportDO.getReportNo(),
+                parseReportType(reportDO.getType()), reportDO.getReportDate(),
+                reportDO.getTotalInventoryValue(), reportDO.getTotalSkuCount(), reportDO.getTotalQuantity(),
+                reportDO.getTurnoverRate(), reportDO.getSlowMovingRate(), reportDO.getSlowMovingCount(),
+                reportDO.getWarehouseBreakdown(), reportDO.getCategoryBreakdown(),
+                reportDO.getLowStockItems(), reportDO.getCreatedAt());
     }
 
     public static void assignToDO(InventoryReportDO reportDO, InventoryReport report) {
