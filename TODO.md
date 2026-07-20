@@ -7,13 +7,13 @@
 
 The following backend services have been created, but lack corresponding admin and operation pages. Each needs to be added:
 
-- mall-domain (11 services, most missing admin pages)
-- ai-domain (3 services: ai-warehouse, forecasting, risk-scorer)
-- factory-domain / mes-service (production management admin)
-- blockchain-domain (2 services)
-- erp-domain (6 services: finance, HR, invoice, project, report, settlement)
-- platform-domain (7 services: commission, customer service, data analysis, media, message, notification, user behavior)
-- supply-chain-domain (6 services: inventory alert, inventory, logistics, procurement, supplier, warehouse)
+- **mall-domain** (13 services: after-sale, cart, group-buying, live, mall-supplier, order, payment, product, promotion, recommendation, review, risk-control, user) — only order(oms), product(pms), promotion, recommendation, review, risk-control have pages. Missing: cart, group-buying, live, mall-supplier, payment, user (~6 missing)
+- **ai-domain** (3 services: ai-warehouse, forecasting, route-optimizer) — only forecasting + routing have pages. Missing: ai-warehouse
+- **factory-domain / mes-service** (3 services: digital-twin, mes, production) — only mes has pages. Missing: digital-twin, production
+- **blockchain-domain** (2 services: traceability, wallet) — ✅ **Both have pages** under `/blockchain`
+- **erp-domain** (7 services: crm, finance, hrm, invoice, project, reporting, settlement) — only crm, hrm, settlement, reporting have pages. Missing: finance, invoice, project
+- **platform-domain** (8 services: commission, cs, data-analysis, developer-portal, media, message, social-commerce, user-action) — only cs has pages. Missing: commission, data-analysis, developer-portal, media, message, social-commerce, user-action (~7 missing)
+- **supply-chain-domain** (8 services: dom, inventory-alert, inventory, logistics, procurement, rma, supplier, warehouse) — only dom, inventory(incl. alert), logistics, rma, supplier have pages. Missing: procurement, warehouse
 
 ### [GitHub Issues]
 
