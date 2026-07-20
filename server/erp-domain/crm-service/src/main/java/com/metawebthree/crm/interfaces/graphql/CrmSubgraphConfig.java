@@ -7,18 +7,14 @@ import com.metawebthree.crm.application.query.ContactQueryService;
 import com.metawebthree.crm.application.query.LeadQueryService;
 import com.metawebthree.crm.application.query.OpportunityQueryService;
 import com.metawebthree.crm.application.query.TicketQueryService;
-import com.metawebthree.crm.domain.entity.Campaign;
-import com.metawebthree.crm.domain.entity.Contact;
-import com.metawebthree.crm.domain.entity.CustomerServiceTicket;
-import com.metawebthree.crm.domain.entity.Lead;
-import com.metawebthree.crm.domain.entity.Opportunity;
+import com.metawebthree.crm.domain.entity.*;
+import com.metawebthree.crm.interfaces.graphql.dto.*;
 import graphql.GraphQL;
 import graphql.TypeResolutionEnvironment;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.*;
-import lombok.Data;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
@@ -28,10 +24,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-
-import com.metawebthree.crm.interfaces.graphql.dto.Connection;
-import com.metawebthree.crm.interfaces.graphql.dto.Edge;
-import com.metawebthree.crm.interfaces.graphql.dto.PageInfo;
 
 @Configuration
 public class CrmSubgraphConfig {
@@ -233,10 +225,6 @@ public class CrmSubgraphConfig {
         return s != null && !s.isBlank();
     }
 
-    private static String str(Object obj) {
-        return obj != null ? obj.toString() : null;
-    }
-
     private <T, R> Connection<R> pageResult(List<T> items,
             java.util.function.Function<T, R> mapper,
             java.util.function.Function<T, String> cursorFn) {
@@ -244,299 +232,5 @@ public class CrmSubgraphConfig {
                 .map(item -> new Edge<>(cursorFn.apply(item), mapper.apply(item)))
                 .toList();
         return new Connection<>(edges, items.size(), new PageInfo(false, null));
-    }
-
-    private interface TypedNode {
-        String __typename();
-    }
-
-    @Data
-    public static class LeadDTO implements TypedNode {
-        String __typename;
-        String id;
-        String leadNo;
-        String name;
-        String company;
-        String email;
-        String phone;
-        String source;
-        String status;
-        Integer score;
-        String industry;
-        String city;
-        String description;
-        String assignedTo;
-        String createdAt;
-        String updatedAt;
-
-        @Override
-        public String __typename() { return __typename; }
-
-        static LeadDTO from(Lead lead) {
-            LeadDTO dto = new LeadDTO();
-            dto.__typename = "Lead";
-            baseFields(dto, lead);
-            contactFields(dto, lead);
-            pipelineFields(dto, lead);
-            timestampFields(dto, lead);
-            return dto;
-        }
-
-        private static void baseFields(LeadDTO dto, Lead lead) {
-            dto.id = lead.getId().toString();
-            dto.leadNo = lead.getLeadNo();
-            dto.name = lead.getName();
-            dto.company = lead.getCompany();
-            dto.email = lead.getEmail();
-            dto.phone = lead.getPhone();
-        }
-
-        private static void contactFields(LeadDTO dto, Lead lead) {
-            dto.source = lead.getSource();
-            dto.status = lead.getStatus();
-            dto.score = lead.getScore();
-            dto.industry = lead.getIndustry();
-            dto.city = lead.getCity();
-        }
-
-        private static void pipelineFields(LeadDTO dto, Lead lead) {
-            dto.description = lead.getDescription();
-            dto.assignedTo = lead.getAssignedTo();
-        }
-
-        private static void timestampFields(LeadDTO dto, Lead lead) {
-            dto.createdAt = str(lead.getCreatedAt());
-            dto.updatedAt = str(lead.getUpdatedAt());
-        }
-    }
-
-    @Data
-    public static class OpportunityDTO implements TypedNode {
-        String __typename;
-        String id;
-        String opportunityNo;
-        String title;
-        String leadId;
-        String customerId;
-        String stage;
-        Double amount;
-        Integer probability;
-        String expectedCloseDate;
-        String actualCloseDate;
-        String competitor;
-        String description;
-        String assignedTo;
-        String createdAt;
-        String updatedAt;
-
-        @Override
-        public String __typename() { return __typename; }
-
-        static OpportunityDTO from(Opportunity opp) {
-            OpportunityDTO dto = new OpportunityDTO();
-            dto.__typename = "Opportunity";
-            baseFields(dto, opp);
-            relationFields(dto, opp);
-            pipelineFields(dto, opp);
-            timestampFields(dto, opp);
-            return dto;
-        }
-
-        private static void baseFields(OpportunityDTO dto, Opportunity opp) {
-            dto.id = opp.getId().toString();
-            dto.opportunityNo = opp.getOpportunityNo();
-            dto.title = opp.getTitle();
-        }
-
-        private static void relationFields(OpportunityDTO dto, Opportunity opp) {
-            dto.leadId = opp.getLeadId() != null ? opp.getLeadId().toString() : null;
-            dto.customerId = opp.getCustomerId() != null ? opp.getCustomerId().toString() : null;
-        }
-
-        private static void pipelineFields(OpportunityDTO dto, Opportunity opp) {
-            dto.stage = opp.getStage();
-            dto.amount = opp.getAmount() != null ? opp.getAmount().doubleValue() : null;
-            dto.probability = opp.getProbability();
-            dto.expectedCloseDate = str(opp.getExpectedCloseDate());
-            dto.actualCloseDate = str(opp.getActualCloseDate());
-            dto.competitor = opp.getCompetitor();
-            dto.description = opp.getDescription();
-            dto.assignedTo = opp.getAssignedTo();
-        }
-
-        private static void timestampFields(OpportunityDTO dto, Opportunity opp) {
-            dto.createdAt = str(opp.getCreatedAt());
-            dto.updatedAt = str(opp.getUpdatedAt());
-        }
-    }
-
-    @Data
-    public static class TicketDTO implements TypedNode {
-        String __typename;
-        String id;
-        String ticketNo;
-        String title;
-        String customerId;
-        String orderId;
-        String type;
-        String priority;
-        String status;
-        String assignedTo;
-        String description;
-        String resolution;
-        String createdAt;
-        String updatedAt;
-
-        @Override
-        public String __typename() { return __typename; }
-
-        static TicketDTO from(CustomerServiceTicket ticket) {
-            TicketDTO dto = new TicketDTO();
-            dto.__typename = "Ticket";
-            baseFields(dto, ticket);
-            relationFields(dto, ticket);
-            ticketFields(dto, ticket);
-            timestampFields(dto, ticket);
-            return dto;
-        }
-
-        private static void baseFields(TicketDTO dto, CustomerServiceTicket ticket) {
-            dto.id = ticket.getId().toString();
-            dto.ticketNo = ticket.getTicketNo();
-            dto.title = ticket.getTitle();
-        }
-
-        private static void relationFields(TicketDTO dto, CustomerServiceTicket ticket) {
-            dto.customerId = ticket.getCustomerId() != null ? ticket.getCustomerId().toString() : null;
-            dto.orderId = ticket.getOrderId() != null ? ticket.getOrderId().toString() : null;
-        }
-
-        private static void ticketFields(TicketDTO dto, CustomerServiceTicket ticket) {
-            dto.type = ticket.getType();
-            dto.priority = ticket.getPriority();
-            dto.status = ticket.getStatus();
-            dto.assignedTo = ticket.getAssignedTo();
-            dto.description = ticket.getDescription();
-            dto.resolution = ticket.getResolution();
-        }
-
-        private static void timestampFields(TicketDTO dto, CustomerServiceTicket ticket) {
-            dto.createdAt = str(ticket.getCreatedAt());
-            dto.updatedAt = str(ticket.getUpdatedAt());
-        }
-    }
-
-    @Data
-    public static class CampaignDTO implements TypedNode {
-        String __typename;
-        String id;
-        String name;
-        String description;
-        String type;
-        String status;
-        String startDate;
-        String endDate;
-        Double budget;
-        Double actualCost;
-        Double expectedRevenue;
-        Integer leadsGenerated;
-        Integer convertedCustomers;
-        String createdAt;
-        String updatedAt;
-
-        @Override
-        public String __typename() { return __typename; }
-
-        static CampaignDTO from(Campaign campaign) {
-            CampaignDTO dto = new CampaignDTO();
-            dto.__typename = "Campaign";
-            baseFields(dto, campaign);
-            dateFields(dto, campaign);
-            financialFields(dto, campaign);
-            timestampFields(dto, campaign);
-            return dto;
-        }
-
-        private static void baseFields(CampaignDTO dto, Campaign campaign) {
-            dto.id = campaign.getId().toString();
-            dto.name = campaign.getName();
-            dto.description = campaign.getDescription();
-            dto.type = campaign.getType();
-            dto.status = campaign.getStatus();
-        }
-
-        private static void dateFields(CampaignDTO dto, Campaign campaign) {
-            dto.startDate = str(campaign.getStartDate());
-            dto.endDate = str(campaign.getEndDate());
-        }
-
-        private static void financialFields(CampaignDTO dto, Campaign campaign) {
-            dto.budget = campaign.getBudget() != null ? campaign.getBudget().doubleValue() : null;
-            dto.actualCost = campaign.getActualCost() != null ? campaign.getActualCost().doubleValue() : null;
-            dto.expectedRevenue = campaign.getExpectedRevenue() != null ? campaign.getExpectedRevenue().doubleValue() : null;
-            dto.leadsGenerated = campaign.getLeadsGenerated();
-            dto.convertedCustomers = campaign.getConvertedCustomers();
-        }
-
-        private static void timestampFields(CampaignDTO dto, Campaign campaign) {
-            dto.createdAt = str(campaign.getCreatedAt());
-            dto.updatedAt = str(campaign.getUpdatedAt());
-        }
-    }
-
-    @Data
-    public static class ContactDTO implements TypedNode {
-        String __typename;
-        String id;
-        String firstName;
-        String lastName;
-        String email;
-        String phone;
-        String mobile;
-        String position;
-        String department;
-        String customerId;
-        Boolean isPrimary;
-        String city;
-        String createdAt;
-        String updatedAt;
-
-        @Override
-        public String __typename() { return __typename; }
-
-        static ContactDTO from(Contact contact) {
-            ContactDTO dto = new ContactDTO();
-            dto.__typename = "Contact";
-            baseFields(dto, contact);
-            orgFields(dto, contact);
-            locationFields(dto, contact);
-            timestampFields(dto, contact);
-            return dto;
-        }
-
-        private static void baseFields(ContactDTO dto, Contact contact) {
-            dto.id = contact.getId().toString();
-            dto.firstName = contact.getFirstName();
-            dto.lastName = contact.getLastName();
-            dto.email = contact.getEmail();
-            dto.phone = contact.getPhone();
-            dto.mobile = contact.getMobile();
-        }
-
-        private static void orgFields(ContactDTO dto, Contact contact) {
-            dto.position = contact.getPosition();
-            dto.department = contact.getDepartment();
-            dto.customerId = contact.getCustomerId() != null ? contact.getCustomerId().toString() : null;
-            dto.isPrimary = contact.getIsPrimary();
-        }
-
-        private static void locationFields(ContactDTO dto, Contact contact) {
-            dto.city = contact.getCity();
-        }
-
-        private static void timestampFields(ContactDTO dto, Contact contact) {
-            dto.createdAt = str(contact.getCreatedAt());
-            dto.updatedAt = str(contact.getUpdatedAt());
-        }
     }
 }
