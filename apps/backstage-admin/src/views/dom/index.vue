@@ -425,14 +425,14 @@ const formatAmount = (amount?: number) => {
             <template #default="{ row }">{{ formatAmount(row.unitPrice) }}</template>
           </el-table-column>
         </el-table>
-        <div v-if="detailData.fulfillmentPlan && detailData.fulfillmentPlan.length > 0" class="fulfillment-section">
-          <h4>Fulfillment Plans</h4>
-          <el-table :data="detailData.fulfillmentPlan" border stripe>
-            <el-table-column label="Warehouse" prop="warehouseName" min-width="120" />
-            <el-table-column label="SKU Code" prop="skuCode" min-width="120" />
-            <el-table-column label="Quantity" prop="quantity" min-width="80" />
-            <el-table-column label="Status" prop="status" min-width="100" />
-          </el-table>
+        <div v-if="detailData.fulfillmentPlan" class="fulfillment-section">
+          <h4>Fulfillment Plan</h4>
+          <el-descriptions :column="3" border size="small">
+            <el-descriptions-item label="Total Lines">{{ detailData.fulfillmentPlan.totalLines }}</el-descriptions-item>
+            <el-descriptions-item label="Fulfilled">{{ detailData.fulfillmentPlan.fulfilledLines }}</el-descriptions-item>
+            <el-descriptions-item label="Unfulfilled">{{ detailData.fulfillmentPlan.unfulfilledLines }}</el-descriptions-item>
+            <el-descriptions-item label="Status">{{ detailData.fulfillmentPlan.status }}</el-descriptions-item>
+          </el-descriptions>
         </div>
       </template>
       <template #footer>
