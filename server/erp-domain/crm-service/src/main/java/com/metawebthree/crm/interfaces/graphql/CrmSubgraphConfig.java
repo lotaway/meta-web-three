@@ -1,7 +1,6 @@
 package com.metawebthree.crm.interfaces.graphql;
 
 import com.apollographql.federation.graphqljava.Federation;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.crm.application.query.CampaignQueryService;
 import com.metawebthree.crm.application.query.ContactQueryService;
 import com.metawebthree.crm.application.query.LeadQueryService;
