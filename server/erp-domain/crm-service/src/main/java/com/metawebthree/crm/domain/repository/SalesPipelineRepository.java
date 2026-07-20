@@ -1,9 +1,14 @@
 package com.metawebthree.crm.domain.repository;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.metawebthree.crm.domain.entity.SalesPipeline;
-import org.apache.ibatis.annotations.Mapper;
 
-@Mapper
-public interface SalesPipelineRepository extends BaseMapper<SalesPipeline> {
+import java.util.List;
+import java.util.Optional;
+
+public interface SalesPipelineRepository {
+    Optional<SalesPipeline> findById(Long id);
+    List<SalesPipeline> findAll();
+    SalesPipeline insert(SalesPipeline pipeline);
+    SalesPipeline updateById(SalesPipeline pipeline);
+    void deleteById(Long id);
 }

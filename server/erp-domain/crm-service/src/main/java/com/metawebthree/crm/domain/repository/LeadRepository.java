@@ -1,9 +1,18 @@
 package com.metawebthree.crm.domain.repository;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.metawebthree.crm.domain.entity.Lead;
-import org.apache.ibatis.annotations.Mapper;
 
-@Mapper
-public interface LeadRepository extends BaseMapper<Lead> {
+import java.util.List;
+import java.util.Optional;
+
+public interface LeadRepository {
+    Optional<Lead> findById(Long id);
+    List<Lead> findAll();
+    List<Lead> findByStatus(String status);
+    List<Lead> findBySource(String source);
+    List<Lead> findByAssignedTo(String assignedTo);
+    List<Lead> searchByKeyword(String keyword);
+    Lead insert(Lead lead);
+    Lead updateById(Lead lead);
+    void deleteById(Long id);
 }
