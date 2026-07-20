@@ -29,7 +29,7 @@ lead.setStatus(LEAD_STATUS_NEW);
 
     @Transactional
     public Lead update(Lead lead) {
-        Lead existing = leadRepository.selectById(lead.getId());
+        Lead existing = leadRepository.findById(lead.getId()).orElse(null);
         if (existing == null) {
             throw new LeadNotFoundException(lead.getId());
         }
@@ -44,7 +44,7 @@ lead.setStatus(LEAD_STATUS_NEW);
 
     @Transactional
     public Opportunity convert(Long leadId, Opportunity opportunity) {
-        Lead lead = leadRepository.selectById(leadId);
+        Lead lead = leadRepository.findById(leadId).orElse(null);
         if (lead == null) {
             throw new LeadNotFoundException(leadId);
         }
@@ -58,7 +58,7 @@ lead.setStatus(LEAD_STATUS_NEW);
 
     @Transactional
     public void disqualify(Long leadId, String reason) {
-        Lead lead = leadRepository.selectById(leadId);
+        Lead lead = leadRepository.findById(leadId).orElse(null);
         if (lead == null) {
             throw new LeadNotFoundException(leadId);
         }

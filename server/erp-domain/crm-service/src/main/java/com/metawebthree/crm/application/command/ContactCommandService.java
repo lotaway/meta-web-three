@@ -21,7 +21,7 @@ public class ContactCommandService {
 
     @Transactional
     public Contact update(Contact contact) {
-        Contact existing = contactRepository.selectById(contact.getId());
+        Contact existing = contactRepository.findById(contact.getId()).orElse(null);
         if (existing == null) {
             throw new ContactNotFoundException(contact.getId());
         }

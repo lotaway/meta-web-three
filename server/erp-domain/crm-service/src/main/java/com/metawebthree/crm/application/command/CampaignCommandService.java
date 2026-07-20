@@ -21,7 +21,7 @@ public class CampaignCommandService {
 
     @Transactional
     public Campaign update(Campaign campaign) {
-        Campaign existing = campaignRepository.selectById(campaign.getId());
+        Campaign existing = campaignRepository.findById(campaign.getId()).orElse(null);
         if (existing == null) {
             throw new CampaignNotFoundException(campaign.getId());
         }

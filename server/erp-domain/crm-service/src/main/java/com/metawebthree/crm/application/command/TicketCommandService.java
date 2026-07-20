@@ -32,7 +32,7 @@ public class TicketCommandService {
 
     @Transactional
     public CustomerServiceTicket assign(Long id, String assignedTo) {
-        CustomerServiceTicket ticket = ticketRepository.selectById(id);
+        CustomerServiceTicket ticket = ticketRepository.findById(id).orElse(null);
         if (ticket == null) {
             throw new TicketNotFoundException(id);
         }
@@ -46,7 +46,7 @@ public class TicketCommandService {
 
     @Transactional
     public CustomerServiceTicket updateStatus(Long id, String newStatus) {
-        CustomerServiceTicket ticket = ticketRepository.selectById(id);
+        CustomerServiceTicket ticket = ticketRepository.findById(id).orElse(null);
         if (ticket == null) {
             throw new TicketNotFoundException(id);
         }

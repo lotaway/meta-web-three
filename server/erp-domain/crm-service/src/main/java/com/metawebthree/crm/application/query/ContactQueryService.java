@@ -1,6 +1,5 @@
 package com.metawebthree.crm.application.query;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.crm.domain.entity.Contact;
 import com.metawebthree.crm.domain.repository.ContactRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,16 +14,14 @@ public class ContactQueryService {
     private final ContactRepository contactRepository;
 
     public Contact getById(Long id) {
-        return contactRepository.selectById(id);
+        return contactRepository.findById(id).orElse(null);
     }
 
     public List<Contact> listAll() {
-        return contactRepository.selectList(null);
+        return contactRepository.findAll();
     }
 
     public List<Contact> listByCustomerId(Long customerId) {
-        LambdaQueryWrapper<Contact> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Contact::getCustomerId, customerId);
-        return contactRepository.selectList(wrapper);
+        return contactRepository.findByCustomerId(customerId);
     }
 }

@@ -1,6 +1,5 @@
 package com.metawebthree.crm.application.query;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.crm.domain.entity.CustomerServiceTicket;
 import com.metawebthree.crm.domain.repository.CustomerServiceTicketRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,49 +14,34 @@ public class TicketQueryService {
     private final CustomerServiceTicketRepository ticketRepository;
 
     public CustomerServiceTicket getById(Long id) {
-        return ticketRepository.selectById(id);
+        return ticketRepository.findById(id).orElse(null);
     }
 
     public List<CustomerServiceTicket> listAll() {
-        return ticketRepository.selectList(null);
+        return ticketRepository.findAll();
     }
 
     public List<CustomerServiceTicket> listByStatus(String status) {
-        LambdaQueryWrapper<CustomerServiceTicket> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(CustomerServiceTicket::getStatus, status);
-        return ticketRepository.selectList(wrapper);
+        return ticketRepository.findByStatus(status);
     }
 
     public List<CustomerServiceTicket> listByPriority(String priority) {
-        LambdaQueryWrapper<CustomerServiceTicket> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(CustomerServiceTicket::getPriority, priority);
-        return ticketRepository.selectList(wrapper);
+        return ticketRepository.findByPriority(priority);
     }
 
     public List<CustomerServiceTicket> listByType(String type) {
-        LambdaQueryWrapper<CustomerServiceTicket> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(CustomerServiceTicket::getType, type);
-        return ticketRepository.selectList(wrapper);
+        return ticketRepository.findByType(type);
     }
 
     public List<CustomerServiceTicket> listByAssignedTo(String assignedTo) {
-        LambdaQueryWrapper<CustomerServiceTicket> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(CustomerServiceTicket::getAssignedTo, assignedTo);
-        return ticketRepository.selectList(wrapper);
+        return ticketRepository.findByAssignedTo(assignedTo);
     }
 
     public List<CustomerServiceTicket> listByCustomerId(Long customerId) {
-        LambdaQueryWrapper<CustomerServiceTicket> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(CustomerServiceTicket::getCustomerId, customerId);
-        return ticketRepository.selectList(wrapper);
+        return ticketRepository.findByCustomerId(customerId);
     }
 
     public List<CustomerServiceTicket> search(String keywords) {
-        LambdaQueryWrapper<CustomerServiceTicket> wrapper = new LambdaQueryWrapper<>();
-        wrapper.and(w -> w.like(CustomerServiceTicket::getTitle, keywords)
-                          .or().like(CustomerServiceTicket::getTicketNo, keywords)
-                          .or().like(CustomerServiceTicket::getDescription, keywords))
-               .orderByAsc(CustomerServiceTicket::getTicketNo);
-        return ticketRepository.selectList(wrapper);
+        return ticketRepository.searchByKeyword(keywords);
     }
 }

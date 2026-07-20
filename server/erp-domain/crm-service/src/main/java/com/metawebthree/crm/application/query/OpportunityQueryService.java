@@ -1,6 +1,5 @@
 package com.metawebthree.crm.application.query;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.metawebthree.crm.domain.entity.Opportunity;
 import com.metawebthree.crm.domain.repository.OpportunityRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,44 +16,31 @@ public class OpportunityQueryService {
     private final OpportunityRepository opportunityRepository;
 
     public Opportunity getById(Long id) {
-        return opportunityRepository.selectById(id);
+        return opportunityRepository.findById(id).orElse(null);
     }
 
     public List<Opportunity> listAll() {
-        return opportunityRepository.selectList(null);
+        return opportunityRepository.findAll();
     }
 
     public List<Opportunity> listByStage(String stage) {
-        LambdaQueryWrapper<Opportunity> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Opportunity::getStage, stage);
-        return opportunityRepository.selectList(wrapper);
+        return opportunityRepository.findByStage(stage);
     }
 
     public List<Opportunity> listByPipeline(Long pipelineId) {
-        LambdaQueryWrapper<Opportunity> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Opportunity::getPipelineId, pipelineId);
-        return opportunityRepository.selectList(wrapper);
+        return opportunityRepository.findByPipelineId(pipelineId);
     }
 
     public List<Opportunity> listByAssignedTo(String assignedTo) {
-        LambdaQueryWrapper<Opportunity> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Opportunity::getAssignedTo, assignedTo);
-        return opportunityRepository.selectList(wrapper);
+        return opportunityRepository.findByAssignedTo(assignedTo);
     }
 
     public List<Opportunity> listByCustomerId(Long customerId) {
-        LambdaQueryWrapper<Opportunity> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Opportunity::getCustomerId, customerId);
-        return opportunityRepository.selectList(wrapper);
+        return opportunityRepository.findByCustomerId(customerId);
     }
 
     public List<Opportunity> search(String keywords) {
-        LambdaQueryWrapper<Opportunity> wrapper = new LambdaQueryWrapper<>();
-        wrapper.and(w -> w.like(Opportunity::getTitle, keywords)
-                          .or().like(Opportunity::getOpportunityNo, keywords)
-                          .or().like(Opportunity::getCompetitor, keywords))
-               .orderByAsc(Opportunity::getOpportunityNo);
-        return opportunityRepository.selectList(wrapper);
+        return opportunityRepository.searchByKeyword(keywords);
     }
 
     public Map<String, Integer> getPipelineSummary() {

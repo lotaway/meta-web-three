@@ -32,7 +32,7 @@ public class OpportunityCommandService {
 
     @Transactional
     public Opportunity update(Opportunity opportunity) {
-        Opportunity existing = opportunityRepository.selectById(opportunity.getId());
+        Opportunity existing = opportunityRepository.findById(opportunity.getId()).orElse(null);
         if (existing == null) {
             throw new OpportunityNotFoundException(opportunity.getId());
         }
@@ -47,7 +47,7 @@ public class OpportunityCommandService {
 
     @Transactional
     public Opportunity advanceStage(Long id) {
-        Opportunity opportunity = opportunityRepository.selectById(id);
+        Opportunity opportunity = opportunityRepository.findById(id).orElse(null);
         if (opportunity == null) {
             throw new OpportunityNotFoundException(id);
         }
@@ -61,7 +61,7 @@ public class OpportunityCommandService {
 
     @Transactional
     public Opportunity closeWon(Long id) {
-        Opportunity opportunity = opportunityRepository.selectById(id);
+        Opportunity opportunity = opportunityRepository.findById(id).orElse(null);
         if (opportunity == null) {
             throw new OpportunityNotFoundException(id);
         }
@@ -73,7 +73,7 @@ public class OpportunityCommandService {
 
     @Transactional
     public Opportunity closeLost(Long id, String reason) {
-        Opportunity opportunity = opportunityRepository.selectById(id);
+        Opportunity opportunity = opportunityRepository.findById(id).orElse(null);
         if (opportunity == null) {
             throw new OpportunityNotFoundException(id);
         }

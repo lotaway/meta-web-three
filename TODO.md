@@ -17,14 +17,9 @@ The following backend services have been created, but lack corresponding admin a
 
 #### 供应链领域 (中优先级)
 
-- [x] **[Supply Chain] 退货管理 (RMA - Return Material Authorization)**: 逆向物流模块
-
-- [x] **[Supply Chain] 分布式订单管理 (DOM)**: 跨仓库订单承诺、寻源和履行
-
 #### ERP 领域 (中优先级)
 
 - [ ] **[ERP] 客户关系管理 (CRM)**: 销售管道、商机跟踪、客户服务工单、营销活动
-   - [ ] **应用层依赖 MyBatis Plus**：`LeadQueryService`/`OpportunityQueryService`/`TicketQueryService` 导入 `LambdaQueryWrapper`，且仍调用已不存在的 `selectById`/`selectList` 方法（Repository 已重构为纯领域接口），需改为调用 `findById().orElse(null)`/`findAll()` 等方法
    - [ ] **零单元测试**：无 `src/test/` 目录
 
 - [ ] **[ERP] BI 商业智能与分析层**: 仪表板、即席查询、数据可视化
