@@ -12,7 +12,7 @@ public interface RmaApplicationService {
 
     RmaOrderDTO getRmaByNo(String rmaNo);
 
-    IPage<RmaOrderDTO> listRmas(String status, Integer pageNum, Integer pageSize);
+    IPage<RmaOrderDTO> listRmas(String status, String rmaNo, String orderNo, Integer pageNum, Integer pageSize);
 
     RmaOrderDTO submitForInspection(Long rmaId);
 
@@ -27,4 +27,8 @@ public interface RmaApplicationService {
     RmaOrderDTO cancelRma(Long rmaId);
 
     List<?> getRmaTimeline(Long rmaId);
+
+    ReturnShippingDTO createReturnShipping(Long rmaId, ReturnShippingDTO dto);
+
+    ReturnShippingDTO getReturnShipping(Long rmaId);
 }

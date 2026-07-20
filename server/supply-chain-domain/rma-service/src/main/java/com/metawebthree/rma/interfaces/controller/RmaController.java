@@ -8,6 +8,7 @@ import com.metawebthree.rma.application.dto.CreateRmaRequest;
 import com.metawebthree.rma.application.dto.MakeDispositionRequest;
 import com.metawebthree.rma.application.dto.RecordInspectionRequest;
 import com.metawebthree.rma.application.dto.RmaOrderDTO;
+import com.metawebthree.rma.application.dto.ReturnShippingDTO;
 import com.metawebthree.rma.application.dto.RmaQueryParam;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,7 +39,8 @@ public class RmaController {
     @RequirePermission(SupplyChainPermissions.RMA_READ)
     @GetMapping
     public IPage<RmaOrderDTO> list(RmaQueryParam param) {
-        return rmaApplicationService.listRmas(param.getStatus(), param.getPageNum(), param.getPageSize());
+        return rmaApplicationService.listRmas(param.getStatus(), param.getRmaNo(), param.getOrderNo(),
+                param.getPageNum(), param.getPageSize());
     }
 
     @RequirePermission(SupplyChainPermissions.RMA_CREATE)
@@ -89,5 +91,18 @@ public class RmaController {
     @GetMapping("/{id}/timeline")
     public List<?> timeline(@PathVariable Long id) {
         return rmaApplicationService.getRmaTimeline(id);
+    }
+
+    @RequirePermission(SupplyChainPermissions.RMA_UPDATE)
+    @PostMapping("/{id}/shipping")
+    public ReturnShippingDTO createShipping(@PathVariable Long id,
+                                             @RequestBody ReturnShippingDTO dto) {
+        return rmaApplicationService.createReturnShipping(id, dto);
+    }
+
+    @RequirePermission(SupplyChainPermissions.RMA_READ)
+    @GetMapping("/{id}/shipping")
+    public ReturnShippingDTO getShipping(@PathVariable Long id) {
+        return rmaApplicationService.getReturnShipping(id);
     }
 }

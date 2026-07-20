@@ -93,11 +93,13 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
     }
 
     @Override
-    public IPage<RmaOrderDTO> listRmas(String status, Integer pageNum, Integer pageSize) {
+    public IPage<RmaOrderDTO> listRmas(String status, String rmaNo, String orderNo, Integer pageNum, Integer pageSize) {
         Page<RmaOrder> page = new Page<>(pageNum, pageSize);
         IPage<RmaOrder> orderPage = rmaOrderRepository.findPage(page, status);
         IPage<RmaOrderDTO> dtoPage = new Page<>(orderPage.getCurrent(), orderPage.getSize(), orderPage.getTotal());
         dtoPage.setRecords(orderPage.getRecords().stream()
+                .filter(o -> rmaNo == null || o.getRmaNo().contains(rmaNo))
+                .filter(o -> orderNo == null || (o.getOrderNo() != null && o.getOrderNo().contains(orderNo)))
                 .map(this::toOrderDTO)
                 .collect(Collectors.toList()));
         return dtoPage;
@@ -193,6 +195,35 @@ public class RmaApplicationServiceImpl implements RmaApplicationService {
         RmaOrder order = rmaDomainService.cancelRmaOrder(rmaId);
         rmaDomainService.saveRmaOrder(order);
         return toOrderDTO(order);
+    }
+
+    @Override
+    @Transactional
+    public ReturnShippingDTO createReturnShipping(Long rmaId, ReturnShippingDTO dto) {
+        RmaOrder order = rmaDomainService.getRmaOrder(rmaId)
+                .orElseThrow(() -> new IllegalArgumentException("RMA order not found: " + rmaId));
+        ReturnShipping shipping = new ReturnShipping();
+        shipping.setRmaId(rmaId);
+        shipping.setRmaNo(order.getRmaNo());
+        shipping.setCarrier(dto.getCarrier());
+        shipping.setTrackingNo(dto.getTrackingNo());
+        shipping.setShippingMethod(dto.getShippingMethod());
+        shipping.setOriginAddress(dto.getOriginAddress());
+        shipping.setDestinationAddress(dto.getDestinationAddress());
+        shipping.setShippingDate(dto.getShippingDate());
+        shipping.setEstimatedArrivalDate(dto.getEstimatedArrivalDate());
+        shipping.setStatus(dto.getStatus());
+        shipping.setCreatedAt(LocalDateTime.now());
+        shipping.setUpdatedAt(LocalDateTime.now());
+        ReturnShipping saved = rmaDomainService.saveReturnShipping(shipping);
+        return toShippingDTO(saved);
+    }
+
+    @Override
+    public ReturnShippingDTO getReturnShipping(Long rmaId) {
+        return returnShippingRepository.findByRmaId(rmaId)
+                .map(this::toShippingDTO)
+                .orElse(null);
     }
 
     @Override
