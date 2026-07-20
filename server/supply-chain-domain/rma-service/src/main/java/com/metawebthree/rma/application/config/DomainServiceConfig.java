@@ -16,10 +16,11 @@ public class DomainServiceConfig {
             RmaOrderItemRepository rmaOrderItemRepository,
             RmaInspectionRepository rmaInspectionRepository,
             RmaDispositionRepository rmaDispositionRepository,
+            ReturnShippingRepository returnShippingRepository,
             RmaSequenceGenerator rmaSequenceGenerator) {
         return new RmaDomainServiceImpl(
                 rmaOrderRepository, rmaOrderItemRepository,
                 rmaInspectionRepository, rmaDispositionRepository,
-                rmaSequenceGenerator);
+                returnShippingRepository, rmaSequenceGenerator);
     }
 }

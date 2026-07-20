@@ -2,14 +2,8 @@ package com.metawebthree.rma.domain.service;
 
 import com.metawebthree.rma.domain.RmaOrderStatus;
 import com.metawebthree.rma.domain.RmaSequenceGenerator;
-import com.metawebthree.rma.domain.entity.RmaDisposition;
-import com.metawebthree.rma.domain.entity.RmaInspection;
-import com.metawebthree.rma.domain.entity.RmaOrder;
-import com.metawebthree.rma.domain.entity.RmaOrderItem;
-import com.metawebthree.rma.domain.repository.RmaDispositionRepository;
-import com.metawebthree.rma.domain.repository.RmaInspectionRepository;
-import com.metawebthree.rma.domain.repository.RmaOrderItemRepository;
-import com.metawebthree.rma.domain.repository.RmaOrderRepository;
+import com.metawebthree.rma.domain.entity.*;
+import com.metawebthree.rma.domain.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,17 +26,20 @@ public class RmaDomainServiceImpl implements RmaDomainService {
     private final RmaOrderItemRepository rmaOrderItemRepository;
     private final RmaInspectionRepository rmaInspectionRepository;
     private final RmaDispositionRepository rmaDispositionRepository;
+    private final ReturnShippingRepository returnShippingRepository;
     private final RmaSequenceGenerator rmaSequenceGenerator;
 
     public RmaDomainServiceImpl(RmaOrderRepository rmaOrderRepository,
                                 RmaOrderItemRepository rmaOrderItemRepository,
                                 RmaInspectionRepository rmaInspectionRepository,
                                 RmaDispositionRepository rmaDispositionRepository,
+                                ReturnShippingRepository returnShippingRepository,
                                 RmaSequenceGenerator rmaSequenceGenerator) {
         this.rmaOrderRepository = rmaOrderRepository;
         this.rmaOrderItemRepository = rmaOrderItemRepository;
         this.rmaInspectionRepository = rmaInspectionRepository;
         this.rmaDispositionRepository = rmaDispositionRepository;
+        this.returnShippingRepository = returnShippingRepository;
         this.rmaSequenceGenerator = rmaSequenceGenerator;
     }
 
@@ -86,6 +83,13 @@ public class RmaDomainServiceImpl implements RmaDomainService {
     public void saveDisposition(RmaDisposition disposition) {
         rmaDispositionRepository.save(disposition);
         log.info("Saved disposition: id={}, rmaId={}, type={}", disposition.getId(), disposition.getRmaId(), disposition.getDispositionType());
+    }
+
+    @Override
+    public ReturnShipping saveReturnShipping(ReturnShipping shipping) {
+        ReturnShipping saved = returnShippingRepository.save(shipping);
+        log.info("Saved return shipping: id={}, rmaId={}, trackingNo={}", saved.getId(), saved.getRmaId(), saved.getTrackingNo());
+        return saved;
     }
 
     @Override
@@ -226,9 +230,12 @@ public class RmaDomainServiceImpl implements RmaDomainService {
     private void updateItemQuantities(Long rmaId, RmaInspection inspection) {
         List<RmaOrderItem> items = rmaOrderItemRepository.findByRmaId(rmaId);
         if (items == null || items.isEmpty()) return;
+        int totalExpected = items.stream().mapToInt(RmaOrderItem::getExpectedQuantity).sum();
+        if (totalExpected == 0) return;
         for (RmaOrderItem item : items) {
-            item.setInspectedQuantity(inspection.getTotalInspected() / items.size());
-            item.setAcceptedQuantity(inspection.getTotalPassed() / items.size());
+            int proportion = item.getExpectedQuantity();
+            item.setInspectedQuantity((int) Math.round(1.0 * inspection.getTotalInspected() * proportion / totalExpected));
+            item.setAcceptedQuantity((int) Math.round(1.0 * inspection.getTotalPassed() * proportion / totalExpected));
             rmaOrderItemRepository.save(item);
         }
     }

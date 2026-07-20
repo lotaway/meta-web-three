@@ -4,6 +4,7 @@ import com.metawebthree.rma.domain.entity.RmaDisposition;
 import com.metawebthree.rma.domain.entity.RmaInspection;
 import com.metawebthree.rma.domain.entity.RmaOrder;
 import com.metawebthree.rma.domain.entity.RmaOrderItem;
+import com.metawebthree.rma.domain.entity.ReturnShipping;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +22,8 @@ public interface RmaDomainService {
     void saveInspection(RmaInspection inspection);
 
     void saveDisposition(RmaDisposition disposition);
+
+    ReturnShipping saveReturnShipping(ReturnShipping shipping);
 
     RmaOrder submitForInspection(Long rmaId);
 
