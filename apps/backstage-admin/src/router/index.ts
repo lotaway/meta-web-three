@@ -1234,6 +1234,22 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // Digital Twin Management Module
+  {
+    path: '/digital-twin',
+    component: Layout,
+    redirect: '/digital-twin/index',
+    name: 'digitalTwin',
+    meta: { title: '数字孪生管理', icon: 'monitor' },
+    children: [
+      {
+        path: 'index',
+        name: 'digitalTwinManage',
+        component: () => import('@/views/digital-twin/index.vue'),
+        meta: { title: '数字孪生总览', icon: 'digital-twin' },
+      },
+    ],
+  },
   // CRM Customer Relationship Management
   {
     path: '/crm',
