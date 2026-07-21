@@ -1818,6 +1818,7 @@ export default {
     confirmDelete: 'Are you sure to delete this activity?',
   },
   payment: {
+    title: 'Payment Management',
     order: {
       list: {
         title: 'Payment Order List',

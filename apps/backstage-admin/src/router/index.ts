@@ -1042,6 +1042,150 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // Payment Management Module
+  {
+    path: '/payment',
+    component: Layout,
+    redirect: '/payment/index',
+    name: 'payment',
+    meta: { title: 'payment.title', icon: 'money' },
+    children: [
+      {
+        path: 'index',
+        name: 'paymentManage',
+        component: () => import('@/views/payment/index.vue'),
+        meta: { title: 'payment.order.list.title', icon: 'payment-list' },
+      },
+    ],
+  },
+  // User Management Module
+  {
+    path: '/user',
+    component: Layout,
+    redirect: '/user/index',
+    name: 'user',
+    meta: { title: '用户管理', icon: 'user' },
+    children: [
+      {
+        path: 'index',
+        name: 'userManage',
+        component: () => import('@/views/user/index.vue'),
+        meta: { title: '用户列表', icon: 'user-list' },
+      },
+    ],
+  },
+  // Project Management Module
+  {
+    path: '/project',
+    component: Layout,
+    redirect: '/project/index',
+    name: 'project',
+    meta: { title: '项目管理', icon: 'project' },
+    children: [
+      {
+        path: 'index',
+        name: 'projectManage',
+        component: () => import('@/views/project/index.vue'),
+        meta: { title: '项目列表', icon: 'project-list' },
+      },
+    ],
+  },
+  // Data Analysis Module
+  {
+    path: '/data-analysis',
+    component: Layout,
+    redirect: '/data-analysis/index',
+    name: 'dataAnalysis',
+    meta: { title: '数据分析', icon: 'data-analysis' },
+    children: [
+      {
+        path: 'index',
+        name: 'dataAnalysisManage',
+        component: () => import('@/views/data-analysis/index.vue'),
+        meta: { title: '数据看板', icon: 'data-dashboard' },
+      },
+    ],
+  },
+  // Message Management Module
+  {
+    path: '/message',
+    component: Layout,
+    redirect: '/message/index',
+    name: 'message',
+    meta: { title: '消息管理', icon: 'message' },
+    children: [
+      {
+        path: 'index',
+        name: 'messageManage',
+        component: () => import('@/views/message/index.vue'),
+        meta: { title: '通知列表', icon: 'message-list' },
+      },
+    ],
+  },
+  // Social Commerce Module
+  {
+    path: '/social',
+    component: Layout,
+    redirect: '/social/index',
+    name: 'social',
+    meta: { title: '社交电商', icon: 'social' },
+    children: [
+      {
+        path: 'index',
+        name: 'socialManage',
+        component: () => import('@/views/social/index.vue'),
+        meta: { title: '社交电商管理', icon: 'social-commerce' },
+      },
+    ],
+  },
+  // User Action Analysis Module
+  {
+    path: '/user-action',
+    component: Layout,
+    redirect: '/user-action/index',
+    name: 'userAction',
+    meta: { title: '用户行为分析', icon: 'analysis' },
+    children: [
+      {
+        path: 'index',
+        name: 'userActionManage',
+        component: () => import('@/views/user-action/index.vue'),
+        meta: { title: '行为分析', icon: 'user-action' },
+      },
+    ],
+  },
+  // Procurement Management Module
+  {
+    path: '/procurement',
+    component: Layout,
+    redirect: '/procurement/index',
+    name: 'procurement',
+    meta: { title: '采购管理', icon: 'shopping-cart' },
+    children: [
+      {
+        path: 'index',
+        name: 'procurementManage',
+        component: () => import('@/views/procurement/index.vue'),
+        meta: { title: '采购单列表', icon: 'procurement-list' },
+      },
+    ],
+  },
+  // Warehouse Management Module
+  {
+    path: '/warehouse',
+    component: Layout,
+    redirect: '/warehouse/index',
+    name: 'warehouse',
+    meta: { title: 'warehouse.warehouseManagement', icon: 'inventory' },
+    children: [
+      {
+        path: 'index',
+        name: 'warehouseManage',
+        component: () => import('@/views/warehouse/index.vue'),
+        meta: { title: 'warehouse.warehouseManagement', icon: 'warehouse' },
+      },
+    ],
+  },
   // CRM Customer Relationship Management
   {
     path: '/crm',

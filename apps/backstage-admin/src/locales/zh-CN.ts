@@ -1906,6 +1906,7 @@ export default {
     confirmDelete: '确定要删除该团购活动吗？',
   },
   payment: {
+    title: '支付管理',
     order: {
       list: {
         title: '支付订单列表',
