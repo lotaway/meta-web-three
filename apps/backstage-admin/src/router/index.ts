@@ -986,6 +986,46 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // Live Streaming Management Module
+  {
+    path: '/live',
+    component: Layout,
+    redirect: '/live/rooms',
+    name: 'live',
+    meta: { title: '直播管理', icon: 'video-camera' },
+    children: [
+      {
+        path: 'rooms',
+        name: 'liveRooms',
+        component: () => import('@/views/live/index.vue'),
+        meta: { title: '直播间管理', icon: 'live-room' },
+      },
+      {
+        path: 'anchor',
+        name: 'liveAnchor',
+        component: () => import('@/views/live/anchor.vue'),
+        meta: { title: '主播管理', icon: 'live-anchor' },
+      },
+      {
+        path: 'product',
+        name: 'liveProduct',
+        component: () => import('@/views/live/product.vue'),
+        meta: { title: '直播商品', icon: 'live-product' },
+      },
+      {
+        path: 'order',
+        name: 'liveOrder',
+        component: () => import('@/views/live/order.vue'),
+        meta: { title: '直播订单', icon: 'live-order' },
+      },
+      {
+        path: 'comment',
+        name: 'liveComment',
+        component: () => import('@/views/live/comment.vue'),
+        meta: { title: '直播评论', icon: 'live-comment' },
+      },
+    ],
+  },
   // CRM Customer Relationship Management
   {
     path: '/crm',
