@@ -1234,6 +1234,22 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // AI Warehouse Management Module
+  {
+    path: '/ai-warehouse',
+    component: Layout,
+    redirect: '/ai-warehouse/index',
+    name: 'aiWarehouse',
+    meta: { title: 'AI仓库管理', icon: 'ai' },
+    children: [
+      {
+        path: 'index',
+        name: 'aiWarehouseManage',
+        component: () => import('@/views/ai-warehouse/index.vue'),
+        meta: { title: 'AI仓库总览', icon: 'ai-warehouse' },
+      },
+    ],
+  },
   // Digital Twin Management Module
   {
     path: '/digital-twin',
