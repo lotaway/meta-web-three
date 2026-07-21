@@ -24,7 +24,7 @@
 - [x] **[ai-domain] AI 仓库管理** (ai-warehouse-service)
 - [x] **[factory-domain] 数字孪生管理** (digital-twin-service)
 - [x] **[factory-domain] 生产管理** (production-service)
-- [ ] **[erp-domain] 财务管理** (finance-service)
+- [x] **[erp-domain] 财务管理** (finance-service)
 - [ ] **[platform-domain] 开发者门户** (developer-portal-service)
 
 ### [GitHub Issues]

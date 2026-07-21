@@ -1234,6 +1234,22 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // Finance Management Module
+  {
+    path: '/finance',
+    component: Layout,
+    redirect: '/finance/index',
+    name: 'finance',
+    meta: { title: '财务管理', icon: 'money' },
+    children: [
+      {
+        path: 'index',
+        name: 'financeManage',
+        component: () => import('@/views/finance/index.vue'),
+        meta: { title: '财务总览', icon: 'finance-dashboard' },
+      },
+    ],
+  },
   // Production Management Module
   {
     path: '/production',
