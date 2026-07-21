@@ -1266,6 +1266,56 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // Budget Management Module
+  {
+    path: '/budget',
+    component: Layout,
+    redirect: '/budget/index',
+    name: 'budget',
+    meta: { title: '预算管理', icon: 'money' },
+    children: [
+      {
+        path: 'index',
+        name: 'budgetManage',
+        component: () => import('@/views/budget/index.vue'),
+        meta: { title: '预算列表', icon: 'budget-list' },
+      },
+    ],
+  },
+  // Fixed Asset Management Module
+  {
+    path: '/asset',
+    component: Layout,
+    redirect: '/asset/card',
+    name: 'asset',
+    meta: { title: '资产管理', icon: 'product' },
+    children: [
+      {
+        path: 'card',
+        name: 'assetCard',
+        component: () => import('@/views/asset/card/index.vue'),
+        meta: { title: '资产卡片', icon: 'asset-card' },
+      },
+      {
+        path: 'depreciation',
+        name: 'assetDepreciation',
+        component: () => import('@/views/asset/depreciation/index.vue'),
+        meta: { title: '折旧管理', icon: 'asset-depreciation' },
+      },
+      {
+        path: 'disposal',
+        name: 'assetDisposal',
+        component: () => import('@/views/asset/disposal/index.vue'),
+        meta: { title: '资产处置', icon: 'asset-disposal' },
+      },
+      {
+        path: 'inventory',
+        name: 'assetInventory',
+        component: () => import('@/views/asset/inventory/index.vue'),
+        meta: { title: '资产盘点', icon: 'asset-inventory' },
+      },
+    ],
+  },
   // Production Management Module
   {
     path: '/production',

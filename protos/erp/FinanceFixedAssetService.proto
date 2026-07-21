@@ -1,0 +1,288 @@
+syntax = "proto3";
+
+package com.metawebthree.erp.generated.rpc;
+
+option java_multiple_files = true;
+
+import "shared/google/type/money.proto";
+
+service FinanceFixedAssetService {
+    rpc listAssets(ListAssetsRequest) returns (ListAssetsResponse);
+    rpc getAsset(GetAssetRequest) returns (GetAssetResponse);
+    rpc getAssetByCode(GetAssetByCodeRequest) returns (GetAssetResponse);
+    rpc createAsset(CreateAssetRequest) returns (CreateAssetResponse);
+    rpc updateAsset(UpdateAssetRequest) returns (UpdateAssetResponse);
+    rpc deleteAsset(DeleteAssetRequest) returns (DeleteAssetResponse);
+    rpc transferAsset(TransferAssetRequest) returns (TransferAssetResponse);
+    rpc getAssetStatistics(GetAssetStatisticsRequest) returns (GetAssetStatisticsResponse);
+    rpc generateDepreciation(GenerateDepreciationRequest) returns (GenerateDepreciationResponse);
+    rpc listDepreciationByPeriod(ListDepreciationByPeriodRequest) returns (ListDepreciationByPeriodResponse);
+    rpc getDepreciationStatistics(GetDepreciationStatisticsRequest) returns (GetDepreciationStatisticsResponse);
+    rpc createInventory(CreateInventoryRequest) returns (CreateInventoryResponse);
+    rpc confirmInventory(ConfirmInventoryRequest) returns (ConfirmInventoryResponse);
+    rpc listInventory(ListInventoryRequest) returns (ListInventoryResponse);
+    rpc getInventoryStatistics(GetInventoryStatisticsRequest) returns (GetInventoryStatisticsResponse);
+    rpc createDisposal(CreateDisposalRequest) returns (CreateDisposalResponse);
+    rpc approveDisposal(ApproveDisposalRequest) returns (ApproveDisposalResponse);
+    rpc rejectDisposal(RejectDisposalRequest) returns (RejectDisposalResponse);
+    rpc listDisposal(ListDisposalRequest) returns (ListDisposalResponse);
+}
+
+enum AssetCategory {
+    ASSET_CATEGORY_UNSPECIFIED = 0;
+    ASSET_CATEGORY_ELECTRONIC = 1;
+    ASSET_CATEGORY_FURNITURE = 2;
+    ASSET_CATEGORY_VEHICLE = 3;
+    ASSET_CATEGORY_MACHINERY = 4;
+    ASSET_CATEGORY_BUILDING = 5;
+    ASSET_CATEGORY_OTHER = 6;
+}
+
+enum AssetStatus {
+    ASSET_STATUS_UNSPECIFIED = 0;
+    ASSET_STATUS_IN_USE = 1;
+    ASSET_STATUS_IDLE = 2;
+    ASSET_STATUS_UNDER_MAINTENANCE = 3;
+    ASSET_STATUS_DISPOSED = 4;
+}
+
+enum DepreciationMethod {
+    DEPRECIATION_METHOD_UNSPECIFIED = 0;
+    DEPRECIATION_METHOD_STRAIGHT_LINE = 1;
+    DEPRECIATION_METHOD_DOUBLE_DECLINING = 2;
+    DEPRECIATION_METHOD_SUM_OF_YEARS = 3;
+}
+
+enum DisposalStatus {
+    DISPOSAL_STATUS_UNSPECIFIED = 0;
+    DISPOSAL_STATUS_PENDING = 1;
+    DISPOSAL_STATUS_APPROVED = 2;
+    DISPOSAL_STATUS_REJECTED = 3;
+}
+
+enum InventoryStatus {
+    INVENTORY_STATUS_UNSPECIFIED = 0;
+    INVENTORY_STATUS_PENDING = 1;
+    INVENTORY_STATUS_COMPLETED = 2;
+}
+
+message FixedAssetProto {
+    int64 id = 1;
+    string assetCode = 2;
+    string assetName = 3;
+    AssetCategory category = 4;
+    string specification = 5;
+    string model = 6;
+    string serialNumber = 7;
+    int64 supplierId = 8;
+    string supplierName = 9;
+    string purchaseDate = 10;
+    google.type.Money originalValue = 11;
+    google.type.Money residualValue = 12;
+    int32 usefulLife = 13;
+    DepreciationMethod depreciationMethod = 14;
+    int64 departmentId = 15;
+    string departmentName = 16;
+    string location = 17;
+    string custodian = 18;
+    AssetStatus status = 19;
+    google.type.Money accumulatedDepreciation = 20;
+    google.type.Money netValue = 21;
+    string remark = 22;
+    int64 createdAt = 23;
+    int64 updatedAt = 24;
+}
+
+message DepreciationRecordProto {
+    int64 id = 1;
+    int64 assetId = 2;
+    string assetCode = 3;
+    string assetName = 4;
+    string period = 5;
+    DepreciationMethod method = 6;
+    google.type.Money originalValue = 7;
+    google.type.Money residualValue = 8;
+    int32 usefulLife = 9;
+    google.type.Money depreciationAmount = 10;
+    google.type.Money accumulatedDepreciation = 11;
+    google.type.Money netBookValue = 12;
+    string depreciationDate = 13;
+    string status = 14;
+    int64 createdAt = 15;
+}
+
+message InventoryRecordProto {
+    int64 id = 1;
+    string inventoryCode = 2;
+    string inventoryName = 3;
+    string inventoryDate = 4;
+    int64 departmentId = 5;
+    int64 assetId = 6;
+    string assetCode = 7;
+    string bookLocation = 8;
+    string actualLocation = 9;
+    string inventoryResult = 10;
+    string discrepancyReason = 11;
+    InventoryStatus status = 12;
+    string remark = 13;
+    int64 createdAt = 14;
+}
+
+message DisposalRecordProto {
+    int64 id = 1;
+    string disposalCode = 2;
+    string disposalType = 3;
+    int64 assetId = 4;
+    string assetCode = 5;
+    string assetName = 6;
+    google.type.Money originalValue = 7;
+    google.type.Money netValue = 8;
+    google.type.Money accumulatedDepreciation = 9;
+    google.type.Money disposalAmount = 10;
+    string disposalDate = 11;
+    string disposalReason = 12;
+    DisposalStatus status = 13;
+    google.type.Money gainLoss = 14;
+    string remark = 15;
+    int64 createdAt = 16;
+}
+
+message AssetStatisticsProto {
+    int32 totalCount = 1;
+    google.type.Money totalOriginalValue = 2;
+    google.type.Money totalNetValue = 3;
+    google.type.Money totalAccumulatedDepreciation = 4;
+}
+
+message ListAssetsRequest {
+    AssetCategory category = 1;
+    AssetStatus status = 2;
+    int64 departmentId = 3;
+    int32 page = 4;
+    int32 size = 5;
+}
+message ListAssetsResponse {
+    repeated FixedAssetProto assets = 1;
+    int32 totalCount = 2;
+}
+message GetAssetRequest { int64 id = 1; }
+message GetAssetResponse { FixedAssetProto asset = 1; }
+message GetAssetByCodeRequest { string code = 1; }
+message CreateAssetRequest {
+    string assetCode = 1;
+    string assetName = 2;
+    AssetCategory category = 3;
+    google.type.Money originalValue = 4;
+    google.type.Money residualValue = 5;
+    int32 usefulLife = 6;
+    DepreciationMethod depreciationMethod = 7;
+    int64 departmentId = 8;
+    string location = 9;
+    string custodian = 10;
+    string remark = 11;
+}
+message CreateAssetResponse { int64 id = 1; }
+message UpdateAssetRequest {
+    int64 id = 1;
+    string assetName = 2;
+    int64 departmentId = 3;
+    string location = 4;
+    string custodian = 5;
+    string remark = 6;
+}
+message UpdateAssetResponse { bool success = 1; }
+message DeleteAssetRequest { int64 id = 1; }
+message DeleteAssetResponse { bool success = 1; }
+
+message TransferAssetRequest {
+    int64 id = 1;
+    int64 newDepartmentId = 2;
+    string newLocation = 3;
+    string newCustodian = 4;
+}
+message TransferAssetResponse { bool success = 1; }
+
+message GetAssetStatisticsRequest {}
+message GetAssetStatisticsResponse { AssetStatisticsProto statistics = 1; }
+
+message GenerateDepreciationRequest {
+    int64 departmentId = 1;
+    DepreciationMethod method = 2;
+    string period = 3;
+}
+message GenerateDepreciationResponse { bool success = 1; }
+
+message ListDepreciationByPeriodRequest { string period = 1; }
+message ListDepreciationByPeriodResponse {
+    repeated DepreciationRecordProto records = 1;
+}
+
+message GetDepreciationStatisticsRequest { string period = 1; }
+message GetDepreciationStatisticsResponse {
+    google.type.Money totalDepreciationAmount = 1;
+    google.type.Money totalAccumulatedDepreciation = 2;
+}
+
+message CreateInventoryRequest {
+    string inventoryCode = 1;
+    string inventoryName = 2;
+    string inventoryDate = 3;
+    int64 departmentId = 4;
+    int64 assetId = 5;
+    string bookLocation = 6;
+    string actualLocation = 7;
+    string remark = 8;
+}
+message CreateInventoryResponse { int64 id = 1; }
+
+message ConfirmInventoryRequest {
+    int64 id = 1;
+    string handleResult = 2;
+}
+message ConfirmInventoryResponse { bool success = 1; }
+
+message ListInventoryRequest { InventoryStatus status = 1; }
+message ListInventoryResponse {
+    repeated InventoryRecordProto records = 1;
+    int32 totalCount = 2;
+}
+
+message GetInventoryStatisticsRequest {}
+message GetInventoryStatisticsResponse {
+    int32 totalCount = 1;
+    int32 pendingCount = 2;
+    int32 completedCount = 3;
+    int32 discrepancyCount = 4;
+}
+
+message CreateDisposalRequest {
+    string disposalCode = 1;
+    string disposalType = 2;
+    int64 assetId = 3;
+    google.type.Money disposalAmount = 4;
+    string disposalDate = 5;
+    string disposalReason = 6;
+    string disposalMethod = 7;
+    string remark = 8;
+}
+message CreateDisposalResponse { int64 id = 1; }
+
+message ApproveDisposalRequest {
+    int64 id = 1;
+    int64 approverId = 2;
+    string comment = 3;
+}
+message ApproveDisposalResponse { bool success = 1; }
+
+message RejectDisposalRequest {
+    int64 id = 1;
+    int64 approverId = 2;
+    string comment = 3;
+}
+message RejectDisposalResponse { bool success = 1; }
+
+message ListDisposalRequest { DisposalStatus status = 1; }
+message ListDisposalResponse {
+    repeated DisposalRecordProto records = 1;
+    int32 totalCount = 2;
+}
