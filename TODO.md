@@ -8,7 +8,7 @@
 - [ ] ~~[mall-domain] 购物车管理 (cart-service)~~ — 用户隐私数据，无需后台管理
 - [x] **[mall-domain] 团购管理** (group-buying-service)
 - [x] **[mall-domain] 直播管理** (live-service)
-- [ ] **[mall-domain] 供应商管理** (mall-supplier-service)
+- [x] **[mall-domain] 供应商管理** (mall-supplier-service)
 - [ ] **[mall-domain] 支付管理** (payment-service)
 - [ ] **[mall-domain] 用户管理** (user-service)
 - [ ] **[ai-domain] AI 仓库管理** (ai-warehouse-service)

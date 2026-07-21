@@ -1026,6 +1026,22 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // Mall Supplier Management Module
+  {
+    path: '/mall-supplier',
+    component: Layout,
+    redirect: '/mall-supplier/list',
+    name: 'mallSupplier',
+    meta: { title: '供应商管理', icon: 'supplier' },
+    children: [
+      {
+        path: 'list',
+        name: 'mallSupplierList',
+        component: () => import('@/views/mall-supplier/index.vue'),
+        meta: { title: '供应商列表', icon: 'supplier-list' },
+      },
+    ],
+  },
   // CRM Customer Relationship Management
   {
     path: '/crm',
