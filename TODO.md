@@ -11,6 +11,13 @@
   - [ ] 活动与佣金功能
   - 链接: https://github.com/lotaway/meta-web-three/issues/1
 
+## ERP — 检查完成 ✅
+
+- [x] **CRM** — 完整实现（proto + 5 个后端 Controller + 6 个前端页面，已配置路由）
+- [x] **BI/商业智能** — 完整实现（proto + reporting-service + 5 个前端 BI 页面，已配置路由）
+- [x] **资产管理（固定资产）** — 后端完整（FixedAssetController），前端 4 个视图已配置路由，已创建 FinanceFixedAssetService.proto
+- [x] **预算管理** — 后端完整（BudgetController），前端视图已配置路由，已有 FinanceBudgetService.proto
+
 # 待决议功能
 
 - [ ] 实现多租户SaaS架构
