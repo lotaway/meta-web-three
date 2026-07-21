@@ -1234,6 +1234,22 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // Production Management Module
+  {
+    path: '/production',
+    component: Layout,
+    redirect: '/production/index',
+    name: 'production',
+    meta: { title: '生产管理', icon: 'mes' },
+    children: [
+      {
+        path: 'index',
+        name: 'productionManage',
+        component: () => import('@/views/production/index.vue'),
+        meta: { title: '生产工单', icon: 'production-order' },
+      },
+    ],
+  },
   // AI Warehouse Management Module
   {
     path: '/ai-warehouse',
