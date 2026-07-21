@@ -22,7 +22,7 @@
 - [x] **[platform-domain] 佣金管理** (commission-service)
 - [x] **[platform-domain] 媒体管理** (media-service)
 - [ ] **[ai-domain] AI 仓库管理** (ai-warehouse-service)
-- [ ] **[factory-domain] 数字孪生管理** (digital-twin-service)
+- [x] **[factory-domain] 数字孪生管理** (digital-twin-service)
 - [ ] **[factory-domain] 生产管理** (production-service)
 - [ ] **[erp-domain] 财务管理** (finance-service)
 - [ ] **[platform-domain] 开发者门户** (developer-portal-service)
