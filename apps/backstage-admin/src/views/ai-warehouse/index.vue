@@ -16,7 +16,7 @@ const loading = ref(false)
 // Capabilities
 const capabilities = ref<AICapability[]>([])
 const loadCapabilities = async () => {
-  try { const res = await listAICapabilitiesAPI(); capabilities.value = (res.data as any) || [] } catch (_) { /* ignore */ }
+  try { const res = await listAICapabilitiesAPI(); capabilities.value = (res.data as any) || [] } catch (e: any) { console.error('[loadCapabilities]', e); ElMessage.error('加载失败') }
 }
 
 const toggleCap = async (cap: AICapability) => {
@@ -33,31 +33,31 @@ const loadRequests = async () => {
   try {
     const res = await listAIWarehouseRequestsAPI({ pageNum: 1, pageSize: 50 })
     requests.value = (res.data as any)?.list || []
-  } catch (_) { /* ignore */ }
+  } catch (e: any) { console.error('[loadRequests]', e); ElMessage.error('加载失败') }
 }
 
 // Location Recommendation
 const locResult = ref<any[]>([])
 const loadLocRec = async () => {
-  try { const res = await getLocationRecommendationAPI(1, {}); locResult.value = (res.data as any)?.recommendations || [] } catch (_) { /* ignore */ }
+  try { const res = await getLocationRecommendationAPI(1, {}); locResult.value = (res.data as any)?.recommendations || [] } catch (e: any) { console.error('[loadLocRec]', e); ElMessage.error('加载失败') }
 }
 
 // Demand Forecast
 const forecastResult = ref<any[]>([])
 const loadForecast = async () => {
-  try { const res = await getDemandForecastAPI(1, {}); forecastResult.value = (res.data as any)?.forecasts || [] } catch (_) { /* ignore */ }
+  try { const res = await getDemandForecastAPI(1, {}); forecastResult.value = (res.data as any)?.forecasts || [] } catch (e: any) { console.error('[loadForecast]', e); ElMessage.error('加载失败') }
 }
 
 // Restock Suggestion
 const restockResult = ref<any[]>([])
 const loadRestock = async () => {
-  try { const res = await getRestockSuggestionAPI(1, {}); restockResult.value = (res.data as any)?.suggestions || [] } catch (_) { /* ignore */ }
+  try { const res = await getRestockSuggestionAPI(1, {}); restockResult.value = (res.data as any)?.suggestions || [] } catch (e: any) { console.error('[loadRestock]', e); ElMessage.error('加载失败') }
 }
 
 // Anomaly Detection
 const anomalyResult = ref<any[]>([])
 const loadAnomalies = async () => {
-  try { const res = await detectAnomaliesAPI(1, {}); anomalyResult.value = (res.data as any)?.anomalies || [] } catch (_) { /* ignore */ }
+  try { const res = await detectAnomaliesAPI(1, {}); anomalyResult.value = (res.data as any)?.anomalies || [] } catch (e: any) { console.error('[loadAnomalies]', e); ElMessage.error('加载失败') }
 }
 
 const refreshAll = () => {

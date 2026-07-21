@@ -53,6 +53,11 @@ public class AIWarehouseCommandService {
         clientFactory.removeClient(capabilityId);
     }
 
+    public void removeCapability(String capabilityId) {
+        domainService.removeCapability(capabilityId);
+        clientFactory.removeClient(capabilityId);
+    }
+
     public void disableCapability(String capabilityId) {
         domainService.disableCapability(capabilityId);
         clientFactory.removeClient(capabilityId);

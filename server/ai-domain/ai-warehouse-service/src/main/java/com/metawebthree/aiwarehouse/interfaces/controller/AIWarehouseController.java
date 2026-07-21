@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/ai-warehouse")
-@CrossOrigin(origins = {"http://localhost:5173", "http://127.0.0.1:5173"})
 public class AIWarehouseController {
 
     private final AIWarehouseCommandService commandService;
@@ -89,7 +88,7 @@ public class AIWarehouseController {
 
     @DeleteMapping("/capabilities/{id}")
     public ResponseEntity<Void> deleteCapability(@PathVariable String id) {
-        queryService.getCapability(id);
+        commandService.removeCapability(id);
         return ResponseEntity.ok().build();
     }
 
@@ -109,7 +108,7 @@ public class AIWarehouseController {
             params.toString());
         var result = fallbackRouter.route(WarehouseCapability.LOCATION_RECOMMENDATION, request);
         return result.isSuccess()
-            ? ResponseEntity.ok(Map.of("recommendations", List.of(Map.of("locationId", 1, "score", 0.85, "reason", result.getData()))))
+            ? ResponseEntity.ok(Map.of("recommendations", result.getData()))
             : ResponseEntity.ok(Map.of("recommendations", List.of()));
     }
 
@@ -122,8 +121,7 @@ public class AIWarehouseController {
             params.toString());
         var result = fallbackRouter.route(WarehouseCapability.DEMAND_FORECASTING, request);
         return result.isSuccess()
-            ? ResponseEntity.ok(Map.of("forecasts", List.of(
-                Map.of("date", "2026-07-22", "quantity", 1200, "confidence", 0.85))))
+            ? ResponseEntity.ok(Map.of("forecasts", result.getData()))
             : ResponseEntity.ok(Map.of("forecasts", List.of()));
     }
 
@@ -136,8 +134,7 @@ public class AIWarehouseController {
             params.toString());
         var result = fallbackRouter.route(WarehouseCapability.RESTOCK_SUGGESTION, request);
         return result.isSuccess()
-            ? ResponseEntity.ok(Map.of("suggestions", List.of(
-                Map.of("skuCode", "SKU-001", "quantity", 500, "urgency", "HIGH"))))
+            ? ResponseEntity.ok(Map.of("suggestions", result.getData()))
             : ResponseEntity.ok(Map.of("suggestions", List.of()));
     }
 
@@ -150,9 +147,7 @@ public class AIWarehouseController {
             params.toString());
         var result = fallbackRouter.route(WarehouseCapability.ANOMALY_DETECTION, request);
         return result.isSuccess()
-            ? ResponseEntity.ok(Map.of("anomalies", List.of(
-                Map.of("id", 1, "type", "SPIKE", "description", "Unusual demand spike detected",
-                       "severity", "MEDIUM", "detectedAt", "2026-07-21T10:00:00"))))
+            ? ResponseEntity.ok(Map.of("anomalies", result.getData()))
             : ResponseEntity.ok(Map.of("anomalies", List.of()));
     }
 }

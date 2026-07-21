@@ -4,6 +4,8 @@ import com.metawebthree.aiwarehouse.application.command.AIWarehouseCommandServic
 import com.metawebthree.aiwarehouse.application.query.AIWarehouseQueryService;
 import com.metawebthree.aiwarehouse.domain.entity.AIRequestRecord;
 import com.metawebthree.aiwarehouse.domain.service.AIWarehouseDomainService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,8 +14,9 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/ai-warehouse/requests")
-@CrossOrigin(origins = {"http://localhost:5173", "http://127.0.0.1:5173"})
 public class AIRequestController {
+
+    private static final Logger log = LoggerFactory.getLogger(AIRequestController.class);
 
     private final AIWarehouseQueryService queryService;
     private final AIWarehouseDomainService domainService;
@@ -80,13 +83,16 @@ public class AIRequestController {
                 if (s == AIRequestRecord.AIRequestStatus.FAILED) {
                     domainService.markRequestFailed(id, "Manual fail");
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                log.warn("Failed to update request status {} for id {}: {}", statusStr, id, e.getMessage());
+            }
         }
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRequest(@PathVariable Long id) {
+        domainService.deleteRequestRecord(id);
         return ResponseEntity.ok().build();
     }
 

@@ -3,30 +3,6 @@
 [Project Guideline](./README.md)
 [Backend Guideline](./server/README.md)
 
-#### 待添加的后台管理页面
-
-- [ ] ~~[mall-domain] 购物车管理 (cart-service)~~ — 用户隐私数据，无需后台管理
-- [x] **[mall-domain] 团购管理** (group-buying-service)
-- [x] **[mall-domain] 直播管理** (live-service)
-- [x] **[mall-domain] 供应商管理** (mall-supplier-service)
-- [x] **[mall-domain] 支付管理** (payment-service)
-- [x] **[mall-domain] 用户管理** (user-service)
-- [x] **[erp-domain] 项目管理** (project-service)
-- [x] **[platform-domain] 数据分析** (data-analysis-service)
-- [x] **[platform-domain] 消息管理** (message-service)
-- [x] **[platform-domain] 社交电商** (social-commerce-service)
-- [x] **[platform-domain] 用户行为分析** (user-action-service)
-- [x] **[supply-chain-domain] 采购管理** (procurement-service)
-- [x] **[supply-chain-domain] 仓库管理** (warehouse-service)
-- [x] **[erp-domain] 发票管理** (invoice-service)
-- [x] **[platform-domain] 佣金管理** (commission-service)
-- [x] **[platform-domain] 媒体管理** (media-service)
-- [x] **[ai-domain] AI 仓库管理** (ai-warehouse-service)
-- [x] **[factory-domain] 数字孪生管理** (digital-twin-service)
-- [x] **[factory-domain] 生产管理** (production-service)
-- [x] **[erp-domain] 财务管理** (finance-service)
-- [x] **[platform-domain] 开发者门户** (developer-portal-service)
-
 ### [GitHub Issues]
 
 - [ ] **[#1] Solana 商城模板集成**: Token, NFT, SFT 创建与管理；Token 作为商品销售；活动和佣金功能

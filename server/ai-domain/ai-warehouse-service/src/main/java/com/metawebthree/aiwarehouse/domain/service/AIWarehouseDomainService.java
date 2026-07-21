@@ -115,6 +115,16 @@ public class AIWarehouseDomainService implements IAIWarehouseDomainService {
         return requestRecordRepository.findByCapabilityId(capabilityId);
     }
 
+    public void removeCapability(String capabilityId) {
+        AICapability capability = capabilityRepository.findByCapabilityId(capabilityId)
+            .orElseThrow(() -> new IllegalArgumentException("Capability not found: " + capabilityId));
+        capabilityRepository.delete(capabilityId);
+    }
+
+    public void deleteRequestRecord(Long id) {
+        requestRecordRepository.deleteById(id);
+    }
+
     public List<AIRequestRecord> getRecentRequests(int limit) {
         return requestRecordRepository.findTop100ByOrderByCreatedAtDesc();
     }

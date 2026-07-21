@@ -18,7 +18,7 @@ const loading = ref(false)
 // Orders
 const orders = ref<ProductionOrder[]>([])
 const loadOrders = async () => {
-  try { const res = await listOrdersAPI(); orders.value = (res.data as any) || [] } catch (_) { /* ignore */ }
+  try { const res = await listOrdersAPI(); orders.value = (res.data as any) || [] } catch (e: any) { console.error('[loadOrders]', e); ElMessage.error('加载失败') }
 }
 
 const orderDialog = ref(false)
@@ -51,13 +51,13 @@ const lifecycleAction = async (id: number, action: string, fn: (id: number) => P
     await fn(id)
     ElMessage.success(`${action} successful`)
     loadOrders()
-  } catch (_) { /* ignore */ }
+  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error('操作失败') } }
 }
 
 // Stations
 const stations = ref<WorkStation[]>([])
 const loadStations = async () => {
-  try { const res = await listStationsAPI(); stations.value = (res.data as any) || [] } catch (_) { /* ignore */ }
+  try { const res = await listStationsAPI(); stations.value = (res.data as any) || [] } catch (e: any) { console.error('[loadStations]', e); ElMessage.error('加载失败') }
 }
 
 const stationDialog = ref(false)
@@ -89,7 +89,7 @@ const selectedStationForBindings = ref('')
 const loadBindings = async (code: string) => {
   selectedStationForBindings.value = code
   if (!code) { bindings.value = []; return }
-  try { const res = await getStationBindingsAPI(code); bindings.value = (res.data as any) || [] } catch (_) { /* ignore */ }
+  try { const res = await getStationBindingsAPI(code); bindings.value = (res.data as any) || [] } catch (e: any) { console.error('[loadBindings]', e); ElMessage.error('加载失败') }
 }
 
 const bindDialog = ref(false)
@@ -112,7 +112,7 @@ const unbind = async (id: number) => {
     await unbindStationAPI(id)
     ElMessage.success('Unbound')
     loadBindings(selectedStationForBindings.value)
-  } catch (_) { /* ignore */ }
+  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error('操作失败') } }
 }
 
 const refreshAll = () => { loadOrders(); loadStations() }
