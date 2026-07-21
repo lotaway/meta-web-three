@@ -1186,6 +1186,54 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // Invoice Management Module
+  {
+    path: '/invoice',
+    component: Layout,
+    redirect: '/invoice/index',
+    name: 'invoice',
+    meta: { title: '发票管理', icon: 'document' },
+    children: [
+      {
+        path: 'index',
+        name: 'invoiceManage',
+        component: () => import('@/views/invoice/index.vue'),
+        meta: { title: '发票列表', icon: 'invoice-list' },
+      },
+    ],
+  },
+  // Commission Management Module
+  {
+    path: '/commission',
+    component: Layout,
+    redirect: '/commission/index',
+    name: 'commission',
+    meta: { title: '佣金管理', icon: 'money' },
+    children: [
+      {
+        path: 'index',
+        name: 'commissionManage',
+        component: () => import('@/views/commission/index.vue'),
+        meta: { title: '佣金记录', icon: 'commission-list' },
+      },
+    ],
+  },
+  // Media Management Module
+  {
+    path: '/media',
+    component: Layout,
+    redirect: '/media/index',
+    name: 'media',
+    meta: { title: '媒体管理', icon: 'picture' },
+    children: [
+      {
+        path: 'index',
+        name: 'mediaManage',
+        component: () => import('@/views/media/index.vue'),
+        meta: { title: '用户存储', icon: 'media-storage' },
+      },
+    ],
+  },
   // CRM Customer Relationship Management
   {
     path: '/crm',

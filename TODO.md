@@ -18,14 +18,14 @@
 - [x] **[platform-domain] 用户行为分析** (user-action-service)
 - [x] **[supply-chain-domain] 采购管理** (procurement-service)
 - [x] **[supply-chain-domain] 仓库管理** (warehouse-service)
+- [x] **[erp-domain] 发票管理** (invoice-service)
+- [x] **[platform-domain] 佣金管理** (commission-service)
+- [x] **[platform-domain] 媒体管理** (media-service)
 - [ ] **[ai-domain] AI 仓库管理** (ai-warehouse-service)
 - [ ] **[factory-domain] 数字孪生管理** (digital-twin-service)
 - [ ] **[factory-domain] 生产管理** (production-service)
 - [ ] **[erp-domain] 财务管理** (finance-service)
-- [ ] **[erp-domain] 发票管理** (invoice-service)
-- [ ] **[platform-domain] 佣金管理** (commission-service)
 - [ ] **[platform-domain] 开发者门户** (developer-portal-service)
-- [ ] **[platform-domain] 媒体管理** (media-service)
 
 ### [GitHub Issues]
 
