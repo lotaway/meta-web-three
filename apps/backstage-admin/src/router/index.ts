@@ -970,6 +970,22 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // Group Buying Management Module
+  {
+    path: '/group-buying',
+    component: Layout,
+    redirect: '/group-buying/activities',
+    name: 'groupBuying',
+    meta: { title: 'groupBuying.title', icon: 'shopping-cart' },
+    children: [
+      {
+        path: 'activities',
+        name: 'groupBuyingActivities',
+        component: () => import('@/views/group-buying/index.vue'),
+        meta: { title: 'groupBuying.activities', icon: 'group-buying' },
+      },
+    ],
+  },
   // CRM Customer Relationship Management
   {
     path: '/crm',
