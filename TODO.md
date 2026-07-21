@@ -11,12 +11,12 @@
   - [ ] 活动与佣金功能
   - 链接: https://github.com/lotaway/meta-web-three/issues/1
 
-## ERP — 检查完成 ✅
+## ERP
 
-- [x] **CRM** — 完整实现（proto + 5 个后端 Controller + 6 个前端页面，已配置路由）
-- [x] **BI/商业智能** — 完整实现（proto + reporting-service + 5 个前端 BI 页面，已配置路由）
-- [x] **资产管理（固定资产）** — 后端完整（FixedAssetController），前端 4 个视图已配置路由，已创建 FinanceFixedAssetService.proto
-- [x] **预算管理** — 后端完整（BudgetController），前端视图已配置路由，已有 FinanceBudgetService.proto
+- [ ] **CRM** — 后端有 12 处 `Map<String, Object>` 类型侵蚀（UserServiceClient、LeadController、ContactController、GraphQL），违反"禁止接口层泄露实现细节"。建议：为 UserService 客户端和 GraphQL 定义专用 DTO。
+- [ ] **BI/商业智能** — 前端 15 处 `as any` 强制类型转换（views/bi/ 下 5 个文件）、4 处 `Record<string, any>`（bi.ts），违反 TypeScript 类型安全。建议：为所有 API 响应定义完整接口，替换 as any。
+- [ ] **资产管理（固定资产）** — 后端 FixedAssetController 10 处 `Map.of()` 硬编码响应 + 12 处 `Map<String, Object>` 类型侵蚀，违反"禁止硬编码魔法数字"和"禁止接口层泄露实现细节"。建议：为 create/update/delete/transfer 等操作定义专用 Response DTO。
+- [ ] **预算管理** — 后端 BudgetController 11 处 `Map.of()` 硬编码响应 + 11 处 `Map<String, Object>` 类型侵蚀，前端 1 处 `Record<string, any>`。建议：定义专用 Response DTO 替换 Map.of。
 
 # 待决议功能
 
