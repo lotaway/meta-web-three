@@ -1234,6 +1234,22 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // Developer Portal Module
+  {
+    path: '/developer-portal',
+    component: Layout,
+    redirect: '/developer-portal/index',
+    name: 'developerPortal',
+    meta: { title: '开发者门户', icon: 'developer' },
+    children: [
+      {
+        path: 'index',
+        name: 'developerPortalManage',
+        component: () => import('@/views/developer-portal/index.vue'),
+        meta: { title: '开发者管理', icon: 'developer-portal' },
+      },
+    ],
+  },
   // Finance Management Module
   {
     path: '/finance',
