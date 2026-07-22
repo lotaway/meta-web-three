@@ -2,6 +2,8 @@
 
 此项目是zk+dubbo+grpc+protobuf+spring-cloud-gateway的micro-services
 
+> **开发指引**：完整开发流程、代码规范、API 生成、测试等请参见 [DEVELOPMENT.md](../DEVELOPMENT.md)。
+
 ## Directory 目录结构
 
 - - common 公共模块
