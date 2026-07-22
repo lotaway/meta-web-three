@@ -11,31 +11,6 @@
   - [ ] 活动与佣金功能
   - 链接: https://github.com/lotaway/meta-web-three/issues/1
 
-## ERP
-
-### 预算管理
-- [x] BudgetController — 11 处 `Map.of("success", true)` / `Map.of("id", id, "success", true)` 替换为 `ResponseEntity<Void>` 或 `IdResponse` DTO
-- [x] budget/index.vue — 1 处 `Record<string, any>` 替换为 `ListBudgetsParams` 接口
-
-### 资产管理（固定资产）
-- [x] FixedAssetController — 10 处 `Map.of("success", true)` / `Map.of("id", id, "success", true)` 替换为 `ResponseEntity<Void>` 或 `IdResponse` DTO
-- [x] FixedAssetQueryService — `getAssetStatistics()` / `getDepreciationStatistics()` / `getInventoryStatistics()` 返回 `Map<String, Object>` 替换为 `*Statistics` record
-- [x] asset/card/index.vue — 1 处 `as any`（updateAsset 调用）替换为类型安全的方式
-- [x] asset/inventory/index.vue — 1 处 `as any`（formData）替换为正确类型
-
-### CRM
-- [x] UserServiceClient.java — 6 处 `Map<String, Object>` 替换为 `UserDTO` / `UserStatsDTO`
-- [x] LeadController.java — 2 处 `Map<String, Object>` 返回替换为 `UserDTO`
-- [x] ContactController.java — 1 处 `Map<String, Object>` 返回替换为 `UserDTO`
-- [x] CrmSubgraphController.java — GraphQL `Map<String, Object>` 输入/输出替换为 `GraphQLRequest` / `GraphQLResponse` DTO
-
-### BI/商业智能
-- [x] bi.ts — 4 处 `Record<string, any>` 替换为 `ProductionAnalyticsResponse` / `SalesFunnelResponse` 接口
-- [x] bi/index.vue — 多处 `as any` 替换为类型安全方式
-- [x] bi/sales.vue — 多处 `as any` 替换为类型安全方式
-- [x] bi/financial.vue — 1 处 `as any` 替换为类型安全方式
-- [x] bi/inventory.vue — 多处 `as any` 替换为类型安全方式
-- [x] bi/production.vue — 多处 `as any` 替换为类型安全方式
 
 # 待决议功能
 
