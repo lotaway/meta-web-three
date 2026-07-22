@@ -64,14 +64,14 @@ async function loadAbc() {
 async function loadAlerts() {
   try {
     const res = await getSafetyStockAlerts()
-    alerts.value = (res as any)?.data || (Array.isArray(res) ? res : [])
+    alerts.value = res.data || []
   } catch (e) { console.error(e); ElMessage.error('Failed to load safety stock alerts') }
 }
 
 async function loadTurnover() {
   try {
     const res = await getInventoryTurnover()
-    turnoverRows.value = Array.isArray(res) ? res : ((res as any)?.data || [])
+    turnoverRows.value = res.data || []
   } catch (e) { console.error(e); ElMessage.error('Failed to load inventory turnover') }
 }
 

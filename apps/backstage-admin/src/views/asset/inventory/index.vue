@@ -63,7 +63,7 @@ const initialFormData = (): Required<AssetInventoryCreateParams> => ({
   creatorName: ''
 })
 
-const formData = reactive(initialFormData()) as any
+const formData = reactive(initialFormData())
 
 const formRef = ref()
 

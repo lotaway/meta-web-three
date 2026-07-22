@@ -58,7 +58,7 @@ const typeOptions = [
 const getList = async () => {
   listLoading.value = true
   try {
-    const params: Record<string, any> = {}
+    const params: { departmentId?: number; status?: string; period?: string } = {}
     if (listQuery.departmentId) params.departmentId = listQuery.departmentId
     if (listQuery.status) params.status = listQuery.status
     if (listQuery.period) params.period = listQuery.period

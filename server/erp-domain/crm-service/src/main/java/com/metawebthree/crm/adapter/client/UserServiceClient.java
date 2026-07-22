@@ -5,33 +5,35 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Component
 public class UserServiceClient {
 
+    public record UserDTO(Long id, String username, String phone, String email, String avatar, Integer status, Long createdAt) {}
+
+    public record UserStatsDTO(long totalUsers) {}
+
     @DubboReference(check = false, lazy = true)
     private UserService userService;
 
-    public Map<String, Object> getUserById(Long userId) {
+    public UserDTO getUserById(Long userId) {
         try {
             GetUserPhoneRequest request = GetUserPhoneRequest.newBuilder()
                     .setUserId(userId)
                     .build();
             GetUserPhoneResponse response = userService.getUserPhone(request);
 
-            Map<String, Object> result = new HashMap<>();
-            result.put("id", userId);
-            result.put("phone", response.getPhone());
-            return result;
+            return new UserDTO(userId, null, response.getPhone(), null, null, null, null);
         } catch (Exception e) {
             log.error("Failed to get user by id: {}, error: {}", userId, e.getMessage());
             throw new RuntimeException("Failed to get user by id: " + userId, e);
         }
     }
 
-    public List<Map<String, Object>> searchUsers(String keyword) {
+    public List<UserDTO> searchUsers(String keyword) {
         try {
             ListUsersRequest request = ListUsersRequest.newBuilder()
                     .setPage(0)
@@ -39,17 +41,9 @@ public class UserServiceClient {
                     .build();
             ListUsersResponse response = userService.listUsers(request);
 
-            List<Map<String, Object>> users = new ArrayList<>();
+            List<UserDTO> users = new ArrayList<>();
             for (UserInfoProto proto : response.getUsersList()) {
-                Map<String, Object> user = new HashMap<>();
-                user.put("id", proto.getId());
-                user.put("username", proto.getUsername());
-                user.put("phone", proto.getPhone());
-                user.put("email", proto.getEmail());
-                user.put("avatar", proto.getAvatar());
-                user.put("status", proto.getStatus());
-                user.put("createdAt", proto.getCreatedAt());
-                users.add(user);
+                users.add(new UserDTO(proto.getId(), proto.getUsername(), proto.getPhone(), proto.getEmail(), proto.getAvatar(), proto.getStatus(), proto.getCreatedAt()));
             }
             return users;
         } catch (Exception e) {
@@ -58,7 +52,7 @@ public class UserServiceClient {
         }
     }
 
-    public Map<String, Object> getUserStatistics() {
+    public UserStatsDTO getUserStatistics() {
         try {
             ListUsersRequest request = ListUsersRequest.newBuilder()
                     .setPage(0)
@@ -66,9 +60,7 @@ public class UserServiceClient {
                     .build();
             ListUsersResponse response = userService.listUsers(request);
 
-            Map<String, Object> stats = new HashMap<>();
-            stats.put("totalUsers", response.getTotalCount());
-            return stats;
+            return new UserStatsDTO(response.getTotalCount());
         } catch (Exception e) {
             log.error("Failed to get user statistics, error: {}", e.getMessage());
             throw new RuntimeException("Failed to get user statistics", e);

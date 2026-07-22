@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/budget")
@@ -26,16 +25,16 @@ public class BudgetController {
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, Object>> createBudget(@RequestBody BudgetCreateCommand command) {
+    public ResponseEntity<IdResponse> createBudget(@RequestBody BudgetCreateCommand command) {
         Long id = commandService.createBudget(command);
-        return ResponseEntity.ok(Map.of("id", id, "success", true));
+        return ResponseEntity.ok(new IdResponse(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateBudget(@PathVariable Long id, @RequestBody BudgetUpdateCommand command) {
+    public ResponseEntity<Void> updateBudget(@PathVariable Long id, @RequestBody BudgetUpdateCommand command) {
         command.setId(id);
         commandService.updateBudget(command);
-        return ResponseEntity.ok(Map.of("success", true));
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}")
@@ -75,41 +74,41 @@ public class BudgetController {
     }
 
     @PostMapping("/{id}/submit")
-    public ResponseEntity<Map<String, Object>> submitBudget(@PathVariable Long id) {
+    public ResponseEntity<Void> submitBudget(@PathVariable Long id) {
         commandService.submitBudget(id);
-        return ResponseEntity.ok(Map.of("success", true));
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{id}/approve")
-    public ResponseEntity<Map<String, Object>> approveBudget(
+    public ResponseEntity<Void> approveBudget(
             @PathVariable Long id,
             @RequestBody ApproveRequest request) {
         commandService.approveBudget(id, request.getApproverId(), request.getApproverName());
-        return ResponseEntity.ok(Map.of("success", true));
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{id}/reject")
-    public ResponseEntity<Map<String, Object>> rejectBudget(@PathVariable Long id) {
+    public ResponseEntity<Void> rejectBudget(@PathVariable Long id) {
         commandService.rejectBudget(id);
-        return ResponseEntity.ok(Map.of("success", true));
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{id}/close")
-    public ResponseEntity<Map<String, Object>> closeBudget(@PathVariable Long id) {
+    public ResponseEntity<Void> closeBudget(@PathVariable Long id) {
         commandService.closeBudget(id);
-        return ResponseEntity.ok(Map.of("success", true));
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> deleteBudget(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteBudget(@PathVariable Long id) {
         commandService.deleteBudget(id);
-        return ResponseEntity.ok(Map.of("success", true));
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/adjustment")
-    public ResponseEntity<Map<String, Object>> applyAdjustment(@RequestBody BudgetAdjustmentCreateCommand command) {
+    public ResponseEntity<IdResponse> applyAdjustment(@RequestBody BudgetAdjustmentCreateCommand command) {
         Long id = commandService.applyAdjustment(command);
-        return ResponseEntity.ok(Map.of("id", id, "success", true));
+        return ResponseEntity.ok(new IdResponse(id));
     }
 
     @GetMapping("/adjustment/pending")
@@ -125,19 +124,19 @@ public class BudgetController {
     }
 
     @PostMapping("/adjustment/{id}/approve")
-    public ResponseEntity<Map<String, Object>> approveAdjustment(
+    public ResponseEntity<Void> approveAdjustment(
             @PathVariable Long id,
             @RequestBody ApproveRequest request) {
         commandService.approveAdjustment(id, request.getApproverId(), request.getApproverName(), request.getComment());
-        return ResponseEntity.ok(Map.of("success", true));
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/adjustment/{id}/reject")
-    public ResponseEntity<Map<String, Object>> rejectAdjustment(
+    public ResponseEntity<Void> rejectAdjustment(
             @PathVariable Long id,
             @RequestBody ApproveRequest request) {
         commandService.rejectAdjustment(id, request.getApproverId(), request.getApproverName(), request.getComment());
-        return ResponseEntity.ok(Map.of("success", true));
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}/analysis")
@@ -155,12 +154,14 @@ public class BudgetController {
     }
 
     @PostMapping("/{id}/usage")
-    public ResponseEntity<Map<String, Object>> recordUsage(
+    public ResponseEntity<Void> recordUsage(
             @PathVariable Long id,
             @RequestBody UsageRecordRequest request) {
         commandService.recordUsage(id, request.getSubjectCode(), request.getAmount());
-        return ResponseEntity.ok(Map.of("success", true));
+        return ResponseEntity.ok().build();
     }
+
+    public record IdResponse(Long id) {}
 
     public static class ApproveRequest {
         private Long approverId;

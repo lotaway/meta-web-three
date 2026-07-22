@@ -20,6 +20,12 @@ public class FixedAssetQueryService {
         this.repository = repository;
     }
 
+    public record AssetStatistics(int totalAssets, int activeCount, int disposedCount, int inUseCount, int idleCount, BigDecimal totalOriginalValue, BigDecimal totalNetValue, BigDecimal totalAccumulatedDepreciation) {}
+
+    public record DepreciationStatistics(int totalDepreciationRecords, BigDecimal totalDepreciationAmount, Map<String, BigDecimal> byMethod) {}
+
+    public record InventoryStatistics(int totalInventoryRecords, int pendingCount, int completedCount, int discrepancyCount) {}
+
     public FixedAssetDO getAssetById(Long id) {
         return repository.findById(id);
     }
@@ -60,7 +66,7 @@ public class FixedAssetQueryService {
         return repository.findDisposalByStatus(status);
     }
 
-    public Map<String, Object> getAssetStatistics() {
+    public AssetStatistics getAssetStatistics() {
         List<FixedAssetDO> allAssets = repository.findAll();
         
         BigDecimal totalOriginalValue = BigDecimal.ZERO;
@@ -90,20 +96,10 @@ public class FixedAssetQueryService {
             }
         }
         
-        Map<String, Object> stats = new HashMap<>();
-        stats.put("totalAssets", allAssets.size());
-        stats.put("activeCount", activeCount);
-        stats.put("disposedCount", disposedCount);
-        stats.put("inUseCount", inUseCount);
-        stats.put("idleCount", idleCount);
-        stats.put("totalOriginalValue", totalOriginalValue);
-        stats.put("totalNetValue", totalNetValue);
-        stats.put("totalAccumulatedDepreciation", totalAccumulatedDepreciation);
-        
-        return stats;
+        return new AssetStatistics(allAssets.size(), activeCount, disposedCount, inUseCount, idleCount, totalOriginalValue, totalNetValue, totalAccumulatedDepreciation);
     }
 
-    public Map<String, Object> getDepreciationStatistics(String period) {
+    public DepreciationStatistics getDepreciationStatistics(String period) {
         List<FixedAssetDepreciationDO> depreciationList = repository.findDepreciationByPeriod(period);
         
         BigDecimal totalDepreciation = BigDecimal.ZERO;
@@ -117,15 +113,10 @@ public class FixedAssetQueryService {
             byMethod.put(method, methodTotal.add(depreciation.getDepreciationAmount()));
         }
         
-        Map<String, Object> stats = new HashMap<>();
-        stats.put("totalDepreciationRecords", depreciationList.size());
-        stats.put("totalDepreciationAmount", totalDepreciation);
-        stats.put("byMethod", byMethod);
-        
-        return stats;
+        return new DepreciationStatistics(depreciationList.size(), totalDepreciation, byMethod);
     }
 
-    public Map<String, Object> getInventoryStatistics() {
+    public InventoryStatistics getInventoryStatistics() {
         List<FixedAssetInventoryDO> allInventory = repository.findInventoryByStatus(null);
         
         int totalCount = allInventory.size();
@@ -145,12 +136,6 @@ public class FixedAssetQueryService {
             }
         }
         
-        Map<String, Object> stats = new HashMap<>();
-        stats.put("totalInventoryRecords", totalCount);
-        stats.put("pendingCount", pendingCount);
-        stats.put("completedCount", completedCount);
-        stats.put("discrepancyCount", discrepancyCount);
-        
-        return stats;
+        return new InventoryStatistics(totalCount, pendingCount, completedCount, discrepancyCount);
     }
 }

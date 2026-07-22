@@ -80,10 +80,14 @@ export interface PlanAchievement {
   actualQuantity: number
 }
 
+export interface OlapRow {
+  [key: string]: unknown
+}
+
 export interface OlapQueryResult {
   columns: string[]
-  rows: Record<string, any>[]
-  totals?: Record<string, any>
+  rows: OlapRow[]
+  totals?: OlapRow
   sql?: string
   queryTimeMs?: number
 }
@@ -234,8 +238,17 @@ export function getOlapMetadata() {
   })
 }
 
+export interface ProductionAnalyticsResponse {
+  totalOutput: number
+  defectCount: number
+  yieldRate: number
+  dailyData: unknown[]
+}
+
+export type SalesFunnelResponse = SalesFunnel[]
+
 export function getProductionAnalytics(startDate: string, endDate: string) {
-  return http<Record<string, any>>({
+  return http<ProductionAnalyticsResponse>({
     url: '/api/analytics/production',
     method: 'get',
     params: { startDate, endDate },
@@ -243,7 +256,7 @@ export function getProductionAnalytics(startDate: string, endDate: string) {
 }
 
 export function getSalesFunnel() {
-  return http<Record<string, any>>({
+  return http<SalesFunnelResponse>({
     url: '/api/olap/sales-funnel',
     method: 'get',
   })

@@ -13,10 +13,29 @@
 
 ## ERP
 
-- [ ] **CRM** — 后端有 12 处 `Map<String, Object>` 类型侵蚀（UserServiceClient、LeadController、ContactController、GraphQL），违反"禁止接口层泄露实现细节"。建议：为 UserService 客户端和 GraphQL 定义专用 DTO。
-- [ ] **BI/商业智能** — 前端 15 处 `as any` 强制类型转换（views/bi/ 下 5 个文件）、4 处 `Record<string, any>`（bi.ts），违反 TypeScript 类型安全。建议：为所有 API 响应定义完整接口，替换 as any。
-- [ ] **资产管理（固定资产）** — 后端 FixedAssetController 10 处 `Map.of()` 硬编码响应 + 12 处 `Map<String, Object>` 类型侵蚀，违反"禁止硬编码魔法数字"和"禁止接口层泄露实现细节"。建议：为 create/update/delete/transfer 等操作定义专用 Response DTO。
-- [ ] **预算管理** — 后端 BudgetController 11 处 `Map.of()` 硬编码响应 + 11 处 `Map<String, Object>` 类型侵蚀，前端 1 处 `Record<string, any>`。建议：定义专用 Response DTO 替换 Map.of。
+### 预算管理
+- [x] BudgetController — 11 处 `Map.of("success", true)` / `Map.of("id", id, "success", true)` 替换为 `ResponseEntity<Void>` 或 `IdResponse` DTO
+- [x] budget/index.vue — 1 处 `Record<string, any>` 替换为 `ListBudgetsParams` 接口
+
+### 资产管理（固定资产）
+- [x] FixedAssetController — 10 处 `Map.of("success", true)` / `Map.of("id", id, "success", true)` 替换为 `ResponseEntity<Void>` 或 `IdResponse` DTO
+- [x] FixedAssetQueryService — `getAssetStatistics()` / `getDepreciationStatistics()` / `getInventoryStatistics()` 返回 `Map<String, Object>` 替换为 `*Statistics` record
+- [x] asset/card/index.vue — 1 处 `as any`（updateAsset 调用）替换为类型安全的方式
+- [x] asset/inventory/index.vue — 1 处 `as any`（formData）替换为正确类型
+
+### CRM
+- [x] UserServiceClient.java — 6 处 `Map<String, Object>` 替换为 `UserDTO` / `UserStatsDTO`
+- [x] LeadController.java — 2 处 `Map<String, Object>` 返回替换为 `UserDTO`
+- [x] ContactController.java — 1 处 `Map<String, Object>` 返回替换为 `UserDTO`
+- [x] CrmSubgraphController.java — GraphQL `Map<String, Object>` 输入/输出替换为 `GraphQLRequest` / `GraphQLResponse` DTO
+
+### BI/商业智能
+- [x] bi.ts — 4 处 `Record<string, any>` 替换为 `ProductionAnalyticsResponse` / `SalesFunnelResponse` 接口
+- [x] bi/index.vue — 多处 `as any` 替换为类型安全方式
+- [x] bi/sales.vue — 多处 `as any` 替换为类型安全方式
+- [x] bi/financial.vue — 1 处 `as any` 替换为类型安全方式
+- [x] bi/inventory.vue — 多处 `as any` 替换为类型安全方式
+- [x] bi/production.vue — 多处 `as any` 替换为类型安全方式
 
 # 待决议功能
 

@@ -102,7 +102,7 @@ import {
   getSalesTrend, getCategoryDistribution, getRegionalComparison,
   getFinancialSummary, getSafetyStockAlerts, getProductionAnalytics, getSalesFunnel,
 } from '@/apis/bi'
-import type { CategoryDistribution, FinancialSummary } from '@/apis/bi'
+import type { CategoryDistribution, FinancialSummary, ProductionAnalyticsResponse, OlapRow } from '@/apis/bi'
 
 const defaultStart = new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0]
 const defaultEnd = new Date().toISOString().split('T')[0]
@@ -153,7 +153,7 @@ const formatPercent = (v: number | undefined | null) => {
 async function loadSalesTrendRow() {
   try {
     const trendRes = await getSalesTrend(dateRange.value[0], dateRange.value[1])
-    const trend = trendRes as any
+    const trend = trendRes.data
     if (trend.dates && trend.amounts) {
       salesTrendRows.value = trend.dates.map((d: string, i: number) => ({
         date: d,
@@ -167,19 +167,19 @@ async function loadSalesTrendRow() {
 async function loadCategoryData() {
   try {
     const catRes = await getCategoryDistribution(dateRange.value[0], dateRange.value[1])
-    categoryList.value = (catRes as any)?.data || (Array.isArray(catRes) ? catRes : [])
+    categoryList.value = catRes.data || []
   } catch (e) { console.error('Failed to load category distribution', e); ElMessage.error('Failed to load category distribution') }
 }
 
 async function loadRegionData() {
   try {
     const regionRes = await getRegionalComparison(dateRange.value[0], dateRange.value[1])
-    const r = regionRes as any
+    const r = regionRes.data
     if (r.rows) {
-      regionList.value = r.rows.map((row: any) => ({
-        region: row.region || row.dimension || '-',
-        salesAmount: row.total_amount_sum || row.totalAmount || 0,
-        orderCount: row.count || row.orderCount || 0,
+      regionList.value = r.rows.map((row: OlapRow) => ({
+        region: (row.region as string) || (row.dimension as string) || '-',
+        salesAmount: (row.total_amount_sum as number) || (row.totalAmount as number) || 0,
+        orderCount: (row.count as number) || (row.orderCount as number) || 0,
       }))
     }
   } catch (e) { console.error('Failed to load regional comparison', e); ElMessage.error('Failed to load regional comparison') }
@@ -188,13 +188,13 @@ async function loadRegionData() {
 async function loadFinancialData() {
   try {
     const res = await getFinancialSummary(dateRange.value[0], dateRange.value[1])
-    const d = res as any
+    const d = res.data
     financialData.value = {
-      totalRevenue: d.todaySales || d.totalRevenue || 0,
-      totalCost: d.totalCost || d.todayCost || 0,
-      grossProfit: d.todayProfit || d.grossProfit || 0,
-      netProfit: d.todayProfit || d.netProfit || 0,
-      orderCount: d.todayOrders || d.orderCount || 0,
+      totalRevenue: d.totalRevenue || 0,
+      totalCost: d.totalCost || 0,
+      grossProfit: d.grossProfit || 0,
+      netProfit: d.netProfit || 0,
+      orderCount: d.orderCount || 0,
     }
   } catch (e) { console.error('Failed to load financial data', e); ElMessage.error('Failed to load financial data') }
 }
@@ -202,18 +202,19 @@ async function loadFinancialData() {
 async function loadInventoryData() {
   try {
     const res = await getSafetyStockAlerts()
-    safetyAlerts.value = (res as any)?.data || (Array.isArray(res) ? res : [])
+    safetyAlerts.value = res.data || []
   } catch (e) { console.error('Failed to load inventory data', e); ElMessage.error('Failed to load inventory data') }
 }
 
 async function loadProductionData() {
   try {
-    const res = await getProductionAnalytics(dateRange.value[0], dateRange.value[1]) as any
+    const res = await getProductionAnalytics(dateRange.value[0], dateRange.value[1])
+    const p = res.data
     productionData.value = {
-      totalOutput: res.totalOutput || 0,
-      defectCount: res.defectCount || 0,
-      yieldRate: res.yieldRate ?? 0,
-      dailyData: res.dailyData || [],
+      totalOutput: p.totalOutput || 0,
+      defectCount: p.defectCount || 0,
+      yieldRate: p.yieldRate ?? 0,
+      dailyData: p.dailyData || [],
     }
   } catch (e) { console.error('Failed to load production data', e); ElMessage.error('Failed to load production data') }
 }

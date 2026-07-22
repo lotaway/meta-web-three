@@ -51,7 +51,7 @@ import { ref, computed, onMounted } from 'vue'
 import { t } from '@/locales'
 import { ElMessage } from 'element-plus'
 import { getSalesTrend, getCategoryDistribution, getRegionalComparison } from '@/apis/bi'
-import type { CategoryDistribution } from '@/apis/bi'
+import type { CategoryDistribution, OlapRow } from '@/apis/bi'
 
 const defaultStart = new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0]
 const defaultEnd = new Date().toISOString().split('T')[0]
@@ -69,7 +69,7 @@ const formatMoney = (v: number) => new Intl.NumberFormat('zh-CN', { minimumFract
 async function loadSalesTrend() {
   try {
     const trendRes = await getSalesTrend(dateRange.value[0], dateRange.value[1])
-    const trend = trendRes as any
+    const trend = trendRes.data
     if (trend.dates) {
       trendRows.value = trend.dates.map((d: string, i: number) => ({
         date: d, amount: trend.amounts[i] || 0, orderCount: trend.orderCounts[i] || 0,
@@ -81,19 +81,19 @@ async function loadSalesTrend() {
 async function loadCategoryData() {
   try {
     const catRes = await getCategoryDistribution(dateRange.value[0], dateRange.value[1])
-    categoryList.value = (catRes as any)?.data || (Array.isArray(catRes) ? catRes : [])
+    categoryList.value = catRes.data || []
   } catch (e) { console.error(e); ElMessage.error('Failed to load category distribution') }
 }
 
 async function loadRegionalData() {
   try {
     const regionRes = await getRegionalComparison(dateRange.value[0], dateRange.value[1])
-    const r = regionRes as any
+    const r = regionRes.data
     if (r.rows) {
-      regionRows.value = r.rows.map((row: any) => ({
-        region: row.region || row.dimension || '-',
-        salesAmount: row.total_amount_sum || 0,
-        orderCount: row.count || 0,
+      regionRows.value = r.rows.map((row: OlapRow) => ({
+        region: (row.region as string) || (row.dimension as string) || '-',
+        salesAmount: (row.total_amount_sum as number) || 0,
+        orderCount: (row.count as number) || 0,
       }))
     }
   } catch (e) { console.error(e); ElMessage.error('Failed to load regional comparison') }

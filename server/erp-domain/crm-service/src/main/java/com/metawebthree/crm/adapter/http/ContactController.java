@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/crm/contacts")
@@ -52,9 +51,9 @@ public class ContactController {
     }
 
     @GetMapping("/sync/customer/{userId}")
-    public Result<Map<String, Object>> syncCustomerData(@PathVariable Long userId) {
-        Map<String, Object> user = userServiceClient.getUserById(userId);
-        if (user.isEmpty()) {
+    public Result<UserServiceClient.UserDTO> syncCustomerData(@PathVariable Long userId) {
+        UserServiceClient.UserDTO user = userServiceClient.getUserById(userId);
+        if (user == null) {
             return Result.error("Customer not found in user-service");
         }
         return Result.success(user);

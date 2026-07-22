@@ -47,13 +47,13 @@ async function loadData() {
   loading.value = true
   try {
     const res = await getFinancialSummary('', '')
-    const d = res as any
+    const d = res.data
     financialData.value = {
-      totalRevenue: d.todaySales || d.totalRevenue || 0,
-      totalCost: d.totalCost || d.todayCost || 0,
-      grossProfit: d.todayProfit || d.grossProfit || 0,
-      netProfit: d.todayProfit || d.netProfit || 0,
-      orderCount: d.todayOrders || d.orderCount || 0,
+      totalRevenue: d.totalRevenue || 0,
+      totalCost: d.totalCost || 0,
+      grossProfit: d.grossProfit || 0,
+      netProfit: d.netProfit || 0,
+      orderCount: d.orderCount || 0,
     }
   } catch (e) { console.error(e); ElMessage.error('Failed to load financial data') }
   loading.value = false

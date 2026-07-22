@@ -61,11 +61,12 @@ const formatPercent = (v: number) => (v * 100).toFixed(2) + '%'
 
 async function loadProductionMeta() {
   try {
-    const res = await getProductionAnalytics(dateRange.value[0], dateRange.value[1]) as any
+    const res = await getProductionAnalytics(dateRange.value[0], dateRange.value[1])
+    const p = res.data
     productionMeta.value = {
-      totalOutput: res.totalOutput || 0,
-      defectCount: res.defectCount || 0,
-      yieldRate: res.yieldRate ?? 0,
+      totalOutput: p.totalOutput || 0,
+      defectCount: p.defectCount || 0,
+      yieldRate: p.yieldRate ?? 0,
     }
   } catch (e) { console.error(e); ElMessage.error('Failed to load production data') }
 }
@@ -73,14 +74,14 @@ async function loadProductionMeta() {
 async function loadYield() {
   try {
     const res = await getYieldRate()
-    yieldRows.value = Array.isArray(res) ? res : ((res as any)?.data || [])
+    yieldRows.value = res.data || []
   } catch (e) { console.error(e); ElMessage.error('Failed to load yield rate') }
 }
 
 async function loadOee() {
   try {
     const res = await getOeeAnalysis()
-    oeeRows.value = Array.isArray(res) ? res : ((res as any)?.data || [])
+    oeeRows.value = res.data || []
   } catch (e) { console.error(e); ElMessage.error('Failed to load OEE analysis') }
 }
 

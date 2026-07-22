@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/crm/leads")
@@ -81,16 +80,16 @@ public class LeadController {
     }
 
     @GetMapping("/sync/users")
-    public Result<List<Map<String, Object>>> syncUsers(@RequestParam(required = false) String keyword) {
-        List<Map<String, Object>> users = keyword != null ?
+    public Result<List<UserServiceClient.UserDTO>> syncUsers(@RequestParam(required = false) String keyword) {
+        List<UserServiceClient.UserDTO> users = keyword != null ?
                 userServiceClient.searchUsers(keyword) :
                 userServiceClient.searchUsers("");
         return Result.success(users);
     }
 
     @GetMapping("/sync/user/{userId}")
-    public Result<Map<String, Object>> syncUserById(@PathVariable Long userId) {
-        Map<String, Object> user = userServiceClient.getUserById(userId);
-        return user.isEmpty() ? Result.error(USER_NOT_FOUND) : Result.success(user);
+    public Result<UserServiceClient.UserDTO> syncUserById(@PathVariable Long userId) {
+        UserServiceClient.UserDTO user = userServiceClient.getUserById(userId);
+        return user == null ? Result.error(USER_NOT_FOUND) : Result.success(user);
     }
 }

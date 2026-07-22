@@ -262,7 +262,7 @@ const submitForm = async () => {
     if (!valid) return
     try {
       if (isEdit.value && currentId.value) {
-        await updateAsset(currentId.value, { ...formData, id: currentId.value } as any)
+        await updateAsset(currentId.value, { ...formData, id: currentId.value })
         ElMessage.success('Asset updated successfully')
       } else {
         await createAsset(formData)

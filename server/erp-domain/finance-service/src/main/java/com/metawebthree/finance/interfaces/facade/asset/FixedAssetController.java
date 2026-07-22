@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/fixed-asset")
@@ -28,22 +27,22 @@ public class FixedAssetController {
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, Object>> createAsset(@RequestBody FixedAssetCreateCommand command) {
+    public ResponseEntity<IdResponse> createAsset(@RequestBody FixedAssetCreateCommand command) {
         Long id = commandService.createAsset(command);
-        return ResponseEntity.ok(Map.of("id", id, "success", true));
+        return ResponseEntity.ok(new IdResponse(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateAsset(@PathVariable Long id, @RequestBody FixedAssetCreateCommand command) {
+    public ResponseEntity<Void> updateAsset(@PathVariable Long id, @RequestBody FixedAssetCreateCommand command) {
         command.setId(id);
         commandService.updateAsset(command);
-        return ResponseEntity.ok(Map.of("success", true));
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> deleteAsset(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteAsset(@PathVariable Long id) {
         commandService.deleteAsset(id);
-        return ResponseEntity.ok(Map.of("success", true));
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}")
@@ -77,24 +76,24 @@ public class FixedAssetController {
     }
 
     @GetMapping("/statistics")
-    public ResponseEntity<Map<String, Object>> getAssetStatistics() {
-        Map<String, Object> stats = queryService.getAssetStatistics();
+    public ResponseEntity<FixedAssetQueryService.AssetStatistics> getAssetStatistics() {
+        FixedAssetQueryService.AssetStatistics stats = queryService.getAssetStatistics();
         return ResponseEntity.ok(stats);
     }
 
     @PostMapping("/transfer/{id}")
-    public ResponseEntity<Map<String, Object>> transferAsset(
+    public ResponseEntity<Void> transferAsset(
             @PathVariable Long id,
             @RequestBody TransferRequest request) {
         commandService.transferAsset(id, request.getNewDepartmentId(), request.getNewDepartmentName(), 
             request.getNewLocation(), request.getNewCustodian());
-        return ResponseEntity.ok(Map.of("success", true));
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/depreciation/generate")
-    public ResponseEntity<Map<String, Object>> generateDepreciation(@RequestBody DepreciationGenerateCommand command) {
+    public ResponseEntity<Void> generateDepreciation(@RequestBody DepreciationGenerateCommand command) {
         commandService.generateDepreciation(command);
-        return ResponseEntity.ok(Map.of("success", true));
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}/depreciation")
@@ -110,23 +109,23 @@ public class FixedAssetController {
     }
 
     @GetMapping("/depreciation/statistics")
-    public ResponseEntity<Map<String, Object>> getDepreciationStatistics(@RequestParam String period) {
-        Map<String, Object> stats = queryService.getDepreciationStatistics(period);
+    public ResponseEntity<FixedAssetQueryService.DepreciationStatistics> getDepreciationStatistics(@RequestParam String period) {
+        FixedAssetQueryService.DepreciationStatistics stats = queryService.getDepreciationStatistics(period);
         return ResponseEntity.ok(stats);
     }
 
     @PostMapping("/inventory")
-    public ResponseEntity<Map<String, Object>> createInventory(@RequestBody AssetInventoryCreateCommand command) {
+    public ResponseEntity<IdResponse> createInventory(@RequestBody AssetInventoryCreateCommand command) {
         Long id = commandService.createInventory(command);
-        return ResponseEntity.ok(Map.of("id", id, "success", true));
+        return ResponseEntity.ok(new IdResponse(id));
     }
 
     @PostMapping("/inventory/{id}/confirm")
-    public ResponseEntity<Map<String, Object>> confirmInventory(
+    public ResponseEntity<Void> confirmInventory(
             @PathVariable Long id,
             @RequestBody ConfirmInventoryRequest request) {
         commandService.confirmInventory(id, request.getHandleResult());
-        return ResponseEntity.ok(Map.of("success", true));
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/inventory/list")
@@ -136,31 +135,31 @@ public class FixedAssetController {
     }
 
     @GetMapping("/inventory/statistics")
-    public ResponseEntity<Map<String, Object>> getInventoryStatistics() {
-        Map<String, Object> stats = queryService.getInventoryStatistics();
+    public ResponseEntity<FixedAssetQueryService.InventoryStatistics> getInventoryStatistics() {
+        FixedAssetQueryService.InventoryStatistics stats = queryService.getInventoryStatistics();
         return ResponseEntity.ok(stats);
     }
 
     @PostMapping("/disposal")
-    public ResponseEntity<Map<String, Object>> createDisposal(@RequestBody AssetDisposalCreateCommand command) {
+    public ResponseEntity<IdResponse> createDisposal(@RequestBody AssetDisposalCreateCommand command) {
         Long id = commandService.createDisposal(command);
-        return ResponseEntity.ok(Map.of("id", id, "success", true));
+        return ResponseEntity.ok(new IdResponse(id));
     }
 
     @PostMapping("/disposal/{id}/approve")
-    public ResponseEntity<Map<String, Object>> approveDisposal(
+    public ResponseEntity<Void> approveDisposal(
             @PathVariable Long id,
             @RequestBody ApproveRequest request) {
         commandService.approveDisposal(id, request.getApproverId(), request.getApproverName(), request.getComment());
-        return ResponseEntity.ok(Map.of("success", true));
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/disposal/{id}/reject")
-    public ResponseEntity<Map<String, Object>> rejectDisposal(
+    public ResponseEntity<Void> rejectDisposal(
             @PathVariable Long id,
             @RequestBody ApproveRequest request) {
         commandService.rejectDisposal(id, request.getApproverId(), request.getApproverName(), request.getComment());
-        return ResponseEntity.ok(Map.of("success", true));
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/disposal/list")
@@ -168,6 +167,8 @@ public class FixedAssetController {
         List<FixedAssetDisposalDO> disposalList = queryService.listDisposalByStatus(status);
         return ResponseEntity.ok(disposalList);
     }
+
+    public record IdResponse(Long id) {}
 
     public static class TransferRequest {
         private Long newDepartmentId;
