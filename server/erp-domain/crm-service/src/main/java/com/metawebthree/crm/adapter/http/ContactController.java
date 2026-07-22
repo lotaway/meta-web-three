@@ -2,6 +2,7 @@ package com.metawebthree.crm.adapter.http;
 
 import com.metawebthree.crm.adapter.client.UserServiceClient;
 import com.metawebthree.crm.adapter.vo.Result;
+import com.metawebthree.crm.adapter.vo.UserInfoDTO;
 import com.metawebthree.crm.application.command.ContactCommandService;
 import com.metawebthree.crm.application.query.ContactQueryService;
 import com.metawebthree.crm.domain.entity.Contact;
@@ -51,11 +52,11 @@ public class ContactController {
     }
 
     @GetMapping("/sync/customer/{userId}")
-    public Result<UserServiceClient.UserDTO> syncCustomerData(@PathVariable Long userId) {
+    public Result<UserInfoDTO> syncCustomerData(@PathVariable Long userId) {
         UserServiceClient.UserDTO user = userServiceClient.getUserById(userId);
         if (user == null) {
             return Result.error("Customer not found in user-service");
         }
-        return Result.success(user);
+        return Result.success(new UserInfoDTO(user.id(), user.username(), user.phone(), user.email(), user.avatar(), user.status(), user.createdAt()));
     }
 }

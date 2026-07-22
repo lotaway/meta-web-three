@@ -12,7 +12,11 @@ import java.util.List;
 @Component
 public class UserServiceClient {
 
-    public record UserDTO(Long id, String username, String phone, String email, String avatar, Integer status, Long createdAt) {}
+    public record UserDTO(Long id, String username, String phone, String email, String avatar, Integer status, Long createdAt) {
+        public static UserDTO withPhone(Long id, String phone) {
+            return new UserDTO(id, null, phone, null, null, null, null);
+        }
+    }
 
     public record UserStatsDTO(long totalUsers) {}
 
@@ -26,7 +30,7 @@ public class UserServiceClient {
                     .build();
             GetUserPhoneResponse response = userService.getUserPhone(request);
 
-            return new UserDTO(userId, null, response.getPhone(), null, null, null, null);
+            return UserDTO.withPhone(userId, response.getPhone());
         } catch (Exception e) {
             log.error("Failed to get user by id: {}, error: {}", userId, e.getMessage());
             throw new RuntimeException("Failed to get user by id: " + userId, e);

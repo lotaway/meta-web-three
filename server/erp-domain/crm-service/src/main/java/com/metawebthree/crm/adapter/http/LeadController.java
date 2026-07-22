@@ -2,6 +2,7 @@ package com.metawebthree.crm.adapter.http;
 
 import com.metawebthree.crm.adapter.client.UserServiceClient;
 import com.metawebthree.crm.adapter.vo.Result;
+import com.metawebthree.crm.adapter.vo.UserInfoDTO;
 import com.metawebthree.crm.application.command.LeadCommandService;
 import com.metawebthree.crm.application.query.LeadQueryService;
 import com.metawebthree.crm.domain.entity.Lead;
@@ -80,16 +81,16 @@ public class LeadController {
     }
 
     @GetMapping("/sync/users")
-    public Result<List<UserServiceClient.UserDTO>> syncUsers(@RequestParam(required = false) String keyword) {
+    public Result<List<UserInfoDTO>> syncUsers(@RequestParam(required = false) String keyword) {
         List<UserServiceClient.UserDTO> users = keyword != null ?
                 userServiceClient.searchUsers(keyword) :
                 userServiceClient.searchUsers("");
-        return Result.success(users);
+        return Result.success(users.stream().map(u -> new UserInfoDTO(u.id(), u.username(), u.phone(), u.email(), u.avatar(), u.status(), u.createdAt())).toList());
     }
 
     @GetMapping("/sync/user/{userId}")
-    public Result<UserServiceClient.UserDTO> syncUserById(@PathVariable Long userId) {
+    public Result<UserInfoDTO> syncUserById(@PathVariable Long userId) {
         UserServiceClient.UserDTO user = userServiceClient.getUserById(userId);
-        return user == null ? Result.error(USER_NOT_FOUND) : Result.success(user);
+        return user == null ? Result.error(USER_NOT_FOUND) : Result.success(new UserInfoDTO(user.id(), user.username(), user.phone(), user.email(), user.avatar(), user.status(), user.createdAt()));
     }
 }

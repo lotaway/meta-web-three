@@ -68,74 +68,57 @@ public class FixedAssetQueryService {
 
     public AssetStatistics getAssetStatistics() {
         List<FixedAssetDO> allAssets = repository.findAll();
-        
+        var agg = aggregateAssets(allAssets);
+        return new AssetStatistics(allAssets.size(), agg.activeCount(), agg.disposedCount(),
+            agg.inUseCount(), agg.idleCount(), agg.originalValue(), agg.netValue(), agg.accumulatedDepreciation());
+    }
+
+    private record AssetAggregation(BigDecimal originalValue, BigDecimal netValue, BigDecimal accumulatedDepreciation, int activeCount, int disposedCount, int inUseCount, int idleCount) {}
+
+    private AssetAggregation aggregateAssets(List<FixedAssetDO> assets) {
         BigDecimal totalOriginalValue = BigDecimal.ZERO;
         BigDecimal totalNetValue = BigDecimal.ZERO;
         BigDecimal totalAccumulatedDepreciation = BigDecimal.ZERO;
-        
         int activeCount = 0;
         int disposedCount = 0;
         int inUseCount = 0;
         int idleCount = 0;
-        
-        for (FixedAssetDO asset : allAssets) {
-            totalOriginalValue = totalOriginalValue.add(asset.getOriginalValue() != null ? asset.getOriginalValue() : BigDecimal.ZERO);
-            totalNetValue = totalNetValue.add(asset.getNetValue() != null ? asset.getNetValue() : BigDecimal.ZERO);
-            totalAccumulatedDepreciation = totalAccumulatedDepreciation.add(asset.getAccumulatedDepreciation() != null ? asset.getAccumulatedDepreciation() : BigDecimal.ZERO);
-            
-            if ("ACTIVE".equals(asset.getStatus())) {
-                activeCount++;
-            } else if ("DISPOSED".equals(asset.getStatus())) {
-                disposedCount++;
-            }
-            
-            if ("IN_USE".equals(asset.getUsageStatus())) {
-                inUseCount++;
-            } else if ("IDLE".equals(asset.getUsageStatus())) {
-                idleCount++;
-            }
+        for (FixedAssetDO asset : assets) {
+            totalOriginalValue = totalOriginalValue.add(safeVal(asset.getOriginalValue()));
+            totalNetValue = totalNetValue.add(safeVal(asset.getNetValue()));
+            totalAccumulatedDepreciation = totalAccumulatedDepreciation.add(safeVal(asset.getAccumulatedDepreciation()));
+            if ("ACTIVE".equals(asset.getStatus())) { activeCount++; }
+            else if ("DISPOSED".equals(asset.getStatus())) { disposedCount++; }
+            if ("IN_USE".equals(asset.getUsageStatus())) { inUseCount++; }
+            else if ("IDLE".equals(asset.getUsageStatus())) { idleCount++; }
         }
-        
-        return new AssetStatistics(allAssets.size(), activeCount, disposedCount, inUseCount, idleCount, totalOriginalValue, totalNetValue, totalAccumulatedDepreciation);
+        return new AssetAggregation(totalOriginalValue, totalNetValue, totalAccumulatedDepreciation, activeCount, disposedCount, inUseCount, idleCount);
     }
+
+    private static BigDecimal safeVal(BigDecimal v) { return v == null ? BigDecimal.ZERO : v; }
 
     public DepreciationStatistics getDepreciationStatistics(String period) {
         List<FixedAssetDepreciationDO> depreciationList = repository.findDepreciationByPeriod(period);
-        
         BigDecimal totalDepreciation = BigDecimal.ZERO;
         Map<String, BigDecimal> byMethod = new HashMap<>();
-        
         for (FixedAssetDepreciationDO depreciation : depreciationList) {
-            totalDepreciation = totalDepreciation.add(depreciation.getDepreciationAmount() != null ? depreciation.getDepreciationAmount() : BigDecimal.ZERO);
-            
+            totalDepreciation = totalDepreciation.add(safeVal(depreciation.getDepreciationAmount()));
             String method = depreciation.getDepreciationMethod();
-            BigDecimal methodTotal = byMethod.getOrDefault(method, BigDecimal.ZERO);
-            byMethod.put(method, methodTotal.add(depreciation.getDepreciationAmount()));
+            byMethod.merge(method, safeVal(depreciation.getDepreciationAmount()), BigDecimal::add);
         }
-        
         return new DepreciationStatistics(depreciationList.size(), totalDepreciation, byMethod);
     }
 
     public InventoryStatistics getInventoryStatistics() {
         List<FixedAssetInventoryDO> allInventory = repository.findInventoryByStatus(null);
-        
-        int totalCount = allInventory.size();
         int pendingCount = 0;
         int completedCount = 0;
         int discrepancyCount = 0;
-        
         for (FixedAssetInventoryDO inventory : allInventory) {
-            if ("PENDING".equals(inventory.getStatus())) {
-                pendingCount++;
-            } else if ("COMPLETED".equals(inventory.getStatus())) {
-                completedCount++;
-            }
-            
-            if ("DISCREPANCY".equals(inventory.getInventoryResult())) {
-                discrepancyCount++;
-            }
+            if ("PENDING".equals(inventory.getStatus())) { pendingCount++; }
+            else if ("COMPLETED".equals(inventory.getStatus())) { completedCount++; }
+            if ("DISCREPANCY".equals(inventory.getInventoryResult())) { discrepancyCount++; }
         }
-        
-        return new InventoryStatistics(totalCount, pendingCount, completedCount, discrepancyCount);
+        return new InventoryStatistics(allInventory.size(), pendingCount, completedCount, discrepancyCount);
     }
 }
