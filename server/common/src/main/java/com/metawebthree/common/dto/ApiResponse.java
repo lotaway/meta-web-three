@@ -6,15 +6,15 @@ import lombok.Data;
 
 
 @Data
-@Schema(description = "通用 API 响应")
+@Schema(description = "Generic API response")
 public class ApiResponse<D> {
-    @Schema(description = "响应码")
+    @Schema(description = "Response code")
     private String code;
-    @Schema(description = "响应消息")
+    @Schema(description = "Response message")
     private String message;
-    @Schema(description = "响应数据")
+    @Schema(description = "Response data")
     private D data;
-    @Schema(description = "时间戳")
+    @Schema(description = "Response timestamp")
     private Long timestamp;
 
     public ApiResponse() {
