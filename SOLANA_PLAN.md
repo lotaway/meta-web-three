@@ -126,3 +126,5 @@
 - [x] 优惠券功能 (MerkleProof 折扣) — Coupon 账户 + create_coupon / redeem_coupon 指令
 - [x] 活动详情页 (`views/solana/activity/detail.vue`)
 - [x] 我的上架管理 (`views/solana/marketplace/my-listings.vue`)
+
+- [x] 给 backstage-admin 所有关于区块链的功能都需添加一个配置控制，通过.env或者其他开发运维能修改的方式决定是否显示/隐藏，并且默认值是隐藏

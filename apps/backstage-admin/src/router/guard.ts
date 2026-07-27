@@ -3,9 +3,17 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { useUserStore } from '@/stores/user'
 import usePermissionStore from '@/stores/permission'
+import { ElMessage } from 'element-plus'
 
 // 无需登陆的白名单路径
 const whiteList = ['/login']
+
+const isBlockchainEnabled = import.meta.env.VITE_BLOCKCHAIN_ENABLED === 'true'
+const blockchainPaths = ['/blockchain', '/solana']
+
+function isBlockchainPath(path: string): boolean {
+  return blockchainPaths.some(prefix => path.startsWith(prefix))
+}
 // 配置路由前置守卫函数（每次路由跳转都会执行）
 router.beforeEach((to, from, next) => {
   NProgress.start()
@@ -28,6 +36,12 @@ router.beforeEach((to, from, next) => {
         })
         next({ ...to, replace: true })
       } else {
+        if (!isBlockchainEnabled && isBlockchainPath(to.path)) {
+          ElMessage.warning('区块链功能未启用 (VITE_BLOCKCHAIN_ENABLED=false)')
+          next({ path: '/' })
+          NProgress.done()
+          return
+        }
         next()
       }
     }

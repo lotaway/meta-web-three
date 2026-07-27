@@ -5,6 +5,8 @@ interface ImportMetaEnv {
   readonly VITE_BASE_SERVER_URL: string
   /** 文件上传端点路径 */
   readonly VITE_UPLOAD_URL: string
+  /** 区块链功能开关 (true=显示, false=隐藏) */
+  readonly VITE_BLOCKCHAIN_ENABLED?: string
 }
 /** 扩展import.meta对象类型 */
 interface ImportMeta {

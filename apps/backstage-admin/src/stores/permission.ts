@@ -43,6 +43,22 @@ function getMenu(name: string, menus: UmsMenu[]) {
   return menus.find(menu => name === menu.name) || null
 }
 
+const isBlockchainEnabled = import.meta.env.VITE_BLOCKCHAIN_ENABLED === 'true'
+
+function isBlockchainRoute(path: string): boolean {
+  return path.startsWith('/blockchain') || path.startsWith('/solana')
+}
+
+function filterBlockchainRoutes(routes: RouteRecordExt[]): RouteRecordExt[] {
+  return routes.filter(route => {
+    if (isBlockchainRoute(route.path)) return false
+    if (route.children) {
+      route.children = route.children.filter(child => !isBlockchainRoute(child.path))
+    }
+    return true
+  })
+}
+
 // 对菜单进行排序
 function sortRouters(accessedRouters: RouteRecordExt[]) {
   accessedRouters.forEach(router => {
@@ -91,6 +107,10 @@ export const usePermissionStore = defineStore('permission', () => {
       }
       return false
     })
+    // 区块链功能开关控制
+    if (!isBlockchainEnabled) {
+      filterBlockchainRoutes(accessedRouters)
+    }
     //对菜单进行排序
     sortRouters(accessedRouters)
     addRouters.value = accessedRouters
