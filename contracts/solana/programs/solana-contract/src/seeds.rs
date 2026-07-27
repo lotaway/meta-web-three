@@ -1,2 +1,9 @@
 pub const TOKEN_MANAGER: &[u8] = b"token_manager";
-pub const PROGRAM_TOKEN_ACCOUNT : &[u8] = b"program_token_account";
+pub const PROGRAM_TOKEN_ACCOUNT: &[u8] = b"program_token_account";
+pub const TOKEN_CONFIG: &[u8] = b"token_config";
+pub const MINT_AUTHORITY: &[u8] = b"mint_authority";
+pub const LISTING: &[u8] = b"listing";
+pub const LISTING_ESCROW: &[u8] = b"listing_escrow";
+pub const ACTIVITY: &[u8] = b"activity";
+pub const COMMISSION: &[u8] = b"commission";
+pub const COUPON: &[u8] = b"coupon";
