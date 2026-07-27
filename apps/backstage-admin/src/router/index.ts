@@ -930,6 +930,52 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // Solana Blockchain Module
+  {
+    path: '/solana',
+    component: Layout,
+    redirect: '/solana/token',
+    name: 'solana',
+    meta: { title: 'solana.title', icon: 'blockchain' },
+    children: [
+      {
+        path: 'token',
+        name: 'solanaToken',
+        component: () => import('@/views/solana/token/index.vue'),
+        meta: { title: 'solana.token.title', icon: 'coin' },
+      },
+      {
+        path: 'marketplace',
+        name: 'solanaMarketplace',
+        component: () => import('@/views/solana/marketplace/index.vue'),
+        meta: { title: 'solana.marketplace.title', icon: 'shopping-cart' },
+      },
+      {
+        path: 'marketplace/my-listings',
+        name: 'solanaMyListings',
+        component: () => import('@/views/solana/marketplace/my-listings.vue'),
+        meta: { title: 'solana.marketplace.myListings', icon: 'list', hidden: true },
+      },
+      {
+        path: 'activity',
+        name: 'solanaActivity',
+        component: () => import('@/views/solana/activity/index.vue'),
+        meta: { title: 'solana.activity.title', icon: 'trophy' },
+      },
+      {
+        path: 'activity/detail',
+        name: 'solanaActivityDetail',
+        component: () => import('@/views/solana/activity/detail.vue'),
+        meta: { title: 'solana.activity.detail', hidden: true },
+      },
+      {
+        path: 'commission',
+        name: 'solanaCommission',
+        component: () => import('@/views/solana/commission/index.vue'),
+        meta: { title: 'solana.commission.title', icon: 'link' },
+      },
+    ],
+  },
   // BI (Business Intelligence) Module
   {
     path: '/bi',
