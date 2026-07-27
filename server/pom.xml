@@ -90,6 +90,8 @@
         <aws.lambda.java.version>1.2.2</aws.lambda.java.version>
         <kotlin.version>2.2.0</kotlin.version>
         <apache.curator.version>5.9.0</apache.curator.version>
+        <sava.version>25.8.1</sava.version>
+        <bouncycastle.version>1.85</bouncycastle.version>
         <mockito.version>5.8.0</mockito.version>
         <dubbo.version>3.3.5</dubbo.version>
         <grpc.version>1.75.0</grpc.version>
@@ -203,6 +205,16 @@
                 <groupId>io.minio</groupId>
                 <artifactId>minio</artifactId>
                 <version>8.5.9</version>
+            </dependency>
+            <dependency>
+                <groupId>software.sava</groupId>
+                <artifactId>sava-core</artifactId>
+                <version>${sava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.javassist</groupId>
