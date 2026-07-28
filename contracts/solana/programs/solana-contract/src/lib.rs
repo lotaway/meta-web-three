@@ -6,7 +6,7 @@ use solana_program::keccak::hashv;
 pub mod seeds;
 pub mod context;
 
-declare_id!("EUDxXt8kG9o76MWGwyZCGUL1oPPnoNvmAprdZskjyBTh");
+declare_id!("5Dk7wrWReetiNNcFbicN8ZFwXkrQeQu4LoMkhLJimGcP");
 
 #[program]
 pub mod solana_contract {
