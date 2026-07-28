@@ -337,7 +337,7 @@ pub struct WithdrawAccounts<'info> {
         seeds=[seeds::TOKEN_MANAGER],
         bump,
     )]
-    token_manager: AccountInfo<'info>,
+    pub token_manager: AccountInfo<'info>,
 
     #[account(
         mut,

@@ -25,7 +25,7 @@ pub mod solana_contract {
         uri: String,
     ) -> Result<()> {
         anchor_spl::token::initialize_mint(CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             InitializeMint {
                 mint: ctx.accounts.mint.to_account_info(),
                 rent: ctx.accounts.rent.to_account_info(),
@@ -33,7 +33,7 @@ pub mod solana_contract {
         ), 0, &ctx.accounts.authority.key(), Some(&ctx.accounts.authority.key()))?;
 
         anchor_spl::token::mint_to(CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             MintTo {
                 mint: ctx.accounts.mint.to_account_info(),
                 to: ctx.accounts.token_account.to_account_info(),
@@ -83,7 +83,7 @@ pub mod solana_contract {
         supply: u64,
     ) -> Result<()> {
         anchor_spl::token::initialize_mint(CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             InitializeMint {
                 mint: ctx.accounts.mint.to_account_info(),
                 rent: ctx.accounts.rent.to_account_info(),
@@ -91,7 +91,7 @@ pub mod solana_contract {
         ), 9, &ctx.accounts.authority.key(), Some(&ctx.accounts.authority.key()))?;
 
         anchor_spl::token::mint_to(CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             MintTo {
                 mint: ctx.accounts.mint.to_account_info(),
                 to: ctx.accounts.token_account.to_account_info(),
@@ -141,7 +141,7 @@ pub mod solana_contract {
         supply: u64,
     ) -> Result<()> {
         anchor_spl::token::initialize_mint(CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             InitializeMint {
                 mint: ctx.accounts.mint.to_account_info(),
                 rent: ctx.accounts.rent.to_account_info(),
@@ -149,7 +149,7 @@ pub mod solana_contract {
         ), 0, &ctx.accounts.authority.key(), Some(&ctx.accounts.authority.key()))?;
 
         anchor_spl::token::mint_to(CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             MintTo {
                 mint: ctx.accounts.mint.to_account_info(),
                 to: ctx.accounts.token_account.to_account_info(),
@@ -195,8 +195,8 @@ pub mod solana_contract {
         ctx: Context<context::MintTokens>,
         amount: u64,
     ) -> Result<()> {
-        mint_to(CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
+        anchor_spl::token::mint_to(CpiContext::new(
+            ctx.accounts.token_program.key(),
             MintTo {
                 mint: ctx.accounts.mint.to_account_info(),
                 to: ctx.accounts.token_account.to_account_info(),
@@ -211,7 +211,7 @@ pub mod solana_contract {
         amount: u64,
     ) -> Result<()> {
         burn(CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             Burn {
                 mint: ctx.accounts.mint.to_account_info(),
                 from: ctx.accounts.token_account.to_account_info(),
@@ -228,7 +228,7 @@ pub mod solana_contract {
             authority: ctx.accounts.signer.to_account_info(),
         };
         let cpi_ctx = CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             transaction,
         );
         transfer(cpi_ctx, amount)?;
@@ -245,7 +245,7 @@ pub mod solana_contract {
         let seeds = &[seeds::TOKEN_MANAGER, &[bump]];
         let signer = &[&seeds[..]];
         let cpi_ctx = CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             transaction,
             signer,
         );
@@ -268,7 +268,7 @@ pub mod solana_contract {
         listing.created_at = Clock::get()?.unix_timestamp;
 
         anchor_spl::token::transfer(CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             Transfer {
                 from: ctx.accounts.seller_token_account.to_account_info(),
                 to: ctx.accounts.escrow_token_account.to_account_info(),
@@ -286,7 +286,7 @@ pub mod solana_contract {
         require!(listing.status == 0, ErrorCode::ListingNotActive);
 
         anchor_spl::token::transfer(CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             Transfer {
                 from: ctx.accounts.buyer_payment_token_account.to_account_info(),
                 to: ctx.accounts.seller_payment_token_account.to_account_info(),
@@ -302,7 +302,7 @@ pub mod solana_contract {
         ];
         let signer = &[&seeds[..]];
         anchor_spl::token::transfer(CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             Transfer {
                 from: ctx.accounts.escrow_token_account.to_account_info(),
                 to: ctx.accounts.buyer_receive_token_account.to_account_info(),
@@ -330,7 +330,7 @@ pub mod solana_contract {
         ];
         let signer = &[&seeds[..]];
         anchor_spl::token::transfer(CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             Transfer {
                 from: ctx.accounts.escrow_token_account.to_account_info(),
                 to: ctx.accounts.seller_token_account.to_account_info(),
@@ -375,7 +375,7 @@ pub mod solana_contract {
         require!(clock.unix_timestamp <= activity.end_time, ActivityError::ActivityEnded);
 
         anchor_spl::token::transfer(CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             Transfer {
                 from: ctx.accounts.participant_token_account.to_account_info(),
                 to: ctx.accounts.pool_token_account.to_account_info(),
@@ -435,7 +435,7 @@ pub mod solana_contract {
         ];
         let signer = &[&seeds[..]];
         anchor_spl::token::transfer(CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             Transfer {
                 from: ctx.accounts.pool_token_account.to_account_info(),
                 to: ctx.accounts.winner_token_account.to_account_info(),
@@ -473,7 +473,7 @@ pub mod solana_contract {
         let upline_token_account = &ctx.remaining_accounts[0];
 
         anchor_spl::token::transfer(CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             Transfer {
                 from: ctx.accounts.seller_token_account.to_account_info(),
                 to: upline_token_account.to_account_info(),
@@ -537,7 +537,7 @@ pub mod solana_contract {
         let signer = &[&seeds[..]];
 
         anchor_spl::token::transfer(CpiContext::new_with_signer(
-            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.token_program.key(),
             Transfer {
                 from: ctx.accounts.pool_token_account.to_account_info(),
                 to: ctx.accounts.user_token_account.to_account_info(),
