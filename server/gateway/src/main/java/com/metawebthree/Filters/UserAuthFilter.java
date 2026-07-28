@@ -97,6 +97,8 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
                 .header(RequestHeaderKeys.USER_ID.getValue(), String.valueOf(tokenClaims.userId()))
                 .header(RequestHeaderKeys.USER_NAME.getValue(), tokenClaims.userName())
                 .header(RequestHeaderKeys.USER_ROLE.getValue(), tokenClaims.userRole())
+                .header(RequestHeaderKeys.TENANT_ID.getValue(),
+                       tokenClaims.tenantId() != null ? String.valueOf(tokenClaims.tenantId()) : "")
                 .build()).build();
     }
 

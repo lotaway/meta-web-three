@@ -21,4 +21,5 @@ public class SkuStockDO {
     private BigDecimal promotionPrice;
     private Integer lockStock;
     private String spData;
+    private Long tenantId;
 }

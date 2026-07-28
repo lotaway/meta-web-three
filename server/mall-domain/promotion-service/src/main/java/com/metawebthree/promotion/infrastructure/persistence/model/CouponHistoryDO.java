@@ -21,4 +21,5 @@ public class CouponHistoryDO {
     private LocalDateTime useTime;
     private Long orderId;
     private String orderSn;
+    private Long tenantId;
 }

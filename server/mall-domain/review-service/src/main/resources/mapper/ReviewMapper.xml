@@ -19,17 +19,18 @@
         <result column="reply_content" property="replyContent"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
+        <result column="tenant_id" property="tenantId"/>
     </resultMap>
 
     <insert id="insert" parameterType="com.metawebthree.review.domain.model.ReviewDO" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO review (
             order_id, order_item_id, product_id, sku_id, user_id, store_id,
             rating, content, images, status, like_count, reply_count,
-            reply_content, create_time, update_time
+            reply_content, create_time, update_time, tenant_id
         ) VALUES (
             #{orderId}, #{orderItemId}, #{productId}, #{skuId}, #{userId}, #{storeId},
             #{rating}, #{content}, #{images}, #{status}, #{likeCount}, #{replyCount},
-            #{replyContent}, #{createTime}, #{updateTime}
+            #{replyContent}, #{createTime}, #{updateTime}, #{tenantId}
         )
     </insert>
 

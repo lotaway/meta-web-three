@@ -52,7 +52,21 @@ public enum ResponseStatus {
 
     // Finance AR/AP
     AR_NOT_FOUND("9001", "Accounts receivable not found"),
-    AP_NOT_FOUND("9002", "Accounts payable not found");
+    AP_NOT_FOUND("9002", "Accounts payable not found"),
+
+    // Tenant
+    TENANT_NOT_FOUND("1101", "Tenant not found"),
+    TENANT_DISABLED("1102", "Tenant has been disabled"),
+    TENANT_ACCESS_DENIED("1103", "Tenant access denied"),
+
+    // Registration security
+    CAPTCHA_INVALID("1201", "CAPTCHA verification failed"),
+    CAPTCHA_EXPIRED("1202", "CAPTCHA has expired"),
+    EMAIL_VERIFICATION_CODE_INVALID("1203", "Email verification code is invalid"),
+    EMAIL_VERIFICATION_CODE_EXPIRED("1204", "Email verification code has expired"),
+    EMAIL_VERIFICATION_CODE_SEND_FAILED("1205", "Failed to send email verification code"),
+    TENANT_ALREADY_EXISTS("1206", "Tenant already exists"),
+    REGISTRATION_RATE_LIMITED("1207", "Registration is rate limited, please try again later");
 
     private final String code;
     private final String message;

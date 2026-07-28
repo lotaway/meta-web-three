@@ -39,5 +39,6 @@ public class OrderItemDO {
     private Timestamp createdAt;
     @Schema(description = "更新时间")
     private Timestamp updatedAt;
+    private Long tenantId;
 }
 

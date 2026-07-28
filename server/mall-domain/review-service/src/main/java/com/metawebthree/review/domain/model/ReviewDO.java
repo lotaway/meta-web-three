@@ -21,4 +21,5 @@ public class ReviewDO {
     private String replyContent;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
+    private Long tenantId;
 }

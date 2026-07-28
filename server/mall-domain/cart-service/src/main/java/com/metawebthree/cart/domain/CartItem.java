@@ -30,4 +30,5 @@ public class CartItem implements Serializable {
     private String productBrand;
     private String productSn;
     private String productAttr;
+    private Long tenantId;
 }

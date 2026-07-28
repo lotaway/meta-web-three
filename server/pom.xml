@@ -41,6 +41,7 @@
         <module>platform-domain/user-action-service</module>
         <module>platform-domain/cs-service</module>
         <module>platform-domain/data-analysis-service</module>
+        <module>platform-domain/tenant-service</module>
         <!-- factory-domain -->
         <module>factory-domain/mes-service</module>
         <module>factory-domain/digital-twin-service</module>

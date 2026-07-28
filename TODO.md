@@ -3,41 +3,6 @@
 [Project Guideline](./README.md)
 [Backend Guideline](./server/README.md)
 
-### [GitHub Issues]
-
-- [ ] **[#1] Solana 商城模板集成**: Token, NFT, SFT 创建与管理；Token 作为商品销售；活动和佣金功能
-  - [x] Token/NFT/SFT 创建和管理合约
-  - [x] Token 作为商品销售的商城前端集成
-  - [x] 活动与佣金功能
-  - 链接: https://github.com/lotaway/meta-web-three/issues/1
-
-### Solana 待办项（优先级排序）
-
-**P0: 合约编译和部署**
-- [ ] 安装 Anchor 框架 / Solana CLI
-- [ ] 运行 `anchor build` 编译合约并生成 IDL / TypeScript 类型
-- [ ] 运行 `anchor test` 执行 13 个测试用例
-
-**P1: 后端真实交易集成**
-- [x] 实现 `SolanaContractClient.java` — 交易构建、签名、序列化
-- [x] 替换 `SolanaTokenService` 中的模拟/TX_PENDING 响应，支持真实交易
-- [x] 替换 `SolanaMarketplaceService` 中的模拟响应
-- [x] 替换 `SolanaActivityService` 中的模拟响应
-- [x] 替换 `SolanaCommissionService` 中的模拟响应
-- [x] 添加密钥管理（KMS — AES-256-GCM 加密存储在本地数据库）
-- [x] 添加 Solana SDK 依赖到 `pom.xml`
-
-**P2: 链下数据库表**
-- [ ] `tb_solana_listing` — 商品上架元数据
-- [ ] `tb_solana_activity` — 活动数据
-- [ ] `tb_solana_commission_relation` — 上下线关系
-
-**P3: 功能增强**
-- [x] 佣金自动分配 (`distribute_commission` 指令) — 合约 + 后端 API
-- [x] 优惠券功能 (MerkleProof 折扣) — Coupon 账户 + create_coupon / redeem_coupon
-- [ ] 活动详情页 (`views/solana/activity/detail.vue`)
-- [ ] 我的上架管理 (`views/solana/marketplace/my-listings.vue`)
-
 ### 安全
 
 - [ ] 当前 `/developer/register` 接口存在安全隐患：
@@ -49,9 +14,108 @@
   2. 如果必须保留公开注册，至少加上 __CAPTCHA + 邮箱验证 + IP 限流__ 三层防护
 
 
-# 待决议功能
+# 多租户 SaaS 架构 (Multi-Tenant)
 
-- [ ] 实现多租户SaaS架构
+## Phase 1: 基础设施 (Backend Infrastructure)
+
+### 1.1 公共模块 — TenantContext + TenantAwareDO
+- [x] common: 创建 TenantContext (ThreadLocal holder)
+- [x] common: 创建 TenantAwareDO (extends BaseDO, 增加 tenantId 字段)
+
+### 1.2 公共模块 — 请求头 + JWT + 网关传播
+- [x] common: HeaderConstants 增加 X-Tenant-Id
+- [x] common: RequestHeaderKeys 枚举增加 TENANT_ID
+- [x] gateway: UserTokenClaims record 增加 tenantId 字段
+- [x] common: UserJwtUtil 增加 tenantId claim 编解码
+- [x] gateway: UserAuthFilter 传播 X-Tenant-Id 到下游服务
+
+### 1.3 公共模块 — Filter + ErrorCode + MyBatis 配置
+- [x] common: 创建 TenantContextFilter (Servlet Filter, 提取 X-Tenant-Id 到 TenantContext)
+- [x] common: ResponseStatus 增加租户错误码 (1101-1103)
+- [x] common: 创建 MultiTenantMybatisConfig (TenantLineInnerInterceptor)
+
+### 1.4 新建 tenant-service 微服务
+- [x] tenant-service: pom.xml + application.yml + BaseApplication
+- [x] tenant-service: db/schema.sql (tenant/tenant_shop/tenant_user 表)
+- [x] tenant-service: 实体类 (Tenant/TenantShop/TenantUser)
+- [x] tenant-service: Mapper 接口 (TenantMapper/TenantShopMapper/TenantUserMapper)
+- [x] tenant-service: Service 接口 + 实现 (TenantService)
+- [x] tenant-service: Controller (CRUD + 注册 + 审批 + 店铺管理 + 用户关联)
+- [x] protos: TenantService.proto 定义
+
+### 1.5 服务注册与部署
+- [x] server/pom.xml: 添加 tenant-service 模块
+- [x] scripts: server-services-registry.sh 注册 tenant-service
+- [x] server/Dockerfile: 增加 tenant-service build stage
+- [x] docker-compose.server.yml: 增加 tenant-service service
+- [x] allow-ports-firework.sh: 追加端口 10126
+
+### 1.6 BaseEvent 增加 tenantId
+- [x] event-sdk: BaseEvent 增加 tenantId 字段
+
+## Phase 2: 商城域启用租户隔离 (mall-domain)
+
+### 2.1 product-service
+- [x] product-service: 表加 tenant_id 列 (V2__add_tenant_id.sql)
+- [x] product-service: 实体改继承 TenantAwareDO
+- [x] product-service: 启用 MultiTenantMybatisConfig
+
+### 2.2 order-service
+- [x] order-service: 表加 tenant_id 列
+- [x] order-service: 实体改继承 TenantAwareDO
+- [x] order-service: 启用 MultiTenantMybatisConfig
+
+### 2.3 cart-service
+- [x] cart-service: 表加 tenant_id 列
+- [x] cart-service: 实体改继承 TenantAwareDO
+- [x] cart-service: 启用 MultiTenantMybatisConfig
+
+### 2.4 promotion-service
+- [x] promotion-service: 表加 tenant_id 列
+- [x] promotion-service: 实体改继承 TenantAwareDO
+- [x] promotion-service: 启用 MultiTenantMybatisConfig
+
+### 2.5 payment-service
+- [ ] payment-service: 表加 tenant_id 列
+- [ ] payment-service: 实体改继承 TenantAwareDO
+- [ ] payment-service: 启用 MultiTenantMybatisConfig
+
+### 2.6 after-sale-service
+- [x] after-sale-service: 表加 tenant_id 列
+- [x] after-sale-service: 实体改继承 TenantAwareDO
+- [x] after-sale-service: 启用 MultiTenantMybatisConfig
+
+### 2.7 review-service
+- [x] review-service: 表加 tenant_id 列
+- [x] review-service: 实体改继承 TenantAwareDO
+- [x] review-service: 启用 MultiTenantMybatisConfig
+
+## Phase 3: 商家入驻功能
+
+### 3.1 商家入驻
+- [x] tenant-service: 商家注册 API (含 CAPTCHA + 邮箱验证 + IP 限流)
+- [x] tenant-service: 商家审批流程 (PENDING → APPROVED/REJECTED)
+- [x] tenant-service: 商家店铺管理 API
+- [x] tenant-service: 修复实体类缺少 @TableId id 字段问题
+
+### 3.2 网关角色
+- [x] gateway: GatewayAuthConfig 增加 MERCHANT 角色 + 路由规则
+
+## Phase 4: 前端管理后台 (backstage-admin)
+
+### 4.1 租户管理页面
+- [x] admin: 租户 API 模块 (src/apis/tenant.ts)
+- [x] admin: 租户列表 + 详情/审批 + 店铺管理页面 (src/views/tenant/index.vue)
+- [x] admin: SERVICE_PREFIX_MAP 增加 tenant-service
+- [x] admin: 路由注册 asyncRouterMap
+
+## Phase 5: 验证
+- [ ] verify: 编译通过 (mvn compile)
+- [ ] verify: git diff 确认 ERP/SC/MES 代码未被修改
+- [ ] verify: TenantContextFilter ThreadLocal 正确清理
+
+
+# 待决议功能
 
 - [ ] 实现事件溯源和CQRS模式 (Event Sourcing + CQRS，提升数据一致性和审计能力)
 
@@ -66,4 +130,3 @@
 - [ ] 添加语音电商功能 (Voice Commerce，语音搜索、语音下单)
 
 - [ ] 实现可持续性追踪 (碳足迹计算、绿色物流、环保商品标签)
-

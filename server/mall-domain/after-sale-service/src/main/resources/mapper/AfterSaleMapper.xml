@@ -21,17 +21,18 @@
         <result column="process_time" property="processTime"/>
         <result column="complete_time" property="completeTime"/>
         <result column="remark" property="remark"/>
+        <result column="tenant_id" property="tenantId"/>
     </resultMap>
 
     <insert id="insert" parameterType="com.metawebthree.aftersale.domain.model.AfterSaleOrderDO" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO after_sale_order (
             order_id, order_no, user_id, product_id, sku_id, product_name, product_image,
             quantity, refund_amount, after_sale_type, after_sale_status, apply_reason,
-            reject_reason, apply_time, process_time, complete_time, remark
+            reject_reason, apply_time, process_time, complete_time, remark, tenant_id
         ) VALUES (
             #{orderId}, #{orderNo}, #{userId}, #{productId}, #{skuId}, #{productName}, #{productImage},
             #{quantity}, #{refundAmount}, #{afterSaleType}, #{afterSaleStatus}, #{applyReason},
-            #{rejectReason}, #{applyTime}, #{processTime}, #{completeTime}, #{remark}
+            #{rejectReason}, #{applyTime}, #{processTime}, #{completeTime}, #{remark}, #{tenantId}
         )
     </insert>
 

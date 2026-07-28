@@ -870,6 +870,22 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
+  // Tenant Management Module
+  {
+    path: '/tenant',
+    component: Layout,
+    redirect: '/tenant/list',
+    name: 'tenantMgmt',
+    meta: { title: 'Tenant Management', icon: 'user' },
+    children: [
+      {
+        path: 'list',
+        name: 'tenantList',
+        component: () => import('@/views/tenant/index.vue'),
+        meta: { title: 'Tenant List', icon: 'user' },
+      },
+    ],
+  },
   // HR Management Module
   {
     path: '/hrm',

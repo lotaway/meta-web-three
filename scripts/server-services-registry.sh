@@ -49,6 +49,7 @@ SERVER_JAVA_SERVICES=(
   "dom-service|supply-chain-domain/dom-service|10124"
   "data-pipeline|data-pipeline|10122"
   "crm-service|erp-domain/crm-service|10125"
+  "tenant-service|platform-domain/tenant-service|10126"
 )
 
 server_service_name() { echo "${1%%|*}"; }

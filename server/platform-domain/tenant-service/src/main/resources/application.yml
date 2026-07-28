@@ -1,0 +1,47 @@
+server:
+  port: 10126
+spring:
+  application:
+    name: tenant-service
+  profiles:
+    active: dev
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:25}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:false}
+          starttls:
+            enable: ${MAIL_STARTTLS:false}
+dubbo:
+  application:
+    name: tenant-service
+  protocol:
+    port: 20126
+
+service-governance:
+  rate-limiter:
+    tenantRegister:
+      enabled: true
+      limit-for-period: 3
+      limit-refresh-period: 60s
+      timeout-duration: 5s
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+    import:
+      - optional:classpath:application-common.yml
+      - optional:classpath:application-common-dev.yml
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import:
+      - optional:classpath:application-common.yml
+      - optional:classpath:application-common-prod.yml

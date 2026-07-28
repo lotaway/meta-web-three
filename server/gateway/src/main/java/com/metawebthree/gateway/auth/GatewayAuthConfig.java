@@ -43,6 +43,16 @@ public class GatewayAuthConfig {
             "payment:read:own"
         ));
 
+        // Merchant role - self-service operations for third-party sellers
+        rolePermissions.put("MERCHANT", Set.of(
+            "product:read", "product:write",
+            "order:read", "order:write",
+            "inventory:read",
+            "promotion:read", "promotion:write",
+            "payment:read:own",
+            "shop:read", "shop:write"
+        ));
+
         // Guest role - read-only public access
         rolePermissions.put("GUEST", Set.of(
             "product:read:public",
@@ -59,6 +69,14 @@ public class GatewayAuthConfig {
         routeRoles.put("/inventory-service/**", List.of("ADMIN", "MANAGER", "USER"));
         routeRoles.put("/payment-service/**", List.of("ADMIN", "MANAGER", "USER"));
         routeRoles.put("/wallet-service/**", List.of("ADMIN", "MANAGER", "USER"));
+        // Merchant routes
+        routeRoles.put("/product-service/merchant/**", List.of("MERCHANT"));
+        routeRoles.put("/order-service/merchant/**", List.of("MERCHANT"));
+        routeRoles.put("/inventory-service/merchant/**", List.of("MERCHANT"));
+        routeRoles.put("/promotion-service/merchant/**", List.of("MERCHANT"));
+        routeRoles.put("/payment-service/merchant/**", List.of("MERCHANT"));
+        routeRoles.put("/tenant-service/**", List.of("MERCHANT"));
+
         routeRoles.put("/promotion-service/admin/**", List.of("ADMIN", "MANAGER"));
         routeRoles.put("/promotion-service/**", List.of("ADMIN", "MANAGER", "USER", "GUEST"));
 

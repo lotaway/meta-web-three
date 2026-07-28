@@ -1,0 +1,26 @@
+syntax = "proto3";
+package platform;
+
+option java_package = "com.metawebthree.common.generated.rpc.platform";
+option java_multiple_files = true;
+
+service TenantService {
+    rpc GetTenant (GetTenantRequest) returns (TenantResponse);
+    rpc GetTenantByCode (GetTenantByCodeRequest) returns (TenantResponse);
+}
+
+message GetTenantRequest {
+    int64 id = 1;
+}
+
+message GetTenantByCodeRequest {
+    string code = 1;
+}
+
+message TenantResponse {
+    int64 id = 1;
+    string name = 2;
+    string code = 3;
+    string status = 4;
+    string contact_email = 5;
+}

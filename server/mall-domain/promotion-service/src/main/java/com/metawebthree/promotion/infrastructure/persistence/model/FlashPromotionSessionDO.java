@@ -17,4 +17,5 @@ public class FlashPromotionSessionDO {
     private LocalTime endTime;
     private Integer status;
     private LocalDateTime createTime;
+    private Long tenantId;
 }

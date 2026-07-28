@@ -23,4 +23,5 @@ public class AfterSaleOrderDO {
     private LocalDateTime processTime;
     private LocalDateTime completeTime;
     private String remark;
+    private Long tenantId;
 }

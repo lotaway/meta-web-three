@@ -52,4 +52,6 @@ public class OrderDO {
     private Timestamp createdAt;
     @Schema(description = "更新时间")
     private Timestamp updatedAt;
+    @Schema(description = "租户ID")
+    private Long tenantId;
 }

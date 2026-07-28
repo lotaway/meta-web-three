@@ -29,4 +29,5 @@ public class CouponDO {
     private LocalDateTime enableTime;
     private String code;
     private Integer memberLevel;
+    private Long tenantId;
 }

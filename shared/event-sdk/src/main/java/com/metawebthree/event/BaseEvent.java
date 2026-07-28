@@ -49,4 +49,9 @@ public class BaseEvent {
      * Payload version for schema evolution.
      */
     protected int version = 1;
+
+    /**
+     * Tenant ID for multi-tenant event routing.
+     */
+    protected Long tenantId;
 }

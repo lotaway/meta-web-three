@@ -66,6 +66,7 @@ PORTS=(
    10121  # inventory-alert-service
     10122  # data-pipeline
     10125  # crm-service
+    10126  # tenant-service
 )
 
 if ! command -v ufw >/dev/null 2>&1; then

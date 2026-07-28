@@ -584,6 +584,20 @@ services:
       - data_pipeline_data:/server/data-pipeline
       - ./.aws:/.aws:ro
 
+  tenant-service:
+    <<: *java-service
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: tenant-service
+    container_name: meta-web-three-tenant-service
+    hostname: tenant-service
+    ports:
+      - "10126:10126"
+    volumes:
+      - tenant_service_data:/server/tenant
+      - ./.aws:/.aws:ro
+
   rma-service:
     <<: *java-service
     build:
@@ -649,4 +663,5 @@ volumes:
   crm_service_data:
   wallet_service_data:
   traceability_service_data:
+  tenant_service_data:
   data_pipeline_data:

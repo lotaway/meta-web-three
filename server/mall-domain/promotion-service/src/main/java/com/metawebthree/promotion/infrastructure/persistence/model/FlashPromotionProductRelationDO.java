@@ -18,4 +18,5 @@ public class FlashPromotionProductRelationDO {
     private Integer flashPromotionCount;
     private Integer flashPromotionLimit;
     private Integer sort;
+    private Long tenantId;
 }

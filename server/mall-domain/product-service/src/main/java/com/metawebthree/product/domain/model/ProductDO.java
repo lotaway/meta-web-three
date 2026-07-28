@@ -21,4 +21,5 @@ public class ProductDO {
     private String languageVersion;
     private Long brandId;
     private Long categoryId;
+    private Long tenantId;
 }

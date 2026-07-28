@@ -38,4 +38,5 @@ public class ReturnApplyDO {
     private String receiveMan;
     private LocalDateTime receiveTime;
     private String receiveNote;
+    private Long tenantId;
 }

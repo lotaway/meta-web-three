@@ -28,6 +28,7 @@ const SERVICE_PREFIX_MAP: Record<string, string> = {
   '/memberLevel': 'user-service',
   '/sso': 'user-service',
   '/member': 'user-service',
+  '/tenant': 'tenant-service',
   '/cs': 'cs-service',
   '/api/mes': 'mes-service',
   '/api/pokayoke': 'mes-service',
