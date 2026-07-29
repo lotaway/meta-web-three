@@ -67,7 +67,7 @@ pub struct Initialize<'info> {
         space = 8,
     )]
     /// CHECK: PDA used as token account authority
-    token_manager: AccountInfo<'info>,
+    token_manager: UncheckedAccount<'info>,
 
     #[account(
         init_if_needed,
@@ -354,7 +354,7 @@ pub struct DepositAccounts<'info> {
         bump,
     )]
     /// CHECK: PDA used as token account authority
-    pub token_manager: AccountInfo<'info>,
+    pub token_manager: UncheckedAccount<'info>,
 
     #[account(
         mut,
@@ -367,10 +367,10 @@ pub struct DepositAccounts<'info> {
 
     #[account(mut)]
     /// CHECK: validated via token program CPI
-    pub sender_token_account: AccountInfo<'info>,
+    pub sender_token_account: UncheckedAccount<'info>,
 
     /// CHECK: used as seed for PDA derivation
-    pub token_mint_account: AccountInfo<'info>,
+    pub token_mint_account: UncheckedAccount<'info>,
 
     #[account(mut)]
     pub signer: Signer<'info>,
@@ -388,7 +388,7 @@ pub struct WithdrawAccounts<'info> {
         bump,
     )]
     /// CHECK: PDA used as token account authority
-    pub token_manager: AccountInfo<'info>,
+    pub token_manager: UncheckedAccount<'info>,
 
     #[account(
         mut,
@@ -401,10 +401,10 @@ pub struct WithdrawAccounts<'info> {
 
     #[account(mut)]
     /// CHECK: validated via token program CPI
-    pub receiver_token_account: AccountInfo<'info>,
+    pub receiver_token_account: UncheckedAccount<'info>,
 
     /// CHECK: used as seed for PDA derivation
-    pub token_mint_account: AccountInfo<'info>,
+    pub token_mint_account: UncheckedAccount<'info>,
 
     #[account(mut)]
     pub signer: Signer<'info>,
@@ -541,7 +541,7 @@ pub struct SetUpline<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
     /// CHECK: upline wallet address
-    pub upline: AccountInfo<'info>,
+    pub upline: UncheckedAccount<'info>,
     #[account(
         init,
         payer = signer,
@@ -551,7 +551,7 @@ pub struct SetUpline<'info> {
     )]
     pub commission_graph: Account<'info, CommissionGraph>,
     /// CHECK: target wallet address
-    pub target: AccountInfo<'info>,
+    pub target: UncheckedAccount<'info>,
     pub system_program: Program<'info, System>,
     pub rent: Sysvar<'info, Rent>,
 }
@@ -612,7 +612,7 @@ pub struct RedeemCoupon<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
     /// CHECK: coupon authority (used for PDA seed derivation)
-    pub authority: AccountInfo<'info>,
+    pub authority: UncheckedAccount<'info>,
     #[account(
         mut,
         seeds = [seeds::COUPON, authority.key().as_ref()],
