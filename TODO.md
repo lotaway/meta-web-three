@@ -76,7 +76,7 @@
 - [x] promotion-service: 启用 MultiTenantMybatisConfig
 
 ### 2.5 payment-service
-- [ ] payment-service: 表加 tenant_id 列
+- [ ] payment-service: 表加 tenant_id 列（暂缓 — 需要评估支付流水对租户隔离的影响）
 - [ ] payment-service: 实体改继承 TenantAwareDO
 - [ ] payment-service: 启用 MultiTenantMybatisConfig
 
@@ -110,8 +110,8 @@
 - [x] admin: 路由注册 asyncRouterMap
 
 ## Phase 5: 验证
+- [x] verify: git diff 确认 ERP/SC/MES 代码未被修改 ✅
 - [ ] verify: 编译通过 (mvn compile)
-- [ ] verify: git diff 确认 ERP/SC/MES 代码未被修改
 - [ ] verify: TenantContextFilter ThreadLocal 正确清理
 
 
