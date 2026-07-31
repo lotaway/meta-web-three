@@ -114,6 +114,9 @@
 - [ ] verify: 编译通过 (mvn compile)
 - [ ] verify: TenantContextFilter ThreadLocal 正确清理
 
+## [SOLANA商品合约](./TODO_SOLANA.md)
+
+## [区块重组处理](./TODO_BLOCK_REORG.md)
 
 # 待决议功能
 
