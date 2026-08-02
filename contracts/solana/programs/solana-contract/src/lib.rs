@@ -3,7 +3,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::instruction::{AccountMeta, Instruction};
 use anchor_lang::solana_program::program::invoke;
-use anchor_spl::token::{Transfer, transfer, MintTo, Burn, burn, InitializeMint, Mint, Token, TokenAccount};
+use anchor_spl::token::{Transfer, transfer, MintTo, Burn, burn, Mint, Token, TokenAccount};
 use anchor_spl::associated_token::AssociatedToken;
 use sha3::{Digest, Keccak256};
 pub mod seeds;
@@ -447,7 +447,8 @@ pub struct ParticipateActivity<'info> {
     pub activity: Account<'info, Activity>,
 
     #[account(
-        mut,
+        init_if_needed,
+        payer = participant,
         seeds = [seeds::ACTIVITY, activity.authority.key().as_ref(), b"pool"],
         bump,
         token::mint = mint,
@@ -465,6 +466,8 @@ pub struct ParticipateActivity<'info> {
     pub mint: Account<'info, Mint>,
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
+    pub system_program: Program<'info, System>,
+    pub rent: Sysvar<'info, Rent>,
 }
 
 #[derive(Accounts)]
@@ -657,14 +660,6 @@ pub mod solana_contract {
         symbol: String,
         uri: String,
     ) -> Result<()> {
-        anchor_spl::token::initialize_mint(CpiContext::new(
-            ctx.accounts.token_program.key(),
-            InitializeMint {
-                mint: ctx.accounts.mint.to_account_info(),
-                rent: ctx.accounts.rent.to_account_info(),
-            },
-        ), 0, &ctx.accounts.authority.key(), Some(&ctx.accounts.authority.key()))?;
-
         anchor_spl::token::mint_to(CpiContext::new(
             ctx.accounts.token_program.key(),
             MintTo {
@@ -708,14 +703,6 @@ pub mod solana_contract {
         uri: String,
         supply: u64,
     ) -> Result<()> {
-        anchor_spl::token::initialize_mint(CpiContext::new(
-            ctx.accounts.token_program.key(),
-            InitializeMint {
-                mint: ctx.accounts.mint.to_account_info(),
-                rent: ctx.accounts.rent.to_account_info(),
-            },
-        ), 9, &ctx.accounts.authority.key(), Some(&ctx.accounts.authority.key()))?;
-
         anchor_spl::token::mint_to(CpiContext::new(
             ctx.accounts.token_program.key(),
             MintTo {
@@ -759,14 +746,6 @@ pub mod solana_contract {
         uri: String,
         supply: u64,
     ) -> Result<()> {
-        anchor_spl::token::initialize_mint(CpiContext::new(
-            ctx.accounts.token_program.key(),
-            InitializeMint {
-                mint: ctx.accounts.mint.to_account_info(),
-                rent: ctx.accounts.rent.to_account_info(),
-            },
-        ), 0, &ctx.accounts.authority.key(), Some(&ctx.accounts.authority.key()))?;
-
         anchor_spl::token::mint_to(CpiContext::new(
             ctx.accounts.token_program.key(),
             MintTo {

@@ -2,7 +2,8 @@ import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { SolanaContract } from "../target/types/solana_contract";
 import { Keypair, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/utils/token";
+import { getAssociatedTokenAddress, createAssociatedTokenAccountInstruction, createSyncNativeInstruction } from "@solana/spl-token";
 import { keccak_256 } from "@noble/hashes/sha3";
 
 describe("solana-contract", () => {
@@ -35,9 +36,16 @@ describe("solana-contract", () => {
   }
 
   it("Initialize program", async () => {
+    const initTokenMintKp = Keypair.generate();
+    await provider.connection.confirmTransaction(
+      await provider.connection.requestAirdrop(initTokenMintKp.publicKey, 1_000_000)
+    );
     const tx = await program.methods
       .initialize()
-      .accounts({})
+      .accounts({
+        tokenMintAccount: initTokenMintKp.publicKey,
+      })
+      .signers([initTokenMintKp])
       .rpc();
     console.log("initialize tx:", tx);
   });
@@ -232,7 +240,7 @@ describe("solana-contract", () => {
     const buyerReceiveTokenAccount = await getAssociatedTokenAddress(nftMint, buyer.publicKey);
     const buyerPaymentTokenAccount = await getAssociatedTokenAddress(paymentMint, buyer.publicKey);
     const sellerPaymentTokenAccount = await getAssociatedTokenAddress(paymentMint, authority);
-    const escrowTokenAccount = await getAssociatedTokenAddress(nftMint, escrowAddress);
+    const escrowTokenAccount = escrowAddress;
 
     // Create ATA if it doesn't exist
     const buyerPaymentAccountInfo = await provider.connection.getAccountInfo(buyerPaymentTokenAccount);
@@ -256,10 +264,22 @@ describe("solana-contract", () => {
           fromPubkey: authority,
           toPubkey: buyerPaymentTokenAccount,
           lamports: 200_000_000, // 0.2 SOL for payment
-        })
+        }),
+        createSyncNativeInstruction(buyerPaymentTokenAccount)
       );
+      await provider.sendAndConfirm(createAtaTx, [buyer]);
       await provider.sendAndConfirm(fundTx);
       await provider.sendAndConfirm(wrapTx);
+    }
+    // Ensure seller's wSOL ATA exists
+    const sellerPaymentAtaInfo = await provider.connection.getAccountInfo(sellerPaymentTokenAccount);
+    if (!sellerPaymentAtaInfo) {
+      const sellerAtaTx = new anchor.web3.Transaction().add(
+        createAssociatedTokenAccountInstruction(
+          authority, sellerPaymentTokenAccount, authority, paymentMint
+        )
+      );
+      await provider.sendAndConfirm(sellerAtaTx);
     }
 
     const tx = await program.methods
@@ -279,9 +299,9 @@ describe("solana-contract", () => {
       .rpc();
     console.log("buyGood tx:", tx);
 
-    // Verify listing is marked as sold
-    const listingAccount = await program.account.listing.fetch(listingAddress);
-    console.assert(listingAccount.status === 1, "Status should be Sold(1)");
+    // Listing is closed on buy (close = seller), so verify buyer received the NFT
+    const buyerBalance = await provider.connection.getTokenAccountBalance(buyerReceiveTokenAccount);
+    console.assert(Number(buyerBalance.value.amount) === 1, "Buyer should own 1 NFT");
   });
 
   it("Delist an active listing", async () => {
@@ -352,6 +372,7 @@ describe("solana-contract", () => {
         seller: authority,
         listing: listing,
         mint: mint,
+        paymentMint: paymentMint,
         sellerTokenAccount: sellerTokenAccount,
         escrowTokenAccount: escrow,
       })
@@ -410,10 +431,26 @@ describe("solana-contract", () => {
           participant.publicKey, participantTokenAccount, participant.publicKey, paymentMint
         )
       );
-      await provider.sendAndConfirm(createAtaTx);
+      await provider.sendAndConfirm(createAtaTx, [participant]);
+    }
+    // Wrap SOL into participant's wSOL ATA for entry fee
+    const balance = await provider.connection.getTokenAccountBalance(participantTokenAccount);
+    if (Number(balance.value.amount) === 0) {
+      const wrapTx = new anchor.web3.Transaction().add(
+        anchor.web3.SystemProgram.transfer({
+          fromPubkey: participant.publicKey,
+          toPubkey: participantTokenAccount,
+          lamports: 100_000_000,
+        }),
+        createSyncNativeInstruction(participantTokenAccount)
+      );
+      await provider.sendAndConfirm(wrapTx, [participant]);
     }
 
-    const poolTokenAccount = await getAssociatedTokenAddress(paymentMint, activityAddress);
+    const [poolTokenAccount] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("activity"), authority.toBuffer(), Buffer.from("pool")],
+      program.programId
+    );
 
     const tx = await program.methods
       .participateActivity()
@@ -422,7 +459,11 @@ describe("solana-contract", () => {
         activity: activityAddress,
         participantTokenAccount: participantTokenAccount,
         poolTokenAccount: poolTokenAccount,
-        paymentMint: paymentMint,
+        mint: paymentMint,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+        systemProgram: anchor.web3.SystemProgram.programId,
+        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
       })
       .signers([participant])
       .rpc();
@@ -433,14 +474,43 @@ describe("solana-contract", () => {
     const winner = authority;
     const rank = 1;
 
-    // Build merkle tree for reward distribution
+    // Build merkle tree for reward distribution (single member tree: root = leaf, proof = [])
     const leaf = keccak_256(Buffer.concat([winner.toBuffer(), Buffer.from([rank])]));
-    const root = keccak_256(leaf);
+    const root = leaf;
     const rootArray = Array.from(root) as unknown as number[];
+    const proof = [] as unknown as anchor.BN[];
 
     const paymentMint = new PublicKey("So11111111111111111111111111111111111111112");
     const winnerTokenAccount = await getAssociatedTokenAddress(paymentMint, winner);
-    const poolTokenAccount = await getAssociatedTokenAddress(paymentMint, activityAddress);
+    const [poolTokenAccount] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("activity"), authority.toBuffer(), Buffer.from("pool")],
+      program.programId
+    );
+
+    const winnerAtaInfo = await provider.connection.getAccountInfo(winnerTokenAccount);
+    if (!winnerAtaInfo) {
+      await provider.sendAndConfirm(
+        new anchor.web3.Transaction().add(
+          createAssociatedTokenAccountInstruction(
+            winner, winnerTokenAccount, winner, paymentMint
+          )
+        )
+      );
+    }
+    // Wrap SOL into winner's wSOL ATA for reward funding
+    const winnerAtaBalance = await provider.connection.getTokenAccountBalance(winnerTokenAccount);
+    if (Number(winnerAtaBalance.value.amount) === 0) {
+      await provider.sendAndConfirm(
+        new anchor.web3.Transaction().add(
+          anchor.web3.SystemProgram.transfer({
+            fromPubkey: winner,
+            toPubkey: winnerTokenAccount,
+            lamports: 100_000_000,
+          }),
+          createSyncNativeInstruction(winnerTokenAccount)
+        )
+      );
+    }
 
     // Set merkle root
     const setRootTx = await program.methods
@@ -450,20 +520,24 @@ describe("solana-contract", () => {
         activity: activityAddress,
         winnerTokenAccount: winnerTokenAccount,
         poolTokenAccount: poolTokenAccount,
-        paymentMint: paymentMint,
+        mint: paymentMint,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       })
       .rpc();
     console.log("setMerkleRoot tx:", setRootTx);
 
     // Claim reward
     const claimTx = await program.methods
-      .claimReward(rank, [[...root]] as unknown as anchor.BN[])
+      .claimReward(rank, proof)
       .accounts({
         winner: winner,
         activity: activityAddress,
         winnerTokenAccount: winnerTokenAccount,
         poolTokenAccount: poolTokenAccount,
-        paymentMint: paymentMint,
+        mint: paymentMint,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       })
       .rpc();
     console.log("claimReward tx:", claimTx);
@@ -543,42 +617,148 @@ describe("solana-contract", () => {
   });
 
   it("Reject buying already-sold listing", async () => {
-    const buyer = Keypair.generate();
-    const airdropSig = await provider.connection.requestAirdrop(buyer.publicKey, LAMPORTS_PER_SOL);
-    await provider.connection.confirmTransaction(airdropSig);
+    // Self-contained: create a fresh NFT + listing, buy it, then re-buy must fail
+    const name = "ReBuyNFT";
+    const symbol = "RBNFT";
+    const uri = "https://example.com/rebuy.json";
+    const supply = new anchor.BN(1);
+    const price = new anchor.BN(50_000_000);
+    const listedAmount = new anchor.BN(1);
+
+    const [mint] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("sft"), Buffer.from(name), authority.toBuffer()],
+      program.programId
+    );
+    const metadata = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("metadata"),
+        new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s").toBuffer(),
+        mint.toBuffer(),
+      ],
+      new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s")
+    )[0];
+
+    const tokenAccount = await getAssociatedTokenAddress(mint, authority);
+    await program.methods
+      .createSft(name, symbol, uri, supply)
+      .accounts({
+        authority: authority,
+        mint: mint,
+        tokenAccount: tokenAccount,
+        metadata: metadata,
+        tokenMetadataProgram: new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+      })
+      .rpc();
 
     const paymentMint = new PublicKey("So11111111111111111111111111111111111111112");
-    const buyerPaymentTokenAccount = await getAssociatedTokenAddress(paymentMint, buyer.publicKey);
-    const sellerPaymentTokenAccount = await getAssociatedTokenAddress(paymentMint, authority);
-    const buyerReceiveTokenAccount = await getAssociatedTokenAddress(nftMint, buyer.publicKey);
-    const escrowTokenAccount = await getAssociatedTokenAddress(nftMint, escrowAddress);
+    const [listing] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("listing"), authority.toBuffer(), mint.toBuffer()],
+      program.programId
+    );
+    const [escrow] = anchor.web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("listing_escrow"), mint.toBuffer()],
+      program.programId
+    );
 
-    // Check if listing is already sold (status === 1)
-    const listingAccount = await program.account.listing.fetch(listingAddress);
-    if (listingAccount.status !== 0) {
-      console.log("Listing already sold, skipping re-buy test");
-      return;
+    await program.methods
+      .listGood(price, listedAmount)
+      .accounts({
+        seller: authority,
+        listing: listing,
+        mint: mint,
+        paymentMint: paymentMint,
+        sellerTokenAccount: tokenAccount,
+        escrowTokenAccount: escrow,
+      })
+      .rpc();
+
+    // Buyer 1 buys the NFT
+    const buyer1 = Keypair.generate();
+    await provider.connection.confirmTransaction(
+      await provider.connection.requestAirdrop(buyer1.publicKey, LAMPORTS_PER_SOL)
+    );
+    const buyer1PaymentTokenAccount = await getAssociatedTokenAddress(paymentMint, buyer1.publicKey);
+    const buyer1ReceiveTokenAccount = await getAssociatedTokenAddress(mint, buyer1.publicKey);
+    const sellerPaymentTokenAccount = await getAssociatedTokenAddress(paymentMint, authority);
+
+    const buyer1AtaInfo = await provider.connection.getAccountInfo(buyer1PaymentTokenAccount);
+    if (!buyer1AtaInfo) {
+      await provider.sendAndConfirm(
+        new anchor.web3.Transaction().add(
+          createAssociatedTokenAccountInstruction(
+            buyer1.publicKey, buyer1PaymentTokenAccount, buyer1.publicKey, paymentMint
+          )
+        ),
+        [buyer1]
+      );
     }
+    const sellerAtaInfo = await provider.connection.getAccountInfo(sellerPaymentTokenAccount);
+    if (!sellerAtaInfo) {
+      await provider.sendAndConfirm(
+        new anchor.web3.Transaction().add(
+          createAssociatedTokenAccountInstruction(
+            authority, sellerPaymentTokenAccount, authority, paymentMint
+          )
+        )
+      );
+    }
+    // Wrap wSOL for buyer1 payment
+    await provider.sendAndConfirm(
+      new anchor.web3.Transaction().add(
+        anchor.web3.SystemProgram.transfer({
+          fromPubkey: buyer1.publicKey,
+          toPubkey: buyer1PaymentTokenAccount,
+          lamports: 100_000_000,
+        }),
+        createSyncNativeInstruction(buyer1PaymentTokenAccount)
+      ),
+      [buyer1]
+    );
+
+    await program.methods
+      .buyGood()
+      .accounts({
+        buyer: buyer1.publicKey,
+        listing: listing,
+        seller: authority,
+        mint: mint,
+        paymentMint: paymentMint,
+        buyerPaymentTokenAccount: buyer1PaymentTokenAccount,
+        sellerPaymentTokenAccount: sellerPaymentTokenAccount,
+        buyerReceiveTokenAccount: buyer1ReceiveTokenAccount,
+        escrowTokenAccount: escrow,
+      })
+      .signers([buyer1])
+      .rpc();
+
+    // Listing account is closed after buy, so a second buy must fail
+    const buyer2 = Keypair.generate();
+    await provider.connection.confirmTransaction(
+      await provider.connection.requestAirdrop(buyer2.publicKey, LAMPORTS_PER_SOL)
+    );
+    const buyer2PaymentTokenAccount = await getAssociatedTokenAddress(paymentMint, buyer2.publicKey);
+    const buyer2ReceiveTokenAccount = await getAssociatedTokenAddress(mint, buyer2.publicKey);
 
     try {
       await program.methods
         .buyGood()
         .accounts({
-          buyer: buyer.publicKey,
-          listing: listingAddress,
+          buyer: buyer2.publicKey,
+          listing: listing,
           seller: authority,
-          mint: nftMint,
+          mint: mint,
           paymentMint: paymentMint,
-          buyerPaymentTokenAccount: buyerPaymentTokenAccount,
+          buyerPaymentTokenAccount: buyer2PaymentTokenAccount,
           sellerPaymentTokenAccount: sellerPaymentTokenAccount,
-          buyerReceiveTokenAccount: buyerReceiveTokenAccount,
-          escrowTokenAccount: escrowTokenAccount,
+          buyerReceiveTokenAccount: buyer2ReceiveTokenAccount,
+          escrowTokenAccount: escrow,
         })
-        .signers([buyer])
+        .signers([buyer2])
         .rpc();
+      console.assert(false, "Re-buy of a sold listing should have failed");
     } catch (e: any) {
-      // May fail due to insufficient funds or ATA not existing - this is OK
-      console.log("Re-buy attempt failed as expected:", e.message.slice(0, 80));
+      // Account closed after sale -> second buy fails as expected
+      console.log("Re-buy failed as expected:", e.message.slice(0, 80));
     }
   });
 });
