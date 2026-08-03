@@ -11,7 +11,6 @@ solana_contract = "5Dk7wrWReetiNNcFbicN8ZFwXkrQeQu4LoMkhLJimGcP"
 [surfpool]
 startup_wait = 15000
 shutdown_wait = 2000
-online = false
 rpc_port = 18999
 ws_port = 19000
 block_production_mode = "clock"
