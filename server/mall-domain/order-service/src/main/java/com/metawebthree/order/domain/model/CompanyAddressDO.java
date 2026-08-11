@@ -19,4 +19,5 @@ public class CompanyAddressDO {
     private String city;
     private String region;
     private String detailAddress;
+    private Long tenantId;
 }

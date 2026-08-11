@@ -13,6 +13,6 @@ public class MybatisPlusConfig extends MultiTenantMybatisConfig {
 
     @Override
     protected List<String> getTenantTables() {
-        return List.of("tb_order", "tb_order_item", "tb_order_return_apply");
+        return List.of("tb_order", "tb_order_item", "tb_order_return_apply", "tb_company_address");
     }
 }
