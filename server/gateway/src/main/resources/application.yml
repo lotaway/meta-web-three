@@ -84,6 +84,10 @@ gateway:
       # Flash Sale — consumer-facing
       - /promotion-service/flash/current/**
       - /promotion-service/flash/product/**
+      # Tenant — public registration & verification
+      - /tenant-service/tenant/captcha/**
+      - /tenant-service/tenant/email/**
+      - /tenant-service/tenant/register
       # Actuator
       - /actuator/**
       # WebSocket - digital twin real-time communication
@@ -97,6 +101,10 @@ gateway:
     - /user-service/user/signInWithWallet
     - /user-service/user/create
     - /user-service/sso/**
+    # Tenant — public registration & verification
+    - /tenant-service/tenant/captcha/**
+    - /tenant-service/tenant/email/**
+    - /tenant-service/tenant/register
     # Actuator & docs
     - /actuator/**
     - /v3/api-docs

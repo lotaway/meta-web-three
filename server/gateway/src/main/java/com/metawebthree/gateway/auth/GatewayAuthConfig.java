@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
+
 /**
  * Gateway authentication configuration storing role-permission mappings
  * and route-based access control rules.
@@ -15,6 +18,7 @@ public class GatewayAuthConfig {
     private final Map<String, Set<String>> rolePermissions = new ConcurrentHashMap<>();
     private final Map<String, List<String>> routeRoles = new ConcurrentHashMap<>();
     private final Map<String, String> routePermissionAliases = new ConcurrentHashMap<>();
+    private final PathMatcher pathMatcher = new AntPathMatcher();
 
     public GatewayAuthConfig() {
         initializeDefaultPermissions();
@@ -75,7 +79,14 @@ public class GatewayAuthConfig {
         routeRoles.put("/inventory-service/merchant/**", List.of("MERCHANT"));
         routeRoles.put("/promotion-service/merchant/**", List.of("MERCHANT"));
         routeRoles.put("/payment-service/merchant/**", List.of("MERCHANT"));
-        routeRoles.put("/tenant-service/**", List.of("MERCHANT"));
+        // Tenant routes — public registration excluded at gateway, management ops ADMIN-only,
+        // merchant self-service for shop & user association
+        routeRoles.put("/tenant-service/tenant/*/approve", List.of("ADMIN"));
+        routeRoles.put("/tenant-service/tenant/*/reject", List.of("ADMIN"));
+        routeRoles.put("/tenant-service/tenant/*/disable", List.of("ADMIN"));
+        routeRoles.put("/tenant-service/tenant/admin/**", List.of("ADMIN"));
+        routeRoles.put("/tenant-service/tenant/merchant/**", List.of("MERCHANT"));
+        routeRoles.put("/tenant-service/tenant/**", List.of("ADMIN", "MERCHANT"));
 
         routeRoles.put("/promotion-service/admin/**", List.of("ADMIN", "MANAGER"));
         routeRoles.put("/promotion-service/**", List.of("ADMIN", "MANAGER", "USER", "GUEST"));
@@ -110,20 +121,15 @@ public class GatewayAuthConfig {
 
     private String matchRoute(String route) {
         // Find the most specific route match
+        String bestMatch = null;
         for (String pattern : routeRoles.keySet()) {
-            if (matchPath(pattern, route)) {
-                return pattern;
+            if (pathMatcher.match(pattern, route)) {
+                if (bestMatch == null || pattern.length() > bestMatch.length()) {
+                    bestMatch = pattern;
+                }
             }
         }
-        return route;
-    }
-
-    private boolean matchPath(String pattern, String path) {
-        if (pattern.endsWith("/**")) {
-            String prefix = pattern.substring(0, pattern.length() - 3);
-            return path.startsWith(prefix);
-        }
-        return pattern.equals(path);
+        return bestMatch != null ? bestMatch : route;
     }
 
     public Set<String> getPermissions(String role) {
