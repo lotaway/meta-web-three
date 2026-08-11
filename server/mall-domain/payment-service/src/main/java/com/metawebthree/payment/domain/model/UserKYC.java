@@ -1,7 +1,7 @@
 package com.metawebthree.payment.domain.model;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.metawebthree.common.DO.BaseDO;
+import com.metawebthree.common.DO.TenantAwareDO;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @SuperBuilder
 @TableName("User_Kyc")
-public class UserKYC extends BaseDO {
+public class UserKYC extends TenantAwareDO {
     
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;

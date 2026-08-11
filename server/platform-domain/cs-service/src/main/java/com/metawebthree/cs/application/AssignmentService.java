@@ -89,7 +89,7 @@ public class AssignmentService {
                         .build();
                 GetOrderByUserIdResponse response = orderService.getOrderByUserId(request);
                 if (response != null && response.getOrdersCount() > 0) {
-                    String orderType = response.getOrders(0).getOrderType();
+                    String orderType = response.getOrders(0).getOrderType().name();
                     if (isAfterSaleRelated(orderType)) {
                         return GROUP_ID_AFTER_SALE;
                     }

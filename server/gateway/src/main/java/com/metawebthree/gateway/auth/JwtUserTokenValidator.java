@@ -37,6 +37,7 @@ public class JwtUserTokenValidator implements UserTokenValidator {
         return new UserTokenClaims(
                 userId,
                 userJwtUtil.getUserName(claims),
-                userJwtUtil.getUserRole(claims).name());
+                userJwtUtil.getUserRole(claims).name(),
+                userJwtUtil.getTenantId(claims));
     }
 }

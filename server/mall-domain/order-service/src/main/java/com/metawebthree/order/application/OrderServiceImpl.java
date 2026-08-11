@@ -31,6 +31,8 @@ import com.metawebthree.common.generated.rpc.ListOrdersResponse;
 import com.metawebthree.common.generated.rpc.OrderDTO;
 import com.metawebthree.common.generated.rpc.OrderItemProto;
 import com.metawebthree.common.generated.rpc.OrderService;
+import com.metawebthree.common.generated.rpc.OrderStatus;
+import com.metawebthree.common.generated.rpc.OrderType;
 import com.metawebthree.common.generated.rpc.PaySuccessRequest;
 import com.metawebthree.common.generated.rpc.PaySuccessResponse;
 import com.metawebthree.common.generated.rpc.QueryLogisticsRequest;
@@ -126,11 +128,60 @@ public class OrderServiceImpl implements OrderService {
                 .setId(o.getId())
                 .setUserId(o.getUserId())
                 .setOrderNo(o.getOrderNo())
-                .setOrderStatus(o.getOrderStatus())
-                .setOrderType(o.getOrderType())
+                .setOrderStatus(toOrderStatus(o.getOrderStatus()))
+                .setOrderType(toOrderType(o.getOrderType()))
                 .setOrderAmount(money)
                 .setOrderRemark(o.getOrderRemark() == null ? "" : o.getOrderRemark())
                 .build();
+    }
+
+    private OrderType toOrderType(String type) {
+        if (type == null) {
+            return OrderType.ORDER_TYPE_UNSPECIFIED;
+        }
+        switch (type) {
+            case "NORMAL":
+                return OrderType.ORDER_TYPE_NORMAL;
+            case "PREORDER":
+                return OrderType.ORDER_TYPE_PREORDER;
+            case "CUSTOM":
+                return OrderType.ORDER_TYPE_CUSTOM;
+            default:
+                return OrderType.ORDER_TYPE_UNSPECIFIED;
+        }
+    }
+
+    private OrderStatus toOrderStatus(String status) {
+        if (status == null) {
+            return OrderStatus.ORDER_STATUS_UNSPECIFIED;
+        }
+        switch (status) {
+            case "PENDING_PAYMENT":
+                return OrderStatus.ORDER_STATUS_PENDING_PAYMENT;
+            case "PAID":
+                return OrderStatus.ORDER_STATUS_PAID;
+            case "SHIPPED":
+                return OrderStatus.ORDER_STATUS_SHIPPED;
+            case "DELIVERED":
+                return OrderStatus.ORDER_STATUS_DELIVERED;
+            case "COMPLETED":
+                return OrderStatus.ORDER_STATUS_COMPLETED;
+            case "CANCELLED":
+            case "CANCELED":
+                return OrderStatus.ORDER_STATUS_CANCELLED;
+            case "REFUNDING":
+                return OrderStatus.ORDER_STATUS_REFUNDING;
+            default:
+                return OrderStatus.ORDER_STATUS_UNSPECIFIED;
+        }
+    }
+
+    private BigDecimal fromMoney(Money money) {
+        if (money == null) {
+            return BigDecimal.ZERO;
+        }
+        return BigDecimal.valueOf(money.getUnits())
+                .add(BigDecimal.valueOf(money.getNanos(), 9));
     }
 
     private Money toMoney(BigDecimal amount, String currency) {
@@ -175,7 +226,7 @@ public class OrderServiceImpl implements OrderService {
 
         java.math.BigDecimal total = java.math.BigDecimal.ZERO;
         for (OrderItemProto item : request.getItemsList()) {
-            total = total.add(java.math.BigDecimal.valueOf(item.getPrice())
+            total = total.add(fromMoney(item.getPrice())
                     .multiply(java.math.BigDecimal.valueOf(item.getQuantity())));
         }
 
@@ -191,7 +242,7 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.insert(order);
 
         for (OrderItemProto item : request.getItemsList()) {
-            java.math.BigDecimal itemTotal = java.math.BigDecimal.valueOf(item.getPrice())
+            java.math.BigDecimal itemTotal = fromMoney(item.getPrice())
                     .multiply(java.math.BigDecimal.valueOf(item.getQuantity()));
             OrderItemDO orderItem = OrderItemDO.builder()
                     .id(com.baomidou.mybatisplus.core.toolkit.IdWorker.getId())
@@ -199,7 +250,7 @@ public class OrderServiceImpl implements OrderService {
                     .productId(item.getProductId())
                     .productName(item.getProductName())
                     .quantity(item.getQuantity())
-                    .unitPrice(java.math.BigDecimal.valueOf(item.getPrice()))
+                    .unitPrice(fromMoney(item.getPrice()))
                     .totalPrice(itemTotal)
                     .build();
             orderItemMapper.insert(orderItem);

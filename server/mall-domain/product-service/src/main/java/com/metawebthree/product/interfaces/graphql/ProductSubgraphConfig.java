@@ -3,6 +3,7 @@ package com.metawebthree.product.interfaces.graphql;
 import com.apollographql.federation.graphqljava.Federation;
 import com.metawebthree.product.application.ProductCategoryApplicationService;
 import com.metawebthree.product.application.ProductService;
+import com.metawebthree.product.dto.ProductDTO;
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.*;
@@ -184,7 +185,10 @@ public class ProductSubgraphConfig {
 
     private Map<String, Object> createProductDataFetcher(DataFetchingEnvironment env) {
         Map<String, Object> input = env.getArgument("input");
-        productService.createProduct();
+        ProductDTO dto = new ProductDTO();
+        dto.setName(String.valueOf(input.get("name")));
+        dto.setGoodsNo(String.valueOf(input.get("sku")));
+        productService.createProduct(dto);
         Map<String, Object> result = new ConcurrentHashMap<>();
         result.put("name", input.get("name"));
         result.put("sku", input.get("sku"));

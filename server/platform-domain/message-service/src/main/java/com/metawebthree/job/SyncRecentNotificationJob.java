@@ -10,7 +10,9 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import com.metawebthree.common.utils.AutoClosableThreadPoolExecutor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SyncRecentNotificationJob implements Job {
     public static Boolean start() throws InterruptedException, ExecutionException {
         try (AutoClosableThreadPoolExecutor executor = new AutoClosableThreadPoolExecutor(

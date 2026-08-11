@@ -118,7 +118,8 @@ public class PromotionServiceRpcImpl implements com.metawebthree.common.generate
                 CouponProto.Builder protoBuilder = CouponProto.newBuilder()
                         .setId(coupon.getId())
                         .setCouponTypeId(coupon.getCouponTypeId() != null ? coupon.getCouponTypeId() : 0)
-                        .setStatus(coupon.getUseStatus() != null ? CouponStatus.fromCode(coupon.getUseStatus()).name() : "UNKNOWN");
+                        .setStatus(toProtoStatus(
+                                coupon.getUseStatus() != null ? CouponStatus.fromCode(coupon.getUseStatus()) : null));
                 
                 if (coupon.getOrderNo() != null) {
                     try {
@@ -139,10 +140,25 @@ public class PromotionServiceRpcImpl implements com.metawebthree.common.generate
             log.error("获取用户优惠券失败 - userId: {}, error: {}", request.getUserId(), e.getMessage(), e);
             throw new RuntimeException("获取用户优惠券失败 - userId: " + request.getUserId(), e);
         }
+        return responseBuilder.build();
     }
 
     @Override
     public CompletableFuture<GetUserCouponsResponse> getUserCouponsAsync(GetUserCouponsRequest request) {
         return CompletableFuture.completedFuture(getUserCoupons(request));
+    }
+
+    private com.metawebthree.common.generated.rpc.CouponStatus toProtoStatus(CouponStatus status) {
+        if (status == null) {
+            return com.metawebthree.common.generated.rpc.CouponStatus.COUPON_STATUS_UNSPECIFIED;
+        }
+        switch (status) {
+            case UNUSED:
+                return com.metawebthree.common.generated.rpc.CouponStatus.COUPON_STATUS_UNUSED;
+            case USED:
+                return com.metawebthree.common.generated.rpc.CouponStatus.COUPON_STATUS_USED;
+            default:
+                return com.metawebthree.common.generated.rpc.CouponStatus.COUPON_STATUS_UNSPECIFIED;
+        }
     }
 }

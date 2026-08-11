@@ -1,7 +1,7 @@
 package com.metawebthree.payment.infrastructure.persistence.dataobject;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.metawebthree.common.DO.BaseDO;
+import com.metawebthree.common.DO.TenantAwareDO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -19,7 +19,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @SuperBuilder
 @TableName("payment_reconciliation_diff")
-public class ReconciliationDiffDO extends BaseDO {
+public class ReconciliationDiffDO extends TenantAwareDO {
 
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;

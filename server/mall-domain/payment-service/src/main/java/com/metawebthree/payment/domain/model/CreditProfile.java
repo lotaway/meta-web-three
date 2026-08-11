@@ -51,6 +51,9 @@ public class CreditProfile {
 
     @TableField("last_update")
     private LocalDateTime lastUpdate = LocalDateTime.now();
+
+    @TableField("tenant_id")
+    private Long tenantId;
 }
 
 class CreditLimit {

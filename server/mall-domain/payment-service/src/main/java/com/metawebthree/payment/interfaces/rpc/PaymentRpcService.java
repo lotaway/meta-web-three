@@ -10,8 +10,9 @@ import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -24,8 +25,6 @@ import java.util.concurrent.CompletableFuture;
 @Component
 @RequiredArgsConstructor
 public class PaymentRpcService implements PaymentService {
-
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private final ExchangeOrderRepository exchangeOrderRepository;
 
@@ -65,9 +64,9 @@ public class PaymentRpcService implements PaymentService {
     public GetDailyPaymentStatsResponse getDailyPaymentStats(GetDailyPaymentStatsRequest request) {
         log.info("Dubbo call: getDailyPaymentStats for date: {}", request.getDate());
         try {
-            LocalDate date = request.getDate().isEmpty()
+            LocalDate date = request.getDate() <= 0
                     ? LocalDate.now()
-                    : LocalDate.parse(request.getDate(), DATE_FORMATTER);
+                    : Instant.ofEpochMilli(request.getDate()).atZone(ZoneId.systemDefault()).toLocalDate();
             Timestamp start = Timestamp.valueOf(date.atStartOfDay());
             Timestamp end = Timestamp.valueOf(date.plusDays(1).atStartOfDay());
 
@@ -83,9 +82,9 @@ public class PaymentRpcService implements PaymentService {
                     ExchangeOrder.OrderStatus.FAILED.name(), start, end);
             long failedCount = failedOrders.size();
 
-            String dateStr = date.format(DATE_FORMATTER);
+            long dateEpoch = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
             DailyPaymentStats stats = DailyPaymentStats.newBuilder()
-                    .setDate(dateStr)
+                    .setDate(dateEpoch)
                     .setSuccessCount(successCount)
                     .setSuccessAmount(successAmount)
                     .setFailedCount(failedCount)
