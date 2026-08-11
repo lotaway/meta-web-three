@@ -5,6 +5,8 @@ import com.metawebthree.mes.domain.repository.WorkOrderRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class WorkOrderCommandService {
@@ -133,6 +135,41 @@ public class WorkOrderCommandService {
 
     public void deleteWorkOrder(Long id) {
         workOrderRepository.deleteById(id);
+    }
+
+    public List<WorkOrder> prepareSplit(Long id, String splitType, Integer splitCount) {
+        WorkOrder parent = findWorkOrderOrThrow(id);
+        int count = splitCount != null && splitCount > 1 ? splitCount : 2;
+        List<WorkOrder> children = new ArrayList<>();
+        int baseQuantity = parent.getQuantity() / count;
+        int remainder = parent.getQuantity() % count;
+        for (int i = 1; i <= count; i++) {
+            WorkOrder child = new WorkOrder();
+            child.setWorkOrderNo(parent.getWorkOrderNo() + "-" + i);
+            child.setProductCode(parent.getProductCode());
+            child.setProductName(parent.getProductName());
+            child.setQuantity(i == count ? baseQuantity + remainder : baseQuantity);
+            child.setCompletedQuantity(0);
+            child.setWorkshopId(parent.getWorkshopId());
+            child.setProcessRouteId(parent.getProcessRouteId());
+            child.setTypeCode(parent.getTypeCode());
+            child.setPriority(parent.getPriority());
+            child.setParentWorkOrderId(parent.getId());
+            child.setSplitType(splitType != null ? splitType : WorkOrder.SplitType.MANUAL.name());
+            child.setSplitSequence(i);
+            child.setStatus(WorkOrder.WorkOrderStatus.DRAFT);
+            children.add(child);
+        }
+        return children;
+    }
+
+    public void saveSplitOrders(List<WorkOrder> childOrders) {
+        if (childOrders == null) {
+            return;
+        }
+        for (WorkOrder child : childOrders) {
+            workOrderRepository.save(child);
+        }
     }
 
     private WorkOrder findWorkOrderOrThrow(Long id) {
