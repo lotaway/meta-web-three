@@ -32,6 +32,7 @@ const SERVICE_PREFIX_MAP: Record<string, string> = {
   '/cs': 'cs-service',
   '/api/mes': 'mes-service',
   '/api/pokayoke': 'mes-service',
+  '/api/admin/ai-shopping': 'recommendation-service',
 }
 
 const service: AxiosInstance = axios.create({

@@ -237,6 +237,12 @@ export const asyncRouterMap: RouteRecordExt[] = [
         component: () => import('@/views/recommendation/index.vue'),
         meta: { title: 'Recommendation Management', icon: 'recommend' },
       },
+      {
+        path: 'ai-shopping',
+        name: 'aiShopping',
+        component: () => import('@/views/ai-shopping/index.vue'),
+        meta: { title: 'AI Shopping', icon: 'sparkles' },
+      },
     ],
   },
   {
