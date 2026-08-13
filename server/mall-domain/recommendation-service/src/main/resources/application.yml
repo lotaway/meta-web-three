@@ -25,6 +25,40 @@ recommendation:
       low-threshold: 0.5
     batch:
       batch-size: 500
+ai-shopping:
+  enabled: true
+  vector-store: memory
+  embedding-dim: 1024
+  default-top-k: 20
+  # 以下 base-url/api-key/model 均支持 DB 覆盖（ai_shopping_config 表，后台可维护）
+  # 兼容 OpenAI 协议；path 可自定义请求路径，默认按协议自动拼接
+  embedding:
+    base-url: ""
+    api-key: ""
+    model: ""
+    path: ""
+    timeout-ms: 15000
+    max-retries: 2
+  image-embedding:
+    base-url: ""
+    api-key: ""
+    model: ""
+    path: ""
+    timeout-ms: 15000
+    max-retries: 2
+  llm:
+    base-url: ""
+    api-key: ""
+    model: ""
+    path: ""
+    timeout-ms: 15000
+    max-retries: 2
+  milvus:
+    host: localhost
+    port: 19530
+    api-token: ""
+    collection-text: product_text
+    collection-image: product_image
 ---
 spring:
   config:
