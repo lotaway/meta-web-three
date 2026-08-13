@@ -357,6 +357,10 @@ services:
       target: recommendation-service
     container_name: meta-web-three-recommendation-service
     hostname: recommendation-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
+      - AI_SHOPPING_MILVUS_HOST=milvus
     ports:
       - "10104:10104"
     volumes:
