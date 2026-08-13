@@ -70,6 +70,8 @@ public class FederationRouter {
         ROOT_FIELD_OWNER.put("recommendationMetrics", "recommendation");
         ROOT_FIELD_OWNER.put("userBehaviorHistory", "recommendation");
         ROOT_FIELD_OWNER.put("rulesByScene", "recommendation");
+        ROOT_FIELD_OWNER.put("aiTextCorrect", "recommendation");
+        ROOT_FIELD_OWNER.put("aiSmartMatch", "recommendation");
         ROOT_FIELD_OWNER.put("generateRecommendation", "recommendation");
         ROOT_FIELD_OWNER.put("recordBehavior", "recommendation");
         ROOT_FIELD_OWNER.put("createRecommendationRule", "recommendation");
@@ -434,7 +436,13 @@ public class FederationRouter {
                                 Map.of("userId", env.getArgument("userId"), "limit", env.getArgument("limit"))))
                         .dataFetcher("rulesByScene", env -> proxy(env, "recommendation", "rulesByScene",
                                 "{ rulesByScene(scene: $scene) { __typename id ruleName scene type status priority maxItems conditions } }",
-                                Map.of("scene", env.getArgument("scene")))))
+                                Map.of("scene", env.getArgument("scene"))))
+                        .dataFetcher("aiTextCorrect", env -> proxy(env, "recommendation", "aiTextCorrect",
+                                "{ aiTextCorrect(text: $text) { __typename original corrected changed suggestions source } }",
+                                Map.of("text", env.getArgument("text"))))
+                        .dataFetcher("aiSmartMatch", env -> proxy(env, "recommendation", "aiSmartMatch",
+                                "{ aiSmartMatch(query: $query, topK: $topK) { __typename productId name pic price score reason } }",
+                                Map.of("query", env.getArgument("query"), "topK", env.getArgument("topK")))))
                 // ── Cart ───────────────────────────────────────────────────
                 .type("Query", wiring -> wiring
                         .dataFetcher("cart", env -> proxy(env, "cart", "cart",
@@ -565,6 +573,8 @@ public class FederationRouter {
         sb.append("  recommendationMetrics(userId: ID!): RecommendationMetrics\n");
         sb.append("  userBehaviorHistory(userId: ID!, limit: Int): [UserBehavior]\n");
         sb.append("  rulesByScene(scene: String!): [RecommendationRule]\n");
+        sb.append("  aiTextCorrect(text: String!): TextCorrection\n");
+        sb.append("  aiSmartMatch(query: String!, topK: Int): [AiProductMatch]\n");
         sb.append("  cart(userId: ID!): Cart\n");
         sb.append("  lead(id: ID!): Lead\n");
         sb.append("  leads(status: String, source: String, keyword: String, page: Int, size: Int): LeadConnection\n");
@@ -619,6 +629,10 @@ public class FederationRouter {
                 "type RecommendationRule @key(fields: \"id\") { id: ID! ruleName: String! scene: String! type: String status: String }\n");
         sb.append(
                 "type UserBehavior @key(fields: \"id\") { id: ID! userId: ID! productId: ID! behaviorType: String! }\n");
+        sb.append(
+                "type TextCorrection { original: String! corrected: String! changed: Boolean! suggestions: [String!]! source: String }\n");
+        sb.append(
+                "type AiProductMatch { productId: ID! name: String pic: String price: String score: Float reason: String }\n");
         sb.append("type Cart @key(fields: \"id\") { id: ID! userId: ID! totalAmount: Float! itemCount: Int! }\n");
         sb.append(
                 "type CartItem @key(fields: \"id\") { id: ID! productId: ID! quantity: Int! price: Float! subtotal: Float! }\n");

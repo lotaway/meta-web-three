@@ -6,6 +6,8 @@ extend type Query {
     recommendationMetrics(userId: ID!): RecommendationMetrics
     userBehaviorHistory(userId: ID!, limit: Int): [UserBehavior]
     rulesByScene(scene: String!): [RecommendationRule]
+    aiTextCorrect(text: String!): TextCorrection
+    aiSmartMatch(query: String!, topK: Int): [AiProductMatch]
 }
 
 extend type Mutation {
@@ -89,4 +91,21 @@ type UserBehavior @key(fields: "id") {
     timestamp: String
     sessionId: String
     source: String
+}
+
+type TextCorrection {
+    original: String!
+    corrected: String!
+    changed: Boolean!
+    suggestions: [String!]!
+    source: String
+}
+
+type AiProductMatch {
+    productId: ID!
+    name: String
+    pic: String
+    price: String
+    score: Float
+    reason: String
 }
