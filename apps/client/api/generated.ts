@@ -16,6 +16,7 @@ import { NotificationControllerApi } from '@/src/generated/api/apis/Notification
 import { SsoControllerApi } from '@/src/generated/api/apis/SsoControllerApi'
 import { CommissionControllerApi } from '@/src/generated/api/apis/CommissionControllerApi'
 import { ExchangeApi } from '@/src/generated/api/apis/ExchangeApi'
+export * from './aiShopping'
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_BACK_API_HOST ?? 'http://localhost:10081'
 export const DEFAULT_USER_ID = Number(process.env.EXPO_PUBLIC_DEFAULT_USER_ID ?? 1)

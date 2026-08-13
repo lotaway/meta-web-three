@@ -15,11 +15,17 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useFocusEffect } from '@react-navigation/native'
+import * as ImagePicker from 'expo-image-picker'
 import { Colors } from '@/constants/Colors'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { IconSymbol } from '@/components/ui/IconSymbol'
 import { productApi } from '@/api/generated'
 import type { ProductDTO } from '@/src/generated/api/models'
+import {
+  aiShoppingApi,
+  type AiProductMatch,
+  type TextCorrection,
+} from '@/lib/api/aiShopping'
 
 const SEARCH_HISTORY_KEY = '@meta_web_three:search_history'
 const MAX_HISTORY = 10
@@ -39,12 +45,16 @@ export default function SearchScreen() {
   const colorScheme = useColorScheme() ?? 'light'
   const colors = Colors[colorScheme]
   const params = useLocalSearchParams()
-  
+
   const [keyword, setKeyword] = useState((params.keyword as string) || '')
   const [searchHistory, setSearchHistory] = useState<string[]>([])
   const [searchResults, setSearchResults] = useState<ProductDTO[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
+  const [aiMatches, setAiMatches] = useState<AiProductMatch[]>([])
+  const [correction, setCorrection] = useState<TextCorrection | null>(null)
+  const [aiEnabled, setAiEnabled] = useState(true)
+  const [isImageSearching, setIsImageSearching] = useState(false)
   const inputRef = useRef<TextInput>(null)
 
   useFocusEffect(
@@ -67,7 +77,7 @@ export default function SearchScreen() {
 
   const saveSearchHistory = async (newKeyword: string) => {
     if (!newKeyword.trim()) return
-    
+
     const updated = [newKeyword, ...searchHistory.filter(k => k !== newKeyword)].slice(0, MAX_HISTORY)
     setSearchHistory(updated)
     try {
@@ -94,23 +104,136 @@ export default function SearchScreen() {
     setKeyword(kw)
     setIsSearching(true)
     setHasSearched(true)
+    setAiMatches([])
+    setCorrection(null)
     await saveSearchHistory(kw)
 
-    try {
-      const response = await productApi.listProducts({ keyword: kw })
-      if (response.data) {
-        setSearchResults(response.data)
-      }
-    } catch (error) {
-      console.error('Search failed:', error)
+    const [productResult, aiResult] = await Promise.allSettled([
+      productApi.listProducts({ keyword: kw }),
+      aiShoppingApi.search(kw, 10),
+    ])
+
+    if (productResult.status === 'fulfilled' && productResult.value.data) {
+      setSearchResults(productResult.value.data)
+    } else {
+      console.error('Search failed:', productResult)
       setSearchResults([])
+    }
+
+    if (aiResult.status === 'fulfilled') {
+      const result = aiResult.value
+      setAiMatches(result.matches || [])
+      setCorrection(result.correction || null)
+      setAiEnabled(true)
+    } else {
+      console.error('AI search failed:', aiResult)
+      setAiEnabled(false)
+    }
+
+    setIsSearching(false)
+  }
+
+  const handleImageSearch = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
+    if (!permission.granted) {
+      console.warn('Media library permission denied')
+      return
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    })
+
+    if (result.canceled || !result.assets?.[0]) {
+      return
+    }
+
+    Keyboard.dismiss()
+    setHasSearched(true)
+    setIsImageSearching(true)
+    setAiMatches([])
+    setCorrection(null)
+    setSearchResults([])
+
+    try {
+      const blob = await (await fetch(result.assets[0].uri)).blob()
+      const matches = await aiShoppingApi.imageSearch(blob, 10)
+      setAiMatches(matches || [])
+      setAiEnabled(true)
+    } catch (error) {
+      console.error('Image search failed:', error)
+      setAiEnabled(false)
     } finally {
-      setIsSearching(false)
+      setIsImageSearching(false)
     }
   }
 
   const handleProductPress = (productId: number) => {
     router.push({ pathname: '/product/[id]', params: { id: productId } })
+  }
+
+  const renderCorrectionBanner = () => {
+    if (!correction || !correction.changed || !correction.corrected) return null
+
+    const next = correction.corrected === keyword ? keyword : correction.corrected
+    return (
+      <View style={[styles.correctionBanner, { backgroundColor: colors.tint }]}>
+        <IconSymbol name="wand.and.stars" size={16} color="#fff" />
+        <Text style={styles.correctionText}>
+          {t('search.correction_prefix')}
+          <Text style={styles.correctionStrong}>{correction.corrected}</Text>
+        </Text>
+        <TouchableOpacity onPress={() => handleSearch(next)}>
+          <Text style={styles.correctionAction}>{t('search.correction_apply')}</Text>
+        </TouchableOpacity>
+      </View>
+    )
+  }
+
+  const renderAiMatches = () => {
+    if (!aiEnabled || aiMatches.length === 0) return null
+
+    return (
+      <View style={styles.aiSection}>
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            <IconSymbol name="sparkles" size={16} color={colors.primary} />
+            {'  '}{t('search.ai_smart_match')}
+          </Text>
+        </View>
+        <FlatList
+          horizontal
+          data={aiMatches}
+          keyExtractor={(item) => `ai-${item.productId}`}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.aiListContent}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[styles.aiCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+              onPress={() => handleProductPress(item.productId)}
+            >
+              <Image source={{ uri: item.pic || '' }} style={styles.aiImage} />
+              <View style={styles.aiInfo}>
+                <Text numberOfLines={2} style={[styles.aiName, { color: colors.text }]}>
+                  {item.name}
+                </Text>
+                <Text style={[styles.aiPrice, { color: colors.primary }]}>
+                  {item.price ? `¥${item.price}` : ''}
+                </Text>
+                {item.score ? (
+                  <Text style={[styles.aiReason, { color: colors.textSecondary }]}>
+                    {`${t('search.similarity')} ${(item.score * 100).toFixed(0)}%`}
+                  </Text>
+                ) : null}
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+    )
   }
 
   const renderHeader = () => (
@@ -137,6 +260,9 @@ export default function SearchScreen() {
           </TouchableOpacity>
         ) : null}
       </View>
+      <TouchableOpacity style={styles.imageBtn} onPress={handleImageSearch} disabled={isImageSearching}>
+        <IconSymbol name="photo" size={22} color={colors.text} />
+      </TouchableOpacity>
       <TouchableOpacity style={styles.searchBtn} onPress={() => handleSearch()}>
         <Text style={styles.searchBtnText}>{t('search.btn')}</Text>
       </TouchableOpacity>
@@ -194,15 +320,12 @@ export default function SearchScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {renderHeader()}
       <View style={styles.content}>
-        {isSearching ? (
+        {isSearching || isImageSearching ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.primary} />
-            <Text style={[styles.loadingText, { color: colors.textSecondary }]}>{t('search.loading')}</Text>
-          </View>
-        ) : searchResults.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <IconSymbol name="magnifyingglass" size={60} color={colors.textSecondary} />
-            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{t('search.no_results')}</Text>
+            <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
+              {isImageSearching ? t('search.ai_image_searching') : t('search.loading')}
+            </Text>
           </View>
         ) : (
           <FlatList
@@ -211,6 +334,20 @@ export default function SearchScreen() {
             numColumns={2}
             columnWrapperStyle={styles.row}
             contentContainerStyle={styles.listContent}
+            ListHeaderComponent={
+              <>
+                {renderCorrectionBanner()}
+                {renderAiMatches()}
+              </>
+            }
+            ListEmptyComponent={
+              aiMatches.length > 0 ? null : (
+                <View style={styles.emptyContainer}>
+                  <IconSymbol name="magnifyingglass" size={60} color={colors.textSecondary} />
+                  <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{t('search.no_results')}</Text>
+                </View>
+              )
+            }
             renderItem={({ item }) => (
               <TouchableOpacity style={styles.productCard} onPress={() => handleProductPress(item.id!)}>
                 <Image source={{ uri: item.pic || item.album?.[0] || '' }} style={styles.productImage} />
@@ -261,6 +398,9 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 8,
     fontSize: 14,
+  },
+  imageBtn: {
+    padding: 8,
   },
   searchBtn: {
     paddingHorizontal: 12,
@@ -314,6 +454,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingTop: 80,
   },
   emptyText: {
     marginTop: 12,
@@ -352,5 +493,62 @@ const styles = StyleSheet.create({
   productOriginalPrice: {
     fontSize: 12,
     textDecorationLine: 'line-through',
+  },
+  correctionBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    marginHorizontal: 8,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    gap: 6,
+  },
+  correctionText: {
+    flex: 1,
+    color: '#fff',
+    fontSize: 13,
+  },
+  correctionStrong: {
+    fontWeight: '700',
+  },
+  correctionAction: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '700',
+    textDecorationLine: 'underline',
+  },
+  aiSection: {
+    marginBottom: 8,
+  },
+  aiListContent: {
+    paddingHorizontal: 8,
+    gap: 10,
+  },
+  aiCard: {
+    width: 140,
+    borderRadius: 8,
+    overflow: 'hidden',
+    borderWidth: 1,
+  },
+  aiImage: {
+    width: '100%',
+    aspectRatio: 1,
+  },
+  aiInfo: {
+    padding: 8,
+  },
+  aiName: {
+    fontSize: 13,
+    lineHeight: 18,
+    marginBottom: 4,
+  },
+  aiPrice: {
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  aiReason: {
+    fontSize: 11,
+    marginTop: 4,
   },
 })

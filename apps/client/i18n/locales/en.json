@@ -66,7 +66,12 @@
     "hot": "Hot Searches",
     "loading": "Searching...",
     "no_results": "No results found",
-    "clear_history": "Clear History"
+    "clear_history": "Clear History",
+    "correction_prefix": "Did you mean: ",
+    "correction_apply": "Search",
+    "ai_smart_match": "AI Smart Match",
+    "ai_image_searching": "AI image searching...",
+    "similarity": "similarity"
   },
   "category": {
     "title": "Category Products",

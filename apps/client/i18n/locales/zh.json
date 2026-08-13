@@ -66,7 +66,12 @@
     "hot": "热门搜索",
     "loading": "搜索中...",
     "no_results": "未找到相关商品",
-    "clear_history": "清除历史记录"
+    "clear_history": "清除历史记录",
+    "correction_prefix": "你是不是想搜：",
+    "correction_apply": "按此搜索",
+    "ai_smart_match": "AI 智能匹配",
+    "ai_image_searching": "AI 以图搜图中...",
+    "similarity": "相似度"
   },
   "category": {
     "title": "分类商品",
