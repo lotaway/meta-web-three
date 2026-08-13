@@ -172,6 +172,15 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 - 常见问题管理
 - 满意度评价
 
+## AI 辅助购物（recommendation-service）
+
+`recommendation-service`（端口 10104）提供 AI 辅助购物：**文本纠错**、**智能匹配**、**以图搜图**、一站式搜索。详见 [recommendation-service/README.md](./mall-domain/recommendation-service/README.md)。
+
+- **路由**：所有 REST 请求以 gateway 为入口、配合 ZK 服务发现（discovery locator）转发，URL 需带服务名前缀 `/recommendation-service/...`；C 端和后台的前端代码已按此约定接入（后台 `http` 工具通过 `SERVICE_PREFIX_MAP` 自动添加前缀）。
+- **AI Provider**：OpenAI 兼容协议（`/v1/embeddings`、`/v1/images/embeddings`、`/v1/chat/completions`），`base-url/api-key/model` 在 `application.yml` 的 `ai-shopping.*` 下配置，可被 `ai_shopping_config` 表（DB）覆盖，后台页面可维护。
+- **向量库**：Milvus（REST API）；`vector.store=memory` 时用内存向量库兜底（默认）。
+- **Milvus 网络**：`docker-compose.ai.yml` 已纳入主 compose `include`，etcd/minio/milvus 统一挂载到 `meta-web-three` 网络，与后端服务同网互访（`milvus:19530`）。
+
 ## 添加新服务清单
 
 添加一个新微服务时，需按以下清单逐项完成，否则会导致构建或运行失败：
@@ -221,6 +230,9 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 | wallet-service | `blockchain.evm.rpc-url` | `https://mainnet.infura.io/v3/YOUR_PROJECT_ID` | Infura Project ID `YOUR_PROJECT_ID` 为占位符 |
 | user-service | `x.apikey` | `your-api-key` | `user-service/src/main/resources/application-dev.yml` 中的占位符（dev profile 自动加载） |
 | user-service | `x.secret` | `your-secret-key` | 同上 |
+| recommendation-service | `ai-shopping.embedding.base-url` / `api-key` / `model` | 空字符串 | AI 智能匹配文本向量化端点；未配置则智能匹配不可用 |
+| recommendation-service | `ai-shopping.image-embedding.base-url` / `api-key` / `model` | 空字符串 | AI 以图搜图图像向量化端点；未配置则以图搜图不可用 |
+| recommendation-service | `ai-shopping.llm.base-url` / `api-key` / `model` | 空字符串 | 文本纠错 LLM 端点；未配置时自动降级为本地词典纠错 |
 | data-pipeline | `clickhouse.url` | `jdbc:clickhouse://localhost:8123/meta_web_analytics` | ClickHouse JDBC 连接 URL；Docker 内需改为 `jdbc:clickhouse://clickhouse:8123/meta_web_analytics` |
 
 ### 其他注意事项
