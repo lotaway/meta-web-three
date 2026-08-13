@@ -28,6 +28,7 @@ public class AiProviderConfig {
     public static final String KEY_MILVUS_COLLECTION_IMAGE = "milvus.collection-image";
     public static final String KEY_INDEX_STATUS = "index.status";
     public static final String KEY_INDEX_LAST_REBUILT = "index.last-rebuilt-at";
+    public static final String KEY_ENABLED = "ai-shopping.enabled";
 
     private final AiShoppingProperties properties;
     private final AiShoppingConfigRepository configRepository;
@@ -35,6 +36,12 @@ public class AiProviderConfig {
     public AiProviderConfig(AiShoppingProperties properties, AiShoppingConfigRepository configRepository) {
         this.properties = properties;
         this.configRepository = configRepository;
+    }
+
+    public boolean isEnabled() {
+        return configRepository.findValue(KEY_ENABLED)
+                .map(Boolean::parseBoolean)
+                .orElse(properties.isEnabled());
     }
 
     public AiProviderSettings getSettings() {

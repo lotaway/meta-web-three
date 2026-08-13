@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import com.metawebthree.common.exception.BusinessException;
 import com.metawebthree.recommendation.domain.aishopping.entity.AiShoppingConfig;
 import com.metawebthree.recommendation.domain.aishopping.repository.AiSearchLogRepository;
 import com.metawebthree.recommendation.domain.aishopping.repository.AiShoppingConfigRepository;
@@ -21,6 +22,7 @@ class AiShoppingAdminServiceTest {
     private AiShoppingIndexService indexService;
     private AiProviderConfig providerConfig;
     private AiProviderClient providerClient;
+    private AiShoppingFeatureGuard featureGuard;
     private AiShoppingAdminService service;
 
     @BeforeEach
@@ -30,9 +32,10 @@ class AiShoppingAdminServiceTest {
         indexService = mock(AiShoppingIndexService.class);
         providerConfig = mock(AiProviderConfig.class);
         providerClient = mock(AiProviderClient.class);
+        featureGuard = mock(AiShoppingFeatureGuard.class);
 
         service = new AiShoppingAdminService(configRepository, logRepository, indexService,
-                providerConfig, providerClient);
+                providerConfig, providerClient, featureGuard);
     }
 
     @Test
@@ -68,6 +71,15 @@ class AiShoppingAdminServiceTest {
 
         assertFalse((Boolean) result.get("success"));
         assertNotNull(result.get("error"));
+    }
+
+    @Test
+    void testProvider_whenDisabled_shouldThrow() {
+        doThrow(new BusinessException(com.metawebthree.common.enums.ResponseStatus.FORBIDDEN, "AI shopping is disabled"))
+                .when(featureGuard).requireEnabled();
+
+        assertThrows(BusinessException.class, () -> service.testProvider("embedding"));
+        verify(providerClient, never()).embedText(anyString());
     }
 
     @Test

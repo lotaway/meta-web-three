@@ -62,7 +62,11 @@ async function requestEnvelope<T>(
   if (!response.ok) {
     throw new Error(`AI shopping request failed: ${response.status}`)
   }
-  return (await response.json()) as ApiEnvelope<T>
+  const envelope = (await response.json()) as ApiEnvelope<T>
+  if (envelope.code !== '0000') {
+    throw new Error(envelope.message || `AI shopping request failed: ${envelope.code}`)
+  }
+  return envelope
 }
 
 export const aiShoppingApi = {

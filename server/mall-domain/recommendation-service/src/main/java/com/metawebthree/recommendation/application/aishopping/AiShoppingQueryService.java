@@ -22,24 +22,29 @@ public class AiShoppingQueryService {
     private final ImageSearchService imageSearchService;
     private final AiSearchLogRepository logRepository;
     private final AiProviderConfig providerConfig;
+    private final AiShoppingFeatureGuard featureGuard;
 
     public AiShoppingQueryService(TextCorrectionService textCorrectionService,
                                   SmartMatchService smartMatchService,
                                   ImageSearchService imageSearchService,
                                   AiSearchLogRepository logRepository,
-                                  AiProviderConfig providerConfig) {
+                                  AiProviderConfig providerConfig,
+                                  AiShoppingFeatureGuard featureGuard) {
         this.textCorrectionService = textCorrectionService;
         this.smartMatchService = smartMatchService;
         this.imageSearchService = imageSearchService;
         this.logRepository = logRepository;
         this.providerConfig = providerConfig;
+        this.featureGuard = featureGuard;
     }
 
     public TextCorrection correctText(String text) {
+        featureGuard.requireEnabled();
         return textCorrectionService.correct(text);
     }
 
     public List<AiProductMatch> smartMatch(String query, Integer topK) {
+        featureGuard.requireEnabled();
         int k = topK != null && topK > 0 ? topK : providerConfig.getSettings().getDefaultTopK();
         long start = System.currentTimeMillis();
         List<AiProductMatch> matches = smartMatchService.match(query, k);
@@ -49,6 +54,7 @@ public class AiShoppingQueryService {
     }
 
     public List<AiProductMatch> imageSearch(byte[] imageBytes, Integer topK) {
+        featureGuard.requireEnabled();
         int k = topK != null && topK > 0 ? topK : providerConfig.getSettings().getDefaultTopK();
         long start = System.currentTimeMillis();
         List<AiProductMatch> matches = imageSearchService.search(imageBytes, k);
@@ -59,6 +65,7 @@ public class AiShoppingQueryService {
 
     /** One-stop search: correction then smart match. Returns correction plus matched products. */
     public Map<String, Object> combinedSearch(String query, Integer topK, Long userId) {
+        featureGuard.requireEnabled();
         int k = topK != null && topK > 0 ? topK : providerConfig.getSettings().getDefaultTopK();
         long start = System.currentTimeMillis();
 

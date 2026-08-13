@@ -20,17 +20,20 @@ public class AiShoppingAdminService {
     private final AiShoppingIndexService indexService;
     private final AiProviderConfig providerConfig;
     private final AiProviderClient providerClient;
+    private final AiShoppingFeatureGuard featureGuard;
 
     public AiShoppingAdminService(AiShoppingConfigRepository configRepository,
                                   AiSearchLogRepository logRepository,
                                   AiShoppingIndexService indexService,
                                   AiProviderConfig providerConfig,
-                                  AiProviderClient providerClient) {
+                                  AiProviderClient providerClient,
+                                  AiShoppingFeatureGuard featureGuard) {
         this.configRepository = configRepository;
         this.logRepository = logRepository;
         this.indexService = indexService;
         this.providerConfig = providerConfig;
         this.providerClient = providerClient;
+        this.featureGuard = featureGuard;
     }
 
     // ==================== Config ====================
@@ -53,6 +56,7 @@ public class AiShoppingAdminService {
     // ==================== Index ====================
 
     public void rebuildIndex(String type) {
+        featureGuard.requireEnabled();
         indexService.rebuild(type);
     }
 
@@ -72,6 +76,7 @@ public class AiShoppingAdminService {
     // ==================== Provider test ====================
 
     public Map<String, Object> testProvider(String type) {
+        featureGuard.requireEnabled();
         String normalized = type == null ? "embedding" : type.toLowerCase();
         try {
             long start = System.currentTimeMillis();

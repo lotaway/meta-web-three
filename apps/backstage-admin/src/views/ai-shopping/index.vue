@@ -22,13 +22,37 @@ const loading = ref(false)
 const configs = ref<AiShoppingConfig[]>([])
 const configForm = ref({ configKey: '', configValue: '', description: '' })
 
+const ENABLED_KEY = 'ai-shopping.enabled'
+const aiEnabled = ref(false)
+
 const loadConfigs = async () => {
   try {
     const res = await listAiShoppingConfigsAPI()
     configs.value = (res.data as AiShoppingConfig[]) || []
+    const enabledRow = configs.value.find((c) => c.configKey === ENABLED_KEY)
+    aiEnabled.value = enabledRow ? enabledRow.configValue === 'true' : false
   } catch (e) {
     console.error('[loadConfigs]', e)
     ElMessage.error('加载配置失败')
+  }
+}
+
+const toggleAiEnabled = async (value: boolean) => {
+  try {
+    if (value) {
+      await saveAiShoppingConfigAPI({ configKey: ENABLED_KEY, configValue: 'true', description: '全局启用 AI 辅助购物' })
+    } else {
+      const row = configs.value.find((c) => c.configKey === ENABLED_KEY)
+      if (row) {
+        await deleteAiShoppingConfigAPI(row.configKey)
+      }
+    }
+    ElMessage.success(value ? 'AI 辅助购物已启用' : 'AI 辅助购物已关闭')
+    loadConfigs()
+  } catch (e) {
+    console.error('[toggleAiEnabled]', e)
+    aiEnabled.value = !value
+    ElMessage.error('切换失败')
   }
 }
 
@@ -155,7 +179,11 @@ onMounted(() => {
         </h2>
         <span class="page-subtitle">文本纠错 / 智能匹配 / 以图搜图</span>
       </div>
-      <el-button type="primary" :icon="Refresh" :loading="loading" @click="refreshAll">刷新</el-button>
+      <div class="page-header-right">
+        <span class="mr-8">启用 AI 辅助购物</span>
+        <el-switch v-model="aiEnabled" @change="toggleAiEnabled" />
+        <el-button type="primary" :icon="Refresh" :loading="loading" @click="refreshAll">刷新</el-button>
+      </div>
     </div>
 
     <el-tabs v-model="activeTab" class="ai-tabs">

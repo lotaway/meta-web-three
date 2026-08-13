@@ -49,8 +49,8 @@
 
 ```yaml
 ai-shopping:
-  enabled: true
-  vector-store: memory            # milvus | memory（内存兜底，余弦扫描）
+  enabled: false               # 全局开关，默认关闭；关闭时不发起任何 AI/向量库调用
+  vector-store: memory         # milvus | memory（内存兜底，余弦扫描，无需外部依赖）
   embedding-dim: 1024
   default-top-k: 20
   embedding:            # 文本嵌入（OpenAI 兼容 /v1/embeddings）
@@ -85,9 +85,20 @@ ai-shopping:
 > `base-url` / `api-key` / `model` 留空时 LLM / 向量化功能不可用：文本纠错自动降级为本地词典纠错，
 > 智能匹配/以图搜图会因缺少向量化而报错（可在后台「Provider 测试」确认配置是否生效）。
 
+### 全局开关（默认关闭，无需向量库也能跑）
+
+- **`enabled: false`（默认）**：AI 辅助购物整体关闭。C 端接口返回 `code=1007 FORBIDDEN`，
+  索引重建 / Provider 测试同样拒绝执行，**不发起任何外部调用**（AI Provider、Milvus 均不会连接）。
+- 可通过后台页面右上角开关启用（写入 `ai_shopping_config` 的 `ai-shopping.enabled`），或直接改
+  `application.yml` 的 `enabled`。改动即时生效，无需重启。
+- **不配置 Milvus 也能运行**：默认 `vector-store: memory`，使用进程内内存向量库，零外部依赖；
+  仅当把 `vector.store` 改为 `milvus` 且真正执行「索引重建 / 智能匹配 / 以图搜图」时才会连接
+  Milvus（连接为**惰性建立**，启动阶段不做任何连接）。
+
 ### DB 覆盖（`ai_shopping_config` 的 `config_key`）
 `embedding.base-url` / `api-key` / `model`、`image-embedding.*`、`llm.*`、`vector.store`、
-`milvus.host` / `milvus.port` / `milvus.collection-text` / `milvus.collection-image`。
+`milvus.host` / `milvus.port` / `milvus.collection-text` / `milvus.collection-image`、
+`ai-shopping.enabled`。
 
 ## Milvus 部署（网络已统一）
 

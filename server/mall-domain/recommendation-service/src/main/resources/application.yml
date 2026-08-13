@@ -26,12 +26,12 @@ recommendation:
     batch:
       batch-size: 500
 ai-shopping:
-  enabled: true
+  enabled: false
   vector-store: memory
   embedding-dim: 1024
   default-top-k: 20
-  # 以下 base-url/api-key/model 均支持 DB 覆盖（ai_shopping_config 表，后台可维护）
-  # 兼容 OpenAI 协议；path 可自定义请求路径，默认按协议自动拼接
+  # base-url/api-key/model below can be overridden via the ai_shopping_config table (maintained in the admin UI)
+  # OpenAI-compatible protocol; path customizes the request path, default follows the protocol
   embedding:
     base-url: ""
     api-key: ""

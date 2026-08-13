@@ -14,7 +14,7 @@ public class AiShoppingProperties {
     private String vectorStore = "memory";
     private int embeddingDim = 1024;
     private int defaultTopK = 20;
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     private Endpoint embedding = new Endpoint();
     private Endpoint imageEmbedding = new Endpoint();

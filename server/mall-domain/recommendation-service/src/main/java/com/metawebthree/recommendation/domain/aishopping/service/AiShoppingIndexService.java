@@ -2,6 +2,7 @@ package com.metawebthree.recommendation.domain.aishopping.service;
 
 import com.metawebthree.recommendation.application.aishopping.AiProviderConfig;
 import com.metawebthree.recommendation.application.aishopping.AiProviderSettings;
+import com.metawebthree.recommendation.application.aishopping.AiShoppingFeatureGuard;
 import com.metawebthree.recommendation.domain.aishopping.entity.AiShoppingConfig;
 import com.metawebthree.recommendation.domain.aishopping.entity.IndexStatus;
 import com.metawebthree.recommendation.domain.aishopping.repository.AiShoppingConfigRepository;
@@ -43,6 +44,7 @@ public class AiShoppingIndexService {
     private final ProductCatalogCache catalogCache;
     private final AiProviderConfig providerConfig;
     private final AiShoppingConfigRepository configRepository;
+    private final AiShoppingFeatureGuard featureGuard;
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .followRedirects(HttpClient.Redirect.NORMAL)
@@ -54,12 +56,14 @@ public class AiShoppingIndexService {
                                   VectorStoreFactory vectorStoreFactory,
                                   ProductCatalogCache catalogCache,
                                   AiProviderConfig providerConfig,
-                                  AiShoppingConfigRepository configRepository) {
+                                  AiShoppingConfigRepository configRepository,
+                                  AiShoppingFeatureGuard featureGuard) {
         this.providerClient = providerClient;
         this.vectorStoreFactory = vectorStoreFactory;
         this.catalogCache = catalogCache;
         this.providerConfig = providerConfig;
         this.configRepository = configRepository;
+        this.featureGuard = featureGuard;
     }
 
     public boolean isRunning() {
@@ -71,6 +75,7 @@ public class AiShoppingIndexService {
     }
 
     public void rebuild(String type) {
+        featureGuard.requireEnabled();
         if (isRunning()) {
             throw new IllegalStateException("index rebuild already in progress");
         }
