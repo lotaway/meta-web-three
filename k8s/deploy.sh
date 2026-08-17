@@ -56,9 +56,9 @@ check_secrets() {
         log_info "请先创建 Secret，可以使用以下命令："
         echo
         echo "kubectl create secret generic database-secret \\"
-        echo "  --from-literal=mysql-root-password=your-password \\"
-        echo "  --from-literal=mysql-username=your-username \\"
-        echo "  --from-literal=mysql-database=your-database \\"
+        echo "  --from-literal=postgres-username=your-username \\"
+        echo "  --from-literal=postgres-password=your-password \\"
+        echo "  --from-literal=postgres-database=your-database \\"
         echo "  -n $NAMESPACE"
         echo
         log_error "请先创建 Secret 后再运行部署"
@@ -96,7 +96,7 @@ create_storage_dirs() {
     log_info "创建存储目录..."
     
     local dirs=(
-        "/data/mysql"
+        "/data/postgres"
         "/data/redis"
         "/data/server/product"
         "/data/server/user"
@@ -133,7 +133,7 @@ install() {
     
     log_info "等待 Pod 启动..."
     kubectl wait --for=condition=ready pod -l app=zookeeper -n "$NAMESPACE" --timeout=300s
-    kubectl wait --for=condition=ready pod -l app=mysql -n "$NAMESPACE" --timeout=300s
+    kubectl wait --for=condition=ready pod -l app=postgres -n "$NAMESPACE" --timeout=300s
     kubectl wait --for=condition=ready pod -l app=redis -n "$NAMESPACE" --timeout=300s
     kubectl wait --for=condition=ready pod -l app=rabbitmq -n "$NAMESPACE" --timeout=300s
     
@@ -214,8 +214,8 @@ logs() {
         "zookeeper")
             kubectl logs -f deployment/zookeeper -n "$NAMESPACE"
             ;;
-        "mysql")
-            kubectl logs -f deployment/mysql -n "$NAMESPACE"
+        "postgres")
+            kubectl logs -f deployment/postgres -n "$NAMESPACE"
             ;;
         "redis")
             kubectl logs -f deployment/redis -n "$NAMESPACE"
@@ -244,7 +244,7 @@ logs() {
             ;;
         *)
             log_error "未知服务: $service"
-            echo "可用服务: zookeeper, mysql, redis, rabbitmq, product, user, order, message, frontend, all"
+            echo "可用服务: zookeeper, postgres, redis, rabbitmq, product, user, order, message, frontend, all"
             exit 1
             ;;
     esac
@@ -305,17 +305,17 @@ create_secret() {
     
     check_kubectl
     
-    echo "请输入数据库配置信息："
-    read -p "MySQL Root 密码: " mysql_password
-    read -p "MySQL 用户名 (默认: root): " mysql_username
-    mysql_username=${mysql_username:-root}
-    read -p "MySQL 数据库名 (默认: metawebthree): " mysql_database
-    mysql_database=${mysql_database:-metawebthree}
-    
+echo "请输入数据库配置信息："
+    read -p "PostgreSQL 密码: " postgres_password
+    read -p "PostgreSQL 用户名 (默认: admin): " postgres_username
+    postgres_username=${postgres_username:-admin}
+    read -p "PostgreSQL 数据库名 (默认: metawebthree): " postgres_database
+    postgres_database=${postgres_database:-metawebthree}
+
     kubectl create secret generic database-secret \
-        --from-literal=mysql-root-password="$mysql_password" \
-        --from-literal=mysql-username="$mysql_username" \
-        --from-literal=mysql-database="$mysql_database" \
+        --from-literal=postgres-password="$postgres_password" \
+        --from-literal=postgres-username="$postgres_username" \
+        --from-literal=postgres-database="$postgres_database" \
         -n "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
     
     log_success "Secret 创建完成！"
