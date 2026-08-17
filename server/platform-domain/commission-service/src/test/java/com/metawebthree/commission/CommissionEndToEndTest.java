@@ -65,12 +65,12 @@ public class CommissionEndToEndTest extends PostgresTestBase {
 
     private static ConfigurableApplicationContext startCommissionService() {
         return startService(com.metawebthree.CommissionServiceApplication.class,
-                COMMISSION_PORT, "classpath:db/init.sql");
+                COMMISSION_PORT, "classpath:db/schema.sql");
     }
 
     private static ConfigurableApplicationContext startUserService() {
         return startService(loadApplicationClass("com.metawebthree.UserServiceApplication"),
-                USER_PORT, "classpath:db/init.sql");
+                USER_PORT, "classpath:db/schema.sql");
     }
 
     private static ConfigurableApplicationContext startOrderService() {

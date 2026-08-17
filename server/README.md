@@ -257,18 +257,14 @@ aws_secret_access_key=s3_secret_key
 
 ## Database Schema
 
-每个微服务的数据库表结构定义在 `src/main/resources/db/schema.sql`。
+每个微服务的数据库表结构定义在 `src/main/resources/db/schema.sql`（统一只使用初始化 schema，不使用版本迁移脚本）。
 
 ### 服务目录结构
 
 ```
 <domain>/<service>/
 ├── src/main/resources/db/
-│     ├── schema.sql      -- 表结构定义
-│     └── migration/      -- 未来使用 Flyway / Liquibase 进行迁移
-│           ├── V1__init.sql
-│           ├── V2__add_index.sql
-│           └── ...
+│     └── schema.sql      -- 表结构定义（初始化脚本）
 ```
 
 ### ID 生成策略

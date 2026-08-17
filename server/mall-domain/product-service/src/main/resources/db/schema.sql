@@ -93,8 +93,10 @@ CREATE TABLE IF NOT EXISTS tb_product (
     promotion_per_limit INT,
     promotion_type INT DEFAULT 0,
     brand_name VARCHAR(255),
-    product_category_name VARCHAR(255)
+    product_category_name VARCHAR(255),
+    tenant_id BIGINT
 );
+CREATE INDEX IF NOT EXISTS idx_tb_product_tenant ON tb_product(tenant_id);
 
 CREATE TABLE IF NOT EXISTS tb_sku_stock (
     id BIGINT PRIMARY KEY,
@@ -107,8 +109,10 @@ CREATE TABLE IF NOT EXISTS tb_sku_stock (
     sale INT DEFAULT 0,
     promotion_price DECIMAL(10, 2),
     lock_stock INT DEFAULT 0,
-    sp_data TEXT
+    sp_data TEXT,
+    tenant_id BIGINT
 );
+CREATE INDEX IF NOT EXISTS idx_tb_sku_stock_tenant ON tb_sku_stock(tenant_id);
 
 CREATE TABLE IF NOT EXISTS tb_product_attribute_value (
     id BIGINT PRIMARY KEY,

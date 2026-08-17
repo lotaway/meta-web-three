@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
     classes = CommissionServiceApplication.class,
     properties = {
         "spring.sql.init.mode=always",
-        "spring.sql.init.schema-locations=classpath:db/init.sql",
+        "spring.sql.init.schema-locations=classpath:db/schema.sql",
         "commission.buy-rate=0.10",
         "commission.level-rates=0.4,0.2",
         "commission.max-levels=2",

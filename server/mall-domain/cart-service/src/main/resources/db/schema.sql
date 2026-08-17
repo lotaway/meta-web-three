@@ -18,9 +18,11 @@ CREATE TABLE IF NOT EXISTS oms_cart_item (
     product_category_id BIGINT,
     product_brand VARCHAR(200),
     product_sn VARCHAR(64),
-    product_attr VARCHAR(500)
+    product_attr VARCHAR(500),
+    tenant_id BIGINT
 );
 
 CREATE INDEX IF NOT EXISTS idx_cart_member_id ON oms_cart_item (member_id);
 CREATE INDEX IF NOT EXISTS idx_cart_product_id ON oms_cart_item (product_id);
 CREATE INDEX IF NOT EXISTS idx_cart_product_sku_id ON oms_cart_item (product_sku_id);
+CREATE INDEX IF NOT EXISTS idx_oms_cart_item_tenant ON oms_cart_item(tenant_id);

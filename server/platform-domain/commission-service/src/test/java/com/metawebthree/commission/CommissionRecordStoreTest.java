@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
     classes = CommissionServiceApplication.class,
     properties = {
         "spring.sql.init.mode=always",
-        "spring.sql.init.schema-locations=classpath:db/init.sql"
+        "spring.sql.init.schema-locations=classpath:db/schema.sql"
     }
 )
 public class CommissionRecordStoreTest extends PostgresTestBase {

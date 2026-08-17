@@ -21,4 +21,4 @@ commission:
 
 ## Schema
 
-See `src/main/resources/db/init.sql`.
+See `src/main/resources/db/schema.sql`.
