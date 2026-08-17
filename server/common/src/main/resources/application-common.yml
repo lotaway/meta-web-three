@@ -23,7 +23,7 @@ spring:
         enabled: true
     # quartz:
     # #如果需要quartz 第一次运行时自动生成 quartz 所需的表那么 quartzJob? 后面的配置为 ：allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
-    #   url: jdbc:mysql://localhost:3306/quartzJob?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    #   url: jdbc:postgresql://localhost:5432/quartzJob
     #   username: admin
     #   password: 123123
   data:
