@@ -1,12 +1,13 @@
 package com.metawebthree.tenant.service;
 
+import org.apache.dubbo.config.annotation.DubboReference;
+
+import com.metawebthree.common.generated.rpc.platform.MessageService;
+import com.metawebthree.common.generated.rpc.platform.SendEmailRequest;
+import com.metawebthree.common.generated.rpc.platform.SendEmailResponse;
 import com.metawebthree.common.services.DistributedCacheService;
 
-import jakarta.mail.internet.MimeMessage;
-
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -21,17 +22,15 @@ public class EmailVerificationService {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private final DistributedCacheService cacheService;
-    private final JavaMailSender mailSender;
 
-    @Value("${notification.email.from:noreply@metawebthree.com}")
-    private String fromEmail;
+    @DubboReference(check = false, lazy = true)
+    private MessageService messageService;
 
     @Value("${notification.email.enabled:true}")
     private boolean emailEnabled;
 
-    public EmailVerificationService(DistributedCacheService cacheService, JavaMailSender mailSender) {
+    public EmailVerificationService(DistributedCacheService cacheService) {
         this.cacheService = cacheService;
-        this.mailSender = mailSender;
     }
 
     public boolean sendCode(String email) {
@@ -43,13 +42,16 @@ public class EmailVerificationService {
         }
 
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setFrom(fromEmail);
-            helper.setTo(email);
-            helper.setSubject("[MetaWebThree] Email Verification Code");
-            helper.setText(buildEmailContent(code), true);
-            mailSender.send(message);
+            SendEmailRequest request = SendEmailRequest.newBuilder()
+                    .setTo(email)
+                    .setTitle("[MetaWebThree] Email Verification Code")
+                    .setContent(buildEmailContent(code))
+                    .build();
+            SendEmailResponse response = messageService.sendEmail(request);
+            if (response == null || !response.getSuccess()) {
+                cacheService.evict(CACHE_NAME, email);
+                return false;
+            }
             return true;
         } catch (Exception e) {
             cacheService.evict(CACHE_NAME, email);
