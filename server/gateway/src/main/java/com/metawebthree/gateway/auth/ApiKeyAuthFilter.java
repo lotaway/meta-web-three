@@ -60,6 +60,8 @@ public class ApiKeyAuthFilter implements GlobalFilter, Ordered {
     // Paths that should skip API key authentication
     private final List<String> publicPaths = List.of(
         "/developer/register",
+        "/developer/captcha/",
+        "/developer/email/",
         "/developer/docs",
         "/oauth/authorize",
         "/oauth/token",

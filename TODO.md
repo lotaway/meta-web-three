@@ -5,13 +5,7 @@
 
 ### 安全
 
-- [ ] 当前 `/developer/register` 接口存在安全隐患：
-  - 任何人都可以无限制调用
-  - 没有 CAPTCHA、没有邮箱验证、没有 IP 限流
-  - 唯一的防护是注册后需要管理员人工审批（PENDING → APPROVED）
-  对于 B2B 场景，更安全的做法是：
-  1. __不暴露公开注册 API__，改为通过商务渠道线下收集开发者信息，由管理员在 backstage-admin 中创建账号
-  2. 如果必须保留公开注册，至少加上 __CAPTCHA + 邮箱验证 + IP 限流__ 三层防护
+- [x] `/developer/register` 接口已加上三层防护：`/developer/captcha/generate` 图形验证码、`/developer/email/send-verification-code` 邮箱验证码、按 IP 的 Redis 限流（另叠加 resilience4j `developerRegister` 限流），注册后仍保留管理员人工审批（PENDING → APPROVED）
 
 ## [区块重组处理](./TODO_BLOCK_REORG.md)
 

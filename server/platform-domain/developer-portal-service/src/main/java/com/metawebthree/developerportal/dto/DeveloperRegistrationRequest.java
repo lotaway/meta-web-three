@@ -21,4 +21,13 @@ public class DeveloperRegistrationRequest {
 
     @Size(max = 1000, message = "Description must not exceed 1000 characters")
     private String description;
+
+    @NotBlank(message = "CAPTCHA token is required")
+    private String captchaToken;
+
+    @NotBlank(message = "CAPTCHA answer is required")
+    private String captchaAnswer;
+
+    @NotBlank(message = "Email verification code is required")
+    private String emailCode;
 }

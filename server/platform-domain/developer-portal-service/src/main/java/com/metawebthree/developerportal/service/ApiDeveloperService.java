@@ -1,5 +1,7 @@
 package com.metawebthree.developerportal.service;
 
+import com.metawebthree.common.enums.ResponseStatus;
+import com.metawebthree.common.exception.BusinessException;
 import com.metawebthree.developerportal.dto.*;
 import com.metawebthree.developerportal.entity.ApiDeveloper;
 import com.metawebthree.developerportal.entity.ApiDeveloper.DeveloperStatus;
@@ -24,7 +26,7 @@ public class ApiDeveloperService {
     @Transactional
     public DeveloperResponse register(DeveloperRegistrationRequest request) {
         if (developerRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Email already registered: " + request.getEmail());
+            throw new BusinessException(ResponseStatus.DEVELOPER_ALREADY_EXISTS);
         }
 
         ApiDeveloper developer = new ApiDeveloper();
@@ -152,6 +154,10 @@ public class ApiDeveloperService {
         return developerRepository.findByStatus(DeveloperStatus.APPROVED).stream()
             .map(DeveloperResponse::fromEntity)
             .collect(Collectors.toList());
+    }
+
+    public boolean existsByEmail(String email) {
+        return developerRepository.existsByEmail(email);
     }
 
     private String generateDeveloperId() {

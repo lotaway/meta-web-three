@@ -10,6 +10,18 @@ dubbo:
     name: developer-portal-service
   protocol:
     port: 20115
+
+notification:
+  email:
+    enabled: ${EMAIL_ENABLED:true}
+
+service-governance:
+  rate-limiter:
+    developerRegister:
+      enabled: true
+      limit-for-period: 3
+      limit-refresh-period: 60s
+      timeout-duration: 5s
 ---
 spring:
   config:

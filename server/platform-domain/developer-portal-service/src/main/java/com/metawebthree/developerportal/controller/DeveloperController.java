@@ -1,9 +1,16 @@
 package com.metawebthree.developerportal.controller;
 
+import com.metawebthree.common.enums.ResponseStatus;
+import com.metawebthree.common.exception.BusinessException;
 import com.metawebthree.developerportal.dto.*;
 import com.metawebthree.developerportal.service.ApiDeveloperService;
+import com.metawebthree.developerportal.service.CaptchaService;
+import com.metawebthree.developerportal.service.EmailVerificationService;
+import com.metawebthree.developerportal.service.IpRateLimitService;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,11 +27,53 @@ import java.util.Map;
 public class DeveloperController {
 
     private final ApiDeveloperService developerService;
+    private final CaptchaService captchaService;
+    private final EmailVerificationService emailVerificationService;
+    private final IpRateLimitService ipRateLimitService;
 
-    @Operation(summary = "Register as a new developer", description = "Submit registration for API access")
+    @Operation(summary = "Generate registration CAPTCHA", description = "Generate a CAPTCHA challenge for developer registration")
+    @GetMapping("/captcha/generate")
+    public ResponseEntity<CaptchaService.CaptchaResult> generateCaptcha(HttpServletRequest request) {
+        if (!ipRateLimitService.isAllowed(request)) {
+            throw new BusinessException(ResponseStatus.REGISTRATION_RATE_LIMITED);
+        }
+        return ResponseEntity.ok(captchaService.generate());
+    }
+
+    @Operation(summary = "Send email verification code", description = "Send a verification code to the given email address")
+    @PostMapping("/email/send-verification-code")
+    public ResponseEntity<Void> sendVerificationCode(HttpServletRequest request, @RequestBody Map<String, String> body) {
+        if (!ipRateLimitService.isAllowed(request)) {
+            throw new BusinessException(ResponseStatus.REGISTRATION_RATE_LIMITED);
+        }
+        String email = body.get("email");
+        if (email == null || email.isBlank()) {
+            throw new BusinessException(ResponseStatus.PARAM_MISSING_ERROR, "Email is required");
+        }
+        if (developerService.existsByEmail(email)) {
+            throw new BusinessException(ResponseStatus.DEVELOPER_ALREADY_EXISTS);
+        }
+        if (!emailVerificationService.sendCode(email)) {
+            throw new BusinessException(ResponseStatus.EMAIL_VERIFICATION_CODE_SEND_FAILED);
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @RateLimiter(name = "developerRegister")
+    @Operation(summary = "Register as a new developer", description = "Submit registration for API access with CAPTCHA and email verification")
     @PostMapping("/register")
-    public ResponseEntity<DeveloperResponse> register(@Valid @RequestBody DeveloperRegistrationRequest request) {
-        DeveloperResponse response = developerService.register(request);
+    public ResponseEntity<DeveloperResponse> register(HttpServletRequest request,
+                                                      @Valid @RequestBody DeveloperRegistrationRequest registerRequest) {
+        if (!ipRateLimitService.isAllowed(request)) {
+            throw new BusinessException(ResponseStatus.REGISTRATION_RATE_LIMITED);
+        }
+        if (!captchaService.verify(registerRequest.getCaptchaToken(), registerRequest.getCaptchaAnswer())) {
+            throw new BusinessException(ResponseStatus.CAPTCHA_INVALID);
+        }
+        if (!emailVerificationService.verifyCode(registerRequest.getEmail(), registerRequest.getEmailCode())) {
+            throw new BusinessException(ResponseStatus.EMAIL_VERIFICATION_CODE_INVALID);
+        }
+        DeveloperResponse response = developerService.register(registerRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

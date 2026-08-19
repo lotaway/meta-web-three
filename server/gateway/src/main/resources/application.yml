@@ -88,6 +88,10 @@ gateway:
       - /tenant-service/tenant/captcha/**
       - /tenant-service/tenant/email/**
       - /tenant-service/tenant/register
+      # Developer Portal — public registration & verification
+      - /developer-portal-service/developer/captcha/**
+      - /developer-portal-service/developer/email/**
+      - /developer-portal-service/developer/register
       # Actuator
       - /actuator/**
       # WebSocket - digital twin real-time communication
@@ -105,6 +109,10 @@ gateway:
     - /tenant-service/tenant/captcha/**
     - /tenant-service/tenant/email/**
     - /tenant-service/tenant/register
+    # Developer Portal — public registration & verification
+    - /developer-portal-service/developer/captcha/**
+    - /developer-portal-service/developer/email/**
+    - /developer-portal-service/developer/register
     # Actuator & docs
     - /actuator/**
     - /v3/api-docs
