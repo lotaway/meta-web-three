@@ -388,7 +388,8 @@ class FederationRouterTest {
         GraphQL graphQL = federationRouter.getGraphQL();
         ExecutionResult result = graphQL.execute("{ _service { sdl } }");
 
-        assertNull(result.getErrors(), "Should not have errors for _service query");
+        List<?> errors = result.getErrors();
+        assertTrue(errors == null || errors.isEmpty(), "Should not have errors for _service query");
         Map<?, ?> data = result.getData();
         assertNotNull(data);
         Map<?, ?> service = (Map<?, ?>) data.get("_service");
@@ -405,13 +406,14 @@ class FederationRouterTest {
     @Test
     void shouldMapAllExpectedSubgraphs() {
         Map<String, String> urls = FederationRouter.SUBGRAPH_URLS;
-        assertEquals(6, urls.size(), "Should have 6 subgraph mappings");
+        assertEquals(7, urls.size(), "Should have 7 subgraph mappings");
         assertTrue(urls.containsKey("product"));
         assertTrue(urls.containsKey("order"));
         assertTrue(urls.containsKey("user"));
         assertTrue(urls.containsKey("inventory"));
         assertTrue(urls.containsKey("recommendation"));
         assertTrue(urls.containsKey("cart"));
+        assertTrue(urls.containsKey("crm"));
     }
 
     @Test

@@ -4,7 +4,11 @@ export interface Developer {
   developerId: string; email: string; companyName: string; contactName: string;
   status: string; plan: string; createdAt: string
 }
-export function generateCaptchaAPI() { return http<{ token: string; question: string }>({ url: '/developer/captcha/generate', method: 'get' }) }
+export interface CaptchaChallenge {
+  token: string
+  image: string
+}
+export function generateCaptchaAPI() { return http<CaptchaChallenge>({ url: '/developer/captcha/generate', method: 'get' }) }
 export function sendVerificationCodeAPI(email: string) { return http<void>({ url: '/developer/email/send-verification-code', method: 'post', data: { email } }) }
 export function registerDeveloperAPI(data: Record<string, any>) { return http<Developer>({ url: '/developer/register', method: 'post', data }) }
 export function getDeveloperAPI(id: string) { return http<Developer>({ url: `/developer/${id}`, method: 'get' }) }

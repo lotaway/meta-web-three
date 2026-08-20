@@ -87,6 +87,16 @@ public class GatewayAuthConfig {
         routeRoles.put("/tenant-service/tenant/admin/**", List.of("ADMIN"));
         routeRoles.put("/tenant-service/tenant/merchant/**", List.of("MERCHANT"));
         routeRoles.put("/tenant-service/tenant/**", List.of("ADMIN", "MERCHANT"));
+        // Developer Portal — self-service registration & verification paths are
+        // excluded from RBAC at the gateway; all management ops are admin-only
+        routeRoles.put("/developer-portal-service/developer/admin/**", List.of("ADMIN"));
+        routeRoles.put("/developer-portal-service/developer/api-keys/**", List.of("ADMIN"));
+        routeRoles.put("/developer-portal-service/developer/subscriptions/**", List.of("ADMIN"));
+        routeRoles.put("/developer-portal-service/developer/oauth/**", List.of("ADMIN"));
+        routeRoles.put("/developer-portal-service/developer/usage/**", List.of("ADMIN"));
+        routeRoles.put("/developer-portal-service/developer/billing/**", List.of("ADMIN"));
+        routeRoles.put("/developer-portal-service/developer/by-email/**", List.of("ADMIN"));
+        routeRoles.put("/developer-portal-service/developer/**", List.of("ADMIN"));
 
         routeRoles.put("/promotion-service/admin/**", List.of("ADMIN", "MANAGER"));
         routeRoles.put("/promotion-service/**", List.of("ADMIN", "MANAGER", "USER", "GUEST"));

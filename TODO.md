@@ -5,8 +5,6 @@
 
 ### 安全
 
-- [x] `/developer/register` 接口已加上三层防护：`/developer/captcha/generate` 图形验证码、`/developer/email/send-verification-code` 邮箱验证码、按 IP 的 Redis 限流（另叠加 resilience4j `developerRegister` 限流），注册后仍保留管理员人工审批（PENDING → APPROVED）
-
 ## [区块重组处理](./TODO_BLOCK_REORG.md)
 
 # 待决议功能

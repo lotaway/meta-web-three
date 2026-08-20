@@ -66,7 +66,7 @@ service.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data as CommonResult<unknown>
     const code = String(res.code)
-    if (code !== '200') {
+    if (code !== '0000') {
       ElMessage({
         message: res.message,
         type: 'error',

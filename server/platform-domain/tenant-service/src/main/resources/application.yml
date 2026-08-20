@@ -15,8 +15,26 @@ notification:
   email:
     enabled: ${EMAIL_ENABLED:true}
 
+resilience4j:
+  ratelimiter:
+    instances:
+      tenantRegister:
+        limit-refresh-period: 60s
+        limit-for-period: 3
+        timeout-duration: 5s
+
 service-governance:
   rate-limiter:
+    tenantCaptcha:
+      enabled: true
+      limit-for-period: 10
+      limit-refresh-period: 60s
+      timeout-duration: 5s
+    tenantEmailCode:
+      enabled: true
+      limit-for-period: 5
+      limit-refresh-period: 60s
+      timeout-duration: 5s
     tenantRegister:
       enabled: true
       limit-for-period: 3

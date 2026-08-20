@@ -26,8 +26,10 @@ public class DeveloperRegistrationRequest {
     private String captchaToken;
 
     @NotBlank(message = "CAPTCHA answer is required")
+    @Size(max = 8, message = "CAPTCHA answer must not exceed 8 characters")
     private String captchaAnswer;
 
     @NotBlank(message = "Email verification code is required")
+    @Size(min = 6, max = 6, message = "Email verification code must be 6 digits")
     private String emailCode;
 }

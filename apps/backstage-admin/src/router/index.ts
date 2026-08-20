@@ -5,6 +5,7 @@ import type { RouteRecordExt } from '@/types/router'
 export const constantRouterMap: RouteRecordExt[] = [
   { path: '/404', component: () => import('@/views/normal/404/index.vue'), hidden: true },
   { path: '/login', component: () => import('@/views/normal/login/index.vue'), hidden: true },
+  { path: '/register', component: () => import('@/views/normal/register/index.vue'), hidden: true },
   {
     path: '',
     component: Layout,

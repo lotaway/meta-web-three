@@ -3,14 +3,14 @@ package com.metawebthree.tenant.controller;
 import com.metawebthree.common.constants.HeaderConstants;
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.enums.ResponseStatus;
+import com.metawebthree.common.registration.EmailVerificationCodeService;
+import com.metawebthree.common.registration.IpRateLimitService;
+import com.metawebthree.common.registration.TokenCaptchaService;
 import com.metawebthree.tenant.dto.RegisterRequest;
 import com.metawebthree.tenant.entity.Tenant;
 import com.metawebthree.tenant.entity.TenantShop;
 import com.metawebthree.tenant.entity.TenantUser;
 import com.metawebthree.tenant.enums.TenantUserRole;
-import com.metawebthree.tenant.service.CaptchaService;
-import com.metawebthree.tenant.service.EmailVerificationService;
-import com.metawebthree.tenant.service.IpRateLimitService;
 import com.metawebthree.tenant.service.TenantService;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -39,30 +39,36 @@ import java.util.List;
 public class TenantController {
 
     private final TenantService tenantService;
-    private final CaptchaService captchaService;
-    private final EmailVerificationService emailVerificationService;
-    private final IpRateLimitService ipRateLimitService;
+    private final TokenCaptchaService tenantCaptchaService;
+    private final EmailVerificationCodeService tenantEmailVerificationService;
+    private final IpRateLimitService tenantCaptchaRateLimiter;
+    private final IpRateLimitService tenantEmailRateLimiter;
+    private final IpRateLimitService tenantRegisterRateLimiter;
 
-    public TenantController(TenantService tenantService, CaptchaService captchaService,
-                            EmailVerificationService emailVerificationService,
-                            IpRateLimitService ipRateLimitService) {
+    public TenantController(TenantService tenantService, TokenCaptchaService tenantCaptchaService,
+                            EmailVerificationCodeService tenantEmailVerificationService,
+                            IpRateLimitService tenantCaptchaRateLimiter,
+                            IpRateLimitService tenantEmailRateLimiter,
+                            IpRateLimitService tenantRegisterRateLimiter) {
         this.tenantService = tenantService;
-        this.captchaService = captchaService;
-        this.emailVerificationService = emailVerificationService;
-        this.ipRateLimitService = ipRateLimitService;
+        this.tenantCaptchaService = tenantCaptchaService;
+        this.tenantEmailVerificationService = tenantEmailVerificationService;
+        this.tenantCaptchaRateLimiter = tenantCaptchaRateLimiter;
+        this.tenantEmailRateLimiter = tenantEmailRateLimiter;
+        this.tenantRegisterRateLimiter = tenantRegisterRateLimiter;
     }
 
     @GetMapping("/captcha/generate")
-    public ApiResponse<CaptchaService.CaptchaResult> generateCaptcha(HttpServletRequest request) {
-        if (!ipRateLimitService.isAllowed(request)) {
+    public ApiResponse<TokenCaptchaService.CaptchaChallenge> generateCaptcha(HttpServletRequest request) {
+        if (!tenantCaptchaRateLimiter.isAllowed(request)) {
             return ApiResponse.error(ResponseStatus.FORBIDDEN, "Too many requests");
         }
-        return ApiResponse.success(captchaService.generate());
+        return ApiResponse.success(tenantCaptchaService.generate());
     }
 
     @PostMapping("/email/send-verification-code")
     public ApiResponse<Void> sendVerificationCode(HttpServletRequest request, @RequestParam String email) {
-        if (!ipRateLimitService.isAllowed(request)) {
+        if (!tenantEmailRateLimiter.isAllowed(request)) {
             return ApiResponse.error(ResponseStatus.FORBIDDEN, "Too many requests");
         }
         if (email == null || email.isBlank()) {
@@ -72,23 +78,20 @@ public class TenantController {
             return ApiResponse.error(ResponseStatus.TENANT_ALREADY_EXISTS,
                 "A tenant with this email already exists");
         }
-        boolean sent = emailVerificationService.sendCode(email);
-        if (!sent) {
-            return ApiResponse.error(ResponseStatus.EMAIL_VERIFICATION_CODE_SEND_FAILED);
-        }
+        tenantEmailVerificationService.sendCode(email);
         return ApiResponse.success();
     }
 
     @RateLimiter(name = "tenantRegister")
     @PostMapping("/register")
     public ApiResponse<Tenant> register(HttpServletRequest request, @Valid @RequestBody RegisterRequest registerRequest) {
-        if (!ipRateLimitService.isAllowed(request)) {
+        if (!tenantRegisterRateLimiter.isAllowed(request)) {
             return ApiResponse.error(ResponseStatus.FORBIDDEN, "Too many requests");
         }
-        if (!captchaService.verify(registerRequest.getCaptchaToken(), registerRequest.getCaptchaAnswer())) {
+        if (!tenantCaptchaService.verify(registerRequest.getCaptchaToken(), registerRequest.getCaptchaAnswer())) {
             return ApiResponse.error(ResponseStatus.CAPTCHA_INVALID);
         }
-        if (!emailVerificationService.verifyCode(registerRequest.getContactEmail(), registerRequest.getEmailCode())) {
+        if (!tenantEmailVerificationService.verifyCode(registerRequest.getContactEmail(), registerRequest.getEmailCode())) {
             return ApiResponse.error(ResponseStatus.EMAIL_VERIFICATION_CODE_INVALID);
         }
         if (tenantService.getByCode(registerRequest.getCode()) != null) {

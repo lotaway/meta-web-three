@@ -15,13 +15,25 @@ notification:
   email:
     enabled: ${EMAIL_ENABLED:true}
 
+resilience4j:
+  ratelimiter:
+    instances:
+      developerRegister:
+        limitForPeriod: 3
+        limitRefreshPeriod: 60s
+        timeoutDuration: 5s
+
 service-governance:
   rate-limiter:
+    developerCaptcha:
+      limit-for-period: 10
+      limit-refresh-period: 60s
+    developerEmailCode:
+      limit-for-period: 5
+      limit-refresh-period: 60s
     developerRegister:
-      enabled: true
       limit-for-period: 3
       limit-refresh-period: 60s
-      timeout-duration: 5s
 ---
 spring:
   config:

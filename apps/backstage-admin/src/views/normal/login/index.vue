@@ -101,9 +101,14 @@ const handleLogin = () => {
             </template>
           </el-input>
         </el-form-item>
-        <el-form-item style="margin-bottom: 60px;text-align: center">
+        <el-form-item style="margin-bottom: 12px;text-align: center">
           <el-button style="width: 45%" type="primary" :loading="loading" @click="handleLogin">
             登录
+          </el-button>
+        </el-form-item>
+        <el-form-item style="margin-bottom: 0;text-align: center">
+          <el-button link type="primary" @click="router.push({ path: '/register' })">
+            开发者注册
           </el-button>
         </el-form-item>
       </el-form>

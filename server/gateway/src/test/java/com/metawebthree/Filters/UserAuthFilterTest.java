@@ -81,7 +81,7 @@ public class UserAuthFilterTest {
         ArgumentCaptor<ServerWebExchange> exchangeCaptor = ArgumentCaptor.forClass(ServerWebExchange.class);
         Mockito.when(chain.filter(exchangeCaptor.capture())).thenReturn(Mono.empty());
         Mockito.when(tokenValidator.validate("valid-token"))
-                .thenReturn(new UserTokenClaims(7L, "alice", "USER"));
+                .thenReturn(new UserTokenClaims(7L, "alice", "USER", 1L));
         ServerWebExchange exchange = MockServerWebExchange.from(
                 MockServerHttpRequest.get("/user-service/user/profile")
                         .header("Authorization", "Bearer valid-token")

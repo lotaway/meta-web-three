@@ -1,20 +1,21 @@
 package com.metawebthree.developerportal.controller;
 
+import com.metawebthree.common.constants.HeaderConstants;
+import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.enums.ResponseStatus;
 import com.metawebthree.common.exception.BusinessException;
+import com.metawebthree.common.registration.EmailVerificationCodeService;
+import com.metawebthree.common.registration.IpRateLimitService;
+import com.metawebthree.common.registration.TokenCaptchaService;
 import com.metawebthree.developerportal.dto.*;
+import com.metawebthree.developerportal.entity.ApiDeveloper;
 import com.metawebthree.developerportal.service.ApiDeveloperService;
-import com.metawebthree.developerportal.service.CaptchaService;
-import com.metawebthree.developerportal.service.EmailVerificationService;
-import com.metawebthree.developerportal.service.IpRateLimitService;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,23 +28,25 @@ import java.util.Map;
 public class DeveloperController {
 
     private final ApiDeveloperService developerService;
-    private final CaptchaService captchaService;
-    private final EmailVerificationService emailVerificationService;
-    private final IpRateLimitService ipRateLimitService;
+    private final TokenCaptchaService developerCaptchaService;
+    private final EmailVerificationCodeService developerEmailVerificationService;
+    private final IpRateLimitService developerCaptchaRateLimiter;
+    private final IpRateLimitService developerEmailRateLimiter;
+    private final IpRateLimitService developerRegisterRateLimiter;
 
-    @Operation(summary = "Generate registration CAPTCHA", description = "Generate a CAPTCHA challenge for developer registration")
+    @Operation(summary = "Generate registration CAPTCHA", description = "Generate an image CAPTCHA challenge for developer registration")
     @GetMapping("/captcha/generate")
-    public ResponseEntity<CaptchaService.CaptchaResult> generateCaptcha(HttpServletRequest request) {
-        if (!ipRateLimitService.isAllowed(request)) {
+    public ApiResponse<TokenCaptchaService.CaptchaChallenge> generateCaptcha(HttpServletRequest request) {
+        if (!developerCaptchaRateLimiter.isAllowed(request)) {
             throw new BusinessException(ResponseStatus.REGISTRATION_RATE_LIMITED);
         }
-        return ResponseEntity.ok(captchaService.generate());
+        return ApiResponse.success(developerCaptchaService.generate());
     }
 
     @Operation(summary = "Send email verification code", description = "Send a verification code to the given email address")
     @PostMapping("/email/send-verification-code")
-    public ResponseEntity<Void> sendVerificationCode(HttpServletRequest request, @RequestBody Map<String, String> body) {
-        if (!ipRateLimitService.isAllowed(request)) {
+    public ApiResponse<Void> sendVerificationCode(HttpServletRequest request, @RequestBody Map<String, String> body) {
+        if (!developerEmailRateLimiter.isAllowed(request)) {
             throw new BusinessException(ResponseStatus.REGISTRATION_RATE_LIMITED);
         }
         String email = body.get("email");
@@ -53,119 +56,125 @@ public class DeveloperController {
         if (developerService.existsByEmail(email)) {
             throw new BusinessException(ResponseStatus.DEVELOPER_ALREADY_EXISTS);
         }
-        if (!emailVerificationService.sendCode(email)) {
-            throw new BusinessException(ResponseStatus.EMAIL_VERIFICATION_CODE_SEND_FAILED);
-        }
-        return ResponseEntity.ok().build();
+        developerEmailVerificationService.sendCode(email);
+        return ApiResponse.success();
     }
 
     @RateLimiter(name = "developerRegister")
     @Operation(summary = "Register as a new developer", description = "Submit registration for API access with CAPTCHA and email verification")
     @PostMapping("/register")
-    public ResponseEntity<DeveloperResponse> register(HttpServletRequest request,
-                                                      @Valid @RequestBody DeveloperRegistrationRequest registerRequest) {
-        if (!ipRateLimitService.isAllowed(request)) {
+    public ApiResponse<DeveloperResponse> register(HttpServletRequest request,
+                                                   @Valid @RequestBody DeveloperRegistrationRequest registerRequest) {
+        if (!developerRegisterRateLimiter.isAllowed(request)) {
             throw new BusinessException(ResponseStatus.REGISTRATION_RATE_LIMITED);
         }
-        if (!captchaService.verify(registerRequest.getCaptchaToken(), registerRequest.getCaptchaAnswer())) {
+        if (!developerCaptchaService.verify(registerRequest.getCaptchaToken(), registerRequest.getCaptchaAnswer())) {
             throw new BusinessException(ResponseStatus.CAPTCHA_INVALID);
         }
-        if (!emailVerificationService.verifyCode(registerRequest.getEmail(), registerRequest.getEmailCode())) {
+        if (!developerEmailVerificationService.verifyCode(registerRequest.getEmail(), registerRequest.getEmailCode())) {
             throw new BusinessException(ResponseStatus.EMAIL_VERIFICATION_CODE_INVALID);
         }
         DeveloperResponse response = developerService.register(registerRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ApiResponse.success(response);
     }
 
     @Operation(summary = "Get developer profile", description = "Get current developer profile by ID")
     @GetMapping("/{developerId}")
-    public ResponseEntity<DeveloperResponse> getDeveloper(@PathVariable String developerId) {
-        DeveloperResponse response = developerService.getDeveloper(developerId);
-        return ResponseEntity.ok(response);
+    public ApiResponse<DeveloperResponse> getDeveloper(@PathVariable String developerId) {
+        return ApiResponse.success(developerService.getDeveloper(developerId));
     }
 
     @Operation(summary = "Get developer by email", description = "Find developer by email address")
     @GetMapping("/by-email/{email}")
-    public ResponseEntity<DeveloperResponse> getDeveloperByEmail(@PathVariable String email) {
-        DeveloperResponse response = developerService.getDeveloperByEmail(email);
-        return ResponseEntity.ok(response);
+    public ApiResponse<DeveloperResponse> getDeveloperByEmail(@PathVariable String email) {
+        return ApiResponse.success(developerService.getDeveloperByEmail(email));
     }
 
     @Operation(summary = "Get pending developers", description = "List all developers awaiting approval (Admin only)")
     @GetMapping("/admin/pending")
-    public ResponseEntity<List<DeveloperResponse>> getPendingDevelopers() {
-        List<DeveloperResponse> response = developerService.getPendingDevelopers();
-        return ResponseEntity.ok(response);
+    public ApiResponse<List<DeveloperResponse>> getPendingDevelopers(
+            @RequestHeader(value = HeaderConstants.USER_ROLE, required = false) String userRole) {
+        ensureAdmin(userRole);
+        return ApiResponse.success(developerService.getPendingDevelopers());
     }
 
     @Operation(summary = "Get approved developers", description = "List all approved developers (Admin only)")
     @GetMapping("/admin/approved")
-    public ResponseEntity<List<DeveloperResponse>> getApprovedDevelopers() {
-        List<DeveloperResponse> response = developerService.getApprovedDevelopers();
-        return ResponseEntity.ok(response);
+    public ApiResponse<List<DeveloperResponse>> getApprovedDevelopers(
+            @RequestHeader(value = HeaderConstants.USER_ROLE, required = false) String userRole) {
+        ensureAdmin(userRole);
+        return ApiResponse.success(developerService.getApprovedDevelopers());
     }
 
     @Operation(summary = "Approve developer", description = "Approve a pending developer registration (Admin only)")
     @PostMapping("/admin/{developerId}/approve")
-    public ResponseEntity<DeveloperResponse> approveDeveloper(
-        @PathVariable String developerId,
-        @RequestBody Map<String, String> body
-    ) {
+    public ApiResponse<DeveloperResponse> approveDeveloper(
+            @RequestHeader(value = HeaderConstants.USER_ROLE, required = false) String userRole,
+            @PathVariable String developerId,
+            @RequestBody Map<String, String> body) {
+        ensureAdmin(userRole);
         String reviewedBy = body.getOrDefault("reviewedBy", "admin");
         String note = body.get("note");
-        DeveloperResponse response = developerService.approve(developerId, reviewedBy, note);
-        return ResponseEntity.ok(response);
+        return ApiResponse.success(developerService.approve(developerId, reviewedBy, note));
     }
 
     @Operation(summary = "Reject developer", description = "Reject a pending developer registration (Admin only)")
     @PostMapping("/admin/{developerId}/reject")
-    public ResponseEntity<DeveloperResponse> rejectDeveloper(
-        @PathVariable String developerId,
-        @RequestBody Map<String, String> body
-    ) {
+    public ApiResponse<DeveloperResponse> rejectDeveloper(
+            @RequestHeader(value = HeaderConstants.USER_ROLE, required = false) String userRole,
+            @PathVariable String developerId,
+            @RequestBody Map<String, String> body) {
+        ensureAdmin(userRole);
         String reviewedBy = body.getOrDefault("reviewedBy", "admin");
         String reason = body.getOrDefault("reason", "Registration rejected");
-        DeveloperResponse response = developerService.reject(developerId, reviewedBy, reason);
-        return ResponseEntity.ok(response);
+        return ApiResponse.success(developerService.reject(developerId, reviewedBy, reason));
     }
 
     @Operation(summary = "Suspend developer", description = "Suspend an approved developer (Admin only)")
     @PostMapping("/admin/{developerId}/suspend")
-    public ResponseEntity<DeveloperResponse> suspendDeveloper(
-        @PathVariable String developerId,
-        @RequestBody Map<String, String> body
-    ) {
+    public ApiResponse<DeveloperResponse> suspendDeveloper(
+            @RequestHeader(value = HeaderConstants.USER_ROLE, required = false) String userRole,
+            @PathVariable String developerId,
+            @RequestBody Map<String, String> body) {
+        ensureAdmin(userRole);
         String reason = body.getOrDefault("reason", "Account suspended");
-        DeveloperResponse response = developerService.suspend(developerId, reason);
-        return ResponseEntity.ok(response);
+        return ApiResponse.success(developerService.suspend(developerId, reason));
     }
 
     @Operation(summary = "Reactivate developer", description = "Reactivate a suspended developer (Admin only)")
     @PostMapping("/admin/{developerId}/reactivate")
-    public ResponseEntity<DeveloperResponse> reactivateDeveloper(@PathVariable String developerId) {
-        DeveloperResponse response = developerService.reactivate(developerId);
-        return ResponseEntity.ok(response);
+    public ApiResponse<DeveloperResponse> reactivateDeveloper(
+            @RequestHeader(value = HeaderConstants.USER_ROLE, required = false) String userRole,
+            @PathVariable String developerId) {
+        ensureAdmin(userRole);
+        return ApiResponse.success(developerService.reactivate(developerId));
     }
 
-    @Operation(summary = "Update billing plan", description = "Change developer's billing plan")
+    @Operation(summary = "Update billing plan", description = "Change developer's billing plan (Admin only)")
     @PostMapping("/{developerId}/billing-plan")
-    public ResponseEntity<DeveloperResponse> updateBillingPlan(
-        @PathVariable String developerId,
-        @RequestBody Map<String, String> body
-    ) {
+    public ApiResponse<DeveloperResponse> updateBillingPlan(
+            @RequestHeader(value = HeaderConstants.USER_ROLE, required = false) String userRole,
+            @PathVariable String developerId,
+            @RequestBody Map<String, String> body) {
+        ensureAdmin(userRole);
         String planStr = body.get("plan");
         if (planStr == null) {
-            return ResponseEntity.badRequest().build();
+            throw new BusinessException(ResponseStatus.PARAM_MISSING_ERROR, "Plan is required");
         }
 
-        com.metawebthree.developerportal.entity.ApiDeveloper.BillingPlan plan;
+        ApiDeveloper.BillingPlan plan;
         try {
-            plan = com.metawebthree.developerportal.entity.ApiDeveloper.BillingPlan.valueOf(planStr.toUpperCase());
+            plan = ApiDeveloper.BillingPlan.valueOf(planStr.toUpperCase());
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            throw new BusinessException(ResponseStatus.PARAM_ERROR, "Invalid billing plan");
         }
 
-        DeveloperResponse response = developerService.updateBillingPlan(developerId, plan);
-        return ResponseEntity.ok(response);
+        return ApiResponse.success(developerService.updateBillingPlan(developerId, plan));
+    }
+
+    private void ensureAdmin(String userRole) {
+        if (!"ADMIN".equals(userRole)) {
+            throw new BusinessException(ResponseStatus.FORBIDDEN);
+        }
     }
 }
