@@ -4,6 +4,7 @@
 .data
 .aws
 temp/
+.freebuff
 
 # compiled output
 /dist
