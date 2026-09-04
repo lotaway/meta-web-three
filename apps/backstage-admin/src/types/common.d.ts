@@ -1,7 +1,7 @@
 /** 通用返回结果封装类 */
 export type CommonResult<T> = {
-  /** 状态码 */
-  code: number
+  /** 状态码（后端为字符串，如 "0000"） */
+  code: number | string
   /** 提示信息 */
   message: string
   /** 封装数据 */

@@ -5,6 +5,7 @@ import type { RouteRecordExt } from '@/types/router'
 export const constantRouterMap: RouteRecordExt[] = [
   { path: '/404', component: () => import('@/views/normal/404/index.vue'), hidden: true },
   { path: '/login', component: () => import('@/views/normal/login/index.vue'), hidden: true },
+  { path: '/register', component: () => import('@/views/normal/register/index.vue'), hidden: true },
   {
     path: '',
     component: Layout,
@@ -236,6 +237,12 @@ export const asyncRouterMap: RouteRecordExt[] = [
         name: 'recommendationManage',
         component: () => import('@/views/recommendation/index.vue'),
         meta: { title: 'Recommendation Management', icon: 'recommend' },
+      },
+      {
+        path: 'ai-shopping',
+        name: 'aiShopping',
+        component: () => import('@/views/ai-shopping/index.vue'),
+        meta: { title: 'AI Shopping', icon: 'sparkles' },
       },
     ],
   },

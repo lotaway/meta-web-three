@@ -16,6 +16,7 @@ import com.metawebthree.common.generated.rpc.GetUserRiskProfileRequest;
 import com.metawebthree.common.generated.rpc.GetUserRiskProfileResponse;
 import com.metawebthree.common.generated.rpc.ScoreRequest;
 import com.metawebthree.common.generated.rpc.ScoreResponse;
+import com.metawebthree.common.generated.rpc.Scene;
 import com.metawebthree.common.generated.rpc.Feature;
 import com.metawebthree.common.generated.rpc.DeviceRiskTag;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -101,7 +102,7 @@ public class RiskControlServiceImpl {
             features.put("first_order", Feature.newBuilder().setFirstOrder(false).build());
 
             ScoreRequest scoreRequest = ScoreRequest.newBuilder()
-                    .setScene("payment_execution")
+                    .setScene(Scene.SCENE_PAYMENT)
                     .putAllFeatures(features)
                     .build();
 
@@ -110,7 +111,8 @@ public class RiskControlServiceImpl {
                     scoreResponse.getDecision());
 
             if (scoreResponse.getScore() < minScore) {
-                throw new RiskScoreTooLowException(scoreResponse.getScore(), minScore, scoreResponse.getDecision());
+                throw new RiskScoreTooLowException(scoreResponse.getScore(), minScore,
+                        scoreResponse.getDecision().name());
             }
         } catch (Exception e) {
             log.error("Risk score check failed for user {}", userId, e);

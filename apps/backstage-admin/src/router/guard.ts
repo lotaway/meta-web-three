@@ -6,7 +6,7 @@ import usePermissionStore from '@/stores/permission'
 import { ElMessage } from 'element-plus'
 
 // 无需登陆的白名单路径
-const whiteList = ['/login']
+const whiteList = ['/login', '/register']
 
 const isBlockchainEnabled = import.meta.env.VITE_BLOCKCHAIN_ENABLED === 'true'
 const blockchainPaths = ['/blockchain', '/solana']

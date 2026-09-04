@@ -22,9 +22,9 @@ data:
           discovery:
             enabled: true
       datasource:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://mysql-service:3306/metawebthree?useUnicode=true&characterEncoding=utf-8
-        username: root
+        driver-class-name: org.postgresql.Driver
+        url: jdbc:postgresql://postgres-service:5432/metawebthree
+        username: admin
         password: 123123
     name: "meta-web-three"
     project:
@@ -54,9 +54,9 @@ data:
           discovery:
             enabled: true
       datasource:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://mysql-service:3306/metawebthree?useUnicode=true&characterEncoding=utf-8
-        username: root
+        driver-class-name: org.postgresql.Driver
+        url: jdbc:postgresql://postgres-service:5432/metawebthree
+        username: admin
         password: 123123
     name: "meta-web-three"
     project:
@@ -75,4 +75,4 @@ data:
         namesrv: rocketmq-service:9876
     mybatis-plus:
       configuration:
-        map-underscore-to-camel-case: true 
+        map-underscore-to-camel-case: true

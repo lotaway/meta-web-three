@@ -25,7 +25,7 @@ public class OrderQueryPortImpl implements OrderQueryPort {
                     .build();
             GetOrderByUserIdResponse response = orderService.getOrderByUserId(request);
             if (response != null && response.getOrdersCount() > 0) {
-                return Optional.of(response.getOrders(0).getOrderStatus());
+                return Optional.of(response.getOrders(0).getOrderStatus().name());
             }
         } catch (Exception e) {
             log.error("Query order status failed, orderId: {}, error: {}", orderId, e.getMessage());

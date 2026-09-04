@@ -1,9 +1,11 @@
 package com.metawebthree.recommendation.interfaces.graphql;
 
 import com.apollographql.federation.graphqljava.Federation;
+import com.metawebthree.recommendation.application.aishopping.AiShoppingQueryService;
 import com.metawebthree.recommendation.application.command.RecommendationCommandService;
 import com.metawebthree.recommendation.application.query.RecommendationQueryService;
 import com.metawebthree.recommendation.application.query.RecommendationQueryService.RecommendationMetrics;
+import com.metawebthree.recommendation.domain.aishopping.entity.TextCorrection;
 import com.metawebthree.recommendation.domain.entity.Recommendation;
 import com.metawebthree.recommendation.domain.entity.RecommendationResult;
 import com.metawebthree.recommendation.domain.entity.RecommendationRule;
@@ -36,6 +38,7 @@ public class RecommendationSubgraphConfig {
 
     private final RecommendationQueryService queryService;
     private final RecommendationCommandService commandService;
+    private final AiShoppingQueryService aiShoppingQueryService;
     private final RecommendationRepository recommendationRepository;
     private final RecommendationRuleRepository ruleRepository;
     private final RecommendationResultMapper recommendationResultMapper;
@@ -45,6 +48,7 @@ public class RecommendationSubgraphConfig {
     public RecommendationSubgraphConfig(
             RecommendationQueryService queryService,
             RecommendationCommandService commandService,
+            AiShoppingQueryService aiShoppingQueryService,
             RecommendationRepository recommendationRepository,
             RecommendationRuleRepository ruleRepository,
             RecommendationResultMapper recommendationResultMapper,
@@ -52,6 +56,7 @@ public class RecommendationSubgraphConfig {
             ResourcePatternResolver resourceResolver) {
         this.queryService = queryService;
         this.commandService = commandService;
+        this.aiShoppingQueryService = aiShoppingQueryService;
         this.recommendationRepository = recommendationRepository;
         this.ruleRepository = ruleRepository;
         this.recommendationResultMapper = recommendationResultMapper;
@@ -86,6 +91,8 @@ public class RecommendationSubgraphConfig {
                         .dataFetcher("recommendationMetrics", this::recommendationMetricsDataFetcher)
                         .dataFetcher("userBehaviorHistory", this::userBehaviorHistoryDataFetcher)
                         .dataFetcher("rulesByScene", this::rulesBySceneDataFetcher)
+                        .dataFetcher("aiTextCorrect", this::aiTextCorrectDataFetcher)
+                        .dataFetcher("aiSmartMatch", this::aiSmartMatchDataFetcher)
                 )
                 .type("Mutation", wiring -> wiring
                         .dataFetcher("generateRecommendation", this::generateRecommendationDataFetcher)
@@ -210,6 +217,17 @@ public class RecommendationSubgraphConfig {
     private Object rulesBySceneDataFetcher(DataFetchingEnvironment env) {
         String scene = env.getArgument("scene");
         return queryService.getRulesByScene(scene);
+    }
+
+    private TextCorrection aiTextCorrectDataFetcher(DataFetchingEnvironment env) {
+        String text = env.getArgument("text");
+        return aiShoppingQueryService.correctText(text);
+    }
+
+    private Object aiSmartMatchDataFetcher(DataFetchingEnvironment env) {
+        String query = env.getArgument("query");
+        Integer topK = env.getArgument("topK");
+        return aiShoppingQueryService.smartMatch(query, topK);
     }
 
     private Object generateRecommendationDataFetcher(DataFetchingEnvironment env) {

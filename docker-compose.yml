@@ -3,9 +3,8 @@ networks:
     driver: bridge
   default:
     driver: bridge
-  default-ai:
-    driver: bridge
 
 include:
   - ./docker-compose.env.yml
   - ./docker-compose.server.yml
+  - ./docker-compose.ai.yml

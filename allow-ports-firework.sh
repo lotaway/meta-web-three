@@ -7,7 +7,6 @@ set -euo pipefail
 
 PORTS=(
   2181   # zookeeper
-  3306   # mysql
   5432   # postgres
   5001   # ipfs
   27017  # mongodb

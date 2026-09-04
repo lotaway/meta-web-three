@@ -12,6 +12,7 @@ import com.metawebthree.product.domain.exception.ProductErrorCode;
 import com.metawebthree.product.domain.model.*;
 import com.metawebthree.product.infrastructure.persistence.mapper.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;

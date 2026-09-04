@@ -25,7 +25,7 @@ volumeBindingMode: WaitForFirstConsumer
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: mysql-pv
+  name: postgres-pv
   namespace: meta-web-three
 spec:
   capacity:
@@ -33,7 +33,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: /data/mysql
+    path: /data/postgres
   storageClassName: local-storage
 ---
 apiVersion: v1
@@ -130,9 +130,9 @@ data:
           discovery:
             enabled: true
       datasource:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://mysql-service:3306/metawebthree?useUnicode=true&characterEncoding=utf-8
-        username: root
+        driver-class-name: org.postgresql.Driver
+        url: jdbc:postgresql://postgres-service:5432/metawebthree
+        username: admin
         password: 123123
     name: "meta-web-three"
     project:
@@ -155,9 +155,9 @@ data:
 
 # 注意：Secret 需要手动创建，不要放在代码仓库中
 # 使用命令：kubectl create secret generic database-secret \
-#   --from-literal=mysql-root-password=your-password \
-#   --from-literal=mysql-username=your-username \
-#   --from-literal=mysql-database=your-database \
+#   --from-literal=postgres-username=your-username \
+#   --from-literal=postgres-password=your-password \
+#   --from-literal=postgres-database=your-database \
 #   -n meta-web-three
 
 # 5. 部署基础设施服务
@@ -216,45 +216,46 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql
+  name: postgres
   namespace: meta-web-three
   labels:
-    app: mysql
+    app: postgres
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mysql
+      app: postgres
   template:
     metadata:
       labels:
-        app: mysql
+        app: postgres
     spec:
       containers:
-      - name: mysql
-        image: mysql:9.4
+      - name: postgres
+        image: postgres:16-alpine
         ports:
-        - containerPort: 3306
+        - containerPort: 5432
         env:
-        - name: MYSQL_ROOT_PASSWORD
+        - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
               name: database-secret
-              key: mysql-root-password
-        - name: MYSQL_DATABASE
+              key: postgres-username
+        - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
               name: database-secret
-              key: mysql-database
-        command:
-        - mysqld
-        - --character-set-server=utf8mb4
-        - --collation-server=utf8mb4_general_ci
-        - --sql_mode=IGNORE_SPACE,NO_ENGINE_SUBSTITUTION
-        - --lower_case_table_names=0
+              key: postgres-password
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: database-secret
+              key: postgres-database
+        - name: TZ
+          value: "Asia/Shanghai"
         volumeMounts:
-        - name: mysql-data
-          mountPath: /var/lib/mysql
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
         resources:
           requests:
             memory: "512Mi"
@@ -262,16 +263,29 @@ spec:
           limits:
             memory: "1Gi"
             cpu: "500m"
+        livenessProbe:
+          tcpSocket:
+            port: 5432
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -h
+            - localhost
+          initialDelaySeconds: 30
+          periodSeconds: 10
       volumes:
-      - name: mysql-data
+      - name: postgres-data
         persistentVolumeClaim:
-          claimName: mysql-pvc
+          claimName: postgres-pvc
 
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-pvc
+  name: postgres-pvc
   namespace: meta-web-three
 spec:
   accessModes:
@@ -285,14 +299,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-service
+  name: postgres-service
   namespace: meta-web-three
 spec:
   selector:
-    app: mysql
+    app: postgres
   ports:
-  - port: 3306
-    targetPort: 3306
+  - port: 5432
+    targetPort: 5432
   type: ClusterIP
 
 ---

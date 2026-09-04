@@ -375,7 +375,7 @@ public class OrderRpcService implements OrderService {
             String orderNo = String.valueOf(IdWorker.getId());
             BigDecimal total = BigDecimal.ZERO;
             for (OrderItemProto item : request.getItemsList()) {
-                total = total.add(BigDecimal.valueOf(item.getPrice())
+                total = total.add(fromMoney(item.getPrice())
                         .multiply(BigDecimal.valueOf(item.getQuantity())));
             }
             OrderDO order = OrderDO.builder()
@@ -389,7 +389,7 @@ public class OrderRpcService implements OrderService {
                     .build();
             orderMapper.insert(order);
             for (OrderItemProto item : request.getItemsList()) {
-                BigDecimal itemTotal = BigDecimal.valueOf(item.getPrice())
+                BigDecimal itemTotal = fromMoney(item.getPrice())
                         .multiply(BigDecimal.valueOf(item.getQuantity()));
                 OrderItemDO orderItem = OrderItemDO.builder()
                         .id(IdWorker.getId())
@@ -397,7 +397,7 @@ public class OrderRpcService implements OrderService {
                         .productId(item.getProductId())
                         .productName(item.getProductName())
                         .quantity(item.getQuantity())
-                        .unitPrice(BigDecimal.valueOf(item.getPrice()))
+                        .unitPrice(fromMoney(item.getPrice()))
                         .totalPrice(itemTotal)
                         .build();
                 orderItemMapper.insert(orderItem);
@@ -428,11 +428,60 @@ public class OrderRpcService implements OrderService {
                 .setId(o.getId())
                 .setUserId(o.getUserId())
                 .setOrderNo(o.getOrderNo())
-                .setOrderStatus(o.getOrderStatus())
-                .setOrderType(o.getOrderType())
+                .setOrderStatus(toOrderStatus(o.getOrderStatus()))
+                .setOrderType(toOrderType(o.getOrderType()))
                 .setOrderAmount(money)
                 .setOrderRemark(o.getOrderRemark() == null ? "" : o.getOrderRemark())
                 .build();
+    }
+
+    private OrderType toOrderType(String type) {
+        if (type == null) {
+            return OrderType.ORDER_TYPE_UNSPECIFIED;
+        }
+        switch (type) {
+            case "NORMAL":
+                return OrderType.ORDER_TYPE_NORMAL;
+            case "PREORDER":
+                return OrderType.ORDER_TYPE_PREORDER;
+            case "CUSTOM":
+                return OrderType.ORDER_TYPE_CUSTOM;
+            default:
+                return OrderType.ORDER_TYPE_UNSPECIFIED;
+        }
+    }
+
+    private OrderStatus toOrderStatus(String status) {
+        if (status == null) {
+            return OrderStatus.ORDER_STATUS_UNSPECIFIED;
+        }
+        switch (status) {
+            case "PENDING_PAYMENT":
+                return OrderStatus.ORDER_STATUS_PENDING_PAYMENT;
+            case "PAID":
+                return OrderStatus.ORDER_STATUS_PAID;
+            case "SHIPPED":
+                return OrderStatus.ORDER_STATUS_SHIPPED;
+            case "DELIVERED":
+                return OrderStatus.ORDER_STATUS_DELIVERED;
+            case "COMPLETED":
+                return OrderStatus.ORDER_STATUS_COMPLETED;
+            case "CANCELLED":
+            case "CANCELED":
+                return OrderStatus.ORDER_STATUS_CANCELLED;
+            case "REFUNDING":
+                return OrderStatus.ORDER_STATUS_REFUNDING;
+            default:
+                return OrderStatus.ORDER_STATUS_UNSPECIFIED;
+        }
+    }
+
+    private BigDecimal fromMoney(Money money) {
+        if (money == null) {
+            return BigDecimal.ZERO;
+        }
+        return BigDecimal.valueOf(money.getUnits())
+                .add(BigDecimal.valueOf(money.getNanos(), 9));
     }
 
     private Money toMoney(BigDecimal amount, String currency) {

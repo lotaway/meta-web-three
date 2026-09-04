@@ -26,8 +26,10 @@ CREATE TABLE IF NOT EXISTS Exchange_Orders (
     expired_at TIMESTAMP,
     kyc_level VARCHAR(10),
     kyc_verified BOOLEAN DEFAULT FALSE,
-    remark TEXT
+    remark TEXT,
+    tenant_id BIGINT
 );
+CREATE INDEX IF NOT EXISTS idx_exchange_orders_tenant ON Exchange_Orders(tenant_id);
 
 COMMENT ON COLUMN Exchange_Orders.order_type IS 'Order type: BUY_CRYPTO, SELL_CRYPTO';
 COMMENT ON COLUMN Exchange_Orders.status IS 'Order status: PENDING, PAID, PROCESSING, COMPLETED, FAILED, EXPIRED, CANCELLED';
@@ -102,8 +104,10 @@ CREATE TABLE IF NOT EXISTS User_Kyc (
     submitted_at TIMESTAMP,
     reviewed_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP
+    updated_at TIMESTAMP,
+    tenant_id BIGINT
 );
+CREATE INDEX IF NOT EXISTS idx_user_kyc_tenant ON User_Kyc(tenant_id);
 
 COMMENT ON COLUMN User_Kyc.level IS 'KYC level: L0, L1, L2, L3';
 COMMENT ON COLUMN User_Kyc.status IS 'KYC status: PENDING, APPROVED, REJECTED, EXPIRED';
@@ -185,8 +189,10 @@ CREATE TABLE IF NOT EXISTS Credit_Profile (
   last_score_change INT,
   max_adjustment_percentage NUMERIC(5,2) NOT NULL DEFAULT 0.15,
   adjustment_history JSON,
-  last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  tenant_id BIGINT
 );
+CREATE INDEX IF NOT EXISTS idx_credit_profile_tenant ON Credit_Profile(tenant_id);
 
 COMMENT ON COLUMN Credit_Profile.base_credit_limit IS 'Base credit limit without adjustments';
 COMMENT ON COLUMN Credit_Profile.current_credit_limit IS 'Current adjusted credit limit';
@@ -201,3 +207,25 @@ COMMENT ON COLUMN Credit_Profile.adjustment_history IS 'JSON array of adjustment
 COMMENT ON TABLE Credit_Profile IS 'User credit profiles';
 COMMENT ON COLUMN Credit_Profile.risk_level IS 'Risk level: A, B, C, D';
 COMMENT ON COLUMN Credit_Profile.last_score IS 'Last risk score';
+
+-- Table: payment_reconciliation_diff (Reconciliation difference record)
+CREATE TABLE IF NOT EXISTS payment_reconciliation_diff (
+    id BIGSERIAL PRIMARY KEY,
+    reconciliation_date DATE NOT NULL,
+    diff_type VARCHAR(20) NOT NULL,
+    order_no VARCHAR(64),
+    internal_amount NUMERIC(20,2),
+    external_amount NUMERIC(20,2),
+    amount_difference NUMERIC(20,2),
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    handle_remark TEXT,
+    handled_at TIMESTAMP,
+    handled_by VARCHAR(64),
+    tenant_id BIGINT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_payment_reconciliation_diff_tenant ON payment_reconciliation_diff(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_reconciliation_diff_date ON payment_reconciliation_diff (reconciliation_date);
+CREATE INDEX IF NOT EXISTS idx_reconciliation_diff_type ON payment_reconciliation_diff (diff_type);
+CREATE INDEX IF NOT EXISTS idx_reconciliation_diff_status ON payment_reconciliation_diff (status);

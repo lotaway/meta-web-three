@@ -2,32 +2,32 @@
 -- Records who operated on what data at what time
 
 CREATE TABLE IF NOT EXISTS tb_operation_log (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT NOT NULL COMMENT 'User ID who performed the operation',
-    username VARCHAR(64) COMMENT 'Username',
-    operation VARCHAR(128) NOT NULL COMMENT 'Operation description',
-    method VARCHAR(256) COMMENT 'Full method signature',
-    params TEXT COMMENT 'Method parameters (JSON)',
-    ip VARCHAR(64) COMMENT 'Client IP address',
-    operation_time DATETIME NOT NULL COMMENT 'Operation timestamp',
-    execution_time BIGINT COMMENT 'Execution time in milliseconds',
-    status VARCHAR(32) COMMENT 'Operation status (SUCCESS/FAILURE/ERROR)',
-    error_message TEXT COMMENT 'Error message if operation failed',
-    entity_type VARCHAR(64) COMMENT 'Entity type being operated on',
-    entity_id BIGINT COMMENT 'Entity ID being operated on',
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    username VARCHAR(64),
+    operation VARCHAR(128) NOT NULL,
+    method VARCHAR(256),
+    params TEXT,
+    ip VARCHAR(64),
+    operation_time TIMESTAMP NOT NULL,
+    execution_time BIGINT,
+    status VARCHAR(32),
+    error_message TEXT,
+    entity_type VARCHAR(64),
+    entity_id BIGINT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
-    INDEX idx_user_id (user_id),
-    INDEX idx_operation (operation),
-    INDEX idx_status (status),
-    INDEX idx_operation_time (operation_time),
-    INDEX idx_entity (entity_type, entity_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Operation audit log table';
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_operation_log_user_id ON tb_operation_log (user_id);
+CREATE INDEX IF NOT EXISTS idx_operation_log_operation ON tb_operation_log (operation);
+CREATE INDEX IF NOT EXISTS idx_operation_log_status ON tb_operation_log (status);
+CREATE INDEX IF NOT EXISTS idx_operation_log_operation_time ON tb_operation_log (operation_time);
+CREATE INDEX IF NOT EXISTS idx_operation_log_entity ON tb_operation_log (entity_type, entity_id);
 
 -- Audit Log Table for general auditing
 CREATE TABLE IF NOT EXISTS tb_audit_log (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     user_id BIGINT,
     username VARCHAR(64),
     operation_type VARCHAR(64),
@@ -40,13 +40,14 @@ CREATE TABLE IF NOT EXISTS tb_audit_log (
     request_url VARCHAR(512),
     request_method VARCHAR(16),
     duration BIGINT,
-    operation_time DATETIME NOT NULL,
+    operation_time TIMESTAMP NOT NULL,
     request_params TEXT,
     response_data TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_audit_user_id (user_id),
-    INDEX idx_audit_operation_type (operation_type),
-    INDEX idx_audit_resource (resource_type, resource_id),
-    INDEX idx_audit_operation_time (operation_time)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Audit log table';
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_audit_log_user_id ON tb_audit_log (user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_log_operation_type ON tb_audit_log (operation_type);
+CREATE INDEX IF NOT EXISTS idx_audit_log_resource ON tb_audit_log (resource_type, resource_id);
+CREATE INDEX IF NOT EXISTS idx_audit_log_operation_time ON tb_audit_log (operation_time);

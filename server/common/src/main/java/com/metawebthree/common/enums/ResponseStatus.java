@@ -66,7 +66,8 @@ public enum ResponseStatus {
     EMAIL_VERIFICATION_CODE_EXPIRED("1204", "Email verification code has expired"),
     EMAIL_VERIFICATION_CODE_SEND_FAILED("1205", "Failed to send email verification code"),
     TENANT_ALREADY_EXISTS("1206", "Tenant already exists"),
-    REGISTRATION_RATE_LIMITED("1207", "Registration is rate limited, please try again later");
+    REGISTRATION_RATE_LIMITED("1207", "Registration is rate limited, please try again later"),
+    DEVELOPER_ALREADY_EXISTS("1208", "Developer already exists");
 
     private final String code;
     private final String message;

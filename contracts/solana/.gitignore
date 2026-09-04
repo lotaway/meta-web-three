@@ -6,3 +6,7 @@ node_modules
 test-ledger
 .yarn
 Cargo.lock
+# Surfpool local IaC artifacts (auto-generated)
+/surfpool.toml
+txtx.yml
+runbooks/

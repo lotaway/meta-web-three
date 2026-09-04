@@ -17,7 +17,7 @@ k8s/
 │   └── persistent-volumes.yaml      # 持久化存储卷
 ├── infrastructure/                  # 基础设施服务
 │   ├── zookeeper.yaml
-│   ├── mysql.yaml
+│   ├── postgres.yaml
 │   ├── redis.yaml
 │   └── rabbitmq.yaml
 ├── services/                        # 业务服务
@@ -159,9 +159,9 @@ spec:
 ```bash
 # 方法1: 使用 kubectl 创建 Secret
 kubectl create secret generic database-secret \
-  --from-literal=mysql-root-password=your-password \
-  --from-literal=mysql-username=your-username \
-  --from-literal=mysql-database=your-database \
+  --from-literal=postgres-username=your-username \
+  --from-literal=postgres-password=your-password \
+  --from-literal=postgres-database=your-database \
   -n meta-web-three
 
 # 方法2: 使用外部 Secret 管理系统
@@ -192,7 +192,7 @@ docker push meta-web-three/product-service:latest
 
 ```bash
 # 在 Kubernetes 节点上创建存储目录
-sudo mkdir -p /data/{mysql,redis,server/{product,user,order,message}}
+sudo mkdir -p /data/{postgres,redis,server/{product,user,order,message}}
 sudo chmod 755 /data -R
 ```
 
@@ -317,25 +317,25 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: mysql
+  name: postgres
 spec:
-  serviceName: mysql-service
+  serviceName: postgres-service
   replicas: 1
   selector:
     matchLabels:
-      app: mysql
+      app: postgres
   template:
     metadata:
       labels:
-        app: mysql
+        app: postgres
     spec:
       containers:
-      - name: mysql
-        image: mysql:8.0
+      - name: postgres
+        image: postgres:16-alpine
         # ... 其他配置
   volumeClaimTemplates:
   - metadata:
-      name: mysql-data
+      name: postgres-data
     spec:
       accessModes: [ "ReadWriteOnce" ]
       storageClassName: local-storage
@@ -373,7 +373,7 @@ spec:
 kubectl exec -it <pod-name> -n meta-web-three -- /bin/bash
 
 # 端口转发
-kubectl port-forward service/mysql-service 3306:3306 -n meta-web-three
+kubectl port-forward service/postgres-service 5432:5432 -n meta-web-three
 
 # 查看事件
 kubectl get events -n meta-web-three --sort-by='.lastTimestamp'
@@ -397,23 +397,26 @@ kubectl apply -f - <<EOF
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: mysql-backup
+  name: postgres-backup
   namespace: meta-web-three
 spec:
   template:
     spec:
       containers:
       - name: backup
-        image: mysql:8.0
+        image: postgres:16-alpine
         command:
-        - mysqldump
+        - pg_dump
         - -h
-        - mysql-service
-        - -u
-        - root
-        - -p123123
+        - postgres-service
+        - -U
+        - admin
         - metawebthree
-        - > /backup/backup.sql
+        - -f
+        - /backup/backup.sql
+        env:
+        - name: PGPASSWORD
+          value: "123123"
         volumeMounts:
         - name: backup-volume
           mountPath: /backup

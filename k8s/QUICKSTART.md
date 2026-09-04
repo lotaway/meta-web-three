@@ -74,7 +74,7 @@ kubectl port-forward service/product-service 10082:10082 -n meta-web-three
 #### 创建存储目录
 ```bash
 # 在 Kubernetes 节点上创建存储目录
-sudo mkdir -p /data/{mysql,redis,server/{product,user,order,message}}
+sudo mkdir -p /data/{postgres,redis,server/{product,user,order,message}}
 sudo chmod 755 /data -R
 ```
 
@@ -103,9 +103,9 @@ docker build -f server/Dockerfile --target product-service -t meta-web-three/pro
 
 # 方法2: 手动创建 Secret
 kubectl create secret generic database-secret \
-  --from-literal=mysql-root-password=your-password \
-  --from-literal=mysql-username=your-username \
-  --from-literal=mysql-database=your-database \
+  --from-literal=postgres-username=your-username \
+  --from-literal=postgres-password=your-password \
+  --from-literal=postgres-database=your-database \
   -n meta-web-three
 
 # 方法3: 使用外部 Secret 管理系统
@@ -163,7 +163,7 @@ kubectl get pv,pvc -n meta-web-three
 ```bash
 # 查看特定服务日志
 ./k8s/deploy.sh logs product
-./k8s/deploy.sh logs mysql
+./k8s/deploy.sh logs postgres
 ./k8s/deploy.sh logs all
 
 # 或者使用 kubectl
@@ -175,8 +175,8 @@ kubectl logs -f deployment/product-service -n meta-web-three
 # 进入 Pod 调试
 kubectl exec -it <pod-name> -n meta-web-three -- /bin/bash
 
-# 例如进入 MySQL Pod
-kubectl exec -it $(kubectl get pod -l app=mysql -n meta-web-three -o jsonpath='{.items[0].metadata.name}') -n meta-web-three -- mysql -u root -p
+# 例如进入 PostgreSQL Pod
+kubectl exec -it $(kubectl get pod -l app=postgres -n meta-web-three -o jsonpath='{.items[0].metadata.name}') -n meta-web-three -- psql -U admin -d metawebthree
 ```
 
 ### 端口转发
@@ -191,7 +191,7 @@ kubectl port-forward service/order-service 10084:10084 -n meta-web-three
 kubectl port-forward service/message-service 10085:10085 -n meta-web-three
 
 # 数据库服务
-kubectl port-forward service/mysql-service 3306:3306 -n meta-web-three
+kubectl port-forward service/postgres-service 5432:5432 -n meta-web-three
 kubectl port-forward service/redis-service 6379:6379 -n meta-web-three
 kubectl port-forward service/rabbitmq-service 15672:15672 -n meta-web-three
 ```
@@ -330,7 +330,7 @@ kubectl delete pvc --all -n meta-web-three
 kubectl delete pv --all
 
 # 删除存储目录
-sudo rm -rf /data/{mysql,redis,server}
+sudo rm -rf /data/{postgres,redis,server}
 ```
 
 ## 📚 更多资源

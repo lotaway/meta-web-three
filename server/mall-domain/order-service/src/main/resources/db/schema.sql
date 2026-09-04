@@ -46,8 +46,11 @@ CREATE TABLE IF NOT EXISTS tb_order (
     receive_time TIMESTAMP,
     comment_time TIMESTAMP,
     modify_time TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    tenant_id BIGINT
 );
+
+CREATE INDEX IF NOT EXISTS idx_tb_order_tenant ON tb_order(tenant_id);
 
 CREATE TABLE IF NOT EXISTS tb_order_item (
     id BIGINT PRIMARY KEY,
@@ -70,8 +73,10 @@ CREATE TABLE IF NOT EXISTS tb_order_item (
     real_amount DECIMAL(10, 2),
     gift_integration INT DEFAULT 0,
     gift_growth INT DEFAULT 0,
-    product_attr VARCHAR(500)
+    product_attr VARCHAR(500),
+    tenant_id BIGINT
 );
+CREATE INDEX IF NOT EXISTS idx_tb_order_item_tenant ON tb_order_item(tenant_id);
 
 CREATE TABLE IF NOT EXISTS tb_order_return_apply (
     id BIGINT PRIMARY KEY,
@@ -100,8 +105,10 @@ CREATE TABLE IF NOT EXISTS tb_order_return_apply (
     handle_man VARCHAR(100),
     receive_man VARCHAR(100),
     receive_time TIMESTAMP,
-    receive_note VARCHAR(500)
+    receive_note VARCHAR(500),
+    tenant_id BIGINT
 );
+CREATE INDEX IF NOT EXISTS idx_tb_order_return_apply_tenant ON tb_order_return_apply(tenant_id);
 
 CREATE TABLE IF NOT EXISTS tb_order_return_reason (
     id BIGINT PRIMARY KEY,
@@ -130,8 +137,10 @@ CREATE TABLE IF NOT EXISTS tb_company_address (
     province VARCHAR(64),
     city VARCHAR(64),
     region VARCHAR(64),
-    detail_address VARCHAR(255)
+    detail_address VARCHAR(255),
+    tenant_id BIGINT
 );
+CREATE INDEX IF NOT EXISTS idx_tb_company_address_tenant ON tb_company_address(tenant_id);
 
 CREATE TABLE IF NOT EXISTS tb_order_operate_log (
     id BIGINT PRIMARY KEY,

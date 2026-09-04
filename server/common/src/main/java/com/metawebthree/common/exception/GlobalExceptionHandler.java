@@ -2,6 +2,7 @@ package com.metawebthree.common.exception;
 
 import com.metawebthree.common.dto.ApiResponse;
 import com.metawebthree.common.enums.ResponseStatus;
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
@@ -81,6 +82,13 @@ public class GlobalExceptionHandler {
     public ApiResponse<?> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
         log.warn("文件上传大小超出限制");
         return ApiResponse.error(ResponseStatus.FILE_TOO_LARGE);
+    }
+
+    @ExceptionHandler(RequestNotPermitted.class)
+    @org.springframework.web.bind.annotation.ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    public ApiResponse<?> handleRequestNotPermitted(RequestNotPermitted e) {
+        log.warn("请求触发限流: {}", e.getMessage());
+        return ApiResponse.error(ResponseStatus.REGISTRATION_RATE_LIMITED);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

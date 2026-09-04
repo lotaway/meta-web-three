@@ -18,8 +18,10 @@ CREATE TABLE IF NOT EXISTS tb_coupon (
     receive_count INT DEFAULT 0,
     enable_time TIMESTAMP,
     code VARCHAR(64),
-    member_level INT DEFAULT 0
+    member_level INT DEFAULT 0,
+    tenant_id BIGINT
 );
+CREATE INDEX IF NOT EXISTS idx_tb_coupon_tenant ON tb_coupon(tenant_id);
 
 CREATE TABLE IF NOT EXISTS tb_coupon_history (
     id BIGINT PRIMARY KEY,
@@ -32,8 +34,10 @@ CREATE TABLE IF NOT EXISTS tb_coupon_history (
     use_status INT DEFAULT 0, -- 0->unused, 1->used, 2->expired,
     use_time TIMESTAMP,
     order_id BIGINT,
-    order_sn VARCHAR(64)
+    order_sn VARCHAR(64),
+    tenant_id BIGINT
 );
+CREATE INDEX IF NOT EXISTS idx_tb_coupon_history_tenant ON tb_coupon_history(tenant_id);
 
 CREATE TABLE IF NOT EXISTS tb_coupon_product_relation (
     id BIGINT PRIMARY KEY,
@@ -57,8 +61,10 @@ CREATE TABLE IF NOT EXISTS tb_flash_promotion (
     start_date DATE,
     end_date DATE,
     status SMALLINT DEFAULT 1,
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    tenant_id BIGINT
 );
+CREATE INDEX IF NOT EXISTS idx_tb_flash_promotion_tenant ON tb_flash_promotion(tenant_id);
 
 CREATE TABLE IF NOT EXISTS tb_flash_promotion_session (
     id BIGINT PRIMARY KEY,
@@ -66,8 +72,10 @@ CREATE TABLE IF NOT EXISTS tb_flash_promotion_session (
     start_time TIME,
     end_time TIME,
     status SMALLINT DEFAULT 1,
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    tenant_id BIGINT
 );
+CREATE INDEX IF NOT EXISTS idx_tb_flash_promotion_session_tenant ON tb_flash_promotion_session(tenant_id);
 
 CREATE TABLE IF NOT EXISTS tb_flash_promotion_product_relation (
     id BIGINT PRIMARY KEY,
@@ -77,8 +85,10 @@ CREATE TABLE IF NOT EXISTS tb_flash_promotion_product_relation (
     flash_promotion_price DECIMAL(10, 2),
     flash_promotion_count INT,
     flash_promotion_limit INT,
-    sort INT DEFAULT 0
+    sort INT DEFAULT 0,
+    tenant_id BIGINT
 );
+CREATE INDEX IF NOT EXISTS idx_tb_flash_promotion_product_relation_tenant ON tb_flash_promotion_product_relation(tenant_id);
 
 CREATE TABLE IF NOT EXISTS tb_flash_promotion_log (
     id BIGINT PRIMARY KEY,

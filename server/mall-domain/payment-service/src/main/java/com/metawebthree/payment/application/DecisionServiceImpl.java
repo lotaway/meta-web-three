@@ -12,6 +12,7 @@ import com.metawebthree.payment.infrastructure.persistence.mapper.RuleRepo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.metawebthree.common.generated.rpc.Feature;
 import com.metawebthree.common.generated.rpc.RiskScorerService;
+import com.metawebthree.common.generated.rpc.Scene;
 import com.metawebthree.common.generated.rpc.ScoreRequest;
 import com.metawebthree.common.generated.rpc.ScoreResponse;
 import com.metawebthree.common.generated.rpc.TestRequest;
@@ -63,7 +64,7 @@ public class DecisionServiceImpl implements DecisionService {
         try {
             ScoreRequest.Builder requestBuilder = ScoreRequest
                     .newBuilder()
-                    .setScene(scene);
+                    .setScene(toScene(scene));
             Feature finalFeatures = new ObjectMapper().convertValue(features, Feature.class);
             log.info("Features: {}", finalFeatures);
             for (Map.Entry<String, Object> entry : features.entrySet()) {
@@ -116,6 +117,25 @@ public class DecisionServiceImpl implements DecisionService {
         } catch (Exception e) {
             log.error("Failed to get risk score from Risk Scorer Service for scene: {}", scene, e);
             throw new RuntimeException("Failed to get risk score from Risk Scorer Service for scene: " + scene, e);
+        }
+    }
+
+    private Scene toScene(String scene) {
+        if (scene == null) {
+            return Scene.SCENE_UNSPECIFIED;
+        }
+        switch (scene) {
+            case "login":
+                return Scene.SCENE_LOGIN;
+            case "register":
+                return Scene.SCENE_REGISTER;
+            case "order":
+                return Scene.SCENE_ORDER;
+            case "payment_execution":
+            case "payment":
+                return Scene.SCENE_PAYMENT;
+            default:
+                return Scene.SCENE_UNSPECIFIED;
         }
     }
 

@@ -4,11 +4,13 @@ import com.metawebthree.common.enums.PaymentMethod;
 import com.metawebthree.common.enums.ResponseStatus;
 import com.metawebthree.common.exception.BusinessException;
 import com.metawebthree.common.generated.rpc.*;
+import com.metawebthree.common.generated.rpc.google.type.Money;
 import com.metawebthree.common.utils.ValidationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Slf4j
@@ -87,7 +89,7 @@ public class OrderClient {
             Object shippingAddress = input.get("shippingAddress");
             if (shippingAddress instanceof String s) builder.setShippingAddress(s);
             Object paymentMethod = input.get("paymentMethod");
-            if (paymentMethod instanceof String s) builder.setPaymentMethod(s);
+            if (paymentMethod instanceof String s) builder.setPaymentMethod(toProtoPaymentMethod(s));
             Object orderRemark = input.get("orderRemark");
             if (orderRemark instanceof String s) builder.setOrderRemark(s);
 
@@ -151,11 +153,47 @@ public class OrderClient {
             Object quantity = itemMap.get("quantity");
             if (quantity != null) itemBuilder.setQuantity(ValidationUtils.parseInt(quantity, "quantity"));
             Object price = itemMap.get("price");
-            if (price != null) itemBuilder.setPrice(((Number) price).doubleValue());
+            if (price != null) {
+                BigDecimal priceDecimal = price instanceof BigDecimal bd
+                        ? bd
+                        : BigDecimal.valueOf(((Number) price).doubleValue());
+                itemBuilder.setPrice(toMoney(priceDecimal));
+            }
             Object sku = itemMap.get("sku");
             if (sku instanceof String s) itemBuilder.setSku(s);
             builder.addItems(itemBuilder.build());
         }
+    }
+
+    private com.metawebthree.common.generated.rpc.PaymentMethod toProtoPaymentMethod(String value) {
+        if (value == null) {
+            return com.metawebthree.common.generated.rpc.PaymentMethod.PAYMENT_METHOD_UNSPECIFIED;
+        }
+        switch (value.toLowerCase()) {
+            case "credit_card":
+            case "card":
+            case "creditcard":
+                return com.metawebthree.common.generated.rpc.PaymentMethod.PAYMENT_METHOD_CREDIT_CARD;
+            case "debit_card":
+            case "debitcard":
+                return com.metawebthree.common.generated.rpc.PaymentMethod.PAYMENT_METHOD_DEBIT_CARD;
+            case "bank_transfer":
+            case "banktransfer":
+            case "bank":
+                return com.metawebthree.common.generated.rpc.PaymentMethod.PAYMENT_METHOD_BANK_TRANSFER;
+            case "crypto":
+            case "crypto_payment":
+                return com.metawebthree.common.generated.rpc.PaymentMethod.PAYMENT_METHOD_CRYPTO;
+            default:
+                return com.metawebthree.common.generated.rpc.PaymentMethod.PAYMENT_METHOD_UNSPECIFIED;
+        }
+    }
+
+    private Money toMoney(BigDecimal amount) {
+        long units = amount.longValue();
+        int nanos = amount.subtract(BigDecimal.valueOf(units)).multiply(BigDecimal.valueOf(1_000_000_000L))
+                .setScale(0, java.math.RoundingMode.DOWN).intValue();
+        return Money.newBuilder().setCurrencyCode("USD").setUnits(units).setNanos(nanos).build();
     }
 
     private Map<String, Object> buildCreateOrderResult(CreateOrderResponse response) {

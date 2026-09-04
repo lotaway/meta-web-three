@@ -5,4 +5,5 @@ public class HeaderConstants {
     public static final String USER_NAME = "X-User-Name";
     public static final String USER_ROLE = "X-User-Role";
     public static final String TENANT_ID = "X-Tenant-Id";
+    public static final String CLIENT_IP = "X-Client-IP";
 }

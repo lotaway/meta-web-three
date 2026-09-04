@@ -25,21 +25,21 @@ public class RmaAdminController {
     public IPage<RmaOrderDTO> list(@RequestParam(required = false) String status,
                                    @RequestParam(defaultValue = "1") Integer pageNum,
                                    @RequestParam(defaultValue = "1000") Integer pageSize) {
-        return rmaApplicationService.listRmas(status, pageNum, pageSize);
+        return rmaApplicationService.listRmas(status, null, null, pageNum, pageSize);
     }
 
     @RequirePermission(SupplyChainPermissions.RMA_ADMIN)
     @GetMapping("/statistics")
     public Map<String, Object> statistics() {
         Map<String, Object> stats = new HashMap<>();
-        stats.put("total", rmaApplicationService.listRmas(null, 1, 1).getTotal());
-        stats.put("pending", rmaApplicationService.listRmas("PENDING", 1, 1).getTotal());
-        stats.put("awaitingInspection", rmaApplicationService.listRmas("AWAITING_INSPECTION", 1, 1).getTotal());
-        stats.put("inspected", rmaApplicationService.listRmas("INSPECTED", 1, 1).getTotal());
-        stats.put("awaitingDisposition", rmaApplicationService.listRmas("AWAITING_DISPOSITION", 1, 1).getTotal());
-        stats.put("disposed", rmaApplicationService.listRmas("DISPOSED", 1, 1).getTotal());
-        stats.put("completed", rmaApplicationService.listRmas("COMPLETED", 1, 1).getTotal());
-        stats.put("cancelled", rmaApplicationService.listRmas("CANCELLED", 1, 1).getTotal());
+        stats.put("total", rmaApplicationService.listRmas(null, null, null, 1, 1).getTotal());
+        stats.put("pending", rmaApplicationService.listRmas("PENDING", null, null, 1, 1).getTotal());
+        stats.put("awaitingInspection", rmaApplicationService.listRmas("AWAITING_INSPECTION", null, null, 1, 1).getTotal());
+        stats.put("inspected", rmaApplicationService.listRmas("INSPECTED", null, null, 1, 1).getTotal());
+        stats.put("awaitingDisposition", rmaApplicationService.listRmas("AWAITING_DISPOSITION", null, null, 1, 1).getTotal());
+        stats.put("disposed", rmaApplicationService.listRmas("DISPOSED", null, null, 1, 1).getTotal());
+        stats.put("completed", rmaApplicationService.listRmas("COMPLETED", null, null, 1, 1).getTotal());
+        stats.put("cancelled", rmaApplicationService.listRmas("CANCELLED", null, null, 1, 1).getTotal());
         return stats;
     }
 

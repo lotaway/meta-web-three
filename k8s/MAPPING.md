@@ -148,15 +148,14 @@ spec:
 ```yaml
 # docker-compose.dataenv.yml
 services:
-  mysql:
+  postgres:
     env_file:
       - .env
       - ./server/.env
     environment:
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
       - TZ=${TIMEZONE}
 ```
 
@@ -172,8 +171,8 @@ data:
   application-common-dev.yml: |
     spring:
       datasource:
-        url: jdbc:mysql://mysql-service:3306/metawebthree
-        username: root
+        url: jdbc:postgresql://postgres-service:5432/metawebthree
+        username: admin
         password: 123123
 
 # Secret
@@ -183,26 +182,26 @@ metadata:
   name: database-secret
 type: Opaque
 data:
-  mysql-root-password: MTIzMTIz
-  mysql-username: cm9vdA==
+  postgres-password: MTIzMTIz
+  postgres-username: YWRtaW4=
 
 # Deployment 中的环境变量
 spec:
   template:
     spec:
       containers:
-      - name: mysql
+      - name: postgres
         env:
-        - name: MYSQL_ROOT_PASSWORD
+        - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
               name: database-secret
-              key: mysql-root-password
-        - name: MYSQL_DATABASE
+              key: postgres-password
+        - name: POSTGRES_DB
           valueFrom:
             secretKeyRef:
               name: database-secret
-              key: mysql-database
+              key: postgres-database
 ```
 
 **映射说明**：
@@ -219,9 +218,9 @@ spec:
 ```yaml
 # docker-compose.dataenv.yml
 services:
-  mysql:
+  postgres:
     volumes:
-      - ${DATA_PATH}/.data/mysql:/var/lib/mysql
+      - ${DATA_PATH}/.data/postgres:/var/lib/postgresql
   redis:
     volumes:
       - ${DATA_PATH}/.data/redis:/data
@@ -260,21 +259,21 @@ volumeBindingMode: WaitForFirstConsumer
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: mysql-pv
+  name: postgres-pv
 spec:
   capacity:
     storage: 10Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: /data/mysql
+    path: /data/postgres
   storageClassName: local-storage
 
 # PersistentVolumeClaim
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-pvc
+  name: postgres-pvc
 spec:
   accessModes:
     - ReadWriteOnce
@@ -288,14 +287,14 @@ spec:
   template:
     spec:
       containers:
-      - name: mysql
+      - name: postgres
         volumeMounts:
-        - name: mysql-data
-          mountPath: /var/lib/mysql
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
       volumes:
-      - name: mysql-data
+      - name: postgres-data
         persistentVolumeClaim:
-          claimName: mysql-pvc
+          claimName: postgres-pvc
 ```
 
 **映射说明**：
@@ -365,7 +364,7 @@ services:
     # depends_on:
     #   zookeeper:
     #     - condition: service_healthy
-    #   mysql:
+    #   postgres:
     #     - condition: service_healthy
     #   redis:
     #     condition: service_started
@@ -379,13 +378,13 @@ spec:
   template:
     spec:
       initContainers:
-        - name: wait-for-mysql
+        - name: wait-for-postgres
           image: busybox
           command:
             [
               "sh",
               "-c",
-              "until nc -z mysql-service 3306; do echo waiting for mysql; sleep 2; done;",
+              "until nc -z postgres-service 5432; do echo waiting for postgres; sleep 2; done;",
             ]
         - name: wait-for-redis
           image: busybox
@@ -461,7 +460,7 @@ spec:
 
 ```yaml
 # 服务间通过服务名直接访问
-# 例如：mysql://mysql:3306
+# 例如：postgresql://postgres:5432
 ```
 
 ### Kubernetes 服务发现
@@ -471,16 +470,16 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-service
+  name: postgres-service
 spec:
   selector:
-    app: mysql
+    app: postgres
   ports:
-    - port: 3306
-      targetPort: 3306
+    - port: 5432
+      targetPort: 5432
   type: ClusterIP
 # 应用配置中使用服务名访问
-# 例如：mysql://mysql-service:3306
+# 例如：postgresql://postgres-service:5432
 ```
 
 **映射说明**：

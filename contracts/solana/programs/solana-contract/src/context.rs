@@ -13,7 +13,7 @@ pub struct Listing {
 }
 
 impl Listing {
-    pub const LEN: usize = size_of::<Pubkey>() * 3 + size_of::<u64>() * 2 + size_of::<u8>() + size_of::<i64>() + 1;
+    pub const LEN: usize = 8 + size_of::<Pubkey>() * 3 + size_of::<u64>() * 2 + size_of::<u8>() + size_of::<i64>() + 1;
 }
 
 #[account]

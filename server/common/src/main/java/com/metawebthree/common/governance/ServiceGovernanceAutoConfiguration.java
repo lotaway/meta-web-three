@@ -3,12 +3,10 @@ package com.metawebthree.common.governance;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import io.github.resilience4j.ratelimiter.RateLimiter;
-import io.github.resilience4j.ratelimiter.RateLimiterConfig;
-import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
+import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -60,32 +58,6 @@ public class ServiceGovernanceAutoConfiguration {
         CircuitBreakerRegistry registry = CircuitBreakerRegistry.ofDefaults();
         registry.addConfiguration("standard", defaultCircuitBreakerConfig);
         log.info("Applied default CircuitBreaker configuration");
-        return registry;
-    }
-
-    /**
-     * Default Rate Limiter configuration
-     * Allows 100 requests per 1 second by default
-     */
-    @Bean
-    @ConditionalOnMissingBean
-    public RateLimiterConfig defaultRateLimiterConfig() {
-        return RateLimiterConfig.custom()
-                .limitForPeriod(100)
-                .limitRefreshPeriod(Duration.ofSeconds(1))
-                .timeoutDuration(Duration.ofSeconds(5))
-                .build();
-    }
-
-    /**
-     * Rate Limiter Registry with default configuration
-     */
-    @Bean
-    @ConditionalOnMissingBean
-    public RateLimiterRegistry rateLimiterRegistry(RateLimiterConfig defaultRateLimiterConfig) {
-        RateLimiterRegistry registry = RateLimiterRegistry.ofDefaults();
-        registry.addConfiguration("standard", defaultRateLimiterConfig);
-        log.info("Applied default RateLimiter configuration");
         return registry;
     }
 
