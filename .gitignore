@@ -106,6 +106,7 @@ apps/client/web-build/
 
 # Data
 /volumes
+*_data/
 
 # Docker
 .dockerignore
