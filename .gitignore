@@ -5,6 +5,7 @@
 .aws
 temp/
 .freebuff
+.workbuddy
 
 # compiled output
 /dist
