@@ -20,7 +20,8 @@ fi
 DB_USER=$(echo "${POSTGRES_USER:-""}" | sed 's/\r$//')
 DB_PASS=$(echo "${POSTGRES_PASSWORD:-""}" | sed 's/\r$//')
 DB_HOST=$(echo "${POSTGRES_HOST:-"localhost"}" | sed 's/\r$//')
-DB_PORT=$(echo "${POSTGRES_PORT:-"5432"}" | sed 's/\r$//')
+# DB_PORT=$(echo "${POSTGRES_PORT:-"5432"}" | sed 's/\r$//')
+DB_PORT=5432
 DB_NAME=$(echo "${POSTGRES_DB:-"metawebthree"}" | sed 's/\r$//')
 
 DB_URL="postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
