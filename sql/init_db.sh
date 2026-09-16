@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Resolve paths from the repository root so the script works regardless of
+# the caller's current working directory.
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+ENV_FILE="$PROJECT_ROOT/.env"
+TEMP_DIR="$PROJECT_ROOT/temp"
+
 # Parse -y flag to skip confirmation
 SKIP_CONFIRM=false
 while getopts "y" opt; do
@@ -10,9 +17,9 @@ while getopts "y" opt; do
 done
 
 # Load environment variables from .env file and strip carriage returns (\r)
-if [ -f .env ]; then
+if [ -f "$ENV_FILE" ]; then
     # More robust way to load .env, handling CRLF and spaces
-    export $(grep -v '^#' .env | sed 's/\r$//' | xargs)
+    export $(grep -v '^#' "$ENV_FILE" | sed 's/\r$//' | xargs)
 fi
 
 # Set default values if environment variables are not set
@@ -78,7 +85,8 @@ if command -v psql &> /dev/null; then
     fi
 
     # Execute PostgreSQL schema files
-    for sql_file in $(ls temp/*_schema.sql 2>/dev/null); do
+    for sql_file in "$TEMP_DIR"/*_schema.sql; do
+        [ -f "$sql_file" ] || continue
         if grep -q "ENGINE\s*=" "$sql_file" 2>/dev/null; then
             continue
         fi
@@ -104,7 +112,8 @@ echo "   ClickHouse Initialization"
 echo "=========================================="
 
 if command -v curl &> /dev/null; then
-    for sql_file in $(ls temp/*_schema.sql 2>/dev/null); do
+    for sql_file in "$TEMP_DIR"/*_schema.sql; do
+        [ -f "$sql_file" ] || continue
         if ! grep -q "ENGINE\s*=" "$sql_file" 2>/dev/null; then
             continue
         fi
