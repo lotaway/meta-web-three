@@ -2,7 +2,6 @@ package com.metawebthree.rma.infrastructure.integration;
 
 import com.metawebthree.rma.application.integration.InventoryIntegrationService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
 
 /**
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-@ConditionalOnMissingBean(InventoryIntegrationService.class)
 public class StubInventoryIntegrationService implements InventoryIntegrationService {
 
     @Override

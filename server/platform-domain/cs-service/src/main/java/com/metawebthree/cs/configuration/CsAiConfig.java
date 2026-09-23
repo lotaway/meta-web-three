@@ -10,8 +10,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * AI-related beans for CS service.
+ * NOTE: renamed from CsConfig to CsAiConfig to avoid a bean-name conflict
+ * with {@code com.metawebthree.cs.config.CsConfig}.
+ */
 @Configuration
-public class CsConfig {
+public class CsAiConfig {
 
     @Value("${spring.ai.openai.base-url:https://api.openai.com}")
     private String openaiBaseUrl;

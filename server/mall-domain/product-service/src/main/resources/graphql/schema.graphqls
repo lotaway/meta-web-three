@@ -1,4 +1,4 @@
-extend type Query {
+type Query {
     product(id: ID!): Product
     products(page: Int, size: Int): ProductConnection
     productBySku(sku: String!): Product
@@ -6,7 +6,7 @@ extend type Query {
     categories(parentId: ID): CategoryConnection
 }
 
-extend type Mutation {
+type Mutation {
     createProduct(input: CreateProductInput!): Product
     updateProduct(id: ID!, input: UpdateProductInput!): Product
     deleteProduct(id: ID!): Boolean

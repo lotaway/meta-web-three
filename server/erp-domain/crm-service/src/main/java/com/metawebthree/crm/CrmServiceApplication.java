@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@MapperScan("com.metawebthree.crm.domain.repository")
+@MapperScan("com.metawebthree.crm.infrastructure.persistence.mapper")
 public class CrmServiceApplication {
 
     public static void main(String[] args) {

@@ -2,11 +2,12 @@
 
 set -euo pipefail
 
-# 显式指定 profile：--dev → dev，否则 → production
-if [[ "$*" == *--dev* ]]; then
-  export SPRING_PROFILES_ACTIVE=dev
-else
+# Local default is dev; pass --prod explicitly for production.
+if [[ "$*" == *--prod* ]]; then
   export SPRING_PROFILES_ACTIVE=prod
+else
+  # Local startup must use dev; production has no local datasource URL.
+  export SPRING_PROFILES_ACTIVE=dev
 fi
 
 case "$(uname -s)" in
@@ -55,7 +56,7 @@ for entry in "${SERVER_JAVA_SERVICES[@]}"; do
     echo "⚠ $name: JAR not found at $module/target/ (skip)"
     continue
   fi
-  java -Dspring.profiles.active="$SPRING_PROFILES_ACTIVE" -XX:TieredStopAtLevel=1 -jar "$jar_file" >"$log_file" 2>&1 &
+  java -Dspring.profiles.active="$SPRING_PROFILES_ACTIVE" -DAPPLICATION_NAME="$name" -XX:TieredStopAtLevel=1 -jar "$jar_file" >"$log_file" 2>&1 &
   pid=$!
   pids+=("$pid")
   echo "Starting $name (PID: $pid)"
@@ -63,8 +64,8 @@ done
 
 echo "==> 所有服务启动命令已提交 (PID 记录完成，Ctrl+C 停止)"
 echo "日志目录: $LOG_DIR"
-echo "等待 Spring Boot 服务启动 (约 1-3 分钟，可 tail -f *.log 观察)..."
-sleep 60
+echo "等待 Spring Boot 服务启动 (最多约 90 秒，可 tail -f *.log 观察)..."
+sleep 5
 
 echo "检查服务启动状态..."
 
@@ -72,7 +73,12 @@ for entry in "${SERVER_JAVA_SERVICES[@]}"; do
   name="$(server_service_name "$entry")"
   log_file="$LOG_DIR/${name}.log"
   started=false
-  for _ in {1..60}; do
+  for _ in {1..17}; do
+    if grep -qE "APPLICATION FAILED TO START|Error: Unable to access jarfile|Could not find or load main class" "$log_file" 2>"$NULL_DEV"; then
+      echo "✗ $name 启动失败 (检查 $log_file)"
+      started=true
+      break
+    fi
     if grep -q "Started .*Application in" "$log_file" 2>"$NULL_DEV"; then
       echo "✓ $name 启动成功"
       started=true
@@ -97,12 +103,18 @@ echo "==> 所有服务已停止"
 exit 0' INT TERM EXIT
 
 while true; do
+  alive=0
   for pid in "${pids[@]}"; do
-    if ! kill -0 "$pid" 2>"$NULL_DEV"; then
-      echo "==> 服务 $pid 已停止，脚本退出"
-      exit 1
+    if kill -0 "$pid" 2>"$NULL_DEV"; then
+      alive=$((alive + 1))
+    else
+      echo "  ⚠ 服务进程 PID $pid 已退出 (其余服务继续运行)"
     fi
   done
+  if [ "$alive" -eq 0 ]; then
+    echo "==> 所有服务均已退出，脚本结束"
+    exit 1
+  fi
   sleep 10
-  printf "当前状态 [%s]: %d 服务存活\n" "$(date '+%H:%M:%S')" "${#pids[@]}"
+  printf "当前状态 [%s]: %d/%d 服务存活 (Ctrl+C 停止全部)\n" "$(date '+%H:%M:%S')" "$alive" "${#pids[@]}"
 done

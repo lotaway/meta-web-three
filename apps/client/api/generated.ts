@@ -1,4 +1,5 @@
 import { Configuration } from '@/src/generated/api/runtime'
+import { getApiBaseUrl } from '@/src/lib/api/baseUrl'
 import { ProductManagementApi } from '@/src/generated/api/apis/ProductManagementApi'
 import { ProductCategoryManagementApi } from '@/src/generated/api/apis/ProductCategoryManagementApi'
 import { ProductBrandManagementApi } from '@/src/generated/api/apis/ProductBrandManagementApi'
@@ -18,7 +19,7 @@ import { CommissionControllerApi } from '@/src/generated/api/apis/CommissionCont
 import { ExchangeApi } from '@/src/generated/api/apis/ExchangeApi'
 export * from './aiShopping'
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_BACK_API_HOST ?? 'http://localhost:10081'
+export const API_BASE_URL = getApiBaseUrl()
 export const DEFAULT_USER_ID = Number(process.env.EXPO_PUBLIC_DEFAULT_USER_ID ?? 1)
 export const STRIPE_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? ''
 export const WECHAT_APP_ID = process.env.EXPO_PUBLIC_WECHAT_APP_ID ?? ''
@@ -27,6 +28,17 @@ export const ALIPAY_APP_ID = process.env.EXPO_PUBLIC_ALIPAY_APP_ID ?? ''
 export const apiConfig = new Configuration({
   basePath: API_BASE_URL,
   credentials: 'include',
+  middleware: [
+    {
+      onError: async ({ url, error }) => {
+        console.error(
+          `[API Network Error] ${url} -> ${
+            error instanceof Error ? error.message : String(error)
+          }（无法连接到后端，请确认服务已启动且本机能访问 ${API_BASE_URL}）`,
+        )
+      },
+    },
+  ],
 })
 
 export const productApi = new ProductManagementApi(apiConfig)

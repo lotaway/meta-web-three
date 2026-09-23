@@ -14,6 +14,13 @@ import java.util.*;
 @Component
 public class SolanaContractClient {
 
+    private static final String ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+    private static final int[] BASE58_DECODE = new int[128];
+    static {
+        Arrays.fill(BASE58_DECODE, -1);
+        for (int i = 0; i < ALPHABET.length(); i++) BASE58_DECODE[ALPHABET.charAt(i)] = i;
+    }
+
     private static final String PROGRAM_ID = "EUDxXt8kG9o76MWGwyZCGUL1oPPnoNvmAprdZskjyBTh";
     private static final byte[] PROGRAM_ID_BYTES = decodeBase58(PROGRAM_ID);
     private static final byte[] TOKEN_METADATA_PROGRAM_ID_BYTES = decodeBase58("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
@@ -658,13 +665,6 @@ public class SolanaContractClient {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private static final String ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-    private static final int[] BASE58_DECODE = new int[128];
-    static {
-        Arrays.fill(BASE58_DECODE, -1);
-        for (int i = 0; i < ALPHABET.length(); i++) BASE58_DECODE[ALPHABET.charAt(i)] = i;
     }
 
     public static String base58Encode(byte[] input) {

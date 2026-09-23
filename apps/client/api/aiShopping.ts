@@ -1,4 +1,5 @@
 import { getToken } from '@/lib/api/interceptors'
+import { getApiBaseUrl } from '@/lib/api/baseUrl'
 
 // ============================================================
 // AI shopping client (hand-written, styled after src/generated/api)
@@ -7,7 +8,7 @@ import { getToken } from '@/lib/api/interceptors'
 // Responses use ApiResponse { code, message, data }
 // ============================================================
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_BACK_API_HOST ?? 'http://localhost:10081'
+const API_BASE_URL = getApiBaseUrl()
 
 export type CorrectionSource = 'LLM' | 'LOCAL' | 'NONE'
 

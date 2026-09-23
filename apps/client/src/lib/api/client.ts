@@ -1,4 +1,5 @@
 import { ApiError, isApiError } from './errors'
+import { getApiBaseUrl } from './baseUrl'
 
 type RequestInterceptor = (config: RequestInit) => RequestInit | Promise<RequestInit>
 type ResponseInterceptor = (
@@ -198,7 +199,7 @@ export class ApiClient {
 }
 
 export const apiClient = new ApiClient({
-  baseUrl: process.env.NEXT_PUBLIC_BACK_API_HOST ?? 'http://localhost:10081',
+  baseUrl: getApiBaseUrl(),
   timeout: 10000,
   retryTimes: 2,
   retryDelay: 1000,

@@ -48,7 +48,6 @@ import com.metawebthree.order.infrastructure.persistence.mapper.OrderMapper;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@DubboService
 public class OrderServiceImpl implements OrderService {
 
     private static final String DEFAULT_CURRENCY = "USD";

@@ -42,9 +42,11 @@
         <module>platform-domain/cs-service</module>
         <module>platform-domain/data-analysis-service</module>
         <module>platform-domain/tenant-service</module>
+        <module>platform-domain/social-commerce-service</module>
         <!-- factory-domain -->
         <module>factory-domain/mes-service</module>
         <module>factory-domain/digital-twin-service</module>
+        <module>factory-domain/production-service</module>
         <!-- ai-domain -->
         <module>ai-domain/forecasting-service</module>
         <module>ai-domain/route-optimizer</module>
@@ -64,6 +66,7 @@
         <module>erp-domain/settlement-service</module>
         <module>erp-domain/hrm-service</module>
         <module>erp-domain/crm-service</module>
+        <module>erp-domain/project-service</module>
         <!-- blockchain-domain -->
         <module>blockchain-domain/wallet-service</module>
         <module>blockchain-domain/traceability-service</module>

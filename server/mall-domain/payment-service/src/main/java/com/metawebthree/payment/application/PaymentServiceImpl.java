@@ -51,7 +51,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Value("${payment.fiat.wechat.api-key}")
     private String wechatApiKey;
 
-    @Value("${payment.fiat.stripe.secret-key}")
+    @Value("${payment.fiat.stripe.secret-key:sk_test_dummy}")
     private String stripeSecretKey;
 
     @Value("${payment.fiat.stripe.return-url:app://payment}")

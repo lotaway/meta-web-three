@@ -5,9 +5,11 @@ import com.metawebthree.recommendation.infrastructure.config.RecommendationAlgor
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@ComponentScan("com.metawebthree.common.event")
 @EnableConfigurationProperties({RecommendationAlgorithmProperties.class, AiShoppingProperties.class})
 @EnableScheduling
 public class RecommendationServiceApplication {
