@@ -1,10 +1,10 @@
-extend type Query {
+type Query {
     order(id: ID!): Order
     orders(page: Int, size: Int, status: String): OrderConnection
     orderByOrderNo(orderNo: String!): Order
 }
 
-extend type Mutation {
+type Mutation {
     createOrder(input: CreateOrderInput!): Order
     cancelOrder(id: ID!): Order
     payOrder(id: ID!, paymentMethod: String!): Order

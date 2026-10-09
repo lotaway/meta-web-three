@@ -23,6 +23,18 @@ REGISTRY="$ROOT_DIR/scripts/server-services-registry.sh"
 # shellcheck source=scripts/server-services-registry.sh
 source "$REGISTRY"
 
+# JVM 内存上限（本地开发用，均可通过环境变量覆盖）。
+# 不设置时 JDK 会按物理内存的 1/4 取默认最大堆（64GB 机器约 16GB/进程），
+# 46 个服务同时启动会瞬间吃掉几十 GB。这里给出保守的默认值。
+JAVA_XMS="${JAVA_XMS:-128m}"
+JAVA_XMX="${JAVA_XMX:-512m}"
+JAVA_MAX_METASPACE="${JAVA_MAX_METASPACE:-192m}"
+JAVA_MAX_DIRECT="${JAVA_MAX_DIRECT:-128m}"
+JAVA_CODE_CACHE="${JAVA_CODE_CACHE:-64m}"
+JAVA_GC_OPTS="${JAVA_GC_OPTS:--XX:+UseSerialGC}"
+JAVA_MEM_OPTS="${JAVA_MEM_OPTS:--Xms${JAVA_XMS} -Xmx${JAVA_XMX} -XX:MaxMetaspaceSize=${JAVA_MAX_METASPACE} -XX:MaxDirectMemorySize=${JAVA_MAX_DIRECT} -XX:ReservedCodeCacheSize=${JAVA_CODE_CACHE} ${JAVA_GC_OPTS}}"
+export JAVA_MEM_OPTS
+
 mkdir -p "$LOG_DIR"
 
 pids=()
@@ -77,7 +89,7 @@ for entry in "${SERVER_JAVA_SERVICES[@]}"; do
     echo "⚠ $name: JAR not found at $module/target/ (skip)"
     continue
   fi
-  java -Dspring.profiles.active="$SPRING_PROFILES_ACTIVE" -DAPPLICATION_NAME="$name" -XX:TieredStopAtLevel=1 -jar "$jar_file" >"$log_file" 2>&1 &
+  java -Dspring.profiles.active="$SPRING_PROFILES_ACTIVE" -DAPPLICATION_NAME="$name" -XX:TieredStopAtLevel=1 $JAVA_MEM_OPTS -jar "$jar_file" >"$log_file" 2>&1 &
   pid=$!
   pids+=("$pid")
   echo "Starting $name (PID: $pid)"

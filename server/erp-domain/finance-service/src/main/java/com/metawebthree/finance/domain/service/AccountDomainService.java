@@ -2,8 +2,10 @@ package com.metawebthree.finance.domain.service;
 
 import com.metawebthree.finance.domain.entity.Account;
 import com.metawebthree.finance.domain.repository.AccountRepository;
+import org.springframework.stereotype.Service;
 import java.util.List;
 
+@Service
 public class AccountDomainService {
     private final AccountRepository accountRepository;
 

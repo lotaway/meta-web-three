@@ -1,7 +1,6 @@
 package com.metawebthree.live.infrastructure.client;
 
 import com.metawebthree.live.domain.ports.ProductPort;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -16,9 +15,6 @@ public class ProductClient implements ProductPort {
     private static final Logger logger = LoggerFactory.getLogger(ProductClient.class);
 
     private final Map<Long, Map<String, Object>> localProducts = new ConcurrentHashMap<>();
-
-    @DubboReference(check = false, lazy = true)
-    private Object productService;
 
     public ProductClient() {
         // Initialize with some stub products

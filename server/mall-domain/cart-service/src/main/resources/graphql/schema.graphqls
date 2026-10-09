@@ -1,8 +1,8 @@
-extend type Query {
+type Query {
     cart(userId: ID!): Cart
 }
 
-extend type Mutation {
+type Mutation {
     addToCart(productId: ID!, quantity: Int!): Cart
     removeFromCart(cartItemId: ID!): Cart
     clearCart(userId: ID!): Cart

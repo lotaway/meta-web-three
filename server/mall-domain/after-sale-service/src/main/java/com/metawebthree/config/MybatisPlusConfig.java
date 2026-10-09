@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.List;
 
 @Configuration
-@MapperScan("com.metawebthree.aftersale")
+@MapperScan({"com.metawebthree.aftersale", "com.metawebthree.common.audit"})
 public class MybatisPlusConfig extends MultiTenantMybatisConfig {
 
     @Override

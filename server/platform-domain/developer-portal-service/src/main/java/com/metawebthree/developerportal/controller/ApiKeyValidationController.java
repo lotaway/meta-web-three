@@ -66,27 +66,4 @@ public class ApiKeyValidationController {
 
         return ResponseEntity.ok(response);
     }
-
-    @GetMapping("/{keyId}")
-    public ResponseEntity<Map<String, Object>> getApiKey(@PathVariable String keyId) {
-        Map<String, Object> response = new HashMap<>();
-
-        Optional<ApiKey> apiKeyOpt = apiKeyRepository.findByKeyId(keyId);
-
-        if (apiKeyOpt.isEmpty()) {
-            response.put("error", "API key not found");
-            return ResponseEntity.notFound().build();
-        }
-
-        ApiKey apiKey = apiKeyOpt.get();
-
-        response.put("keyId", apiKey.getKeyId());
-        response.put("developerId", apiKey.getDeveloperId());
-        response.put("name", apiKey.getName());
-        response.put("status", apiKey.getStatus().name());
-        response.put("scopes", apiKey.getScopes());
-        response.put("rateLimit", apiKey.getRateLimit());
-
-        return ResponseEntity.ok(response);
-    }
 }

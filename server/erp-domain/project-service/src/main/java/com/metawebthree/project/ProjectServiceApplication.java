@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication(scanBasePackages = "com.metawebthree")
-@MapperScan("com.metawebthree.project.infrastructure.mapper")
+@MapperScan({"com.metawebthree.project.infrastructure.mapper", "com.metawebthree.common.audit"})
 @EnableDiscoveryClient
 public class ProjectServiceApplication {
 

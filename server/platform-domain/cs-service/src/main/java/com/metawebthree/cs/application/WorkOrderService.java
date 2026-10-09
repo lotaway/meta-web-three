@@ -4,10 +4,12 @@ import com.metawebthree.cs.domain.model.WorkOrder;
 import com.metawebthree.cs.domain.model.enums.WorkOrderCategory;
 import com.metawebthree.cs.domain.model.enums.WorkOrderStatus;
 import com.metawebthree.cs.domain.repository.WorkOrderRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class WorkOrderService {
     private final WorkOrderRepository workOrderRepository;
     private final TicketClassificationService classificationService;

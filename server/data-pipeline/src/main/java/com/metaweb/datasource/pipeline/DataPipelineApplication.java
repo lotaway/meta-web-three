@@ -4,11 +4,12 @@ import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Slf4j
-@SpringBootApplication(exclude = MybatisPlusAutoConfiguration.class)
+@SpringBootApplication(exclude = {MybatisPlusAutoConfiguration.class, QuartzAutoConfiguration.class})
 @ComponentScan(basePackages = {"com.metaweb.datasource.pipeline", "com.metaweb.common"})
 @EnableScheduling
 public class DataPipelineApplication {

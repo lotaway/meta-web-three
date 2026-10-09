@@ -4,11 +4,13 @@ import com.metawebthree.inventory.domain.entity.Inventory;
 import com.metawebthree.inventory.domain.entity.alert.InventoryAlert;
 import com.metawebthree.inventory.domain.entity.alert.InventoryAlertConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
+@Service
 public class InventoryAlertDomainService {
 
     /**

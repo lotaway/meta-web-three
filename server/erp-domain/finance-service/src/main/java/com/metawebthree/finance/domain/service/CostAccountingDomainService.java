@@ -1,11 +1,13 @@
 package com.metawebthree.finance.domain.service;
 
 import com.metawebthree.finance.domain.entity.cost.*;
+import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class CostAccountingDomainService {
 
     public void allocateResourceToActivity(ResourcePool pool, Activity activity, BigDecimal amount) {
