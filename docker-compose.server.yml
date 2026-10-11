@@ -470,19 +470,6 @@ services:
     volumes:
       - finance_service_data:/server/finance
       - ./.aws:/.aws:ro
-  invoice-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: invoice-service
-    container_name: meta-web-three-invoice-service
-    hostname: invoice-service
-    ports:
-      - "10111:10111"
-    volumes:
-      - invoice_service_data:/server/invoice
-      - ./.aws:/.aws:ro
   reporting-service:
     <<: *java-service
     build:

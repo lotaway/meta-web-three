@@ -182,11 +182,6 @@ WORKDIR /app
 COPY --from=builder /build/server/erp-domain/finance-service/target/finance-service-*.jar finance-service.jar
 ENTRYPOINT ["java", "-jar", "finance-service.jar"]
 
-FROM eclipse-temurin:17-jre-jammy AS invoice-service
-WORKDIR /app
-COPY --from=builder /build/server/erp-domain/invoice-service/target/invoice-service-*.jar invoice-service.jar
-ENTRYPOINT ["java", "-jar", "invoice-service.jar"]
-
 FROM eclipse-temurin:17-jre-jammy AS reporting-service
 WORKDIR /app
 COPY --from=builder /build/server/erp-domain/reporting-service/target/reporting-service-*.jar reporting-service.jar

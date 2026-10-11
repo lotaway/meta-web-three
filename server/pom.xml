@@ -61,7 +61,6 @@
         <module>supply-chain-domain/dom-service</module>
         <!-- erp-domain -->
         <module>erp-domain/finance-service</module>
-        <module>erp-domain/invoice-service</module>
         <module>erp-domain/reporting-service</module>
         <module>erp-domain/settlement-service</module>
         <module>erp-domain/hrm-service</module>

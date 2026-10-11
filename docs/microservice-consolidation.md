@@ -1,0 +1,57 @@
+# 微服务收敛方案 (46 → 15)
+
+> 背景：当前 46 个 Java 微服务对本地开发/中小团队运维成本过高（46 × JVM 固定开销，
+> 曾出现 21 个服务无法启动、内存吃几十 GB）。目标：按业务边界收敛到 15 个服务，
+> 每个服务承担一个清晰的业务域，减少固定开销并简化部署。
+
+## 目标架构
+
+| 合并后服务 | 端口 | 来源服务（现状模块） | 原端口（释放） |
+|---|---|---|---|
+| gateway | 10081 | gateway（保留） | - |
+| mall-user-service | 10083 | user-service, user-action-service, risk-control-service | 10091, 10098 |
+| mall-trade-service | 10084 | order-service, payment-service, cart-service, promotion-service, after-sale-service | 10086, 10089, 10090, 10093 |
+| mall-catalog-service | 10082 | product-service, mall-supplier-service, recommendation-service, review-service | 10096, 10104, 10097 |
+| mall-social-service | 10095 | live-service, group-buying-service, social-commerce-service | 10094, 10100 |
+| platform-service | 10085 | message-service, media-service, commission-service, cs-service, data-analysis-service, tenant-service, developer-portal-service | 10087, 10088, 10092, 10099, 10126, 10115 |
+| scm-inventory-service | 10105 | inventory-service, warehouse-service, supplier-service, dom-service, inventory-alert-service | 10106, 10109, 10124, 10121 |
+| scm-logistics-service | 10107 | logistics-service, procurement-service, rma-service | 10108, 10123 |
+| erp-finance-service | 10110 | finance-service, invoice-service, reporting-service, settlement-service | 10111, 10112, 10113 |
+| erp-management-service | 10125 | crm-service, hrm-service, project-service | 10119, 10120 |
+| factory-service | 10101 | mes-service, digital-twin-service, production-service | 10102, 10116 |
+| ai-service | 10103 | forecasting-service, route-optimizer | 10117 |
+| blockchain-service | 10114 | wallet-service, traceability-service | 10118 |
+| data-pipeline | 10122 | data-pipeline（保留） | - |
+
+> 注：ai-domain 下还有 `ai-warehouse-service`、`risk-scorer` 两个模块未在任何 registry 中注册，本次收敛不处理。
+
+## 每个合并的标准步骤
+
+1. **前置检查**：确认被合并服务有没有外部按名/按端口引用（`grep <name>|端口`），记录调用方。
+2. **代码搬移**：把被合并服务的 `src/main/java/<pkg>` 整体拷入目标服务模块，保留原包名（避免类级修改）。
+3. **组件扫描**：目标服务 `@SpringBootApplication(scanBasePackages = { "<目标包>", "<被合并包>" })`。
+   - 避免用 `com.metawebthree` 全包扫描（会连带加载 common.audit 的 AOP/Service，导致 Mapper 缺失类问题）。
+4. **MyBatis 扫描**：目标服务加 `@MapperScan(basePackages = { <所有业务包> }, annotationClass = Mapper.class)`，
+   保证所有 `@Mapper` 接口（含被合并服务的）都被注册，且不误扫普通接口。
+5. **资源合并**：`db/schema.sql` 追加；`application.yml` 不合并（统一用目标服务端口/应用名），
+   删除被合并服务的独立 yml。
+6. **移除模块**：从 `server/pom.xml` `<modules>` 与 `scripts/server-services-registry.sh` 删除；
+   删除旧模块目录（git 可回滚）。
+7. **gateway/客户端核对**：gateway 路由、前端 baseURL、跨服务 RPC 更新（如有按端口/服务名引用）。
+8. **验证**：`mvn clean install` 目标模块 → 用 `verify-all.sh` 单服务启动检查 → 访问各业务端点冒烟。
+
+## 阶段划分
+
+- **Phase 0** 基线与映射（本文件建立；46 服务盘点）
+- **Phase 1** ERP：`invoice/reporting/settlement → erp-finance`；`hrm/crm/project → erp-management`
+- **Phase 2** 供应链：`→ scm-inventory` / `→ scm-logistics`
+- **Phase 3** 电商 mall：`→ mall-user / mall-trade / mall-catalog / mall-social`
+- **Phase 4** 平台：`→ platform-service`
+- **Phase 5** 工厂 / AI / 区块链：`→ factory / ai / blockchain`
+- **Phase 6** 收尾：`run-server.sh` 全量回归、内存复测、文档/网关/前端同步
+
+## 验证与回滚
+
+- 每合并一个就：构建 + 单服务启动 + 冒烟，通过后才合并下一个。
+- 所有改动在 git 中可回滚（旧模块目录删除前先确保已搬移完整）。
+- 完成后跑 `bash scripts/check-server-memory.sh` 对比合并前后内存。

@@ -26,7 +26,6 @@ SERVER_JAVA_SERVICES=(
   "procurement-service|supply-chain-domain/procurement-service|10108"
   "supplier-service|supply-chain-domain/supplier-service|10109"
   "finance-service|erp-domain/finance-service|10110"
-  "invoice-service|erp-domain/invoice-service|10111"
   "reporting-service|erp-domain/reporting-service|10112"
   "settlement-service|erp-domain/settlement-service|10113"
   "wallet-service|blockchain-domain/wallet-service|10114"
