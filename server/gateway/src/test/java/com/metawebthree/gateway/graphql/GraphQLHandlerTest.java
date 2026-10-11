@@ -115,7 +115,7 @@ class GraphQLHandlerTest {
         subgraphResponse.put("data", Map.of("order", orderData));
 
         when(restTemplate.postForObject(
-                eq("http://order-service/graphql"),
+                eq("http://mall-trade-service/graphql/order"),
                 any(Map.class),
                 eq(Map.class)
         )).thenReturn(subgraphResponse);
@@ -132,7 +132,7 @@ class GraphQLHandlerTest {
                 .assertNext(response -> {
                     assertEquals(200, response.statusCode().value());
                     verify(restTemplate).postForObject(
-                            eq("http://order-service/graphql"),
+                            eq("http://mall-trade-service/graphql/order"),
                             any(Map.class),
                             eq(Map.class)
                     );
@@ -151,7 +151,7 @@ class GraphQLHandlerTest {
         subgraphResponse.put("data", Map.of("cart", cartData));
 
         when(restTemplate.postForObject(
-                eq("http://cart-service/graphql"),
+                eq("http://mall-trade-service/graphql/cart"),
                 any(Map.class),
                 eq(Map.class)
         )).thenReturn(subgraphResponse);
@@ -168,7 +168,7 @@ class GraphQLHandlerTest {
                 .assertNext(response -> {
                     assertEquals(200, response.statusCode().value());
                     verify(restTemplate).postForObject(
-                            eq("http://cart-service/graphql"),
+                            eq("http://mall-trade-service/graphql/cart"),
                             any(Map.class),
                             eq(Map.class)
                     );

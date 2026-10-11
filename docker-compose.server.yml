@@ -67,18 +67,18 @@ services:
     volumes:
       - user_service_data:/server/user
       - ./.aws:/.aws:ro
-  order-service:
+  mall-trade-service:
     <<: *java-service
     build:
       context: .
       dockerfile: server/Dockerfile
-      target: order-service
-    container_name: meta-web-three-order-service
-    hostname: order-service
+      target: mall-trade-service
+    container_name: meta-web-three-mall-trade-service
+    hostname: mall-trade-service
     ports:
       - "10084:10084"
     volumes:
-      - order_service_data:/server/order
+      - mall_trade_service_data:/server/mall-trade
       - ./.aws:/.aws:ro
   message-service:
     <<: *java-service
@@ -92,19 +92,6 @@ services:
       - "10085:10085"
     volumes:
       - message_service_data:/server/message
-      - ./.aws:/.aws:ro
-  payment-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: payment-service
-    container_name: meta-web-three-payment-service
-    hostname: payment-service
-    ports:
-      - "10086:10086"
-    volumes:
-      - payment_service_data:/server/payment
       - ./.aws:/.aws:ro
   media-service:
     <<: *java-service
@@ -131,45 +118,6 @@ services:
       - "10088:10088"
     volumes:
       - commission_service_data:/server/commission
-      - ./.aws:/.aws:ro
-  cart-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: cart-service
-    container_name: meta-web-three-cart-service
-    hostname: cart-service
-    ports:
-      - "10089:10089"
-    volumes:
-      - cart_service_data:/server/cart
-      - ./.aws:/.aws:ro
-  promotion-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: promotion-service
-    container_name: meta-web-three-promotion-service
-    hostname: promotion-service
-    ports:
-      - "10090:10090"
-    volumes:
-      - promotion_service_data:/server/promotion
-      - ./.aws:/.aws:ro
-  after-sale-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: after-sale-service
-    container_name: meta-web-three-after-sale-service
-    hostname: after-sale-service
-    ports:
-      - "10093:10093"
-    volumes:
-      - after-sale_service_data:/server/after-sale
       - ./.aws:/.aws:ro
   group-buying-service:
     <<: *java-service
@@ -450,16 +398,12 @@ volumes:
   gateway_data:
   mall_catalog_service_data:
   user_service_data:
-  order_service_data:
+  mall_trade_service_data:
   message_service_data:
-  payment_service_data:
   media_service_data:
   commission_service_data:
-  cart_service_data:
-  promotion_service_data:
   user-action_service_data:
   cs_service_data:
-  after-sale_service_data:
   group-buying_service_data:
   live_service_data:
   risk-control_service_data:

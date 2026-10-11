@@ -31,11 +31,11 @@ public class FederationRouter {
     static final Map<String, String> SUBGRAPH_URLS = new LinkedHashMap<>();
     static {
         SUBGRAPH_URLS.put("product", "http://mall-catalog-service/graphql/product");
-        SUBGRAPH_URLS.put("order", "http://order-service/graphql");
+        SUBGRAPH_URLS.put("order", "http://mall-trade-service/graphql/order");
         SUBGRAPH_URLS.put("user", "http://user-service/graphql");
         SUBGRAPH_URLS.put("inventory", "http://scm-inventory-service/graphql");
         SUBGRAPH_URLS.put("recommendation", "http://mall-catalog-service/graphql/recommendation");
-        SUBGRAPH_URLS.put("cart", "http://cart-service/graphql");
+        SUBGRAPH_URLS.put("cart", "http://mall-trade-service/graphql/cart");
         SUBGRAPH_URLS.put("crm", "http://erp-management-service/graphql");
     }
 

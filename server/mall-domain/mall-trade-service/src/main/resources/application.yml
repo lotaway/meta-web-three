@@ -1,0 +1,120 @@
+server:
+  port: 10084
+spring:
+  application:
+    name: mall-trade-service
+  profiles:
+    active: dev
+  datasource:
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 0
+  quartz:
+    auto-startup: false
+    job-store-type: memory
+    jdbc:
+      initialize-schema: never
+commission:
+  return-window-days: 7
+# 支付配置（payment-service）
+payment:
+  fiat:
+    alipay:
+      app-id: your_alipay_app_id
+      private-key: your_alipay_private_key
+      public-key: your_alipay_public_key
+      gateway-url: https://openapi.alipay.com/gateway.do
+    wechat:
+      app-id: your_wechat_app_id
+      mch-id: your_wechat_mch_id
+      api-key: your_wechat_api_key
+      cert-path: /path/to/wechat/cert.p12
+    bank:
+      enabled: true
+      timeout-minutes: 30
+  crypto:
+    supported-currencies:
+      - BTC
+      - ETH
+      - USDT
+      - USDC
+    wallet:
+      api:
+        blockchain-url: https://api.blockchain.info
+        wallet-sdk-url: https://wallet-sdk.example.com
+        key: your_api_key
+      hot-wallet:
+        btc: your_btc_hot_wallet_address
+        eth: your_eth_hot_wallet_address
+        usdt: your_usdt_hot_wallet_address
+      cold-wallet:
+        btc: your_btc_cold_wallet_address
+        eth: your_eth_cold_wallet_address
+        usdt: your_usdt_cold_wallet_address
+  price-engine:
+    sources:
+      - name: binance
+        url: https://api.binance.com/api/v3/ticker/price
+        weight: 0.4
+      - name: coinbase
+        url: https://api.coinbase.com/v2/prices
+        weight: 0.3
+      - name: okx
+        url: https://www.okx.com/api/v5/market/ticker
+        weight: 0.3
+    update-interval: 5
+  risk-control:
+    single-limit:
+      usd: 10000
+      cny: 70000
+      eur: 9000
+    daily-limit:
+      usd: 50000
+      cny: 350000
+      eur: 45000
+    slippage:
+      max-percentage: 2.0
+  kyc:
+    levels:
+      l0:
+        name: "基础验证"
+        limit: 1000
+      l1:
+        name: "身份验证"
+        limit: 10000
+      l2:
+        name: "高级验证"
+        limit: 100000
+      l3:
+        name: "企业验证"
+        limit: 1000000
+  quartz:
+    enabled: true
+  reconciliation:
+    payment-platform-api-url: ${RECONCILIATION_PAYMENT_PLATFORM_API_URL:}
+    message-service-url: ${RECONCILIATION_MESSAGE_SERVICE_URL:}
+    dingtalk-webhook-url: ${RECONCILIATION_DINGTALK_WEBHOOK_URL:}
+    report-storage-path: ${RECONCILIATION_REPORT_STORAGE_PATH:/tmp/reconciliation-reports}
+# 促销配置（promotion-service）
+promotion:
+  coupon:
+    retry-limit: 5
+    max-generate-count: 1000
+    code-length: 10
+    code-alphabet: ABCDEFGHJKLMNPQRSTUVWXYZ23456789
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+    import:
+      - optional:classpath:application-common.yml
+      - optional:classpath:application-common-dev.yml
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import:
+      - optional:classpath:application-common.yml
+      - optional:classpath:application-common-prod.yml

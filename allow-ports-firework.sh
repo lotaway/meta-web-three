@@ -21,20 +21,16 @@ PORTS=(
    9200   # elasticsearch http
    9300   # elasticsearch transport
    5601   # kibana
-   # Java 微服务端�?(server-services-registry.sh)
+   # Java 微服务端�?(server-services-registry.sh)
    10081  # gateway
    10082  # mall-catalog-service
    10083  # user-service
-   10084  # order-service
+   10084  # mall-trade-service
    10085  # message-service
-   10086  # payment-service
    10087  # media-service
    10088  # commission-service
-   10089  # cart-service
-   10090  # promotion-service
    10091  # user-action-service
    10092  # cs-service
-   10093  # after-sale-service
    10094  # group-buying-service
    10095  # live-service
    10098  # risk-control-service

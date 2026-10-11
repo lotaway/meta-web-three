@@ -102,7 +102,7 @@ class FederationRouterTest {
     @Test
     void shouldResolveOrderQueriesToOrderService() {
         String url = federationRouter.resolveSubgraphUrl("{ order(id: \"1\") { id orderNo } }");
-        assertEquals("http://order-service/graphql", url);
+        assertEquals("http://mall-trade-service/graphql/order", url);
     }
 
     @Test
@@ -114,7 +114,7 @@ class FederationRouterTest {
     @Test
     void shouldResolveCartQueriesToCartService() {
         String url = federationRouter.resolveSubgraphUrl("{ cart(userId: \"1\") { id items { productId } } }");
-        assertEquals("http://cart-service/graphql", url);
+        assertEquals("http://mall-trade-service/graphql/cart", url);
     }
 
     @Test
@@ -328,7 +328,7 @@ class FederationRouterTest {
         cartResponse.put("data", Map.of("cart", cartData));
 
         when(restTemplate.postForObject(
-                eq("http://cart-service/graphql"),
+                eq("http://mall-trade-service/graphql/cart"),
                 any(Map.class),
                 eq(Map.class)
         )).thenReturn(cartResponse);
@@ -353,7 +353,7 @@ class FederationRouterTest {
 
         // Verify cart subgraph returns product references
         Map<String, Object> cartResult = federationRouter.executeOnSubgraph(
-                "http://cart-service/graphql",
+                "http://mall-trade-service/graphql/cart",
                 "{ cart(userId: \"1\") { __typename id userId items { __typename id productId quantity price subtotal } totalAmount itemCount } }",
                 Map.of("userId", "1")
         );

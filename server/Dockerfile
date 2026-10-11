@@ -22,30 +22,10 @@ WORKDIR /app
 COPY --from=builder /build/server/mall-domain/user-service/target/user-service-*.jar user-service.jar
 ENTRYPOINT ["java", "-jar", "user-service.jar"]
 
-FROM eclipse-temurin:17-jre-jammy AS order-service
+FROM eclipse-temurin:17-jre-jammy AS mall-trade-service
 WORKDIR /app
-COPY --from=builder /build/server/mall-domain/order-service/target/order-service-*.jar order-service.jar
-ENTRYPOINT ["java", "-jar", "order-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS cart-service
-WORKDIR /app
-COPY --from=builder /build/server/mall-domain/cart-service/target/cart-service-*.jar cart-service.jar
-ENTRYPOINT ["java", "-jar", "cart-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS payment-service
-WORKDIR /app
-COPY --from=builder /build/server/mall-domain/payment-service/target/payment-service-*.jar payment-service.jar
-ENTRYPOINT ["java", "-jar", "payment-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS promotion-service
-WORKDIR /app
-COPY --from=builder /build/server/mall-domain/promotion-service/target/promotion-service-*.jar promotion-service.jar
-ENTRYPOINT ["java", "-jar", "promotion-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS after-sale-service
-WORKDIR /app
-COPY --from=builder /build/server/mall-domain/after-sale-service/target/after-sale-service-*.jar after-sale-service.jar
-ENTRYPOINT ["java", "-jar", "after-sale-service.jar"]
+COPY --from=builder /build/server/mall-domain/mall-trade-service/target/mall-trade-service-*.jar mall-trade-service.jar
+ENTRYPOINT ["java", "-jar", "mall-trade-service.jar"]
 
 FROM eclipse-temurin:17-jre-jammy AS group-buying-service
 WORKDIR /app
