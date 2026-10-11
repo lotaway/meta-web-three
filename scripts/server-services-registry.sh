@@ -5,7 +5,7 @@
 
 SERVER_JAVA_SERVICES=(
   "gateway|gateway|10081"
-  "product-service|mall-domain/product-service|10082"
+  "mall-catalog-service|mall-domain/mall-catalog-service|10082"
   "user-service|mall-domain/user-service|10083"
   "order-service|mall-domain/order-service|10084"
   "message-service|platform-domain/message-service|10085"
@@ -19,7 +19,6 @@ SERVER_JAVA_SERVICES=(
   "mes-service|factory-domain/mes-service|10101"
   "digital-twin-service|factory-domain/digital-twin-service|10102"
   "forecasting-service|ai-domain/forecasting-service|10103"
-  "recommendation-service|mall-domain/recommendation-service|10104"
   "scm-inventory-service|supply-chain-domain/scm-inventory-service|10105"
   "scm-logistics-service|supply-chain-domain/scm-logistics-service|10107"
   "finance-service|erp-domain/finance-service|10110"
@@ -27,8 +26,6 @@ SERVER_JAVA_SERVICES=(
   "after-sale-service|mall-domain/after-sale-service|10093"
   "group-buying-service|mall-domain/group-buying-service|10094"
   "live-service|mall-domain/live-service|10095"
-  "mall-supplier-service|mall-domain/mall-supplier-service|10096"
-  "review-service|mall-domain/review-service|10097"
   "risk-control-service|mall-domain/risk-control-service|10098"
   "data-analysis-service|platform-domain/data-analysis-service|10099"
   "social-commerce-service|platform-domain/social-commerce-service|10100"

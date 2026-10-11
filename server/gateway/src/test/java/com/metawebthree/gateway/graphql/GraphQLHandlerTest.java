@@ -79,7 +79,7 @@ class GraphQLHandlerTest {
         subgraphResponse.put("data", Map.of("product", productData));
 
         when(restTemplate.postForObject(
-                eq("http://product-service/graphql"),
+                eq("http://mall-catalog-service/graphql/product"),
                 any(Map.class),
                 eq(Map.class)
         )).thenReturn(subgraphResponse);
@@ -96,7 +96,7 @@ class GraphQLHandlerTest {
                 .assertNext(response -> {
                     assertEquals(200, response.statusCode().value());
                     verify(restTemplate).postForObject(
-                            eq("http://product-service/graphql"),
+                            eq("http://mall-catalog-service/graphql/product"),
                             any(Map.class),
                             eq(Map.class)
                     );

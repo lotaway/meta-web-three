@@ -1,0 +1,226 @@
+-- Product Service Schema (PMS + CMS relevant);
+
+CREATE TABLE IF NOT EXISTS tb_product_category (
+    id BIGINT PRIMARY KEY,
+    parent_id BIGINT DEFAULT 0,
+    name VARCHAR(64) NOT NULL,
+    level INT DEFAULT 0,
+    product_count INT DEFAULT 0,
+    product_unit VARCHAR(64),
+    nav_status SMALLINT DEFAULT 0,
+    show_status SMALLINT DEFAULT 1,
+    sort INT DEFAULT 0,
+    icon VARCHAR(255),
+    keywords VARCHAR(255),
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS tb_brand (
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(64) NOT NULL,
+    first_letter VARCHAR(8),
+    sort INT DEFAULT 0,
+    factory_status SMALLINT DEFAULT 0,
+    show_status SMALLINT DEFAULT 1,
+    product_count INT DEFAULT 0,
+    product_comment_count INT DEFAULT 0,
+    logo VARCHAR(255),
+    big_pic VARCHAR(255),
+    brand_story TEXT
+);
+
+CREATE TABLE IF NOT EXISTS tb_product_attribute_category (
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(64) NOT NULL,
+    attribute_count INT DEFAULT 0,
+    param_count INT DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS tb_product_attribute (
+    id BIGINT PRIMARY KEY,
+    product_attribute_category_id BIGINT NOT NULL,
+    name VARCHAR(64) NOT NULL,
+    select_type INT DEFAULT 0,
+    input_type INT DEFAULT 0,
+    input_list TEXT,
+    sort INT DEFAULT 0,
+    filter_type INT DEFAULT 0,
+    search_type INT DEFAULT 0,
+    related_status SMALLINT DEFAULT 0,
+    hand_add_status SMALLINT DEFAULT 0,
+    type INT DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS tb_product (
+    id BIGINT PRIMARY KEY,
+    brand_id BIGINT,
+    product_category_id BIGINT,
+    feight_template_id BIGINT,
+    product_attribute_category_id BIGINT,
+    name VARCHAR(200) NOT NULL,
+    pic VARCHAR(255),
+    product_sn VARCHAR(64) NOT NULL,
+    delete_status SMALLINT DEFAULT 0,
+    publish_status SMALLINT DEFAULT 1,
+    new_status SMALLINT DEFAULT 0,
+    recommand_status SMALLINT DEFAULT 0,
+    verify_status SMALLINT DEFAULT 0,
+    sort INT DEFAULT 0,
+    sale INT DEFAULT 0,
+    price DECIMAL(10, 2) DEFAULT 0.00,
+    promotion_price DECIMAL(10, 2),
+    gift_growth INT DEFAULT 0,
+    gift_point INT DEFAULT 0,
+    use_point_limit INT,
+    sub_title VARCHAR(255),
+    description TEXT,
+    original_price DECIMAL(10, 2),
+    stock INT DEFAULT 0,
+    low_stock INT DEFAULT 0,
+    unit VARCHAR(16),
+    weight DECIMAL(10, 2),
+    preview_status SMALLINT DEFAULT 0,
+    service_ids VARCHAR(64),
+    keywords VARCHAR(255),
+    note VARCHAR(255),
+    album_pics VARCHAR(255),
+    detail_title VARCHAR(255),
+    detail_desc TEXT,
+    detail_html TEXT,
+    detail_mobile_html TEXT,
+    promotion_start_time TIMESTAMP,
+    promotion_end_time TIMESTAMP,
+    promotion_per_limit INT,
+    promotion_type INT DEFAULT 0,
+    brand_name VARCHAR(255),
+    product_category_name VARCHAR(255),
+    tenant_id BIGINT
+);
+CREATE INDEX IF NOT EXISTS idx_tb_product_tenant ON tb_product(tenant_id);
+
+CREATE TABLE IF NOT EXISTS tb_sku_stock (
+    id BIGINT PRIMARY KEY,
+    product_id BIGINT NOT NULL,
+    sku_code VARCHAR(64) NOT NULL,
+    price DECIMAL(10, 2) DEFAULT 0.00,
+    stock INT DEFAULT 0,
+    low_stock INT DEFAULT 0,
+    pic VARCHAR(255),
+    sale INT DEFAULT 0,
+    promotion_price DECIMAL(10, 2),
+    lock_stock INT DEFAULT 0,
+    sp_data TEXT,
+    tenant_id BIGINT
+);
+CREATE INDEX IF NOT EXISTS idx_tb_sku_stock_tenant ON tb_sku_stock(tenant_id);
+
+CREATE TABLE IF NOT EXISTS tb_product_attribute_value (
+    id BIGINT PRIMARY KEY,
+    product_id BIGINT NOT NULL,
+    product_attribute_id BIGINT NOT NULL,
+    value VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS tb_product_category_attribute_relation (
+    id BIGINT PRIMARY KEY,
+    product_category_id BIGINT NOT NULL,
+    product_attribute_id BIGINT NOT NULL
+);
+
+-- CMS Related (Subjects, etc.)
+CREATE TABLE IF NOT EXISTS tb_subject (
+    id BIGINT PRIMARY KEY,
+    category_id BIGINT,
+    title VARCHAR(100),
+    pic VARCHAR(255),
+    product_count INT DEFAULT 0,
+    recommend_status SMALLINT DEFAULT 1,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    collect_count INT DEFAULT 0,
+    read_count INT DEFAULT 0,
+    comment_count INT DEFAULT 0,
+    album_pics VARCHAR(255),
+    description VARCHAR(255),
+    show_status SMALLINT DEFAULT 1,
+    content TEXT,
+    forward_count INT DEFAULT 0,
+    category_name VARCHAR(64)
+);
+
+CREATE TABLE IF NOT EXISTS tb_subject_product_relation (
+    id BIGINT PRIMARY KEY,
+    subject_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS tb_prefrence_area (
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(64),
+    sub_title VARCHAR(64),
+    pic VARCHAR(255),
+    sort INT DEFAULT 0,
+    show_status SMALLINT DEFAULT 1
+);
+
+CREATE TABLE IF NOT EXISTS tb_prefrence_area_product_relation (
+    id BIGINT PRIMARY KEY,
+    prefrence_area_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL
+);
+-- ---------- Part from recommendation-service ----------
+
+-- =============================================================
+-- AI Assisted Shopping (extends recommendation-service)
+-- 以图搜图 / 智能匹配 / 文本纠错
+-- =============================================================
+
+-- AI provider 运行时配置（管理员可在后台修改，覆盖 application.yml 默认值）
+CREATE TABLE IF NOT EXISTS ai_shopping_config (
+    config_key VARCHAR(64) PRIMARY KEY,
+    config_value TEXT,
+    description VARCHAR(255),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- AI 搜索日志（观�?/ 后台展示�?
+CREATE TABLE IF NOT EXISTS ai_search_log (
+    id BIGINT PRIMARY KEY,
+    user_id BIGINT,
+    search_type VARCHAR(32),
+    query_text TEXT,
+    corrected_text TEXT,
+    result_count INT,
+    response_time_ms BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_ai_search_log_created_at ON ai_search_log (created_at);
+
+
+-- ---------- Part from review-service ----------
+
+-- Review Service Schema
+
+CREATE TABLE IF NOT EXISTS review (
+    id BIGSERIAL PRIMARY KEY,
+    order_id BIGINT,
+    order_item_id BIGINT,
+    product_id BIGINT,
+    sku_id BIGINT,
+    user_id BIGINT,
+    store_id BIGINT,
+    rating INT DEFAULT 5,
+    content TEXT,
+    images TEXT,
+    status INT DEFAULT 0,
+    like_count INT DEFAULT 0,
+    reply_count INT DEFAULT 0,
+    reply_content TEXT,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    tenant_id BIGINT
+);
+CREATE INDEX IF NOT EXISTS idx_review_tenant ON review(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_review_user_id ON review (user_id);
+CREATE INDEX IF NOT EXISTS idx_review_product_id ON review (product_id);
+CREATE INDEX IF NOT EXISTS idx_review_status ON review (status);

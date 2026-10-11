@@ -21,9 +21,9 @@ PORTS=(
    9200   # elasticsearch http
    9300   # elasticsearch transport
    5601   # kibana
-   # Java 微服务端�?(server-services-registry.sh)
+   # Java 微服务端�?(server-services-registry.sh)
    10081  # gateway
-   10082  # product-service
+   10082  # mall-catalog-service
    10083  # user-service
    10084  # order-service
    10085  # message-service
@@ -37,15 +37,12 @@ PORTS=(
    10093  # after-sale-service
    10094  # group-buying-service
    10095  # live-service
-   10096  # mall-supplier-service
-   10097  # review-service
    10098  # risk-control-service
    10099  # data-analysis-service
    10100  # social-commerce-service
    10101  # mes-service
    10102  # digital-twin-service
    10103  # forecasting-service
-   10104  # recommendation-service
    10105  # scm-inventory-service
    10107  # scm-logistics-service
    10110  # finance-service
@@ -60,7 +57,7 @@ PORTS=(
 )
 
 if ! command -v ufw >/dev/null 2>&1; then
-  echo "ufw 未安装或不可用，请先安装/启用 ufw，或改用你的防火墙工具�? >&2
+  echo "ufw 未安装或不可用，请先安装/启用 ufw，或改用你的防火墙工具�? >&2
   exit 1
 fi
 

@@ -96,7 +96,7 @@ class FederationRouterTest {
     @Test
     void shouldResolveProductQueriesToProductService() {
         String url = federationRouter.resolveSubgraphUrl("{ product(id: \"1\") { id name } }");
-        assertEquals("http://product-service/graphql", url);
+        assertEquals("http://mall-catalog-service/graphql/product", url);
     }
 
     @Test
@@ -126,7 +126,7 @@ class FederationRouterTest {
     @Test
     void shouldResolveRecommendationQueriesToRecommendationService() {
         String url = federationRouter.resolveSubgraphUrl("{ recommendations(userId: \"1\", limit: 10) { id score } }");
-        assertEquals("http://recommendation-service/graphql", url);
+        assertEquals("http://mall-catalog-service/graphql/recommendation", url);
     }
 
     @Test
@@ -184,7 +184,7 @@ class FederationRouterTest {
         subgraphResponse.put("data", Map.of("_entities", List.of(productEntity)));
 
         when(restTemplate.postForObject(
-                eq("http://product-service/graphql"),
+                eq("http://mall-catalog-service/graphql/product"),
                 any(Map.class),
                 eq(Map.class)
         )).thenReturn(subgraphResponse);
@@ -266,13 +266,13 @@ class FederationRouterTest {
         subgraphResponse.put("data", Map.of("product", productData));
 
         when(restTemplate.postForObject(
-                eq("http://product-service/graphql"),
+                eq("http://mall-catalog-service/graphql/product"),
                 any(Map.class),
                 eq(Map.class)
         )).thenReturn(subgraphResponse);
 
         Map<String, Object> result = federationRouter.executeOnSubgraph(
-                "http://product-service/graphql",
+                "http://mall-catalog-service/graphql/product",
                 "{ product(id: \"1\") { id name sku price stock } }",
                 Map.of("id", "1")
         );
@@ -290,7 +290,7 @@ class FederationRouterTest {
         )).thenThrow(new RuntimeException("Connection refused"));
 
         Map<String, Object> result = federationRouter.executeOnSubgraph(
-                "http://product-service/graphql",
+                "http://mall-catalog-service/graphql/product",
                 "{ product(id: \"1\") { id } }",
                 null
         );
@@ -346,7 +346,7 @@ class FederationRouterTest {
         productResponse.put("data", Map.of("_entities", List.of(productEntity)));
 
         when(restTemplate.postForObject(
-                eq("http://product-service/graphql"),
+                eq("http://mall-catalog-service/graphql/product"),
                 any(Map.class),
                 eq(Map.class)
         )).thenReturn(productResponse);
@@ -367,7 +367,7 @@ class FederationRouterTest {
 
         // Verify product entity can be resolved from cart's productId reference
         Map<String, Object> productResult = federationRouter.executeOnSubgraph(
-                "http://product-service/graphql",
+                "http://mall-catalog-service/graphql/product",
                 "query($representations: [_Any!]!) { _entities(representations: $representations) { ... on Product { __typename id name sku price stock } } }",
                 Map.of("representations", List.of(Map.of("__typename", "Product", "id", "42")))
         );

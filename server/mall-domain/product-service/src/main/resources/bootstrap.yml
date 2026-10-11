@@ -1,6 +1,0 @@
-spring:
-  application:
-    name: product-service
-  profiles:
-    active: ${PROFILE:dev}
-

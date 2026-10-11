@@ -37,18 +37,22 @@ services:
       - meta-web-three
       - default
     restart: unless-stopped
-  product-service:
+  mall-catalog-service:
     <<: *java-service
     build:
       context: .
       dockerfile: server/Dockerfile
-      target: product-service
-    container_name: meta-web-three-product-service
-    hostname: product-service
+      target: mall-catalog-service
+    container_name: meta-web-three-mall-catalog-service
+    hostname: mall-catalog-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
+      - AI_SHOPPING_MILVUS_HOST=milvus
     ports:
       - "10082:10082"
     volumes:
-      - product_service_data:/server/product
+      - mall_catalog_service_data:/server/mall-catalog
       - ./.aws:/.aws:ro
   user-service:
     <<: *java-service
@@ -193,32 +197,6 @@ services:
     volumes:
       - live_service_data:/server/live
       - ./.aws:/.aws:ro
-  mall-supplier-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: mall-supplier-service
-    container_name: meta-web-three-mall-supplier-service
-    hostname: mall-supplier-service
-    ports:
-      - "10096:10096"
-    volumes:
-      - mall-supplier_service_data:/server/mall-supplier
-      - ./.aws:/.aws:ro
-  review-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: review-service
-    container_name: meta-web-three-review-service
-    hostname: review-service
-    ports:
-      - "10097:10097"
-    volumes:
-      - review_service_data:/server/review
-      - ./.aws:/.aws:ro
   risk-control-service:
     <<: *java-service
     build:
@@ -349,23 +327,6 @@ services:
     volumes:
       - forecasting_service_data:/server/forecasting
       - ./.aws:/.aws:ro
-  recommendation-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: recommendation-service
-    container_name: meta-web-three-recommendation-service
-    hostname: recommendation-service
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
-      - AI_SHOPPING_MILVUS_HOST=milvus
-    ports:
-      - "10104:10104"
-    volumes:
-      - recommendation_service_data:/server/recommendation
-      - ./.aws:/.aws:ro
   route-optimizer:
     <<: *java-service
     build:
@@ -487,7 +448,7 @@ services:
 
 volumes:
   gateway_data:
-  product_service_data:
+  mall_catalog_service_data:
   user_service_data:
   order_service_data:
   message_service_data:
@@ -501,8 +462,6 @@ volumes:
   after-sale_service_data:
   group-buying_service_data:
   live_service_data:
-  mall-supplier_service_data:
-  review_service_data:
   risk-control_service_data:
   data-analysis_service_data:
   social-commerce_service_data:
@@ -511,7 +470,6 @@ volumes:
   digital-twin_service_data:
   production_service_data:
   forecasting_service_data:
-  recommendation_service_data:
   route-optimizer_service_data:
   scm_inventory_service_data:
   scm_logistics_service_data:

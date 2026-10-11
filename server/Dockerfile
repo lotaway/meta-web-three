@@ -12,10 +12,10 @@ COPY --from=builder /build/server/gateway/target/gateway-*.jar gateway.jar
 ENTRYPOINT ["java", "-jar", "gateway.jar"]
 
 # mall-domain
-FROM eclipse-temurin:17-jre-jammy AS product-service
+FROM eclipse-temurin:17-jre-jammy AS mall-catalog-service
 WORKDIR /app
-COPY --from=builder /build/server/mall-domain/product-service/target/product-service-*.jar product-service.jar
-ENTRYPOINT ["java", "-jar", "product-service.jar"]
+COPY --from=builder /build/server/mall-domain/mall-catalog-service/target/mall-catalog-service-*.jar mall-catalog-service.jar
+ENTRYPOINT ["java", "-jar", "mall-catalog-service.jar"]
 
 FROM eclipse-temurin:17-jre-jammy AS user-service
 WORKDIR /app
@@ -56,16 +56,6 @@ FROM eclipse-temurin:17-jre-jammy AS live-service
 WORKDIR /app
 COPY --from=builder /build/server/mall-domain/live-service/target/live-service-*.jar live-service.jar
 ENTRYPOINT ["java", "-jar", "live-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS mall-supplier-service
-WORKDIR /app
-COPY --from=builder /build/server/mall-domain/mall-supplier-service/target/mall-supplier-service-*.jar mall-supplier-service.jar
-ENTRYPOINT ["java", "-jar", "mall-supplier-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS review-service
-WORKDIR /app
-COPY --from=builder /build/server/mall-domain/review-service/target/review-service-*.jar review-service.jar
-ENTRYPOINT ["java", "-jar", "review-service.jar"]
 
 FROM eclipse-temurin:17-jre-jammy AS risk-control-service
 WORKDIR /app
@@ -134,11 +124,6 @@ FROM eclipse-temurin:17-jre-jammy AS forecasting-service
 WORKDIR /app
 COPY --from=builder /build/server/ai-domain/forecasting-service/target/forecasting-service-*.jar forecasting-service.jar
 ENTRYPOINT ["java", "-jar", "forecasting-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS recommendation-service
-WORKDIR /app
-COPY --from=builder /build/server/mall-domain/recommendation-service/target/recommendation-service-*.jar recommendation-service.jar
-ENTRYPOINT ["java", "-jar", "recommendation-service.jar"]
 
 FROM eclipse-temurin:17-jre-jammy AS route-optimizer
 WORKDIR /app

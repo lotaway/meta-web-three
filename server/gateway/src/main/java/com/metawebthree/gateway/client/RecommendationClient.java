@@ -18,7 +18,7 @@ public class RecommendationClient {
     private final RestTemplate restTemplate;
 
     public RecommendationClient(
-            @Value("${recommendation.service.url:http://recommendation-service/api/recommendation}") String serviceUrl,
+            @Value("${recommendation.service.url:http://mall-catalog-service/api/recommendation}") String serviceUrl,
             @LoadBalanced RestTemplate restTemplate) {
         this.serviceUrl = serviceUrl;
         this.restTemplate = restTemplate;
