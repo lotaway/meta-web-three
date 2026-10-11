@@ -52,9 +52,7 @@
         <module>ai-domain/route-optimizer</module>
         <!-- supply-chain-domain -->
         <module>supply-chain-domain/scm-inventory-service</module>
-        <module>supply-chain-domain/logistics-service</module>
-        <module>supply-chain-domain/procurement-service</module>
-        <module>supply-chain-domain/rma-service</module>
+        <module>supply-chain-domain/scm-logistics-service</module>
         <!-- erp-domain -->
         <module>erp-domain/finance-service</module>
         <module>erp-domain/erp-management-service</module>

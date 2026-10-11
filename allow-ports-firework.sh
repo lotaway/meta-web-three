@@ -47,8 +47,7 @@ PORTS=(
    10103  # forecasting-service
    10104  # recommendation-service
    10105  # scm-inventory-service
-   10107  # logistics-service
-   10108  # procurement-service
+   10107  # scm-logistics-service
    10110  # finance-service
    10114  # wallet-service
    10115  # developer-portal-service

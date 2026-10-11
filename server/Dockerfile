@@ -151,15 +151,10 @@ WORKDIR /app
 COPY --from=builder /build/server/supply-chain-domain/scm-inventory-service/target/scm-inventory-service-*.jar scm-inventory-service.jar
 ENTRYPOINT ["java", "-jar", "scm-inventory-service.jar"]
 
-FROM eclipse-temurin:17-jre-jammy AS logistics-service
+FROM eclipse-temurin:17-jre-jammy AS scm-logistics-service
 WORKDIR /app
-COPY --from=builder /build/server/supply-chain-domain/logistics-service/target/logistics-service-*.jar logistics-service.jar
-ENTRYPOINT ["java", "-jar", "logistics-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS procurement-service
-WORKDIR /app
-COPY --from=builder /build/server/supply-chain-domain/procurement-service/target/procurement-service-*.jar procurement-service.jar
-ENTRYPOINT ["java", "-jar", "procurement-service.jar"]
+COPY --from=builder /build/server/supply-chain-domain/scm-logistics-service/target/scm-logistics-service-*.jar scm-logistics-service.jar
+ENTRYPOINT ["java", "-jar", "scm-logistics-service.jar"]
 
 # erp-domain
 FROM eclipse-temurin:17-jre-jammy AS finance-service
@@ -183,13 +178,6 @@ FROM eclipse-temurin:17-jre-jammy AS data-pipeline
 WORKDIR /app
 COPY --from=builder /build/server/data-pipeline/target/data-pipeline-*.jar data-pipeline.jar
 ENTRYPOINT ["java", "-jar", "data-pipeline.jar"]
-
-# supply-chain-domain (continued)
-FROM eclipse-temurin:17-jre-jammy AS rma-service
-COPY --from=builder /build/server/supply-chain-domain/rma-service/target/rma-service-*.jar /app/app.jar
-WORKDIR /app
-EXPOSE 10123
-ENTRYPOINT ["java", "-jar", "app.jar"]
 
 # blockchain-domain
 FROM eclipse-temurin:17-jre-jammy AS wallet-service

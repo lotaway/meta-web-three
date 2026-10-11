@@ -392,31 +392,18 @@ services:
     volumes:
       - scm_inventory_service_data:/server/scm-inventory
       - ./.aws:/.aws:ro
-  logistics-service:
+  scm-logistics-service:
     <<: *java-service
     build:
       context: .
       dockerfile: server/Dockerfile
-      target: logistics-service
-    container_name: meta-web-three-logistics-service
-    hostname: logistics-service
+      target: scm-logistics-service
+    container_name: meta-web-three-scm-logistics-service
+    hostname: scm-logistics-service
     ports:
       - "10107:10107"
     volumes:
-      - logistics_service_data:/server/logistics
-      - ./.aws:/.aws:ro
-  procurement-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: procurement-service
-    container_name: meta-web-three-procurement-service
-    hostname: procurement-service
-    ports:
-      - "10108:10108"
-    volumes:
-      - procurement_service_data:/server/procurement
+      - scm_logistics_service_data:/server/scm-logistics
       - ./.aws:/.aws:ro
   finance-service:
     <<: *java-service
@@ -498,17 +485,6 @@ services:
       - tenant_service_data:/server/tenant
       - ./.aws:/.aws:ro
 
-  rma-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: rma-service
-    container_name: meta-web-three-rma
-    hostname: rma-service
-    ports:
-      - "10123:10123"
-
 volumes:
   gateway_data:
   product_service_data:
@@ -538,8 +514,7 @@ volumes:
   recommendation_service_data:
   route-optimizer_service_data:
   scm_inventory_service_data:
-  logistics_service_data:
-  procurement_service_data:
+  scm_logistics_service_data:
   finance_service_data:
   erp_management_service_data:
   wallet_service_data:

@@ -21,8 +21,7 @@ SERVER_JAVA_SERVICES=(
   "forecasting-service|ai-domain/forecasting-service|10103"
   "recommendation-service|mall-domain/recommendation-service|10104"
   "scm-inventory-service|supply-chain-domain/scm-inventory-service|10105"
-  "logistics-service|supply-chain-domain/logistics-service|10107"
-  "procurement-service|supply-chain-domain/procurement-service|10108"
+  "scm-logistics-service|supply-chain-domain/scm-logistics-service|10107"
   "finance-service|erp-domain/finance-service|10110"
   "wallet-service|blockchain-domain/wallet-service|10114"
   "after-sale-service|mall-domain/after-sale-service|10093"
@@ -38,7 +37,6 @@ SERVER_JAVA_SERVICES=(
   "route-optimizer|ai-domain/route-optimizer|10117"
   "traceability-service|blockchain-domain/traceability-service|10118"
   "erp-management-service|erp-domain/erp-management-service|10125"
-  "rma-service|supply-chain-domain/rma-service|10123"
   "data-pipeline|data-pipeline|10122"
   "tenant-service|platform-domain/tenant-service|10126"
 )
