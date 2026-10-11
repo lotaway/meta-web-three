@@ -33,7 +33,7 @@ public class FederationRouter {
         SUBGRAPH_URLS.put("product", "http://product-service/graphql");
         SUBGRAPH_URLS.put("order", "http://order-service/graphql");
         SUBGRAPH_URLS.put("user", "http://user-service/graphql");
-        SUBGRAPH_URLS.put("inventory", "http://inventory-service/graphql");
+        SUBGRAPH_URLS.put("inventory", "http://scm-inventory-service/graphql");
         SUBGRAPH_URLS.put("recommendation", "http://recommendation-service/graphql");
         SUBGRAPH_URLS.put("cart", "http://cart-service/graphql");
         SUBGRAPH_URLS.put("crm", "http://erp-management-service/graphql");

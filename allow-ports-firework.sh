@@ -46,18 +46,15 @@ PORTS=(
    10102  # digital-twin-service
    10103  # forecasting-service
    10104  # recommendation-service
-   10105  # inventory-service
-   10106  # warehouse-service
+   10105  # scm-inventory-service
    10107  # logistics-service
    10108  # procurement-service
-   10109  # supplier-service
    10110  # finance-service
    10114  # wallet-service
    10115  # developer-portal-service
    10116  # production-service
    10117  # route-optimizer
    10118  # traceability-service
-   10121  # inventory-alert-service
     10122  # data-pipeline
     10125  # erp-management-service
     10126  # tenant-service

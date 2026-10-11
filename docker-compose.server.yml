@@ -379,31 +379,18 @@ services:
     volumes:
       - route-optimizer_service_data:/server/route-optimizer
       - ./.aws:/.aws:ro
-  inventory-service:
+  scm-inventory-service:
     <<: *java-service
     build:
       context: .
       dockerfile: server/Dockerfile
-      target: inventory-service
-    container_name: meta-web-three-inventory-service
-    hostname: inventory-service
+      target: scm-inventory-service
+    container_name: meta-web-three-scm-inventory-service
+    hostname: scm-inventory-service
     ports:
       - "10105:10105"
     volumes:
-      - inventory_service_data:/server/inventory
-      - ./.aws:/.aws:ro
-  warehouse-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: warehouse-service
-    container_name: meta-web-three-warehouse-service
-    hostname: warehouse-service
-    ports:
-      - "10106:10106"
-    volumes:
-      - warehouse_service_data:/server/warehouse
+      - scm_inventory_service_data:/server/scm-inventory
       - ./.aws:/.aws:ro
   logistics-service:
     <<: *java-service
@@ -430,32 +417,6 @@ services:
       - "10108:10108"
     volumes:
       - procurement_service_data:/server/procurement
-      - ./.aws:/.aws:ro
-  supplier-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: supplier-service
-    container_name: meta-web-three-supplier-service
-    hostname: supplier-service
-    ports:
-      - "10109:10109"
-    volumes:
-      - supplier_service_data:/server/supplier
-      - ./.aws:/.aws:ro
-  inventory-alert-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: inventory-alert-service
-    container_name: meta-web-three-inventory-alert-service
-    hostname: inventory-alert-service
-    ports:
-      - "10121:10121"
-    volumes:
-      - inventory-alert_service_data:/server/inventory-alert
       - ./.aws:/.aws:ro
   finance-service:
     <<: *java-service
@@ -548,17 +509,6 @@ services:
     ports:
       - "10123:10123"
 
-  dom-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: dom-service
-    container_name: meta-web-three-dom
-    hostname: dom-service
-    ports:
-      - "10124:10124"
-
 volumes:
   gateway_data:
   product_service_data:
@@ -587,14 +537,10 @@ volumes:
   forecasting_service_data:
   recommendation_service_data:
   route-optimizer_service_data:
-  inventory_service_data:
-  warehouse_service_data:
+  scm_inventory_service_data:
   logistics_service_data:
   procurement_service_data:
-  supplier_service_data:
-  inventory-alert_service_data:
   finance_service_data:
-  invoice_service_data:
   erp_management_service_data:
   wallet_service_data:
   traceability_service_data:

@@ -146,15 +146,10 @@ COPY --from=builder /build/server/ai-domain/route-optimizer/target/route-optimiz
 ENTRYPOINT ["java", "-jar", "route-optimizer.jar"]
 
 # supply-chain-domain
-FROM eclipse-temurin:17-jre-jammy AS inventory-service
+FROM eclipse-temurin:17-jre-jammy AS scm-inventory-service
 WORKDIR /app
-COPY --from=builder /build/server/supply-chain-domain/inventory-service/target/inventory-service-*.jar inventory-service.jar
-ENTRYPOINT ["java", "-jar", "inventory-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS warehouse-service
-WORKDIR /app
-COPY --from=builder /build/server/supply-chain-domain/warehouse-service/target/warehouse-service-*.jar warehouse-service.jar
-ENTRYPOINT ["java", "-jar", "warehouse-service.jar"]
+COPY --from=builder /build/server/supply-chain-domain/scm-inventory-service/target/scm-inventory-service-*.jar scm-inventory-service.jar
+ENTRYPOINT ["java", "-jar", "scm-inventory-service.jar"]
 
 FROM eclipse-temurin:17-jre-jammy AS logistics-service
 WORKDIR /app
@@ -165,16 +160,6 @@ FROM eclipse-temurin:17-jre-jammy AS procurement-service
 WORKDIR /app
 COPY --from=builder /build/server/supply-chain-domain/procurement-service/target/procurement-service-*.jar procurement-service.jar
 ENTRYPOINT ["java", "-jar", "procurement-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS supplier-service
-WORKDIR /app
-COPY --from=builder /build/server/supply-chain-domain/supplier-service/target/supplier-service-*.jar supplier-service.jar
-ENTRYPOINT ["java", "-jar", "supplier-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS inventory-alert-service
-WORKDIR /app
-COPY --from=builder /build/server/supply-chain-domain/inventory-alert-service/target/inventory-alert-service-*.jar inventory-alert-service.jar
-ENTRYPOINT ["java", "-jar", "inventory-alert-service.jar"]
 
 # erp-domain
 FROM eclipse-temurin:17-jre-jammy AS finance-service
@@ -204,12 +189,6 @@ FROM eclipse-temurin:17-jre-jammy AS rma-service
 COPY --from=builder /build/server/supply-chain-domain/rma-service/target/rma-service-*.jar /app/app.jar
 WORKDIR /app
 EXPOSE 10123
-ENTRYPOINT ["java", "-jar", "app.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS dom-service
-COPY --from=builder /build/server/supply-chain-domain/dom-service/target/dom-service-*.jar /app/app.jar
-WORKDIR /app
-EXPOSE 10124
 ENTRYPOINT ["java", "-jar", "app.jar"]
 
 # blockchain-domain

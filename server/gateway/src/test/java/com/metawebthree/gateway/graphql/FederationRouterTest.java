@@ -120,7 +120,7 @@ class FederationRouterTest {
     @Test
     void shouldResolveInventoryQueriesToInventoryService() {
         String url = federationRouter.resolveSubgraphUrl("{ inventory(productId: \"1\") { productId quantity } }");
-        assertEquals("http://inventory-service/graphql", url);
+        assertEquals("http://scm-inventory-service/graphql", url);
     }
 
     @Test

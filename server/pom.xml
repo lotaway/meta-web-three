@@ -51,14 +51,10 @@
         <module>ai-domain/forecasting-service</module>
         <module>ai-domain/route-optimizer</module>
         <!-- supply-chain-domain -->
-        <module>supply-chain-domain/inventory-service</module>
-        <module>supply-chain-domain/warehouse-service</module>
+        <module>supply-chain-domain/scm-inventory-service</module>
         <module>supply-chain-domain/logistics-service</module>
         <module>supply-chain-domain/procurement-service</module>
-        <module>supply-chain-domain/supplier-service</module>
-        <module>supply-chain-domain/inventory-alert-service</module>
         <module>supply-chain-domain/rma-service</module>
-        <module>supply-chain-domain/dom-service</module>
         <!-- erp-domain -->
         <module>erp-domain/finance-service</module>
         <module>erp-domain/erp-management-service</module>
