@@ -45,7 +45,7 @@
 - **Phase 0** 基线与映射（本文件建立；46 服务盘点）
 - **Phase 1** ERP：`invoice/reporting/settlement → finance-service`；`hrm/crm/project → erp-management-service` —— ✅ 已完成（含构建 + 启动验证）
 - **Phase 2** 供应链：`inventory/warehouse/supplier/dom/inventory-alert → scm-inventory-service`；`logistics/procurement/rma → scm-logistics-service` —— ✅ 已完成（含构建 + 启动验证）
-- **Phase 3** 电商 mall：`product/mall-supplier/recommendation/review → mall-catalog-service`（端口 10082，双 GraphQL 子图 /graphql/product、/graphql/recommendation）✅；`order/payment/cart/promotion/after-sale → mall-trade-service`（端口 10084，双 GraphQL 子图 /graphql/order、/graphql/cart）✅ —— 均含构建 + 启动验证，网关子图地址已切换；剩余 `→ mall-user / mall-social`
+- **Phase 3** 电商 mall：`product/mall-supplier/recommendation/review → mall-catalog-service`（端口 10082，双 GraphQL 子图 /graphql/product、/graphql/recommendation）✅；`order/payment/cart/promotion/after-sale → mall-trade-service`（端口 10084，双 GraphQL 子图 /graphql/order、/graphql/cart）✅；`user/user-action/risk-control → mall-user-service`（端口 10083，单 GraphQL 子图 /graphql）✅ —— 均含构建 + 启动验证，网关子图地址已切换；剩余 `→ mall-social`
 - **Phase 4** 平台：`→ platform-service`
 - **Phase 5** 工厂 / AI / 区块链：`→ factory / ai / blockchain`
 - **Phase 6** 收尾：`run-server.sh` 全量回归、内存复测、文档/网关/前端同步
