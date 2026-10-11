@@ -1,4 +1,4 @@
-# 构建上下文为仓库根目�? docker build -f server/Dockerfile .
+# 构建上下文为仓库根目�? docker build -f server/Dockerfile .
 FROM maven:3.9.11-eclipse-temurin-17 AS builder
 WORKDIR /build
 COPY shared/event-sdk ./shared/event-sdk
@@ -182,20 +182,10 @@ WORKDIR /app
 COPY --from=builder /build/server/erp-domain/finance-service/target/finance-service-*.jar finance-service.jar
 ENTRYPOINT ["java", "-jar", "finance-service.jar"]
 
-FROM eclipse-temurin:17-jre-jammy AS hrm-service
+FROM eclipse-temurin:17-jre-jammy AS erp-management-service
 WORKDIR /app
-COPY --from=builder /build/server/erp-domain/hrm-service/target/hrm-service-*.jar hrm-service.jar
-ENTRYPOINT ["java", "-jar", "hrm-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS project-service
-WORKDIR /app
-COPY --from=builder /build/server/erp-domain/project-service/target/project-service-*.jar project-service.jar
-ENTRYPOINT ["java", "-jar", "project-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS crm-service
-WORKDIR /app
-COPY --from=builder /build/server/erp-domain/crm-service/target/crm-service-*.jar crm-service.jar
-ENTRYPOINT ["java", "-jar", "crm-service.jar"]
+COPY --from=builder /build/server/erp-domain/erp-management-service/target/erp-management-service-*.jar erp-management-service.jar
+ENTRYPOINT ["java", "-jar", "erp-management-service.jar"]
 
 # platform-domain (continued)
 FROM eclipse-temurin:17-jre-jammy AS tenant-service

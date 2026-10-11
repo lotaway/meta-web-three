@@ -57,11 +57,9 @@ PORTS=(
    10116  # production-service
    10117  # route-optimizer
    10118  # traceability-service
-   10119  # hrm-service
-   10120  # project-service
    10121  # inventory-alert-service
     10122  # data-pipeline
-    10125  # crm-service
+    10125  # erp-management-service
     10126  # tenant-service
 )
 

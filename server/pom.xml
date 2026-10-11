@@ -61,9 +61,7 @@
         <module>supply-chain-domain/dom-service</module>
         <!-- erp-domain -->
         <module>erp-domain/finance-service</module>
-        <module>erp-domain/hrm-service</module>
-        <module>erp-domain/crm-service</module>
-        <module>erp-domain/project-service</module>
+        <module>erp-domain/erp-management-service</module>
         <!-- blockchain-domain -->
         <module>blockchain-domain/wallet-service</module>
         <module>blockchain-domain/traceability-service</module>

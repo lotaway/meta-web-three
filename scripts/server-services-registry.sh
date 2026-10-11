@@ -39,13 +39,11 @@ SERVER_JAVA_SERVICES=(
   "production-service|factory-domain/production-service|10116"
   "route-optimizer|ai-domain/route-optimizer|10117"
   "traceability-service|blockchain-domain/traceability-service|10118"
-  "hrm-service|erp-domain/hrm-service|10119"
-  "project-service|erp-domain/project-service|10120"
+  "erp-management-service|erp-domain/erp-management-service|10125"
   "inventory-alert-service|supply-chain-domain/inventory-alert-service|10121"
   "rma-service|supply-chain-domain/rma-service|10123"
   "dom-service|supply-chain-domain/dom-service|10124"
   "data-pipeline|data-pipeline|10122"
-  "crm-service|erp-domain/crm-service|10125"
   "tenant-service|platform-domain/tenant-service|10126"
 )
 

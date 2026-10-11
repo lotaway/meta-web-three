@@ -32,8 +32,10 @@
 - [x] reporting-service → 并入 finance-service
 - [x] settlement-service → 并入 finance-service
 - [x] finance-service（含 invoice+reporting+settlement）单独启动验证通过（57s）
-- [ ] hrm-service + crm-service + project-service → erp-management-service
-- [ ] Phase 1 完成后清理（pom/registry/旧目录）并全量回归
+- [x] hrm-service + crm-service + project-service → erp-management-service（新模块，端口 10125）
+- [x] erp-management-service 单独启动验证通过（61s）；gateway crm 子图地址更新并重建验证
+- [x] Phase 1 清理（pom/registry/Dockerfile/compose/firework/旧目录）
+- [ ] Phase 1 全量回归（并入 Phase 6 统一执行）
 
 ### Phase 2 — 供应链（8 → 3）
 

@@ -36,7 +36,7 @@ public class FederationRouter {
         SUBGRAPH_URLS.put("inventory", "http://inventory-service/graphql");
         SUBGRAPH_URLS.put("recommendation", "http://recommendation-service/graphql");
         SUBGRAPH_URLS.put("cart", "http://cart-service/graphql");
-        SUBGRAPH_URLS.put("crm", "http://crm-service/graphql");
+        SUBGRAPH_URLS.put("crm", "http://erp-management-service/graphql");
     }
 
     static final Map<String, String> ROOT_FIELD_OWNER = new LinkedHashMap<>();

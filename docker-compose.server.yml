@@ -470,44 +470,18 @@ services:
     volumes:
       - finance_service_data:/server/finance
       - ./.aws:/.aws:ro
-  hrm-service:
+  erp-management-service:
     <<: *java-service
     build:
       context: .
       dockerfile: server/Dockerfile
-      target: hrm-service
-    container_name: meta-web-three-hrm-service
-    hostname: hrm-service
-    ports:
-      - "10119:10119"
-    volumes:
-      - hrm_service_data:/server/hrm
-      - ./.aws:/.aws:ro
-  project-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: project-service
-    container_name: meta-web-three-project-service
-    hostname: project-service
-    ports:
-      - "10120:10120"
-    volumes:
-      - project_service_data:/server/project
-      - ./.aws:/.aws:ro
-  crm-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: crm-service
-    container_name: meta-web-three-crm-service
-    hostname: crm-service
+      target: erp-management-service
+    container_name: meta-web-three-erp-management-service
+    hostname: erp-management-service
     ports:
       - "10125:10125"
     volumes:
-      - crm_service_data:/server/crm
+      - erp_management_service_data:/server/erp-management
       - ./.aws:/.aws:ro
   wallet-service:
     <<: *java-service
@@ -621,10 +595,7 @@ volumes:
   inventory-alert_service_data:
   finance_service_data:
   invoice_service_data:
-  reporting_service_data:
-  hrm_service_data:
-  project_service_data:
-  crm_service_data:
+  erp_management_service_data:
   wallet_service_data:
   traceability_service_data:
   tenant_service_data:

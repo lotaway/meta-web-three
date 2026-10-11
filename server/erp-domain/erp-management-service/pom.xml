@@ -9,7 +9,7 @@
         <version>1.0.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    <artifactId>crm-service</artifactId>
+    <artifactId>erp-management-service</artifactId>
     <dependencies>
         <dependency>
             <groupId>com.metawebthree</groupId>
