@@ -108,7 +108,7 @@ class FederationRouterTest {
     @Test
     void shouldResolveUserQueriesToUserService() {
         String url = federationRouter.resolveSubgraphUrl("{ user(id: \"1\") { id username } }");
-        assertEquals("http://user-service/graphql", url);
+        assertEquals("http://mall-user-service/graphql", url);
     }
 
     @Test
@@ -224,7 +224,7 @@ class FederationRouterTest {
         subgraphResponse.put("data", Map.of("_entities", List.of(userEntity)));
 
         when(restTemplate.postForObject(
-                eq("http://user-service/graphql"),
+                eq("http://mall-user-service/graphql"),
                 any(Map.class),
                 eq(Map.class)
         )).thenReturn(subgraphResponse);

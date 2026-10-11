@@ -1,3 +1,20 @@
+server:
+  port: 10083
+spring:
+  application:
+    name: mall-user-service
+  profiles:
+    active: dev
+  datasource:
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 0
+  quartz:
+    auto-startup: false
+    job-store-type: memory
+    jdbc:
+      initialize-schema: never
+# RBAC 种子数据（user-service）
 seed-data:
   super-admin-role-id: 3001
   default-admin-id: 1
@@ -7,43 +24,20 @@ seed-data:
   menu:
     start-id: 2001
     end-id: 2042
-
 default-admin:
   username: admin
   password: "123456"
   nickname: 超级管理员
-
-server:
-  port: 10083
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,prometheus,loggers,threaddump,heapdump,env
-  endpoint:
-    health:
-      show-details: always
-    metrics:
-      enabled: true
-    prometheus:
-      enabled: true
-spring:
-  application:
-    name: user-service
-  profiles:
-    active: dev
-dubbo:
-  application:
-    name: user-service
-  protocol:
-    port: 20083
+# 外部接口密钥（user-service）
+x:
+  apikey: "your-api-key"
+  secret: "your-secret-key"
 ---
 spring:
   config:
     activate:
       on-profile: dev
-    import: 
-      # - optional:classpath:/config/application-common-${spring.profiles.active}.yml
+    import:
       - optional:classpath:application-common.yml
       - optional:classpath:application-common-dev.yml
 ---

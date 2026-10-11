@@ -54,18 +54,18 @@ services:
     volumes:
       - mall_catalog_service_data:/server/mall-catalog
       - ./.aws:/.aws:ro
-  user-service:
+  mall-user-service:
     <<: *java-service
     build:
       context: .
       dockerfile: server/Dockerfile
-      target: user-service
-    container_name: meta-web-three-user-service
-    hostname: user-service
+      target: mall-user-service
+    container_name: meta-web-three-mall-user-service
+    hostname: mall-user-service
     ports:
       - "10083:10083"
     volumes:
-      - user_service_data:/server/user
+      - mall_user_service_data:/server/mall-user
       - ./.aws:/.aws:ro
   mall-trade-service:
     <<: *java-service
@@ -144,32 +144,6 @@ services:
       - "10095:10095"
     volumes:
       - live_service_data:/server/live
-      - ./.aws:/.aws:ro
-  risk-control-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: risk-control-service
-    container_name: meta-web-three-risk-control-service
-    hostname: risk-control-service
-    ports:
-      - "10098:10098"
-    volumes:
-      - risk-control_service_data:/server/risk-control
-      - ./.aws:/.aws:ro
-  user-action-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: user-action-service
-    container_name: meta-web-three-user-action-service
-    hostname: user-action-service
-    ports:
-      - "10091:10091"
-    volumes:
-      - user-action_service_data:/server/user-action
       - ./.aws:/.aws:ro
   cs-service:
     <<: *java-service
@@ -397,16 +371,14 @@ services:
 volumes:
   gateway_data:
   mall_catalog_service_data:
-  user_service_data:
+  mall_user_service_data:
   mall_trade_service_data:
   message_service_data:
   media_service_data:
   commission_service_data:
-  user-action_service_data:
   cs_service_data:
   group-buying_service_data:
   live_service_data:
-  risk-control_service_data:
   data-analysis_service_data:
   social-commerce_service_data:
   developer-portal_service_data:

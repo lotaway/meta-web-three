@@ -22,8 +22,7 @@
         <!-- mall-domain -->
         <module>mall-domain/mall-catalog-service</module>
         <module>mall-domain/mall-trade-service</module>
-        <module>mall-domain/user-service</module>
-        <module>mall-domain/risk-control-service</module>
+        <module>mall-domain/mall-user-service</module>
         <module>mall-domain/live-service</module>
         <module>mall-domain/group-buying-service</module>
         <!-- platform-domain -->
@@ -31,7 +30,6 @@
         <module>platform-domain/media-service</module>
         <module>platform-domain/commission-service</module>
         <module>platform-domain/developer-portal-service</module>
-        <module>platform-domain/user-action-service</module>
         <module>platform-domain/cs-service</module>
         <module>platform-domain/data-analysis-service</module>
         <module>platform-domain/tenant-service</module>

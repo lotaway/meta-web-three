@@ -17,10 +17,10 @@ WORKDIR /app
 COPY --from=builder /build/server/mall-domain/mall-catalog-service/target/mall-catalog-service-*.jar mall-catalog-service.jar
 ENTRYPOINT ["java", "-jar", "mall-catalog-service.jar"]
 
-FROM eclipse-temurin:17-jre-jammy AS user-service
+FROM eclipse-temurin:17-jre-jammy AS mall-user-service
 WORKDIR /app
-COPY --from=builder /build/server/mall-domain/user-service/target/user-service-*.jar user-service.jar
-ENTRYPOINT ["java", "-jar", "user-service.jar"]
+COPY --from=builder /build/server/mall-domain/mall-user-service/target/mall-user-service-*.jar mall-user-service.jar
+ENTRYPOINT ["java", "-jar", "mall-user-service.jar"]
 
 FROM eclipse-temurin:17-jre-jammy AS mall-trade-service
 WORKDIR /app
@@ -37,11 +37,6 @@ WORKDIR /app
 COPY --from=builder /build/server/mall-domain/live-service/target/live-service-*.jar live-service.jar
 ENTRYPOINT ["java", "-jar", "live-service.jar"]
 
-FROM eclipse-temurin:17-jre-jammy AS risk-control-service
-WORKDIR /app
-COPY --from=builder /build/server/mall-domain/risk-control-service/target/risk-control-service-*.jar risk-control-service.jar
-ENTRYPOINT ["java", "-jar", "risk-control-service.jar"]
-
 # platform-domain
 FROM eclipse-temurin:17-jre-jammy AS message-service
 WORKDIR /app
@@ -57,11 +52,6 @@ FROM eclipse-temurin:17-jre-jammy AS media-service
 WORKDIR /app
 COPY --from=builder /build/server/platform-domain/media-service/target/media-service-*.jar media-service.jar
 ENTRYPOINT ["java", "-jar", "media-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS user-action-service
-WORKDIR /app
-COPY --from=builder /build/server/platform-domain/user-action-service/target/user-action-service-*.jar user-action-service.jar
-ENTRYPOINT ["java", "-jar", "user-action-service.jar"]
 
 FROM eclipse-temurin:17-jre-jammy AS cs-service
 WORKDIR /app
