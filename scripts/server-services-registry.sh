@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# 鍚庣 Java 寰湇鍔℃敞鍐岃〃锛堝崟涓€鏁版嵁婧愶級
-# 鏍煎紡: 鏈嶅姟鍚峾Maven 妯″潡璺緞(鐩稿 server/)|HTTP 绔彛
+# 閸氬海顏?Java 瀵邦喗婀囬崝鈩冩暈閸愬矁銆冮敍鍫濆礋娑撯偓閺佺増宓佸┃鎰剁礆
+# 閺嶇厧绱? 閺堝秴濮熼崥宄綧aven 濡€虫健鐠侯垰绶?閻╃顕?server/)|HTTP 缁旑垰褰?
 # shellcheck disable=SC2034
 
 SERVER_JAVA_SERVICES=(
@@ -9,15 +9,13 @@ SERVER_JAVA_SERVICES=(
   "mall-user-service|mall-domain/mall-user-service|10083"
   "mall-trade-service|mall-domain/mall-trade-service|10084"
   "platform-service|platform-domain/platform-service|10085"
-  "mes-service|factory-domain/mes-service|10101"
-  "digital-twin-service|factory-domain/digital-twin-service|10102"
+  "factory-service|factory-domain/factory-service|10101"
   "ai-service|ai-domain/ai-service|10103"
   "scm-inventory-service|supply-chain-domain/scm-inventory-service|10105"
   "scm-logistics-service|supply-chain-domain/scm-logistics-service|10107"
   "finance-service|erp-domain/finance-service|10110"
   "blockchain-service|blockchain-domain/blockchain-service|10114"
   "mall-social-service|mall-domain/mall-social-service|10095"
-  "production-service|factory-domain/production-service|10116"
   "erp-management-service|erp-domain/erp-management-service|10125"
   "data-pipeline|data-pipeline|10122"
 )

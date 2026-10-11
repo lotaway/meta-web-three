@@ -27,9 +27,7 @@
         <!-- platform-domain -->
         <module>platform-domain/platform-service</module>
         <!-- factory-domain -->
-        <module>factory-domain/mes-service</module>
-        <module>factory-domain/digital-twin-service</module>
-        <module>factory-domain/production-service</module>
+        <module>factory-domain/factory-service</module>
         <!-- ai-domain -->
         <module>ai-domain/ai-service</module>
         <!-- supply-chain-domain -->

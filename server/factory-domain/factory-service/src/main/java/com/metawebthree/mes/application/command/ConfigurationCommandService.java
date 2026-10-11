@@ -1,0 +1,351 @@
+package com.metawebthree.mes.application.command;
+
+import com.metawebthree.mes.domain.config.WorkOrderType;
+import com.metawebthree.mes.domain.entity.CodeRule;
+import com.metawebthree.mes.domain.entity.DataDictionary;
+import com.metawebthree.mes.domain.entity.EntityExtensionField;
+import com.metawebthree.mes.domain.entity.EntityExtensionFieldValue;
+import com.metawebthree.mes.domain.entity.ProductSnRule;
+import com.metawebthree.mes.domain.repository.CodeRuleRepository;
+import com.metawebthree.mes.domain.repository.DataDictionaryRepository;
+import com.metawebthree.mes.domain.repository.EntityExtensionFieldRepository;
+import com.metawebthree.mes.domain.repository.EntityExtensionFieldValueRepository;
+import com.metawebthree.mes.domain.repository.ProductSnRuleRepository;
+import com.metawebthree.mes.domain.repository.WorkOrderTypeRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.Map;
+
+@Service
+public class ConfigurationCommandService {
+    
+    private final EntityExtensionFieldRepository fieldRepository;
+    private final EntityExtensionFieldValueRepository fieldValueRepository;
+    private final DataDictionaryRepository dictionaryRepository;
+    private final CodeRuleRepository codeRuleRepository;
+    private final WorkOrderTypeRepository workOrderTypeRepository;
+    private final ProductSnRuleRepository productSnRuleRepository;
+    
+    public ConfigurationCommandService(
+            EntityExtensionFieldRepository fieldRepository,
+            EntityExtensionFieldValueRepository fieldValueRepository,
+            DataDictionaryRepository dictionaryRepository,
+            CodeRuleRepository codeRuleRepository,
+            WorkOrderTypeRepository workOrderTypeRepository,
+            ProductSnRuleRepository productSnRuleRepository) {
+        this.fieldRepository = fieldRepository;
+        this.fieldValueRepository = fieldValueRepository;
+        this.dictionaryRepository = dictionaryRepository;
+        this.codeRuleRepository = codeRuleRepository;
+        this.workOrderTypeRepository = workOrderTypeRepository;
+        this.productSnRuleRepository = productSnRuleRepository;
+    }
+    
+    public void createExtensionField(String entityType, String fieldCode, String fieldName,
+                                     String fieldType, String fieldGroup, Boolean required,
+                                     String defaultValue, String validationRule) {
+        
+        if (fieldRepository.existsByEntityTypeAndFieldCode(entityType, fieldCode)) {
+            throw new IllegalArgumentException("Field code already exists: " + fieldCode);
+        }
+        
+        EntityExtensionField.FieldType type = EntityExtensionField.FieldType.valueOf(fieldType);
+        EntityExtensionField field = EntityExtensionField.create(entityType, fieldCode, fieldName, type, fieldGroup);
+        field.setRequired(required != null ? required : false);
+        field.setDefaultValue(defaultValue);
+        field.setValidationRule(validationRule);
+        
+        fieldRepository.save(field);
+    }
+    
+    public void updateExtensionField(Long id, String fieldName, String fieldGroup,
+                                     Boolean required, String defaultValue, String validationRule,
+                                     Boolean listVisible, Boolean searchable) {
+        
+        EntityExtensionField field = fieldRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Extension field not found: " + id));
+        
+        if (fieldName != null) field.setFieldName(fieldName);
+        if (fieldGroup != null) field.setFieldGroup(fieldGroup);
+        if (required != null) field.setRequired(required);
+        if (defaultValue != null) field.setDefaultValue(defaultValue);
+        if (validationRule != null) field.setValidationRule(validationRule);
+        if (listVisible != null) field.setListVisible(listVisible);
+        if (searchable != null) field.setSearchable(searchable);
+        
+        fieldRepository.save(field);
+    }
+    
+    public void deleteExtensionField(Long id) {
+        fieldRepository.delete(id);
+    }
+    
+    public void setExtensionFieldValue(String entityType, Long entityId,
+                                       String fieldCode, String fieldValue) {
+        EntityExtensionField field = fieldRepository.findByEntityTypeAndFieldCode(entityType, fieldCode)
+                .orElseThrow(() -> new IllegalArgumentException("Extension field not defined: " + fieldCode));
+        
+        if (!field.validateValue(fieldValue)) {
+            throw new IllegalArgumentException("Field value validation failed: " + fieldCode);
+        }
+        
+        EntityExtensionFieldValue value = EntityExtensionFieldValue.create(entityType, entityId, fieldCode, fieldValue);
+        fieldValueRepository.save(value);
+    }
+    
+    public void setExtensionFieldValues(String entityType, Long entityId,
+                                        Map<String, String> fieldValues) {
+        for (Map.Entry<String, String> entry : fieldValues.entrySet()) {
+            setExtensionFieldValue(entityType, entityId, entry.getKey(), entry.getValue());
+        }
+    }
+    
+    public void createDataDictionary(String dictCode, String dictName, String description) {
+        
+        if (dictionaryRepository.existsByDictCode(dictCode)) {
+            throw new IllegalArgumentException("Dictionary code already exists: " + dictCode);
+        }
+        
+        DataDictionary dictionary = DataDictionary.create(dictCode, dictName, description);
+        
+        dictionaryRepository.save(dictionary);
+    }
+    
+    public void addDictionaryItem(Long dictId, String itemCode, String itemLabel,
+                                  String parentItemCode, Integer sortOrder) {
+        
+        DataDictionary dictionary = dictionaryRepository.findById(dictId)
+                .orElseThrow(() -> new IllegalArgumentException("Dictionary not found: " + dictId));
+        
+        dictionary.addItem(itemCode, itemLabel, sortOrder);
+        dictionary.getItems().stream()
+                .filter(item -> item.getItemCode().equals(itemCode))
+                .findFirst()
+                .ifPresent(item -> item.setParentItemCode(parentItemCode));
+        
+        dictionaryRepository.save(dictionary);
+    }
+    
+    public void updateDictionaryItem(Long dictId, String itemCode, String itemLabel, Integer sortOrder) {
+        
+        DataDictionary dictionary = dictionaryRepository.findById(dictId)
+                .orElseThrow(() -> new IllegalArgumentException("Dictionary not found: " + dictId));
+        
+        dictionary.getItems().stream()
+                .filter(item -> item.getItemCode().equals(itemCode))
+                .findFirst()
+                .ifPresent(item -> {
+                    if (itemLabel != null) item.setItemLabel(itemLabel);
+                    if (sortOrder != null) item.setSortOrder(sortOrder);
+                });
+        
+        dictionaryRepository.save(dictionary);
+    }
+    
+    public void deleteDictionaryItem(Long dictId, String itemCode) {
+        
+        DataDictionary dictionary = dictionaryRepository.findById(dictId)
+                .orElseThrow(() -> new IllegalArgumentException("Dictionary not found: " + dictId));
+        
+        dictionary.removeItem(itemCode);
+        dictionaryRepository.save(dictionary);
+    }
+    
+    public void createCodeRule(String ruleCode, String ruleName, String businessType,
+                               String ruleExpression, Integer paddingLength,
+                               Long startValue, Integer step) {
+        
+        if (codeRuleRepository.existsByRuleCode(ruleCode)) {
+            throw new IllegalArgumentException("Rule code already exists: " + ruleCode);
+        }
+        
+        CodeRule codeRule = CodeRule.create(ruleCode, ruleName, businessType, ruleExpression,
+                paddingLength != null ? paddingLength : 4);
+        
+        if (startValue != null) {
+            codeRule.setStartValue(startValue);
+            codeRule.setCurrentValue(startValue);
+        }
+        if (step != null) {
+            codeRule.setStep(step);
+        }
+        
+        codeRuleRepository.save(codeRule);
+    }
+    
+    public void addCodeRuleElement(Long ruleId, String elementType, String elementValue, String fieldName) {
+        
+        CodeRule codeRule = codeRuleRepository.findById(ruleId)
+                .orElseThrow(() -> new IllegalArgumentException("Code rule not found: " + ruleId));
+        
+        CodeRule.RuleElement.ElementType type = CodeRule.RuleElement.ElementType.valueOf(elementType);
+        CodeRule.RuleElement element = codeRule.addElement(type, elementValue);
+        element.setFieldName(fieldName);
+        
+        codeRuleRepository.save(codeRule);
+    }
+    
+    public String generateCode(String businessType, Map<String, String> businessFields) {
+        
+        CodeRule codeRule = codeRuleRepository.findByBusinessTypeAndStatus(
+                businessType, CodeRule.RuleStatus.ACTIVE)
+                .orElseThrow(() -> new IllegalArgumentException("No active code rule for: " + businessType));
+        
+        String code = codeRule.peekNextCode();
+        
+        if (businessFields != null) {
+            for (Map.Entry<String, String> entry : businessFields.entrySet()) {
+                code = code.replace("{" + entry.getKey() + "}", entry.getValue());
+            }
+        }
+        
+        codeRule.advanceSequence();
+        codeRuleRepository.save(codeRule);
+        
+        return code;
+    }
+    
+    public void resetCodeRuleSequence(Long ruleId) {
+        
+        CodeRule codeRule = codeRuleRepository.findById(ruleId)
+                .orElseThrow(() -> new IllegalArgumentException("Code rule not found: " + ruleId));
+        
+        codeRule.resetSequence();
+        codeRuleRepository.save(codeRule);
+    }
+    
+    // ==================== Work Order Type Operations ====================
+    
+    public WorkOrderType createWorkOrderType(String typeCode, String typeName, String description,
+                                              String statusMachineCode, String processRouteTemplate,
+                                              Boolean isDefault, Integer sortOrder) {
+        
+        if (workOrderTypeRepository.findByTypeCode(typeCode).isPresent()) {
+            throw new IllegalArgumentException("Work order type code already exists: " + typeCode);
+        }
+        
+        // If setting as default, clear other defaults
+        if (Boolean.TRUE.equals(isDefault)) {
+            workOrderTypeRepository.findByIsDefaultTrue()
+                    .ifPresent(defaultType -> {
+                        defaultType.setIsDefault(false);
+                        workOrderTypeRepository.update(defaultType);
+                    });
+        }
+        
+        WorkOrderType workOrderType = new WorkOrderType();
+        workOrderType.setTypeCode(typeCode);
+        workOrderType.setTypeName(typeName);
+        workOrderType.setDescription(description);
+        workOrderType.setStatusMachineCode(statusMachineCode);
+        workOrderType.setProcessRouteTemplate(processRouteTemplate);
+        workOrderType.setIsDefault(isDefault != null ? isDefault : false);
+        workOrderType.setSortOrder(sortOrder != null ? sortOrder : 0);
+        workOrderType.setStatus("ACTIVE");
+        
+        return workOrderTypeRepository.save(workOrderType);
+    }
+    
+    public void updateWorkOrderType(Long id, String typeName, String description,
+                                    String statusMachineCode, String processRouteTemplate,
+                                    Boolean isDefault, Integer sortOrder, String status) {
+        
+        WorkOrderType workOrderType = workOrderTypeRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Work order type not found: " + id));
+        
+        // If setting as default, clear other defaults
+        if (Boolean.TRUE.equals(isDefault) && !Boolean.TRUE.equals(workOrderType.getIsDefault())) {
+            workOrderTypeRepository.findByIsDefaultTrue()
+                    .ifPresent(defaultType -> {
+                        defaultType.setIsDefault(false);
+                        workOrderTypeRepository.update(defaultType);
+                    });
+        }
+        
+        if (typeName != null) workOrderType.setTypeName(typeName);
+        if (description != null) workOrderType.setDescription(description);
+        if (statusMachineCode != null) workOrderType.setStatusMachineCode(statusMachineCode);
+        if (processRouteTemplate != null) workOrderType.setProcessRouteTemplate(processRouteTemplate);
+        if (isDefault != null) workOrderType.setIsDefault(isDefault);
+        if (sortOrder != null) workOrderType.setSortOrder(sortOrder);
+        if (status != null) workOrderType.setStatus(status);
+        
+        workOrderTypeRepository.update(workOrderType);
+    }
+    
+    public void deleteWorkOrderType(Long id) {
+        workOrderTypeRepository.deleteById(id);
+    }
+    
+    // ==================== Product SN Rule Binding ====================
+    
+    public ProductSnRule bindProductSnRule(Long productId, String productCode, 
+                                            Long codeRuleId, String ruleCode, String description) {
+        
+        // Verify code rule exists
+        CodeRule codeRule = codeRuleRepository.findById(codeRuleId)
+                .orElseThrow(() -> new IllegalArgumentException("Code rule not found: " + codeRuleId));
+        
+        // Check if binding already exists for this product
+        if (productSnRuleRepository.existsByProductId(productId)) {
+            throw new IllegalArgumentException("SN rule already bound to product: " + productId);
+        }
+        
+        ProductSnRule binding = ProductSnRule.create(productId, productCode, codeRuleId, ruleCode);
+        binding.setDescription(description);
+        
+        return productSnRuleRepository.save(binding);
+    }
+    
+    public void unbindProductSnRule(Long productId) {
+        ProductSnRule binding = productSnRuleRepository.findByProductId(productId)
+                .orElseThrow(() -> new IllegalArgumentException("No SN rule bound to product: " + productId));
+        
+        productSnRuleRepository.delete(binding.getId());
+    }
+    
+    public void updateProductSnRuleStatus(Long productId, Boolean isActive) {
+        ProductSnRule binding = productSnRuleRepository.findByProductId(productId)
+                .orElseThrow(() -> new IllegalArgumentException("No SN rule bound to product: " + productId));
+        
+        if (Boolean.TRUE.equals(isActive)) {
+            binding.activate();
+        } else {
+            binding.deactivate();
+        }
+        
+        productSnRuleRepository.save(binding);
+    }
+    
+    public String generateProductSn(Long productId, Map<String, String> businessFields) {
+        ProductSnRule binding = productSnRuleRepository.findByProductId(productId)
+                .orElseThrow(() -> new IllegalArgumentException("No SN rule bound to product: " + productId));
+        
+        if (!Boolean.TRUE.equals(binding.getIsActive())) {
+            throw new IllegalStateException("SN rule is inactive for product: " + productId);
+        }
+        
+        CodeRule codeRule = codeRuleRepository.findById(binding.getCodeRuleId())
+                .orElseThrow(() -> new IllegalArgumentException("Code rule not found: " + binding.getCodeRuleId()));
+        
+        String sn = codeRule.peekNextCode();
+        
+        if (businessFields != null) {
+            for (Map.Entry<String, String> entry : businessFields.entrySet()) {
+                sn = sn.replace("{" + entry.getKey() + "}", entry.getValue());
+            }
+        }
+        
+        codeRule.advanceSequence();
+        codeRuleRepository.save(codeRule);
+        
+        return sn;
+    }
+    
+    public String generateProductSnByCode(String productCode, Map<String, String> businessFields) {
+        ProductSnRule binding = productSnRuleRepository.findByProductCode(productCode)
+                .orElseThrow(() -> new IllegalArgumentException("No SN rule bound to product code: " + productCode));
+        
+        return generateProductSn(binding.getProductId(), businessFields);
+    }
+}

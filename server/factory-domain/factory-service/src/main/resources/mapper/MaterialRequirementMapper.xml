@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metawebthree.mes.infrastructure.persistence.mapper.MaterialRequirementMapper">
+    
+    <select id="findByRequirementNo" resultType="com.metawebthree.mes.infrastructure.persistence.dataobject.MaterialRequirementDO">
+        SELECT * FROM mes_material_requirement WHERE requirement_no = #{requirementNo} LIMIT 1
+    </select>
+    
+    <select id="findByWorkOrderNo" resultType="com.metawebthree.mes.infrastructure.persistence.dataobject.MaterialRequirementDO">
+        SELECT * FROM mes_material_requirement WHERE work_order_no = #{workOrderNo} LIMIT 1
+    </select>
+    
+    <select id="findByStatus" resultType="com.metawebthree.mes.infrastructure.persistence.dataobject.MaterialRequirementDO">
+        SELECT * FROM mes_material_requirement WHERE status = #{status}
+    </select>
+    
+    <select id="findByWarehouseId" resultType="com.metawebthree.mes.infrastructure.persistence.dataobject.MaterialRequirementDO">
+        SELECT * FROM mes_material_requirement WHERE warehouse_id = #{warehouseId}
+    </select>
+    
+    <select id="findByWorkshopId" resultType="com.metawebthree.mes.infrastructure.persistence.dataobject.MaterialRequirementDO">
+        SELECT * FROM mes_material_requirement WHERE workshop_id = #{workshopId}
+    </select>
+    
+    <select id="findByProductCode" resultType="com.metawebthree.mes.infrastructure.persistence.dataobject.MaterialRequirementDO">
+        SELECT * FROM mes_material_requirement WHERE product_code = #{productCode}
+    </select>
+</mapper>

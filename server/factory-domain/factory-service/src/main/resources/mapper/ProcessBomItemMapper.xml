@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.metawebthree.mes.infrastructure.persistence.mapper.ProcessBomItemMapper">
+    
+    <select id="findByRouteId" resultType="com.metawebthree.mes.infrastructure.persistence.dataobject.ProcessBomItemDO">
+        SELECT * FROM mes_process_bom WHERE process_route_id = #{routeId}
+    </select>
+    
+    <select id="findByProcessCode" resultType="com.metawebthree.mes.infrastructure.persistence.dataobject.ProcessBomItemDO">
+        SELECT * FROM mes_process_bom WHERE process_route_id = #{routeId} AND process_code = #{processCode}
+    </select>
+</mapper>
