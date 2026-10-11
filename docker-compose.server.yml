@@ -145,31 +145,18 @@ services:
     volumes:
       - production_service_data:/server/production
       - ./.aws:/.aws:ro
-  forecasting-service:
+  ai-service:
     <<: *java-service
     build:
       context: .
       dockerfile: server/Dockerfile
-      target: forecasting-service
-    container_name: meta-web-three-forecasting-service
-    hostname: forecasting-service
+      target: ai-service
+    container_name: meta-web-three-ai-service
+    hostname: ai-service
     ports:
       - "10103:10103"
     volumes:
-      - forecasting_service_data:/server/forecasting
-      - ./.aws:/.aws:ro
-  route-optimizer:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: route-optimizer
-    container_name: meta-web-three-route-optimizer
-    hostname: route-optimizer
-    ports:
-      - "10117:10117"
-    volumes:
-      - route-optimizer_service_data:/server/route-optimizer
+      - ai_service_data:/server/ai
       - ./.aws:/.aws:ro
   scm-inventory-service:
     <<: *java-service
@@ -274,7 +261,7 @@ volumes:
   digital-twin_service_data:
   production_service_data:
   forecasting_service_data:
-  route-optimizer_service_data:
+  ai_service_data:
   scm_inventory_service_data:
   scm_logistics_service_data:
   finance_service_data:

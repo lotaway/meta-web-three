@@ -1,10 +1,19 @@
 server:
-  port: 10117
+  port: 10103
 spring:
   application:
-    name: route-optimizer
+    name: ai-service
   profiles:
     active: dev
+  datasource:
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 0
+  quartz:
+    auto-startup: false
+    job-store-type: memory
+    jdbc:
+      initialize-schema: never
 ---
 spring:
   config:

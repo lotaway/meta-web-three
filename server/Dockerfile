@@ -55,15 +55,10 @@ COPY --from=builder /build/server/factory-domain/production-service/target/produ
 ENTRYPOINT ["java", "-jar", "production-service.jar"]
 
 # ai-domain
-FROM eclipse-temurin:17-jre-jammy AS forecasting-service
+FROM eclipse-temurin:17-jre-jammy AS ai-service
 WORKDIR /app
-COPY --from=builder /build/server/ai-domain/forecasting-service/target/forecasting-service-*.jar forecasting-service.jar
-ENTRYPOINT ["java", "-jar", "forecasting-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS route-optimizer
-WORKDIR /app
-COPY --from=builder /build/server/ai-domain/route-optimizer/target/route-optimizer-*.jar route-optimizer.jar
-ENTRYPOINT ["java", "-jar", "route-optimizer.jar"]
+COPY --from=builder /build/server/ai-domain/ai-service/target/ai-service-*.jar ai-service.jar
+ENTRYPOINT ["java", "-jar", "ai-service.jar"]
 
 # supply-chain-domain
 FROM eclipse-temurin:17-jre-jammy AS scm-inventory-service
