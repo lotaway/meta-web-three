@@ -49,7 +49,8 @@
 ### Phase 3 — 电商 mall（13 → 4）
 
 - [ ] user + user-action + risk-control → mall-user-service
-- [ ] order + payment + cart + promotion + after-sale → mall-trade-service
+- [x] order + payment + cart + promotion + after-sale → mall-trade-service（新模块，端口 10084）
+- [x] mall-trade-service 单独启动验证通过（56s）；网关 order/cart 子图地址更新（/graphql/order、/graphql/cart）
 - [x] product + mall-supplier + recommendation + review → mall-catalog-service（新模块，端口 10082）
 - [x] mall-catalog-service 单独启动验证通过（52s）；网关 product/recommendation 子图地址更新（/graphql/product、/graphql/recommendation）
 - [ ] live + group-buying + social-commerce → mall-social-service
