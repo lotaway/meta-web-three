@@ -43,8 +43,8 @@
 ## 阶段划分
 
 - **Phase 0** 基线与映射（本文件建立；46 服务盘点）
-- **Phase 1** ERP：`invoice/reporting/settlement → erp-finance`；`hrm/crm/project → erp-management`
-- **Phase 2** 供应链：`→ scm-inventory` / `→ scm-logistics`
+- **Phase 1** ERP：`invoice/reporting/settlement → finance-service`；`hrm/crm/project → erp-management-service` —— ✅ 已完成（含构建 + 启动验证）
+- **Phase 2** 供应链：`inventory/warehouse/supplier/dom/inventory-alert → scm-inventory-service`；`logistics/procurement/rma → scm-logistics-service` —— ✅ 已完成（含构建 + 启动验证）
 - **Phase 3** 电商 mall：`→ mall-user / mall-trade / mall-catalog / mall-social`
 - **Phase 4** 平台：`→ platform-service`
 - **Phase 5** 工厂 / AI / 区块链：`→ factory / ai / blockchain`

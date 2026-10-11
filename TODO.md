@@ -37,11 +37,14 @@
 - [x] Phase 1 清理（pom/registry/Dockerfile/compose/firework/旧目录）
 - [ ] Phase 1 全量回归（并入 Phase 6 统一执行）
 
-### Phase 2 — 供应链（8 → 3）
+### Phase 2 — 供应链（8 → 2）
 
-- [ ] inventory + warehouse + supplier + dom + inventory-alert → scm-inventory-service
-- [ ] logistics + procurement + rma → scm-logistics-service
-- [ ] 更新 registry/端口映射并逐个验证启动
+- [x] inventory + warehouse + supplier + dom + inventory-alert → scm-inventory-service（新模块，端口 10105）
+- [x] scm-inventory-service 单独启动验证通过（54s）；supplier Feign/dom RPC/网关 inventory 子图地址更新
+- [x] logistics + procurement + rma → scm-logistics-service（新模块，端口 10107）
+- [x] scm-logistics-service 单独启动验证通过（38s）；supplier Feign 指向 scm-logistics-service
+- [x] 更新 registry/端口映射并逐个验证启动
+- [ ] Phase 2 全量回归（并入 Phase 6 统一执行）
 
 ### Phase 3 — 电商 mall（13 → 4）
 
