@@ -50,7 +50,8 @@
 
 - [ ] user + user-action + risk-control → mall-user-service
 - [ ] order + payment + cart + promotion + after-sale → mall-trade-service
-- [ ] product + mall-supplier + recommendation + review → mall-catalog-service
+- [x] product + mall-supplier + recommendation + review → mall-catalog-service（新模块，端口 10082）
+- [x] mall-catalog-service 单独启动验证通过（52s）；网关 product/recommendation 子图地址更新（/graphql/product、/graphql/recommendation）
 - [ ] live + group-buying + social-commerce → mall-social-service
 - [ ] 更新 registry/端口映射并逐个验证启动
 
