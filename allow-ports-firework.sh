@@ -21,7 +21,7 @@ PORTS=(
    9200   # elasticsearch http
    9300   # elasticsearch transport
    5601   # kibana
-   # Java 瀵邦喗婀囬崝锛勵伂閿?(server-services-registry.sh)
+   # Java 鐎甸偊鍠楀﹢鍥礉閿涘嫷浼傞柨?(server-services-registry.sh)
    10081  # gateway
    10082  # mall-catalog-service
    10083  # mall-user-service
@@ -30,10 +30,8 @@ PORTS=(
    10087  # media-service
    10088  # commission-service
    10092  # cs-service
-   10094  # group-buying-service
-   10095  # live-service
+   10095  # mall-social-service
    10099  # data-analysis-service
-   10100  # social-commerce-service
    10101  # mes-service
    10102  # digital-twin-service
    10103  # forecasting-service
@@ -51,7 +49,7 @@ PORTS=(
 )
 
 if ! command -v ufw >/dev/null 2>&1; then
-  echo "ufw 閺堫亜鐣ㄧ憗鍛灗娑撳秴褰查悽顭掔礉鐠囧嘲鍘涚€瑰顥?閸氼垳鏁?ufw閿涘本鍨ㄩ弨鍦暏娴ｇ姷娈戦梼鑼紑婢ф瑥浼愰崗鍑ゆ嫹? >&2
+  echo "ufw 闁哄牜浜滈悾銊ф啑閸涱喖鐏楀☉鎾崇Т瑜版煡鎮介…鎺旂閻犲洤鍢查崢娑氣偓鐟邦槼椤?闁告凹鍨抽弫?ufw闁挎稑鏈崹銊╁绩閸︻厽鏆忓ù锝囧Х濞堟垿姊奸懠顑跨磻濠⒀勭懃娴兼劙宕楅崙銈嗗? >&2
   exit 1
 fi
 

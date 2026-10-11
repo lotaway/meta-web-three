@@ -23,8 +23,7 @@
         <module>mall-domain/mall-catalog-service</module>
         <module>mall-domain/mall-trade-service</module>
         <module>mall-domain/mall-user-service</module>
-        <module>mall-domain/live-service</module>
-        <module>mall-domain/group-buying-service</module>
+        <module>mall-domain/mall-social-service</module>
         <!-- platform-domain -->
         <module>platform-domain/message-service</module>
         <module>platform-domain/media-service</module>
@@ -33,7 +32,6 @@
         <module>platform-domain/cs-service</module>
         <module>platform-domain/data-analysis-service</module>
         <module>platform-domain/tenant-service</module>
-        <module>platform-domain/social-commerce-service</module>
         <!-- factory-domain -->
         <module>factory-domain/mes-service</module>
         <module>factory-domain/digital-twin-service</module>

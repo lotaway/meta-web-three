@@ -119,31 +119,18 @@ services:
     volumes:
       - commission_service_data:/server/commission
       - ./.aws:/.aws:ro
-  group-buying-service:
+  mall-social-service:
     <<: *java-service
     build:
       context: .
       dockerfile: server/Dockerfile
-      target: group-buying-service
-    container_name: meta-web-three-group-buying-service
-    hostname: group-buying-service
-    ports:
-      - "10094:10094"
-    volumes:
-      - group-buying_service_data:/server/group-buying
-      - ./.aws:/.aws:ro
-  live-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: live-service
-    container_name: meta-web-three-live-service
-    hostname: live-service
+      target: mall-social-service
+    container_name: meta-web-three-mall-social-service
+    hostname: mall-social-service
     ports:
       - "10095:10095"
     volumes:
-      - live_service_data:/server/live
+      - mall_social_service_data:/server/mall-social
       - ./.aws:/.aws:ro
   cs-service:
     <<: *java-service
@@ -170,19 +157,6 @@ services:
       - "10099:10099"
     volumes:
       - data-analysis_service_data:/server/data-analysis
-      - ./.aws:/.aws:ro
-  social-commerce-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: social-commerce-service
-    container_name: meta-web-three-social-commerce-service
-    hostname: social-commerce-service
-    ports:
-      - "10100:10100"
-    volumes:
-      - social-commerce_service_data:/server/social-commerce
       - ./.aws:/.aws:ro
   developer-portal-service:
     <<: *java-service
@@ -373,14 +347,12 @@ volumes:
   mall_catalog_service_data:
   mall_user_service_data:
   mall_trade_service_data:
+  mall_social_service_data:
   message_service_data:
   media_service_data:
   commission_service_data:
   cs_service_data:
-  group-buying_service_data:
-  live_service_data:
   data-analysis_service_data:
-  social-commerce_service_data:
   developer-portal_service_data:
   mes_service_data:
   digital-twin_service_data:

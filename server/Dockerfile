@@ -27,15 +27,10 @@ WORKDIR /app
 COPY --from=builder /build/server/mall-domain/mall-trade-service/target/mall-trade-service-*.jar mall-trade-service.jar
 ENTRYPOINT ["java", "-jar", "mall-trade-service.jar"]
 
-FROM eclipse-temurin:17-jre-jammy AS group-buying-service
+FROM eclipse-temurin:17-jre-jammy AS mall-social-service
 WORKDIR /app
-COPY --from=builder /build/server/mall-domain/group-buying-service/target/group-buying-service-*.jar group-buying-service.jar
-ENTRYPOINT ["java", "-jar", "group-buying-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS live-service
-WORKDIR /app
-COPY --from=builder /build/server/mall-domain/live-service/target/live-service-*.jar live-service.jar
-ENTRYPOINT ["java", "-jar", "live-service.jar"]
+COPY --from=builder /build/server/mall-domain/mall-social-service/target/mall-social-service-*.jar mall-social-service.jar
+ENTRYPOINT ["java", "-jar", "mall-social-service.jar"]
 
 # platform-domain
 FROM eclipse-temurin:17-jre-jammy AS message-service
@@ -62,11 +57,6 @@ FROM eclipse-temurin:17-jre-jammy AS data-analysis-service
 WORKDIR /app
 COPY --from=builder /build/server/platform-domain/data-analysis-service/target/data-analysis-service-*.jar data-analysis-service.jar
 ENTRYPOINT ["java", "-jar", "data-analysis-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS social-commerce-service
-WORKDIR /app
-COPY --from=builder /build/server/platform-domain/social-commerce-service/target/social-commerce-service-*.jar social-commerce-service.jar
-ENTRYPOINT ["java", "-jar", "social-commerce-service.jar"]
 
 FROM eclipse-temurin:17-jre-jammy AS developer-portal-service
 WORKDIR /app
