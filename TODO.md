@@ -54,8 +54,9 @@
 - [x] mall-trade-service 单独启动验证通过（56s）；网关 order/cart 子图地址更新（/graphql/order、/graphql/cart）
 - [x] product + mall-supplier + recommendation + review → mall-catalog-service（新模块，端口 10082）
 - [x] mall-catalog-service 单独启动验证通过（52s）；网关 product/recommendation 子图地址更新（/graphql/product、/graphql/recommendation）
-- [ ] live + group-buying + social-commerce → mall-social-service
-- [ ] 更新 registry/端口映射并逐个验证启动
+- [x] live + group-buying + social-commerce → mall-social-service（新模块，端口 10095）
+- [x] mall-social-service 单独启动验证通过（43s）；live/group-buy 控制器可访问
+- [x] 更新 registry/端口映射并逐个验证启动（10083/10084/10082/10095 冒烟通过）
 
 ### Phase 4 — 平台（9 → 2）
 
