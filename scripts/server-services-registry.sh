@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# 后端 Java 微服务注册表（单一数据源）
-# 格式: 服务名|Maven 模块路径(相对 server/)|HTTP 端口
+# 鍚庣 Java 寰湇鍔℃敞鍐岃〃锛堝崟涓€鏁版嵁婧愶級
+# 鏍煎紡: 鏈嶅姟鍚峾Maven 妯″潡璺緞(鐩稿 server/)|HTTP 绔彛
 # shellcheck disable=SC2034
 
 SERVER_JAVA_SERVICES=(
@@ -15,10 +15,9 @@ SERVER_JAVA_SERVICES=(
   "scm-inventory-service|supply-chain-domain/scm-inventory-service|10105"
   "scm-logistics-service|supply-chain-domain/scm-logistics-service|10107"
   "finance-service|erp-domain/finance-service|10110"
-  "wallet-service|blockchain-domain/wallet-service|10114"
+  "blockchain-service|blockchain-domain/blockchain-service|10114"
   "mall-social-service|mall-domain/mall-social-service|10095"
   "production-service|factory-domain/production-service|10116"
-  "traceability-service|blockchain-domain/traceability-service|10118"
   "erp-management-service|erp-domain/erp-management-service|10125"
   "data-pipeline|data-pipeline|10122"
 )

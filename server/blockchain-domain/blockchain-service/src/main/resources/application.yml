@@ -2,9 +2,18 @@ server:
   port: 10114
 spring:
   application:
-    name: wallet-service
+    name: blockchain-service
   profiles:
     active: dev
+  datasource:
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 0
+  quartz:
+    auto-startup: false
+    job-store-type: memory
+    jdbc:
+      initialize-schema: never
 blockchain:
   evm:
     rpc-url: ${EVM_RPC_URL:https://mainnet.infura.io/v3/YOUR_PROJECT_ID}

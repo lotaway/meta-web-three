@@ -39,8 +39,7 @@
         <module>erp-domain/finance-service</module>
         <module>erp-domain/erp-management-service</module>
         <!-- blockchain-domain -->
-        <module>blockchain-domain/wallet-service</module>
-        <module>blockchain-domain/traceability-service</module>
+        <module>blockchain-domain/blockchain-service</module>
         <!-- data-pipeline -->
         <module>data-pipeline</module>
     </modules>

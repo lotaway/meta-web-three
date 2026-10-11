@@ -210,31 +210,18 @@ services:
     volumes:
       - erp_management_service_data:/server/erp-management
       - ./.aws:/.aws:ro
-  wallet-service:
+  blockchain-service:
     <<: *java-service
     build:
       context: .
       dockerfile: server/Dockerfile
-      target: wallet-service
-    container_name: meta-web-three-wallet-service
-    hostname: wallet-service
+      target: blockchain-service
+    container_name: meta-web-three-blockchain-service
+    hostname: blockchain-service
     ports:
       - "10114:10114"
     volumes:
-      - wallet_service_data:/server/wallet
-      - ./.aws:/.aws:ro
-  traceability-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: traceability-service
-    container_name: meta-web-three-traceability-service
-    hostname: traceability-service
-    ports:
-      - "10118:10118"
-    volumes:
-      - traceability_service_data:/server/traceability
+      - blockchain_service_data:/server/blockchain
       - ./.aws:/.aws:ro
   data-pipeline:
     <<: *java-service
@@ -266,6 +253,5 @@ volumes:
   scm_logistics_service_data:
   finance_service_data:
   erp_management_service_data:
-  wallet_service_data:
-  traceability_service_data:
+  blockchain_service_data:
   data_pipeline_data:

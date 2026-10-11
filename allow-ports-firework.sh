@@ -21,7 +21,7 @@ PORTS=(
    9200   # elasticsearch http
    9300   # elasticsearch transport
    5601   # kibana
-   # Java 闁诲海鏁婚崑濠囧窗濡も偓閿曘垽宕堕鈧粈澶愭煥濞戞ê顏村ù鐓庡€块弻?(server-services-registry.sh)
+   # Java 闂佽娴烽弫濠氬磻婵犲洤绐楁俊銈傚亾闁挎洏鍨藉畷鍫曨敆閳ь剛绮堟径鎰叆婵炴垶锚椤忔潙霉閻撳骸鈧潡寮?(server-services-registry.sh)
    10081  # gateway
    10082  # mall-catalog-service
    10083  # mall-user-service
@@ -34,15 +34,14 @@ PORTS=(
    10105  # scm-inventory-service
    10107  # scm-logistics-service
    10110  # finance-service
-   10114  # wallet-service
+   10114  # blockchain-service
    10116  # production-service
-   10118  # traceability-service
     10122  # data-pipeline
     10125  # erp-management-service
 )
 
 if ! command -v ufw >/dev/null 2>&1; then
-  echo "ufw 闂備礁鎼悧婊勭濠婂牊鍋╅柕濞у嫬鏅抽梺鍛婁緱閸犳牠鎮樺Δ鈧埥澶愬箻瀹曞泦銏㈡喐閻楀牏鍙€闁诡喕绮欓垾锕傚箳閺冨偆妲烽梺鑽ゅТ濞层倝宕查弻銉ュ偍婵炴垶鍩冮崑鎾绘偡闁附歇濡?闂備礁鎲￠崙褰掑垂閹惰棄鏋?ufw闂備焦瀵х粙鎴﹀嫉椤掑嫬鍨傞柕濞炬櫅缂佲晠鏌涢敂璇插箺闁哄棗绻愰湁闁挎繂娲ゅ暩濠电偛鐗婇崹鍨潖婵傚憡鍤戞い鎴ｆ硶绾剧粯绻濋埛鈧崟顓熷櫑婵炴潙鍚嬮崝娆忕暦濡ゅ懎绀勯柕鍫濇椤? >&2
+  echo "ufw 闂傚倷绀侀幖顐︽偋濠婂嫮顩叉繝濠傜墛閸嬧晠鏌曟繛褍瀚弲鎶芥⒑閸涘﹣绶遍柛鐘崇墵閹ê螖閳ь剟鍩ユ径鎰鐎规洖娉﹂姀銏″枑闁绘鐗忛崣鈧梺璇″枙缁瑩鍨鹃敃鍌氱闁哄啫鍋嗗Σ鐑芥⒑閼姐倕孝婵炲眰鍊濆畷鏌ュ蓟閵夈儱鍋嶅┑鐐村灦閸╁啴宕戦幘缁樺仭闂侇叏闄勬瓏婵?闂傚倷绀侀幉锟犲礄瑜版帒鍨傞柟鎯版閺?ufw闂傚倷鐒︾€笛呯矙閹达箑瀚夋い鎺戝閸ㄥ倿鏌曟繛鐐珔缂備讲鏅犻弻娑㈡晜鐠囨彃绠洪梺鍝勬缁绘劙婀侀梺鎸庣箓濞层倕鏆╂繝鐢靛仜閻楀﹪宕归崹顕呮綎濠靛倸鎲￠崵鎴炪亜閹达絾纭剁痪鍓х帛缁绘繈鍩涢埀顒勫礋椤撶喎娅戝┑鐐存綑閸氬宕濆▎蹇曟殾婵°倕鎳庣粈鍕煏閸繃顥滄い? >&2
   exit 1
 fi
 

@@ -95,12 +95,7 @@ COPY --from=builder /build/server/data-pipeline/target/data-pipeline-*.jar data-
 ENTRYPOINT ["java", "-jar", "data-pipeline.jar"]
 
 # blockchain-domain
-FROM eclipse-temurin:17-jre-jammy AS wallet-service
+FROM eclipse-temurin:17-jre-jammy AS blockchain-service
 WORKDIR /app
-COPY --from=builder /build/server/blockchain-domain/wallet-service/target/wallet-service-*.jar wallet-service.jar
-ENTRYPOINT ["java", "-jar", "wallet-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS traceability-service
-WORKDIR /app
-COPY --from=builder /build/server/blockchain-domain/traceability-service/target/traceability-service-*.jar traceability-service.jar
-ENTRYPOINT ["java", "-jar", "traceability-service.jar"]
+COPY --from=builder /build/server/blockchain-domain/blockchain-service/target/blockchain-service-*.jar blockchain-service.jar
+ENTRYPOINT ["java", "-jar", "blockchain-service.jar"]
