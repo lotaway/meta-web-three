@@ -66,10 +66,12 @@
 
 ### Phase 5 — 工厂 / AI / 区块链（8 → 3）
 
-- [ ] mes + digital-twin + production → factory-service
-- [ ] forecasting + route-optimizer → ai-service
-- [ ] wallet + traceability → blockchain-service
-- [ ] 更新 registry/端口映射并验证启动
+- [x] forecasting + route-optimizer → ai-service（新模块，端口 10103，提交 8387bc98）
+- [x] ai-service 单独启动验证通过；forecasting / route-optimizer 端点冒烟可达（500 为 dev 库缺表）
+- [x] wallet + traceability → blockchain-service（新模块，端口 10114，提交 6a29793e）
+- [x] blockchain-service 单独启动验证通过（49s）；wallet / traceability 端点冒烟可达
+- [ ] mes + digital-twin + production → factory-service（新模块，端口 10101；脚手架 + 构建通过，启动验证中：mes 域服务类缺构造型注解）
+- [ ] 更新 registry/端口映射并验证启动（ai 10103 / blockchain 10114 已完成；factory 10101 待完成）
 
 ### Phase 6 — 收尾
 
