@@ -70,7 +70,10 @@
 - [x] ai-service 单独启动验证通过；forecasting / route-optimizer 端点冒烟可达（500 为 dev 库缺表）
 - [x] wallet + traceability → blockchain-service（新模块，端口 10114，提交 6a29793e）
 - [x] blockchain-service 单独启动验证通过（49s）；wallet / traceability 端点冒烟可达
-- [ ] mes + digital-twin + production → factory-service（新模块，端口 10101；脚手架 + 构建通过，启动验证中：mes 域服务类缺构造型注解）
+- [ ] mes + digital-twin + production → factory-service（新模块，端口 10101；脚手架 + 构建通过，启动验证未通过）
+  - [ ] **启动失败（待修复）**：`APPLICATION FAILED TO START` — `Parameter 3 of constructor in com.metawebthree.mes.application.command.ProductionTaskCommandService required a bean of type com.metawebthree.mes.domain.service.PokaYokeService that could not be found`
+  - [ ] 根因：`PokaYokeService` 为普通类，缺 `@Service`/`@Component` 构造型注解；原 `MesServiceApplication` 上的 `@ComponentScan("com.metawebthree.common.event")` 覆盖了 `@SpringBootApplication` 的默认扫描，mes 域服务类在单机时从未注册，合并后才会被实例化而暴露。预计 `AndonServiceImpl`、`SopDocumentServiceImpl` 等同类也缺注解，需统一排查补齐
+  - [ ] 修复后：重建 + 单独启动 + 冒烟，再更新 registry/Dockerfile/compose/端口并提交
 - [ ] 更新 registry/端口映射并验证启动（ai 10103 / blockchain 10114 已完成；factory 10101 待完成）
 
 ### Phase 6 — 收尾
