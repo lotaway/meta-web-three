@@ -80,44 +80,18 @@ services:
     volumes:
       - mall_trade_service_data:/server/mall-trade
       - ./.aws:/.aws:ro
-  message-service:
+  platform-service:
     <<: *java-service
     build:
       context: .
       dockerfile: server/Dockerfile
-      target: message-service
-    container_name: meta-web-three-message-service
-    hostname: message-service
+      target: platform-service
+    container_name: meta-web-three-platform-service
+    hostname: platform-service
     ports:
       - "10085:10085"
     volumes:
-      - message_service_data:/server/message
-      - ./.aws:/.aws:ro
-  media-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: media-service
-    container_name: meta-web-three-media-service
-    hostname: media-service
-    ports:
-      - "10087:10087"
-    volumes:
-      - media_service_data:/server/media
-      - ./.aws:/.aws:ro
-  commission-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: commission-service
-    container_name: meta-web-three-commission-service
-    hostname: commission-service
-    ports:
-      - "10088:10088"
-    volumes:
-      - commission_service_data:/server/commission
+      - platform_service_data:/server/platform
       - ./.aws:/.aws:ro
   mall-social-service:
     <<: *java-service
@@ -131,45 +105,6 @@ services:
       - "10095:10095"
     volumes:
       - mall_social_service_data:/server/mall-social
-      - ./.aws:/.aws:ro
-  cs-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: cs-service
-    container_name: meta-web-three-cs-service
-    hostname: cs-service
-    ports:
-      - "10092:10092"
-    volumes:
-      - cs_service_data:/server/cs
-      - ./.aws:/.aws:ro
-  data-analysis-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: data-analysis-service
-    container_name: meta-web-three-data-analysis-service
-    hostname: data-analysis-service
-    ports:
-      - "10099:10099"
-    volumes:
-      - data-analysis_service_data:/server/data-analysis
-      - ./.aws:/.aws:ro
-  developer-portal-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: developer-portal-service
-    container_name: meta-web-three-developer-portal-service
-    hostname: developer-portal-service
-    ports:
-      - "10115:10115"
-    volumes:
-      - developer-portal_service_data:/server/developer-portal
       - ./.aws:/.aws:ro
   mes-service:
     <<: *java-service
@@ -328,32 +263,13 @@ services:
       - data_pipeline_data:/server/data-pipeline
       - ./.aws:/.aws:ro
 
-  tenant-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: tenant-service
-    container_name: meta-web-three-tenant-service
-    hostname: tenant-service
-    ports:
-      - "10126:10126"
-    volumes:
-      - tenant_service_data:/server/tenant
-      - ./.aws:/.aws:ro
-
 volumes:
   gateway_data:
   mall_catalog_service_data:
   mall_user_service_data:
   mall_trade_service_data:
   mall_social_service_data:
-  message_service_data:
-  media_service_data:
-  commission_service_data:
-  cs_service_data:
-  data-analysis_service_data:
-  developer-portal_service_data:
+  platform_service_data:
   mes_service_data:
   digital-twin_service_data:
   production_service_data:
@@ -365,5 +281,4 @@ volumes:
   erp_management_service_data:
   wallet_service_data:
   traceability_service_data:
-  tenant_service_data:
   data_pipeline_data:

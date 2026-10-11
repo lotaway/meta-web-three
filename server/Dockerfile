@@ -33,35 +33,10 @@ COPY --from=builder /build/server/mall-domain/mall-social-service/target/mall-so
 ENTRYPOINT ["java", "-jar", "mall-social-service.jar"]
 
 # platform-domain
-FROM eclipse-temurin:17-jre-jammy AS message-service
+FROM eclipse-temurin:17-jre-jammy AS platform-service
 WORKDIR /app
-COPY --from=builder /build/server/platform-domain/message-service/target/message-service-*.jar message-service.jar
-ENTRYPOINT ["java", "-jar", "message-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS commission-service
-WORKDIR /app
-COPY --from=builder /build/server/platform-domain/commission-service/target/commission-service-*.jar commission-service.jar
-ENTRYPOINT ["java", "-jar", "commission-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS media-service
-WORKDIR /app
-COPY --from=builder /build/server/platform-domain/media-service/target/media-service-*.jar media-service.jar
-ENTRYPOINT ["java", "-jar", "media-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS cs-service
-WORKDIR /app
-COPY --from=builder /build/server/platform-domain/cs-service/target/cs-service-*.jar cs-service.jar
-ENTRYPOINT ["java", "-jar", "cs-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS data-analysis-service
-WORKDIR /app
-COPY --from=builder /build/server/platform-domain/data-analysis-service/target/data-analysis-service-*.jar data-analysis-service.jar
-ENTRYPOINT ["java", "-jar", "data-analysis-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS developer-portal-service
-WORKDIR /app
-COPY --from=builder /build/server/platform-domain/developer-portal-service/target/developer-portal-service-*.jar developer-portal-service.jar
-ENTRYPOINT ["java", "-jar", "developer-portal-service.jar"]
+COPY --from=builder /build/server/platform-domain/platform-service/target/platform-service-*.jar platform-service.jar
+ENTRYPOINT ["java", "-jar", "platform-service.jar"]
 
 # factory-domain
 FROM eclipse-temurin:17-jre-jammy AS mes-service

@@ -8,10 +8,7 @@ SERVER_JAVA_SERVICES=(
   "mall-catalog-service|mall-domain/mall-catalog-service|10082"
   "mall-user-service|mall-domain/mall-user-service|10083"
   "mall-trade-service|mall-domain/mall-trade-service|10084"
-  "message-service|platform-domain/message-service|10085"
-  "media-service|platform-domain/media-service|10087"
-  "commission-service|platform-domain/commission-service|10088"
-  "cs-service|platform-domain/cs-service|10092"
+  "platform-service|platform-domain/platform-service|10085"
   "mes-service|factory-domain/mes-service|10101"
   "digital-twin-service|factory-domain/digital-twin-service|10102"
   "forecasting-service|ai-domain/forecasting-service|10103"
@@ -20,14 +17,11 @@ SERVER_JAVA_SERVICES=(
   "finance-service|erp-domain/finance-service|10110"
   "wallet-service|blockchain-domain/wallet-service|10114"
   "mall-social-service|mall-domain/mall-social-service|10095"
-  "data-analysis-service|platform-domain/data-analysis-service|10099"
-  "developer-portal-service|platform-domain/developer-portal-service|10115"
   "production-service|factory-domain/production-service|10116"
   "route-optimizer|ai-domain/route-optimizer|10117"
   "traceability-service|blockchain-domain/traceability-service|10118"
   "erp-management-service|erp-domain/erp-management-service|10125"
   "data-pipeline|data-pipeline|10122"
-  "tenant-service|platform-domain/tenant-service|10126"
 )
 
 server_service_name() { echo "${1%%|*}"; }

@@ -1,0 +1,112 @@
+server:
+  port: 10085
+spring:
+  application:
+    name: platform-service
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 512MB
+  datasource:
+    hikari:
+      maximum-pool-size: 2
+      minimum-idle: 0
+  quartz:
+    auto-startup: false
+    job-store-type: memory
+    jdbc:
+      initialize-schema: never
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:25}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:false}
+          starttls:
+            enable: ${MAIL_STARTTLS:false}
+
+# Media upload quotas
+upload:
+  quotas:
+    USER:
+      max-file-size: 10485760
+      total-quota: 104857600
+
+# Commission
+commission:
+  buy-rate: 0.10
+  level-rates: 0.4,0.2,0.1
+  max-levels: 3
+  return-window-days: 7
+  settlement:
+    cron: 0 */10 * * * ?
+
+notification:
+  email:
+    enabled: ${EMAIL_ENABLED:true}
+
+resilience4j:
+  ratelimiter:
+    instances:
+      developerRegister:
+        limitForPeriod: 3
+        limitRefreshPeriod: 60s
+        timeoutDuration: 5s
+
+service-governance:
+  rate-limiter:
+    developerCaptcha:
+      limit-for-period: 10
+      limit-refresh-period: 60s
+    developerEmailCode:
+      limit-for-period: 5
+      limit-refresh-period: 60s
+    developerRegister:
+      limit-for-period: 3
+      limit-refresh-period: 60s
+    tenantCaptcha:
+      enabled: true
+      limit-for-period: 10
+      limit-refresh-period: 60s
+      timeout-duration: 5s
+    tenantEmailCode:
+      enabled: true
+      limit-for-period: 5
+      limit-refresh-period: 60s
+      timeout-duration: 5s
+    tenantRegister:
+      enabled: true
+      limit-for-period: 3
+      limit-refresh-period: 60s
+      timeout-duration: 5s
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+    import:
+      - optional:classpath:application-common.yml
+      - optional:classpath:application-common-dev.yml
+  data:
+    mongodb:
+      host: ${MONGODB_HOST:localhost}
+      port: ${MONGODB_PORT:27017}
+      database: metawebthree_cs
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import:
+      - optional:classpath:application-common.yml
+      - optional:classpath:application-common-prod.yml
+  data:
+    mongodb:
+      host: ${MONGODB_HOST:mongo}
+      port: ${MONGODB_PORT:27017}
+      database: metawebthree_cs

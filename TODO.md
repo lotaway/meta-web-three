@@ -60,8 +60,9 @@
 
 ### Phase 4 — 平台（9 → 2）
 
-- [ ] message + media + commission + cs + data-analysis + tenant + developer-portal → platform-service
-- [ ] 更新 registry/端口映射并验证启动
+- [x] message + media + commission + cs + data-analysis + tenant + developer-portal → platform-service（新模块，端口 10085）
+- [x] platform-service 单独启动验证通过（63s）；message/media/commission/cs/data-analysis/tenant/developer-portal 端点冒烟可达
+- [x] 更新 registry/端口映射并验证启动（10085 冒烟通过）
 
 ### Phase 5 — 工厂 / AI / 区块链（8 → 3）
 

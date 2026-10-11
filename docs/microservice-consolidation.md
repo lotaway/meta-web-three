@@ -46,7 +46,7 @@
 - **Phase 1** ERP：`invoice/reporting/settlement → finance-service`；`hrm/crm/project → erp-management-service` —— ✅ 已完成（含构建 + 启动验证）
 - **Phase 2** 供应链：`inventory/warehouse/supplier/dom/inventory-alert → scm-inventory-service`；`logistics/procurement/rma → scm-logistics-service` —— ✅ 已完成（含构建 + 启动验证）
 - **Phase 3** 电商 mall：`product/mall-supplier/recommendation/review → mall-catalog-service`（端口 10082，双 GraphQL 子图 /graphql/product、/graphql/recommendation）✅；`order/payment/cart/promotion/after-sale → mall-trade-service`（端口 10084，双 GraphQL 子图 /graphql/order、/graphql/cart）✅；`user/user-action/risk-control → mall-user-service`（端口 10083，单 GraphQL 子图 /graphql）✅；`live/group-buying/social-commerce → mall-social-service`（端口 10095，REST 双控制器 + admin 接口，无 GraphQL 子图）✅ —— 均含构建 + 启动验证，网关子图地址已切换；Phase 3 全部完成（mall 领域 13→4）
-- **Phase 4** 平台：`→ platform-service`
+- **Phase 4** 平台：`message/media/commission/cs/data-analysis/tenant/developer-portal → platform-service`（端口 10085，REST 多控制器 + cs 会话 WebSocket + message 邮件 + media 对象存储，无 GraphQL 子图）✅ —— 构建 + 启动验证通过（63s），各模块端点冒烟可达（含 common 配置补装：Security/Database/Redis/RestClient/Swagger/Web/SecurityInterceptor/Minio/S3/MQProducer/DistributedCacheService/GlobalExceptionHandler）
 - **Phase 5** 工厂 / AI / 区块链：`→ factory / ai / blockchain`
 - **Phase 6** 收尾：`run-server.sh` 全量回归、内存复测、文档/网关/前端同步
 
