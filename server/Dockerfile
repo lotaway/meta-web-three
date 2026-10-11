@@ -1,4 +1,4 @@
-# 构建上下文为仓库根目录: docker build -f server/Dockerfile .
+# 构建上下文为仓库根目�? docker build -f server/Dockerfile .
 FROM maven:3.9.11-eclipse-temurin-17 AS builder
 WORKDIR /build
 COPY shared/event-sdk ./shared/event-sdk
@@ -181,16 +181,6 @@ FROM eclipse-temurin:17-jre-jammy AS finance-service
 WORKDIR /app
 COPY --from=builder /build/server/erp-domain/finance-service/target/finance-service-*.jar finance-service.jar
 ENTRYPOINT ["java", "-jar", "finance-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS reporting-service
-WORKDIR /app
-COPY --from=builder /build/server/erp-domain/reporting-service/target/reporting-service-*.jar reporting-service.jar
-ENTRYPOINT ["java", "-jar", "reporting-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS settlement-service
-WORKDIR /app
-COPY --from=builder /build/server/erp-domain/settlement-service/target/settlement-service-*.jar settlement-service.jar
-ENTRYPOINT ["java", "-jar", "settlement-service.jar"]
 
 FROM eclipse-temurin:17-jre-jammy AS hrm-service
 WORKDIR /app

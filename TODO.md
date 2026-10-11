@@ -29,8 +29,9 @@
 
 - [x] 试点：invoice-service → 并入 finance-service
 - [x] 验证 finance-service 合并后单独启动 + invoice 端点冒烟（10111 端口释放）
-- [ ] reporting-service → 并入 finance-service
-- [ ] settlement-service → 并入 finance-service
+- [x] reporting-service → 并入 finance-service
+- [x] settlement-service → 并入 finance-service
+- [x] finance-service（含 invoice+reporting+settlement）单独启动验证通过（57s）
 - [ ] hrm-service + crm-service + project-service → erp-management-service
 - [ ] Phase 1 完成后清理（pom/registry/旧目录）并全量回归
 

@@ -10,7 +10,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 
-@Service
+@Service("reportingFinancialReportQueryService")
 public class FinancialReportQueryService {
 
     private static final BigDecimal COST_TO_REVENUE_RATIO = new BigDecimal("0.65");

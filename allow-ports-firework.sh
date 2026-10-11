@@ -52,8 +52,6 @@ PORTS=(
    10108  # procurement-service
    10109  # supplier-service
    10110  # finance-service
-   10112  # reporting-service
-   10113  # settlement-service
    10114  # wallet-service
    10115  # developer-portal-service
    10116  # production-service
