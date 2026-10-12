@@ -70,7 +70,7 @@
 - [x] ai-service 单独启动验证通过；forecasting / route-optimizer 端点冒烟可达（500 为 dev 库缺表）
 - [x] wallet + traceability → blockchain-service（新模块，端口 10114，提交 6a29793e）
 - [x] blockchain-service 单独启动验证通过（49s）；wallet / traceability 端点冒烟可达
-- [ ] mes + digital-twin + production → factory-service（新模块，端口 10101）
+- [x] mes + digital-twin + production → factory-service（新模块，端口 10101；提交 7f62f53e、71ed7fc2）
   - [x] 脚手架：宿主 + 合并 548 个 java + 合并 schema/mapper 资源
   - [x] `PokaYokeService` 补 `@Service`（第一层缺失 bean）
   - [x] 新增 `AndonEventRepository` 内存实现（`InMemoryAndonEventRepository`，沿用 `InMemory*Repository` 模式）——被 `ScadaDomainServiceImpl` 使用
@@ -87,10 +87,11 @@
 
 ### Phase 6 — 收尾
 
-- [ ] 同步网关路由到 15 服务拓扑（gateway 子图/路由）
-- [ ] 同步 `config/domain/*.yaml` 与 k8s 清单（清理旧端口 10102/10116/10117/10118 等）
-- [ ] 同步前端 baseURL 默认端口（`apps/digital-twin/system-management/src/renderer/config/digital-twin.ts`、`vite.config.ts`：10102 → 10101）
-- [ ] 同步 `server/README`、部署文档
-- [ ] `run-server.sh` 全量启动无回归
+- [x] 网关路由/鉴权同步到 15 服务拓扑：`application.yml` 免鉴权/豁免路径、`GatewayAuthConfig` routeRoles、`CircuitBreakerFilter` 服务识别、`UserAuthFilterTest`（提交 a08c5b7d）
+- [x] 前端服务名映射与端口：`apps/backstage-admin/src/utils/http.ts` SERVICE_PREFIX_MAP 改为合后服务名；`apps/digital-twin/system-management/{vite.config.ts,src/renderer/config/digital-twin.ts}` 默认端口 10102 → 10101；页面文案（提交 a08c5b7d）
+- [x] `config/domain/*.yaml` 服务键同步为合后服务名并合并表清单（提交 a08c5b7d）
+- [x] `server/README.md` wallet-service → blockchain-service；`docs/microservice-consolidation.md` Phase 5 状态更新为 ✅
+- [ ] k8s 清单同步（`k8s/services/*`、`k8s/deploy-all.yaml`、`k8s/digital-twin/*`、`k8s/MAPPING.md`/`QUICKSTART.md`/`README.md`、`k8s/configmaps/app-config.yaml`）——仍为旧服务，需整体改为合后服务
+- [ ] `run-server.sh` 全量回归
 - [ ] `scripts/check-server-memory.sh` 复测内存，对比收敛前后
 - [ ] 全量改动提交（英文 commit message）

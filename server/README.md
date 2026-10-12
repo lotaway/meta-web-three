@@ -227,7 +227,7 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 | payment-service | `payment.reconciliation.payment-platform-api-url` | 空字符串 | 对账平台 API 地址为空；若启用对账功能需配置 |
 | payment-service | `payment.reconciliation.message-service-url` | 空字符串 | 消息服务地址为空；若启用对账通知需配置 |
 | payment-service | `payment.reconciliation.dingtalk-webhook-url` | 空字符串 | 钉钉告警 Webhook 为空；若启用对账告警需配置 |
-| wallet-service | `blockchain.evm.rpc-url` | `https://mainnet.infura.io/v3/YOUR_PROJECT_ID` | Infura Project ID `YOUR_PROJECT_ID` 为占位符 |
+| blockchain-service | `blockchain.evm.rpc-url` | `https://mainnet.infura.io/v3/YOUR_PROJECT_ID` | Infura Project ID `YOUR_PROJECT_ID` 为占位符 |
 | user-service | `x.apikey` | `your-api-key` | `user-service/src/main/resources/application-dev.yml` 中的占位符（dev profile 自动加载） |
 | user-service | `x.secret` | `your-secret-key` | 同上 |
 | recommendation-service | `ai-shopping.embedding.base-url` / `api-key` / `model` | 空字符串 | AI 智能匹配文本向量化端点；未配置则智能匹配不可用 |
