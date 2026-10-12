@@ -39,7 +39,3 @@
 
 ### Phase 6 — 收尾
 
-- [ ] k8s 清单同步——**暂缓（需单独立项）**：`k8s/` 为合并前遗留脚手架（`deploy-all.yaml` + `services/extended-domain-services.yaml` 被 `deploy.sh` 应用，其余 `services/*.yaml`、PV、autoscaling、ingress、`digital-twin/*`、docs 均为旧服务名，且无集群可校验）。整体改写风险高、不可回归验证，故本轮不改；保留此条为后续独立任务。
-  - 第 1 次回归：构建 BUILD SUCCESS，但 `platform-service` 启动失败——Dubbo triple 协议 `dubbo.protocol.port: -1`（自动）在 14 服务并发启动时争抢 50051/50052，`Address already in use`
-  - 修复：`run-server.sh` 按 `服务 HTTP 端口 + 10000`（与 gateway 20881 约定一致）为每个服务注入唯一 `-Ddubbo.protocol.port`，消除并发绑定竞争（20081–20125 段确认空闲）
-  - 第 2 次回归：BUILD SUCCESS，**14/14 服务 STARTED**（gateway 69s / platform 79s / factory 107s，全部存活 40s+）
