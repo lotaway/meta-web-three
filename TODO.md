@@ -79,9 +79,9 @@
   - [x] 构建 `factory-service`（`mvn -pl factory-domain/factory-service clean install -Dmaven.test.skip=true`）
   - [x] 单独启动 + 校验端口 10101（STARTED）
   - [x] 冒烟：`/v3/api-docs` 200、`/api/mes/equipment` 200；`work-orders`/`production-tasks`/`digital-twin`/`alert-rules`/`v1/production` 500（dev 库缺表 `relation "..." does not exist`，属环境性）
-  - [ ] 删除旧模块 `mes-service` / `digital-twin-service` / `production-service`
-  - [ ] 同步旧模块引用：`docker-compose.digital-twin.yml`、`apps/digital-twin/README.md`
-  - [ ] 提交（英文 commit message）
+  - [x] 删除旧模块 `mes-service` / `digital-twin-service` / `production-service`
+  - [x] 同步旧模块引用：`docker-compose.digital-twin.yml`、`apps/digital-twin/README.md`
+  - [x] 提交（英文 commit message）
   - 说明：mes 另有 6 个未实现仓储（`AndonTypeRepository`、`AndonLevelRepository`、`EquipmentStatusConfigRepository`、`EquipmentStatusTransitionRepository`、`EquipmentTypeRepository`、`WorkOrderSplitRuleRepository`），其消费方均无人引用，本次不做；将来需要时按 `InMemory*` 模式补。背景：`79cbe515` 仅为提供 `DomainEventPublisher` 加了 `@ComponentScan("com.metawebthree.common.event")`，mes 领域 bean 从未注册，本次显式扫描才暴露这些半成品
 - [x] 更新 registry/端口映射（ai 10103 / blockchain 10114 / factory 10101）
 

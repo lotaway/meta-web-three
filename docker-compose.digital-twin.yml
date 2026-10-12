@@ -1,21 +1,24 @@
 version: '3.8'
 
 services:
-  digital-twin-service:
+  factory-service:
     build:
-      context: ./server/factory-domain/digital-twin-service
-      dockerfile: docker/Dockerfile
-    container_name: digital-twin-service
+      context: .
+      dockerfile: server/Dockerfile
+      target: factory-service
+    container_name: factory-service
+    hostname: factory-service
     ports:
-      - "8082:8080"
-      - "9092:9090"
+      - "8082:10101"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SERVER_PORT=8080
+      - SERVER_PORT=10101
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - SPRING_REDIS_HOST=redis
       - SPRING_REDIS_PORT=6379
       - JAVA_OPTS=-Xms512m -Xmx1024m
+    volumes:
+      - factory_service_data:/server/factory
     depends_on:
       - kafka
       - redis
@@ -23,7 +26,7 @@ services:
       - meta-web-three
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:10101/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -41,7 +44,7 @@ services:
       - VITE_API_URL=http://localhost:8082/api
       - VITE_MQTT_URL=ws://localhost:9001
     depends_on:
-      - digital-twin-service
+      - factory-service
     networks:
       - meta-web-three
     restart: unless-stopped
@@ -49,3 +52,6 @@ services:
 networks:
   meta-web-three:
     driver: bridge
+
+volumes:
+  factory_service_data:

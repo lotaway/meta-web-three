@@ -9,7 +9,7 @@ apps/digital-twin/  ── Electron 桌面端
 └── system-management   桌面客户端 (React + Electron + NestJS)
 
 server/  ── Java 微服务后端
-└── factory-domain/digital-twin-service  数字孪生服务 (Spring Boot)
+└── factory-domain/factory-service  工厂服务（含数字孪生）(Spring Boot)
 ```
 
 ## 目录说明
@@ -43,7 +43,7 @@ cd system-support
 cargo build --release
 ```
 
-### `server/factory-domain/digital-twin-service/` — 数字孪生后端
+### `server/factory-domain/factory-service/` — 工厂服务（含数字孪生）
 
 Spring Boot 微服务，提供数字孪生工厂 REST API + WebSocket 实时推送。
 
@@ -54,18 +54,15 @@ Spring Boot 微服务，提供数字孪生工厂 REST API + WebSocket 实时推�
 | `GET /api/digital-twin/stats/summary` | 统计摘要 |
 | `POST /api/digital-twin/alert/{id}/acknowledge` | 确认告警 |
 | `POST /api/digital-twin/alert/{id}/resolve` | 解决告警 |
-| `ws://host:10102/ws/digital-twin` | WebSocket 实时推送 |
+| `ws://host:10101/ws/digital-twin` | WebSocket 实时推送 |
 
 WebSocket 事件：`DEVICE_STATUS_CHANGED`、`DEVICE_POSITION_UPDATED`、`PRODUCTION_OUTPUT_UPDATED`、`ALERT_CREATED`
 
 **启动方式：**
 ```bash
-cd ../../server/factory-domain/digital-twin-service
-./run-dev.sh
-# 或手动编译
 cd ../../server
-mvn clean package -pl factory-domain/digital-twin-service -am -DskipTests
-java -jar factory-domain/digital-twin-service/target/digital-twin-service-1.0.0.jar --spring.profiles.active=dev
+mvn clean package -pl factory-domain/factory-service -am -DskipTests
+java -jar factory-domain/factory-service/target/factory-service-1.0.0.jar --spring.profiles.active=dev
 ```
 
 ### 子模块（待初始化）
