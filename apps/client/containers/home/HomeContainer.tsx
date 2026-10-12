@@ -86,7 +86,7 @@ export function HomeContainer({ children }: HomeContainerProps) {
 
         let flashPromotion = null
         try {
-          const flashRes = await fetch(`${API_BASE_URL}/promotion-service/flash/current`)
+          const flashRes = await fetch(`${API_BASE_URL}/mall-trade-service/flash/current`)
           const flashData = await flashRes.json()
           const promotions: any[] = flashData?.data ?? []
           if (promotions.length > 0) {

@@ -16,7 +16,7 @@ export interface FlashOrderResponse {
 }
 
 export async function createFlashOrder(token: string, request: FlashOrderRequest): Promise<FlashOrderResponse> {
-  const res = await fetch(`${API_BASE_URL}/promotion-service/flash/order`, {
+  const res = await fetch(`${API_BASE_URL}/mall-trade-service/flash/order`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

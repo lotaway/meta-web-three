@@ -34,6 +34,10 @@ const SERVICE_PREFIX_MAP: Record<string, string> = {
   '/api/mes': 'factory-service',
   '/api/pokayoke': 'factory-service',
   '/api/admin/ai-shopping': 'mall-catalog-service',
+  '/api/forecasting': 'ai-service',
+  '/api/v1/route-optimizer': 'ai-service',
+  // The merged project controllers kept their original base path (/project-service/*)
+  '/project-service': 'erp-management-service',
 }
 
 const service: AxiosInstance = axios.create({

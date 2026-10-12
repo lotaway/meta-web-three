@@ -46,7 +46,7 @@ export default function LogisticsScreen() {
     if (!orderId) return
     setLoading(true)
     try {
-      const response = await fetch(`${API_BASE_URL}/order-service/order/${orderId}/logistics`)
+      const response = await fetch(`${API_BASE_URL}/mall-trade-service/order/${orderId}/logistics`)
       const result = await response.json()
       if (result.data) {
         setLogisticsInfo({

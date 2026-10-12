@@ -130,7 +130,7 @@ function useProductDetailLogic(t: any, id: any) {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/promotion-service/flash/product/${id}`)
+        const res = await fetch(`${API_BASE_URL}/mall-trade-service/flash/product/${id}`)
         const data = await res.json()
         if (data?.data?.inFlash) {
           setFlashInfo(data.data)

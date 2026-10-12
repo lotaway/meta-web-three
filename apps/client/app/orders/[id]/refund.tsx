@@ -68,7 +68,7 @@ export default function RefundScreen() {
   const loadRefundHistory = async () => {
     if (!orderId) return
     try {
-      const response = await fetch(`${API_BASE_URL}/order-service/returnApply/order/${orderId}`)
+      const response = await fetch(`${API_BASE_URL}/mall-trade-service/returnApply/order/${orderId}`)
       const result = await response.json()
       if (result.data) {
         setRefundHistory(result.data)
@@ -118,7 +118,7 @@ export default function RefundScreen() {
 
   const callRefundApi = async () => {
     const response = await fetch(
-      `${API_BASE_URL}/order-service/order/${orderId}/refund`,
+      `${API_BASE_URL}/mall-trade-service/order/${orderId}/refund`,
       {
         method: 'POST',
         headers: {

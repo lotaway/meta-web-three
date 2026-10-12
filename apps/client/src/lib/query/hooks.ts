@@ -13,7 +13,7 @@ export function useProducts(params?: UseProductsParams) {
   return useQuery({
     queryKey: queryKeys.products.list(params),
     queryFn: async () => {
-      const response = await apiClient.get('/product-service/products', params)
+      const response = await apiClient.get('/mall-catalog-service/products', params)
       return response
     },
   })
@@ -23,7 +23,7 @@ export function useProductDetail(id: number) {
   return useQuery({
     queryKey: queryKeys.products.detail(id),
     queryFn: async () => {
-      const response = await apiClient.get(`/product-service/products/${id}`)
+      const response = await apiClient.get(`/mall-catalog-service/products/${id}`)
       return response
     },
     enabled: !!id,
@@ -34,7 +34,7 @@ export function useProductSearch(keyword: string) {
   return useQuery({
     queryKey: queryKeys.products.search(keyword),
     queryFn: async () => {
-      const response = await apiClient.get('/product-service/products/search', { keyword })
+      const response = await apiClient.get('/mall-catalog-service/products/search', { keyword })
       return response
     },
     enabled: keyword.length > 0,
@@ -45,7 +45,7 @@ export function useCategories(parentId?: number) {
   return useQuery({
     queryKey: queryKeys.categories.list(parentId),
     queryFn: async () => {
-      const response = await apiClient.get('/product-service/categories', { parentId })
+      const response = await apiClient.get('/mall-catalog-service/categories', { parentId })
       return response
     },
   })
@@ -55,7 +55,7 @@ export function useBrands(params?: Record<string, any>) {
   return useQuery({
     queryKey: queryKeys.brands.list(params),
     queryFn: async () => {
-      const response = await apiClient.get('/product-service/brands', params)
+      const response = await apiClient.get('/mall-catalog-service/brands', params)
       return response
     },
   })
@@ -65,7 +65,7 @@ export function useOrders(params?: Record<string, any>) {
   return useQuery({
     queryKey: queryKeys.orders.list(params),
     queryFn: async () => {
-      const response = await apiClient.get('/order-service/orders', params)
+      const response = await apiClient.get('/mall-trade-service/orders', params)
       return response
     },
   })
@@ -75,7 +75,7 @@ export function useOrderDetail(id: number) {
   return useQuery({
     queryKey: queryKeys.orders.detail(id),
     queryFn: async () => {
-      const response = await apiClient.get(`/order-service/orders/${id}`)
+      const response = await apiClient.get(`/mall-trade-service/orders/${id}`)
       return response
     },
     enabled: !!id,
@@ -88,20 +88,20 @@ export function useCart() {
   const cartQuery = useQuery({
     queryKey: queryKeys.cart.items,
     queryFn: async () => {
-      const response = await apiClient.get('/cart-service/cart/items')
+      const response = await apiClient.get('/mall-trade-service/cart/items')
       return response
     },
   })
 
   const addItemMutation = useMutation({
-    mutationFn: (data: any) => apiClient.post('/cart-service/cart/add', data),
+    mutationFn: (data: any) => apiClient.post('/mall-trade-service/cart/add', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.cart.items })
     },
   })
 
   const removeItemMutation = useMutation({
-    mutationFn: (itemId: number) => apiClient.delete(`/cart-service/cart/items/${itemId}`),
+    mutationFn: (itemId: number) => apiClient.delete(`/mall-trade-service/cart/items/${itemId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.cart.items })
     },
@@ -109,7 +109,7 @@ export function useCart() {
 
   const updateQuantityMutation = useMutation({
     mutationFn: ({ itemId, quantity }: { itemId: number; quantity: number }) =>
-      apiClient.put(`/cart-service/cart/items/${itemId}`, { quantity }),
+      apiClient.put(`/mall-trade-service/cart/items/${itemId}`, { quantity }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.cart.items })
     },
@@ -130,7 +130,7 @@ export function useHomeContent() {
   return useQuery({
     queryKey: queryKeys.home.content,
     queryFn: async () => {
-      const response = await apiClient.get('/product-service/home/content')
+      const response = await apiClient.get('/mall-catalog-service/home/content')
       return response
     },
     staleTime: 1000 * 60 * 5,
@@ -143,13 +143,13 @@ export function useUserProfile() {
   const profileQuery = useQuery({
     queryKey: queryKeys.user.profile,
     queryFn: async () => {
-      const response = await apiClient.get('/user-service/user/info')
+      const response = await apiClient.get('/mall-user-service/user/info')
       return response
     },
   })
 
   const updateProfileMutation = useMutation({
-    mutationFn: (data: any) => apiClient.put('/user-service/user/profile', data),
+    mutationFn: (data: any) => apiClient.put('/mall-user-service/user/profile', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.user.profile })
     },

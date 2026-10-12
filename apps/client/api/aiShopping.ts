@@ -4,7 +4,7 @@ import { getApiBaseUrl } from '@/lib/api/baseUrl'
 // ============================================================
 // AI shopping client (hand-written, styled after src/generated/api)
 // Routing: gateway discovery locator + ZK dispatch, URL starts with the service id
-//   {gateway}/recommendation-service/api/ai-shopping/...
+//   {gateway}/mall-catalog-service/api/ai-shopping/...
 // Responses use ApiResponse { code, message, data }
 // ============================================================
 
@@ -41,7 +41,7 @@ interface ApiEnvelope<T> {
   data: T
 }
 
-const AI_SHOPPING_BASE = '/recommendation-service/api/ai-shopping'
+const AI_SHOPPING_BASE = '/mall-catalog-service/api/ai-shopping'
 
 function authHeaders(): Record<string, string> {
   const token = getToken()
