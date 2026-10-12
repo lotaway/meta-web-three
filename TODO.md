@@ -89,9 +89,10 @@
 
 - [x] 网关路由/鉴权同步到 15 服务拓扑：`application.yml` 免鉴权/豁免路径、`GatewayAuthConfig` routeRoles、`CircuitBreakerFilter` 服务识别、`UserAuthFilterTest`（提交 a08c5b7d）
 - [x] 前端服务名映射与端口：`apps/backstage-admin/src/utils/http.ts` SERVICE_PREFIX_MAP 改为合后服务名；`apps/digital-twin/system-management/{vite.config.ts,src/renderer/config/digital-twin.ts}` 默认端口 10102 → 10101；页面文案（提交 a08c5b7d）
+- [x] 前端硬编码服务名同步：`apps/client/*`（promotion/order/cart/product/user/recommendation-service → 合后服务名）、`SERVICE_PREFIX_MAP` 补 `/api/forecasting`、`/api/v1/route-optimizer`（→ ai-service）与 `/project-service`（→ erp-management-service，控制器沿用原 base path）（提交 9b58ba7b）
 - [x] `config/domain/*.yaml` 服务键同步为合后服务名并合并表清单（提交 a08c5b7d）
 - [x] `server/README.md` wallet-service → blockchain-service；`docs/microservice-consolidation.md` Phase 5 状态更新为 ✅
-- [ ] k8s 清单同步（`k8s/services/*`、`k8s/deploy-all.yaml`、`k8s/digital-twin/*`、`k8s/MAPPING.md`/`QUICKSTART.md`/`README.md`、`k8s/configmaps/app-config.yaml`）——仍为旧服务，需整体改为合后服务
+- [ ] k8s 清单同步——**暂缓（需单独立项）**：`k8s/` 为合并前遗留脚手架（`deploy-all.yaml` + `services/extended-domain-services.yaml` 被 `deploy.sh` 应用，其余 `services/*.yaml`、PV、autoscaling、ingress、`digital-twin/*`、docs 均为旧服务名，且无集群可校验）。整体改写风险高、不可回归验证，故本轮不改；保留此条为后续独立任务。
 - [ ] `run-server.sh` 全量回归
 - [ ] `scripts/check-server-memory.sh` 复测内存，对比收敛前后
 - [ ] 全量改动提交（英文 commit message）
