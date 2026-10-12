@@ -83,13 +83,19 @@ echo "==> Starting services"
 for entry in "${SERVER_JAVA_SERVICES[@]}"; do
   name="$(server_service_name "$entry")"
   module="$(server_service_module "$entry")"
+  http_port="$(server_service_port "$entry")"
+  # Dubbo triple protocol provider port. All services are launched on one host
+  # here, so the common `dubbo.protocol.port: -1` (auto) races for 50051/50052
+  # and one of them fails with "Address already in use". Assign a deterministic
+  # unique port per service; convention is HTTP port + 10000 (gateway -> 20881).
+  dubbo_port=$((http_port + 10000))
   log_file="$LOG_DIR/${name}.log"
   jar_file=$(find "$SERVER_DIR/$module/target" -maxdepth 1 -name "$name-*.jar" 2>"$NULL_DEV" | head -1 || true)
   if [ -z "$jar_file" ]; then
     echo "⚠ $name: JAR not found at $module/target/ (skip)"
     continue
   fi
-  java -Dspring.profiles.active="$SPRING_PROFILES_ACTIVE" -DAPPLICATION_NAME="$name" -XX:TieredStopAtLevel=1 $JAVA_MEM_OPTS -jar "$jar_file" >"$log_file" 2>&1 &
+  java -Dspring.profiles.active="$SPRING_PROFILES_ACTIVE" -DAPPLICATION_NAME="$name" -Ddubbo.protocol.port="$dubbo_port" -XX:TieredStopAtLevel=1 $JAVA_MEM_OPTS -jar "$jar_file" >"$log_file" 2>&1 &
   pid=$!
   pids+=("$pid")
   echo "Starting $name (PID: $pid)"
