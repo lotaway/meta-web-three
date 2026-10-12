@@ -28,7 +28,7 @@ public class UserQueryPortImpl implements UserQueryPort {
 
     private final RestTemplate restTemplate;
 
-    @Value("${user-service.url:http://user-service:10083}")
+    @Value("${user-service.url:http://mall-user-service:10083}")
     private String userServiceUrl;
 
     public UserQueryPortImpl(RestTemplate restTemplate) {
