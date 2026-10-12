@@ -39,3 +39,7 @@
 
 ### Phase 6 — 收尾
 
+
+### Phase 5 — 工厂 / AI / 区块链（8 → 3）
+
+- [ ] factory-service: 生产环境不应使用内存存储。当前 `InMemoryAndonEventRepository` (@Repository) 被 `AndonServiceImpl` 和 `ScadaDomainServiceImpl` 消费。建议补充表结构并提供基于 MyBatis/JPA 的持久化实现替换内存实现；6个未实现仓储（AndonTypeRepository等）在代码中有消费者，需评估最小实现或去除消费路径，否则将影响注入。按规范要求，完善持久化后再视为完成。
