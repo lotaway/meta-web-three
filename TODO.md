@@ -70,23 +70,26 @@
 - [x] ai-service 单独启动验证通过；forecasting / route-optimizer 端点冒烟可达（500 为 dev 库缺表）
 - [x] wallet + traceability → blockchain-service（新模块，端口 10114，提交 6a29793e）
 - [x] blockchain-service 单独启动验证通过（49s）；wallet / traceability 端点冒烟可达
-- [ ] mes + digital-twin + production → factory-service（新模块，端口 10101；脚手架 + 构建通过，启动验证未通过）
-  - [ ] **启动失败根因（待修复）**：mes 领域层有 4 个 `@Service` 依赖 7 个「只有接口、无实现、无数据表」的仓储，Spring 实例化时找不到 bean：
-    - `ProductionTaskCommandService` → `PokaYokeService`（普通类缺 `@Service`；已补注解，属第一层原因）
-    - `ScadaDomainServiceImpl`（被 `ScadaController`、`MqttTelemetryService` 使用）→ `AndonEventRepository`
-    - `EquipmentStatusService`、`EquipmentTypeService`（均无人引用）→ `EquipmentStatusConfigRepository`、`EquipmentStatusTransitionRepository`、`EquipmentTypeRepository`
-    - `WorkOrderSplitServiceImpl`（无人引用）→ `WorkOrderSplitRuleRepository`
-  - [ ] 缺失仓储清单（无 DO / Mapper / 数据表）：`AndonTypeRepository`、`AndonLevelRepository`、`AndonEventRepository`、`EquipmentStatusConfigRepository`、`EquipmentStatusTransitionRepository`、`EquipmentTypeRepository`、`WorkOrderSplitRuleRepository`
-  - [ ] 背景：commit `79cbe515`（修启动）为 `MesServiceApplication` 加 `@ComponentScan("com.metawebthree.common.event")` 以提供 `DomainEventPublisher`，mes 领域 bean 实际从未注册，服务等同空壳；本次合并显式扫描 mes 后这些半成品才暴露
-  - [ ] 修复方案（二选一，另行处理）：① 最小修复——为 `AndonEventRepository` 补内存实现（沿用 `InMemory*Repository` 模式），并去掉无人使用的 3 个半成品服务的 `@Service`；② 完整补齐——为全部 7 个仓储实现内存版
-  - [ ] 修复后：重建 + 单独启动 + 冒烟，再校验 Dockerfile/compose/端口接线并删除旧模块
-  - [ ] 删除旧模块 `mes-service` / `digital-twin-service` / `production-service`（含 `server/factory-domain/digital-twin-service/run-dev.sh` 等引用）；同步 `docker-compose.digital-twin.yml`、`apps/digital-twin/README.md` —— 待 factory 启动验证通过后执行
+- [ ] mes + digital-twin + production → factory-service（新模块，端口 10101）
+  - [x] 脚手架：宿主 + 合并 548 个 java + 合并 schema/mapper 资源
+  - [x] `PokaYokeService` 补 `@Service`（第一层缺失 bean）
+  - [ ] 新增 `AndonEventRepository` 内存实现（`InMemoryAndonEventRepository`，沿用 `InMemory*Repository` 模式）——被 `ScadaDomainServiceImpl` 使用
+  - [ ] 去掉 3 个无人引用的半成品服务的 `@Service`：`EquipmentStatusService`、`EquipmentTypeService`、`WorkOrderSplitServiceImpl`
+  - [ ] 构建 `factory-service`（`mvn -pl factory-domain/factory-service clean install -Dmaven.test.skip=true`）
+  - [ ] 单独启动 + 校验端口 10101
+  - [ ] 冒烟：`/v3/api-docs` 200，并各取 mes / digital-twin / production 一个业务端点（500 若为 dev 库缺表则属环境性）
+  - [ ] 删除旧模块 `mes-service` / `digital-twin-service` / `production-service`
+  - [ ] 同步旧模块引用：`docker-compose.digital-twin.yml`、`apps/digital-twin/README.md`
+  - [ ] 提交（英文 commit message）
+  - 说明：mes 另有 6 个未实现仓储（`AndonTypeRepository`、`AndonLevelRepository`、`EquipmentStatusConfigRepository`、`EquipmentStatusTransitionRepository`、`EquipmentTypeRepository`、`WorkOrderSplitRuleRepository`），其消费方均无人引用，本次不做；将来需要时按 `InMemory*` 模式补。背景：`79cbe515` 仅为提供 `DomainEventPublisher` 加了 `@ComponentScan("com.metawebthree.common.event")`，mes 领域 bean 从未注册，本次显式扫描才暴露这些半成品
 - [x] 更新 registry/端口映射（ai 10103 / blockchain 10114 / factory 10101）
-- [ ] factory 服务单独启动 + 冒烟（受阻于上方 mes 半成品问题）
 
 ### Phase 6 — 收尾
 
-- [ ] run-server.sh 全量启动无回归
-- [ ] scripts/check-server-memory.sh 复测内存，对比收敛前后
-- [ ] 同步 server/README、部署文档、网关路由与前端 baseURL
+- [ ] 同步网关路由到 15 服务拓扑（gateway 子图/路由）
+- [ ] 同步 `config/domain/*.yaml` 与 k8s 清单（清理旧端口 10102/10116/10117/10118 等）
+- [ ] 同步前端 baseURL 默认端口（`apps/digital-twin/system-management/src/renderer/config/digital-twin.ts`、`vite.config.ts`：10102 → 10101）
+- [ ] 同步 `server/README`、部署文档
+- [ ] `run-server.sh` 全量启动无回归
+- [ ] `scripts/check-server-memory.sh` 复测内存，对比收敛前后
 - [ ] 全量改动提交（英文 commit message）
