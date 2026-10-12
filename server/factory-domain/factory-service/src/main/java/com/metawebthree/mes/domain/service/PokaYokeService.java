@@ -3,11 +3,13 @@ package com.metawebthree.mes.domain.service;
 import com.metawebthree.mes.domain.entity.PokaYokeRule;
 import com.metawebthree.mes.domain.entity.ProductionTask;
 import com.metawebthree.mes.domain.entity.ProcessRoute;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class PokaYokeService {
 
     public record PokaYokeResult(

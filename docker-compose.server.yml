@@ -106,44 +106,18 @@ services:
     volumes:
       - mall_social_service_data:/server/mall-social
       - ./.aws:/.aws:ro
-  mes-service:
+  factory-service:
     <<: *java-service
     build:
       context: .
       dockerfile: server/Dockerfile
-      target: mes-service
-    container_name: meta-web-three-mes-service
-    hostname: mes-service
+      target: factory-service
+    container_name: meta-web-three-factory-service
+    hostname: factory-service
     ports:
       - "10101:10101"
     volumes:
-      - mes_service_data:/server/mes
-      - ./.aws:/.aws:ro
-  digital-twin-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: digital-twin-service
-    container_name: meta-web-three-digital-twin-service
-    hostname: digital-twin-service
-    ports:
-      - "10102:10102"
-    volumes:
-      - digital-twin_service_data:/server/digital-twin
-      - ./.aws:/.aws:ro
-  production-service:
-    <<: *java-service
-    build:
-      context: .
-      dockerfile: server/Dockerfile
-      target: production-service
-    container_name: meta-web-three-production-service
-    hostname: production-service
-    ports:
-      - "10116:10116"
-    volumes:
-      - production_service_data:/server/production
+      - factory_service_data:/server/factory
       - ./.aws:/.aws:ro
   ai-service:
     <<: *java-service
@@ -244,9 +218,7 @@ volumes:
   mall_trade_service_data:
   mall_social_service_data:
   platform_service_data:
-  mes_service_data:
-  digital-twin_service_data:
-  production_service_data:
+  factory_service_data:
   forecasting_service_data:
   ai_service_data:
   scm_inventory_service_data:

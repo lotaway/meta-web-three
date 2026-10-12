@@ -28,14 +28,12 @@ PORTS=(
    10084  # mall-trade-service
    10085  # platform-service
    10095  # mall-social-service
-   10101  # mes-service
-   10102  # digital-twin-service
+   10101  # factory-service
    10103  # ai-service
    10105  # scm-inventory-service
    10107  # scm-logistics-service
    10110  # finance-service
    10114  # blockchain-service
-   10116  # production-service
     10122  # data-pipeline
     10125  # erp-management-service
 )

@@ -71,10 +71,17 @@
 - [x] wallet + traceability → blockchain-service（新模块，端口 10114，提交 6a29793e）
 - [x] blockchain-service 单独启动验证通过（49s）；wallet / traceability 端点冒烟可达
 - [ ] mes + digital-twin + production → factory-service（新模块，端口 10101；脚手架 + 构建通过，启动验证未通过）
-  - [ ] **启动失败（待修复）**：`APPLICATION FAILED TO START` — `Parameter 3 of constructor in com.metawebthree.mes.application.command.ProductionTaskCommandService required a bean of type com.metawebthree.mes.domain.service.PokaYokeService that could not be found`
-  - [ ] 根因：`PokaYokeService` 为普通类，缺 `@Service`/`@Component` 构造型注解；原 `MesServiceApplication` 上的 `@ComponentScan("com.metawebthree.common.event")` 覆盖了 `@SpringBootApplication` 的默认扫描，mes 域服务类在单机时从未注册，合并后才会被实例化而暴露。预计 `AndonServiceImpl`、`SopDocumentServiceImpl` 等同类也缺注解，需统一排查补齐
-  - [ ] 修复后：重建 + 单独启动 + 冒烟，再更新 registry/Dockerfile/compose/端口并提交
-- [ ] 更新 registry/端口映射并验证启动（ai 10103 / blockchain 10114 已完成；factory 10101 待完成）
+  - [ ] **启动失败根因（待修复）**：mes 领域层有 4 个 `@Service` 依赖 7 个「只有接口、无实现、无数据表」的仓储，Spring 实例化时找不到 bean：
+    - `ProductionTaskCommandService` → `PokaYokeService`（普通类缺 `@Service`；已补注解，属第一层原因）
+    - `ScadaDomainServiceImpl`（被 `ScadaController`、`MqttTelemetryService` 使用）→ `AndonEventRepository`
+    - `EquipmentStatusService`、`EquipmentTypeService`（均无人引用）→ `EquipmentStatusConfigRepository`、`EquipmentStatusTransitionRepository`、`EquipmentTypeRepository`
+    - `WorkOrderSplitServiceImpl`（无人引用）→ `WorkOrderSplitRuleRepository`
+  - [ ] 缺失仓储清单（无 DO / Mapper / 数据表）：`AndonTypeRepository`、`AndonLevelRepository`、`AndonEventRepository`、`EquipmentStatusConfigRepository`、`EquipmentStatusTransitionRepository`、`EquipmentTypeRepository`、`WorkOrderSplitRuleRepository`
+  - [ ] 背景：commit `79cbe515`（修启动）为 `MesServiceApplication` 加 `@ComponentScan("com.metawebthree.common.event")` 以提供 `DomainEventPublisher`，mes 领域 bean 实际从未注册，服务等同空壳；本次合并显式扫描 mes 后这些半成品才暴露
+  - [ ] 修复方案（二选一，另行处理）：① 最小修复——为 `AndonEventRepository` 补内存实现（沿用 `InMemory*Repository` 模式），并去掉无人使用的 3 个半成品服务的 `@Service`；② 完整补齐——为全部 7 个仓储实现内存版
+  - [ ] 修复后：重建 + 单独启动 + 冒烟，再校验 Dockerfile/compose/端口接线并删除旧模块
+- [x] 更新 registry/端口映射（ai 10103 / blockchain 10114 / factory 10101）
+- [ ] factory 服务单独启动 + 冒烟（受阻于上方 mes 半成品问题）
 
 ### Phase 6 — 收尾
 

@@ -39,20 +39,10 @@ COPY --from=builder /build/server/platform-domain/platform-service/target/platfo
 ENTRYPOINT ["java", "-jar", "platform-service.jar"]
 
 # factory-domain
-FROM eclipse-temurin:17-jre-jammy AS mes-service
+FROM eclipse-temurin:17-jre-jammy AS factory-service
 WORKDIR /app
-COPY --from=builder /build/server/factory-domain/mes-service/target/mes-service-*.jar mes-service.jar
-ENTRYPOINT ["java", "-jar", "mes-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS digital-twin-service
-WORKDIR /app
-COPY --from=builder /build/server/factory-domain/digital-twin-service/target/digital-twin-service-*.jar digital-twin-service.jar
-ENTRYPOINT ["java", "-jar", "digital-twin-service.jar"]
-
-FROM eclipse-temurin:17-jre-jammy AS production-service
-WORKDIR /app
-COPY --from=builder /build/server/factory-domain/production-service/target/production-service-*.jar production-service.jar
-ENTRYPOINT ["java", "-jar", "production-service.jar"]
+COPY --from=builder /build/server/factory-domain/factory-service/target/factory-service-*.jar factory-service.jar
+ENTRYPOINT ["java", "-jar", "factory-service.jar"]
 
 # ai-domain
 FROM eclipse-temurin:17-jre-jammy AS ai-service
