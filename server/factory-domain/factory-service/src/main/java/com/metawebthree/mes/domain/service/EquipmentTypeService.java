@@ -6,12 +6,10 @@ import com.metawebthree.mes.domain.entity.EquipmentType;
 import com.metawebthree.mes.domain.repository.EquipmentStatusConfigRepository;
 import com.metawebthree.mes.domain.repository.EquipmentStatusTransitionRepository;
 import com.metawebthree.mes.domain.repository.EquipmentTypeRepository;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-@Service
 public class EquipmentTypeService {
     
     private final EquipmentTypeRepository equipmentTypeRepository;

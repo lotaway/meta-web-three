@@ -73,11 +73,12 @@
 - [ ] mes + digital-twin + production → factory-service（新模块，端口 10101）
   - [x] 脚手架：宿主 + 合并 548 个 java + 合并 schema/mapper 资源
   - [x] `PokaYokeService` 补 `@Service`（第一层缺失 bean）
-  - [ ] 新增 `AndonEventRepository` 内存实现（`InMemoryAndonEventRepository`，沿用 `InMemory*Repository` 模式）——被 `ScadaDomainServiceImpl` 使用
-  - [ ] 去掉 3 个无人引用的半成品服务的 `@Service`：`EquipmentStatusService`、`EquipmentTypeService`、`WorkOrderSplitServiceImpl`
-  - [ ] 构建 `factory-service`（`mvn -pl factory-domain/factory-service clean install -Dmaven.test.skip=true`）
-  - [ ] 单独启动 + 校验端口 10101
-  - [ ] 冒烟：`/v3/api-docs` 200，并各取 mes / digital-twin / production 一个业务端点（500 若为 dev 库缺表则属环境性）
+  - [x] 新增 `AndonEventRepository` 内存实现（`InMemoryAndonEventRepository`，沿用 `InMemory*Repository` 模式）——被 `ScadaDomainServiceImpl` 使用
+  - [x] 去掉 3 个无人引用的半成品服务的 `@Service`：`EquipmentStatusService`、`EquipmentTypeService`、`WorkOrderSplitServiceImpl`
+  - [x] 解决 mes 控制器重复映射：`MesController`（`/api/mes`）的 equipment 段与 `EquipmentController`（`/api/mes/equipment`）冲突，删除前者 equipment 段
+  - [x] 构建 `factory-service`（`mvn -pl factory-domain/factory-service clean install -Dmaven.test.skip=true`）
+  - [x] 单独启动 + 校验端口 10101（STARTED）
+  - [x] 冒烟：`/v3/api-docs` 200、`/api/mes/equipment` 200；`work-orders`/`production-tasks`/`digital-twin`/`alert-rules`/`v1/production` 500（dev 库缺表 `relation "..." does not exist`，属环境性）
   - [ ] 删除旧模块 `mes-service` / `digital-twin-service` / `production-service`
   - [ ] 同步旧模块引用：`docker-compose.digital-twin.yml`、`apps/digital-twin/README.md`
   - [ ] 提交（英文 commit message）

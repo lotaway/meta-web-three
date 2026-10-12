@@ -5,7 +5,6 @@ import com.metawebthree.mes.domain.entity.WorkOrderSplitRule;
 import com.metawebthree.mes.domain.entity.WorkOrderSplitRule.SplitCondition;
 import com.metawebthree.mes.domain.repository.WorkOrderRepository;
 import com.metawebthree.mes.domain.repository.WorkOrderSplitRuleRepository;
-import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -13,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Service
 public class WorkOrderSplitServiceImpl implements WorkOrderSplitService {
 
     private final WorkOrderSplitRuleRepository splitRuleRepository;

@@ -106,32 +106,5 @@ public class MesController {
         return ResponseEntity.ok().build();
     }
 
-    // Equipment endpoints
-    @GetMapping("/equipment/{id}")
-    @RequirePermission(MesPermissions.EQUIPMENT_READ)
-    public ResponseEntity<?> getEquipment(@PathVariable Long id) {
-        return queryService.getEquipmentById(id)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/equipment/workshop/{workshopId}")
-    @RequirePermission(MesPermissions.EQUIPMENT_READ)
-    public ResponseEntity<?> getWorkshopEquipment(@PathVariable String workshopId) {
-        return ResponseEntity.ok(queryService.getWorkshopEquipment(workshopId));
-    }
-
-    @PostMapping("/equipment/{id}/breakdown")
-    @RequirePermission(MesPermissions.EQUIPMENT_BREAKDOWN)
-    public ResponseEntity<Void> reportBreakdown(@PathVariable Long id) {
-        commandService.reportEquipmentBreakdown(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/equipment/{id}/repair")
-    @RequirePermission(MesPermissions.EQUIPMENT_REPAIR)
-    public ResponseEntity<Void> repairEquipment(@PathVariable Long id) {
-        commandService.repairEquipment(id);
-        return ResponseEntity.ok().build();
-    }
+    // Equipment endpoints are served by EquipmentController under /api/mes/equipment.
 }
