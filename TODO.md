@@ -22,8 +22,8 @@
 
 - [x] 盘点 46 个服务（模块、端口、应用类）
 - [x] 目标映射表写入 docs/microservice-consolidation.md
-- [ ] 全面梳理服务间调用关系（RPC/Feign/网关路由/前端 baseURL），形成合并前依赖快照
-- [ ] 建立合并验证清单（构建 + verify-all.sh 启动 + 端点冒烟）
+- [x] 全面梳理服务间调用关系（RPC/Feign/网关路由/前端 baseURL），形成合并前依赖快照（产出 docs/service-dependency-snapshot.md）
+- [x] 建立合并验证清单（构建 + 启动 + 冒烟；基于现有 run-server.sh/check-server-memory.sh，产出 docs/merge-verification-checklist.md）
 
 ### Phase 1 — ERP 领域（7 → 2）
 
@@ -35,7 +35,7 @@
 - [x] hrm-service + crm-service + project-service → erp-management-service（新模块，端口 10125）
 - [x] erp-management-service 单独启动验证通过（61s）；gateway crm 子图地址更新并重建验证
 - [x] Phase 1 清理（pom/registry/Dockerfile/compose/firework/旧目录）
-- [ ] Phase 1 全量回归（并入 Phase 6 统一执行）
+- [x] Phase 1 全量回归（并入 Phase 6 统一执行；已由 Phase 6 14/14 全量回归覆盖）
 
 ### Phase 2 — 供应链（8 → 2）
 
@@ -44,7 +44,7 @@
 - [x] logistics + procurement + rma → scm-logistics-service（新模块，端口 10107）
 - [x] scm-logistics-service 单独启动验证通过（38s）；supplier Feign 指向 scm-logistics-service
 - [x] 更新 registry/端口映射并逐个验证启动
-- [ ] Phase 2 全量回归（并入 Phase 6 统一执行）
+- [x] Phase 2 全量回归（并入 Phase 6 统一执行；已由 Phase 6 14/14 全量回归覆盖）
 
 ### Phase 3 — 电商 mall（13 → 4）
 
