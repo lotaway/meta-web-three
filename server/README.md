@@ -8,13 +8,13 @@
 
 - - common 公共模块
 - - gateway 网关中心
-- - mall-domain/ 商城域（product、order、user、payment、cart、promotion-service）
-- - platform-domain/ 平台域（message、media、commission、user-action、cs-service）
-- - factory-domain/ 工厂域
-- - supply-chain-domain/ 供应链域
-- - ai-domain/ AI 域
-- - erp-domain/ ERP 域
-- - blockchain-domain/ 区块链域
+- - mall-domain/ 商城域（mall-catalog-service、mall-trade-service、mall-user-service、mall-social-service）
+- - platform-domain/ 平台域（platform-service）
+- - factory-domain/ 工厂域（factory-service）
+- - supply-chain-domain/ 供应链域（scm-inventory-service、scm-logistics-service）
+- - ai-domain/ AI 域（ai-service）
+- - erp-domain/ ERP 域（finance-service、erp-management-service）
+- - blockchain-domain/ 区块链域（blockchain-service）
 - - data-pipeline/ 数据管道（独立模块，不属于任何域）
 
 本地多服务启动：`./run-server.sh`（服务列表见 `scripts/server-services-registry.sh`）。
@@ -22,23 +22,30 @@
 Docker / Compose 构建（上下文为**仓库根目录**）：
 
 ```bash
-docker build -f server/Dockerfile --target product-service .
-docker compose -f docker-compose.yml -f docker-compose.server.yml up -d product-service
+docker build -f server/Dockerfile --target mall-catalog-service .
+docker compose -f docker-compose.yml -f docker-compose.server.yml up -d mall-catalog-service
 ```
 
-端口分配（10101+ 为新增领域服务）：
+端口分配（合后 14 个 Java 服务）：
 
 | 端口 | 服务 | 域 |
 |------|------|-----|
-| 10081-10092 | gateway、商城、平台核心服务 | gateway / mall / platform |
-| 10101-10104 | mes、digital-twin、forecasting、recommendation | factory / ai |
-| 10105-10109 | inventory、warehouse、logistics、procurement、supplier | supply-chain |
-| 10110-10113 | finance、invoice、reporting、settlement | erp |
-| 10114 | wallet | blockchain |
+| 10081 | gateway | gateway |
+| 10082 | mall-catalog-service | mall |
+| 10083 | mall-user-service | mall |
+| 10084 | mall-trade-service | mall |
+| 10085 | platform-service | platform |
+| 10095 | mall-social-service | mall |
+| 10101 | factory-service | factory |
+| 10103 | ai-service | ai |
+| 10105 | scm-inventory-service | supply-chain |
+| 10107 | scm-logistics-service | supply-chain |
+| 10110 | finance-service | erp |
+| 10114 | blockchain-service | blockchain |
 | 10122 | data-pipeline | 数据管道（独立模块） |
-| 10123 | rma-service | supply-chain |
-| 10124 | dom-service | supply-chain |
-| 10125 | crm-service | erp |
+| 10125 | erp-management-service | erp |
+
+> 完整的 46 → 15 合并映射见 [docs/microservice-consolidation.md](../docs/microservice-consolidation.md)。
 
 K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 
@@ -64,56 +71,32 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 - 统一响应格式
 - 请求日志记录
 
-### user-service - 用户服务
-**职责**: 用户体系管理，负责用户注册、登录、信息管理
-- 用户注册与登录（手机号、邮箱、第三方 OAuth）
-- 用户信息 CRUD
-- 用户地址管理
-- 会员等级与积分
-- 用户标签与画像
+### mall-catalog-service - 商品目录服务（mall 域）
+**职责**: 商品与类目核心（合并原 product、mall-supplier、recommendation、review 服务）
+- 商品发布与编辑、商品类目管理、SKU/SPU 管理
+- 商品搜索与过滤、商品评价与问答
+- 供应商管理
+- AI 辅助购物（文本纠错、智能匹配、以图搜图、一站式搜索，见下方专节）
 
-### product-service - 商品服务
-**职责**: 商品核心业务，负责商品发布、类目、SKU 管理
-- 商品发布与编辑
-- 商品类目管理
-- SKU/SPU 管理
-- 商品搜索与过滤
-- 商品库存查询（仅查询，不管理）
-- 商品评价与问答
+### mall-trade-service - 交易服务（mall 域）
+**职责**: 交易核心（合并原 order、payment、cart、promotion、after-sale 服务）
+- 订单创建与状态管理（待支付、已支付、已发货、已完成、已取消）
+- 订单取消与退款、订单 History、逆向流程（退货、退款）
+- 购物车管理（加购、批量操作、数量修改、勾选结算、登录后合并）
+- 支付通道集成（微信 / 支付宝 / Stripe）、支付回调与退款
+- 营销活动（优惠券、满减、限时折扣、拼团、秒杀）与营销规则计算
+- **注意**: 订单不直接操作库存，通过事件调用 scm-inventory-service
 
-### order-service - 订单服务
-**职责**: 交易核心，负责订单创建、状态流转、取消退款
-- 订单创建与支付
-- 订单状态管理（待支付、已支付、已发货、已完成、已取消）
-- 订单取消与退款
-- 订单 History 记录
-- 订单逆向流程（退货、退款）
-- **注意**: 订单服务不直接操作库存，通过事件调用 inventory-service
+### mall-user-service - 用户服务（mall 域）
+**职责**: 用户体系（合并原 user、user-action、risk-control 服务）
+- 注册与登录（手机号、邮箱、第三方 OAuth）、用户信息 CRUD
+- 用户地址管理、会员等级与积分、用户标签与画像
+- 用户行为采集与分析（浏览记录、收藏、足迹、搜索历史）
+- 风险控制
 
-### cart-service - 购物车服务
-**职责**: 购物车管理，负责加购、批量操作
-- 添加/删除商品
-- 数量修改
-- 勾选结算
-- 购物车合并（登录后）
-
-### payment-service - 支付服务
-**职责**: 支付通道集成，负责对接第三方支付
-- 微信支付集成
-- 支付宝集成
-- Stripe 支付集成
-- 支付结果回调处理
-- 支付状态查询
-- 退款处理
-
-### promotion-service - 营销服务
-**职责**: 营销活动管理，负责优惠券、满减、折扣等活动
-- 优惠券创建与发放
-- 满减活动配置
-- 限时折扣
-- 拼团活动
-- 秒杀活动
-- 营销规则计算
+### mall-social-service - 社交电商服务（mall 域）
+**职责**: 社交电商互动（合并原 live、group-buying、social-commerce 服务）
+- 直播、拼团、社交电商等互动能力（REST 控制器 + admin 接口，无 GraphQL 子图）
 
 ### data-pipeline - 数据管道服务
 **职责**: ETL 数据处理与 OLAP 分析，负责消费事件、写入 ClickHouse
@@ -125,58 +108,42 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 - WebSocket 实时看板推送
 - **注意**: 该模块为独立服务，不继承 common 模块的默认配置；依赖 ClickHouse 作为分析数据库
 
-### media-service - 多媒体服务
-**职责**: 文件与媒体管理，负责图片、视频、文档存储
-- 图片上传与处理（裁剪、缩放、水印）
-- 视频上传与转码
-- OSS 对象存储集成
-- CDN 加速配置
-- 文件访问权限控制
+### platform-service - 平台服务（platform 域）
+**职责**: 平台通用能力（合并原 message、media、commission、cs、data-analysis、tenant、developer-portal 服务）
+- 消息通知（站内信、短信、邮件、模板与渠道配置）
+- 文件与媒体管理（图片处理、视频转码、OSS 对象存储、CDN）
+- 分销与佣金（计算规则、结算、分销关系、提现）
+- 客服会话（含 WebSocket）、数据分析、租户管理、开发者门户
 
-### message-service - 消息服务
-**职责**: 消息通知，负责站内信、短信、邮件推送
-- 站内信推送
-- 短信发送（验证码、通知）
-- 邮件发送（激活、通知）
-- 消息模板管理
-- 推送渠道配置
+### scm-inventory-service - 库存服务（supply-chain 域）
+**职责**: 库存与仓储（合并原 inventory、warehouse、supplier、dom、inventory-alert 服务）
 
-### user-action-service - 用户行为服务
-**职责**: 用户行为数据采集与分析
-- 浏览记录
-- 收藏记录
-- 足迹记录
-- 搜索历史
-- 行为数据分析
+### scm-logistics-service - 物流服务（supply-chain 域）
+**职责**: 物流与采购（合并原 logistics、procurement、rma 服务）
 
-### commission-service - 佣金服务
-**职责**: 分销与佣金管理
-- 佣金计算规则
-- 佣金结算
-- 分销关系管理
-- 提现申请处理
+### finance-service - 财务服务（erp 域）
+**职责**: 财务与结算（合并原 finance、invoice、reporting、settlement 服务）
 
-### cs-service - 客服服务
-**职责**: 客户服务与售后支持
+### erp-management-service - 经营管理服务（erp 域）
+**职责**: 企业经营管理（合并原 crm、hrm、project 服务）
+- 客户关系管理（线索池、商机、客户联系人、工单、营销活动、看板）
+- 人力资源（HRM）
+- 项目管理（控制器 base path 为 `/project-service/*`）
 
-### crm-service - CRM 服务
-**职责**: 客户关系管理，负责线索、商机、客户、工单、营销活动管理
-- 线索池管理（多渠道线索录入、评分、分配）
-- 商机管理（销售阶段跟踪、赢率预测、Pipeline 管理）
-- 客户联系人管理
-- 客服工单管理
-- 营销活动管理（预算、ROI 追踪）
-- CRM 数据看板
-- 客服对话管理
-- 工单创建与流转
-- 常见问题管理
-- 满意度评价
+### factory-service - 工厂服务（factory 域）
+**职责**: 制造执行与数字孪生（合并原 mes、digital-twin、production 服务）
 
-## AI 辅助购物（recommendation-service）
+### ai-service - AI 服务（ai 域）
+**职责**: AI 能力服务（合并原 forecasting、route-optimizer 服务）
 
-`recommendation-service`（端口 10104）提供 AI 辅助购物：**文本纠错**、**智能匹配**、**以图搜图**、一站式搜索。详见 [recommendation-service/README.md](./mall-domain/recommendation-service/README.md)。
+### blockchain-service - 区块链服务（blockchain 域）
+**职责**: 链上能力（合并原 wallet、traceability 服务）
 
-- **路由**：所有 REST 请求以 gateway 为入口、配合 ZK 服务发现（discovery locator）转发，URL 需带服务名前缀 `/recommendation-service/...`；C 端和后台的前端代码已按此约定接入（后台 `http` 工具通过 `SERVICE_PREFIX_MAP` 自动添加前缀）。
+## AI 辅助购物（mall-catalog-service）
+
+AI 辅助购物能力已随 `recommendation-service` 并入 `mall-catalog-service`（端口 10082）：**文本纠错**、**智能匹配**、**以图搜图**、一站式搜索。
+
+- **路由**：所有 REST 请求以 gateway 为入口、配合 ZK 服务发现（discovery locator）转发，URL 需带服务名前缀 `/mall-catalog-service/...`；C 端和后台的前端代码已按此约定接入（后台 `http` 工具通过 `SERVICE_PREFIX_MAP` 自动添加前缀）。
 - **AI Provider**：OpenAI 兼容协议（`/v1/embeddings`、`/v1/images/embeddings`、`/v1/chat/completions`），`base-url/api-key/model` 在 `application.yml` 的 `ai-shopping.*` 下配置，可被 `ai_shopping_config` 表（DB）覆盖，后台页面可维护。
 - **向量库**：Milvus（REST API）；`vector.store=memory` 时用内存向量库兜底（默认）。
 - **Milvus 网络**：`docker-compose.ai.yml` 已纳入主 compose `include`，etcd/minio/milvus 统一挂载到 `meta-web-three` 网络，与后端服务同网互访（`milvus:19530`）。
@@ -214,25 +181,25 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 
 | 微服务 | 配置项 | 当前值 | 说明 |
 |--------|--------|--------|------|
-| payment-service | `payment.fiat.alipay.app-id` | `your_alipay_app_id` |  支付宝 AppID，占位符 |
-| payment-service | `payment.fiat.alipay.private-key` | `your_alipay_private_key` | 支付宝应用私钥（RSA2），占位符 |
-| payment-service | `payment.fiat.alipay.public-key` | `your_alipay_public_key` | 支付宝公钥，占位符 |
-| payment-service | `payment.fiat.wechat.app-id` | `your_wechat_app_id` | 微信 AppID，占位符 |
-| payment-service | `payment.fiat.wechat.mch-id` | `your_wechat_mch_id` | 微信商户号，占位符 |
-| payment-service | `payment.fiat.wechat.api-key` | `your_wechat_api_key` | 微信 APIv2 密钥，占位符 |
-| payment-service | `payment.fiat.wechat.cert-path` | `/path/to/wechat/cert.p12` | 微信商户证书路径，占位符 |
-| payment-service | `payment.crypto.wallet.api.key` | `your_api_key` | 区块链钱包 API Key，占位符 |
-| payment-service | `payment.crypto.wallet.hot-wallet.*` | `your_*_hot_wallet_address` | 热钱包地址（BTC/ETH/USDT），占位符 |
-| payment-service | `payment.crypto.wallet.cold-wallet.*` | `your_*_cold_wallet_address` | 冷钱包地址（BTC/ETH/USDT），占位符 |
-| payment-service | `payment.reconciliation.payment-platform-api-url` | 空字符串 | 对账平台 API 地址为空；若启用对账功能需配置 |
-| payment-service | `payment.reconciliation.message-service-url` | 空字符串 | 消息服务地址为空；若启用对账通知需配置 |
-| payment-service | `payment.reconciliation.dingtalk-webhook-url` | 空字符串 | 钉钉告警 Webhook 为空；若启用对账告警需配置 |
+| mall-trade-service | `payment.fiat.alipay.app-id` | `your_alipay_app_id` |  支付宝 AppID，占位符 |
+| mall-trade-service | `payment.fiat.alipay.private-key` | `your_alipay_private_key` | 支付宝应用私钥（RSA2），占位符 |
+| mall-trade-service | `payment.fiat.alipay.public-key` | `your_alipay_public_key` | 支付宝公钥，占位符 |
+| mall-trade-service | `payment.fiat.wechat.app-id` | `your_wechat_app_id` | 微信 AppID，占位符 |
+| mall-trade-service | `payment.fiat.wechat.mch-id` | `your_wechat_mch_id` | 微信商户号，占位符 |
+| mall-trade-service | `payment.fiat.wechat.api-key` | `your_wechat_api_key` | 微信 APIv2 密钥，占位符 |
+| mall-trade-service | `payment.fiat.wechat.cert-path` | `/path/to/wechat/cert.p12` | 微信商户证书路径，占位符 |
+| mall-trade-service | `payment.crypto.wallet.api.key` | `your_api_key` | 区块链钱包 API Key，占位符 |
+| mall-trade-service | `payment.crypto.wallet.hot-wallet.*` | `your_*_hot_wallet_address` | 热钱包地址（BTC/ETH/USDT），占位符 |
+| mall-trade-service | `payment.crypto.wallet.cold-wallet.*` | `your_*_cold_wallet_address` | 冷钱包地址（BTC/ETH/USDT），占位符 |
+| mall-trade-service | `payment.reconciliation.payment-platform-api-url` | 空字符串 | 对账平台 API 地址为空；若启用对账功能需配置 |
+| mall-trade-service | `payment.reconciliation.message-service-url` | 空字符串 | 消息服务地址为空；若启用对账通知需配置 |
+| mall-trade-service | `payment.reconciliation.dingtalk-webhook-url` | 空字符串 | 钉钉告警 Webhook 为空；若启用对账告警需配置 |
 | blockchain-service | `blockchain.evm.rpc-url` | `https://mainnet.infura.io/v3/YOUR_PROJECT_ID` | Infura Project ID `YOUR_PROJECT_ID` 为占位符 |
-| user-service | `x.apikey` | `your-api-key` | `user-service/src/main/resources/application-dev.yml` 中的占位符（dev profile 自动加载） |
-| user-service | `x.secret` | `your-secret-key` | 同上 |
-| recommendation-service | `ai-shopping.embedding.base-url` / `api-key` / `model` | 空字符串 | AI 智能匹配文本向量化端点；未配置则智能匹配不可用 |
-| recommendation-service | `ai-shopping.image-embedding.base-url` / `api-key` / `model` | 空字符串 | AI 以图搜图图像向量化端点；未配置则以图搜图不可用 |
-| recommendation-service | `ai-shopping.llm.base-url` / `api-key` / `model` | 空字符串 | 文本纠错 LLM 端点；未配置时自动降级为本地词典纠错 |
+| mall-user-service | `x.apikey` | `your-api-key` | `mall-user-service/src/main/resources/application.yml` 中的占位符 |
+| mall-user-service | `x.secret` | `your-secret-key` | 同上 |
+| mall-catalog-service | `ai-shopping.embedding.base-url` / `api-key` / `model` | 空字符串 | AI 智能匹配文本向量化端点；未配置则智能匹配不可用 |
+| mall-catalog-service | `ai-shopping.image-embedding.base-url` / `api-key` / `model` | 空字符串 | AI 以图搜图图像向量化端点；未配置则以图搜图不可用 |
+| mall-catalog-service | `ai-shopping.llm.base-url` / `api-key` / `model` | 空字符串 | 文本纠错 LLM 端点；未配置时自动降级为本地词典纠错 |
 | data-pipeline | `clickhouse.url` | `jdbc:clickhouse://localhost:8123/meta_web_analytics` | ClickHouse JDBC 连接 URL；Docker 内需改为 `jdbc:clickhouse://clickhouse:8123/meta_web_analytics` |
 
 ### 其他注意事项
@@ -282,15 +249,15 @@ aws_secret_access_key=s3_secret_key
 
 | 支付方式 | SDK | 配置文件 |
 |---------|-----|---------|
-| 微信支付 | wechatpay-sdk-java | `payment-service/src/main/resources/application.yml` |
-| 支付宝 | alipay-sdk-java | `payment-service/src/main/resources/application.yml` |
-| Stripe | stripe-java | `payment-service/src/main/resources/application.yml` |
+| 微信支付 | wechatpay-sdk-java | `mall-trade-service/src/main/resources/application.yml` |
+| 支付宝 | alipay-sdk-java | `mall-trade-service/src/main/resources/application.yml` |
+| Stripe | stripe-java | `mall-trade-service/src/main/resources/application.yml` |
 
 ### 配置步骤
 
 #### 1. 修改 application.yml
 
-在 `payment-service/src/main/resources/application.yml` 中配置：
+在 `mall-trade-service/src/main/resources/application.yml` 中配置：
 
 ```yaml
 payment:

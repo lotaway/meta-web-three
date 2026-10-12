@@ -16,7 +16,7 @@
 | platform-service | 10085 | message-service, media-service, commission-service, cs-service, data-analysis-service, tenant-service, developer-portal-service | 10087, 10088, 10092, 10099, 10126, 10115 |
 | scm-inventory-service | 10105 | inventory-service, warehouse-service, supplier-service, dom-service, inventory-alert-service | 10106, 10109, 10124, 10121 |
 | scm-logistics-service | 10107 | logistics-service, procurement-service, rma-service | 10108, 10123 |
-| erp-finance-service | 10110 | finance-service, invoice-service, reporting-service, settlement-service | 10111, 10112, 10113 |
+| finance-service | 10110 | finance-service, invoice-service, reporting-service, settlement-service | 10111, 10112, 10113 |
 | erp-management-service | 10125 | crm-service, hrm-service, project-service | 10119, 10120 |
 | factory-service | 10101 | mes-service, digital-twin-service, production-service | 10102, 10116 |
 | ai-service | 10103 | forecasting-service, route-optimizer | 10117 |

@@ -92,7 +92,12 @@
 - [x] 前端硬编码服务名同步：`apps/client/*`（promotion/order/cart/product/user/recommendation-service → 合后服务名）、`SERVICE_PREFIX_MAP` 补 `/api/forecasting`、`/api/v1/route-optimizer`（→ ai-service）与 `/project-service`（→ erp-management-service，控制器沿用原 base path）（提交 9b58ba7b）
 - [x] `config/domain/*.yaml` 服务键同步为合后服务名并合并表清单（提交 a08c5b7d）
 - [x] `server/README.md` wallet-service → blockchain-service；`docs/microservice-consolidation.md` Phase 5 状态更新为 ✅
+- [x] 文档同步扩展：`server/README.md` 全面重写为合后 15 服务拓扑（目录结构、端口表、各服务职责/AI 辅助购物专节、微服务必填配置清单、支付模块路径）；`config/domain/README.md` 示例改为 `mall-trade-service`；`docs/microservice-consolidation.md` 目标名 `erp-finance-service` → `finance-service`
 - [ ] k8s 清单同步——**暂缓（需单独立项）**：`k8s/` 为合并前遗留脚手架（`deploy-all.yaml` + `services/extended-domain-services.yaml` 被 `deploy.sh` 应用，其余 `services/*.yaml`、PV、autoscaling、ingress、`digital-twin/*`、docs 均为旧服务名，且无集群可校验）。整体改写风险高、不可回归验证，故本轮不改；保留此条为后续独立任务。
-- [ ] `run-server.sh` 全量回归
-- [ ] `scripts/check-server-memory.sh` 复测内存，对比收敛前后
-- [ ] 全量改动提交（英文 commit message）
+- [x] `run-server.sh` 全量回归
+  - 第 1 次回归：构建 BUILD SUCCESS，但 `platform-service` 启动失败——Dubbo triple 协议 `dubbo.protocol.port: -1`（自动）在 14 服务并发启动时争抢 50051/50052，`Address already in use`
+  - 修复：`run-server.sh` 按 `服务 HTTP 端口 + 10000`（与 gateway 20881 约定一致）为每个服务注入唯一 `-Ddubbo.protocol.port`，消除并发绑定竞争（20081–20125 段确认空闲）
+  - 第 2 次回归：BUILD SUCCESS，**14/14 服务 STARTED**（gateway 69s / platform 79s / factory 107s，全部存活 40s+）
+- [x] 修复 platform-service CS `UserQueryPortImpl` 默认 URL `http://user-service:10083` → `http://mall-user-service:10083`（随第 2 次回归构建验证通过）
+- [x] `scripts/check-server-memory.sh` 复测内存：14 个 Spring 服务合计 **5.8 GB RSS / 0.8 GB 堆提交 / 7.0 GB 堆上限**（对比收敛前 46 服务数十 GB、21 个无法启动）
+- [x] 全量改动提交（英文 commit message）

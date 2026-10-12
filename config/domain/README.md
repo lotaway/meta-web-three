@@ -34,11 +34,11 @@ services:
 
 ```bash
 # 检查特定服务
-./scripts/check-domain-boundary.sh order-service
+./scripts/check-domain-boundary.sh mall-trade-service
 
 # 检查当前目录所在的服务
-cd server/mall-domain/order-service
-../../scripts/check-domain-boundary.sh
+cd server/mall-domain/mall-trade-service
+../../../scripts/check-domain-boundary.sh
 ```
 
 ### CI 自动检查
