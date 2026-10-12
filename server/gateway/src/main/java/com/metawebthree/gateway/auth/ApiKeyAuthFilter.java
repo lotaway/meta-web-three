@@ -108,7 +108,7 @@ public class ApiKeyAuthFilter implements GlobalFilter, Ordered {
             }
         }
         
-        // Validate API key by calling developer-portal-service
+        // Validate API key by calling platform-service
         Boolean isValid = isValidApiKey(apiKeyId, apiSecret).block();
         if (isValid == null || !isValid) {
             return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED, 
@@ -147,7 +147,7 @@ public class ApiKeyAuthFilter implements GlobalFilter, Ordered {
     }
     
     /**
-     * Validate API key by calling developer-portal-service
+     * Validate API key by calling platform-service
      */
     private Mono<Boolean> isValidApiKey(String apiKeyId, String apiSecret) {
         WebClient client = webClientBuilder.build();
@@ -223,7 +223,7 @@ public class ApiKeyAuthFilter implements GlobalFilter, Ordered {
     }
     
     /**
-     * Extract developer ID from API key by calling developer-portal-service
+     * Extract developer ID from API key by calling platform-service
      */
     private String extractDeveloperId(String apiKeyId) {
         try {

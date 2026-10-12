@@ -1,23 +1,16 @@
 owner_domain: ai-domain
-description: AI域 - 风险评分、推荐系统、需求预测
+description: AI域 - 风险评分、需求预测、路径优化
 services:
+  ai-service:
+    readonly: true
+    readonly_tables:
+      - orders
+      - inventory
+      - products
+
   risk-scorer:
     readonly: true
     readonly_tables:
       - orders
       - users
       - payments
-  
-  recommendation-service:
-    readonly: true
-    readonly_tables:
-      - products
-      - orders
-      - user_actions
-  
-  forecasting-service:
-    readonly: true
-    readonly_tables:
-      - orders
-      - inventory
-      - products

@@ -205,7 +205,7 @@ export default function DigitalTwinPage({ onClose }: DigitalTwinPageProps) {
         </Header>
         {loadError && (
           <Banner $variant="error">
-            {loadError}（请确认 digital-twin-service 已在 {new URL(DIGITAL_TWIN_API_BASE_URL).port} 端口启动）
+            {loadError}（请确认 factory-service 已在 {new URL(DIGITAL_TWIN_API_BASE_URL).port} 端口启动）
           </Banner>
         )}
         <PanelContent>

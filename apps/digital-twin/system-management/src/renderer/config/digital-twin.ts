@@ -1,4 +1,4 @@
-const apiPort = import.meta.env.VITE_DIGITAL_TWIN_API_PORT || '10102'
+const apiPort = import.meta.env.VITE_DIGITAL_TWIN_API_PORT || '10101'
 const apiHost = import.meta.env.VITE_DIGITAL_TWIN_API_HOST || 'localhost'
 
 export const DIGITAL_TWIN_API_BASE_URL =

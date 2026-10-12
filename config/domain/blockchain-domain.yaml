@@ -1,10 +1,16 @@
 owner_domain: blockchain-domain
-description: 区块链域 - 智能合约、NFT、链上结算
+description: 区块链域 - 智能合约、钱包、溯源、链上结算
 services:
+  blockchain-service:
+    allowed_tables:
+      - wallets
+      - wallet_transactions
+      - traceability_records
+
   evm-contract:
     readonly: true
     description: EVM 智能合约，不直接访问业务数据库
-  
+
   solana-contract:
     readonly: true
     description: Solana 智能合约，不直接访问业务数据库

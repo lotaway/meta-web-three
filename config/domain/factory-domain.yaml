@@ -1,7 +1,7 @@
 owner_domain: factory-domain
-description: 工厂域 - 生产制造、设备管理、MES
+description: 工厂域 - 生产制造、设备管理、MES、数字孪生
 services:
-  mes-service:
+  factory-service:
     allowed_tables:
       - work_orders
       - work_sessions

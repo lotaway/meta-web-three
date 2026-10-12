@@ -63,43 +63,43 @@ public class GatewayAuthConfig {
             "flash:read"
         ));
 
-        // Define route-to-role mappings
-        routeRoles.put("/user-service/admin/**", List.of("ADMIN"));
-        routeRoles.put("/user-service/role/**", List.of("ADMIN"));
-        routeRoles.put("/order-service/admin/**", List.of("ADMIN", "MANAGER"));
-        routeRoles.put("/order-service/**", List.of("ADMIN", "MANAGER", "USER"));
-        routeRoles.put("/product-service/admin/**", List.of("ADMIN", "MANAGER"));
-        routeRoles.put("/product-service/**", List.of("ADMIN", "MANAGER", "USER"));
-        routeRoles.put("/inventory-service/**", List.of("ADMIN", "MANAGER", "USER"));
-        routeRoles.put("/payment-service/**", List.of("ADMIN", "MANAGER", "USER"));
-        routeRoles.put("/wallet-service/**", List.of("ADMIN", "MANAGER", "USER"));
+        // Define route-to-role mappings (consolidated service ids)
+        routeRoles.put("/mall-user-service/admin/**", List.of("ADMIN"));
+        routeRoles.put("/mall-user-service/role/**", List.of("ADMIN"));
+        routeRoles.put("/mall-trade-service/admin/**", List.of("ADMIN", "MANAGER"));
+        routeRoles.put("/mall-trade-service/**", List.of("ADMIN", "MANAGER", "USER"));
+        // Public promotion storefront paths exposed to guests
+        routeRoles.put("/mall-trade-service/flash/**", List.of("ADMIN", "MANAGER", "USER", "GUEST"));
+        routeRoles.put("/mall-trade-service/home/**", List.of("ADMIN", "MANAGER", "USER", "GUEST"));
+        routeRoles.put("/mall-trade-service/advertise/**", List.of("ADMIN", "MANAGER", "USER", "GUEST"));
+        routeRoles.put("/mall-trade-service/subject/**", List.of("ADMIN", "MANAGER", "USER", "GUEST"));
+        routeRoles.put("/mall-trade-service/prefrenceArea/**", List.of("ADMIN", "MANAGER", "USER", "GUEST"));
+        routeRoles.put("/mall-catalog-service/admin/**", List.of("ADMIN", "MANAGER"));
+        routeRoles.put("/mall-catalog-service/**", List.of("ADMIN", "MANAGER", "USER"));
+        routeRoles.put("/scm-inventory-service/**", List.of("ADMIN", "MANAGER", "USER"));
+        routeRoles.put("/blockchain-service/**", List.of("ADMIN", "MANAGER", "USER"));
         // Merchant routes
-        routeRoles.put("/product-service/merchant/**", List.of("MERCHANT"));
-        routeRoles.put("/order-service/merchant/**", List.of("MERCHANT"));
-        routeRoles.put("/inventory-service/merchant/**", List.of("MERCHANT"));
-        routeRoles.put("/promotion-service/merchant/**", List.of("MERCHANT"));
-        routeRoles.put("/payment-service/merchant/**", List.of("MERCHANT"));
-        // Tenant routes — public registration excluded at gateway, management ops ADMIN-only,
+        routeRoles.put("/mall-catalog-service/merchant/**", List.of("MERCHANT"));
+        routeRoles.put("/mall-trade-service/merchant/**", List.of("MERCHANT"));
+        routeRoles.put("/scm-inventory-service/merchant/**", List.of("MERCHANT"));
+        // Tenant routes (platform-service) — public registration excluded at gateway, management ops ADMIN-only,
         // merchant self-service for shop & user association
-        routeRoles.put("/tenant-service/tenant/*/approve", List.of("ADMIN"));
-        routeRoles.put("/tenant-service/tenant/*/reject", List.of("ADMIN"));
-        routeRoles.put("/tenant-service/tenant/*/disable", List.of("ADMIN"));
-        routeRoles.put("/tenant-service/tenant/admin/**", List.of("ADMIN"));
-        routeRoles.put("/tenant-service/tenant/merchant/**", List.of("MERCHANT"));
-        routeRoles.put("/tenant-service/tenant/**", List.of("ADMIN", "MERCHANT"));
-        // Developer Portal — self-service registration & verification paths are
+        routeRoles.put("/platform-service/tenant/*/approve", List.of("ADMIN"));
+        routeRoles.put("/platform-service/tenant/*/reject", List.of("ADMIN"));
+        routeRoles.put("/platform-service/tenant/*/disable", List.of("ADMIN"));
+        routeRoles.put("/platform-service/tenant/admin/**", List.of("ADMIN"));
+        routeRoles.put("/platform-service/tenant/merchant/**", List.of("MERCHANT"));
+        routeRoles.put("/platform-service/tenant/**", List.of("ADMIN", "MERCHANT"));
+        // Developer Portal (platform-service) — self-service registration & verification paths are
         // excluded from RBAC at the gateway; all management ops are admin-only
-        routeRoles.put("/developer-portal-service/developer/admin/**", List.of("ADMIN"));
-        routeRoles.put("/developer-portal-service/developer/api-keys/**", List.of("ADMIN"));
-        routeRoles.put("/developer-portal-service/developer/subscriptions/**", List.of("ADMIN"));
-        routeRoles.put("/developer-portal-service/developer/oauth/**", List.of("ADMIN"));
-        routeRoles.put("/developer-portal-service/developer/usage/**", List.of("ADMIN"));
-        routeRoles.put("/developer-portal-service/developer/billing/**", List.of("ADMIN"));
-        routeRoles.put("/developer-portal-service/developer/by-email/**", List.of("ADMIN"));
-        routeRoles.put("/developer-portal-service/developer/**", List.of("ADMIN"));
-
-        routeRoles.put("/promotion-service/admin/**", List.of("ADMIN", "MANAGER"));
-        routeRoles.put("/promotion-service/**", List.of("ADMIN", "MANAGER", "USER", "GUEST"));
+        routeRoles.put("/platform-service/developer/admin/**", List.of("ADMIN"));
+        routeRoles.put("/platform-service/developer/api-keys/**", List.of("ADMIN"));
+        routeRoles.put("/platform-service/developer/subscriptions/**", List.of("ADMIN"));
+        routeRoles.put("/platform-service/developer/oauth/**", List.of("ADMIN"));
+        routeRoles.put("/platform-service/developer/usage/**", List.of("ADMIN"));
+        routeRoles.put("/platform-service/developer/billing/**", List.of("ADMIN"));
+        routeRoles.put("/platform-service/developer/by-email/**", List.of("ADMIN"));
+        routeRoles.put("/platform-service/developer/**", List.of("ADMIN"));
 
         // Permission aliases for backward compatibility
         routePermissionAliases.put("order:read:own", "order:read");

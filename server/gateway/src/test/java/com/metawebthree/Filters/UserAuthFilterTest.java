@@ -36,7 +36,7 @@ public class UserAuthFilterTest {
         Mockito.when(chain.filter(Mockito.any(ServerWebExchange.class))).thenReturn(Mono.empty());
         
         ServerWebExchange exchange = MockServerWebExchange.from(
-            MockServerHttpRequest.get("/user-service/user/signIn").build());
+            MockServerHttpRequest.get("/mall-user-service/user/signIn").build());
 
         Mono<Void> result = filter.filter(exchange, chain);
         
@@ -58,7 +58,7 @@ public class UserAuthFilterTest {
         UserAuthFilter filter = new UserAuthFilter(tokenValidator, authProperties, objectMapper, internalTokenUtil);
         
         ServerWebExchange exchange = MockServerWebExchange.from(
-            MockServerHttpRequest.get("/user-service/user/profile").build());
+            MockServerHttpRequest.get("/mall-user-service/user/profile").build());
 
         filter.filter(exchange, Mockito.mock(GatewayFilterChain.class)).block();
 
@@ -83,7 +83,7 @@ public class UserAuthFilterTest {
         Mockito.when(tokenValidator.validate("valid-token"))
                 .thenReturn(new UserTokenClaims(7L, "alice", "USER", 1L));
         ServerWebExchange exchange = MockServerWebExchange.from(
-                MockServerHttpRequest.get("/user-service/user/profile")
+                MockServerHttpRequest.get("/mall-user-service/user/profile")
                         .header("Authorization", "Bearer valid-token")
                         .build());
 
@@ -101,10 +101,10 @@ public class UserAuthFilterTest {
                 "Bearer ",
                 "/",
                 java.util.List.of(
-                        "/user-service/user/signIn",
-                        "/user-service/user/create",
-                        "/user-service/user/checkWeb3SignerMessage",
-                        "/user-service/admin/login",
+                        "/mall-user-service/user/signIn",
+                        "/mall-user-service/user/create",
+                        "/mall-user-service/user/checkWeb3SignerMessage",
+                        "/mall-user-service/admin/login",
                         "/actuator"),
                 java.util.List.of("/v3/api-docs", "/swagger-ui"),
                 java.util.List.of(),  // rbacExcludedPathPatterns

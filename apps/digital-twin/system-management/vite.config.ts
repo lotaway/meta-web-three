@@ -27,7 +27,7 @@ function getInjectEntries() {
 export default defineConfig({
   define: {
     'import.meta.env.VITE_DIGITAL_TWIN_API_PORT': JSON.stringify(
-      process.env.VITE_DIGITAL_TWIN_API_PORT || '10102',
+      process.env.VITE_DIGITAL_TWIN_API_PORT || '10101',
     ),
     'import.meta.env.VITE_DIGITAL_TWIN_API_HOST': JSON.stringify(
       process.env.VITE_DIGITAL_TWIN_API_HOST || 'localhost',

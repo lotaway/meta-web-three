@@ -1,7 +1,7 @@
 owner_domain: mall-domain
 description: 商城域 - 商品、订单、购物车、促销、支付、用户
 services:
-  product-service:
+  mall-catalog-service:
     allowed_tables:
       - products
       - product_sku
@@ -11,44 +11,35 @@ services:
     readonly_tables:
       - orders
       - inventory
-  
-  order-service:
+      - user_actions
+
+  mall-trade-service:
     allowed_tables:
       - orders
       - order_items
       - order_logs
       - order_addresses
-    readonly_tables:
-      - products
-      - inventory
-  
-  cart-service:
-    allowed_tables:
       - carts
       - cart_items
-    readonly_tables:
-      - products
-  
-  promotion-service:
-    allowed_tables:
       - promotions
       - coupons
       - coupon_users
       - promotion_rules
-    readonly_tables:
-      - orders
-  
-  payment-service:
-    allowed_tables:
       - payments
       - refunds
       - payment_methods
     readonly_tables:
-      - orders
-  
-  user-service:
+      - products
+      - inventory
+
+  mall-user-service:
     allowed_tables:
       - users
       - addresses
       - auth_tokens
       - user_profiles
+      - user_actions
+      - events
+      - event_metrics
+    readonly_tables:
+      - products

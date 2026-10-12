@@ -69,30 +69,26 @@ public class CircuitBreakerFilter implements GlobalFilter, Ordered {
     }
 
     private String determineServiceName(String path) {
-        if (path.contains("/product-service") || path.contains("/product/")) {
+        if (path.contains("/mall-catalog-service") || path.contains("/product/")) {
             return "productService";
-        } else if (path.contains("/order-service") || path.contains("/order/")) {
+        } else if (path.contains("/mall-trade-service") || path.contains("/order/")) {
             return "orderService";
-        } else if (path.contains("/payment-service") || path.contains("/payment/")) {
+        } else if (path.contains("/payment/")) {
             return "paymentService";
-        } else if (path.contains("/user-service") || path.contains("/user/")) {
+        } else if (path.contains("/mall-user-service") || path.contains("/user/")) {
             return "userService";
-        } else if (path.contains("/inventory-service") || path.contains("/inventory/")) {
+        } else if (path.contains("/scm-inventory-service") || path.contains("/inventory/")) {
             return "inventoryService";
-        } else if (path.contains("/promotion-service") || path.contains("/promotion/")) {
+        } else if (path.contains("/promotion/")) {
             return "promotionService";
-        } else if (path.contains("/cart-service") || path.contains("/cart/")) {
+        } else if (path.contains("/cart/")) {
             return "cartService";
-        } else if (path.contains("/warehouse-service") || path.contains("/warehouse/")) {
+        } else if (path.contains("/warehouse/")) {
             return "warehouseService";
-        } else if (path.contains("/logistics-service") || path.contains("/logistics/")) {
+        } else if (path.contains("/scm-logistics-service") || path.contains("/logistics/")) {
             return "logisticsService";
         } else if (path.contains("/finance-service") || path.contains("/finance/")) {
             return "financeService";
-        } else if (path.contains("/settlement-service") || path.contains("/settlement/")) {
-            return "settlementService";
-        } else if (path.contains("/invoice-service") || path.contains("/invoice/")) {
-            return "invoiceService";
         }
         return "backend";
     }

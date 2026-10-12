@@ -62,36 +62,36 @@ gateway:
       - /actuator/health
   excluded-path-patterns:
       # User — login/register
-      - /user-service/user/signIn
-      - /user-service/user/signInWithWallet
-      - /user-service/user/create
-      - /user-service/user/checkWeb3SignerMessage
-      - /user-service/user/checkBitcoinSignature
-      - /user-service/user/checkOAuth1
+      - /mall-user-service/user/signIn
+      - /mall-user-service/user/signInWithWallet
+      - /mall-user-service/user/create
+      - /mall-user-service/user/checkWeb3SignerMessage
+      - /mall-user-service/user/checkBitcoinSignature
+      - /mall-user-service/user/checkOAuth1
       # Passkey — login steps (register needs auth)
-      - /user-service/user/passkey/login/options
-      - /user-service/user/passkey/login/verify
+      - /mall-user-service/user/passkey/login/options
+      - /mall-user-service/user/passkey/login/verify
       # SSO — login/register/public ops
-      - /user-service/sso/login
-      - /user-service/sso/loginByPhone
-      - /user-service/sso/register
-      - /user-service/sso/getAuthCode
-      - /user-service/sso/updatePassword
-      - /user-service/sso/refreshToken
+      - /mall-user-service/sso/login
+      - /mall-user-service/sso/loginByPhone
+      - /mall-user-service/sso/register
+      - /mall-user-service/sso/getAuthCode
+      - /mall-user-service/sso/updatePassword
+      - /mall-user-service/sso/refreshToken
       # Admin — login + refresh
-      - /user-service/admin/login
-      - /user-service/admin/refreshToken
+      - /mall-user-service/admin/login
+      - /mall-user-service/admin/refreshToken
       # Flash Sale — consumer-facing
-      - /promotion-service/flash/current/**
-      - /promotion-service/flash/product/**
+      - /mall-trade-service/flash/current/**
+      - /mall-trade-service/flash/product/**
       # Tenant — public registration & verification
-      - /tenant-service/tenant/captcha/**
-      - /tenant-service/tenant/email/**
-      - /tenant-service/tenant/register
+      - /platform-service/tenant/captcha/**
+      - /platform-service/tenant/email/**
+      - /platform-service/tenant/register
       # Developer Portal — public registration & verification
-      - /developer-portal-service/developer/captcha/**
-      - /developer-portal-service/developer/email/**
-      - /developer-portal-service/developer/register
+      - /platform-service/developer/captcha/**
+      - /platform-service/developer/email/**
+      - /platform-service/developer/register
       # Actuator
       - /actuator/**
       # WebSocket - digital twin real-time communication
@@ -101,18 +101,18 @@ gateway:
     - /swagger-ui
   rbac-excluded-path-patterns:
     # Login & registration — skip role check even if user is authenticated
-    - /user-service/user/signIn
-    - /user-service/user/signInWithWallet
-    - /user-service/user/create
-    - /user-service/sso/**
+    - /mall-user-service/user/signIn
+    - /mall-user-service/user/signInWithWallet
+    - /mall-user-service/user/create
+    - /mall-user-service/sso/**
     # Tenant — public registration & verification
-    - /tenant-service/tenant/captcha/**
-    - /tenant-service/tenant/email/**
-    - /tenant-service/tenant/register
+    - /platform-service/tenant/captcha/**
+    - /platform-service/tenant/email/**
+    - /platform-service/tenant/register
     # Developer Portal — public registration & verification
-    - /developer-portal-service/developer/captcha/**
-    - /developer-portal-service/developer/email/**
-    - /developer-portal-service/developer/register
+    - /platform-service/developer/captcha/**
+    - /platform-service/developer/email/**
+    - /platform-service/developer/register
     # Actuator & docs
     - /actuator/**
     - /v3/api-docs
