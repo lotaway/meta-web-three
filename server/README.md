@@ -8,13 +8,25 @@
 
 - - common 公共模块
 - - gateway 网关中心
-- - mall-domain/ 商城域（mall-catalog-service、mall-trade-service、mall-user-service、mall-social-service）
-- - platform-domain/ 平台域（platform-service）
-- - factory-domain/ 工厂域（factory-service）
-- - supply-chain-domain/ 供应链域（scm-inventory-service、scm-logistics-service）
-- - ai-domain/ AI 域（ai-service）
-- - erp-domain/ ERP 域（finance-service、erp-management-service）
-- - blockchain-domain/ 区块链域（blockchain-service）
+- - mall-domain/ 商城域
+  - mall-catalog-service: 商品目录（product、mall-supplier、recommendation、review 合并）
+  - mall-trade-service: 交易（order、payment、cart、promotion、after-sale 合并）
+  - mall-user-service: 用户（user、user-action、risk-control 合并）
+  - mall-social-service: 社交电商（live、group-buying、social-commerce 合并）
+- - platform-domain/ 平台域
+  - platform-service: 平台通用（message、media、commission、cs、data-analysis、tenant、developer-portal 合并）
+- - factory-domain/ 工厂域
+  - factory-service: 制造执行与数字孪生（mes、digital-twin、production 合并）
+- - supply-chain-domain/ 供应链域
+  - scm-inventory-service: 库存（inventory、warehouse、supplier、dom、inventory-alert 合并）
+  - scm-logistics-service: 物流（logistics、procurement、rma 合并）
+- - ai-domain/ AI 域
+  - ai-service: AI 能力（forecasting、route-optimizer 合并）
+- - erp-domain/ ERP 域
+  - finance-service: 财务（finance、invoice、reporting、settlement 合并）
+  - erp-management-service: 经营管理（crm、hrm、project 合并）
+- - blockchain-domain/ 区块链域
+  - blockchain-service: 链上能力（wallet、traceability 合并）
 - - data-pipeline/ 数据管道（独立模块，不属于任何域）
 
 本地多服务启动：`./run-server.sh`（服务列表见 `scripts/server-services-registry.sh`）。
@@ -138,6 +150,9 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 
 ### blockchain-service - 区块链服务（blockchain 域）
 **职责**: 链上能力（合并原 wallet、traceability 服务）
+
+
+
 
 ## AI 辅助购物（mall-catalog-service）
 

@@ -72,11 +72,7 @@ WORKDIR /app
 COPY --from=builder /build/server/erp-domain/erp-management-service/target/erp-management-service-*.jar erp-management-service.jar
 ENTRYPOINT ["java", "-jar", "erp-management-service.jar"]
 
-# platform-domain (continued)
-FROM eclipse-temurin:17-jre-jammy AS tenant-service
-WORKDIR /app
-COPY --from=builder /build/server/platform-domain/tenant-service/target/tenant-service-*.jar tenant-service.jar
-ENTRYPOINT ["java", "-jar", "tenant-service.jar"]
+
 
 # data-pipeline
 FROM eclipse-temurin:17-jre-jammy AS data-pipeline

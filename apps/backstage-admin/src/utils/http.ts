@@ -38,6 +38,22 @@ const SERVICE_PREFIX_MAP: Record<string, string> = {
   '/api/v1/route-optimizer': 'ai-service',
   // The merged project controllers kept their original base path (/project-service/*)
   '/project-service': 'erp-management-service',
+  '/api/digital-twin': 'factory-service',
+  '/api/alert-rules': 'factory-service',
+  '/api/v1/production': 'factory-service',
+  '/api/crm': 'erp-management-service',
+  '/api/hrm': 'erp-management-service',
+  '/api/finance': 'finance-service',
+  '/api/settlement': 'finance-service',
+  '/api/budget': 'finance-service',
+  '/api/social-commerce': 'mall-social-service',
+  '/api/group-buying': 'mall-social-service',
+  '/api/review': 'mall-catalog-service',
+  '/api/admin/risk': 'mall-user-service',
+  '/api/admin/user-action': 'mall-user-service',
+  '/api/traceability': 'blockchain-service',
+  '/api/v1/wallets': 'blockchain-service',
+  '/commission': 'platform-service',
 }
 
 const service: AxiosInstance = axios.create({

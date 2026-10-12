@@ -43,7 +43,7 @@ public class HomeController {
                         .build())
                 .collect(Collectors.toList());
 
-        String advertiseUrl = "http://mall-trade-service/v1/promotion/advertises/available?type=1";
+        String advertiseUrl = "http://mall-trade-service/advertise/available?type=1";
         List<HomeContentDTO.AdvertiseDTO> advertiseList = Collections.emptyList();
         try {
             ApiResponse<?> response = webClient.get()
