@@ -80,6 +80,7 @@
   - [ ] 背景：commit `79cbe515`（修启动）为 `MesServiceApplication` 加 `@ComponentScan("com.metawebthree.common.event")` 以提供 `DomainEventPublisher`，mes 领域 bean 实际从未注册，服务等同空壳；本次合并显式扫描 mes 后这些半成品才暴露
   - [ ] 修复方案（二选一，另行处理）：① 最小修复——为 `AndonEventRepository` 补内存实现（沿用 `InMemory*Repository` 模式），并去掉无人使用的 3 个半成品服务的 `@Service`；② 完整补齐——为全部 7 个仓储实现内存版
   - [ ] 修复后：重建 + 单独启动 + 冒烟，再校验 Dockerfile/compose/端口接线并删除旧模块
+  - [ ] 删除旧模块 `mes-service` / `digital-twin-service` / `production-service`（含 `server/factory-domain/digital-twin-service/run-dev.sh` 等引用）；同步 `docker-compose.digital-twin.yml`、`apps/digital-twin/README.md` —— 待 factory 启动验证通过后执行
 - [x] 更新 registry/端口映射（ai 10103 / blockchain 10114 / factory 10101）
 - [ ] factory 服务单独启动 + 冒烟（受阻于上方 mes 半成品问题）
 
