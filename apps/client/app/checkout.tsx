@@ -12,7 +12,7 @@ import { Colors } from '@/constants/Colors'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { pay, type PayResult } from '@/lib/payment'
 import { DEFAULT_USER_ID, orderApi, payApi, addressApi, couponApi } from '@/api/generated'
-import type { ApiResponseLong, ApiResponseMapStringObject, ApiResponseMapStringString, OrderItemCreate, MemberReceiveAddressDTO } from '@/src/generated/api/models'
+import type { ApiResponseLong, ApiResponseMapStringObject, ApiResponseMapStringString, OrderItemCreate, MemberAddress } from '@/src/generated/api/models'
 import { recommendationHooks } from '@/lib/api/graphql-hooks'
 import AddressSection from '@/components/checkout/AddressSection'
 import ProductListSection from '@/components/checkout/ProductListSection'
@@ -101,14 +101,14 @@ function mapItemsForView(items: CheckoutItemParam[]): OrderInfo['items'] {
 }
 
 async function createOrder(items: CheckoutItemParam[], addressId?: number, couponId?: number, remark?: string): Promise<ApiResponseLong> {
-  return orderApi.create({
+  return orderApi.create2({
     xUserId: DEFAULT_USER_ID,
     orderCreateRequest: {
       items: mapItemsToOrderCreate(items),
       memberReceiveAddressId: addressId,
       couponId: couponId,
       remark: remark,
-    },
+    } as any,
   })
 }
 
@@ -156,7 +156,7 @@ export default function CheckoutScreen() {
   const [selectedMethod, setSelectedMethod] = useState<PayMethod>('wechat')
   const [paying, setPaying] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [selectedAddress, setSelectedAddress] = useState<MemberReceiveAddressDTO | null>(null)
+  const [selectedAddress, setSelectedAddress] = useState<MemberAddress | null>(null)
   const [couponModalVisible, setCouponModalVisible] = useState(false)
   const [availableCoupons, setAvailableCoupons] = useState<AvailableCoupon[]>([])
   const [selectedCoupon, setSelectedCoupon] = useState<AvailableCoupon | null>(null)
@@ -175,9 +175,9 @@ export default function CheckoutScreen() {
 
   const loadDefaultAddress = async () => {
     try {
-      const response = await addressApi.list({ xUserId: DEFAULT_USER_ID })
+      const response = await addressApi.list3({ xUserId: DEFAULT_USER_ID })
       if (response.data && Array.isArray(response.data) && response.data.length > 0) {
-        const defaultAddr = response.data.find((addr: MemberReceiveAddressDTO) => addr.defaultStatus === true)
+        const defaultAddr = response.data.find((addr: MemberAddress) => addr.defaultStatus === true)
         setSelectedAddress(defaultAddr ?? response.data[0])
       }
     } catch (error) {
@@ -222,7 +222,7 @@ export default function CheckoutScreen() {
   }
 
   const loadOrderDetail = async (orderId: number) => {
-    const detailResponse = await orderApi.detail({
+    const detailResponse = await orderApi.detail1({
       xUserId: DEFAULT_USER_ID,
       id: orderId,
     })

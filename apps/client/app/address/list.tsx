@@ -33,7 +33,7 @@ export default function AddressListScreen() {
     if (!userId) return
     setLoading(true)
     try {
-      const response = await addressApi.list({ xUserId: userId })
+      const response = await addressApi.list3({ xUserId: userId })
       if (response.data) {
         setAddresses(response.data)
       }
@@ -82,7 +82,7 @@ export default function AddressListScreen() {
 
   const handleSetDefault = async (address: MemberAddress) => {
     try {
-      await addressApi.update({
+      await addressApi.update7({
         id: address.id!,
         memberAddress: { ...address, defaultStatus: true },
       })

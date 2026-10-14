@@ -102,7 +102,7 @@ export class ApiClient {
       },
     }
 
-    config = await this.executeInterceptors(this.requestInterceptors, config)
+    config = (await this.executeInterceptors(this.requestInterceptors, config)) as any
 
     let response: Response
     let attempt = 0
@@ -116,10 +116,10 @@ export class ApiClient {
           this.options.timeout
         )
 
-        response = await this.executeInterceptors(
-          this.responseInterceptors,
-          response
-        )
+        response = (await this.executeInterceptors(
+          this.responseInterceptors as any,
+          response as any
+        )) as Response
 
         if (!response.ok) {
           let data: unknown = null

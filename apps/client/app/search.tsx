@@ -350,7 +350,7 @@ export default function SearchScreen() {
             }
             renderItem={({ item }) => (
               <TouchableOpacity style={styles.productCard} onPress={() => handleProductPress(item.id!)}>
-                <Image source={{ uri: item.pic || item.album?.[0] || '' }} style={styles.productImage} />
+                <Image source={{ uri: item.imageUrl || '' }} style={styles.productImage} />
                 <View style={styles.productInfo}>
                   <Text numberOfLines={2} style={[styles.productName, { color: colors.text }]}>
                     {item.name}
@@ -358,9 +358,9 @@ export default function SearchScreen() {
                   <Text style={[styles.productPrice, { color: colors.primary }]}>
                     ¥{item.price}
                   </Text>
-                  {item.originalPrice && item.originalPrice > (item.price || 0) && (
+                  {item.marketPrice && Number(item.marketPrice) > Number(item.price || 0) && (
                     <Text style={[styles.productOriginalPrice, { color: colors.textSecondary }]}>
-                      ¥{item.originalPrice}
+                      ¥{item.marketPrice}
                     </Text>
                   )}
                 </View>

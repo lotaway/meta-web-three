@@ -18,7 +18,7 @@ export function removeToken(): void {
   localStorage.removeItem(TOKEN_KEY)
 }
 
-apiClient.addRequestInterceptor((config) => {
+apiClient.addRequestInterceptor((config: any) => {
   const token = getToken()
   if (token) {
     config.headers = {
@@ -32,8 +32,8 @@ apiClient.addRequestInterceptor((config) => {
   return config
 })
 
-apiClient.addResponseInterceptor(async (response, config) => {
-  console.log(`[API Response] ${response.status} ${config.url}`)
+apiClient.addResponseInterceptor(async (response: any, config: any) => {
+  console.log(`[API Response] ${response.status} ${config?.url}`)
 
   if (response.headers.get('content-type')?.includes('application/json')) {
     const data = await response.clone().json()
@@ -46,7 +46,7 @@ apiClient.addResponseInterceptor(async (response, config) => {
   return response
 })
 
-apiClient.addErrorInterceptor(async (error, config) => {
+apiClient.addErrorInterceptor(async (error: any, config: any) => {
   console.error(`[API Error] ${error.code}: ${error.message}`)
 
   if (error.code === '2003' || error.code === '2004') {

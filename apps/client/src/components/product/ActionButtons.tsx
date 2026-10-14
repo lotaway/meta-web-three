@@ -28,7 +28,7 @@ export function ActionButtons({ colors, productDetails, flashInfo, onOpenSKU }: 
 
   const loadFavoriteStatus = async () => {
     try {
-      const response = await productCollectionApi.listCollection({
+      const response = await productCollectionApi.listCollection1({
         xUserId: DEFAULT_USER_ID,
       });
       const isFav = response.data?.some((item: any) => item.id === productDetails?.id);
@@ -41,14 +41,14 @@ export function ActionButtons({ colors, productDetails, flashInfo, onOpenSKU }: 
   const handleToggleFavorite = async () => {
     try {
       if (isFavorite) {
-        await productCollectionApi.deleteCollection({
+        await productCollectionApi.deleteCollection2({
           xUserId: DEFAULT_USER_ID,
           productId: productDetails.id,
         });
         setIsFavorite(false);
         Alert.alert(t('common.success'), '取消收藏成功');
       } else {
-        await productCollectionApi.addCollection({
+        await productCollectionApi.addCollection1({
           xUserId: DEFAULT_USER_ID,
           collectionParam: {
             productId: productDetails.id,

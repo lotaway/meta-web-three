@@ -145,7 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       const fullToken = tokenHead + newToken;
       
-      const infoResponse = await ssoApi.info({ xUserId: 0 });
+      const infoResponse = await ssoApi.info1({ xUserId: 0 });
       let uid = 0;
       
       if (infoResponse.data) {
@@ -246,7 +246,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       const fullToken = tokenHead + newToken;
       
-      const infoResponse = await ssoApi.info({ xUserId: 0 });
+      const infoResponse = await ssoApi.info1({ xUserId: 0 });
       let uid = 0;
       
       if (infoResponse.data) {

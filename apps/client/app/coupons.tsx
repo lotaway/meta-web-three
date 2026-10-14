@@ -86,8 +86,8 @@ export default function CouponListScreen() {
       style={[styles.couponItem, { borderColor: colors.border }]}
       onPress={() => router.push({
         pathname: '/favorite-detail',
-        params: { id: item.couponTypeId }
-      })}
+        params: { id: String(item.couponTypeId) }
+      } as any)}
     >
       <View style={styles.couponLeft}>
         <Text style={[styles.couponAmount, { color: colors.primary }]}>

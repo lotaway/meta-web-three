@@ -42,7 +42,7 @@ export default function OrderDetailScreen() {
   const loadOrder = async () => {
     setLoading(true)
     try {
-      const response = await orderApi.detail({ xUserId: DEFAULT_USER_ID, id: orderId })
+      const response = await orderApi.detail1({ xUserId: DEFAULT_USER_ID, id: orderId } as any)
       if (response.data) {
         setOrder(response.data)
       }
@@ -156,7 +156,7 @@ export default function OrderDetailScreen() {
   }
 
   const handleReviewItem = () => {
-    router.push(`/review?orderId=${orderId}`)
+    router.push(`/review?orderId=${String(orderId)}` as any)
   }
 
   const handleContactService = async () => {

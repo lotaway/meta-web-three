@@ -44,7 +44,7 @@ export default function FavoritesScreen() {
     }
 
     try {
-      const response = await productCollectionApi.listCollection({
+      const response = await productCollectionApi.listCollection1({
         xUserId: DEFAULT_USER_ID,
       });
 
@@ -74,7 +74,7 @@ export default function FavoritesScreen() {
 
   const handleRemove = async (productId: number) => {
     try {
-      await productCollectionApi.deleteCollection({
+      await productCollectionApi.deleteCollection2({
         xUserId: DEFAULT_USER_ID,
         productId,
       });
@@ -94,18 +94,13 @@ export default function FavoritesScreen() {
       onPress={() => handleProductPress(item.id!)}
     >
       <Image
-        source={{ uri: item.pic || 'https://via.placeholder.com/90' }}
+        source={{ uri: item.imageUrl || 'https://via.placeholder.com/90' }}
         style={styles.productImage}
       />
       <View style={styles.productInfo}>
         <Text numberOfLines={2} style={[styles.productName, { color: colors.text }]}>
           {item.name}
         </Text>
-        {item.subTitle && (
-          <Text numberOfLines={1} style={[styles.subTitle, { color: colors.textSecondary }]}>
-            {item.subTitle}
-          </Text>
-        )}
         <View style={styles.priceRow}>
           <Text style={[styles.price, { color: colors.tint }]}>¥{item.price}</Text>
         </View>

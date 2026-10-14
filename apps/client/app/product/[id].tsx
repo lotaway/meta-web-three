@@ -148,7 +148,7 @@ function useProductDetailLogic(t: any, id: any) {
     setSkuSelectorVisible(false);
     if (closeOnly) return;
     if (skuActionType === 'cart') {
-      addItem({ productId: Number(id), quantity, skuId: Number(sku?.skuId ?? id) });
+      addItem({ productId: Number(id), quantity, productSkuId: Number(sku?.skuId ?? id) } as any);
       if (userId) {
         recommendationHooks.recordBehavior(userId, String(id), 'CART').catch(() => {})
       }

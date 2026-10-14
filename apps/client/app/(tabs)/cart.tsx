@@ -86,11 +86,11 @@ export default function CartScreen() {
     return cartItems.map((item) => ({
       id: item.id ?? 0,
       productName: item.productName || '商品',
-      productPic: item.imageUrl || item.productPic || '',
+      productPic: item.productPic || '',
       price: Number(item.price || 0),
       quantity: item.quantity ?? 0,
       checked: item.id != null && checkedItems.has(item.id),
-      spDataStr: item.skuSpec || '',
+      spDataStr: item.productAttr || '',
     }));
   }, [cartItems, checkedItems]);
 

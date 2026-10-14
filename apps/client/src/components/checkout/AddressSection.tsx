@@ -2,10 +2,10 @@ import React from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
 import { IconSymbol } from '@/components/ui/IconSymbol'
 import { Colors } from '@/constants/Colors'
-import type { MemberReceiveAddressDTO } from '@/src/generated/api/models'
+import type { MemberAddress } from '@/src/generated/api/models'
 
 interface AddressSectionProps {
-  selectedAddress: MemberReceiveAddressDTO | null
+  selectedAddress: MemberAddress | null
   colors: typeof Colors.light
   onPress: () => void
 }

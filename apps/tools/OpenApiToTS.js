@@ -17,6 +17,7 @@ const http = require("node:http")
 const { spawn } = require("node:child_process")
 const path = require("node:path")
 const dotenv = require("dotenv")
+const { fixApisIndexBarrel } = require("./fixApiIndexBarrel")
 
 const projectRoot = process.cwd()
 
@@ -175,6 +176,11 @@ async function customizeCode(config) {
   }
 }
 
+// The aggregated (multi-service) OpenAPI document can contain the same
+// operation-derived request interface name (e.g. `CreateRequest`,
+// `GetByIdRequest`) in several API modules, which makes the generated
+// `apis/index.ts` barrel ambiguous (TS2308). See fixApiIndexBarrel.js.
+
 async function main() {
   const config = readConfig()
   const apiDocsUrl = getApiDocsUrl(config)
@@ -193,6 +199,12 @@ async function main() {
     console.log("Customize code done.")
   } catch (error) {
     console.error("generateCode error:", error)
+  }
+
+  try {
+    await fixApisIndexBarrel(config)
+  } catch (error) {
+    console.error("fixApisIndexBarrel error:", error)
   }
 }
 

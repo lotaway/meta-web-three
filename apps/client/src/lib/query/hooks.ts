@@ -13,7 +13,7 @@ export function useProducts(params?: UseProductsParams) {
   return useQuery({
     queryKey: queryKeys.products.list(params),
     queryFn: async () => {
-      const response = await apiClient.get('/mall-catalog-service/products', params)
+      const response = await apiClient.get('/mall-catalog-service/products', { params } as any)
       return response
     },
   })
@@ -34,7 +34,7 @@ export function useProductSearch(keyword: string) {
   return useQuery({
     queryKey: queryKeys.products.search(keyword),
     queryFn: async () => {
-      const response = await apiClient.get('/mall-catalog-service/products/search', { keyword })
+      const response = await apiClient.get('/mall-catalog-service/products/search', { params: { keyword } } as any)
       return response
     },
     enabled: keyword.length > 0,
@@ -45,7 +45,7 @@ export function useCategories(parentId?: number) {
   return useQuery({
     queryKey: queryKeys.categories.list(parentId),
     queryFn: async () => {
-      const response = await apiClient.get('/mall-catalog-service/categories', { parentId })
+      const response = await apiClient.get('/mall-catalog-service/categories', { params: { parentId } } as any)
       return response
     },
   })
@@ -55,7 +55,7 @@ export function useBrands(params?: Record<string, any>) {
   return useQuery({
     queryKey: queryKeys.brands.list(params),
     queryFn: async () => {
-      const response = await apiClient.get('/mall-catalog-service/brands', params)
+      const response = await apiClient.get('/mall-catalog-service/brands', { params } as any)
       return response
     },
   })

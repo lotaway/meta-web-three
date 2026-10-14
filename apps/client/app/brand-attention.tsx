@@ -40,7 +40,7 @@ export default function BrandAttentionScreen() {
 
   const fetchBrands = async (): Promise<BrandItem[] | null> => {
     try {
-      const response = await memberAttentionApi.listAttention({
+      const response = await memberAttentionApi.listAttention1({
         xUserId: DEFAULT_USER_ID,
       });
       return response.data ? response.data as BrandItem[] : null;

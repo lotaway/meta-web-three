@@ -33,7 +33,7 @@ export default function BrowseHistoryScreen() {
 
   const fetchHistory = async (): Promise<ProductDTO[] | null> => {
     try {
-      const response = await readHistoryApi.listHistory({
+      const response = await readHistoryApi.listHistory1({
         xUserId: DEFAULT_USER_ID,
       });
       return response.data ? response.data as ProductDTO[] : null;
@@ -82,7 +82,7 @@ export default function BrowseHistoryScreen() {
 
   const handleDelete = async (productId: number) => {
     try {
-      await readHistoryApi.deleteCollection({
+      await readHistoryApi.deleteCollection2({
         xUserId: DEFAULT_USER_ID,
         productId,
       });
@@ -113,18 +113,13 @@ export default function BrowseHistoryScreen() {
       onPress={() => handleProductPress(item.id!)}
     >
       <Image
-        source={{ uri: item.pic || 'https://via.placeholder.com/90' }}
+        source={{ uri: item.imageUrl || 'https://via.placeholder.com/90' }}
         style={styles.productImage}
       />
       <View style={styles.productInfo}>
         <Text numberOfLines={2} style={[styles.productName, { color: colors.text }]}>
           {item.name}
         </Text>
-        {item.subTitle && (
-          <Text numberOfLines={1} style={[styles.subTitle, { color: colors.textSecondary }]}>
-            {item.subTitle}
-          </Text>
-        )}
         <View style={styles.priceRow}>
           <Text style={[styles.price, { color: colors.tint }]}>¥{item.price}</Text>
         </View>

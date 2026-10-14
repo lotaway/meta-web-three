@@ -67,7 +67,7 @@ export default function OrdersScreen() {
     }
 
     try {
-      const response = await orderApi.list({
+      const response = await orderApi.list4({
         userId,
         status: STATUS_MAP[activeTab],
         pageNum: pageNumRef.current,

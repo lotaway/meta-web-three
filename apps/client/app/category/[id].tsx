@@ -141,7 +141,7 @@ export default function CategoryListScreen() {
       onPress={() => handleProductPress(item.id!)}
     >
       <Image
-        source={{ uri: item.pic || 'https://via.placeholder.com/150' }}
+        source={{ uri: item.imageUrl || 'https://via.placeholder.com/150' }}
         style={styles.productImage}
         resizeMode="cover"
       />
@@ -149,11 +149,6 @@ export default function CategoryListScreen() {
         <Text numberOfLines={2} style={[styles.productName, { color: colors.text }]}>
           {item.name}
         </Text>
-        {item.subTitle && (
-          <Text numberOfLines={1} style={[styles.productSubtitle, { color: colors.textSecondary }]}>
-            {item.subTitle}
-          </Text>
-        )}
         <View style={styles.priceRow}>
           <Text style={[styles.price, { color: colors.tint }]}>¥{item.price}</Text>
         </View>

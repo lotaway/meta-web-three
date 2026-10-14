@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { recommendationHooks } from '@/lib/api/graphql-hooks';
-import type { RecommendationsBySceneQuery } from '@/src/generated/graphql/types';
+import type { Query } from '@/src/generated/graphql/types';
+type RecommendationsBySceneQuery = Pick<Query, 'recommendationsByScene'>;
 import { router } from 'expo-router';
 
 const CARD_WIDTH = (Dimensions.get('window').width - 50) / 2;
@@ -18,7 +19,7 @@ interface RelatedProductsProps {
 export function RelatedProducts({ productId, userId = 1, scene = 'similar', colors }: RelatedProductsProps) {
   const colorScheme = useColorScheme() ?? 'light';
   const themeColors = Colors[colorScheme];
-  const [recommendations, setRecommendations] = useState<RecommendationsBySceneQuery['recommendationsByScene']>([]);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,7 +27,7 @@ export function RelatedProducts({ productId, userId = 1, scene = 'similar', colo
     setLoading(true);
     recommendationHooks.getRecommendationsByScene(userId, scene, 10)
       .then((data) => {
-        if (mounted) setRecommendations(data?.recommendationsByScene ?? []);
+        if (mounted) setRecommendations((data as any)?.recommendationsByScene ?? []);
       })
       .catch(() => {
         if (mounted) setRecommendations([]);
@@ -58,7 +59,7 @@ export function RelatedProducts({ productId, userId = 1, scene = 'similar', colo
 
     return (
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scrollList}>
-        {recommendations.map((item, index) => {
+        {recommendations.map((item: any, index: number) => {
           const productIdNum = Number(item?.productId ?? 0)
           return (
             <TouchableOpacity

@@ -5,7 +5,8 @@ import { ProductCategory } from '@/src/generated/api/models/ProductCategory'
 import { recommendationHooks } from '@/lib/api/graphql-hooks'
 import { useAuth } from '@/contexts/AuthContext'
 import { router } from 'expo-router'
-import type { RecommendationsQuery } from '@/src/generated/graphql/types'
+import type { Query } from '@/src/generated/graphql/types'
+type RecommendationsQuery = Pick<Query, 'recommendations'>
 
 export interface CategoryItem {
   id: number
@@ -32,7 +33,7 @@ function toCategoryItem(pc: ProductCategory): CategoryItem {
   }
 }
 
-function toRecommendationProductItem(data: NonNullable<RecommendationsQuery['recommendations']>[number]): ProductItem {
+function toRecommendationProductItem(data: any): ProductItem {
   return {
     id: Number(data?.productId),
     name: data?.reason || `Recommend #${data?.productId}`,
@@ -66,8 +67,8 @@ export function HomeContainer({ children }: HomeContainerProps) {
         let recommendedProductList: ProductItem[] = []
         try {
           const recData = await recommendationHooks.generateRecommendation(userId, 'home', 'HYBRID', 10)
-          const items = recData?.generateRecommendation?.items ?? []
-          recommendedProductList = items.map((item) => ({
+          const items = (recData as any)?.generateRecommendation?.items ?? []
+          recommendedProductList = items.map((item: any) => ({
             id: Number(item?.skuCode ?? 0),
             name: item?.skuName || `Product #${item?.skuCode}`,
             pic: '',

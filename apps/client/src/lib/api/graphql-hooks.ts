@@ -1,26 +1,47 @@
 import { apiClient } from './client'
 import {
-  type RecommendationsQuery,
-  type RecommendationsQueryVariables,
-  type RecommendationsBySceneQuery,
-  type RecommendationsBySceneQueryVariables,
-  type RecommendationMetricsQuery,
-  type RecommendationMetricsQueryVariables,
-  type UserBehaviorHistoryQuery,
-  type UserBehaviorHistoryQueryVariables,
-  type GenerateRecommendationMutation,
-  type GenerateRecommendationMutationVariables,
-  type RecordBehaviorMutation,
-  type RecordBehaviorMutationVariables,
-  type MarkRecommendationClickedMutation,
-  type MarkRecommendationClickedMutationVariables,
-  type MarkRecommendationPurchasedMutation,
-  type MarkRecommendationPurchasedMutationVariables,
-  type MarkPurchasedByProductMutation,
-  type MarkPurchasedByProductMutationVariables,
-  type MarkPurchasedByProductsMutation,
-  type MarkPurchasedByProductsMutationVariables,
+  type Query,
+  type Mutation,
+  type QueryRecommendationsArgs,
+  type QueryRecommendationsBySceneArgs,
+  type QueryRecommendationMetricsArgs,
+  type QueryUserBehaviorHistoryArgs,
+  type MutationGenerateRecommendationArgs,
+  type MutationRecordBehaviorArgs,
+  type MutationMarkRecommendationClickedArgs,
+  type MutationMarkRecommendationPurchasedArgs,
+  type Maybe,
 } from '@/src/generated/graphql/types'
+
+type RecommendationsQuery = Pick<Query, 'recommendations'>
+type RecommendationsQueryVariables = QueryRecommendationsArgs
+
+type RecommendationsBySceneQuery = Pick<Query, 'recommendationsByScene'>
+type RecommendationsBySceneQueryVariables = QueryRecommendationsBySceneArgs
+
+type RecommendationMetricsQuery = Pick<Query, 'recommendationMetrics'>
+type RecommendationMetricsQueryVariables = QueryRecommendationMetricsArgs
+
+type UserBehaviorHistoryQuery = Pick<Query, 'userBehaviorHistory'>
+type UserBehaviorHistoryQueryVariables = QueryUserBehaviorHistoryArgs
+
+type GenerateRecommendationMutation = Pick<Mutation, 'generateRecommendation'>
+type GenerateRecommendationMutationVariables = MutationGenerateRecommendationArgs
+
+type RecordBehaviorMutation = Pick<Mutation, 'recordBehavior'>
+type RecordBehaviorMutationVariables = MutationRecordBehaviorArgs
+
+type MarkRecommendationClickedMutation = Pick<Mutation, 'markRecommendationClicked'>
+type MarkRecommendationClickedMutationVariables = MutationMarkRecommendationClickedArgs
+
+type MarkRecommendationPurchasedMutation = Pick<Mutation, 'markRecommendationPurchased'>
+type MarkRecommendationPurchasedMutationVariables = MutationMarkRecommendationPurchasedArgs
+
+// These mutations don't exist in the current schema; use void/any shapes if needed
+type MarkPurchasedByProductMutation = Record<string, never>
+type MarkPurchasedByProductMutationVariables = Record<string, any>
+type MarkPurchasedByProductsMutation = Record<string, never>
+type MarkPurchasedByProductsMutationVariables = Record<string, any>
 
 interface GraphQLResponse<T> {
   data?: T

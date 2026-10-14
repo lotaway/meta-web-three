@@ -49,7 +49,7 @@ export default function AddressEditScreen() {
   const loadAddress = async () => {
     if (!userId) return
     try {
-      const response = await addressApi.list({ xUserId: userId })
+      const response = await addressApi.list3({ xUserId: userId })
       const address = response.data?.find((a: MemberAddress) => a.id === addressId)
       if (address) {
         setName(address.name || '')
@@ -110,7 +110,7 @@ export default function AddressEditScreen() {
       }
 
       if (addressId) {
-        await addressApi.update({ id: addressId, memberAddress: addressData })
+        await addressApi.update7({ id: addressId, memberAddress: addressData })
       } else {
         await addressApi.add({ memberAddress: addressData })
       }

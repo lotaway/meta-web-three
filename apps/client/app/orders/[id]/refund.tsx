@@ -50,7 +50,7 @@ export default function RefundScreen() {
     if (!orderId) return
     setLoading(true)
     try {
-      const response = await orderApi.detail({
+      const response = await orderApi.detail1({
         xUserId: DEFAULT_USER_ID,
         id: Number(orderId),
       })

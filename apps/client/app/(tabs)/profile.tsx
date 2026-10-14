@@ -66,10 +66,10 @@ export default function ProfileScreen() {
             id: user.id,
             nickname: user.nickname || user.username || t('profile.nickname_guest'),
             avatar: user.avatar,
-            integration: user.integration || 0,
-            growth: 0,
+            integration: (user as any).integration || 0,
+            growth: (user as any).growth || 0,
             couponCount: 0,
-          })
+          } as any)
         }
         loadUnreadCount()
         loadCouponCount()

@@ -6,9 +6,8 @@ import React, { useState, useEffect } from 'react'
 
 const asyncStoragePersister = createAsyncStoragePersister({
   storage: AsyncStorage,
-  maxAge: 1000 * 60 * 60 * 24,
   key: 'react-query-cache',
-})
+} as any)
 
 interface OfflinePersistProviderProps {
   children: React.ReactNode

@@ -11,6 +11,39 @@ directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
 """Indicates an Input Object is a OneOf Input Object."""
 directive @oneOf on INPUT_OBJECT
 
+type AiProductMatch {
+  productId: ID!
+  name: String
+  pic: String
+  price: String
+  score: Float
+  reason: String
+}
+
+type Campaign {
+  id: ID!
+  name: String!
+  description: String
+  type: String
+  status: String
+  startDate: String
+  endDate: String
+  budget: Float
+  actualCost: Float
+  expectedRevenue: Float
+}
+
+type CampaignConnection {
+  edges: [CampaignEdge]
+  pageInfo: PageInfo
+  totalCount: Int
+}
+
+type CampaignEdge {
+  node: Campaign
+  cursor: String
+}
+
 type Cart {
   id: ID!
   userId: ID!
@@ -43,6 +76,31 @@ type CategoryEdge {
   cursor: String
 }
 
+type Contact {
+  id: ID!
+  firstName: String!
+  lastName: String
+  email: String
+  phone: String
+  mobile: String
+  position: String
+  department: String
+  customerId: ID
+  isPrimary: Boolean
+  city: String
+}
+
+type ContactConnection {
+  edges: [ContactEdge]
+  pageInfo: PageInfo
+  totalCount: Int
+}
+
+type ContactEdge {
+  node: Contact
+  cursor: String
+}
+
 input CreateOrderInput {
   items: [OrderItemInput!]!
   shippingAddress: String!
@@ -72,6 +130,29 @@ type InventoryAlert {
   status: String!
 }
 
+type Lead {
+  id: ID!
+  leadNo: String!
+  name: String!
+  company: String
+  email: String
+  phone: String
+  source: String
+  status: String
+  score: Int
+}
+
+type LeadConnection {
+  edges: [LeadEdge]
+  pageInfo: PageInfo
+  totalCount: Int
+}
+
+type LeadEdge {
+  node: Lead
+  cursor: String
+}
+
 """"""
 scalar Long
 
@@ -92,6 +173,28 @@ type Mutation {
   deleteRecommendationRule(id: ID!): Boolean
   markRecommendationClicked(id: ID!): Boolean
   markRecommendationPurchased(id: ID!): Boolean
+}
+
+type Opportunity {
+  id: ID!
+  opportunityNo: String!
+  title: String!
+  leadId: ID
+  customerId: ID
+  stage: String
+  amount: Float
+  probability: Int
+}
+
+type OpportunityConnection {
+  edges: [OpportunityEdge]
+  pageInfo: PageInfo
+  totalCount: Int
+}
+
+type OpportunityEdge {
+  node: Opportunity
+  cursor: String
 }
 
 type Order {
@@ -172,7 +275,19 @@ type Query {
   recommendationMetrics(userId: ID!): RecommendationMetrics
   userBehaviorHistory(userId: ID!, limit: Int): [UserBehavior]
   rulesByScene(scene: String!): [RecommendationRule]
+  aiTextCorrect(text: String!): TextCorrection
+  aiSmartMatch(query: String!, topK: Int): [AiProductMatch]
   cart(userId: ID!): Cart
+  lead(id: ID!): Lead
+  leads(status: String, source: String, keyword: String, page: Int, size: Int): LeadConnection
+  opportunity(id: ID!): Opportunity
+  opportunities(stage: String, keyword: String, page: Int, size: Int): OpportunityConnection
+  ticket(id: ID!): Ticket
+  tickets(status: String, priority: String, page: Int, size: Int): TicketConnection
+  campaign(id: ID!): Campaign
+  campaigns(status: String, type: String, page: Int, size: Int): CampaignConnection
+  contact(id: ID!): Contact
+  contacts(customerId: ID, keyword: String, page: Int, size: Int): ContactConnection
   _service: _Service!
   _entities(representations: [_Any!]!): [_Entity]!
 }
@@ -217,6 +332,37 @@ type RecommendedItem {
   reason: String
 }
 
+type TextCorrection {
+  original: String!
+  corrected: String!
+  changed: Boolean!
+  suggestions: [String!]!
+  source: String
+}
+
+type Ticket {
+  id: ID!
+  ticketNo: String!
+  title: String!
+  customerId: ID
+  orderId: ID
+  type: String
+  priority: String
+  status: String
+  assignedTo: String
+}
+
+type TicketConnection {
+  edges: [TicketEdge]
+  pageInfo: PageInfo
+  totalCount: Int
+}
+
+type TicketEdge {
+  node: Ticket
+  cursor: String
+}
+
 input UpdateProductInput {
   name: String
   price: Float
@@ -254,7 +400,7 @@ type UserEdge {
 
 scalar _Any
 
-union _Entity = Order | InventoryAlert | Category | User | RecommendationRule | Product | UserBehavior | CartItem | RecommendationResult | Recommendation | OrderItem | Inventory | Cart
+union _Entity = Order | Ticket | InventoryAlert | Category | User | RecommendationRule | Product | UserBehavior | CartItem | RecommendationResult | Recommendation | Contact | Campaign | Opportunity | OrderItem | Lead | Inventory | Cart
 
 """"""
 scalar _FieldSet

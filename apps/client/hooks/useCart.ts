@@ -22,7 +22,7 @@ export function useCart(): UseCartResult {
     setLoading(true)
     setError(null)
     try {
-      const response = await cartApi.list({ xUserId: userId })
+      const response = await cartApi.list15({ xUserId: userId })
       setItems(response.data ?? [])
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to fetch cart')
@@ -82,7 +82,7 @@ export function useCart(): UseCartResult {
       setLoading(true)
       setError(null)
       try {
-        const response = await cartApi._delete({
+        const response = await cartApi.delete14({
           xUserId: userId,
           ids,
         })
