@@ -10,6 +10,8 @@ import com.metawebthree.mes.domain.repository.EquipmentTypeRepository;
 import java.util.List;
 import java.util.Optional;
 
+@org.springframework.stereotype.Service
+@org.springframework.transaction.annotation.Transactional
 public class EquipmentTypeService {
     
     private final EquipmentTypeRepository equipmentTypeRepository;
@@ -26,6 +28,8 @@ public class EquipmentTypeService {
     }
     
     public EquipmentType createType(String typeCode, String typeName, String category) {
+        if (typeCode == null || typeCode.isBlank() || typeName == null || typeName.isBlank())
+            throw new IllegalArgumentException("Type code and name are required");
         EquipmentType type = new EquipmentType();
         type.create(typeCode, typeName, category);
         return equipmentTypeRepository.save(type);
@@ -82,6 +86,7 @@ public class EquipmentTypeService {
     }
     
     public EquipmentStatusConfig addStatusConfig(Long typeId, String statusCode, String statusName, String statusCategory) {
+        requireActiveType(typeId);
         EquipmentStatusConfig config = new EquipmentStatusConfig();
         config.create(typeId, statusCode, statusName, statusCategory);
         return statusConfigRepository.save(config);
@@ -101,6 +106,13 @@ public class EquipmentTypeService {
     
     public EquipmentStatusTransition addStatusTransition(
             Long typeId, String fromStatus, String toStatus, String action) {
+        requireActiveType(typeId);
+        if (fromStatus == null || fromStatus.equals(toStatus)) throw new IllegalArgumentException("Distinct source and target required");
+        for (String code : List.of(fromStatus, toStatus)) {
+            statusConfigRepository.findByEquipmentTypeIdAndStatusCode(typeId, code)
+                    .filter(s -> Boolean.TRUE.equals(s.getIsActive()))
+                    .orElseThrow(() -> new IllegalArgumentException("Active status not found: " + code));
+        }
         EquipmentStatusTransition transition = new EquipmentStatusTransition();
         transition.create(typeId, fromStatus, toStatus, action);
         return statusTransitionRepository.save(transition);
@@ -114,6 +126,11 @@ public class EquipmentTypeService {
         return statusTransitionRepository.findByEquipmentTypeIdAndFromStatusCode(typeId, fromStatus);
     }
     
+    private EquipmentType requireActiveType(Long id) {
+        return equipmentTypeRepository.findById(id).filter(t -> Boolean.TRUE.equals(t.getIsActive()))
+                .orElseThrow(() -> new IllegalArgumentException("Active equipment type not found"));
+    }
+
     public boolean canTransition(Long typeId, String fromStatus, String toStatus) {
         return statusTransitionRepository
                 .findByEquipmentTypeIdAndFromStatusCodeAndToStatusCode(typeId, fromStatus, toStatus)

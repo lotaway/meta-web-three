@@ -10,19 +10,24 @@ import com.metawebthree.mes.domain.repository.EquipmentStatusTransitionRepositor
 import java.util.List;
 import java.util.Optional;
 
+@org.springframework.stereotype.Service
+@org.springframework.transaction.annotation.Transactional
 public class EquipmentStatusService {
     
     private final EquipmentRepository equipmentRepository;
     private final EquipmentStatusConfigRepository statusConfigRepository;
     private final EquipmentStatusTransitionRepository statusTransitionRepository;
+    private final EquipmentTransitionPolicy policy;
     
     public EquipmentStatusService(
             EquipmentRepository equipmentRepository,
             EquipmentStatusConfigRepository statusConfigRepository,
-            EquipmentStatusTransitionRepository statusTransitionRepository) {
+            EquipmentStatusTransitionRepository statusTransitionRepository,
+            EquipmentTransitionPolicy policy) {
         this.equipmentRepository = equipmentRepository;
         this.statusConfigRepository = statusConfigRepository;
         this.statusTransitionRepository = statusTransitionRepository;
+        this.policy = policy;
     }
     
     public boolean validateTransition(Long equipmentId, String targetStatus) {
@@ -32,20 +37,11 @@ public class EquipmentStatusService {
     }
     
     public boolean validateTransition(Equipment equipment, String targetStatus) {
-        if (equipment.getEquipmentTypeId() == null) {
-            return false;
-        }
-        
-        List<EquipmentStatusTransition> transitions = statusTransitionRepository
-                .findByEquipmentTypeIdAndFromStatusCode(
-                        equipment.getEquipmentTypeId(), 
-                        equipment.getStatusCode());
-        
-        return equipment.canTransitionTo(targetStatus, transitions);
+        return policy.allows(equipment, targetStatus);
     }
     
     public boolean transitionToStatus(Long equipmentId, String targetStatus) {
-        Optional<Equipment> optEquipment = equipmentRepository.findById(equipmentId);
+        Optional<Equipment> optEquipment = equipmentRepository.findByIdForUpdate(equipmentId);
         if (optEquipment.isEmpty()) {
             return false;
         }
@@ -56,12 +52,7 @@ public class EquipmentStatusService {
             return false;
         }
         
-        Optional<EquipmentStatusConfig> optConfig = statusConfigRepository
-                .findByEquipmentTypeIdAndStatusCode(
-                        equipment.getEquipmentTypeId(), 
-                        targetStatus);
-        
-        Long configId = optConfig.map(EquipmentStatusConfig::getId).orElse(null);
+        Long configId = policy.configId(equipment.getEquipmentTypeId(), targetStatus);
         equipment.transitionTo(targetStatus, configId);
         equipmentRepository.update(equipment);
         

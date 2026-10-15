@@ -18,9 +18,9 @@ import com.metawebthree.common.DO.BaseDO;
 @Schema(description = "兑换订单响应")
 public class ExchangeOrderResponse extends BaseDO {
     
-    @Schema(description = "订单号")
+    @Schema(description = "订单�?)
     private String orderNo;
-    @Schema(description = "状态")
+    @Schema(description = "状�?)
     private String status;
     @Schema(description = "订单类型")
     private String orderType;
@@ -38,7 +38,7 @@ public class ExchangeOrderResponse extends BaseDO {
     private String paymentMethod;
     @Schema(description = "支付链接")
     private String paymentUrl;
-    @Schema(description = "二维码数据")
+    @Schema(description = "二维码数�?)
     private String qrCode;
     @Schema(description = "钱包地址")
     private String walletAddress;

@@ -1,7 +1,9 @@
 package com.metaweb.datasource.pipeline.service;
 
 import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,6 +32,8 @@ public class OlapQueryModels {
     }
 
     @Data
+
+@AllArgsConstructor
     @Builder
     public static class OlapQueryRequest {
         private OlapDomain domain;
@@ -45,6 +49,8 @@ public class OlapQueryModels {
     }
 
     @Data
+
+@AllArgsConstructor
     @Builder
     public static class OlapFilter {
         private String field;
@@ -54,6 +60,8 @@ public class OlapQueryModels {
     }
 
     @Data
+
+@AllArgsConstructor
     @Builder
     public static class OlapQueryResult {
         private List<String> columns;
@@ -64,6 +72,8 @@ public class OlapQueryModels {
     }
 
     @Data
+
+@AllArgsConstructor
     @Builder
     public static class DrillDownResult {
         private String dimension;

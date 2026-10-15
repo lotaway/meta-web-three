@@ -25,6 +25,13 @@ public class WorkOrderRepositoryImpl implements WorkOrderRepository {
         WorkOrderDO workOrderDO = workOrderMapper.selectById(id);
         return Optional.ofNullable(workOrderDO).map(this::toEntity);
     }
+
+    @Override
+    public Optional<WorkOrder> findByIdForUpdate(Long id) {
+        LambdaQueryWrapper<WorkOrderDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(WorkOrderDO::getId, id).last("FOR UPDATE");
+        return Optional.ofNullable(workOrderMapper.selectOne(wrapper)).map(this::toEntity);
+    }
     
     @Override
     public Optional<WorkOrder> findByWorkOrderNo(String workOrderNo) {
@@ -61,7 +68,8 @@ public class WorkOrderRepositoryImpl implements WorkOrderRepository {
     @Override
     public List<WorkOrder> findByParentWorkOrderId(Long parentWorkOrderId) {
         LambdaQueryWrapper<WorkOrderDO> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(WorkOrderDO::getParentWorkOrderId, parentWorkOrderId);
+        wrapper.eq(WorkOrderDO::getParentWorkOrderId, parentWorkOrderId)
+                .orderByAsc(WorkOrderDO::getSplitSequence);
         List<WorkOrderDO> doList = workOrderMapper.selectList(wrapper);
         return doList.stream().map(this::toEntity).collect(java.util.stream.Collectors.toList());
     }
@@ -123,6 +131,8 @@ public class WorkOrderRepositoryImpl implements WorkOrderRepository {
         entity.setPlannedEndTime(doObj.getPlannedEndTime());
         entity.setActualStartTime(doObj.getActualStartTime());
         entity.setActualEndTime(doObj.getActualEndTime());
+        entity.setCreatedAt(doObj.getCreatedAt());
+        entity.setUpdatedAt(doObj.getUpdatedAt());
         return entity;
     }
     
@@ -152,6 +162,8 @@ public class WorkOrderRepositoryImpl implements WorkOrderRepository {
         doObj.setPlannedEndTime(entity.getPlannedEndTime());
         doObj.setActualStartTime(entity.getActualStartTime());
         doObj.setActualEndTime(entity.getActualEndTime());
+        doObj.setCreatedAt(entity.getCreatedAt() == null ? java.time.LocalDateTime.now() : entity.getCreatedAt());
+        doObj.setUpdatedAt(java.time.LocalDateTime.now());
         return doObj;
     }
 }

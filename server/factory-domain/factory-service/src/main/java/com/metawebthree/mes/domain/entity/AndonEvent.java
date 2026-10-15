@@ -79,10 +79,13 @@ public class AndonEvent {
     }
     
     private static String generateEventNo() {
-        return "ANDON-" + System.currentTimeMillis();
+        return "ANDON-" + java.util.UUID.randomUUID();
     }
     
     public void acknowledge(String handlerId, String handlerName) {
+        requireStatus(AndonEventStatus.PENDING, AndonEventStatus.ESCALATED);
+        if (handlerId == null || handlerId.isBlank() || handlerName == null || handlerName.isBlank())
+            throw new IllegalArgumentException("Handler ID and name are required");
         this.status = AndonEventStatus.ACKNOWLEDGED;
         this.currentHandlerId = handlerId;
         this.currentHandlerName = handlerName;
@@ -91,22 +94,26 @@ public class AndonEvent {
     }
     
     public void startHandling() {
+        requireStatus(AndonEventStatus.ACKNOWLEDGED);
         this.status = AndonEventStatus.HANDLING;
         this.updatedAt = LocalDateTime.now();
     }
     
     public void resolve() {
+        requireStatus(AndonEventStatus.HANDLING);
         this.status = AndonEventStatus.RESOLVED;
         this.resolvedAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
     
     public void close() {
+        requireStatus(AndonEventStatus.RESOLVED);
         this.status = AndonEventStatus.CLOSED;
         this.updatedAt = LocalDateTime.now();
     }
     
     public void escalate() {
+        requireStatus(AndonEventStatus.PENDING, AndonEventStatus.ESCALATED);
         this.status = AndonEventStatus.ESCALATED;
         this.escalationCount++;
         this.updatedAt = LocalDateTime.now();
@@ -118,11 +125,17 @@ public class AndonEvent {
     }
     
     public void assignHandler(String handlerId, String handlerName) {
+        if (status == AndonEventStatus.CLOSED) throw new IllegalStateException("Closed event cannot be reassigned");
         this.currentHandlerId = handlerId;
         this.currentHandlerName = handlerName;
         this.updatedAt = LocalDateTime.now();
     }
     
+    private void requireStatus(AndonEventStatus... allowed) {
+        if (!java.util.Arrays.asList(allowed).contains(status))
+            throw new IllegalStateException("Invalid Andon operation from status: " + status);
+    }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getEventNo() { return eventNo; }
@@ -178,6 +191,7 @@ public class AndonEvent {
     public Integer getEscalationCount() { return escalationCount; }
     public void setEscalationCount(Integer escalationCount) { this.escalationCount = escalationCount; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

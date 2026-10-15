@@ -6,6 +6,7 @@ import java.util.Optional;
 
 public interface EquipmentRepository {
     Optional<Equipment> findById(Long id);
+    Optional<Equipment> findByIdForUpdate(Long id);
     Optional<Equipment> findByEquipmentCode(String equipmentCode);
     List<Equipment> findByWorkshopId(String workshopId);
     List<Equipment> findByStatusCode(String statusCode);

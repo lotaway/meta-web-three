@@ -6,6 +6,8 @@ import java.util.Optional;
 
 public interface WorkOrderRepository {
     Optional<WorkOrder> findById(Long id);
+    /** Must be called inside a transaction when changing split state. */
+    Optional<WorkOrder> findByIdForUpdate(Long id);
     Optional<WorkOrder> findByWorkOrderNo(String workOrderNo);
     List<WorkOrder> findByStatus(WorkOrder.WorkOrderStatus status);
     List<WorkOrder> findByWorkshopId(String workshopId);

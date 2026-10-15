@@ -9,9 +9,13 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.AllArgsConstructor;
 
 @Data
+
+@AllArgsConstructor
 @Builder
 @TableName("tb_order_item")
 @Schema(description = "订单商品")

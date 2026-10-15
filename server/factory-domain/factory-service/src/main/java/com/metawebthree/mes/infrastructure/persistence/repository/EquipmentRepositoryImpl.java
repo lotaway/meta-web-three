@@ -24,6 +24,13 @@ public class EquipmentRepositoryImpl implements EquipmentRepository {
     }
     
     @Override
+    public Optional<Equipment> findByIdForUpdate(Long id) {
+        LambdaQueryWrapper<EquipmentDO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(EquipmentDO::getId, id).last("FOR UPDATE");
+        return Optional.ofNullable(equipmentMapper.selectOne(wrapper)).map(this::toEntity);
+    }
+
+    @Override
     public Optional<Equipment> findByEquipmentCode(String equipmentCode) {
         LambdaQueryWrapper<EquipmentDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(EquipmentDO::getEquipmentCode, equipmentCode);

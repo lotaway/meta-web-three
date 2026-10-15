@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@org.springframework.stereotype.Service
+@org.springframework.transaction.annotation.Transactional
 public class AndonServiceImpl implements AndonService {
     
     private final AndonTypeRepository andonTypeRepository;
@@ -144,6 +146,8 @@ public class AndonServiceImpl implements AndonService {
         
         AndonLevel andonLevel = andonLevelRepository.findById(andonLevelId)
             .orElseThrow(() -> new IllegalArgumentException("AndonLevel not found: " + andonLevelId));
+        if (!andonLevel.isActive()) throw new IllegalStateException("AndonLevel is not active");
+        AndonEvent.TriggerMethod.valueOf(triggerMethod);
         
         AndonEvent event = AndonEvent.create(
             andonTypeId, andonType.getTypeCode(), andonType.getTypeName(),
@@ -157,7 +161,7 @@ public class AndonServiceImpl implements AndonService {
     
     @Override
     public void acknowledgeAndonEvent(Long eventId, String handlerId, String handlerName) {
-        AndonEvent event = andonEventRepository.findById(eventId)
+        AndonEvent event = andonEventRepository.findByIdForUpdate(eventId)
             .orElseThrow(() -> new IllegalArgumentException("AndonEvent not found: " + eventId));
         event.acknowledge(handlerId, handlerName);
         andonEventRepository.update(event);
@@ -165,7 +169,7 @@ public class AndonServiceImpl implements AndonService {
     
     @Override
     public void startHandling(Long eventId) {
-        AndonEvent event = andonEventRepository.findById(eventId)
+        AndonEvent event = andonEventRepository.findByIdForUpdate(eventId)
             .orElseThrow(() -> new IllegalArgumentException("AndonEvent not found: " + eventId));
         event.startHandling();
         andonEventRepository.update(event);
@@ -173,7 +177,7 @@ public class AndonServiceImpl implements AndonService {
     
     @Override
     public void resolveAndonEvent(Long eventId) {
-        AndonEvent event = andonEventRepository.findById(eventId)
+        AndonEvent event = andonEventRepository.findByIdForUpdate(eventId)
             .orElseThrow(() -> new IllegalArgumentException("AndonEvent not found: " + eventId));
         event.resolve();
         andonEventRepository.update(event);
@@ -181,7 +185,7 @@ public class AndonServiceImpl implements AndonService {
     
     @Override
     public void closeAndonEvent(Long eventId) {
-        AndonEvent event = andonEventRepository.findById(eventId)
+        AndonEvent event = andonEventRepository.findByIdForUpdate(eventId)
             .orElseThrow(() -> new IllegalArgumentException("AndonEvent not found: " + eventId));
         event.close();
         andonEventRepository.update(event);
@@ -189,7 +193,7 @@ public class AndonServiceImpl implements AndonService {
     
     @Override
     public void escalateAndonEvent(Long eventId) {
-        AndonEvent event = andonEventRepository.findById(eventId)
+        AndonEvent event = andonEventRepository.findByIdForUpdate(eventId)
             .orElseThrow(() -> new IllegalArgumentException("AndonEvent not found: " + eventId));
         event.escalate();
         andonEventRepository.update(event);
@@ -197,7 +201,7 @@ public class AndonServiceImpl implements AndonService {
     
     @Override
     public void addPhotoToEvent(Long eventId, String photoUrl) {
-        AndonEvent event = andonEventRepository.findById(eventId)
+        AndonEvent event = andonEventRepository.findByIdForUpdate(eventId)
             .orElseThrow(() -> new IllegalArgumentException("AndonEvent not found: " + eventId));
         event.addPhoto(photoUrl);
         andonEventRepository.update(event);
@@ -205,7 +209,7 @@ public class AndonServiceImpl implements AndonService {
     
     @Override
     public void assignHandler(Long eventId, String handlerId, String handlerName) {
-        AndonEvent event = andonEventRepository.findById(eventId)
+        AndonEvent event = andonEventRepository.findByIdForUpdate(eventId)
             .orElseThrow(() -> new IllegalArgumentException("AndonEvent not found: " + eventId));
         event.assignHandler(handlerId, handlerName);
         andonEventRepository.update(event);

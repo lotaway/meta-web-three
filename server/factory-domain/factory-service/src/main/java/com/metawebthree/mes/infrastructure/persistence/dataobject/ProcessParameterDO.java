@@ -4,9 +4,10 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,8 +16,10 @@ import java.time.LocalDateTime;
  * 工艺参数 DO
  */
 @Data
+
+@AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder
+@Builder
 @EqualsAndHashCode(callSuper = false)
 @TableName("mes_process_parameter")
 public class ProcessParameterDO {

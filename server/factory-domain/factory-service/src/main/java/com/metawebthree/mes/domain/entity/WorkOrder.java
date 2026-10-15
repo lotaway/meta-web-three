@@ -54,6 +54,7 @@ public class WorkOrder {
     }
     
     public enum SplitType {
+        BY_QUANTITY,
         BY_BOM,
         BY_PROCESS,
         MANUAL
@@ -274,7 +275,9 @@ public class WorkOrder {
     public LocalDateTime getActualEndTime() { return actualEndTime; }
     public void setActualEndTime(LocalDateTime actualEndTime) { this.actualEndTime = actualEndTime; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     
     public Long getParentWorkOrderId() { return parentWorkOrderId; }
     public void setParentWorkOrderId(Long parentWorkOrderId) { this.parentWorkOrderId = parentWorkOrderId; }

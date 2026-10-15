@@ -15,10 +15,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * In-memory AndonEventRepository. The andon persistence layer and its tables
- * do not exist yet; this keeps factory-service startable for development.
+ * Opt-in, non-durable event storage for isolated development only.
+ * Default profiles use PostgreSQL through AndonEventRepositoryImpl.
  */
 @Repository
+@org.springframework.context.annotation.Profile("mes-in-memory")
 public class InMemoryAndonEventRepository implements AndonEventRepository {
 
     private final Map<Long, AndonEvent> store = new ConcurrentHashMap<>();

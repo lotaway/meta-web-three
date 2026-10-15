@@ -17,5 +17,14 @@
 
 ### 工厂 / AI / 区块链（8 → 3）
 
-  - 说明：mes 另有 6 个未实现仓储（`AndonTypeRepository`、`AndonLevelRepository`、`EquipmentStatusConfigRepository`、`EquipmentStatusTransitionRepository`、`EquipmentTypeRepository`、`WorkOrderSplitRuleRepository`），其消费方均无人引用，本次不做；将来需要时按 `InMemory*` 模式补。背景：`79cbe515` 仅为提供 `DomainEventPublisher` 加了 `@ComponentScan("com.metawebthree.common.event")`，mes 领域 bean 从未注册，本次显式扫描才暴露这些半成品
+- [x] MES PostgreSQL / MyBatis-Plus 持久化与后端入口：安灯类型、等级、事件、设备类型、状态配置、状态转换及工单拆分规则；已通过 7 项拆单测试和 8 项真实 PostgreSQL/接口测试，不以内存实现作为完成标准。
+- [ ] 目标环境部署验收：备份并应用 MES 增量脚本，核对存量表结构和数据约束，验证完整 Spring Boot 启动及网关接口冒烟；步骤与当前边界见 [server/README.md](./server/README.md#mes-持久化与安全拆单factory-service)。
+
+### MES 工单拆分的后续优化
+
+- [ ] `BY_BOM`：读取真实 BOM，明确版本、生效时间、单位换算、损耗率与子装配数量关系；区分物料需求展开和需要下达的子装配工单，保留物料/工单溯源。原实现未读取 BOM，仅按数量切单，不应继续执行。
+- [ ] `BY_PROCESS`：基于真实有效工艺路线生成工序任务，明确前后依赖、并行/返工、派工及完工汇总规则。工序数不是产量分母，100 件经过三个工序不能按 33/33/34 件拆成三个生产工单；移除写死三个工序的假实现。
+- 当前先支持 `BY_QUANTITY` 批量拆分与 `MANUAL` 手动数量拆分：仅拆分已保存的草稿工单，数量为正且总和守恒，父子关联、事务回滚、防重复拆分；保留父工单原始数量。`BY_BOM` / `BY_PROCESS` 在业务规则完善并通过测试前明确拒绝执行。
+- [ ] 子工单合并/完工汇总：明确父单汇总与子单执行的区别，不能重新启用父单生产同时保留可执行子单，不能覆盖已完成子单状态；当前不开放旧合并逻辑。
+- [ ] 设备条件表达式、事件动作及超时自动转换：需定义执行器、事件来源和授权审计；当前手动转换不能静默忽略这些限制。
 

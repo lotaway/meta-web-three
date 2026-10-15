@@ -18,7 +18,7 @@ import com.metawebthree.common.DO.BaseDO;
 @Schema(description = "加密货币价格响应")
 public class CryptoPriceResponse extends BaseDO {
     
-    @Schema(description = "交易对符号")
+    @Schema(description = "交易对符�?)
     private String symbol;
     @Schema(description = "基础货币")
     private String baseCurrency;
@@ -26,18 +26,18 @@ public class CryptoPriceResponse extends BaseDO {
     private String quoteCurrency;
     @Schema(description = "当前价格")
     private BigDecimal price;
-    @Schema(description = "买一价")
+    @Schema(description = "买一�?)
     private BigDecimal bidPrice;
-    @Schema(description = "卖一价")
+    @Schema(description = "卖一�?)
     private BigDecimal askPrice;
-    @Schema(description = "24小时成交量")
+    @Schema(description = "24小时成交�?)
     private BigDecimal volume24h;
     @Schema(description = "24小时涨跌")
     private BigDecimal change24h;
-    @Schema(description = "24小时涨跌幅")
+    @Schema(description = "24小时涨跌�?)
     private BigDecimal changePercent24h;
     @Schema(description = "数据来源")
     private String source;
-    @Schema(description = "时间戳")
+    @Schema(description = "时间�?)
     private LocalDateTime timestamp;
 } 

@@ -239,7 +239,7 @@ aws_secret_access_key=s3_secret_key
 
 ## Database Schema
 
-每个微服务的数据库表结构定义在 `src/main/resources/db/schema.sql`（统一只使用初始化 schema，不使用版本迁移脚本）。
+每个微服务的初始化表结构定义在 `src/main/resources/db/schema.sql`。已有数据库不要重复执行初始化脚本；本次 MES 补齐另提供手动增量脚本，部署方式见下方章节，未引入自动迁移框架。
 
 ### 服务目录结构
 
@@ -257,6 +257,44 @@ aws_secret_access_key=s3_secret_key
 - **IdType.INPUT**: 手动设置 ID（如订单号等业务主键）
 
 禁止使用 `IdType.AUTO`（数据库自增）。
+
+## MES 持久化与安全拆单（factory-service）
+
+安灯类型、等级、事件，设备类型、状态配置、转换规则及拆单规则已接入 PostgreSQL / MyBatis-Plus；这些是 MES 常见业务能力，不代表 ISA-95 强制规定对应仓储接口。生产注入使用持久化仓储，不以内存实现作为完成标准。
+
+### 数据库部署
+
+先备份目标数据库，并在与目标环境结构一致的测试库验证。于仓库根目录执行以下命令（连接信息使用本地 PostgreSQL 环境变量或受保护的凭据配置，不将密码提交到仓库）：
+
+```bash
+psql -v ON_ERROR_STOP=1 -f server/factory-domain/factory-service/src/main/resources/db/migration/V20261015__mes_configuration_and_safe_split.sql
+```
+
+脚本使用事务、`CREATE TABLE IF NOT EXISTS` 和增量索引，不删除或覆盖已有工单、设备表。它不是任意旧结构的自动修复器：已有表必须具备脚本所用字段；新增非空/唯一约束要求存量数据不存在空值或重复。若失败，应先核对结构、清理不合规数据，再重试，不要忽略错误。应用连接与迁移连接必须指向相同数据库和 schema。
+
+### 后端入口与边界
+
+以下为 factory-service 的直接接口路径；经过网关时按项目约定添加 `/factory-service` 前缀。
+
+| 能力 | 入口 |
+|------|------|
+| 安灯配置与事件 | `/api/mes/andon/types`、`/levels`、`/events`；事件支持 acknowledge、handle、resolve、close、escalate 操作 |
+| 设备配置 | `/api/mes/equipment-types`；类型下的 statuses、transitions、status-machine 与 active 配置 |
+| 设备手动转换 | `POST /api/mes/equipment/{id}/transition`，请求体为 `{"targetStatus":"目标状态编码"}` |
+| 拆单规则 | `POST/GET /api/mes/work-order-splits/rules` |
+| 拆单与子单查询 | `POST /api/mes/work-order-splits/{parentId}`、`GET /api/mes/work-order-splits/{parentId}/children` |
+
+拆单仅支持 `BY_QUANTITY` 和 `MANUAL`，仅允许已保存的草稿工单；子单数量为正、总量守恒，保留父单原始数量和子单关联，父单转为 `CANCELLED` 防止重复执行。事务保证失败不留下部分子单，父单锁与唯一索引防止并发重复拆分。`BY_BOM`、`BY_PROCESS` 和旧合并逻辑明确拒绝执行，真实 BOM 展开、工序任务分解与父子完工汇总仍见根目录 TODO。
+
+设备转换首先校验类型有效性；已绑定通用状态机时以该状态机为规则来源，未绑定时使用设备类型专属状态配置和转换规则，两者不叠加。未实现执行器的条件表达式、事件动作及自动/超时转换不能被手动入口绕过。本次未新增前端页面，也未完成目标环境部署和网关端到端验收。
+
+### 验证
+
+```bash
+mvn -f server/factory-domain/factory-service/pom.xml test -DskipTests=false
+```
+
+真实 PostgreSQL 测试需设置 `MES_TEST_URL`（不含查询参数的 JDBC URL）、`MES_TEST_USER`、`MES_TEST_PASSWORD`，账号需有创建 schema 权限。每次运行创建并保留独立 `mes_verify_*` schema，不使用业务表；未设置 URL 时数据库测试会跳过。已验证 7 项拆单测试及 8 项 PostgreSQL/接口测试，包括迁移重复应用、持久化重载、安灯生命周期、设备规则、数量守恒、拒绝路径、事务回滚与并发防重复。这不等同于完整 Spring Boot 服务启动或生产验收。
 
 ## 支付模块配置
 

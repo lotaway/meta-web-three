@@ -85,5 +85,7 @@ public class WorkOrderSplitRule {
     public List<SplitCondition> getConditions() { return conditions; }
     public void setConditions(List<SplitCondition> conditions) { this.conditions = conditions; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

@@ -13,19 +13,19 @@ public class Advertise {
     private final Long id;
     @Schema(description = "广告名称")
     private final String name;
-    @Schema(description = "轮播位置：0->PC首页轮播；1->APP首页轮播")
+    @Schema(description = "轮播位置�?->PC首页轮播�?->APP首页轮播")
     private final Integer type;
     @Schema(description = "图片地址")
     private final String pic;
-    @Schema(description = "开始时间")
+    @Schema(description = "开始时�?)
     private final LocalDateTime startTime;
     @Schema(description = "结束时间")
     private final LocalDateTime endTime;
-    @Schema(description = "上下线状态：0->下线；1->上线")
+    @Schema(description = "上下线状态：0->下线�?->上线")
     private final Integer status;
-    @Schema(description = "点击数")
+    @Schema(description = "点击�?)
     private final Integer clickCount;
-    @Schema(description = "下单数")
+    @Schema(description = "下单�?)
     private final Integer orderCount;
     @Schema(description = "链接地址")
     private final String url;

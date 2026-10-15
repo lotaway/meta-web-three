@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public interface AndonEventRepository {
     Optional<AndonEvent> findById(Long id);
+    default Optional<AndonEvent> findByIdForUpdate(Long id) { return findById(id); }
     Optional<AndonEvent> findByEventNo(String eventNo);
     List<AndonEvent> findByStatus(AndonEvent.AndonEventStatus status);
     List<AndonEvent> findByAndonTypeId(Long andonTypeId);

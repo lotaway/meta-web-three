@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-@Schema(description = "退货申请")
+@Schema(description = "退货申�?)
 public class OrderReturnApply {
     @Schema(description = "申请ID")
     private final Long id;
@@ -21,15 +21,15 @@ public class OrderReturnApply {
     private final String orderNo;
     @Schema(description = "申请时间")
     private final LocalDateTime createTime;
-    @Schema(description = "会员用户名")
+    @Schema(description = "会员用户�?)
     private final String memberUsername;
-    @Schema(description = "退货金额")
+    @Schema(description = "退货金�?)
     private final Double returnAmount;
     @Schema(description = "退货人姓名")
     private final String returnName;
     @Schema(description = "退货人电话")
     private final String returnPhone;
-    @Schema(description = "状态")
+    @Schema(description = "状�?)
     private final Integer status;
     @Schema(description = "处理时间")
     private final LocalDateTime handleTime;
@@ -39,7 +39,7 @@ public class OrderReturnApply {
     private final String productName;
     @Schema(description = "商品品牌")
     private final String productBrand;
-    @Schema(description = "商品属性")
+    @Schema(description = "商品属�?)
     private final String productAttr;
     @Schema(description = "商品数量")
     private final Integer productCount;
@@ -47,7 +47,7 @@ public class OrderReturnApply {
     private final Double productPrice;
     @Schema(description = "实际商品价格")
     private final Double productRealPrice;
-    @Schema(description = "退货原因")
+    @Schema(description = "退货原�?)
     private final String reason;
     @Schema(description = "描述")
     private final String description;
@@ -55,9 +55,9 @@ public class OrderReturnApply {
     private final String proofPics;
     @Schema(description = "处理备注")
     private final String handleNote;
-    @Schema(description = "处理人")
+    @Schema(description = "处理�?)
     private final String handleMan;
-    @Schema(description = "收货人")
+    @Schema(description = "收货�?)
     private final String receiveMan;
     @Schema(description = "收货时间")
     private final LocalDateTime receiveTime;

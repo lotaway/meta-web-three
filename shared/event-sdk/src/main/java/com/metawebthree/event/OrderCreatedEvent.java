@@ -1,6 +1,6 @@
 package com.metawebthree.event;
 
-import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -16,7 +16,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class OrderCreatedEvent extends BaseEvent {
 
     private String orderId;
@@ -30,7 +30,7 @@ public class OrderCreatedEvent extends BaseEvent {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    @Builder
+    @SuperBuilder
     public static class OrderItem {
         private String productId;
         private String productName;

@@ -46,11 +46,11 @@ public class ErpMesIntegrationTest {
     void setUp() {
         List<ActualCost> existing = actualCostRepository.findByProductCode("TEST-PROD-001");
         if (!existing.isEmpty()) {
-            existing.forEach(cost -> actualCostRepository.delete(cost));
+            existing.forEach(cost -> actualCostRepository.delete(cost.getId()));
         }
         existing = actualCostRepository.findByProductCode("PROD-X");
         if (!existing.isEmpty()) {
-            existing.forEach(cost -> actualCostRepository.delete(cost));
+            existing.forEach(cost -> actualCostRepository.delete(cost.getId()));
         }
     }
 

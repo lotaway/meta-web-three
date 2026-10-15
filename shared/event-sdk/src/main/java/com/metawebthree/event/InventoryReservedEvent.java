@@ -1,6 +1,6 @@
 package com.metawebthree.event;
 
-import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -15,7 +15,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class InventoryReservedEvent extends BaseEvent {
 
     private String reservationId;
@@ -26,7 +26,7 @@ public class InventoryReservedEvent extends BaseEvent {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    @Builder
+    @SuperBuilder
     public static class ReservedItem {
         private String productId;
         private Integer quantity;

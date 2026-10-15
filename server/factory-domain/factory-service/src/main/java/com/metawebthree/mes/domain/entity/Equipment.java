@@ -106,7 +106,7 @@ public class Equipment {
     }
 
     public void transitionTo(String newStatusCode, Long statusConfigId) {
-        this.statusCode = newStatusCode;
+        setStatusCode(newStatusCode);
         this.statusConfigId = statusConfigId;
         this.updatedAt = LocalDateTime.now();
     }
@@ -295,7 +295,11 @@ public class Equipment {
     public Long getWorkstationId() { return workstationId; }
     public void setWorkstationId(Long workstationId) { this.workstationId = workstationId; }
     public String getStatusCode() { return statusCode; }
-    public void setStatusCode(String statusCode) { this.statusCode = statusCode; }
+    public void setStatusCode(String statusCode) {
+        this.statusCode = statusCode;
+        try { this.status = statusCode == null ? null : EquipmentStatus.valueOf(statusCode); }
+        catch (IllegalArgumentException ignored) { this.status = null; }
+    }
     public EquipmentStatus getStatus() { return status; }
     public void setStatus(EquipmentStatus status) { this.status = status; }
     public Long getStatusConfigId() { return statusConfigId; }

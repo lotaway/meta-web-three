@@ -4,9 +4,10 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
@@ -14,8 +15,10 @@ import java.time.LocalDateTime;
  * 产品SN规则绑定 DO
  */
 @Data
+
+@AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder
+@Builder
 @EqualsAndHashCode(callSuper = false)
 @TableName("mes_product_sn_rule")
 public class ProductSnRuleDO {
