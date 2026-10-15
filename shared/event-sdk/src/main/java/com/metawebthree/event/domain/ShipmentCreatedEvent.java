@@ -5,8 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import lombok.experimental.SuperBuilder;
-
+import lombok.Builder;
 import java.time.Instant;
 
 /**
@@ -16,7 +15,7 @@ import java.time.Instant;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Builder
 public class ShipmentCreatedEvent extends BaseEvent {
 
     private String shipmentId;

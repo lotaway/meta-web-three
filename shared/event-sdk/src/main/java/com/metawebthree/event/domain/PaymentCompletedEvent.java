@@ -6,8 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import lombok.experimental.SuperBuilder;
-
+import lombok.Builder;
 import java.math.BigDecimal;
 
 /**
@@ -17,7 +16,7 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Builder
 public class PaymentCompletedEvent extends BaseEvent {
 
     private String paymentId;

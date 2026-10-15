@@ -5,8 +5,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import lombok.experimental.SuperBuilder;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -18,7 +16,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Builder
 public class OrderCreatedEvent extends BaseEvent {
 
     private String orderId;

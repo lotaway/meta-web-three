@@ -15,33 +15,7 @@
 
 ## 微服务收敛（46 → 15）
 
-> 方案与映射表见 [docs/microservice-consolidation.md](./docs/microservice-consolidation.md)。
-> 原则：每完成一个合并立即「构建 + 单服务启动 + 冒烟」，通过后再进行下一个。
-
-### Phase 0 — 基线与映射
-
-
-### Phase 1 — ERP 领域（7 → 2）
-
-
-### Phase 2 — 供应链（8 → 2）
-
-
-### Phase 3 — 电商 mall（13 → 4）
-
-
-### Phase 4 — 平台（9 → 2）
-
-
-### Phase 5 — 工厂 / AI / 区块链（8 → 3）
+### 工厂 / AI / 区块链（8 → 3）
 
   - 说明：mes 另有 6 个未实现仓储（`AndonTypeRepository`、`AndonLevelRepository`、`EquipmentStatusConfigRepository`、`EquipmentStatusTransitionRepository`、`EquipmentTypeRepository`、`WorkOrderSplitRuleRepository`），其消费方均无人引用，本次不做；将来需要时按 `InMemory*` 模式补。背景：`79cbe515` 仅为提供 `DomainEventPublisher` 加了 `@ComponentScan("com.metawebthree.common.event")`，mes 领域 bean 从未注册，本次显式扫描才暴露这些半成品
-
-### Phase 6 — 收尾
-
-#### 合并后集成问题
-
-> 本次问题记录：合并接线（Application 扫描、MapperScan、注册表、网关 service id）整体可用，但后台大量 `/api/*` 请求仍未路由到合后服务，另有遗留错误 URL / 过期 Dockerfile，真实使用时会表现为 404 或调用不通。以下为待修复、待验证事项。
-
-
 
