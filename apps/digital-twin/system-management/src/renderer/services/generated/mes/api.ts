@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { MES_API_BASE_URL } from '../../config/mes'
+import { MES_API_BASE_URL } from '../../../config/mes'
 import type { TelemetryRecord, DeviceCommand, TraceRecord, TraceChain } from './types'
 
 const _client = axios.create({

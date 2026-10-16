@@ -1,13 +1,38 @@
 <template>
   <div class="rich-editor">
-    <editor v-model="contentValue" :init="initOptions" :disabled="disabled" @onClick="onClick" @onBlur="onBlur"
-      @onFocus="onFocus" tinymceScriptSrc="./tinymce6.8.6/tinymce.min.js" />
+    <editor v-model="contentValue" :init="initOptions" :disabled="disabled" license-key="gpl" @onClick="onClick"
+      @onBlur="onBlur" @onFocus="onFocus" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import Editor from '@tinymce/tinymce-vue'
+
+// Bundle TinyMCE and its required components through Vite instead of loading a
+// prebuilt script from the public directory.
+import 'tinymce'
+import 'tinymce/icons/default'
+import 'tinymce/themes/silver'
+import 'tinymce/models/dom'
+
+// Register the bundled skins as TinyMCE resources so no runtime CSS request is made.
+import 'tinymce/skins/ui/oxide/skin.js'
+import 'tinymce/skins/ui/oxide/content.js'
+import 'tinymce/skins/content/default/content.js'
+
+// Plugins enabled by default in this editor.
+import 'tinymce/plugins/link'
+import 'tinymce/plugins/image'
+import 'tinymce/plugins/table'
+import 'tinymce/plugins/lists'
+import 'tinymce/plugins/code'
+import 'tinymce/plugins/fullscreen'
+
+// Simplified Chinese translations, registered into the global TinyMCE instance.
+import 'tinymce-i18n/langs7/zh_CN.js'
+
+import { createImageUploadHandler } from './upload'
 
 const uploadUrl = import.meta.env.VITE_BASE_SERVER_URL + import.meta.env.VITE_UPLOAD_URL
 
@@ -19,16 +44,6 @@ interface Props {
   plugins?: string[]
   placeholder?: string
 }
-
-interface BlobInfo {
-  blob: () => Blob
-  filename: () => string
-  id: () => string
-  name: () => string
-  base64: () => string
-}
-
-type UploadProgressCallback = (percent: number) => void
 
 interface Emits {
   (e: 'update:modelValue', value: string): void
@@ -54,7 +69,7 @@ const emit = defineEmits<Emits>()
 
 const contentValue = ref(props.modelValue)
 
-// 监听外部值变化
+// Sync external value changes into the editor.
 watch(
   () => props.modelValue,
   (newValue) => {
@@ -64,23 +79,21 @@ watch(
   }
 )
 
-// 监听内部值变化
+// Sync editor changes back to the parent component.
 watch(contentValue, (newValue) => {
   emit('update:modelValue', newValue)
 })
 
 const initOptions = {
   language: 'zh_CN',
-  language_url: './tinymce6.8.6/langs/zh_CN.js',
-  selector: '#mytextarea',
   height: props.height,
   menubar: false,
   plugins: props.plugins,
   toolbar: props.toolbar,
   placeholder: props.placeholder,
-  branding: false, // 隐藏 tinyMCE 品牌标识
-  resize: true, // 允许调整大小
-  elementpath: false, // 隐藏底部元素路径
+  branding: false, // Hide the TinyMCE brand logo.
+  resize: true, // Allow manual resizing.
+  elementpath: false, // Hide the element path in the status bar.
   content_style: `
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -89,40 +102,7 @@ const initOptions = {
       line-height: 1.6;
     }
   `,
-  images_upload_handler: (blobInfo: BlobInfo, progress: UploadProgressCallback) => new Promise((resolve, reject) => {
-    // 发起请求上传图片（目前仅支持minio上传）
-    const xhr = new XMLHttpRequest()
-    xhr.open('POST', uploadUrl)
-    // 上传进度回调
-    xhr.upload.onprogress = (e) => {
-      progress(e.loaded / e.total * 100)
-    }
-    // 上传完成回调
-    xhr.onload = () => {
-      if (xhr.status === 403) {
-        reject('HTTP Error: ' + xhr.status)
-        return
-      }
-      if (xhr.status < 200 || xhr.status >= 300) {
-        reject('HTTP Error: ' + xhr.status)
-        return
-      }
-      const json = JSON.parse(xhr.responseText)
-      console.log('images_upload:', json)
-      if (!json || json.code !== 200) {
-        reject('上传失败！')
-        return
-      }
-      resolve(json.data.url)
-    }
-    // 上传失败回调
-    xhr.onerror = () => {
-      reject('Image upload failed due to a XHR Transport error. Code: ' + xhr.status)
-    }
-    const formData = new FormData()
-    formData.append('file', blobInfo.blob(), blobInfo.filename())
-    xhr.send(formData)
-  })
+  images_upload_handler: createImageUploadHandler(uploadUrl)
 }
 
 const onClick = () => {

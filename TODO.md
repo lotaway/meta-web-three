@@ -15,18 +15,34 @@
 
 ## 依赖安全（Dependabot）
 
-GitHub Dependabot 告警共 53 条（High 20 / Medium 25 / Low 8）。后端 Maven 补丁已在本次处理（postgresql、minio、graphql-java、rhino、clickhouse-jdbc 版本升级）；以下为**尚未处理**的前端 npm 依赖告警，需评估升级兼容性后单独处理。
+GitHub Dependabot 告警共 53 条（High 20 / Medium 25 / Low 8）。后端 Maven 补丁已在本次处理（postgresql、minio、graphql-java、rhino、clickhouse-jdbc 版本升级）。前端 npm 依赖告警已于本次全部处理完毕：
 
-- [ ] **electron**（37 条，High 13 / Medium 20 / Low 4）：`apps/digital-twin/system-management/package.json` 当前固定为 `"33"`，远落后于修复版本。多数问题与沙箱/弹窗继承、跨源读取、Squirrel.Mac 更新竞态相关。需升级到 ≥ `41.10.6`（或至少 `39.8.10`），并回归验证桌面端功能与自动更新流程。
-- [ ] **tinymce**（5 条，High 4 / Medium 1）：`apps/backstage-admin/package.json` 当前 `^6.8.6`。修复版本 `7.9.3`（部分 `7.1.0` / `7.0.0`），涉及 XSS 类问题；升级到 7.x 需回归富文本编辑相关功能。
-- [ ] **vite**（3 条，High 1 / Medium 2）：`apps/digital-twin/system-management`（`^5.0.8`）与 `apps/backstage-admin`（`^7.2.4`）。修复版本 `6.4.3` / `6.4.2`，涉及 dev server 相关漏洞；注意 5.x 仍在受影响范围，需整体规划升级。
-- [ ] **turbo**（2 条，Medium 1 / Low 1）：`apps/client/turbo-module/appsdk/package.json` 当前 `^1.10.7`。修复版本 `2.9.14`，属跨大版本升级（1.x → 2.x），需验证构建流水线兼容性。
+- **electron**（37 条）：`apps/digital-twin/system-management` `"33"` → `41.10.7`（覆盖全部受影响范围 `<41.10.6`）。`npx vite build` 通过，vite-plugin-electron/renderer、plugin-react 与 electron 41 兼容。⚠️ 桌面端自动更新/沙箱等运行时回归仍需在桌面环境人工验证。
+- **tinymce**（5 条）：`apps/backstage-admin` `^6.8.6` → `tinymce@7.9.3` + `@tinymce/tinymce-vue@6.3.0`；改为 npm+Vite ES6 模块打包（side-effect 导入皮肤/插件），删除 `public/tinymce6.8.6`，新增 `Tinymce/upload.ts` 与 `src/types/tinymce.d.ts`；已隔离构建并用 Playwright 无头冒烟验证（皮肤/中文 i18n/iframe 内容/无 console 报错）。
+- **vite**（3 条）：`apps/digital-twin/system-management` `^5.0.8` → `^6.4.4`（受影响范围 `<=6.4.2`）；`@vitejs/plugin-react` `^4.2.1` → `^4.7.0`；`npm dedupe` 移除 vitest 嵌套的 vite 8(rolldown)；`npx vite build` 通过。`apps/backstage-admin` 已在 vite `^7.3.6`，不在受影响的 `<=6.4.2` 范围，无需变更。
+- **turbo**（2 条）：`apps/client/turbo-module/appsdk` `^1.10.7` → `^2.9.14`（实装 2.11.8）；`turbo.json` `pipeline` → `tasks`，并补充 `packageManager: yarn@1.22.22`（turbo 2 必需）；`npx turbo run build:android --dry` 解析正常。
+
+### 升级过程中暴露的既有问题（非本次引入，需另行排期）
+
+- [ ] **backstage-admin 构建损坏**：`npm run type-check` / `build` 无法通过（约 770 个既有 TS 错误；`src/views/crm/index.vue` 等模板缺少结束标签）。因此 tinymce 改动采用隔离工程 + 无头冒烟验证。
+- [ ] **digital-twin 仓库组件测试陈旧**：`AlertFlow.test.tsx`(20 失败) 与 `RealTimeDataDisplay.test.tsx`(15 失败) 共 35 条断言与组件实现不匹配（`共 N 条` / `暂无告警` / `role=status` / `data-testid=mock-line-chart` 等）。测试在组件重构后未同步，此前被 vitest/vite 版本错配导致的“整文件 JSX 解析失败”掩盖。已从 vitest 排除 `src/renderer/e2e/**`（Playwright 用例，不应由 vitest 收集）。
+- [x] **digital-twin typecheck 被 native 产物阻塞**：已修复 `system-support/src/tts.rs` 两处编译错误（`TTSVoice` 补 `serde` 派生、`synthesize_speech` 末尾返回 `Ok(())`），`npm run build:native` 成功生成 `native/index.node`；`npm run typecheck` 与 `npm run build` 均通过（EXIT=0）。
+- [ ] **`apps/client/.gitignore` 忽略 `*.lock`**：`yarn.lock`（含 RN 与 appsdk 依赖精确版本）未纳入版本库，依赖不可复现，Dependabot 仅能按 `package.json` 版本范围告警。
 
 ## 运行环境问题（logs/run-server 近期日志）
 
-- [ ] **gateway**：DNS 解析失败（`GUNDAM.mshome.net` NXDOMAIN）。检查 `hosts` 配置或移除该主机名相关引用。
-- [ ] **factory-service**：PostgreSQL 连接失败（`org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse`）。确认本地 PostgreSQL 是否启动、连接串及账号密码配置是否正确。
-- [ ] **mall-trade-service**：价格引擎定时任务获取 BTC-USD 价格失败（`PriceEngineServiceImpl`）。需完善降级策略、重试机制或本地 mock 配置，避免定时任务持续报错。
+已于本次定位根因并完成代码/配置修复；剩余一步需在能连通 Zookeeper / PostgreSQL / 外网的环境做回归验证。
+
+已修复内容（根因与改动）：
+
+- **gateway**：根因并非“hosts 缺失”，而是各服务以机器 FQDN（`GUNDAM.mshome.net`）注册到 Zookeeper，网关 `OpenApiConfig.cacheApiDocs` 按注册地址拉取 `/v3/api-docs` 时 DNS 解析失败（Netty NXDOMAIN）。修复：`server/common/.../application-common.yml` 为所有服务开启 `spring.cloud.zookeeper.discovery.prefer-ip-address: true`，改为按 IP 注册。
+- **factory-service**：实际不是“连接失败”（连接与认证均成功），而是缺少 `devices` / `production_lines` 关系（`relation "devices" does not exist`，合计 1400+ 次）。根因：数字孪生服务并入 factory-service 时遗漏了其表结构。修复：把 `workshops` / `production_lines` / `devices` / `alerts` / `alert_rules` 补入 `db/schema.sql`，并新增幂等增量脚本 `db/migration/V20261016__digital_twin_tables.sql`。
+- **mall-trade-service**：根因是沙箱无外网出口，binance / coinbase / okx 全部 Connect timed out，而 `PriceEngineServiceImpl` 每 5 秒重试并刷 ERROR。修复：新增 `PriceEngineProperties`，价格引擎加熔断降级（连续失败即暂停外呼并仅告警一次）、可配置 `mock-prices` 兜底、把 `PriceEngineServiceImpl` 逐次 ERROR 与 `ExternalPriceServiceImpl` 每源失败日志降为 debug。另修复 `payment/config/HttpClientConfig` 中自定义的 `new ObjectMapper()` Bean（缺少 `JavaTimeModule`，导致 `/prices/{symbol}` 等返回 `LocalDateTime` 的接口序列化 500），改为复用 Spring Boot 自动装配的 ObjectMapper；`mall-trade-service` 已 `mvn clean package` 通过。
+
+- [x] **运行环境回归验证**（已于 2026-10-16 在本地环境完成，三服务共用 Zookeeper / PostgreSQL）：
+  - gateway：`prefer-ip-address` 生效后各服务按 IP 注册（`172.28.192.1:18084/18101/19101`）；网关 api-docs 缓存日志 `Caching API docs for 3 services` → `Fetched 134 schemas from service factory-service` / `Fetched 119 schemas from service mall-trade-service`，`GUNDAM.mshome.net` NXDOMAIN 计数为 0。
+  - factory-service：已在 `192.168.1.194:5432/metawebthree` 应用 `db/migration/V20261016__digital_twin_tables.sql`（5 表 + 11 索引，幂等），运行期无 `relation/column does not exist`，`workshops` 插入成功，`devices` / `production_lines` 查询正常。
+  - mall-trade-service：熔断降级后无逐次 ERROR，仅一条 `All price sources unreachable; pausing external price refresh for 60s`；配置 `payment.price-engine.mock-prices` 后 `GET /prices/BTC-USD` 返回 200（`price=50000`、`source=mock`、`timestamp` 正常序列化）。
 
 ## 微服务收敛（46 → 15）
 

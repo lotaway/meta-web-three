@@ -52,6 +52,13 @@ payment:
         eth: your_eth_cold_wallet_address
         usdt: your_usdt_cold_wallet_address
   price-engine:
+    enabled: true
+    max-consecutive-failures: 3
+    failure-cooldown-seconds: 60
+    # Offline / air-gapped fallbacks. Leave empty in production so live market data is
+    # always preferred. Set per-symbol static prices (e.g. BTC-USD: 50000) to keep the
+    # price engine usable where the sandbox has no egress to the external exchanges.
+    mock-prices: {}
     sources:
       - name: binance
         url: https://api.binance.com/api/v3/ticker/price

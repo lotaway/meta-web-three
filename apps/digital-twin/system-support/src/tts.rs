@@ -2,7 +2,7 @@ use napi_derive::napi;
 use std::process::Command;
 
 #[napi(object)]
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct TTSVoice {
     pub name: String,
     pub language: String,
@@ -75,7 +75,7 @@ pub fn synthesize_speech(text: String, voice: String, output_path: String) -> na
         return Err(napi::Error::from_reason("Text cannot be empty"));
     }
 
-    let result = synthesize_platform(&text, &voice, &output_path)?;
+    synthesize_platform(&text, &voice, &output_path)?;
 
     // Validate output file exists with content
     if !std::path::Path::new(&output_path).exists() {
@@ -95,7 +95,7 @@ pub fn synthesize_speech(text: String, voice: String, output_path: String) -> na
         ));
     }
 
-    result
+    Ok(())
 }
 
 #[cfg(target_os = "macos")]

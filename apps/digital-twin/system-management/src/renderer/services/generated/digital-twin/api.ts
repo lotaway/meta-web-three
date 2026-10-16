@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { DIGITAL_TWIN_API_BASE_URL } from '../../config/digital-twin'
+import { DIGITAL_TWIN_API_BASE_URL } from '../../../config/digital-twin'
 import type { DigitalTwinDevice, DigitalTwinAlert, DigitalTwinStatsSummary } from './types'
 
 const _client = axios.create({

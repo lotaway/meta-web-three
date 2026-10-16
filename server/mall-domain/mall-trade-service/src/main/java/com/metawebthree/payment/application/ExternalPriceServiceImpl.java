@@ -32,7 +32,9 @@ public class ExternalPriceServiceImpl {
                     return price;
                 }
             } catch (Exception e) {
-                log.warn("Failed to fetch price from {} for {}: {}", source, symbol, e.getMessage());
+                // Expected when an exchange is unreachable; the caller aggregates the outcome
+                // and applies the circuit breaker, which emits a single warning.
+                log.debug("Failed to fetch price from {} for {}: {}", source, symbol, e.getMessage());
             }
         }
 

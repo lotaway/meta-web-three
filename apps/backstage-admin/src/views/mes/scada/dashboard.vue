@@ -3,7 +3,7 @@
     <div class="filter-container">
       <el-select v-model="workshopId" filterable :placeholder="t('mes.scada.selectWorkshop')"
         style="width: 220px" class="filter-item" @change="refreshAll">
-        <el-option :value="" :label="t('mes.scada.all')" />
+        <el-option :value="''" :label="t('mes.scada.all')" />
         <el-option v-for="ws in workshopList" :key="ws.id" :label="ws.workshopName" :value="ws.id" />
       </el-select>
       <el-button type="primary" :icon="Refresh" class="filter-item" @click="refreshAll">

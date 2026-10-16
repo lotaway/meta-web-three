@@ -4,6 +4,11 @@ spring:
       connect-string: localhost:2181
       discovery:
         enabled: true
+        # Register this instance by IP rather than the OS hostname. On Windows dev
+        # machines the hostname resolves to an FQDN (e.g. HOST.mshome.net) that DNS
+        # cannot resolve (NXDOMAIN), which breaks consumers that build a URI from the
+        # registration (e.g. the gateway's api-docs cache).
+        prefer-ip-address: true
         metadata:
           version: 1.0.0
         # root: /meta-web-three
