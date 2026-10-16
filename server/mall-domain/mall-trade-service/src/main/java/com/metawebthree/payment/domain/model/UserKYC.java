@@ -163,8 +163,8 @@ class KYCLevelConstant {
 }
 
 class KYCStatusConstant {
-    static final String PENDING = "待审�?;
+    static final String PENDING = "待审核";
     static final String APPROVED = "已通过";
-    static final String REJECTED = "已拒�?;
-    static final String EXPIRED = "已过�?;
+    static final String REJECTED = "已拒绝";
+    static final String EXPIRED = "已过期";
 } 

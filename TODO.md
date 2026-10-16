@@ -13,6 +13,21 @@
 - [ ] 添加语音电商功能 (Voice Commerce，语音搜索、语音下单)
 - [ ] 实现可持续性追踪 (碳足迹计算、绿色物流、环保商品标签)
 
+## 依赖安全（Dependabot）
+
+GitHub Dependabot 告警共 53 条（High 20 / Medium 25 / Low 8）。后端 Maven 补丁已在本次处理（postgresql、minio、graphql-java、rhino、clickhouse-jdbc 版本升级）；以下为**尚未处理**的前端 npm 依赖告警，需评估升级兼容性后单独处理。
+
+- [ ] **electron**（37 条，High 13 / Medium 20 / Low 4）：`apps/digital-twin/system-management/package.json` 当前固定为 `"33"`，远落后于修复版本。多数问题与沙箱/弹窗继承、跨源读取、Squirrel.Mac 更新竞态相关。需升级到 ≥ `41.10.6`（或至少 `39.8.10`），并回归验证桌面端功能与自动更新流程。
+- [ ] **tinymce**（5 条，High 4 / Medium 1）：`apps/backstage-admin/package.json` 当前 `^6.8.6`。修复版本 `7.9.3`（部分 `7.1.0` / `7.0.0`），涉及 XSS 类问题；升级到 7.x 需回归富文本编辑相关功能。
+- [ ] **vite**（3 条，High 1 / Medium 2）：`apps/digital-twin/system-management`（`^5.0.8`）与 `apps/backstage-admin`（`^7.2.4`）。修复版本 `6.4.3` / `6.4.2`，涉及 dev server 相关漏洞；注意 5.x 仍在受影响范围，需整体规划升级。
+- [ ] **turbo**（2 条，Medium 1 / Low 1）：`apps/client/turbo-module/appsdk/package.json` 当前 `^1.10.7`。修复版本 `2.9.14`，属跨大版本升级（1.x → 2.x），需验证构建流水线兼容性。
+
+## 运行环境问题（logs/run-server 近期日志）
+
+- [ ] **gateway**：DNS 解析失败（`GUNDAM.mshome.net` NXDOMAIN）。检查 `hosts` 配置或移除该主机名相关引用。
+- [ ] **factory-service**：PostgreSQL 连接失败（`org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse`）。确认本地 PostgreSQL 是否启动、连接串及账号密码配置是否正确。
+- [ ] **mall-trade-service**：价格引擎定时任务获取 BTC-USD 价格失败（`PriceEngineServiceImpl`）。需完善降级策略、重试机制或本地 mock 配置，避免定时任务持续报错。
+
 ## 微服务收敛（46 → 15）
 
 ### 工厂 / AI / 区块链（8 → 3）

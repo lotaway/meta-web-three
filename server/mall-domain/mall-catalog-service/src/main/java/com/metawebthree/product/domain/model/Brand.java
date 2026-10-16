@@ -12,11 +12,11 @@ public class Brand {
     private final Long id;
     @Schema(description = "品牌名称")
     private final String name;
-    @Schema(description = "首字�?)
+    @Schema(description = "首字母")
     private final String firstLetter;
     @Schema(description = "排序")
     private final Integer sort;
-    @Schema(description = "是否为厂�?)
+    @Schema(description = "是否为厂商")
     private final boolean manufacturer;
     @Schema(description = "是否可见")
     private final boolean visible;

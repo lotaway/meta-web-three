@@ -13,14 +13,13 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 /**
- * 工艺参数组模�?DO
+ * 工艺参数组模板 DO
  */
 @NoArgsConstructor
 @Builder
 @EqualsAndHashCode(callSuper = false)
 @TableName("mes_parameter_group_template")
 @Data
-
 @AllArgsConstructor
 public class ParameterGroupTemplateDO {
 

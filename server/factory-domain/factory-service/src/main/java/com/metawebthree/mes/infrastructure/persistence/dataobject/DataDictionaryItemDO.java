@@ -12,10 +12,9 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 /**
- * 数据字典�?DO
+ * 数据字典项 DO
  */
 @Data
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

@@ -156,7 +156,7 @@
             <dependency>
                 <groupId>com.graphql-java</groupId>
                 <artifactId>graphql-java</artifactId>
-                <version>21.3</version>
+                <version>21.5</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.rocketmq</groupId>
@@ -176,7 +176,7 @@
             <dependency>
                 <groupId>io.minio</groupId>
                 <artifactId>minio</artifactId>
-                <version>8.5.9</version>
+                <version>8.6.0</version>
             </dependency>
             <dependency>
                 <groupId>software.sava</groupId>
