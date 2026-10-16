@@ -5,6 +5,9 @@
 
 ### 安全
 
+- [ ] **网关鉴权默认 JWT 密钥过弱**：`server/common/.../application-common.yml` 的 `jwt.secret: mwt123123` 仅 72 bit，而 jjwt 0.11.5 对 HS512 要求密钥 ≥ 512 bit，签发与验证均抛 `WeakKeyException`。默认配置下经网关的所有请求返回 401 `AUTH_TOKEN_INVALID`（本次 MES 网关冒烟须以 `--jwt.secret=<≥64B>` 覆盖才可通过）。需将默认值改为满足长度，或强制由环境变量/密钥管理注入并移除弱默认。
+- [ ] **`JwtUtil.generate` 丢失 subject**：`JwtUtil.generate(subject, claimsMap, expiration)` 先 `setSubject(subject)` 再 `setClaims(claimsMap)`，而 jjwt 0.11.5 的 `setClaims` 会整体替换 claim 集，导致生成的令牌不含 `sub`；`UserJwtUtil.getUserId` 解析 subject 失败，使登录令牌一律无法通过校验。需调整赋值顺序（`setClaims` 之后再 `setSubject`）或将 subject 并入 claims。已用 jjwt 0.11.5 复现（`PARSE_OK sub=null`）。
+
 ## [区块重组处理](./TODO_BLOCK_REORG.md)
 
 ## 待决议功能
@@ -28,6 +31,7 @@ GitHub Dependabot 告警共 53 条（High 20 / Medium 25 / Low 8）。后端 Mav
 - [ ] **digital-twin 仓库组件测试陈旧**：`AlertFlow.test.tsx`(20 失败) 与 `RealTimeDataDisplay.test.tsx`(15 失败) 共 35 条断言与组件实现不匹配（`共 N 条` / `暂无告警` / `role=status` / `data-testid=mock-line-chart` 等）。测试在组件重构后未同步，此前被 vitest/vite 版本错配导致的“整文件 JSX 解析失败”掩盖。已从 vitest 排除 `src/renderer/e2e/**`（Playwright 用例，不应由 vitest 收集）。
 - [x] **digital-twin typecheck 被 native 产物阻塞**：已修复 `system-support/src/tts.rs` 两处编译错误（`TTSVoice` 补 `serde` 派生、`synthesize_speech` 末尾返回 `Ok(())`），`npm run build:native` 成功生成 `native/index.node`；`npm run typecheck` 与 `npm run build` 均通过（EXIT=0）。
 - [ ] **`apps/client/.gitignore` 忽略 `*.lock`**：`yarn.lock`（含 RN 与 appsdk 依赖精确版本）未纳入版本库，依赖不可复现，Dependabot 仅能按 `package.json` 版本范围告警。
+- [ ] **factory-service 数字孪生演示种子非幂等**：`DigitalTwinDevDataInitializer` 仅以 `devices` 是否为空作为守卫，却会 `createWorkshop("WS-01")`、`createProductionLine("LINE-01", ...)` 等；当 `workshops` 已存在而 `devices` 为空时，种子在中途因 `workshops_workshop_code_key` 唯一冲突失败（MyBatis 以 ERROR 打印，异常随后被 catch 为 `warn`，不阻断启动）。启动日志因此在“完整启动”验收中出现无意义 ERROR，应改为按各自存在性守卫或幂等写入（`ON CONFLICT`）。
 
 ## 运行环境问题（logs/run-server 近期日志）
 
@@ -49,7 +53,13 @@ GitHub Dependabot 告警共 53 条（High 20 / Medium 25 / Low 8）。后端 Mav
 ### 工厂 / AI / 区块链（8 → 3）
 
 - [x] MES PostgreSQL / MyBatis-Plus 持久化与后端入口：安灯类型、等级、事件、设备类型、状态配置、状态转换及工单拆分规则；已通过 7 项拆单测试和 8 项真实 PostgreSQL/接口测试，不以内存实现作为完成标准。
-- [ ] 目标环境部署验收：备份并应用 MES 增量脚本，核对存量表结构和数据约束，验证完整 Spring Boot 启动及网关接口冒烟；步骤与当前边界见 [server/README.md](./server/README.md#mes-持久化与安全拆单factory-service)。
+- [x] 目标环境部署验收（已于 2026-10-16 在 `192.168.1.194:5432/metawebthree` 完成，步骤见 [server/README.md](./server/README.md#mes-持久化与安全拆单factory-service)）：
+  - 备份：`pg_dump` 全库落盘（169 表 / 169 COPY 段，`-- PostgreSQL database dump complete`），文件 `backup-metawebthree-20261016-192012.pre-mes.sql`。
+  - 应用：`psql -v ON_ERROR_STOP=1 -f V20261015__mes_configuration_and_safe_split.sql` 单事务提交（12 表 / 14 NOT NULL / 11 索引），exit 0；重复执行幂等。
+  - 结构核对：12 张 `mes_*` 表均存在，主键、10 项唯一约束、3 个外键（含 `mes_equipment_status_transition` 的两个复合外键）、2 个 CHECK（`split_quantity > 0`、`max_child_orders BETWEEN 2 AND 1000`）与 10 个命名索引（含 3 个部分唯一索引）齐全；存量未被改动（`schema.sql` 的 26 张 `mes_*` 表与库一致，迁移表按 README 设计仅走增量脚本）。
+  - 启动：factory-service `Started FactoryServiceApplication in 84.1s`，schema 相关错误（`does not exist` / `BadSqlGrammar`）计数为 0；仅存量 Kafka 告警及 `DigitalTwinDevDataInitializer` 演示种子重复插入（非 MES，见下）。
+  - 网关冒烟：gateway `Started GatewayApplication in 55.0s`，`Fetched 134 schemas from service factory-service`；携带 Bearer 令牌经网关访问 `/factory-service/api/mes/andon/types|levels`、`/equipment-types`、`/work-order-splits/rules` 均 200；写路径 `POST /andon/types`、`POST /andon/levels` 200 并成功持久化（GET 可回读、`LocalDateTime` 正常序列化）、重复 `type_code` 返回 400 领域错误；测试数据已清理（12 表恢复 0 行）。
+  - 边界：网关鉴权依赖 HS512 密钥，dev 默认 `jwt.secret=mwt123123` 仅 72 bit，被 jjwt 0.11.5 拒绝，故本次以命令行 `--jwt.secret=<85B>` 覆盖并用同密钥签发的令牌完成冒烟；该默认配置缺陷另列条目。
 
 ### MES 工单拆分的后续优化
 
