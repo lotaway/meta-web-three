@@ -23,7 +23,9 @@ import javax.crypto.spec.SecretKeySpec;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret:123123}")
+    // HS512 requires a key of at least 512 bits (64 bytes); the configured value must
+    // be long enough or signing/verification fails with jjwt's WeakKeyException.
+    @Value("${jwt.secret:mwt-dev-only-jwt-secret-please-override-0123456789abcdefghijklmnopqrstuvwxyz}")
     protected String secret;
 
     @Value("${name:JWT}")
@@ -47,8 +49,10 @@ public class JwtUtil {
     public String generate(String subject, Map<String, Object> claimsMap, Date expiration) {
         return Jwts.builder()
                 .setHeaderParam(name, value)
-                .setSubject(subject)
+                // setClaims replaces the whole claim set, so it must run before
+                // setSubject/setIssuedAt/setExpiration or the subject would be dropped.
                 .setClaims(claimsMap)
+                .setSubject(subject)
                 .setIssuedAt(new Date())
                 .setExpiration(expiration)
                 .signWith(getSignKey())

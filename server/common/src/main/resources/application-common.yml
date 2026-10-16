@@ -93,7 +93,9 @@ rocketmq:
     namesrv: rocketmq-namesrv:9876
     appliaction-topic: "MetaWebThree"
 jwt:
-  secret: mwt123123
+  # HS512 needs a key of at least 512 bits (64 chars/bytes). Override with the
+  # JWT_SECRET environment variable in real deployments; keep this dev default long enough.
+  secret: ${JWT_SECRET:mwt-dev-only-jwt-secret-please-override-0123456789abcdefghijklmnopqrstuvwxyz}
   tokenHead: "Bearer "
 internal-token:
   secret: mwt-internal-secret-2024

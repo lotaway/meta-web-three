@@ -5,8 +5,9 @@
 
 ### 安全
 
-- [ ] **网关鉴权默认 JWT 密钥过弱**：`server/common/.../application-common.yml` 的 `jwt.secret: mwt123123` 仅 72 bit，而 jjwt 0.11.5 对 HS512 要求密钥 ≥ 512 bit，签发与验证均抛 `WeakKeyException`。默认配置下经网关的所有请求返回 401 `AUTH_TOKEN_INVALID`（本次 MES 网关冒烟须以 `--jwt.secret=<≥64B>` 覆盖才可通过）。需将默认值改为满足长度，或强制由环境变量/密钥管理注入并移除弱默认。
-- [ ] **`JwtUtil.generate` 丢失 subject**：`JwtUtil.generate(subject, claimsMap, expiration)` 先 `setSubject(subject)` 再 `setClaims(claimsMap)`，而 jjwt 0.11.5 的 `setClaims` 会整体替换 claim 集，导致生成的令牌不含 `sub`；`UserJwtUtil.getUserId` 解析 subject 失败，使登录令牌一律无法通过校验。需调整赋值顺序（`setClaims` 之后再 `setSubject`）或将 subject 并入 claims。已用 jjwt 0.11.5 复现（`PARSE_OK sub=null`）。
+- [x] **网关鉴权默认 JWT 密钥过弱**（已修复并验证，2026-10-16）：`server/common/.../application-common.yml` 的 `jwt.secret: mwt123123` 仅 72 bit，而 jjwt 0.11.5 对 HS512 要求密钥 ≥ 512 bit，签发与验证均抛 `WeakKeyException`。修复：改为 `secret: ${JWT_SECRET:mwt-dev-only-jwt-secret-please-override-0123456789abcdefghijklmnopqrstuvwxyz}`（76 字符，满足 HS512），`JwtUtil` 的回退默认也由 `123123` 改为同样满足长度的值；保留 `JWT_SECRET` 环境变量注入，生产可覆盖。验证：三服务以默认配置启动，直接 `POST /admin/login` 取得令牌后经网关访问四个 MES 接口全部 200（无需再 `--jwt.secret` 覆盖）。
+- [x] **`JwtUtil.generate` 丢失 subject**（已修复并验证，2026-10-16）：`JwtUtil.generate(subject, claimsMap, expiration)` 原为先 `setSubject(subject)` 再 `setClaims(claimsMap)`，而 jjwt 0.11.5 的 `setClaims` 会整体替换 claim 集，导致生成的令牌不含 `sub`；`UserJwtUtil.getUserId` 解析 subject 失败，使登录令牌一律无法通过校验。修复：改为先 `setClaims(claimsMap)` 再 `setSubject(subject)`（连同 `iat`/`exp`），并注释说明 `setClaims` 的替换语义。验证：`mall-user-service` 实际签发的登录令牌解码后为 `{"role":"ADMIN","name":"admin","sub":"1","iat":...,"exp":...}`，`sub` 已存在且能通过网关校验。
+- [ ] **网关鉴权排除路径配置未生效（YAML 缩进绑定错误）**：`server/gateway/src/main/resources/application.yml` 中 `excluded-path-patterns`、`excluded-path-keywords`、`rbac-excluded-path-patterns` 缩进为 2（挂在 `gateway:` 下），而唯一读取它们的 `GatewayAuthProperties` 前缀为 `gateway.auth`（需缩进 4，`authorization-header`/`token-prefix`/`protected-path-prefix` 即正确位于此层），导致三个列表实际为空：所有路径（含 `/mall-user-service/admin/login`、`/actuator/**`、`/v3/api-docs`、`/ws/digital-twin`）均要求令牌，登录经网关直接返回 401 `AUTH_HEADER_INVALID`（本次已实测）。修复需把这三块移入 `gateway.auth` 之下。
 
 ## [区块重组处理](./TODO_BLOCK_REORG.md)
 
