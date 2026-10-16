@@ -19,8 +19,4 @@ public record GatewayAuthProperties(
         List<String> rbacExcludedPathPatterns,
         Map<String, List<String>> routeRoles,
         Map<String, List<String>> rolePermissions) {
-
-    public GatewayAuthProperties() {
-        this("Authorization", "Bearer ", "/", List.of(), List.of(), List.of(), Map.of(), Map.of());
-    }
 }

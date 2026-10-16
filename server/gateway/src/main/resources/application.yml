@@ -45,22 +45,7 @@ gateway:
     authorization-header: Authorization
     token-prefix: "Bearer "
     protected-path-prefix: /
-  api-key:
-    header-key: X-API-Key
-    header-secret: X-API-Secret
-    enabled: true
-    signature-enabled: true
-    protected-paths:
-      - /api/open/
-      - /developer/api/
-      - /open-api/
-    public-paths:
-      - /developer/register
-      - /developer/docs
-      - /oauth/authorize
-      - /oauth/token
-      - /actuator/health
-  excluded-path-patterns:
+    excluded-path-patterns:
       # User — login/register
       - /mall-user-service/user/signIn
       - /mall-user-service/user/signInWithWallet
@@ -96,29 +81,44 @@ gateway:
       - /actuator/**
       # WebSocket - digital twin real-time communication
       - /ws/digital-twin
-  excluded-path-keywords:
-    - /v3/api-docs
-    - /swagger-ui
-  rbac-excluded-path-patterns:
-    # Login & registration — skip role check even if user is authenticated
-    - /mall-user-service/user/signIn
-    - /mall-user-service/user/signInWithWallet
-    - /mall-user-service/user/create
-    - /mall-user-service/sso/**
-    # Tenant — public registration & verification
-    - /platform-service/tenant/captcha/**
-    - /platform-service/tenant/email/**
-    - /platform-service/tenant/register
-    # Developer Portal — public registration & verification
-    - /platform-service/developer/captcha/**
-    - /platform-service/developer/email/**
-    - /platform-service/developer/register
-    # Actuator & docs
-    - /actuator/**
-    - /v3/api-docs
-    - /swagger-ui
-    # WebSocket — real-time communication
-    - /ws/**
+    excluded-path-keywords:
+      - /v3/api-docs
+      - /swagger-ui
+    rbac-excluded-path-patterns:
+      # Login & registration — skip role check even if user is authenticated
+      - /mall-user-service/user/signIn
+      - /mall-user-service/user/signInWithWallet
+      - /mall-user-service/user/create
+      - /mall-user-service/sso/**
+      # Tenant — public registration & verification
+      - /platform-service/tenant/captcha/**
+      - /platform-service/tenant/email/**
+      - /platform-service/tenant/register
+      # Developer Portal — public registration & verification
+      - /platform-service/developer/captcha/**
+      - /platform-service/developer/email/**
+      - /platform-service/developer/register
+      # Actuator & docs
+      - /actuator/**
+      - /v3/api-docs
+      - /swagger-ui
+      # WebSocket — real-time communication
+      - /ws/**
+  api-key:
+    header-key: X-API-Key
+    header-secret: X-API-Secret
+    enabled: true
+    signature-enabled: true
+    protected-paths:
+      - /api/open/
+      - /developer/api/
+      - /open-api/
+    public-paths:
+      - /developer/register
+      - /developer/docs
+      - /oauth/authorize
+      - /oauth/token
+      - /actuator/health
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
