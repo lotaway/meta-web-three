@@ -42,22 +42,28 @@ export function DemandChart({
 }: DemandChartProps) {
   // 计算图表数据
   const chartData = useMemo(() => {
-    if (!data.length) return { maxVal: 100, points: [] }
+    if (!data || data.length === 0) return { maxVal: 100, points: [] }
 
     const maxVal = Math.max(
-      ...data.flatMap(d => [
-        d.actual || 0,
-        d.forecast,
-        d.upperBound || d.forecast,
-        d.lowerBound || d.forecast
-      ])
+      ...data.flatMap(d => {
+        const item: any = d || {}
+        return [
+          item.actual || 0,
+          item.forecast || 0,
+          item.upperBound || item.forecast || 0,
+          item.lowerBound || item.forecast || 0
+        ]
+      })
     )
 
-    const points = data.map((d, i) => ({
-      ...d,
-      x: (i / Math.max(data.length - 1, 1)) * 100,
-      y: 100 - (d.forecast / maxVal) * CHART_CONFIG.yScale - CHART_CONFIG.yPaddingTop
-    }))
+    const points = data.map((d, i) => {
+      const item: any = d || {}
+      return {
+        ...item,
+        x: (i / Math.max(data.length - 1, 1)) * 100,
+        y: 100 - ((item.forecast || 0) / maxVal) * CHART_CONFIG.yScale - CHART_CONFIG.yPaddingTop
+      }
+    })
 
     return { maxVal, points }
   }, [data])
