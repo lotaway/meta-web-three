@@ -424,9 +424,9 @@ onMounted(() => {
         <el-table-column prop="location" label="Location" width="120" />
         <el-table-column label="Actions" width="180" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link @click="handleEdit(row)">Edit</el-button>
-            <el-button type="warning" link @click="handleTransfer(row)" :disabled="row.status === 'DISPOSED'">Transfer</el-button>
-            <el-button type="danger" link @click="handleDelete(row)" :disabled="row.status === 'DISPOSED'">Delete</el-button>
+            <el-button type="primary" link @click="handleEdit(row as FixedAsset)">Edit</el-button>
+            <el-button type="warning" link @click="handleTransfer(row as FixedAsset)" :disabled="row.status === 'DISPOSED'">Transfer</el-button>
+            <el-button type="danger" link @click="handleDelete(row as FixedAsset)" :disabled="row.status === 'DISPOSED'">Delete</el-button>
           </template>
         </el-table-column>
       </el-table>

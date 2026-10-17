@@ -29,7 +29,7 @@
       <el-col :span="6">
         <el-card class="stat-card">
           <div class="stat-icon" style="background-color: #f6ffed;">
-            <el-icon color="#52c41a"><CheckCircle /></el-icon>
+            <el-icon color="#52c41a"><CircleCheck /></el-icon>
           </div>
           <div class="stat-info">
             <div class="stat-value">{{ metrics.onlineEquipment }}</div>
@@ -40,7 +40,7 @@
       <el-col :span="6">
         <el-card class="stat-card">
           <div class="stat-icon" :style="oeeColorStyle">
-            <el-icon :color="oeeColor"><TrendingUp /></el-icon>
+            <el-icon :color="oeeColor"><TrendCharts /></el-icon>
           </div>
           <div class="stat-info">
             <div class="stat-value">{{ metrics.avgOee }}%</div>
@@ -192,7 +192,7 @@
 </template>
 
 <script setup lang="ts">
-import { Refresh, Monitor, CheckCircle, TrendingUp, ShoppingCart, Bell, List, PieChart } from '@element-plus/icons-vue'
+import { Refresh, Monitor, CircleCheck, TrendCharts, ShoppingCart, Bell, List, PieChart } from '@element-plus/icons-vue'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {

@@ -161,17 +161,17 @@ const handleClose = () => {
         </el-table-column>
         <el-table-column label="设置" width="200" align="center">
           <template #default="scope">
-            <el-button size="small" @click="getAttrList(scope.$index, scope.row)">属性列表
+            <el-button size="small" @click="getAttrList(scope.$index, scope.row as PmsProductAttributeCategory)">属性列表
             </el-button>
-            <el-button size="small" @click="getParamList(scope.$index, scope.row)">参数列表
+            <el-button size="small" @click="getParamList(scope.$index, scope.row as PmsProductAttributeCategory)">参数列表
             </el-button>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" align="center">
           <template #default="scope">
-            <el-button size="small" @click="handleUpdate(scope.$index, scope.row)">编辑
+            <el-button size="small" @click="handleUpdate(scope.$index, scope.row as PmsProductAttributeCategory)">编辑
             </el-button>
-            <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">删除
+            <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row as PmsProductAttributeCategory)">删除
             </el-button>
           </template>
         </el-table-column>

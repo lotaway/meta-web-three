@@ -164,10 +164,10 @@ function statusTag(status: number) {
         </el-table-column>
         <el-table-column :label="t('common.actions')" width="180" fixed="right">
           <template #default="{ row }">
-            <el-button v-if="row.status === 0" link type="success" size="small" @click="showBuyDialog(row)">
+            <el-button v-if="row.status === 0" link type="success" size="small" @click="showBuyDialog(row as Listing)">
               <el-icon><ShoppingCart /></el-icon> {{ t('solana.marketplace.buy') }}
             </el-button>
-            <el-button v-if="row.status === 0" link type="danger" size="small" @click="handleDelist(row)">
+            <el-button v-if="row.status === 0" link type="danger" size="small" @click="handleDelist(row as Listing)">
               <el-icon><Delete /></el-icon> {{ t('solana.marketplace.cancel') }}
             </el-button>
           </template>

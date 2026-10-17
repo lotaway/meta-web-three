@@ -181,7 +181,7 @@ onMounted(() => {
       </div>
       <div class="page-header-right">
         <span class="mr-8">启用 AI 辅助购物</span>
-        <el-switch v-model="aiEnabled" @change="toggleAiEnabled" />
+        <el-switch v-model="aiEnabled" @change="(val: boolean | string | number) => toggleAiEnabled(!!val)" />
         <el-button type="primary" :icon="Refresh" :loading="loading" @click="refreshAll">刷新</el-button>
       </div>
     </div>
@@ -228,7 +228,7 @@ onMounted(() => {
                 <el-table-column prop="description" label="说明" min-width="120" show-overflow-tooltip />
                 <el-table-column label="操作" width="80" align="center">
                   <template #default="{ row }">
-                    <el-button link type="danger" @click="removeConfig(row)">删除</el-button>
+                    <el-button link type="danger" @click="removeConfig(row as AiShoppingConfig)">删除</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -292,7 +292,7 @@ onMounted(() => {
               :key="`r-${t}`"
               v-show="providerResults[t]"
               class="provider-result"
-              :class="{ error: providerResults[t].startsWith('失败') }"
+              :class="{ error: providerResults[t]?.startsWith('失败') }"
             >
               [{{ t }}] {{ providerResults[t] }}
             </span>

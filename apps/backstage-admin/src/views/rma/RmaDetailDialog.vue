@@ -2,7 +2,7 @@
 import { useI18n } from 'vue-i18n'
 import type { RmaOrder } from '@/apis/rma'
 import { formatDateTime } from '@/utils/datetime'
-import { STATUS_TAG_TYPE_MAP } from './constants'
+import { STATUS_TAG_TYPE_MAP, type TagType } from './constants'
 
 const { t } = useI18n()
 
@@ -15,7 +15,7 @@ const emit = defineEmits<{
   'update:visible': [value: boolean]
 }>()
 
-const getStatusType = (status: string): string => {
+const getStatusType = (status: string): TagType => {
   return STATUS_TAG_TYPE_MAP[status] || 'info'
 }
 

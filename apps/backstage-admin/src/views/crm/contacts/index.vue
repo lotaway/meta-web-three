@@ -33,7 +33,7 @@
         </el-table-column>
         <el-table-column :label="t('common.operations')" width="160" fixed="right">
           <template #default="{ row }">
-            <el-button size="small" type="primary" link @click="openEdit(row)">{{ t('common.edit') }}</el-button>
+            <el-button size="small" type="primary" link @click="openEdit(row as Contact)">{{ t('common.edit') }}</el-button>
             <el-popconfirm :title="t('common.confirm') + t('common.delete') + '?'" @confirm="handleDelete(row.id!)">
               <template #reference>
                 <el-button size="small" type="danger" link>{{ t('common.delete') }}</el-button>

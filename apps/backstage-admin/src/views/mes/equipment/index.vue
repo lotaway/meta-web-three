@@ -50,12 +50,12 @@
         <el-table-column :label="t('mes.equipment.createdAt')" prop="createdAt" width="180" />
         <el-table-column :label="t('common.operation')" fixed="right" width="280">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">{{ t('common.view') }}</el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">{{ t('common.edit') }}</el-button>
-            <el-button link type="success" size="small" @click="handleStartTask(row)" v-if="row.status === 'IDLE'">{{ t('mes.equipment.startTask') }}</el-button>
-            <el-button link type="warning" size="small" @click="handleReportBreakdown(row)" v-if="row.status === 'RUNNING'">{{ t('mes.equipment.reportBreakdown') }}</el-button>
-            <el-button link type="info" size="small" @click="handleMaintenance(row)" v-if="row.status === 'IDLE'">{{ t('mes.equipment.startMaintenance') }}</el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">{{ t('common.delete') }}</el-button>
+            <el-button link type="primary" size="small" @click="handleView(row as Equipment)">{{ t('common.view') }}</el-button>
+            <el-button link type="primary" size="small" @click="handleEdit(row as Equipment)">{{ t('common.edit') }}</el-button>
+            <el-button link type="success" size="small" @click="handleStartTask(row as Equipment)" v-if="row.status === 'IDLE'">{{ t('mes.equipment.startTask') }}</el-button>
+            <el-button link type="warning" size="small" @click="handleReportBreakdown(row as Equipment)" v-if="row.status === 'RUNNING'">{{ t('mes.equipment.reportBreakdown') }}</el-button>
+            <el-button link type="info" size="small" @click="handleMaintenance(row as Equipment)" v-if="row.status === 'IDLE'">{{ t('mes.equipment.startMaintenance') }}</el-button>
+            <el-button link type="danger" size="small" @click="handleDelete(row as Equipment)">{{ t('common.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>

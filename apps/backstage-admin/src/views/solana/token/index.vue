@@ -190,13 +190,13 @@ async function handleBurn(token: SolanaToken) {
         <el-table-column prop="owner" :label="t('solana.token.owner')" min-width="180" show-overflow-tooltip />
         <el-table-column :label="t('common.actions')" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="showDetail(row)">
+            <el-button link type="primary" size="small" @click="showDetail(row as SolanaToken)">
               {{ t('common.detail') }}
             </el-button>
-            <el-button link type="success" size="small" @click="showMint(row)">
+            <el-button link type="success" size="small" @click="showMint(row as SolanaToken)">
               {{ t('solana.token.mint') }}
             </el-button>
-            <el-button link type="danger" size="small" @click="handleBurn(row)">
+            <el-button link type="danger" size="small" @click="handleBurn(row as SolanaToken)">
               {{ t('solana.token.burn') }}
             </el-button>
           </template>

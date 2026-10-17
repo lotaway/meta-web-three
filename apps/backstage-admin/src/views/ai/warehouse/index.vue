@@ -22,7 +22,7 @@ interface AIWarehouseRequest {
   capabilityType: string
   requestData: string
   responseData?: string
-  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
+  status: 'PENDING' | 'PROCESSING' | 'SUCCESS' | 'FALLBACK_USED' | 'FAILED'
   createdAt?: string
 }
 
@@ -215,10 +215,10 @@ onMounted(() => {
             <el-table-column prop="createdAt" :label="t('warehouse.createdAt')" width="180" />
             <el-table-column :label="t('common.actions')" width="150" fixed="right">
               <template #default="{ row }">
-                <el-button type="primary" link :icon="Edit" @click="handleEdit(row)">
+                <el-button type="primary" link :icon="Edit" @click="handleEdit(row as AIWarehouseRequest)">
                   {{ t('common.edit') }}
                 </el-button>
-                <el-button type="danger" link :icon="Delete" @click="handleDelete(row)">
+                <el-button type="danger" link :icon="Delete" @click="handleDelete(row as AIWarehouseRequest)">
                   {{ t('common.delete') }}
                 </el-button>
               </template>

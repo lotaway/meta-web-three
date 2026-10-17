@@ -61,13 +61,13 @@
       </el-table-column>
       <el-table-column :label="t('common.operations')" width="200" fixed="right">
         <template #default="{ row }">
-          <el-button type="primary" link @click="handleView(row)">
+          <el-button type="primary" link @click="handleView(row as WorkOrder)">
             {{ t('common.detail') }}
           </el-button>
-          <el-button type="primary" link @click="handleUpdate(row)">
+          <el-button type="primary" link @click="handleUpdate(row as WorkOrder)">
             {{ t('common.edit') }}
           </el-button>
-          <el-button type="danger" link @click="handleDelete(row)">
+          <el-button type="danger" link @click="handleDelete(row as WorkOrder)">
             {{ t('common.delete') }}
           </el-button>
         </template>

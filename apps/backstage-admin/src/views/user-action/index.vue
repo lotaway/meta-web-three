@@ -378,8 +378,8 @@ onMounted(() => {
             <el-table-column prop="createTime" label="Create Time" width="170" />
             <el-table-column label="Actions" width="150" fixed="right">
               <template #default="{ row }">
-                <el-button v-if="row.showStatus === 0" type="success" link @click="handleUpdateStatus(row, 1)">Show</el-button>
-                <el-button v-if="row.showStatus === 1" type="info" link @click="handleUpdateStatus(row, 0)">Hide</el-button>
+                <el-button v-if="row.showStatus === 0" type="success" link @click="handleUpdateStatus(row as ProductComment, 1)">Show</el-button>
+                <el-button v-if="row.showStatus === 1" type="info" link @click="handleUpdateStatus(row as ProductComment, 0)">Hide</el-button>
                 <el-button type="danger" link @click="handleDelete(row, 'comment')">Delete</el-button>
               </template>
             </el-table-column>

@@ -104,8 +104,8 @@ import {
 } from '@/apis/bi'
 import type { CategoryDistribution, FinancialSummary, ProductionAnalyticsResponse, OlapRow } from '@/apis/bi'
 
-const defaultStart = new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0]
-const defaultEnd = new Date().toISOString().split('T')[0]
+const defaultStart = new Date(new Date().getFullYear(), 0, 1).toISOString().slice(0, 10)
+const defaultEnd = new Date().toISOString().slice(0, 10)
 
 const dateRange = ref<string[]>([defaultStart, defaultEnd])
 const loading = ref(false)
@@ -152,7 +152,7 @@ const formatPercent = (v: number | undefined | null) => {
 
 async function loadSalesTrendRow() {
   try {
-    const trendRes = await getSalesTrend(dateRange.value[0], dateRange.value[1])
+    const trendRes = await getSalesTrend(dateRange.value[0]!, dateRange.value[1]!)
     const trend = trendRes.data
     if (trend.dates && trend.amounts) {
       salesTrendRows.value = trend.dates.map((d: string, i: number) => ({
@@ -166,14 +166,14 @@ async function loadSalesTrendRow() {
 
 async function loadCategoryData() {
   try {
-    const catRes = await getCategoryDistribution(dateRange.value[0], dateRange.value[1])
+    const catRes = await getCategoryDistribution(dateRange.value[0]!, dateRange.value[1]!)
     categoryList.value = catRes.data || []
   } catch (e) { console.error('Failed to load category distribution', e); ElMessage.error('Failed to load category distribution') }
 }
 
 async function loadRegionData() {
   try {
-    const regionRes = await getRegionalComparison(dateRange.value[0], dateRange.value[1])
+    const regionRes = await getRegionalComparison(dateRange.value[0]!, dateRange.value[1]!)
     const r = regionRes.data
     if (r.rows) {
       regionList.value = r.rows.map((row: OlapRow) => ({
@@ -187,7 +187,7 @@ async function loadRegionData() {
 
 async function loadFinancialData() {
   try {
-    const res = await getFinancialSummary(dateRange.value[0], dateRange.value[1])
+    const res = await getFinancialSummary(dateRange.value[0]!, dateRange.value[1]!)
     const d = res.data
     financialData.value = {
       totalRevenue: d.totalRevenue || 0,
@@ -208,7 +208,7 @@ async function loadInventoryData() {
 
 async function loadProductionData() {
   try {
-    const res = await getProductionAnalytics(dateRange.value[0], dateRange.value[1])
+    const res = await getProductionAnalytics(dateRange.value[0]!, dateRange.value[1]!)
     const p = res.data
     productionData.value = {
       totalOutput: p.totalOutput || 0,

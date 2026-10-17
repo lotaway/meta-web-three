@@ -342,7 +342,7 @@ onMounted(() => {
         </el-table-column>
         <el-table-column label="Actions" width="120" fixed="right">
           <template #default="{ row }">
-            <el-button type="success" link @click="handleConfirm(row)" :disabled="row.status === 'COMPLETED'">
+            <el-button type="success" link @click="handleConfirm(row as FixedAssetInventory)" :disabled="row.status === 'COMPLETED'">
               Confirm
             </el-button>
           </template>

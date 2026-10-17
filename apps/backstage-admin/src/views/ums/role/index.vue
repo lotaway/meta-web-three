@@ -216,7 +216,7 @@ const common = (key: string) => t(`common.${key}`)
         </el-table-column>
         <el-table-column :label="i18n('enabled')" width="140" align="center">
           <template #default="scope">
-            <el-switch @change="handleStatusChange(scope.$index, scope.row)" :active-value="1" :inactive-value="0"
+            <el-switch @change="handleStatusChange(scope.$index, scope.row as UmsRole)" :active-value="1" :inactive-value="0"
               v-model="scope.row.status">
             </el-switch>
           </template>
@@ -225,22 +225,22 @@ const common = (key: string) => t(`common.${key}`)
           <template #default="scope">
             <el-row>
               <el-col :span="12">
-                <el-button size="small" type="primary" link @click="handleSelectMenu(scope.$index, scope.row)">{{ i18n('assignMenu') }}
+                <el-button size="small" type="primary" link @click="handleSelectMenu(scope.$index, scope.row as UmsRole)">{{ i18n('assignMenu') }}
                 </el-button>
               </el-col>
               <el-col :span="12">
-                <el-button size="small" type="primary" link @click="handleSelectResource(scope.$index, scope.row)">{{ i18n('assignResource') }}
+                <el-button size="small" type="primary" link @click="handleSelectResource(scope.$index, scope.row as UmsRole)">{{ i18n('assignResource') }}
                 </el-button>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="12">
-                <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row)">
+                <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row as UmsRole)">
                   {{ i18n('edit') }}
                 </el-button>
               </el-col>
               <el-col :span="12">
-                <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row)">{{ i18n('delete') }}
+                <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row as UmsRole)">{{ i18n('delete') }}
                 </el-button>
               </el-col>
             </el-row>

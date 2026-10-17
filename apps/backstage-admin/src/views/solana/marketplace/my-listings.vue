@@ -108,7 +108,7 @@ function goBack() {
         </el-table-column>
         <el-table-column :label="t('common.actions')" width="120" fixed="right">
           <template #default="{ row }">
-            <el-button v-if="row.status === 0" link type="danger" size="small" :icon="Delete" @click="handleDelist(row)">
+            <el-button v-if="row.status === 0" link type="danger" size="small" :icon="Delete" @click="handleDelist(row as Listing)">
               {{ t('solana.marketplace.cancel') }}
             </el-button>
             <span v-else>-</span>

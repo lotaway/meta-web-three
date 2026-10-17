@@ -151,9 +151,9 @@ onMounted(() => {
         </el-table-column>
         <el-table-column fixed="right" label="Operations" width="180">
           <template #default="{ row }">
-            <el-button v-if="row.status === 'DRAFT'" link type="success" size="small" @click="handleSubmit(row)">Submit</el-button>
-            <el-button v-if="row.status === 'PENDING_APPROVAL'" link type="success" size="small" @click="handleApprove(row)">Approve</el-button>
-            <el-button v-if="row.status === 'DRAFT'" link type="danger" size="small" @click="handleDelete(row)">Delete</el-button>
+            <el-button v-if="row.status === 'DRAFT'" link type="success" size="small" @click="handleSubmit(row as BankReconciliation)">Submit</el-button>
+            <el-button v-if="row.status === 'PENDING_APPROVAL'" link type="success" size="small" @click="handleApprove(row as BankReconciliation)">Approve</el-button>
+            <el-button v-if="row.status === 'DRAFT'" link type="danger" size="small" @click="handleDelete(row as BankReconciliation)">Delete</el-button>
           </template>
         </el-table-column>
       </el-table>

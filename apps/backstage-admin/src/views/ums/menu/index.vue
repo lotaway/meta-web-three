@@ -155,7 +155,7 @@ const disableNextLevel = (value: number) => {
         </el-table-column>
         <el-table-column label="{{ i18n('isShow') }}" width="100" align="center">
           <template #default="scope">
-            <el-switch @change="handleHiddenChange(scope.$index, scope.row)" :active-value="0" :inactive-value="1"
+            <el-switch @change="handleHiddenChange(scope.$index, scope.row as UmsMenu)" :active-value="0" :inactive-value="1"
               v-model="scope.row.hidden">
             </el-switch>
           </template>
@@ -166,15 +166,15 @@ const disableNextLevel = (value: number) => {
         <el-table-column label="{{ i18n('setting') }}" width="120" align="center">
           <template #default="scope">
             <el-button type="primary" size="small" link :disabled="disableNextLevel(scope.row.level)"
-              @click="handleShowNextLevel(scope.$index, scope.row)">{{ i18n('viewSubLevel') }}
+              @click="handleShowNextLevel(scope.$index, scope.row as UmsMenu)">{{ i18n('viewSubLevel') }}
             </el-button>
           </template>
         </el-table-column>
         <el-table-column label="{{ i18n('operation') }}" width="200" align="center">
           <template #default="scope">
-            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row)">{{ i18n('edit') }}
+            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row as UmsMenu)">{{ i18n('edit') }}
             </el-button>
-            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row)">{{ i18n('delete') }}
+            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row as UmsMenu)">{{ i18n('delete') }}
             </el-button>
           </template>
         </el-table-column>

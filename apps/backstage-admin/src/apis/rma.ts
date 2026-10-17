@@ -18,6 +18,7 @@ export interface RmaOrder {
   createdBy?: string
   createdAt?: string
   updatedAt?: string
+  items?: RmaOrderItem[]
 }
 
 export interface RmaOrderItem {
@@ -69,7 +70,7 @@ export interface RmaDisposition {
 }
 
 export function getRmaListAPI(params: RmaQueryParam) {
-  return http<RmaOrder[]>({
+  return http<{ records: RmaOrder[]; total: number }>({
     url: '/api/rma',
     method: 'get',
     params,

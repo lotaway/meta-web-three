@@ -135,7 +135,7 @@ const formatBytes = (bytes: number): string => {
         </el-table-column>
         <el-table-column label="Actions" width="100" fixed="right">
           <template #default="{ row }">
-            <el-button link type="danger" size="small" :icon="Delete" @click="handleDelete(row)">Delete</el-button>
+            <el-button link type="danger" size="small" :icon="Delete" @click="handleDelete(row as UserStorage)">Delete</el-button>
           </template>
         </el-table-column>
       </el-table>

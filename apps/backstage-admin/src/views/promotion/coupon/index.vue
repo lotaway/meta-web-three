@@ -203,8 +203,8 @@ onMounted(() => {
           <el-table-column :label="t('promotion.endTime')" prop="endTime" width="160" />
           <el-table-column :label="t('common.action')" width="150" fixed="right">
             <template #default="{ row }">
-              <el-button type="primary" link :icon="Edit" @click="handleCouponEdit(row)">{{ t('common.edit') }}</el-button>
-              <el-button type="danger" link :icon="Delete" @click="handleCouponDelete(row)">{{ t('common.delete') }}</el-button>
+              <el-button type="primary" link :icon="Edit" @click="handleCouponEdit(row as SmsCoupon)">{{ t('common.edit') }}</el-button>
+              <el-button type="danger" link :icon="Delete" @click="handleCouponDelete(row as SmsCoupon)">{{ t('common.delete') }}</el-button>
             </template>
           </el-table-column>
         </el-table>

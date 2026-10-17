@@ -118,18 +118,18 @@
           </el-table-column>
           <el-table-column :label="t('common.operations')" width="260" fixed="right">
             <template #default="{ row }">
-              <el-button type="primary" link @click="handleView(row)">{{ t('common.detail') }}</el-button>
-              <el-button v-if="row.status === 'PENDING'" type="primary" link @click="handleAddOps(row)">
+              <el-button type="primary" link @click="handleView(row as ScheduleOrder)">{{ t('common.detail') }}</el-button>
+              <el-button v-if="row.status === 'PENDING'" type="primary" link @click="handleAddOps(row as ScheduleOrder)">
                 {{ t('mes.scheduling.addOps') }}
               </el-button>
-              <el-button v-if="row.status === 'SCHEDULED'" type="success" link @click="handleStart(row)">
+              <el-button v-if="row.status === 'SCHEDULED'" type="success" link @click="handleStart(row as ScheduleOrder)">
                 {{ t('mes.scheduling.start') }}
               </el-button>
-              <el-button v-if="row.status === 'IN_PROGRESS'" type="success" link @click="handleComplete(row)">
+              <el-button v-if="row.status === 'IN_PROGRESS'" type="success" link @click="handleComplete(row as ScheduleOrder)">
                 {{ t('mes.scheduling.complete') }}
               </el-button>
               <el-button v-if="row.status !== 'COMPLETED' && row.status !== 'CANCELLED'"
-                type="danger" link @click="handleCancel(row)">
+                type="danger" link @click="handleCancel(row as ScheduleOrder)">
                 {{ t('mes.scheduling.cancel') }}
               </el-button>
             </template>
@@ -166,8 +166,8 @@
           <el-table-column :label="t('mes.scheduling.workshop')" prop="workshopId" width="120" />
           <el-table-column :label="t('common.operations')" width="160" fixed="right">
             <template #default="{ row }">
-              <el-button type="primary" link @click="handleEditResource(row)">{{ t('common.edit') }}</el-button>
-              <el-button type="danger" link @click="handleDeleteResource(row)">{{ t('common.delete') }}</el-button>
+              <el-button type="primary" link @click="handleEditResource(row as ScheduleResource)">{{ t('common.edit') }}</el-button>
+              <el-button type="danger" link @click="handleDeleteResource(row as ScheduleResource)">{{ t('common.delete') }}</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -293,6 +293,7 @@ import {
   type ScheduleResult,
   type ScheduleResource,
   type OperationRequest,
+  type ResourceType,
 } from '@/apis/scheduling'
 
 const { t } = useI18n()
@@ -345,7 +346,14 @@ const opsForm = ref<{ operations: OperationRequest[]; orderId: number | null }>(
 const opsSubmitting = ref(false)
 
 const resourceDialogVisible = ref(false)
-const resourceForm = ref({
+const resourceForm = ref<{
+  resourceCode: string
+  resourceName: string
+  resourceType: ResourceType
+  workshopId: string
+  capacityPerShift: number
+  description: string
+}>({
   resourceCode: '',
   resourceName: '',
   resourceType: 'EQUIPMENT',

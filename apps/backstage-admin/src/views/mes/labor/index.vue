@@ -65,9 +65,9 @@
           </el-table-column>
           <el-table-column :label="t('common.operations')" width="200" fixed="right">
             <template #default="{ row }">
-              <el-button type="primary" link @click.stop="handleView(row)">{{ t('common.detail') }}</el-button>
-              <el-button type="primary" link @click.stop="handleEdit(row)">{{ t('common.edit') }}</el-button>
-              <el-button type="danger" link @click.stop="handleDelete(row)">{{ t('common.delete') }}</el-button>
+              <el-button type="primary" link @click.stop="handleView(row as Operator)">{{ t('common.detail') }}</el-button>
+              <el-button type="primary" link @click.stop="handleEdit(row as Operator)">{{ t('common.edit') }}</el-button>
+              <el-button type="danger" link @click.stop="handleDelete(row as Operator)">{{ t('common.delete') }}</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -134,19 +134,19 @@
           </el-table-column>
           <el-table-column :label="t('common.operations')" width="200" fixed="right">
             <template #default="{ row }">
-              <el-button v-if="row.status === 'DRAFT' && !row.endTime" type="primary" link @click="handleEndRecord(row)">
+              <el-button v-if="row.status === 'DRAFT' && !row.endTime" type="primary" link @click="handleEndRecord(row as TimeRecord)">
                 {{ t('mes.labor.clockOut') }}
               </el-button>
-              <el-button v-if="row.status === 'DRAFT' && row.endTime" type="primary" link @click="handleSubmitRecord(row)">
+              <el-button v-if="row.status === 'DRAFT' && row.endTime" type="primary" link @click="handleSubmitRecord(row as TimeRecord)">
                 {{ t('mes.labor.submit') }}
               </el-button>
-              <el-button v-if="row.status === 'SUBMITTED'" type="success" link @click="handleApproveRecord(row)">
+              <el-button v-if="row.status === 'SUBMITTED'" type="success" link @click="handleApproveRecord(row as TimeRecord)">
                 {{ t('mes.labor.approve') }}
               </el-button>
-              <el-button v-if="row.status === 'SUBMITTED'" type="danger" link @click="handleRejectRecord(row)">
+              <el-button v-if="row.status === 'SUBMITTED'" type="danger" link @click="handleRejectRecord(row as TimeRecord)">
                 {{ t('mes.labor.reject') }}
               </el-button>
-              <el-button type="danger" link @click="handleDeleteRecord(row)">{{ t('common.delete') }}</el-button>
+              <el-button type="danger" link @click="handleDeleteRecord(row as TimeRecord)">{{ t('common.delete') }}</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -174,7 +174,7 @@
           </el-table-column>
           <el-table-column :label="t('common.operations')" width="120">
             <template #default="{ row }">
-              <el-button v-if="row.status === 'ACTIVE'" type="danger" link @click="handleEndAssignment(row)">
+              <el-button v-if="row.status === 'ACTIVE'" type="danger" link @click="handleEndAssignment(row as WorkCenterAssignment)">
                 {{ t('mes.labor.endAssignment') }}
               </el-button>
             </template>

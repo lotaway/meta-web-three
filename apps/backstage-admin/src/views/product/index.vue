@@ -242,7 +242,7 @@ onMounted(() => {
         <template #default="{ row }">
           <el-switch
             :model-value="row.newStatus === 1"
-            @change="(val: boolean | string | number) => handleUpdateNewStatus(row, !!val ? 1 : 0)"
+            @change="(val: boolean | string | number) => handleUpdateNewStatus(row as PmsProduct, !!val ? 1 : 0)"
           />
         </template>
       </el-table-column>
@@ -250,17 +250,17 @@ onMounted(() => {
         <template #default="{ row }">
           <el-switch
             :model-value="row.recommandStatus === 1"
-            @change="(val: boolean | string | number) => handleUpdateRecommendStatus(row, !!val ? 1 : 0)"
+            @change="(val: boolean | string | number) => handleUpdateRecommendStatus(row as PmsProduct, !!val ? 1 : 0)"
           />
         </template>
       </el-table-column>
       <el-table-column :label="t('common.operation')" width="200" fixed="right">
         <template #default="{ row }">
-          <el-button type="primary" link :icon="Edit" @click="handleEdit(row)">{{ t('common.edit') }}</el-button>
-          <el-button type="primary" link :icon="Upload" @click="handleUpdatePublishStatus(row, row.publishStatus === 1 ? 0 : 1)">
+          <el-button type="primary" link :icon="Edit" @click="handleEdit(row as PmsProduct)">{{ t('common.edit') }}</el-button>
+          <el-button type="primary" link :icon="Upload" @click="handleUpdatePublishStatus(row as PmsProduct, row.publishStatus === 1 ? 0 : 1)">
             {{ row.publishStatus === 1 ? t('product.offline') : t('product.online') }}
           </el-button>
-          <el-button type="danger" link :icon="Delete" @click="handleDelete(row)">{{ t('common.delete') }}</el-button>
+          <el-button type="danger" link :icon="Delete" @click="handleDelete(row as PmsProduct)">{{ t('common.delete') }}</el-button>
         </template>
       </el-table-column>
     </el-table>

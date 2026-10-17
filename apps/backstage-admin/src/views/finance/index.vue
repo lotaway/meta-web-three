@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import type { TagType } from '@/types/ui'
 import { Refresh } from '@element-plus/icons-vue'
 import {
   listSubjectsAPI, createSubjectAPI, disableSubjectAPI, enableSubjectAPI,
@@ -140,8 +141,8 @@ const refreshAll = () => {
   loadDashboard(); loadSubjects(); loadFinanceAccounts(); loadVouchers(); loadArAp(); loadCost(); loadRatios()
 }
 
-const statusTag = (s?: string) => {
-  const m: Record<string, string> = { ACTIVE: 'success', INACTIVE: 'info', PENDING: 'info', SUBMITTED: 'warning', APPROVED: 'success', REJECTED: 'danger', POSTED: 'success', CLOSED: 'info', DRAFT: 'info', OVERDUE: 'danger' }
+const statusTag = (s?: string): TagType => {
+  const m: Record<string, TagType> = { ACTIVE: 'success', INACTIVE: 'info', PENDING: 'info', SUBMITTED: 'warning', APPROVED: 'success', REJECTED: 'danger', POSTED: 'success', CLOSED: 'info', DRAFT: 'info', OVERDUE: 'danger' }
   return m[s || ''] || 'info'
 }
 

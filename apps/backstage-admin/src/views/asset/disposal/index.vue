@@ -333,8 +333,8 @@ onMounted(() => {
         </el-table-column>
         <el-table-column label="Actions" width="180" fixed="right">
           <template #default="{ row }">
-            <el-button v-if="row.status === 'PENDING_APPROVAL'" type="success" link @click="handleApprove(row)">Approve</el-button>
-            <el-button v-if="row.status === 'PENDING_APPROVAL'" type="danger" link @click="handleReject(row)">Reject</el-button>
+            <el-button v-if="row.status === 'PENDING_APPROVAL'" type="success" link @click="handleApprove(row as FixedAssetDisposal)">Approve</el-button>
+            <el-button v-if="row.status === 'PENDING_APPROVAL'" type="danger" link @click="handleReject(row as FixedAssetDisposal)">Reject</el-button>
           </template>
         </el-table-column>
       </el-table>

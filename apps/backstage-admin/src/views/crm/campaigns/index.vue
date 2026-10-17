@@ -49,10 +49,10 @@
         <el-table-column prop="convertedCustomers" :label="t('crm.campaign.convertedCustomers')" width="100" />
         <el-table-column :label="t('common.operations')" width="240" fixed="right">
           <template #default="{ row }">
-            <el-button size="small" type="primary" link @click="openEdit(row)">{{ t('common.edit') }}</el-button>
-            <el-button v-if="row.status === 'PLANNING'" size="small" type="success" link @click="handleStatusChange(row, 'ACTIVE')">{{ t('crm.campaign.start') }}</el-button>
-            <el-button v-if="row.status === 'ACTIVE'" size="small" type="warning" link @click="handleStatusChange(row, 'PAUSED')">{{ t('crm.campaign.pause') }}</el-button>
-            <el-button v-if="row.status === 'ACTIVE' || row.status === 'PAUSED'" size="small" type="success" link @click="handleStatusChange(row, 'COMPLETED')">{{ t('crm.campaign.complete') }}</el-button>
+            <el-button size="small" type="primary" link @click="openEdit(row as Campaign)">{{ t('common.edit') }}</el-button>
+            <el-button v-if="row.status === 'PLANNING'" size="small" type="success" link @click="handleStatusChange(row as Campaign, 'ACTIVE')">{{ t('crm.campaign.start') }}</el-button>
+            <el-button v-if="row.status === 'ACTIVE'" size="small" type="warning" link @click="handleStatusChange(row as Campaign, 'PAUSED')">{{ t('crm.campaign.pause') }}</el-button>
+            <el-button v-if="row.status === 'ACTIVE' || row.status === 'PAUSED'" size="small" type="success" link @click="handleStatusChange(row as Campaign, 'COMPLETED')">{{ t('crm.campaign.complete') }}</el-button>
             <el-popconfirm :title="t('common.confirm') + t('common.delete') + '?'" @confirm="handleDelete(row.id!)">
               <template #reference>
                 <el-button size="small" type="danger" link>{{ t('common.delete') }}</el-button>
@@ -116,6 +116,7 @@
 <script lang="ts" setup>
 import { ref, reactive, onMounted } from 'vue'
 import { t } from '@/locales'
+import type { TagType } from '@/types/ui'
 import { ElMessage } from 'element-plus'
 import { listCampaigns, createCampaign, updateCampaign, deleteCampaign } from '@/apis/crm'
 import type { Campaign } from '@/apis/crm'
@@ -165,8 +166,8 @@ const campaignStatusOptions: Record<string, string> = {
   CANCELLED: t('crm.campaignStatus.CANCELLED'),
 }
 
-const campaignStatusType = (s: string) => {
-  const map: Record<string, string> = { PLANNING: 'info', ACTIVE: 'success', PAUSED: 'warning', COMPLETED: '', CANCELLED: 'danger' }
+const campaignStatusType = (s: string): TagType => {
+  const map: Record<string, TagType> = { PLANNING: 'info', ACTIVE: 'success', PAUSED: 'warning', CANCELLED: 'danger' }
   return map[s] || 'info'
 }
 

@@ -90,7 +90,7 @@
               v-if="row.alertStatus === 0 || row.alertStatus === 1"
               type="success"
               link
-              @click="handleResolve(row)"
+              @click="handleResolve(row as InventoryAlert)"
             >
               Resolve
             </el-button>
@@ -98,7 +98,7 @@
               v-if="row.alertStatus === 0 || row.alertStatus === 1"
               type="info"
               link
-              @click="handleIgnore(row)"
+              @click="handleIgnore(row as InventoryAlert)"
             >
               Ignore
             </el-button>

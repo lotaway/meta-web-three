@@ -54,11 +54,11 @@
         <el-table-column :label="t('mes.qc.nonConformance.createdAt')" prop="createdAt" width="180" />
         <el-table-column :label="t('common.operation')" fixed="right" width="200">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">{{ t('common.view') }}</el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">{{ t('common.edit') }}</el-button>
-            <el-button link type="success" size="small" @click="handleEnable(row)" v-if="!row.isEnabled">{{ t('mes.qc.nonConformance.enable') }}</el-button>
-            <el-button link type="warning" size="small" @click="handleDisable(row)" v-if="row.isEnabled">{{ t('mes.qc.nonConformance.disable') }}</el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">{{ t('common.delete') }}</el-button>
+            <el-button link type="primary" size="small" @click="handleView(row as NonConformanceDisposition)">{{ t('common.view') }}</el-button>
+            <el-button link type="primary" size="small" @click="handleEdit(row as NonConformanceDisposition)">{{ t('common.edit') }}</el-button>
+            <el-button link type="success" size="small" @click="handleEnable(row as NonConformanceDisposition)" v-if="!row.isEnabled">{{ t('mes.qc.nonConformance.enable') }}</el-button>
+            <el-button link type="warning" size="small" @click="handleDisable(row as NonConformanceDisposition)" v-if="row.isEnabled">{{ t('mes.qc.nonConformance.disable') }}</el-button>
+            <el-button link type="danger" size="small" @click="handleDelete(row as NonConformanceDisposition)">{{ t('common.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>

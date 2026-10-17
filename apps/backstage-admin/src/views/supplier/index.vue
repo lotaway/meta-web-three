@@ -266,9 +266,9 @@ const getLevelType = (level: string): 'success' | 'warning' | 'info' | 'danger' 
         <el-table-column prop="score" :label="t('supplier.score')" width="80" />
         <el-table-column :label="t('common.actions')" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">{{ t('common.view') }}</el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">{{ t('common.edit') }}</el-button>
-            <el-dropdown @command="(cmd: string) => handleAssessment(row, cmd)">
+            <el-button link type="primary" size="small" @click="handleView(row as Supplier)">{{ t('common.view') }}</el-button>
+            <el-button link type="primary" size="small" @click="handleEdit(row as Supplier)">{{ t('common.edit') }}</el-button>
+            <el-dropdown @command="(cmd: string) => handleAssessment(row as Supplier, cmd)">
               <el-button link type="primary" size="small">{{ t('supplier.assess') }}</el-button>
               <template #dropdown>
                 <el-dropdown-menu>

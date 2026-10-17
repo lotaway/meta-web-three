@@ -221,7 +221,7 @@ const formatActiveStatus = (row: SmsFlashPromotion) => {
           <template #default="scope">{{ scope.row.title }}</template>
         </el-table-column>
         <el-table-column label="活动状态" width="140" align="center">
-          <template #default="scope">{{ formatActiveStatus(scope.row) }}</template>
+          <template #default="scope">{{ formatActiveStatus(scope.row as SmsFlashPromotion) }}</template>
         </el-table-column>
         <el-table-column label="开始时间" width="140" align="center">
           <template #default="scope">{{ formatDate(scope.row.startDate) }}</template>
@@ -231,19 +231,19 @@ const formatActiveStatus = (row: SmsFlashPromotion) => {
         </el-table-column>
         <el-table-column label="上线/下线" width="200" align="center">
           <template #default="scope">
-            <el-switch @change="handleStatusChange(scope.$index, scope.row)" :active-value="1" :inactive-value="0"
+            <el-switch @change="handleStatusChange(scope.$index, scope.row as SmsFlashPromotion)" :active-value="1" :inactive-value="0"
               v-model="scope.row.status">
             </el-switch>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
           <template #default="scope">
-            <el-button size="small" type="primary" link @click="handleSelectSession(scope.$index, scope.row)">设置商品
+            <el-button size="small" type="primary" link @click="handleSelectSession(scope.$index, scope.row as SmsFlashPromotion)">设置商品
             </el-button>
-            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row)">
+            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row as SmsFlashPromotion)">
               编辑
             </el-button>
-            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row)">删除
+            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row as SmsFlashPromotion)">删除
             </el-button>
           </template>
         </el-table-column>

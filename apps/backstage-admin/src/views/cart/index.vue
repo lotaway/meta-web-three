@@ -294,7 +294,7 @@ onMounted(() => {
             :min="1"
             :max="999"
             size="small"
-            @change="(val?: number) => handleUpdateQuantity(row, val || 1)"
+            @change="(val?: number) => handleUpdateQuantity(row as CartItem, val || 1)"
           />
         </template>
       </el-table-column>
@@ -333,7 +333,7 @@ onMounted(() => {
       </el-table-column>
       <el-table-column label="Actions" width="120" fixed="right">
         <template #default="{ row }">
-          <el-button type="danger" size="small" :icon="Delete" @click="handleDelete(row)">
+          <el-button type="danger" size="small" :icon="Delete" @click="handleDelete(row as CartItem)">
             Delete
           </el-button>
         </template>

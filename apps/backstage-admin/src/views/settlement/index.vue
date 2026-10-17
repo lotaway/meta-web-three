@@ -351,22 +351,22 @@ onMounted(() => {
         </el-table-column>
         <el-table-column :label="t('common.operate')" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">
+            <el-button link type="primary" size="small" @click="handleView(row as SettlementOrder)">
               {{ t('common.view') }}
             </el-button>
-            <el-button v-if="row.status === 'PENDING'" link type="primary" size="small" @click="handleConfirm(row)">
+            <el-button v-if="row.status === 'PENDING'" link type="primary" size="small" @click="handleConfirm(row as SettlementOrder)">
               {{ t('settlement.confirm') }}
             </el-button>
-            <el-button v-if="row.status === 'CONFIRMED'" link type="warning" size="small" @click="handleProcess(row)">
+            <el-button v-if="row.status === 'CONFIRMED'" link type="warning" size="small" @click="handleProcess(row as SettlementOrder)">
               {{ t('settlement.process') }}
             </el-button>
-            <el-button v-if="row.status === 'PROCESSING'" link type="success" size="small" @click="handleComplete(row)">
+            <el-button v-if="row.status === 'PROCESSING'" link type="success" size="small" @click="handleComplete(row as SettlementOrder)">
               {{ t('settlement.complete') }}
             </el-button>
-            <el-button v-if="row.status === 'PROCESSING'" link type="danger" size="small" @click="handleFail(row)">
+            <el-button v-if="row.status === 'PROCESSING'" link type="danger" size="small" @click="handleFail(row as SettlementOrder)">
               {{ t('settlement.fail') }}
             </el-button>
-            <el-button v-if="row.status === 'PENDING' || row.status === 'CONFIRMED'" link type="danger" size="small" @click="handleCancel(row)">
+            <el-button v-if="row.status === 'PENDING' || row.status === 'CONFIRMED'" link type="danger" size="small" @click="handleCancel(row as SettlementOrder)">
               {{ t('settlement.cancel') }}
             </el-button>
           </template>

@@ -381,14 +381,14 @@ const deleteOrderFn = async (ids: number[]) => {
         </el-table-column>
         <el-table-column :label="t('oms.order.list.operation')" width="200" align="center">
           <template #default="scope">
-            <el-button size="small" @click="handleViewOrder(scope.$index, scope.row)">{{ t('oms.order.list.viewOrder') }}</el-button>
-            <el-button size="small" @click="handleCloseOrder(scope.$index, scope.row)"
+            <el-button size="small" @click="handleViewOrder(scope.$index, scope.row as OmsOrder)">{{ t('oms.order.list.viewOrder') }}</el-button>
+            <el-button size="small" @click="handleCloseOrder(scope.$index, scope.row as OmsOrder)"
               v-show="scope.row.status === 0">{{ t('oms.order.list.closeOrder') }}</el-button>
-            <el-button size="small" @click="handleDeliveryOrder(scope.$index, scope.row)"
+            <el-button size="small" @click="handleDeliveryOrder(scope.$index, scope.row as OmsOrder)"
               v-show="scope.row.status === 1">{{ t('oms.order.list.deliverOrder') }}</el-button>
-            <el-button size="small" @click="handleViewLogistics(scope.$index, scope.row)"
+            <el-button size="small" @click="handleViewLogistics(scope.$index, scope.row as OmsOrder)"
               v-show="scope.row.status === 2 || scope.row.status === 3">{{ t('oms.order.list.trackOrder') }}</el-button>
-            <el-button size="small" type="danger" @click="handleDeleteOrder(scope.$index, scope.row)"
+            <el-button size="small" type="danger" @click="handleDeleteOrder(scope.$index, scope.row as OmsOrder)"
               v-show="scope.row.status === 4">{{ t('oms.order.list.deleteOrder') }}</el-button>
           </template>
         </el-table-column>

@@ -73,13 +73,13 @@
         </el-table-column>
         <el-table-column :label="t('mes.processInstance.actions')" width="180" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">
+            <el-button link type="primary" size="small" @click="handleView(row as ProcessFlowInstance)">
               {{ t('mes.processInstance.view') }}
             </el-button>
-            <el-button link type="success" size="small" @click="handleComplete(row)" v-if="row.status === 'RUNNING'">
+            <el-button link type="success" size="small" @click="handleComplete(row as ProcessFlowInstance)" v-if="row.status === 'RUNNING'">
               {{ t('mes.processInstance.complete') }}
             </el-button>
-            <el-button link type="danger" size="small" @click="handleTerminate(row)" v-if="row.status === 'RUNNING'">
+            <el-button link type="danger" size="small" @click="handleTerminate(row as ProcessFlowInstance)" v-if="row.status === 'RUNNING'">
               {{ t('mes.processInstance.terminate') }}
             </el-button>
           </template>

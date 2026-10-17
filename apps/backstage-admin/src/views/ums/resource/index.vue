@@ -234,10 +234,10 @@ const formatDateTime = (time: string) => {
         </el-table-column>
         <el-table-column label="操作" width="140" align="center">
           <template #default="scope">
-            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row)">
+            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row as UmsResource)">
               编辑
             </el-button>
-            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row)">删除
+            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row as UmsResource)">删除
             </el-button>
           </template>
         </el-table-column>

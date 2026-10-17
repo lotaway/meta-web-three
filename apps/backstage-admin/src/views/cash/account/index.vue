@@ -153,10 +153,10 @@ onMounted(() => {
         </el-table-column>
         <el-table-column fixed="right" label="Operations" width="200">
           <template #default="{ row }">
-            <el-button v-if="row.status === 'ACTIVE'" link type="warning" size="small" @click="handleFreeze(row)">Freeze</el-button>
-            <el-button v-if="row.status === 'FROZEN'" link type="success" size="small" @click="handleUnfreeze(row)">Unfreeze</el-button>
-            <el-button v-if="row.status !== 'CLOSED'" link type="info" size="small" @click="handleClose(row)">Close</el-button>
-            <el-button v-if="row.status === 'CLOSED'" link type="danger" size="small" @click="handleDelete(row)">Delete</el-button>
+            <el-button v-if="row.status === 'ACTIVE'" link type="warning" size="small" @click="handleFreeze(row as BankAccount)">Freeze</el-button>
+            <el-button v-if="row.status === 'FROZEN'" link type="success" size="small" @click="handleUnfreeze(row as BankAccount)">Unfreeze</el-button>
+            <el-button v-if="row.status !== 'CLOSED'" link type="info" size="small" @click="handleClose(row as BankAccount)">Close</el-button>
+            <el-button v-if="row.status === 'CLOSED'" link type="danger" size="small" @click="handleDelete(row as BankAccount)">Delete</el-button>
           </template>
         </el-table-column>
       </el-table>

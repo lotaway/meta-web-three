@@ -34,7 +34,7 @@
       </div>
       <el-table :data="tickets" stripe v-loading="loading">
         <el-table-column prop="ticketNo" :label="t('crm.ticket.ticketNo')" width="120" />
-        <el-table-column prop="title" :label="t('crm.ticket.title')" />
+        <el-table-column prop="title" :label="t('crm.ticket.titleLabel')" />
         <el-table-column prop="type" :label="t('crm.ticket.type')" width="80">
           <template #default="{ row }">
             <el-tag size="small">{{ row.type }}</el-tag>
@@ -56,10 +56,10 @@
         </el-table-column>
         <el-table-column :label="t('common.operations')" width="280" fixed="right">
           <template #default="{ row }">
-            <el-button size="small" type="primary" link @click="openEdit(row)">{{ t('common.edit') }}</el-button>
-            <el-button size="small" link @click="openAssign(row)">{{ t('crm.ticket.assign') }}</el-button>
-            <el-button v-if="row.status === 'OPEN' || row.status === 'ASSIGNED'" size="small" type="primary" link @click="handleStatusUpdate(row, 'IN_PROGRESS')">{{ t('crm.ticket.start') }}</el-button>
-            <el-button v-if="row.status === 'IN_PROGRESS'" size="small" type="success" link @click="openResolve(row)">{{ t('crm.ticket.resolve') }}</el-button>
+            <el-button size="small" type="primary" link @click="openEdit(row as CustomerServiceTicket)">{{ t('common.edit') }}</el-button>
+            <el-button size="small" link @click="openAssign(row as CustomerServiceTicket)">{{ t('crm.ticket.assign') }}</el-button>
+            <el-button v-if="row.status === 'OPEN' || row.status === 'ASSIGNED'" size="small" type="primary" link @click="handleStatusUpdate(row as CustomerServiceTicket, 'IN_PROGRESS')">{{ t('crm.ticket.start') }}</el-button>
+            <el-button v-if="row.status === 'IN_PROGRESS'" size="small" type="success" link @click="openResolve(row as CustomerServiceTicket)">{{ t('crm.ticket.resolve') }}</el-button>
             <el-popconfirm :title="t('common.confirm') + t('common.delete') + '?'" @confirm="handleDelete(row.id!)">
               <template #reference>
                 <el-button size="small" type="danger" link>{{ t('common.delete') }}</el-button>
@@ -79,7 +79,7 @@
 
     <el-dialog v-model="dialogVisible" :title="isEdit ? t('crm.ticket.edit') : t('crm.ticket.add')" width="600px">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
-        <el-form-item :label="t('crm.ticket.title')" prop="title">
+        <el-form-item :label="t('crm.ticket.titleLabel')" prop="title">
           <el-input v-model="form.title" />
         </el-form-item>
         <el-row :gutter="20">
@@ -137,6 +137,7 @@
 <script lang="ts" setup>
 import { ref, reactive, onMounted } from 'vue'
 import { t } from '@/locales'
+import type { TagType } from '@/types/ui'
 import { ElMessage } from 'element-plus'
 import { listTickets, createTicket, updateTicket, deleteTicket, assignTicket, updateTicketStatus } from '@/apis/crm'
 import type { CustomerServiceTicket } from '@/apis/crm'
@@ -199,13 +200,13 @@ const ticketStatusOptions: Record<string, string> = {
   CLOSED: t('crm.ticketStatus.CLOSED'),
 }
 
-const priorityType = (p: string) => {
-  const map: Record<string, string> = { LOW: 'info', MEDIUM: '', HIGH: 'warning', URGENT: 'danger' }
+const priorityType = (p: string): TagType => {
+  const map: Record<string, TagType> = { LOW: 'info', HIGH: 'warning', URGENT: 'danger' }
   return map[p] || 'info'
 }
 
-const ticketStatusType = (s: string) => {
-  const map: Record<string, string> = { OPEN: 'info', ASSIGNED: 'primary', IN_PROGRESS: 'warning', RESOLVED: 'success', CLOSED: '' }
+const ticketStatusType = (s: string): TagType => {
+  const map: Record<string, TagType> = { OPEN: 'info', ASSIGNED: 'primary', IN_PROGRESS: 'warning', RESOLVED: 'success' }
   return map[s] || 'info'
 }
 

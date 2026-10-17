@@ -225,14 +225,14 @@ const handleBatchOperate = async () => {
         </el-table-column>
         <el-table-column label="品牌制造商" width="100" align="center">
           <template #default="scope">
-            <el-switch @change="handleFactoryStatusChange(scope.$index, scope.row)" :active-value="1"
+            <el-switch @change="handleFactoryStatusChange(scope.$index, scope.row as PmsBrand)" :active-value="1"
               :inactive-value="0" v-model="scope.row.factoryStatus">
             </el-switch>
           </template>
         </el-table-column>
         <el-table-column label="是否显示" width="100" align="center">
           <template #default="scope">
-            <el-switch @change="handleShowStatusChange(scope.$index, scope.row)" :active-value="1" :inactive-value="0"
+            <el-switch @change="handleShowStatusChange(scope.$index, scope.row as PmsBrand)" :active-value="1" :inactive-value="0"
               v-model="scope.row.showStatus">
             </el-switch>
           </template>
@@ -240,18 +240,18 @@ const handleBatchOperate = async () => {
         <el-table-column label="相关" width="220" align="center">
           <template #default="scope">
             <span>商品：</span>
-            <el-button size="small" type="primary" link @click="getProductList(scope.$index, scope.row)">100
+            <el-button size="small" type="primary" link @click="getProductList(scope.$index, scope.row as PmsBrand)">100
             </el-button>
             <span>评价：</span>
-            <el-button size="small" type="primary" link @click="getProductCommentList(scope.$index, scope.row)">1000
+            <el-button size="small" type="primary" link @click="getProductCommentList(scope.$index, scope.row as PmsBrand)">1000
             </el-button>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" align="center">
           <template #default="scope">
-            <el-button size="small" @click="handleUpdateBrand(scope.$index, scope.row)">编辑
+            <el-button size="small" @click="handleUpdateBrand(scope.$index, scope.row as PmsBrand)">编辑
             </el-button>
-            <el-button size="small" type="danger" @click="handleDeleteBrand(scope.$index, scope.row)">删除
+            <el-button size="small" type="danger" @click="handleDeleteBrand(scope.$index, scope.row as PmsBrand)">删除
             </el-button>
           </template>
         </el-table-column>

@@ -149,16 +149,16 @@ const handleDialogConfirm = async () => {
         </el-table-column>
         <el-table-column label="启用" align="center">
           <template #default="scope">
-            <el-switch @change="handleStatusChange(scope.$index, scope.row)" :active-value="1" :inactive-value="0"
+            <el-switch @change="handleStatusChange(scope.$index, scope.row as SmsFlashPromotionSession)" :active-value="1" :inactive-value="0"
               v-model="scope.row.status">
             </el-switch>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
           <template #default="scope">
-            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row)">编辑
+            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row as SmsFlashPromotionSession)">编辑
             </el-button>
-            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row)">删除
+            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row as SmsFlashPromotionSession)">删除
             </el-button>
           </template>
         </el-table-column>

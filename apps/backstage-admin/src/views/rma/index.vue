@@ -16,7 +16,7 @@ import {
   type RmaQueryParam
 } from '@/apis/rma'
 import { formatDateTime } from '@/utils/datetime'
-import { RMA_STATUS, STATUS_TAG_TYPE_MAP } from './constants'
+import { RMA_STATUS, STATUS_TAG_TYPE_MAP, type TagType } from './constants'
 import RmaFormDialog from './RmaFormDialog.vue'
 import RmaDetailDialog from './RmaDetailDialog.vue'
 import RmaInspectionDialog from './RmaInspectionDialog.vue'
@@ -61,8 +61,8 @@ const getList = async () => {
   listLoading.value = true
   try {
     const response = await getRmaListAPI(listQuery.value)
-    list.value = response.data || []
-    total.value = response.total || 0
+    list.value = response.data.records || []
+    total.value = response.data.total || 0
   } catch (error: any) {
     console.error('Failed to load RMA orders:', error)
     ElMessage.error(error.message || 'Failed to load RMA orders')
@@ -121,7 +121,7 @@ const handleSubmit = async (form: {
     await createRmaAPI({
       orderNo: form.orderNo,
       returnType: form.returnType,
-      customerId: form.customerId ?? '',
+      customerId: String(form.customerId ?? ''),
       customerName: form.customerName,
       contactPhone: form.contactPhone,
       reasonCode: form.reasonCode,
@@ -178,7 +178,7 @@ const handleRecordInspection = (row: RmaOrder) => {
 const submitInspection = async (form: { inspector: string; result: string; conclusion: string; totalInspected: number; totalPassed: number; totalFailed: number; remark: string }) => {
   dialogLoading.value = true
   try {
-    await recordRmaInspectionAPI(currentRmaId.value!, form)
+    await recordRmaInspectionAPI(currentRmaId.value!, { ...form, rmaId: currentRmaId.value! })
     ElMessage.success(t('rma.recordSuccess'))
     inspectionVisible.value = false
     getList()
@@ -199,7 +199,7 @@ const handleMakeDisposition = (row: RmaOrder) => {
 const submitDisposition = async (form: { dispositionType: string; dispositionBy: string; refundAmount: number; replacementSkuCode: string; replacementQuantity: number; remark: string }) => {
   dialogLoading.value = true
   try {
-    await makeRmaDispositionAPI(currentRmaId.value!, form)
+    await makeRmaDispositionAPI(currentRmaId.value!, { ...form, rmaId: currentRmaId.value! })
     ElMessage.success(t('rma.dispositionSuccess'))
     dispositionVisible.value = false
     getList()
@@ -247,7 +247,7 @@ const handleCancel = async (row: RmaOrder) => {
   }
 }
 
-const getStatusType = (status: string): string => {
+const getStatusType = (status: string): TagType => {
   return STATUS_TAG_TYPE_MAP[status] || 'info'
 }
 
@@ -313,7 +313,7 @@ const formatAmount = (amount?: number) => {
         </el-table-column>
         <el-table-column :label="t('common.operations')" width="300" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" size="small" :icon="View" @click="handleView(row)">
+            <el-button type="primary" size="small" :icon="View" @click="handleView(row as RmaOrder)">
               {{ t('common.detail') }}
             </el-button>
             <el-button
@@ -321,7 +321,7 @@ const formatAmount = (amount?: number) => {
               type="warning"
               size="small"
               :icon="Check"
-              @click="handleSubmitInspection(row)"
+              @click="handleSubmitInspection(row as RmaOrder)"
             >
               {{ t('rma.submitInspection') }}
             </el-button>
@@ -330,7 +330,7 @@ const formatAmount = (amount?: number) => {
               type="primary"
               size="small"
               :icon="Edit"
-              @click="handleRecordInspection(row)"
+              @click="handleRecordInspection(row as RmaOrder)"
             >
               {{ t('rma.recordInspection') }}
             </el-button>
@@ -339,7 +339,7 @@ const formatAmount = (amount?: number) => {
               type="warning"
               size="small"
               :icon="Edit"
-              @click="handleMakeDisposition(row)"
+              @click="handleMakeDisposition(row as RmaOrder)"
             >
               {{ t('rma.makeDisposition') }}
             </el-button>
@@ -348,7 +348,7 @@ const formatAmount = (amount?: number) => {
               type="success"
               size="small"
               :icon="Check"
-              @click="handleExecuteDisposition(row)"
+              @click="handleExecuteDisposition(row as RmaOrder)"
             >
               {{ t('rma.executeDisposition') }}
             </el-button>
@@ -357,7 +357,7 @@ const formatAmount = (amount?: number) => {
               type="danger"
               size="small"
               :icon="Close"
-              @click="handleCancel(row)"
+              @click="handleCancel(row as RmaOrder)"
             >
               {{ t('rma.cancelRma') }}
             </el-button>

@@ -45,8 +45,8 @@ import { ElMessage } from 'element-plus'
 import { getProductionAnalytics, getYieldRate, getOeeAnalysis } from '@/apis/bi'
 import type { YieldRate, OeeAnalysis } from '@/apis/bi'
 
-const defaultStart = new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0]
-const defaultEnd = new Date().toISOString().split('T')[0]
+const defaultStart = new Date(new Date().getFullYear(), 0, 1).toISOString().slice(0, 10)
+const defaultEnd = new Date().toISOString().slice(0, 10)
 const dateRange = ref<string[]>([defaultStart, defaultEnd])
 const loading = ref(false)
 const yieldRows = ref<YieldRate[]>([])
@@ -61,7 +61,7 @@ const formatPercent = (v: number) => (v * 100).toFixed(2) + '%'
 
 async function loadProductionMeta() {
   try {
-    const res = await getProductionAnalytics(dateRange.value[0], dateRange.value[1])
+    const res = await getProductionAnalytics(dateRange.value[0]!, dateRange.value[1]!)
     const p = res.data
     productionMeta.value = {
       totalOutput: p.totalOutput || 0,

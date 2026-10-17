@@ -176,9 +176,9 @@ const selectTypeFilter = (value: number) => {
         </el-table-column>
         <el-table-column label="操作" width="200" align="center">
           <template #default="scope">
-            <el-button size="small" @click="handleUpdate(scope.$index, scope.row)">编辑
+            <el-button size="small" @click="handleUpdate(scope.$index, scope.row as PmsProductAttribute)">编辑
             </el-button>
-            <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">删除
+            <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row as PmsProductAttribute)">删除
             </el-button>
           </template>
         </el-table-column>

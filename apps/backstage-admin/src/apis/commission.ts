@@ -1,5 +1,4 @@
 import http from '@/utils/http'
-import type { CommonResult, CommonPage } from '@/types/common'
 
 export interface CommissionAccount {
   userId: number
@@ -53,25 +52,25 @@ export interface CommissionLedgerQuery {
 }
 
 export function getCommissionBalanceAPI(userId: number) {
-  return http<CommonResult<CommissionAccount>>({ url: '/commission/balance', method: 'get', params: { userId } })
+  return http<CommissionAccount>({ url: '/commission/balance', method: 'get', params: { userId } })
 }
 
 export function getCommissionLedgerAPI(params: CommissionLedgerQuery) {
-  return http<CommonResult<CommissionRecord[]>>({ url: '/commission/ledger', method: 'get', params })
+  return http<CommissionRecord[]>({ url: '/commission/ledger', method: 'get', params })
 }
 
 export function bindCommissionRelationAPI(data: CommissionBindRequest) {
-  return http<CommonResult<void>>({ url: '/commission/relations/bind', method: 'post', data })
+  return http<void>({ url: '/commission/relations/bind', method: 'post', data })
 }
 
 export function calculateCommissionAPI(data: CommissionCalcRequest) {
-  return http<CommonResult<void>>({ url: '/commission/calc', method: 'post', data })
+  return http<void>({ url: '/commission/calc', method: 'post', data })
 }
 
 export function settleCommissionAPI(data: CommissionSettleRequest) {
-  return http<CommonResult<void>>({ url: '/commission/settle', method: 'post', data })
+  return http<void>({ url: '/commission/settle', method: 'post', data })
 }
 
 export function cancelCommissionAPI(data: CommissionCancelRequest) {
-  return http<CommonResult<void>>({ url: '/commission/cancel', method: 'post', data })
+  return http<void>({ url: '/commission/cancel', method: 'post', data })
 }

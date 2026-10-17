@@ -331,7 +331,7 @@ const formatRecommendStatus = (status: number) => {
         </el-table-column>
         <el-table-column label="是否推荐" width="200" align="center">
           <template #default="scope">
-            <el-switch @change="handleRecommendStatusStatusChange(scope.$index, scope.row)" :active-value="1"
+            <el-switch @change="handleRecommendStatusStatusChange(scope.$index, scope.row as SmsHomeRecommendSubject)" :active-value="1"
               :inactive-value="0" v-model="scope.row.recommendStatus">
             </el-switch>
           </template>
@@ -344,9 +344,9 @@ const formatRecommendStatus = (status: number) => {
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
           <template #default="scope">
-            <el-button size="small" type="primary" link @click="handleEditSort(scope.$index, scope.row)">设置排序
+            <el-button size="small" type="primary" link @click="handleEditSort(scope.$index, scope.row as SmsHomeRecommendSubject)">设置排序
             </el-button>
-            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row)">删除
+            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row as SmsHomeRecommendSubject)">删除
             </el-button>
           </template>
         </el-table-column>

@@ -37,7 +37,7 @@ const detailData = ref<DomOrder | null>(null)
 const formData = ref<DomOrder>({
   domOrderNo: '',
   originalOrderNo: '',
-  customerId: undefined,
+  customerId: '',
   customerName: '',
   region: '',
   sourcingStrategy: 'NEAREST_WAREHOUSE',
@@ -65,8 +65,8 @@ const getList = async () => {
   try {
     const response = await getDomListAPI(listQuery.value)
     listLoading.value = false
-    list.value = response.data || []
-    total.value = response.total || 0
+    list.value = response.data.records || []
+    total.value = response.data.total || 0
   } catch (error) {
     listLoading.value = false
     ElMessage.error('Failed to load DOM orders')
@@ -106,7 +106,7 @@ const handleAdd = () => {
   formData.value = {
     domOrderNo: '',
     originalOrderNo: '',
-    customerId: undefined,
+    customerId: '',
     customerName: '',
     region: '',
     sourcingStrategy: 'NEAREST_WAREHOUSE',
@@ -125,7 +125,12 @@ const handleSubmit = async () => {
       customerName: formData.value.customerName,
       region: formData.value.region,
       sourcingStrategy: formData.value.sourcingStrategy,
-      items: formData.value.lines
+      items: (formData.value.lines ?? []).map((l) => ({
+        skuCode: l.skuCode,
+        skuName: l.skuName,
+        quantity: l.quantity,
+        unitPrice: l.unitPrice ?? 0
+      }))
     })
     ElMessage.success(t('dom.createSuccess'))
     dialogVisible.value = false
@@ -139,7 +144,7 @@ const handleSubmit = async () => {
 
 const handleView = async (row: DomOrder) => {
   try {
-    const response = await getDomByIdAPI(row.id)
+    const response = await getDomByIdAPI(row.id!)
     detailData.value = response.data
     detailVisible.value = true
   } catch (error) {
@@ -154,7 +159,7 @@ const handleCheckAtp = async (row: DomOrder) => {
       cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
-    await checkDomAvailabilityAPI(row.id)
+    await checkDomAvailabilityAPI(row.id!)
     ElMessage.success(t('dom.atpCheckSuccess'))
     getList()
   } catch (error) {
@@ -171,7 +176,7 @@ const handleSourceOrder = async (row: DomOrder) => {
       cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
-    await sourceDomOrderAPI(row.id)
+    await sourceDomOrderAPI(row.id!)
     ElMessage.success(t('dom.sourceSuccess'))
     getList()
   } catch (error) {
@@ -188,7 +193,7 @@ const handleApproveFulfillment = async (row: DomOrder) => {
       cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
-    await approveDomFulfillmentAPI(row.id)
+    await approveDomFulfillmentAPI(row.id!)
     ElMessage.success(t('dom.approveSuccess'))
     getList()
   } catch (error) {
@@ -205,7 +210,7 @@ const handleCancel = async (row: DomOrder) => {
       cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
-    await cancelDomOrderAPI(row.id)
+    await cancelDomOrderAPI(row.id!)
     ElMessage.success(t('dom.cancelSuccess'))
     getList()
   } catch (error) {
@@ -306,7 +311,7 @@ const formatAmount = (amount?: number) => {
         </el-table-column>
         <el-table-column :label="t('common.operations')" width="300" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" size="small" :icon="View" @click="handleView(row)">
+            <el-button type="primary" size="small" :icon="View" @click="handleView(row as DomOrder)">
               {{ t('common.detail') }}
             </el-button>
             <el-button
@@ -314,7 +319,7 @@ const formatAmount = (amount?: number) => {
               type="warning"
               size="small"
               :icon="Check"
-              @click="handleCheckAtp(row)"
+              @click="handleCheckAtp(row as DomOrder)"
             >
               {{ t('dom.checkAtp') }}
             </el-button>
@@ -323,7 +328,7 @@ const formatAmount = (amount?: number) => {
               type="primary"
               size="small"
               :icon="Edit"
-              @click="handleSourceOrder(row)"
+              @click="handleSourceOrder(row as DomOrder)"
             >
               {{ t('dom.sourceOrder') }}
             </el-button>
@@ -332,7 +337,7 @@ const formatAmount = (amount?: number) => {
               type="success"
               size="small"
               :icon="Check"
-              @click="handleApproveFulfillment(row)"
+              @click="handleApproveFulfillment(row as DomOrder)"
             >
               {{ t('dom.approveFulfillment') }}
             </el-button>
@@ -341,7 +346,7 @@ const formatAmount = (amount?: number) => {
               type="danger"
               size="small"
               :icon="Close"
-              @click="handleCancel(row)"
+              @click="handleCancel(row as DomOrder)"
             >
               {{ t('dom.cancelDom') }}
             </el-button>

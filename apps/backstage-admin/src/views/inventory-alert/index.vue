@@ -289,7 +289,7 @@ onMounted(() => {
               v-if="row.alertStatus !== 4 && row.alertStatus !== 5"
               type="success"
               link
-              @click="handleResolve(row)"
+              @click="handleResolve(row as InventoryAlert)"
             >
               Resolve
             </el-button>
@@ -297,7 +297,7 @@ onMounted(() => {
               v-if="row.alertStatus !== 4 && row.alertStatus !== 5"
               type="info"
               link
-              @click="handleIgnore(row)"
+              @click="handleIgnore(row as InventoryAlert)"
             >
               Ignore
             </el-button>

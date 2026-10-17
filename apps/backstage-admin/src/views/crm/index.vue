@@ -115,6 +115,7 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
 import { t } from '@/locales'
+import type { TagType } from '@/types/ui'
 import { ElMessage } from 'element-plus'
 import { listLeads, listOpportunities, listTickets, listCampaigns, getPipelineSummary } from '@/apis/crm'
 import type { Lead, Opportunity, CustomerServiceTicket, PipelineSummary } from '@/apis/crm'
@@ -131,13 +132,13 @@ const recentLeads = ref<Lead[]>([])
 const recentOpportunities = ref<Opportunity[]>([])
 const recentTickets = ref<CustomerServiceTicket[]>([])
 
-const priorityType = (p: string) => {
-  const map: Record<string, string> = { LOW: 'info', MEDIUM: '', HIGH: 'warning', URGENT: 'danger' }
+const priorityType = (p: string): TagType => {
+  const map: Record<string, TagType> = { LOW: 'info', HIGH: 'warning', URGENT: 'danger' }
   return map[p] || 'info'
 }
 
-const ticketStatusType = (s: string) => {
-  const map: Record<string, string> = { OPEN: 'info', ASSIGNED: 'primary', IN_PROGRESS: 'warning', RESOLVED: 'success', CLOSED: '' }
+const ticketStatusType = (s: string): TagType => {
+  const map: Record<string, TagType> = { OPEN: 'info', ASSIGNED: 'primary', IN_PROGRESS: 'warning', RESOLVED: 'success' }
   return map[s] || 'info'
 }
 
@@ -165,3 +166,4 @@ const fetchDashboardData = async () => {
 }
 
 onMounted(fetchDashboardData)
+</script>

@@ -293,7 +293,7 @@ const levelTag = (l?: string): 'success' | 'warning' | 'danger' | 'info' => {
           </el-table-column>
           <el-table-column label="Actions" width="220" fixed="right">
             <template #default="{ row }">
-              <el-button link type="primary" size="small" @click="openRuleForm(row)">Edit</el-button>
+              <el-button link type="primary" size="small" @click="openRuleForm(row as AlertRule)">Edit</el-button>
               <el-button v-if="row.enabled" link type="warning" size="small" @click="toggleRule(row.id, false)">Disable</el-button>
               <el-button v-else link type="success" size="small" @click="toggleRule(row.id, true)">Enable</el-button>
               <el-button link type="danger" size="small" @click="removeRule(row.id)">Delete</el-button>

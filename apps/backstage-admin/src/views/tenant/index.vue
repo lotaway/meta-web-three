@@ -108,6 +108,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import type { TagType } from '@/types/ui'
 import {
   getTenantListAPI, getTenantByIdAPI,
   approveTenantAPI, rejectTenantAPI, disableTenantAPI,
@@ -125,13 +126,13 @@ const shopDialogVisible = ref(false)
 const currentTenant = ref<Tenant | null>(null)
 const currentShop = ref<TenantShop | null>(null)
 
-const statusType = (status?: string) => {
+const statusType = (status?: string): TagType | undefined => {
   switch (status) {
     case 'APPROVED': return 'success'
     case 'PENDING': return 'warning'
     case 'REJECTED': return 'danger'
     case 'DISABLED': return 'info'
-    default: return ''
+    default: return undefined
   }
 }
 
@@ -144,7 +145,7 @@ const fetchList = async () => {
   listLoading.value = true
   try {
     const res = await getTenantListAPI(listQuery.value)
-    list.value = res.data?.list || []
+    list.value = res.data?.records || []
     total.value = res.data?.total || 0
   } finally {
     listLoading.value = false

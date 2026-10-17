@@ -171,11 +171,11 @@ onMounted(() => {
         <el-table-column prop="createdAt" label="Created At" width="180" />
         <el-table-column fixed="right" label="Operations" width="200">
           <template #default="{ row }">
-            <el-button v-if="row.status === 'DRAFT'" link type="success" size="small" @click="handleSubmit(row)">Submit</el-button>
-            <el-button v-if="row.status === 'PENDING_APPROVAL'" link type="success" size="small" @click="handleApprove(row)">Approve</el-button>
-            <el-button v-if="row.status === 'PENDING_APPROVAL'" link type="danger" size="small" @click="handleReject(row)">Reject</el-button>
-            <el-button v-if="row.status === 'DRAFT'" link type="danger" size="small" @click="handleCancel(row)">Cancel</el-button>
-            <el-button v-if="row.status === 'DRAFT'" link type="danger" size="small" @click="handleDelete(row)">Delete</el-button>
+            <el-button v-if="row.status === 'DRAFT'" link type="success" size="small" @click="handleSubmit(row as CashTransfer)">Submit</el-button>
+            <el-button v-if="row.status === 'PENDING_APPROVAL'" link type="success" size="small" @click="handleApprove(row as CashTransfer)">Approve</el-button>
+            <el-button v-if="row.status === 'PENDING_APPROVAL'" link type="danger" size="small" @click="handleReject(row as CashTransfer)">Reject</el-button>
+            <el-button v-if="row.status === 'DRAFT'" link type="danger" size="small" @click="handleCancel(row as CashTransfer)">Cancel</el-button>
+            <el-button v-if="row.status === 'DRAFT'" link type="danger" size="small" @click="handleDelete(row as CashTransfer)">Delete</el-button>
           </template>
         </el-table-column>
       </el-table>

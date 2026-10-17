@@ -58,10 +58,10 @@
         </el-table-column>
         <el-table-column :label="t('common.operation')" fixed="right" width="200">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">{{ t('common.view') }}</el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">{{ t('common.edit') }}</el-button>
-            <el-button link type="success" size="small" @click="handleExecute(row)" v-if="row.status === 'ACTIVE'">{{ t('mes.equipment.maintenancePlan.execute') }}</el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">{{ t('common.delete') }}</el-button>
+            <el-button link type="primary" size="small" @click="handleView(row as MaintenancePlan)">{{ t('common.view') }}</el-button>
+            <el-button link type="primary" size="small" @click="handleEdit(row as MaintenancePlan)">{{ t('common.edit') }}</el-button>
+            <el-button link type="success" size="small" @click="handleExecute(row as MaintenancePlan)" v-if="row.status === 'ACTIVE'">{{ t('mes.equipment.maintenancePlan.execute') }}</el-button>
+            <el-button link type="danger" size="small" @click="handleDelete(row as MaintenancePlan)">{{ t('common.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>

@@ -171,7 +171,7 @@ const statusTag = (status?: string): 'success' | 'warning' | 'info' | 'danger' =
         </el-table-column>
         <el-table-column label="Actions" width="120" fixed="right">
           <template #default="{ row }">
-            <el-button v-if="row.status === 'PENDING'" link type="danger" size="small" @click="handleCancel(row)">Cancel</el-button>
+            <el-button v-if="row.status === 'PENDING'" link type="danger" size="small" @click="handleCancel(row as CommissionRecord)">Cancel</el-button>
           </template>
         </el-table-column>
       </el-table>

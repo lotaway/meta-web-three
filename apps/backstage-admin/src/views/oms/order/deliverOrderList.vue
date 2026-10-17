@@ -90,7 +90,7 @@ const confirm = async () => {
           <template #default="scope">{{ scope.row.receiverPostCode }}</template>
         </el-table-column>
         <el-table-column label="收货地址" align="center">
-          <template #default="scope">{{ fortmatAddress(scope.row) }}</template>
+          <template #default="scope">{{ fortmatAddress(scope.row as OmsOrder) }}</template>
         </el-table-column>
         <el-table-column label="配送方式" width="200" align="center">
           <template #default="scope">

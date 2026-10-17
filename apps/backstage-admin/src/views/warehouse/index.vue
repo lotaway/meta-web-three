@@ -305,8 +305,8 @@ onMounted(() => {
           </el-table-column>
           <el-table-column :label="t('common.action')" width="150" fixed="right">
             <template #default="{ row }">
-              <el-button type="primary" link :icon="Edit" @click="handleWarehouseEdit(row)">{{ t('common.edit') }}</el-button>
-              <el-button type="danger" link :icon="Delete" @click="handleWarehouseDelete(row)">{{ t('common.delete') }}</el-button>
+              <el-button type="primary" link :icon="Edit" @click="handleWarehouseEdit(row as WarehouseDTO)">{{ t('common.edit') }}</el-button>
+              <el-button type="danger" link :icon="Delete" @click="handleWarehouseDelete(row as WarehouseDTO)">{{ t('common.delete') }}</el-button>
             </template>
           </el-table-column>
         </el-table>

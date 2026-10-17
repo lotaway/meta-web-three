@@ -45,9 +45,9 @@
       <el-table-column prop="endDate" label="结束日期" width="120" />
       <el-table-column label="操作" width="200" fixed="right">
         <template #default="{ row }">
-          <el-button link type="primary" @click="handleView(row)">查看</el-button>
-          <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
-          <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+          <el-button link type="primary" @click="handleView(row as Project)">查看</el-button>
+          <el-button link type="primary" @click="handleEdit(row as Project)">编辑</el-button>
+          <el-button link type="danger" @click="handleDelete(row as Project)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>

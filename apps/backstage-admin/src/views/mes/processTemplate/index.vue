@@ -54,19 +54,19 @@
         </el-table-column>
         <el-table-column :label="t('mes.processTemplate.actions')" width="280" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">
+            <el-button link type="primary" size="small" @click="handleView(row as ProcessFlowTemplate)">
               {{ t('mes.processTemplate.view') }}
             </el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">
+            <el-button link type="primary" size="small" @click="handleEdit(row as ProcessFlowTemplate)">
               {{ t('mes.processTemplate.edit') }}
             </el-button>
-            <el-button link type="success" size="small" @click="handlePublish(row)" v-if="row.status === 'DRAFT'">
+            <el-button link type="success" size="small" @click="handlePublish(row as ProcessFlowTemplate)" v-if="row.status === 'DRAFT'">
               {{ t('mes.processTemplate.publish') }}
             </el-button>
-            <el-button link type="warning" size="small" @click="handleArchive(row)" v-if="row.status === 'PUBLISHED'">
+            <el-button link type="warning" size="small" @click="handleArchive(row as ProcessFlowTemplate)" v-if="row.status === 'PUBLISHED'">
               {{ t('mes.processTemplate.archive') }}
             </el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">
+            <el-button link type="danger" size="small" @click="handleDelete(row as ProcessFlowTemplate)">
               {{ t('mes.processTemplate.delete') }}
             </el-button>
           </template>

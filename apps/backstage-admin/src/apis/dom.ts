@@ -49,7 +49,7 @@ export interface DomQueryParam {
 }
 
 export function getDomListAPI(params: DomQueryParam) {
-  return http<DomOrder[]>({
+  return http<{ records: DomOrder[]; total: number }>({
     url: '/api/dom',
     method: 'get',
     params,

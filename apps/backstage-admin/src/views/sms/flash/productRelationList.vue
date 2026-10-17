@@ -236,9 +236,9 @@ const getDialogList = async () => {
         </el-table-column>
         <el-table-column label="操作" width="100" align="center">
           <template #default="scope">
-            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row)">编辑
+            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row as SmsFlashPromotionProductRelation)">编辑
             </el-button>
-            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row)">删除
+            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row as SmsFlashPromotionProductRelation)">删除
             </el-button>
           </template>
         </el-table-column>

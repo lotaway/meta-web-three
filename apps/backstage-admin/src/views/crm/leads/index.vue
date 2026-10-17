@@ -50,9 +50,9 @@
         </el-table-column>
         <el-table-column :label="t('common.operations')" width="240" fixed="right">
           <template #default="{ row }">
-            <el-button size="small" type="primary" link @click="openEdit(row)">{{ t('common.edit') }}</el-button>
-            <el-button size="small" type="success" link @click="handleConvert(row)">{{ t('crm.lead.convert') }}</el-button>
-            <el-button size="small" type="warning" link @click="openDisqualify(row)">{{ t('crm.lead.disqualify') }}</el-button>
+            <el-button size="small" type="primary" link @click="openEdit(row as Lead)">{{ t('common.edit') }}</el-button>
+            <el-button size="small" type="success" link @click="handleConvert(row as Lead)">{{ t('crm.lead.convert') }}</el-button>
+            <el-button size="small" type="warning" link @click="openDisqualify(row as Lead)">{{ t('crm.lead.disqualify') }}</el-button>
             <el-popconfirm :title="t('common.confirm') + t('common.delete') + '?'" @confirm="handleDelete(row.id!)">
               <template #reference>
                 <el-button size="small" type="danger" link>{{ t('common.delete') }}</el-button>
@@ -149,6 +149,7 @@
 <script lang="ts" setup>
 import { ref, reactive, onMounted } from 'vue'
 import { t } from '@/locales'
+import type { TagType } from '@/types/ui'
 import { ElMessage } from 'element-plus'
 import { listLeads, createLead, updateLead, deleteLead, convertLead, disqualifyLead } from '@/apis/crm'
 import type { Lead } from '@/apis/crm'
@@ -206,8 +207,8 @@ const leadStatusOptions: Record<string, string> = {
   CONVERTED: t('crm.leadStatus.CONVERTED'),
 }
 
-const leadStatusType = (s: string) => {
-  const map: Record<string, string> = { NEW: 'info', CONTACTED: 'primary', QUALIFIED: 'success', DISQUALIFIED: 'danger', CONVERTED: 'warning' }
+const leadStatusType = (s: string): TagType => {
+  const map: Record<string, TagType> = { NEW: 'info', CONTACTED: 'primary', QUALIFIED: 'success', DISQUALIFIED: 'danger', CONVERTED: 'warning' }
   return map[s] || 'info'
 }
 

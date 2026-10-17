@@ -28,10 +28,10 @@
         <el-table-column prop="createdBy" label="Created By" width="120" />
         <el-table-column label="Actions" fixed="right" width="180">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleEdit(row)">
+            <el-button link type="primary" size="small" @click="handleEdit(row as ExchangeRate)">
               Edit
             </el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">
+            <el-button link type="danger" size="small" @click="handleDelete(row as ExchangeRate)">
               Delete
             </el-button>
           </template>

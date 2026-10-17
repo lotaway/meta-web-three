@@ -36,7 +36,7 @@
       </div>
       <el-table :data="opportunities" stripe v-loading="loading">
         <el-table-column prop="opportunityNo" :label="t('crm.opportunity.opportunityNo')" width="120" />
-        <el-table-column prop="title" :label="t('crm.opportunity.title')" />
+        <el-table-column prop="title" :label="t('crm.opportunity.titleLabel')" />
         <el-table-column prop="customerId" :label="t('crm.opportunity.customer')" />
         <el-table-column prop="amount" :label="t('crm.opportunity.amount')" width="100">
           <template #default="{ row }">{{ row.amount?.toLocaleString() }}</template>
@@ -55,10 +55,10 @@
         <el-table-column prop="assignedTo" :label="t('crm.opportunity.assignedTo')" />
         <el-table-column :label="t('common.operations')" width="280" fixed="right">
           <template #default="{ row }">
-            <el-button size="small" type="primary" link @click="openEdit(row)">{{ t('common.edit') }}</el-button>
-            <el-button v-if="row.stage !== 'CLOSED_WON' && row.stage !== 'CLOSED_LOST'" size="small" link @click="handleAdvance(row)">{{ t('crm.opportunity.advance') }}</el-button>
-            <el-button size="small" type="success" link @click="openCloseWon(row)">{{ t('crm.opportunity.closeWon') }}</el-button>
-            <el-button size="small" type="danger" link @click="openCloseLost(row)">{{ t('crm.opportunity.closeLost') }}</el-button>
+            <el-button size="small" type="primary" link @click="openEdit(row as Opportunity)">{{ t('common.edit') }}</el-button>
+            <el-button v-if="row.stage !== 'CLOSED_WON' && row.stage !== 'CLOSED_LOST'" size="small" link @click="handleAdvance(row as Opportunity)">{{ t('crm.opportunity.advance') }}</el-button>
+            <el-button size="small" type="success" link @click="openCloseWon(row as Opportunity)">{{ t('crm.opportunity.closeWon') }}</el-button>
+            <el-button size="small" type="danger" link @click="openCloseLost(row as Opportunity)">{{ t('crm.opportunity.closeLost') }}</el-button>
             <el-popconfirm :title="t('common.confirm') + t('common.delete') + '?'" @confirm="handleDelete(row.id!)">
               <template #reference>
                 <el-button size="small" type="danger" link>{{ t('common.delete') }}</el-button>
@@ -78,7 +78,7 @@
 
     <el-dialog v-model="dialogVisible" :title="isEdit ? t('crm.opportunity.edit') : t('crm.opportunity.add')" width="600px">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
-        <el-form-item :label="t('crm.opportunity.title')" prop="title">
+        <el-form-item :label="t('crm.opportunity.titleLabel')" prop="title">
           <el-input v-model="form.title" />
         </el-form-item>
         <el-row :gutter="20">
@@ -141,6 +141,7 @@
 <script lang="ts" setup>
 import { ref, reactive, onMounted } from 'vue'
 import { t } from '@/locales'
+import type { TagType } from '@/types/ui'
 import { ElMessage } from 'element-plus'
 import { listOpportunities, createOpportunity, updateOpportunity, deleteOpportunity, advanceStage, closeWon, closeLost, getPipelineSummary } from '@/apis/crm'
 import type { Opportunity, PipelineSummary } from '@/apis/crm'
@@ -190,8 +191,8 @@ const stageOptions: Record<string, string> = {
   CLOSED_LOST: t('crm.stage.CLOSED_LOST'),
 }
 
-const stageType = (s: string) => {
-  const map: Record<string, string> = { PROSPECTING: 'info', QUALIFICATION: 'primary', PROPOSAL: 'warning', NEGOTIATION: 'danger', CLOSED_WON: 'success', CLOSED_LOST: 'danger' }
+const stageType = (s: string): TagType => {
+  const map: Record<string, TagType> = { PROSPECTING: 'info', QUALIFICATION: 'primary', PROPOSAL: 'warning', NEGOTIATION: 'danger', CLOSED_WON: 'success', CLOSED_LOST: 'danger' }
   return map[s] || 'info'
 }
 
@@ -216,7 +217,7 @@ const fetchPipelineSummary = async () => {
     const res = await getPipelineSummary()
     pipelineData.value = res.data.stages.map((s, i) => ({
       label: t('crm.stage.' + s),
-      count: res.data.counts[i],
+      count: res.data.counts[i] ?? 0,
     }))
   } catch (e) {
     console.error('Failed to fetch pipeline summary:', e)

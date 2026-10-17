@@ -66,10 +66,10 @@
         <el-table-column :label="t('mes.equipment.checklist.abnormalItems')" prop="abnormalItems" width="150" show-overflow-tooltip />
         <el-table-column :label="t('common.operation')" fixed="right" width="180">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">{{ t('common.view') }}</el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">{{ t('common.edit') }}</el-button>
-            <el-button link type="success" size="small" @click="handleComplete(row)" v-if="row.status === 'PENDING'">{{ t('mes.equipment.checklist.complete') }}</el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">{{ t('common.delete') }}</el-button>
+            <el-button link type="primary" size="small" @click="handleView(row as EquipmentChecklist)">{{ t('common.view') }}</el-button>
+            <el-button link type="primary" size="small" @click="handleEdit(row as EquipmentChecklist)">{{ t('common.edit') }}</el-button>
+            <el-button link type="success" size="small" @click="handleComplete(row as EquipmentChecklist)" v-if="row.status === 'PENDING'">{{ t('mes.equipment.checklist.complete') }}</el-button>
+            <el-button link type="danger" size="small" @click="handleDelete(row as EquipmentChecklist)">{{ t('common.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>

@@ -114,7 +114,7 @@ onMounted(() => {
         <el-table-column prop="createdAt" label="Created At" width="180" />
         <el-table-column fixed="right" label="Operations" width="100">
           <template #default="{ row }">
-            <el-button link type="danger" size="small" @click="handleDelete(row)">Delete</el-button>
+            <el-button link type="danger" size="small" @click="handleDelete(row as CashFlowForecast)">Delete</el-button>
           </template>
         </el-table-column>
       </el-table>

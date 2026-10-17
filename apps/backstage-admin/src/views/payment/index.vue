@@ -399,10 +399,10 @@ onMounted(() => {
             </el-table-column>
             <el-table-column :label="t('common.actions')" width="150" fixed="right">
               <template #default="{ row }">
-                <el-button v-if="row.status === 'PENDING'" type="primary" size="small" @click="handleReviewKYC(row)">
+                <el-button v-if="row.status === 'PENDING'" type="primary" size="small" @click="handleReviewKYC(row as UserKYC)">
                   {{ t('payment.review') }}
                 </el-button>
-                <el-button type="info" size="small" @click="handleViewKYC(row)">
+                <el-button type="info" size="small" @click="handleViewKYC(row as UserKYC)">
                   {{ t('common.view') }}
                 </el-button>
               </template>

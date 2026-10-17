@@ -429,8 +429,8 @@ onMounted(() => {
             <el-table-column prop="sort" :label="t('hrm.sortOrder')" width="80" />
             <el-table-column :label="t('common.actions')" width="150" fixed="right">
               <template #default="{ row }">
-                <el-button link type="primary" size="small" @click="handleEditDepartment(row)">{{ t('common.edit') }}</el-button>
-                <el-button link type="danger" size="small" @click="handleDeleteDepartment(row)">{{ t('common.delete') }}</el-button>
+                <el-button link type="primary" size="small" @click="handleEditDepartment(row as Department)">{{ t('common.edit') }}</el-button>
+                <el-button link type="danger" size="small" @click="handleDeleteDepartment(row as Department)">{{ t('common.delete') }}</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -526,8 +526,8 @@ onMounted(() => {
             <el-table-column prop="entryDate" :label="t('hrm.entryDate')" width="120" />
             <el-table-column :label="t('common.actions')" width="150" fixed="right">
               <template #default="{ row }">
-                <el-button link type="primary" size="small" @click="handleEditEmployee(row)">{{ t('common.edit') }}</el-button>
-                <el-button link type="danger" size="small" @click="handleDeleteEmployee(row)">{{ t('common.delete') }}</el-button>
+                <el-button link type="primary" size="small" @click="handleEditEmployee(row as Employee)">{{ t('common.edit') }}</el-button>
+                <el-button link type="danger" size="small" @click="handleDeleteEmployee(row as Employee)">{{ t('common.delete') }}</el-button>
               </template>
             </el-table-column>
           </el-table>

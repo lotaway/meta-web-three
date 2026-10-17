@@ -7,7 +7,7 @@ export interface AIWarehouseRequest {
   capabilityType: string
   requestData: string
   responseData?: string
-  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
+  status: 'PENDING' | 'PROCESSING' | 'SUCCESS' | 'FALLBACK_USED' | 'FAILED'
   createdAt?: string
   updatedAt?: string
 }

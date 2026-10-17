@@ -53,8 +53,8 @@ import { ElMessage } from 'element-plus'
 import { getSalesTrend, getCategoryDistribution, getRegionalComparison } from '@/apis/bi'
 import type { CategoryDistribution, OlapRow } from '@/apis/bi'
 
-const defaultStart = new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0]
-const defaultEnd = new Date().toISOString().split('T')[0]
+const defaultStart = new Date(new Date().getFullYear(), 0, 1).toISOString().slice(0, 10)
+const defaultEnd = new Date().toISOString().slice(0, 10)
 const dateRange = ref<string[]>([defaultStart, defaultEnd])
 const loading = ref(false)
 const trendRows = ref<{ date: string; amount: number; orderCount: number }[]>([])
@@ -68,7 +68,7 @@ const formatMoney = (v: number) => new Intl.NumberFormat('zh-CN', { minimumFract
 
 async function loadSalesTrend() {
   try {
-    const trendRes = await getSalesTrend(dateRange.value[0], dateRange.value[1])
+    const trendRes = await getSalesTrend(dateRange.value[0]!, dateRange.value[1]!)
     const trend = trendRes.data
     if (trend.dates) {
       trendRows.value = trend.dates.map((d: string, i: number) => ({
@@ -80,14 +80,14 @@ async function loadSalesTrend() {
 
 async function loadCategoryData() {
   try {
-    const catRes = await getCategoryDistribution(dateRange.value[0], dateRange.value[1])
+    const catRes = await getCategoryDistribution(dateRange.value[0]!, dateRange.value[1]!)
     categoryList.value = catRes.data || []
   } catch (e) { console.error(e); ElMessage.error('Failed to load category distribution') }
 }
 
 async function loadRegionalData() {
   try {
-    const regionRes = await getRegionalComparison(dateRange.value[0], dateRange.value[1])
+    const regionRes = await getRegionalComparison(dateRange.value[0]!, dateRange.value[1]!)
     const r = regionRes.data
     if (r.rows) {
       regionRows.value = r.rows.map((row: OlapRow) => ({

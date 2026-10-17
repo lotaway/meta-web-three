@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import type { TagType } from '@/types/ui'
 import { Refresh } from '@element-plus/icons-vue'
 import {
   listAICapabilitiesAPI, enableAICapabilityAPI,
@@ -64,8 +65,8 @@ const refreshAll = () => {
   loadCapabilities(); loadRequests(); loadLocRec(); loadForecast(); loadRestock(); loadAnomalies()
 }
 
-const statusTag = (s?: string) => {
-  const m: Record<string, string> = { PENDING: 'info', PROCESSING: 'warning', SUCCESS: 'success', FALLBACK_USED: 'warning', FAILED: 'danger' }
+const statusTag = (s?: string): TagType => {
+  const m: Record<string, TagType> = { PENDING: 'info', PROCESSING: 'warning', SUCCESS: 'success', FALLBACK_USED: 'warning', FAILED: 'danger' }
   return m[s || ''] || 'info'
 }
 
@@ -103,8 +104,8 @@ onMounted(refreshAll)
           </el-table-column>
           <el-table-column label="Actions" width="120" fixed="right">
             <template #default="{ row }">
-              <el-button v-if="row.enabled" link type="warning" size="small" @click="toggleCap(row)">Disable</el-button>
-              <el-button v-else link type="success" size="small" @click="toggleCap(row)">Enable</el-button>
+              <el-button v-if="row.enabled" link type="warning" size="small" @click="toggleCap(row as AICapability)">Disable</el-button>
+              <el-button v-else link type="success" size="small" @click="toggleCap(row as AICapability)">Enable</el-button>
             </template>
           </el-table-column>
         </el-table>

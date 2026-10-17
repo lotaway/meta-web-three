@@ -317,16 +317,16 @@ const openTransactionDialog = (row: Wallet, type: 'deposit' | 'withdraw') => {
         </el-table-column>
         <el-table-column label="Actions" width="250" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" size="small" :icon="View" @click="handleViewDetail(row)">
+            <el-button type="primary" size="small" :icon="View" @click="handleViewDetail(row as Wallet)">
               Detail
             </el-button>
-            <el-button type="info" size="small" :icon="Money" @click="handleViewTransactions(row)">
+            <el-button type="info" size="small" :icon="Money" @click="handleViewTransactions(row as Wallet)">
               Txs
             </el-button>
-            <el-button v-if="row.status === 'ACTIVE'" type="warning" size="small" :icon="Lock" @click="handleFreeze(row)">
+            <el-button v-if="row.status === 'ACTIVE'" type="warning" size="small" :icon="Lock" @click="handleFreeze(row as Wallet)">
               Freeze
             </el-button>
-            <el-button v-if="row.status === 'FROZEN'" type="success" size="small" :icon="Unlock" @click="handleActivate(row)">
+            <el-button v-if="row.status === 'FROZEN'" type="success" size="small" :icon="Unlock" @click="handleActivate(row as Wallet)">
               Activate
             </el-button>
           </template>

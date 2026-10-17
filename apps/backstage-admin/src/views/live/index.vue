@@ -217,9 +217,9 @@ const formatTime = (time: string | undefined) => {
         </el-table-column>
         <el-table-column label="Actions" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">View</el-button>
-            <el-button v-if="row.status === 'PENDING'" link type="success" size="small" :icon="VideoPlay" @click="handleStartLive(row)">Start</el-button>
-            <el-button v-if="row.status === 'LIVE'" link type="warning" size="small" :icon="VideoPause" @click="handleEndLive(row)">End</el-button>
+            <el-button link type="primary" size="small" @click="handleView(row as LiveRoom)">View</el-button>
+            <el-button v-if="row.status === 'PENDING'" link type="success" size="small" :icon="VideoPlay" @click="handleStartLive(row as LiveRoom)">Start</el-button>
+            <el-button v-if="row.status === 'LIVE'" link type="warning" size="small" :icon="VideoPause" @click="handleEndLive(row as LiveRoom)">End</el-button>
           </template>
         </el-table-column>
       </el-table>

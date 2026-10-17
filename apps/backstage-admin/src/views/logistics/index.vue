@@ -153,7 +153,7 @@ const getStatusType = (status: string): StatusTagType => {
               v-if="row.status === 'PENDING'"
               type="primary"
               size="small"
-              @click="handleUpdateStatus(row, 'IN_TRANSIT')"
+              @click="handleUpdateStatus(row as LogisticsOrder, 'IN_TRANSIT')"
             >
               Ship
             </el-button>
@@ -161,7 +161,7 @@ const getStatusType = (status: string): StatusTagType => {
               v-if="row.status === 'IN_TRANSIT'"
               type="success"
               size="small"
-              @click="handleUpdateStatus(row, 'DELIVERED')"
+              @click="handleUpdateStatus(row as LogisticsOrder, 'DELIVERED')"
             >
               Delivered
             </el-button>
@@ -169,7 +169,7 @@ const getStatusType = (status: string): StatusTagType => {
               v-if="row.status === 'IN_TRANSIT'"
               type="danger"
               size="small"
-              @click="handleUpdateStatus(row, 'EXCEPTION')"
+              @click="handleUpdateStatus(row as LogisticsOrder, 'EXCEPTION')"
             >
               Exception
             </el-button>

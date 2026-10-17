@@ -359,7 +359,7 @@ onMounted(() => {
         </el-table-column>
         <el-table-column label="Actions" width="120" fixed="right">
           <template #default="{ row }">
-            <el-button type="danger" link @click="handleDelete(row)">Delete</el-button>
+            <el-button type="danger" link @click="handleDelete(row as Notification)">Delete</el-button>
           </template>
         </el-table-column>
       </el-table>

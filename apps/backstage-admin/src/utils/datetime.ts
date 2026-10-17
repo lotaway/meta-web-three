@@ -1,7 +1,7 @@
 import { dayjs } from 'element-plus'
 
 // 日期时间格式化函数
-export const formatDateTime = (time: string) => {
+export const formatDateTime = (time: string | number) => {
   if (!time) {
     return 'N/A'
   }

@@ -204,7 +204,7 @@ const handleCurrentChange = (val: number) => {
           <template #default="scope">{{ scope.row.memberUsername }}</template>
         </el-table-column>
         <el-table-column label="退款金额" width="180" align="center">
-          <template #default="scope">￥{{ formatReturnAmount(scope.row) }}</template>
+          <template #default="scope">￥{{ formatReturnAmount(scope.row as OmsOrderReturnApply) }}</template>
         </el-table-column>
         <el-table-column label="申请状态" width="180" align="center">
           <template #default="scope">{{ formatStatus(scope.row.status) }}</template>
@@ -214,7 +214,7 @@ const handleCurrentChange = (val: number) => {
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
           <template #default="scope">
-            <el-button size="small" @click="handleViewDetail(scope.$index, scope.row)">查看详情</el-button>
+            <el-button size="small" @click="handleViewDetail(scope.$index, scope.row as OmsOrderReturnApply)">查看详情</el-button>
           </template>
         </el-table-column>
       </el-table>

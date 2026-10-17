@@ -327,9 +327,9 @@ const formatAmount = (amount: number | undefined): string => {
         </el-table-column>
         <el-table-column :label="t('common.actions')" width="180" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" :icon="View" @click="handleView(row)">View</el-button>
+            <el-button link type="primary" size="small" :icon="View" @click="handleView(row as AfterSale)">View</el-button>
             <el-button v-if="row.afterSaleStatus === 1 || row.afterSaleStatus === 2" 
-              link type="success" size="small" :icon="Check" @click="handleProcess(row)">Process</el-button>
+              link type="success" size="small" :icon="Check" @click="handleProcess(row as AfterSale)">Process</el-button>
           </template>
         </el-table-column>
       </el-table>

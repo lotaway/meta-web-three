@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import type { TagType } from '@/types/ui'
 import { Refresh } from '@element-plus/icons-vue'
 import {
   listPendingDevelopersAPI, listApprovedDevelopersAPI,
@@ -153,8 +154,8 @@ const loadDocs = async () => {
 
 const refreshAll = () => { loadDevelopers(); loadSubscriptions(); loadDocs() }
 
-const statusTag = (s?: string) => {
-  const m: Record<string, string> = { PENDING: 'info', APPROVED: 'success', REJECTED: 'danger', ACTIVE: 'success', SUSPENDED: 'warning', INACTIVE: 'info', CANCELLED: 'info' }
+const statusTag = (s?: string): TagType => {
+  const m: Record<string, TagType> = { PENDING: 'info', APPROVED: 'success', REJECTED: 'danger', ACTIVE: 'success', SUSPENDED: 'warning', INACTIVE: 'info', CANCELLED: 'info' }
   return m[s || ''] || 'info'
 }
 
@@ -295,7 +296,7 @@ onMounted(refreshAll)
             <el-option v-for="d in approvedDevs" :key="d.developerId" :label="d.email" :value="d.developerId" />
           </el-select>
         </div>
-        <el-descriptions v-if="usageDevId && Object.keys(currentUsage).length" border column="2">
+        <el-descriptions v-if="usageDevId && Object.keys(currentUsage).length" border :column="2">
           <el-descriptions-item v-for="(v, k) in currentUsage" :key="k" :label="k">{{ v }}</el-descriptions-item>
         </el-descriptions>
         <el-empty v-else-if="usageDevId && !Object.keys(currentUsage).length" description="No usage data" />
@@ -304,13 +305,13 @@ onMounted(refreshAll)
 
       <!-- Docs -->
       <el-tab-pane label="Documentation" name="docs">
-        <el-descriptions border column="1">
+        <el-descriptions border :column="1">
           <el-descriptions-item label="OpenAPI Spec">{{ docsOpenApi.openapi || 'Not loaded' }}</el-descriptions-item>
           <el-descriptions-item label="Info Title">{{ docsOpenApi.info?.title || '-' }}</el-descriptions-item>
           <el-descriptions-item label="Info Version">{{ docsOpenApi.info?.version || '-' }}</el-descriptions-item>
         </el-descriptions>
         <h4 style="margin:16px 0 8px">SDK Samples</h4>
-        <el-descriptions border column="1">
+        <el-descriptions border :column="1">
           <el-descriptions-item v-for="(v, k) in sdkSamples" :key="k" :label="k">{{ v }}</el-descriptions-item>
         </el-descriptions>
         <el-empty v-if="!Object.keys(sdkSamples).length" description="No SDK samples available" />

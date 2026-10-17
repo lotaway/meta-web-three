@@ -393,17 +393,17 @@ const verifyStatusFilter = (value: number) => {
         <el-table-column :label="t('product.tag')" width="140" align="center">
           <template #default="scope">
             <p style="margin: 6px 0px;">{{ t('product.onSale') }}：
-              <el-switch @change="handlePublishStatusChange(scope.$index, scope.row)" :active-value="1"
+              <el-switch @change="handlePublishStatusChange(scope.$index, scope.row as PmsProduct)" :active-value="1"
                 :inactive-value="0" v-model="scope.row.publishStatus">
               </el-switch>
             </p>
             <p style="margin: 6px 0px;">{{ t('product.new') }}：
-              <el-switch @change="handleNewStatusChange(scope.$index, scope.row)" :active-value="1" :inactive-value="0"
+              <el-switch @change="handleNewStatusChange(scope.$index, scope.row as PmsProduct)" :active-value="1" :inactive-value="0"
                 v-model="scope.row.newStatus">
               </el-switch>
             </p>
             <p style="margin: 6px 0px;">{{ t('product.recommended') }}：
-              <el-switch @change="handleRecommendStatusChange(scope.$index, scope.row)" :active-value="1"
+              <el-switch @change="handleRecommendStatusChange(scope.$index, scope.row as PmsProduct)" :active-value="1"
                 :inactive-value="0" v-model="scope.row.recommandStatus">
               </el-switch>
             </p>
@@ -415,7 +415,7 @@ const verifyStatusFilter = (value: number) => {
         <el-table-column :label="t('product.skuStock')" width="100" align="center">
           <template #default="scope">
             <el-button type="primary" :icon="Edit" size="large"
-              @click="handleShowSkuEditDialog(scope.$index, scope.row)" circle></el-button>
+              @click="handleShowSkuEditDialog(scope.$index, scope.row as PmsProduct)" circle></el-button>
           </template>
         </el-table-column>
         <el-table-column :label="t('product.sales')" width="100" align="center">
@@ -425,7 +425,7 @@ const verifyStatusFilter = (value: number) => {
           <template #default="scope">
             <p>{{ verifyStatusFilter(scope.row.verifyStatus) }}</p>
             <p>
-              <el-button type="primary" link @click="handleShowVerifyDetail(scope.$index, scope.row)">
+              <el-button type="primary" link @click="handleShowVerifyDetail(scope.$index, scope.row as PmsProduct)">
                 {{ t('product.verifyDetail') }}
               </el-button>
             </p>
@@ -434,18 +434,18 @@ const verifyStatusFilter = (value: number) => {
         <el-table-column :label="t('product.operation')" width="160" align="center">
           <template #default="scope">
             <p>
-              <el-button size="small" @click="handleShowProduct(scope.$index, scope.row)">
+              <el-button size="small" @click="handleShowProduct(scope.$index, scope.row as PmsProduct)">
                 {{ t('product.view') }}
               </el-button>
-              <el-button size="small" @click="handleUpdateProduct(scope.$index, scope.row)">
+              <el-button size="small" @click="handleUpdateProduct(scope.$index, scope.row as PmsProduct)">
                 {{ t('common.edit') }}
               </el-button>
             </p>
             <p>
-              <el-button size="small" @click="handleShowLog(scope.$index, scope.row)">
+              <el-button size="small" @click="handleShowLog(scope.$index, scope.row as PmsProduct)">
                 {{ t('product.log') }}
               </el-button>
-              <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">
+              <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row as PmsProduct)">
                 {{ t('common.delete') }}
               </el-button>
             </p>

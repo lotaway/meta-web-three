@@ -265,11 +265,11 @@ const getLevelText = (level: number | undefined): string => {
         </el-table-column>
         <el-table-column label="Actions" width="280" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" :icon="View" @click="handleView(row)">View</el-button>
-            <el-button v-if="row.verificationStatus === 0" link type="warning" size="small" @click="handleSubmitVerification(row)">Submit Verify</el-button>
-            <el-button v-if="row.verificationStatus === 1" link type="success" size="small" @click="handleVerify(row)">Verify</el-button>
-            <el-button link type="info" size="small" @click="handleViewPerformance(row)">Performance</el-button>
-            <el-button link type="primary" size="small" @click="handleScore(row)">Score</el-button>
+            <el-button link type="primary" size="small" :icon="View" @click="handleView(row as MallSupplier)">View</el-button>
+            <el-button v-if="row.verificationStatus === 0" link type="warning" size="small" @click="handleSubmitVerification(row as MallSupplier)">Submit Verify</el-button>
+            <el-button v-if="row.verificationStatus === 1" link type="success" size="small" @click="handleVerify(row as MallSupplier)">Verify</el-button>
+            <el-button link type="info" size="small" @click="handleViewPerformance(row as MallSupplier)">Performance</el-button>
+            <el-button link type="primary" size="small" @click="handleScore(row as MallSupplier)">Score</el-button>
           </template>
         </el-table-column>
       </el-table>

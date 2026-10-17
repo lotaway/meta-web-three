@@ -18,7 +18,7 @@
         <el-table-column prop="groupId" :label="t('cs.agents.groupId')" width="80" />
         <el-table-column :label="t('cs.agents.operations')" width="220">
           <template #default="{ row }">
-            <el-button size="small" @click="toggleStatus(row)">{{ row.status === 'ONLINE' ? t('cs.agents.offline') : t('cs.agents.online') }}</el-button>
+            <el-button size="small" @click="toggleStatus(row as Agent)">{{ row.status === 'ONLINE' ? t('cs.agents.offline') : t('cs.agents.online') }}</el-button>
             <el-button size="small" type="danger" @click="handleDelete(row.id)">{{ t('cs.agents.delete') }}</el-button>
           </template>
         </el-table-column>

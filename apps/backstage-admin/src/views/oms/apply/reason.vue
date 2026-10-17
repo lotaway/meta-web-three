@@ -182,7 +182,7 @@ const deleteReasonMethod = async (ids: number[]) => {
         </el-table-column>
         <el-table-column label="是否可用" align="center">
           <template v-slot="scope">
-            <el-switch v-model="scope.row.status" @change="handleStatusChange(scope.$index, scope.row)"
+            <el-switch v-model="scope.row.status" @change="handleStatusChange(scope.$index, scope.row as OmsOrderReturnReason)"
               :active-value="1" :inactive-value="0">
             </el-switch>
           </template>
@@ -192,8 +192,8 @@ const deleteReasonMethod = async (ids: number[]) => {
         </el-table-column>
         <el-table-column label="操作" width="160" align="center">
           <template v-slot="scope">
-            <el-button size="small" @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
-            <el-button size="small" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            <el-button size="small" @click="handleUpdate(scope.$index, scope.row as OmsOrderReturnReason)">编辑</el-button>
+            <el-button size="small" @click="handleDelete(scope.$index, scope.row as OmsOrderReturnReason)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

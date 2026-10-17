@@ -256,7 +256,7 @@ const formatAmount = (amount?: number, currency?: string) => {
               type="success"
               size="small"
               :icon="Check"
-              @click="handleApprove(row)"
+              @click="handleApprove(row as ProcurementOrder)"
             >
               Approve
             </el-button>
@@ -265,7 +265,7 @@ const formatAmount = (amount?: number, currency?: string) => {
               type="danger"
               size="small"
               :icon="Close"
-              @click="handleReject(row)"
+              @click="handleReject(row as ProcurementOrder)"
             >
               Reject
             </el-button>

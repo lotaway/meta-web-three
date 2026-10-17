@@ -34,7 +34,7 @@ export interface TenantQueryParam {
 }
 
 export function getTenantListAPI(params: TenantQueryParam) {
-  return http<Tenant[]>({
+  return http<{ records: Tenant[]; total: number }>({
     url: '/tenant',
     method: 'get',
     params: { page: params.pageNum || 1, size: params.pageSize || 10, status: params.status },

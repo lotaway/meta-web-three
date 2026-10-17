@@ -171,14 +171,14 @@ const disableNextLevel = (value: number) => {
         </el-table-column>
         <el-table-column label="导航栏" width="100" align="center">
           <template #default="scope">
-            <el-switch @change="handleNavStatusChange(scope.$index, scope.row)" :active-value="1" :inactive-value="0"
+            <el-switch @change="handleNavStatusChange(scope.$index, scope.row as PmsProductCategory)" :active-value="1" :inactive-value="0"
               v-model="scope.row.navStatus">
             </el-switch>
           </template>
         </el-table-column>
         <el-table-column label="是否显示" width="100" align="center">
           <template #default="scope">
-            <el-switch @change="handleShowStatusChange(scope.$index, scope.row)" :active-value="1" :inactive-value="0"
+            <el-switch @change="handleShowStatusChange(scope.$index, scope.row as PmsProductCategory)" :active-value="1" :inactive-value="0"
               v-model="scope.row.showStatus">
             </el-switch>
           </template>
@@ -189,17 +189,17 @@ const disableNextLevel = (value: number) => {
         <el-table-column label="设置" width="200" align="center">
           <template #default="scope">
             <el-button size="small" :disabled="disableNextLevel(scope.row.level)"
-              @click="handleShowNextLevel(scope.$index, scope.row)">查看下级
+              @click="handleShowNextLevel(scope.$index, scope.row as PmsProductCategory)">查看下级
             </el-button>
-            <el-button size="small" @click="handleTransferProduct(scope.$index, scope.row)">转移商品
+            <el-button size="small" @click="handleTransferProduct(scope.$index, scope.row as PmsProductCategory)">转移商品
             </el-button>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" align="center">
           <template #default="scope">
-            <el-button size="small" @click="handleUpdate(scope.$index, scope.row)">编辑
+            <el-button size="small" @click="handleUpdate(scope.$index, scope.row as PmsProductCategory)">编辑
             </el-button>
-            <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">删除
+            <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row as PmsProductCategory)">删除
             </el-button>
           </template>
         </el-table-column>

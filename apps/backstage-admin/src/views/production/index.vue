@@ -155,7 +155,7 @@ onMounted(refreshAll)
           </el-table-column>
           <el-table-column label="Actions" width="360" fixed="right">
             <template #default="{ row }">
-              <el-button v-if="row.status === 'PENDING'" link type="primary" size="small" @click="openSchedule(row)">Schedule</el-button>
+              <el-button v-if="row.status === 'PENDING'" link type="primary" size="small" @click="openSchedule(row as ProductionOrder)">Schedule</el-button>
               <el-button v-if="row.status === 'SCHEDULED'" link type="success" size="small" @click="lifecycleAction(row.id, 'Start', startProductionAPI)">Start</el-button>
               <el-button v-if="row.status === 'IN_PROGRESS'" link type="warning" size="small" @click="lifecycleAction(row.id, 'Pause', pauseProductionAPI)">Pause</el-button>
               <el-button v-if="row.status === 'PAUSED'" link type="success" size="small" @click="lifecycleAction(row.id, 'Resume', resumeProductionAPI)">Resume</el-button>

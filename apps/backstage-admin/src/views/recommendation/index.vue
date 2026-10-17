@@ -391,14 +391,14 @@ onMounted(() => {
             <el-table-column prop="conditions" label="Conditions" min-width="140" show-overflow-tooltip />
             <el-table-column label="Actions" width="180" fixed="right">
               <template #default="{ row }">
-                <el-button link type="primary" size="small" @click="handleEdit(row)">Edit</el-button>
-                <el-button v-if="row.status === 'DRAFT' || row.status === 'PAUSED'" link type="success" size="small" @click="handleActivate(row)">
+                <el-button link type="primary" size="small" @click="handleEdit(row as RecommendationRule)">Edit</el-button>
+                <el-button v-if="row.status === 'DRAFT' || row.status === 'PAUSED'" link type="success" size="small" @click="handleActivate(row as RecommendationRule)">
                   <el-icon><VideoPlay /></el-icon>
                 </el-button>
-                <el-button v-if="row.status === 'ACTIVE'" link type="warning" size="small" @click="handlePause(row)">
+                <el-button v-if="row.status === 'ACTIVE'" link type="warning" size="small" @click="handlePause(row as RecommendationRule)">
                   <el-icon><VideoPause /></el-icon>
                 </el-button>
-                <el-button link type="danger" size="small" @click="handleDelete(row)">
+                <el-button link type="danger" size="small" @click="handleDelete(row as RecommendationRule)">
                   <el-icon><Delete /></el-icon>
                 </el-button>
               </template>

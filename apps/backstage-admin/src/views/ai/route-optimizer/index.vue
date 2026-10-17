@@ -218,7 +218,7 @@ const getStatusType = (status: string): StatusTagType => {
               type="primary"
               size="small"
               :icon="Location"
-              @click="handleOptimize(row)"
+              @click="handleOptimize(row as RoutePlan)"
             >
               Optimize
             </el-button>
@@ -226,7 +226,7 @@ const getStatusType = (status: string): StatusTagType => {
               v-if="row.status === 'OPTIMIZING' || row.status === 'PENDING'"
               type="success"
               size="small"
-              @click="handleStart(row)"
+              @click="handleStart(row as RoutePlan)"
             >
               Start
             </el-button>
@@ -234,7 +234,7 @@ const getStatusType = (status: string): StatusTagType => {
               v-if="row.status === 'IN_PROGRESS'"
               type="warning"
               size="small"
-              @click="handleComplete(row)"
+              @click="handleComplete(row as RoutePlan)"
             >
               Complete
             </el-button>

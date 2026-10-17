@@ -67,10 +67,10 @@
           </el-table-column>
           <el-table-column :label="t('common.operations')" width="160" fixed="right">
             <template #default="{ row }">
-              <el-button type="primary" link @click="handleForwardTrace(row)">
+              <el-button type="primary" link @click="handleForwardTrace(row as TraceRecord)">
                 {{ t('mes.traceability.forwardTrace') }}
               </el-button>
-              <el-button type="danger" link @click="handleDelete(row)">
+              <el-button type="danger" link @click="handleDelete(row as TraceRecord)">
                 {{ t('common.delete') }}
               </el-button>
             </template>

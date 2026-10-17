@@ -62,11 +62,11 @@
         <el-table-column :label="t('mes.qc.inspectionType.createdAt')" prop="createdAt" width="180" />
         <el-table-column :label="t('common.operation')" fixed="right" width="200">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">{{ t('common.view') }}</el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">{{ t('common.edit') }}</el-button>
-            <el-button link type="success" size="small" @click="handleActivate(row)" v-if="row.status === 'INACTIVE'">{{ t('mes.qc.inspectionType.activate') }}</el-button>
-            <el-button link type="warning" size="small" @click="handleDeactivate(row)" v-if="row.status === 'ACTIVE'">{{ t('mes.qc.inspectionType.deactivate') }}</el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">{{ t('common.delete') }}</el-button>
+            <el-button link type="primary" size="small" @click="handleView(row as QcInspectionType)">{{ t('common.view') }}</el-button>
+            <el-button link type="primary" size="small" @click="handleEdit(row as QcInspectionType)">{{ t('common.edit') }}</el-button>
+            <el-button link type="success" size="small" @click="handleActivate(row as QcInspectionType)" v-if="row.status === 'INACTIVE'">{{ t('mes.qc.inspectionType.activate') }}</el-button>
+            <el-button link type="warning" size="small" @click="handleDeactivate(row as QcInspectionType)" v-if="row.status === 'ACTIVE'">{{ t('mes.qc.inspectionType.deactivate') }}</el-button>
+            <el-button link type="danger" size="small" @click="handleDelete(row as QcInspectionType)">{{ t('common.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>

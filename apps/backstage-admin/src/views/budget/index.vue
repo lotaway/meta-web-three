@@ -251,13 +251,13 @@ onMounted(() => {
         </el-table-column>
         <el-table-column :label="t('fields.actions')" width="240" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">{{ t('buttons.view') }}</el-button>
-            <el-button v-if="row.status === 'DRAFT'" link type="primary" size="small" @click="handleEdit(row)">{{ t('buttons.edit') }}</el-button>
-            <el-button v-if="row.status === 'DRAFT'" link type="success" size="small" @click="handleSubmit(row)">{{ t('buttons.submit') }}</el-button>
-            <el-button v-if="row.status === 'PENDING_APPROVAL'" link type="success" size="small" @click="handleApprove(row)">{{ t('buttons.approve') }}</el-button>
-            <el-button v-if="row.status === 'PENDING_APPROVAL'" link type="danger" size="small" @click="handleReject(row)">{{ t('buttons.reject') }}</el-button>
-            <el-button v-if="row.status === 'APPROVED'" link type="info" size="small" @click="handleClose(row)">{{ t('buttons.close') }}</el-button>
-            <el-button v-if="row.status === 'DRAFT' || row.status === 'REJECTED'" link type="danger" size="small" @click="handleDelete(row)">{{ t('buttons.delete') }}</el-button>
+            <el-button link type="primary" size="small" @click="handleView(row as Budget)">{{ t('buttons.view') }}</el-button>
+            <el-button v-if="row.status === 'DRAFT'" link type="primary" size="small" @click="handleEdit(row as Budget)">{{ t('buttons.edit') }}</el-button>
+            <el-button v-if="row.status === 'DRAFT'" link type="success" size="small" @click="handleSubmit(row as Budget)">{{ t('buttons.submit') }}</el-button>
+            <el-button v-if="row.status === 'PENDING_APPROVAL'" link type="success" size="small" @click="handleApprove(row as Budget)">{{ t('buttons.approve') }}</el-button>
+            <el-button v-if="row.status === 'PENDING_APPROVAL'" link type="danger" size="small" @click="handleReject(row as Budget)">{{ t('buttons.reject') }}</el-button>
+            <el-button v-if="row.status === 'APPROVED'" link type="info" size="small" @click="handleClose(row as Budget)">{{ t('buttons.close') }}</el-button>
+            <el-button v-if="row.status === 'DRAFT' || row.status === 'REJECTED'" link type="danger" size="small" @click="handleDelete(row as Budget)">{{ t('buttons.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>

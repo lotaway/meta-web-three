@@ -128,7 +128,7 @@ async function handleClaim() {
       <el-table :data="activities" v-loading="listLoading" stripe style="width: 100%">
         <el-table-column label="Activity Address" min-width="180" show-overflow-tooltip>
           <template #default="{ row }">
-            <el-link type="primary" :underline="false" @click="goToDetail(row)">
+            <el-link type="primary" :underline="false" @click="goToDetail(row as Activity)">
               {{ row.activityAddress }}
               <el-icon style="margin-left: 4px"><ArrowRight /></el-icon>
             </el-link>
@@ -149,10 +149,10 @@ async function handleClaim() {
         </el-table-column>
         <el-table-column :label="t('common.actions')" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="showParticipate(row)">
+            <el-button link type="primary" size="small" @click="showParticipate(row as Activity)">
               {{ t('solana.activity.participate') }}
             </el-button>
-            <el-button link type="success" size="small" @click="showClaim(row)">
+            <el-button link type="success" size="small" @click="showClaim(row as Activity)">
               {{ t('solana.activity.claim') }}
             </el-button>
           </template>

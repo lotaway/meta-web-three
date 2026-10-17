@@ -55,11 +55,11 @@
         <el-table-column :label="t('mes.qc.triggerRule.description')" prop="description" />
         <el-table-column :label="t('common.operation')" fixed="right" width="180">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">{{ t('common.view') }}</el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">{{ t('common.edit') }}</el-button>
-            <el-button link type="success" size="small" @click="handleEnable(row)" v-if="row.status === 'INACTIVE'">{{ t('mes.qc.triggerRule.enable') }}</el-button>
-            <el-button link type="warning" size="small" @click="handleDisable(row)" v-if="row.status === 'ACTIVE'">{{ t('mes.qc.triggerRule.disable') }}</el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">{{ t('common.delete') }}</el-button>
+            <el-button link type="primary" size="small" @click="handleView(row as QcTriggerRule)">{{ t('common.view') }}</el-button>
+            <el-button link type="primary" size="small" @click="handleEdit(row as QcTriggerRule)">{{ t('common.edit') }}</el-button>
+            <el-button link type="success" size="small" @click="handleEnable(row as QcTriggerRule)" v-if="row.status === 'INACTIVE'">{{ t('mes.qc.triggerRule.enable') }}</el-button>
+            <el-button link type="warning" size="small" @click="handleDisable(row as QcTriggerRule)" v-if="row.status === 'ACTIVE'">{{ t('mes.qc.triggerRule.disable') }}</el-button>
+            <el-button link type="danger" size="small" @click="handleDelete(row as QcTriggerRule)">{{ t('common.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>

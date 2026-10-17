@@ -54,13 +54,13 @@
         <el-table-column prop="errorMessage" :label="t('pokayoke.errorMessage')" min-width="150" show-overflow-tooltip />
         <el-table-column :label="t('common.operations')" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="handleEdit(row)">{{ t('common.edit') }}</el-button>
-            <el-button link type="primary" @click="handleDetail(row)">{{ t('common.detail') }}</el-button>
+            <el-button link type="primary" @click="handleEdit(row as PokayokeRule)">{{ t('common.edit') }}</el-button>
+            <el-button link type="primary" @click="handleDetail(row as PokayokeRule)">{{ t('common.detail') }}</el-button>
             <el-button link v-if="row.status === 'DRAFT' || row.status === 'INACTIVE'" 
-              type="success" @click="handleActivate(row)">{{ t('pokayoke.activate') }}</el-button>
+              type="success" @click="handleActivate(row as PokayokeRule)">{{ t('pokayoke.activate') }}</el-button>
             <el-button link v-if="row.status === 'ACTIVE'" 
-              type="warning" @click="handleDeactivate(row)">{{ t('pokayoke.deactivate') }}</el-button>
-            <el-button link type="danger" @click="handleDelete(row)">{{ t('common.delete') }}</el-button>
+              type="warning" @click="handleDeactivate(row as PokayokeRule)">{{ t('pokayoke.deactivate') }}</el-button>
+            <el-button link type="danger" @click="handleDelete(row as PokayokeRule)">{{ t('common.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>

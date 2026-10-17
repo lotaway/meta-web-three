@@ -296,10 +296,10 @@ const createForecastAPI = async (data: any) => {
             </el-table-column>
             <el-table-column label="Actions" width="200" fixed="right">
               <template #default="{ row }">
-                <el-button v-if="row.status === 'PENDING'" type="success" size="small" :icon="Check" @click="handleConfirm(row)">
+                <el-button v-if="row.status === 'PENDING'" type="success" size="small" :icon="Check" @click="handleConfirm(row as Forecast)">
                   Confirm
                 </el-button>
-                <el-button v-if="row.status === 'CONFIRMED' || row.status === 'PENDING'" type="primary" size="small" :icon="Edit" @click="handleAdjust(row)">
+                <el-button v-if="row.status === 'CONFIRMED' || row.status === 'PENDING'" type="primary" size="small" :icon="Edit" @click="handleAdjust(row as Forecast)">
                   Adjust
                 </el-button>
               </template>
@@ -339,10 +339,10 @@ const createForecastAPI = async (data: any) => {
             </el-table-column>
             <el-table-column label="Actions" width="200" fixed="right">
               <template #default="{ row }">
-                <el-button v-if="row.status === 'TRAINED'" type="success" size="small" @click="handleDeployModel(row)">
+                <el-button v-if="row.status === 'TRAINED'" type="success" size="small" @click="handleDeployModel(row as ForecastModel)">
                   Deploy
                 </el-button>
-                <el-button v-if="row.status === 'DRAFT' || row.status === 'ARCHIVED'" type="primary" size="small" @click="handleTrainModel(row)">
+                <el-button v-if="row.status === 'DRAFT' || row.status === 'ARCHIVED'" type="primary" size="small" @click="handleTrainModel(row as ForecastModel)">
                   Train
                 </el-button>
               </template>

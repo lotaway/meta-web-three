@@ -398,12 +398,12 @@ onMounted(() => {
         </el-table-column>
         <el-table-column label="Actions" width="200" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleView(row)">View</el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">Edit</el-button>
-            <el-button link type="warning" size="small" @click="handleStatusChange(row)">
+            <el-button link type="primary" size="small" @click="handleView(row as User)">View</el-button>
+            <el-button link type="primary" size="small" @click="handleEdit(row as User)">Edit</el-button>
+            <el-button link type="warning" size="small" @click="handleStatusChange(row as User)">
               {{ row.status === 1 ? 'Deactivate' : 'Activate' }}
             </el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">Delete</el-button>
+            <el-button link type="danger" size="small" @click="handleDelete(row as User)">Delete</el-button>
           </template>
         </el-table-column>
       </el-table>
