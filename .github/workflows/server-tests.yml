@@ -1,0 +1,74 @@
+name: Core Services Tests
+
+on:
+  push:
+    branches: [master, main, develop, 'feature/**', 'fix/**']
+  pull_request:
+    branches: [master, main, develop]
+
+jobs:
+  core-tests:
+    name: Core module unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('server/pom.xml', 'server/**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      - name: Run core service unit tests
+        working-directory: server
+        run: >-
+          mvn -B
+          -pl mall-domain/mall-catalog-service,mall-domain/mall-trade-service,mall-domain/mall-user-service,supply-chain-domain/scm-inventory-service
+          -am clean test
+
+  static-check:
+    name: Static check (compile)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('server/pom.xml', 'server/**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
+      - name: Compile core modules and dependencies
+        working-directory: server
+        run: >-
+          mvn -B
+          -pl mall-domain/mall-catalog-service,mall-domain/mall-trade-service,mall-domain/mall-user-service,supply-chain-domain/scm-inventory-service
+          -am -DskipTests package
+
+  schema-check:
+    name: Database schema validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate schema.sql files
+        run: |
+          chmod +x scripts/check-schema.sh
+          scripts/check-schema.sh
