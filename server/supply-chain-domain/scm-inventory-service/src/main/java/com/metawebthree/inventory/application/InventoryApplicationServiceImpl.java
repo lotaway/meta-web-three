@@ -3,6 +3,7 @@ package com.metawebthree.inventory.application;
 import com.metawebthree.inventory.application.dto.InventoryDTO;
 import com.metawebthree.inventory.application.dto.InventoryOperationResult;
 import com.metawebthree.inventory.application.dto.ReserveInventoryDTO;
+import com.metawebthree.inventory.application.dto.StockInDTO;
 import com.metawebthree.inventory.domain.entity.Inventory;
 import com.metawebthree.inventory.domain.entity.InventoryOperationLog;
 import com.metawebthree.inventory.domain.entity.ReservationRecord;
@@ -125,6 +126,44 @@ public class InventoryApplicationServiceImpl implements InventoryApplicationServ
             saveOperationLog(log, null, null, "FAILED", e.getMessage());
             return InventoryOperationResult.fail(e.getMessage());
         }
+    }
+
+    @Override
+    public InventoryOperationResult stockIn(StockInDTO dto) {
+        if (dto == null || dto.getSkuCode() == null || dto.getSkuCode().isBlank()) {
+            return InventoryOperationResult.fail("Missing SKU code for stock-in");
+        }
+        if (dto.getQuantity() == null || dto.getQuantity() <= 0) {
+            return InventoryOperationResult.fail("Stock-in quantity must be positive");
+        }
+        String bizId = stockInBizId(dto.getRmaNo(), dto.getSkuCode());
+        // Idempotency by RMA line: a previously SUCCESSFUL stock-in for the same
+        // return line must not increase sellable stock a second time. FAILED
+        // attempts are intentionally not treated as done so the caller can retry.
+        if (hasSuccessfulStockIn(bizId)) {
+            return InventoryOperationResult.successDuplicated(bizId, dto.getQuantity());
+        }
+        InventoryOperationLog log = buildOperationLog("STOCK_IN", dto.getSkuCode(),
+            dto.getWarehouseId(), dto.getQuantity(), bizId);
+        log.setRemark("RMA stock-in rmaNo=" + dto.getRmaNo() + " rmaId=" + dto.getRmaId());
+        try {
+            doIncrease(log, dto.getSkuCode(), dto.getWarehouseId(), dto.getQuantity());
+            return InventoryOperationResult.success(bizId, dto.getQuantity());
+        } catch (Exception e) {
+            saveOperationLog(log, null, null, "FAILED", e.getMessage());
+            return InventoryOperationResult.fail(e.getMessage());
+        }
+    }
+
+    /** Business key that makes stock-in idempotent per RMA line. */
+    static String stockInBizId(String rmaNo, String skuCode) {
+        return "RMA_STOCK_IN:" + rmaNo + ":" + skuCode;
+    }
+
+    private boolean hasSuccessfulStockIn(String bizId) {
+        return operationLogRepository.findByBizId(bizId).stream()
+            .anyMatch(log -> "STOCK_IN".equals(log.getOperationType())
+                && "SUCCESS".equals(log.getResult()));
     }
 
     // ==================== Private Business Methods ====================

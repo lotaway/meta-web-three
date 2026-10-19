@@ -1,9 +1,9 @@
 package com.metawebthree.rma.infrastructure.event;
 
+import com.metawebthree.rma.application.RmaStockInService;
 import com.metawebthree.rma.application.event.RmaCompletedEvent;
 import com.metawebthree.rma.application.event.RmaDispositionExecutedEvent;
 import com.metawebthree.rma.application.event.RmaInspectionCompletedEvent;
-import com.metawebthree.rma.application.integration.InventoryIntegrationService;
 import com.metawebthree.rma.application.integration.SettlementIntegrationService;
 import com.metawebthree.rma.domain.entity.RmaDisposition;
 import com.metawebthree.rma.domain.entity.RmaOrder;
@@ -25,18 +25,18 @@ import java.util.List;
 @Component
 public class RmaEventListener {
 
-    private final InventoryIntegrationService inventoryIntegrationService;
+    private final RmaStockInService rmaStockInService;
     private final SettlementIntegrationService settlementIntegrationService;
     private final RmaOrderRepository rmaOrderRepository;
     private final RmaOrderItemRepository rmaOrderItemRepository;
     private final RmaDispositionRepository rmaDispositionRepository;
 
-    public RmaEventListener(InventoryIntegrationService inventoryIntegrationService,
+    public RmaEventListener(RmaStockInService rmaStockInService,
                             SettlementIntegrationService settlementIntegrationService,
                             RmaOrderRepository rmaOrderRepository,
                             RmaOrderItemRepository rmaOrderItemRepository,
                             RmaDispositionRepository rmaDispositionRepository) {
-        this.inventoryIntegrationService = inventoryIntegrationService;
+        this.rmaStockInService = rmaStockInService;
         this.settlementIntegrationService = settlementIntegrationService;
         this.rmaOrderRepository = rmaOrderRepository;
         this.rmaOrderItemRepository = rmaOrderItemRepository;
@@ -48,6 +48,12 @@ public class RmaEventListener {
     public void handleRmaInspectionCompleted(RmaInspectionCompletedEvent event) {
         log.info("Handling RmaInspectionCompletedEvent: rmaId={}, rmaNo={}, result={}, acceptedQuantity={}",
                 event.getRmaId(), event.getRmaNo(), event.getInspectionResult(), event.getAcceptedQuantity());
+
+        if (isFailedInspection(event.getInspectionResult())) {
+            log.info("RMA inspection failed, nothing is returned to stock - rmaId={}, rmaNo={}",
+                    event.getRmaId(), event.getRmaNo());
+            return;
+        }
 
         if (event.getAcceptedQuantity() == null || event.getAcceptedQuantity() <= 0) {
             log.info("No accepted items to stock in for rmaId={}", event.getRmaId());
@@ -71,7 +77,7 @@ public class RmaEventListener {
             if (acceptedQty <= 0) {
                 continue;
             }
-            inventoryIntegrationService.stockIn(
+            rmaStockInService.dispatch(
                     event.getRmaId(),
                     event.getRmaNo(),
                     item.getSkuCode(),
@@ -80,6 +86,10 @@ public class RmaEventListener {
                     order.getWarehouseId()
             );
         }
+    }
+
+    private boolean isFailedInspection(String inspectionResult) {
+        return "FAIL".equalsIgnoreCase(inspectionResult);
     }
 
     @EventListener

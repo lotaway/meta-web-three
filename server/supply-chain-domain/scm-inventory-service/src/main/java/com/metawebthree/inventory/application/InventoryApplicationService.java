@@ -3,6 +3,7 @@ package com.metawebthree.inventory.application;
 import com.metawebthree.inventory.application.dto.InventoryDTO;
 import com.metawebthree.inventory.application.dto.InventoryOperationResult;
 import com.metawebthree.inventory.application.dto.ReserveInventoryDTO;
+import com.metawebthree.inventory.application.dto.StockInDTO;
 import java.util.List;
 
 public interface InventoryApplicationService {
@@ -19,6 +20,15 @@ public interface InventoryApplicationService {
 
     InventoryOperationResult increase(String skuCode, Long warehouseId, 
             Integer quantity, String remark);
+
+    /**
+     * Record accepted return (RMA) goods back into sellable stock.
+     *
+     * <p>Idempotent: the same RMA line ({@code rmaNo + skuCode}) is only applied
+     * once, even when the request is replayed. Only goods that passed inspection
+     * reach this method; rejected/scrapped items are never sent here.</p>
+     */
+    InventoryOperationResult stockIn(StockInDTO dto);
 
     InventoryOperationResult decrease(String skuCode, Long warehouseId, 
             Integer quantity, String remark);

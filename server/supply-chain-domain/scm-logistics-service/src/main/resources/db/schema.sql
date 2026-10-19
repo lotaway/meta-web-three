@@ -200,3 +200,23 @@ CREATE TABLE IF NOT EXISTS return_shipping (
 CREATE INDEX IF NOT EXISTS idx_rma_id ON return_shipping (rma_id);
 CREATE INDEX IF NOT EXISTS idx_rma_no ON return_shipping (rma_no);
 
+-- Stock-in ledger for accepted (inspection-passed) RMA lines. One row per
+-- rma + sku; status makes a failed delivery retryable and traceable.
+CREATE TABLE IF NOT EXISTS rma_stock_in (
+    id BIGSERIAL PRIMARY KEY,
+    rma_id BIGINT NOT NULL,
+    rma_no VARCHAR(64) NOT NULL,
+    sku_code VARCHAR(64) NOT NULL,
+    sku_name VARCHAR(256),
+    warehouse_id BIGINT,
+    quantity INT DEFAULT 0,
+    status VARCHAR(32) NOT NULL DEFAULT 'PENDING', -- PENDING/SUCCESS/FAILED
+    retry_count INT DEFAULT 0,
+    last_error VARCHAR(512),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uk_rma_stock_in UNIQUE (rma_id, sku_code)
+);
+CREATE INDEX IF NOT EXISTS idx_rma_stock_in_status ON rma_stock_in (status);
+CREATE INDEX IF NOT EXISTS idx_rma_stock_in_rma ON rma_stock_in (rma_id);
+

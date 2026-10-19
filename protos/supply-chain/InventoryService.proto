@@ -12,6 +12,7 @@ service InventoryService {
     rpc releaseInventory(ReleaseInventoryRequest) returns (ReleaseInventoryResponse);
     rpc releaseInventoryByOrderId(ReleaseInventoryByOrderIdRequest) returns (ReleaseInventoryByOrderIdResponse);
     rpc confirmInventory(ConfirmInventoryRequest) returns (ConfirmInventoryResponse);
+    rpc stockIn(StockInRequest) returns (StockInResponse);
 }
 
 message GetInventoryRequest {
@@ -67,4 +68,23 @@ message ConfirmInventoryResponse {
 message ReleaseInventoryResponse {
     bool success = 1;
     string message = 2;
+}
+
+// Records physically accepted goods back into sellable stock. The business
+// key is derived from the RMA (rmaNo + skuCode) so that replaying the same
+// return never increases stock twice.
+message StockInRequest {
+    int64 rmaId = 1;
+    string rmaNo = 2;
+    string skuCode = 3;
+    int32 quantity = 4;
+    int64 warehouseId = 5;
+}
+
+message StockInResponse {
+    bool success = 1;
+    // True when the same RMA line had already been stocked in (idempotent replay).
+    bool duplicated = 2;
+    string message = 3;
+    int32 quantity = 4;
 }

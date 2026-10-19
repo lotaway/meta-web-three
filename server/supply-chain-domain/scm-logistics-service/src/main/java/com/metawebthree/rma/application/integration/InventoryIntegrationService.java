@@ -1,22 +1,18 @@
 package com.metawebthree.rma.application.integration;
 
-import java.math.BigDecimal;
-
 /**
- * Integration interface for inventory service.
- * Implementations handle stock-in operations when RMA items are inspected and accepted.
+ * Records accepted return (RMA) goods back into the inventory service.
  */
 public interface InventoryIntegrationService {
 
     /**
-     * Record accepted returned items back into inventory stock.
+     * Record physically accepted, inspection-passed return goods back into stock.
      *
-     * @param rmaId       RMA order ID
-     * @param rmaNo       RMA order number
-     * @param skuCode     SKU code of the returned item
-     * @param skuName     SKU name of the returned item
-     * @param quantity    quantity accepted into stock
-     * @param warehouseId warehouse to receive the stock
+     * <p>The inventory service is responsible for making this idempotent per RMA
+     * line, so a retry of the same line never increases stock twice.</p>
+     *
+     * @return the integration outcome; never {@code null}
      */
-    void stockIn(Long rmaId, String rmaNo, String skuCode, String skuName, Integer quantity, Long warehouseId);
+    StockInResult stockIn(Long rmaId, String rmaNo, String skuCode, String skuName,
+                          Integer quantity, Long warehouseId);
 }
