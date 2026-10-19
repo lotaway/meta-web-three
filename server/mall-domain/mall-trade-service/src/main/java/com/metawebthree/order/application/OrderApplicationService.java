@@ -2,8 +2,10 @@ package com.metawebthree.order.application;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -13,6 +15,13 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.metawebthree.common.enums.ResponseStatus;
+import com.metawebthree.common.exception.BusinessException;
+import com.metawebthree.common.generated.rpc.GetProductBySkuRequest;
+import com.metawebthree.common.generated.rpc.GetProductBySkuResponse;
+import com.metawebthree.common.generated.rpc.GetProductDetailRequest;
+import com.metawebthree.common.generated.rpc.GetProductDetailResponse;
+import com.metawebthree.common.generated.rpc.ProductDetailProto;
 import com.metawebthree.order.domain.model.OrderDO;
 import com.metawebthree.order.domain.model.OrderItemDO;
 import com.metawebthree.order.domain.ports.CommissionSettlementPort;
@@ -62,9 +71,26 @@ public class OrderApplicationService {
     @Transactional
     public Long createOrder(Long userId, String remark, List<OrderItemCreate> items,
             Long memberReceiveAddressId, Long couponId, Integer useIntegration) {
-        BigDecimal total = items.stream()
-                .map(i -> i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        if (items == null || items.isEmpty()) {
+            throw new BusinessException(ResponseStatus.PARAM_MISSING_ERROR, "Order must contain at least one item");
+        }
+        List<OrderItemDO> orderItems = new ArrayList<>();
+        BigDecimal total = BigDecimal.ZERO;
+        for (OrderItemCreate request : items) {
+            ProductSnapshot snapshot = resolveProductSnapshot(request);
+            BigDecimal itemTotal = snapshot.unitPrice.multiply(BigDecimal.valueOf(request.getQuantity()));
+            total = total.add(itemTotal);
+            orderItems.add(OrderItemDO.builder()
+                    .id(IdWorker.getId())
+                    .productId(snapshot.productId)
+                    .productName(snapshot.productName)
+                    .skuId(request.getSkuId())
+                    .quantity(request.getQuantity())
+                    .unitPrice(snapshot.unitPrice)
+                    .totalPrice(itemTotal)
+                    .imageUrl(snapshot.imageUrl)
+                    .build());
+        }
         Long orderId = IdWorker.getId();
         String orderNo = String.valueOf(IdWorker.getId());
         OrderDO order = OrderDO.builder()
@@ -79,30 +105,92 @@ public class OrderApplicationService {
                 .couponId(couponId)
                 .useIntegration(useIntegration)
                 .build();
-        orderMapper.insert(order);
-        for (OrderItemCreate i : items) {
-            BigDecimal totalPrice = i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity()));
-            OrderItemDO item = OrderItemDO.builder()
-                    .id(IdWorker.getId())
-                    .orderId(orderId)
-                    .productId(i.getProductId())
-                    .productName(i.getProductName())
-                    .skuId(i.getSkuId())
-                    .quantity(i.getQuantity())
-                    .unitPrice(i.getUnitPrice())
-                    .totalPrice(totalPrice)
-                    .imageUrl(i.getImageUrl())
-                    .build();
-            orderItemMapper.insert(item);
+        List<Long> skuIds = items.stream().map(OrderItemCreate::getSkuId).collect(Collectors.toList());
+        List<Integer> quantities = items.stream().map(OrderItemCreate::getQuantity).collect(Collectors.toList());
+        boolean reserved = false;
+        try {
+            reserved = inventoryClient.reserveInventory(orderId, skuIds, quantities, "Order creation");
+            if (!reserved) {
+                throw new BusinessException(ResponseStatus.ORDER_CREATE_FAILED, "Insufficient inventory for order");
+            }
+            orderMapper.insert(order);
+            for (OrderItemDO item : orderItems) {
+                item.setOrderId(orderId);
+                orderItemMapper.insert(item);
+            }
+            List<OrderEventPublisher.OrderItemCreate> eventItems = orderItems.stream()
+                    .map(this::toEventItem)
+                    .collect(Collectors.toList());
+            eventPublisher.publishOrderCreated(orderId, orderNo, userId, total, "USD", eventItems);
+            return orderId;
+        } catch (RuntimeException e) {
+            if (reserved) {
+                releaseInventoryQuietly(orderId, "Order creation compensation");
+            }
+            throw e;
         }
-        // Publish order created event
-        List<OrderEventPublisher.OrderItemCreate> eventItems = items.stream()
-                .map(i -> new OrderEventPublisher.OrderItemCreate(
-                        i.getProductId(), i.getProductName(), i.getSkuId(),
-                        i.getQuantity(), i.getUnitPrice(), i.getImageUrl()))
-                .collect(Collectors.toList());
-        eventPublisher.publishOrderCreated(orderId, orderNo, userId, total, "USD", eventItems);
-        return orderId;
+    }
+
+    private void releaseInventoryQuietly(Long orderId, String reason) {
+        try {
+            inventoryClient.releaseInventoryByOrderId(orderId, reason);
+        } catch (Exception e) {
+            log.error("Failed to release inventory for order {}: {}", orderId, e.getMessage(), e);
+        }
+    }
+
+    private OrderEventPublisher.OrderItemCreate toEventItem(OrderItemDO item) {
+        return new OrderEventPublisher.OrderItemCreate(
+                item.getProductId(), item.getProductName(), item.getSkuId(),
+                item.getQuantity(), item.getUnitPrice(), item.getImageUrl());
+    }
+
+    private ProductSnapshot resolveProductSnapshot(OrderItemCreate item) {
+        if (item.getQuantity() == null || item.getQuantity() <= 0) {
+            throw new BusinessException(ResponseStatus.PARAM_ERROR, "Item quantity must be positive");
+        }
+        ProductDetailProto product = queryProductSnapshot(item);
+        if (product == null) {
+            throw new BusinessException(ResponseStatus.PRODUCT_NOT_FOUND,
+                    "Product not found for item productId=" + item.getProductId() + ", skuId=" + item.getSkuId());
+        }
+        if (product.getPrice() <= 0.0) {
+            throw new BusinessException(ResponseStatus.PARAM_ERROR, "Product is not available for sale");
+        }
+        return new ProductSnapshot(product.getId(), product.getName(), product.getPic(),
+                BigDecimal.valueOf(product.getPrice()));
+    }
+
+    private ProductDetailProto queryProductSnapshot(OrderItemCreate item) {
+        if (item.getProductId() != null && item.getProductId() > 0) {
+            GetProductDetailResponse detail = productService.getProductDetail(
+                    GetProductDetailRequest.newBuilder().setProductId(item.getProductId()).build());
+            if (detail != null && detail.hasProduct()) {
+                return detail.getProduct();
+            }
+        }
+        if (item.getSkuId() != null && item.getSkuId() > 0) {
+            GetProductBySkuResponse bySku = productService.getProductBySku(
+                    GetProductBySkuRequest.newBuilder().setSku(String.valueOf(item.getSkuId())).build());
+            if (bySku != null && bySku.hasProduct()) {
+                return bySku.getProduct();
+            }
+        }
+        return null;
+    }
+
+    private static final class ProductSnapshot {
+        private final Long productId;
+        private final String productName;
+        private final String imageUrl;
+        private final BigDecimal unitPrice;
+
+        ProductSnapshot(Long productId, String productName, String imageUrl, BigDecimal unitPrice) {
+            this.productId = productId;
+            this.productName = productName;
+            this.imageUrl = imageUrl;
+            this.unitPrice = unitPrice;
+        }
     }
 
     public Optional<OrderWithItems> getOrderDetail(Long orderId, Long userId) {
@@ -130,8 +218,15 @@ public class OrderApplicationService {
         if (order == null || !order.getUserId().equals(userId)) {
             return false;
         }
+        if ("CANCELED".equals(order.getOrderStatus())) {
+            return true;
+        }
         order.setOrderStatus("CANCELED");
-        return orderMapper.updateById(order) > 0;
+        boolean updated = orderMapper.updateById(order) > 0;
+        if (updated) {
+            releaseInventoryQuietly(orderId, "Order canceled");
+        }
+        return updated;
     }
 
     @Transactional
@@ -242,7 +337,6 @@ public class OrderApplicationService {
     }
 
     @Transactional
-    public boolean @Transactional
     public boolean refundOrder(Long orderId, Long userId) {
         OrderDO order = orderMapper.selectById(orderId);
         if (order == null || !Objects.equals(order.getUserId(), userId)) {

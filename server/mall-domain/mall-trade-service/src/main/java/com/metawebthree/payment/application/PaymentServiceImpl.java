@@ -11,6 +11,7 @@ import com.alipay.api.internal.util.AlipaySignature;
 import com.metawebthree.common.generated.rpc.OrderService;
 import com.metawebthree.common.generated.rpc.PaySuccessRequest;
 import com.metawebthree.common.generated.rpc.PaySuccessResponse;
+import com.metawebthree.payment.infrastructure.idempotency.PaymentNotificationIdempotencyStore;
 import com.metawebthree.payment.domain.exception.ExternalServiceException;
 import com.metawebthree.payment.domain.exception.PaymentMethodNotConfiguredException;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,8 @@ public class PaymentServiceImpl implements PaymentService {
     private OrderService orderService;
 
     
+
+    private final PaymentNotificationIdempotencyStore idempotencyStore;
 
     @Value("${payment.fiat.alipay.app-id}")
     private String alipayAppId;
@@ -398,7 +401,7 @@ public class PaymentServiceImpl implements PaymentService {
                 log.info("Payment verification result for order {}: {}", orderId, verified);
                 if (verified) {
                     try {
-                        confirmOrderPaid(Long.parseLong(orderId));
+                        confirmOrderPaid(Long.parseLong(orderId), response.getTradeNo(), "ALIPAY", response.getTotalAmount());
                     } catch (NumberFormatException e) {
                         log.warn("Invalid orderId in payment verification: {}", orderId);
                     }
@@ -450,7 +453,7 @@ public class PaymentServiceImpl implements PaymentService {
                 if ("TRADE_SUCCESS".equals(queriedTradeStatus) || "TRADE_FINISHED".equals(queriedTradeStatus)) {
                     Long orderIdFromQuery = parseOrderIdFromOutTradeNo(outTradeNo);
                     if (orderIdFromQuery != null) {
-                        confirmOrderPaid(orderIdFromQuery);
+                        confirmOrderPaid(orderIdFromQuery, response.getTradeNo(), "ALIPAY", response.getTotalAmount());
                     }
                 }
             } else {
@@ -510,15 +513,24 @@ public class PaymentServiceImpl implements PaymentService {
                 return "failure";
             }
 
-            if (tradeNo != null && !tradeNo.isBlank()) {
-                boolean first = true;
-                if (first) {
-                    confirmOrderPaid(orderId, tradeNo, "ALIPAY", params.get("total_amount"));
-                }
-            } else {
-                confirmOrderPaid(orderId, null, "ALIPAY", params.get("total_amount"));
+            if (tradeNo == null || tradeNo.isBlank()) {
+                log.error("Missing trade_no in alipay callback for outTradeNo: {}", outTradeNo);
+                return "failure";
             }
 
+            String callbackAppId = params.get("app_id");
+            if (alipayAppId != null && !alipayAppId.isBlank()
+                    && !alipayAppId.equals(callbackAppId)) {
+                log.error("Alipay callback app_id mismatch: expected={}, actual={}", alipayAppId, callbackAppId);
+                return "failure";
+            }
+
+            if (!idempotencyStore.tryRecord("ALIPAY", tradeNo, outTradeNo)) {
+                log.info("Duplicate alipay callback ignored: tradeNo={}, outTradeNo={}", tradeNo, outTradeNo);
+                return "success";
+            }
+
+            confirmOrderPaid(orderId, tradeNo, "ALIPAY", params.get("total_amount"));
             return "success";
         } catch (Exception e) {
             log.error("Alipay callback processing failed", e);
@@ -526,19 +538,21 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
-    private void confirmOrderPaid(Long orderId) {
-        confirmOrderPaid(orderId, null, null, null);
-    }
-
     private void confirmOrderPaid(Long orderId, String transactionId, String channel, String totalAmount) {
         try {
             PaySuccessRequest.Builder builder = PaySuccessRequest.newBuilder()
                     .setOrderId(orderId)
                     .setPayType(2);
-            
-            
-            
-            PaySuccessResponse response = orderService.paySuccess(PaySuccessRequest.newBuilder().setOrderId(orderId).setPayType(2).build());
+            if (transactionId != null && !transactionId.isBlank()) {
+                builder.setTransactionId(transactionId);
+            }
+            if (channel != null && !channel.isBlank()) {
+                builder.setChannel(channel);
+            }
+            if (totalAmount != null && !totalAmount.isBlank()) {
+                builder.setTotalAmount(totalAmount);
+            }
+            PaySuccessResponse response = orderService.paySuccess(builder.build());
             if (response != null && response.getSuccess()) {
                 log.info("Order confirmed as paid via Dubbo for orderId: {}", orderId);
             } else {

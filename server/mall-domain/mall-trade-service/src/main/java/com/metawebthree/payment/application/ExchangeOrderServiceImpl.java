@@ -8,6 +8,7 @@ import com.metawebthree.payment.domain.model.ExchangeOrder;
 import com.metawebthree.payment.domain.model.UserKYC;
 import com.metawebthree.payment.infrastructure.persistence.mapper.ExchangeOrderRepository;
 import com.metawebthree.payment.infrastructure.persistence.mapper.UserKYCRepository;
+import com.metawebthree.payment.infrastructure.idempotency.PaymentNotificationIdempotencyStore;
 import com.metawebthree.payment.application.PaymentService;
 
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class ExchangeOrderServiceImpl {
     private final RiskControlServiceImpl riskControlService;
     private final PaymentService paymentService;
     private final CryptoWalletServiceImpl cryptoWalletService;
+    private final PaymentNotificationIdempotencyStore idempotencyStore;
 
     @Value("${payment.risk-control.single-limit.usd:10000}")
     private BigDecimal singleLimitUSD;
@@ -103,9 +105,28 @@ public class ExchangeOrderServiceImpl {
 
     @Transactional
     public void handlePaymentCallback(String paymentOrderNo, String status, String transactionId) {
+        if (transactionId == null || transactionId.isBlank()) {
+            throw new IllegalArgumentException("transactionId is required for payment callback");
+        }
         ExchangeOrder order = exchangeOrderRepository.findByPaymentOrderNo(paymentOrderNo);
         if (order == null) {
             throw new OrderNotFoundException("Payment order not found: " + paymentOrderNo);
+        }
+
+        if (!idempotencyStore.tryRecord("EXCHANGE", transactionId, paymentOrderNo)) {
+            log.info("Duplicate exchange payment callback ignored: orderNo={}, txId={}", paymentOrderNo, transactionId);
+            return;
+        }
+
+        ExchangeOrder.OrderStatus current = order.getStatus();
+        if (current == ExchangeOrder.OrderStatus.PAID || current == ExchangeOrder.OrderStatus.PROCESSING
+                || current == ExchangeOrder.OrderStatus.COMPLETED) {
+            log.info("Exchange order {} already in state {}, callback ignored", paymentOrderNo, current);
+            return;
+        }
+        if (current != ExchangeOrder.OrderStatus.PENDING) {
+            log.warn("Exchange order {} is {} and cannot transition from payment callback", paymentOrderNo, current);
+            return;
         }
 
         if ("SUCCESS".equals(status)) {

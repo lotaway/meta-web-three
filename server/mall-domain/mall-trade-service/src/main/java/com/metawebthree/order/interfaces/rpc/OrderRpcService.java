@@ -8,6 +8,7 @@ import com.metawebthree.common.generated.rpc.google.type.Money;
 import com.metawebthree.common.utils.ValidationUtils;
 import com.metawebthree.order.application.AdminOrderQueryService;
 import com.metawebthree.order.domain.model.OrderDO;
+import com.metawebthree.order.infrastructure.client.InventoryClient;
 import com.metawebthree.order.domain.model.OrderItemDO;
 import com.metawebthree.order.domain.model.ReturnApplyDO;
 import com.metawebthree.order.infrastructure.persistence.mapper.OrderItemMapper;
@@ -38,15 +39,18 @@ public class OrderRpcService implements OrderService {
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
     private final ReturnApplyMapper returnApplyMapper;
+    private final InventoryClient inventoryClient;
 
     public OrderRpcService(AdminOrderQueryService queryService,
                            OrderMapper orderMapper,
                            OrderItemMapper orderItemMapper,
-                           ReturnApplyMapper returnApplyMapper) {
+                           ReturnApplyMapper returnApplyMapper,
+                           InventoryClient inventoryClient) {
         this.queryService = queryService;
         this.orderMapper = orderMapper;
         this.orderItemMapper = orderItemMapper;
         this.returnApplyMapper = returnApplyMapper;
+        this.inventoryClient = inventoryClient;
     }
 
     @Override
@@ -295,27 +299,92 @@ public class OrderRpcService implements OrderService {
     @Override
     public PaySuccessResponse paySuccess(PaySuccessRequest request) {
         try {
+            if (request.getOrderId() == 0L) {
+                return failPaySuccess("Order id is required");
+            }
+            if (request.getTransactionId().isBlank()) {
+                return failPaySuccess("Transaction id is required");
+            }
+            if (request.getChannel().isBlank()) {
+                return failPaySuccess("Payment channel is required");
+            }
             OrderDO order = orderMapper.selectById(request.getOrderId());
             if (order == null) {
+                return failPaySuccess("Order not found");
+            }
+            String orderStatus = order.getOrderStatus();
+            if ("PAID".equals(orderStatus) || "SHIPPED".equals(orderStatus)
+                    || "DELIVERED".equals(orderStatus) || "COMPLETED".equals(orderStatus)) {
                 return PaySuccessResponse.newBuilder()
-                        .setSuccess(false)
-                        .setMessage("Order not found")
+                        .setSuccess(true)
+                        .setMessage("Order already paid")
                         .build();
             }
-            order.setOrderStatus("PAID");
-            order.setPaymentTime(LocalDateTime.now());
-            order.setPaymentType(request.getPayType());
-            orderMapper.updateById(order);
-            return PaySuccessResponse.newBuilder()
-                    .setSuccess(true)
-                    .setMessage("Payment processed successfully")
-                    .build();
+            if (!"CREATED".equals(orderStatus)) {
+                return failPaySuccess("Order status " + orderStatus + " does not allow payment");
+            }
+            PaySuccessResponse amountCheck = validatePaymentAmount(order, request.getTotalAmount());
+            if (amountCheck != null) {
+                return amountCheck;
+            }
+            int updated = orderMapper.update(null,
+                    new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<OrderDO>()
+                            .eq(OrderDO::getId, request.getOrderId())
+                            .eq(OrderDO::getOrderStatus, "CREATED")
+                            .set(OrderDO::getOrderStatus, "PAID")
+                            .set(OrderDO::getPaymentTime, LocalDateTime.now())
+                            .set(OrderDO::getPaymentType, request.getPayType()));
+            if (updated > 0) {
+                confirmInventory(request.getOrderId());
+                return PaySuccessResponse.newBuilder()
+                        .setSuccess(true)
+                        .setMessage("Payment processed successfully")
+                        .build();
+            }
+            OrderDO latest = orderMapper.selectById(request.getOrderId());
+            if (latest != null && "PAID".equals(latest.getOrderStatus())) {
+                return PaySuccessResponse.newBuilder()
+                        .setSuccess(true)
+                        .setMessage("Order already paid")
+                        .build();
+            }
+            return failPaySuccess("Concurrent order status change, payment rejected");
         } catch (Exception e) {
             log.error("Failed to process payment", e);
             return PaySuccessResponse.newBuilder()
                     .setSuccess(false)
                     .setMessage("Payment failed: " + e.getMessage())
                     .build();
+        }
+    }
+
+    private PaySuccessResponse validatePaymentAmount(OrderDO order, String totalAmount) {
+        if (totalAmount == null || totalAmount.isBlank()) {
+            return null;
+        }
+        BigDecimal paidAmount;
+        try {
+            paidAmount = new BigDecimal(totalAmount);
+        } catch (NumberFormatException e) {
+            return failPaySuccess("Invalid total_amount: " + totalAmount);
+        }
+        if (order.getOrderAmount() != null && order.getOrderAmount().compareTo(paidAmount) != 0) {
+            return failPaySuccess("Payment amount mismatch: expected " + order.getOrderAmount() + " but got " + paidAmount);
+        }
+        return null;
+    }
+
+    private PaySuccessResponse failPaySuccess(String message) {
+        return PaySuccessResponse.newBuilder().setSuccess(false).setMessage(message).build();
+    }
+
+    private void confirmInventory(Long orderId) {
+        try {
+            if (!inventoryClient.confirmInventoryReservation(orderId, "Order payment confirmed")) {
+                log.warn("Inventory confirmation returned false for orderId: {}", orderId);
+            }
+        } catch (Exception e) {
+            log.error("Inventory confirmation failed for orderId: {}", orderId, e);
         }
     }
 

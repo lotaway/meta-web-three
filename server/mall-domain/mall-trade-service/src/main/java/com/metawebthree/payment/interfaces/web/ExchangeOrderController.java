@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,9 @@ import java.util.List;
 public class ExchangeOrderController {
 
     private final ExchangeOrderServiceImpl exchangeOrderService;
+
+    @Value("${payment.exchange.callback-secret:}")
+    private String callbackSecret;
 
     @PostMapping("/orders")
     public ResponseEntity<ExchangeOrderResponse> createOrder(
@@ -81,10 +85,16 @@ public class ExchangeOrderController {
     public ResponseEntity<Void> paymentCallback(
             @RequestParam String paymentOrderNo,
             @RequestParam String status,
-            @RequestParam(required = false) String transactionId) {
+            @RequestParam String transactionId,
+            @RequestHeader(value = "X-Payment-Signature", required = false) String signature) {
 
         log.info("Payment callback received: orderNo={}, status={}, txId={}",
                 paymentOrderNo, status, transactionId);
+
+        if (!PaymentCallbackSignature.verify(callbackSecret, paymentOrderNo, status, transactionId, signature)) {
+            log.warn("Rejected exchange payment callback with invalid signature: orderNo={}", paymentOrderNo);
+            return ResponseEntity.status(403).build();
+        }
 
         exchangeOrderService.handlePaymentCallback(paymentOrderNo, status, transactionId);
 

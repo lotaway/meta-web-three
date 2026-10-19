@@ -124,4 +124,27 @@ public class InventoryServiceRpcImpl implements InventoryService {
     public CompletableFuture<ReleaseInventoryByOrderIdResponse> releaseInventoryByOrderIdAsync(ReleaseInventoryByOrderIdRequest request) {
         return CompletableFuture.completedFuture(releaseInventoryByOrderId(request));
     }
+
+    @Override
+    public ConfirmInventoryResponse confirmInventory(ConfirmInventoryRequest request) {
+        log.info("Dubbo call: confirmInventory, orderId={}", request.getOrderId());
+        try {
+            InventoryOperationResult result = appService.confirm(String.valueOf(request.getOrderId()));
+            return ConfirmInventoryResponse.newBuilder()
+                    .setSuccess(result.isSuccess())
+                    .setMessage(result.getMessage())
+                    .build();
+        } catch (Exception e) {
+            log.error("Failed to confirm inventory by orderId", e);
+            return ConfirmInventoryResponse.newBuilder()
+                    .setSuccess(false)
+                    .setMessage("确认库存失败: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @Override
+    public CompletableFuture<ConfirmInventoryResponse> confirmInventoryAsync(ConfirmInventoryRequest request) {
+        return CompletableFuture.completedFuture(confirmInventory(request));
+    }
 }

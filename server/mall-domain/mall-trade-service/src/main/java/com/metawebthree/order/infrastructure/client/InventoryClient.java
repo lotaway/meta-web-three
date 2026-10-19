@@ -67,20 +67,17 @@ public class InventoryClient {
      */
     public boolean confirmInventoryReservation(Long orderId, String reason) {
         try {
-            // Use orderId to confirm the reservation
-            ReleaseInventoryByOrderIdRequest request = ReleaseInventoryByOrderIdRequest.newBuilder()
+            ConfirmInventoryRequest request = ConfirmInventoryRequest.newBuilder()
                     .setOrderId(orderId)
-                    .setReason(reason)
                     .build();
 
-            ReleaseInventoryByOrderIdResponse response = inventoryService.releaseInventoryByOrderId(request);
-            
+            ConfirmInventoryResponse response = inventoryService.confirmInventory(request);
+
             if (response.getSuccess()) {
-                log.info("Inventory confirmation successful - orderId: {}, releasedCount: {}", 
-                        orderId, response.getReleasedCount());
+                log.info("Inventory confirmation successful - orderId: {}, reason: {}", orderId, reason);
                 return true;
             } else {
-                log.warn("Inventory confirmation failed - orderId: {}, message: {}", 
+                log.warn("Inventory confirmation failed - orderId: {}, message: {}",
                         orderId, response.getMessage());
                 return false;
             }
