@@ -394,6 +394,13 @@ public class PaymentServiceImpl implements PaymentService {
                 String tradeStatus = response.getTradeStatus();
                 boolean verified = "TRADE_SUCCESS".equals(tradeStatus) || "TRADE_FINISHED".equals(tradeStatus);
                 log.info("Payment verification result for order {}: {}", orderId, verified);
+                if (verified) {
+                    try {
+                        confirmOrderPaid(Long.parseLong(orderId));
+                    } catch (NumberFormatException e) {
+                        log.warn("Invalid orderId in payment verification: {}", orderId);
+                    }
+                }
                 return verified;
             }
             
@@ -437,6 +444,13 @@ public class PaymentServiceImpl implements PaymentService {
                 result.put("buyerLogonId", response.getBuyerLogonId());
                 result.put("buyerPayAmount", response.getBuyerPayAmount());
                 log.info("Alipay status query success for order: {}, status: {}", outTradeNo, response.getTradeStatus());
+                String queriedTradeStatus = response.getTradeStatus();
+                if ("TRADE_SUCCESS".equals(queriedTradeStatus) || "TRADE_FINISHED".equals(queriedTradeStatus)) {
+                    Long orderIdFromQuery = parseOrderIdFromOutTradeNo(outTradeNo);
+                    if (orderIdFromQuery != null) {
+                        confirmOrderPaid(orderIdFromQuery);
+                    }
+                }
             } else {
                 result.put("success", false);
                 result.put("error", response.getMsg());
@@ -494,26 +508,42 @@ public class PaymentServiceImpl implements PaymentService {
                 return "failure";
             }
 
-            try {
-                // Use Dubbo RPC to call order-service instead of HTTP
-                PaySuccessRequest request = PaySuccessRequest.newBuilder()
-                        .setOrderId(orderId)
-                        .setPayType(2)
-                        .build();
-                PaySuccessResponse response = orderService.paySuccess(request);
-                if (response != null && response.getSuccess()) {
-                    log.info("Order paySuccess called via Dubbo for orderId: {}", orderId);
-                } else {
-                    log.warn("Order paySuccess returned false for orderId: {}", orderId);
-                }
-            } catch (Exception e) {
-                log.error("Failed to call order-service via Dubbo: {}", e.getMessage());
-            }
+            confirmOrderPaid(orderId);
 
             return "success";
         } catch (Exception e) {
             log.error("Alipay callback processing failed", e);
             return "failure";
+        }
+    }
+
+    private void confirmOrderPaid(Long orderId) {
+        try {
+            PaySuccessRequest request = PaySuccessRequest.newBuilder()
+                    .setOrderId(orderId)
+                    .setPayType(2)
+                    .build();
+            PaySuccessResponse response = orderService.paySuccess(request);
+            if (response != null && response.getSuccess()) {
+                log.info("Order confirmed as paid via Dubbo for orderId: {}", orderId);
+            } else {
+                log.warn("Order paySuccess returned false for orderId: {}", orderId);
+            }
+        } catch (Exception e) {
+            log.error("Failed to call order-service via Dubbo for orderId: {}: {}", orderId, e.getMessage(), e);
+        }
+    }
+
+    private Long parseOrderIdFromOutTradeNo(String outTradeNo) {
+        if (outTradeNo == null || !outTradeNo.startsWith("ORDER_")) {
+            log.warn("Invalid outTradeNo for order confirmation: {}", outTradeNo);
+            return null;
+        }
+        try {
+            return Long.parseLong(outTradeNo.substring(6));
+        } catch (NumberFormatException e) {
+            log.warn("Failed to parse orderId from outTradeNo: {}", outTradeNo);
+            return null;
         }
     }
 }

@@ -304,6 +304,7 @@ public class OrderRpcService implements OrderService {
             }
             order.setOrderStatus("PAID");
             order.setPaymentTime(LocalDateTime.now());
+            order.setPaymentType(request.getPayType());
             orderMapper.updateById(order);
             return PaySuccessResponse.newBuilder()
                     .setSuccess(true)

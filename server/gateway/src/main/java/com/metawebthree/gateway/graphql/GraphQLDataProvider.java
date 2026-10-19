@@ -121,18 +121,6 @@ public class GraphQLDataProvider {
         return order;
     }
 
-    public Object payOrder(DataFetchingEnvironment env) {
-        String id = env.getArgument("id");
-        String paymentMethod = env.getArgument("paymentMethod");
-        boolean success = orderClient.payOrder(id, paymentMethod);
-        Map<String, Object> order = new HashMap<>();
-        order.put("id", id);
-        order.put("status", success ? "PAID" : "FAILED");
-        order.put("paymentMethod", paymentMethod);
-        order.put("updatedAt", new Date().toString());
-        return order;
-    }
-
     public Object createProduct(DataFetchingEnvironment env) {
         Map<String, Object> input = env.getArgument("input");
         return productClient.createProduct(input);

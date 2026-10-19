@@ -138,14 +138,6 @@ async function verifyPayment(orderId: number, transactionId: string): Promise<Ap
   })
 }
 
-async function markOrderPaid(orderId: number, method: PayMethod) {
-  const payType = method === 'wechat' ? 1 : method === 'alipay' ? 2 : 3
-  const response = await orderApi.paySuccess({ orderId, payType })
-  if (!isSuccessCode(response.code)) {
-    throw new Error(response.message || '订单支付状态更新失败')
-  }
-}
-
 export default function CheckoutScreen() {
   const { items: itemsParam } = useLocalSearchParams<{ items?: string }>()
   const colorScheme = useColorScheme() ?? 'light'
@@ -291,7 +283,6 @@ export default function CheckoutScreen() {
       if (!valid) {
         throw new Error('支付校验失败')
       }
-      await markOrderPaid(orderId, selectedMethod)
     }
     return result
   }

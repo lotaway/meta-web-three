@@ -7,7 +7,6 @@ type Query {
 type Mutation {
     createOrder(input: CreateOrderInput!): Order
     cancelOrder(id: ID!): Order
-    payOrder(id: ID!, paymentMethod: String!): Order
 }
 
 type Order @key(fields: "id") {

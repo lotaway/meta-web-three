@@ -152,15 +152,6 @@ public class OrderController {
         return ApiResponse.error(ResponseStatus.ORDER_NOT_FOUND);
     }
 
-    @PostMapping("/paySuccess")
-    public ApiResponse<?> paySuccess(@RequestParam Long orderId, @RequestParam Integer payType) {
-        boolean success = orderService.paySuccess(orderId, payType);
-        if (success) {
-            return ApiResponse.success();
-        }
-        return ApiResponse.error(ResponseStatus.ORDER_NOT_FOUND);
-    }
-
     @PostMapping("/generateConfirmOrder")
     public ApiResponse<OrderApplicationService.ConfirmOrderResult> generateConfirmOrder(
             @RequestHeader(HeaderConstants.USER_ID) Long userId,

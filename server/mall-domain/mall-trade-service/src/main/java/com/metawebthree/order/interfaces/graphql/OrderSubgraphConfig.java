@@ -69,7 +69,6 @@ public class OrderSubgraphConfig {
                 .type("Mutation", wiring -> wiring
                         .dataFetcher("createOrder", this::createOrderDataFetcher)
                         .dataFetcher("cancelOrder", this::cancelOrderDataFetcher)
-                        .dataFetcher("payOrder", this::payOrderDataFetcher)
                 )
                 .build();
     }
@@ -179,15 +178,6 @@ public class OrderSubgraphConfig {
         Map<String, Object> result = new ConcurrentHashMap<>();
         result.put("id", id);
         result.put("status", "CANCELED");
-        return result;
-    }
-
-    private Map<String, Object> payOrderDataFetcher(DataFetchingEnvironment env) {
-        String id = env.getArgument("id");
-        orderApplicationService.paySuccess(Long.valueOf(id), 1);
-        Map<String, Object> result = new ConcurrentHashMap<>();
-        result.put("id", id);
-        result.put("status", "PAID");
         return result;
     }
 

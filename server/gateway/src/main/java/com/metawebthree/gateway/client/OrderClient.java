@@ -1,6 +1,5 @@
 package com.metawebthree.gateway.client;
 
-import com.metawebthree.common.enums.PaymentMethod;
 import com.metawebthree.common.enums.ResponseStatus;
 import com.metawebthree.common.exception.BusinessException;
 import com.metawebthree.common.generated.rpc.*;
@@ -113,30 +112,6 @@ public class OrderClient {
         } catch (Exception e) {
             log.error("Failed to cancel order: id={}, error: {}", id, e.getMessage());
             throw new BusinessException(ResponseStatus.SYSTEM_ERROR, "Failed to cancel order: " + id, e);
-        }
-    }
-
-    public boolean payOrder(String id, String paymentMethod) {
-        try {
-            if (paymentMethod == null) {
-                throw new BusinessException(ResponseStatus.PARAM_VALIDATION_ERROR, "paymentMethod is required");
-            }
-            PaymentMethod method = switch (paymentMethod.toLowerCase()) {
-                case "wechat", "weixin" -> PaymentMethod.WECHAT;
-                case "alipay", "zhifubao" -> PaymentMethod.ALIPAY;
-                case "card", "bankcard" -> PaymentMethod.CARD;
-                default -> PaymentMethod.OTHER;
-            };
-            int payType = method.getCode();
-            PaySuccessRequest request = PaySuccessRequest.newBuilder()
-                    .setOrderId(ValidationUtils.parseLong(id, "id"))
-                    .setPayType(payType)
-                    .build();
-            PaySuccessResponse response = orderService.paySuccess(request);
-            return response.getSuccess();
-        } catch (Exception e) {
-            log.error("Failed to pay order: id={}, error: {}", id, e.getMessage());
-            throw new BusinessException(ResponseStatus.SYSTEM_ERROR, "Failed to pay order: " + id, e);
         }
     }
 

@@ -432,7 +432,7 @@ class FederationRouterTest {
         assertEquals("order", owners.get("orders"));
         assertEquals("order", owners.get("createOrder"));
         assertEquals("order", owners.get("cancelOrder"));
-        assertEquals("order", owners.get("payOrder"));
+        assertNull(owners.get("payOrder"));
 
         // User fields
         assertEquals("user", owners.get("user"));

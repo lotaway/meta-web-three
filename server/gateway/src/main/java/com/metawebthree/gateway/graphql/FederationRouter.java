@@ -55,7 +55,6 @@ public class FederationRouter {
         ROOT_FIELD_OWNER.put("orderByOrderNo", "order");
         ROOT_FIELD_OWNER.put("createOrder", "order");
         ROOT_FIELD_OWNER.put("cancelOrder", "order");
-        ROOT_FIELD_OWNER.put("payOrder", "order");
 
         ROOT_FIELD_OWNER.put("user", "user");
         ROOT_FIELD_OWNER.put("users", "user");
@@ -465,9 +464,6 @@ public class FederationRouter {
                         .dataFetcher("cancelOrder", env -> proxy(env, "order", "cancelOrder",
                                 "{ cancelOrder(id: $id) { __typename id status } }",
                                 Map.of("id", env.getArgument("id"))))
-                        .dataFetcher("payOrder", env -> proxy(env, "order", "payOrder",
-                                "{ payOrder(id: $id, paymentMethod: $pm) { __typename id status paymentMethod } }",
-                                Map.of("id", env.getArgument("id"), "pm", env.getArgument("paymentMethod"))))
                         .dataFetcher("addToCart", env -> proxy(env, "cart", "addToCart",
                                 "{ addToCart(productId: $productId, quantity: $qty) { __typename id userId items { __typename id productId quantity price subtotal } totalAmount itemCount } }",
                                 Map.of("productId", env.getArgument("productId"), "qty", env.getArgument("quantity"))))
@@ -594,7 +590,6 @@ public class FederationRouter {
         sb.append("  deleteProduct(id: ID!): Boolean\n");
         sb.append("  createOrder(input: CreateOrderInput!): Order\n");
         sb.append("  cancelOrder(id: ID!): Order\n");
-        sb.append("  payOrder(id: ID!, paymentMethod: String!): Order\n");
         sb.append("  addToCart(productId: ID!, quantity: Int!): Cart\n");
         sb.append("  removeFromCart(cartItemId: ID!): Cart\n");
         sb.append("  clearCart: Cart\n");
