@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.metawebthree.common.enums.ResponseStatus;
 import com.metawebthree.common.exception.BusinessException;
@@ -25,6 +26,7 @@ import com.metawebthree.common.generated.rpc.ProductDetailProto;
 import com.metawebthree.order.domain.model.OrderDO;
 import com.metawebthree.order.domain.model.OrderItemDO;
 import com.metawebthree.order.domain.ports.CommissionSettlementPort;
+import com.metawebthree.order.domain.ports.PaymentRefundPort;
 import com.metawebthree.order.infrastructure.client.InventoryClient;
 import com.metawebthree.order.infrastructure.client.OrderPromotionClient;
 import com.metawebthree.order.infrastructure.client.UserClient;
@@ -44,6 +46,7 @@ public class OrderApplicationService {
     private final OrderPromotionClient promotionClient;
     private final UserClient userClient;
     private final InventoryClient inventoryClient;
+    private final PaymentRefundPort paymentRefundPort;
     @org.apache.dubbo.config.annotation.DubboReference(check = false, lazy = true)
     private com.metawebthree.common.generated.rpc.ProductService productService;
 
@@ -58,7 +61,8 @@ public class OrderApplicationService {
             OrderEventPublisher eventPublisher,
             OrderPromotionClient promotionClient,
             UserClient userClient,
-            InventoryClient inventoryClient) {
+            InventoryClient inventoryClient,
+            PaymentRefundPort paymentRefundPort) {
         this.orderMapper = orderMapper;
         this.orderItemMapper = orderItemMapper;
         this.commissionSettlementPort = commissionSettlementPort;
@@ -66,6 +70,7 @@ public class OrderApplicationService {
         this.promotionClient = promotionClient;
         this.userClient = userClient;
         this.inventoryClient = inventoryClient;
+        this.paymentRefundPort = paymentRefundPort;
     }
 
     @Transactional
@@ -343,21 +348,61 @@ public class OrderApplicationService {
             return false;
         }
         if ("REFUNDED".equals(order.getOrderStatus())) {
+            // Idempotent: an already refunded order is treated as success.
             return true;
         }
-        if (order.getOrderStatus() == null || !"PAID".equals(order.getOrderStatus())) {
+        String previousStatus = order.getOrderStatus();
+        if (!"PAID".equals(previousStatus) && !"COMPLETED".equals(previousStatus)) {
+            // Unpaid / cancelled / failed orders cannot be refunded.
             return false;
         }
-        order.setOrderStatus("REFUNDED");
-        boolean updated = orderMapper.updateById(order) > 0;
-        if (updated) {
+
+        // Claim the refund: only one concurrent caller may move the order into REFUNDING.
+        int claimed = orderMapper.update(null, new LambdaUpdateWrapper<OrderDO>()
+                .eq(OrderDO::getId, orderId)
+                .in(OrderDO::getOrderStatus, "PAID", "COMPLETED")
+                .set(OrderDO::getOrderStatus, "REFUNDING"));
+        if (claimed == 0) {
+            OrderDO latest = orderMapper.selectById(orderId);
+            return latest != null && "REFUNDED".equals(latest.getOrderStatus());
+        }
+
+        boolean channelRefunded;
+        try {
+            channelRefunded = paymentRefundPort.refund(orderId, order.getOrderNo(), order.getOrderAmount(),
+                    "User requested refund");
+        } catch (RuntimeException e) {
+            releaseRefundClaim(orderId, previousStatus);
+            throw e;
+        }
+        if (!channelRefunded) {
+            // The channel rejected the refund: restore the order so it can be retried.
+            releaseRefundClaim(orderId, previousStatus);
+            log.warn("Payment channel rejected refund for orderId: {}", orderId);
+            return false;
+        }
+
+        int updated = orderMapper.update(null, new LambdaUpdateWrapper<OrderDO>()
+                .eq(OrderDO::getId, orderId)
+                .eq(OrderDO::getOrderStatus, "REFUNDING")
+                .set(OrderDO::getOrderStatus, "REFUNDED"));
+        if (updated > 0) {
             try {
                 commissionSettlementPort.cancel(orderId);
             } catch (Exception e) {
-                log.warn("commission cancel failed after refund mark: {}", e.getMessage());
+                log.warn("commission cancel failed after refund: {}", e.getMessage());
             }
+            return true;
         }
-        return updated;
+        log.error("Channel refund succeeded but order status update failed for orderId: {}", orderId);
+        return false;
+    }
+
+    private void releaseRefundClaim(Long orderId, String previousStatus) {
+        orderMapper.update(null, new LambdaUpdateWrapper<OrderDO>()
+                .eq(OrderDO::getId, orderId)
+                .eq(OrderDO::getOrderStatus, "REFUNDING")
+                .set(OrderDO::getOrderStatus, previousStatus));
     }
 
     /**
