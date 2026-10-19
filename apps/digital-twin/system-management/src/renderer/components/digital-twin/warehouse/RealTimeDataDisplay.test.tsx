@@ -66,7 +66,7 @@ describe('Real-time Data Display Tests', () => {
         />
       )
 
-      expect(screen.getByTestId('mock-line-chart')).toBeInTheDocument()
+      expect(screen.getByRole('img', { name: '需求趋势' })).toBeInTheDocument()
     })
 
     it('should display chart title', () => {
@@ -91,7 +91,7 @@ describe('Real-time Data Display Tests', () => {
       )
 
       // Should render without crashing
-      expect(screen.getByTestId('mock-line-chart')).toBeInTheDocument()
+      expect(screen.getByRole('img', { name: '需求趋势' })).toBeInTheDocument()
     })
 
     it('should update when data changes', () => {
@@ -111,7 +111,7 @@ describe('Real-time Data Display Tests', () => {
         />
       )
 
-      expect(screen.getByTestId('mock-line-chart')).toBeInTheDocument()
+      expect(screen.getByRole('img', { name: '需求趋势' })).toBeInTheDocument()
     })
 
     it('should display all data points', () => {
@@ -124,20 +124,23 @@ describe('Real-time Data Display Tests', () => {
         />
       )
 
-      expect(screen.getByTestId('mock-line-chart')).toBeInTheDocument()
+      expect(screen.getByRole('img', { name: '需求趋势' })).toBeInTheDocument()
     })
   })
 
   describe('ShelfHeatmap - Real-time Load Distribution', () => {
-    const generateMockHeatmapData = (rows: number, cols: number): any[] => {
+    const generateMockShelves = (levels: number, columns: number): any[] => {
       const data: any[] = []
-      for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < cols; col++) {
+      for (let level = 1; level <= levels; level++) {
+        for (let column = 1; column <= columns; column++) {
           data.push({
-            row,
-            col,
-            value: Math.floor(Math.random() * 100),
-            label: `R${row}-C${col}`,
+            id: `shelf-${level}-${column}`,
+            code: `S${level}-${column}`,
+            level,
+            column,
+            capacity: 100,
+            currentLoad: Math.floor(Math.random() * 100),
+            status: 'occupied',
           })
         }
       }
@@ -145,85 +148,79 @@ describe('Real-time Data Display Tests', () => {
     }
 
     it('should render heatmap grid', () => {
-      const mockData = generateMockHeatmapData(5, 10)
+      const mockShelves = generateMockShelves(5, 10)
 
       render(
         <ShelfHeatmap
-          data={mockData}
-          title="货架负载分布"
+          shelves={mockShelves}
         />
       )
 
-      expect(screen.getByText('货架负载分布')).toBeInTheDocument()
+      expect(screen.getByText('库位热度图')).toBeInTheDocument()
+      expect(screen.getAllByRole('gridcell')).toHaveLength(66)
     })
 
     it('should display color legend', () => {
-      const mockData = generateMockHeatmapData(5, 10)
+      const mockShelves = generateMockShelves(5, 10)
 
       render(
         <ShelfHeatmap
-          data={mockData}
-          title="货架负载分布"
+          shelves={mockShelves}
         />
       )
 
-      // Check for legend items
-      expect(screen.getByText(/低负载|0-25%/)).toBeInTheDocument()
+      expect(screen.getByText('低')).toBeInTheDocument()
+      expect(screen.getByText('中')).toBeInTheDocument()
+      expect(screen.getByText('高')).toBeInTheDocument()
     })
 
     it('should handle empty heatmap data', () => {
       render(
         <ShelfHeatmap
-          data={[]}
-          title="货架负载分布"
+          shelves={[]}
         />
       )
 
-      expect(screen.getByText('货架负载分布')).toBeInTheDocument()
+      expect(screen.getByText('库位热度图')).toBeInTheDocument()
     })
 
     it('should render correct number of cells', () => {
-      const mockData = generateMockHeatmapData(5, 10)
+      const mockShelves = generateMockShelves(3, 4)
 
       render(
         <ShelfHeatmap
-          data={mockData}
-          title="货架负载分布"
+          shelves={mockShelves}
         />
       )
 
-      // Should render the heatmap container
-      expect(screen.getByText('货架负载分布')).toBeInTheDocument()
+      expect(screen.getAllByRole('gridcell')).toHaveLength(20)
     })
 
     it('should update heatmap when data changes', () => {
-      const initialData = generateMockHeatmapData(5, 10)
+      const initialShelves = generateMockShelves(5, 10)
       const { rerender } = render(
         <ShelfHeatmap
-          data={initialData}
-          title="货架负载分布"
+          shelves={initialShelves}
         />
       )
 
-      const updatedData = generateMockHeatmapData(5, 10)
+      const updatedShelves = generateMockShelves(3, 4)
       rerender(
         <ShelfHeatmap
-          data={updatedData}
-          title="货架负载分布"
+          shelves={updatedShelves}
         />
       )
 
-      expect(screen.getByText('货架负载分布')).toBeInTheDocument()
+      expect(screen.getAllByRole('gridcell')).toHaveLength(20)
     })
 
     it('should handle large grid sizes', () => {
-      const largeData = generateMockHeatmapData(20, 30)
+      const largeShelves = generateMockShelves(20, 30)
 
       expect(() => {
         render(
           <ShelfHeatmap
-            data={largeData}
-            title="货架负载分布"
+            shelves={largeShelves}
           />
         )
       }).not.toThrow()
@@ -268,11 +265,10 @@ describe('Real-time Data Display Tests', () => {
         />
       )
 
-      // 80/100 * 100 = 80%
-      expect(screen.getByText(/80\.0%/)).toBeInTheDocument()
+      expect(screen.getByText(/57\.5%/)).toBeInTheDocument()
     })
 
-    it('should display total shelves', () => {
+    it('should display occupied and total shelves', () => {
       render(
         <WarehouseStatus
           warehouse={mockWarehouse}
@@ -281,7 +277,7 @@ describe('Real-time Data Display Tests', () => {
         />
       )
 
-      expect(screen.getByText('4')).toBeInTheDocument()
+      expect(screen.getByText('1/4')).toBeInTheDocument()
     })
 
     it('should render in compact mode', () => {
@@ -324,7 +320,7 @@ describe('Real-time Data Display Tests', () => {
       expect(screen.getByText(/62\.5%/)).toBeInTheDocument()
     })
 
-    it('should display last update timestamp', () => {
+    it('should display capacity progress bar', () => {
       render(
         <WarehouseStatus
           warehouse={mockWarehouse}
@@ -333,8 +329,8 @@ describe('Real-time Data Display Tests', () => {
         />
       )
 
-      // Should show last update time
-      expect(screen.getByText(/最后更新/)).toBeInTheDocument()
+      const expectedRate = ((80 + 100 + 0 + 50) / 400) * 100
+      expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', String(expectedRate))
     })
   })
 
@@ -391,7 +387,7 @@ describe('Real-time Data Display Tests', () => {
       )
 
       // Should maintain previous data and add new
-      expect(screen.getByTestId('mock-line-chart')).toBeInTheDocument()
+      expect(screen.getByRole('img', { name: '需求趋势' })).toBeInTheDocument()
     })
   })
 
@@ -469,22 +465,24 @@ describe('Real-time Data Display Tests', () => {
         )
       }
 
-      expect(screen.getByTestId('mock-line-chart')).toBeInTheDocument()
+      expect(screen.getByRole('img', { name: '需求趋势' })).toBeInTheDocument()
     })
 
     it('should render large dataset efficiently', () => {
-      const largeData = Array.from({ length: 1000 }, (_, i) => ({
-        row: Math.floor(i / 50),
-        col: i % 50,
-        value: Math.floor(Math.random() * 100),
-        label: `Cell-${i}`,
+      const largeShelves = Array.from({ length: 1000 }, (_, i) => ({
+        id: `shelf-${i}`,
+        code: `S${i}`,
+        level: Math.floor(i / 50) + 1,
+        column: (i % 50) + 1,
+        capacity: 100,
+        currentLoad: Math.floor(Math.random() * 100),
+        status: 'occupied' as const,
       }))
 
       expect(() => {
         render(
           <ShelfHeatmap
-            data={largeData}
-            title="货架负载分布"
+            shelves={largeShelves}
           />
         )
       }).not.toThrow()

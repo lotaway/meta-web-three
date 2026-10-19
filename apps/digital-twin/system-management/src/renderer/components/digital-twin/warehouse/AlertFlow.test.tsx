@@ -168,8 +168,7 @@ describe('Alert Flow Tests - End-to-End', () => {
       expect(screen.getByText('库存正常')).toBeInTheDocument()
     })
 
-    it('should call onAcknowledge when acknowledge button is clicked', async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+    it('should call onAcknowledge when acknowledge button is clicked', () => {
       const mockOnAcknowledge = vi.fn()
 
       render(
@@ -180,16 +179,12 @@ describe('Alert Flow Tests - End-to-End', () => {
         />
       )
 
-      // Find and click acknowledge button for first alert
-      const buttons = await screen.findAllByRole('button', { name: /标记已读/i })
-      if (buttons.length > 0) {
-        await user.click(buttons[0])
-        expect(mockOnAcknowledge).toHaveBeenCalled()
-      }
+      const buttons = screen.getAllByRole('button', { name: /标记已读/i })
+      fireEvent.click(buttons[0])
+      expect(mockOnAcknowledge).toHaveBeenCalled()
     })
 
-    it('should call onDismiss when resolve button is clicked', async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+    it('should call onDismiss when resolve button is clicked', () => {
       const mockOnResolve = vi.fn()
 
       render(
@@ -200,12 +195,9 @@ describe('Alert Flow Tests - End-to-End', () => {
         />
       )
 
-      // Find and click resolve/dismiss button - component shows ✕
-      const buttons = await screen.findAllByRole('button', { name: /✕/i })
-      if (buttons.length > 0) {
-        await user.click(buttons[0])
-        expect(mockOnResolve).toHaveBeenCalled()
-      }
+      const buttons = screen.getAllByRole('button', { name: /✕/i })
+      fireEvent.click(buttons[0])
+      expect(mockOnResolve).toHaveBeenCalled()
     })
 
     it('should filter alerts by level', () => {
@@ -243,8 +235,8 @@ describe('Alert Flow Tests - End-to-End', () => {
         />
       )
 
-      // Should show time ago text
-      expect(screen.getByText(/分钟前|小时前|刚刚/)).toBeInTheDocument()
+      const expectedTimestamp = new Date(mockAlerts[0].createdAt).toLocaleString('zh-CN')
+      expect(screen.getByText(expectedTimestamp)).toBeInTheDocument()
     })
 
     it('should sort alerts by priority', () => {
@@ -272,33 +264,45 @@ describe('Alert Flow Tests - End-to-End', () => {
     const mockanys: any[] = [
       {
         id: 'restock-001',
-        sku: 'SKU-1234',
-        productName: '商品A',
+        itemId: 'item-001',
+        itemSku: 'SKU-1234',
+        itemName: '商品A',
+        category: 'Category A',
         currentStock: 50,
-        safetyStock: 100,
-        recommendedQuantity: 150,
+        suggestedQuantity: 150,
         urgency: 'high',
-        supplier: '供应商A',
+        reason: '库存低于安全库存',
+        confidence: 92,
+        createdAt: new Date().toISOString(),
+        status: 'pending',
       },
       {
         id: 'restock-002',
-        sku: 'SKU-5678',
-        productName: '商品B',
+        itemId: 'item-002',
+        itemSku: 'SKU-5678',
+        itemName: '商品B',
+        category: 'Category B',
         currentStock: 80,
-        safetyStock: 100,
-        recommendedQuantity: 120,
+        suggestedQuantity: 120,
         urgency: 'medium',
-        supplier: '供应商B',
+        reason: '库存接近安全库存',
+        confidence: 85,
+        createdAt: new Date().toISOString(),
+        status: 'pending',
       },
       {
         id: 'restock-003',
-        sku: 'SKU-9012',
-        productName: '商品C',
+        itemId: 'item-003',
+        itemSku: 'SKU-9012',
+        itemName: '商品C',
+        category: 'Category C',
         currentStock: 95,
-        safetyStock: 100,
-        recommendedQuantity: 105,
+        suggestedQuantity: 105,
         urgency: 'low',
-        supplier: '供应商C',
+        reason: '库存略低于安全库存',
+        confidence: 78,
+        createdAt: new Date().toISOString(),
+        status: 'pending',
       },
     ]
 
@@ -348,12 +352,9 @@ describe('Alert Flow Tests - End-to-End', () => {
         />
       )
 
-      // SKU
       expect(screen.getByText('SKU-1234')).toBeInTheDocument()
-      // Current stock
-      expect(screen.getByText('50')).toBeInTheDocument()
-      // Safety stock
-      expect(screen.getByText('100')).toBeInTheDocument()
+      expect(screen.getByText('商品A')).toBeInTheDocument()
+      expect(screen.getByText(/当前: 50/)).toBeInTheDocument()
     })
 
     it('should display recommended quantity', () => {
@@ -368,57 +369,50 @@ describe('Alert Flow Tests - End-to-End', () => {
       expect(screen.getByText('+150')).toBeInTheDocument()
     })
 
-    it('should display estimated cost', () => {
+    it('should display confidence in expanded details', () => {
       render(
         <RestockSuggestions
           items={mockanys}
           onApprove={vi.fn()}
-          onDismiss={vi.fn()}
+          onReject={vi.fn()}
         />
       )
 
-      // Cost not displayed in current component; skip or adjust
-      expect(screen.getByText('+150')).toBeInTheDocument()
+      fireEvent.click(screen.getByRole('button', { name: /商品A/ }))
+      expect(screen.getByText(/置信度/)).toBeInTheDocument()
+      expect(screen.getByText('92%')).toBeInTheDocument()
     })
 
-    it('should call onApprove when approve button is clicked', async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+    it('should call onApprove when approve button is clicked', () => {
       const mockOnApprove = vi.fn()
 
       render(
         <RestockSuggestions
           items={mockanys}
           onApprove={mockOnApprove}
-          onDismiss={vi.fn()}
+          onReject={vi.fn()}
         />
       )
 
-      // Find and click approve button
-      const approveButtons = await screen.findAllByRole('button', { name: /审批通过/i })
-      if (approveButtons.length > 0) {
-        await user.click(approveButtons[0])
-        expect(mockOnApprove).toHaveBeenCalled()
-      }
+      fireEvent.click(screen.getByRole('button', { name: /商品A/ }))
+      fireEvent.click(screen.getByRole('button', { name: '审批通过' }))
+      expect(mockOnApprove).toHaveBeenCalled()
     })
 
-    it('should call onDismiss when dismiss button is clicked', async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
-      const mockOnDismiss = vi.fn()
+    it('should call onReject when reject button is clicked', () => {
+      const mockOnReject = vi.fn()
 
       render(
         <RestockSuggestions
           items={mockanys}
           onApprove={vi.fn()}
-          onDismiss={mockOnDismiss}
+          onReject={mockOnReject}
         />
       )
 
-      // Find and click reject button
-      const dismissButtons = await screen.findAllByRole('button', { name: /拒绝/i })
-      if (dismissButtons.length > 0) {
-        await user.click(dismissButtons[0])
-        expect(mockOnDismiss).toHaveBeenCalled()
-      }
+      fireEvent.click(screen.getByRole('button', { name: /商品A/ }))
+      fireEvent.click(screen.getByRole('button', { name: '拒绝' }))
+      expect(mockOnReject).toHaveBeenCalled()
     })
 
     it('should calculate total estimated cost', () => {
@@ -477,14 +471,13 @@ describe('Alert Flow Tests - End-to-End', () => {
       )
 
       // High urgency should appear first
-      expect(screen.getByText('商品B')).toBeInTheDocument()
+      const productElements = screen.getAllByText(/商品[ABC]/)
+      expect(productElements[0]).toHaveTextContent('商品B')
     })
   })
 
   describe('Alert Flow - End-to-End Scenarios', () => {
     it('should show notification when new alert arrives', async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
-      
       const initialAlerts: any[] = []
       const { rerender } = render(
         <InventoryAlertPanel
@@ -494,7 +487,7 @@ describe('Alert Flow Tests - End-to-End', () => {
         />
       )
 
-      expect(screen.getByText('暂无告警')).toBeInTheDocument()
+      expect(screen.getByText(/暂无告警/)).toBeInTheDocument()
 
       // Simulate new alert arriving
       const newAlert: any = {
@@ -537,14 +530,17 @@ describe('Alert Flow Tests - End-to-End', () => {
       const items: any[] = [
         {
           id: 'restock-001',
-          sku: 'SKU-1234',
-          productName: '商品A',
+          itemId: 'item-001',
+          itemSku: 'SKU-1234',
+          itemName: '商品A',
+          category: 'Category A',
           currentStock: 50,
-          safetyStock: 100,
-          recommendedQuantity: 150,
+          suggestedQuantity: 150,
           urgency: 'high',
-          estimatedCost: 1500,
-          supplier: '供应商A',
+          reason: '库存低于安全库存',
+          confidence: 92,
+          createdAt: new Date().toISOString(),
+          status: 'pending',
         },
       ]
 
@@ -628,25 +624,31 @@ describe('Alert Flow Tests - End-to-End', () => {
       const items: any[] = [
         {
           id: '1',
-          sku: 'SKU-1',
-          productName: '商品1',
+          itemId: 'item-1',
+          itemSku: 'SKU-1',
+          itemName: '商品1',
+          category: 'Category A',
           currentStock: 10,
-          safetyStock: 100,
-          recommendedQuantity: 200,
+          suggestedQuantity: 200,
           urgency: 'high',
-          estimatedCost: 1000,
-          supplier: '供应商1',
+          reason: '库存远低于安全库存',
+          confidence: 90,
+          createdAt: new Date().toISOString(),
+          status: 'pending',
         },
         {
           id: '2',
-          sku: 'SKU-2',
-          productName: '商品2',
+          itemId: 'item-2',
+          itemSku: 'SKU-2',
+          itemName: '商品2',
+          category: 'Category A',
           currentStock: 90,
-          safetyStock: 100,
-          recommendedQuantity: 110,
+          suggestedQuantity: 110,
           urgency: 'low',
-          estimatedCost: 500,
-          supplier: '供应商2',
+          reason: '库存接近安全库存',
+          confidence: 70,
+          createdAt: new Date().toISOString(),
+          status: 'pending',
         },
       ]
 
@@ -754,12 +756,10 @@ describe('Alert Flow Tests - End-to-End', () => {
         />
       )
 
-      expect(screen.getByRole('status')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /测试告警/ })).toBeInTheDocument()
     })
 
-    it('should have keyboard accessible buttons', async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
-
+    it('should have keyboard accessible buttons', () => {
       render(
         <InventoryAlertPanel
           alerts={[
@@ -781,13 +781,11 @@ describe('Alert Flow Tests - End-to-End', () => {
         />
       )
 
-      // Tab to the first button
-      await user.keyboard('{Tab}')
-      await user.keyboard('{Tab}')
-      await user.keyboard('{Tab}')
-      
-      // Should be able to interact with buttons via keyboard
-      expect(screen.getByRole('button', { name: /确认/i })).toBeInTheDocument()
+      const alertCard = screen.getByRole('button', { name: /测试/ })
+      expect(alertCard).toHaveAttribute('tabindex', '0')
+
+      const acknowledgeButton = screen.getAllByRole('button', { name: /标记已读/i })[0]
+      expect(acknowledgeButton.tagName).toBe('BUTTON')
     })
   })
 })
