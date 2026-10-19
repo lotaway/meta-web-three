@@ -12,7 +12,7 @@
 # dependencies
 node_modules/
 *-lock.json
-*.lock
+# *.lock  # Allow package-lock.json/yarn.lock to be committed for consistent builds
 
 # Expo
 .expo/
