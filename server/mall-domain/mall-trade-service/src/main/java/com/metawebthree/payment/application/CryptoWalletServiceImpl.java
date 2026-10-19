@@ -23,13 +23,13 @@ public class CryptoWalletServiceImpl {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Value("${payment.crypto.wallet.hot-wallet.btc}")
+    @Value("${payment.crypto.wallet.hot-wallet.btc:}")
     private String btcHotWallet;
 
-    @Value("${payment.crypto.wallet.hot-wallet.eth}")
+    @Value("${payment.crypto.wallet.hot-wallet.eth:}")
     private String ethHotWallet;
 
-    @Value("${payment.crypto.wallet.hot-wallet.usdt}")
+    @Value("${payment.crypto.wallet.hot-wallet.usdt:}")
     private String usdtHotWallet;
 
     @Value("${payment.crypto.wallet.api.blockchain-url:}")
@@ -141,12 +141,13 @@ public class CryptoWalletServiceImpl {
      * Execute transfer via blockchain API or wallet SDK
      */
     private String executeTransfer(ExchangeOrder order) {
-        if ((blockchainApiUrl == null || blockchainApiUrl.isEmpty()) && 
+        if ((blockchainApiUrl == null || blockchainApiUrl.isEmpty()) &&
             (walletSdkUrl == null || walletSdkUrl.isEmpty())) {
-            log.error("No blockchain API or wallet SDK configured for transfer");
-            return null;
+            throw new ExternalServiceException("Wallet",
+                    "No blockchain API or wallet SDK configured; refusing to fake a transfer");
         }
-        
+        String hotWallet = requireHotWalletAddress(order.getCryptoCurrency());
+
         if (blockchainApiUrl != null && !blockchainApiUrl.isEmpty()) {
             try {
                 return transferViaBlockchainApi(order);
@@ -155,14 +156,19 @@ public class CryptoWalletServiceImpl {
             }
         }
         if (walletSdkUrl != null && !walletSdkUrl.isEmpty()) {
-            try {
-                return transferViaWalletSdk(order);
-            } catch (Exception e) {
-                log.error("Failed to transfer via wallet SDK: {}", e.getMessage());
-                return null;
-            }
+            return transferViaWalletSdk(order);
         }
-        return null;
+        throw new ExternalServiceException("Wallet",
+                "Crypto wallet integration not available; refusing to fake a transfer");
+    }
+
+    private String requireHotWalletAddress(String cryptoCurrency) {
+        String address = getHotWalletAddress(cryptoCurrency);
+        if (address == null || address.isBlank()) {
+            throw new ExternalServiceException("Wallet",
+                    "No hot wallet address configured for " + cryptoCurrency);
+        }
+        return address;
     }
 
     private String transferViaBlockchainApi(ExchangeOrder order) {

@@ -19,16 +19,27 @@ commission:
 # 支付配置（payment-service）
 payment:
   fiat:
+    # Real credentials MUST be injected from the environment / secret manager.
+    # Never commit production keys here. An empty value disables the method.
     alipay:
-      app-id: your_alipay_app_id
-      private-key: your_alipay_private_key
-      public-key: your_alipay_public_key
-      gateway-url: https://openapi.alipay.com/gateway.do
+      app-id: ${ALIPAY_APP_ID:}
+      private-key: ${ALIPAY_PRIVATE_KEY:}
+      public-key: ${ALIPAY_PUBLIC_KEY:}
+      gateway-url: ${ALIPAY_GATEWAY_URL:https://openapi.alipay.com/gateway.do}
+      # Exact async notify URL, e.g. https://api.example.com/pay/alipay/callback
+      notify-url: ${ALIPAY_NOTIFY_URL:}
+      return-url: ${ALIPAY_RETURN_URL:}
+    # WeChat Pay has no working unified-order integration in this build. It stays
+    # disabled so no placeholder payment parameters are ever produced.
     wechat:
-      app-id: your_wechat_app_id
-      mch-id: your_wechat_mch_id
-      api-key: your_wechat_api_key
-      cert-path: /path/to/wechat/cert.p12
+      enabled: ${WECHAT_PAY_ENABLED:false}
+      app-id: ${WECHAT_PAY_APP_ID:}
+      mch-id: ${WECHAT_PAY_MCH_ID:}
+      api-key: ${WECHAT_PAY_API_KEY:}
+    stripe:
+      secret-key: ${STRIPE_SECRET_KEY:}
+      return-url: ${STRIPE_RETURN_URL:app://payment}
+      currency: ${STRIPE_CURRENCY:cny}
     bank:
       enabled: true
       timeout-minutes: 30
@@ -39,18 +50,19 @@ payment:
       - USDT
       - USDC
     wallet:
+      # Credentials MUST be injected from the environment / secret manager.
       api:
-        blockchain-url: https://api.blockchain.info
-        wallet-sdk-url: https://wallet-sdk.example.com
-        key: your_api_key
+        blockchain-url: ${CRYPTO_BLOCKCHAIN_API_URL:}
+        wallet-sdk-url: ${CRYPTO_WALLET_SDK_URL:}
+        key: ${CRYPTO_WALLET_API_KEY:}
       hot-wallet:
-        btc: your_btc_hot_wallet_address
-        eth: your_eth_hot_wallet_address
-        usdt: your_usdt_hot_wallet_address
+        btc: ${CRYPTO_BTC_HOT_WALLET:}
+        eth: ${CRYPTO_ETH_HOT_WALLET:}
+        usdt: ${CRYPTO_USDT_HOT_WALLET:}
       cold-wallet:
-        btc: your_btc_cold_wallet_address
-        eth: your_eth_cold_wallet_address
-        usdt: your_usdt_cold_wallet_address
+        btc: ${CRYPTO_BTC_COLD_WALLET:}
+        eth: ${CRYPTO_ETH_COLD_WALLET:}
+        usdt: ${CRYPTO_USDT_COLD_WALLET:}
   price-engine:
     enabled: true
     max-consecutive-failures: 3
