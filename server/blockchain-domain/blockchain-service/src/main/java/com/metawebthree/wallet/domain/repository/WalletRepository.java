@@ -8,6 +8,7 @@ public interface WalletRepository {
     Optional<Wallet> findById(Long id);
     Optional<Wallet> findByUserIdAndChainType(String userId, String chainType);
     List<Wallet> findAll();
+    List<Wallet> findByUserId(String userId);
     Wallet save(Wallet wallet);
     void delete(Wallet wallet);
 }

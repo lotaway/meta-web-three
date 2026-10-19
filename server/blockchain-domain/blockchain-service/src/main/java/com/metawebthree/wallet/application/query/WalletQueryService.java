@@ -3,6 +3,7 @@ package com.metawebthree.wallet.application.query;
 import com.metawebthree.wallet.application.dto.WalletDTO;
 import com.metawebthree.wallet.domain.entity.Wallet;
 import com.metawebthree.wallet.domain.repository.WalletRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,11 +11,30 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class WalletQueryService {
+
     private final WalletRepository walletRepository;
 
     public WalletQueryService(WalletRepository walletRepository) {
         this.walletRepository = walletRepository;
+    }
+
+    /**
+     * 根据ID查询钱包，并验证归属权。
+     * <p>
+     * 如果提供了 userId，则仅在钱包归属 userId 与其一致时返回；
+     * 若无 userId 或不匹配，返回 404（防止 IDOR）。
+     * </p>
+     */
+    public WalletDTO getById(Long id, String userId) {
+        Wallet wallet = walletRepository.findById(id)
+                .filter(w -> userId == null || w.getUserId().equals(userId))
+                .orElse(null);
+        if (wallet == null) {
+            return null; // 返回 null 而不是抛出异常，由 Controller 统一返回 404
+        }
+        return toDTO(wallet);
     }
 
     public WalletDTO getById(Long id) {
@@ -30,7 +50,9 @@ public class WalletQueryService {
     }
 
     public List<WalletDTO> getByUserId(String userId) {
-        return List.of();
+        return walletRepository.findByUserId(userId).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     public Map<String, Object> listWallets(Integer pageNum, Integer pageSize, String userId, String chainType, String status) {
