@@ -242,15 +242,26 @@ public class OrderApplicationService {
     }
 
     @Transactional
+    public boolean @Transactional
     public boolean refundOrder(Long orderId, Long userId) {
         OrderDO order = orderMapper.selectById(orderId);
-        if (order == null || !order.getUserId().equals(userId)) {
+        if (order == null || !Objects.equals(order.getUserId(), userId)) {
+            return false;
+        }
+        if ("REFUNDED".equals(order.getOrderStatus())) {
+            return true;
+        }
+        if (order.getOrderStatus() == null || !"PAID".equals(order.getOrderStatus())) {
             return false;
         }
         order.setOrderStatus("REFUNDED");
         boolean updated = orderMapper.updateById(order) > 0;
         if (updated) {
-            commissionSettlementPort.cancel(orderId);
+            try {
+                commissionSettlementPort.cancel(orderId);
+            } catch (Exception e) {
+                log.warn("commission cancel failed after refund mark: {}", e.getMessage());
+            }
         }
         return updated;
     }
