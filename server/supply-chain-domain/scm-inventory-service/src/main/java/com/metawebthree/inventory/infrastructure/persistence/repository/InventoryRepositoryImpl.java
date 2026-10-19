@@ -69,7 +69,14 @@ public class InventoryRepositoryImpl implements InventoryRepository {
             inventoryMapper.insert(inventoryDO);
             inventory.setId(inventoryDO.getId());
         } else {
-            inventoryMapper.updateById(inventoryDO);
+            int updated = inventoryMapper.updateById(inventoryDO);
+            if (updated == 0) {
+                // Another transaction changed the row first (@Version check failed).
+                // Surface this so the caller can retry; nothing is committed for this
+                // attempt.
+                throw new org.springframework.dao.OptimisticLockingFailureException(
+                        "Inventory concurrently modified: id=" + inventoryDO.getId());
+            }
         }
         return inventory;
     }

@@ -3,6 +3,7 @@ package com.metawebthree.inventory.infrastructure.persistence.dataobject;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.Version;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -23,5 +24,6 @@ public class InventoryDO {
     private Integer leadTimeDays;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    @Version
     private Integer version;
 }

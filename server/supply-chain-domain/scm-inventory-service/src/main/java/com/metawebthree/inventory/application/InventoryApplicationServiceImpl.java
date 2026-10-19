@@ -11,7 +11,7 @@ import com.metawebthree.inventory.domain.service.InventoryDomainService;
 import com.metawebthree.inventory.infrastructure.persistence.repository.InventoryOperationLogRepository;
 import com.metawebthree.inventory.infrastructure.persistence.repository.InventoryRepository;
 import com.metawebthree.inventory.infrastructure.persistence.repository.ReservationRepository;
-import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -48,15 +48,29 @@ public class InventoryApplicationServiceImpl implements InventoryApplicationServ
     }
 
     @Override
+    @Transactional
     public InventoryOperationResult reserve(ReserveInventoryDTO dto) {
         // Idempotency: reservations are keyed by the caller supplied business id.
         // Re-issuing the same reservation (for example an at-least-once event
         // redelivery) must not consume inventory twice.
+        // Additionally, if the same bizId is reused with different SKU, warehouse,
+        // or quantity, the request must be rejected rather than silently consuming
+        // inventory twice.
         if (dto.getBizId() != null) {
             var existing = reservationRepository.findByBizId(dto.getBizId());
             if (existing.isPresent()) {
                 ReservationRecord record = existing.get();
-                return InventoryOperationResult.success(dto.getBizId(), record.getQuantity());
+                // If the same business key is reused with identical parameters,
+                // return the existing result (genuine idempotency).
+                if (dto.getSkuCode().equals(record.getSkuCode())
+                        && dto.getWarehouseId().equals(record.getWarehouseId())
+                        && dto.getQuantity().equals(record.getQuantity())) {
+                    return InventoryOperationResult.success(dto.getBizId(), record.getQuantity());
+                }
+                // Same bizId but different params: reject to avoid double-booking.
+                return InventoryOperationResult.fail(
+                    "Reservation " + dto.getBizId() + " already exists with different parameters (sku=" + record.getSkuCode() 
+                    + ", warehouse=" + record.getWarehouseId() + ", quantity=" + record.getQuantity() + ")");
             }
         }
         InventoryOperationLog log = buildOperationLog("RESERVE", dto.getSkuCode(),
