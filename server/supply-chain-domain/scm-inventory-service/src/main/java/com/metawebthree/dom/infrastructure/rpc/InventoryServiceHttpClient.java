@@ -11,6 +11,7 @@ import java.util.Map;
 
 @Service
 @ConditionalOnProperty(name = "dom.rpc.real-clients-enabled", havingValue = "true")
+@Profile("!dev")
 public class InventoryServiceHttpClient implements InventoryServiceClient {
 
     private static final Logger log = LoggerFactory.getLogger(InventoryServiceHttpClient.class);

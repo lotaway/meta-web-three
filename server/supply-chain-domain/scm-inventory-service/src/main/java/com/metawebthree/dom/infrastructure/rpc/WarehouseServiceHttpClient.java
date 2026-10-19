@@ -13,6 +13,7 @@ import java.util.List;
 
 @Service
 @ConditionalOnProperty(name = "dom.rpc.real-clients-enabled", havingValue = "true")
+@Profile("!dev")
 public class WarehouseServiceHttpClient implements WarehouseServiceClient {
 
     private static final Logger log = LoggerFactory.getLogger(WarehouseServiceHttpClient.class);
