@@ -35,6 +35,8 @@ public class OrderApplicationService {
     private final OrderPromotionClient promotionClient;
     private final UserClient userClient;
     private final InventoryClient inventoryClient;
+    @org.apache.dubbo.config.annotation.DubboReference(check = false, lazy = true)
+    private com.metawebthree.common.generated.rpc.ProductService productService;
 
     @Value("${commission.return-window-days}")
     private int returnWindowDays;
