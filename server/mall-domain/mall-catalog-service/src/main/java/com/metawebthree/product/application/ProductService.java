@@ -36,16 +36,19 @@ public class ProductService {
     private final ProductEntityMapper productEntityMapper;
     private final ProductStatsMapper productStatsMapper;
     private final ProductLimitsMapper productLimitsMapper;
+    private final ProductCategoryMapper productCategoryMapper;
 
     public ProductService(MQProducer mqProducer, ProductImageService productImageService,
             ProductMapper productMapper, ProductEntityMapper productEntityMapper,
-            ProductStatsMapper productStatsMapper, ProductLimitsMapper productLimitsMapper) {
+            ProductStatsMapper productStatsMapper, ProductLimitsMapper productLimitsMapper,
+            ProductCategoryMapper productCategoryMapper) {
         this.mqProducer = mqProducer;
         this.productImageService = productImageService;
         this.productMapper = productMapper;
         this.productEntityMapper = productEntityMapper;
         this.productStatsMapper = productStatsMapper;
         this.productLimitsMapper = productLimitsMapper;
+        this.productCategoryMapper = productCategoryMapper;
     }
 
     @RateLimiter(name = "getProductDetail")
@@ -131,7 +134,15 @@ public class ProductService {
     }
 
     public List<ProductDTO> listProducts(Integer categoryId, String keyword, String priceRange) {
+        return listProducts(categoryId, keyword, priceRange, 1, 20);
+    }
+
+    public List<ProductDTO> listProducts(Integer categoryId, String keyword, String priceRange,
+            Integer pageNum, Integer pageSize) {
         QueryWrapper<ProductDO> query = buildListQuery(categoryId, keyword);
+        applyPublishFilter(query);
+        applyPagination(query, pageNum, pageSize);
+
         List<ProductDO> items = productMapper.selectList(query);
         if (items.isEmpty()) {
             return new ArrayList<>();
@@ -147,15 +158,59 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    private QueryWrapper<ProductDO> buildListQuery(Integer categoryId, String keyword) {
+    /**
+     * Builds the product list filter. Category filtering includes the category's
+     * descendants and only matches real {@code tb_product} columns so results never
+     * leak across unrelated categories.
+     */
+    QueryWrapper<ProductDO> buildListQuery(Integer categoryId, String keyword) {
         QueryWrapper<ProductDO> query = new QueryWrapper<>();
         if (categoryId != null && categoryId != 0) {
-            // TODO: implement category filtering
+            List<Long> categoryIds = resolveCategoryIds(categoryId.longValue());
+            if (categoryIds.isEmpty()) {
+                // Unknown category id: match nothing instead of silently ignoring the filter.
+                query.apply("1 = 0");
+            } else {
+                query.in("product_category_id", categoryIds);
+            }
         }
         if (keyword != null && !keyword.isEmpty()) {
-            query.like("product_name", keyword);
+            query.like("name", keyword);
         }
         return query;
+    }
+
+    /** Expands a category into itself plus all of its descendant category ids. */
+    List<Long> resolveCategoryIds(Long categoryId) {
+        if (categoryId == null) {
+            return new ArrayList<>();
+        }
+        List<ProductCategoryDO> allCategories = productCategoryMapper.selectList(null);
+        Set<Long> matched = new HashSet<>();
+        matched.add(categoryId);
+        boolean expanded = true;
+        while (expanded) {
+            expanded = false;
+            for (ProductCategoryDO category : allCategories) {
+                if (category.getParentId() != null
+                        && matched.contains(category.getParentId())
+                        && matched.add(category.getId())) {
+                    expanded = true;
+                }
+            }
+        }
+        return new ArrayList<>(matched);
+    }
+
+    private void applyPublishFilter(QueryWrapper<ProductDO> query) {
+        // Only published, non-deleted products are visible to shoppers.
+        query.eq("publish_status", 1).eq("delete_status", 0);
+    }
+
+    private void applyPagination(QueryWrapper<ProductDO> query, Integer pageNum, Integer pageSize) {
+        int page = (pageNum == null || pageNum < 1) ? 1 : pageNum;
+        int size = (pageSize == null || pageSize < 1) ? 20 : pageSize;
+        query.last("LIMIT " + size + " OFFSET " + ((page - 1) * size));
     }
 
     // 批量查询 ProductStats
@@ -315,21 +370,33 @@ public class ProductService {
             query.eq("brand_id", brandId);
         }
 
+        if (categoryId != null && categoryId != 0) {
+            List<Long> categoryIds = resolveCategoryIds(categoryId.longValue());
+            if (categoryIds.isEmpty()) {
+                query.apply("1 = 0");
+            } else {
+                query.in("product_category_id", categoryIds);
+            }
+        }
+
         // 排序逻辑
         switch (sort) {
             case 1: // 销量
-                query.orderByDesc("sale_count");
+                query.orderByDesc("sale");
                 break;
             case 2: // 价格升序
-                query.orderByAsc("sale_price");
+                query.orderByAsc("price");
                 break;
             case 3: // 价格降序
-                query.orderByDesc("sale_price");
+                query.orderByDesc("price");
                 break;
             default: // 综合
                 query.orderByDesc("create_time");
                 break;
         }
+
+        // 仅展示已上架、未删除的商品
+        query.eq("publish_status", 1).eq("delete_status", 0);
 
         // 分页
         int offset = (pageNum - 1) * pageSize;
