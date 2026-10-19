@@ -7,7 +7,10 @@ import com.metawebthree.mes.domain.repository.WorkOrderSplitRuleRepository;
 
 import java.util.List;
 
-@org.springframework.stereotype.Service
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
 @org.springframework.transaction.annotation.Transactional
 public class WorkOrderSplitServiceImpl implements WorkOrderSplitService {
 
@@ -37,17 +40,23 @@ public class WorkOrderSplitServiceImpl implements WorkOrderSplitService {
 
     @Override
     public List<WorkOrder> splitByBom(WorkOrder parentWorkOrder, WorkOrderSplitRule splitRule) {
-        throw new UnsupportedOperationException("BY_BOM requires real BOM expansion; see TODO.md");
+        throw new SplitNotSupportedException(
+                "BY_BOM split strategy is not yet implemented. "
+                + "Real BOM expansion requires material structure resolution. "
+                + "See TODO.md for planned implementation.");
     }
 
     @Override
     public List<WorkOrder> splitByProcess(WorkOrder parentWorkOrder, WorkOrderSplitRule splitRule) {
-        throw new UnsupportedOperationException("BY_PROCESS requires routing task decomposition; see TODO.md");
+        throw new SplitNotSupportedException(
+                "BY_PROCESS split strategy is not yet implemented. "
+                + "Requires routing task decomposition and operation sequencing. "
+                + "See TODO.md for planned implementation.");
     }
 
     @Override
     public List<WorkOrder> splitManually(WorkOrder parentWorkOrder, WorkOrderSplitRule splitRule,
-                                          List<Integer> quantities) {
+                                           List<Integer> quantities) {
         if (splitRule == null || !"MANUAL".equals(splitRule.getSplitType()))
             throw new IllegalArgumentException("Manual split requires a MANUAL rule");
         return new WorkOrderPartition(workOrderRepository, splitRuleRepository)
@@ -61,7 +70,10 @@ public class WorkOrderSplitServiceImpl implements WorkOrderSplitService {
 
     @Override
     public WorkOrder mergeChildWorkOrders(Long parentWorkOrderId) {
-        throw new UnsupportedOperationException("Merge/aggregation semantics are not implemented; see TODO.md");
+        throw new SplitNotSupportedException(
+                "Merge/aggregation semantics are not yet implemented. "
+                + "Requires reconciled completion quantities and cost reallocation. "
+                + "See TODO.md for planned implementation.");
     }
 
     @Override

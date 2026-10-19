@@ -25,7 +25,22 @@ public class ProductionTask {
     }
 
     public void create(String taskNo, Long workOrderId, Long workstationId,
-                      String processCode, Integer quantity, String operatorId) {
+                       String processCode, Integer quantity, String operatorId) {
+        if (taskNo == null || taskNo.isBlank()) {
+            throw new IllegalArgumentException("Task taskNo must not be null/blank");
+        }
+        if (workOrderId == null) {
+            throw new IllegalArgumentException("Task workOrderId must not be null");
+        }
+        if (workstationId == null) {
+            throw new IllegalArgumentException("Task workstationId must not be null");
+        }
+        if (processCode == null || processCode.isBlank()) {
+            throw new IllegalArgumentException("Task processCode must not be null/blank");
+        }
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("Task quantity must be positive, got: " + quantity);
+        }
         this.taskNo = taskNo;
         this.workOrderId = workOrderId;
         this.workstationId = workstationId;
@@ -52,6 +67,16 @@ public class ProductionTask {
     public void complete(Integer qualified, Integer defective, Integer durationMinutes) {
         if (status != TaskStatus.IN_PROGRESS) {
             throw new IllegalStateException("Task is not in progress");
+        }
+        if (qualified == null || qualified < 0) {
+            throw new IllegalArgumentException("Task qualified quantity must be non-negative, got: " + qualified);
+        }
+        if (defective == null || defective < 0) {
+            throw new IllegalArgumentException("Task defective quantity must be non-negative, got: " + defective);
+        }
+        if (qualified + defective > quantity) {
+            throw new IllegalArgumentException("Task qualified(+defective) = " + (qualified + defective) 
+                    + " exceeds task quantity = " + quantity);
         }
         this.qualifiedQuantity = qualified;
         this.defectiveQuantity = defective;

@@ -64,6 +64,7 @@ public class ProductionTaskController {
     }
     
     @PostMapping("/{id}/quality/pass")
+    @RequirePermission(MesPermissions.TASK_COMPLETE)
     public ResponseEntity<ProductionTaskDTO> passQualityCheck(@PathVariable Long id) {
         ProductionTask task = commandService.preparePassQualityCheck(id);
         commandService.savePassQualityCheck(task);
@@ -71,6 +72,7 @@ public class ProductionTaskController {
     }
     
     @PostMapping("/{id}/quality/fail")
+    @RequirePermission(MesPermissions.TASK_COMPLETE)
     public ResponseEntity<ProductionTaskDTO> failQualityCheck(@PathVariable Long id) {
         ProductionTask task = commandService.prepareFailQualityCheck(id);
         commandService.saveFailQualityCheck(task);
@@ -78,6 +80,7 @@ public class ProductionTaskController {
     }
     
     @PostMapping("/{id}/scrap")
+    @RequirePermission(MesPermissions.TASK_SCRAP)
     public ResponseEntity<ProductionTaskDTO> scrap(@PathVariable Long id) {
         ProductionTask task = commandService.prepareScrapTask(id);
         commandService.saveScrapTask(task);
@@ -169,6 +172,7 @@ public class ProductionTaskController {
     }
     
     @PostMapping("/{id}/extension-values")
+    @RequirePermission(MesPermissions.TASK_UPDATE)
     public ResponseEntity<Void> setExtensionFieldValues(
             @PathVariable Long id,
             @RequestBody Map<String, String> fieldValues) {
