@@ -51,7 +51,10 @@ class OrderApplicationServiceRefundTest {
                 mock(OrderPromotionClient.class),
                 mock(UserClient.class),
                 mock(InventoryClient.class),
-                paymentRefundPort);
+                paymentRefundPort,
+                mock(com.metawebthree.cart.application.CartService.class),
+                mock(com.metawebthree.promotion.application.CouponQueryService.class),
+                mock(com.metawebthree.promotion.application.CouponCommandService.class));
     }
 
     private OrderDO order(String status) {

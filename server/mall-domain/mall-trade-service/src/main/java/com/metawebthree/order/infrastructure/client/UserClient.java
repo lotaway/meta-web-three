@@ -3,7 +3,11 @@ package com.metawebthree.order.infrastructure.client;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;
 
+import com.metawebthree.common.enums.ResponseStatus;
+import com.metawebthree.common.exception.BusinessException;
 import com.metawebthree.common.generated.rpc.*;
+
+import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -131,6 +135,23 @@ public class UserClient {
             log.error("成长值添加异常 - userId: {}, orderId: {}, error: {}", 
                     userId, orderId, e.getMessage(), e);
             return null;
+        }
+    }
+
+    /**
+     * 查询会员收货地址列表
+     * @param userId 用户ID
+     * @return 收货地址列表；远程调用失败时抛出业务异常，避免把“服务不可用”误判为“地址不存在”
+     */
+    public List<MemberAddressProto> listMemberAddresses(Long userId) {
+        try {
+            ListMemberAddressesResponse response = userService.listMemberAddresses(
+                    ListMemberAddressesRequest.newBuilder().setUserId(userId).build());
+            return response.getAddressesList();
+        } catch (Exception e) {
+            log.error("获取会员收货地址异常 - userId: {}, error: {}", userId, e.getMessage(), e);
+            throw new BusinessException(ResponseStatus.SYSTEM_ERROR,
+                    "Failed to load member addresses: " + e.getMessage());
         }
     }
 }

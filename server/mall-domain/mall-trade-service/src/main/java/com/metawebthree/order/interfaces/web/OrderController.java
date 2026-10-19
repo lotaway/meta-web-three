@@ -152,11 +152,16 @@ public class OrderController {
         return ApiResponse.error(ResponseStatus.ORDER_NOT_FOUND);
     }
 
+    @Operation(summary = "Generate order confirmation (checkout preview)",
+            description = "Aggregates cart items, server-side prices, delivery addresses, coupons and points. "
+                    + "Accepts an optional JSON array of cart item ids in the body.")
     @PostMapping("/generateConfirmOrder")
     public ApiResponse<OrderApplicationService.ConfirmOrderResult> generateConfirmOrder(
             @RequestHeader(HeaderConstants.USER_ID) Long userId,
-            @RequestBody List<Long> cartIds) {
-        return ApiResponse.success(orderService.generateConfirmOrder(userId, cartIds));
+            @RequestParam(value = "couponId", required = false) Long couponId,
+            @RequestParam(value = "useIntegration", required = false) Integer useIntegration,
+            @RequestBody(required = false) List<Long> cartIds) {
+        return ApiResponse.success(orderService.generateConfirmOrder(userId, cartIds, couponId, useIntegration));
     }
 
     @Operation(summary = "Apply for order refund", description = "Submit refund/return request")

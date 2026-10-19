@@ -88,6 +88,33 @@ public class InventoryClient {
     }
 
     /**
+     * Query the available quantity for a product/SKU.
+     *
+     * @param productId     product (or SKU) identifier used by the inventory service
+     * @param warehouseCode warehouse to query; {@code null} uses DEFAULT
+     * @return available quantity, or {@code null} when it cannot be determined
+     *         (a remote failure or an unresolved item must not be treated as zero stock)
+     */
+    public Integer getAvailableQuantity(Long productId, String warehouseCode) {
+        try {
+            GetInventoryResponse response = inventoryService.getInventory(
+                    GetInventoryRequest.newBuilder()
+                            .setProductId(productId)
+                            .setWarehouseCode(warehouseCode != null ? warehouseCode : "DEFAULT")
+                            .build());
+            if (response.getProductId() == 0) {
+                // The inventory service returns an empty response when it cannot resolve
+                // the item; report "unknown" instead of a false out-of-stock.
+                return null;
+            }
+            return response.getAvailableQty();
+        } catch (Exception e) {
+            log.warn("Failed to query inventory - productId: {}, error: {}", productId, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Release inventory by order ID
      * @param orderId order ID
      * @param reason release reason

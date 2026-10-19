@@ -1,12 +1,14 @@
 package com.metawebthree.order.application;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -16,12 +18,15 @@ import org.springframework.beans.factory.annotation.Value;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.metawebthree.cart.application.CartService;
+import com.metawebthree.cart.dto.CartItemDTO;
 import com.metawebthree.common.enums.ResponseStatus;
 import com.metawebthree.common.exception.BusinessException;
 import com.metawebthree.common.generated.rpc.GetProductBySkuRequest;
 import com.metawebthree.common.generated.rpc.GetProductBySkuResponse;
 import com.metawebthree.common.generated.rpc.GetProductDetailRequest;
 import com.metawebthree.common.generated.rpc.GetProductDetailResponse;
+import com.metawebthree.common.generated.rpc.MemberAddressProto;
 import com.metawebthree.common.generated.rpc.ProductDetailProto;
 import com.metawebthree.order.domain.model.OrderDO;
 import com.metawebthree.order.domain.model.OrderItemDO;
@@ -32,6 +37,11 @@ import com.metawebthree.order.infrastructure.client.OrderPromotionClient;
 import com.metawebthree.order.infrastructure.client.UserClient;
 import com.metawebthree.order.infrastructure.persistence.mapper.OrderItemMapper;
 import com.metawebthree.order.infrastructure.persistence.mapper.OrderMapper;
+import com.metawebthree.promotion.application.CouponCommandService;
+import com.metawebthree.promotion.application.CouponQueryService;
+import com.metawebthree.promotion.domain.enums.CouponStatus;
+import com.metawebthree.promotion.domain.model.Coupon;
+import com.metawebthree.promotion.domain.model.CouponType;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +57,9 @@ public class OrderApplicationService {
     private final UserClient userClient;
     private final InventoryClient inventoryClient;
     private final PaymentRefundPort paymentRefundPort;
+    private final CartService cartService;
+    private final CouponQueryService couponQueryService;
+    private final CouponCommandService couponCommandService;
     @org.apache.dubbo.config.annotation.DubboReference(check = false, lazy = true)
     private com.metawebthree.common.generated.rpc.ProductService productService;
 
@@ -56,13 +69,20 @@ public class OrderApplicationService {
     @Value("${inventory.default-warehouse-code:WH001}")
     private String defaultWarehouseCode;
 
+    /** How many membership points are worth one unit of currency. */
+    @Value("${order.points-per-currency-unit:100}")
+    private int pointsPerCurrencyUnit;
+
     public OrderApplicationService(OrderMapper orderMapper, OrderItemMapper orderItemMapper,
             CommissionSettlementPort commissionSettlementPort,
             OrderEventPublisher eventPublisher,
             OrderPromotionClient promotionClient,
             UserClient userClient,
             InventoryClient inventoryClient,
-            PaymentRefundPort paymentRefundPort) {
+            PaymentRefundPort paymentRefundPort,
+            CartService cartService,
+            CouponQueryService couponQueryService,
+            CouponCommandService couponCommandService) {
         this.orderMapper = orderMapper;
         this.orderItemMapper = orderItemMapper;
         this.commissionSettlementPort = commissionSettlementPort;
@@ -71,6 +91,9 @@ public class OrderApplicationService {
         this.userClient = userClient;
         this.inventoryClient = inventoryClient;
         this.paymentRefundPort = paymentRefundPort;
+        this.cartService = cartService;
+        this.couponQueryService = couponQueryService;
+        this.couponCommandService = couponCommandService;
     }
 
     @Transactional
@@ -79,23 +102,45 @@ public class OrderApplicationService {
         if (items == null || items.isEmpty()) {
             throw new BusinessException(ResponseStatus.PARAM_MISSING_ERROR, "Order must contain at least one item");
         }
-        List<OrderItemDO> orderItems = new ArrayList<>();
-        BigDecimal total = BigDecimal.ZERO;
-        for (OrderItemCreate request : items) {
-            ProductSnapshot snapshot = resolveProductSnapshot(request);
-            BigDecimal itemTotal = snapshot.unitPrice.multiply(BigDecimal.valueOf(request.getQuantity()));
-            total = total.add(itemTotal);
-            orderItems.add(OrderItemDO.builder()
-                    .id(IdWorker.getId())
-                    .productId(snapshot.productId)
-                    .productName(snapshot.productName)
-                    .skuId(request.getSkuId())
-                    .quantity(request.getQuantity())
-                    .unitPrice(snapshot.unitPrice)
-                    .totalPrice(itemTotal)
-                    .imageUrl(snapshot.imageUrl)
-                    .build());
+        if (userId == null) {
+            throw new BusinessException(ResponseStatus.PARAM_MISSING_ERROR, "Missing userId");
         }
+
+        // The delivery address must belong to the buyer. Fail closed when the user
+        // service is unreachable so an order is never shipped to a foreign address.
+        if (memberReceiveAddressId != null) {
+            boolean owned = userClient.listMemberAddresses(userId).stream()
+                    .anyMatch(address -> address.getId() == memberReceiveAddressId);
+            if (!owned) {
+                throw new BusinessException(ResponseStatus.NOT_FOUND,
+                        "Delivery address does not belong to the current user");
+            }
+        }
+
+        List<PricedItem> pricedItems = new ArrayList<>();
+        BigDecimal subtotal = BigDecimal.ZERO;
+        for (OrderItemCreate request : items) {
+            PricedItem priced = priceLine(request);
+            pricedItems.add(priced);
+            subtotal = subtotal.add(priced.lineTotal);
+        }
+
+        Discounts discounts = applyDiscounts(userId, subtotal, couponId, useIntegration);
+        BigDecimal payable = discounts.payAmount;
+
+        List<OrderItemDO> orderItems = pricedItems.stream()
+                .map(priced -> OrderItemDO.builder()
+                        .id(IdWorker.getId())
+                        .productId(priced.productId)
+                        .productName(priced.productName)
+                        .skuId(priced.skuId)
+                        .quantity(priced.quantity)
+                        .unitPrice(priced.unitPrice)
+                        .totalPrice(priced.lineTotal)
+                        .imageUrl(priced.imageUrl)
+                        .build())
+                .collect(Collectors.toList());
+
         Long orderId = IdWorker.getId();
         String orderNo = String.valueOf(IdWorker.getId());
         OrderDO order = OrderDO.builder()
@@ -104,7 +149,7 @@ public class OrderApplicationService {
                 .orderNo(orderNo)
                 .orderStatus("CREATED")
                 .orderType("NORMAL")
-                .orderAmount(total)
+                .orderAmount(payable)
                 .orderRemark(remark)
                 .memberReceiveAddressId(memberReceiveAddressId)
                 .couponId(couponId)
@@ -123,10 +168,15 @@ public class OrderApplicationService {
                 item.setOrderId(orderId);
                 orderItemMapper.insert(item);
             }
+            if (discounts.coupon != null) {
+                // Consume the coupon in the same transaction so it cannot be reused
+                // for another order; cancellation returns it (compensation path).
+                couponCommandService.consume(discounts.coupon.getCode(), userId, orderNo, null, null);
+            }
             List<OrderEventPublisher.OrderItemCreate> eventItems = orderItems.stream()
                     .map(this::toEventItem)
                     .collect(Collectors.toList());
-            eventPublisher.publishOrderCreated(orderId, orderNo, userId, total, "USD", eventItems);
+            eventPublisher.publishOrderCreated(orderId, orderNo, userId, payable, "USD", eventItems);
             return orderId;
         } catch (RuntimeException e) {
             if (reserved) {
@@ -258,22 +308,248 @@ public class OrderApplicationService {
     }
 
     public ConfirmOrderResult generateConfirmOrder(Long userId, List<Long> cartIds) {
-        // Retrieve cart items from cart-service, address and points from user-service
-        // Return a simple result for now
+        return generateConfirmOrder(userId, cartIds, null, null);
+    }
+
+    /**
+     * Build the checkout preview for the selected cart items using the same
+     * server-side pricing and discount rules as {@link #createOrder}, so the
+     * confirmed amount always equals the amount stored on the order.
+     */
+    public ConfirmOrderResult generateConfirmOrder(Long userId, List<Long> cartIds, Long couponId,
+            Integer useIntegration) {
+        if (userId == null) {
+            throw new BusinessException(ResponseStatus.PARAM_MISSING_ERROR, "Missing userId");
+        }
+        List<CartItemDTO> cartItems = cartService.list(userId);
+        if (cartIds != null && !cartIds.isEmpty()) {
+            Set<Long> wanted = new HashSet<>(cartIds);
+            cartItems = cartItems.stream()
+                    .filter(item -> wanted.contains(item.getId()))
+                    .collect(Collectors.toList());
+        }
+        if (cartItems == null || cartItems.isEmpty()) {
+            throw new BusinessException(ResponseStatus.PARAM_ERROR, "No cart items selected for checkout");
+        }
+
+        List<ConfirmOrderItem> items = new ArrayList<>();
+        BigDecimal subtotal = BigDecimal.ZERO;
+        for (CartItemDTO cartItem : cartItems) {
+            Integer quantity = cartItem.getQuantity();
+            if (quantity == null || quantity <= 0) {
+                throw new BusinessException(ResponseStatus.PARAM_ERROR, "Invalid cart item quantity");
+            }
+            Long stockKey = cartItem.getProductSkuId() != null ? cartItem.getProductSkuId()
+                    : cartItem.getProductId();
+            assertStockAvailable(stockKey, quantity);
+
+            OrderItemCreate probe = new OrderItemCreate();
+            probe.setProductId(cartItem.getProductId());
+            probe.setSkuId(cartItem.getProductSkuId());
+            probe.setQuantity(quantity);
+            PricedItem priced = priceLine(probe);
+            ConfirmOrderItem item = new ConfirmOrderItem();
+            item.setCartItemId(cartItem.getId());
+            item.setProductId(priced.productId);
+            item.setSkuId(priced.skuId);
+            item.setProductName(priced.productName);
+            item.setImageUrl(priced.imageUrl);
+            item.setQuantity(priced.quantity);
+            item.setUnitPrice(priced.unitPrice);
+            item.setTotalPrice(priced.lineTotal);
+            item.setPriceChanged(cartItem.getPrice() != null
+                    && cartItem.getPrice().compareTo(priced.unitPrice) != 0);
+            items.add(item);
+            subtotal = subtotal.add(priced.lineTotal);
+        }
+
+        Discounts discounts = applyDiscounts(userId, subtotal, couponId, useIntegration);
+        List<ConfirmAddress> addresses = userClient.listMemberAddresses(userId).stream()
+                .map(this::toConfirmAddress)
+                .collect(Collectors.toList());
+        List<Coupon> coupons = couponQueryService.listByOwner(userId, CouponStatus.UNUSED.getCode());
+        Integer integration = userClient.getUserIntegration(userId);
+
         ConfirmOrderResult result = new ConfirmOrderResult();
-        result.setCartPromotionItemList(Collections.emptyList());
-        result.setMemberReceiveAddressList(Collections.emptyList());
-        result.setMemberCouponList(Collections.emptyList());
-        result.setCalcAmount(new CalcAmount());
+        result.setCartPromotionItemList(items);
+        result.setMemberReceiveAddressList(addresses);
+        result.setMemberCouponList(coupons);
+        result.setMemberIntegration(integration);
+        CalcAmount calc = new CalcAmount();
+        calc.setTotalAmount(subtotal);
+        calc.setPromotionAmount(discounts.couponDiscount);
+        calc.setIntegrationAmount(discounts.pointsDiscount);
+        calc.setFreightAmount(BigDecimal.ZERO);
+        calc.setPayAmount(discounts.payAmount);
+        result.setCalcAmount(calc);
         return result;
+    }
+
+    /**
+     * Resolve the authoritative price of a single line from the product service.
+     * Cart-supplied prices are never trusted.
+     */
+    private PricedItem priceLine(OrderItemCreate request) {
+        ProductSnapshot snapshot = resolveProductSnapshot(request);
+        BigDecimal lineTotal = snapshot.unitPrice.multiply(BigDecimal.valueOf(request.getQuantity()));
+        return new PricedItem(snapshot.productId, snapshot.productName, snapshot.imageUrl,
+                request.getSkuId(), request.getQuantity(), snapshot.unitPrice, lineTotal);
+    }
+
+    private Discounts applyDiscounts(Long userId, BigDecimal subtotal, Long couponId, Integer useIntegration) {
+        Coupon coupon = null;
+        BigDecimal couponDiscount = BigDecimal.ZERO;
+        if (couponId != null) {
+            coupon = couponQueryService.listByOwner(userId, CouponStatus.UNUSED.getCode()).stream()
+                    .filter(c -> Objects.equals(c.getId(), couponId))
+                    .findFirst()
+                    .orElseThrow(() -> new BusinessException(ResponseStatus.NOT_FOUND,
+                            "Coupon not found, not owned by the user or already used"));
+            couponDiscount = validateAndComputeCouponDiscount(coupon, subtotal);
+        }
+        BigDecimal afterCoupon = subtotal.subtract(couponDiscount).max(BigDecimal.ZERO);
+        BigDecimal pointsDiscount = resolvePointsDiscount(userId, useIntegration, afterCoupon);
+        BigDecimal payAmount = afterCoupon.subtract(pointsDiscount).max(BigDecimal.ZERO);
+        return new Discounts(coupon, couponDiscount, pointsDiscount, payAmount);
+    }
+
+    private BigDecimal validateAndComputeCouponDiscount(Coupon coupon, BigDecimal subtotal) {
+        CouponType type = couponQueryService.getCouponType(coupon.getCouponTypeId());
+        if (type == null) {
+            throw new BusinessException(ResponseStatus.NOT_FOUND, "Coupon type not found");
+        }
+        if (!Boolean.TRUE.equals(type.getIsEnabled())) {
+            throw new BusinessException(ResponseStatus.PARAM_ERROR, "Coupon is disabled");
+        }
+        LocalDateTime now = LocalDateTime.now();
+        if (type.getStartTime() != null && type.getStartTime().isAfter(now)) {
+            throw new BusinessException(ResponseStatus.PARAM_ERROR, "Coupon is not yet valid");
+        }
+        if (type.getEndTime() != null && type.getEndTime().isBefore(now)) {
+            throw new BusinessException(ResponseStatus.PARAM_ERROR, "Coupon has expired");
+        }
+        if (type.getMinimumOrderAmount() != null && subtotal.compareTo(type.getMinimumOrderAmount()) < 0) {
+            throw new BusinessException(ResponseStatus.PARAM_ERROR,
+                    "Order amount does not meet the coupon minimum of " + type.getMinimumOrderAmount());
+        }
+        BigDecimal discount = type.getDiscountAmount() != null ? type.getDiscountAmount() : BigDecimal.ZERO;
+        return discount.min(subtotal);
+    }
+
+    private BigDecimal resolvePointsDiscount(Long userId, Integer useIntegration, BigDecimal ceiling) {
+        if (useIntegration == null || useIntegration <= 0) {
+            return BigDecimal.ZERO;
+        }
+        if (pointsPerCurrencyUnit <= 0 || ceiling.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
+        }
+        Integer balance = userClient.getUserIntegration(userId);
+        if (balance == null) {
+            throw new BusinessException(ResponseStatus.SYSTEM_ERROR, "Failed to verify membership points");
+        }
+        if (balance < useIntegration) {
+            throw new BusinessException(ResponseStatus.PAYMENT_INSUFFICIENT_BALANCE,
+                    "Insufficient membership points: requested " + useIntegration + ", available " + balance);
+        }
+        BigDecimal discount = BigDecimal.valueOf(useIntegration)
+                .divide(BigDecimal.valueOf(pointsPerCurrencyUnit), 2, RoundingMode.DOWN);
+        return discount.min(ceiling);
+    }
+
+    private void assertStockAvailable(Long productId, Integer quantity) {
+        if (productId == null || productId <= 0) {
+            return;
+        }
+        Integer available = inventoryClient.getAvailableQuantity(productId, null);
+        if (available != null && available < quantity) {
+            throw new BusinessException(ResponseStatus.ORDER_CREATE_FAILED,
+                    "Insufficient inventory for product " + productId
+                            + ": required " + quantity + ", available " + available);
+        }
+    }
+
+    private ConfirmAddress toConfirmAddress(MemberAddressProto address) {
+        ConfirmAddress confirm = new ConfirmAddress();
+        confirm.setId(address.getId());
+        confirm.setName(address.getName());
+        confirm.setPhoneNumber(address.getPhoneNumber());
+        confirm.setDefaultStatus(address.getDefaultStatus());
+        confirm.setPostCode(address.getPostCode());
+        confirm.setProvince(address.getProvince());
+        confirm.setCity(address.getCity());
+        confirm.setRegion(address.getRegion());
+        confirm.setDetailAddress(address.getDetailAddress());
+        return confirm;
+    }
+
+    private static final class PricedItem {
+        private final Long productId;
+        private final String productName;
+        private final String imageUrl;
+        private final Long skuId;
+        private final Integer quantity;
+        private final BigDecimal unitPrice;
+        private final BigDecimal lineTotal;
+
+        PricedItem(Long productId, String productName, String imageUrl, Long skuId,
+                Integer quantity, BigDecimal unitPrice, BigDecimal lineTotal) {
+            this.productId = productId;
+            this.productName = productName;
+            this.imageUrl = imageUrl;
+            this.skuId = skuId;
+            this.quantity = quantity;
+            this.unitPrice = unitPrice;
+            this.lineTotal = lineTotal;
+        }
+    }
+
+    private static final class Discounts {
+        private final Coupon coupon;
+        private final BigDecimal couponDiscount;
+        private final BigDecimal pointsDiscount;
+        private final BigDecimal payAmount;
+
+        Discounts(Coupon coupon, BigDecimal couponDiscount, BigDecimal pointsDiscount, BigDecimal payAmount) {
+            this.coupon = coupon;
+            this.couponDiscount = couponDiscount;
+            this.pointsDiscount = pointsDiscount;
+            this.payAmount = payAmount;
+        }
     }
 
     @Data
     public static class ConfirmOrderResult {
-        private List<?> cartPromotionItemList;
-        private List<?> memberReceiveAddressList;
-        private List<?> memberCouponList;
+        private List<ConfirmOrderItem> cartPromotionItemList;
+        private List<ConfirmAddress> memberReceiveAddressList;
+        private List<Coupon> memberCouponList;
+        private Integer memberIntegration;
         private CalcAmount calcAmount;
+    }
+
+    @Data
+    public static class ConfirmOrderItem {
+        private Long cartItemId;
+        private Long productId;
+        private Long skuId;
+        private String productName;
+        private String imageUrl;
+        private Integer quantity;
+        private BigDecimal unitPrice;
+        private BigDecimal totalPrice;
+        private boolean priceChanged;
+    }
+
+    @Data
+    public static class ConfirmAddress {
+        private Long id;
+        private String name;
+        private String phoneNumber;
+        private boolean defaultStatus;
+        private String postCode;
+        private String province;
+        private String city;
+        private String region;
+        private String detailAddress;
     }
 
     @Data
@@ -281,6 +557,7 @@ public class OrderApplicationService {
         private BigDecimal totalAmount = BigDecimal.ZERO;
         private BigDecimal freightAmount = BigDecimal.ZERO;
         private BigDecimal promotionAmount = BigDecimal.ZERO;
+        private BigDecimal integrationAmount = BigDecimal.ZERO;
         private BigDecimal payAmount = BigDecimal.ZERO;
     }
 

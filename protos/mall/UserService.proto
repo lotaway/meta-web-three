@@ -17,6 +17,29 @@ service UserService {
     
     rpc getUserPhone(GetUserPhoneRequest) returns (GetUserPhoneResponse);
     rpc listUsers(ListUsersRequest) returns (ListUsersResponse);
+
+    rpc listMemberAddresses(ListMemberAddressesRequest) returns (ListMemberAddressesResponse);
+}
+
+message ListMemberAddressesRequest {
+    int64 userId = 1;
+}
+
+message ListMemberAddressesResponse {
+    repeated MemberAddressProto addresses = 1;
+}
+
+message MemberAddressProto {
+    int64 id = 1;
+    int64 memberId = 2;
+    string name = 3;
+    string phoneNumber = 4;
+    bool defaultStatus = 5;
+    string postCode = 6;
+    string province = 7;
+    string city = 8;
+    string region = 9;
+    string detailAddress = 10;
 }
 
 message ReturnIntegrationRequest {

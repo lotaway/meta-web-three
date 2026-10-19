@@ -3,8 +3,10 @@ package com.metawebthree.user.infrastructure.rpc;
 import com.metawebthree.common.generated.rpc.*;
 import com.metawebthree.user.application.dto.UserDTO;
 import com.metawebthree.user.application.MemberLevelService;
+import com.metawebthree.user.domain.model.MemberAddress;
 import com.metawebthree.user.domain.model.MemberLevelDO;
 import com.metawebthree.user.domain.model.UserDO;
+import com.metawebthree.user.domain.repository.MemberAddressRepository;
 import com.metawebthree.user.infrastructure.persistence.mapper.UserMapper;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.stereotype.Service;
@@ -20,10 +22,13 @@ import java.util.concurrent.CompletableFuture;
 public class UserRPCServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final MemberLevelService memberLevelService;
+    private final MemberAddressRepository memberAddressRepository;
 
-    public UserRPCServiceImpl(UserMapper userMapper, MemberLevelService memberLevelService) {
+    public UserRPCServiceImpl(UserMapper userMapper, MemberLevelService memberLevelService,
+                              MemberAddressRepository memberAddressRepository) {
         this.userMapper = userMapper;
         this.memberLevelService = memberLevelService;
+        this.memberAddressRepository = memberAddressRepository;
     }
 
     @Override
@@ -264,5 +269,41 @@ public class UserRPCServiceImpl implements UserService {
     @Override
     public CompletableFuture<ListUsersResponse> listUsersAsync(ListUsersRequest request) {
         return CompletableFuture.completedFuture(listUsers(request));
+    }
+
+    @Override
+    public ListMemberAddressesResponse listMemberAddresses(ListMemberAddressesRequest request) {
+        ListMemberAddressesResponse.Builder builder = ListMemberAddressesResponse.newBuilder();
+        try {
+            if (request.getUserId() <= 0) {
+                return builder.build();
+            }
+            List<MemberAddress> addresses = memberAddressRepository.findByMemberId(request.getUserId());
+            if (addresses == null) {
+                return builder.build();
+            }
+            for (MemberAddress address : addresses) {
+                builder.addAddresses(MemberAddressProto.newBuilder()
+                        .setId(address.getId() != null ? address.getId() : 0L)
+                        .setMemberId(address.getMemberId() != null ? address.getMemberId() : 0L)
+                        .setName(address.getName() != null ? address.getName() : "")
+                        .setPhoneNumber(address.getPhoneNumber() != null ? address.getPhoneNumber() : "")
+                        .setDefaultStatus(address.isDefaultStatus())
+                        .setPostCode(address.getPostCode() != null ? address.getPostCode() : "")
+                        .setProvince(address.getProvince() != null ? address.getProvince() : "")
+                        .setCity(address.getCity() != null ? address.getCity() : "")
+                        .setRegion(address.getRegion() != null ? address.getRegion() : "")
+                        .setDetailAddress(address.getDetailAddress() != null ? address.getDetailAddress() : "")
+                        .build());
+            }
+        } catch (Exception e) {
+            log.error("获取会员收货地址失败 - userId: {}, error: {}", request.getUserId(), e.getMessage(), e);
+        }
+        return builder.build();
+    }
+
+    @Override
+    public CompletableFuture<ListMemberAddressesResponse> listMemberAddressesAsync(ListMemberAddressesRequest request) {
+        return CompletableFuture.completedFuture(listMemberAddresses(request));
     }
 }
