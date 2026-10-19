@@ -26,15 +26,19 @@ public class DigitalTwinDevDataInitializer {
             AlertRepository alertRepository,
             DigitalTwinCommandService commandService) {
         return args -> {
-            try {
-                seedWorkshop(workshopRepository, commandService);
-                seedProductionLine(productionLineRepository, commandService);
-                seedDevices(deviceRepository, commandService);
-                seedAlerts(alertRepository, commandService);
-            } catch (Exception e) {
-                log.warn("数字孪生演示数据初始化已中止: {}", e.getMessage());
-            }
+            seedSafely("车间", () -> seedWorkshop(workshopRepository, commandService));
+            seedSafely("产线", () -> seedProductionLine(productionLineRepository, commandService));
+            seedSafely("设备", () -> seedDevices(deviceRepository, commandService));
+            seedSafely("告警", () -> seedAlerts(alertRepository, commandService));
         };
+    }
+
+    private static void seedSafely(String step, Runnable action) {
+        try {
+            action.run();
+        } catch (Exception e) {
+            log.warn("数字孪生演示数据[{}]初始化失败，继续执行后续步骤: {}", step, e.getMessage());
+        }
     }
 
     private static void seedWorkshop(

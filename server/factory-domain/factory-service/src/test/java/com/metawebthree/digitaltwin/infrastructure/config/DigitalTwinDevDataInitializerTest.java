@@ -94,4 +94,20 @@ class DigitalTwinDevDataInitializerTest {
 
         assertDoesNotThrow(() -> runner().run());
     }
+
+    @Test
+    void continuesSeedingWhenEarlierStepFails() {
+        when(workshops.findByWorkshopCode("WS-01")).thenReturn(Optional.empty());
+        when(lines.findByLineCode("LINE-01")).thenReturn(Optional.empty());
+        when(devices.findByDeviceCode(anyString())).thenReturn(Optional.empty());
+        when(alerts.findByDeviceCode(anyString())).thenReturn(List.of());
+        doThrow(new RuntimeException("event publish failed"))
+                .when(commandService).createWorkshop(anyString(), anyString(), anyString());
+
+        assertDoesNotThrow(() -> runner().run());
+
+        verify(commandService).createProductionLine("LINE-01", "演示产线", "WS-01", 100);
+        verify(commandService, times(8)).registerDevice(anyString(), anyString(), anyString(), eq("WS-01"), eq("LINE-01"));
+        verify(commandService, times(3)).createAlert(anyString(), eq("WS-01"), any(), any(), anyString(), anyString());
+    }
 }

@@ -1,6 +1,5 @@
 package com.metawebthree.digitaltwin.infrastructure.event;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,7 @@ public class DigitalTwinEventPublisher {
         try {
             String json = objectMapper.writeValueAsString(event);
             CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(topic, json);
-            
+             
             future.whenComplete((result, ex) -> {
                 if (ex != null) {
                     logger.error("Failed to send event to Kafka. topic={}, event={}", topic, event, ex);
@@ -43,8 +42,8 @@ public class DigitalTwinEventPublisher {
                         result.getRecordMetadata().offset());
                 }
             });
-        } catch (JsonProcessingException e) {
-            logger.error("Failed to serialize event: {}", event, e);
+        } catch (Exception e) {
+            logger.error("Failed to publish event. topic={}, event={}", topic, event, e);
         }
     }
 
