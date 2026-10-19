@@ -12,7 +12,7 @@ import com.metawebthree.rma.domain.repository.RmaDispositionRepository;
 import com.metawebthree.rma.domain.repository.RmaOrderItemRepository;
 import com.metawebthree.rma.domain.repository.RmaOrderRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,8 +43,7 @@ public class RmaEventListener {
         this.rmaDispositionRepository = rmaDispositionRepository;
     }
 
-    @EventListener
-    @Transactional
+    @TransactionalEventListener(phase = org.springframework.transaction.event.TransactionalEventListener.PHASE.AFTER_COMMIT)
     public void handleRmaInspectionCompleted(RmaInspectionCompletedEvent event) {
         log.info("Handling RmaInspectionCompletedEvent: rmaId={}, rmaNo={}, result={}, acceptedQuantity={}",
                 event.getRmaId(), event.getRmaNo(), event.getInspectionResult(), event.getAcceptedQuantity());
@@ -92,8 +91,7 @@ public class RmaEventListener {
         return "FAIL".equalsIgnoreCase(inspectionResult);
     }
 
-    @EventListener
-    @Transactional
+    @TransactionalEventListener(phase = org.springframework.transaction.event.TransactionalEventListener.PHASE.AFTER_COMMIT)
     public void handleRmaDispositionExecuted(RmaDispositionExecutedEvent event) {
         log.info("Handling RmaDispositionExecutedEvent: rmaId={}, rmaNo={}, dispositionType={}",
                 event.getRmaId(), event.getRmaNo(), event.getDispositionType());

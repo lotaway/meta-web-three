@@ -21,6 +21,7 @@ public class RmaDispositionDO {
     private Integer scrapQuantity;
     private String scrapReason;
     private String dispositionBy;
+    private String idempotentKey;
     private LocalDateTime dispositionDate;
     private String remark;
     private LocalDateTime createdAt;
