@@ -91,6 +91,9 @@ message ListOrdersResponse {
 message PaySuccessRequest {
     int64 orderId = 1;
     int32 payType = 2;
+    string transaction_id = 3;
+    string channel = 4;
+    string total_amount = 5;
 }
 
 message PaySuccessResponse {

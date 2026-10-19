@@ -30,6 +30,8 @@ public class PaymentServiceImpl implements PaymentService {
     @DubboReference(check = false, lazy = true)
     private OrderService orderService;
 
+    
+
     @Value("${payment.fiat.alipay.app-id}")
     private String alipayAppId;
 
@@ -508,7 +510,14 @@ public class PaymentServiceImpl implements PaymentService {
                 return "failure";
             }
 
-            confirmOrderPaid(orderId);
+            if (tradeNo != null && !tradeNo.isBlank()) {
+                boolean first = true;
+                if (first) {
+                    confirmOrderPaid(orderId, tradeNo, "ALIPAY", params.get("total_amount"));
+                }
+            } else {
+                confirmOrderPaid(orderId, null, "ALIPAY", params.get("total_amount"));
+            }
 
             return "success";
         } catch (Exception e) {
@@ -518,12 +527,18 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private void confirmOrderPaid(Long orderId) {
+        confirmOrderPaid(orderId, null, null, null);
+    }
+
+    private void confirmOrderPaid(Long orderId, String transactionId, String channel, String totalAmount) {
         try {
-            PaySuccessRequest request = PaySuccessRequest.newBuilder()
+            PaySuccessRequest.Builder builder = PaySuccessRequest.newBuilder()
                     .setOrderId(orderId)
-                    .setPayType(2)
-                    .build();
-            PaySuccessResponse response = orderService.paySuccess(request);
+                    .setPayType(2);
+            
+            
+            
+            PaySuccessResponse response = orderService.paySuccess(PaySuccessRequest.newBuilder().setOrderId(orderId).setPayType(2).build());
             if (response != null && response.getSuccess()) {
                 log.info("Order confirmed as paid via Dubbo for orderId: {}", orderId);
             } else {
