@@ -48,6 +48,16 @@ public class InventoryApplicationServiceImpl implements InventoryApplicationServ
 
     @Override
     public InventoryOperationResult reserve(ReserveInventoryDTO dto) {
+        // Idempotency: reservations are keyed by the caller supplied business id.
+        // Re-issuing the same reservation (for example an at-least-once event
+        // redelivery) must not consume inventory twice.
+        if (dto.getBizId() != null) {
+            var existing = reservationRepository.findByBizId(dto.getBizId());
+            if (existing.isPresent()) {
+                ReservationRecord record = existing.get();
+                return InventoryOperationResult.success(dto.getBizId(), record.getQuantity());
+            }
+        }
         InventoryOperationLog log = buildOperationLog("RESERVE", dto.getSkuCode(),
             dto.getWarehouseId(), -dto.getQuantity(), dto.getBizId());
         try {

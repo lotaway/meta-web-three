@@ -670,3 +670,22 @@ CREATE TABLE IF NOT EXISTS after_sale_order (
 CREATE INDEX IF NOT EXISTS idx_after_sale_order_tenant ON after_sale_order(tenant_id);
 CREATE INDEX IF NOT EXISTS idx_after_sale_order_user_id ON after_sale_order (user_id);
 CREATE INDEX IF NOT EXISTS idx_after_sale_order_status ON after_sale_order (after_sale_status);
+
+CREATE TABLE IF NOT EXISTS tb_outbox_event (
+    id BIGINT PRIMARY KEY,
+    event_id VARCHAR(64) NOT NULL,
+    aggregate_type VARCHAR(64),
+    aggregate_id VARCHAR(64),
+    event_type VARCHAR(64) NOT NULL,
+    topic VARCHAR(128) NOT NULL,
+    event_key VARCHAR(128),
+    payload TEXT NOT NULL,
+    status VARCHAR(16) NOT NULL DEFAULT 'PENDING',
+    attempts INT NOT NULL DEFAULT 0,
+    next_attempt_at TIMESTAMP,
+    last_error VARCHAR(1000),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_outbox_event_event_id ON tb_outbox_event(event_id);
+CREATE INDEX IF NOT EXISTS idx_outbox_event_status_next ON tb_outbox_event(status, next_attempt_at);

@@ -718,3 +718,11 @@ CREATE INDEX IF NOT EXISTS idx_rule_type ON sourcing_rule (rule_type);
 CREATE INDEX IF NOT EXISTS idx_region ON sourcing_rule (region);
 CREATE INDEX IF NOT EXISTS idx_enabled ON sourcing_rule (enabled);
 
+
+CREATE TABLE IF NOT EXISTS tb_processed_event (
+    id BIGINT PRIMARY KEY,
+    event_id VARCHAR(64) NOT NULL,
+    consumer_group VARCHAR(128) NOT NULL,
+    processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_processed_event ON tb_processed_event(event_id, consumer_group);

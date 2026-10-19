@@ -1,16 +1,21 @@
 package com.metawebthree.order.application;
 
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.metawebthree.common.enums.ResponseStatus;
+import com.metawebthree.common.exception.BusinessException;
+import com.metawebthree.order.domain.model.OutboxEventDO;
+import com.metawebthree.order.infrastructure.persistence.mapper.OutboxEventMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Order domain event publisher using Kafka.
@@ -19,15 +24,15 @@ import java.util.concurrent.CompletableFuture;
 @Component
 public class OrderEventPublisher {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final OutboxEventMapper outboxEventMapper;
     private final ObjectMapper objectMapper;
 
     @Value("${event.kafka.topic.order-created:order.created}")
     private String orderCreatedTopic;
 
-    public OrderEventPublisher(KafkaTemplate<String, String> kafkaTemplate,
+    public OrderEventPublisher(OutboxEventMapper outboxEventMapper,
                                ObjectMapper objectMapper) {
-        this.kafkaTemplate = kafkaTemplate;
+        this.outboxEventMapper = outboxEventMapper;
         this.objectMapper = objectMapper;
     }
 
@@ -60,23 +65,40 @@ public class OrderEventPublisher {
                         .toList())
                 .build();
 
-        publish(orderCreatedTopic, orderNo, event);
+        persistToOutbox(orderCreatedTopic, orderNo, event, orderId.toString(), event.getEventId(),
+                EventType.ORDER_CREATED.name());
     }
 
-    private void publish(String topic, String key, Object event) {
+    /**
+     * Persists the event to the transactional outbox. The row is committed
+     * atomically with the caller's business transaction; a background relay
+     * forwards it to Kafka. Serialization failure propagates so the business
+     * transaction rolls back rather than silently dropping the event.
+     */
+    private void persistToOutbox(String topic, String key, Object event, String aggregateId,
+            String eventId, String eventType) {
         try {
             String payload = objectMapper.writeValueAsString(event);
-            CompletableFuture<?> future = kafkaTemplate.send(topic, key, payload);
-            future.whenComplete((result, ex) -> {
-                if (ex != null) {
-                    log.error("Failed to publish event: topic={}, key={}", topic, key, ex);
-                } else {
-                    log.info("Event published: topic={}, key={}, offset={}",
-                            topic, key, result != null ? result.toString() : "N/A");
-                }
-            });
-        } catch (Exception e) {
-            log.error("Failed to serialize event: topic={}, key={}", topic, key, e);
+            LocalDateTime now = LocalDateTime.now();
+            OutboxEventDO row = OutboxEventDO.builder()
+                    .id(IdWorker.getId())
+                    .eventId(eventId)
+                    .aggregateType("ORDER")
+                    .aggregateId(aggregateId)
+                    .eventType(eventType)
+                    .topic(topic)
+                    .eventKey(key)
+                    .payload(payload)
+                    .status(OutboxEventDO.STATUS_PENDING)
+                    .attempts(0)
+                    .createdAt(now)
+                    .updatedAt(now)
+                    .build();
+            outboxEventMapper.insert(row);
+            log.info("Order event stored in outbox: topic={}, key={}, eventId={}", topic, key, eventId);
+        } catch (JsonProcessingException e) {
+            throw new BusinessException(ResponseStatus.SYSTEM_ERROR,
+                    "Failed to serialize order event: " + e.getMessage());
         }
     }
 
