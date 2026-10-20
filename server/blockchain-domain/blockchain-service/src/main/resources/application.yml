@@ -16,10 +16,10 @@ spring:
       initialize-schema: never
 blockchain:
   evm:
-    rpc-url: ${EVM_RPC_URL:https://mainnet.infura.io/v3/YOUR_PROJECT_ID}
-    chain-id: ${EVM_CHAIN_ID:1}
+    rpc-url: ${EVM_RPC_URL:https://rpc.ankr.com/eth_sepolia}
+    chain-id: ${EVM_CHAIN_ID:11155111}
   solana:
-    rpc-url: ${SOLANA_RPC_URL:https://api.mainnet-beta.solana.com}
+    rpc-url: ${SOLANA_RPC_URL:https://api.devnet.solana.com}
 ---
 spring:
   config:

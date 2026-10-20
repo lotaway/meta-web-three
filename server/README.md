@@ -38,6 +38,22 @@ docker build -f server/Dockerfile --target mall-catalog-service .
 docker compose -f docker-compose.yml -f docker-compose.server.yml up -d mall-catalog-service
 ```
 
+**环境变量配置**（docker-compose.env.yml）：
+所有服务配置使用 `${VAR:-默认值}` 格式的环境变量注入，具体说明：
+
+- **PostgreSQL**: `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` - 数据库初始化凭据
+- **Redis**: `REDIS_PASSWORD` - Redis 访问密码
+- **ZooKeeper**: `ZOOKEEPER_CLIENT_PORT` - ZK 客户端端口
+- **MongoDB**: `MONGO_INITDB_ROOT_USERNAME`, `MONGO_INITDB_ROOT_PASSWORD` - Mongo 初始管理员凭据
+- **IPFS**: IPFS 节点连接配置
+- **RocketMQ**: `NAMESRV_ADDR` - Name Server 地址，`SERVER_ADDR` - Broker 服务地址
+- **Kafka**: `KAFKA_ADVERTISED_LISTENER` - Kafka 发布者监听地址
+
+**关键服务环境变量模式**：
+- `spring.cloud.zookeeper.discovery.prefer-ip-address: true` - 所有服务按 IP 注册而非 FQDN，避免 DNS 解析失败
+- `spring.datasource.url` - 使用 `jdbc:postgresql://${POSTGRES_HOST:-localhost}:${POSTGRES_PORT:-5432}/${POSTGRES_DB}` 格式
+- `payment.price-engine.mock-prices` - 价格引擎熔断降级开关，开启后返回模拟价格数据
+
 端口分配（合后 14 个 Java 服务）：
 
 | 端口 | 服务 | 域 |
