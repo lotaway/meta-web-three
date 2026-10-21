@@ -193,6 +193,37 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 
 
 
+## 前端接入网关约定
+
+所有前端（C 端 `apps/client/`、后台 `apps/backstage-admin/`）**统一通过 API 网关 `gateway`（端口 10081）访问后端微服务**，无需了解具体是哪个后端服务负责哪个接口。
+
+### 路由机制
+
+后端 gateway 开启了 Spring Cloud Gateway 的 **Discovery Locator**（`spring.cloud.gateway.discovery.locator.enabled: true`），结合 Zookeeper 服务发现，实现全自动服务分流：
+
+1. 前端请求只需指向网关地址 `http://<gateway-host>:10081`
+2. 请求 URL 带上服务名前缀，格式为 `/<service-name>/...`，例如 `/mall-catalog-service/products`、`/mall-trade-service/order/list`
+3. Gateway 根据服务名前缀从 Zookeeper 发现对应服务实例，自动 strip 掉前缀后转发至目标微服务
+4. 所有服务按 IP 注册（`spring.cloud.zookeeper.discovery.prefer-ip-address: true`），避免 DNS 解析失败
+
+### 前端实现方式
+
+- **C 端（`apps/client/`）**：手写 API 直接在 URL 中携带服务名前缀，如 `/mall-catalog-service/products`，再拼接网关 baseUrl（端口 10081）。
+- **后台（`apps/backstage-admin/`）**：通过 `src/utils/http.ts` 的 `SERVICE_PREFIX_MAP` 在请求拦截器中自动为 URL 添加服务名前缀，例如 `/product/list` → `/mall-catalog-service/product/list`，再经 gateway 自动分流。
+
+### 前端无需关心
+
+前端不需要知道：
+- 具体的后端服务实例 IP 和端口
+- 哪个微服务域（mall / platform / factory / erp 等）负责该接口
+- 服务是否有多个实例进行负载均衡
+
+前端只需关心：
+- 网关入口地址（`VITE_BASE_SERVER_URL` / `EXPO_PUBLIC_BACK_API_HOST`，端口 10081）
+- 接口路径中带上正确的服务名前缀
+
+---
+
 ## AI 辅助购物（mall-catalog-service）
 
 AI 辅助购物能力已随 `recommendation-service` 并入 `mall-catalog-service`（端口 10082）：**文本纠错**、**智能匹配**、**以图搜图**、一站式搜索。
