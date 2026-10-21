@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @TableName("tb_product_similarity")
 public class ProductSimilarityDO {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Long productId1;
     private Long productId2;

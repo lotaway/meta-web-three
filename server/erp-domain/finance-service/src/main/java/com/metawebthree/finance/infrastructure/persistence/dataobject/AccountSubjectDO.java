@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("finance_account_subject")
 public class AccountSubjectDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String subjectCode;
     private String subjectName;

@@ -1,6 +1,5 @@
 package com.metawebthree.wallet.domain.service;
 
-import com.metawebthree.wallet.domain.model.WalletPermission;
 import com.metawebthree.wallet.domain.entity.Wallet;
 import java.math.BigDecimal;
 

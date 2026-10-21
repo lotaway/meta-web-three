@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @TableName("rp_financial_report")
 public class FinancialReportDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     @TableField("report_no")

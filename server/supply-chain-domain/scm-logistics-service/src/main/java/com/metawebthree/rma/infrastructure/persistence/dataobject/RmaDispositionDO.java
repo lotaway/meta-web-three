@@ -22,6 +22,10 @@ public class RmaDispositionDO {
     private String scrapReason;
     private String dispositionBy;
     private String idempotentKey;
+    /**
+     * 结算状态：PENDING / SUCCESS / FAILED / ERROR。
+     */
+    private String status;
     private LocalDateTime dispositionDate;
     private String remark;
     private LocalDateTime createdAt;

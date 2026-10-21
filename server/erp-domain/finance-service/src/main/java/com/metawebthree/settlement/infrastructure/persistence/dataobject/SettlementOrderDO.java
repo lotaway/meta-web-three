@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("settlement_order")
 public class SettlementOrderDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String settlementNo;
     private String orderNo;

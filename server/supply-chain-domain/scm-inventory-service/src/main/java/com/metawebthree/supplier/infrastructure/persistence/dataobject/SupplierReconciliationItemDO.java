@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("supplier_reconciliation_item")
 public class SupplierReconciliationItemDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Long reconciliationId;
     private String orderNo;

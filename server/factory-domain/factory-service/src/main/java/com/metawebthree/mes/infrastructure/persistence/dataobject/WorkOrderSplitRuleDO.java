@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("mes_work_order_split_rule")
 public class WorkOrderSplitRuleDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String ruleName;
     private String ruleCode;

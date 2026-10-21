@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @TableName("trace_record")
 public class TraceRecordDO {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     private Long traceId;

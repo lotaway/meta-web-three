@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @TableName("tb_audit_log")
 public class AuditLog {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     private Long userId;

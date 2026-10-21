@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @TableName("sop_document_version")
 public class SopDocumentVersionDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Long sopDocumentId;
     private Integer versionNo;

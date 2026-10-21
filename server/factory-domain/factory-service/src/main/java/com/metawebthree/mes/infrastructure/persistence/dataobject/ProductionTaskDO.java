@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @TableName("mes_production_task")
 public class ProductionTaskDO {
     
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     
     private String taskNo;

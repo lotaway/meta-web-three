@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @TableName("procurement_return_order_item")
 public class ProcurementReturnOrderItemDO {
     
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Long returnOrderId;
     private String returnNo;

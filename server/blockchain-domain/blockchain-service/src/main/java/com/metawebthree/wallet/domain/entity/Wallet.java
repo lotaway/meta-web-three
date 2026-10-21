@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @TableName("tb_wallet")
 public class Wallet {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String userId;
     private String chainType;

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @TableName("inventory_items")
 public class InventoryItemDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     @TableField("item_code")

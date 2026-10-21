@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("mes_operator")
 public class OperatorDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String operatorCode;
     private String operatorName;

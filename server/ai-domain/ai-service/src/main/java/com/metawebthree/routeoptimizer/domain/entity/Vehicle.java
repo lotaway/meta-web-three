@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 @TableName("tb_vehicle")
 public class Vehicle {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     @TableField("vehicle_code")

@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @TableName("cash_plan")
 public class CashPlanDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String planCode;
     private String planName;

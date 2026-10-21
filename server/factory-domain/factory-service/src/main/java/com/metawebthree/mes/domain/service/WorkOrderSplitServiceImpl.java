@@ -40,17 +40,19 @@ public class WorkOrderSplitServiceImpl implements WorkOrderSplitService {
 
     @Override
     public List<WorkOrder> splitByBom(WorkOrder parentWorkOrder, WorkOrderSplitRule splitRule) {
-        throw new SplitNotSupportedException(
+        throw new UnsupportedOperationException(
                 "BY_BOM split strategy is not yet implemented. "
-                + "Real BOM expansion requires material structure resolution. "
+                + "Real BOM expansion requires material structure resolution "
+                + "(version, effective time, unit conversion and scrap rate). "
                 + "See TODO.md for planned implementation.");
     }
 
     @Override
     public List<WorkOrder> splitByProcess(WorkOrder parentWorkOrder, WorkOrderSplitRule splitRule) {
-        throw new SplitNotSupportedException(
+        throw new UnsupportedOperationException(
                 "BY_PROCESS split strategy is not yet implemented. "
-                + "Requires routing task decomposition and operation sequencing. "
+                + "Requires routing task decomposition, operation sequencing and "
+                + "parent/child completion aggregation. "
                 + "See TODO.md for planned implementation.");
     }
 
@@ -70,10 +72,10 @@ public class WorkOrderSplitServiceImpl implements WorkOrderSplitService {
 
     @Override
     public WorkOrder mergeChildWorkOrders(Long parentWorkOrderId) {
-        throw new SplitNotSupportedException(
+        throw new UnsupportedOperationException(
                 "Merge/aggregation semantics are not yet implemented. "
-                + "Requires reconciled completion quantities and cost reallocation. "
-                + "See TODO.md for planned implementation.");
+                + "Parent/child execution and completion aggregation rules must be "
+                + "defined first. See TODO.md for planned implementation.");
     }
 
     @Override

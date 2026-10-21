@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @TableName("warehouses")
 public class WarehouseDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     @TableField("warehouse_code")

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @TableName("mes_schedule_resource")
 public class ScheduleResourceDO {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     private String resourceCode;

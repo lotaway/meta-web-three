@@ -9,7 +9,7 @@ spring:
 
 # ClickHouse Configuration
 clickhouse:
-  url: jdbc:clickhouse://localhost:8123/meta_web_analytics
+  url: jdbc:clickhouse://clickhouse:8123/meta_web_analytics
   username: default
   password: ""
   socket-timeout: 300000

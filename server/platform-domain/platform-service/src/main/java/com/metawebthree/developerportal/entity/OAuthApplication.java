@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @TableName("oauth_application")
 public class OAuthApplication {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     @TableField("client_id")

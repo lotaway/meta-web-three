@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @TableName("mes_entity_extension_field_value")
 public class EntityExtensionFieldValueDO {
     
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     
     private String entityType;

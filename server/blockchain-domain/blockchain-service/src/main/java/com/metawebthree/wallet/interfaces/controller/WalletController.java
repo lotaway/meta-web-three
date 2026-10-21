@@ -5,7 +5,6 @@ import com.metawebthree.wallet.application.command.WalletCommandService;
 import com.metawebthree.wallet.application.dto.WalletDTO;
 import com.metawebthree.wallet.application.query.WalletQueryService;
 import com.metawebthree.wallet.domain.model.WalletPermission;
-import lombok.extern.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +36,7 @@ public class WalletController {
 
     @GetMapping("/{id}")
     @RequirePermission(WalletPermission.WALLET_READ)
-    public ResponseEntity<WalletDTO> getWallet(@PathVariable Long id, @RequestParam(required false) String userId) {
+    public ResponseEntity<WalletDTO> getWallet(@PathVariable Long id, @RequestParam(required = false) String userId) {
         WalletDTO wallet = queryService.getById(id, userId);
         if (wallet == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -48,7 +47,7 @@ public class WalletController {
     @PostMapping("/{id}/deposit")
     @RequirePermission(WalletPermission.WALLET_DEPOSIT)
     public ResponseEntity<WalletDTO> deposit(@PathVariable Long id, @RequestBody Map<String, BigDecimal> request,
-                                           @RequestParam(required false) String userId) {
+                                           @RequestParam(required = false) String userId) {
         BigDecimal amount = request.get("amount");
         WalletDTO wallet = commandService.deposit(id, amount, userId);
         return ResponseEntity.ok(wallet);
@@ -57,7 +56,7 @@ public class WalletController {
     @PostMapping("/{id}/withdraw")
     @RequirePermission(WalletPermission.WALLET_WITHDRAW)
     public ResponseEntity<WalletDTO> withdraw(@PathVariable Long id, @RequestBody Map<String, BigDecimal> request,
-                                            @RequestParam(required false) String userId) {
+                                            @RequestParam(required = false) String userId) {
         BigDecimal amount = request.get("amount");
         WalletDTO wallet = commandService.withdraw(id, amount, userId);
         return ResponseEntity.ok(wallet);

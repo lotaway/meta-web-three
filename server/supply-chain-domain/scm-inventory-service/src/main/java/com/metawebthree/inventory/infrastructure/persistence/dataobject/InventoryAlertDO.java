@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("inventory_alert")
 public class InventoryAlertDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String alertCode;
     private String warehouseCode;

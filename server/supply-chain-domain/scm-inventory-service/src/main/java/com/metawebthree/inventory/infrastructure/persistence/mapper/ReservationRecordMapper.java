@@ -3,6 +3,8 @@ package com.metawebthree.inventory.infrastructure.persistence.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.metawebthree.inventory.infrastructure.persistence.dataobject.ReservationRecordDO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import java.util.Optional;
 

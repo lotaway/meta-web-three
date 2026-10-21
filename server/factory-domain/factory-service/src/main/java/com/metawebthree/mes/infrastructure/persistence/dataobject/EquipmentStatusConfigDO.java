@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("mes_equipment_status_config")
 public class EquipmentStatusConfigDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Long equipmentTypeId;
     private String statusCode;

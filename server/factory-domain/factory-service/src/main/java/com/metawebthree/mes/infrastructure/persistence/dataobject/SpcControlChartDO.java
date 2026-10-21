@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @TableName("mes_qc_spc_control_chart")
 public class SpcControlChartDO {
     
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     
     private String chartCode;

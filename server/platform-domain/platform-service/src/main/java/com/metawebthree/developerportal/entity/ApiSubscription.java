@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @TableName("api_subscription")
 public class ApiSubscription {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     @TableField("subscription_id")

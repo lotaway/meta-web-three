@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("finance_voucher")
 public class VoucherDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String voucherNo;
     private String type;

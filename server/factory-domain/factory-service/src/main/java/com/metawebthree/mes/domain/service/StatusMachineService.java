@@ -111,6 +111,98 @@ public class StatusMachineService {
     }
     
     /**
+     * 校验实体从当前状态到目标状态的转换是否被状态机允许。
+     * <p>
+     * 状态机不存在时视为校验通过（未配置状态机的实体类型不做限制）；
+     * 状态机存在但未定义该转换时抛出 {@link IllegalStateException}。
+     * </p>
+     *
+     * @param entity    业务实体，需暴露 {@code getStatusCode()}
+     * @param toStatus  目标状态码
+     */
+    public void validateTransition(Object entity, String toStatus) {
+        if (entity == null) {
+            throw new IllegalArgumentException("Entity must not be null");
+        }
+        String fromStatus = extractStatus(entity);
+        StatusMachine machine = resolveMachine(entity);
+        if (machine == null) {
+            return;
+        }
+        if (!isTransitionValid(machine, fromStatus, toStatus)) {
+            throw new IllegalStateException(
+                    "Illegal status transition for " + machine.getMachineCode()
+                    + ": " + fromStatus + " -> " + toStatus);
+        }
+    }
+
+    /**
+     * 校验指定实体类型的状态转换是否合法。
+     *
+     * @param entityType 实体类型
+     * @param fromStatus 当前状态码
+     * @param toStatus   目标状态码
+     */
+    public void validateTransition(String entityType, String fromStatus, String toStatus) {
+        StatusMachine machine = getStatusMachine(entityType).orElse(null);
+        if (machine == null) {
+            return;
+        }
+        if (!isTransitionValid(machine, fromStatus, toStatus)) {
+            throw new IllegalStateException(
+                    "Illegal status transition for " + entityType + ": " + fromStatus + " -> " + toStatus);
+        }
+    }
+
+    private StatusMachine resolveMachine(Object entity) {
+        String machineCode = extractMachineCode(entity);
+        if (machineCode != null) {
+            StatusMachine byCode = getStatusMachineByCode(machineCode).orElse(null);
+            if (byCode != null) {
+                return byCode;
+            }
+        }
+        String entityType = extractEntityType(entity);
+        return entityType != null ? getStatusMachine(entityType).orElse(null) : null;
+    }
+
+    private String extractStatus(Object entity) {
+        try {
+            java.lang.reflect.Method getter = entity.getClass().getMethod("getStatusCode");
+            Object value = getter.invoke(entity);
+            return value != null ? value.toString() : null;
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalArgumentException(
+                    "Entity does not expose getStatusCode(): " + entity.getClass().getName(), e);
+        }
+    }
+
+    /**
+     * 读取实体声明的状态机编码（可选，通过静态常量或 {@code getStatusMachineCode()}）。
+     */
+    private String extractMachineCode(Object entity) {
+        try {
+            java.lang.reflect.Method getter = entity.getClass().getMethod("getStatusMachineCode");
+            Object value = getter.invoke(entity);
+            return value != null ? value.toString() : null;
+        } catch (NoSuchMethodException e) {
+            return null;
+        } catch (ReflectiveOperationException e) {
+            return null;
+        }
+    }
+
+    private String extractEntityType(Object entity) {
+        try {
+            java.lang.reflect.Method getter = entity.getClass().getMethod("getEntityType");
+            Object value = getter.invoke(entity);
+            return value != null ? value.toString() : null;
+        } catch (ReflectiveOperationException e) {
+            return null;
+        }
+    }
+
+    /**
      * 保存状态机配置
      */
     public StatusMachine saveStatusMachine(StatusMachine statusMachine) {

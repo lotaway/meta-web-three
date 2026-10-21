@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @TableName("accounts_payable")
 public class AccountsPayableDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String apCode;
     private Long supplierId;

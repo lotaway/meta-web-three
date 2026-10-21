@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("inventory_reservation_record")
 public class ReservationRecordDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String bizId;
     private String skuCode;

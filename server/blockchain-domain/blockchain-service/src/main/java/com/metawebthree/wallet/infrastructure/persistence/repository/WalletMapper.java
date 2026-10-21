@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
 import java.util.Optional;
 
 @Mapper
@@ -13,4 +14,7 @@ public interface WalletMapper extends BaseMapper<Wallet> {
 
     @Select("SELECT * FROM tb_wallet WHERE user_id = #{userId} AND chain_type = #{chainType} LIMIT 1")
     Optional<Wallet> findByUserIdAndChainType(@Param("userId") String userId, @Param("chainType") String chainType);
+
+    @Select("SELECT * FROM tb_wallet WHERE user_id = #{userId}")
+    List<Wallet> findByUserId(@Param("userId") String userId);
 }

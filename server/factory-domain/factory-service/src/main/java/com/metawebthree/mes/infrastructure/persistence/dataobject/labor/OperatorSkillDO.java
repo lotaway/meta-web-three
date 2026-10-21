@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("mes_operator_skill")
 public class OperatorSkillDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Long operatorId;
     private String skillCode;

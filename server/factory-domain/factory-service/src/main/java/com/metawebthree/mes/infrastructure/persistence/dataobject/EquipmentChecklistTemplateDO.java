@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @TableName("mes_equipment_checklist_template")
 public class EquipmentChecklistTemplateDO {
     
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     
     private String templateCode;

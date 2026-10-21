@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @TableName("api_key")
 public class ApiKey {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     @TableField("key_id")

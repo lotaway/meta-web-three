@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @TableName("production_order")
 public class ProductionOrderDO {
     
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     
     private String orderCode;

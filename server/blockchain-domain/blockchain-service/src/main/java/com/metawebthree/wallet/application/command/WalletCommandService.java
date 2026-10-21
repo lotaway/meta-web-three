@@ -28,18 +28,18 @@ public class WalletCommandService {
     }
 
     @Transactional
-    public WalletDTO deposit(Long walletId, java.math.BigDecimal amount) {
+    public WalletDTO deposit(Long walletId, java.math.BigDecimal amount, String userId) {
         Wallet wallet = walletRepository.findById(walletId)
             .orElseThrow(() -> new IllegalArgumentException("Wallet not found"));
-        walletDomainService.deposit(wallet, amount);
+        walletDomainService.deposit(wallet, amount, userId);
         return toDTO(walletRepository.save(wallet));
     }
 
     @Transactional
-    public WalletDTO withdraw(Long walletId, java.math.BigDecimal amount) {
+    public WalletDTO withdraw(Long walletId, java.math.BigDecimal amount, String userId) {
         Wallet wallet = walletRepository.findById(walletId)
             .orElseThrow(() -> new IllegalArgumentException("Wallet not found"));
-        walletDomainService.withdraw(wallet, amount);
+        walletDomainService.withdraw(wallet, amount, userId);
         return toDTO(walletRepository.save(wallet));
     }
 

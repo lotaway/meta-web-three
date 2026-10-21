@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("warehouse")
 public class WarehouseDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String warehouseCode;
     private String warehouseName;

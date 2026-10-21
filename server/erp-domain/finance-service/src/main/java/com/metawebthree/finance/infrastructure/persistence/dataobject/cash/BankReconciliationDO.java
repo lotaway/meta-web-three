@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @TableName("bank_reconciliation")
 public class BankReconciliationDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String reconciliationNo;
     private Long bankAccountId;

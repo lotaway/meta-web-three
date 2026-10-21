@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("stocktake_order_item")
 public class StocktakeOrderItemDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Long stocktakeOrderId;
     private String skuCode;

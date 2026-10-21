@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("invoice")
 public class InvoiceDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String invoiceNo;
     private String orderNo;

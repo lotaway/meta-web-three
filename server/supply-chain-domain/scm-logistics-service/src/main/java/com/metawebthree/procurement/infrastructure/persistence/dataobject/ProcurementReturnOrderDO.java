@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @TableName("procurement_return_order")
 public class ProcurementReturnOrderDO {
     
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String returnNo;
     private String sourceOrderNo;

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("mes_andon_level")
 public class AndonLevelDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String levelCode;
     private String levelName;

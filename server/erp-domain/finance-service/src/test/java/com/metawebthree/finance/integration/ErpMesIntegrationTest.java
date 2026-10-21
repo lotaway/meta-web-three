@@ -6,6 +6,7 @@ import com.metawebthree.finance.application.command.cost.CostCommandService;
 import com.metawebthree.finance.domain.entity.cost.ActualCost;
 import com.metawebthree.finance.domain.repository.cost.ActualCostRepository;
 import org.awaitility.Awaitility;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -21,9 +24,22 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @SpringBootTest
 public class ErpMesIntegrationTest {
+
+    /**
+     * 探测本地 Kafka 代理是否可用；不可用时跳过本集成测试，避免长时间超时阻塞 CI。
+     */
+    static boolean kafkaAvailable() {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress("localhost", 9092), 2000);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
@@ -40,6 +56,13 @@ public class ErpMesIntegrationTest {
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.kafka.bootstrap-servers", () -> "localhost:9092");
+    }
+
+    @BeforeAll
+    static void requireKafka() {
+        assumeTrue(kafkaAvailable(),
+                "Kafka broker not reachable on localhost:9092 - start the docker environment "
+                        + "(docker compose -f docker-compose.env.yml up -d kafka) to run this integration test");
     }
 
     @BeforeEach

@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 @TableName("tb_route_point")
 public class RoutePoint {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     @TableField("route_plan_id")

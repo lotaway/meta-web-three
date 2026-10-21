@@ -13,7 +13,7 @@ import java.util.Map;
 @Data
 @TableName(value = "mes_trace_record", autoResultMap = true)
 public class TraceRecordDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String traceCode;
     private String traceType;

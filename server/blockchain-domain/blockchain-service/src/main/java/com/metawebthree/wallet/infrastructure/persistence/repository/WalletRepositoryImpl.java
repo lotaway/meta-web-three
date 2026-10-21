@@ -32,6 +32,11 @@ public class WalletRepositoryImpl implements WalletRepository {
     }
 
     @Override
+    public List<Wallet> findByUserId(String userId) {
+        return walletMapper.findByUserId(userId);
+    }
+
+    @Override
     public Wallet save(Wallet wallet) {
         if (wallet.getId() == null) {
             walletMapper.insert(wallet);

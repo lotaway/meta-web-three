@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @TableName("tb_solana_commission_relation")
 public class SolanaCommissionRelation {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String accountAddress;
     private String uplineAddress;

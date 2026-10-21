@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @TableName("cash_transfer")
 public class CashTransferDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String transferNo;
     private Long fromAccountId;

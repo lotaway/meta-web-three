@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @TableName("cash_flow_forecast")
 public class CashFlowForecastDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String forecastNo;
     private LocalDate forecastDate;

@@ -53,6 +53,29 @@ docker compose -f docker-compose.yml -f docker-compose.server.yml up -d mall-cat
 - `spring.cloud.zookeeper.discovery.prefer-ip-address: true` - 所有服务按 IP 注册而非 FQDN，避免 DNS 解析失败
 - `spring.datasource.url` - 使用 `jdbc:postgresql://${POSTGRES_HOST:-localhost}:${POSTGRES_PORT:-5432}/${POSTGRES_DB}` 格式
 - `payment.price-engine.mock-prices` - 价格引擎熔断降级开关，开启后返回模拟价格数据
+- `clickhouse.url` - data-pipeline 使用 Docker 服务名 `jdbc:clickhouse://clickhouse:8123/meta_web_analytics`（非 localhost）
+
+### 集成测试所需外部服务
+
+部分集成测试依赖真实中间件，缺少对应服务时会**自动跳过**（不阻塞 CI）：
+
+| 测试类 | 依赖服务 | 未启动时的行为 | 启动命令 |
+|--------|----------|----------------|----------|
+| `ErpMesIntegrationTest` (finance-service) | Kafka `localhost:9092` | 整个测试类跳过（`assumeTrue` 前置检查） | `docker compose -f docker-compose.env.yml up -d kafka` |
+| `MesPostgresTest` (factory-service) | PostgreSQL | 逐个用例跳过 | `docker compose -f docker-compose.env.yml up -d postgres` |
+
+Kafka topic 由 broker 自动创建（`KAFKA_AUTO_CREATE_TOPICS_ENABLE=true`），常用 topic：
+
+- `mes.work_order_completed` - MES 工单完成事件（触发 ERP 成本核算）
+- `mes.task_completed` - MES 任务完成事件
+- `production.events` - 生产订单事件
+
+**运行全量测试**：
+```bash
+cd server
+mvn -o clean test          # 需要 PostgreSQL/Kafka 的用例在服务未启动时自动跳过
+mvn -o -pl <module> -am test   # 单模块测试
+```
 
 端口分配（合后 14 个 Java 服务）：
 

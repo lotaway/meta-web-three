@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @TableName("tb_user_behavior")
 public class UserBehaviorDO {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Long userId;
     private Long productId;

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("inventory_batch")
 public class InventoryBatchDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String skuCode;
     private Long warehouseId;

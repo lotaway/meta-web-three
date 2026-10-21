@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @TableName("sop_route_binding")
 public class SopRouteBindingDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Long sopDocumentId;
     private String routeCode;

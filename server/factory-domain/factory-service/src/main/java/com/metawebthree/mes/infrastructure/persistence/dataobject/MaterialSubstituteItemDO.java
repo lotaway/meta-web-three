@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @TableName("mes_material_substitute_item")
 public class MaterialSubstituteItemDO {
     
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     
     private Long substituteGroupId;

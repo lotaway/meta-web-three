@@ -1,30 +1,18 @@
 package com.metawebthree.wallet.domain.model;
 
 /**
- * Wallet细粒度权限枚举。
- * 每个钱包操作对应一个权限，确保最小权限原则。
+ * 钱包细粒度权限常量。
+ *
+ * <p>与 {@code ERPPermissions} 保持一致的常量类风格：权限码为编译期常量，
+ * 可直接用于 {@code @RequirePermission} 注解等需要常量表达式的位置。</p>
  */
-public enum WalletPermission {
+public final class WalletPermission {
 
-    WALLET_CREATE("wallet:create", "创建钱包"),
-    WALLET_READ("wallet:read", "查询钱包"),
-    WALLET_DEPOSIT("wallet:deposit", "充值"),
-    WALLET_WITHDRAW("wallet:withdraw", "提现"),
-    WALLET_ADMIN("wallet:admin", "管理员全权");
+    private WalletPermission() {}
 
-    private final String code;
-    private final String description;
-
-    WalletPermission(String code, String description) {
-        this.code = code;
-        this.description = description;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
+    public static final String WALLET_CREATE  = "wallet:create";
+    public static final String WALLET_READ    = "wallet:read";
+    public static final String WALLET_DEPOSIT = "wallet:deposit";
+    public static final String WALLET_WITHDRAW = "wallet:withdraw";
+    public static final String WALLET_ADMIN   = "wallet:admin";
 }

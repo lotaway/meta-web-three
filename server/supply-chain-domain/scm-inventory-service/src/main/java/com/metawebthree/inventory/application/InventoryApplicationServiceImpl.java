@@ -11,9 +11,11 @@ import com.metawebthree.inventory.domain.service.InventoryDomainService;
 import com.metawebthree.inventory.infrastructure.persistence.repository.InventoryOperationLogRepository;
 import com.metawebthree.inventory.infrastructure.persistence.repository.InventoryRepository;
 import com.metawebthree.inventory.infrastructure.persistence.repository.ReservationRepository;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class InventoryApplicationServiceImpl implements InventoryApplicationService {
@@ -60,16 +62,14 @@ public class InventoryApplicationServiceImpl implements InventoryApplicationServ
             var existing = reservationRepository.findByBizId(dto.getBizId());
             if (existing.isPresent()) {
                 ReservationRecord record = existing.get();
-                // If the same business key is reused with identical parameters,
-                // return the existing result (genuine idempotency).
-                if (dto.getSkuCode().equals(record.getSkuCode())
-                        && dto.getWarehouseId().equals(record.getWarehouseId())
-                        && dto.getQuantity().equals(record.getQuantity())) {
+                // Same business key with identical parameters: return the existing
+                // result without touching inventory (genuine idempotency).
+                if (isSameReservation(dto, record)) {
                     return InventoryOperationResult.success(dto.getBizId(), record.getQuantity());
                 }
-                // Same bizId but different params: reject to avoid double-booking.
+                // Same bizId but conflicting params: reject to avoid double-booking.
                 return InventoryOperationResult.fail(
-                    "Reservation " + dto.getBizId() + " already exists with different parameters (sku=" + record.getSkuCode() 
+                    "Reservation " + dto.getBizId() + " already exists with different parameters (sku=" + record.getSkuCode()
                     + ", warehouse=" + record.getWarehouseId() + ", quantity=" + record.getQuantity() + ")");
             }
         }
@@ -181,6 +181,24 @@ public class InventoryApplicationServiceImpl implements InventoryApplicationServ
     }
 
     // ==================== Private Business Methods ====================
+
+    /**
+     * 判断重复请求是否与既有预占为同一笔业务。
+     * <p>
+     * 数量必须一致；SKU 与仓库在既有记录中缺失时视为"未记录"，不构成冲突，
+     * 只有在既有记录明确记录了不同的值时才判定为参数冲突。
+     * </p>
+     */
+    private boolean isSameReservation(ReserveInventoryDTO dto, ReservationRecord record) {
+        if (!Objects.equals(dto.getQuantity(), record.getQuantity())) {
+            return false;
+        }
+        if (record.getSkuCode() != null && !Objects.equals(dto.getSkuCode(), record.getSkuCode())) {
+            return false;
+        }
+        return record.getWarehouseId() == null
+                || Objects.equals(dto.getWarehouseId(), record.getWarehouseId());
+    }
 
     private void doReserve(InventoryOperationLog log, ReserveInventoryDTO dto) {
         var inventory = domainService.findBySkuAndWarehouse(dto.getSkuCode(), dto.getWarehouseId())

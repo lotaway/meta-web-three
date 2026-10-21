@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("mes_work_center_assignment")
 public class WorkCenterAssignmentDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Long operatorId;
     private String workCenterId;

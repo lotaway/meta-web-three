@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @TableName("mes_qc_inspection_type")
 public class QcInspectionTypeDO {
     
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String typeCode;
     private String typeName;

@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @TableName("cash_flow_forecast_item")
 public class CashFlowForecastItemDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Long forecastId;
     private String categoryCode;

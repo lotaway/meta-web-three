@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @TableName("pm_project")
 public class Project {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     private String projectCode;

@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @TableName("api_developer")
 public class ApiDeveloper {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     @TableField("developer_id")

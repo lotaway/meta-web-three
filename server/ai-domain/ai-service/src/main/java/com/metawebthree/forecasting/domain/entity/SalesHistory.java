@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 @TableName("tb_sales_history")
 public class SalesHistory {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     @TableField("sku_code")

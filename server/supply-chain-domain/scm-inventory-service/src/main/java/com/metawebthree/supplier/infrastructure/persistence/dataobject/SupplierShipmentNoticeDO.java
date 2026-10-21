@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("supplier_shipment_notice")
 public class SupplierShipmentNoticeDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String noticeNo;
     private String supplierCode;

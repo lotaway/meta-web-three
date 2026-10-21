@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("report_subscription")
 public class ReportSubscriptionDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Long userId;
     private String userName;

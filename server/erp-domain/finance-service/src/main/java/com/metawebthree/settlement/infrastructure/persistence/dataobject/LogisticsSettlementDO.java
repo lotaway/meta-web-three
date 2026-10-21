@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("logistics_settlement")
 public class LogisticsSettlementDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     
     private String settlementNo;

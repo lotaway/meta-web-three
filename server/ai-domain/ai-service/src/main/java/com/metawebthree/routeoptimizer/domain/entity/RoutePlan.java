@@ -7,7 +7,7 @@ import java.util.List;
 
 @TableName("tb_route_plan")
 public class RoutePlan {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     @TableField("plan_code")

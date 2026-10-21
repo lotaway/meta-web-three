@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @TableName("supplier")
 public class SupplierEntity {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     private String supplierCode;

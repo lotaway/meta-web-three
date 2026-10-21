@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @TableName("sop_document")
 public class SopDocumentDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String documentCode;
     private String documentName;

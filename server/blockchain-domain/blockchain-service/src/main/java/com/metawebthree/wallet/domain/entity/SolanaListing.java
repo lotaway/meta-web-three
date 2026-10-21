@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @TableName("tb_solana_listing")
 public class SolanaListing {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String listingAddress;
     private String sellerAddress;

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("reconciliation_record")
 public class ReconciliationRecordDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String recordNo;
     private String type;

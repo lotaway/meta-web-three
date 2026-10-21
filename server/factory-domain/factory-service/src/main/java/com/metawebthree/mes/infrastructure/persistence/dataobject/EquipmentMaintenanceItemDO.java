@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @TableName("mes_equipment_maintenance_item")
 public class EquipmentMaintenanceItemDO {
     
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     
     private Long planId;

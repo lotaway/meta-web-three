@@ -17,6 +17,7 @@ public final class MesPermissions {
     public static final String TASK_UPDATE = "mes:task:update";
     public static final String TASK_START  = "mes:task:start";
     public static final String TASK_COMPLETE = "mes:task:complete";
+    public static final String TASK_SCRAP  = "mes:task:scrap";
 
     // Equipment permissions
     public static final String EQUIPMENT_READ   = "mes:equipment:read";

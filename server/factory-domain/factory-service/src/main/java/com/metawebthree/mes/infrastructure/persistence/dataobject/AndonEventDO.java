@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("mes_andon_event")
 public class AndonEventDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String eventNo;
     private Long andonTypeId;

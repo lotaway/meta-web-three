@@ -1,6 +1,5 @@
 package com.metawebthree.wallet.domain.service;
 
-import com.metawebthree.wallet.domain.model.WalletPermission;
 import com.metawebthree.wallet.domain.entity.Wallet;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

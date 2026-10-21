@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("tb_stock_check_record")
 public class StockCheckRecord {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Long planId;
     private String planNo;

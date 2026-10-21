@@ -163,7 +163,7 @@ CREATE INDEX IF NOT EXISTS idx_rma_id ON rma_inspection (rma_id);
 CREATE INDEX IF NOT EXISTS idx_rma_no ON rma_inspection (rma_no);
 
 CREATE TABLE IF NOT EXISTS rma_disposition (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY, -- 主键由 MyBatis-Plus ASSIGN_ID 雪花算法生成，不使用数据库自增
     rma_id BIGINT NOT NULL,
     rma_no VARCHAR(64) NOT NULL,
     disposition_type VARCHAR(32) NOT NULL, -- REFUND/REPLACEMENT/REPAIR/SCRAP/RETURN_TO_SUPPLIER
@@ -173,6 +173,8 @@ CREATE TABLE IF NOT EXISTS rma_disposition (
     scrap_quantity INT,
     scrap_reason VARCHAR(512),
     disposition_by VARCHAR(64),
+    idempotent_key VARCHAR(128), -- 幂等键，避免同一结算请求重复回库/重复退款
+    status VARCHAR(16), -- PENDING/SUCCESS/FAILED/ERROR
     disposition_date TIMESTAMP,
     remark VARCHAR(512),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -180,6 +182,7 @@ CREATE TABLE IF NOT EXISTS rma_disposition (
 );
 CREATE INDEX IF NOT EXISTS idx_rma_id ON rma_disposition (rma_id);
 CREATE INDEX IF NOT EXISTS idx_rma_no ON rma_disposition (rma_no);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_rma_disposition_idempotent_key ON rma_disposition (idempotent_key) WHERE idempotent_key IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS return_shipping (
     id BIGSERIAL PRIMARY KEY,

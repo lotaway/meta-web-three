@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("mes_equipment_status_transition")
 public class EquipmentStatusTransitionDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private Long equipmentTypeId;
     private String fromStatusCode;

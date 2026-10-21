@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("inbound_order")
 public class InboundOrderDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String orderNo;
     private String inboundType;

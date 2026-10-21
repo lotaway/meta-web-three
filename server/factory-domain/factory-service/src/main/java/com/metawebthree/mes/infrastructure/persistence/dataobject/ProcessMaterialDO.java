@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @TableName("mes_process_material")
 public class ProcessMaterialDO {
     
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     
     private Long processBomId;

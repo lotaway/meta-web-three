@@ -13,7 +13,7 @@ import java.util.Map;
 @Data
 @TableName(value = "mes_trace_data_scope", autoResultMap = true)
 public class TraceDataScopeDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String scopeCode;
     private String scopeName;

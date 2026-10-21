@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @TableName("mes_scada_telemetry")
 public class ScadaTelemetryRecordDO {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String equipmentCode;
     private String topic;

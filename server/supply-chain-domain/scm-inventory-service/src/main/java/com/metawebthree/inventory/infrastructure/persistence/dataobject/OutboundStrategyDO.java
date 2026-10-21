@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("outbound_strategy")
 public class OutboundStrategyDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String strategyCode;
     private String strategyName;

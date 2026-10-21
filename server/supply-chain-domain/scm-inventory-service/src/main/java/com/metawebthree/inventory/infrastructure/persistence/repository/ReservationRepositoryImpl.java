@@ -41,9 +41,10 @@ public class ReservationRepositoryImpl implements ReservationRepository {
     }
 
     @Override
-    public boolean delete(ReservationRecord record) {
-        reservationRecordMapper.deleteById(record.getId());
-        return true;
+    public void delete(ReservationRecord record) {
+        if (record != null && record.getId() != null) {
+            reservationRecordMapper.deleteById(record.getId());
+        }
     }
 
     @Override

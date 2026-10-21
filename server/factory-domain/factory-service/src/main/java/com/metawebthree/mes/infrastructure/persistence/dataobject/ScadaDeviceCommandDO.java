@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @TableName("mes_scada_device_command")
 public class ScadaDeviceCommandDO {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String commandCode;
     private String equipmentCode;

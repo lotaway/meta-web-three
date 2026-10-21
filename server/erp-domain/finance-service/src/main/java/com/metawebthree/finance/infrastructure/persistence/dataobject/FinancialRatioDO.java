@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("finance_financial_ratio")
 public class FinancialRatioDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String ratioType;
     private BigDecimal value;

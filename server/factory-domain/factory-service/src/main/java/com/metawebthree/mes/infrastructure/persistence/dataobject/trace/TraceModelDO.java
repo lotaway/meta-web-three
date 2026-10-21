@@ -12,7 +12,7 @@ import java.util.Map;
 @Data
 @TableName(value = "mes_trace_model", autoResultMap = true)
 public class TraceModelDO {
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
     private String modelCode;
     private String modelName;
