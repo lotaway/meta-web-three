@@ -4,6 +4,7 @@ import { asyncRouterMap, constantRouterMap } from '@/router/index'
 import type { UmsMenu } from '@/types/menu'
 import type { RouteRecordExt } from '@/types/router'
 import i18n from '@/locales'
+import { BLOCKCHAIN_ENABLED } from '@/utils/env'
 
 const { t } = i18n.global
 
@@ -43,7 +44,7 @@ function getMenu(name: string, menus: UmsMenu[]) {
   return menus.find(menu => name === menu.name) || null
 }
 
-const isBlockchainEnabled = import.meta.env.VITE_BLOCKCHAIN_ENABLED === 'true'
+const isBlockchainEnabled = BLOCKCHAIN_ENABLED
 
 function isBlockchainRoute(path: string): boolean {
   return path.startsWith('/blockchain') || path.startsWith('/solana')

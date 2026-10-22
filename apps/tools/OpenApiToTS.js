@@ -163,9 +163,13 @@ async function customizeCode(config) {
     }
 
     const serverUrl = new URL(url)
+    // The runtime fallback must point at the **API** host, not the doc host:
+    // the doc host only serves /v3/api-docs and may live on a different port
+    // (or a different machine) than the gateway that serves the business APIs.
+    const fallbackHost = (config.apiHost || urlIns.origin).replace(/\/+$/, "")
     const newStr = runtimeFileStr.replace(
       `"${url}"`,
-      `\`\${${config.runtimeEnvVar} || "${urlIns.origin}"}${serverUrl.pathname === "/" ? "" : serverUrl.pathname}\``
+      `\`\${${config.runtimeEnvVar} || "${fallbackHost}"}${serverUrl.pathname === "/" ? "" : serverUrl.pathname}\``
     )
     await fs.promises.writeFile(
       path.resolve(projectRoot, config.outputDir, "runtime.ts"),

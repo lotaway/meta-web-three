@@ -88,9 +88,15 @@ public class AggregatedApiDocsController {
 
                 if (serviceDocs.has("paths")) {
                     JsonNode servicePaths = serviceDocs.get("paths");
+                    String servicePrefix = "/" + serviceName.toLowerCase();
                     servicePaths.fieldNames().forEachRemaining(path -> {
-                        if (!paths.has(path)) {
-                            ((ObjectNode) paths).set(path, servicePaths.get(path).deepCopy());
+                        // The gateway routes via the Spring Cloud discovery locator,
+                        // which expects "/{serviceId}/**". The aggregated document
+                        // must expose the same prefix, otherwise generated clients
+                        // would call paths the gateway cannot route.
+                        String prefixedPath = servicePrefix + (path.startsWith("/") ? path : "/" + path);
+                        if (!paths.has(prefixedPath)) {
+                            ((ObjectNode) paths).set(prefixedPath, servicePaths.get(path).deepCopy());
                         }
                     });
                 }

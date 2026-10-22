@@ -30,11 +30,20 @@ export function getDevHost(): string {
 /**
  * Base URL of the backend gateway for the current runtime.
  * Trailing slashes are stripped.
+ *
+ * The gateway port is {@link DEFAULT_API_PORT} (10081) unless the configured
+ * host already carries an explicit port.
  */
 export function getApiBaseUrl(port: number = DEFAULT_API_PORT): string {
-  const explicit =
-    process.env.EXPO_PUBLIC_BACK_API_HOST ??
-    process.env.NEXT_PUBLIC_BACK_API_HOST
+  // Empty strings mean "not configured" — an empty EXPO_PUBLIC_BACK_API_HOST must
+  // not mask a configured NEXT_PUBLIC_BACK_API_HOST, so blanks are filtered out.
+  const explicit = [
+    process.env.EXPO_PUBLIC_BACK_API_HOST,
+    process.env.NEXT_PUBLIC_BACK_API_HOST,
+  ]
+    .map(value => value?.trim())
+    .find(value => Boolean(value))
+
   if (explicit) {
     return explicit.replace(/\/+$/, '')
   }

@@ -136,11 +136,14 @@ This method relies on the OpenAPI interface documentation and generator. The sha
 - Backend service is running
 - Install openapi-generator-cli: `npm install -g @openapitools/openapi-generator-cli`
 
-**Configuration (`.env.development`):**
+**Configuration (`.env`, `.env.development` or `.env.local`):**
 ```bash
 NEXT_PUBLIC_BACK_API_HOST=http://localhost:10081
 NEXT_PUBLIC_BACK_API_DOC_HOST=http://localhost:10081   # defaults to API_HOST
 ```
+
+> 生成脚本按 `.env` → `.env.development` → `.env.local` 的顺序加载，
+> 端口统一取网关的 10081（见 `scripts/server-services-registry.sh`），不要在代码里写死。
 
 **Run:**
 ```bash
@@ -172,6 +175,9 @@ await orderApi.createOrder({ order: orderRequest })
 - Generated code overwrites all files under `src/generated/api/`
 - To customize generation logic, modify `apps/tools/OpenApiToTS.js`
 - After first generation, consider committing `openapi.json` for offline development
+- 网关聚合的 OpenAPI 文档已按 `/{serviceId}/**` 加上服务前缀（与网关 discovery locator
+  路由约定一致），因此生成的请求路径形如 `/mall-catalog-service/product/list`，
+  可直接经网关路由到对应微服务。
 
 ### Generate Enums
 

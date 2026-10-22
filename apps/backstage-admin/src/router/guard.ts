@@ -4,11 +4,12 @@ import 'nprogress/nprogress.css'
 import { useUserStore } from '@/stores/user'
 import usePermissionStore from '@/stores/permission'
 import { ElMessage } from 'element-plus'
+import { BLOCKCHAIN_ENABLED } from '@/utils/env'
 
 // 无需登陆的白名单路径
 const whiteList = ['/login', '/register']
 
-const isBlockchainEnabled = import.meta.env.VITE_BLOCKCHAIN_ENABLED === 'true'
+const isBlockchainEnabled = BLOCKCHAIN_ENABLED
 const blockchainPaths = ['/blockchain', '/solana']
 
 function isBlockchainPath(path: string): boolean {

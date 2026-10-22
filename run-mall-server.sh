@@ -35,7 +35,7 @@ while read -r port; do
     echo "  Killing PID $pid on port $port"
     kill $pid 2>/dev/null || true
   fi
-done < <(for e in "${MALL_SERVICES[@]}"; do echo "${e##*|}"; done | sort -u)
+done < <(for e in "${MALL_SERVICES[@]}"; do server_service_port "$e"; done | sort -u)
 sleep 2
 
 echo "==> Installing event-sdk"
@@ -51,22 +51,35 @@ done
 BUILD_MODULES_LIST=$(IFS=,; echo "${BUILD_MODULES[*]}")
 
 echo "==> Building mall services ($BUILD_MODULES_LIST)"
+# Detect broken artifacts (half-written jars, Eclipse-compiled classes with
+# unresolved errors) and drop their target dir so they rebuild.
+server_repair_corrupted_targets "$SERVER_DIR"
 (cd "$SERVER_DIR" && mvn install -pl "$BUILD_MODULES_LIST" -am -Dmaven.test.skip=true -T 4)
 
 echo "==> Starting mall services"
 for entry in "${MALL_SERVICES[@]}"; do
   name="$(server_service_name "$entry")"
   module="$(server_service_module "$entry")"
+  http_port="$(server_service_port "$entry")"
+  # Dubbo triple protocol provider port. All services run on one host here, so a
+  # fixed port would clash; derive a deterministic unique one (HTTP port + 10000).
+  dubbo_port=$((http_port + 10000))
   log_file="$LOG_DIR/${name}.log"
   jar_file=$(find "$SERVER_DIR/$module/target" -maxdepth 1 -name "$name-*.jar" 2>/dev/null | head -1 || true)
   if [ -z "$jar_file" ]; then
     echo "⚠ $name: JAR not found at $module/target/ (skip)"
     continue
   fi
-  java -Dspring.profiles.active="$SPRING_PROFILES_ACTIVE" -XX:TieredStopAtLevel=1 -jar "$jar_file" >"$log_file" 2>&1 &
+  # The registry is authoritative for the HTTP port so that SERVER_PORT_OFFSET
+  # works and the script cannot drift from the documented port table.
+  java -Dspring.profiles.active="$SPRING_PROFILES_ACTIVE" \
+       -DAPPLICATION_NAME="$name" \
+       -Ddubbo.protocol.port="$dubbo_port" \
+       -XX:TieredStopAtLevel=1 \
+       -jar "$jar_file" --server.port="$http_port" >"$log_file" 2>&1 &
   pid=$!
   pids+=("$pid")
-  echo "Starting $name (PID: $pid)"
+  echo "Starting $name (PID: $pid, port $http_port)"
 done
 
 echo "==> 所有 mall 服务启动命令已提交"

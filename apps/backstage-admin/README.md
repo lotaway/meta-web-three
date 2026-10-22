@@ -24,13 +24,44 @@
 npm install
 ```
 
-2. 启动开发服务
+2. 配置环境变量
+
+```bash
+cp .env.example .env
+```
+
+`.env` 中的变量均为可选，未配置时使用 `src/utils/env.ts` 中的内置默认值：
+
+| 变量 | 用途 | 默认值 |
+| --- | --- | --- |
+| `VITE_BASE_SERVER_URL` | 后端网关地址（axios baseURL） | `http://localhost:10081` |
+| `VITE_UPLOAD_URL` | 文件上传端点（相对网关） | `/platform-service/minio/upload` |
+| `VITE_BLOCKCHAIN_ENABLED` | 区块链功能开关 | `false` |
+
+> 其他设备（手机 / 局域网）访问时，把 `VITE_BASE_SERVER_URL` 配成后端所在机器的地址，
+> 例如 `VITE_BASE_SERVER_URL=http://192.168.1.110:10081`。
+
+3. 启动开发服务
 
 ```bash
 npm run dev
 ```
 
-3. 浏览器访问 [http://localhost:5173](http://localhost:5173)
+4. 浏览器访问 [http://localhost:5173](http://localhost:5173)
+
+## 后端网关路由约定
+
+后端网关（`gateway`，端口 10081）开启了 Spring Cloud Gateway discovery locator，
+所有请求需带 `/{serviceId}` 前缀，由网关按前缀路由到对应微服务，例如：
+
+```
+/mall-catalog-service/product/list
+/mall-user-service/api/admin/user/list
+/mall-trade-service/prefrenceArea/listAll
+```
+
+前端路径前缀与服务的对应关系维护在 `src/utils/http.ts` 的 `SERVICE_PREFIX_MAP`。
+新增接口时必须同步维护该映射，否则请求会因为缺少服务前缀而返回 404。
 
 ## 目录结构
 

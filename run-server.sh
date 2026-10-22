@@ -61,20 +61,7 @@ echo "==> Compiling then Install common"
 # confusing errors ("Unable to find main class" / "zip END header not found").
 # Detect broken artifacts up front and drop their target dir so they rebuild.
 echo "==> Checking for jars corrupted by previously interrupted builds"
-if command -v jar >/dev/null 2>&1; then
-  while IFS= read -r jar_file; do
-    entries="$(jar tf "$jar_file" 2>/dev/null || true)"
-    if [ -z "$entries" ]; then
-      echo "  ⚠ unreadable jar, cleaning target: $jar_file"
-      rm -rf "$(dirname "$(dirname "$jar_file")")/target"
-    elif [ -f "$jar_file.original" ] && [ "$(printf '%s\n' "$entries" | grep -c '^BOOT-INF/')" -eq 0 ]; then
-      echo "  ⚠ incomplete boot jar, cleaning target: $jar_file"
-      rm -rf "$(dirname "$(dirname "$jar_file")")/target"
-    fi
-  done < <(find "$SERVER_DIR" -maxdepth 4 -type f -path '*/target/*.jar')
-else
-  echo "  (JDK 'jar' tool not on PATH, skipping integrity check)"
-fi
+server_repair_corrupted_targets "$SERVER_DIR"
 
 echo "==> Building backend modules with tests skipped"
 (cd "$SERVER_DIR" && mvn install -Dmaven.test.skip=true -T 4)
