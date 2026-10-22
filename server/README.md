@@ -30,6 +30,21 @@
 - - data-pipeline/ 数据管道（独立模块，不属于任何域）
 
 本地多服务启动：`./run-server.sh`（服务列表见 `scripts/server-services-registry.sh`）。
+仅启动商城域 + 网关：`./run-mall-server.sh --dev`。
+
+**端口占用（Windows 特别注意）**：默认端口段 10081-10125 可能被系统保留。Windows 的
+Hyper-V/WSL 主机网络服务会预订 100 个端口一段的 "excluded port range"，即使没有任何进程
+监听，绑定这些端口也会失败（`Port 10081 was already in use` / WSAEACCES）。此时用端口偏移
+把整栈挪到空闲端口段：
+
+```bash
+SERVER_PORT_OFFSET=1000 ./run-mall-server.sh --dev   # 网关落到 11081
+SERVER_PORT_OFFSET=1000 ./run-server.sh               # 全量服务同样偏移
+```
+
+端口以 `scripts/server-services-registry.sh` 为准（`SERVER_PORT_OFFSET` 默认 0，即文档端口）。
+网关与服务之间按 Zookeeper 服务名（`spring.application.name`）路由，与 HTTP 端口无关，
+因此偏移不会影响服务发现。
 
 Docker / Compose 构建（上下文为**仓库根目录**）：
 

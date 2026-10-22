@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { ElMessage, type UploadProps, type UploadUserFile } from 'element-plus'
 import { MESSAGE_DURATION_SHORT } from '@/constants'
+import { BASE_SERVER_URL, UPLOAD_URL } from '@/utils/env'
 import { t } from '@/locales'
 
 const props = defineProps({
@@ -19,7 +20,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 const dialogVisible = ref(false)
 const dialogImageUrl = ref('')
-const uploadUrl = import.meta.env.VITE_BASE_SERVER_URL + import.meta.env.VITE_UPLOAD_URL
+const uploadUrl = BASE_SERVER_URL + UPLOAD_URL
 const fileList = ref<UploadUserFile[]>([])
 
 watch(() => props.modelValue, (newVal) => {

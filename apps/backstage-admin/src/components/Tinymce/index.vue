@@ -33,8 +33,9 @@ import 'tinymce/plugins/fullscreen'
 import 'tinymce-i18n/langs7/zh_CN.js'
 
 import { createImageUploadHandler } from './upload'
+import { BASE_SERVER_URL, UPLOAD_URL } from '@/utils/env'
 
-const uploadUrl = import.meta.env.VITE_BASE_SERVER_URL + import.meta.env.VITE_UPLOAD_URL
+const uploadUrl = BASE_SERVER_URL + UPLOAD_URL
 
 interface Props {
   modelValue: string

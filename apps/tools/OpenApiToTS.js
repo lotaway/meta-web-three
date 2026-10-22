@@ -137,40 +137,55 @@ async function readOpenApiConfigFile(config) {
   return JSON.parse(chunks)
 }
 
+function findServerUrl(openApiConfig, origin) {
+  return openApiConfig.servers?.find((item) => {
+    try {
+      return item.url.includes(origin)
+    } catch {
+      return false
+    }
+  })?.url
+}
+
+function buildRuntimeBasePath(config, url, origin) {
+  const serverUrl = new URL(url)
+  // The runtime fallback must point at the API host, not the doc host: the doc
+  // host only serves /v3/api-docs and may live on a different port than the
+  // gateway that serves the business APIs.
+  const fallbackHost = (config.apiHost || origin).replace(/\/+$/, "")
+  const pathSuffix = serverUrl.pathname === "/" ? "" : serverUrl.pathname
+  return `\`\${${config.runtimeEnvVar} || "${fallbackHost}"}${pathSuffix}\``
+}
+
+async function readRuntimeFile(config) {
+  return fs.promises.readFile(
+    path.resolve(projectRoot, config.outputDir, "runtime.ts"),
+    "utf-8"
+  )
+}
+
+async function applyRuntimeBasePath(config, url, origin) {
+  const runtimeFileStr = await readRuntimeFile(config)
+  const newStr = runtimeFileStr.replace(
+    `"${url}"`,
+    buildRuntimeBasePath(config, url, origin)
+  )
+  await fs.promises.writeFile(
+    path.resolve(projectRoot, config.outputDir, "runtime.ts"),
+    newStr
+  )
+}
+
 async function customizeCode(config) {
-  const [openApiConfig, runtimeFileStr] = await Promise.all([
-    readOpenApiConfigFile(config),
-    fs.promises.readFile(
-      path.resolve(projectRoot, config.outputDir, "runtime.ts"),
-      "utf-8"
-    ),
-  ])
-
+  const openApiConfig = await readOpenApiConfigFile(config)
   try {
-    const apiDocsUrl = getApiDocsUrl(config)
-    const urlIns = new URL(apiDocsUrl)
-    const url = openApiConfig.servers?.find((item) => {
-      try {
-        return item.url.includes(urlIns.origin)
-      } catch {
-        return false
-      }
-    })?.url
-
+    const urlIns = new URL(getApiDocsUrl(config))
+    const url = findServerUrl(openApiConfig, urlIns.origin)
     if (!url) {
       console.log("No server URL customization needed.")
       return
     }
-
-    const serverUrl = new URL(url)
-    const newStr = runtimeFileStr.replace(
-      `"${url}"`,
-      `\`\${${config.runtimeEnvVar} || "${urlIns.origin}"}${serverUrl.pathname === "/" ? "" : serverUrl.pathname}\``
-    )
-    await fs.promises.writeFile(
-      path.resolve(projectRoot, config.outputDir, "runtime.ts"),
-      newStr
-    )
+    await applyRuntimeBasePath(config, url, urlIns.origin)
   } catch (error) {
     console.log("Skipping server URL customization:", error.message)
   }

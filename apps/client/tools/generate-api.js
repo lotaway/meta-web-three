@@ -6,7 +6,9 @@ const clientDir = path.resolve(__dirname, '..')
 const env = {
   ...process.env,
   NODE_PATH: process.env.NODE_PATH || path.resolve(clientDir, 'node_modules'),
-  OPENAPI_ENV_FILES: '.env.development,.env.local',
+  // Load .env first so NEXT_PUBLIC_BACK_API_HOST / NEXT_PUBLIC_BACK_API_DOC_HOST
+  // are honoured; .env.development and .env.local may override them.
+  OPENAPI_ENV_FILES: '.env,.env.development,.env.local',
   OPENAPI_API_HOST_ENV: 'NEXT_PUBLIC_BACK_API_HOST',
   OPENAPI_API_DOC_HOST_ENV: 'NEXT_PUBLIC_BACK_API_DOC_HOST',
   OPENAPI_RUNTIME_ENV_VAR: 'process.env.NEXT_PUBLIC_BACK_API_HOST',
@@ -28,7 +30,7 @@ function run(script, args) {
 run(path.resolve(__dirname, '../../tools/OpenApiToTS.js'), [])
 
 // Step 2: Download GraphQL schema
-env.SCHEMA_ENV_FILES = '.env.development,.env.local'
+env.SCHEMA_ENV_FILES = '.env,.env.development,.env.local'
 env.SCHEMA_API_HOST_ENV = 'NEXT_PUBLIC_BACK_API_HOST'
 run(path.resolve(__dirname, '../../tools/DownloadGraphQLSchema.js'), [])
 

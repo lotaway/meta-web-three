@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Validated
 @RestController
-@RequestMapping("/productCategory")
+@RequestMapping("/product-category")
 @RequiredArgsConstructor
 @Tag(name = "Product Category Admin")
 public class ProductCategoryAdminController {

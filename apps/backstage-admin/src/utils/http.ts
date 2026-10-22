@@ -3,16 +3,25 @@ import type { CommonResult } from '@/types/common'
 import axios, { type AxiosInstance, type AxiosResponse, type InternalAxiosRequestConfig, type AxiosRequestConfig } from 'axios'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { HTTP_TIMEOUT, MESSAGE_DURATION } from '@/constants'
+import { BASE_SERVER_URL } from '@/utils/env'
 import { t } from '@/locales'
 
+/**
+ * Frontend path prefix -> backend service ID mapping.
+ *
+ * <p>The gateway runs the Spring Cloud Gateway discovery locator, so every
+ * request path must carry a `/{serviceId}` prefix (for example
+ * `/mall-catalog-service/product/list`) for the gateway to route the traffic to
+ * the owning microservice. A missing prefix results in a 404.</p>
+ */
 const SERVICE_PREFIX_MAP: Record<string, string> = {
   '/product': 'mall-catalog-service',
   '/brand': 'mall-catalog-service',
-  '/productCategory': 'mall-catalog-service',
+  '/product-category': 'mall-catalog-service',
   '/productAttribute': 'mall-catalog-service',
   '/sku': 'mall-catalog-service',
   '/subject': 'mall-catalog-service',
-  '/prefrenceArea': 'mall-catalog-service',
+  '/prefrenceArea': 'mall-trade-service',
   '/order': 'mall-trade-service',
   '/returnReason': 'mall-trade-service',
   '/returnApply': 'mall-trade-service',
@@ -50,6 +59,7 @@ const SERVICE_PREFIX_MAP: Record<string, string> = {
   '/api/group-buying': 'mall-social-service',
   '/api/review': 'mall-catalog-service',
   '/api/admin/risk': 'mall-user-service',
+  '/api/admin/user': 'mall-user-service',
   '/api/admin/user-action': 'mall-user-service',
   '/api/traceability': 'blockchain-service',
   '/api/v1/wallets': 'blockchain-service',
@@ -57,7 +67,7 @@ const SERVICE_PREFIX_MAP: Record<string, string> = {
 }
 
 const service: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_BASE_SERVER_URL,
+  baseURL: BASE_SERVER_URL,
   timeout: HTTP_TIMEOUT,
 })
 
