@@ -49,59 +49,15 @@ public class AggregatedApiDocsController {
                 return createEmptyApiDocs();
             }
             log.info("Returning cached API docs from {} services", docs.size());
-
-            ObjectNode merged = objectMapper.createObjectNode();
-            merged.put("openapi", "3.1.0");
-
-            ObjectNode info = merged.putObject("info");
-            info.put("title", "Meta Web Three - Aggregated API");
-            info.put("description", "Aggregated API documentation from all microservices");
-            info.put("version", "1.0.0");
-
-            ArrayNode servers = merged.putArray("servers");
-            ObjectNode server = servers.addObject();
-            server.put("url", "/");
-            server.put("description", "Gateway");
-
-            ObjectNode paths = merged.putObject("paths");
-            ObjectNode components = merged.putObject("components");
-            ObjectNode schemas = components.putObject("schemas");
-
-            ArrayNode tags = merged.putArray("tags");
-
-            for (Map.Entry<String, JsonNode> entry : docs.entrySet()) {
-                String serviceName = entry.getKey();
-                JsonNode serviceDocs = entry.getValue();
-
-                ObjectNode tag = tags.addObject();
-                tag.put("name", serviceName);
-                tag.put("description", "Endpoints from " + serviceName);
-
-                if (serviceDocs.has("components") && serviceDocs.get("components").has("schemas")) {
-                    JsonNode serviceSchemas = serviceDocs.get("components").get("schemas");
-                    serviceSchemas.fieldNames().forEachRemaining(schemaName -> {
-                        if (!schemas.has(schemaName)) {
-                            schemas.set(schemaName, serviceSchemas.get(schemaName).deepCopy());
-                        }
-                    });
-                }
-
-                if (serviceDocs.has("paths")) {
-                    JsonNode servicePaths = serviceDocs.get("paths");
-                    String servicePrefix = "/" + serviceName.toLowerCase();
-                    servicePaths.fieldNames().forEachRemaining(path -> {
-                        // The gateway routes via the Spring Cloud discovery locator,
-                        // which expects "/{serviceId}/**". The aggregated document
-                        // must expose the same prefix, otherwise generated clients
-                        // would call paths the gateway cannot route.
-                        String prefixedPath = servicePrefix + (path.startsWith("/") ? path : "/" + path);
-                        if (!paths.has(prefixedPath)) {
-                            ((ObjectNode) paths).set(prefixedPath, servicePaths.get(path).deepCopy());
-                        }
-                    });
-                }
-            }
-
+            ObjectNode merged = createBaseDocument();
+            ObjectNode paths = (ObjectNode) merged.get("paths");
+            ObjectNode schemas = (ObjectNode) merged.get("components").get("schemas");
+            ArrayNode tags = (ArrayNode) merged.get("tags");
+            docs.forEach((serviceName, serviceDocs) -> {
+                appendServiceTag(tags, serviceName);
+                mergeServiceSchemas(schemas, serviceDocs);
+                mergeServicePaths(paths, serviceName, serviceDocs);
+            });
             log.info("Aggregated docs: {} paths, {} schemas", paths.size(), schemas.size());
             String result = objectMapper.writeValueAsString(merged);
             log.info("Response size: {} bytes", result.length());
@@ -110,6 +66,54 @@ public class AggregatedApiDocsController {
             log.error("Failed to generate aggregated API docs", e);
             return createEmptyApiDocs();
         }
+    }
+
+    private ObjectNode createBaseDocument() {
+        ObjectNode merged = objectMapper.createObjectNode();
+        merged.put("openapi", "3.1.0");
+        ObjectNode info = merged.putObject("info");
+        info.put("title", "Meta Web Three - Aggregated API");
+        info.put("description", "Aggregated API documentation from all microservices");
+        info.put("version", "1.0.0");
+        ObjectNode server = merged.putArray("servers").addObject();
+        server.put("url", "/");
+        server.put("description", "Gateway");
+        merged.putObject("paths");
+        merged.putObject("components").putObject("schemas");
+        merged.putArray("tags");
+        return merged;
+    }
+
+    private void appendServiceTag(ArrayNode tags, String serviceName) {
+        ObjectNode tag = tags.addObject();
+        tag.put("name", serviceName);
+        tag.put("description", "Endpoints from " + serviceName);
+    }
+
+    private void mergeServiceSchemas(ObjectNode schemas, JsonNode serviceDocs) {
+        if (!serviceDocs.has("components") || !serviceDocs.get("components").has("schemas")) {
+            return;
+        }
+        JsonNode serviceSchemas = serviceDocs.get("components").get("schemas");
+        serviceSchemas.fieldNames().forEachRemaining(schemaName -> {
+            if (!schemas.has(schemaName)) {
+                schemas.set(schemaName, serviceSchemas.get(schemaName).deepCopy());
+            }
+        });
+    }
+
+    private void mergeServicePaths(ObjectNode paths, String serviceName, JsonNode serviceDocs) {
+        if (!serviceDocs.has("paths")) {
+            return;
+        }
+        JsonNode servicePaths = serviceDocs.get("paths");
+        String servicePrefix = "/" + serviceName.toLowerCase();
+        servicePaths.fieldNames().forEachRemaining(path -> {
+            String prefixedPath = servicePrefix + (path.startsWith("/") ? path : "/" + path);
+            if (!paths.has(prefixedPath)) {
+                ((ObjectNode) paths).set(prefixedPath, servicePaths.get(path).deepCopy());
+            }
+        });
     }
 
     private String createEmptyApiDocs() {

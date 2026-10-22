@@ -1,31 +1,30 @@
 #!/usr/bin/env bash
-# 联调验证：确认前端请求路径能通过网关命中对应微服务。
+# Integration check: verifies that the frontend request paths reach the owning
+# microservice through the gateway.
 #
-# 判据说明：网关的 UserAuthFilter 会对未授权请求返回 AUTH_HEADER_INVALID，
-# 该响应发生在路由之前，无法证明流量已到达目标服务。因此这里用每个服务自带的
-# /v3/api-docs 作为探针——该关键字在网关的 excluded-path-keywords 中，会跳过
-# 认证直接进入 discovery locator 路由；返回该服务自己的 OpenAPI 文档即证明
-# 流量确实命中了目标微服务。
+# Probe design: the gateway UserAuthFilter answers unauthenticated requests
+# with AUTH_HEADER_INVALID before any routing happens, so that response cannot
+# prove the traffic reached a service. Every service exposes /v3/api-docs and
+# that keyword is listed in the gateway excluded-path-keywords, so the request
+# skips authentication and enters the discovery locator routing. Receiving the
+# service's own OpenAPI document therefore proves the hit.
 #
-# 用法: bash scripts/verify-gateway-routing.sh [gateway_base]
+# Usage: bash scripts/verify-gateway-routing.sh [gateway_base]
 set -uo pipefail
 
 BASE="${1:-http://192.168.1.110:10081}"
 FAILED=0
 
 probe_service() {
-  local svc="$1"
-  local code body
-  body="$(curl -s --max-time 30 "${BASE}/${svc}/v3/api-docs" 2>/dev/null || echo '')"
-  code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "${BASE}/${svc}/v3/api-docs" 2>/dev/null || echo 000)"
+  local svc="$1" code n doc="/tmp/_vr_${1}.json"
+  code="$(curl -s -o "$doc" -w '%{http_code}' --max-time 30 "${BASE}/${svc}/v3/api-docs" 2>/dev/null || echo 000)"
   if [ "$code" != "200" ]; then
     echo "FAIL  ${svc}: /${svc}/v3/api-docs -> HTTP ${code}"
     FAILED=1
     return
   fi
-  if echo "$body" | grep -q '"openapi"'; then
-    local n
-    n="$(echo "$body" | grep -o '"/[A-Za-z0-9{}/._-]*"' | sort -u | wc -l | tr -d ' ')"
+  if grep -q '"openapi"' "$doc"; then
+    n="$(grep -o '"/[A-Za-z0-9{}/._-]*"' "$doc" | sort -u | wc -l | tr -d ' ')"
     echo "PASS  ${svc}: request routed to the service (its own OpenAPI doc returned, ${n} paths)"
   else
     echo "FAIL  ${svc}: response is not an OpenAPI document - routing failed"

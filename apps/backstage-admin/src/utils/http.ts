@@ -7,11 +7,12 @@ import { BASE_SERVER_URL } from '@/utils/env'
 import { t } from '@/locales'
 
 /**
- * 前端路径前缀 -> 后端服务 ID 映射。
+ * Frontend path prefix -> backend service ID mapping.
  *
- * <p>网关开启 Spring Cloud Gateway discovery locator 后，请求路径需带
- * `/{serviceId}` 前缀（如 `/mall-catalog-service/product/list`），
- * 网关据此把流量路由到对应微服务。缺少前缀会导致 404。</p>
+ * <p>The gateway runs the Spring Cloud Gateway discovery locator, so every
+ * request path must carry a `/{serviceId}` prefix (for example
+ * `/mall-catalog-service/product/list`) for the gateway to route the traffic to
+ * the owning microservice. A missing prefix results in a 404.</p>
  */
 const SERVICE_PREFIX_MAP: Record<string, string> = {
   '/product': 'mall-catalog-service',

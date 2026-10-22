@@ -69,46 +69,45 @@ server_jar_build_path() {
   echo "${module}/target/${name}-*.jar"
 }
 
-# Detect build outputs that are broken and drop the affected module target dir.
-#
-# Two failure modes are handled:
-#  1. A half-written boot jar (an interrupted build) - the jar has no BOOT-INF.
-#  2. Eclipse/JDT compiled classes that carry the "Unresolved compilation
-#     problem" marker. The VS Code Java language server compiles into
-#     target/classes with its own (incomplete) class path, and a failed JDT
-#     compilation bakes java.lang.Error("Unresolved compilation problem")
-#     into the class file. Maven then reports "Nothing to compile - all classes
-#     are up to date" and the broken class ends up in the boot jar, so the
-#     service dies at startup with a confusing stack trace.
-#
-# Usage: server_repair_corrupted_targets <server_dir>
+# Repair build outputs that would break the service startup:
+#   - half-written boot jars (an interrupted build leaves them without BOOT-INF)
+#   - classes carrying the "Unresolved compilation problem" marker, produced by
+#     the Eclipse/JDT compiler of the VS Code Java language server. Maven then
+#     reports "Nothing to compile - all classes are up to date" and ships the
+#     broken class inside the boot jar.
+server_module_target_from_class() {
+  printf '%s\n' "$1" | sed -E 's#(/target/classes/.*)$#/target#'
+}
+
+server_repair_broken_jars() {
+  local server_dir="$1" jar_file entries
+  command -v jar >/dev/null 2>&1 || return 0
+  while IFS= read -r jar_file; do
+    entries="$(jar tf "$jar_file" 2>/dev/null || true)"
+    if [ -z "$entries" ]; then
+      echo "  ⚠ unreadable jar, cleaning target: $jar_file"
+      rm -rf "$(dirname "$(dirname "$jar_file")")/target"
+    elif [ -f "$jar_file.original" ] && [ "$(printf '%s\n' "$entries" | grep -c '^BOOT-INF/')" -eq 0 ]; then
+      echo "  ⚠ incomplete boot jar, cleaning target: $jar_file"
+      rm -rf "$(dirname "$(dirname "$jar_file")")/target"
+    fi
+  done < <(find "$server_dir" -maxdepth 4 -type f -path '*/target/*.jar')
+}
+
+server_repair_unresolved_classes() {
+  local server_dir="$1" class_file module_target
+  while IFS= read -r class_file; do
+    grep -qa "Unresolved compilation problem" "$class_file" 2>/dev/null || continue
+    module_target="$(server_module_target_from_class "$class_file")"
+    echo "  ⚠ class compiled with unresolved errors, cleaning target: $module_target"
+    rm -rf "$module_target"
+    break
+  done < <(find "$server_dir" -type f -path '*/target/classes/*.class' 2>/dev/null)
+}
+
 server_repair_corrupted_targets() {
   local server_dir="$1"
   [ -d "$server_dir" ] || return 0
-
-  # (1) broken boot jars
-  if command -v jar >/dev/null 2>&1; then
-    while IFS= read -r jar_file; do
-      entries="$(jar tf "$jar_file" 2>/dev/null || true)"
-      if [ -z "$entries" ]; then
-        echo "  ⚠ unreadable jar, cleaning target: $jar_file"
-        rm -rf "$(dirname "$(dirname "$jar_file")")/target"
-      elif [ -f "$jar_file.original" ] && [ "$(printf '%s\n' "$entries" | grep -c '^BOOT-INF/')" -eq 0 ]; then
-        echo "  ⚠ incomplete boot jar, cleaning target: $jar_file"
-        rm -rf "$(dirname "$(dirname "$jar_file")")/target"
-      fi
-    done < <(find "$server_dir" -maxdepth 4 -type f -path '*/target/*.jar')
-  fi
-
-  # (2) Eclipse/JDT classes with unresolved compilation errors
-  while IFS= read -r class_file; do
-    if grep -qa "Unresolved compilation problem" "$class_file" 2>/dev/null; then
-      # Cut the path at "/target" so the module target dir is removed no matter
-      # how deep the package nesting is.
-      module_target="$(printf '%s\n' "$class_file" | sed -E 's#(/target/classes/.*)$#/target#')"
-      echo "  ⚠ class compiled with unresolved errors, cleaning target: $module_target"
-      rm -rf "$module_target"
-      break
-    fi
-  done < <(find "$server_dir" -type f -path '*/target/classes/*.class' 2>/dev/null)
+  server_repair_broken_jars "$server_dir"
+  server_repair_unresolved_classes "$server_dir"
 }

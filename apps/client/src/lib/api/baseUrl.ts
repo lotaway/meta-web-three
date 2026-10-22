@@ -32,11 +32,11 @@ export function getDevHost(): string {
  * Trailing slashes are stripped.
  *
  * The gateway port is {@link DEFAULT_API_PORT} (10081) unless the configured
- * host already carries an explicit port.
+ * host already carries an explicit port. Blank environment values count as
+ * "not configured", so an empty EXPO_PUBLIC_BACK_API_HOST does not mask a
+ * configured NEXT_PUBLIC_BACK_API_HOST.
  */
 export function getApiBaseUrl(port: number = DEFAULT_API_PORT): string {
-  // Empty strings mean "not configured" — an empty EXPO_PUBLIC_BACK_API_HOST must
-  // not mask a configured NEXT_PUBLIC_BACK_API_HOST, so blanks are filtered out.
   const explicit = [
     process.env.EXPO_PUBLIC_BACK_API_HOST,
     process.env.NEXT_PUBLIC_BACK_API_HOST,
