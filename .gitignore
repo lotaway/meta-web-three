@@ -102,6 +102,9 @@ apps/client/web-build/
 !debug.keystore
 *.jks
 
+# Swift Package Manager build cache
+.build/
+
 # Generated schema collection
 /temp
 
