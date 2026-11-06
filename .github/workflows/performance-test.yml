@@ -13,7 +13,7 @@ on:
           - quick
           - critical
       environment:
-        description: 'Target environment'
+        description: 'Report label only. The real target comes from the PERF_BASE_URL repository variable; leave it unset to use the built-in local mock API.'
         required: true
         default: 'staging'
         type: choice
@@ -26,11 +26,11 @@ on:
         required: false
         default: '10'
       duration:
-        description: 'Test duration in seconds'
+        description: 'Upper bound for the run, in seconds'
         required: false
         default: '300'
   schedule:
-    - cron: '0 2 * * *'  # Daily at 2 AM
+    - cron: '0 2 * * *'  # Daily smoke run against the built-in local mock API
 
 env:
   JMETER_VERSION: '5.6.3'
@@ -39,7 +39,7 @@ env:
 jobs:
   performance-test:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -51,7 +51,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Cache JMeter
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/jmeter
           key: jmeter-${{ env.JMETER_VERSION }}
@@ -66,102 +66,276 @@ jobs:
           fi
           echo "$HOME/jmeter/bin" >> $GITHUB_PATH
 
-      - name: Create test configuration
-        run: |
-          cat > perf-config.properties << EOF
-          test.environment=${{ github.event.inputs.environment || 'staging' }}
-          test.threads=${{ github.event.inputs.threads || '10' }}
-          test.duration=${{ github.event.inputs.duration || '300' }}
-          test.rampup=30
-          
-          # Service endpoints
-          api.gateway=http://localhost:8080
-          api.product=http://localhost:10082
-          api.order=http://localhost:10080
-          api.user=http://localhost:10081
-          EOF
-
       - name: Determine test plan
         id: test_plan
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_SUITE: ${{ inputs.test_suite }}
+          INPUT_ENVIRONMENT: ${{ inputs.environment }}
+          INPUT_THREADS: ${{ inputs.threads }}
+          INPUT_DURATION: ${{ inputs.duration }}
+          PERF_BASE_URL: ${{ vars.PERF_BASE_URL }}
         run: |
-          if [[ "${{ github.event.inputs.test_suite }}" == "quick" ]]; then
-            echo "plan=TestConfig.jmx" >> $GITHUB_OUTPUT
-            echo "threads=5" >> $GITHUB_OUTPUT
-            echo "duration=60" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event.inputs.test_suite }}" == "critical" ]]; then
-            echo "plan=TestConfig.jmx" >> $GITHUB_OUTPUT
-            echo "threads=20" >> $GITHUB_OUTPUT
-            echo "duration=180" >> $GITHUB_OUTPUT
-          else
-            echo "plan=TestConfig.jmx" >> $GITHUB_OUTPUT
-            echo "threads=${{ github.event.inputs.threads || '10' }}" >> $GITHUB_OUTPUT
-            echo "duration=${{ github.event.inputs.duration || '300' }}" >> $GITHUB_OUTPUT
-          fi
+          python3 - <<'PY'
+          import os
+          from urllib.parse import urlparse
+
+          event = os.environ['EVENT_NAME']
+          suite = os.environ.get('INPUT_SUITE') or 'full'
+          environment = os.environ.get('INPUT_ENVIRONMENT') or 'development'
+          base = (os.environ.get('PERF_BASE_URL') or '').strip()
+
+          def as_int(value, fallback):
+              try:
+                  return max(1, int(value))
+              except (TypeError, ValueError):
+                  return fallback
+
+          if event == 'schedule':
+              suite = 'scheduled-smoke'
+              threads, loops, duration = 5, 100, 30
+              use_mock = True
+          else:
+              if suite == 'quick':
+                  threads, loops, duration = 5, 100, 60
+              elif suite == 'critical':
+                  threads, loops, duration = 20, 200, 180
+              else:
+                  threads = as_int(os.environ.get('INPUT_THREADS'), 10)
+                  loops = 100
+                  duration = as_int(os.environ.get('INPUT_DURATION'), 300)
+              use_mock = not base
+
+          if use_mock:
+              host, port, protocol = '127.0.0.1', '18087', 'http'
+              target = 'built-in local mock API'
+          else:
+              parsed = urlparse(base if '://' in base else 'http://' + base)
+              host = parsed.hostname or '127.0.0.1'
+              port = str(parsed.port or (443 if parsed.scheme == 'https' else 80))
+              protocol = parsed.scheme or 'http'
+              target = base
+
+          values = dict(
+              plan='TestConfig.jmx',
+              suite=suite,
+              environment=environment,
+              target=target,
+              use_mock='true' if use_mock else 'false',
+              host=host,
+              port=port,
+              protocol=protocol,
+              threads=threads,
+              rampup=1,
+              loops=loops,
+              duration=duration,
+              expected_samples=threads * loops,
+          )
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              for key, value in values.items():
+                  out.write(f'{key}={value}\n')
+          print(f'::notice::JMeter target: {target} ({protocol}://{host}:{port}), '
+                f'{threads} threads x {loops} loops, max {duration}s')
+          PY
+
+      - name: Create test configuration
+        run: |
+          printf 'perf test upload placeholder\n' > test-upload.xlsx
+          cat > perf-config.properties << EOF
+          host=${{ steps.test_plan.outputs.host }}
+          port=${{ steps.test_plan.outputs.port }}
+          protocol=${{ steps.test_plan.outputs.protocol }}
+          threads=${{ steps.test_plan.outputs.threads }}
+          rampup=${{ steps.test_plan.outputs.rampup }}
+          loops=${{ steps.test_plan.outputs.loops }}
+          duration=${{ steps.test_plan.outputs.duration }}
+          upload_file=${{ github.workspace }}/test-upload.xlsx
+          EOF
+          cat perf-config.properties
 
       - name: Run JMeter tests
         run: |
-          cd ${{ github.workspace }}
+          set -euo pipefail
+          cd "${{ github.workspace }}"
+          MOCK_PID=""
+          if [ "${{ steps.test_plan.outputs.use_mock }}" = "true" ]; then
+            cat > /tmp/perf_mock_api.py <<'PY'
+          from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+          import sys
+
+          class Handler(BaseHTTPRequestHandler):
+              protocol_version = "HTTP/1.1"
+
+              def _handle(self):
+                  length = int(self.headers.get("Content-Length") or 0)
+                  if length:
+                      self.rfile.read(length)
+                  body = b'{"status":"ok"}'
+                  self.send_response(200)
+                  self.send_header("Content-Type", "application/json")
+                  self.send_header("Content-Length", str(len(body)))
+                  self.end_headers()
+                  self.wfile.write(body)
+
+              do_GET = do_POST = do_PUT = _handle
+
+              def log_message(self, *args):
+                  pass
+
+          ThreadingHTTPServer(("127.0.0.1", int(sys.argv[1])), Handler).serve_forever()
+          PY
+            python3 /tmp/perf_mock_api.py "${{ steps.test_plan.outputs.port }}" > perf-mock.log 2>&1 &
+            MOCK_PID=$!
+            trap 'if [ -n "$MOCK_PID" ]; then kill "$MOCK_PID" 2>/dev/null || true; fi' EXIT
+            for _ in $(seq 1 30); do
+              if curl -sf "http://127.0.0.1:${{ steps.test_plan.outputs.port }}/health" > /dev/null; then
+                break
+              fi
+              sleep 1
+            done
+            curl -sf "http://127.0.0.1:${{ steps.test_plan.outputs.port }}/health" > /dev/null || {
+              echo "::error::local mock API failed to start"
+              cat perf-mock.log
+              exit 1
+            }
+          fi
+
           ~/jmeter/bin/jmeter -n \
-            -t TestConfig.jmx \
+            -t "${{ steps.test_plan.outputs.plan }}" \
             -l results.jtl \
             -j results.log \
-            -Jthreads=${{ steps.test_plan.outputs.threads }} \
-            -Jduration=${{ steps.test_plan.outputs.duration }} \
-            -Pperf-config.properties
+            -q perf-config.properties
+
+          test -s results.jtl || {
+            echo "::error::JMeter exited without producing any results"
+            exit 1
+          }
+          echo "JMeter produced results.jtl ($(wc -l < results.jtl) lines)"
 
       - name: Generate HTML report
+        if: success()
         run: |
+          test -s results.jtl
           ~/jmeter/bin/jmeter -g results.jtl -o report
 
       - name: Upload test results
-        uses: actions/upload-artifact@v4
         if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: jmeter-results-${{ github.run_number }}
           path: |
             results.jtl
             results.log
             report
+            perf-config.properties
+            perf-mock.log
+          if-no-files-found: ignore
           retention-days: 30
 
       - name: Parse and analyze results
-        if: always()
+        id: analyze
+        if: success()
+        env:
+          SUITE: ${{ steps.test_plan.outputs.suite }}
+          ENVIRONMENT: ${{ steps.test_plan.outputs.environment }}
+          TARGET: ${{ steps.test_plan.outputs.target }}
+          EXPECTED_SAMPLES: ${{ steps.test_plan.outputs.expected_samples }}
         run: |
-          echo "## Performance Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Extract key metrics
-          total_samples=$(grep -c "true" results.jtl 2>/dev/null || echo "0")
-          failures=$(grep -c "false" results.jtl 2>/dev/null || echo "0")
-          
-          echo "### Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- Total Samples: $total_samples" >> $GITHUB_STEP_SUMMARY
-          echo "- Failures: $failures" >> $GITHUB_STEP_SUMMARY
-          echo "- Test Suite: ${{ github.event.inputs.test_suite || 'scheduled' }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Environment: ${{ github.event.inputs.environment || 'staging' }}" >> $GITHUB_STEP_SUMMARY
-          
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Detailed Report" >> $GITHUB_STEP_SUMMARY
-          echo "See attached HTML report for detailed metrics." >> $GITHUB_STEP_SUMMARY
+          python3 - <<'PY'
+          import csv, math, os, sys
+
+          path = 'results.jtl'
+          if not os.path.isfile(path) or os.path.getsize(path) == 0:
+              print('::error::results.jtl is missing or empty - JMeter produced no samples')
+              sys.exit(1)
+
+          with open(path, newline='', encoding='utf-8', errors='replace') as handle:
+              reader = csv.DictReader(handle)
+              missing = {'elapsed', 'success'} - set(reader.fieldnames or [])
+              if missing:
+                  print(f'::error::results.jtl is missing required columns: {sorted(missing)}')
+                  sys.exit(1)
+              rows = list(reader)
+
+          if not rows:
+              print('::error::results.jtl contains only a header - no samples were recorded')
+              sys.exit(1)
+
+          total = len(rows)
+          failures = 0
+          elapsed = []
+          for row in rows:
+              if (row.get('success') or '').strip().lower() != 'true':
+                  failures += 1
+              try:
+                  elapsed.append(int(row['elapsed']))
+              except (TypeError, ValueError):
+                  continue
+
+          if not elapsed:
+              print('::error::no parseable elapsed values in results.jtl')
+              sys.exit(1)
+
+          elapsed.sort()
+          avg = sum(elapsed) / len(elapsed)
+          p95 = elapsed[max(0, math.ceil(0.95 * len(elapsed)) - 1)]
+          failure_rate = failures * 100.0 / total
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              out.write(f'total={total}\n')
+              out.write(f'failures={failures}\n')
+              out.write(f'avg_ms={avg:.2f}\n')
+              out.write(f'p95_ms={p95}\n')
+              out.write(f'failure_rate={failure_rate:.4f}\n')
+
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write('## Performance Test Results\n\n')
+              summary.write('| Metric | Value |\n| --- | --- |\n')
+              summary.write(f'| Test suite | {os.environ["SUITE"]} |\n')
+              summary.write(f'| Environment | {os.environ["ENVIRONMENT"]} |\n')
+              summary.write(f'| Target | {os.environ["TARGET"]} |\n')
+              summary.write(f'| Expected samples | {os.environ["EXPECTED_SAMPLES"]} |\n')
+              summary.write(f'| Total samples | {total} |\n')
+              summary.write(f'| Failures | {failures} |\n')
+              summary.write(f'| Failure rate | {failure_rate:.2f}% |\n')
+              summary.write(f'| Average response time | {avg:.2f} ms |\n')
+              summary.write(f'| 95th percentile | {p95} ms |\n\n')
+              summary.write('See the `jmeter-results-*` artifact for the HTML dashboard.\n')
+
+          print(f'samples={total} failures={failures} avg_ms={avg:.2f} '
+                f'p95_ms={p95} failure_rate={failure_rate:.2f}%')
+          PY
 
       - name: Check performance thresholds
-        if: always()
+        if: success()
+        env:
+          AVG_MS: ${{ steps.analyze.outputs.avg_ms }}
+          P95_MS: ${{ steps.analyze.outputs.p95_ms }}
+          FAILURE_RATE: ${{ steps.analyze.outputs.failure_rate }}
+          MAX_AVG_MS: '500'
+          MAX_P95_MS: '1000'
+          MAX_FAILURE_PCT: '1'
         run: |
-          # Average response time threshold: 500ms
-          avg_response=$(awk -F',' 'NR>1 {sum+=$2; count++} END {print int(sum/count)}' results.jtl 2>/dev/null || echo "0")
-          echo "Average Response Time: ${avg_response}ms"
-          
-          # 95th percentile threshold: 1000ms
-          p95_response=$(sort -t',' -k2 -n results.jtl | awk -F',' 'NR==int(NR*0.95) {print int($2)}' 2>/dev/null || echo "0")
-          echo "95th Percentile: ${p95_response}ms"
-          
-          # Failure rate threshold: 1%
-          failure_rate=$(awk -F',' 'BEGIN{fail=0;total=0} NR>1 {total++; if($8=="false") fail++} END {print int(fail*100/total)}' results.jtl 2>/dev/null || echo "0")
-          echo "Failure Rate: ${failure_rate}%"
-          
-          # Set exit code based on thresholds
-          if [ "$avg_response" -gt 500 ] || [ "$p95_response" -gt 1000 ] || [ "$failure_rate" -gt 1 ]; then
-            echo "Performance test FAILED - thresholds exceeded"
-            exit 1
-          fi
-          echo "Performance test PASSED"
+          python3 - <<'PY'
+          import os, sys
+
+          avg = float(os.environ['AVG_MS'])
+          p95 = float(os.environ['P95_MS'])
+          failure_rate = float(os.environ['FAILURE_RATE'])
+          max_avg = float(os.environ['MAX_AVG_MS'])
+          max_p95 = float(os.environ['MAX_P95_MS'])
+          max_failure = float(os.environ['MAX_FAILURE_PCT'])
+
+          breaches = []
+          if avg > max_avg:
+              breaches.append(f'average response time {avg:.2f}ms > {max_avg:.0f}ms')
+          if p95 > max_p95:
+              breaches.append(f'p95 {p95:.0f}ms > {max_p95:.0f}ms')
+          if failure_rate > max_failure:
+              breaches.append(f'failure rate {failure_rate:.2f}% > {max_failure:.0f}%')
+
+          if breaches:
+              print('::error::Performance test FAILED - ' + '; '.join(breaches))
+              sys.exit(1)
+          print('Performance test PASSED')
+          PY

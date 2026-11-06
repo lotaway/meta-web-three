@@ -5,7 +5,9 @@
 .aws
 temp/
 .freebuff
-.workbuddy
+
+# WorkBuddy local project data (never committed)
+.workbuddy/
 
 # compiled output
 /dist
