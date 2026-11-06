@@ -54,17 +54,45 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/jmeter
-          key: jmeter-${{ env.JMETER_VERSION }}
+          key: jmeter-${{ env.JMETER_VERSION }}-v2
 
       - name: Download and install JMeter
         run: |
-          if [ ! -d ~/jmeter ]; then
-            mkdir -p ~/jmeter
-            curl -L -o jmeter.tgz https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${{ env.JMETER_VERSION }}.tgz
-            tar -xzf jmeter.tgz -C ~/jmeter --strip-components=1
-            rm jmeter.tgz
+          set -euo pipefail
+          jmeter_home="$HOME/jmeter"
+          archive="apache-jmeter-${{ env.JMETER_VERSION }}.tgz"
+
+          if [ ! -x "$jmeter_home/bin/jmeter" ]; then
+            rm -rf "$jmeter_home"
+            mkdir -p "$jmeter_home"
+            mirrors=(
+              "https://dlcdn.apache.org/jmeter/binaries/$archive"
+              "https://downloads.apache.org/jmeter/binaries/$archive"
+              "https://mirrors.aliyun.com/apache/jmeter/binaries/$archive"
+              "https://mirrors.tuna.tsinghua.edu.cn/apache/jmeter/binaries/$archive"
+              "https://archive.apache.org/dist/jmeter/binaries/$archive"
+            )
+            downloaded=0
+            for url in "${mirrors[@]}"; do
+              echo "Downloading JMeter from $url"
+              if curl -fL --retry 2 --retry-all-errors --connect-timeout 15 --max-time 300 \
+                   -o "$archive" "$url" && tar -tzf "$archive" >/dev/null 2>&1; then
+                downloaded=1
+                break
+              fi
+              echo "::warning::Mirror unavailable: $url"
+              rm -f "$archive"
+            done
+            if [ "$downloaded" -ne 1 ]; then
+              echo "::error::Could not download a valid Apache JMeter ${{ env.JMETER_VERSION }} archive"
+              exit 1
+            fi
+            tar -xzf "$archive" -C "$jmeter_home" --strip-components=1
+            rm -f "$archive"
           fi
-          echo "$HOME/jmeter/bin" >> $GITHUB_PATH
+
+          echo "$jmeter_home/bin" >> "$GITHUB_PATH"
+          "$jmeter_home/bin/jmeter" -v
 
       - name: Determine test plan
         id: test_plan
