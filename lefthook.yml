@@ -1,42 +1,26 @@
-# EXAMPLE USAGE:
+# Local quality gates. `lefthook install` is run automatically by the root
+# `prepare` script after `npm install` / `yarn install`.
 #
-#   Refer for explanation to following link:
-#   https://lefthook.dev/configuration/
-#
-# pre-push:
-#   jobs:
-#     - name: packages audit
-#       tags:
-#         - frontend
-#         - security
-#       run: yarn audit
-#
-#     - name: gems audit
-#       tags:
-#         - backend
-#         - security
-#       run: bundle audit
-#
-# pre-commit:
-#   parallel: true
-#   jobs:
-#     - run: yarn eslint {staged_files}
-#       glob: "*.{js,ts,jsx,tsx}"
-#
-#     - name: rubocop
-#       glob: "*.rb"
-#       exclude:
-#         - config/application.rb
-#         - config/routes.rb
-#       run: bundle exec rubocop --force-exclusion {all_files}
-#
-#     - name: govet
-#       files: git ls-files -m
-#       glob: "*.go"
-#       run: go vet {files}
-#
-#     - script: "hello.js"
-#       runner: node
-#
-#     - script: "hello.go"
-#       runner: go run
+# Run `LEFTHOOK=0 git commit ...` to skip the hooks in an emergency, or
+# `npx lefthook run pre-commit` to execute them manually.
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: whitespace and conflict markers
+      run: git diff --check --cached
+
+    - name: keep local WorkBuddy data out of git
+      run: |
+        if git diff --cached --name-only | grep -qE '(^|/)\.workbuddy/'; then
+          echo "ERROR: .workbuddy/ is local-only and must never be committed." >&2
+          exit 1
+        fi
+
+    - name: reject plaintext GitHub tokens in added lines
+      run: |
+        if git diff --cached -U0 | grep -qE '^\+.*gh[pousr]_[A-Za-z0-9]{20,}'; then
+          echo "ERROR: a GitHub token appears in the staged diff." >&2
+          echo "Remove it from the change and rotate the token before committing." >&2
+          exit 1
+        fi

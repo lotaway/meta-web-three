@@ -11,15 +11,49 @@ const fs = require('node:fs')
 const https = require('node:https')
 const http = require('node:http')
 const path = require('node:path')
-const dotenv = require('dotenv')
+const { createRequire } = require('node:module')
 
 const projectRoot = process.cwd()
+
+/**
+ * This script lives in apps/tools but is launched from apps/client, so plain
+ * `require()` never looks into the client's node_modules. Resolve tooling
+ * dependencies from the calling project first, then from the usual fallbacks.
+ */
+function requireFromProject(name) {
+  const roots = [
+    path.resolve(projectRoot, 'node_modules'),
+    path.resolve(__dirname, '..', 'client', 'node_modules'),
+    path.resolve(__dirname, 'node_modules'),
+    path.resolve(__dirname, '..', '..', 'node_modules'),
+  ]
+  for (const root of roots) {
+    try {
+      return createRequire(path.join(root, '__resolve__.js'))(name)
+    } catch (error) {
+      if (error.code !== 'MODULE_NOT_FOUND') throw error
+    }
+  }
+  const error = new Error(
+    `Cannot find module '${name}'. Install it in apps/client (searched: ${roots.join(', ')})`
+  )
+  error.code = 'MODULE_NOT_FOUND'
+  throw error
+}
+
+// dotenv is optional; configuration can also be supplied via real env vars.
+let dotenv = null
+try {
+  dotenv = requireFromProject('dotenv')
+} catch {
+  dotenv = null
+}
 
 function readConfig() {
   const envFiles = (process.env.SCHEMA_ENV_FILES || '.env').split(',')
   for (const file of envFiles) {
     const filePath = path.resolve(projectRoot, file.trim())
-    if (fs.existsSync(filePath)) {
+    if (fs.existsSync(filePath) && dotenv) {
       dotenv.config({ path: filePath })
     }
   }
@@ -161,7 +195,7 @@ async function downloadSchema(config) {
             console.warn('Introspection errors:', result.errors)
           }
           // Build the SDL string from the introspection result
-          const { buildClientSchema, printSchema } = require('graphql')
+          const { buildClientSchema, printSchema } = requireFromProject('graphql')
           const schema = buildClientSchema(result.data)
           const sdl = printSchema(schema)
           await fs.promises.writeFile(outputPath, sdl, 'utf-8')

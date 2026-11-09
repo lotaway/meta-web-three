@@ -129,32 +129,30 @@ service.interceptors.response.use(
 )
 
 // http 函数 - 支持泛型
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function http<T = any>(config: AxiosRequestConfig): Promise<CommonResult<T>> {
-  // @ts-ignore - TypeScript 无法正确推断拦截器返回类型
-  return service(config).then((response: AxiosResponse<CommonResult<T>>) => {
-    return response.data as CommonResult<T>
-  })
+// The response interceptor resolves with the full AxiosResponse, so `request`
+// can be typed with CommonResult<T> and no suppression directive is needed.
+function http<T = unknown>(config: AxiosRequestConfig): Promise<CommonResult<T>> {
+  return service.request<CommonResult<T>>(config).then(response => response.data)
 }
 
 // 添加便捷方法
-http.get = <T = any>(url: string, config?: AxiosRequestConfig): Promise<CommonResult<T>> => {
+http.get = <T = unknown>(url: string, config?: AxiosRequestConfig): Promise<CommonResult<T>> => {
   return http<T>({ ...config, method: 'GET', url })
 }
 
-http.post = <T = any>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<CommonResult<T>> => {
+http.post = <T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<CommonResult<T>> => {
   return http<T>({ ...config, method: 'POST', url, data })
 }
 
-http.put = <T = any>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<CommonResult<T>> => {
+http.put = <T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<CommonResult<T>> => {
   return http<T>({ ...config, method: 'PUT', url, data })
 }
 
-http.delete = <T = any>(url: string, config?: AxiosRequestConfig): Promise<CommonResult<T>> => {
+http.delete = <T = unknown>(url: string, config?: AxiosRequestConfig): Promise<CommonResult<T>> => {
   return http<T>({ ...config, method: 'DELETE', url })
 }
 
-http.patch = <T = any>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<CommonResult<T>> => {
+http.patch = <T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<CommonResult<T>> => {
   return http<T>({ ...config, method: 'PATCH', url, data })
 }
 

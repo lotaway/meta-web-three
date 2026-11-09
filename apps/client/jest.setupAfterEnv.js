@@ -7,17 +7,23 @@ global.fetch = jest.fn(() =>
     headers: new Headers({ 'content-type': 'application/json' }),
     status: 200,
   })
-) as jest.Mock
+)
 
-global.performance = {
-  now: jest.fn(() => Date.now()),
-  mark: jest.fn(),
-  measure: jest.fn(),
-  clearMarks: jest.fn(),
-  clearMeasures: jest.fn(),
-  getEntriesByType: jest.fn(() => []),
-  getEntriesByName: jest.fn(() => []),
-} as any
+// Node exposes `performance` as a read-only accessor. A plain assignment is
+// either ignored or throws in strict mode, so define the mock explicitly.
+Object.defineProperty(globalThis, 'performance', {
+  configurable: true,
+  writable: true,
+  value: {
+    now: jest.fn(() => Date.now()),
+    mark: jest.fn(),
+    measure: jest.fn(),
+    clearMarks: jest.fn(),
+    clearMeasures: jest.fn(),
+    getEntriesByType: jest.fn(() => []),
+    getEntriesByName: jest.fn(() => []),
+  },
+})
 
 global.IntersectionObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
@@ -32,7 +38,11 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
   disconnect: jest.fn(),
 }))
 
-Object.defineProperty(window, 'matchMedia', {
+// `testEnvironment: 'node'` has no `window`. Targeting globalThis keeps this
+// mock working under both node and jsdom instead of throwing
+// "Object.defineProperty called on non-object".
+Object.defineProperty(globalThis, 'matchMedia', {
+  configurable: true,
   writable: true,
   value: jest.fn().mockImplementation((query) => ({
     matches: false,
@@ -59,8 +69,8 @@ jest.mock('expo-router', () => ({
   }),
   useLocalSearchParams: () => ({}),
   useGlobalSearchParams: () => ({}),
-  Link: ({ children, href }: any) => children || href,
-  Href: ({ children }: any) => children,
+  Link: ({ children, href }) => children || href,
+  Href: ({ children }) => children,
   Stack: {
     Screen: 'Screen',
   },
@@ -100,6 +110,19 @@ jest.mock('@tanstack/react-query', () => {
 
 jest.mock('@stripe/stripe-react-native', () => ({
   init: jest.fn(),
+  confirmPayment: jest.fn(({ clientSecret }) =>
+    Promise.resolve(
+      clientSecret
+        ? { paymentIntent: { id: 'pi_test', status: 'succeeded' }, error: undefined }
+        : {
+            paymentIntent: undefined,
+            error: {
+              code: 'invalid_client_secret',
+              message: 'clientSecret is required',
+            },
+          }
+    )
+  ),
   createPaymentSheet: jest.fn(() => Promise.resolve({})),
   presentPaymentSheet: jest.fn(() => Promise.resolve({})),
   retrievePaymentSheetParams: jest.fn(() => Promise.resolve({})),
@@ -141,7 +164,7 @@ jest.mock('react-native-gesture-handler', () => {
     gestureHandlerRootHOC: jest.fn(),
     Directions: {},
     Gesture: {},
-    GestureDetector: ({ children }: any) => children,
+    GestureDetector: ({ children }) => children,
     GestureHandlerRootView: View,
   }
 })

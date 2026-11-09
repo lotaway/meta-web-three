@@ -1,4 +1,4 @@
-import { ApiError, ErrorCodes, isApiError, getErrorMessage } from '../../../app/lib/api/errors'
+import { ApiError, ErrorCodes, isApiError, getErrorMessage } from '../../../../src/lib/api/errors'
 
 describe('api/errors', () => {
   describe('ApiError', () => {
@@ -33,7 +33,9 @@ describe('api/errors', () => {
         { status: 400 }
       )
 
-      const error = ApiError.fromResponse(response)
+      // fromResponse is synchronous, so parsed body data is supplied via the
+      // second argument (the ApiClient does this after await response.json()).
+      const error = ApiError.fromResponse(response, { code: '4001', message: '订单不存在' })
 
       expect(error.status).toBe(400)
       expect(error.code).toBe('4001')

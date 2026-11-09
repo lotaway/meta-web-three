@@ -11,6 +11,7 @@
     "init:env": "docker compose -f ./docker-compose.env.yml up",
     "start:env": "docker compose -f ./docker-compose.env.yml start",
     "stop:env": "docker compose -f ./docker-compose.env.yml stop",
+    "prepare": "lefthook install",
     "delete:env": "docker compose -f ./docker-compose.env.yml down",
     "delete:system:docker:env": "docker stop $(docker ps -aq) && docker rm $(docker ps -aq)",
     "test:e2e": "cd apps/digital-twin/system-management && npm run test:e2e",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@playwright/test": "^1.60.0",
     "dotenv": "^17.4.2",
+    "lefthook": "^2.2.2",
     "playwright": "^1.60.0"
   }
 }

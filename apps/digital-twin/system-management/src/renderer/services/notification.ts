@@ -36,13 +36,25 @@ export class NotificationService {
       if (!granted) return null
     }
 
-    return new Notification(options.title, {
+    const instance = new Notification(options.title, {
       body: options.body,
       icon: options.icon || '/favicon.ico',
       tag: options.tag,
       requireInteraction: options.requireInteraction,
       silent: options.silent,
     })
+
+    // Electron 42 switched macOS notifications to UNNotification, which only
+    // displays them for code-signed applications. An unsigned dev build now
+    // fails at display time instead of silently succeeding, so surface it.
+    instance.onerror = () => {
+      console.warn('Notification could not be displayed (unsigned app on macOS?)')
+    }
+    if (options.onClick) {
+      instance.onclick = options.onClick
+    }
+
+    return instance
   }
 
   async playAlertSound(level: 'info' | 'warning' | 'error' | 'critical' = 'warning'): Promise<void> {

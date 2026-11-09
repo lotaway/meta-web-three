@@ -36,22 +36,24 @@ env:
   JMETER_VERSION: '5.6.3'
   JAVA_VERSION: '17'
 
+# Runner image is pinned deliberately: ubuntu-latest migrates to Ubuntu 26
+# and would otherwise change the preinstalled Python/Java toolchain silently.
 jobs:
   performance-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
 
       - name: Cache JMeter
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/jmeter
           key: jmeter-${{ env.JMETER_VERSION }}-v2
@@ -248,7 +250,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: jmeter-results-${{ github.run_number }}
           path: |

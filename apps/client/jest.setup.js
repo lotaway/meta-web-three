@@ -5,7 +5,7 @@ global.fetch = jest.fn(() =>
     ok: true,
     json: () => Promise.resolve({ code: '0000', data: null }),
   })
-) as jest.Mock
+)
 
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
@@ -35,13 +35,17 @@ jest.mock('@tanstack/react-query', () => ({
     setDefaultOptions: jest.fn(),
     getDefaultOptions: jest.fn(),
   })),
-  QueryClientProvider: ({ children }: { children: any }) => children,
+  QueryClientProvider: ({ children }) => children,
   useQueryClient: jest.fn(),
 }))
 
-global.performance = {
-  now: jest.fn(() => Date.now()),
-} as any
+Object.defineProperty(globalThis, 'performance', {
+  configurable: true,
+  writable: true,
+  value: {
+    now: jest.fn(() => Date.now()),
+  },
+})
 
 beforeEach(() => {
   jest.clearAllMocks()

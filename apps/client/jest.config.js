@@ -29,12 +29,21 @@ module.exports = {
     '**/*.spec.{ts,tsx}',
   ],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/app/$1',
+    // Keep these in sync with compilerOptions.paths in tsconfig.json.
+    // The old '^@/(.*)$' -> '<rootDir>/app/$1' rule pointed at a directory
+    // that does not contain the lib/ and api/ modules any more.
+    '^@/components/(order|profile|product|checkout|refund)/(.*)$': '<rootDir>/src/components/$1/$2',
+    '^@/lib/(.*)$': '<rootDir>/src/lib/$1',
+    '^@/(.*)$': '<rootDir>/$1',
     '^@components/(.*)$': '<rootDir>/components/$1',
     '^@hooks/(.*)$': '<rootDir>/hooks/$1',
     '^@utils/(.*)$': '<rootDir>/utils/$1',
   },
-  testEnvironment: 'node',
+  // Do not override `testEnvironment` here: jest-expo (via react-native's
+  // jest-preset) installs react-native-env.js, which initialises NativeModules
+  // and UIManager. Forcing 'node' leaves mockNativeModules.UIManager undefined
+  // and makes jest-expo's setup throw
+  // "TypeError: Object.defineProperty called on non-object".
   verbose: true,
   collectCoverage: process.env.COVERAGE === 'true',
   coverageReporters: ['text', 'lcov', 'html', 'clover'],

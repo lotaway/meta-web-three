@@ -4,6 +4,7 @@ import type {
   CouponQueryParam,
   SmsCoupon,
   SmsCouponExt,
+  SmsCouponHistory,
 } from '@/types/coupon'
 import http from '@/utils/http'
 export function getCouponListAPI(params: CouponQueryParam) {
@@ -40,7 +41,7 @@ export function couponDeleteByIdAPI(id: number) {
   })
 }
 export function getCouponHistoryListAPI(params: CouponHistoryQueryParam) {
-  return http({
+  return http<CommonPage<SmsCouponHistory>>({
     url: '/couponHistory/list',
     method: 'get',
     params: params,

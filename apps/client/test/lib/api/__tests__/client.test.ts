@@ -1,5 +1,5 @@
-import { ApiClient, apiClient } from '../../../app/lib/api/client'
-import { ApiError } from '../../../app/lib/api/errors'
+import { ApiClient, apiClient } from '../../../../src/lib/api/client'
+import { ApiError } from '../../../../src/lib/api/errors'
 
 const mockFetch = jest.fn()
 
@@ -66,7 +66,7 @@ describe('api/client', () => {
     })
 
     it('should make GET request', async () => {
-      const result = await client.get('/test')
+      await client.get('/test')
       expect(mockFetch).toHaveBeenCalledWith(
         'http://localhost:3000/test',
         expect.objectContaining({ method: 'GET' })
@@ -189,15 +189,26 @@ describe('api/client', () => {
 
   describe('timeout', () => {
     it('should throw timeout error when request takes too long', async () => {
-      jest.useFakeTimers()
+      // Use a real short timeout instead of fake timers: the mock must honour
+      // the AbortSignal so fetchWithTimeout can convert the abort to ApiError.
+      const shortTimeoutClient = new ApiClient({
+        baseUrl: 'http://localhost:3000',
+        timeout: 10,
+        retryTimes: 0,
+        retryDelay: 0,
+      })
+      mockFetch.mockImplementation(
+        (_url: string, options?: RequestInit) =>
+          new Promise((_resolve, reject) => {
+            options?.signal?.addEventListener('abort', () => {
+              const abortError = new Error('Aborted')
+              abortError.name = 'AbortError'
+              reject(abortError)
+            })
+          })
+      )
 
-      const fetchPromise = client.get('/test', {})
-
-      jest.advanceTimersByTime(5000)
-
-      await expect(fetchPromise).rejects.toThrow('请求超时')
-
-      jest.useRealTimers()
+      await expect(shortTimeoutClient.get('/test', {})).rejects.toThrow('请求超时')
     })
   })
 

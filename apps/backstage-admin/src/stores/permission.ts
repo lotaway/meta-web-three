@@ -3,10 +3,10 @@ import { shallowRef } from 'vue'
 import { asyncRouterMap, constantRouterMap } from '@/router/index'
 import type { UmsMenu } from '@/types/menu'
 import type { RouteRecordExt } from '@/types/router'
-import i18n from '@/locales'
+// Use the plain helper here: vue-i18n's `Composer.t` pulls the full message
+// schema into its generic signature and makes this module hit TS2589.
+import { t } from '@/locales'
 import { BLOCKCHAIN_ENABLED } from '@/utils/env'
-
-const { t } = i18n.global
 
 function hasPermission(menus: UmsMenu[], route: RouteRecordExt) {
   if (route.name) {

@@ -1,12 +1,28 @@
+import { act, renderHook } from '@testing-library/react-native'
 import {
   useInfiniteScroll,
   useDebounce,
   useThrottle,
   useMemoizedFn,
   useVirtualizedList,
-} from '../../../../app/lib/performance/useInfiniteScroll'
+} from '../../../../src/lib/performance/useInfiniteScroll'
 
 jest.useFakeTimers()
+
+const advance = (ms: number) => {
+  // React state updates scheduled by timers are only flushed inside act().
+  act(() => {
+    jest.advanceTimersByTime(ms)
+  })
+}
+
+const deferred = () => {
+  let resolve!: () => void
+  const promise = new Promise<void>((r) => {
+    resolve = r
+  })
+  return { promise, resolve }
+}
 
 describe('performance/useInfiniteScroll', () => {
   describe('useDebounce', () => {
@@ -26,7 +42,8 @@ describe('performance/useInfiniteScroll', () => {
       rerender({ value: 'updated', delay: 500 })
       expect(result.current).toBe('initial')
 
-      jest.advanceTimersByTime(500)
+      advance(500)
+      expect(result.current).toBe('updated')
     })
 
     it('should use different delays', () => {
@@ -36,11 +53,11 @@ describe('performance/useInfiniteScroll', () => {
       )
 
       rerender({ value: 'updated', delay: 300 })
-      jest.advanceTimersByTime(300)
+      advance(300)
       expect(result.current).toBe('updated')
 
       rerender({ value: 'changed', delay: 100 })
-      jest.advanceTimersByTime(100)
+      advance(100)
       expect(result.current).toBe('changed')
     })
   })
@@ -50,7 +67,9 @@ describe('performance/useInfiniteScroll', () => {
       const fn = jest.fn()
       const { result } = renderHook(() => useThrottle(fn, 500))
 
-      result()
+      act(() => {
+        result.current()
+      })
       expect(fn).toHaveBeenCalledTimes(1)
     })
 
@@ -58,9 +77,11 @@ describe('performance/useInfiniteScroll', () => {
       const fn = jest.fn()
       const { result } = renderHook(() => useThrottle(fn, 500))
 
-      result()
-      result()
-      result()
+      act(() => {
+        result.current()
+        result.current()
+        result.current()
+      })
 
       expect(fn).toHaveBeenCalledTimes(1)
     })
@@ -69,9 +90,13 @@ describe('performance/useInfiniteScroll', () => {
       const fn = jest.fn()
       const { result } = renderHook(() => useThrottle(fn, 500))
 
-      result()
-      jest.advanceTimersByTime(500)
-      result()
+      act(() => {
+        result.current()
+      })
+      advance(500)
+      act(() => {
+        result.current()
+      })
 
       expect(fn).toHaveBeenCalledTimes(2)
     })
@@ -93,21 +118,23 @@ describe('performance/useInfiniteScroll', () => {
     })
 
     it('should call latest callback', () => {
-      const callbacks: jest.Mock[] = []
+      const firstCallback = jest.fn()
+      const latestCallback = jest.fn()
       const { result, rerender } = renderHook(({ fn }) => useMemoizedFn(fn), {
-        initialProps: { fn: jest.fn() },
+        initialProps: { fn: firstCallback },
       })
-      callbacks.push(result.current)
 
-      const newCallback = jest.fn()
-      rerender({ fn: newCallback })
-      callbacks.push(result.current)
+      const memoizedFn = result.current
+      memoizedFn()
+      expect(firstCallback).toHaveBeenCalledTimes(1)
 
-      callbacks[0]()
-      callbacks[1]()
+      rerender({ fn: latestCallback })
+      // The wrapper identity stays stable while dispatching to the newest fn.
+      expect(result.current).toBe(memoizedFn)
+      memoizedFn()
 
-      expect(callbacks[0]).not.toHaveBeenCalled()
-      expect(callbacks[1]).toHaveBeenCalled()
+      expect(latestCallback).toHaveBeenCalledTimes(1)
+      expect(firstCallback).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -123,10 +150,10 @@ describe('performance/useInfiniteScroll', () => {
         })
       )
 
-      expect(result.listProps.data).toEqual(data)
-      expect(result.listProps.onEndReached).toBeDefined()
-      expect(result.listProps.initialNumToRender).toBe(10)
-      expect(result.listProps.maxToRenderPerBatch).toBe(5)
+      expect(result.current.listProps.data).toEqual(data)
+      expect(result.current.listProps.onEndReached).toBeDefined()
+      expect(result.current.listProps.initialNumToRender).toBe(10)
+      expect(result.current.listProps.maxToRenderPerBatch).toBe(5)
     })
 
     it('should not load more when hasMore is false', () => {
@@ -141,7 +168,7 @@ describe('performance/useInfiniteScroll', () => {
         })
       )
 
-      result.loadMore()
+      result.current.loadMore()
       expect(fetchMore).not.toHaveBeenCalled()
     })
 
@@ -156,18 +183,16 @@ describe('performance/useInfiniteScroll', () => {
         })
       )
 
-      await result.refresh()
+      await act(async () => {
+        await result.current.refresh()
+      })
       expect(fetchMore).toHaveBeenCalled()
+      expect(result.current.isRefreshing).toBe(false)
     })
 
     it('should set isRefreshing during refresh', async () => {
-      let resolveFn: () => void
-      const fetchMore = jest.fn(
-        () =>
-          new Promise<void>((resolve) => {
-            resolveFn = resolve
-          })
-      )
+      const { promise, resolve } = deferred()
+      const fetchMore = jest.fn(() => promise)
       const data = [1, 2, 3]
 
       const { result } = renderHook(() =>
@@ -177,22 +202,22 @@ describe('performance/useInfiniteScroll', () => {
         })
       )
 
-      const refreshPromise = result.refresh()
-      expect(result.isRefreshing).toBe(true)
+      let refreshPromise!: Promise<void>
+      act(() => {
+        refreshPromise = result.current.refresh()
+      })
+      expect(result.current.isRefreshing).toBe(true)
 
-      resolveFn!()
-      await refreshPromise
-      expect(result.isRefreshing).toBe(false)
+      await act(async () => {
+        resolve()
+        await refreshPromise
+      })
+      expect(result.current.isRefreshing).toBe(false)
     })
 
     it('should set isLoadingMore during load more', async () => {
-      let resolveFn: () => void
-      const fetchMore = jest.fn(
-        () =>
-          new Promise<void>((resolve) => {
-            resolveFn = resolve
-          })
-      )
+      const { promise, resolve } = deferred()
+      const fetchMore = jest.fn(() => promise)
       const data = [1, 2, 3]
 
       const { result } = renderHook(() =>
@@ -203,12 +228,29 @@ describe('performance/useInfiniteScroll', () => {
         })
       )
 
-      const loadMorePromise = result.loadMore()
-      expect(result.isLoadingMore).toBe(true)
+      let loadMorePromise!: Promise<void>
+      act(() => {
+        loadMorePromise = result.current.loadMore()
+      })
+      expect(result.current.isLoadingMore).toBe(true)
 
-      resolveFn!()
-      await loadMorePromise
-      expect(result.isLoadingMore).toBe(false)
+      await act(async () => {
+        resolve()
+        await loadMorePromise
+      })
+      expect(result.current.isLoadingMore).toBe(false)
+    })
+
+    it('should reset loading state when fetchMore rejects', async () => {
+      const fetchMore = jest.fn().mockRejectedValue(new Error('network'))
+      const { result } = renderHook(() =>
+        useInfiniteScroll({ data: [1, 2, 3], fetchMore })
+      )
+
+      await act(async () => {
+        await expect(result.current.refresh()).rejects.toThrow('network')
+      })
+      expect(result.current.isRefreshing).toBe(false)
     })
 
     it('should call onEndReached when near end', () => {
@@ -223,29 +265,36 @@ describe('performance/useInfiniteScroll', () => {
         })
       )
 
-      result.listProps.onEndReached?.()
+      result.current.listProps.onEndReached?.()
       expect(fetchMore).toHaveBeenCalled()
     })
   })
 
   describe('useVirtualizedList', () => {
+    const getItemCount = () => 100
+    const getItem = (index: number) => index
+
     it('should calculate visible range', () => {
-      const getItemCount = jest.fn(() => 100)
-      const { result } = renderHook(() => useVirtualizedList({ getItemCount }))
+      const { result } = renderHook(() =>
+        useVirtualizedList({ getItemCount, getItem })
+      )
 
       expect(result.current.visibleRange).toEqual({ start: 0, end: 20 })
     })
 
     it('should update visible range on viewable items change', () => {
-      const getItemCount = jest.fn(() => 100)
-      const { result } = renderHook(() => useVirtualizedList({ getItemCount }))
+      const { result } = renderHook(() =>
+        useVirtualizedList({ getItemCount, getItem })
+      )
 
-      result.onViewableItemsChanged({
-        viewableItems: [
-          { index: 5, isViewable: true },
-          { index: 15, isViewable: true },
-        ],
-      } as any)
+      act(() => {
+        result.current.onViewableItemsChanged({
+          viewableItems: [
+            { index: 5, isViewable: true },
+            { index: 15, isViewable: true },
+          ],
+        } as any)
+      })
 
       expect(result.current.visibleRange).toEqual({ start: 0, end: 20 })
     })

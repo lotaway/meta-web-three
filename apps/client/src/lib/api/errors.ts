@@ -31,11 +31,15 @@ export class ApiError extends Error {
     return new ApiError(message, code, response.status, data)
   }
 
-  static fromError(error: Error): ApiError {
+  static fromError(error: unknown): ApiError {
     if (error instanceof ApiError) {
       return error
     }
-    return new ApiError(error.message, 'NETWORK_ERROR', 0, null)
+    if (error instanceof Error) {
+      return new ApiError(error.message, 'NETWORK_ERROR', 0, null)
+    }
+    const message = typeof error === 'string' ? error : '未知错误'
+    return new ApiError(message, 'NETWORK_ERROR', 0, null)
   }
 }
 
@@ -82,6 +86,9 @@ export function getErrorMessage(error: unknown): string {
   }
   if (error instanceof Error) {
     return error.message
+  }
+  if (typeof error === 'string') {
+    return error
   }
   return '未知错误'
 }

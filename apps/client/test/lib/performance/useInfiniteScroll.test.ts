@@ -1,4 +1,10 @@
-import { useDebounce, useThrottle, useMemoizedFn, useInfiniteScroll } from '../../../app/lib/performance/useInfiniteScroll'
+import { act, renderHook } from '@testing-library/react-native'
+import {
+  useDebounce,
+  useThrottle,
+  useMemoizedFn,
+  useInfiniteScroll,
+} from '../../../src/lib/performance/useInfiniteScroll'
 
 jest.useFakeTimers()
 
@@ -8,7 +14,7 @@ describe('useDebounce', () => {
     expect(result.current).toBe('initial')
   })
 
-  it('should return debounced value after delay', async () => {
+  it('should return debounced value after delay', () => {
     const { result, rerender } = renderHook(
       ({ value }) => useDebounce(value, 500),
       { initialProps: { value: 'initial' } }
@@ -19,27 +25,33 @@ describe('useDebounce', () => {
     rerender({ value: 'updated' })
     expect(result.current).toBe('initial')
 
-    jest.advanceTimersByTime(500)
+    act(() => {
+      jest.advanceTimersByTime(500)
+    })
+    expect(result.current).toBe('updated')
   })
 })
 
 describe('useThrottle', () => {
   it('should call function immediately on first call', () => {
     const fn = jest.fn()
-    const throttledFn = useThrottle(fn, 500)
+    const { result } = renderHook(() => useThrottle(fn, 500))
 
-    throttledFn()
+    act(() => {
+      result.current()
+    })
     expect(fn).toHaveBeenCalledTimes(1)
   })
 
   it('should not call function again within throttle window', () => {
     const fn = jest.fn()
-    const throttledFn = useThrottle(fn, 500)
+    const { result } = renderHook(() => useThrottle(fn, 500))
 
-    throttledFn()
-    throttledFn()
-    throttledFn()
-
+    act(() => {
+      result.current()
+      result.current()
+      result.current()
+    })
     expect(fn).toHaveBeenCalledTimes(1)
   })
 })
@@ -70,12 +82,18 @@ describe('useInfiniteScroll', () => {
       })
     )
 
-    expect(result.listProps.data).toEqual([1, 2, 3])
-    expect(result.listProps.onEndReached).toBeDefined()
+    expect(result.current.listProps.data).toEqual([1, 2, 3])
+    expect(result.current.listProps.onEndReached).toBeDefined()
   })
 
   it('should handle refresh', async () => {
-    const fetchMore = jest.fn().mockResolvedValue(undefined)
+    let resolve!: () => void
+    const fetchMore = jest.fn(
+      () =>
+        new Promise<void>((r) => {
+          resolve = r
+        })
+    )
     const { result } = renderHook(() =>
       useInfiniteScroll({
         data: [1, 2, 3],
@@ -83,7 +101,17 @@ describe('useInfiniteScroll', () => {
       })
     )
 
-    result.refresh()
-    expect(result.isRefreshing).toBe(true)
+    let refreshPromise!: Promise<void>
+    act(() => {
+      refreshPromise = result.current.refresh()
+    })
+    expect(result.current.isRefreshing).toBe(true)
+
+    await act(async () => {
+      resolve()
+      await refreshPromise
+    })
+    expect(fetchMore).toHaveBeenCalledTimes(1)
+    expect(result.current.isRefreshing).toBe(false)
   })
 })

@@ -1,8 +1,8 @@
-import type { PageParam } from '@/types/common'
+import type { CommonPage, PageParam } from '@/types/common'
 import type { SmsFlashPromotion } from '@/types/flash'
 import http from '@/utils/http'
 export function getFlashListAPI(params: PageParam) {
-  return http({
+  return http<CommonPage<SmsFlashPromotion>>({
     url: '/flash/list',
     method: 'get',
     params: params,

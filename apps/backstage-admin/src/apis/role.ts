@@ -1,5 +1,6 @@
 import type { CommonPage, PageParam } from '@/types/common'
 import type { UmsMenu } from '@/types/menu'
+import type { UmsResource } from '@/types/resource'
 import type { UmsRole } from '@/types/role'
 import http from '@/utils/http'
 export function getRoleListAllAPI() {
@@ -62,7 +63,7 @@ export function roleAllocMenuAPI(params: {
   })
 }
 export function roleListResourceById(id: number) {
-  return http({
+  return http<UmsResource[]>({
     url: '/role/listResource/' + id,
     method: 'get',
   })

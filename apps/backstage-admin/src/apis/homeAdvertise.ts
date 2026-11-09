@@ -30,7 +30,7 @@ export function homeAdvertiseCreateAPI(data: SmsHomeAdvertise) {
   })
 }
 export function getHomeAdvertiseByIdAPI(id: number) {
-  return http({
+  return http<SmsHomeAdvertise>({
     url: '/home/advertise/' + id,
     method: 'get',
   })

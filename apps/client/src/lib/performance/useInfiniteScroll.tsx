@@ -1,5 +1,5 @@
-import { useCallback, useRef, useState, useEffect, DependencyList } from 'react'
-import { FlatList, FlatListProps, ViewToken } from 'react-native'
+import { useCallback, useRef, useState, useEffect } from 'react'
+import { FlatListProps, ViewToken } from 'react-native'
 
 interface UseInfiniteScrollOptions<T> {
   data: T[]
@@ -34,18 +34,26 @@ export function useInfiniteScroll<T>({
     if (isLoadingRef.current) return
     isLoadingRef.current = true
     setIsRefreshing(true)
-    await fetchMore()
-    setIsRefreshing(false)
-    isLoadingRef.current = false
+    try {
+      await fetchMore()
+    } finally {
+      // A rejected fetchMore must not leave the list stuck in a loading state
+      // or permanently block future refresh/loadMore calls.
+      setIsRefreshing(false)
+      isLoadingRef.current = false
+    }
   }, [fetchMore])
 
   const loadMore = useCallback(async () => {
     if (isLoadingRef.current || !hasMore) return
     isLoadingRef.current = true
     setIsLoadingMore(true)
-    await fetchMore()
-    setIsLoadingMore(false)
-    isLoadingRef.current = false
+    try {
+      await fetchMore()
+    } finally {
+      setIsLoadingMore(false)
+      isLoadingRef.current = false
+    }
   }, [fetchMore, hasMore])
 
   const onEndReached = useCallback(() => {
@@ -124,15 +132,19 @@ export function useThrottle<T extends (...args: any[]) => any>(
   callback: T,
   delay: number
 ): T {
-  const lastRun = useRef(Date.now())
+  // `null` means the throttled function has not run yet. Seeding the ref with
+  // `Date.now()` suppresses the very first call for a whole `delay` window,
+  // which contradicts leading-edge throttle semantics.
+  const lastRun = useRef<number | null>(null)
 
   return useCallback(
-    ((...args) => {
+    ((...args: Parameters<T>) => {
       const now = Date.now()
-      if (now - lastRun.current >= delay) {
+      if (lastRun.current === null || now - lastRun.current >= delay) {
         lastRun.current = now
         return callback(...args)
       }
+      return undefined
     }) as T,
     [callback, delay]
   )
@@ -142,5 +154,5 @@ export function useMemoizedFn<T extends (...args: any[]) => any>(fn: T): T {
   const ref = useRef(fn)
   ref.current = fn
 
-  return useCallback((...args: any[]) => ref.current(...args), []) as T
+  return useCallback((...args: Parameters<T>) => ref.current(...args), []) as T
 }

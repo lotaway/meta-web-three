@@ -149,7 +149,9 @@ export class ApiClient {
         attempt++
 
         if (attempt >= maxAttempts) {
-          throw error
+          // Keep the public contract consistent: every failed request rejects
+          // with an ApiError, including transport-level failures.
+          throw isApiError(error) ? error : ApiError.fromError(error)
         }
 
         if (isApiError(error) && error.status >= 400 && error.status < 500) {

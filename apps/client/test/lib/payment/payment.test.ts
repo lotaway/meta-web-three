@@ -1,31 +1,33 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { pay, type PayResult } from '../../../app/lib/payment'
+import { pay } from '../../../src/lib/payment'
 
-vi.mock('wechat-pay-module', () => {
+jest.mock('wechat-pay-module', () => {
   const mock = {
-    init: vi.fn(),
-    pay: vi.fn(),
-    isWechatInstalled: vi.fn().mockResolvedValue(true),
+    init: jest.fn(),
+    pay: jest.fn().mockResolvedValue(undefined),
+    isWechatInstalled: jest.fn().mockResolvedValue(true),
   }
   return {
+    __esModule: true,
     default: mock,
     WechatPayModule: mock,
   }
 })
 
-vi.mock('alipay-module', () => {
+jest.mock('alipay-module', () => {
   const mock = {
-    init: vi.fn(),
-    pay: vi.fn().mockResolvedValue('transaction_id'),
+    init: jest.fn(),
+    pay: jest.fn().mockResolvedValue('transaction_id'),
   }
   return {
+    __esModule: true,
     default: mock,
     AlipayModule: mock,
   }
 })
 
-vi.mock('@stripe/stripe-react-native', () => ({
-  confirmPayment: vi.fn(),
+jest.mock('@/api/generated', () => ({
+  ALIPAY_APP_ID: 'alipay-test-app-id',
+  WECHAT_APP_ID: 'wechat-test-app-id',
 }))
 
 describe('payment module', () => {
@@ -40,6 +42,7 @@ describe('payment module', () => {
         sign: 'sign',
       })
       expect(result.status).toBe('success')
+      expect(result).toMatchObject({ type: 'wechat', transactionId: 'prepay123' })
     })
   })
 
@@ -47,6 +50,7 @@ describe('payment module', () => {
     it('should return success when alipay succeeds', async () => {
       const result = await pay('alipay', 'order_string')
       expect(result.status).toBe('success')
+      expect(result).toMatchObject({ type: 'alipay', transactionId: 'transaction_id' })
     })
   })
 
@@ -57,6 +61,7 @@ describe('payment module', () => {
         returnURL: 'app://payment',
       })
       expect(result.status).toBe('fail')
+      expect(result).toMatchObject({ type: 'stripe', code: 'invalid_client_secret' })
     })
   })
 })

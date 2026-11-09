@@ -1,4 +1,4 @@
-import { ApiError, ErrorCodes, isApiError, getErrorMessage } from '../../app/lib/api/errors'
+import { ApiError, ErrorCodes, isApiError, getErrorMessage } from '../../../src/lib/api/errors'
 
 describe('ApiError', () => {
   it('should create error with all properties', () => {

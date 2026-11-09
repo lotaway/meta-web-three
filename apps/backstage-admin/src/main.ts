@@ -8,6 +8,7 @@ import { setupSvgIcon } from './icons'
 import 'virtual:svg-icons-register' // 引入SVG图标注册器（关键步骤）
 import '@/router/guard' // 引入vue-router的前置和后置守卫函数
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import i18n from '@/locales'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -17,6 +18,9 @@ pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
 // 以插件形式注册vue-router
 app.use(router)
+// vue-i18n 11 (Composition API mode) must be installed before mounting:
+// views call useI18n() and templates still use the injected $t helper.
+app.use(i18n)
 // 以插件形式注册SvgIcon组件
 setupSvgIcon(app)
 app.mount('#app')
