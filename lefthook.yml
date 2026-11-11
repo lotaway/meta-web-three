@@ -3,6 +3,10 @@
 #
 # Run `LEFTHOOK=0 git commit ...` to skip the hooks in an emergency, or
 # `npx lefthook run pre-commit` to execute them manually.
+#
+# lefthook wraps every `run` value in `sh -c "..."`. Double quotes inside the
+# command close that wrapper early on Windows and break the script, so keep
+# each command on one line and use single quotes in echo statements.
 
 pre-commit:
   parallel: true
@@ -11,16 +15,14 @@ pre-commit:
       run: git diff --check --cached
 
     - name: keep local WorkBuddy data out of git
-      run: |
+      run: >-
         if git diff --cached --name-only | grep -qE '(^|/)\.workbuddy/'; then
-          echo "ERROR: .workbuddy/ is local-only and must never be committed." >&2
-          exit 1
-        fi
+        echo 'ERROR: .workbuddy/ is local-only and must never be committed.' >&2;
+        exit 1; fi
 
     - name: reject plaintext GitHub tokens in added lines
-      run: |
+      run: >-
         if git diff --cached -U0 | grep -qE '^\+.*gh[pousr]_[A-Za-z0-9]{20,}'; then
-          echo "ERROR: a GitHub token appears in the staged diff." >&2
-          echo "Remove it from the change and rotate the token before committing." >&2
-          exit 1
-        fi
+        echo 'ERROR: a GitHub token appears in the staged diff.' >&2;
+        echo 'Remove it from the change and rotate the token before committing.' >&2;
+        exit 1; fi
