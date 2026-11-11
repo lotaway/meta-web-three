@@ -34,8 +34,8 @@ services:
 
   digital-twin-frontend:
     build:
-      context: ./apps/digital-twin/system-management
-      dockerfile: ../docker/Dockerfile
+      context: ./apps/digital-twin
+      dockerfile: system-management/docker/Dockerfile
     container_name: digital-twin-frontend
     ports:
       - "3002:3000"
