@@ -7,4 +7,14 @@
 
 ## 可执行任务（完成后按 DEVELOPMENT.md 流程移除）
 
-当前无待处理任务。
+No pending tasks.
+
+## Completed Tasks (archived)
+
+English notes only. Each item was verified with CHECK_LIST.md before archival.
+Per DEVELOPMENT.md step 4, passed tasks are removed from the actionable list and
+recorded here as checked items.
+
+- [x] Clear completed and unverifiable tasks from TODO.md. Commit: `57d1db9a`.
+- [x] Generate native types before typecheck in CI and Docker; fix the digital-twin build context, Dockerfile, compose paths and add the check workflow. Commit: `d10f4015`.
+- [x] Fix the pre-commit guards so they no longer fail on Windows; verify the hooks with staged probes. Commit: `ccb508d1`.
