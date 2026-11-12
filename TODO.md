@@ -123,9 +123,13 @@
 
 仅用中文记录。每项归档前均已按 CHECK_LIST.md 验证。
 按 DEVELOPMENT.md 第 4 步，通过的任务从可执行列表移除，并在此以勾选项记录。
+已完成、但所属大任务仍需人工决策或外部环境才能关闭的代码子项，也在此单独以 `[x]` 登记，并在条目里注明该大任务为何仍保持 `[ ]`。
 
 - [x] 清理 TODO.md 中已完成与无法核实的任务。提交：`57d1db9a`。
 - [x] 在 CI 与 Docker 中于 typecheck 前生成原生类型；修正 digital-twin 构建上下文、Dockerfile、compose 路径并新增检查 workflow。提交：`d10f4015`。
 - [x] 修复预提交守卫在 Windows 下失败的问题；用暂存探针验证 hooks。提交：`ccb508d1`。
 - [x] 用纯函数 `resolveEnv(vars)` 与显式输入测试，使 `apps/backstage-admin` 的 env 默认值测试具备隔离性。报告中的本机 1/5 失败未能复现（实测 5/5 通过）；真正的缺陷是依赖外部环境 `.env`。已在默认与非默认 env 文件下验证 8/8 通过，并通过 `vue-tsc --build`。提交：`efc88769`。
 - [x] 停止在 `apps/backstage-admin` 中持久化明文登录密码：从 `UserInfo`、store 初始状态与 `userLogin` 中移除 `password`，登录页不再回填密码；新增 `src/utils/user-storage.ts` 清理历史落盘凭据，persist 改为非敏感字段白名单并在 hydrate 前执行清理。新增 12 个单测覆盖清理函数、store 行为与真实插件持久化链路；`npx vitest run` 20/20 通过，`npx vue-tsc --build` 通过。提交：`4490305b`。
+- [x] 修复 `apps/client` e2e 套件的两处阻断性配置缺陷：`e2e/setup.ts` 不再无条件跳过全部用例（改为仅 `E2E_SKIP=1` 时跳过），`e2e/jest.config.js` 补上 `module.exports` 并让 `setupFilesAfterEnv` 指向 `<rootDir>/setup.ts`。已核对配置文件可被 `require()` 解析。这是「重新启用 `apps/client` e2e 套件」任务里已完成的代码子项；该任务仍需补齐缺失依赖、按 Detox 20 重写配置、修正 spec 导入路径并在真机跑通，故保持 `[ ]`。提交：`efc88769`。
+- [x] 新增 `.github/workflows/secret-scan.yml`：push / PR 用 gitleaks 阻断新增泄露，手动或定时运行以固定版本 `v8.30.1` 输出全历史报告；CI `Secret Scan` run #1（`43200517750`）成功。这是「撤销已泄露的 classic PAT 并从 git 历史中清除」任务里已完成的代码子项；账号侧撤销与历史清除仍需人工执行与授权，故该任务保持 `[ ]`。提交：`efc88769`。
+- [x] 修正 `.github/workflows/performance-test.yml`：schedule 分支不再无条件 `use_mock = True`，统一为 `use_mock = not base`，mock 运行输出 warning 并在报告标题 / Environment 标注 `MOCK DATA`；两段内联 Python 已通过 AST 与 4 个场景校验。这是「把性能流水线指向真实 staging 目标」任务里已完成的代码子项；`PERF_BASE_URL` 仍未设置、也未针对真实服务验证过，故该任务保持 `[ ]`。提交：`efc88769`。
