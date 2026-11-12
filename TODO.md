@@ -7,150 +7,133 @@
 
 ## 可执行任务（完成后按 DEVELOPMENT.md 流程移除）
 
-Source: read-only compliance audit of `apps/` against DEVELOPMENT.md, CHECK_LIST.md
-and CODE_PINCEPLES (2026-11-12). These are pre-existing compliance debts, not work
-done in that session. All items below are OPEN; per DEVELOPMENT.md step 4 and
-CHECK_LIST.md rule 2 each one records the problem and a suggested fix.
+本文件用中文记录任务；文件名、路径、代码标识符、命令、提交号等技术内容保留原文。
 
-Regrouped on 2026-11-12 by **what is needed to close each item**, replacing the
-earlier topic-based sections. Four groups: local-only work, decisions that must
-be made by a person, environment / permission / external-service requirements,
-and items needing both. Every item now carries a `Gate:` line with its closing
-conditions, plus `Decision:` and/or `Requires:` lines naming the exact missing
-input or resource. Keep an item as `[ ]` until a CHECK_LIST.md verification
-passes, then move it to the archive below. Original Problem / Suggestion text
-is preserved so the audit evidence is not lost.
+来源：2026-11-12 对 `apps/` 依据 DEVELOPMENT.md、CHECK_LIST.md 与 CODE_PINCEPLES 所做的只读合规审计。这些是既有的合规欠账，不是当次会话产生的工作。以下均为未完成项；按 DEVELOPMENT.md 第 4 步和 CHECK_LIST.md 第 2 条，每条都记录问题与建议修改方式。
 
-The three PAT / performance / reproducible-install items are carry-overs
-reported in the 2026-11-09 CI cleanup that the compliance-audit rewrite
-dropped; they were re-verified against the repository and GitHub on 2026-11-12.
-The fourth carry-over (env-default test hermeticity) was fixed on 2026-11-12
-and moved to the archive.
+2026-11-12 按**关闭每条任务所需的条件**重新分组，取代原先按主题的分节。共四组：本机即可闭环的工作、必须由人工决策的工作、需要环境／权限／外部服务的工作、以及两者都需要的工作。每条都有「关闭条件」（通过验收的要求），以及「需决策」／「环境要求」行，写明具体缺什么。在 CHECK_LIST.md 验证通过前保持 `[ ]`，通过后移入下方归档区。原有的「问题」「建议」全文保留，避免丢失审计证据。
 
-### 1. Local-only (no decision or external resource needed)
+其中 PAT、性能流水线、可复现安装三条来自 2026-11-09 的 CI 清理遗留项，合规审计重写时被漏掉；2026-11-12 已对照仓库与 GitHub 重新核实。第四条遗留项（env 默认值测试的隔离性）已于 2026-11-12 修复并归档。
 
-These can be implemented and verified on this host without any input or
-additional service.
+### 1. 本机可闭环（无需决策或外部资源）
 
-- [ ] Stop persisting the plaintext login password in `apps/backstage-admin`.
-  - Problem: `src/stores/user.ts:25` assigns `loginParam.password` into `userInfo.value.password`, and `:64` enables `persist: true`, so the credential is written to browser storage.
-  - Suggestion: Remove the password field from the store state and its persisted payload, keep only the token / user profile, and rotate or clear any already persisted value.
-  - Gate: Remove the field and its persisted payload, add a migration that deletes any previously stored value, add a unit test, and pass `vue-tsc --build` plus vitest. No external input is needed; the default is to keep the existing session and only clear the stored credential, without forcing a re-login.
+这些任务在本机即可实现并验证，不需要任何额外输入或服务。
 
-### 2. Decision-gated (needs a human choice)
+- [ ] 停止在 `apps/backstage-admin` 中持久化明文登录密码。
+  - 问题：`src/stores/user.ts:25` 把 `loginParam.password` 赋给 `userInfo.value.password`，且 `:64` 开启 `persist: true`，导致凭据被写入浏览器存储。
+  - 建议：从 store 状态及其持久化数据中移除密码字段，只保留 token / 用户资料，并对已持久化的值做轮换或清理。
+  - 关闭条件：移除该字段及其持久化数据，增加迁移逻辑删除历史存储值，补一个单测，并通过 `vue-tsc --build` 与 vitest。无需外部输入；默认做法是保留当前会话、仅清理已存储的凭据，不强制重新登录。
 
-The code work is local, but a product / contract / acceptance decision must be
-made first or the fix risks being reverted.
+### 2. 需人工决策（必须先做出选择）
 
-- [ ] Harden Electron renderer isolation in `apps/digital-twin/system-management`.
-  - Problem: `src/main/app-lifecycle.ts:49-50` and `src/main/browser/subtitles-window.ts:45-46` both set `nodeIntegration: true` and `contextIsolation: false`; `app-lifecycle.ts:2,54-55` initializes and enables `@electron/remote`; `src/main/preload.ts:7-37` exposes an unrestricted `send` / `receive` / `ipcSendSync` bridge with no channel allowlist, and `preload.ts:8` swallows invoke errors. A renderer-side XSS therefore reaches Node and IPC directly (RCE).
-  - Suggestion: Set `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`, remove `@electron/remote`, keep a preload bridge that exposes only an explicit `IPC_CHANNELS` allowlist, and rethrow or surface invoke errors. Verify local content loads only over `file://` and that every IPC handler validates its input.
-  - Decision: Confirm the renderer-side IPC call sites before shrinking the bridge; an allowlist is a breaking contract change. Choose whether to keep a temporary compatibility shim.
-  - Gate: Apply the BrowserWindow / preload / remote changes, rethrow invoke errors, enumerate and validate every IPC handler's input, then launch both BrowserWindows and record the result. A GUI session is available on this Windows host; a CI headless run would additionally need xvfb and the Electron binary.
+编码工作在本机即可完成，但需要先定下产品／接口／验收口径，否则修完可能被推翻。
 
-- [ ] Add authentication and bind the digital-twin local HTTP server to loopback.
-  - Problem: `src/main/http-server.ts:30` sends `Access-Control-Allow-Origin: *`, `:60` calls `listen(this.port)` with no host (all interfaces), and the routes at `:41-56` (screenshot, directory read, video merge, token, TTS synthesize/download/delete) have no authentication.
-  - Suggestion: Bind to `127.0.0.1`, replace the wildcard CORS header with an explicit origin or remove it, require a per-session token on every mutating or sensitive route, and validate path inputs in the directory / screenshot controllers.
-  - Decision: Choose the per-session token scheme and confirm the callers of this local HTTP server (external digital-twin processes may rely on the current unauthenticated routes). Adding auth is a breaking interface change.
-  - Gate: Bind to `127.0.0.1`, remove the wildcard CORS header, enforce the token on every sensitive route, validate path inputs, and confirm the known callers still work.
+- [ ] 加固 `apps/digital-twin/system-management` 的 Electron 渲染进程隔离。
+  - 问题：`src/main/app-lifecycle.ts:49-50` 与 `src/main/browser/subtitles-window.ts:45-46` 都设置了 `nodeIntegration: true` 和 `contextIsolation: false`；`app-lifecycle.ts:2,54-55` 初始化并启用 `@electron/remote`；`src/main/preload.ts:7-37` 暴露了不受限制的 `send` / `receive` / `ipcSendSync` 桥接，没有频道白名单，且 `preload.ts:8` 吞掉 invoke 错误。渲染进程的 XSS 因此能直接触达 Node 与 IPC（RCE）。
+  - 建议：设置 `contextIsolation: true`、`nodeIntegration: false`、`sandbox: true`，移除 `@electron/remote`，preload 桥接只暴露显式的 `IPC_CHANNELS` 白名单，并重新抛出或向上暴露 invoke 错误。确认本地内容仅通过 `file://` 加载，且每个 IPC handler 都校验输入。
+  - 需决策：收窄桥接前先确认渲染进程侧的 IPC 调用点；白名单属于破坏性接口变更。选择是否保留临时兼容层。
+  - 关闭条件：完成 BrowserWindow / preload / remote 的改动，重新抛出 invoke 错误，逐一列出并校验每个 IPC handler 的输入，然后启动两个 BrowserWindow 并记录结果。本机 Windows 有图形界面可直接验证；若放到 CI 无头运行，还需 xvfb 和 Electron 二进制。
 
-- [ ] Bring per-app test coverage up to the project's test framework requirements.
-  - Problem: `backstage-admin` has 1 test file (`tests/env.spec.ts`) for 93 handwritten `src/apis/` modules; `apps/client` has 9 test files, all in the `lib` layer, with no component / screen coverage and a disabled e2e suite; `digital-twin/system-management` has 7 unit test files plus `playwright.config.ts` and one `src/renderer/e2e/scene.spec.ts`, with no responsive / visual / performance coverage.
-  - Suggestion: Add tests for API modules and critical pages/screens in each app, make the e2e specs runnable in CI, and assert behavior rather than absence of exceptions.
-  - Decision: Fix the acceptance bar. DEVELOPMENT.md only says "add tests matching the project's test framework"; if a numeric coverage threshold is required, the target percentage must be chosen first. Behavioural assertions can be written without it.
-  - Gate: Add API-module and critical page/screen tests in all three apps that assert behaviour rather than `not.toThrow()`, make the e2e specs runnable in CI, and re-run each app's typecheck and tests.
+- [ ] 为 digital-twin 本地 HTTP 服务增加鉴权并绑定到回环地址。
+  - 问题：`src/main/http-server.ts:30` 返回 `Access-Control-Allow-Origin: *`，`:60` 调用 `listen(this.port)` 未指定主机（监听所有网卡），`:41-56` 的路由（截屏、目录读取、视频合并、token、TTS 合成/下载/删除）没有任何鉴权。
+  - 建议：绑定 `127.0.0.1`，把通配 CORS 头换成显式来源或直接去掉，对所有变更类或敏感路由要求逐会话 token，并在目录 / 截屏控制器里校验路径输入。
+  - 需决策：确定逐会话 token 方案，并确认这个本地 HTTP 服务的调用方（外部数字孪生程序可能依赖当前无鉴权的路由）。加鉴权是破坏性接口变更。
+  - 关闭条件：绑定 `127.0.0.1`、去掉通配 CORS 头、每条敏感路由强制 token、校验路径输入，并确认已知调用方仍可正常工作。
 
-- [ ] Clean up code-principle violations across all three clients.
-  - Problem: DEVELOPMENT.md `:82-85` requires English-only code text (except i18n), functions under 20 lines, no swallowed exceptions, no hidden shared state and guard clauses. A static scan of `src/` found Chinese text on 5751 lines in backstage-admin, 891 in client and 509 in digital-twin (i18n strings must be separated from comments/logs during the fix); catch blocks number 581 / 15 / 65 respectively, and several only log and return; the audit also reported a roughly 227-line function in the digital-twin controllers (re-measure before fixing).
-  - Suggestion: Work app by app: translate comments, logs and error strings (keep i18n resources as the only Chinese text), turn logged-and-ignored catches into explicit error states or rethrows, and split functions over 20 lines. Re-run each app's typecheck and tests after each pass.
-  - Decision: Define which Chinese strings count as i18n resources (only those may stay). The 5751 / 891 / 509 line counts mix i18n text, comments, logs and error strings, so a path-based classification rule must be agreed before a bulk rewrite.
-  - Gate: Work app by app, translate comments / logs / errors to English, turn logged-and-ignored catches into explicit error states or rethrows, split functions over 20 lines (re-measure the reported ~227-line controller first), and pass typecheck plus tests after each pass.
+- [ ] 把各 app 的测试覆盖补齐到项目的测试框架要求。
+  - 问题：`backstage-admin` 只有 1 个测试文件（`tests/env.spec.ts`），却对应 93 个手写 `src/apis/` 模块；`apps/client` 有 9 个测试文件，全在 `lib` 层，没有组件 / 页面覆盖，且 e2e 套件被禁用；`digital-twin/system-management` 有 7 个单测文件，另有 `playwright.config.ts` 和一个 `src/renderer/e2e/scene.spec.ts`，没有响应式 / 视觉 / 性能覆盖。
+  - 建议：为每个 app 的 API 模块与关键页面 / 屏幕补测试，让 e2e 用例能在 CI 运行，并断言行为而不是「没有抛异常」。
+  - 需决策：先确定验收口径。DEVELOPMENT.md 只写了「add tests matching the project's test framework」；若要求数值化的覆盖率门槛，必须先定目标百分比。行为断言本身不依赖它，可以先写。
+  - 关闭条件：三个 app 都补上 API 模块与关键页面 / 屏幕的测试，断言行为而非 `not.toThrow()`，让 e2e 用例可在 CI 运行，并重跑各 app 的 typecheck 与测试。
 
-- [ ] Close the responsive and accessibility gaps in all three clients.
-  - Problem: Static scan of `src/`: `@media` appears in 4 backstage-admin files and 0 files in the other two apps; `aria-*` hits are 1 / 0 / 21 and `useWindowDimensions` / `Dimensions` hits are 0 / 1 / 0; `apps/backstage-admin/src/styles/index.scss:32,37` remove focus outlines with `outline: none`; `apps/client` has no accessibility props or ErrorBoundary and locks orientation to portrait (`app.config.ts:9`, `android/app/src/main/AndroidManifest.xml:19`); `digital-twin` has no media queries.
-  - Suggestion: Add breakpoints and flexible layouts per app, restore visible focus states, add semantic labels / `aria-*` or `accessibilityLabel` / `accessibilityRole`, and add an ErrorBoundary plus user-visible degradation for load failures (FRONTEND_PRICEPLES sections 7 and 8).
-  - Decision: Provide the design baseline / breakpoint values (no design source is in the repository). Without it the default is a conventional breakpoint set submitted as a reviewable change.
-  - Gate: Add breakpoints and flexible layouts in all three apps, restore visible focus states, add semantic labels / `aria-*` / `accessibilityLabel` / `accessibilityRole`, add an ErrorBoundary with user-visible degradation, and verify with each app's checks.
+- [ ] 清理三个客户端里的代码原则违规项。
+  - 问题：DEVELOPMENT.md `:82-85` 要求代码文本一律英文（i18n 除外）、函数不超过 20 行、不吞异常、无隐藏共享状态、使用卫语句。对 `src/` 的静态扫描发现中文文本：backstage-admin 5751 行、client 891 行、digital-twin 509 行（修复时须把 i18n 文案与注释/日志区分开）；catch 块分别为 581 / 15 / 65 个，其中若干只记录日志就返回；审计还报告 digital-twin 控制器里约 227 行的函数（修复前重新测量）。
+  - 建议：按 app 逐个处理：翻译注释、日志与错误文案（只保留 i18n 资源作为中文），把「记录后忽略」的 catch 改成显式错误状态或重新抛出，拆分超过 20 行的函数。每轮之后重跑该 app 的 typecheck 与测试。
+  - 需决策：界定哪些中文字符串属于 i18n 资源（只有这些可以保留）。5751 / 891 / 509 行里混有 i18n 文案、注释、日志和错误字符串，批量改写前须先商定基于路径的分类规则。
+  - 关闭条件：按 app 逐个把注释 / 日志 / 错误文案改为英文，把记录后忽略的 catch 改成显式错误状态或重新抛出，拆分超过 20 行的函数（先重新测量那个约 227 行的控制器），每轮都通过 typecheck 与测试。
 
-- [ ] Reconcile the `apps/backstage-admin` API client with DEVELOPMENT.md section 3.
-  - Problem: `package.json:18` defines `generate:api` and `tools/generate-api.cjs` calls the shared `apps/tools/OpenApiToTS.js` whose default output is `src/generated/api`, but that directory does not exist; the app instead calls 93 handwritten modules under `src/apis/`.
-  - Suggestion: Either run the generator and migrate consumers to the generated client, or document the deliberate deviation (including why the handwritten modules are kept and how they stay in sync) in DEVELOPMENT.md and the app README.
-  - Decision: Choose one of the two routes in the suggestion: run the generator and migrate the 93 handwritten modules, or document the deliberate deviation. Decide together with "Align DEVELOPMENT.md section 3" below, otherwise the two changes conflict.
-  - Requires (generator route only): a reachable backend OpenAPI document and the generator toolchain.
-  - Gate: Either migrate the consumers and produce `src/generated/api/`, or land the documented deviation in DEVELOPMENT.md and the app README with an explicit sync mechanism.
+- [ ] 补齐三个客户端的响应式与可访问性缺口。
+  - 问题：对 `src/` 的静态扫描：`@media` 只出现在 backstage-admin 的 4 个文件，另外两个 app 为 0；`aria-*` 命中数 1 / 0 / 21，`useWindowDimensions` / `Dimensions` 命中数 0 / 1 / 0；`apps/backstage-admin/src/styles/index.scss:32,37` 用 `outline: none` 移除了焦点轮廓；`apps/client` 没有无障碍属性，也没有 ErrorBoundary，并把方向锁死为竖屏（`app.config.ts:9`、`android/app/src/main/AndroidManifest.xml:19`）；`digital-twin` 没有媒体查询。
+  - 建议：为每个 app 增加断点与弹性布局，恢复可见焦点态，补充语义标签 / `aria-*` 或 `accessibilityLabel` / `accessibilityRole`，并增加 ErrorBoundary 与加载失败时用户可感知的降级表现（FRONTEND_PRICEPLES 第 7、8 节）。
+  - 需决策：提供设计基准 / 断点取值（仓库里没有设计稿）。若没有，默认采用通用断点集，并以可评审的变更提交。
+  - 关闭条件：三个 app 都加上断点与弹性布局、恢复可见焦点态、补充语义标签 / `aria-*` / `accessibilityLabel` / `accessibilityRole`、加入带用户可见降级的 ErrorBoundary，并用各 app 的检查验证。
 
-- [ ] Align DEVELOPMENT.md section 3 with the actual env and generator contracts.
-  - Problem: `DEVELOPMENT.md:49-58` requires `.env.development` to define `NEXT_PUBLIC_BACK_API_HOST` / `NEXT_PUBLIC_BACK_API_DOC_HOST` and `src/generated/api/` output for both apps. In reality `backstage-admin/.env.development` only sets `VITE_BLOCKCHAIN_ENABLED=true` and its generator reads `.env,.env.local` with `VITE_BASE_SERVER_URL` / `VITE_API_DOC_HOST`; `apps/client` keeps the `NEXT_PUBLIC_*` variables in `.env` and has 1536 generated files; `digital-twin` correctly has no `generate:api` and 5 handwritten type files. The doc and both implementations disagree.
-  - Suggestion: Pick one env-file / variable convention, update the three apps and `.env.example` files accordingly, and rewrite section 3 to describe the real per-app behavior, including the digital-twin exception.
-  - Decision: Pick one env-file / variable convention across the three apps (`NEXT_PUBLIC_*` vs `VITE_*`, `.env.development` vs `.env`). Decide together with "Reconcile the backstage-admin API client" above.
-  - Gate: Update the three apps and the `.env.example` files, then rewrite DEVELOPMENT.md section 3 to describe the real per-app behaviour including the digital-twin exception.
+- [ ] 让 `apps/backstage-admin` 的 API 客户端与 DEVELOPMENT.md 第 3 节保持一致。
+  - 问题：`package.json:18` 定义了 `generate:api`，`tools/generate-api.cjs` 调用共享的 `apps/tools/OpenApiToTS.js`，其默认输出为 `src/generated/api`，但该目录不存在；应用实际调用的是 `src/apis/` 下 93 个手写模块。
+  - 建议：要么运行生成器并把调用方迁移到生成的客户端，要么在 DEVELOPMENT.md 与 app README 中记录这一有意偏离（包括为何保留手写模块、以及如何保持同步）。
+  - 需决策：在建议的两条路线中二选一：运行生成器并迁移 93 个手写模块，或记录有意偏离。需与下面「对齐 DEVELOPMENT.md 第 3 节」一起决定，否则两处改动会冲突。
+  - 环境要求（仅生成器路线）：后端 OpenAPI 文档可访问，且生成器工具链可用。
+  - 关闭条件：要么迁移调用方并产出 `src/generated/api/`，要么把偏离说明落到 DEVELOPMENT.md 与 app README，并写明同步机制。
 
-### 3. Environment / permission-gated (needs a device, account or service)
+- [ ] 让 DEVELOPMENT.md 第 3 节与实际的 env 和生成器契约对齐。
+  - 问题：`DEVELOPMENT.md:49-58` 要求 `.env.development` 定义 `NEXT_PUBLIC_BACK_API_HOST` / `NEXT_PUBLIC_BACK_API_DOC_HOST`，且两个 app 都输出到 `src/generated/api/`。实际上 `backstage-admin/.env.development` 只设置了 `VITE_BLOCKCHAIN_ENABLED=true`，其生成器读取 `.env,.env.local` 中的 `VITE_BASE_SERVER_URL` / `VITE_API_DOC_HOST`；`apps/client` 把 `NEXT_PUBLIC_*` 变量放在 `.env`，并有 1536 个生成文件；`digital-twin` 正确地没有 `generate:api`，只有 5 个手写类型文件。文档与两处实现都不一致。
+  - 建议：选定一套 env 文件 / 变量约定，同步更新三个 app 与 `.env.example` 文件，并重写第 3 节描述各 app 的真实行为，包含 digital-twin 的例外。
+  - 需决策：在三个 app 间选定唯一一套 env 文件 / 变量约定（`NEXT_PUBLIC_*` 还是 `VITE_*`，`.env.development` 还是 `.env`）。需与上面「让 backstage-admin API 客户端与第 3 节一致」一起决定。
+  - 关闭条件：更新三个 app 与 `.env.example` 文件，重写 DEVELOPMENT.md 第 3 节，描述各 app 的真实行为并包含 digital-twin 的例外。
 
-The remaining code work is small and local, but closing the item requires a
-runtime that is not available in a plain checkout.
+### 3. 需环境 / 权限（设备、账号或外部服务）
 
-- [ ] Re-enable the `apps/client` e2e suite and repair its config.
-  - Problem: `e2e/setup.ts:28` assigned `global.describe = global.describe.skip`, which permanently disabled every detox spec; `e2e/jest.config.js` was a bare object literal with no `module.exports`, and `require()` failed with `Unexpected token ':'`. Both code defects were fixed on 2026-11-12: the skip now requires an explicit `E2E_SKIP=1`, the config exports a module and `setupFilesAfterEnv` points at `<rootDir>/setup.ts`. Still open: no detox spec has been run on a simulator or device, and no CI job runs the suite.
-  - Additional findings (2026-11-12): four pre-existing defects still block any device run and were not recorded above. `e2e/setup.ts` imports `detox-adapter-jest` and `detox-matchers`, neither declared in `package.json` (they appear nowhere else in the repo); `e2e/jest.config.js:5` reporters include the undeclared `detox-runner-reporter`; `e2e/detox.config.js` uses the pre-Detox-20 `composition` / `session` shape, sits outside the default `.detoxrc.js` path, and line 18 contains a stray non-ASCII key `油脂: 'keep'`; `e2e/app.spec.ts:3-13` imports `../pages` while the page objects live at `e2e/pages/index.ts`. These can be fixed locally.
-  - Suggestion: Run at least one real spec with `E2E_SKIP` unset (CI or a documented manual device check) and record the result before removing this item. Do not reintroduce a global skip.
-  - Requires: A simulator or connected device - Android SDK plus an emulator image (possible on this Windows host), or macOS + Xcode for the configured `iPhone 15 Pro` / iOS 17.0 device. Keeping the suite enabled long-term needs a CI job with the same runtime or a documented manual device check.
-  - Gate: Declare the missing dependencies, rewrite the config for Detox 20, fix the spec import, then run at least one real spec with `E2E_SKIP` unset and record the result.
+剩余的代码改动很小、也能在本机完成，但关闭该项需要普通检出环境里没有的运行时。
 
-### 4. Decision + environment gated (needs both)
+- [ ] 重新启用 `apps/client` 的 e2e 套件并修复其配置。
+  - 问题：`e2e/setup.ts:28` 曾赋值 `global.describe = global.describe.skip`，导致所有 detox 用例永久失效；`e2e/jest.config.js` 是裸对象字面量、缺少 `module.exports`，`require()` 报 `Unexpected token ':'`。这两处代码缺陷已于 2026-11-12 修复：跳过现在需要显式 `E2E_SKIP=1`，配置已导出模块且 `setupFilesAfterEnv` 指向 `<rootDir>/setup.ts`。仍未完成：没有任何 detox 用例在模拟器或真机上跑过，也没有 CI job 运行该套件。
+  - 补充发现（2026-11-12）：还有 4 处既有缺陷会阻断任何真机运行，上面没有记录。`e2e/setup.ts` 导入的 `detox-adapter-jest` 与 `detox-matchers` 都未在 `package.json` 声明（全仓仅出现在该文件的引用里）；`e2e/jest.config.js:5` 的 reporters 含未声明的 `detox-runner-reporter`；`e2e/detox.config.js` 用的是 Detox 20 之前的 `composition` / `session` 结构，且不在默认 `.detoxrc.js` 路径，第 18 行还有非 ASCII 字段 `油脂: 'keep'`；`e2e/app.spec.ts:3-13` 导入 `../pages`，而页面对象实际在 `e2e/pages/index.ts`。这些都可以在本机修复。
+  - 建议：至少运行一条真实用例（`E2E_SKIP` 不设置，CI 或有记录的手动真机检查均可）并记录结果，之后才能移除本项。不要重新引入全局跳过。
+  - 环境要求：需要模拟器或已连接的真机 —— Android SDK 加模拟器镜像（本机 Windows 可行），或者 macOS + Xcode 才能跑配置里的 `iPhone 15 Pro` / iOS 17.0 设备。要长期保持套件可用，还需要具备同等运行时的 CI job，或一份有记录的手动真机检查。
+  - 关闭条件：补齐缺失依赖、按 Detox 20 重写配置、修正 spec 导入路径，然后在 `E2E_SKIP` 不设置的情况下至少跑通一条真实用例并记录结果。
 
-Each item needs an explicit approval or contract decision **and** an external
-resource (device build, account permission, reachable service or CI runtime).
+### 4. 需决策 + 环境（两者缺一不可）
 
-- [ ] Fix auth token storage in `apps/client`.
-  - Problem: `src/lib/api/interceptors.ts:8,13,18` read and write `auth_token` via `localStorage`, which is not available in a React Native runtime (no polyfill found in the app) and is not secure storage; a token written there is both a runtime `ReferenceError` risk and plaintext at rest.
-  - Suggestion: Use `expo-secure-store` / `SecureStore` (or the platform keystore) through a single token-storage module, add an expiry/refresh path, and add a test that the storage API is available on the target runtime.
-  - Decision: Approve adding the `expo-secure-store` native dependency and choose the expiry / refresh policy.
-  - Requires: A rebuilt Expo dev client (`expo run:android` or an EAS dev build). SecureStore is a native module and cannot be exercised in Expo Go, and the target-runtime availability test needs such a build.
-  - Gate: Route all token reads / writes through one SecureStore-backed module, add expiry / refresh handling, add a test asserting the storage API is available on the target runtime, and verify on a built dev client.
+每一项都既需要明确的批准或接口决策，又需要外部资源（设备构建、账号权限、可达服务或 CI 运行时）。
 
-- [ ] Replace the throw-instead-of-implementation auth flows in `apps/client`.
-  - Problem: `contexts/AuthContext.tsx:237-238`, `:274-275`, `:285-286` consist of a TODO comment plus `throw new Error(...)` in Chinese for phone login, verification code, and forgot-password; the real implementations are commented out. CHECK_RULE.md forbids an exception in place of an implementation.
-  - Suggestion: Wire the three flows to the generated API endpoints, keep English error messages, and cover success / failure / rate-limit cases with unit tests; remove the dead commented code.
-  - Decision: Provide the three endpoint contracts (phone login, verification code, forgot password) and decide whether the implementation targets the live backend or a contract-level implementation. Also choose the allowed stub boundary for SMS and rate-limit tests.
-  - Requires: A reachable auth API or its OpenAPI spec, a verification-code provider, and a rate-limit fixture for the failure tests.
-  - Gate: Wire the three flows, keep English error messages, cover success / failure / rate-limit with unit tests, remove the dead commented code, and pass the app's typecheck and tests.
+- [ ] 修复 `apps/client` 的鉴权 token 存储。
+  - 问题：`src/lib/api/interceptors.ts:8,13,18` 通过 `localStorage` 读写 `auth_token`，而 React Native 运行时没有该 API（app 里也没找到 polyfill），且它不是安全存储；写进去的 token 既可能触发运行时 `ReferenceError`，又以明文落盘。
+  - 建议：通过单一 token 存储模块使用 `expo-secure-store` / `SecureStore`（或平台 keystore），增加过期 / 刷新路径，并补一个测试确认目标运行时上该存储 API 可用。
+  - 需决策：批准新增 `expo-secure-store` 原生依赖，并确定过期 / 刷新策略。
+  - 环境要求：需要重新构建 Expo dev client（`expo run:android` 或 EAS dev build）。SecureStore 是原生模块，Expo Go 里无法验证，目标运行时可用性测试也需要这样的构建。
+  - 关闭条件：所有 token 读写收敛到一个基于 SecureStore 的模块，加入过期 / 刷新处理，补一个断言目标运行时存储 API 可用的测试，并在构建好的 dev client 上验证。
 
-- [ ] Implement the FRONTEND_PRICEPLES visual and five-dimension quality gates.
-  - Problem: Section 6 (`:49-50`) requires an executable visual quality detection mechanism with quantified diff criteria; section 9 (`:68-69`) requires automated coverage of structural correctness, responsive layout, visual consistency, performance metrics and basic accessibility. No visual / screenshot / a11y / performance test file exists anywhere under `apps/`. Existing performance assertions only check `not.toThrow()` (e.g. `AlertFlow.test.tsx:695`, `RealTimeDataDisplay.test.tsx:226`).
-  - Suggestion: Add a runnable screenshot-diff / visual regression job with an explicit pixel or perceptual threshold, plus a11y and performance budgets wired into CI; decide the tool per app (Playwright for the two web frontends, a device-matrix snapshot runner for the Expo app).
-  - Decision: Choose the tool per app, the numeric visual diff threshold (pixel or perceptual), who approves the baseline screenshots, and the a11y / performance budget numbers. FRONTEND_PRICEPLES sections 6 and 9 demand quantified criteria but specify no values.
-  - Requires: Playwright browser binaries and baseline images for the two web frontends, a device-matrix snapshot runner for the Expo app, and a CI job able to store and compare baselines.
-  - Gate: Land a runnable screenshot-diff job with an explicit threshold, plus a11y and performance budgets wired into CI, and show one green and one intentionally failing run as evidence.
+- [ ] 替换 `apps/client` 里用抛异常代替实现的三个鉴权流程。
+  - 问题：`contexts/AuthContext.tsx:237-238`、`:274-275`、`:285-286` 在手机号登录、验证码、忘记密码三处只有 TODO 注释加中文 `throw new Error(...)`，真实实现被注释掉。CHECK_RULE.md 禁止用抛异常代替实现。
+  - 建议：把三个流程接到生成的 API 端点，错误消息保持英文，用单测覆盖成功 / 失败 / 限流场景，删掉无用的注释代码。
+  - 需决策：提供三个端点的契约（手机号登录、验证码、忘记密码），并决定实现对接真实后端还是按契约实现。还要确定短信与限流测试允许的 stub 边界。
+  - 环境要求：可访问的 auth API 或其 OpenAPI spec、验证码服务提供方，以及失败用例所需的限流 fixture。
+  - 关闭条件：接通三个流程、错误消息保持英文、用单测覆盖成功 / 失败 / 限流、删除注释掉的死代码，并通过该 app 的 typecheck 与测试。
 
-- [ ] Revoke the exposed classic PAT and purge it from git history.
-  - Problem: Commit `3c07b882` (2026-05-26) stores a plaintext `ghp_…` token in `package.json` `repository.url`; the value is still readable from the object database even though the current `package.json`, `.git/config` and `remote.origin.url` are clean and `lefthook.yml:23-28` now rejects new tokens in added lines. The historical token already returns HTTP 401, but it was never revoked or purged. `~/.git-credentials` does not exist on this machine (`credential.helper=manager` stores credentials in the Windows Credential Manager), so the working classic PAT reported on 2026-11-09 must be checked and revoked in GitHub Settings rather than deleted from a file. A CI secret scan was added on 2026-11-12 (`.github/workflows/secret-scan.yml`): it blocks newly introduced secrets on every push and PR and reports full-history findings on manual or scheduled runs.
-  - Suggestion: Still open: delete/revoke the classic PATs in GitHub Settings, replace them with a fine-grained PAT or the OS credential manager, and purge the historical value (`git filter-repo` / BFG) with a coordinated force-push and post-purge rotation. If a history rewrite is rejected, record the accepted risk explicitly. Remove this item only after the account-side actions are confirmed.
-  - Decision: Authorise (or reject) a git history rewrite. A `filter-repo` / BFG purge changes every commit hash, affects all collaborators, forks, open PRs and CI references, and needs a coordinated force-push. If rejected, the alternative is to record the accepted risk explicitly.
-  - Requires: GitHub account access to Settings -> Developer settings to revoke the classic PATs, repository admin rights for a force-push, coordination with every collaborator, and a post-purge credential rotation. The working credential is in the Windows Credential Manager, not `~/.git-credentials`.
-  - Gate: Confirm the revocation in GitHub Settings, replace the credential with a fine-grained PAT or the OS credential manager, purge the historical value with a coordinated force-push (or record the accepted risk), and re-run the full-history secret report.
+- [ ] 落地 FRONTEND_PRICEPLES 的视觉与五维质量门禁。
+  - 问题：第 6 节（`:49-50`）要求可执行的视觉质量检测机制和量化差异标准；第 9 节（`:68-69`）要求自动化覆盖结构正确性、响应式布局、视觉一致性、性能指标与基础可访问性。`apps/` 下没有任何视觉 / 截图 / a11y / 性能测试文件。现有性能断言只检查 `not.toThrow()`（如 `AlertFlow.test.tsx:695`、`RealTimeDataDisplay.test.tsx:226`）。
+  - 建议：增加可运行的截图 diff / 视觉回归任务并给出明确的像素或感知阈值，把 a11y 与性能预算接入 CI；按 app 选工具（两个 web 前端用 Playwright，Expo app 用设备矩阵截图运行器）。
+  - 需决策：确定每个 app 的工具、视觉差异的数值阈值（像素或感知）、基线截图由谁批准，以及 a11y / 性能预算的具体数值。FRONTEND_PRICEPLES 第 6、9 节要求量化标准，但没有给出数值。
+  - 环境要求：两个 web 前端需要 Playwright 浏览器二进制与基线图片，Expo app 需要设备矩阵截图运行器，还需要能存储并比对基线的 CI job。
+  - 关闭条件：落地带明确阈值的可运行截图 diff 任务，把 a11y 与性能预算接入 CI，并给出一次通过、一次故意失败的运行作为证据。
 
-- [ ] Point the performance pipeline at a real staging target.
-  - Problem: `GET /repos/lotaway/meta-web-three/actions/variables` returns `total_count: 0`, so `vars.PERF_BASE_URL` is unset and every run still measures the built-in `127.0.0.1:18087` mock; runs #163–#165 are green but never touched a real service. On 2026-11-12 the unconditional `use_mock = True` in the schedule branch (formerly `:127`) was replaced with `use_mock = not base`, mock runs now emit a warning, and the report is labelled MOCK DATA so mock numbers cannot be read as staging results. Those code defects are fixed; the repository variable is still unset and no run has been verified against a real service.
-  - Suggestion: Set the `PERF_BASE_URL` repository/environment variable to a reachable staging gateway, re-run a `workflow_dispatch` and one scheduled run against it, and confirm the step output shows the real URL with `use_mock=false` before removing this item.
-  - Decision: Authorise load testing against staging, provide the target URL and a test window, and choose whether the daily schedule may hit it or only manual runs.
-  - Requires: A staging gateway reachable from `ubuntu-24.04` runners, repository / environment variable write permission for `PERF_BASE_URL`, and `workflow_dispatch` permission.
-  - Gate: Set the variable, run one `workflow_dispatch` and one scheduled run, and confirm the step output shows the real URL with `use_mock=false` and no MOCK DATA label.
+- [ ] 撤销已泄露的 classic PAT 并从 git 历史中清除。
+  - 问题：提交 `3c07b882`（2026-05-26）在 `package.json` 的 `repository.url` 里存了明文 `ghp_…` token；虽然当前 `package.json`、`.git/config` 与 `remote.origin.url` 都已清理，且 `lefthook.yml:23-28` 现在会拒绝新增行里的 token，但该值仍可从对象库读出。这个历史 token 已返回 HTTP 401，但从未被撤销或清除。本机不存在 `~/.git-credentials`（`credential.helper=manager` 把凭据存在 Windows 凭据管理器里），所以 2026-11-09 报告的那个仍在使用的 classic PAT 必须到 GitHub Settings 里核查并撤销，而不是删某个文件。2026-11-12 新增了 CI 密钥扫描（`.github/workflows/secret-scan.yml`）：每次 push 与 PR 阻断新引入的密钥，手动或定时运行时输出全历史报告。
+  - 建议：仍未完成：在 GitHub Settings 删除 / 撤销 classic PAT，换成细粒度 PAT 或操作系统凭据管理器，并用 `git filter-repo` / BFG 清除历史值，配合协同 force-push 与清除后的轮换。若不接受重写历史，需明确记录所接受的风险。只有在账号侧动作确认后才能移除本项。
+  - 需决策：批准（或拒绝）重写 git 历史。`filter-repo` / BFG 会改变每一个提交哈希，影响所有协作者、fork、未合并 PR 与 CI 引用，需要协同 force-push。若拒绝，替代方案是明确记录所接受的风险。
+  - 环境要求：需要 GitHub 账号 Settings -> Developer settings 权限来撤销 classic PAT、仓库管理员权限执行 force-push、与所有协作者协调、以及清除后的凭据轮换。正在使用的凭据在 Windows 凭据管理器里，不在 `~/.git-credentials`。
+  - 关闭条件：在 GitHub Settings 确认撤销，换成细粒度 PAT 或操作系统凭据管理器，通过协同 force-push 清除历史值（或记录所接受的风险），并重跑一次全历史密钥报告。
 
-- [ ] Add reproducible installs and an Electron runtime smoke check for `apps/digital-twin/system-management`.
-  - Problem: `d10f4015` added `.github/workflows/system-management-check.yml` (run #1 success), fixed the build context / Dockerfile / compose paths and added `npm run build:native`, `npm run typecheck` and `npm run test:run` in CI, which resolves the earlier "no CI builds it" gap. Still open: the four lockfiles present on the development machine (`apps/backstage-admin/package-lock.json`, `apps/client/yarn.lock`, `apps/client/turbo-module/appsdk/yarn.lock`, `apps/digital-twin/system-management/package-lock.json`) are all gitignored, so a clean checkout has none (the workflow comments at `:34-35` disable the package-manager cache for exactly this reason); `system-management/node_modules` is installed locally but does not make CI reproducible, `docker/Dockerfile:20-24` and the workflow `:49` both use unpinned `npm install --legacy-peer-deps`, neither runs `npm run rebuild:sqlite3` (the app declares `better-sqlite3 ^11.0.0`), and neither launches Electron (`ELECTRON_SKIP_BINARY_DOWNLOAD=1` at `docker/Dockerfile:4` and workflow `:48`). Native ABI regressions and the two insecure `BrowserWindow` configs tracked in "Harden Electron renderer isolation" above are therefore never exercised at runtime. A mirror gap on 2026-11-09 (`npmmirror` missing `@typescript-eslint/parser@8.72.2`) already broke installs; the mirror has since synced, but installs remain unpinned.
-  - Suggestion: Commit a lockfile for this app (then for the other `apps/*` packages), switch CI and Docker back to `npm ci`, pin the registry via `.npmrc`, add a CI step for `npm run rebuild:sqlite3` plus a headless Electron launch/smoke (or document the required manual device check), and record the result of a real-device run of both windows before removing this item. Confirm the lockfile decision first: an earlier instruction asked to drop tasks tied to node_modules content or git tracking state.
-  - Decision (resolve first): Confirm whether a lockfile may be committed for this app and then the other `apps/*` packages. This conflicts with the earlier instruction to drop tasks tied to node_modules content or git tracking state, so it must be answered explicitly before any install change.
-  - Requires: A headless Electron runtime in CI (xvfb, and lifting `ELECTRON_SKIP_BINARY_DOWNLOAD=1`), a pinned registry via `.npmrc`, and a real-device / GUI run of both BrowserWindows for the smoke result.
-  - Gate: Commit the lockfile, switch CI and Docker to `npm ci`, add `npm run rebuild:sqlite3`, add a headless Electron launch / smoke step, and record a real run of both windows.
+- [ ] 把性能流水线指向真实的 staging 目标。
+  - 问题：`GET /repos/lotaway/meta-web-three/actions/variables` 返回 `total_count: 0`，因此 `vars.PERF_BASE_URL` 未设置，每次运行测的都是内置的 `127.0.0.1:18087` mock；#163–#165 三次运行虽然全绿，但从未触达真实服务。2026-11-12 把 schedule 分支里无条件的 `use_mock = True`（原 `:127`）改为统一的 `use_mock = not base`，mock 运行现在会打 warning，报告也标注 MOCK DATA，避免把 mock 数字当成 staging 结果。这些代码缺陷已修复；仓库变量仍未设置，也没有任何一次运行针对真实服务验证过。
+  - 建议：把 `PERF_BASE_URL` 仓库 / 环境变量设为可达的 staging 网关，重跑一次 `workflow_dispatch` 和一次定时运行，确认步骤输出显示真实 URL 且 `use_mock=false`，之后才能移除本项。
+  - 需决策：批准对 staging 做压测，提供目标 URL 与测试窗口，并决定每日定时任务是否也打它、还是只允许手动运行。
+  - 环境要求：需要从 `ubuntu-24.04` runner 可达的 staging 网关、设置 `PERF_BASE_URL` 所需的仓库 / 环境变量写权限，以及 `workflow_dispatch` 权限。
+  - 关闭条件：设置变量后跑一次 `workflow_dispatch` 和一次定时运行，确认步骤输出显示真实 URL、`use_mock=false`，且没有 MOCK DATA 标注。
 
-## Completed Tasks (archived)
+- [ ] 为 `apps/digital-twin/system-management` 增加可复现安装与 Electron 运行时冒烟检查。
+  - 问题：`d10f4015` 新增了 `.github/workflows/system-management-check.yml`（run #1 成功），修正了构建上下文 / Dockerfile / compose 路径，并在 CI 里加入 `npm run build:native`、`npm run typecheck` 和 `npm run test:run`，解决了此前「没有 CI 构建它」的缺口。仍未完成：开发机上的 4 个 lockfile（`apps/backstage-admin/package-lock.json`、`apps/client/yarn.lock`、`apps/client/turbo-module/appsdk/yarn.lock`、`apps/digital-twin/system-management/package-lock.json`）都被 gitignore，干净检出时一个都没有（workflow `:34-35` 的注释正因如此才关闭包管理器缓存）；本机装了 `system-management/node_modules` 不代表 CI 可复现，`docker/Dockerfile:20-24` 与 workflow `:49` 都用未锁定的 `npm install --legacy-peer-deps`，两者都不执行 `npm run rebuild:sqlite3`（而 app 声明了 `better-sqlite3 ^11.0.0`），也都未启动 Electron（`docker/Dockerfile:4` 与 workflow `:48` 的 `ELECTRON_SKIP_BINARY_DOWNLOAD=1`）。因此原生 ABI 回归以及上面「加固 Electron 渲染进程隔离」里那两个不安全的 `BrowserWindow` 配置，从不在运行时被检验。2026-11-09 曾因镜像源缺 `@typescript-eslint/parser@8.72.2` 导致安装失败；该镜像已同步，但安装仍未锁定。
+  - 建议：为本 app 提交 lockfile（随后处理其他 `apps/*` 包），把 CI 与 Docker 改回 `npm ci`，用 `.npmrc` 锁定 registry，增加 `npm run rebuild:sqlite3` 的 CI 步骤以及无头 Electron 启动 / 冒烟检查（或记录所需的手动真机检查），并在移除本项前记录两个窗口的真实运行结果。先确认 lockfile 决策：早前有指令要求去掉与 node_modules 内容或 git 跟踪状态相关的任务。
+  - 需决策（优先解决）：确认是否允许为本 app、进而为其他 `apps/*` 包提交 lockfile。这与早前「去掉 node_modules / git 跟踪状态相关任务」的指令冲突，任何安装相关改动之前都必须明确回答。
+  - 环境要求：CI 里需要无头 Electron 运行时（xvfb，并取消 `ELECTRON_SKIP_BINARY_DOWNLOAD=1`）、通过 `.npmrc` 锁定 registry，以及两个 BrowserWindow 的真机 / 图形界面运行来取得冒烟结果。
+  - 关闭条件：提交 lockfile、把 CI 与 Docker 切回 `npm ci`、加入 `npm run rebuild:sqlite3`、加入无头 Electron 启动 / 冒烟步骤，并记录两个窗口的一次真实运行。
 
-English notes only. Each item was verified with CHECK_LIST.md before archival.
-Per DEVELOPMENT.md step 4, passed tasks are removed from the actionable list and
-recorded here as checked items.
+## 已完成任务（归档）
 
-- [x] Clear completed and unverifiable tasks from TODO.md. Commit: `57d1db9a`.
-- [x] Generate native types before typecheck in CI and Docker; fix the digital-twin build context, Dockerfile, compose paths and add the check workflow. Commit: `d10f4015`.
-- [x] Fix the pre-commit guards so they no longer fail on Windows; verify the hooks with staged probes. Commit: `ccb508d1`.
-- [x] Make `apps/backstage-admin` env-default tests hermetic with a pure `resolveEnv(vars)` factory and explicit-input tests. The reported 1/5 local failure could not be reproduced (5/5 passed); the real defect was the ambient `.env` dependency. Verified 8/8 under both default and non-default env files, plus `vue-tsc --build`. Commit: `efc88769`.
+仅用中文记录。每项归档前均已按 CHECK_LIST.md 验证。
+按 DEVELOPMENT.md 第 4 步，通过的任务从可执行列表移除，并在此以勾选项记录。
+
+- [x] 清理 TODO.md 中已完成与无法核实的任务。提交：`57d1db9a`。
+- [x] 在 CI 与 Docker 中于 typecheck 前生成原生类型；修正 digital-twin 构建上下文、Dockerfile、compose 路径并新增检查 workflow。提交：`d10f4015`。
+- [x] 修复预提交守卫在 Windows 下失败的问题；用暂存探针验证 hooks。提交：`ccb508d1`。
+- [x] 用纯函数 `resolveEnv(vars)` 与显式输入测试，使 `apps/backstage-admin` 的 env 默认值测试具备隔离性。报告中的本机 1/5 失败未能复现（实测 5/5 通过）；真正的缺陷是依赖外部环境 `.env`。已在默认与非默认 env 文件下验证 8/8 通过，并通过 `vue-tsc --build`。提交：`efc88769`。
