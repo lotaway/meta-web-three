@@ -13,6 +13,10 @@ done in that session. All items are OPEN; per DEVELOPMENT.md step 4 and CHECK_LI
 rule 2 each one records the problem and a suggested fix. Keep them as `[ ]` until a
 CHECK_LIST.md verification passes, then remove them.
 
+The final subsection additionally records carry-over items reported in the
+2026-11-09 CI cleanup that this rewrite dropped. Each was re-checked against the
+repository and GitHub on 2026-11-12; only the items confirmed still open are listed.
+
 ### Blocking / security
 
 - [ ] Harden Electron renderer isolation in `apps/digital-twin/system-management`.
@@ -70,6 +74,28 @@ CHECK_LIST.md verification passes, then remove them.
 - [ ] Align DEVELOPMENT.md section 3 with the actual env and generator contracts.
   - Problem: `DEVELOPMENT.md:49-58` requires `.env.development` to define `NEXT_PUBLIC_BACK_API_HOST` / `NEXT_PUBLIC_BACK_API_DOC_HOST` and `src/generated/api/` output for both apps. In reality `backstage-admin/.env.development` only sets `VITE_BLOCKCHAIN_ENABLED=true` and its generator reads `.env,.env.local` with `VITE_BASE_SERVER_URL` / `VITE_API_DOC_HOST`; `apps/client` keeps the `NEXT_PUBLIC_*` variables in `.env` and has 1536 generated files; `digital-twin` correctly has no `generate:api` and 5 handwritten type files. The doc and both implementations disagree.
   - Suggestion: Pick one env-file / variable convention, update the three apps and `.env.example` files accordingly, and rewrite section 3 to describe the real per-app behavior, including the digital-twin exception.
+
+### CI and release verification carry-over
+
+Source: items reported as outstanding on 2026-11-09 that were lost when TODO.md was
+rewritten by the compliance audit. Re-verified on 2026-11-12. Partially resolved work
+is noted inline so it is not re-done; all four items below are still OPEN.
+
+- [ ] Revoke the exposed classic PAT and purge it from git history.
+  - Problem: Commit `3c07b882` (2026-05-26) stores a plaintext `ghp_…` token in `package.json` `repository.url`; the value is still readable from the object database even though the current `package.json`, `.git/config` and `remote.origin.url` are clean and `lefthook.yml:23-28` now rejects new tokens in added lines. The historical token already returns HTTP 401, but it was never revoked or purged. `~/.git-credentials` still holds a classic PAT with `repo, workflow` scopes that authenticates successfully (`GET /user` → 200, login `lotaway`).
+  - Suggestion: Delete/revoke both classic PATs in GitHub Settings, replace them with a fine-grained PAT or the OS credential manager, and purge the historical value (`git filter-repo` / BFG) with a coordinated force-push and post-purge rotation. Add a full-history secret scan in CI so this cannot recur; if a history rewrite is rejected, record the accepted risk explicitly.
+
+- [ ] Point the performance pipeline at a real staging target.
+  - Problem: `GET /repos/lotaway/meta-web-three/actions/variables` returns `total_count: 0`, so `vars.PERF_BASE_URL` is unset. `.github/workflows/performance-test.yml:107,116,124-141` therefore forces `use_mock = True` on every scheduled run and falls back to the built-in `127.0.0.1:18087` mock on manual runs; runs #163–#165 are green but never touched a real service. The `environment` input (`:16`) is documented as "Report label only", so a run labelled `staging` can silently report mock numbers, and the `schedule` branch hardcodes `use_mock = True` at `:127` — configuring the variable alone will not fix scheduled runs.
+  - Suggestion: Set the `PERF_BASE_URL` repository/environment variable to a reachable staging gateway, remove the unconditional `use_mock = True` from the schedule branch (or gate it behind an explicit `scheduled-smoke` opt-in), and fail or clearly label the report whenever the mock is used so mock numbers can never be read as staging results. Re-run a `workflow_dispatch` against the real target and confirm the target in the step output before removing this item.
+
+- [ ] Add reproducible installs and an Electron runtime smoke check for `apps/digital-twin/system-management`.
+  - Problem: `d10f4015` added `.github/workflows/system-management-check.yml` (run #1 success), fixed the build context / Dockerfile / compose paths and added `npm run build:native`, `npm run typecheck` and `npm run test:run` in CI, which resolves the earlier "no CI builds it" gap. Still open: no lockfile exists anywhere under `apps/` (the workflow comments at `:34-35` disable the package-manager cache for exactly this reason), `node_modules` is not installed for this app, `docker/Dockerfile:20-24` and the workflow `:49` both use unpinned `npm install --legacy-peer-deps`, neither runs `npm run rebuild:sqlite3` (the app declares `better-sqlite3 ^11.0.0`), and neither launches Electron (`ELECTRON_SKIP_BINARY_DOWNLOAD=1` at `docker/Dockerfile:4` and workflow `:48`). Native ABI regressions and the two insecure `BrowserWindow` configs tracked in "Harden Electron renderer isolation" above are therefore never exercised at runtime. A mirror gap on 2026-11-09 (`npmmirror` missing `@typescript-eslint/parser@8.72.2`) already broke installs; the mirror has since synced, but installs remain unpinned.
+  - Suggestion: Commit a lockfile for this app (then for the other `apps/*` packages), switch CI and Docker back to `npm ci`, pin the registry via `.npmrc`, add a CI step for `npm run rebuild:sqlite3` plus a headless Electron launch/smoke (or document the required manual device check), and record the result of a real-device run of both windows before removing this item.
+
+- [ ] Make `apps/backstage-admin` env-default tests hermetic.
+  - Problem: `tests/env.spec.ts:13-16` asserts `BASE_SERVER_URL === DEFAULT_BASE_SERVER_URL` while `src/utils/env.ts:27-30` reads `import.meta.env.VITE_BASE_SERVER_URL`, which Vite populates from the developer's gitignored `.env`. With the local `.env` (`VITE_BASE_SERVER_URL=http://192.168.1.110:10081`) present, `npx vitest run tests/env.spec.ts` fails 1/5 (`expected 'http://192.168.1.110:10081' to be 'http://localhost:10081'`); it only passes when the variable is cleared or in CI where no `.env` exists. `vite.config.ts:153-156` sets no test-only env.
+  - Suggestion: Isolate the test from ambient `.env` (refactor `env.ts` to expose a pure `resolveEnv(vars)` factory tested with explicit inputs, or stub `import.meta.env` before a dynamic `import()` with `vi.resetModules()`), keep `.env.example` defaults documented, and add a CI case that runs the suite with a non-default `.env` to prove hermeticity.
 
 ## Completed Tasks (archived)
 
