@@ -13,7 +13,7 @@ on:
           - quick
           - critical
       environment:
-        description: 'Report label only. The real target comes from the PERF_BASE_URL repository variable; leave it unset to use the built-in local mock API.'
+        description: 'Report label only. The target comes from the PERF_BASE_URL repository variable; if it is unset the run uses the built-in mock API and the report is labelled MOCK DATA.'
         required: true
         default: 'staging'
         type: choice
@@ -30,7 +30,7 @@ on:
         required: false
         default: '300'
   schedule:
-    - cron: '0 2 * * *'  # Daily smoke run against the built-in local mock API
+    - cron: '0 2 * * *'  # Daily smoke run; uses PERF_BASE_URL when configured, otherwise the mock API
 
 env:
   JMETER_VERSION: '5.6.3'
@@ -124,7 +124,6 @@ jobs:
           if event == 'schedule':
               suite = 'scheduled-smoke'
               threads, loops, duration = 5, 100, 30
-              use_mock = True
           else:
               if suite == 'quick':
                   threads, loops, duration = 5, 100, 60
@@ -134,7 +133,8 @@ jobs:
                   threads = as_int(os.environ.get('INPUT_THREADS'), 10)
                   loops = 100
                   duration = as_int(os.environ.get('INPUT_DURATION'), 300)
-              use_mock = not base
+
+          use_mock = not base
 
           if use_mock:
               host, port, protocol = '127.0.0.1', '18087', 'http'
@@ -166,6 +166,9 @@ jobs:
                   out.write(f'{key}={value}\n')
           print(f'::notice::JMeter target: {target} ({protocol}://{host}:{port}), '
                 f'{threads} threads x {loops} loops, max {duration}s')
+          if use_mock:
+              print('::warning::PERF_BASE_URL is unset; this run measures the built-in '
+                    'mock API and the report is labelled MOCK DATA, not staging results')
           PY
 
       - name: Create test configuration
@@ -269,6 +272,7 @@ jobs:
           SUITE: ${{ steps.test_plan.outputs.suite }}
           ENVIRONMENT: ${{ steps.test_plan.outputs.environment }}
           TARGET: ${{ steps.test_plan.outputs.target }}
+          USE_MOCK: ${{ steps.test_plan.outputs.use_mock }}
           EXPECTED_SAMPLES: ${{ steps.test_plan.outputs.expected_samples }}
         run: |
           python3 - <<'PY'
@@ -318,11 +322,20 @@ jobs:
               out.write(f'p95_ms={p95}\n')
               out.write(f'failure_rate={failure_rate:.4f}\n')
 
+          use_mock = (os.environ.get('USE_MOCK') or '').strip().lower() == 'true'
+          environment = os.environ.get('ENVIRONMENT') or 'development'
+          if use_mock:
+              environment = f'{environment} (MOCK DATA - not a real service)'
+
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
               summary.write('## Performance Test Results\n\n')
+              if use_mock:
+                  summary.write('> **MOCK DATA** - `PERF_BASE_URL` is unset. These numbers come from '
+                                'the built-in local mock API and must not be read as staging or '
+                                'production measurements.\n\n')
               summary.write('| Metric | Value |\n| --- | --- |\n')
               summary.write(f'| Test suite | {os.environ["SUITE"]} |\n')
-              summary.write(f'| Environment | {os.environ["ENVIRONMENT"]} |\n')
+              summary.write(f'| Environment | {environment} |\n')
               summary.write(f'| Target | {os.environ["TARGET"]} |\n')
               summary.write(f'| Expected samples | {os.environ["EXPECTED_SAMPLES"]} |\n')
               summary.write(f'| Total samples | {total} |\n')

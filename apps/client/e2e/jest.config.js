@@ -1,9 +1,9 @@
-{
+module.exports = {
   "name": "meta-web-three-e2e",
   "testDir": "./e2e",
   "testMatch": "**/*.spec.ts",
   "reporters": ["detox-runner-reporter", "jest-junit"],
-  "setupFilesAfterEnv": ["./e2e/setup.ts"],
+  "setupFilesAfterEnv": ["<rootDir>/setup.ts"],
   "transform": {
     "^.+\\.(js|jsx|ts|tsx)$": "babel-jest"
   },

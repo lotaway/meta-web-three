@@ -25,7 +25,11 @@ afterEach(async () => {
   await cleanup()
 })
 
-global.describe = global.describe.skip
+// Detox specs require a simulator or a connected device. Keep them enabled by
+// default and allow an explicit opt-out on hosts without one.
+if (process.env.E2E_SKIP === '1') {
+  global.describe = global.describe.skip
+}
 
 export { init, cleanup, reload, adapter }
 export * from 'detox-matchers'
