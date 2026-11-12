@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { getAdminInfoAPI, adminLoginAPI, adminLogoutAPI } from '@/apis/admin'
 import { ref } from 'vue'
 import type { LoginParam, UserInfo } from '@/types/admin'
+import { USER_PERSIST_KEY, purgePersistedPassword } from '@/utils/user-storage'
 
 export const useUserStore = defineStore(
   'user',
@@ -9,7 +10,6 @@ export const useUserStore = defineStore(
     // 用户信息
     const userInfo = ref<UserInfo>({
       username: '',
-      password: '',
       avatar: '',
       roles: [],
       token: '',
@@ -22,7 +22,6 @@ export const useUserStore = defineStore(
       const tokenStr = res.data.tokenHead + res.data.token
       userInfo.value.token = tokenStr
       userInfo.value.username = loginParam.username
-      userInfo.value.password = loginParam.password
       await getUserInfo()
     }
 
@@ -60,7 +59,19 @@ export const useUserStore = defineStore(
     }
   },
   {
-    // 持久化配置
-    persist: true,
+    // Persist only non-sensitive fields; drop credentials left by older builds.
+    persist: {
+      key: USER_PERSIST_KEY,
+      pick: [
+        'userInfo.username',
+        'userInfo.avatar',
+        'userInfo.roles',
+        'userInfo.token',
+        'userInfo.menus',
+      ],
+      beforeHydrate: () => {
+        if (typeof localStorage !== 'undefined') purgePersistedPassword(localStorage)
+      },
+    },
   },
 )

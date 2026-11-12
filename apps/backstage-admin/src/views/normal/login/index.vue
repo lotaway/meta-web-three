@@ -48,7 +48,6 @@ function validatePass(rule: unknown, value: string, callback: (error?: Error) =>
 // 组件挂载完成后调用
 onMounted(() => {
   loginForm.username = userStore.userInfo.username
-  loginForm.password = userStore.userInfo.password
   if (loginForm.username === undefined || loginForm.username == null || loginForm.username === '') {
     loginForm.username = 'admin';
   }

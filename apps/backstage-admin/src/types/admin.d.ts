@@ -30,8 +30,6 @@ export type UserInfoResult = {
 
 /** 用户信息（store中存储的） */
 export type UserInfo = Pick<UserInfoResult, 'username' | 'menus' | 'roles'> & {
-  /** 密码 */
-  password: string
   /** 登录token */
   token: string
   /** 头像 */
