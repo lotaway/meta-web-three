@@ -1,6 +1,8 @@
 import * as express from 'express'
 import { HttpStatus } from '@nestjs/common'
 import { LLMService } from '../services/llm.service'
+import { MonitorLLMController } from './monitor-llm.controller'
+import type { MonitorProvider } from '../../constants'
 
 export const DEFAULT_MODEL_INFO = {
     "name": "local",
@@ -12,7 +14,8 @@ export const DEFAULT_MODEL_INFO = {
 
 export class LLMController {
     constructor(
-        private readonly llmService?: LLMService
+        private readonly llmService?: LLMService,
+        private readonly monitorController?: MonitorLLMController
     ) { }
 
     getShow(req: express.Request, res: express.Response) {
@@ -20,17 +23,34 @@ export class LLMController {
     }
 
     getTags(req: express.Request, res: express.Response) {
-        const models = [{ ...DEFAULT_MODEL_INFO }]
-        const localProvider = process.env.LOCAL_LLM_PROVIDER
-        if (localProvider) {
-            models.push({ ...DEFAULT_MODEL_INFO, name: 'local' })
+        const models: Array<typeof DEFAULT_MODEL_INFO> = []
+        if (this.monitorController) {
+            models.push({ ...DEFAULT_MODEL_INFO, name: 'chatgpt' })
+            models.push({ ...DEFAULT_MODEL_INFO, name: 'deepseek' })
         }
+        models.push({ ...DEFAULT_MODEL_INFO })
         res.json(models)
     }
 
     async chatCompletions(req: express.Request, res: express.Response): Promise<void> {
         try {
-            const payload = req.body
+            const payload = req.body ?? {}
+            const model = typeof payload.model === 'string' && payload.model ? payload.model : 'local'
+
+            if (model === 'chatgpt' || model === 'deepseek') {
+                if (!this.monitorController) {
+                    res.status(HttpStatus.SERVICE_UNAVAILABLE).json({ error: 'Monitor windows are unavailable' })
+                    return
+                }
+                await this.monitorController.chatCompletions(req, res, model as MonitorProvider)
+                return
+            }
+
+            if (model !== 'local') {
+                res.status(HttpStatus.BAD_REQUEST).json({ error: 'Unsupported model' })
+                return
+            }
+
             let prompt = payload.prompt
             if (!prompt && payload.messages && Array.isArray(payload.messages)) {
                 const lastMsg = payload.messages[payload.messages.length - 1]
@@ -51,7 +71,9 @@ export class LLMController {
             }
         } catch (error: any) {
             console.error('Error in chat completions:', error)
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: error.message })
+            if (!res.headersSent) {
+                res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: error.message })
+            }
         }
     }
 

@@ -1,4 +1,4 @@
-# Meta Note - Electron Application
+# meta-note元笔记
 
 这是一个基于 Electron + React + TypeScript + Vite 构建的桌面应用。
 
@@ -19,6 +19,27 @@ Edit `.env` and set the voice service endpoint:
 ```bash
 VITE_VOICE_API_URL=http://localhost:8000
 ```
+
+## Local HTTP API authentication
+
+The Electron process exposes its HTTP API on `127.0.0.1:${WEB_SERVER_PORT}` (default `5051`). Every route requires a session token:
+
+- The renderer obtains it through the `getLocalApiToken` preload method and sends `Authorization: Bearer <token>`.
+- SSE endpoints that cannot set headers (`/api/tts/download`) accept `?token=<token>`.
+- External callers can pin a known value with `LOCAL_API_TOKEN` in `.env`; otherwise a random token is generated on each start.
+- Only loopback origins (`file://`, the Vite dev server and the API itself) are allowed; wildcard CORS is disabled.
+
+## LLM models and monitor windows
+
+`POST /v1/chat/completions` dispatches on `payload.model`:
+
+| model | behavior |
+|---|---|
+| `local` (default) | `LLMService` or the `LOCAL_LLM_PROVIDER` SSE proxy |
+| `chatgpt` | in-app ChatGPT monitor window, SSE chunks converted to OpenAI deltas |
+| `deepseek` | in-app DeepSeek monitor window, SSE chunks converted to OpenAI deltas |
+
+Monitor windows keep `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true` and use a dedicated `monitor-preload` that exposes only named channels. Session tokens for both providers are written through the token-protected `POST /v1/auth/token` route.
 
 ## Running the Application
 

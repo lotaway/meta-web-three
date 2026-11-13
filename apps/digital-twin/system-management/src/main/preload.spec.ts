@@ -32,6 +32,7 @@ const EXPECTED_METHODS = [
   'onSubtitlesText', 'offSubtitlesText', 'onSubtitlesStyle', 'offSubtitlesStyle',
   'getAudioSources', 'listAudioDevices', 'startAudioCapture', 'stopAudioCapture',
   'getAudioData', 'getOSNetworkInterfaces', 'openExternal',
+  'getLocalApiToken', 'openMonitor', 'openExternalLogin',
 ]
 
 const api = () => mocks.exposed as Record<string, (...args: any[]) => any>
@@ -71,10 +72,13 @@ describe('preload bridge', () => {
     await api().getAudioData()
     await api().getOSNetworkInterfaces()
     await api().openExternal('chatgpt')
+    await api().getLocalApiToken()
+    await api().openMonitor('chatgpt')
+    await api().openExternalLogin('deepseek')
 
     const declared = new Set<string>(Object.values(IPC_CHANNELS))
     const channels = mocks.invoke.mock.calls.map(call => String(call[0]))
-    expect(channels).toHaveLength(14)
+    expect(channels).toHaveLength(17)
     expect(channels.every(channel => declared.has(channel))).toBe(true)
   })
 

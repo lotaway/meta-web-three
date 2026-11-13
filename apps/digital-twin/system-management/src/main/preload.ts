@@ -50,6 +50,9 @@ const desktopFn: DesktopAPI = {
   getAudioData: () => ipcRenderer.invoke(IPC_CHANNELS.AUDIO_GET_DATA),
   getOSNetworkInterfaces: () => ipcRenderer.invoke(IPC_CHANNELS.GET_OS_NETWORK_INTERFACES),
   openExternal: target => ipcRenderer.invoke(IPC_CHANNELS.OPEN_EXTERNAL, target),
+  getLocalApiToken: () => ipcRenderer.invoke(IPC_CHANNELS.GET_LOCAL_API_TOKEN),
+  openMonitor: provider => ipcRenderer.invoke(IPC_CHANNELS.OPEN_MONITOR_WINDOW, provider),
+  openExternalLogin: provider => ipcRenderer.invoke(IPC_CHANNELS.OPEN_EXTERNAL_LOGIN, provider),
 }
 
 contextBridge.exposeInMainWorld('desktop', desktopFn)

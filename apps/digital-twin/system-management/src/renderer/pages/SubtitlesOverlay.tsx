@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { SubtitleStyle, DEFAULT_SUBTITLE_STYLE } from '../types/Subtitle'
 import SubtitleSettingsPanel from '../components/SubtitleSettingsPanel'
+import { apiFetch, resolveApiBase } from '../services/local-api'
 
 // Full URL configurable via env (e.g., VITE_VOICE_API_URL=http://localhost:5051)
-const API_BASE_URL = import.meta.env.VITE_VOICE_API_URL || `http://localhost:${import.meta.env.VITE_WEB_SERVER_PORT || '5051'}`
+const API_BASE_URL = resolveApiBase(import.meta.env.VITE_VOICE_API_URL)
 
 const OverlayContainer = styled.div`
     position: fixed;
@@ -83,11 +84,11 @@ export default function SubtitlesOverlay() {
     const playTTS = async () => {
         if (!text) return;
         try {
-            const response = await fetch(`${API_BASE_URL}/api/tts/synthesize`, {
+            const response = await apiFetch('/api/tts/synthesize', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text, voice_profile_id: 'default' })
-            });
+            }, API_BASE_URL);
             if (response.ok) {
                 const blob = await response.blob();
                 const audio = new Audio(URL.createObjectURL(blob));

@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { IPC_CHANNELS } from '../../../../main/constants'
 
 interface AudioDevice {
   index: number
@@ -30,46 +29,41 @@ export function AudioMonitor() {
   const [level, setLevel] = useState(0)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  const send = useCallback((channel: string, ...args: any[]) => {
-    return (window as any).desktop?.send?.(channel, ...args)
-  }, [])
-
   const loadDevices = useCallback(async () => {
-    const list: AudioDevice[] = await send(IPC_CHANNELS.AUDIO_LIST_DEVICES) ?? []
-    setDevices(list)
-  }, [send])
+    const list = await window.desktop.listAudioDevices() as AudioDevice[] | null
+    setDevices(Array.isArray(list) ? list : [])
+  }, [])
 
   useEffect(() => {
     loadDevices()
   }, [loadDevices])
 
-  const pollLevel = useCallback(() => {
-    send(IPC_CHANNELS.AUDIO_GET_DATA).then((data: AudioData | null) => {
-      if (data && data.data.length > 0) {
-        setLevel(computeRMS(data.data))
-      }
-    })
-  }, [send])
+  const pollLevel = useCallback(async () => {
+    const data = await window.desktop.getAudioData() as AudioData | null
+    if (data && data.data.length > 0) {
+      setLevel(computeRMS(data.data))
+    }
+  }, [])
 
   const handleStart = useCallback(async () => {
     if (selectedIndex < 0) return
-    const ok: boolean = await send(IPC_CHANNELS.AUDIO_START_CAPTURE, selectedIndex, 0)
+    const ok = await window.desktop.startAudioCapture(selectedIndex, 0)
     if (ok) {
       setCapturing(true)
       setLevel(0)
       intervalRef.current = setInterval(pollLevel, 200)
     }
-  }, [selectedIndex, send, pollLevel])
+  }, [selectedIndex, pollLevel])
 
   const handleStop = useCallback(async () => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current)
       intervalRef.current = null
     }
-    await send(IPC_CHANNELS.AUDIO_STOP_CAPTURE)
+    await window.desktop.stopAudioCapture()
     setCapturing(false)
     setLevel(0)
-  }, [send])
+  }, [])
 
   useEffect(() => {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }

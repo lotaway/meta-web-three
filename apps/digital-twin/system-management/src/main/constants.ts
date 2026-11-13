@@ -15,6 +15,10 @@ export const IPC_CHANNELS = {
     SELECT_DIRECTORY: 'dialog:select-directory',
     OPEN_EXTERNAL: 'shell:open-external',
     GET_OS_NETWORK_INTERFACES: 'system:network-interfaces',
+    GET_LOCAL_API_TOKEN: 'system:local-api-token',
+    OPEN_MONITOR_WINDOW: 'monitor:open-window',
+    OPEN_EXTERNAL_LOGIN: 'monitor:open-external-login',
+    MONITOR_SSE_CHUNK: 'monitor:sse-chunk',
 } as const
 
 export const EXTERNAL_TARGETS = {
@@ -25,6 +29,21 @@ export const EXTERNAL_TARGETS = {
 } as const
 
 export type ExternalTarget = keyof typeof EXTERNAL_TARGETS
+
+export const MONITOR_PROVIDERS = ['chatgpt', 'deepseek'] as const
+export type MonitorProvider = typeof MONITOR_PROVIDERS[number]
+
+export const MONITOR_HOSTS = {
+    chatgpt: 'https://chatgpt.com',
+    deepseek: 'https://chat.deepseek.com',
+} as const
+
+export const AI_CHAT_CONSTANTS = {
+    SSE_CHUNK_EVENT: 'sse-chunk',
+    SESSION_COOKIE_NAME: '__Secure-next-auth.session-token',
+    CHATGPT_HOST: 'https://chatgpt.com',
+    COOKIE_DOMAIN: '.chatgpt.com',
+} as const
 
 export const SUBTITLES_WINDOW_CONSTANTS = {
     DEFAULT_WIDTH: 800,

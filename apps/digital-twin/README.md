@@ -1,4 +1,4 @@
-# AI元笔记 (Meta Note)
+# meta-note元笔记
 
 AI 驱动的数字孪生与知识问答应用。
 

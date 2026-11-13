@@ -117,6 +117,24 @@ export default defineConfig({
           },
         },
       },
+      {
+        entry: 'src/main/monitor-preload.ts',
+        onstart(options) {
+          options.reload()
+        },
+        vite: {
+          build: {
+            outDir: 'dist-electron/preload',
+            minify: false,
+            rollupOptions: {
+              output: {
+                entryFileNames: 'monitor-preload.js',
+              },
+              external: ['better-sqlite3']
+            }
+          },
+        },
+      },
     ]),
     renderer(),
   ],

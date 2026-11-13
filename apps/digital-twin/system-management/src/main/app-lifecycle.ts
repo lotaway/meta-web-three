@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from "electron"
 import { LLMService } from "./nestjs/services/llm.service"
 import { SubtitlesWindow } from "./browser/subtitles-window"
+import { APP_DISPLAY_NAME } from "../brand"
 
 export interface AppConfig {
     isDev: boolean
@@ -42,6 +43,7 @@ export class AppLifecycle {
         this.mainWindow = new BrowserWindow({
             width: this.config.windowWidth,
             height: this.config.windowHeight,
+            title: APP_DISPLAY_NAME,
             resizable: true,
             webPreferences: {
                 devTools: this.config.isDev,

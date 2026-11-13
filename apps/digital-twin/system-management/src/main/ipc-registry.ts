@@ -4,19 +4,26 @@ import fs from "node:fs"
 import path from "node:path"
 import { MediaService } from "./nestjs/services/media.service"
 import { LLMService } from "./nestjs/services/llm.service"
-import { IPC_CHANNELS, EXTERNAL_TARGETS, type ExternalTarget } from "./constants"
+import { IPC_CHANNELS, EXTERNAL_TARGETS, MONITOR_PROVIDERS, type ExternalTarget, type MonitorProvider } from "./constants"
 import { INestApplicationContext } from "@nestjs/common"
 import { getAudioManager } from "./rust-bridge"
 import { DirectoryAllowlist, isNonEmptyString } from "./path-guard"
 
 const MAX_PROMPT_LENGTH = 100_000
 
+export interface IpcCallbacks {
+    getLocalApiToken?: () => string | null
+    openMonitorWindow?: (provider: MonitorProvider) => void
+    openExternalLogin?: (provider: MonitorProvider) => void
+}
+
 export class IpcRegistry {
     private readonly allowlist = new DirectoryAllowlist()
 
     constructor(
         private getNestApp: () => INestApplicationContext | null,
-        private getAppLifecycle: () => any
+        private getAppLifecycle: () => any,
+        private callbacks: IpcCallbacks = {}
     ) { }
 
     register() {
@@ -24,6 +31,14 @@ export class IpcRegistry {
         this.registerSubtitleHandlers()
         this.registerAudioHandlers()
         this.registerSystemHandlers()
+        this.registerMonitorHandlers()
+    }
+
+    private assertMonitorProvider(value: unknown): MonitorProvider {
+        if (typeof value !== 'string' || !(MONITOR_PROVIDERS as readonly string[]).includes(value)) {
+            throw new Error('Unknown monitor provider')
+        }
+        return value as MonitorProvider
     }
 
     private requireNestApp() {
@@ -160,5 +175,15 @@ export class IpcRegistry {
         const url = EXTERNAL_TARGETS[target as ExternalTarget]
         if (!url.startsWith('https://')) throw new Error('Only https targets are allowed')
         await shell.openExternal(url)
+    }
+
+    private registerMonitorHandlers() {
+        ipcMain.handle(IPC_CHANNELS.GET_LOCAL_API_TOKEN, () => this.callbacks.getLocalApiToken?.() ?? null)
+        ipcMain.handle(IPC_CHANNELS.OPEN_MONITOR_WINDOW, (_e, provider) => {
+            this.callbacks.openMonitorWindow?.(this.assertMonitorProvider(provider))
+        })
+        ipcMain.handle(IPC_CHANNELS.OPEN_EXTERNAL_LOGIN, (_e, provider) => {
+            this.callbacks.openExternalLogin?.(this.assertMonitorProvider(provider))
+        })
     }
 }

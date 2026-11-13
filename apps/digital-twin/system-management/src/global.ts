@@ -1,5 +1,5 @@
 import type { NetworkInterfaceInfo } from 'node:os'
-import type { ExternalTarget } from './main/constants'
+import type { ExternalTarget, MonitorProvider } from './main/constants'
 import type { SubtitleStyle } from './renderer/types/Subtitle'
 
 export type ReceiveFn = (...args: any[]) => void
@@ -36,6 +36,9 @@ interface DesktopAPI {
   getAudioData(): Promise<unknown>
   getOSNetworkInterfaces(): Promise<Partial<Record<string, NetworkInterfaceInfo[]>>>
   openExternal(target: ExternalTarget): Promise<void>
+  getLocalApiToken(): Promise<string | null>
+  openMonitor(provider: MonitorProvider): Promise<void>
+  openExternalLogin(provider: MonitorProvider): Promise<void>
 }
 
 declare global {
