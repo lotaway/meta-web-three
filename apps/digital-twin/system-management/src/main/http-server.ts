@@ -5,6 +5,8 @@ import { AuthController } from "./nestjs/controllers/auth.controller"
 import { ScreenshotController } from "./nestjs/controllers/screenshot.controller"
 import { SystemController } from "./nestjs/controllers/system.controller"
 import { TTSController } from "./nestjs/controllers/tts.controller"
+import { NoteController } from "./nestjs/controllers/note.controller"
+import { StudyController } from "./nestjs/controllers/study.controller"
 
 export class HttpServer {
     private app: express.Express
@@ -17,6 +19,8 @@ export class HttpServer {
         private screenshotController: ScreenshotController,
         private systemController: SystemController,
         private ttsController: TTSController,
+        private noteController: NoteController,
+        private studyController: StudyController,
         private port: number
     ) {
         this.app = express()
@@ -54,6 +58,13 @@ export class HttpServer {
         this.app.post('/api/tts/synthesize', this.ttsController.synthesize.bind(this.ttsController))
         this.app.get('/api/tts/download', this.ttsController.download.bind(this.ttsController))
         this.app.post('/api/tts/delete', this.ttsController.delete.bind(this.ttsController))
+
+        // Note generation and study queue routes
+        this.app.post('/api/note/generate', this.noteController.generate.bind(this.noteController))
+        this.app.get('/api/note/status/:id', this.noteController.getStatus.bind(this.noteController))
+        this.app.delete('/api/note/:id', this.noteController.deleteTask.bind(this.noteController))
+        this.app.get('/api/note/:id', this.noteController.getResult.bind(this.noteController))
+        this.app.post('/api/study/request', this.studyController.handleRequest.bind(this.studyController))
     }
 
     start() {

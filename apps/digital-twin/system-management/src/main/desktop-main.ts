@@ -12,11 +12,15 @@ import { AuthController } from "./nestjs/controllers/auth.controller"
 import { ScreenshotController } from "./nestjs/controllers/screenshot.controller"
 import { SystemController } from "./nestjs/controllers/system.controller"
 import { TTSController } from "./nestjs/controllers/tts.controller"
+import { NoteController } from "./nestjs/controllers/note.controller"
+import { StudyController } from "./nestjs/controllers/study.controller"
 
 import { LLMService } from "./nestjs/services/llm.service"
 import { MediaService } from "./nestjs/services/media.service"
 import { WebSocketService } from "./nestjs/services/websocket.service"
 import { TTSService } from "./nestjs/services/tts.service"
+import { NoteService } from "./nestjs/services/note.service"
+import { StudyService } from "./nestjs/services/study.service"
 
 import { AppLifecycle, AppConfig } from "./app-lifecycle"
 import { HttpServer } from "./http-server"
@@ -73,6 +77,8 @@ const initializeHttpServer = (nestApp: INestApplicationContext) => {
     const mediaService = nestApp.get(MediaService)
     const webSocketService = nestApp.get(WebSocketService)
     const ttsService = nestApp.get(TTSService)
+    const noteService = nestApp.get(NoteService)
+    const studyService = nestApp.get(StudyService)
 
     const screenshotController = new ScreenshotController(
         () => appLifecycle.getMainWindow(),
@@ -90,6 +96,8 @@ const initializeHttpServer = (nestApp: INestApplicationContext) => {
         screenshotController,
         new SystemController(mediaService),
         new TTSController(ttsService),
+        new NoteController(noteService),
+        new StudyController(studyService),
         WEB_SERVER_PORT
     )
     httpServerInstance.start()

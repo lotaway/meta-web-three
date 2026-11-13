@@ -47,6 +47,12 @@ export default defineConfig({
     'import.meta.env.VITE_MES_API_PORT': JSON.stringify(
       process.env.VITE_MES_API_PORT || '8080',
     ),
+    'import.meta.env.VITE_WEB_SERVER_PORT': JSON.stringify(
+      process.env.WEB_SERVER_PORT || '5051',
+    ),
+    'import.meta.env.VITE_VOICE_API_URL': JSON.stringify(
+      process.env.VITE_VOICE_API_URL || '',
+    ),
   },
   plugins: [
     react(),

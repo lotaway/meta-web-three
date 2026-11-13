@@ -9,6 +9,15 @@ import { LocalLLMProvider } from './services/providers/local-llm-provider'
 import { RemoteLLMProvider } from './services/providers/remote-llm-provider'
 import { LLMProviderStrategy } from './services/providers/llm-provider-strategy'
 import { LLMProvider } from './services/providers/llm-provider.interface'
+import { NoteService } from './services/note.service'
+import { StudyService } from './services/study.service'
+import { UniversalDownloader } from './services/providers/universal.downloader'
+import { BilibiliDownloader } from './services/providers/bilibili.downloader'
+import { YoutubeDownloader } from './services/providers/youtube.downloader'
+import { DouyinDownloader } from './services/providers/douyin.downloader'
+import { KuaishouDownloader } from './services/providers/kuaishou.downloader'
+import { VideoProcessor } from './services/providers/video-processor'
+import { Transcriber } from './services/providers/transcriber'
 
 @Module({
     imports: [ConfigModule.forRoot()],
@@ -38,7 +47,16 @@ import { LLMProvider } from './services/providers/llm-provider.interface'
             },
             inject: ['LLM_PROVIDERS']
         },
-        LLMService
+        LLMService,
+        BilibiliDownloader,
+        YoutubeDownloader,
+        DouyinDownloader,
+        KuaishouDownloader,
+        UniversalDownloader,
+        VideoProcessor,
+        Transcriber,
+        NoteService,
+        StudyService
     ],
 })
 export class AppModule { }

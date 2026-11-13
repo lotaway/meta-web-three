@@ -47,6 +47,18 @@ export const ROUTE_PATHS = {
     TTS_SYNTHESIZE: '/api/tts/synthesize',
     TTS_DOWNLOAD: '/api/tts/download',
     TTS_DELETE: '/api/tts/delete',
+    STUDY_REQUEST: '/api/study/request',
+    NOTE_GENERATE: '/api/note/generate',
+    NOTE_STATUS: '/api/note/status/:id',
+    NOTE_RESULT: '/api/note/:id',
+} as const
+
+export const STUDY_CONSTANTS = {
+    STUDY_LIST_TOPIC: 'study_list',
+    STUDYING_LIST_TOPIC: 'studying_list',
+    STUDY_SUCCESS_COUNT_KEY: 'study_success_count',
+    STUDY_TIME_KEY: 'study_total_time',
+    STUDY_LIST_ERROR_KEY: 'study_list_error',
 } as const
 
 export const SERVER_PORTS = {
