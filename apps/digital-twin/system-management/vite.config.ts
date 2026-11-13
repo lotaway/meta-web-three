@@ -65,7 +65,6 @@ export default defineConfig({
             rollupOptions: {
               external: [
                 'better-sqlite3',
-                '@electron/remote',
                 'fluent-ffmpeg',
                 'ws',
                 'reflect-metadata',
@@ -107,7 +106,7 @@ export default defineConfig({
               output: {
                 entryFileNames: 'preload.js',
               },
-              external: ['better-sqlite3', '@electron/remote']
+              external: ['better-sqlite3']
             }
           },
         },

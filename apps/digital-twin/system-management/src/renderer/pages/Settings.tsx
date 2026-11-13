@@ -87,25 +87,25 @@ const ActionButtons = () => (
     <ActionButtonContainer>
         <PremiumButton
             $bgColor="#10a37f"
-            onClick={() => window.desktop.requestOpenChatGPTWindow()}
+            onClick={() => void window.desktop.openExternal('chatgpt')}
         >
             Open ChatGPT Monitor
         </PremiumButton>
         <PremiumButton
             $bgColor="#4285f4"
-            onClick={() => window.desktop.requestOpenExternalLogin()}
+            onClick={() => void window.desktop.openExternal('googleLogin')}
         >
             Google Login (System Browser)
         </PremiumButton>
         <PremiumButton
             $bgColor="#10b981"
-            onClick={() => window.desktop.requestOpenDeepseekWindow()}
+            onClick={() => void window.desktop.openExternal('deepseek')}
         >
             Open Deepseek Monitor
         </PremiumButton>
         <PremiumButton
             $bgColor="#6366f1"
-            onClick={() => window.desktop.requestOpenDeepseekExternalLogin()}
+            onClick={() => void window.desktop.openExternal('deepseekLogin')}
         >
             Deepseek Login (System Browser)
         </PremiumButton>

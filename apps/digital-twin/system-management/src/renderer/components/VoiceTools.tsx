@@ -2,8 +2,6 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useAudio } from '../contexts/AudioContext';
 import { AudioSourceType } from '../types/Audio';
-import { ipcRenderer } from 'electron';
-import { IPC_CHANNELS } from '../../main/constants';
 
 // Full URL configurable via env (e.g., VITE_VOICE_API_URL=http://localhost:5051)
 const API_BASE_URL = import.meta.env.VITE_VOICE_API_URL || `http://localhost:${import.meta.env.VITE_WEB_SERVER_PORT || '5051'}`;
@@ -383,7 +381,7 @@ export default function VoiceTools({ mode, onClose }: VoiceToolsProps) {
                 
                 <Button 
                     $variant="success" 
-                    onClick={() => ipcRenderer.send(IPC_CHANNELS.SUBTITLES_OPEN)}
+                    onClick={() => void window.desktop.openSubtitles()}
                     style={{ width: mode === 'full' ? '100%' : 'auto' }}
                 >
                     Subtitles

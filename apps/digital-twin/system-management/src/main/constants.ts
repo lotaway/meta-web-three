@@ -12,7 +12,19 @@ export const IPC_CHANNELS = {
     AUDIO_START_CAPTURE: 'audio:start-capture',
     AUDIO_STOP_CAPTURE: 'audio:stop-capture',
     AUDIO_GET_DATA: 'audio:get-data',
+    SELECT_DIRECTORY: 'dialog:select-directory',
+    OPEN_EXTERNAL: 'shell:open-external',
+    GET_OS_NETWORK_INTERFACES: 'system:network-interfaces',
 } as const
+
+export const EXTERNAL_TARGETS = {
+    chatgpt: 'https://chatgpt.com/',
+    deepseek: 'https://chat.deepseek.com/',
+    googleLogin: 'https://accounts.google.com/',
+    deepseekLogin: 'https://chat.deepseek.com/',
+} as const
+
+export type ExternalTarget = keyof typeof EXTERNAL_TARGETS
 
 export const SUBTITLES_WINDOW_CONSTANTS = {
     DEFAULT_WIDTH: 800,

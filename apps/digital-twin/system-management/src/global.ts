@@ -1,20 +1,41 @@
-export {}
+import type { NetworkInterfaceInfo } from 'node:os'
+import type { ExternalTarget } from './main/constants'
+import type { SubtitleStyle } from './renderer/types/Subtitle'
 
-type ApiKey = string | number
-type ReceiveFn = (...args: any) => void
+export type ReceiveFn = (...args: any[]) => void
+export type SubtitleStyleListener = (style: Partial<SubtitleStyle>) => void
+export type SubtitleTextListener = (text: string) => void
+
+export interface DirectoryFileList {
+  names: string[]
+  paths: string[]
+}
+
+export interface AudioSourceInfo {
+  id: string
+  name: string
+}
 
 interface DesktopAPI {
-  send: (channel: string, ...args: any) => void
-  receive: (channel: string, func: ReceiveFn) => void
-  ipcSendTo: (window_id: number, channel: string, ...args: any) => void
-  ipcSend: (channel: string, ...args: any) => void
-  ipcOn: (channel: string, listener: (event: any, ...args: any) => void) => void
-  ipcSendSync: (channel: string, ...args: any) => any
-  ipcOnce: (channel: string, listener: (event: any, ...args: any) => void) => void
-  ipcRemoveListener: (channel: string, listener: (event: any, ...args: any) => void) => void
-  ipcRemoveAllListeners: (channel: string) => void
-  getOSNetworkInterfaces: () => Partial<Record<string, import("os").NetworkInterfaceInfo[]>>
-  [apiKey: ApiKey]: (...params: any) => any
+  selectDirectory(options?: { title?: string; defaultPath?: string }): Promise<string | null>
+  readFileInDirectory(directory: string): Promise<DirectoryFileList>
+  mergeVideo(videos: string[], outputPath: string): Promise<unknown>
+  llmCompletion(prompt: string): Promise<unknown>
+  openSubtitles(): Promise<void>
+  closeSubtitles(): Promise<void>
+  updateSubtitles(text: string): Promise<void>
+  sendSubtitlesText(text: string): void
+  onSubtitlesText(listener: SubtitleTextListener): void
+  offSubtitlesText(listener: SubtitleTextListener): void
+  onSubtitlesStyle(listener: SubtitleStyleListener): void
+  offSubtitlesStyle(listener: SubtitleStyleListener): void
+  getAudioSources(): Promise<AudioSourceInfo[]>
+  listAudioDevices(): Promise<unknown>
+  startAudioCapture(deviceIndex: number, sampleRate?: number): Promise<boolean>
+  stopAudioCapture(): Promise<boolean>
+  getAudioData(): Promise<unknown>
+  getOSNetworkInterfaces(): Promise<Partial<Record<string, NetworkInterfaceInfo[]>>>
+  openExternal(target: ExternalTarget): Promise<void>
 }
 
 declare global {
@@ -23,4 +44,4 @@ declare global {
   }
 }
 
-export type { ReceiveFn, DesktopAPI }
+export type { DesktopAPI }

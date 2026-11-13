@@ -1,5 +1,4 @@
 import { app, BrowserWindow } from "electron"
-import * as remote from "@electron/remote/main"
 import { LLMService } from "./nestjs/services/llm.service"
 import { SubtitlesWindow } from "./browser/subtitles-window"
 
@@ -46,13 +45,12 @@ export class AppLifecycle {
             resizable: true,
             webPreferences: {
                 devTools: this.config.isDev,
-                nodeIntegration: true,
-                contextIsolation: false,
+                nodeIntegration: false,
+                contextIsolation: true,
+                sandbox: true,
                 preload: this.config.preloadPath
             }
         })
-        remote.initialize()
-        remote.enable(this.mainWindow.webContents)
         if (this.config.isDev) {
             await this.mainWindow.loadURL(`http://localhost:${this.config.devServerPort}`)
         } else {

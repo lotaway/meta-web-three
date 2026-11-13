@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { ipcRenderer } from 'electron'
-import { IPC_CHANNELS } from '../../main/constants'
 import { SubtitleStyle, DEFAULT_SUBTITLE_STYLE } from '../types/Subtitle'
 import SubtitleSettingsPanel from '../components/SubtitleSettingsPanel'
 
@@ -65,20 +63,20 @@ export default function SubtitlesOverlay() {
     const [isSettingsVisible, setIsSettingsVisible] = useState(false)
 
     useEffect(() => {
-        const handleText = (_event: Electron.IpcRendererEvent, newText: string) => {
+        const handleText = (newText: string) => {
             setText(newText)
         }
 
-        const handleStyle = (_event: Electron.IpcRendererEvent, newStyle: Partial<SubtitleStyle>) => {
+        const handleStyle = (newStyle: Partial<SubtitleStyle>) => {
             setStyle(prev => ({ ...prev, ...newStyle }))
         }
 
-        ipcRenderer.on(IPC_CHANNELS.SUBTITLES_TEXT, handleText)
-        ipcRenderer.on(IPC_CHANNELS.SUBTITLES_STYLE, handleStyle)
+        window.desktop.onSubtitlesText(handleText)
+        window.desktop.onSubtitlesStyle(handleStyle)
 
         return () => {
-            ipcRenderer.off(IPC_CHANNELS.SUBTITLES_TEXT, handleText)
-            ipcRenderer.off(IPC_CHANNELS.SUBTITLES_STYLE, handleStyle)
+            window.desktop.offSubtitlesText(handleText)
+            window.desktop.offSubtitlesStyle(handleStyle)
         }
     }, [])
 
