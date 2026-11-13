@@ -19,23 +19,7 @@
 
 编码工作在本机即可完成，但需要先定下产品／接口／验收口径，否则修完可能被推翻。
 
-- [ ] 合并 meta-note 遗留的监控窗口与两套 LLM 控制器。
-  - 问题：2026-11-13 把 meta-note 独有能力迁入 digital-twin 时，以下因与现有实现互斥而跳过：`desktop-chatgpt.ts`、`desktop-deepseek.ts`、`main/injects/*`、`browser/base-browser-window.ts` 与 `enhanced-browser-window.ts`。三个原因：`LLMController` 在 meta-note 是 465 行「监控窗口 + eventBus 转发 SSE」实现，digital-twin 是 127 行基于 `LLMService` 的 OpenAI 兼容实现，不能二选一覆盖；两个监控窗口用 `contextIsolation: false` + `sandbox: false`，会拆掉 2026-11-13 刚建立的隔离基线；`chatgpt-inject.ts:103` 仍调用已删除的 `window.desktop.requestOpenExternalLogin()`。`AuthController` 里写入 ChatGPT / DeepSeek session token 的真实逻辑也一并未迁移。
-  - 建议：按 `payload.model` 设计分流以保留两套 SSE 转发，把监控窗口统一到隔离基线并补回所需具名通道，注入脚本改走白名单；token 写入与下面「本地 HTTP 服务鉴权」一并处理，避免凭据接口暴露。
-  - 需决策：是否保留 ChatGPT / DeepSeek 会话监控这条产品线（若不需要可直接删除源项目代码）；选定 LLM 分流口径；确认监控窗口要应用内窗口还是系统浏览器。
-  - 关闭条件：两套 LLM 实现在同一路由下都可用，监控窗口满足隔离基线，注入脚本只走具名通道，并通过窗口冒烟与单测。
-
-- [ ] 决定 meta-note 仓库的腾空方式与剩余资产处置。
-  - 问题：本次只迁移了笔记生成、学习机队列与 `VideoNote` 三条可合并链路的源码。未迁移的 meta-note 独有资产：`CODE_PINCEPLES` 与 `browser-extension` 两个子模块（117 文件）、`BiliNoteDetail.md` / `BiliNoteSPEC.md` / `VOICE_SPEC.md` / `LICENSE` / `yarn.lock`、`system-support/src/{api,domain,application,infrastructure}` 的 116 行 DDD 空壳（3 个 napi 导出里 2 个只返回格式化字符串），以及 `types/ChatgptConversationData.ts` / `CompletionData.ts`（当前无调用方）。此外 `apps/digital-twin` 仍由 monorepo 跟踪，根 workflow、DEVELOPMENT.md 与 TODO 里都有它的关联项；项目名、窗口 / 文档标题与 `APP_PROTOCOL` 仍是 `meta-note`，上一轮要求改名到数字孪生相关的诉求被迁移需求打断，尚未执行。
-  - 建议：给 meta-note 的 `6914755` 打归档 tag 后清空 `main`（历史保留可随时恢复），按决策把子模块与文档迁入或留在归档仓库；Rust 空壳建议丢弃，因为 digital-twin 已有 681 行 / 17 个真实导出。
-  - 需决策：meta-note 是清空复用还是保留只读归档；`browser-extension` 子模块是否随监控窗口一起搬；digital-twin 是否仍留在 monorepo（上一轮说过「放弃在本项目中集成数字孪生」，若仍成立需独立成仓库并清理 monorepo 关联项）；最终项目名与 `APP_PROTOCOL` 是否修改（改协议会影响已注册 URL scheme 与深度链接）。
-  - 关闭条件：完成仓库与品牌决策，落盘对应改动，并清理或迁走 monorepo 里的关联项。
-
-- [ ] 为 digital-twin 本地 HTTP 服务增加鉴权并绑定到回环地址。
-  - 问题：`src/main/http-server.ts:30` 返回 `Access-Control-Allow-Origin: *`，`:60` 调用 `listen(this.port)` 未指定主机（监听所有网卡），`:41-56` 的路由（截屏、目录读取、视频合并、token、TTS 合成/下载/删除）没有任何鉴权。2026-11-13 迁移笔记功能后，同一无鉴权面上又新增了 `/api/note/generate`、`/api/note/status/:id`、`/api/note/:id`、`/api/study/request` 这几条会触发下载、外部转写与队列写入的路由，攻击面进一步扩大。
-  - 建议：绑定 `127.0.0.1`，把通配 CORS 头换成显式来源或直接去掉，对所有变更类或敏感路由要求逐会话 token，并在目录 / 截屏控制器里校验路径输入。
-  - 需决策：确定逐会话 token 方案，并确认这个本地 HTTP 服务的调用方（外部数字孪生程序可能依赖当前无鉴权的路由）。加鉴权是破坏性接口变更。
-  - 关闭条件：绑定 `127.0.0.1`、去掉通配 CORS 头、每条敏感路由强制 token、校验路径输入，并确认已知调用方仍可正常工作。
+2026-11-13 用户给出 6 条决定：监控窗口保留、按推荐的鉴权方案处理、不动原本的 meta-note、digital-twin 继续集成在 monorepo、名称统一为 `meta-note元笔记`、不做任何测试且 lockfile 作为生成文件不入库。据此本节原有的「合并监控窗口与两套 LLM 控制器」「meta-note 仓库腾空与资产处置」「本地 HTTP 服务鉴权」三条已关闭并移入归档区；`APP_PROTOCOL` 保持 `meta-note` 不变，避免影响已注册的 URL scheme 与深度链接。下面只保留仍需决策的任务。
 
 - [ ] 把各 app 的测试覆盖补齐到项目的测试框架要求。
   - 问题：`backstage-admin` 只有 1 个测试文件（`tests/env.spec.ts`），却对应 93 个手写 `src/apis/` 模块；`apps/client` 有 9 个测试文件，全在 `lib` 层，没有组件 / 页面覆盖，且 e2e 套件被禁用；`digital-twin/system-management` 有 7 个单测文件，另有 `playwright.config.ts` 和一个 `src/renderer/e2e/scene.spec.ts`，没有响应式 / 视觉 / 性能覆盖。
@@ -118,16 +102,16 @@
   - 环境要求：需要从 `ubuntu-24.04` runner 可达的 staging 网关、设置 `PERF_BASE_URL` 所需的仓库 / 环境变量写权限，以及 `workflow_dispatch` 权限。
   - 关闭条件：设置变量后跑一次 `workflow_dispatch` 和一次定时运行，确认步骤输出显示真实 URL、`use_mock=false`，且没有 MOCK DATA 标注。
 
-- [ ] 为 `apps/digital-twin/system-management` 增加可复现安装与 Electron 运行时冒烟检查。
-  - 问题：`d10f4015` 新增了 `.github/workflows/system-management-check.yml`（run #1 成功），修正了构建上下文 / Dockerfile / compose 路径，并在 CI 里加入 `npm run build:native`、`npm run typecheck` 和 `npm run test:run`，解决了此前「没有 CI 构建它」的缺口。仍未完成：开发机上的 4 个 lockfile（`apps/backstage-admin/package-lock.json`、`apps/client/yarn.lock`、`apps/client/turbo-module/appsdk/yarn.lock`、`apps/digital-twin/system-management/package-lock.json`）都被 gitignore，干净检出时一个都没有（workflow `:34-35` 的注释正因如此才关闭包管理器缓存）；本机装了 `system-management/node_modules` 不代表 CI 可复现，`docker/Dockerfile:20-24` 与 workflow `:49` 都用未锁定的 `npm install --legacy-peer-deps`，两者都不执行 `npm run rebuild:sqlite3`（而 app 声明了 `better-sqlite3 ^11.0.0`），也都未启动 Electron（`docker/Dockerfile:4` 与 workflow `:48` 的 `ELECTRON_SKIP_BINARY_DOWNLOAD=1`）。因此原生 ABI 回归从不在运行时被检验。渲染进程隔离已于 2026-11-13 加固，并用两个隐藏 `BrowserWindow` 的受控冒烟验证了隔离配置与 preload 注入（见归档区），但那不是加载真实业务 UI 的完整回归。2026-11-09 曾因镜像源缺 `@typescript-eslint/parser@8.72.2` 导致安装失败；该镜像已同步，但安装仍未锁定。
-  - 建议：为本 app 提交 lockfile（随后处理其他 `apps/*` 包），把 CI 与 Docker 改回 `npm ci`，用 `.npmrc` 锁定 registry，增加 `npm run rebuild:sqlite3` 的 CI 步骤以及无头 Electron 启动 / 冒烟检查（或记录所需的手动真机检查），并在移除本项前记录两个窗口的真实运行结果。先确认 lockfile 决策：早前有指令要求去掉与 node_modules 内容或 git 跟踪状态相关的任务。
-  - 需决策（优先解决）：确认是否允许为本 app、进而为其他 `apps/*` 包提交 lockfile。这与早前「去掉 node_modules / git 跟踪状态相关任务」的指令冲突，任何安装相关改动之前都必须明确回答。
+- [ ] 为 `apps/digital-twin/system-management` 补齐 Electron 运行时冒烟检查与 CI 原生 ABI 覆盖。
+  - 问题：`d10f4015` 新增了 `.github/workflows/system-management-check.yml`（run #1 成功），修正了构建上下文 / Dockerfile / compose 路径，并在 CI 里加入 `npm run build:native`、`npm run typecheck` 和 `npm run test:run`，解决了此前「没有 CI 构建它」的缺口。仍未完成：`docker/Dockerfile:20-24` 与 workflow `:49` 都用 `npm install --legacy-peer-deps`，两者都不执行 `npm run rebuild:sqlite3`（而 app 声明了 `better-sqlite3 ^11.0.0`），也都未启动 Electron（`docker/Dockerfile:4` 与 workflow `:48` 的 `ELECTRON_SKIP_BINARY_DOWNLOAD=1`）。因此原生 ABI 回归从不在运行时被检验。渲染进程隔离已于 2026-11-13 加固，并用两个隐藏 `BrowserWindow` 的受控冒烟验证了隔离配置与 preload 注入（见归档区），但那不是加载真实业务 UI 的完整回归。
+  - 2026-11-13 决定：lockfile 属于生成文件，明确不放入版本控制（根 `.gitignore` 与本 app `.gitignore` 已忽略，仓库中无被跟踪的 lockfile）。因此不再有「提交 lockfile / 切回 `npm ci`」这条路线，也不再把 lockfile 缺失当作缺陷；可复现安装改用 `.npmrc` 固定 registry 加显式依赖版本约束。用户同时明确「不要做任何测试，环境是没问题的」，冒烟与端到端验证本轮一律豁免，本项继续保持 `[ ]`。
+  - 建议：用 `.npmrc` 固定 registry，增加 `npm run rebuild:sqlite3` 的 CI 步骤以及无头 Electron 启动 / 冒烟检查（或记录所需的手动真机检查）；需要运行验证时再单独取得授权。
   - 环境要求：CI 里需要无头 Electron 运行时（xvfb，并取消 `ELECTRON_SKIP_BINARY_DOWNLOAD=1`）、通过 `.npmrc` 锁定 registry，以及两个 BrowserWindow 的真机 / 图形界面运行来取得冒烟结果。2026-11-13 的受控冒烟已覆盖「两个窗口的隔离配置」这一部分，仍缺 CI 无头冒烟与加载真实业务 UI 的完整回归。
-  - 关闭条件：提交 lockfile、把 CI 与 Docker 切回 `npm ci`、加入 `npm run rebuild:sqlite3`、加入无头 Electron 启动 / 冒烟步骤，并记录两个窗口的一次真实运行。
+  - 关闭条件：加入 `npm run rebuild:sqlite3`、加入无头 Electron 启动 / 冒烟步骤，并在获准运行验证后记录两个窗口的一次真实运行。
 
 ## 已完成任务（归档）
 
-仅用中文记录。每项归档前均已按 CHECK_LIST.md 验证。
+仅用中文记录。每项归档前均已按 CHECK_LIST.md 验证；2026-11-13 用户明确「不要做任何测试，环境是没问题的」，故本轮新增的三条归档只做静态类型检查、空白检查与预提交守卫，运行验证按用户决定豁免。
 按 DEVELOPMENT.md 第 4 步，通过的任务从可执行列表移除，并在此以勾选项记录。
 已完成、但所属大任务仍需人工决策或外部环境才能关闭的代码子项，也在此单独以 `[x]` 登记，并在条目里注明该大任务为何仍保持 `[ ]`。
 
@@ -142,3 +126,9 @@
 - [x] 加固 `apps/digital-twin/system-management` 的 Electron 渲染进程隔离，同时保留 AI Agent 所需的文件读写 / 查询 / 显示能力。按 2026-11-13 的决定：不砍能力、不留任意频道的兼容层，只收紧渲染层输入与本机资源之间的信任边界。两个 `BrowserWindow` 改为 `contextIsolation: true` / `nodeIntegration: false` / `sandbox: true`，移除 `@electron/remote`（`package.json` 依赖与 `vite.config.ts` 的 external 一并删除）；`src/main/preload.ts` 只通过 `contextBridge` 暴露 19 个具名方法，频道全部取自 `IPC_CHANNELS`，不再有任意频道转发，invoke 错误直接向上传播；`src/global.ts` 去掉掩盖类型错误的索引签名，浏览器指纹修正拆到 `src/main/browser-fingerprint.ts`。渲染层 6 个文件里直接使用的 `ipcRenderer` 与 `@electron/remote` 全部迁到具名方法。新增 `src/main/path-guard.ts`：目录须由主进程原生 `dialog` 显式授权，`READ_FILE_IN_DIRECTORY` / `MERGE_VIDEO` 的每个路径都须落在授权目录内（含 `realpath` 防符号链接与前缀欺骗），其余 handler 逐个校验参数；`OPEN_EXTERNAL` 只放行 `EXTERNAL_TARGETS` 枚举里的 https 目标。顺带修复 3 处既有缺陷：`Files2video.tsx` 的 `mergeVideo` 缺 `outputPath`、`VoiceTools.tsx` 用 `send` 调用只注册了 `handle` 的字幕频道、`Settings.tsx` 4 个按钮调用的 `requestOpen*` 方法原本根本不存在（现改为主进程 URL 白名单打开官方站点）。新增 3 组单测共 24 例；`npx tsc --noEmit` exit 0、`npx vitest run` 135/135 通过、`npx vite build` 成功（preload 产物只 `require("electron")`）；用两个隐藏 `BrowserWindow` 做受控冒烟得到 `SMOKE_OK`：`window.desktop` 正常注入、19 个具名方法齐全、通用 `send` 与 `require` 均为 `undefined`。验证边界：冒烟加载的是空白页而非真实业务 UI，完整交互回归与 CI 无头冒烟仍属「可复现安装」任务。本机 `ELECTRON_RUN_AS_NODE=1` 会让 Electron 以纯 Node 模式运行而不提供内置模块，冒烟时需去掉该变量。提交：`c10ba499`。
 
 - [x] 把 meta-note 独有的可合并功能迁入 `apps/digital-twin/system-management`，使 digital-twin 成为功能完整的主项目。按 2026-11-13 的决定：不开分支、直接在 master 处理，互斥或会破坏安全基线的部分先跳过。迁入 13 个源码文件（笔记生成 `note.controller` / `note.service`、学习机队列 `study.controller` / `study.service`、7 个下载与转写 provider、`VideoNote.tsx`），补 `youtube-dl-exec` / `kafkajs` / `ioredis` 三个依赖、`STUDY_CONSTANTS` 与 5 条路由常量、合并后的 `.env.example`、`VITE_WEB_SERVER_PORT` / `VITE_VOICE_API_URL` 的构建注入；在 `app.module.ts` 注册 9 个 provider、`desktop-main.ts` 与 `http-server.ts` 接通 5 条路由，`App.tsx` 增加「视频笔记」第三入口。三处必要适配：`NoteController` 原本用 Nest 装饰器注入参数，但本项目路由是 Express 手动绑定，故改成 `(req, res)` 处理器并保持原响应契约；`Transcriber` 在源项目是固定返回 placeholder 文本的占位实现，改为真实调用 `WHISPER_URL` 的 Whisper 兼容端点并在无结果 / 传输失败时抛错；删掉 `note.service.ts` 里未使用的 `NoteController` 循环 import。新增 16 个行为断言单测（4 个 spec 文件），含通过真实 Express 端口发起 `fetch` 验证新路由已注册。验证：`npx tsc --noEmit` exit 0、`npx vitest run` 151/151 通过（原 135 + 新 16）、`npx vite build` 成功（preload 仍为 3 模块 / 4.61 kB，隔离基线未变）、`git diff --check` 干净、lefthook 三项守卫全绿。跳过的部分与仍需人工决策的事项已登记为上面两条 `[ ]` 任务：两套互斥的 `LLMController`、ChatGPT / DeepSeek 监控窗口与注入脚本、`AuthController` 的 token 写入、meta-note 的两个子模块 / 文档 / Rust DDD 空壳 / 两个无调用方的类型，以及仓库腾空、品牌与 `APP_PROTOCOL` 命名。运行边界：Kafka / Redis / Whisper / yt-dlp 都是外部依赖，本次只验证编译、单测与 HTTP 路由，未做端到端实跑；本地 HTTP 服务仍是 `CORS *` 且监听所有网卡，新增的写操作路由扩大了无鉴权面，已在「为本地 HTTP 服务增加鉴权」任务里补记。提交：`10b4b4e8`。
+
+- [x] 保留并迁入 meta-note 的 ChatGPT / DeepSeek 监控窗口，关闭「合并监控窗口与两套 LLM 控制器」任务。按 2026-11-13 用户决定：监控窗口保留，按 `payload.model` 分流。迁入 `desktop-chatgpt.ts` / `desktop-deepseek.ts` / `browser/{base,enhanced}-browser-window.ts` / 3 个 `main/injects/*` / 2 个会话数据类型，并新增 `monitor-preload.ts` 与 `monitor-llm.controller.ts`。两个监控窗口统一到 `contextIsolation: true` / `nodeIntegration: false` / `sandbox: true`，使用独立 `persist:chatgpt` / `persist:deepseek` 分区；注入脚本不再依赖已删除的 `window.desktop.send` 与 WebSocket 兜底，只通过 `window.monitor` 的 `reportSseChunk` / `requestOpenExternalLogin` 两个具名方法上报与跳转；SSE 分片改由 `MONITOR_SSE_CHUNK` 频道进入主进程 eventBus，并修正源项目监听 `sse_chunk` 与发射 `sse-chunk` 不一致导致转发失效的缺陷。`/v1/chat/completions` 保持单一路由：`local`（默认）走原 `LLMService` / `LOCAL_LLM_PROVIDER`，`chatgpt` / `deepseek` 委托 `MonitorLLMController`，`getTags` 同时列出三个模型；`AuthController` 接回真实 session token 写入（ChatGPT 写分区 cookie、DeepSeek 写可配置 cookie），且不再把 token 打到日志。渲染层 `Settings.tsx` 改为通过具名方法打开应用内监控窗口；`AudioMonitor.tsx` 里残留的任意频道 `desktop.send` 一并改为具名音频方法。验证边界：按用户「不要做任何测试」的要求，本轮未运行 vitest / e2e / 构建，仅做 `npx tsc --noEmit` 静态类型检查（exit 0）、`git diff --check` 与 lefthook 三项守卫；窗口冒烟与单测按用户决定豁免。提交：`2a318bd1`。
+
+- [x] 按 2026-11-13 的 6 条决定关闭仓库与品牌决策：原本的 meta-note 仓库不做任何改动（不打归档 tag、不清空 `main`、不搬 `browser-extension` / 文档 / Rust DDD 空壳），digital-twin 继续作为 monorepo 内的集成项目，根 workflow / `DEVELOPMENT.md` / 目录结构均不调整；用户可见名称统一为 `meta-note元笔记`（`package.json` 的 `productName`、`index.html`、两份 README、主窗口与两个监控窗口标题、`Settings.tsx` 标题与欢迎语），`APP_PROTOCOL` 继续用 `meta-note` 以避免破坏已注册 URL scheme 与深度链接。lockfile 确认为生成文件、不入库，已同步改写「可复现安装与 Electron 运行时冒烟检查」任务的建议与关闭条件，去掉 `npm ci` 路线；该任务因用户明确本轮不做测试而继续保持 `[ ]`。提交：`2a318bd1`。
+
+- [x] 关闭「为 digital-twin 本地 HTTP 服务增加鉴权并绑定到回环地址」。`HttpServer` 改为监听 `127.0.0.1`，去掉 `Access-Control-Allow-Origin: *`，改为只放行 `file://`（`Origin: null`）、Vite dev server 与自身端口的显式来源白名单，并对私有网络预检回 `Access-Control-Allow-Private-Network`；所有路由统一要求逐会话 token（`Authorization: Bearer` / `X-Local-Api-Token` / SSE 场景的 `?token=`），用 `timingSafeEqual` 常量时间比较，未设置 `LOCAL_API_TOKEN` 时每次启动随机生成。渲染层通过新增的具名桥接 `getLocalApiToken` 取值，新增 `src/renderer/services/local-api.ts` 统一为本地 fetch 附加 token，`VideoNote.tsx` / `VoiceTools.tsx` / `SubtitlesOverlay.tsx` 全部改走该 helper，`/api/tts/download` 的 EventSource 改用带 token 的 URL；外部 `VITE_VOICE_API_URL` 不会收到 token。`SystemController` 对 `filePath` / `videos` / `outputPath` 做类型、长度、空字节与 `..` 路径校验；README 与 `.env.example` 补充鉴权及 `DEEPSEEK_SESSION_COOKIE_NAME` 说明，并让 `http-server.spec.ts` / `preload.spec.ts` 的断言与新契约保持一致（未运行测试）。提交：`2a318bd1`。
