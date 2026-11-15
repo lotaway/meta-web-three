@@ -32,22 +32,6 @@ services:
       retries: 3
       start_period: 60s
 
-  digital-twin-frontend:
-    build:
-      context: ./apps/digital-twin
-      dockerfile: system-management/docker/Dockerfile
-    container_name: digital-twin-frontend
-    ports:
-      - "3002:3000"
-    environment:
-      - VITE_WS_URL=ws://localhost:8082/ws
-      - VITE_API_URL=http://localhost:8082/api
-      - VITE_MQTT_URL=ws://localhost:9001
-    depends_on:
-      - factory-service
-    networks:
-      - meta-web-three
-    restart: unless-stopped
 
 networks:
   meta-web-three:

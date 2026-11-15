@@ -10,7 +10,6 @@ import {
 } from '../services/digital-twin-api'
 import { DigitalTwinWebSocket } from '../services/websocket'
 
-const POLL_INTERVAL_MS = 15000
 const MAX_CHART_POINTS = 40
 
 function appendChartPoint(prev: ChartPoint[], value: number): ChartPoint[] {
@@ -28,7 +27,19 @@ export function useDigitalTwinData() {
   const [apiAvailable, setApiAvailable] = useState<boolean | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
   const wsRef = useRef<DigitalTwinWebSocket | null>(null)
+  const devicesRef = useRef<Device[]>([])
+  const needsReconcileRef = useRef(false)
 
+  useEffect(() => {
+    devicesRef.current = devices
+  }, [devices])
+
+  const markFailure = useCallback((err: unknown) => {
+    setApiAvailable(false)
+    setLoadError(err instanceof Error ? err.message : 'Unable to reach the digital twin service')
+  }, [])
+
+  // Full reconciliation runs only on first load, reconnect and manual refresh; state changes are event-driven.
   const refreshAll = useCallback(async () => {
     try {
       const deviceList = await digitalTwinApi.fetchDevices()
@@ -36,6 +47,7 @@ export function useDigitalTwinData() {
         digitalTwinApi.fetchActiveAlerts(deviceList),
         digitalTwinApi.fetchStatsSummary(),
       ])
+      devicesRef.current = deviceList
       setDevices(deviceList)
       setAlerts(alertList)
       setStats(summary)
@@ -47,10 +59,31 @@ export function useDigitalTwinData() {
         )
       }
     } catch (err) {
-      setApiAvailable(false)
-      setLoadError(err instanceof Error ? err.message : '无法连接数字孪生服务')
+      markFailure(err)
     }
-  }, [])
+  }, [markFailure])
+
+  const refreshAlerts = useCallback(async () => {
+    try {
+      const alertList = await digitalTwinApi.fetchActiveAlerts(devicesRef.current)
+      setAlerts(alertList)
+      setApiAvailable(true)
+      setLoadError(null)
+    } catch (err) {
+      markFailure(err)
+    }
+  }, [markFailure])
+
+  const refreshStats = useCallback(async () => {
+    try {
+      const summary = await digitalTwinApi.fetchStatsSummary()
+      setStats(summary)
+      setApiAvailable(true)
+      setLoadError(null)
+    } catch (err) {
+      markFailure(err)
+    }
+  }, [markFailure])
 
   const patchDeviceFromEvent = useCallback((payload: Record<string, unknown>) => {
     const deviceCode = payload.deviceCode as string | undefined
@@ -86,15 +119,22 @@ export function useDigitalTwinData() {
 
   useEffect(() => {
     void refreshAll()
-    const pollId = window.setInterval(() => void refreshAll(), POLL_INTERVAL_MS)
-    return () => window.clearInterval(pollId)
   }, [refreshAll])
 
   useEffect(() => {
     const ws = new DigitalTwinWebSocket({
       url: DIGITAL_TWIN_WS_URL,
-      onOpen: () => setIsConnected(true),
-      onClose: () => setIsConnected(false),
+      onOpen: () => {
+        setIsConnected(true)
+        if (needsReconcileRef.current) {
+          needsReconcileRef.current = false
+          void refreshAll()
+        }
+      },
+      onClose: () => {
+        setIsConnected(false)
+        needsReconcileRef.current = true
+      },
       reconnectAttempts: 10,
     })
 
@@ -104,20 +144,18 @@ export function useDigitalTwinData() {
       switch (message.type) {
         case 'DEVICE_STATUS_CHANGED':
         case 'AGV_POSITION_UPDATED':
-          patchDeviceFromEvent(payload)
-          break
         case 'DEVICE_POSITION_UPDATED':
           patchDeviceFromEvent(payload)
           break
         case 'ALERT_CREATED':
-          void refreshAll()
+          void refreshAlerts()
           break
         case 'PRODUCTION_OUTPUT_UPDATED': {
           const output = Number(payload.output)
           if (!Number.isNaN(output)) {
             setChartData((prev) => appendChartPoint(prev, output))
           }
-          void refreshAll()
+          void refreshStats()
           break
         }
         default:
@@ -133,22 +171,22 @@ export function useDigitalTwinData() {
       ws.disconnect()
       wsRef.current = null
     }
-  }, [patchDeviceFromEvent, refreshAll])
+  }, [patchDeviceFromEvent, refreshAlerts, refreshStats, refreshAll])
 
   const acknowledgeAlert = useCallback(
     async (alertId: string) => {
       await digitalTwinApi.acknowledgeAlert(alertId)
-      await refreshAll()
+      await refreshAlerts()
     },
-    [refreshAll],
+    [refreshAlerts],
   )
 
   const resolveAlert = useCallback(
     async (alertId: string) => {
       await digitalTwinApi.resolveAlert(alertId)
-      await refreshAll()
+      await refreshAlerts()
     },
-    [refreshAll],
+    [refreshAlerts],
   )
 
   return {
