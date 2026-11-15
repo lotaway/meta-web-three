@@ -56,15 +56,11 @@ cd meta-web-three
 
 #### 6. 访问应用
 ```bash
-# 端口转发到前端
-kubectl port-forward service/client-service 30001:30001 -n meta-web-three
-
-# 端口转发到API
+# 端口转发到 API
 kubectl port-forward service/product-service 10082:10082 -n meta-web-three
 ```
 
 访问地址：
-- 前端: http://localhost:30001
 - API: http://localhost:10082
 
 ## 📋 详细部署步骤
@@ -80,12 +76,9 @@ sudo chmod 755 /data -R
 
 #### 构建应用镜像
 ```bash
-# 构建前端镜像
-cd apps/digital-twin/system-management
-docker build -t meta-web-three/digital-twin-frontend:latest -f docker/Dockerfile .
+# 本仓库不包含任何前端镜像：桌面端是独立仓库 lotaway/meta-note 的 Electron 应用，不提供 Web 版
 
 # 构建后端服务镜像（上下文为仓库根目录，见 scripts/server-services-registry.sh）
-cd ..
 docker build -f server/Dockerfile --target product-service -t meta-web-three/product-service:latest .
 # 一次性构建全部 Java 服务:
 ./k8s/deploy.sh build
@@ -134,9 +127,6 @@ kubectl apply -f k8s/infrastructure/
 # 部署后端服务
 kubectl apply -f k8s/services/
 
-# 部署前端
-kubectl apply -f k8s/frontend/
-
 # 部署 API 网关
 kubectl apply -f k8s/api-gateway/
 ```
@@ -181,9 +171,6 @@ kubectl exec -it $(kubectl get pod -l app=postgres -n meta-web-three -o jsonpath
 
 ### 端口转发
 ```bash
-# 前端服务
-kubectl port-forward service/client-service 30001:30001 -n meta-web-three
-
 # 后端服务
 kubectl port-forward service/product-service 10082:10082 -n meta-web-three
 kubectl port-forward service/user-service 10083:10083 -n meta-web-three

@@ -57,13 +57,11 @@ yarn generate:api
 ```
 Generated code goes to `src/generated/api/`. See full details in [apps/client/README.md](./apps/client/README.md#generate-api-interfaces).
 
-**For [digital-twin](apps/digital-twin/):**
-⚠️ `generate:api` is NOT yet set up. API types in `src/renderer/services/generated/` are currently written manually. When adding new backend endpoints, manually create corresponding types and service calls in `src/renderer/services/api/`.
+> The digital-twin desktop app now lives in its own repository (`lotaway/meta-note`) and is no longer part of this monorepo. Its backend (`server/gateway`, `server/factory-domain/factory-service`) still lives here.
 
 ### 4. Frontend Pages
 - [Backstage Admin](apps/backstage-admin/) — enterprise admin panel (Vue 3 + Element Plus)
 - [Customer Client App](apps/client/) — customer mobile app (React Native / Expo)
-- [Digital Twin](apps/digital-twin/) — factory digital twin desktop (Electron + React)
 - Follow [Frontend Code Principles](./CODE_PINCEPLES/FRONTEND_PRICEPLES)
 
 ### 5. Testing
@@ -94,7 +92,6 @@ See [server/README.md](./server/README.md) for backend microservice domains, por
 After adding a backend service or feature, consider whether a corresponding admin page needs to be added to:
 - [Backstage Admin](apps/backstage-admin/)
 - [Customer Client App](apps/client/)
-- [Digital Twin](apps/digital-twin/)
 
 ## Adding a New Microservice
 

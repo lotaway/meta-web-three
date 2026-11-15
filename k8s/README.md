@@ -25,8 +25,6 @@ k8s/
 │   ├── user-service.yaml
 │   ├── order-service.yaml
 │   └── message-service.yaml
-├── frontend/
-│   └── client.yaml                  # 前端应用
 ├── api-gateway/
 │   └── ingress.yaml                 # API网关
 ├── deploy-all.yaml                  # 一键部署配置
@@ -171,13 +169,10 @@ kubectl create secret generic database-secret \
 ### 3. 构建和推送镜像
 
 ```bash
-# 构建前端镜像
-cd apps/digital-twin/system-management
-docker build -t meta-web-three/digital-twin-frontend:latest -f docker/Dockerfile .
-docker push meta-web-three/digital-twin-frontend:latest
+# 本仓库不包含任何前端镜像：桌面端是独立仓库 lotaway/meta-note 的 Electron 应用，不提供 Web 版
 
-# 构建后端服务镜像（在 server 目录用统一 Dockerfile + target）
-cd ../server
+# 构建后端服务镜像（从仓库根目录进入 server 目录，用统一 Dockerfile + target）
+cd server
 docker build -t meta-web-three/product-service:latest --target product-service .
 docker build -t meta-web-three/user-service:latest --target user-service .
 docker build -t meta-web-three/order-service:latest --target order-service .
@@ -208,7 +203,6 @@ kubectl apply -f k8s/storage/
 kubectl apply -f k8s/configmaps/
 kubectl apply -f k8s/infrastructure/
 kubectl apply -f k8s/services/
-kubectl apply -f k8s/frontend/
 kubectl apply -f k8s/api-gateway/
 ```
 

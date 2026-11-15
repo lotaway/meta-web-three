@@ -1,8 +1,0 @@
-networks:
-  meta-note:
-    driver: bridge
-  default:
-    driver: bridge
-
-include:
-  - ./docker-compose.env.yml

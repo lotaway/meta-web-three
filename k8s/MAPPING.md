@@ -38,12 +38,6 @@ metadata:
 ### Docker Compose 端口配置
 
 ```yaml
-# docker-compose.yml
-services:
-  digital-twin-frontend:
-    ports:
-      - "${VITE_PORT:-3000}:3000"
-
 # docker-compose.server.yaml
 services:
   gateway:
@@ -101,42 +95,9 @@ spec:
               number: 10091
 ```
 
-```yaml
-# Service 配置
-apiVersion: v1
-kind: Service
-metadata:
-  name: digital-twin-frontend-service
-spec:
-  selector:
-    app: digital-twin-frontend
-  ports:
-  - port: 3000
-    targetPort: 3000
-  type: ClusterIP
-
-# Ingress 配置
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: digital-twin-frontend-ingress
-spec:
-  rules:
-  - host: meta-web-three.local
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: digital-twin-frontend-service
-            port:
-              number: 3000
-```
-
 **映射说明**：
 
-- Docker Compose 的 `ports` 映射到 Kubernetes 的 `Service` + `Ingress`
+- 后端服务 Compose 的 `ports` 映射到 Kubernetes 的 `Service` + `Ingress`
 - Service 提供集群内访问
 - Ingress 提供外部访问入口
 - 更灵活的负载均衡和路由配置
@@ -411,15 +372,6 @@ spec:
 ### Docker Compose 构建配置
 
 ```yaml
-# docker-compose.yml
-services:
-  digital-twin-frontend:
-    build:
-      context: "./apps/digital-twin/system-management"
-      dockerfile: docker/Dockerfile
-      ports:
-      - "3000:3000"
-
 # docker-compose.server.yml
 services:
   product-service:

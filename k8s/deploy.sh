@@ -73,7 +73,6 @@ check_images() {
     log_info "检查必要的镜像..."
     
     local images=(
-        "meta-web-three/digital-twin-frontend:latest"
         "meta-web-three/product-service:latest"
         "meta-web-three/user-service:latest"
         "meta-web-three/order-service:latest"
@@ -142,8 +141,7 @@ install() {
     kubectl wait --for=condition=ready pod -l app=user-service -n "$NAMESPACE" --timeout=300s
     kubectl wait --for=condition=ready pod -l app=order-service -n "$NAMESPACE" --timeout=300s
     kubectl wait --for=condition=ready pod -l app=message-service -n "$NAMESPACE" --timeout=300s
-    kubectl wait --for=condition=ready pod -l app=digital-twin-frontend -n "$NAMESPACE" --timeout=300s
-    
+
     log_success "安装完成！"
     show_status
 }
@@ -189,13 +187,11 @@ status() {
     
     echo
     log_info "访问信息:"
-    echo "  前端: http://meta-web-three.local"
     echo "  API: http://api.meta-web-three.local"
     echo "  RabbitMQ 管理界面: http://localhost:15672 (admin/admin123)"
     
     echo
     log_info "端口转发命令:"
-    echo "  kubectl port-forward service/digital-twin-frontend-service 3000:3000 -n $NAMESPACE"
     echo "  kubectl port-forward service/product-service 10082:10082 -n $NAMESPACE"
     echo "  kubectl port-forward service/user-service 10083:10083 -n $NAMESPACE"
     echo "  kubectl port-forward service/order-service 10084:10084 -n $NAMESPACE"
@@ -235,16 +231,13 @@ logs() {
         "message")
             kubectl logs -f deployment/message-service -n "$NAMESPACE"
             ;;
-        "frontend")
-            kubectl logs -f deployment/digital-twin-frontend -n "$NAMESPACE"
-            ;;
         "all")
             log_info "显示所有服务的日志（按 Ctrl+C 停止）..."
             kubectl logs -f -l app -n "$NAMESPACE"
             ;;
         *)
             log_error "未知服务: $service"
-            echo "可用服务: zookeeper, postgres, redis, rabbitmq, product, user, order, message, frontend, all"
+            echo "可用服务: zookeeper, postgres, redis, rabbitmq, product, user, order, message, all"
             exit 1
             ;;
     esac
@@ -254,13 +247,8 @@ logs() {
 build_images() {
     log_info "构建应用镜像..."
     
-    # 构建前端镜像（digital-twin 系统管理前端）
-    log_info "构建前端镜像..."
-    docker build -t meta-web-three/digital-twin-frontend:latest \
-        -f docker/Dockerfile \
-        "$K8S_DIR/../apps/digital-twin/system-management"
-    
-    # 构建后端服务镜像（统一使用 server/Dockerfile 多阶段 target，上下文为仓库根目录）
+    # 桌面端是独立仓库 lotaway/meta-note 的 Electron 应用，不提供 Web 版，也不在 k8s 内部署。
+    # 只构建后端服务镜像（统一使用 server/Dockerfile 多阶段 target，上下文为仓库根目录）
     local repo_root="$K8S_DIR/.."
     local registry="$repo_root/scripts/server-services-registry.sh"
     # shellcheck source=../scripts/server-services-registry.sh
@@ -284,7 +272,6 @@ push_images() {
     log_info "推送镜像到仓库..."
     
     local images=(
-        "meta-web-three/digital-twin-frontend:latest"
         "meta-web-three/product-service:latest"
         "meta-web-three/user-service:latest"
         "meta-web-three/order-service:latest"
