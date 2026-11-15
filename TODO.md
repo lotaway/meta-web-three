@@ -15,6 +15,8 @@
 
 其中 PAT、性能流水线、可复现安装三条来自 2026-11-09 的 CI 清理遗留项，合规审计重写时被漏掉；2026-11-12 已对照仓库与 GitHub 重新核实。第四条遗留项（env 默认值测试的隔离性）已于 2026-11-12 修复并归档。
 
+2026-11-15 新增一批「数字孪生与工厂自动化架构对齐」任务：把 `apps/digital-twin/` 与 ISA-95 / Purdue 分层、OPC UA + MQTT + UNS 的工业数据链路、以及边缘／云部署模式做只读对照后，把「不标准或未实现」的部分拆成 9 条，按关闭条件并入下面第 1 节（4 条）与第 3 节（5 条）。这批任务只登记，未改动任何代码。沿用 2026-11-13 的决定：不动 `apps/meta-note/`、digital-twin 继续留在 monorepo、不运行任何测试、lockfile 作为生成文件不入库；凡涉及运行验证的关闭条件都须另行获准后执行。其中「统一端口／env 口径」与既有「让 DEVELOPMENT.md 第 3 节与实际的 env 和生成器契约对齐」任务有交叉，处理时要一并决定，避免两处改动冲突。
+
 ### 1. 需人工决策（必须先做出选择）
 
 编码工作在本机即可完成，但需要先定下产品／接口／验收口径，否则修完可能被推翻。
@@ -51,6 +53,30 @@
   - 建议：选定一套 env 文件 / 变量约定，同步更新三个 app 与 `.env.example` 文件，并重写第 3 节描述各 app 的真实行为，包含 digital-twin 的例外。
   - 需决策：在三个 app 间选定唯一一套 env 文件 / 变量约定（`NEXT_PUBLIC_*` 还是 `VITE_*`，`.env.development` 还是 `.env`）。需与上面「让 backstage-admin API 客户端与第 3 节一致」一起决定。
   - 关闭条件：更新三个 app 与 `.env.example` 文件，重写 DEVELOPMENT.md 第 3 节，描述各 app 的真实行为并包含 digital-twin 的例外。
+
+- [ ] 确定数字孪生的交付形态（Electron 桌面端 / 浏览器 B/S）并消除双形态冲突。
+  - 问题：`docker-compose.digital-twin.yml:35-46` 的 `digital-twin-frontend` 用 `system-management/docker/Dockerfile`（vite build → nginx:alpine，EXPOSE 3000，映射 `3002:3000`）把渲染层托管成 Web；但 `package.json` 的 `main` 指向 `dist-electron/main/desktop-main.js`，Electron 桌面端才是主入口。Web 版没有 `window.desktop`，`src/renderer/services/local-api.ts` 的 `sessionToken()` 返回 `null`，因此 `127.0.0.1:5051` 的 18 条路由全部返回 401；`monitor-preload`、Rust NAPI `system-support`、SQLite 与主进程目录授权也只存在于 Electron。两套形态共用同一份渲染层代码，能力集却不同，且没有降级清单。
+  - 建议：二选一，只保留一套。选 B/S 则把本地独有能力迁到 `factory-service` 或新增 BFF，让 `apiFetch` 在没有 bridge 时改走服务端地址，并列出 Web 版不支持的功能；选 Electron 则删除 nginx 容器或明确标注它仅供静态预览。
+  - 需决策：确定目标客户是单机桌面工具还是企业多终端（大屏 / 浏览器 / 移动端）。这个决定会影响后面采集层、鉴权与部署档位的做法。
+  - 关闭条件：形态唯一，另一形态被删除或有明确用途说明；所选形态下所有页面功能可用或有显式降级清单；文档写明两种形态的能力差异。按本轮决定不运行测试，功能核对须另行获准后进行。
+
+- [ ] 统一数字孪生的端口、环境变量与三套 compose 口径。
+  - 问题：`docker-compose.digital-twin.yml:11` 把后端映射为 `8082:10101`，但 `environment` 只注入 `VITE_API_URL` / `VITE_WS_URL` / `VITE_MQTT_URL`，没有 `VITE_DIGITAL_TWIN_*` / `VITE_MES_*`，3D 页面仍按 `renderer/config/digital-twin.ts` 默认连 `localhost:10101`。这些 `VITE_*` 是 Vite **构建期**替换，`system-management/docker/Dockerfile` 的 builder 阶段没有用 `ARG` / `ENV` 接收，compose 的 `environment` 只作用于运行时 nginx 容器，对已构建的静态产物无效。`system-management/docker/docker-compose.yml` 是第二套口径（`VITE_API_URL=http://localhost:8080`、`VITE_WS_URL=ws://localhost:8082/ws`）；`docker/nginx.conf.d/default.conf` 把 `/api/` 代理到 `host.docker.internal:8080`、`/ws` 到 `:8082/ws`，与后端 `10101` 不符；`VITE_MQTT_URL=ws://localhost:9001` 指向的 broker 在 compose 中并未启动。`apps/digital-twin/docker-compose.env.yml` 是第三套口径。此外 `.env.example` 未登记 `VITE_WEB_SERVER_PORT` / `VITE_API_URL` / `VITE_WS_URL` / `VITE_MQTT_URL`，`:14` 写 `VITE_VOICE_API_URL` 默认 `http://localhost:5051`，而 `AudioContext.tsx:5` 实际默认 `http://localhost:8000`；`8080` 同时被 `WHISPER_URL`、`VITE_MES_API_PORT` 与内置 `llama-server` 占用。`docker-compose.digital-twin.yml:22` 的 `depends_on: [kafka, redis]` 在本文件未定义，需叠加 `docker-compose.env.yml`，而后者 kafka 用 `network_mode: host`，factory-service 却连 `kafka:9092`。
+  - 建议：建一张唯一的端口／env 对照表写进 README 与 `.env.example`；用 Dockerfile `ARG` + compose `build.args` 把 `VITE_*` 传进构建阶段；合并三套 compose 或逐一标明用途；修正 nginx 代理、`.env.example` 默认值与 `8080` 冲突；补 MQTT broker 服务或删掉该变量；统一 kafka 的网络口径。
+  - 需决策：定唯一端口分配表与 compose 入口（单文件还是叠加使用）；env 命名规则需与「让 DEVELOPMENT.md 第 3 节与实际的 env 和生成器契约对齐」一并决定。
+  - 关闭条件：只剩一份口径，所有 `VITE_*` 在构建期生效且都登记在 `.env.example`，容器起来后 3D 页面 / 告警规则 / MES 面板能连到正确地址，`8080` 不再冲突，kafka 可解析。本轮只做静态核对，不运行测试。
+
+- [ ] 用事件订阅替代 15s 全量 REST 轮询，确定状态的权威来源。
+  - 问题：`renderer/hooks/useDigitalTwinData.ts:13,89` 用 `POLL_INTERVAL_MS = 15000` 每 15 秒全量 `refreshAll()`，同时 `:93-129` 又订阅 `ws://.../ws/digital-twin` 的 5 类事件，两条通路写同一份 state，可能相互覆盖或状态回退。另有 `renderer/services/mqtt.ts` 的 MQTT 客户端与 `useAlertNotification` 的告警 WS 写好但没有调用方，`WEBSOCKET_URL`（本地 5050）常量也无渲染层引用。工业侧惯例是状态走事件、历史走时序库，不做定时全量拉。
+  - 建议：首屏取一次快照，之后只按 WS / MQTT 事件做增量更新；断线重连做一次全量对账；轮询仅作降级兜底；把未接线的客户端要么接上要么删除。
+  - 需决策：确定权威数据源以及快照与事件冲突时的取舍规则（按事件时间戳还是按快照覆盖）；决定是否保留 MQTT 通道。
+  - 关闭条件：去掉固定 15s 全量轮询，状态由事件驱动且有重连对账，未接线通道被接入或移除，页面不出现状态回退 / 重复渲染。
+
+- [ ] 提供分级部署档位并明确产品定位。
+  - 问题：目前只有 `docker-compose.digital-twin.yml` 一档（factory-service + kafka + redis + nginx 全本地），客户侧只有「全量部署」一种选择；没有单机演示档、边缘网关档或云边协同档。按 ISA-95 / Purdue 分层，L0–L2 必须留在厂内、L3 以上才可上云，因此「是否必须配专用服务器」取决于档位，而不是架构必然。
+  - 建议：按「全本地单机 / 边缘盒 + 云 / 纯云 SaaS（仅特定场景）」提供 2–3 档 compose profile 与说明；最小档增加 standalone / mock 模式，零服务端即可启动并显示演示场景；每档写明客户侧必须提供的网络与常开节点。
+  - 需决策：确认交付定位（本地演示工具 / 单厂交付 / 多厂集团），以及是否允许云侧组件与 OT 数据出域。
+  - 关闭条件：至少两档可启动并各有客户侧要求说明，standalone 档不依赖后端即可显示场景。运行验证按本轮决定豁免，须另行获准后进行。
 
 ### 2. 需环境 / 权限（设备、账号或外部服务）
 
@@ -108,6 +134,41 @@
   - 建议：用 `.npmrc` 固定 registry，增加 `npm run rebuild:sqlite3` 的 CI 步骤以及无头 Electron 启动 / 冒烟检查（或记录所需的手动真机检查）；需要运行验证时再单独取得授权。
   - 环境要求：CI 里需要无头 Electron 运行时（xvfb，并取消 `ELECTRON_SKIP_BINARY_DOWNLOAD=1`）、通过 `.npmrc` 锁定 registry，以及两个 BrowserWindow 的真机 / 图形界面运行来取得冒烟结果。2026-11-13 的受控冒烟已覆盖「两个窗口的隔离配置」这一部分，仍缺 CI 无头冒烟与加载真实业务 UI 的完整回归。
   - 关闭条件：加入 `npm run rebuild:sqlite3`、加入无头 Electron 启动 / 冒烟步骤，并在获准运行验证后记录两个窗口的一次真实运行。
+
+- [ ] 修正 prod 与 dev 数据开关错开，建立可用的设备数据通路。
+  - 问题：`DigitalTwinSimulator.java` 标 `@Profile("dev")` 且用 `@Scheduled(initialDelay = 5000, fixedDelay = 10000)` 随机改设备状态；`DigitalTwinDevDataInitializer.java` 标 `@Profile("dev")` 注册 8 台演示设备（AGV / ROBOT / PLC / CONVEYOR）；`MqttConfig.java` 默认 `mqtt.enabled:false`。而 `docker-compose.digital-twin.yml:13` 设 `SPRING_PROFILES_ACTIVE=prod`，覆盖了 `application.yml:7` 的默认 `dev` —— 容器启动后既没有演示数据也没有采集数据，`/api/digital-twin/devices` 为空，3D 页面无设备可显示。
+  - 建议：把演示数据与模拟器抽成独立 `demo` profile，与 `dev` 解耦；`prod` 只接受真实数据源；MQTT 开关由 compose 显式注入；提供 `demo` 一键档。状态实体补 `source` / `quality` / `timestamp`，让前端能区分演示值与真实遥测。
+  - 需决策：prod 是否允许演示数据兜底；演示数据在界面上的标记与展示口径。
+  - 环境要求：需要可达的 MQTT broker 与至少一个数据源（真实设备或 OPC UA 仿真器）才能验证 prod 通路；按本轮决定不运行验证，须另行获准。
+  - 关闭条件：prod 档能拿到非空设备列表（来自真实源或显式开启的 demo profile），dev / prod / demo 三档行为写入文档，前端能区分数据来源与新鲜度。
+
+- [ ] 补齐工业协议采集层（OPC UA / 协议网关 / UNS / 边缘缓存）。
+  - 问题：全仓没有 OPC UA / Modbus / 西门子 S7 等现场协议实现；`Device.mqttTopic` 只是实体字段；`MqttTelemetrySubscriber.java` 只订阅 `MqttConfig` 默认的裸前缀 `mes/equipment/`，没有 Sparkplug B、没有按 ISA-95 `Enterprise → Site → Area → Line → Cell → Device → Tag` 组织的 UNS、没有单位 / 时间戳 / quality 归一化，也没有断网缓存与补发。所谓「数字孪生」目前并不与物理设备相连。
+  - 建议：新增边缘采集模块：OPC UA 客户端（或对接 Kepware / Ignition 类网关）→ 归一化 → MQTT / Sparkplug B 按 UNS 层级发布 → `factory-service` 订阅；边缘侧做死区过滤与断网缓存补发；老设备经协议转换网关接入。OT 与 IT 之间用双网卡网关，只做出站连接。
+  - 需决策：现场协议范围（OPC UA 直连还是外部网关）、是否采用 Sparkplug B / UNS 命名规范、无数字接口的老设备是否纳入范围、边缘网关粒度（每机 / 每区域）。
+  - 环境要求：需要 OPC UA 服务器或 PLC 仿真器、MQTT broker、OT 网络 VLAN 与证书。
+  - 关闭条件：至少一个点位能从设备经网关进入 `factory-service` 并在 3D 页面显示，带质量标签与时间戳，断网重连后数据不丢。运行验证须另行获准。
+
+- [ ] 落地时序库（historian）或移除无效依赖。
+  - 问题：`pom.xml:46-47` 声明 `influxdb-client-java`，但 `src/main/java` 里零使用；`TelemetryRecord` / `ScadaTelemetryRecordDO` 走关系型 mapper，没有时序读写与历史回放；`ScadaController` 的 `/api/mes/scada/telemetry/{code}/range` 因此拿不到真正的时序数据，追溯与趋势面板缺数据底座。
+  - 建议：把遥测写入时序库，提供按设备 / 时间范围查询的 REST 供前端消费；若确定不落地，则删除该依赖并在文档说明。
+  - 需决策：选 InfluxDB / TDengine / TimescaleDB 还是明确不落地；确定采样粒度与历史保留周期。
+  - 环境要求：需要时序库实例（目前 `docker-compose.digital-twin.yml` 只有 kafka / redis）与历史数据量评估。
+  - 关闭条件：遥测可写入并按时间范围查询，或被移除的依赖有明确说明。
+
+- [ ] 明确「数字影子 / 闭环孪生」边界，并实现受控写回（如需）。
+  - 问题：`ScadaController.java:58` 有 `POST /api/mes/scada/commands`，`MqttCommandPublisher.java` 能把指令发到 broker，但写回完全由人工触发，没有自动或受控闭环；按 Kritzinger 的分类，只有单向展示的是 digital shadow，而当前连展示数据都来自 `DigitalTwinSimulator`。README 却一直按「数字孪生」描述。
+  - 建议：若需要闭环，做「建议 → 人工确认 → 白名单点位写回 → 审计」链路，控制逻辑与安全联锁仍留在 PLC；若不需要，把产品命名与 README 统一为「数字影子 / 可视化监控」，不提供写回。
+  - 需决策：是否允许写回产线、审批流与白名单点位范围、产品命名是否调整。
+  - 环境要求：需要可写测试点位、PLC 侧安全联锁与写操作审计存储。
+  - 关闭条件：闭环链路可用且有审计记录，或文档明确单向边界并统一命名。
+
+- [ ] 补齐企业安全与治理基线。
+  - 问题：`DigitalTwinAuthHandshakeInterceptor.java` 的 `beforeHandshake` 只检查 `userId` 与 `Authorization` 请求头**是否存在**，不校验 token 内容，`userRole` 直接采信客户端请求头（可伪造身份与角色）；REST 侧没有统一鉴权，`POST /api/mes/scada/commands` 无审批留痕；未见多租户 / SSO / RBAC / 审计日志 / mTLS / IEC 62443 分区。本地 5051 的逐会话 token 只覆盖 Electron 内部，不等于服务端安全。
+  - 建议：REST 与 WS 统一认证（校验签名与过期，角色从服务端会话取而非请求头），写操作按角色授权并留审计；OT 侧只做出站、不开放 inbound；按 zones & conduits 划分区边界并写进部署文档。
+  - 需决策：认证方案（本地账号 / LDAP / OIDC）、是否多租户、写指令审批与审计留痕范围、是否按 IEC 62443 分区。
+  - 环境要求：需要 IdP / 证书 / 测试账号，以及一次未授权访问被拒的验证；按本轮决定不运行验证，须另行获准。
+  - 关闭条件：未授权 REST / WS 被拒、角色不再由请求头决定、写指令有审计记录、文档写明分区边界。
 
 ## 已完成任务（归档）
 
