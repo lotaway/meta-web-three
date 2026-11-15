@@ -13,6 +13,7 @@ const MAX_PROMPT_LENGTH = 100_000
 
 export interface IpcCallbacks {
     getLocalApiToken?: () => string | null
+    getGatewayToken?: () => string | null
     openMonitorWindow?: (provider: MonitorProvider) => void
     openExternalLogin?: (provider: MonitorProvider) => void
 }
@@ -179,6 +180,7 @@ export class IpcRegistry {
 
     private registerMonitorHandlers() {
         ipcMain.handle(IPC_CHANNELS.GET_LOCAL_API_TOKEN, () => this.callbacks.getLocalApiToken?.() ?? null)
+        ipcMain.handle(IPC_CHANNELS.GET_GATEWAY_TOKEN, () => this.callbacks.getGatewayToken?.() ?? null)
         ipcMain.handle(IPC_CHANNELS.OPEN_MONITOR_WINDOW, (_e, provider) => {
             this.callbacks.openMonitorWindow?.(this.assertMonitorProvider(provider))
         })

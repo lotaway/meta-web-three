@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { MES_API_BASE_URL } from '../../../config/mes'
+import { installGatewayAuth } from '../../gateway-client'
 import type { TelemetryRecord, DeviceCommand, TraceRecord, TraceChain } from './types'
 
 const _client = axios.create({
@@ -7,6 +8,8 @@ const _client = axios.create({
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
 })
+
+installGatewayAuth(_client)
 
 export const mesApi = {
   async fetchTelemetry(equipmentCode: string, limit = 10): Promise<TelemetryRecord[]> {

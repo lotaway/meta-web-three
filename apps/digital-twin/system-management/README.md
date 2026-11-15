@@ -20,11 +20,35 @@ Edit `.env` and set the voice service endpoint:
 VITE_VOICE_API_URL=http://localhost:8000
 ```
 
-## Local HTTP API authentication
+## Cross-service access: gateway + JWT
 
-The Electron main process exposes a loopback-only HTTP API on `127.0.0.1:${WEB_SERVER_PORT}` (default `5051`). This is an internal API: its only consumer is this application's own renderer, and there is no other caller in this monorepo. Every route requires a session token:
+Everything under `server/` (digital-twin REST, alert rules, MES/SCADA/traceability and the digital-twin WebSocket) is reached **only** through `gateway:10081`. Direct calls to `factory-service:10101` / `:8082` / `:8080` are not used anywhere in the renderer.
 
-- The renderer obtains it through the `getLocalApiToken` preload method and sends `Authorization: Bearer <token>`.
+| Item | Value |
+|---|---|
+| REST base | `http://localhost:10081/factory-service` (`VITE_GATEWAY_URL` / `_HOST` / `_PORT`) |
+| WebSocket | `ws://localhost:10081/factory-service/ws/digital-twin` |
+| Credential | `GATEWAY_TOKEN` in `.env`, a JWT issued by the platform user service |
+| REST auth | `Authorization: Bearer <jwt>` attached by `services/gateway-client.ts` |
+| WS auth | `?token=<jwt>` on the handshake (browsers cannot set headers); `UserAuthFilter` validates it and strips the parameter before proxying |
+| Service discovery | `discovery.locator` resolves `factory-service` through zookeeper |
+| Downstream trust | `UserAuthFilter` injects `X-User-Id` / `X-User-Role` / `X-Internal-Token`; the WS handshake interceptor validates the internal token before trusting any user header |
+
+`GATEWAY_TOKEN` is read by the Electron main process and exposed through the named `getGatewayToken` preload method, so it is never compiled into the renderer bundle. Without it, all cross-service calls fail immediately with a clear configuration error. The internal token is HMAC-based, has a 5-second validity and is regenerated per request, so a caller that bypasses the gateway cannot forge a WS handshake.
+
+Start the server side with the root compose (it includes gateway + zookeeper) plus the digital-twin overlay:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.digital-twin.yml up -d factory-service
+```
+
+`docker-compose.digital-twin.yml` publishes **no** host port for factory-service; only `10081` is exposed.
+
+## Local HTTP API authentication (Electron-internal)
+
+The Electron main process exposes a loopback-only HTTP API on `127.0.0.1:${WEB_SERVER_PORT}` (default `5051`). This is an internal API: its only consumer is this application's own renderer, and there is no other caller in this monorepo. It does not involve `server/` and does not use the gateway JWT.
+
+- The renderer obtains its own session token through the `getLocalApiToken` preload method and sends `Authorization: Bearer <token>`.
 - SSE endpoints that cannot set headers (`/api/tts/download`) accept `?token=<token>`.
 - Set `LOCAL_API_TOKEN` in `.env` to pin a known value; otherwise a random token is generated on each start.
 - Only loopback origins (`file://`, the Vite dev server and the API itself) are allowed; wildcard CORS is disabled.

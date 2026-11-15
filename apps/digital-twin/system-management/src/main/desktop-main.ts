@@ -144,6 +144,7 @@ const onInit = async () => {
 const appLifecycle = new AppLifecycle(appConfig, getNestLLMService, onInit)
 const ipcRegistry = new IpcRegistry(getNestApp, () => appLifecycle, {
     getLocalApiToken: () => httpServerInstance?.getToken() ?? null,
+    getGatewayToken: () => process.env.GATEWAY_TOKEN?.trim() || null,
     openMonitorWindow: (provider: MonitorProvider) => {
         if (provider === 'chatgpt') {
             chatGPTMonitor.setupChatGPTMonitor()

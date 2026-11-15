@@ -1,5 +1,6 @@
 package com.metawebthree.Filters;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Map;
@@ -10,10 +11,12 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.metawebthree.common.constants.RequestHeaderKeys;
 import com.metawebthree.common.utils.InternalTokenUtil;
@@ -34,6 +37,9 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
     private final AntPathMatcher pathMatcher;
     private final InternalTokenUtil internalTokenUtil;
 
+    private static final String WS_TOKEN_QUERY_PARAM = "token";
+    private static final String UPGRADE_HEADER = "Upgrade";
+
     UserAuthFilter(UserTokenValidator tokenValidator, GatewayAuthProperties authProperties, ObjectMapper objectMapper, InternalTokenUtil internalTokenUtil) {
         this.tokenValidator = tokenValidator;
         this.authProperties = authProperties;
@@ -49,14 +55,52 @@ public class UserAuthFilter implements GlobalFilter, Ordered {
         }
         String authHeader = exchange.getRequest().getHeaders().getFirst(authProperties.authorizationHeader());
         String token = resolveToken(authHeader);
-        if (token == null) {
+        boolean wsQueryToken = false;
+        if (token == null && isWebSocketUpgrade(exchange)) {
+            // A browser WebSocket handshake cannot set an Authorization header.
+            // Accept the same JWT as a query parameter, but only for upgrades.
+            token = exchange.getRequest().getQueryParams().getFirst(WS_TOKEN_QUERY_PARAM);
+            wsQueryToken = true;
+        }
+        if (token == null || token.isBlank()) {
             return writeUnauthorized(exchange, "AUTH_HEADER_INVALID");
         }
         UserTokenClaims tokenClaims = tokenValidator.validate(token);
         if (tokenClaims == null) {
             return writeUnauthorized(exchange, "AUTH_TOKEN_INVALID");
         }
+        if (wsQueryToken) {
+            // Promote the query token to a header so addInternalToken() records
+            // X-Original-Token, then strip it from the forwarded URI so the JWT
+            // never reaches downstream access logs.
+            exchange = withBearerToken(removeWsQueryToken(exchange), token);
+        }
         return chain.filter(addInternalToken(addUserHeaders(exchange, tokenClaims)));
+    }
+
+    private boolean isWebSocketUpgrade(ServerWebExchange exchange) {
+        String upgrade = exchange.getRequest().getHeaders().getFirst(UPGRADE_HEADER);
+        return upgrade != null && upgrade.equalsIgnoreCase("websocket");
+    }
+
+    private ServerWebExchange withBearerToken(ServerWebExchange exchange, String token) {
+        ServerHttpRequest request = exchange.getRequest().mutate()
+                .headers(h -> h.set(authProperties.authorizationHeader(), authProperties.tokenPrefix() + token))
+                .build();
+        return exchange.mutate().request(request).build();
+    }
+
+    private ServerWebExchange removeWsQueryToken(ServerWebExchange exchange) {
+        ServerHttpRequest request = exchange.getRequest();
+        URI uri = request.getURI();
+        if (uri.getRawQuery() == null || !uri.getRawQuery().contains(WS_TOKEN_QUERY_PARAM + "=")) {
+            return exchange;
+        }
+        URI cleaned = UriComponentsBuilder.fromUri(uri)
+                .replaceQueryParam(WS_TOKEN_QUERY_PARAM)
+                .build(true)
+                .toUri();
+        return exchange.mutate().request(request.mutate().uri(cleaned).build()).build();
     }
 
     private boolean shouldSkipAuthentication(String path) {

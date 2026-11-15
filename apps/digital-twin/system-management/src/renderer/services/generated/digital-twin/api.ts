@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { DIGITAL_TWIN_API_BASE_URL } from '../../../config/digital-twin'
+import { installGatewayAuth } from '../../gateway-client'
 import type { DigitalTwinDevice, DigitalTwinAlert, DigitalTwinStatsSummary } from './types'
 
 const _client = axios.create({
@@ -7,6 +8,8 @@ const _client = axios.create({
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
 })
+
+installGatewayAuth(_client)
 
 export const digitalTwinApi = {
   async fetchDevices(): Promise<DigitalTwinDevice[]> {

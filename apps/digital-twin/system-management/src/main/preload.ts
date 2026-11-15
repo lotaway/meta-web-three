@@ -51,6 +51,7 @@ const desktopFn: DesktopAPI = {
   getOSNetworkInterfaces: () => ipcRenderer.invoke(IPC_CHANNELS.GET_OS_NETWORK_INTERFACES),
   openExternal: target => ipcRenderer.invoke(IPC_CHANNELS.OPEN_EXTERNAL, target),
   getLocalApiToken: () => ipcRenderer.invoke(IPC_CHANNELS.GET_LOCAL_API_TOKEN),
+  getGatewayToken: () => ipcRenderer.invoke(IPC_CHANNELS.GET_GATEWAY_TOKEN),
   openMonitor: provider => ipcRenderer.invoke(IPC_CHANNELS.OPEN_MONITOR_WINDOW, provider),
   openExternalLogin: provider => ipcRenderer.invoke(IPC_CHANNELS.OPEN_EXTERNAL_LOGIN, provider),
 }

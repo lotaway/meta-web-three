@@ -37,6 +37,7 @@ interface DesktopAPI {
   getOSNetworkInterfaces(): Promise<Partial<Record<string, NetworkInterfaceInfo[]>>>
   openExternal(target: ExternalTarget): Promise<void>
   getLocalApiToken(): Promise<string | null>
+  getGatewayToken(): Promise<string | null>
   openMonitor(provider: MonitorProvider): Promise<void>
   openExternalLogin(provider: MonitorProvider): Promise<void>
 }

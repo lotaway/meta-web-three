@@ -4,7 +4,6 @@ import { FactoryScene, Device, Alert, DeviceStatus, AlertPanel, DeviceChart, Sta
 import { AlertRuleList } from '../components/digital-twin/alert-rule'
 import { ToastContainer } from '../components/Toast'
 import { useDigitalTwinData } from '../hooks/useDigitalTwinData'
-import { DIGITAL_TWIN_API_BASE_URL } from '../config/digital-twin'
 
 const PageContainer = styled.div`
   width: 100vw;
@@ -200,12 +199,12 @@ export default function DigitalTwinPage({ onClose }: DigitalTwinPageProps) {
               ? '服务离线'
               : isConnected
                 ? '实时已连接'
-                : '轮询同步'}
+                : '事件同步'}
           </ConnectionStatus>
         </Header>
         {loadError && (
           <Banner $variant="error">
-            {loadError}（请确认 factory-service 已在 {new URL(DIGITAL_TWIN_API_BASE_URL).port} 端口启动）
+            {loadError}（请确认 gateway:10081 与 factory-service 已启动，且 .env 中已配置有效的 GATEWAY_TOKEN）
           </Banner>
         )}
         <PanelContent>

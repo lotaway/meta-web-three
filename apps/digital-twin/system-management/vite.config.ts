@@ -26,26 +26,16 @@ function getInjectEntries() {
 
 export default defineConfig({
   define: {
-    'import.meta.env.VITE_DIGITAL_TWIN_API_PORT': JSON.stringify(
-      process.env.VITE_DIGITAL_TWIN_API_PORT || '10101',
+    // Only the gateway address is configurable. Direct service addresses
+    // (10101 / 8082 / 8080) must never be injected into the renderer.
+    'import.meta.env.VITE_GATEWAY_URL': JSON.stringify(
+      process.env.VITE_GATEWAY_URL || '',
     ),
-    'import.meta.env.VITE_DIGITAL_TWIN_API_HOST': JSON.stringify(
-      process.env.VITE_DIGITAL_TWIN_API_HOST || 'localhost',
+    'import.meta.env.VITE_GATEWAY_HOST': JSON.stringify(
+      process.env.VITE_GATEWAY_HOST || 'localhost',
     ),
-    'import.meta.env.VITE_DIGITAL_TWIN_API_URL': JSON.stringify(
-      process.env.VITE_DIGITAL_TWIN_API_URL || '',
-    ),
-    'import.meta.env.VITE_DIGITAL_TWIN_WS_URL': JSON.stringify(
-      process.env.VITE_DIGITAL_TWIN_WS_URL || '',
-    ),
-    'import.meta.env.VITE_MES_API_URL': JSON.stringify(
-      process.env.VITE_MES_API_URL || '',
-    ),
-    'import.meta.env.VITE_MES_API_HOST': JSON.stringify(
-      process.env.VITE_MES_API_HOST || 'localhost',
-    ),
-    'import.meta.env.VITE_MES_API_PORT': JSON.stringify(
-      process.env.VITE_MES_API_PORT || '8080',
+    'import.meta.env.VITE_GATEWAY_PORT': JSON.stringify(
+      process.env.VITE_GATEWAY_PORT || '10081',
     ),
     'import.meta.env.VITE_WEB_SERVER_PORT': JSON.stringify(
       process.env.WEB_SERVER_PORT || '5051',

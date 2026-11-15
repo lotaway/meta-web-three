@@ -1,5 +1,5 @@
-const apiPort = import.meta.env.VITE_MES_API_PORT || '8080'
-const apiHost = import.meta.env.VITE_MES_API_HOST || 'localhost'
+import { FACTORY_SERVICE_BASE_URL } from './gateway'
 
-export const MES_API_BASE_URL =
-  import.meta.env.VITE_MES_API_URL || `http://${apiHost}:${apiPort}`
+// MES / SCADA / traceability endpoints are exposed by the same factory-service
+// and must use the same gateway route as the digital-twin endpoints.
+export const MES_API_BASE_URL = FACTORY_SERVICE_BASE_URL

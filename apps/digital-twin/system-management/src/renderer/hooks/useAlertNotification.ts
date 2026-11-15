@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from 'react'
 import { addToast, type ToastNotification } from '../components/Toast'
 import { notificationService } from '../services/notification'
 import { alertRuleApi } from '../services/api/alertRule'
+import { buildGatewayWsUrl } from '../services/gateway-client'
 
 export interface AlertEvent {
   id: string
@@ -23,6 +24,7 @@ const LEVEL_TO_TYPE: Record<string, ToastNotification['type']> = {
 }
 
 interface UseAlertNotificationOptions {
+  /** Test injection only. Leave empty in production so the URL is built from the gateway config. */
   wsUrl?: string
   onAlert?: (alert: AlertEvent) => void
   enabled?: boolean
@@ -63,11 +65,12 @@ export function useAlertNotification(options: UseAlertNotificationOptions = {}) 
     }
   }, [onAlert])
 
-  const connect = useCallback(() => {
-    if (!enabled || !wsUrl) return
+  const connect = useCallback(async () => {
+    if (!enabled) return
 
     try {
-      const ws = new WebSocket(wsUrl)
+      const url = wsUrl ?? await buildGatewayWsUrl()
+      const ws = new WebSocket(url)
 
       ws.onopen = () => {
         console.log('[AlertNotification] WebSocket connected')

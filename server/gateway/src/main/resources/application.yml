@@ -22,6 +22,18 @@ spring:
         locator:
           enabled: true # Enable discovery locator proxy
           lower-case-service-id: true
+      # Discovery-locator routes use an http scheme and are not handled by the
+      # WebsocketRoutingFilter. Register an explicit ws route that still
+      # resolves factory-service through zookeeper, so browser WS upgrades
+      # pass through UserAuthFilter instead of reaching the service directly.
+      routes:
+        - id: factory-service-ws
+          uri: lb:ws://factory-service
+          order: -1
+          predicates:
+            - Path=/factory-service/ws/**
+          filters:
+            - StripPrefix=1
   main:
     web-application-type: reactive
   
@@ -79,8 +91,8 @@ gateway:
       - /platform-service/developer/register
       # Actuator
       - /actuator/**
-      # WebSocket - digital twin real-time communication
-      - /ws/digital-twin
+      # Digital-twin WS is now /factory-service/ws/digital-twin: it is NOT
+      # excluded, so UserAuthFilter validates the handshake token.
     excluded-path-keywords:
       - /v3/api-docs
       - /swagger-ui
@@ -102,8 +114,8 @@ gateway:
       - /actuator/**
       - /v3/api-docs
       - /swagger-ui
-      # WebSocket — real-time communication
-      - /ws/**
+      # Service-prefixed WS routes (/factory-service/ws/**) are deliberately
+      # NOT excluded: the gateway must resolve and validate a user identity.
   api-key:
     header-key: X-API-Key
     header-secret: X-API-Secret

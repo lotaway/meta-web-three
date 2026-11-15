@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Device } from '../components/digital-twin/scene/FactoryScene'
 import type { Alert } from '../components/digital-twin/alert/AlertPanel'
-import { DIGITAL_TWIN_WS_URL } from '../config/digital-twin'
+import { buildGatewayWsUrl } from '../services/gateway-client'
 import {
   digitalTwinApi,
   parseWsEventData,
@@ -122,21 +122,8 @@ export function useDigitalTwinData() {
   }, [refreshAll])
 
   useEffect(() => {
-    const ws = new DigitalTwinWebSocket({
-      url: DIGITAL_TWIN_WS_URL,
-      onOpen: () => {
-        setIsConnected(true)
-        if (needsReconcileRef.current) {
-          needsReconcileRef.current = false
-          void refreshAll()
-        }
-      },
-      onClose: () => {
-        setIsConnected(false)
-        needsReconcileRef.current = true
-      },
-      reconnectAttempts: 10,
-    })
+    let disposed = false
+    let ws: DigitalTwinWebSocket | null = null
 
     const handleMessage = (message: { type: string; data: unknown }) => {
       const payload = parseWsEventData(message.data)
@@ -163,15 +150,44 @@ export function useDigitalTwinData() {
       }
     }
 
-    ws.subscribe('*', handleMessage)
-    ws.connect()
-    wsRef.current = ws
+    // The WS handshake carries the JWT as ?token=; it must be resolved from
+    // the main process before the connection is created.
+    void (async () => {
+      let url: string
+      try {
+        url = await buildGatewayWsUrl()
+      } catch (err) {
+        if (!disposed) markFailure(err)
+        return
+      }
+      if (disposed) return
+
+      ws = new DigitalTwinWebSocket({
+        url,
+        onOpen: () => {
+          setIsConnected(true)
+          if (needsReconcileRef.current) {
+            needsReconcileRef.current = false
+            void refreshAll()
+          }
+        },
+        onClose: () => {
+          setIsConnected(false)
+          needsReconcileRef.current = true
+        },
+        reconnectAttempts: 10,
+      })
+      ws.subscribe('*', handleMessage)
+      ws.connect()
+      wsRef.current = ws
+    })()
 
     return () => {
-      ws.disconnect()
+      disposed = true
+      ws?.disconnect()
       wsRef.current = null
     }
-  }, [patchDeviceFromEvent, refreshAlerts, refreshStats, refreshAll])
+  }, [patchDeviceFromEvent, refreshAlerts, refreshStats, refreshAll, markFailure])
 
   const acknowledgeAlert = useCallback(
     async (alertId: string) => {

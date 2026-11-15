@@ -9,7 +9,10 @@ apps/digital-twin/  ── Electron 桌面端
 └── system-management   桌面客户端 (React + Electron + NestJS)
 
 server/  ── Java 微服务后端
-└── factory-domain/factory-service  工厂服务（含数字孪生）(Spring Boot)
+├── gateway                        统一入口（:10081，JWT 校验 + zk 服务发现）
+└── factory-domain/factory-service  工厂服务（含数字孪生）(Spring Boot，不对宿主暴露端口)
+
+客户端只能通过 gateway:10081/factory-service/** 访问 server/，禁止直连 factory-service。
 ```
 
 ## 目录说明
@@ -23,7 +26,7 @@ Electron 桌面应用，提供 AI 问答、语音交互、数字孪生 3D 场景
 | AI 问答（基于项目数据） | Local LLM Provider + RAG | 完成 |
 | 语音 ASR/TTS | 麦克风捕获 + XTTS-v2 | 完成 |
 | 3D 场景编辑器 | Three.js / @react-three/fiber | 完成 |
-| **数字孪生工厂** | Three.js + REST API + WebSocket | **需后端配合** |
+| **数字孪生工厂** | Three.js + REST API + WebSocket | **需 gateway + factory-service 配合** |
 
 AI 问答对接 [Local LLM Provider](https://github.com/lotaway/local-llm-provider)，利用当前项目数据（文档、代码、知识库）进行检索增强生成（RAG）式回答。
 
@@ -47,14 +50,17 @@ cargo build --release
 
 Spring Boot 微服务，提供数字孪生工厂 REST API + WebSocket 实时推送。
 
-| 端点 | 说明 |
+以下端点是 **factory-service 内部路径**；客户端一律通过 `http://localhost:10081/factory-service` 前缀访问，并携带 `Authorization: Bearer <GATEWAY_TOKEN>`。gateway 经 zk 解析服务后剥离 `/factory-service` 前缀再转发。
+
+| 端点（gateway 前缀之后） | 说明 |
 |------|------|
 | `GET /api/digital-twin/devices` | 设备列表 |
 | `GET /api/digital-twin/alerts/active` | 活跃告警 |
 | `GET /api/digital-twin/stats/summary` | 统计摘要 |
 | `POST /api/digital-twin/alert/{id}/acknowledge` | 确认告警 |
 | `POST /api/digital-twin/alert/{id}/resolve` | 解决告警 |
-| `ws://host:10101/ws/digital-twin` | WebSocket 实时推送 |
+| `GET /api/alert-rules`、`/api/mes/scada/*`、`/api/mes/trace/*` | 告警规则、SCADA 与追溯 |
+| `ws://localhost:10081/factory-service/ws/digital-twin?token=<jwt>` | WebSocket 实时推送（握手 JWT 走 query，网关校验后剥离） |
 
 WebSocket 事件：`DEVICE_STATUS_CHANGED`、`DEVICE_POSITION_UPDATED`、`PRODUCTION_OUTPUT_UPDATED`、`ALERT_CREATED`
 

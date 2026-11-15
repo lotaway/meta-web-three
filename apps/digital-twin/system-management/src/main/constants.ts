@@ -16,6 +16,7 @@ export const IPC_CHANNELS = {
     OPEN_EXTERNAL: 'shell:open-external',
     GET_OS_NETWORK_INTERFACES: 'system:network-interfaces',
     GET_LOCAL_API_TOKEN: 'system:local-api-token',
+    GET_GATEWAY_TOKEN: 'system:gateway-token',
     OPEN_MONITOR_WINDOW: 'monitor:open-window',
     OPEN_EXTERNAL_LOGIN: 'monitor:open-external-login',
     MONITOR_SSE_CHUNK: 'monitor:sse-chunk',

@@ -8,20 +8,28 @@ services:
       target: factory-service
     container_name: factory-service
     hostname: factory-service
-    ports:
-      - "8082:10101"
+    # No host port: factory-service is reachable only through gateway:10081.
+    # This file is used together with the root docker-compose.yml (which
+    # includes docker-compose.server.yml for gateway + zookeeper and
+    # docker-compose.env.yml for kafka + redis).
+    ports: []
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SERVER_PORT=10101
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
       - SPRING_REDIS_HOST=redis
       - SPRING_REDIS_PORT=6379
+      # The renderer is a file:// Electron page; the gateway already validates
+      # the JWT, so all handshake origins are accepted here.
+      - DIGITAL_TWIN_WEBSOCKET_ALLOWED_ORIGINS=*
       - JAVA_OPTS=-Xms512m -Xmx1024m
     volumes:
       - factory_service_data:/server/factory
     depends_on:
       - kafka
       - redis
+      - zookeeper
     networks:
       - meta-web-three
     restart: unless-stopped
