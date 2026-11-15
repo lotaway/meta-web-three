@@ -22,14 +22,13 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Value("${digital-twin.websocket.allowed-origins:}")
     private String allowedOrigins;
 
-    public WebSocketConfig(
-            DigitalTwinWebSocketHandler webSocketHandler,
-            @Value("${internal-token.secret:mwt-internal-secret-2024}") String internalTokenSecret,
-            @Value("${internal-token.timeout-seconds:5}") long internalTokenTimeoutSeconds) {
+    public WebSocketConfig(DigitalTwinWebSocketHandler webSocketHandler,
+                           InternalTokenUtil internalTokenUtil) {
         this.webSocketHandler = webSocketHandler;
-        // FactoryServiceApplication restricts component scanning, so construct
-        // the shared HMAC validator directly from the same config the gateway uses.
-        this.internalTokenUtil = new InternalTokenUtil(internalTokenSecret, internalTokenTimeoutSeconds);
+        // The shared HMAC validator is supplied by the common module's
+        // auto-configuration, so the gateway and this service cannot drift
+        // apart on secret or validity window.
+        this.internalTokenUtil = internalTokenUtil;
     }
 
     @Override

@@ -14,12 +14,15 @@ import com.metawebthree.common.config.SwaggerConfig;
 import com.metawebthree.common.config.WebConfig;
 import com.metawebthree.common.interceptor.SecurityInterceptor;
 
+// scanBasePackages lists only this service's own packages. Shared security
+// infrastructure (InternalTokenUtil, InternalTokenFilter, RequirePermissionAspect)
+// is supplied by the common module's auto-configuration; adding a common
+// subpackage here would make one service behave differently from the rest.
 @SpringBootApplication(scanBasePackages = {
         "com.metawebthree.config",
         "com.metawebthree.mes",
         "com.metawebthree.digitaltwin",
-        "com.metawebthree.production",
-        "com.metawebthree.common.event"
+        "com.metawebthree.production"
 })
 @Import({
         CommonSecurityConfig.class,

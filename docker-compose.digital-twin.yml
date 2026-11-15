@@ -20,6 +20,8 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
       - SPRING_REDIS_HOST=redis
       - SPRING_REDIS_PORT=6379
+      - INTERNAL_TOKEN_ENABLED=true
+      - INTERNAL_TOKEN_SECRET=${INTERNAL_TOKEN_SECRET:-mwt-internal-secret-2024}
       # The renderer is a file:// Electron page; the gateway already validates
       # the JWT, so all handshake origins are accepted here.
       - DIGITAL_TWIN_WEBSOCKET_ALLOWED_ORIGINS=*

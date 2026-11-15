@@ -1,41 +1,38 @@
 package com.metawebthree.common.filter;
 
-import com.metawebthree.common.utils.InternalTokenUtil;
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import com.metawebthree.common.utils.InternalTokenUtil;
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
-
 import java.io.IOException;
 import java.util.List;
 
-@Component
-@Order(-50)
+import org.springframework.util.AntPathMatcher;
+
+import com.metawebthree.common.utils.InternalTokenUtil;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+/**
+ * Rejects HTTP requests that did not pass through the gateway.
+ *
+ * <p>Registered by {@code InternalTokenServletFilterAutoConfiguration}; it is
+ * not component-scanned, so enabling {@code internal-token.enabled} is the only
+ * switch and it behaves identically in every servlet service.</p>
+ */
 public class InternalTokenFilter implements Filter {
+
+    private static final String INTERNAL_TOKEN_HEADER = "X-Internal-Token";
 
     private final InternalTokenUtil internalTokenUtil;
     private final List<String> excludedPaths;
     private final AntPathMatcher pathMatcher;
 
-    public InternalTokenFilter(InternalTokenUtil internalTokenUtil,
-                               @Value("${internal-token.excluded-paths:/actuator/**,/health,/info,/error,/swagger-ui/**,/v3/api-docs/**}") List<String> excludedPaths) {
+    public InternalTokenFilter(InternalTokenUtil internalTokenUtil, List<String> excludedPaths) {
         this.internalTokenUtil = internalTokenUtil;
-        this.excludedPaths = excludedPaths;
+        this.excludedPaths = excludedPaths == null ? List.of() : excludedPaths;
         this.pathMatcher = new AntPathMatcher();
     }
 
@@ -50,11 +47,12 @@ public class InternalTokenFilter implements Filter {
             return;
         }
 
-        String token = httpRequest.getHeader("X-Internal-Token");
+        String token = httpRequest.getHeader(INTERNAL_TOKEN_HEADER);
         if (token == null || !internalTokenUtil.validate(token)) {
             httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             httpResponse.setContentType("application/json");
-            httpResponse.getWriter().write("{\"code\":\"INTERNAL_TOKEN_INVALID\",\"message\":\"Invalid internal token\"}");
+            httpResponse.getWriter().write(
+                    "{\"code\":\"INTERNAL_TOKEN_INVALID\",\"message\":\"Invalid internal token\"}");
             return;
         }
 

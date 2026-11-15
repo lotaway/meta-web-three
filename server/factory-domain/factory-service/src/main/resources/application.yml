@@ -15,6 +15,11 @@ spring:
     jdbc:
       initialize-schema: never
 
+# factory-service is reachable only through the gateway, so REST requests must
+# also carry the gateway-signed X-Internal-Token (the WS handshake already does).
+internal-token:
+  enabled: ${INTERNAL_TOKEN_ENABLED:true}
+
 # AI Service Configuration
 ai:
   forecasting-service:

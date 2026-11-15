@@ -23,7 +23,6 @@ import com.metawebthree.recommendation.infrastructure.config.RecommendationAlgor
         "com.metawebthree.supplier",
         "com.metawebthree.recommendation",
         "com.metawebthree.review",
-        "com.metawebthree.common.event",
         "com.metawebthree.common.elasticsearch",
         "com.metawebthree.common.utils.RocketMQ"
 })
