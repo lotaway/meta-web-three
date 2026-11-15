@@ -1,5 +1,5 @@
-import { describe, it, beforeAll, afterAll, expect } from '@jest/globals'
-import { init, cleanup, reload, device } from 'detox'
+import { describe, it, beforeAll, expect } from '@jest/globals'
+import { device } from 'detox'
 import {
   HomePage,
   CategoryPage,
@@ -10,7 +10,7 @@ import {
   UserPage,
   SearchPage,
   LoginPage,
-} from '../pages'
+} from './pages'
 
 const homePage = new HomePage()
 const categoryPage = new CategoryPage()
@@ -25,10 +25,6 @@ const loginPage = new LoginPage()
 describe('首页功能测试', () => {
   beforeAll(async () => {
     await device.launchApp({ newInstance: true })
-  })
-
-  afterAll(async () => {
-    await cleanup()
   })
 
   it('应该能够打开应用并显示首页', async () => {
@@ -46,7 +42,7 @@ describe('首页功能测试', () => {
     await searchPage.waitForLoad()
     const isVisible = await searchPage.visible
     expect(isVisible).toBe(true)
-    await device.back()
+    await device.pressBack()
   })
 
   it('应该能够切换到分类页', async () => {
@@ -251,28 +247,28 @@ describe('用户中心功能测试', () => {
 
   it('应该能够进入设置页面', async () => {
     await userPage.tapSettings()
-    await device.back()
+    await device.pressBack()
   })
 
   it('应该能够进入订单页面', async () => {
     await userPage.tapOrders()
     await orderPage.waitForLoad()
-    await device.back()
+    await device.pressBack()
   })
 
   it('应该能够进入地址管理页面', async () => {
     await userPage.tapAddresses()
-    await device.back()
+    await device.pressBack()
   })
 
   it('应该能够进入收藏页面', async () => {
     await userPage.tapFavorites()
-    await device.back()
+    await device.pressBack()
   })
 
   it('应该能够进入优惠券页面', async () => {
     await userPage.tapCoupons()
-    await device.back()
+    await device.pressBack()
   })
 })
 
@@ -297,7 +293,7 @@ describe('搜索功能测试', () => {
   it('应该能够点击搜索结果', async () => {
     await searchPage.tapResult(1)
     await productDetailPage.waitForLoad()
-    await device.back()
+    await device.pressBack()
   })
 
   it('应该能够清空搜索历史', async () => {
@@ -335,11 +331,11 @@ describe('登录功能测试', () => {
 describe('应用状态测试', () => {
   it('应该能够在后台保持状态', async () => {
     await device.sendToHome()
-    await device.launchApp({ fromIcon: true })
+    await device.launchApp({ newInstance: false })
   })
 
   it('应该能够重新加载应用', async () => {
-    await reload()
+    await device.reloadReactNative()
     await homePage.waitForLoad()
   })
 })

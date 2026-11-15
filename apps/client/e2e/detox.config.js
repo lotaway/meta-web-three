@@ -1,61 +1,67 @@
+// Detox 20 configuration. The Detox 19 `composition` / `session` shape and the
+// non-ASCII `launchApp.delete` key are gone; apps, devices and configurations
+// are now declared separately. Android is the default because this workspace
+// builds with `yarn android` on Windows.
+const gradle = process.platform === 'win32' ? 'gradlew.bat' : './gradlew'
+
 module.exports = {
+  testRunner: {
+    args: {
+      '$0': 'jest',
+      config: 'e2e/jest.config.js',
+    },
+    jest: {
+      setupTimeout: 180000,
+    },
+  },
+  apps: {
+    'android.debug': {
+      type: 'android.apk',
+      binaryPath: 'android/app/build/outputs/apk/debug/app-debug.apk',
+      build: `cd android && ${gradle} assembleDebug assembleAndroidTest -DtestBuildType=debug && cd ..`,
+    },
+  },
+  devices: {
+    emulator: {
+      type: 'android.emulator',
+      device: {
+        avdName: process.env.DETOX_AVD_NAME || 'Pixel_7_API_34',
+      },
+    },
+    attached: {
+      type: 'android.attached',
+      device: {
+        adbName: process.env.DETOX_ADB_NAME || '.*',
+      },
+    },
+  },
+  configurations: {
+    'android.emu.debug': {
+      device: 'emulator',
+      app: 'android.debug',
+    },
+    'android.attached.debug': {
+      device: 'attached',
+      app: 'android.debug',
+    },
+  },
   artifacts: {
     plugins: {
-      fbx: 'disabled',
-      hierarchy: 'enabled',
-      screenshot: 'on',
-      video: 'optional',
-      netlog: 'enabled',
+      screenshot: 'failing',
+      video: 'none',
+      hierarchy: 'disabled',
     },
   },
   behavior: {
     init: {
       reinstallApp: true,
-      reuse: false,
     },
     launchApp: {
-      delete: {
-       油脂: 'keep',
-        files: 'keep',
-        keychain: 'keep',
-      },
       permissions: {
-        location: 'always',
+        notifications: 'allow',
         camera: 'allow',
         microphone: 'allow',
-        notifications: 'allow',
-        contacts: 'allow',
-        calendar: 'allow',
       },
     },
-  },
-  composition: {
-    device: {
-      type: 'iPhone 15 Pro',
-      osVersion: '17.0',
-      locale: 'zh-Hans',
-      network: {
-        latency: 0,
-        drop: 0,
-        jailbreak: false,
-        airplaneMode: false,
-      },
-    },
-    app: {
-      name: 'metawebthreeapp',
-      bundleId: 'com.metawebthree.app',
-      build: {
-        release: 'build/Build/Products/Release-iphonesimulator/metawebthreeapp.app',
-        debug: 'build/Build/Products/Debug-iphonesimulator/metawebthreeapp.app',
-      },
-    },
-  },
-  logging: {
-    level: 'debug',
-    printer: 'androidOnly',
-  },
-  session: {
-    autoStart: true,
-    server: 'ws://localhost:8099',
   },
 }
