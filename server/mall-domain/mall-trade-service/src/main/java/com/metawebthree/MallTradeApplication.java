@@ -10,11 +10,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import com.metawebthree.common.config.CommonSecurityConfig;
-import com.metawebthree.common.config.DatabaseConfig;
-import com.metawebthree.common.config.SwaggerConfig;
-import com.metawebthree.common.config.WebConfig;
-import com.metawebthree.common.interceptor.SecurityInterceptor;
 import com.metawebthree.common.services.QuartzManager;
 
 @SpringBootApplication(scanBasePackages = {
@@ -26,14 +21,7 @@ import com.metawebthree.common.services.QuartzManager;
         "com.metawebthree.promotion",
         "com.metawebthree.aftersale"
 })
-@Import({
-        QuartzManager.class,
-        CommonSecurityConfig.class,
-        DatabaseConfig.class,
-        SwaggerConfig.class,
-        WebConfig.class,
-        SecurityInterceptor.class
-})
+@Import(QuartzManager.class)
 @MapperScan(
         basePackages = {
                 "com.metawebthree.order",

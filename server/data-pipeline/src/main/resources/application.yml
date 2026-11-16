@@ -1,6 +1,12 @@
 server:
   port: 10122
 
+meta:
+  common:
+    storage:
+      kafka:
+        enabled: true
+
 spring:
   application:
     name: data-pipeline

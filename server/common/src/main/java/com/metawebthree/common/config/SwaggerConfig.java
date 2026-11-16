@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 public class SwaggerConfig {
 
         @Bean
+        @ConditionalOnMissingBean(OpenAPI.class)
         public OpenAPI customOpenAPI() {
                 return new OpenAPI()
                                 .info(new Info()

@@ -4,7 +4,9 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.core.KafkaTemplate;
 
@@ -20,6 +22,8 @@ import com.metawebthree.common.event.KafkaDomainEventPublisher;
  */
 @AutoConfiguration(after = KafkaAutoConfiguration.class)
 @ConditionalOnClass({KafkaTemplate.class, DomainEventPublisher.class})
+@ConditionalOnProperty(prefix = "meta.common.storage.kafka", name = "enabled", havingValue = "true")
+@EnableConfigurationProperties(CommonStorageProperties.class)
 public class DomainEventAutoConfiguration {
 
     @Bean

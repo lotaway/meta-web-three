@@ -1,5 +1,6 @@
 package com.metawebthree.common.config;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -10,6 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class RestClientConfig {
 
     @Bean
+    @ConditionalOnMissingBean
     public RestTemplate restTemplate() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(5000);
@@ -18,6 +20,7 @@ public class RestClientConfig {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public WebClient webClient() {
         return WebClient.builder()
                 .clientConnector(new org.springframework.http.client.reactive.ReactorClientHttpConnector(

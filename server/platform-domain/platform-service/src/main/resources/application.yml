@@ -1,5 +1,17 @@
 server:
   port: 10085
+
+meta:
+  common:
+    storage:
+      database:
+        enabled: true
+      redis:
+        enabled: true
+      rocketmq:
+        enabled: true
+      object:
+        enabled: true
 spring:
   application:
     name: platform-service

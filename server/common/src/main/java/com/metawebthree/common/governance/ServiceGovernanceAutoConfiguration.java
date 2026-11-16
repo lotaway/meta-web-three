@@ -8,9 +8,13 @@ import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import java.time.Duration;
 
@@ -24,8 +28,12 @@ import java.time.Duration;
  * 
  * This configuration is automatically applied to all services that depend on the common module.
  */
-@Configuration
+@AutoConfiguration
 @Slf4j
+@ConditionalOnClass(CircuitBreakerRegistry.class)
+@ConditionalOnProperty(prefix = "service-governance", name = "enabled", havingValue = "true", matchIfMissing = true)
+@EnableConfigurationProperties(ServiceGovernanceProperties.class)
+@Import({ServiceGovernanceAspect.class, ServiceGovernanceController.class})
 public class ServiceGovernanceAutoConfiguration {
 
     /**

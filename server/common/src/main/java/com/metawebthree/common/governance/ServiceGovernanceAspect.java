@@ -13,7 +13,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 
 /**
  * Service Governance Aspect
@@ -26,7 +25,6 @@ import org.springframework.stereotype.Component;
  * 2. Circuit Breaker (second line of defense)
  */
 @Aspect
-@Component
 @Order(1)
 @Slf4j
 @RequiredArgsConstructor

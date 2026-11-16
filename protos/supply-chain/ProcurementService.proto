@@ -17,6 +17,13 @@ service ProcurementService {
     rpc receivePurchaseOrder(ReceivePurchaseOrderRequest) returns (ReceivePurchaseOrderResponse);
 }
 
+// Supplier portal reads, migrated from Feign. Kept separate from
+// ProcurementService so the write-side contract is unchanged.
+service SupplierOrderService {
+    rpc listSupplierOrders(ListSupplierOrdersRequest) returns (ListSupplierOrdersResponse);
+    rpc getSupplierOrder(GetSupplierOrderRequest) returns (GetSupplierOrderResponse);
+}
+
 message CreatePurchaseOrderRequest {
     string supplierCode = 1;
     repeated PurchaseOrderItem items = 2;
@@ -71,4 +78,39 @@ message ReceivePurchaseOrderResponse {
     string inboundOrderNo = 1;
     bool success = 2;
     string message = 3;
+}
+
+// Supplier portal order view. Mirrors ProcurementOrderDTO fields that the
+// portal maps into SupplierPortalOrderDTO; timestamps are epoch millis.
+message SupplierOrderView {
+    string orderNo = 1;
+    string supplierCode = 2;
+    string supplierName = 3;
+    string purchaseType = 4;
+    string status = 5;
+    string totalAmount = 6;
+    string currency = 7;
+    string paymentTerms = 8;
+    string deliveryTerms = 9;
+    string remark = 10;
+    int64 expectedDeliveryDate = 11;
+    int64 actualDeliveryDate = 12;
+    int64 createdAt = 13;
+}
+
+message ListSupplierOrdersRequest {
+    // Optional; empty means all statuses.
+    string status = 1;
+}
+
+message ListSupplierOrdersResponse {
+    repeated SupplierOrderView orders = 1;
+}
+
+message GetSupplierOrderRequest {
+    string orderNo = 1;
+}
+
+message GetSupplierOrderResponse {
+    SupplierOrderView order = 1;
 }

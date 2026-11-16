@@ -272,6 +272,45 @@ public class UserRPCServiceImpl implements UserService {
     }
 
     @Override
+    public GetUserProfileResponse getUserProfile(GetUserProfileRequest request) {
+        try {
+            UserDO user = userMapper.selectById(request.getUserId());
+            if (user == null) {
+                return GetUserProfileResponse.newBuilder()
+                        .setSuccess(false)
+                        .setMessage("user not found")
+                        .build();
+            }
+            UserInfoProto profile = UserInfoProto.newBuilder()
+                    .setId(user.getId() != null ? user.getId() : 0L)
+                    .setUsername(nullToEmpty(user.getUsername()))
+                    .setNickname(nullToEmpty(user.getNickname()))
+                    .setAvatar(nullToEmpty(user.getAvatar()))
+                    .setStatus(user.getStatus() != null ? user.getStatus() : 0)
+                    .build();
+            return GetUserProfileResponse.newBuilder()
+                    .setSuccess(true)
+                    .setUser(profile)
+                    .build();
+        } catch (Exception e) {
+            log.error("Failed to get user profile for {}", request.getUserId(), e);
+            return GetUserProfileResponse.newBuilder()
+                    .setSuccess(false)
+                    .setMessage(e.getMessage() == null ? "internal error" : e.getMessage())
+                    .build();
+        }
+    }
+
+    @Override
+    public CompletableFuture<GetUserProfileResponse> getUserProfileAsync(GetUserProfileRequest request) {
+        return CompletableFuture.completedFuture(getUserProfile(request));
+    }
+
+    private static String nullToEmpty(String value) {
+        return value == null ? "" : value;
+    }
+
+    @Override
     public ListMemberAddressesResponse listMemberAddresses(ListMemberAddressesRequest request) {
         ListMemberAddressesResponse.Builder builder = ListMemberAddressesResponse.newBuilder();
         try {

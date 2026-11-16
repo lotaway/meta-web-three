@@ -1,5 +1,13 @@
 server:
   port: 10103
+
+meta:
+  common:
+    storage:
+      database:
+        enabled: true
+      kafka:
+        enabled: true
 spring:
   application:
     name: ai-service

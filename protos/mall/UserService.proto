@@ -17,6 +17,9 @@ service UserService {
     
     rpc getUserPhone(GetUserPhoneRequest) returns (GetUserPhoneResponse);
     rpc listUsers(ListUsersRequest) returns (ListUsersResponse);
+    // Single-user profile read used by other services (migrated from a
+    // hardcoded RestTemplate call to /user/info-by-id).
+    rpc getUserProfile(GetUserProfileRequest) returns (GetUserProfileResponse);
 
     rpc listMemberAddresses(ListMemberAddressesRequest) returns (ListMemberAddressesResponse);
 }
@@ -136,4 +139,15 @@ message UserInfoProto {
     string avatar = 5;
     int32 status = 6;
     int64 createdAt = 7;
+    string nickname = 8;
+}
+
+message GetUserProfileRequest {
+    int64 userId = 1;
+}
+
+message GetUserProfileResponse {
+    UserInfoProto user = 1;
+    bool success = 2;
+    string message = 3;
 }

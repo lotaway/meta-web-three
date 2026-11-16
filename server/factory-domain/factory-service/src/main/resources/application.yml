@@ -1,5 +1,13 @@
 server:
   port: 10101
+
+meta:
+  common:
+    storage:
+      database:
+        enabled: true
+      kafka:
+        enabled: true
 spring:
   application:
     name: factory-service

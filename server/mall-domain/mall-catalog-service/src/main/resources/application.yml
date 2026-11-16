@@ -1,5 +1,15 @@
 server:
   port: 10082
+
+meta:
+  common:
+    storage:
+      database:
+        enabled: true
+      elasticsearch:
+        enabled: true
+      rocketmq:
+        enabled: true
 spring:
   application:
     name: mall-catalog-service

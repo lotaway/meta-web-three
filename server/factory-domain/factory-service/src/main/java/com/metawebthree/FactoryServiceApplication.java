@@ -5,14 +5,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import com.metawebthree.common.config.CommonSecurityConfig;
-import com.metawebthree.common.config.DatabaseConfig;
-import com.metawebthree.common.config.SwaggerConfig;
-import com.metawebthree.common.config.WebConfig;
-import com.metawebthree.common.interceptor.SecurityInterceptor;
 
 // scanBasePackages lists only this service's own packages. Shared security
 // infrastructure (InternalTokenUtil, InternalTokenFilter, RequirePermissionAspect)
@@ -23,13 +16,6 @@ import com.metawebthree.common.interceptor.SecurityInterceptor;
         "com.metawebthree.mes",
         "com.metawebthree.digitaltwin",
         "com.metawebthree.production"
-})
-@Import({
-        CommonSecurityConfig.class,
-        DatabaseConfig.class,
-        SwaggerConfig.class,
-        WebConfig.class,
-        SecurityInterceptor.class
 })
 @MapperScan(
         basePackages = {

@@ -6,12 +6,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import com.metawebthree.common.config.CommonSecurityConfig;
-import com.metawebthree.common.config.DatabaseConfig;
-import com.metawebthree.common.config.SwaggerConfig;
 import com.metawebthree.recommendation.infrastructure.aishopping.config.AiShoppingProperties;
 import com.metawebthree.recommendation.infrastructure.config.RecommendationAlgorithmProperties;
 
@@ -22,9 +18,7 @@ import com.metawebthree.recommendation.infrastructure.config.RecommendationAlgor
         "com.metawebthree.image",
         "com.metawebthree.supplier",
         "com.metawebthree.recommendation",
-        "com.metawebthree.review",
-        "com.metawebthree.common.elasticsearch",
-        "com.metawebthree.common.utils.RocketMQ"
+        "com.metawebthree.review"
 })
 @MapperScan(
         basePackages = {
@@ -39,11 +33,6 @@ import com.metawebthree.recommendation.infrastructure.config.RecommendationAlgor
 @EnableConfigurationProperties({
         RecommendationAlgorithmProperties.class,
         AiShoppingProperties.class
-})
-@Import({
-        CommonSecurityConfig.class,
-        DatabaseConfig.class,
-        SwaggerConfig.class
 })
 @EnableDiscoveryClient
 @EnableScheduling
