@@ -9,11 +9,10 @@ services:
     # This file is used together with the root docker-compose.yml (which
     # includes docker-compose.server.yml for gateway + zookeeper and
     # docker-compose.env.yml for kafka + redis).
-    # NOTE: compose merges port lists, so `ports: []` does not remove the
-    # 10101:10101 mapping declared in docker-compose.server.yml. Clients still
-    # reach factory-service through gateway:10081; see meta-note/deploy/README.md
-    # for the port-exposure caveat.
-    ports: []
+    # docker-compose.server.yml publishes only gateway:10081; every other Java
+    # service uses `expose`, so factory-service stays inside the compose network
+    # and is reached through the gateway via zookeeper service discovery.
+
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SERVER_PORT=10101

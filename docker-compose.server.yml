@@ -51,8 +51,8 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
       - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
       - AI_SHOPPING_MILVUS_HOST=milvus
-    ports:
-      - "10082:10082"
+    expose:
+      - "10082"
     volumes:
       - mall_catalog_service_data:/server/mall-catalog
       - ./.aws:/.aws:ro
@@ -64,8 +64,8 @@ services:
       target: mall-user-service
     container_name: meta-web-three-mall-user-service
     hostname: mall-user-service
-    ports:
-      - "10083:10083"
+    expose:
+      - "10083"
     volumes:
       - mall_user_service_data:/server/mall-user
       - ./.aws:/.aws:ro
@@ -77,8 +77,8 @@ services:
       target: mall-trade-service
     container_name: meta-web-three-mall-trade-service
     hostname: mall-trade-service
-    ports:
-      - "10084:10084"
+    expose:
+      - "10084"
     volumes:
       - mall_trade_service_data:/server/mall-trade
       - ./.aws:/.aws:ro
@@ -90,8 +90,8 @@ services:
       target: platform-service
     container_name: meta-web-three-platform-service
     hostname: platform-service
-    ports:
-      - "10085:10085"
+    expose:
+      - "10085"
     volumes:
       - platform_service_data:/server/platform
       - ./.aws:/.aws:ro
@@ -103,8 +103,8 @@ services:
       target: mall-social-service
     container_name: meta-web-three-mall-social-service
     hostname: mall-social-service
-    ports:
-      - "10095:10095"
+    expose:
+      - "10095"
     volumes:
       - mall_social_service_data:/server/mall-social
       - ./.aws:/.aws:ro
@@ -116,8 +116,8 @@ services:
       target: factory-service
     container_name: meta-web-three-factory-service
     hostname: factory-service
-    ports:
-      - "10101:10101"
+    expose:
+      - "10101"
     volumes:
       - factory_service_data:/server/factory
       - ./.aws:/.aws:ro
@@ -129,8 +129,8 @@ services:
       target: ai-service
     container_name: meta-web-three-ai-service
     hostname: ai-service
-    ports:
-      - "10103:10103"
+    expose:
+      - "10103"
     volumes:
       - ai_service_data:/server/ai
       - ./.aws:/.aws:ro
@@ -142,8 +142,8 @@ services:
       target: scm-inventory-service
     container_name: meta-web-three-scm-inventory-service
     hostname: scm-inventory-service
-    ports:
-      - "10105:10105"
+    expose:
+      - "10105"
     volumes:
       - scm_inventory_service_data:/server/scm-inventory
       - ./.aws:/.aws:ro
@@ -155,8 +155,8 @@ services:
       target: scm-logistics-service
     container_name: meta-web-three-scm-logistics-service
     hostname: scm-logistics-service
-    ports:
-      - "10107:10107"
+    expose:
+      - "10107"
     volumes:
       - scm_logistics_service_data:/server/scm-logistics
       - ./.aws:/.aws:ro
@@ -168,8 +168,8 @@ services:
       target: finance-service
     container_name: meta-web-three-finance-service
     hostname: finance-service
-    ports:
-      - "10110:10110"
+    expose:
+      - "10110"
     volumes:
       - finance_service_data:/server/finance
       - ./.aws:/.aws:ro
@@ -181,8 +181,8 @@ services:
       target: erp-management-service
     container_name: meta-web-three-erp-management-service
     hostname: erp-management-service
-    ports:
-      - "10125:10125"
+    expose:
+      - "10125"
     volumes:
       - erp_management_service_data:/server/erp-management
       - ./.aws:/.aws:ro
@@ -194,8 +194,8 @@ services:
       target: blockchain-service
     container_name: meta-web-three-blockchain-service
     hostname: blockchain-service
-    ports:
-      - "10114:10114"
+    expose:
+      - "10114"
     volumes:
       - blockchain_service_data:/server/blockchain
       - ./.aws:/.aws:ro
@@ -207,8 +207,8 @@ services:
       target: data-pipeline
     container_name: meta-web-three-data-pipeline
     hostname: data-pipeline
-    ports:
-      - "10122:10122"
+    expose:
+      - "10122"
     volumes:
       - data_pipeline_data:/server/data-pipeline
       - ./.aws:/.aws:ro

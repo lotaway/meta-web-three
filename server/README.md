@@ -265,9 +265,9 @@ AI 辅助购物能力已随 `recommendation-service` 并入 `mall-catalog-servic
    - `ENTITY_TYPES`：添加该服务定义的 Federation entity 类型
    - `buildCombinedSdl()`：添加该服务的 GraphQL 类型定义
 7. 在 `server/Dockerfile` 中新增 `FROM eclipse-temurin:17-jre-jammy AS <service-name>` 构建阶段
-8. 在 `docker-compose.server.yml` 中新增 service 定义（参考已有服务模板 `<<: *java-service`），含 `hostname`、`ports`、`volumes` 等
+8. 在 `docker-compose.server.yml` 中新增 service 定义（参考已有服务模板 `<<: *java-service`），含 `hostname`、`expose`、`volumes` 等；除 gateway 外一律只写 `expose`，不要写 `ports` 宿主映射，统一经网关访问
 9. 对照下方端口表分配未占用的端口（10101+ 为新增领域服务）
-10. 在 `allow-ports-firework.sh` 的 `PORTS` 数组中添加该服务的端口号
+10. 不需要在 `allow-ports-firework.sh` 放行该服务端口：除 gateway `10081` 外，Java 服务只在 compose 网络内暴露，外部统一经网关访问
 11. **K8s 配置最简补齐**：为该服务添加 Kubernetes 部署/访问 yaml（放在 `k8s/services/`），并在需要的话加入 `k8s/services/extended-domain-services.yaml` 以纳入一键部署；最终以 `k8s/deploy-all.yaml` 为入口完成落地。
 
 说明：
