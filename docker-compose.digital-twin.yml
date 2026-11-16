@@ -22,6 +22,12 @@ services:
       - SPRING_REDIS_PORT=6379
       - INTERNAL_TOKEN_ENABLED=true
       - INTERNAL_TOKEN_SECRET=${INTERNAL_TOKEN_SECRET:-mwt-internal-secret-2024}
+      # prod profile reads its stores from application-common-prod.yml; the
+      # account follows the postgres service so the two never drift apart.
+      - DATASOURCE_URL=${DATASOURCE_URL:-jdbc:postgresql://postgres:5432/metawebthree}
+      - DATASOURCE_USERNAME=${POSTGRES_USER:-admin}
+      - DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-123123}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-123123}
       # The renderer is a file:// Electron page; the gateway already validates
       # the JWT, so all handshake origins are accepted here.
       - DIGITAL_TWIN_WEBSOCKET_ALLOWED_ORIGINS=*
@@ -41,6 +47,25 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
+
+  # docker-compose.server.yml starts gateway and mall-user-service on the dev
+  # profile, which would pick up the LAN-only datasource from
+  # application-common-dev.yml. The digital-twin stack needs all three Java
+  # services on prod with the same store settings when layered on top.
+  gateway:
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DATASOURCE_URL=${DATASOURCE_URL:-jdbc:postgresql://postgres:5432/metawebthree}
+      - DATASOURCE_USERNAME=${POSTGRES_USER:-admin}
+      - DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-123123}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-123123}
+  mall-user-service:
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DATASOURCE_URL=${DATASOURCE_URL:-jdbc:postgresql://postgres:5432/metawebthree}
+      - DATASOURCE_USERNAME=${POSTGRES_USER:-admin}
+      - DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-123123}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-123123}
 
 
 networks:

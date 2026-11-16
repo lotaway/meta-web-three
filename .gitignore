@@ -127,5 +127,3 @@ docker-compose.override.yml
 *.swp
 *.swo
 *~
-# Standalone repository: never track the nested meta-note repo here
-apps/meta-note/

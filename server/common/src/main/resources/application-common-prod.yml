@@ -1,8 +1,21 @@
 spring:
   cloud:
     zookeeper:
+      connect-string: ${ZOOKEEPER_CONNECT_STRING:zookeeper:2181}
       discovery:
         root: /prod/metawebthree
+  # dev keeps its hard-coded LAN database address on purpose
+  # (application-common-dev.yml). prod must resolve every store through the
+  # compose network, and every value stays overridable from .env only.
+  datasource:
+    url: ${DATASOURCE_URL:jdbc:postgresql://postgres:5432/metawebthree}
+    username: ${DATASOURCE_USERNAME:admin}
+    password: ${DATASOURCE_PASSWORD:123123}
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:123123}
 spring.quartz.jdbc.initialize-schema: never
 minio:
   endpoint: http://localhost:9000
