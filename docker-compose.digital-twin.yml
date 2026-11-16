@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   factory-service:
     build:
@@ -8,10 +6,13 @@ services:
       target: factory-service
     container_name: factory-service
     hostname: factory-service
-    # No host port: factory-service is reachable only through gateway:10081.
     # This file is used together with the root docker-compose.yml (which
     # includes docker-compose.server.yml for gateway + zookeeper and
     # docker-compose.env.yml for kafka + redis).
+    # NOTE: compose merges port lists, so `ports: []` does not remove the
+    # 10101:10101 mapping declared in docker-compose.server.yml. Clients still
+    # reach factory-service through gateway:10081; see meta-note/deploy/README.md
+    # for the port-exposure caveat.
     ports: []
     environment:
       - SPRING_PROFILES_ACTIVE=prod
