@@ -1,0 +1,162 @@
+syntax = "proto3";
+
+package com.metawebthree.common.generated.rpc;
+
+option java_multiple_files = true;
+
+// Service-to-service recommendation reads/writes. Migrated from the gateway's
+// raw HTTP client so the gateway uses Dubbo like every other internal caller.
+// Field names are camelCase to match the GraphQL schema: the gateway converts
+// responses to maps for its data fetchers, so names must stay in sync.
+service RecommendationService {
+    rpc generateRecommendation(GenerateRecommendationRequest) returns (GenerateRecommendationResponse);
+    rpc getRecommendationById(GetRecommendationByIdRequest) returns (GetRecommendationByIdResponse);
+    rpc getUserRecommendations(GetUserRecommendationsRequest) returns (GetUserRecommendationsResponse);
+    rpc getUserRecommendationsByScene(GetUserRecommendationsBySceneRequest) returns (GetUserRecommendationsBySceneResponse);
+    rpc getRecommendationsByAlgorithm(GetRecommendationsByAlgorithmRequest) returns (GetRecommendationsByAlgorithmResponse);
+    rpc generateRecommendations(GenerateRecommendationsRequest) returns (GetRecommendationsByAlgorithmResponse);
+    rpc recordBehavior(RecordBehaviorRequest) returns (RecommendationVoidResponse);
+    rpc markAsClicked(MarkRecommendationRequest) returns (RecommendationVoidResponse);
+    rpc markAsPurchased(MarkRecommendationRequest) returns (RecommendationVoidResponse);
+    rpc getBehaviorHistory(GetBehaviorHistoryRequest) returns (GetBehaviorHistoryResponse);
+    rpc getMetrics(GetMetricsRequest) returns (GetMetricsResponse);
+    rpc getRulesByScene(GetRulesBySceneRequest) returns (GetRulesBySceneResponse);
+    rpc createRule(CreateRuleRequest) returns (CreateRuleResponse);
+    rpc activateRule(ActivateRuleRequest) returns (RecommendationVoidResponse);
+    rpc deleteRule(DeleteRuleRequest) returns (RecommendationVoidResponse);
+}
+
+message RecommendationVoidResponse {
+    bool success = 1;
+}
+
+// ---- generate / single read ----
+message GenerateRecommendationRequest {
+    int64 userId = 1;
+    string scene = 2;
+    string algorithm = 3;
+    int32 maxItems = 4;
+}
+message GenerateRecommendationResponse {
+    RecommendationView recommendation = 1;
+}
+message GetRecommendationByIdRequest { int64 id = 1; }
+message GetRecommendationByIdResponse { RecommendationView recommendation = 1; }
+
+// ---- user recommendation lists ----
+message GetUserRecommendationsRequest { int64 userId = 1; }
+message GetUserRecommendationsBySceneRequest {
+    int64 userId = 1;
+    string scene = 2;
+}
+// The two user-list reads return domain Recommendation objects (not
+// RecommendationResult), matching the original HTTP controller responses.
+message GetUserRecommendationsResponse { repeated RecommendationView recommendations = 1; }
+message GetUserRecommendationsBySceneResponse { repeated RecommendationView recommendations = 1; }
+
+message GetRecommendationsByAlgorithmRequest {
+    int64 userId = 1;
+    string algorithm = 2;
+    int32 limit = 3;
+}
+message GenerateRecommendationsRequest {
+    int64 userId = 1;
+    int32 limit = 2;
+}
+message GetRecommendationsByAlgorithmResponse { repeated RecommendationResultView results = 1; }
+
+// ---- behavior ----
+message RecordBehaviorRequest {
+    int64 userId = 1;
+    string skuCode = 2;
+    string behaviorType = 3;
+}
+message MarkRecommendationRequest { int64 recommendationId = 1; }
+message GetBehaviorHistoryRequest {
+    int64 userId = 1;
+    int32 limit = 2;
+}
+message GetBehaviorHistoryResponse { repeated UserBehaviorView behaviors = 1; }
+
+// ---- metrics ----
+message GetMetricsRequest { int64 userId = 1; }
+message GetMetricsResponse { RecommendationMetricsView metrics = 1; }
+
+// ---- rules ----
+message GetRulesBySceneRequest { string scene = 1; }
+message GetRulesBySceneResponse { repeated RecommendationRuleView rules = 1; }
+message CreateRuleRequest {
+    string ruleName = 1;
+    string scene = 2;
+    string type = 3;
+}
+message CreateRuleResponse { RecommendationRuleView rule = 1; }
+message ActivateRuleRequest { int64 id = 1; }
+message DeleteRuleRequest { int64 id = 1; }
+
+// ---- views (field names mirror the GraphQL schema) ----
+message RecommendationView {
+    int64 id = 1;
+    int64 userId = 2;
+    string scene = 3;
+    string algorithm = 4;
+    double score = 5;
+    string status = 6;
+    repeated RecommendedItemView items = 7;
+    int32 clickCount = 8;
+    int32 conversionCount = 9;
+    int32 impressionCount = 10;
+    string createdAt = 11;
+    string expiresAt = 12;
+}
+message RecommendedItemView {
+    string skuCode = 1;
+    string skuName = 2;
+    double score = 3;
+    int32 rank = 4;
+    string reason = 5;
+}
+message RecommendationResultView {
+    int64 id = 1;
+    int64 userId = 2;
+    int64 productId = 3;
+    double score = 4;
+    string algorithm = 5;
+    string reason = 6;
+    int32 position = 7;
+    bool isClicked = 8;
+    bool isPurchased = 9;
+    string createdAt = 10;
+    string expiresAt = 11;
+}
+message RecommendationMetricsView {
+    int64 totalRecommendations = 1;
+    int64 clickedCount = 2;
+    int64 purchasedCount = 3;
+    double clickThroughRate = 4;
+    double conversionRate = 5;
+}
+message RecommendationRuleView {
+    int64 id = 1;
+    string ruleName = 2;
+    string scene = 3;
+    string type = 4;
+    string status = 5;
+    int32 priority = 6;
+    int32 maxItems = 7;
+    string conditions = 8;
+    string exclusions = 9;
+    double boostFactor = 10;
+    string createdAt = 11;
+    string updatedAt = 12;
+}
+message UserBehaviorView {
+    int64 id = 1;
+    int64 userId = 2;
+    int64 productId = 3;
+    string behaviorType = 4;
+    double behaviorValue = 5;
+    string timestamp = 6;
+    string sessionId = 7;
+    string source = 8;
+}

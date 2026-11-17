@@ -1,7 +1,11 @@
 package com.metawebthree.gateway.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.metawebthree.common.generated.rpc.platform.ApiKeyService;
+import com.metawebthree.common.generated.rpc.platform.ValidateApiKeyRequest;
+import com.metawebthree.common.generated.rpc.platform.ValidateApiKeyResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -13,7 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -31,13 +34,14 @@ import java.util.Map;
 public class ApiKeyAuthFilter implements GlobalFilter, Ordered {
 
     private final ObjectMapper objectMapper;
-    private final WebClient.Builder webClientBuilder;
 
-    public ApiKeyAuthFilter(ObjectMapper objectMapper, WebClient.Builder webClientBuilder) {
+    @DubboReference(check = false, lazy = true)
+    private ApiKeyService apiKeyService;
+
+    public ApiKeyAuthFilter(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
-        this.webClientBuilder = webClientBuilder;
     }
-    
+
     @Value("${gateway.api-key.header-key:X-API-Key}")
     private String apiKeyHeader;
     
@@ -49,10 +53,8 @@ public class ApiKeyAuthFilter implements GlobalFilter, Ordered {
     
     @Value("${gateway.api-key.enabled:true}")
     private boolean apiKeyAuthEnabled;
-    
-    @Value("${gateway.developer-portal.url:http://localhost:8080}")
-    private String developerPortalUrl;
-    
+
+
     // Paths that require API key authentication
     private final List<String> protectedPaths = List.of(
         "/api/open/",
@@ -111,17 +113,19 @@ public class ApiKeyAuthFilter implements GlobalFilter, Ordered {
             }
         }
         
-        // Validate API key by calling platform-service
-        Boolean isValid = isValidApiKey(apiKeyId, apiSecret).block();
-        if (isValid == null || !isValid) {
-            return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED, 
-                "INVALID_API_CREDENTIALS", 
+        // Validate API key via platform-service Dubbo RPC. The response also
+        // carries the developer id, so no second lookup is needed.
+        ValidateApiKeyResponse validation = validateApiKey(apiKeyId, apiSecret);
+        if (validation == null || !validation.getValid()) {
+            return writeErrorResponse(exchange, HttpStatus.UNAUTHORIZED,
+                "INVALID_API_CREDENTIALS",
                 "Invalid API key or secret");
         }
-        
+
         // Add developer context to request headers
         ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
-            .header("X-Developer-Id", extractDeveloperId(apiKeyId))
+            .header("X-Developer-Id", validation.getDeveloperId().isEmpty()
+                    ? "dev_" + apiKeyId.hashCode() : validation.getDeveloperId())
             .header("X-API-Key-Id", apiKeyId)
             .build();
         
@@ -150,24 +154,21 @@ public class ApiKeyAuthFilter implements GlobalFilter, Ordered {
     }
     
     /**
-     * Validate API key by calling platform-service
+     * Validate API key via platform-service Dubbo RPC (no raw HTTP).
      */
-    private Mono<Boolean> isValidApiKey(String apiKeyId, String apiSecret) {
-        WebClient client = webClientBuilder.build();
-        
-        return client.get()
-            .uri(developerPortalUrl + "/developer/api-keys/" + apiKeyId + "/validate")
-            .header(apiSecretHeader, apiSecret)
-            .retrieve()
-            .bodyToMono(Map.class)
-            .map(response -> {
-                Boolean valid = (Boolean) response.get("valid");
-                return valid != null && valid;
-            })
-            .onErrorReturn(false)
-            .switchIfEmpty(Mono.just(false));
+    private ValidateApiKeyResponse validateApiKey(String apiKeyId, String apiSecret) {
+        try {
+            return apiKeyService.validateApiKey(ValidateApiKeyRequest.newBuilder()
+                    .setKeyId(apiKeyId)
+                    .setApiSecret(apiSecret == null ? "" : apiSecret)
+                    .build());
+        } catch (Exception e) {
+            log.warn("API key validation RPC failed for key: {}", apiKeyId, e);
+            return null;
+        }
     }
-    
+
+
     /**
      * Verify request signature to prevent tampering
      */
@@ -223,29 +224,6 @@ public class ApiKeyAuthFilter implements GlobalFilter, Ordered {
             log.error("Signature verification error", e);
             return false;
         }
-    }
-    
-    /**
-     * Extract developer ID from API key by calling platform-service
-     */
-    private String extractDeveloperId(String apiKeyId) {
-        try {
-            WebClient client = webClientBuilder.build();
-            Map<String, String> response = client.get()
-                .uri(developerPortalUrl + "/developer/api-keys/" + apiKeyId)
-                .retrieve()
-                .bodyToMono(Map.class)
-                .block();
-            
-            if (response != null && response.containsKey("developerId")) {
-                return (String) response.get("developerId");
-            }
-        } catch (Exception e) {
-            log.warn("Failed to extract developer ID for key: {}", apiKeyId, e);
-        }
-        
-        // Fallback: return placeholder
-        return "dev_" + apiKeyId.hashCode();
     }
     
     /**

@@ -32,8 +32,7 @@ import com.metawebthree.media.config.UploadQuotaProperties;
                 "com.metawebthree.cs",
                 "com.metawebthree.dataanalysis",
                 "com.metawebthree.developerportal",
-                "com.metawebthree.tenant",
-                "com.metawebthree.common.audit"
+                "com.metawebthree.tenant"
         },
         annotationClass = Mapper.class
 )

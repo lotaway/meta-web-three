@@ -1,8 +1,5 @@
 package com.metawebthree.tenant.config;
 
-import com.metawebthree.common.config.CommonSecurityConfig;
-import com.metawebthree.common.config.RedisCacheConfig;
-import com.metawebthree.common.exception.GlobalExceptionHandler;
 import com.metawebthree.common.generated.rpc.platform.MessageService;
 import com.metawebthree.common.registration.EmailVerificationCodeService;
 import com.metawebthree.common.registration.IpRateLimitService;
@@ -12,19 +9,12 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
-@Import({
-    RedisCacheConfig.class,
-    DistributedCacheService.class,
-    GlobalExceptionHandler.class,
-    CommonSecurityConfig.class
-})
 public class TenantCommonConfig {
 
     @DubboReference(check = false, lazy = true)

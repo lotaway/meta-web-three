@@ -239,6 +239,31 @@ K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 
 ---
 
+## 服务间调用原则
+
+后端调用只允许以下两种方式，不得跨越界限：
+
+1. **外部 / 客户端 → 后端**：统一经网关 `gateway`（10081）按服务名前缀分流，受 JWT 约束；服务自身不直接对公网暴露端口（compose 中除 gateway 外一律只写 `expose`）。
+2. **服务 → 服务**：用 `@DubboReference(check = false, lazy = true)` 通过 Zookeeper 发现并调用，视作程序内部访问，只传必要的用户 id 等上下文，不经网关、不受 JWT 约束。治理端点（含 `/governance/**` 的写操作）同理，服务之间走治理 RPC，不作为绕过网关的 HTTP 后门。
+
+禁止项：
+- 禁止 `@FeignClient`。
+- 禁止服务之间写死 service url 或 HttpClient 的 ip:port（含 `localhost:808x` 之类默认值）。
+- 禁止客户端直连非网关的服务端口。
+
+外部系统（区块链 RPC / 支付 / 钉钉 webhook / LLM provider / MinIO / Milvus 等）不属于服务间调用，按其原生协议（多为 HTTP）接入，不受本原则限制。
+
+### 协议强制 HTTP 的豁免（2026-11-17 决策）
+
+以下两类调用因协议本身要求 HTTP，Dubbo 无法替代，明确豁免，保持现有 HTTP 方式：
+
+- **GraphQL Federation 子图调用**：`gateway/.../graphql/FederationRouter.java` 中 gateway 到各服务 `/graphql` 子图的查询。GraphQL Federation 的 `_entities` / `_service` 协议与 `application/graphql-response+json` 语义绑定 HTTP，子图必须以 HTTP 端点暴露。
+- **OpenAPI 文档聚合**：`gateway/.../config/OpenApiConfig.java` 中 gateway 拉取各服务 `/v3/api-docs` 的 spec。OpenAPI 规范文档本身是 HTTP 资源，聚合器按 HTTP GET 获取。
+
+豁免仅限上述协议性读取，不得借此新增服务间的业务数据 HTTP 直连；业务调用仍须走 Dubbo。
+
+---
+
 ## AI 辅助购物（mall-catalog-service）
 
 AI 辅助购物能力已随 `recommendation-service` 并入 `mall-catalog-service`（端口 10082）：**文本纠错**、**智能匹配**、**以图搜图**、一站式搜索。

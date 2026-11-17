@@ -1,5 +1,6 @@
 package com.metawebthree.mallcatalog;
 
+import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.apache.ibatis.annotations.Mapper;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -35,6 +36,7 @@ import com.metawebthree.recommendation.infrastructure.config.RecommendationAlgor
         AiShoppingProperties.class
 })
 @EnableDiscoveryClient
+@EnableDubbo
 @EnableScheduling
 public class MallCatalogApplication {
 

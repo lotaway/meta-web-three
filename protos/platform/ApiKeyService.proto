@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package platform;
+
+option java_package = "com.metawebthree.common.generated.rpc.platform";
+option java_multiple_files = true;
+
+// Internal API-key checks used by the gateway auth filter. Kept as a Dubbo
+// service so the gateway never has to call platform-service over raw HTTP.
+service ApiKeyService {
+    rpc validateApiKey(ValidateApiKeyRequest) returns (ValidateApiKeyResponse);
+    rpc getApiKey(GetApiKeyRequest) returns (GetApiKeyResponse);
+}
+
+message ValidateApiKeyRequest {
+    string keyId = 1;
+    string apiSecret = 2;
+}
+
+message ValidateApiKeyResponse {
+    bool valid = 1;
+    string message = 2;
+    string developerId = 3;
+    string keyId = 4;
+    string scopes = 5;
+    int32 rateLimit = 6;
+}
+
+message GetApiKeyRequest {
+    string keyId = 1;
+}
+
+message GetApiKeyResponse {
+    bool found = 1;
+    string developerId = 2;
+    string keyId = 3;
+}

@@ -9,4 +9,5 @@ com.metawebthree.common.autoconfigure.DomainEventAutoConfiguration
 com.metawebthree.common.autoconfigure.InternalTokenAutoConfiguration
 com.metawebthree.common.autoconfigure.InternalTokenServletFilterAutoConfiguration
 com.metawebthree.common.autoconfigure.PermissionAutoConfiguration
+com.metawebthree.common.autoconfigure.QuartzAutoConfiguration
 com.metawebthree.common.governance.ServiceGovernanceAutoConfiguration
