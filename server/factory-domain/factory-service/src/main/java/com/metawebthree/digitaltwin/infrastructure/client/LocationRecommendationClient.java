@@ -4,9 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.net.URI;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.*;
 
 /**
@@ -19,7 +16,7 @@ public class LocationRecommendationClient extends AbstractAIClient {
     private static final Logger log = LoggerFactory.getLogger(LocationRecommendationClient.class);
 
     public LocationRecommendationClient() {
-        super("http://localhost:8083", 5000, 3);
+        super();
     }
 
     /**
@@ -127,44 +124,6 @@ public class LocationRecommendationClient extends AbstractAIClient {
         log.error("Failed to get turnover analysis for SKU {}: {}",
             skuCode, response.getError());
         return Map.of();
-    }
-
-    @Override
-    protected AIClientResponse doInvoke(AIClientRequest request) {
-        try {
-            String path = getApiPath(request.getCapability());
-            URI uri = URI.create(endpoint + path);
-            String body = request.toJson();
-
-            HttpRequest httpRequest = buildRequest(uri, body).build();
-            HttpResponse<String> httpResponse = httpClient.send(httpRequest,
-                HttpResponse.BodyHandlers.ofString());
-
-            if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
-                log.debug("Location recommendation request succeeded: {}", request.getCapability());
-                return AIClientResponse.success(httpResponse.body(), httpResponse.statusCode());
-            } else {
-                log.warn("Location recommendation request failed with status {}: {}",
-                    httpResponse.statusCode(), httpResponse.body());
-                return AIClientResponse.failure(
-                    "HTTP " + httpResponse.statusCode() + ": " + httpResponse.body(),
-                    httpResponse.statusCode()
-                );
-            }
-        } catch (Exception e) {
-            log.error("Location recommendation request exception: {}", e.getMessage());
-            return AIClientResponse.failure(e.getMessage(), -1);
-        }
-    }
-
-    private String getApiPath(String capability) {
-        return switch (capability) {
-            case "LOCATION_RECOMMENDATION" -> "/api/recommendation/location";
-            case "LOCATION_BATCH_RECOMMENDATION" -> "/api/recommendation/location/batch";
-            case "PRODUCT_CORRELATION" -> "/api/recommendation/correlation";
-            case "TURNOVER_ANALYSIS" -> "/api/recommendation/turnover";
-            default -> "/api/recommendation/location";
-        };
     }
 
     private LocationRecommendation parseRecommendation(String json) {

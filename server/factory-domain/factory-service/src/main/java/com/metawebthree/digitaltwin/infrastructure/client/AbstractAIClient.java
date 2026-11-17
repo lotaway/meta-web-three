@@ -1,17 +1,22 @@
 package com.metawebthree.digitaltwin.infrastructure.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
+
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.metawebthree.common.generated.rpc.AICapabilityRequest;
+import com.metawebthree.common.generated.rpc.AICapabilityResponse;
+import com.metawebthree.common.generated.rpc.AICapabilityService;
 
-
+/**
+ * Base for factory AI clients. AI capabilities are reached through the
+ * existing ai-service over Dubbo (service-to-service call rule); no caller
+ * embeds an HTTP endpoint any more. The concrete AI/LLM runtimes behind
+ * ai-service are external systems and stay HTTP there.
+ */
 public abstract class AbstractAIClient {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractAIClient.class);
@@ -19,30 +24,28 @@ public abstract class AbstractAIClient {
 
     public static final ObjectMapper objectMapper = new ObjectMapper();
 
-    protected final String endpoint;
-    protected final int timeoutMs;
-    protected final int retryCount;
-    protected final HttpClient httpClient;
+    @DubboReference(check = false, lazy = true)
+    protected AICapabilityService aiCapabilityService;
 
-    protected AbstractAIClient(String endpoint, int timeoutMs, int retryCount) {
-        this.endpoint = endpoint;
-        this.timeoutMs = timeoutMs;
-        this.retryCount = retryCount;
-        this.httpClient = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofMillis(timeoutMs))
-            .build();
+    protected AbstractAIClient() {
     }
 
-    
+    /**
+     * Invoke an AI capability via Dubbo with the existing retry policy.
+     */
     public AIClientResponse invoke(AIClientRequest request) {
         int attempts = 0;
         Exception lastException = null;
 
-        while (attempts < retryCount) {
+        while (attempts < 3) {
             try {
-                AIClientResponse response = doInvoke(request);
-                if (response.isSuccess()) {
-                    return response;
+                AICapabilityResponse response = aiCapabilityService.invoke(
+                        AICapabilityRequest.newBuilder()
+                                .setCapability(request.getCapability())
+                                .setPayload(request.toJson())
+                                .build());
+                if (response.getSuccess()) {
+                    return AIClientResponse.success(response.getData(), 200);
                 }
                 log.warn("AI invocation attempt {} failed: {}", attempts + 1, response.getError());
             } catch (Exception e) {
@@ -50,7 +53,7 @@ public abstract class AbstractAIClient {
                 log.warn("AI invocation attempt {} threw exception: {}", attempts + 1, e.getMessage());
             }
             attempts++;
-            if (attempts < retryCount) {
+            if (attempts < 3) {
                 try {
                     Thread.sleep(RETRY_BACKOFF_BASE_MS * attempts);
                 } catch (InterruptedException ie) {
@@ -66,41 +69,6 @@ public abstract class AbstractAIClient {
         );
     }
 
-    
-    protected abstract AIClientResponse doInvoke(AIClientRequest request);
-
-    
-    protected HttpRequest.Builder buildRequest(URI uri, String body) {
-        return HttpRequest.newBuilder()
-            .uri(uri)
-            .timeout(Duration.ofMillis(timeoutMs))
-            .header("Content-Type", "application/json")
-            .POST(HttpRequest.BodyPublishers.ofString(body));
-    }
-
-    
-    public boolean isAvailable() {
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(endpoint + "/health"))
-                .timeout(Duration.ofMillis(2000))
-                .GET()
-                .build();
-
-            HttpResponse<String> response = httpClient.send(request,
-                HttpResponse.BodyHandlers.ofString());
-            return response.statusCode() >= 200 && response.statusCode() < 300;
-        } catch (Exception e) {
-            log.info("Health check failed for {}: {}", endpoint, e.getMessage());
-            return false;
-        }
-    }
-
-    public String getEndpoint() {
-        return endpoint;
-    }
-
-    
     public static class AIClientRequest {
         private final String capability;
         private final Map<String, Object> payload;
@@ -127,7 +95,6 @@ public abstract class AbstractAIClient {
         }
     }
 
-    
     public static class AIClientResponse {
         private final boolean success;
         private final String data;

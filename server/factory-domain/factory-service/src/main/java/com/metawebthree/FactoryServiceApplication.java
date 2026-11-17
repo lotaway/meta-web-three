@@ -1,5 +1,6 @@
 package com.metawebthree;
 
+import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.apache.ibatis.annotations.Mapper;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -27,6 +28,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 )
 @EnableDiscoveryClient
 @EnableScheduling
+@EnableDubbo
 public class FactoryServiceApplication {
 
     public static void main(String[] args) {

@@ -2,12 +2,8 @@ package com.metawebthree.digitaltwin.infrastructure.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.net.URI;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,20 +14,11 @@ public class ForecastingServiceClient extends AbstractAIClient {
 
     private static final Logger log = LoggerFactory.getLogger(ForecastingServiceClient.class);
 
-    @Value("${ai.forecasting-service.endpoint:http://localhost:8082}")
-    private String defaultEndpoint;
-
-    @Value("${ai.forecasting-service.timeout-ms:5000}")
-    private int defaultTimeout;
-
-    @Value("${ai.forecasting-service.retry-count:3}")
-    private int defaultRetryCount;
-
     public ForecastingServiceClient() {
-        super("http://localhost:8082", 5000, 3);
+        super();
     }
 
-    
+
     public ForecastResult createForecast(String skuCode, String skuName,
             Long warehouseId, LocalDate forecastDate) {
         Map<String, Object> payload = new HashMap<>();
@@ -85,43 +72,6 @@ public class ForecastingServiceClient extends AbstractAIClient {
 
         log.error("Failed to get forecasts for warehouse {}: {}", warehouseId, response.getError());
         return Map.of();
-    }
-
-    @Override
-    protected AIClientResponse doInvoke(AIClientRequest request) {
-        try {
-            String path = getApiPath(request.getCapability());
-            URI uri = URI.create(endpoint + path);
-            String body = request.toJson();
-
-            HttpRequest httpRequest = buildRequest(uri, body).build();
-            HttpResponse<String> httpResponse = httpClient.send(httpRequest,
-                HttpResponse.BodyHandlers.ofString());
-
-            if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
-                log.info("Forecast request succeeded: {}", request.getCapability());
-                return AIClientResponse.success(httpResponse.body(), httpResponse.statusCode());
-            } else {
-                log.warn("Forecast request failed with status {}: {}",
-                    httpResponse.statusCode(), httpResponse.body());
-                return AIClientResponse.failure(
-                    "HTTP " + httpResponse.statusCode() + ": " + httpResponse.body(),
-                    httpResponse.statusCode()
-                );
-            }
-        } catch (Exception e) {
-            log.error("Forecast request exception: {}", e.getMessage());
-            return AIClientResponse.failure(e.getMessage(), -1);
-        }
-    }
-
-    private String getApiPath(String capability) {
-        return switch (capability) {
-            case "DEMAND_FORECASTING" -> "/api/forecasting/forecast";
-            case "DEMAND_FORECASTING_HISTORY" -> "/api/forecasting/forecast/history";
-            case "DEMAND_FORECASTING_WAREHOUSE" -> "/api/forecasting/forecast/warehouse";
-            default -> "/api/forecasting/forecast";
-        };
     }
 
     private ForecastResult parseForecastResult(String json) {

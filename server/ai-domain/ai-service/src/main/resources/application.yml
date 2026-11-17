@@ -1,6 +1,23 @@
 server:
   port: 10103
 
+# External AI/LLM runtimes reached by the Dubbo AICapabilityService provider.
+# These are external systems (local LLM server / third-party LLM API), so HTTP
+# is allowed here; endpoints are configured centrally instead of hard-coded in
+# calling services.
+ai:
+  capabilities:
+    forecasting:
+      base-url: ${AI_FORECASTING_URL:http://localhost:8082}
+    location:
+      base-url: ${AI_LOCATION_URL:http://localhost:8083}
+    anomaly:
+      base-url: ${AI_ANOMALY_URL:http://localhost:8084}
+    recommendation:
+      base-url: ${AI_RECOMMENDATION_URL:http://localhost:8085}
+    risk:
+      base-url: ${AI_RISK_URL:http://localhost:8086}
+
 meta:
   common:
     storage:

@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package com.metawebthree.common.generated.rpc;
+
+option java_multiple_files = true;
+option java_outer_classname = "AICapabilityServiceProto";
+
+// Unified AI capability RPC exposed by the existing ai-service (10103).
+// Both factory-service and ai-warehouse invoke AI capabilities through this
+// service instead of hard-coded HTTP endpoints. The payload/data are JSON so
+// the concrete capability (forecasting / anomaly / location / recommendation /
+// risk scoring) can evolve without changing the RPC contract.
+service AICapabilityService {
+    rpc invoke (AICapabilityRequest) returns (AICapabilityResponse);
+}
+
+message AICapabilityRequest {
+    // Capability identifier, e.g. DEMAND_FORECASTING, ANOMALY_DETECTION,
+    // LOCATION_RECOMMENDATION, RECOMMENDATION, RISK_SCORING.
+    string capability = 1;
+    // Capability-specific JSON payload.
+    string payload = 2;
+}
+
+message AICapabilityResponse {
+    bool success = 1;
+    // Capability-specific JSON result (present when success = true).
+    string data = 2;
+    // Error description (present when success = false).
+    string error = 3;
+}

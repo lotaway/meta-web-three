@@ -4,9 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.net.URI;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -17,7 +14,7 @@ public class AnomalyDetectionClient extends AbstractAIClient {
     private static final Logger log = LoggerFactory.getLogger(AnomalyDetectionClient.class);
 
     public AnomalyDetectionClient() {
-        super("http://localhost:8084", 5000, 3);
+        super();
     }
 
     
@@ -112,45 +109,6 @@ public class AnomalyDetectionClient extends AbstractAIClient {
 
         log.error("Failed to predict anomalies for SKU {}: {}", skuCode, response.getError());
         return List.of();
-    }
-
-    @Override
-    protected AIClientResponse doInvoke(AIClientRequest request) {
-        try {
-            String path = getApiPath(request.getCapability());
-            URI uri = URI.create(endpoint + path);
-            String body = request.toJson();
-
-            HttpRequest httpRequest = buildRequest(uri, body).build();
-            HttpResponse<String> httpResponse = httpClient.send(httpRequest,
-                HttpResponse.BodyHandlers.ofString());
-
-            if (httpResponse.statusCode() >= 200 && httpResponse.statusCode() < 300) {
-                log.info("Anomaly detection request succeeded: {}", request.getCapability());
-                return AIClientResponse.success(httpResponse.body(), httpResponse.statusCode());
-            } else {
-                log.warn("Anomaly detection request failed with status {}: {}",
-                    httpResponse.statusCode(), httpResponse.body());
-                return AIClientResponse.failure(
-                    "HTTP " + httpResponse.statusCode() + ": " + httpResponse.body(),
-                    httpResponse.statusCode()
-                );
-            }
-        } catch (Exception e) {
-            log.error("Anomaly detection request exception: {}", e.getMessage());
-            return AIClientResponse.failure(e.getMessage(), -1);
-        }
-    }
-
-    private String getApiPath(String capability) {
-        return switch (capability) {
-            case "ANOMALY_DETECTION" -> "/api/anomaly/detect";
-            case "SENSOR_ANOMALY_DETECTION" -> "/api/anomaly/detect/sensor";
-            case "INVENTORY_ANOMALY_DETECTION" -> "/api/anomaly/detect/inventory";
-            case "ACTIVE_ANOMALY_ALERTS" -> "/api/anomaly/alerts/active";
-            case "ANOMALY_PREDICTION" -> "/api/anomaly/predict";
-            default -> "/api/anomaly/detect";
-        };
     }
 
     @SuppressWarnings("unchecked")
