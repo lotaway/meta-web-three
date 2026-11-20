@@ -8,6 +8,7 @@ import {
   Image,
   ActivityIndicator,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -51,6 +52,7 @@ export default function BrandDetailScreen() {
       }
     } catch (error) {
       console.error('Failed to load brand detail:', error);
+      Alert.alert('Error', 'Failed to load the brand detail.')
     } finally {
       setLoading(false);
     }

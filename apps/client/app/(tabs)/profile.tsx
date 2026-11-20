@@ -102,6 +102,7 @@ export default function ProfileScreen() {
       }
     } catch (error) {
       console.error('Failed to load unread count:', error)
+      Alert.alert('Error', 'Failed to load the unread count.')
     }
   }
 
@@ -113,6 +114,7 @@ export default function ProfileScreen() {
       }
     } catch (error) {
       console.error('Failed to load coupon count:', error)
+      Alert.alert('Error', 'Failed to load the coupon count.')
     }
   }
 

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -60,6 +61,7 @@ export default function FavoritesScreen() {
       }
     } catch (error) {
       console.error('Load favorites failed:', error);
+      Alert.alert('Error', 'Failed to load favorites.');
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -81,6 +83,7 @@ export default function FavoritesScreen() {
       setFavorites(prev => prev.filter(item => item.id !== productId));
     } catch (error) {
       console.error('Remove favorite failed:', error);
+      Alert.alert('Error', 'Failed to remove the favorite.');
     }
   };
 

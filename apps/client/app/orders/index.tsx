@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Image,
+  Alert,
 } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -85,6 +86,7 @@ export default function OrdersScreen() {
       }
     } catch (error) {
       console.error('Failed to load orders:', error)
+      Alert.alert('Error', 'Failed to load orders.')
     } finally {
       setLoading(false)
       setLoadingMore(false)

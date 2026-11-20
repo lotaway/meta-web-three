@@ -208,7 +208,7 @@ describe('api/client', () => {
           })
       )
 
-      await expect(shortTimeoutClient.get('/test', {})).rejects.toThrow('请求超时')
+      await expect(shortTimeoutClient.get('/test', {})).rejects.toThrow('Request timed out')
     })
   })
 

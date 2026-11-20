@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -68,6 +69,7 @@ export default function BrowseHistoryScreen() {
       if (newItems) updateHistoryState(newItems, isRefresh);
     } catch (error) {
       console.error('Load history failed:', error);
+      Alert.alert('Error', 'Failed to load the history.');
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -89,6 +91,7 @@ export default function BrowseHistoryScreen() {
       setProducts(prev => prev.filter(item => item.id !== productId));
     } catch (error) {
       console.error('Delete history failed:', error);
+      Alert.alert('Error', 'Failed to delete the history item.');
     }
   };
 
@@ -100,6 +103,7 @@ export default function BrowseHistoryScreen() {
       setProducts([]);
     } catch (error) {
       console.error('Clear history failed:', error);
+      Alert.alert('Error', 'Failed to clear the history.');
     } */
   };
 

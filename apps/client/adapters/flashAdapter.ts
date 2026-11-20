@@ -26,7 +26,7 @@ export async function createFlashOrder(token: string, request: FlashOrderRequest
   })
   const data = await res.json()
   if (data.code !== '0000') {
-    throw new Error(data.message || '闪购下单失败')
+    throw new Error(data.message || 'Failed to place flash sale order')
   }
   return { orderId: data.data?.orderId }
 }

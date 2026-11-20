@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -29,6 +29,7 @@ export function CommentPreview({ productId, productName, colors }: CommentPrevie
       }
     } catch (error) {
       console.error('Failed to load comments:', error);
+      Alert.alert('Error', 'Failed to load comments.');
     } finally {
       setLoading(false);
     }

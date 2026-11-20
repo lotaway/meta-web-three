@@ -35,6 +35,7 @@ export function ActionButtons({ colors, productDetails, flashInfo, onOpenSKU }: 
       setIsFavorite(!!isFav);
     } catch (error) {
       console.error('Failed to load favorite status:', error);
+      Alert.alert('Error', 'Failed to load the favorite status.');
     }
   };
 

@@ -32,7 +32,7 @@ export const useUserStore = defineStore(
         // 验证返回的roles是否是一个非空数组
         userInfo.value.roles = res.data.roles
       } else {
-        throw new Error('该用户暂未分配角色，请先分配角色！')
+        throw new Error('No role assigned to this user. Please assign a role first.')
       }
       userInfo.value.menus = res.data.menus
       userInfo.value.avatar = res.data.icon

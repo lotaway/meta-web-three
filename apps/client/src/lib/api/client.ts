@@ -84,7 +84,7 @@ export class ApiClient {
     } catch (error) {
       clearTimeout(timeoutId)
       if (error instanceof Error && error.name === 'AbortError') {
-        throw new ApiError('请求超时', 'TIMEOUT_ERROR', 408)
+        throw new ApiError('Request timed out', 'TIMEOUT_ERROR', 408)
       }
       throw error
     }
@@ -164,7 +164,7 @@ export class ApiClient {
       }
     }
 
-    throw new ApiError('请求失败', 'UNKNOWN_ERROR', 0)
+    throw new ApiError('Request failed', 'UNKNOWN_ERROR', 0)
   }
 
   get<T = unknown>(url: string, options?: RequestInit): Promise<T> {

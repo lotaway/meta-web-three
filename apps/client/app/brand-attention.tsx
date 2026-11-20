@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -75,6 +76,7 @@ export default function BrandAttentionScreen() {
       if (newBrands) updateBrandsState(newBrands, isRefresh);
     } catch (error) {
       console.error('Load brands failed:', error);
+      Alert.alert('Error', 'Failed to load brands.');
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -98,6 +100,7 @@ export default function BrandAttentionScreen() {
       setBrands(prev => prev.filter(item => item.id !== brandId));
     } catch (error) {
       console.error('Delete brand failed:', error);
+      Alert.alert('Error', 'Failed to delete the brand.');
     } */
   };
 

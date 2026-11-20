@@ -39,6 +39,7 @@ export default function AddressListScreen() {
       }
     } catch (error) {
       console.error('Failed to load addresses:', error)
+      Alert.alert('Error', 'Failed to load addresses.')
     } finally {
       setLoading(false)
     }

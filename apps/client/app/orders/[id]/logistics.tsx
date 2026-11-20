@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -58,6 +59,7 @@ export default function LogisticsScreen() {
       }
     } catch (error) {
       console.error('Failed to load logistics:', error)
+      Alert.alert('Error', 'Failed to load the logistics.')
     } finally {
       setLoading(false)
     }

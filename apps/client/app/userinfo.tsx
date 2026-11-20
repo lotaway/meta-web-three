@@ -50,6 +50,7 @@ export default function UserInfoScreen() {
       }
     } catch (error) {
       console.error('Failed to load user info:', error);
+      Alert.alert('Error', 'Failed to load the user info.');
     } finally {
       setLoading(false);
     }

@@ -8,6 +8,7 @@ import {
   Image,
   ActivityIndicator,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -63,6 +64,7 @@ export default function CategoryListScreen() {
       }
     } catch (error) {
       console.error('Load category list failed:', error);
+      Alert.alert('Error', 'Failed to load the category list.');
     }
   }, [id]);
 
@@ -92,6 +94,7 @@ export default function CategoryListScreen() {
       if (newProducts) updateProductState(newProducts, isRefresh);
     } catch (error) {
       console.error('Load products failed:', error);
+      Alert.alert('Error', 'Failed to load products.');
     } finally {
       setLoading(false);
       setLoadingMore(false);

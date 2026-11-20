@@ -60,6 +60,7 @@ export default function RefundScreen() {
       }
     } catch (error) {
       console.error('Failed to load order:', error)
+      Alert.alert('Error', 'Failed to load the order.')
     } finally {
       setLoading(false)
     }
@@ -75,6 +76,7 @@ export default function RefundScreen() {
       }
     } catch (error) {
       console.error('Failed to load refund history:', error)
+      Alert.alert('Error', 'Failed to load the refund history.')
     }
   }
 

@@ -66,6 +66,7 @@ export default function NotificationsScreen() {
       }
     } catch (error) {
       console.error('Failed to load notifications:', error)
+      Alert.alert('Error', 'Failed to load notifications.')
     } finally {
       setLoading(false)
     }
@@ -79,6 +80,7 @@ export default function NotificationsScreen() {
       }
     } catch (error) {
       console.error('Failed to load unread count:', error)
+      Alert.alert('Error', 'Failed to load the unread count.')
     }
   }
 
@@ -94,6 +96,7 @@ export default function NotificationsScreen() {
       setUnreadCount((prev) => Math.max(0, prev - 1))
     } catch (error) {
       console.error('Failed to mark as read:', error)
+      Alert.alert('Error', 'Failed to mark the notification as read.')
     }
   }
 

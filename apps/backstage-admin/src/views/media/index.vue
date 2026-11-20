@@ -30,14 +30,20 @@ const loadStatistics = async () => {
   try {
     const res = await getMediaStatisticsAPI()
     statistics.value = res.data
-  } catch (error) { console.error(error) }
+  } catch (error) {
+    console.error('[loadStatistics]', error)
+    ElMessage.error('Failed to load media statistics')
+  }
 }
 
 const loadConfig = async () => {
   try {
     const res = await getQuotaConfigAPI()
     quotaConfig.value = res.data
-  } catch (error) { console.error(error) }
+  } catch (error) {
+    console.error('[loadConfig]', error)
+    ElMessage.error('Failed to load quota config')
+  }
 }
 
 const getList = async () => {
@@ -46,8 +52,12 @@ const getList = async () => {
     const res = await getUserStorageListAPI(query)
     list.value = res.data.list
     total.value = res.data.total
-  } catch (error) { console.error(error) }
-  finally { loading.value = false }
+  } catch (error) {
+    console.error('[getList]', error)
+    ElMessage.error('Failed to load storage list')
+  } finally {
+    loading.value = false
+  }
 }
 
 onMounted(() => { getList(); loadStatistics(); loadConfig() })

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -56,6 +57,7 @@ export default function WalletScreen() {
       }
     } catch (error) {
       console.error('Failed to load wallet data:', error);
+      Alert.alert('Error', 'Failed to load the wallet data.')
     } finally {
       setLoading(false);
       setRefreshing(false);

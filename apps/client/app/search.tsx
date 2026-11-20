@@ -9,6 +9,7 @@ import {
   Image,
   ActivityIndicator,
   Keyboard,
+  Alert,
 } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -84,6 +85,7 @@ export default function SearchScreen() {
       await AsyncStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(updated))
     } catch (e) {
       console.error('Save search history failed:', e)
+      Alert.alert('Error', 'Failed to save the search history.')
     }
   }
 
@@ -93,6 +95,7 @@ export default function SearchScreen() {
       await AsyncStorage.removeItem(SEARCH_HISTORY_KEY)
     } catch (e) {
       console.error('Clear search history failed:', e)
+      Alert.alert('Error', 'Failed to clear the search history.')
     }
   }
 

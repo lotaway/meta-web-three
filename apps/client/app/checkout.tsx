@@ -123,7 +123,7 @@ async function getPaymentParams(orderId: number, method: PayMethod): Promise<Pay
       ? await payApi.getAlipayParams(request)
       : await payApi.getStripeParams(request)
   if (!isSuccessCode(response.code) || !response.data) {
-    throw new Error(response.message || '获取支付参数失败')
+    throw new Error(response.message || 'Failed to get payment parameters')
   }
   return response.data
 }
@@ -174,6 +174,7 @@ export default function CheckoutScreen() {
       }
     } catch (error) {
       console.error('Failed to load address:', error)
+      Alert.alert('Error', 'Failed to load the address.')
     }
   }
 
@@ -188,6 +189,7 @@ export default function CheckoutScreen() {
       }
     } catch (error) {
       console.error('Failed to load coupons:', error)
+      Alert.alert('Error', 'Failed to load coupons.')
     } finally {
       setLoadingCoupons(false)
     }
@@ -204,11 +206,11 @@ export default function CheckoutScreen() {
 
   const loadOrderBase = async () => {
     if (checkoutItems.length === 0) {
-      throw new Error('未找到可结算商品')
+      throw new Error('No checkout items found')
     }
     const orderResponse = await createOrder(checkoutItems, selectedAddress?.id)
     if (!isSuccessCode(orderResponse.code) || !orderResponse.data) {
-      throw new Error(orderResponse.message || '创建订单失败')
+      throw new Error(orderResponse.message || 'Failed to create order')
     }
     return orderResponse.data
   }
@@ -266,7 +268,7 @@ export default function CheckoutScreen() {
       orderRemark
     )
     if (!isSuccessCode(orderResponse.code) || !orderResponse.data) {
-      throw new Error(orderResponse.message || '创建订单失败')
+      throw new Error(orderResponse.message || 'Failed to create order')
     }
     return orderResponse.data
   }
@@ -276,12 +278,12 @@ export default function CheckoutScreen() {
     const result = await processPayment(selectedMethod, params)
     if (result.status === 'success') {
       if (!result.transactionId) {
-        throw new Error('支付结果缺少交易凭证')
+        throw new Error('Payment result is missing a transaction voucher')
       }
       const verification = await verifyPayment(orderId, result.transactionId)
       const valid = verification.data?.valid === true
       if (!valid) {
-        throw new Error('支付校验失败')
+        throw new Error('Payment verification failed')
       }
     }
     return result
@@ -298,13 +300,13 @@ export default function CheckoutScreen() {
   const processPayment = async (method: PayMethod, params: PaymentParams): Promise<PayResult> => {
     switch (method) {
       case 'wechat':
-        if (!params) throw new Error('微信支付参数获取失败')
+        if (!params) throw new Error('Failed to get WeChat payment parameters')
         return await pay('wechat', params as any)
       case 'alipay':
-        if (!params?.orderString) throw new Error('支付宝支付参数获取失败')
+        if (!params?.orderString) throw new Error('Failed to get Alipay payment parameters')
         return await pay('alipay', params.orderString)
       case 'stripe':
-        if (!params?.clientSecret) throw new Error('银行卡支付参数获取失败')
+        if (!params?.clientSecret) throw new Error('Failed to get card payment parameters')
         return await pay('stripe', { clientSecret: params.clientSecret, returnURL: params.returnURL || 'app://payment' })
     }
   }
