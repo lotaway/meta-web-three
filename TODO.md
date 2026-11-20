@@ -57,7 +57,8 @@
   - 2026-11-20 注释英文化完成（`77e84226`、`bb55c757`、`c5ad3931`、`035cc449`）：backstage-admin 全 app 中文注释清零——27 个 `.d.ts` 的 562 处 JSDoc、7 个 `.ts` 的 90 处、74 个 `.vue` 的 897 处、行尾 16 处、样式文件 26 处，合计 1591 行，仅改注释文本，零 UI / i18n 资源变更。client 的 `src` 注释本无中文（命中项均为 JSX UI 文案，属需决策范围）。每批后 `vue-tsc` + vitest 6/38 全 EXIT 0。
   - 2026-11-20 中文日志英文化完成（`dc2c6fc8`）：backstage-admin 15 个 `.vue` 的 52 处 `console.log/error` 中文文案全改英文（47 条唯一项精确映射，dry-run 52 命中/0 遗漏/0 未使用）。只改日志文案、保留原 `console.error` 行为，不涉及用户提示。`vue-tsc` + vitest 7/42 EXIT 0。
   - 2026-11-20 UI 消息 i18n 迁移完成（`1b1dbaee`、`adc83a5d`）：先补齐 en-US 缺失的 11 个 key（zh/en 461 对齐）；再把 42 个 `.vue` 里 246 处 `ElMessage/ElMessageBox` 中文文案 + 114 处确认框按钮文案（确定/取消）迁到 `t()`，按功能分类复用/新增 key（本批 67 个新 key 中英齐备），4 处动态插值保留为 `t(key, { params })`，42 文件补 `useI18n` 接入。迁移后中文 ElMessage 残留 0；`vue-tsc` + vitest 7/42 EXIT 0。
-  - 剩余批次（本任务未关闭）：模板正文中的硬编码中文（`<el-button>`/`<h2>`/placeholder 等展示文本，量大、需逐条定 key）、超过 20 行的函数拆分。纯展示型 UI 文本不应直接英文化，应迁入 i18n 资源。
+  - 2026-11-20 模板展示文本 i18n 迁移完成（`40a0f1a7`）：53 个 `.vue` 的模板硬编码中文（文本节点/静态属性/绑定属性/插值内字符串）按功能分类迁入 `t()`——327 处替换（第一轮 526 单元中 521 处 + 补充轮 83 处含复用/拆分），复用既有 key（common/role/mes/product 等）+ 新增 236 个 key（zh/en 对齐，归 home/promotion/product/ums/aiShopping/reporting/project 等命名空间），12 个文件补 `useI18n` 接入。12 个文件原已通过 `import { t } from '@/locales'` 接入，避免重复声明。`el-option value="外观"` 等数据值为后端枚举值，有意保留中文不迁。模板中文残留（排除数据值）归零，`vue-tsc` + vitest 7/42 EXIT 0。
+  - 剩余批次（本任务未关闭）：超过 20 行的函数拆分（按 CODE_PRICEPLES 第 14-19 条处理，见函数拆分任务）。
   - 2026-11-20 吞异常口径已定（用户决策①）：backstage-admin 保留共享 `src/utils/http.ts` 拦截器的统一 `ElMessage` 提示（业务错误码 + 网络错误），catch 仅记日志——按此口径，70 处「catch 内仅 console.error」不算违规，无需改动。已回退第一批按旧口径在 `media/index.vue` 加的 4 处 `ElMessage.error`（`d5e2d269`），消除双重提示；删除取消（`error === 'cancel'`）保持静默。client 端无统一提示层（`src/lib/api/client.ts` 只抛 `ApiError`），第一批补的 28 处 `Alert.alert` 是正确反馈，不在本口径内、保留。`vue-tsc` + vitest 7/42 EXIT 0。
 
 - [ ] 补齐两个客户端的响应式与可访问性缺口。

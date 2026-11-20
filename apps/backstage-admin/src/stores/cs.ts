@@ -6,13 +6,14 @@ export const useCsStore = defineStore('cs', () => {
   const ws = ref<WebSocket | null>(null)
   let heartbeatTimer: ReturnType<typeof setInterval> | null = null
 
-  function connect(agentId: number) {
-    if (ws.value && ws.value.readyState === WebSocket.OPEN) return
+  function buildWsUrl(agentId: number) {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
     const host = import.meta.env.VITE_WS_HOST || window.location.hostname
     const port = import.meta.env.VITE_WS_PORT || '10091'
-    const url = `${protocol}//${host}:${port}/ws/cs/agent-${agentId}`
-    const socket = new WebSocket(url)
+    return `${protocol}//${host}:${port}/ws/cs/agent-${agentId}`
+  }
+
+  function bindSocketEvents(socket: WebSocket, agentId: number) {
     socket.onopen = () => {
       wsConnected.value = true
       socket.send(JSON.stringify({ type: 'REGISTER_AGENT', agentId }))
@@ -30,6 +31,12 @@ export const useCsStore = defineStore('cs', () => {
     socket.onerror = () => {
       wsConnected.value = false
     }
+  }
+
+  function connect(agentId: number) {
+    if (ws.value && ws.value.readyState === WebSocket.OPEN) return
+    const socket = new WebSocket(buildWsUrl(agentId))
+    bindSocketEvents(socket, agentId)
     ws.value = socket
   }
 

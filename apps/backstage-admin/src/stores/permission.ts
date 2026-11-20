@@ -8,35 +8,28 @@ import type { RouteRecordExt } from '@/types/router'
 import { t } from '@/locales'
 import { BLOCKCHAIN_ENABLED } from '@/utils/env'
 
+function applyMenuToRoute(menu: UmsMenu, route: RouteRecordExt) {
+  if (menu.title != null && menu.title !== '') {
+    route.meta!.title = t(`menu.${menu.title}`) || menu.title
+  }
+  if (menu.icon != null && menu.title !== '') {
+    route.meta!.icon = menu.icon
+  }
+  if (menu.hidden != null) route.hidden = menu.hidden !== 0
+  if (menu.sort != null) route.sort = menu.sort
+}
+
 function hasPermission(menus: UmsMenu[], route: RouteRecordExt) {
-  if (route.name) {
-    const currMenu = getMenu(route.name as string, menus)
-    if (currMenu != null) {
-      if (currMenu.title != null && currMenu.title !== '') {
-        route.meta!.title = t(`menu.${currMenu.title}`) || currMenu.title
-      }
-      if (currMenu.icon != null && currMenu.title !== '') {
-        route.meta!.icon = currMenu.icon
-      }
-      if (currMenu.hidden != null) {
-        route.hidden = currMenu.hidden !== 0
-      }
-      if (currMenu.sort != null) {
-        route.sort = currMenu.sort
-      }
-      return true
-    } else {
-      route.sort = 0
-      if (route.hidden !== undefined && route.hidden === true) {
-        route.sort = -1
-        return true
-      } else {
-        return false
-      }
-    }
-  } else {
+  if (!route.name) return true
+
+  const currMenu = getMenu(route.name as string, menus)
+  if (currMenu) {
+    applyMenuToRoute(currMenu, route)
     return true
   }
+
+  route.sort = route.hidden === true ? -1 : 0
+  return route.hidden === true
 }
 
 // Get menu by route name
@@ -87,32 +80,20 @@ export const usePermissionStore = defineStore('permission', () => {
   // Whether test mode is on (enabled during development, returns all dynamic routes)
   const testMode = true
 
+  const filterRouteByMenu = (route: RouteRecordExt, menus: UmsMenu[], username: string) => {
+    if (testMode && username === 'admin') return true
+    if (!hasPermission(menus, route)) return false
+    if (route.children && route.children.length > 0) {
+      route.children = route.children.filter(child => hasPermission(menus, child))
+    }
+    return true
+  }
+
   // Generate the accessible route table
   const generateRoutes = (data: { menus: UmsMenu[]; username: string }) => {
     const { menus, username } = data
-    const accessedRouters = asyncRouterMap.filter(v => {
-      // In test mode the admin account returns all menus directly
-      if (testMode && username === 'admin') return true
-      if (hasPermission(menus, v)) {
-        if (v.children && v.children.length > 0) {
-          v.children = v.children.filter(child => {
-            if (hasPermission(menus, child)) {
-              return child
-            }
-            return false
-          })
-          return v
-        } else {
-          return v
-        }
-      }
-      return false
-    })
-    // Blockchain feature toggle
-    if (!isBlockchainEnabled) {
-      filterBlockchainRoutes(accessedRouters)
-    }
-    // Sort menus
+    const accessedRouters = asyncRouterMap.filter(v => filterRouteByMenu(v, menus, username))
+    if (!isBlockchainEnabled) filterBlockchainRoutes(accessedRouters)
     sortRouters(accessedRouters)
     addRouters.value = accessedRouters
     routers.value = constantRouterMap.concat(accessedRouters)

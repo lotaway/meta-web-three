@@ -235,34 +235,36 @@ const loadEmployees = async () => {
   }
 }
 
+const createEmptyEmployeeForm = (departmentId: number) => ({
+  id: undefined,
+  employeeNo: '',
+  name: '',
+  gender: 1,
+  birthday: '',
+  idCard: '',
+  mobile: '',
+  email: '',
+  departmentId,
+  departmentName: '',
+  positionId: 0,
+  positionName: '',
+  employeeStatus: 1,
+  employeeType: 1,
+  entryDate: '',
+  contractStartDate: '',
+  contractEndDate: '',
+  baseSalary: 0,
+  bankName: '',
+  bankAccount: '',
+  emergencyContact: '',
+  emergencyPhone: '',
+  address: '',
+  remark: ''
+})
+
 const handleAddEmployee = () => {
   isEmpEdit.value = false
-  empFormData.value = {
-    id: undefined,
-    employeeNo: '',
-    name: '',
-    gender: 1,
-    birthday: '',
-    idCard: '',
-    mobile: '',
-    email: '',
-    departmentId: selectedDeptId.value || 0,
-    departmentName: '',
-    positionId: 0,
-    positionName: '',
-    employeeStatus: 1,
-    employeeType: 1,
-    entryDate: '',
-    contractStartDate: '',
-    contractEndDate: '',
-    baseSalary: 0,
-    bankName: '',
-    bankAccount: '',
-    emergencyContact: '',
-    emergencyPhone: '',
-    address: '',
-    remark: ''
-  }
+  empFormData.value = createEmptyEmployeeForm(selectedDeptId.value || 0)
   empDialogVisible.value = true
 }
 

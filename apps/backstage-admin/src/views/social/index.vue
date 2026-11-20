@@ -159,28 +159,34 @@ const handleAdd = (type: string) => {
   dialogVisible.value = true
 }
 
+const createHandlers: Record<string, () => Promise<void>> = {
+  groupBuy: async () => {
+    await createGroupBuyActivityAPI(groupBuyFormData.value)
+    ElMessage.success('Group buy activity created')
+  },
+  share: async () => {
+    await createShareRewardConfigAPI({
+      name: shareFormData.value.name,
+      rewardType: shareFormData.value.rewardType,
+      fixedAmount: shareFormData.value.fixedAmount,
+      percentage: shareFormData.value.percentage,
+      maxRewardCount: shareFormData.value.maxRewardCount,
+      maxRewardAmount: shareFormData.value.maxRewardAmount,
+      validFrom: shareFormData.value.validFrom,
+      validTo: shareFormData.value.validTo
+    })
+    ElMessage.success('Share reward config created')
+  },
+  community: async () => {
+    await createCommunityAPI(communityFormData.value)
+    ElMessage.success('Community created')
+  },
+}
+
 const handleSubmit = async () => {
   dialogLoading.value = true
   try {
-    if (dialogType.value === 'groupBuy') {
-      await createGroupBuyActivityAPI(groupBuyFormData.value)
-      ElMessage.success('Group buy activity created')
-    } else if (dialogType.value === 'share') {
-      await createShareRewardConfigAPI({
-        name: shareFormData.value.name,
-        rewardType: shareFormData.value.rewardType,
-        fixedAmount: shareFormData.value.fixedAmount,
-        percentage: shareFormData.value.percentage,
-        maxRewardCount: shareFormData.value.maxRewardCount,
-        maxRewardAmount: shareFormData.value.maxRewardAmount,
-        validFrom: shareFormData.value.validFrom,
-        validTo: shareFormData.value.validTo
-      })
-      ElMessage.success('Share reward config created')
-    } else if (dialogType.value === 'community') {
-      await createCommunityAPI(communityFormData.value)
-      ElMessage.success('Community created')
-    }
+    await createHandlers[dialogType.value]?.()
     dialogVisible.value = false
     handleTabChange(activeTab.value)
   } catch (error) {
