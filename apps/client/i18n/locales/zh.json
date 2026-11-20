@@ -7,6 +7,7 @@
     "success": "成功",
     "error": "错误",
     "send": "发送",
+    "tip": "提示",
     "tabs": {
       "home": "首页",
       "category": "分类",
@@ -203,7 +204,12 @@
     "empty": "暂无收藏",
     "go_shopping": "去逛逛",
     "added_at": "收藏于",
-    "remove_failed": "移除失败"
+    "remove_failed": "移除失败",
+    "add_success": "收藏成功",
+    "remove_success": "取消收藏成功",
+    "toggle_failed": "操作失败",
+    "load_failed_title": "错误",
+    "load_failed": "加载收藏状态失败。"
   },
   "home": {
     "categories": {
@@ -241,7 +247,16 @@
       "add_to_cart": "加入购物车",
       "buy_now": "立即购买",
       "added_to_cart": "已加入购物车",
-      "add_to_cart_failed": "加入购物车失败"
+      "add_to_cart_failed": "加入购物车失败",
+      "service_title": "客服",
+      "chat_failed": "创建会话失败",
+      "flash_buy": "闪购价购买",
+      "related": {
+        "title": "相关推荐",
+        "empty": "暂无相关商品推荐",
+        "score": "评分 {{score}}",
+        "fallback_reason": "推荐 #{{id}}"
+      }
     }
   },
   "profile": {

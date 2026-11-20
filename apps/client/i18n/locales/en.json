@@ -7,6 +7,7 @@
     "success": "Success",
     "error": "Error",
     "send": "Send",
+    "tip": "Tip",
     "tabs": {
       "home": "Home",
       "category": "Category",
@@ -203,7 +204,12 @@
     "empty": "No favorites yet",
     "go_shopping": "Start Shopping",
     "added_at": "Added on",
-    "remove_failed": "Remove failed"
+    "remove_failed": "Remove failed",
+    "add_success": "Added to favorites",
+    "remove_success": "Removed from favorites",
+    "toggle_failed": "Operation failed",
+    "load_failed_title": "Error",
+    "load_failed": "Failed to load the favorite status."
   },
   "home": {
     "categories": {
@@ -241,7 +247,16 @@
       "add_to_cart": "Add to Cart",
       "buy_now": "Buy Now",
       "added_to_cart": "Added to Cart",
-      "add_to_cart_failed": "Failed to Add to Cart"
+      "add_to_cart_failed": "Failed to Add to Cart",
+      "service_title": "Customer Service",
+      "chat_failed": "Failed to create a chat session",
+      "flash_buy": "Buy at Flash Price",
+      "related": {
+        "title": "Related Products",
+        "empty": "No related products yet",
+        "score": "Score {{score}}",
+        "fallback_reason": "Recommendation #{{id}}"
+      }
     }
   },
   "profile": {

@@ -25,26 +25,25 @@ export function OfflinePersistProvider({ children, client }: OfflinePersistProvi
   )
 }
 
+const registerNetworkListeners = (onStatusChange: (online: boolean) => void) => {
+  const handleOnline = () => onStatusChange(true)
+  const handleOffline = () => onStatusChange(false)
+  if (typeof window === 'undefined') return
+
+  onStatusChange(navigator.onLine)
+  window.addEventListener('online', handleOnline)
+  window.addEventListener('offline', handleOffline)
+  return () => {
+    window.removeEventListener('online', handleOnline)
+    window.removeEventListener('offline', handleOffline)
+  }
+}
+
 export function useOfflineManager() {
   const [isOnline, setIsOnline] = useState(true)
   const [pendingMutations, setPendingMutations] = useState(0)
 
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true)
-    const handleOffline = () => setIsOnline(false)
-
-    if (typeof window !== 'undefined') {
-      setIsOnline(navigator.onLine)
-
-      window.addEventListener('online', handleOnline)
-      window.addEventListener('offline', handleOffline)
-
-      return () => {
-        window.removeEventListener('online', handleOnline)
-        window.removeEventListener('offline', handleOffline)
-      }
-    }
-  }, [])
+  useEffect(() => registerNetworkListeners(setIsOnline), [])
 
   const syncPending = async () => {
     console.log('Syncing pending mutations...')

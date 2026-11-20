@@ -2809,6 +2809,13 @@ export default {
     clear: '清空',
     assignRoles: '分配角色',
   },
+  pms: {
+    brand: {
+      validationFailed: '验证失败',
+      modifySuccess: '修改成功',
+      createSuccess: '提交成功',
+    },
+  },
   home: {
     todayOrders: '今日订单总数',
     todaySales: '今日销售总额',

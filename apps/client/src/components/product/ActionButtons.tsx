@@ -35,33 +35,41 @@ export function ActionButtons({ colors, productDetails, flashInfo, onOpenSKU }: 
       setIsFavorite(!!isFav);
     } catch (error) {
       console.error('Failed to load favorite status:', error);
-      Alert.alert('Error', 'Failed to load the favorite status.');
+      Alert.alert(t('favorites.load_failed_title'), t('favorites.load_failed'));
     }
+  };
+
+  const removeFavorite = async () => {
+    await productCollectionApi.deleteCollection2({
+      xUserId: DEFAULT_USER_ID,
+      productId: productDetails.id,
+    });
+    setIsFavorite(false);
+    Alert.alert(t('common.success'), t('favorites.remove_success'));
+  };
+
+  const addFavorite = async () => {
+    await productCollectionApi.addCollection1({
+      xUserId: DEFAULT_USER_ID,
+      collectionParam: {
+        productId: productDetails.id,
+        productName: productDetails.name,
+        productPic: productDetails.pic,
+      },
+    });
+    setIsFavorite(true);
+    Alert.alert(t('common.success'), t('favorites.add_success'));
   };
 
   const handleToggleFavorite = async () => {
     try {
       if (isFavorite) {
-        await productCollectionApi.deleteCollection2({
-          xUserId: DEFAULT_USER_ID,
-          productId: productDetails.id,
-        });
-        setIsFavorite(false);
-        Alert.alert(t('common.success'), '取消收藏成功');
+        await removeFavorite();
       } else {
-        await productCollectionApi.addCollection1({
-          xUserId: DEFAULT_USER_ID,
-          collectionParam: {
-            productId: productDetails.id,
-            productName: productDetails.name,
-            productPic: productDetails.pic,
-          },
-        });
-        setIsFavorite(true);
-        Alert.alert(t('common.success'), '收藏成功');
+        await addFavorite();
       }
     } catch (error) {
-      Alert.alert(t('common.error'), '操作失败');
+      Alert.alert(t('common.error'), t('favorites.toggle_failed'));
     }
   };
 
@@ -97,10 +105,14 @@ export function ActionButtons({ colors, productDetails, flashInfo, onOpenSKU }: 
             })
             const json = await res.json()
             if (json.data?.sessionId) router.push(`/cs/${json.data.sessionId}`)
-          } catch { Alert.alert('提示', '创建会话失败') }
+          } catch {
+            Alert.alert(t('common.tip'), t('home.product.chat_failed'))
+          }
         }}>
           <IconSymbol name="message" size={24} color={themeColors.fontColorBase} />
-          <Text style={[styles.bottomIconText, { color: themeColors.fontColorBase }]}>客服</Text>
+          <Text style={[styles.bottomIconText, { color: themeColors.fontColorBase }]}>
+            {t('home.product.service_title')}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomIconBtn} onPress={handleToggleFavorite}>
           <IconSymbol 
@@ -118,7 +130,7 @@ export function ActionButtons({ colors, productDetails, flashInfo, onOpenSKU }: 
             onPress={() => onOpenSKU('buy')}
           >
             <Text style={styles.actionBtnFlashPrice}>￥{flashInfo.flashPrice}</Text>
-            <Text style={styles.actionBtnText}>闪购价购买</Text>
+            <Text style={styles.actionBtnText}>{t('home.product.flash_buy')}</Text>
           </TouchableOpacity>
         ) : (
           <>

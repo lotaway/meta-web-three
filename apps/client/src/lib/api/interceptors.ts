@@ -46,38 +46,51 @@ apiClient.addResponseInterceptor(async (response: any, config: any) => {
   return response
 })
 
+const redirectToLogin = () => {
+  if (typeof window !== 'undefined') window.location.href = '/login'
+}
+
+const handleTokenExpiration = (error: any) => {
+  if (error.code !== '2003' && error.code !== '2004') return
+  removeToken()
+  console.warn('Token expired, please login again')
+  redirectToLogin()
+}
+
+const handleUnauthorized = () => {
+  removeToken()
+  redirectToLogin()
+}
+
+const handleForbidden = () => {
+  console.warn('Access denied')
+}
+
+const handleNotFound = () => {
+  console.warn('Resource not found')
+}
+
+const handleServerError = () => {
+  console.error('Server error, please try again later')
+}
+
+const statusHandlers: Record<string, () => void> = {
+  401: handleUnauthorized,
+  403: handleForbidden,
+  404: handleNotFound,
+}
+
+const handleStatus = (error: any) => {
+  const status = Number(error.status)
+  const handler = Number.isFinite(status) ? statusHandlers[status] : undefined
+  if (handler) return handler()
+  if (status >= 500) handleServerError()
+}
+
 apiClient.addErrorInterceptor(async (error: any, config: any) => {
   console.error(`[API Error] ${error.code}: ${error.message}`)
-
-  if (error.code === '2003' || error.code === '2004') {
-    removeToken()
-    console.warn('Token expired, please login again')
-
-    if (typeof window !== 'undefined') {
-      window.location.href = '/login'
-    }
-  }
-
-  if (error.status === 401) {
-    removeToken()
-
-    if (typeof window !== 'undefined') {
-      window.location.href = '/login'
-    }
-  }
-
-  if (error.status === 403) {
-    console.warn('Access denied')
-  }
-
-  if (error.status === 404) {
-    console.warn('Resource not found')
-  }
-
-  if (error.status && error.status >= 500) {
-    console.error('Server error, please try again later')
-  }
-
+  handleTokenExpiration(error)
+  handleStatus(error)
   return error
 })
 

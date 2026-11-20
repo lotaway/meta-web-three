@@ -66,41 +66,57 @@ onMounted(async () => {
   }
 })
 
+const showValidationError = () => {
+  ElMessage({
+    message: t('pms.brand.validationFailed'),
+    type: 'error',
+    duration: 1000
+  })
+}
+
+const confirmBrandSubmit = async () => {
+  await ElMessageBox.confirm(t('dialog.confirmSubmit'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    type: 'warning'
+  })
+}
+
+const submitBrandUpdate = async () => {
+  await updateBrandAPI(brandId.value, brand.value)
+  brandFromRef.value!.resetFields()
+  ElMessage({
+    message: t('pms.brand.modifySuccess'),
+    type: 'success',
+    duration: 1000
+  })
+  router.back()
+}
+
+const submitBrandCreate = async () => {
+  await createBrandAPI(brand.value)
+  brandFromRef.value!.resetFields()
+  brand.value = Object.assign({}, defaultBrand)
+  ElMessage({
+    message: t('pms.brand.createSuccess'),
+    type: 'success',
+    duration: 1000
+  })
+}
+
 // Handle brand form submission
 const handleBrandSubmit = () => {
   brandFromRef.value!.validate(async (valid) => {
-    if (valid) {
-      await ElMessageBox.confirm(t('dialog.confirmSubmit'), t('dialog.title'), {
-        confirmButtonText: t('common.confirm'),
-        cancelButtonText: t('common.cancel'),
-        type: 'warning'
-      })
-      if (props.isEdit) {
-        await updateBrandAPI(brandId.value, brand.value)
-        brandFromRef.value!.resetFields()
-        ElMessage({
-          message: '修改成功',
-          type: 'success',
-          duration: 1000
-        })
-        router.back()
-      } else {
-        await createBrandAPI(brand.value)
-        brandFromRef.value!.resetFields()
-        brand.value = Object.assign({}, defaultBrand)
-        ElMessage({
-          message: '提交成功',
-          type: 'success',
-          duration: 1000
-        })
-      }
-    } else {
-      ElMessage({
-        message: '验证失败',
-        type: 'error',
-        duration: 1000
-      })
+    if (!valid) {
+      showValidationError()
+      return
     }
+    await confirmBrandSubmit()
+    if (props.isEdit) {
+      await submitBrandUpdate()
+      return
+    }
+    await submitBrandCreate()
   })
 }
 

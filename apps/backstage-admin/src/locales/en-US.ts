@@ -2733,6 +2733,13 @@ export default {
     clear: 'Clear',
     assignRoles: 'Assign roles',
   },
+  pms: {
+    brand: {
+      validationFailed: 'Validation failed',
+      modifySuccess: 'Modified successfully',
+      createSuccess: 'Submitted successfully',
+    },
+  },
   home: {
     todayOrders: 'Today\'s orders',
     todaySales: 'Today\'s sales',

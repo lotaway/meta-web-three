@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet, ScrollView } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -35,15 +36,105 @@ interface SkuSelectorProps {
   actionType?: 'cart' | 'buy';
 }
 
-export function SkuSelector({ 
-  visible, 
-  productImage, 
-  productName, 
-  productPrice, 
-  productOriginalPrice, 
-  specs, 
-  skus, 
-  onClose, 
+function SpecOptionButton({ option, selected, colors, onSelect }: {
+  option: SpecOption;
+  selected: boolean;
+  colors: any;
+  onSelect: () => void;
+}) {
+  return (
+    <TouchableOpacity
+      style={[styles.option, selected && { backgroundColor: colors.primary }]}
+      onPress={onSelect}
+    >
+      <Text style={[
+        styles.optionText,
+        { color: selected ? '#fff' : colors.fontColorDark }
+      ]}>
+        {option.name}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+function SpecGroupView({ group, selectedSpecs, colors, onSelectSpec }: {
+  group: SpecGroup;
+  selectedSpecs: Record<string, string>;
+  colors: any;
+  onSelectSpec: (groupId: string, optionId: string) => void;
+}) {
+  return (
+    <View style={styles.specGroup}>
+      <Text style={[styles.specName, { color: colors.fontColorDark }]}>{group.name}</Text>
+      <View style={styles.options}>
+        {group.options.map(option => (
+          <SpecOptionButton
+            key={option.id}
+            option={option}
+            selected={selectedSpecs[group.id] === option.id}
+            colors={colors}
+            onSelect={() => onSelectSpec(group.id, option.id)}
+          />
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function ProductHeader({ productImage, productPrice, productName, colors, onClose }: {
+  productImage?: string;
+  productPrice?: string;
+  productName?: string;
+  colors: any;
+  onClose: () => void;
+}) {
+  return (
+    <View style={styles.header}>
+      {productImage && (
+        <View style={styles.imageContainer}>
+          <View style={styles.imagePlaceholder} />
+        </View>
+      )}
+      <View style={styles.info}>
+        <Text style={[styles.price, { color: colors.primary }]}>¥{productPrice}</Text>
+        <Text style={[styles.name, { color: colors.fontColorDark }]} numberOfLines={2}>{productName}</Text>
+      </View>
+      <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+        <IconSymbol name="xmark" size={20} color={colors.fontColorBase} />
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+function ConfirmFooter({ actionType, colors, onConfirm }: {
+  actionType: 'cart' | 'buy';
+  colors: any;
+  onConfirm: () => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <View style={styles.footer}>
+      <TouchableOpacity
+        style={[styles.confirmBtn, { backgroundColor: actionType === 'buy' ? colors.primary : '#ff9500' }]}
+        onPress={onConfirm}
+      >
+        <Text style={styles.confirmText}>
+          {t(actionType === 'buy' ? 'home.product.buy_now' : 'home.product.add_to_cart')}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+export function SkuSelector({
+  visible,
+  productImage,
+  productName,
+  productPrice,
+  productOriginalPrice,
+  specs,
+  skus,
+  onClose,
   onConfirm,
   actionType = 'cart'
 }: SkuSelectorProps) {
@@ -56,70 +147,39 @@ export function SkuSelector({
     setSelectedSpecs(prev => ({ ...prev, [groupId]: optionId }));
   };
 
-  const handleConfirm = () => {
-    const sku = findMatchingSKU();
-    onConfirm(selectedSpecs, sku, quantity);
-  };
-
   const findMatchingSKU = (): SKUInfo | null => {
     if (skus.length === 0) return null;
     return skus[0];
+  };
+
+  const handleConfirm = () => {
+    const sku = findMatchingSKU();
+    onConfirm(selectedSpecs, sku, quantity);
   };
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View style={styles.overlay}>
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-          <View style={styles.header}>
-            {productImage && (
-              <View style={styles.imageContainer}>
-                <View style={styles.imagePlaceholder} />
-              </View>
-            )}
-            <View style={styles.info}>
-              <Text style={[styles.price, { color: colors.primary }]}>¥{productPrice}</Text>
-              <Text style={[styles.name, { color: colors.fontColorDark }]} numberOfLines={2}>{productName}</Text>
-            </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-              <IconSymbol name="xmark" size={20} color={colors.fontColorBase} />
-            </TouchableOpacity>
-          </View>
-
+          <ProductHeader
+            productImage={productImage}
+            productPrice={productPrice}
+            productName={productName}
+            colors={colors}
+            onClose={onClose}
+          />
           <ScrollView style={styles.specsContainer}>
             {specs.map(group => (
-              <View key={group.id} style={styles.specGroup}>
-                <Text style={[styles.specName, { color: colors.fontColorDark }]}>{group.name}</Text>
-                <View style={styles.options}>
-                  {group.options.map(option => (
-                    <TouchableOpacity
-                      key={option.id}
-                      style={[
-                        styles.option,
-                        selectedSpecs[group.id] === option.id && { backgroundColor: colors.primary }
-                      ]}
-                      onPress={() => handleSelectSpec(group.id, option.id)}
-                    >
-                      <Text style={[
-                        styles.optionText,
-                        { color: selectedSpecs[group.id] === option.id ? '#fff' : colors.fontColorDark }
-                      ]}>
-                        {option.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
+              <SpecGroupView
+                key={group.id}
+                group={group}
+                selectedSpecs={selectedSpecs}
+                colors={colors}
+                onSelectSpec={handleSelectSpec}
+              />
             ))}
           </ScrollView>
-
-          <View style={styles.footer}>
-            <TouchableOpacity 
-              style={[styles.confirmBtn, { backgroundColor: actionType === 'buy' ? colors.primary : '#ff9500' }]}
-              onPress={handleConfirm}
-            >
-              <Text style={styles.confirmText}>{actionType === 'buy' ? '立即购买' : '加入购物车'}</Text>
-            </TouchableOpacity>
-          </View>
+          <ConfirmFooter actionType={actionType} colors={colors} onConfirm={handleConfirm} />
         </View>
       </View>
     </Modal>

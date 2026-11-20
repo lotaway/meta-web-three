@@ -90,14 +90,18 @@ const handleUpdate = (index: number, row: SmsCoupon) => {
   router.push({ path: '/sms/updateCoupon', query: { id: row.id } })
 }
 
+const confirmCouponDelete = async () => {
+  await ElMessageBox.confirm(t('dialog.confirmDelete'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    type: 'warning'
+  })
+}
+
 // Delete coupon
 const handleDelete = async (index: number, row: SmsCoupon) => {
   try {
-    await ElMessageBox.confirm(t('dialog.confirmDelete'), t('dialog.title'), {
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel'),
-      type: 'warning'
-    })
+    await confirmCouponDelete()
     await couponDeleteByIdAPI(row.id!)
     ElMessage({
       type: 'success',

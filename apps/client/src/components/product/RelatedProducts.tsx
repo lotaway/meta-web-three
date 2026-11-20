@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { recommendationHooks } from '@/lib/api/graphql-hooks';
@@ -16,7 +17,74 @@ interface RelatedProductsProps {
   colors: any;
 }
 
+function LoadingState({ colors }: { colors: any }) {
+  return (
+    <View style={styles.centerContent}>
+      <ActivityIndicator size="small" color={colors.primary} />
+    </View>
+  );
+}
+
+function EmptyState({ colors }: { colors: any }) {
+  const { t } = useTranslation();
+  return (
+    <View style={styles.centerContent}>
+      <Text style={[styles.placeholder, { color: colors.fontColorLight }]}>
+        {t('home.product.related.empty')}
+      </Text>
+    </View>
+  );
+}
+
+function CardContent({ item, productIdNum, colors }: { item: any; productIdNum: number; colors: any }) {
+  const { t } = useTranslation();
+  return (
+    <>
+      <View style={[styles.imagePlaceholder, { backgroundColor: colors.primary + '15' }]}>
+        <Text style={[styles.imagePlaceholderText, { color: colors.primary }]}>
+          #{productIdNum}
+        </Text>
+      </View>
+      <View style={styles.cardInfo}>
+        <Text numberOfLines={2} style={[styles.cardReason, { color: colors.fontColorDark }]}>
+          {item?.reason || t('home.product.related.fallback_reason', { id: productIdNum })}
+        </Text>
+        <Text style={[styles.cardScore, { color: colors.primary }]}>
+          {t('home.product.related.score', { score: Number(item?.score ?? 0).toFixed(2) })}
+        </Text>
+      </View>
+    </>
+  );
+}
+
+function RecommendationCard({ item, colors }: { item: any; colors: any }) {
+  const productIdNum = Number(item?.productId ?? 0);
+  const handlePress = () => {
+    if (item?.id) recommendationHooks.markClicked(Number(item.id)).catch(() => {});
+    router.push({ pathname: '/product/[id]', params: { id: productIdNum } });
+  };
+  return (
+    <TouchableOpacity
+      style={[styles.card, { backgroundColor: colors.background }]}
+      onPress={handlePress}
+    >
+      <CardContent item={item} productIdNum={productIdNum} colors={colors} />
+    </TouchableOpacity>
+  );
+}
+
+function RecommendationList({ items, colors }: { items: any[]; colors: any }) {
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scrollList}>
+      {items.map((item: any, index: number) => (
+        <RecommendationCard key={item?.id ?? index} item={item} colors={colors} />
+      ))}
+    </ScrollView>
+  );
+}
+
 export function RelatedProducts({ productId, userId = 1, scene = 'similar', colors }: RelatedProductsProps) {
+  const { t } = useTranslation();
   const colorScheme = useColorScheme() ?? 'light';
   const themeColors = Colors[colorScheme];
   const [recommendations, setRecommendations] = useState<any[]>([]);
@@ -39,64 +107,18 @@ export function RelatedProducts({ productId, userId = 1, scene = 'similar', colo
   }, [userId, scene]);
 
   const renderContent = () => {
-    if (loading) {
-      return (
-        <View style={styles.centerContent}>
-          <ActivityIndicator size="small" color={themeColors.primary} />
-        </View>
-      );
-    }
-
-    if (recommendations.length === 0) {
-      return (
-        <View style={styles.centerContent}>
-          <Text style={[styles.placeholder, { color: themeColors.fontColorLight }]}>
-            暂无相关商品推荐
-          </Text>
-        </View>
-      );
-    }
-
-    return (
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scrollList}>
-        {recommendations.map((item: any, index: number) => {
-          const productIdNum = Number(item?.productId ?? 0)
-          return (
-            <TouchableOpacity
-              key={item?.id ?? index}
-              style={[styles.card, { backgroundColor: themeColors.background }]}
-              onPress={() => {
-                if (item?.id) {
-                  recommendationHooks.markClicked(Number(item.id)).catch(() => {})
-                }
-                router.push({ pathname: '/product/[id]', params: { id: productIdNum } })
-              }}
-            >
-              <View style={[styles.imagePlaceholder, { backgroundColor: themeColors.primary + '15' }]}>
-                <Text style={[styles.imagePlaceholderText, { color: themeColors.primary }]}>
-                  #{productIdNum}
-                </Text>
-              </View>
-              <View style={styles.cardInfo}>
-                <Text numberOfLines={2} style={[styles.cardReason, { color: themeColors.fontColorDark }]}>
-                  {item?.reason || `Recommendation #${productIdNum}`}
-                </Text>
-                <Text style={[styles.cardScore, { color: themeColors.primary }]}>
-                  Score {Number(item?.score ?? 0).toFixed(2)}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
-    );
+    if (loading) return <LoadingState colors={themeColors} />;
+    if (recommendations.length === 0) return <EmptyState colors={themeColors} />;
+    return <RecommendationList items={recommendations} colors={themeColors} />;
   };
 
   return (
     <View style={[styles.container, { backgroundColor: '#fff' }]}>
       <View style={styles.header}>
         <View style={styles.headerLine} />
-        <Text style={[styles.headerText, { color: themeColors.fontColorDark }]}>相关推荐</Text>
+        <Text style={[styles.headerText, { color: themeColors.fontColorDark }]}>
+          {t('home.product.related.title')}
+        </Text>
         <View style={styles.headerLine} />
       </View>
       <View style={styles.content}>

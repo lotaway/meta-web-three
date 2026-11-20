@@ -161,21 +161,29 @@ const handleUpdate = (index: number, row: UmsAdmin) => {
   admin.value = Object.assign({}, row)
 }
 
+const confirmAdminAction = async () => {
+  await ElMessageBox.confirm(t('dialog.confirmAction'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    type: 'warning'
+  })
+}
+
+const saveAdmin = async () => {
+  if (isEdit.value) {
+    await adminUpdateByIdAPI(admin.value.id!, admin.value)
+    ElMessage.success(t('message.modifySuccess'))
+    return
+  }
+  await adminRegisterAPI(admin.value)
+  ElMessage.success(t('message.operationSuccess'))
+}
+
 // Handle dialog confirmation
 const handleDialogConfirm = async () => {
   try {
-    await ElMessageBox.confirm(t('dialog.confirmAction'), t('dialog.title'), {
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel'),
-      type: 'warning'
-    })
-    if (isEdit.value) {
-      await adminUpdateByIdAPI(admin.value.id!, admin.value)
-      ElMessage.success(t('message.modifySuccess'))
-    } else {
-      await adminRegisterAPI(admin.value)
-      ElMessage.success(t('message.operationSuccess'))
-    }
+    await confirmAdminAction()
+    await saveAdmin()
     dialogVisible.value = false
     getList()
   } catch (error) {
