@@ -9,24 +9,24 @@ interface UserStatsSectionProps {
   colors: any
 }
 
+function StatItem({ value, label, colors }: { value: number; label: string; colors: any }) {
+  return (
+    <View style={styles.statItem}>
+      <Text style={[styles.statNum, { color: colors.fontColorDark }]}>{value}</Text>
+      <Text style={[styles.statLabel, { color: colors.fontColorLight }]}>{label}</Text>
+    </View>
+  )
+}
+
 export default function UserStatsSection({ user, colors }: UserStatsSectionProps) {
   const { t } = useTranslation()
   const colorScheme = useColorScheme() ?? 'light'
   const themeColors = Colors[colorScheme]
   return (
     <View style={styles.statsSection}>
-      <View style={styles.statItem}>
-        <Text style={[styles.statNum, { color: colors.fontColorDark }]}>{user.integration}</Text>
-        <Text style={[styles.statLabel, { color: colors.fontColorLight }]}>{t('profile.stats.integration')}</Text>
-      </View>
-      <View style={styles.statItem}>
-        <Text style={[styles.statNum, { color: colors.fontColorDark }]}>{user.growth}</Text>
-        <Text style={[styles.statLabel, { color: colors.fontColorLight }]}>{t('profile.stats.growth')}</Text>
-      </View>
-      <View style={styles.statItem}>
-        <Text style={[styles.statNum, { color: colors.fontColorDark }]}>{user.couponCount}</Text>
-        <Text style={[styles.statLabel, { color: colors.fontColorLight }]}>{t('profile.stats.coupon')}</Text>
-      </View>
+      <StatItem value={user.integration} label={t('profile.stats.integration')} colors={colors} />
+      <StatItem value={user.growth} label={t('profile.stats.growth')} colors={colors} />
+      <StatItem value={user.couponCount} label={t('profile.stats.coupon')} colors={colors} />
     </View>
   )
 }

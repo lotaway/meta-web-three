@@ -125,22 +125,24 @@ const loadData = async () => {
   }
 }
 
+const saveTriggerRule = async () => {
+  if (isEdit.value) {
+    await updateTriggerRuleAPI(Number(route.query.id), formData)
+    ElMessage.success(t('mes.qc.triggerRule.updateSuccess'))
+  } else {
+    await createTriggerRuleAPI(formData)
+    ElMessage.success(t('mes.qc.triggerRule.createSuccess'))
+  }
+  router.push('/mes/triggerRule')
+}
+
 const handleSubmit = async () => {
   if (!formRef.value) return
-  
   await formRef.value.validate(async (valid) => {
     if (!valid) return
-    
     submitting.value = true
     try {
-      if (isEdit.value) {
-        await updateTriggerRuleAPI(Number(route.query.id), formData)
-        ElMessage.success(t('mes.qc.triggerRule.updateSuccess'))
-      } else {
-        await createTriggerRuleAPI(formData)
-        ElMessage.success(t('mes.qc.triggerRule.createSuccess'))
-      }
-      router.push('/mes/triggerRule')
+      await saveTriggerRule()
     } catch (error) {
       ElMessage.error(t('mes.qc.triggerRule.deleteFailed'))
     } finally {

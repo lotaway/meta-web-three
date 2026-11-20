@@ -116,20 +116,26 @@ const handleUpdate = (index: number, row: UmsRole) => {
   role.value = { ...row }
 }
 
+const confirmRoleSubmit = () => ElMessageBox.confirm(i18n('confirmSubmit'), i18n('prompt'), {
+  confirmButtonText: i18n('confirm'),
+  cancelButtonText: i18n('cancel'),
+  type: 'warning'
+})
+
+const saveRole = async () => {
+  if (isEdit.value) {
+    await roleUpdateByIdAPI(role.value.id!, role.value)
+    ElMessage.success(i18n('successModify'))
+    return
+  }
+  await roleCreateAPI(role.value)
+  ElMessage.success(i18n('successAdd'))
+}
+
 const handleDialogConfirm = async () => {
   try {
-    await ElMessageBox.confirm(i18n('confirmSubmit'), i18n('prompt'), {
-      confirmButtonText: i18n('confirm'),
-      cancelButtonText: i18n('cancel'),
-      type: 'warning'
-    })
-    if (isEdit.value) {
-      await roleUpdateByIdAPI(role.value.id!, role.value)
-      ElMessage.success(i18n('successModify'))
-    } else {
-      await roleCreateAPI(role.value)
-      ElMessage.success(i18n('successAdd'))
-    }
+    await confirmRoleSubmit()
+    await saveRole()
     dialogVisible.value = false
     getList()
   } catch (error) {

@@ -196,18 +196,20 @@ const handleAssetSelect = (assetId: number) => {
   }
 }
 
+const confirmInventoryResult = () => ElMessageBox.prompt(
+  'Please enter handle result',
+  'Confirm Inventory',
+  {
+    confirmButtonText: 'Confirm',
+    cancelButtonText: 'Cancel',
+    inputPattern: /.+/,
+    inputErrorMessage: 'Handle result is required'
+  }
+)
+
 const handleConfirm = async (row: FixedAssetInventory) => {
   try {
-    const { value: handleResult } = await ElMessageBox.prompt(
-      'Please enter handle result',
-      'Confirm Inventory',
-      {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
-        inputPattern: /.+/,
-        inputErrorMessage: 'Handle result is required'
-      }
-    )
+    const { value: handleResult } = await confirmInventoryResult()
     await confirmInventory(row.id, { handleResult })
     ElMessage.success('Inventory confirmed successfully')
     loadData()

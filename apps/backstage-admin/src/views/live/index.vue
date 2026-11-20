@@ -109,20 +109,24 @@ const handleView = async (row: LiveRoom) => {
   }
 }
 
+const confirmRoomAction = (message: string) => ElMessageBox.confirm(message, 'Confirm', {
+  confirmButtonText: 'Confirm',
+  cancelButtonText: 'Cancel',
+  type: 'warning'
+})
+
+const buildStartRoomPayload = (row: LiveRoom) => ({
+  anchorId: row.anchorId,
+  roomName: row.roomName,
+  coverImage: row.coverImage,
+  description: row.description
+})
+
 const handleStartLive = async (row: LiveRoom) => {
   if (!row.id || !row.anchorId) return
   try {
-    await ElMessageBox.confirm(`Start live streaming for ${row.roomName}?`, 'Confirm', {
-      confirmButtonText: 'Confirm',
-      cancelButtonText: 'Cancel',
-      type: 'warning'
-    })
-    await startLiveRoomAPI({
-      anchorId: row.anchorId,
-      roomName: row.roomName,
-      coverImage: row.coverImage,
-      description: row.description
-    })
+    await confirmRoomAction(`Start live streaming for ${row.roomName}?`)
+    await startLiveRoomAPI(buildStartRoomPayload(row))
     ElMessage.success('Live room started')
     getList()
   } catch (error) {
@@ -135,11 +139,7 @@ const handleStartLive = async (row: LiveRoom) => {
 const handleEndLive = async (row: LiveRoom) => {
   if (!row.id) return
   try {
-    await ElMessageBox.confirm(`End live streaming for ${row.roomName}?`, 'Confirm', {
-      confirmButtonText: 'Confirm',
-      cancelButtonText: 'Cancel',
-      type: 'warning'
-    })
+    await confirmRoomAction(`End live streaming for ${row.roomName}?`)
     await endLiveRoomAPI(row.id)
     ElMessage.success('Live room ended')
     getList()

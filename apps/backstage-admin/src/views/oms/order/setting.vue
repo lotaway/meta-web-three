@@ -52,29 +52,32 @@ const rules = ref<FormRules>({
   commentOvertime: { validator: checkTime, trigger: 'blur' }
 })
 
+const submitOrderSetting = async () => {
+  await ElMessageBox.confirm(t('oms.orderSetting.confirmSubmit'), t('oms.orderSetting.confirmTitle'), {
+    confirmButtonText: t('common.confirmText'),
+    cancelButtonText: t('common.cancelText'),
+    type: 'warning'
+  })
+  await orderSettingUpdateByIdAPI(1, orderSetting.value)
+  ElMessage({
+    type: 'success',
+    message: t('oms.orderSetting.submitSuccess'),
+    duration: 1000
+  })
+}
+
 // Confirm and submit form
 const confirm = async () => {
   if (!orderSettingForm.value) return
   const valid = await orderSettingForm.value.validate()
-  if (valid) {
-    await ElMessageBox.confirm(t('oms.orderSetting.confirmSubmit'), t('oms.orderSetting.confirmTitle'), {
-      confirmButtonText: t('common.confirmText'),
-      cancelButtonText: t('common.cancelText'),
-      type: 'warning'
-    })
-    await orderSettingUpdateByIdAPI(1, orderSetting.value)
-    ElMessage({
-      type: 'success',
-      message: t('oms.orderSetting.submitSuccess'),
-      duration: 1000
-    })
-  } else {
+  if (!valid) {
     ElMessage({
       message: t('oms.orderSetting.submitFailed'),
       type: 'warning'
     })
     return false
   }
+  await submitOrderSetting()
 }
 </script>
 

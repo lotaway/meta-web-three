@@ -73,42 +73,32 @@ onMounted(async () => {
   getSelectMenuList()
 })
 
+const saveMenu = async () => {
+  if (props.isEdit) {
+    await updateMenu(Number(route.query.id), menu.value)
+    menuFromRef.value!.resetFields()
+    return '修改成功'
+  }
+  await menuCreateAPI(menu.value)
+  menuFromRef.value!.resetFields()
+  resetForm()
+  return '提交成功'
+}
+
 // Handle menu form submission
 const onSubmit = () => {
   menuFromRef.value!.validate(async (valid) => {
-    if (valid) {
-      await ElMessageBox.confirm(t('dialog.confirmSubmit'), t('dialog.title'), {
-        confirmButtonText: t('common.confirm'),
-        cancelButtonText: t('common.cancel'),
-        type: 'warning'
-      })
-      if (props.isEdit) {
-        await updateMenu(Number(route.query.id), menu.value)
-        menuFromRef.value!.resetFields()
-        ElMessage({
-          message: '修改成功',
-          type: 'success',
-          duration: 1000
-        })
-        router.back()
-      } else {
-        await menuCreateAPI(menu.value)
-        menuFromRef.value!.resetFields()
-        resetForm()
-        ElMessage({
-          message: '提交成功',
-          type: 'success',
-          duration: 1000
-        })
-        router.back()
-      }
-    } else {
-      ElMessage({
-        message: '验证失败',
-        type: 'error',
-        duration: 1000
-      })
+    if (!valid) {
+      ElMessage({ message: '验证失败', type: 'error', duration: 1000 })
+      return
     }
+    await ElMessageBox.confirm(t('dialog.confirmSubmit'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
+      type: 'warning'
+    })
+    ElMessage({ message: await saveMenu(), type: 'success', duration: 1000 })
+    router.back()
   })
 }
 

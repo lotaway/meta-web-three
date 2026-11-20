@@ -66,30 +66,25 @@ const handleAdd = () => {
   returnReason.value = Object.assign({}, defaultReturnReason)
 }
 
+const finishReasonOperate = (message: string) => {
+  dialogVisible.value = false
+  operateReasonId.value = undefined
+  ElMessage({
+    message,
+    type: 'success',
+    duration: 1000
+  })
+  getList()
+}
+
 const handleConfirm = async () => {
   if (!operateReasonId.value) {
-    // Add operation
     await returnReasonCreateAPI(returnReason.value)
-    dialogVisible.value = false
-    operateReasonId.value = undefined
-    ElMessage({
-      message: '添加成功！',
-      type: 'success',
-      duration: 1000
-    })
-    getList()
-  } else {
-    // Edit operation
-    await returnReasonUpdateAPI(operateReasonId.value, returnReason.value)
-    dialogVisible.value = false
-    operateReasonId.value = undefined
-    ElMessage({
-      message: '修改成功！',
-      type: 'success',
-      duration: 1000
-    })
-    getList()
+    finishReasonOperate('添加成功！')
+    return
   }
+  await returnReasonUpdateAPI(operateReasonId.value, returnReason.value)
+  finishReasonOperate('修改成功！')
 }
 
 const handleUpdate = async (index: number, row: OmsOrderReturnReason) => {

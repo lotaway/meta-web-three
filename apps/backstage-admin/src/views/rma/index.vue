@@ -105,7 +105,7 @@ const handleAdd = () => {
   dialogVisible.value = true
 }
 
-const handleSubmit = async (form: {
+type RmaFormData = {
   orderNo: string
   returnType: string
   customerId: number | undefined
@@ -115,20 +115,24 @@ const handleSubmit = async (form: {
   reasonDescription: string
   warehouseId: number | undefined
   items: Array<{ skuCode: string; skuName: string; expectedQuantity: number; unitPrice: number }>
-}) => {
+}
+
+const buildRmaPayload = (form: RmaFormData) => ({
+  orderNo: form.orderNo,
+  returnType: form.returnType,
+  customerId: String(form.customerId ?? ''),
+  customerName: form.customerName,
+  contactPhone: form.contactPhone,
+  reasonCode: form.reasonCode,
+  reasonDescription: form.reasonDescription,
+  warehouseId: form.warehouseId,
+  items: form.items
+})
+
+const handleSubmit = async (form: RmaFormData) => {
   dialogLoading.value = true
   try {
-    await createRmaAPI({
-      orderNo: form.orderNo,
-      returnType: form.returnType,
-      customerId: String(form.customerId ?? ''),
-      customerName: form.customerName,
-      contactPhone: form.contactPhone,
-      reasonCode: form.reasonCode,
-      reasonDescription: form.reasonDescription,
-      warehouseId: form.warehouseId,
-      items: form.items
-    })
+    await createRmaAPI(buildRmaPayload(form))
     ElMessage.success(t('rma.createSuccess'))
     dialogVisible.value = false
     getList()

@@ -44,7 +44,8 @@ import {
   getTaskByIdAPI, 
   createTaskAPI, 
   updateTaskAPI,
-  type CreateTaskRequest 
+  type CreateTaskRequest,
+  type ProductionTask
 } from '@/apis/productionTask'
 
 const { t } = useI18n()
@@ -80,22 +81,23 @@ const goBack = () => {
   router.back()
 }
 
+const toTaskForm = (task: ProductionTask): CreateTaskRequest => ({
+  taskNo: task.taskNo,
+  workOrderId: task.workOrderId,
+  processCode: task.processCode || '',
+  workstationId: task.workstationId || '',
+  quantity: task.quantity,
+  operatorId: task.operatorId || '',
+})
+
 const loadTask = async () => {
   if (!isEdit.value) return
   loading.value = true
   try {
     const id = Number(route.query.id)
     const response = await getTaskByIdAPI(id)
-    const task = response.data
-    if (task) {
-      form.value = {
-        taskNo: task.taskNo,
-        workOrderId: task.workOrderId,
-        processCode: task.processCode || '',
-        workstationId: task.workstationId || '',
-        quantity: task.quantity,
-        operatorId: task.operatorId || '',
-      }
+    if (response.data) {
+      form.value = toTaskForm(response.data)
     }
   } catch (error) {
     ElMessage.error(t('mes.productionTask.loadFailed'))
@@ -104,20 +106,22 @@ const loadTask = async () => {
   }
 }
 
+const saveTask = async () => {
+  if (isEdit.value) {
+    await updateTaskAPI(Number(route.query.id), form.value)
+    return t('mes.productionTask.updateSuccess')
+  }
+  await createTaskAPI(form.value)
+  return t('mes.productionTask.createSuccess')
+}
+
 const handleSubmit = async () => {
   if (!formRef.value) return
   await formRef.value.validate(async (valid) => {
     if (!valid) return
     loading.value = true
     try {
-      if (isEdit.value) {
-        const id = Number(route.query.id)
-        await updateTaskAPI(id, form.value)
-        ElMessage.success(t('mes.productionTask.updateSuccess'))
-      } else {
-        await createTaskAPI(form.value)
-        ElMessage.success(t('mes.productionTask.createSuccess'))
-      }
+      ElMessage.success(await saveTask())
       router.back()
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } }

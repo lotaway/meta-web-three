@@ -103,16 +103,7 @@ const handleAdd = () => {
   dialogVisible.value = true
 }
 
-const handleSubmit = () => {
-  if (!formData.value.productId) {
-    ElMessage.warning('Please select a product')
-    return
-  }
-  if (formData.value.quantity <= 0) {
-    ElMessage.warning('Quantity must be greater than 0')
-    return
-  }
-  
+const submitCartItem = () => {
   dialogLoading.value = true
   addCartItemAPI(formData.value)
     .then((res) => {
@@ -126,6 +117,18 @@ const handleSubmit = () => {
     .finally(() => {
       dialogLoading.value = false
     })
+}
+
+const handleSubmit = () => {
+  if (!formData.value.productId) {
+    ElMessage.warning('Please select a product')
+    return
+  }
+  if (formData.value.quantity <= 0) {
+    ElMessage.warning('Quantity must be greater than 0')
+    return
+  }
+  submitCartItem()
 }
 
 const handleUpdateQuantity = (row: CartItem, quantity: number) => {

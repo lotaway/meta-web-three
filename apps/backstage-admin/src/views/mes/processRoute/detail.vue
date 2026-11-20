@@ -161,23 +161,25 @@ const getStepDescription = (step: ProcessStep) => {
   return parts.join(' | ') || '-'
 }
 
+const applyRouteData = (data?: ProcessRoute) => {
+  if (!data) {
+    ElMessage.error(t('mes.processRoute.dataNotExist'))
+    router.push('/mes/process-route')
+    return
+  }
+  Object.assign(routeData, data)
+}
+
 const loadData = async () => {
   if (!routeId.value) {
     ElMessage.error(t('mes.processRoute.paramError'))
     router.push('/mes/process-route')
     return
   }
-
   loading.value = true
   try {
     const res = await getProcessRouteByIdAPI(routeId.value)
-    const data = res.data
-    if (data) {
-      Object.assign(routeData, data)
-    } else {
-      ElMessage.error(t('mes.processRoute.dataNotExist'))
-      router.push('/mes/process-route')
-    }
+    applyRouteData(res.data)
   } catch (error: unknown) {
     ElMessage.error(t('mes.processRoute.loadFailed'))
   } finally {

@@ -147,23 +147,26 @@ const handleAdd = () => {
   dialogVisible.value = true
 }
 
+const fillUserForm = (user: User) => {
+  Object.assign(userForm, {
+    nickname: user.nickname || '',
+    avatar: user.avatar || '',
+    email: user.email || '',
+    telephone: user.telephone || '',
+    username: user.username || '',
+    integration: user.integration || 0,
+    growth: user.growth || 0,
+    memberLevelId: user.memberLevelId
+  })
+}
+
 // Handle edit
 const handleEdit = async (row: User) => {
   dialogTitle.value = 'Edit User'
   editingId.value = row.id
   try {
     const res = await getUserByIdAPI(row.id)
-    const user = res.data
-    Object.assign(userForm, {
-      nickname: user.nickname || '',
-      avatar: user.avatar || '',
-      email: user.email || '',
-      telephone: user.telephone || '',
-      username: user.username || '',
-      integration: user.integration || 0,
-      growth: user.growth || 0,
-      memberLevelId: user.memberLevelId
-    })
+    fillUserForm(res.data)
     dialogVisible.value = true
   } catch (error) {
     ElMessage.error('Failed to load user details')
@@ -240,23 +243,24 @@ const handleDelete = async (row: User) => {
   }
 }
 
+const confirmBatchDelete = () => ElMessageBox.confirm(
+  `Are you sure to delete ${selectedUsers.value.length} users? This action cannot be undone.`,
+  'Warning',
+  {
+    confirmButtonText: 'Delete',
+    cancelButtonText: 'Cancel',
+    type: 'warning'
+  }
+)
+
 // Handle batch delete
 const handleBatchDelete = async () => {
   if (selectedUsers.value.length === 0) {
     ElMessage.warning('Please select at least one user')
     return
   }
-  
   try {
-    await ElMessageBox.confirm(
-      `Are you sure to delete ${selectedUsers.value.length} users? This action cannot be undone.`,
-      'Warning',
-      {
-        confirmButtonText: 'Delete',
-        cancelButtonText: 'Cancel',
-        type: 'warning'
-      }
-    )
+    await confirmBatchDelete()
     const ids = selectedUsers.value.map(u => u.id).join(',')
     await deleteUsersBatchAPI(ids)
     ElMessage.success('Users deleted successfully')

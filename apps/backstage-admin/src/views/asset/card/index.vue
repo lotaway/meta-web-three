@@ -49,8 +49,7 @@ const searchParams = reactive({
   keyword: ''
 })
 
-// Form data
-const formData = reactive<FixedAssetCreateParams>({
+const createAssetForm = (): FixedAssetCreateParams => ({
   assetCode: '',
   assetName: '',
   assetCategory: '',
@@ -71,6 +70,9 @@ const formData = reactive<FixedAssetCreateParams>({
   custodian: '',
   remark: ''
 })
+
+// Form data
+const formData = reactive<FixedAssetCreateParams>(createAssetForm())
 
 // Transfer form
 const transferForm = reactive({
@@ -256,25 +258,29 @@ const handleTransfer = (row: FixedAsset) => {
   transferDialogVisible.value = true
 }
 
+const saveAsset = async () => {
+  try {
+    if (isEdit.value && currentId.value) {
+      await updateAsset(currentId.value, { ...formData, id: currentId.value })
+      ElMessage.success('Asset updated successfully')
+    } else {
+      await createAsset(formData)
+      ElMessage.success('Asset created successfully')
+    }
+    dialogVisible.value = false
+    loadData()
+    loadStatistics()
+  } catch (error) {
+    console.error('Failed to save asset:', error)
+    ElMessage.error('Failed to save asset')
+  }
+}
+
 const submitForm = async () => {
   if (!formRef.value) return
   await formRef.value.validate(async (valid: boolean) => {
     if (!valid) return
-    try {
-      if (isEdit.value && currentId.value) {
-        await updateAsset(currentId.value, { ...formData, id: currentId.value })
-        ElMessage.success('Asset updated successfully')
-      } else {
-        await createAsset(formData)
-        ElMessage.success('Asset created successfully')
-      }
-      dialogVisible.value = false
-      loadData()
-      loadStatistics()
-    } catch (error) {
-      console.error('Failed to save asset:', error)
-      ElMessage.error('Failed to save asset')
-    }
+    await saveAsset()
   })
 }
 
@@ -295,25 +301,7 @@ const submitTransfer = async () => {
 }
 
 const resetForm = () => {
-  formData.assetCode = ''
-  formData.assetName = ''
-  formData.assetCategory = ''
-  formData.specification = ''
-  formData.model = ''
-  formData.serialNumber = ''
-  formData.supplierId = undefined
-  formData.supplierName = ''
-  formData.manufacturer = ''
-  formData.purchaseDate = ''
-  formData.originalValue = 0
-  formData.residualValue = 0
-  formData.usefulLife = 0
-  formData.depreciationMethod = 'STRAIGHT_LINE'
-  formData.departmentId = undefined
-  formData.departmentName = ''
-  formData.location = ''
-  formData.custodian = ''
-  formData.remark = ''
+  Object.assign(formData, createAssetForm())
 }
 
 const cancelDialog = () => {

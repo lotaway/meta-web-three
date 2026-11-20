@@ -74,41 +74,32 @@ onMounted(async () => {
   }
 })
 
+const saveHomeAdvertise = async () => {
+  if (props.isEdit) {
+    await homeAdvertiseUpdateAPI(Number(route.query.id), homeAdvertise.value)
+    homeAdvertiseFrom.value!.resetFields()
+    return '修改成功'
+  }
+  await homeAdvertiseCreateAPI(homeAdvertise.value)
+  homeAdvertiseFrom.value!.resetFields()
+  homeAdvertise.value = Object.assign({}, defaultHomeAdvertise)
+  return '提交成功'
+}
+
 // Submit form
 const onSubmit = async () => {
   homeAdvertiseFrom.value!.validate(async (valid) => {
-    if (valid) {
-      await ElMessageBox.confirm(t('dialog.confirmSubmit'), t('dialog.title'), {
-        confirmButtonText: t('common.confirm'),
-        cancelButtonText: t('common.cancel'),
-        type: 'warning'
-      })
-      if (props.isEdit) {
-        await homeAdvertiseUpdateAPI(Number(route.query.id), homeAdvertise.value)
-        homeAdvertiseFrom.value!.resetFields()
-        ElMessage({
-          message: '修改成功',
-          type: 'success',
-          duration: 1000
-        })
-        router.back()
-      } else {
-        await homeAdvertiseCreateAPI(homeAdvertise.value)
-        homeAdvertiseFrom.value!.resetFields()
-        homeAdvertise.value = Object.assign({}, defaultHomeAdvertise)
-        ElMessage({
-          message: '提交成功',
-          type: 'success',
-          duration: 1000
-        })
-      }
-    } else {
-      ElMessage({
-        message: '验证失败',
-        type: 'error',
-        duration: 1000
-      })
+    if (!valid) {
+      ElMessage({ message: '验证失败', type: 'error', duration: 1000 })
+      return
     }
+    await ElMessageBox.confirm(t('dialog.confirmSubmit'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
+      type: 'warning'
+    })
+    ElMessage({ message: await saveHomeAdvertise(), type: 'success', duration: 1000 })
+    if (props.isEdit) router.back()
   })
 }
 

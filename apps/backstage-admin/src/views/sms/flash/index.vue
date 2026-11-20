@@ -137,6 +137,15 @@ const handleUpdate = (index: number, row: SmsFlashPromotion) => {
   flashPromotion.value = Object.assign({}, row)
 }
 
+const saveFlashPromotion = async () => {
+  if (isEdit.value) {
+    await flashUpdateByIdAPI(flashPromotion.value.id!, flashPromotion.value)
+    return t('message.modifySuccess')
+  }
+  await flashCreateAPI(flashPromotion.value)
+  return t('message.operationSuccess')
+}
+
 // Handle dialog confirmation
 const handleDialogConfirm = async () => {
   await ElMessageBox.confirm(t('dialog.confirmAction'), t('dialog.title'), {
@@ -145,17 +154,9 @@ const handleDialogConfirm = async () => {
     type: 'warning'
   })
   try {
-    if (isEdit.value) {
-      await flashUpdateByIdAPI(flashPromotion.value.id!, flashPromotion.value)
-      ElMessage.success(t('message.modifySuccess'))
-      dialogVisible.value = false
-      getList()
-    } else {
-      await flashCreateAPI(flashPromotion.value)
-      ElMessage.success(t('message.operationSuccess'))
-      dialogVisible.value = false
-      getList()
-    }
+    ElMessage.success(await saveFlashPromotion())
+    dialogVisible.value = false
+    getList()
   } catch (error) {
     if (error !== 'cancel') {
       console.error('Failed to process activity:', error)

@@ -268,6 +268,15 @@ async function refreshData() {
   loadCommands()
 }
 
+function buildCommandPayload() {
+  return {
+    equipmentCode: selectedEquipment.value,
+    commandType: commandForm.value.commandType,
+    payload: commandForm.value.payload,
+    createdBy: 'admin',
+  }
+}
+
 async function sendCommand() {
   if (!selectedEquipment.value) {
     ElMessage.warning(t('mes.scada.selectEquipmentHint'))
@@ -275,12 +284,7 @@ async function sendCommand() {
   }
   cmdSending.value = true
   try {
-    await dispatchCommandAPI({
-      equipmentCode: selectedEquipment.value,
-      commandType: commandForm.value.commandType,
-      payload: commandForm.value.payload,
-      createdBy: 'admin',
-    })
+    await dispatchCommandAPI(buildCommandPayload())
     ElMessage.success(t('mes.scada.commandSent'))
     commandForm.value.payload = ''
     loadCommands()

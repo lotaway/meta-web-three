@@ -171,6 +171,16 @@ const handleEdit = (row: Notification) => {
   dialogVisible.value = true
 }
 
+const buildNotificationPayload = () => ({
+  userId: notificationForm.userId,
+  title: notificationForm.title,
+  content: notificationForm.content,
+  type: notificationForm.type,
+  relatedId: notificationForm.relatedId || undefined,
+  icon: notificationForm.icon || undefined,
+  imageUrl: notificationForm.imageUrl || undefined
+})
+
 const handleSubmit = async () => {
   if (!notificationForm.title || !notificationForm.content) {
     ElMessage.warning('Please fill in required fields')
@@ -178,15 +188,7 @@ const handleSubmit = async () => {
   }
 
   try {
-    await createNotificationAPI({
-      userId: notificationForm.userId,
-      title: notificationForm.title,
-      content: notificationForm.content,
-      type: notificationForm.type,
-      relatedId: notificationForm.relatedId || undefined,
-      icon: notificationForm.icon || undefined,
-      imageUrl: notificationForm.imageUrl || undefined
-    })
+    await createNotificationAPI(buildNotificationPayload())
     ElMessage.success('Notification created successfully')
     dialogVisible.value = false
     getList()
@@ -196,17 +198,19 @@ const handleSubmit = async () => {
   }
 }
 
+const confirmDeleteNotification = () => ElMessageBox.confirm(
+  `Are you sure you want to delete this notification?`,
+  'Confirm Delete',
+  {
+    confirmButtonText: 'Confirm',
+    cancelButtonText: 'Cancel',
+    type: 'warning'
+  }
+)
+
 const handleDelete = async (row: Notification) => {
   try {
-    await ElMessageBox.confirm(
-      `Are you sure you want to delete this notification?`,
-      'Confirm Delete',
-      {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
-        type: 'warning'
-      }
-    )
+    await confirmDeleteNotification()
     await deleteNotificationAPI(row.id)
     ElMessage.success('Notification deleted successfully')
     getList()

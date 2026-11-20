@@ -67,6 +67,16 @@ async function refreshCaptcha() {
   }
 }
 
+function startCountdown() {
+  countdown.value = 60
+  const timer = window.setInterval(() => {
+    countdown.value -= 1
+    if (countdown.value <= 0) {
+      window.clearInterval(timer)
+    }
+  }, 1000)
+}
+
 async function sendVerificationCode() {
   if (!registerForm.email) {
     ElMessage.warning(t('register.enterEmail'))
@@ -76,18 +86,30 @@ async function sendVerificationCode() {
   try {
     await sendVerificationCodeAPI(registerForm.email.trim())
     ElMessage.success(t('register.codeSent'))
-    countdown.value = 60
-    const timer = window.setInterval(() => {
-      countdown.value -= 1
-      if (countdown.value <= 0) {
-        window.clearInterval(timer)
-      }
-    }, 1000)
+    startCountdown()
   } catch (e) {
     console.error(e)
   } finally {
     sendingCode.value = false
   }
+}
+
+function buildRegisterPayload() {
+  return {
+    name: registerForm.name.trim(),
+    email: registerForm.email.trim(),
+    phone: registerForm.phone.trim(),
+    description: registerForm.description.trim(),
+    captchaToken: registerForm.captchaToken,
+    captchaAnswer: registerForm.captchaAnswer.trim().toUpperCase(),
+    emailCode: registerForm.emailCode.trim(),
+  }
+}
+
+async function submitRegistration() {
+  await registerDeveloperAPI(buildRegisterPayload())
+  ElMessage.success(t('register.submitted'))
+  router.push({ path: '/login' })
 }
 
 async function handleRegister() {
@@ -97,17 +119,7 @@ async function handleRegister() {
     }
     loading.value = true
     try {
-      await registerDeveloperAPI({
-        name: registerForm.name.trim(),
-        email: registerForm.email.trim(),
-        phone: registerForm.phone.trim(),
-        description: registerForm.description.trim(),
-        captchaToken: registerForm.captchaToken,
-        captchaAnswer: registerForm.captchaAnswer.trim().toUpperCase(),
-        emailCode: registerForm.emailCode.trim(),
-      })
-      ElMessage.success(t('register.submitted'))
-      router.push({ path: '/login' })
+      await submitRegistration()
     } catch (e) {
       refreshCaptcha()
       console.error(e)

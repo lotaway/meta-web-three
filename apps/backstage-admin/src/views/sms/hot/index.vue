@@ -124,6 +124,12 @@ const handleDelete = async (index: number, row: SmsHomeRecommendProduct) => {
   deleteNewProduct([row.id!])
 }
 
+const batchOperateHandlers: Record<number, (ids: number[]) => Promise<void>> = {
+  0: ids => updateRecommendStatusStatus(ids, 1),
+  1: ids => updateRecommendStatusStatus(ids, 0),
+  2: ids => deleteNewProduct(ids)
+}
+
 // Handle batch operations
 const handleBatchOperate = async () => {
   if (multipleSelection.value.length < 1) {
@@ -133,22 +139,15 @@ const handleBatchOperate = async () => {
     })
     return
   }
-  const ids = multipleSelection.value.map(item => item.id!)
-  if (operateType.value === 0) {
-    // Set as recommended
-    await updateRecommendStatusStatus(ids, 1)
-  } else if (operateType.value === 1) {
-    // Unset recommendation
-    await updateRecommendStatusStatus(ids, 0)
-  } else if (operateType.value === 2) {
-    // Delete
-    await deleteNewProduct(ids)
-  } else {
+  const handler = batchOperateHandlers[operateType.value as number]
+  if (!handler) {
     ElMessage.warning({
       message: '请选择批量操作类型',
       duration: 1000
     })
+    return
   }
+  await handler(multipleSelection.value.map(item => item.id!))
 }
 
 // Handle product selection
@@ -180,6 +179,14 @@ const handleDialogSelectionChange = (val: PmsProduct[]) => {
   dialogData.value.multipleSelection = val
 }
 
+const buildSelectedProducts = () => dialogData.value.multipleSelection.map(item => ({ productId: item.id!, productName: item.name }))
+
+const confirmAddRecommendProduct = () => ElMessageBox.confirm(t('dialog.confirmAdd'), t('dialog.title'), {
+  confirmButtonText: t('common.confirm'),
+  cancelButtonText: t('common.cancel'),
+  type: 'warning'
+})
+
 // Handle selection dialog confirmation
 const handleSelectDialogConfirm = async () => {
   if (dialogData.value.multipleSelection.length < 1) {
@@ -189,13 +196,8 @@ const handleSelectDialogConfirm = async () => {
     })
     return
   }
-  await ElMessageBox.confirm(t('dialog.confirmAdd'), t('dialog.title'), {
-    confirmButtonText: t('common.confirm'),
-    cancelButtonText: t('common.cancel'),
-    type: 'warning'
-  })
-  const selectProducts = dialogData.value.multipleSelection.map(item => ({ productId: item.id!, productName: item.name }))
-  await homeRecommendProductCreateAPI(selectProducts)
+  await confirmAddRecommendProduct()
+  await homeRecommendProductCreateAPI(buildSelectedProducts())
   selectDialogVisible.value = false
   dialogData.value.multipleSelection = []
   getList()

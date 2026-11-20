@@ -69,22 +69,24 @@ const rules = reactive<FormRules>({
   ],
 })
 
+const saveProcessTemplate = async () => {
+  if (isEdit.value) {
+    await updateProcessTemplateAPI(Number(route.query.id), form)
+    ElMessage.success(t('mes.processTemplate.updateSuccess'))
+  } else {
+    await createProcessTemplateAPI(form)
+    ElMessage.success(t('mes.processTemplate.createSuccess'))
+  }
+  router.push('/mes/process-template')
+}
+
 const handleSubmit = async () => {
   if (!formRef.value) return
-
   await formRef.value.validate(async (valid) => {
     if (!valid) return
-
     submitting.value = true
     try {
-      if (isEdit.value) {
-        await updateProcessTemplateAPI(Number(route.query.id), form)
-        ElMessage.success(t('mes.processTemplate.updateSuccess'))
-      } else {
-        await createProcessTemplateAPI(form)
-        ElMessage.success(t('mes.processTemplate.createSuccess'))
-      }
-      router.push('/mes/process-template')
+      await saveProcessTemplate()
     } catch (error) {
       ElMessage.error(t('mes.processTemplate.submitFailed') + (error as Error).message)
     } finally {

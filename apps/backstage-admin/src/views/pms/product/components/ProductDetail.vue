@@ -116,6 +116,14 @@ const nextStep = () => {
   }
 }
 
+const saveProduct = async (isEdit: boolean) => {
+  if (isEdit) {
+    await productUpdateByIdAPI(Number(route.query.id), productParam.value)
+    return
+  }
+  await productCreateAPI(productParam.value)
+}
+
 // Finish the step and submit data
 const finishCommit = async (isEdit: boolean) => {
   await ElMessageBox.confirm(t('dialog.confirmSubmitProduct'), t('dialog.title'), {
@@ -123,23 +131,10 @@ const finishCommit = async (isEdit: boolean) => {
     cancelButtonText: t('common.cancel'),
     type: 'warning'
   })
-  if (isEdit) {
-    await productUpdateByIdAPI(Number(route.query.id), productParam.value)
-    ElMessage({
-      type: 'success',
-      message: '提交成功',
-      duration: 1000
-    })
-    router.back()
-  } else {
-    await productCreateAPI(productParam.value)
-    ElMessage({
-      type: 'success',
-      message: '提交成功',
-      duration: 1000
-    })
-    location.reload()
-  }
+  await saveProduct(isEdit)
+  ElMessage({ type: 'success', message: '提交成功', duration: 1000 })
+  if (isEdit) router.back()
+  else location.reload()
 }
 </script>
 

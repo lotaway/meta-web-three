@@ -127,30 +127,25 @@ const handleDelete = async (index: number, row: SmsHomeRecommendSubject) => {
 }
 
 // Handle batch operations
+const batchOperateHandlers: Record<number, (ids: number[]) => Promise<void>> = {
+  0: ids => updateRecommendStatusStatus(ids, 1),
+  1: ids => updateRecommendStatusStatus(ids, 0),
+  2: ids => deleteSubject(ids)
+}
+
+const showBatchWarning = (message: string) => ElMessage.warning({ message, duration: 1000 })
+
 const handleBatchOperate = async () => {
   if (multipleSelection.value.length < 1) {
-    ElMessage.warning({
-      message: '请选择一条记录',
-      duration: 1000
-    })
+    showBatchWarning('请选择一条记录')
     return
   }
-  const ids: number[] = multipleSelection.value.map(item => item.id!)
-  if (operateType.value === 0) {
-    // Set as recommended
-    await updateRecommendStatusStatus(ids, 1)
-  } else if (operateType.value === 1) {
-    // Unset recommendation
-    await updateRecommendStatusStatus(ids, 0)
-  } else if (operateType.value === 2) {
-    // Delete
-    await deleteSubject(ids)
-  } else {
-    ElMessage.warning({
-      message: '请选择批量操作类型',
-      duration: 1000
-    })
+  const handler = batchOperateHandlers[operateType.value]
+  if (!handler) {
+    showBatchWarning('请选择批量操作类型')
+    return
   }
+  await handler(multipleSelection.value.map(item => item.id!))
 }
 
 // Handle subject selection

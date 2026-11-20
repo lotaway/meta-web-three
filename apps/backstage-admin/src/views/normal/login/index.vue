@@ -55,26 +55,30 @@ onMounted(() => {
   }
 })
 
+const submitLogin = async () => {
+  loading.value = true
+  try {
+    await userStore.userLogin({
+      username: loginForm.username.trim(),
+      password: loginForm.password
+    })
+    loading.value = false
+    router.push({ path: '/' })
+  }
+  catch (err) {
+    loading.value = false
+    console.log(err)
+  }
+}
+
 // Handle login button event
 const handleLogin = () => {
   loginFormRef.value!.validate(async (valid) => {
-    if (valid) {
-      loading.value = true
-      try {
-        await userStore.userLogin({
-          username: loginForm.username.trim(),
-          password: loginForm.password
-        })
-        loading.value = false
-        router.push({ path: '/' })
-      }
-      catch (err) {
-        loading.value = false
-        console.log(err)
-      }
-    } else {
+    if (!valid) {
       console.log('Invalid parameters!')
+      return
     }
+    await submitLogin()
   })
 }
 </script>

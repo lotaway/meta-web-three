@@ -142,23 +142,35 @@ const ticketStatusType = (s: string): TagType => {
   return map[s] || 'info'
 }
 
+type DashboardResponses = [
+  Awaited<ReturnType<typeof listLeads>>,
+  Awaited<ReturnType<typeof listOpportunities>>,
+  Awaited<ReturnType<typeof listTickets>>,
+  Awaited<ReturnType<typeof listCampaigns>>,
+  Awaited<ReturnType<typeof getPipelineSummary>>
+]
+
+const applyDashboardData = ([leadsRes, oppsRes, ticketsRes, campaignsRes, pipelineRes]: DashboardResponses) => {
+  recentLeads.value = leadsRes.data.records
+  recentOpportunities.value = oppsRes.data.records
+  recentTickets.value = ticketsRes.data.records
+  stats.value.totalLeads = leadsRes.data.total
+  stats.value.activeOpportunities = oppsRes.data.total
+  stats.value.openTickets = ticketsRes.data.total
+  stats.value.activeCampaigns = campaignsRes.data.total
+  pipelineSummary.value = pipelineRes.data
+}
+
 const fetchDashboardData = async () => {
   try {
-    const [leadsRes, oppsRes, ticketsRes, campaignsRes, pipelineRes] = await Promise.all([
+    const responses = await Promise.all([
       listLeads({ page: 1, pageSize: 5 }),
       listOpportunities({ page: 1, pageSize: 5 }),
       listTickets({ page: 1, pageSize: 5 }),
       listCampaigns({ page: 1, pageSize: 100 }),
       getPipelineSummary(),
     ])
-    recentLeads.value = leadsRes.data.records
-    recentOpportunities.value = oppsRes.data.records
-    recentTickets.value = ticketsRes.data.records
-    stats.value.totalLeads = leadsRes.data.total
-    stats.value.activeOpportunities = oppsRes.data.total
-    stats.value.openTickets = ticketsRes.data.total
-    stats.value.activeCampaigns = campaignsRes.data.total
-    pipelineSummary.value = pipelineRes.data
+    applyDashboardData(responses)
   } catch (e) {
     console.error('Failed to fetch dashboard data:', e)
     ElMessage.error('Failed to load CRM dashboard data')

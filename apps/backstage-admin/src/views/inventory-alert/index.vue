@@ -151,17 +151,19 @@ const handleRefresh = () => {
   getStatistics()
 }
 
+const confirmAlertAction = (message: string, title: string) => ElMessageBox.confirm(
+  message,
+  title,
+  {
+    confirmButtonText: 'Confirm',
+    cancelButtonText: 'Cancel',
+    type: 'warning'
+  }
+)
+
 const handleResolve = async (row: InventoryAlert) => {
   try {
-    await ElMessageBox.confirm(
-      `Are you sure you want to resolve this alert?`,
-      'Confirm Resolve',
-      {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
-        type: 'warning'
-      }
-    )
+    await confirmAlertAction('Are you sure you want to resolve this alert?', 'Confirm Resolve')
     await resolveInventoryAlertAPI(row.id)
     ElMessage.success('Alert resolved successfully')
     getList()
@@ -175,15 +177,7 @@ const handleResolve = async (row: InventoryAlert) => {
 
 const handleIgnore = async (row: InventoryAlert) => {
   try {
-    await ElMessageBox.confirm(
-      `Are you sure you want to ignore this alert?`,
-      'Confirm Ignore',
-      {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
-        type: 'warning'
-      }
-    )
+    await confirmAlertAction('Are you sure you want to ignore this alert?', 'Confirm Ignore')
     await ignoreInventoryAlertAPI(row.id)
     ElMessage.success('Alert ignored successfully')
     getList()

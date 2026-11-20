@@ -100,6 +100,15 @@ const handleDelete = async (index: number, row: SmsFlashPromotionSession) => {
   }
 }
 
+const saveFlashSession = async () => {
+  if (isEdit.value) {
+    await flashSessionUpdateByIdAPI(flashSession.value.id!, flashSession.value)
+    return t('message.modifySuccess')
+  }
+  await flashSessionCreateAPI(flashSession.value)
+  return t('message.operationSuccess')
+}
+
 // Handle dialog confirmation
 const handleDialogConfirm = async () => {
   try {
@@ -108,17 +117,9 @@ const handleDialogConfirm = async () => {
       cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
-    if (isEdit.value) {
-      await flashSessionUpdateByIdAPI(flashSession.value.id!, flashSession.value)
-      ElMessage.success(t('message.modifySuccess'))
-      dialogVisible.value = false
-      getList()
-    } else {
-      await flashSessionCreateAPI(flashSession.value)
-      ElMessage.success(t('message.operationSuccess'))
-      dialogVisible.value = false
-      getList()
-    }
+    ElMessage.success(await saveFlashSession())
+    dialogVisible.value = false
+    getList()
   } catch (error) {
     if (error !== 'cancel') {
       console.error('Failed to process time slot:', error)

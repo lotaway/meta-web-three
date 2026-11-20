@@ -164,6 +164,15 @@ const handleEdit = (row: GroupBuyActivity) => {
   dialogVisible.value = true
 }
 
+const saveActivity = async (data: CreateGroupBuyActivityParams) => {
+  if (editingId.value) {
+    await updateGroupBuyActivityAPI(editingId.value, data)
+    return t('common.updateSuccess')
+  }
+  await createGroupBuyActivityAPI(data)
+  return t('common.createSuccess')
+}
+
 // Handle submit
 const handleSubmit = async () => {
   if (!activityFormRef.value) return
@@ -177,14 +186,7 @@ const handleSubmit = async () => {
       endTime: activityForm.endTime
     }
 
-    if (editingId.value) {
-      await updateGroupBuyActivityAPI(editingId.value, data)
-      ElMessage.success({ message: t('common.updateSuccess'), duration: MESSAGE_DURATION_SHORT })
-    } else {
-      await createGroupBuyActivityAPI(data)
-      ElMessage.success({ message: t('common.createSuccess'), duration: MESSAGE_DURATION_SHORT })
-    }
-
+    ElMessage.success({ message: await saveActivity(data), duration: MESSAGE_DURATION_SHORT })
     dialogVisible.value = false
     getActivityList()
     loadStatistics()
@@ -193,19 +195,20 @@ const handleSubmit = async () => {
   }
 }
 
+const confirmDeleteActivity = () => ElMessageBox.confirm(
+  t('groupBuying.confirmDelete'),
+  t('common.warning'),
+  {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    type: 'warning'
+  }
+)
+
 // Handle delete
 const handleDelete = async (row: GroupBuyActivity) => {
   try {
-    await ElMessageBox.confirm(
-      t('groupBuying.confirmDelete'),
-      t('common.warning'),
-      {
-        confirmButtonText: t('common.confirm'),
-        cancelButtonText: t('common.cancel'),
-        type: 'warning'
-      }
-    )
-
+    await confirmDeleteActivity()
     await deleteGroupBuyActivityAPI(row.id)
     ElMessage.success({ message: t('common.deleteSuccess'), duration: MESSAGE_DURATION_SHORT })
     getActivityList()

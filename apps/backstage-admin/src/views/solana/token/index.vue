@@ -80,6 +80,15 @@ async function handleCreate() {
   }
 }
 
+function applySearchResult(token: SolanaToken) {
+  const exists = tokenList.value.find(item => item.mintAddress === token.mintAddress)
+  if (!exists) {
+    tokenList.value.unshift(token)
+  }
+  selectedToken.value = token
+  detailDialogVisible.value = true
+}
+
 async function handleSearch() {
   if (!searchMintAddress.value) {
     ElMessage.warning(t('common.pleaseEnterMintAddress'))
@@ -89,12 +98,7 @@ async function handleSearch() {
   try {
     const res = await getSolanaTokenAPI(searchMintAddress.value)
     if (res.data) {
-      const exists = tokenList.value.find(t => t.mintAddress === res.data.mintAddress)
-      if (!exists) {
-        tokenList.value.unshift(res.data)
-      }
-      selectedToken.value = res.data
-      detailDialogVisible.value = true
+      applySearchResult(res.data)
     }
   } catch (e) {
     console.error('query token failed', e)

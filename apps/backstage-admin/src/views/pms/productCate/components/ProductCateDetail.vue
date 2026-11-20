@@ -100,43 +100,33 @@ const getProductAttributeIdList = () => {
     .map(item => item.value[1]!)
 }
 
+const saveProductCate = async () => {
+  productCate.value.productAttributeIdList = getProductAttributeIdList()
+  if (props.isEdit) {
+    await productCategoryUpdateByIdAPI(cateId.value, productCate.value)
+    return '修改成功'
+  }
+  await productCategoryCreateAPI(productCate.value)
+  productCateFrom.value!.resetFields()
+  resetForm()
+  return '提交成功'
+}
+
 // Submit form
 const onSubmit = async () => {
   if (!productCateFrom.value) return
   const valid = await productCateFrom.value.validate().catch(() => false)
-  if (valid) {
-    await ElMessageBox.confirm(t('dialog.confirmSubmit'), t('dialog.title'), {
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel'),
-      type: 'warning'
-    })
-    if (props.isEdit) {
-      productCate.value.productAttributeIdList = getProductAttributeIdList()
-      await productCategoryUpdateByIdAPI(cateId.value, productCate.value)
-      ElMessage({
-        message: '修改成功',
-        type: 'success',
-        duration: 1000
-      })
-      router.back()
-    } else {
-      productCate.value.productAttributeIdList = getProductAttributeIdList()
-      await productCategoryCreateAPI(productCate.value)
-      productCateFrom.value.resetFields()
-      resetForm()
-      ElMessage({
-        message: '提交成功',
-        type: 'success',
-        duration: 1000
-      })
-    }
-  } else {
-    ElMessage({
-      message: '验证失败',
-      type: 'error',
-      duration: 1000
-    })
+  if (!valid) {
+    ElMessage({ message: '验证失败', type: 'error', duration: 1000 })
+    return
   }
+  await ElMessageBox.confirm(t('dialog.confirmSubmit'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    type: 'warning'
+  })
+  ElMessage({ message: await saveProductCate(), type: 'success', duration: 1000 })
+  if (props.isEdit) router.back()
 }
 
 // Reset form

@@ -44,6 +44,38 @@ export type PayResult = PaySuccessResult | PayCancelResult | PayFailResult
 
 type WechatRuntimeParams = WechatPayParams & { appId?: string }
 
+interface StripePaymentOutcome {
+  id?: string
+  status?: string
+}
+
+interface StripeConfirmErrorOutcome {
+  code?: string
+  message?: string
+}
+
+function payFail(type: PayType, code?: string, message?: string): PayFailResult {
+  return { status: 'fail', type, code, message }
+}
+
+function payCancel(type: PayType): PayCancelResult {
+  return { status: 'cancel', type }
+}
+
+function toStripeOutcome(
+  paymentIntent: StripePaymentOutcome | undefined,
+  error: StripeConfirmErrorOutcome | undefined
+): PayResult {
+  if (error) {
+    if (error.code === 'cancelled') return payCancel('stripe')
+    return payFail('stripe', error.code, error.message)
+  }
+  if (paymentIntent?.status === 'succeeded') {
+    return { status: 'success', type: 'stripe', transactionId: paymentIntent.id }
+  }
+  return payFail('stripe', paymentIntent?.status, 'Payment not completed')
+}
+
 export async function pay(
   type: PayType,
   params: WechatPayParams | string | { clientSecret: string; returnURL: string }
@@ -67,21 +99,14 @@ async function wechatPay(
     const runtimeParams = params as WechatRuntimeParams
     const appId = runtimeParams.appId || WECHAT_APP_ID
     if (!appId) {
-      return { status: 'fail', type: 'wechat', code: 'APP_ID_MISSING', message: '微信 App ID 未配置' }
+      return payFail('wechat', 'APP_ID_MISSING', '微信 App ID 未配置')
     }
     WechatPayModule.init(appId)
     await WechatPayModule.pay(runtimeParams)
     return { status: 'success', type: 'wechat', transactionId: runtimeParams.prepayId }
   } catch (error: any) {
-    if (error?.code === 'USER_CANCEL') {
-      return { status: 'cancel', type: 'wechat' }
-    }
-    return {
-      status: 'fail',
-      type: 'wechat',
-      code: error?.code,
-      message: error?.message
-    }
+    if (error?.code === 'USER_CANCEL') return payCancel('wechat')
+    return payFail('wechat', error?.code, error?.message)
   }
 }
 
@@ -95,15 +120,8 @@ async function alipayPay(
     const result = await AlipayModule.pay({ orderString })
     return { status: 'success', type: 'alipay', transactionId: result }
   } catch (error: any) {
-    if (error?.code === '6001') {
-      return { status: 'cancel', type: 'alipay' }
-    }
-    return {
-      status: 'fail',
-      type: 'alipay',
-      code: error?.code,
-      message: error?.message
-    }
+    if (error?.code === '6001') return payCancel('alipay')
+    return payFail('alipay', error?.code, error?.message)
   }
 }
 
@@ -115,35 +133,8 @@ async function stripePay(
       clientSecret: params.clientSecret,
       returnURL: params.returnURL
     })
-
-    if (error) {
-      if (error.code === 'cancelled') {
-        return { status: 'cancel', type: 'stripe' }
-      }
-      return {
-        status: 'fail',
-        type: 'stripe',
-        code: error.code,
-        message: error.message
-      }
-    }
-
-    if (paymentIntent?.status === 'succeeded') {
-      return { status: 'success', type: 'stripe', transactionId: paymentIntent.id }
-    }
-
-    return {
-      status: 'fail',
-      type: 'stripe',
-      code: paymentIntent?.status,
-      message: 'Payment not completed'
-    }
+    return toStripeOutcome(paymentIntent, error)
   } catch (error: any) {
-    return {
-      status: 'fail',
-      type: 'stripe',
-      code: error?.code,
-      message: error?.message
-    }
+    return payFail('stripe', error?.code, error?.message)
   }
 }

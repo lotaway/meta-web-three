@@ -189,45 +189,46 @@ const loadData = async () => {
   }
 }
 
+const saveProcessRoute = async () => {
+  if (isEdit.value) {
+    const data: UpdateProcessRouteRequest = {
+      routeName: form.routeName,
+      productCode: form.productCode,
+      steps: form.steps
+    }
+    await updateProcessRouteAPI(routeId.value, data)
+    return t('mes.processRoute.updateSuccess')
+  }
+  const data: CreateProcessRouteRequest = {
+    routeCode: form.routeCode,
+    routeName: form.routeName,
+    productCode: form.productCode,
+    steps: form.steps
+  }
+  await createProcessRouteAPI(data)
+  return t('mes.processRoute.createSuccess')
+}
+
+const submitValidatedRoute = async (valid: boolean) => {
+  if (!valid) return
+  if (form.steps.length === 0) {
+    ElMessage.warning(t('mes.processRoute.addAtLeastOneStep'))
+    return
+  }
+  submitting.value = true
+  try {
+    ElMessage.success(await saveProcessRoute())
+    router.push('/mes/process-route')
+  } catch (error: unknown) {
+    ElMessage.error(t('mes.processRoute.submitFailed') + (error as Error).message)
+  } finally {
+    submitting.value = false
+  }
+}
+
 const handleSubmit = async () => {
   if (!formRef.value) return
-  
-  await formRef.value.validate(async (valid) => {
-    if (!valid) return
-    
-    if (form.steps.length === 0) {
-      ElMessage.warning(t('mes.processRoute.addAtLeastOneStep'))
-      return
-    }
-
-    submitting.value = true
-    try {
-      if (isEdit.value) {
-        const data: UpdateProcessRouteRequest = {
-          routeName: form.routeName,
-          productCode: form.productCode,
-          steps: form.steps
-        }
-        await updateProcessRouteAPI(routeId.value, data)
-        ElMessage.success(t('mes.processRoute.updateSuccess'))
-      } else {
-        const data: CreateProcessRouteRequest = {
-          routeCode: form.routeCode,
-          routeName: form.routeName,
-          productCode: form.productCode,
-          steps: form.steps
-        }
-        await createProcessRouteAPI(data)
-        ElMessage.success(t('mes.processRoute.createSuccess'))
-      }
-
-      router.push('/mes/process-route')
-    } catch (error: unknown) {
-      ElMessage.error(t('mes.processRoute.submitFailed') + (error as Error).message)
-    } finally {
-      submitting.value = false
-    }
-  })
+  await formRef.value.validate(submitValidatedRoute)
 }
 
 const handleCancel = () => {

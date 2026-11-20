@@ -19,32 +19,57 @@ function requireAuth(authenticated: boolean, router: any, callback: () => void) 
   callback()
 }
 
+function buildOrderStatusLinks(
+  t: (key: string) => string,
+  isAuthenticated: boolean,
+  router: any,
+) {
+  const navigate = (path: string) => () => requireAuth(isAuthenticated, router, () => router.push(path))
+  return [
+    { label: t('profile.orders.all'), icon: 'list.bullet.rectangle', action: navigate('/orders') },
+    { label: t('profile.orders.unpaid'), icon: 'creditcard', action: navigate('/orders?status=unpaid') },
+    { label: t('profile.orders.undelivered'), icon: 'shippingbox', action: navigate('/orders?status=undelivered') },
+    { label: t('profile.orders.refund'), icon: 'arrow.counterclockwise', action: navigate('/orders?status=refund') },
+  ]
+}
+
+function OrderLinksHeader({ colors, t, onSeeAll }: { colors: any; t: (key: string) => string; onSeeAll: () => void }) {
+  return (
+    <View style={styles.orderHeader}>
+      <Text style={[styles.orderTitle, { color: colors.fontColorDark }]}>{t('profile.orders.title')}</Text>
+      <TouchableOpacity style={styles.seeAll} onPress={onSeeAll}>
+        <Text style={{ color: colors.fontColorLight }}>{t('profile.orders.see_all')}</Text>
+        <IconSymbol name="chevron.right" size={12} color={colors.fontColorLight} />
+      </TouchableOpacity>
+    </View>
+  )
+}
+
+function OrderStatusLinkItem({ item, colors }: { item: { label: string; icon: string; action: () => void }; colors: any }) {
+  return (
+    <TouchableOpacity style={styles.orderItem} onPress={item.action}>
+      <IconSymbol name={item.icon as any} size={28} color={colors.primary} />
+      <Text style={[styles.orderLabel, { color: colors.fontColorDark }]}>{item.label}</Text>
+    </TouchableOpacity>
+  )
+}
+
 export default function OrderQuickLinksSection({ colors, isAuthenticated, router }: OrderQuickLinksSectionProps) {
   const { t } = useTranslation()
   const colorScheme = useColorScheme() ?? 'light'
   const themeColors = Colors[colorScheme]
-  const ORDER_STATUS_LINKS = [
-    { label: t('profile.orders.all'), icon: 'list.bullet.rectangle', action: () => requireAuth(isAuthenticated, router, () => router.push('/orders')) },
-    { label: t('profile.orders.unpaid'), icon: 'creditcard', action: () => requireAuth(isAuthenticated, router, () => router.push('/orders?status=unpaid')) },
-    { label: t('profile.orders.undelivered'), icon: 'shippingbox', action: () => requireAuth(isAuthenticated, router, () => router.push('/orders?status=undelivered')) },
-    { label: t('profile.orders.refund'), icon: 'arrow.counterclockwise', action: () => requireAuth(isAuthenticated, router, () => router.push('/orders?status=refund')) },
-  ]
+  const orderStatusLinks = buildOrderStatusLinks(t, isAuthenticated, router)
 
   return (
     <View style={styles.orderSection}>
-      <View style={styles.orderHeader}>
-        <Text style={[styles.orderTitle, { color: colors.fontColorDark }]}>{t('profile.orders.title')}</Text>
-        <TouchableOpacity style={styles.seeAll} onPress={() => requireAuth(isAuthenticated, router, () => router.push('/orders'))}>
-          <Text style={{ color: colors.fontColorLight }}>{t('profile.orders.see_all')}</Text>
-          <IconSymbol name="chevron.right" size={12} color={colors.fontColorLight} />
-        </TouchableOpacity>
-      </View>
+      <OrderLinksHeader
+        colors={colors}
+        t={t}
+        onSeeAll={() => requireAuth(isAuthenticated, router, () => router.push('/orders'))}
+      />
       <View style={styles.orderGrid}>
-        {ORDER_STATUS_LINKS.map((item, index) => (
-          <TouchableOpacity key={index} style={styles.orderItem} onPress={item.action}>
-            <IconSymbol name={item.icon as any} size={28} color={colors.primary} />
-            <Text style={[styles.orderLabel, { color: colors.fontColorDark }]}>{item.label}</Text>
-          </TouchableOpacity>
+        {orderStatusLinks.map((item, index) => (
+          <OrderStatusLinkItem key={index} item={item} colors={colors} />
         ))}
       </View>
     </View>

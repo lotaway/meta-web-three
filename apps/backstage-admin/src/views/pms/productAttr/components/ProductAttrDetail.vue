@@ -86,27 +86,31 @@ const resetProductAttr = () => {
 }
 
 // Handle form submission
+const confirmAndSubmitAttribute = async () => {
+  await ElMessageBox.confirm(t('dialog.confirmSubmit'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    type: 'warning'
+  })
+  if (props.isEdit) {
+    await productAttributeUpdateAPI(Number(route.query.id), productAttr.value)
+    ElMessage.success(t('message.modifySuccess'))
+    router.back()
+    return
+  }
+  await productAttributeCreateAPI(productAttr.value)
+  ElMessage.success(t('message.operationSuccess'))
+  resetForm()
+}
+
 const onSubmit = async () => {
   if (!productAttrFrom.value) return
   const valid = await productAttrFrom.value.validate().catch(() => false)
-  if (valid) {
-    await ElMessageBox.confirm(t('dialog.confirmSubmit'), t('dialog.title'), {
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel'),
-      type: 'warning'
-    })
-    if (props.isEdit) {
-      await productAttributeUpdateAPI(Number(route.query.id), productAttr.value)
-      ElMessage.success(t('message.modifySuccess'))
-      router.back()
-    } else {
-      await productAttributeCreateAPI(productAttr.value)
-      ElMessage.success(t('message.operationSuccess'))
-      resetForm()
-    }
-  } else {
+  if (!valid) {
     ElMessage.error(t('productAttr.verifyFailed'))
+    return
   }
+  await confirmAndSubmitAttribute()
 }
 
 // Reset form

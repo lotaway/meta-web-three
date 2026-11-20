@@ -165,6 +165,22 @@ const removeStep = (index: number) => {
   form.steps.splice(index, 1)
 }
 
+const buildDispositionPayload = (): Partial<NonConformanceDisposition> => ({
+  dispositionCode: form.dispositionCode,
+  dispositionName: form.dispositionName,
+  type: form.type as any,
+  sortOrder: form.sortOrder,
+  steps: form.steps
+})
+
+const saveDisposition = async (data: Partial<NonConformanceDisposition>) => {
+  if (isEdit.value) {
+    await updateNonConformanceDispositionAPI(Number(route.query.id), data)
+    return
+  }
+  await createNonConformanceDispositionAPI(data)
+}
+
 const submitForm = async () => {
   if (!formRef.value) return
 
@@ -173,20 +189,7 @@ const submitForm = async () => {
 
     submitting.value = true
     try {
-      const data: Partial<NonConformanceDisposition> = {
-        dispositionCode: form.dispositionCode,
-        dispositionName: form.dispositionName,
-        type: form.type as any,
-        sortOrder: form.sortOrder,
-        steps: form.steps
-      }
-
-      if (isEdit.value) {
-        await updateNonConformanceDispositionAPI(Number(route.query.id), data)
-      } else {
-        await createNonConformanceDispositionAPI(data)
-      }
-
+      await saveDisposition(buildDispositionPayload())
       ElMessage.success(t('message.saveSuccess'))
       goBack()
     } catch (error) {

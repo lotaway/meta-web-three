@@ -289,21 +289,22 @@ const showCloseOrderDialog = () => {
   closeInfo.value.id = id.value!
 }
 
+const confirmCloseOrder = () => ElMessageBox.confirm(t('oms.order.detail.msgCloseOrderConfirm'), t('oms.order.detail.confirmTitle'), {
+  confirmButtonText: t('common.confirmText'),
+  cancelButtonText: t('common.cancelText'),
+  type: 'warning'
+})
+
 // Handle close order
 const handleCloseOrder = async () => {
   try {
-    await ElMessageBox.confirm(t('oms.order.detail.msgCloseOrderConfirm'), t('oms.order.detail.confirmTitle'), {
-      confirmButtonText: t('common.confirmText'),
-      cancelButtonText: t('common.cancelText'),
-      type: 'warning'
-    })
+    await confirmCloseOrder()
     await orderUpdateCloseAPI({ ids: closeInfo.value.id.toString(), note: closeInfo.value.note })
     closeDialogVisible.value = false
     ElMessage({
       type: 'success',
       message: t('oms.order.detail.msgCloseSuccess')
     })
-
     const response = await getOrderDetailByIdAPI(id.value!)
     order.value = response.data
   } catch (error) {

@@ -251,25 +251,24 @@ const handleDelete = async (row: Project) => {
   }
 }
 
+const applySubmitResult = (code: string | number, successKey: string) => {
+  if (code !== 200) return
+  ElMessage.success(t(successKey))
+  dialogVisible.value = false
+  getList()
+}
+
 const submitForm = async () => {
   if (!formRef.value) return
   await formRef.value.validate()
   try {
     if (isEdit.value) {
       const res = await updateProject(form as ProjectUpdateCommand)
-      if (res.data.code === 200) {
-        ElMessage.success(t('common.updateSuccess'))
-        dialogVisible.value = false
-        getList()
-      }
-    } else {
-      const res = await createProject(form)
-      if (res.data.code === 200) {
-        ElMessage.success(t('common.createSuccess'))
-        dialogVisible.value = false
-        getList()
-      }
+      applySubmitResult(res.data.code, 'common.updateSuccess')
+      return
     }
+    const res = await createProject(form)
+    applySubmitResult(res.data.code, 'common.createSuccess')
   } catch {
     // error
   }

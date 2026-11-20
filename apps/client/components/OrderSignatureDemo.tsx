@@ -26,18 +26,24 @@ function getStatusText(
   return '准备签名'
 }
 
-export default function OrderSignatureDemo({ onSignatureReady }: Props) {
-  const { status, errorMessage, result, signOrder } = useOrderSignature(
-    ORDER_SIGNATURE_DEMO_PAYLOAD,
-  )
-
-  async function handleSignOrder() {
+function createSignOrderHandler(
+  signOrder: () => Promise<string | null>,
+  onSignatureReady: (signature: string) => void,
+) {
+  return async () => {
     const signature = await signOrder()
 
     if (signature) {
       onSignatureReady(signature)
     }
   }
+}
+
+export default function OrderSignatureDemo({ onSignatureReady }: Props) {
+  const { status, errorMessage, result, signOrder } = useOrderSignature(
+    ORDER_SIGNATURE_DEMO_PAYLOAD,
+  )
+  const handleSignOrder = createSignOrderHandler(signOrder, onSignatureReady)
 
   return (
     <View style={styles.container}>

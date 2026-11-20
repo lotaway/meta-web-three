@@ -52,6 +52,365 @@ interface SKUSelectorProps {
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
+type Translate = (key: string) => string
+
+function findCurrentSKU(skus: SKUInfo[], selectedSpecs: { [specId: string]: string }): SKUInfo | null {
+  if (skus.length === 0) return null
+  return skus.find(sku => {
+    return Object.entries(selectedSpecs).every(([specId, optionId]) => {
+      return sku.specs[specId] === optionId
+    })
+  }) || null
+}
+
+function createSpecSelectHandler(setSelectedSpecs: React.Dispatch<React.SetStateAction<{ [specId: string]: string }>>) {
+  return (specId: string, optionId: string) => {
+    setSelectedSpecs(prev => ({
+      ...prev,
+      [specId]: optionId,
+    }))
+  }
+}
+
+function createQuantityChangeHandler(quantity: number, displayStock: number, setQuantity: React.Dispatch<React.SetStateAction<number>>) {
+  return (delta: number) => {
+    const newQty = Math.max(1, Math.min(quantity + delta, displayStock))
+    setQuantity(newQty)
+  }
+}
+
+function createConfirmHandler(
+  isAllSelected: boolean,
+  selectedSpecs: { [specId: string]: string },
+  currentSKU: SKUInfo | null,
+  quantity: number,
+  onConfirm: SKUSelectorProps['onConfirm'],
+) {
+  return () => {
+    if (!isAllSelected) return
+    onConfirm(selectedSpecs, currentSKU, quantity)
+  }
+}
+
+interface SelectorState {
+  selectedSpecs: { [specId: string]: string }
+  quantity: number
+  displayPrice: number
+  displayOriginalPrice: number | undefined
+  displayStock: number
+  isAllSelected: boolean
+  isOutOfStock: boolean
+  handleSpecSelect: (specId: string, optionId: string) => void
+  handleQuantityChange: (delta: number) => void
+  handleConfirm: () => void
+}
+
+interface SelectorStateParams {
+  initialQuantity: number
+  productPrice: number | undefined
+  productOriginalPrice: number | undefined
+  specs: SpecGroup[]
+  skus: SKUInfo[]
+  onConfirm: SKUSelectorProps['onConfirm']
+}
+
+function useSKUSelectorState(params: SelectorStateParams): SelectorState {
+  const { initialQuantity, productPrice, productOriginalPrice, specs, skus, onConfirm } = params
+  const [selectedSpecs, setSelectedSpecs] = useState<{ [specId: string]: string }>({})
+  const [quantity, setQuantity] = useState(initialQuantity)
+  const currentSKU = useMemo(() => findCurrentSKU(skus, selectedSpecs), [selectedSpecs, skus])
+  const displayPrice = currentSKU?.price ?? productPrice ?? 0
+  const displayOriginalPrice = currentSKU?.originalPrice ?? productOriginalPrice
+  const displayStock = currentSKU?.stock ?? 0
+  const isAllSelected = specs.every(spec => selectedSpecs[spec.id])
+  const isOutOfStock = displayStock <= 0
+  const handleSpecSelect = createSpecSelectHandler(setSelectedSpecs)
+  const handleQuantityChange = createQuantityChangeHandler(quantity, displayStock, setQuantity)
+  const handleConfirm = createConfirmHandler(isAllSelected, selectedSpecs, currentSKU, quantity, onConfirm)
+  return {
+    selectedSpecs, quantity, displayPrice, displayOriginalPrice, displayStock,
+    isAllSelected, isOutOfStock, handleSpecSelect, handleQuantityChange, handleConfirm,
+  }
+}
+
+function SKUPrice({ displayPrice, displayOriginalPrice, displayStock, colors, t }: {
+  displayPrice: number;
+  displayOriginalPrice: number | undefined;
+  displayStock: number;
+  colors: any;
+  t: Translate;
+}) {
+  return (
+    <View style={styles.priceSection}>
+      <View style={styles.priceRow}>
+        <Text style={[styles.priceSymbol, { color: colors.primary }]}>¥</Text>
+        <Text style={[styles.priceValue, { color: colors.primary }]}>
+          {displayPrice}
+        </Text>
+      </View>
+      {displayOriginalPrice && displayOriginalPrice > displayPrice && (
+        <Text style={[styles.originalPrice, { color: colors.textSecondary }]}>
+          ¥{displayOriginalPrice}
+        </Text>
+      )}
+      <Text style={[styles.stockText, { color: colors.textSecondary }]}>
+        {t('product.sku_stock')}: {displayStock}
+      </Text>
+    </View>
+  )
+}
+
+function CloseButton({ colors, onClose }: { colors: any; onClose: () => void }) {
+  return (
+    <TouchableOpacity onPress={onClose}>
+      <IconSymbol name="xmark" size={24} color={colors.textSecondary} />
+    </TouchableOpacity>
+  )
+}
+
+function SKUHeader({ productImage, displayPrice, displayOriginalPrice, displayStock, colors, t, onClose }: {
+  productImage?: string;
+  displayPrice: number;
+  displayOriginalPrice: number | undefined;
+  displayStock: number;
+  colors: any;
+  t: Translate;
+  onClose: () => void;
+}) {
+  return (
+    <View style={styles.header}>
+      <View style={styles.productInfo}>
+        {productImage && (
+          <Image source={{ uri: productImage }} style={styles.productImage} />
+        )}
+        <SKUPrice
+          displayPrice={displayPrice}
+          displayOriginalPrice={displayOriginalPrice}
+          displayStock={displayStock}
+          colors={colors}
+          t={t}
+        />
+      </View>
+      <CloseButton colors={colors} onClose={onClose} />
+    </View>
+  )
+}
+
+function SpecOptionContent({ option, isSelected, colors }: {
+  option: SpecOption;
+  isSelected: boolean;
+  colors: any;
+}) {
+  if (option.image) {
+    return <Image source={{ uri: option.image }} style={styles.specOptionImage} />
+  }
+  return (
+    <Text
+      style={[
+        styles.specOptionText,
+        { color: isSelected ? '#fff' : colors.text },
+        option.disabled && { color: colors.textSecondary },
+      ]}
+    >
+      {option.name}
+    </Text>
+  )
+}
+
+function SpecOptionItem({ specId, option, isSelected, colors, onSelect }: {
+  specId: string;
+  option: SpecOption;
+  isSelected: boolean;
+  colors: any;
+  onSelect: (specId: string, optionId: string) => void;
+}) {
+  const handlePress = () => {
+    if (!option.disabled) onSelect(specId, option.id)
+  }
+  return (
+    <TouchableOpacity
+      style={[
+        styles.specOption,
+        isSelected && { backgroundColor: colors.primary, borderColor: colors.primary },
+        option.disabled && styles.specOptionDisabled,
+      ]}
+      onPress={handlePress}
+      disabled={option.disabled}
+    >
+      <SpecOptionContent option={option} isSelected={isSelected} colors={colors} />
+    </TouchableOpacity>
+  )
+}
+
+function SpecGroupItem({ spec, selectedSpecs, colors, onSelect }: {
+  spec: SpecGroup;
+  selectedSpecs: { [specId: string]: string };
+  colors: any;
+  onSelect: (specId: string, optionId: string) => void;
+}) {
+  return (
+    <View style={styles.specGroup}>
+      <Text style={[styles.specGroupName, { color: colors.text }]}>{spec.name}</Text>
+      <View style={styles.specOptions}>
+        {spec.options.map(option => (
+          <SpecOptionItem
+            key={option.id}
+            specId={spec.id}
+            option={option}
+            isSelected={selectedSpecs[spec.id] === option.id}
+            colors={colors}
+            onSelect={onSelect}
+          />
+        ))}
+      </View>
+    </View>
+  )
+}
+
+function QuantityButton({ label, delta, isDisabled, colors, onChange }: {
+  label: string;
+  delta: number;
+  isDisabled: boolean;
+  colors: any;
+  onChange: (delta: number) => void;
+}) {
+  return (
+    <TouchableOpacity
+      style={[styles.quantityBtn, { borderColor: colors.border }]}
+      onPress={() => onChange(delta)}
+      disabled={isDisabled}
+    >
+      <Text style={[styles.quantityBtnText, { color: isDisabled ? colors.textSecondary : colors.text }]}>{label}</Text>
+    </TouchableOpacity>
+  )
+}
+
+function QuantityControl({ quantity, displayStock, colors, t, onChange }: {
+  quantity: number;
+  displayStock: number;
+  colors: any;
+  t: Translate;
+  onChange: (delta: number) => void;
+}) {
+  return (
+    <View style={styles.quantitySection}>
+      <Text style={[styles.quantityLabel, { color: colors.text }]}>{t('product.sku_quantity')}</Text>
+      <View style={styles.quantityControl}>
+        <QuantityButton label="-" delta={-1} isDisabled={quantity <= 1} colors={colors} onChange={onChange} />
+        <Text style={[styles.quantityValue, { color: colors.text }]}>{quantity}</Text>
+        <QuantityButton label="+" delta={1} isDisabled={quantity >= displayStock} colors={colors} onChange={onChange} />
+      </View>
+    </View>
+  )
+}
+
+function ConfirmButton({ isAllSelected, isOutOfStock, actionType, colors, t, onPress }: {
+  isAllSelected: boolean;
+  isOutOfStock: boolean;
+  actionType: 'cart' | 'buy';
+  colors: any;
+  t: Translate;
+  onPress: () => void;
+}) {
+  return (
+    <TouchableOpacity
+      style={[
+        styles.confirmBtn,
+        { backgroundColor: isAllSelected && !isOutOfStock ? colors.primary : colors.border },
+      ]}
+      onPress={onPress}
+      disabled={!isAllSelected || isOutOfStock}
+    >
+      <Text style={styles.confirmBtnText}>
+        {actionType === 'cart' ? t('home.product.add_to_cart') : t('home.product.buy_now')}
+      </Text>
+    </TouchableOpacity>
+  )
+}
+
+function SpecGroupsList({ specs, selectedSpecs, colors, onSelect }: {
+  specs: SpecGroup[];
+  selectedSpecs: { [specId: string]: string };
+  colors: any;
+  onSelect: (specId: string, optionId: string) => void;
+}) {
+  return (
+    <>
+      {specs.map(spec => (
+        <SpecGroupItem
+          key={spec.id}
+          spec={spec}
+          selectedSpecs={selectedSpecs}
+          colors={colors}
+          onSelect={onSelect}
+        />
+      ))}
+    </>
+  )
+}
+
+function SpecsAndQuantity({ specs, colors, t, selectedSpecs, quantity, displayStock, handleSpecSelect, handleQuantityChange }: {
+  specs: SpecGroup[];
+  colors: any;
+  t: Translate;
+} & Pick<SelectorState, 'selectedSpecs' | 'quantity' | 'displayStock' | 'handleSpecSelect' | 'handleQuantityChange'>) {
+  return (
+    <ScrollView showsVerticalScrollIndicator={false} style={styles.specsSection}>
+      <SpecGroupsList specs={specs} selectedSpecs={selectedSpecs} colors={colors} onSelect={handleSpecSelect} />
+      <QuantityControl quantity={quantity} displayStock={displayStock} colors={colors} t={t} onChange={handleQuantityChange} />
+    </ScrollView>
+  )
+}
+
+function SKUBottomSheetContent({
+  productImage,
+  specs,
+  colors,
+  t,
+  onClose,
+  actionType,
+  ...state
+}: {
+  productImage?: string;
+  specs: SpecGroup[];
+  colors: any;
+  t: Translate;
+  onClose: () => void;
+  actionType: 'cart' | 'buy';
+} & SelectorState) {
+  return (
+    <View style={[styles.bottomSheet, { backgroundColor: colors.background }]}>
+      <SKUHeader productImage={productImage} colors={colors} t={t} onClose={onClose} {...state} />
+      <SpecsAndQuantity specs={specs} colors={colors} t={t} {...state} />
+      <ConfirmButton actionType={actionType} colors={colors} t={t} onPress={state.handleConfirm} {...state} />
+    </View>
+  )
+}
+
+function SKUSelectorView({ visible, onClose, ...contentProps }: {
+  visible: boolean;
+  onClose: () => void;
+  productImage?: string;
+  specs: SpecGroup[];
+  colors: any;
+  t: Translate;
+  actionType: 'cart' | 'buy';
+} & SelectorState) {
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <View style={styles.overlay}>
+        <TouchableOpacity style={styles.overlayBg} onPress={onClose} />
+        <SKUBottomSheetContent onClose={onClose} {...contentProps} />
+      </View>
+    </Modal>
+  )
+}
+
 export default function SKUSelector({
   visible,
   productImage,
@@ -68,155 +427,19 @@ export default function SKUSelector({
   const { t } = useTranslation()
   const colorScheme = useColorScheme() ?? 'light'
   const colors = Colors[colorScheme]
-
-  const [selectedSpecs, setSelectedSpecs] = useState<{ [specId: string]: string }>({})
-  const [quantity, setQuantity] = useState(initialQuantity)
-
-  const currentSKU = useMemo(() => {
-    if (skus.length === 0) return null
-    return skus.find(sku => {
-      return Object.entries(selectedSpecs).every(([specId, optionId]) => {
-        return sku.specs[specId] === optionId
-      })
-    }) || null
-  }, [selectedSpecs, skus])
-
-  const displayPrice = currentSKU?.price ?? productPrice ?? 0
-  const displayOriginalPrice = currentSKU?.originalPrice ?? productOriginalPrice
-  const displayStock = currentSKU?.stock ?? 0
-
-  const handleSpecSelect = (specId: string, optionId: string) => {
-    setSelectedSpecs(prev => ({
-      ...prev,
-      [specId]: optionId,
-    }))
-  }
-
-  const handleQuantityChange = (delta: number) => {
-    const newQty = Math.max(1, Math.min(quantity + delta, displayStock))
-    setQuantity(newQty)
-  }
-
-  const isAllSelected = specs.every(spec => selectedSpecs[spec.id])
-  const isOutOfStock = displayStock <= 0
-
-  const handleConfirm = () => {
-    if (!isAllSelected) return
-    onConfirm(selectedSpecs, currentSKU, quantity)
-  }
-
+  const stateParams = { initialQuantity, productPrice, productOriginalPrice, specs, skus, onConfirm }
+  const state = useSKUSelectorState(stateParams)
   return (
-    <Modal
+    <SKUSelectorView
       visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <View style={styles.overlay}>
-        <TouchableOpacity style={styles.overlayBg} onPress={onClose} />
-        <View style={[styles.bottomSheet, { backgroundColor: colors.background }]}>
-          <View style={styles.header}>
-            <View style={styles.productInfo}>
-              {productImage && (
-                <Image source={{ uri: productImage }} style={styles.productImage} />
-              )}
-              <View style={styles.priceSection}>
-                <View style={styles.priceRow}>
-                  <Text style={[styles.priceSymbol, { color: colors.primary }]}>¥</Text>
-                  <Text style={[styles.priceValue, { color: colors.primary }]}>
-                    {displayPrice}
-                  </Text>
-                </View>
-                {displayOriginalPrice && displayOriginalPrice > displayPrice && (
-                  <Text style={[styles.originalPrice, { color: colors.textSecondary }]}>
-                    ¥{displayOriginalPrice}
-                  </Text>
-                )}
-                <Text style={[styles.stockText, { color: colors.textSecondary }]}>
-                  {t('product.sku_stock')}: {displayStock}
-                </Text>
-              </View>
-            </View>
-            <TouchableOpacity onPress={onClose}>
-              <IconSymbol name="xmark" size={24} color={colors.textSecondary} />
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView showsVerticalScrollIndicator={false} style={styles.specsSection}>
-            {specs.map(spec => (
-              <View key={spec.id} style={styles.specGroup}>
-                <Text style={[styles.specGroupName, { color: colors.text }]}>{spec.name}</Text>
-                <View style={styles.specOptions}>
-                  {spec.options.map(option => {
-                    const isSelected = selectedSpecs[spec.id] === option.id
-                    return (
-                      <TouchableOpacity
-                        key={option.id}
-                        style={[
-                          styles.specOption,
-                          isSelected && { backgroundColor: colors.primary, borderColor: colors.primary },
-                          option.disabled && styles.specOptionDisabled,
-                        ]}
-                        onPress={() => !option.disabled && handleSpecSelect(spec.id, option.id)}
-                        disabled={option.disabled}
-                      >
-                        {option.image ? (
-                          <Image source={{ uri: option.image }} style={styles.specOptionImage} />
-                        ) : (
-                          <Text
-                            style={[
-                              styles.specOptionText,
-                              { color: isSelected ? '#fff' : colors.text },
-                              option.disabled && { color: colors.textSecondary },
-                            ]}
-                          >
-                            {option.name}
-                          </Text>
-                        )}
-                      </TouchableOpacity>
-                    )
-                  })}
-                </View>
-              </View>
-            ))}
-
-            <View style={styles.quantitySection}>
-              <Text style={[styles.quantityLabel, { color: colors.text }]}>{t('product.sku_quantity')}</Text>
-              <View style={styles.quantityControl}>
-                <TouchableOpacity
-                  style={[styles.quantityBtn, { borderColor: colors.border }]}
-                  onPress={() => handleQuantityChange(-1)}
-                  disabled={quantity <= 1}
-                >
-                  <Text style={[styles.quantityBtnText, { color: quantity <= 1 ? colors.textSecondary : colors.text }]}>-</Text>
-                </TouchableOpacity>
-                <Text style={[styles.quantityValue, { color: colors.text }]}>{quantity}</Text>
-                <TouchableOpacity
-                  style={[styles.quantityBtn, { borderColor: colors.border }]}
-                  onPress={() => handleQuantityChange(1)}
-                  disabled={quantity >= displayStock}
-                >
-                  <Text style={[styles.quantityBtnText, { color: quantity >= displayStock ? colors.textSecondary : colors.text }]}>+</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </ScrollView>
-
-          <TouchableOpacity
-            style={[
-              styles.confirmBtn,
-              { backgroundColor: isAllSelected && !isOutOfStock ? colors.primary : colors.border },
-            ]}
-            onPress={handleConfirm}
-            disabled={!isAllSelected || isOutOfStock}
-          >
-            <Text style={styles.confirmBtnText}>
-              {actionType === 'cart' ? t('home.product.add_to_cart') : t('home.product.buy_now')}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
+      productImage={productImage}
+      specs={specs}
+      colors={colors}
+      t={t}
+      actionType={actionType}
+      onClose={onClose}
+      {...state}
+    />
   )
 }
 

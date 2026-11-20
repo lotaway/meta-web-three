@@ -10,6 +10,35 @@ interface ProfileHeaderProps {
   colors: any
 }
 
+function UserInfoBox({ nickname }: { nickname: string }) {
+  return (
+    <View style={styles.userInfoBox}>
+      <View style={styles.portraitBox}>
+        <IconSymbol name="person.circle.fill" size={60} color="#fff" />
+      </View>
+      <Text style={styles.username}>{nickname}</Text>
+    </View>
+  )
+}
+
+function VipCard({ t }: { t: (key: string) => string }) {
+  return (
+    <View style={styles.vipCardBox}>
+      <View style={styles.vipHeader}>
+        <View style={styles.vipTitleLine}>
+          <IconSymbol name="crown.fill" size={16} color="#f7d680" />
+          <Text style={styles.vipTitle}>{t('profile.vip_gold')}</Text>
+        </View>
+        <TouchableOpacity style={styles.vipBtn}>
+          <Text style={styles.vipBtnText}>{t('profile.vip_open_now')}</Text>
+        </TouchableOpacity>
+      </View>
+      <Text style={styles.vipDesc}>{t('profile.vip_slogan')}</Text>
+      <Text style={styles.vipFootnote}>{t('profile.vip_note')}</Text>
+    </View>
+  )
+}
+
 export default function ProfileHeader({ user, colors }: ProfileHeaderProps) {
   const { t } = useTranslation()
   const colorScheme = useColorScheme() ?? 'light'
@@ -17,26 +46,8 @@ export default function ProfileHeader({ user, colors }: ProfileHeaderProps) {
   return (
     <View style={styles.userSection}>
       <View style={styles.bgGradient} />
-      <View style={styles.userInfoBox}>
-        <View style={styles.portraitBox}>
-          <IconSymbol name="person.circle.fill" size={60} color="#fff" />
-        </View>
-        <Text style={styles.username}>{user.nickname}</Text>
-      </View>
-
-      <View style={styles.vipCardBox}>
-        <View style={styles.vipHeader}>
-          <View style={styles.vipTitleLine}>
-            <IconSymbol name="crown.fill" size={16} color="#f7d680" />
-            <Text style={styles.vipTitle}>{t('profile.vip_gold')}</Text>
-          </View>
-          <TouchableOpacity style={styles.vipBtn}>
-            <Text style={styles.vipBtnText}>{t('profile.vip_open_now')}</Text>
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.vipDesc}>{t('profile.vip_slogan')}</Text>
-        <Text style={styles.vipFootnote}>{t('profile.vip_note')}</Text>
-      </View>
+      <UserInfoBox nickname={user.nickname} />
+      <VipCard t={t} />
     </View>
   )
 }

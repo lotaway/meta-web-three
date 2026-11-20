@@ -50,21 +50,22 @@ export function useMemoryWarning(threshold: number = 0.9) {
   return { checkMemory, getMemoryInfo }
 }
 
+function checkMemoryWarning(threshold: number, onWarning?: (usage: number) => void): void {
+  const info = getMemoryInfo()
+  if (!info) return
+
+  const usage = info.usedJSHeapSize / info.jsHeapSizeLimit
+  if (usage > threshold && onWarning) {
+    onWarning(usage)
+  }
+}
+
 export function createMemoryMonitor(onWarning?: (usage: number) => void) {
   let intervalId: ReturnType<typeof setInterval> | null = null
 
   const start = (threshold: number = 0.9, interval: number = 5000) => {
     if (typeof window === 'undefined') return
-
-    intervalId = setInterval(() => {
-      const info = getMemoryInfo()
-      if (!info) return
-
-      const usage = info.usedJSHeapSize / info.jsHeapSizeLimit
-      if (usage > threshold && onWarning) {
-        onWarning(usage)
-      }
-    }, interval)
+    intervalId = setInterval(() => checkMemoryWarning(threshold, onWarning), interval)
   }
 
   const stop = () => {

@@ -65,22 +65,25 @@ const getCategoryText = (category: string) => {
   return categoryMap[category] || category
 }
 
+const applyInspectionTypeData = (data?: QcInspectionType) => {
+  if (!data) {
+    ElMessage.error(t('mes.processRoute.dataNotExist'))
+    router.push('/mes/inspectionType')
+    return
+  }
+  Object.assign(detailData, data)
+}
+
 const loadData = async () => {
   if (!route.query.id) {
     ElMessage.error(t('mes.processRoute.paramError'))
     router.push('/mes/inspectionType')
     return
   }
-  
   loading.value = true
   try {
     const res = await getInspectionTypeByIdAPI(Number(route.query.id))
-    if (res.data) {
-      Object.assign(detailData, res.data)
-    } else {
-      ElMessage.error(t('mes.processRoute.dataNotExist'))
-      router.push('/mes/inspectionType')
-    }
+    applyInspectionTypeData(res.data)
   } catch (error) {
     ElMessage.error(t('mes.processRoute.loadFailed'))
     router.push('/mes/inspectionType')

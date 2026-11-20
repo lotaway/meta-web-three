@@ -129,22 +129,24 @@ const loadData = async () => {
   }
 }
 
+const saveInspectionType = async () => {
+  if (isEdit.value) {
+    await updateInspectionTypeAPI(Number(route.query.id), formData)
+    ElMessage.success(t('mes.qc.inspectionType.updateSuccess'))
+  } else {
+    await createInspectionTypeAPI(formData)
+    ElMessage.success(t('mes.qc.inspectionType.createSuccess'))
+  }
+  router.push('/mes/inspectionType')
+}
+
 const handleSubmit = async () => {
   if (!formRef.value) return
-  
   await formRef.value.validate(async (valid) => {
     if (!valid) return
-    
     submitting.value = true
     try {
-      if (isEdit.value) {
-        await updateInspectionTypeAPI(Number(route.query.id), formData)
-        ElMessage.success(t('mes.qc.inspectionType.updateSuccess'))
-      } else {
-        await createInspectionTypeAPI(formData)
-        ElMessage.success(t('mes.qc.inspectionType.createSuccess'))
-      }
-      router.push('/mes/inspectionType')
+      await saveInspectionType()
     } catch (error) {
       ElMessage.error(isEdit.value ? t('mes.qc.inspectionType.deleteFailed') : t('mes.qc.inspectionType.operationFailed'))
     } finally {

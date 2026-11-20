@@ -126,63 +126,145 @@ function ConfirmFooter({ actionType, colors, onConfirm }: {
   );
 }
 
-export function SkuSelector({
-  visible,
+function findMatchingSKU(skus: SKUInfo[]): SKUInfo | null {
+  if (skus.length === 0) return null;
+  return skus[0];
+}
+
+function createSpecSelectHandler(setSelectedSpecs: React.Dispatch<React.SetStateAction<Record<string, string>>>) {
+  return (groupId: string, optionId: string) => {
+    setSelectedSpecs(prev => ({ ...prev, [groupId]: optionId }));
+  };
+}
+
+function createConfirmHandler(
+  selectedSpecs: Record<string, string>,
+  skus: SKUInfo[],
+  quantity: number,
+  onConfirm: SkuSelectorProps['onConfirm'],
+) {
+  return () => {
+    const sku = findMatchingSKU(skus);
+    onConfirm(selectedSpecs, sku, quantity);
+  };
+}
+
+function useSkuSelectorState(skus: SKUInfo[], onConfirm: SkuSelectorProps['onConfirm']) {
+  const [selectedSpecs, setSelectedSpecs] = useState<Record<string, string>>({});
+  const [quantity, setQuantity] = useState(1);
+  const handleSelectSpec = createSpecSelectHandler(setSelectedSpecs);
+  const handleConfirm = createConfirmHandler(selectedSpecs, skus, quantity, onConfirm);
+  return { selectedSpecs, handleSelectSpec, handleConfirm };
+}
+
+function SpecsGroupList({ specs, selectedSpecs, colors, onSelectSpec }: {
+  specs: SpecGroup[];
+  selectedSpecs: Record<string, string>;
+  colors: any;
+  onSelectSpec: (groupId: string, optionId: string) => void;
+}) {
+  return (
+    <ScrollView style={styles.specsContainer}>
+      {specs.map(group => (
+        <SpecGroupView key={group.id} group={group} selectedSpecs={selectedSpecs} colors={colors} onSelectSpec={onSelectSpec} />
+      ))}
+    </ScrollView>
+  );
+}
+
+function SkuSelectorContent({
   productImage,
   productName,
   productPrice,
-  productOriginalPrice,
   specs,
-  skus,
+  selectedSpecs,
+  colors,
   onClose,
+  onSelectSpec,
+  actionType,
   onConfirm,
-  actionType = 'cart'
-}: SkuSelectorProps) {
-  const [selectedSpecs, setSelectedSpecs] = useState<Record<string, string>>({});
-  const [quantity, setQuantity] = useState(1);
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+}: {
+  productImage?: string;
+  productName?: string;
+  productPrice?: string;
+  specs: SpecGroup[];
+  selectedSpecs: Record<string, string>;
+  colors: any;
+  onClose: () => void;
+  onSelectSpec: (groupId: string, optionId: string) => void;
+  actionType: 'cart' | 'buy';
+  onConfirm: () => void;
+}) {
+  return (
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ProductHeader
+        productImage={productImage}
+        productPrice={productPrice}
+        productName={productName}
+        colors={colors}
+        onClose={onClose}
+      />
+      <SpecsGroupList specs={specs} selectedSpecs={selectedSpecs} colors={colors} onSelectSpec={onSelectSpec} />
+      <ConfirmFooter actionType={actionType} colors={colors} onConfirm={onConfirm} />
+    </View>
+  );
+}
 
-  const handleSelectSpec = (groupId: string, optionId: string) => {
-    setSelectedSpecs(prev => ({ ...prev, [groupId]: optionId }));
-  };
+type SkuSelectorModalProps = Pick<SkuSelectorProps, 'visible' | 'productImage' | 'productName' | 'productPrice' | 'specs'> & {
+  actionType: 'cart' | 'buy';
+  colors: any;
+  onClose: () => void;
+  selectedSpecs: Record<string, string>;
+  onSelectSpec: (groupId: string, optionId: string) => void;
+  onConfirm: () => void;
+}
 
-  const findMatchingSKU = (): SKUInfo | null => {
-    if (skus.length === 0) return null;
-    return skus[0];
-  };
-
-  const handleConfirm = () => {
-    const sku = findMatchingSKU();
-    onConfirm(selectedSpecs, sku, quantity);
-  };
-
+function SkuSelectorModal({
+  visible, productImage, productName, productPrice, specs, actionType,
+  colors, onClose, selectedSpecs, onSelectSpec, onConfirm,
+}: SkuSelectorModalProps) {
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View style={styles.overlay}>
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
-          <ProductHeader
-            productImage={productImage}
-            productPrice={productPrice}
-            productName={productName}
-            colors={colors}
-            onClose={onClose}
-          />
-          <ScrollView style={styles.specsContainer}>
-            {specs.map(group => (
-              <SpecGroupView
-                key={group.id}
-                group={group}
-                selectedSpecs={selectedSpecs}
-                colors={colors}
-                onSelectSpec={handleSelectSpec}
-              />
-            ))}
-          </ScrollView>
-          <ConfirmFooter actionType={actionType} colors={colors} onConfirm={handleConfirm} />
-        </View>
+        <SkuSelectorContent
+          productImage={productImage}
+          productName={productName}
+          productPrice={productPrice}
+          specs={specs}
+          selectedSpecs={selectedSpecs}
+          colors={colors}
+          onClose={onClose}
+          onSelectSpec={onSelectSpec}
+          actionType={actionType}
+          onConfirm={onConfirm}
+        />
       </View>
     </Modal>
+  );
+}
+
+export function SkuSelector({
+  visible, productImage, productName, productPrice, productOriginalPrice,
+  specs, skus, onClose, onConfirm, actionType = 'cart'
+}: SkuSelectorProps) {
+  const { selectedSpecs, handleSelectSpec, handleConfirm } = useSkuSelectorState(skus, onConfirm);
+  const colorScheme = useColorScheme() ?? 'light';
+  const colors = Colors[colorScheme];
+
+  return (
+    <SkuSelectorModal
+      visible={visible}
+      productImage={productImage}
+      productName={productName}
+      productPrice={productPrice}
+      specs={specs}
+      selectedSpecs={selectedSpecs}
+      colors={colors}
+      onClose={onClose}
+      onSelectSpec={handleSelectSpec}
+      actionType={actionType}
+      onConfirm={handleConfirm}
+    />
   );
 }
 

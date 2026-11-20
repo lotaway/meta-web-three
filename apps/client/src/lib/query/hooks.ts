@@ -9,6 +9,29 @@ interface UseProductsParams {
   categoryId?: number
 }
 
+function useInvalidatingMutation<TVariables, TResult>(
+  mutationFn: (variables: TVariables) => Promise<TResult>,
+  queryKey: readonly unknown[]
+) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey })
+    },
+  })
+}
+
+async function fetchCart() {
+  const response = await apiClient.get('/mall-trade-service/cart/list')
+  return response
+}
+
+async function fetchProfile() {
+  const response = await apiClient.get('/mall-user-service/user/info')
+  return response
+}
+
 export function useProducts(params?: UseProductsParams) {
   return useQuery({
     queryKey: queryKeys.products.list(params),
@@ -82,46 +105,41 @@ export function useOrderDetail(id: number) {
   })
 }
 
-export function useCart() {
-  const queryClient = useQueryClient()
-
-  const cartQuery = useQuery({
+function useCartQuery() {
+  return useQuery({
     queryKey: queryKeys.cart.items,
-    queryFn: async () => {
-      const response = await apiClient.get('/mall-trade-service/cart/list')
-      return response
-    },
+    queryFn: fetchCart,
   })
+}
 
-  const addItemMutation = useMutation({
-    mutationFn: (data: any) => apiClient.post('/mall-trade-service/cart/add', data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.cart.items })
-    },
-  })
-
-  const removeItemMutation = useMutation({
-    mutationFn: (itemId: number) => apiClient.post('/mall-trade-service/cart/delete', { id: itemId }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.cart.items })
-    },
-  })
-
-  const updateQuantityMutation = useMutation({
-    mutationFn: ({ itemId, quantity }: { itemId: number; quantity: number }) =>
+function useCartMutations() {
+  const addItem = useInvalidatingMutation(
+    (data: any) => apiClient.post('/mall-trade-service/cart/add', data),
+    queryKeys.cart.items
+  )
+  const removeItem = useInvalidatingMutation(
+    (itemId: number) => apiClient.post('/mall-trade-service/cart/delete', { id: itemId }),
+    queryKeys.cart.items
+  )
+  const updateQuantity = useInvalidatingMutation(
+    ({ itemId, quantity }: { itemId: number; quantity: number }) =>
       apiClient.get('/mall-trade-service/cart/update/quantity', { params: { id: itemId, quantity } } as any),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.cart.items })
-    },
-  })
+    queryKeys.cart.items
+  )
+  return { addItem, removeItem, updateQuantity }
+}
+
+export function useCart() {
+  const cartQuery = useCartQuery()
+  const { addItem, removeItem, updateQuantity } = useCartMutations()
 
   return {
     cart: cartQuery.data,
     isLoading: cartQuery.isLoading,
     error: cartQuery.error,
-    addItem: addItemMutation.mutateAsync,
-    removeItem: removeItemMutation.mutateAsync,
-    updateQuantity: updateQuantityMutation.mutateAsync,
+    addItem: addItem.mutateAsync,
+    removeItem: removeItem.mutateAsync,
+    updateQuantity: updateQuantity.mutateAsync,
     refetch: cartQuery.refetch,
   }
 }
@@ -137,29 +155,29 @@ export function useHomeContent() {
   })
 }
 
-export function useUserProfile() {
-  const queryClient = useQueryClient()
-
-  const profileQuery = useQuery({
+function useProfileQuery() {
+  return useQuery({
     queryKey: queryKeys.user.profile,
-    queryFn: async () => {
-      const response = await apiClient.get('/mall-user-service/user/info')
-      return response
-    },
+    queryFn: fetchProfile,
   })
+}
 
-  const updateProfileMutation = useMutation({
-    mutationFn: (data: any) => apiClient.put('/mall-user-service/user/info', data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.user.profile })
-    },
-  })
+function useUpdateProfileMutation() {
+  return useInvalidatingMutation(
+    (data: any) => apiClient.put('/mall-user-service/user/info', data),
+    queryKeys.user.profile
+  )
+}
+
+export function useUserProfile() {
+  const profileQuery = useProfileQuery()
+  const updateProfile = useUpdateProfileMutation()
 
   return {
     profile: profileQuery.data,
     isLoading: profileQuery.isLoading,
     error: profileQuery.error,
-    updateProfile: updateProfileMutation.mutateAsync,
+    updateProfile: updateProfile.mutateAsync,
     refetch: profileQuery.refetch,
   }
 }

@@ -248,22 +248,23 @@ const formatDateTime = (dateStr?: string) => {
   return date.toLocaleString()
 }
 
+const loadChildOrders = async (workOrderId: number) => {
+  const childResponse = await getChildWorkOrdersAPI(workOrderId)
+  childOrders.value = childResponse.data || []
+}
+
 const loadData = async () => {
   const id = Number(route.query.id)
   if (!id) {
     handleBack()
     return
   }
-
   loading.value = true
   try {
     const response = await getWorkOrderByIdAPI(id)
     workOrder.value = response.data || null
-
-    // Load child work orders
     if (workOrder.value?.id) {
-      const childResponse = await getChildWorkOrdersAPI(workOrder.value.id)
-      childOrders.value = childResponse.data || []
+      await loadChildOrders(workOrder.value.id)
     }
   } catch (error) {
     ElMessage.error(t('mes.workOrder.loadFailed'))

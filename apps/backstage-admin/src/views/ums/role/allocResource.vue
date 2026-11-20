@@ -77,12 +77,7 @@ const isAllChecked = (categoryId: number) => {
 }
 
 // Save resource assignment
-const handleSave = async () => {
-  await ElMessageBox.confirm(t('dialog.confirmAssignResource'), t('dialog.title'), {
-    confirmButtonText: t('common.confirm'),
-    cancelButtonText: t('common.cancel'),
-    type: 'warning'
-  })
+const collectResourceIds = () => {
   const checkedResourceIds = new Set<number>()
   if (allResource.value && allResource.value.length > 0) {
     allResource.value.forEach(item => {
@@ -91,7 +86,17 @@ const handleSave = async () => {
       }
     })
   }
-  await roleAllocResourceAPI({ roleId: roleId.value!, resourceIds: Array.from(checkedResourceIds).join(',') })
+  return Array.from(checkedResourceIds).join(',')
+}
+
+const handleSave = async () => {
+  await ElMessageBox.confirm(t('dialog.confirmAssignResource'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    type: 'warning'
+  })
+  const resourceIds = collectResourceIds()
+  await roleAllocResourceAPI({ roleId: roleId.value!, resourceIds })
   ElMessage({
     message: '分配成功',
     type: 'success',

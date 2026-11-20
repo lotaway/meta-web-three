@@ -146,22 +146,24 @@ const loadData = async () => {
   }
 }
 
+const saveSpcControlChart = async () => {
+  if (isEdit.value) {
+    await updateSpcControlChartAPI(Number(route.query.id), formData)
+    ElMessage.success(t('mes.qc.spc.updateSuccess'))
+  } else {
+    await createSpcControlChartAPI(formData)
+    ElMessage.success(t('mes.qc.spc.createSuccess'))
+  }
+  router.push('/mes/spc')
+}
+
 const handleSubmit = async () => {
   if (!formRef.value) return
-  
   await formRef.value.validate(async (valid) => {
     if (!valid) return
-    
     submitting.value = true
     try {
-      if (isEdit.value) {
-        await updateSpcControlChartAPI(Number(route.query.id), formData)
-        ElMessage.success(t('mes.qc.spc.updateSuccess'))
-      } else {
-        await createSpcControlChartAPI(formData)
-        ElMessage.success(t('mes.qc.spc.createSuccess'))
-      }
-      router.push('/mes/spc')
+      await saveSpcControlChart()
     } catch (error) {
       ElMessage.error(t('mes.qc.spc.deleteFailed'))
     } finally {

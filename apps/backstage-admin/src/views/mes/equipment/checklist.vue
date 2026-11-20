@@ -322,26 +322,28 @@ const handleComplete = (row: EquipmentChecklist) => {
   completeDialogVisible.value = true
 }
 
+const saveChecklist = async () => {
+  if (form.id) {
+    await updateChecklistAPI(form.id, form)
+    return t('common.updateSuccess')
+  }
+  await createChecklistAPI(form as any)
+  return t('common.addSuccess')
+}
+
 const submitForm = async () => {
   if (!formRef.value) return
   await formRef.value.validate(async (valid) => {
-    if (valid) {
-      submitLoading.value = true
-      try {
-        if (form.id) {
-          await updateChecklistAPI(form.id, form)
-          ElMessage.success(t('common.updateSuccess'))
-        } else {
-          await createChecklistAPI(form as any)
-          ElMessage.success(t('common.addSuccess'))
-        }
-        dialogVisible.value = false
-        getList()
-      } catch (error) {
-        ElMessage.error(t('common.operationFailed'))
-      } finally {
-        submitLoading.value = false
-      }
+    if (!valid) return
+    submitLoading.value = true
+    try {
+      ElMessage.success(await saveChecklist())
+      dialogVisible.value = false
+      getList()
+    } catch (error) {
+      ElMessage.error(t('common.operationFailed'))
+    } finally {
+      submitLoading.value = false
     }
   })
 }

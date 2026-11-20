@@ -62,19 +62,22 @@ const statusOptions = [
   { value: SettlementStatus.CANCELLED, label: 'settlement.status.cancelled' }
 ]
 
+const buildSettlementQuery = (): SettlementQueryParam => {
+  const params: SettlementQueryParam = {
+    pageNum: listQuery.pageNum,
+    pageSize: listQuery.pageSize
+  }
+  if (listQuery.status) params.status = listQuery.status
+  if (listQuery.merchantId) params.merchantId = listQuery.merchantId
+  if (listQuery.startDate) params.startDate = listQuery.startDate
+  if (listQuery.endDate) params.endDate = listQuery.endDate
+  return params
+}
+
 const getList = async () => {
   listLoading.value = true
   try {
-    const params: SettlementQueryParam = {
-      pageNum: listQuery.pageNum,
-      pageSize: listQuery.pageSize
-    }
-    if (listQuery.status) params.status = listQuery.status
-    if (listQuery.merchantId) params.merchantId = listQuery.merchantId
-    if (listQuery.startDate) params.startDate = listQuery.startDate
-    if (listQuery.endDate) params.endDate = listQuery.endDate
-
-    const response = await getSettlementListAPI(params)
+    const response = await getSettlementListAPI(buildSettlementQuery())
     list.value = response.data.list || []
     total.value = response.data.total || 0
   } catch (error) {

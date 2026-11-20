@@ -15,141 +15,215 @@ interface ActionButtonsProps {
   onOpenSKU: (type: 'cart' | 'buy') => void;
 }
 
+type Translate = (key: string) => string;
+
+async function fetchFavoriteState(productId: number | undefined, t: Translate) {
+  try {
+    const response = await productCollectionApi.listCollection1({
+      xUserId: DEFAULT_USER_ID,
+    });
+    const isFav = response.data?.some((item: any) => item.id === productId);
+    return { isFav: !!isFav, failed: false };
+  } catch (error) {
+    console.error('Failed to load favorite status:', error);
+    Alert.alert(t('favorites.load_failed_title'), t('favorites.load_failed'));
+    return { isFav: false, failed: true };
+  }
+}
+
+async function removeFavoriteRequest(productDetails: any, t: Translate, setIsFavorite: (value: boolean) => void) {
+  await productCollectionApi.deleteCollection2({
+    xUserId: DEFAULT_USER_ID,
+    productId: productDetails.id,
+  });
+  setIsFavorite(false);
+  Alert.alert(t('common.success'), t('favorites.remove_success'));
+}
+
+async function addFavoriteRequest(productDetails: any, t: Translate, setIsFavorite: (value: boolean) => void) {
+  await productCollectionApi.addCollection1({
+    xUserId: DEFAULT_USER_ID,
+    collectionParam: {
+      productId: productDetails.id,
+      productName: productDetails.name,
+      productPic: productDetails.pic,
+    },
+  });
+  setIsFavorite(true);
+  Alert.alert(t('common.success'), t('favorites.add_success'));
+}
+
+async function toggleFavoriteRequest(
+  isFavorite: boolean,
+  productDetails: any,
+  t: Translate,
+  setIsFavorite: (value: boolean) => void,
+) {
+  try {
+    if (isFavorite) {
+      await removeFavoriteRequest(productDetails, t, setIsFavorite);
+    } else {
+      await addFavoriteRequest(productDetails, t, setIsFavorite);
+    }
+  } catch (error) {
+    Alert.alert(t('common.error'), t('favorites.toggle_failed'));
+  }
+}
+
+function useProductFavorite(productDetails: any, t: Translate) {
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  useEffect(() => {
+    fetchFavoriteState(productDetails?.id, t).then((result) => {
+      if (!result.failed) setIsFavorite(result.isFav);
+    });
+  }, [productDetails?.id]);
+
+  const handleToggleFavorite = () => toggleFavoriteRequest(isFavorite, productDetails, t, setIsFavorite);
+  return { isFavorite, handleToggleFavorite };
+}
+
+async function addToCart(productDetails: any, addItem: (item: any) => Promise<unknown>, t: Translate) {
+  try {
+    await addItem({
+      productId: productDetails.id,
+      quantity: 1,
+    });
+    Alert.alert(t('common.success'), t('home.product.added_to_cart'));
+  } catch (error) {
+    Alert.alert(t('common.error'), t('home.product.add_to_cart_failed'));
+  }
+}
+
+function createServiceHandler(productId: number | undefined, t: Translate) {
+  return async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/cs/conversation/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-User-Id': String(DEFAULT_USER_ID) },
+        body: JSON.stringify({ channel: 'PRODUCT', productId, orderId: null }),
+      })
+      const json = await res.json()
+      if (json.data?.sessionId) router.push(`/cs/${json.data.sessionId}`)
+    } catch {
+      Alert.alert(t('common.tip'), t('home.product.chat_failed'))
+    }
+  }
+}
+
+function BottomIconButton({ name, label, color, onPress }: {
+  name: React.ComponentProps<typeof IconSymbol>['name'];
+  label: string;
+  color: string;
+  onPress: () => void;
+}) {
+  return (
+    <TouchableOpacity onPress={onPress} style={styles.bottomIconBtn}>
+      <IconSymbol name={name} size={24} color={color} />
+      <Text style={[styles.bottomIconText, { color }]}>{label}</Text>
+    </TouchableOpacity>
+  );
+}
+
+function BottomLeftBar({ themeColors, t, isFavorite, onToggleFavorite, onServicePress }: {
+  themeColors: any;
+  t: Translate;
+  isFavorite: boolean;
+  onToggleFavorite: () => void;
+  onServicePress: () => void;
+}) {
+  const baseColor = themeColors.fontColorBase;
+  const favoriteColor = isFavorite ? themeColors.primary : baseColor;
+  return (
+    <View style={styles.bottomLeft}>
+      <BottomIconButton name="house" label={t('common.tabs.home')} color={baseColor} onPress={() => router.replace('/(tabs)')} />
+      <BottomIconButton name="cart" label={t('common.tabs.cart')} color={baseColor} onPress={() => router.replace('/(tabs)/cart')} />
+      <BottomIconButton name="message" label={t('home.product.service_title')} color={baseColor} onPress={onServicePress} />
+      <BottomIconButton name={isFavorite ? 'heart.fill' : 'heart'} label={t('profile.menu.favorite')} color={favoriteColor} onPress={onToggleFavorite} />
+    </View>
+  );
+}
+
+function FlashBuyButton({ flashInfo, t, onPress }: { flashInfo: any; t: Translate; onPress: () => void }) {
+  return (
+    <TouchableOpacity
+      style={[styles.actionBtn, styles.flashBuyBtn]}
+      onPress={onPress}
+    >
+      <Text style={styles.actionBtnFlashPrice}>￥{flashInfo.flashPrice}</Text>
+      <Text style={styles.actionBtnText}>{t('home.product.flash_buy')}</Text>
+    </TouchableOpacity>
+  );
+}
+
+function NormalActionButtons({ themeColors, t, onOpenSKU }: {
+  themeColors: any;
+  t: Translate;
+  onOpenSKU: (type: 'cart' | 'buy') => void;
+}) {
+  return (
+    <>
+      <TouchableOpacity
+        style={[styles.actionBtn, styles.cartBtn]}
+        onPress={() => onOpenSKU('cart')}
+      >
+        <Text style={styles.actionBtnText}>{t('home.product.add_to_cart')}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.actionBtn, styles.buyBtn, { backgroundColor: themeColors.primary }]}
+        onPress={() => onOpenSKU('buy')}
+      >
+        <Text style={styles.actionBtnText}>{t('home.product.buy_now')}</Text>
+      </TouchableOpacity>
+    </>
+  );
+}
+
+function BottomRightBar({ themeColors, t, flashInfo, onOpenSKU }: {
+  themeColors: any;
+  t: Translate;
+  flashInfo?: any;
+  onOpenSKU: (type: 'cart' | 'buy') => void;
+}) {
+  if (flashInfo) return <FlashBuyButton flashInfo={flashInfo} t={t} onPress={() => onOpenSKU('buy')} />;
+  return <NormalActionButtons themeColors={themeColors} t={t} onOpenSKU={onOpenSKU} />;
+}
+
+function ActionButtonsView({ themeColors, t, isFavorite, flashInfo, onToggleFavorite, onServicePress, onOpenSKU }: {
+  themeColors: any;
+  t: Translate;
+  isFavorite: boolean;
+  flashInfo?: any;
+  onToggleFavorite: () => void;
+  onServicePress: () => void;
+  onOpenSKU: (type: 'cart' | 'buy') => void;
+}) {
+  return (
+    <View style={[styles.bottomBar, { backgroundColor: themeColors.background }]}>
+      <BottomLeftBar themeColors={themeColors} t={t} isFavorite={isFavorite} onToggleFavorite={onToggleFavorite} onServicePress={onServicePress} />
+      <BottomRightBar themeColors={themeColors} t={t} flashInfo={flashInfo} onOpenSKU={onOpenSKU} />
+    </View>
+  );
+}
+
 export function ActionButtons({ colors, productDetails, flashInfo, onOpenSKU }: ActionButtonsProps) {
   const { t } = useTranslation();
   const { addItem } = useCart();
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isFavorite, handleToggleFavorite } = useProductFavorite(productDetails, t);
   const colorScheme = useColorScheme() ?? 'light';
   const themeColors = Colors[colorScheme];
-
-  useEffect(() => {
-    loadFavoriteStatus();
-  }, [productDetails?.id]);
-
-  const loadFavoriteStatus = async () => {
-    try {
-      const response = await productCollectionApi.listCollection1({
-        xUserId: DEFAULT_USER_ID,
-      });
-      const isFav = response.data?.some((item: any) => item.id === productDetails?.id);
-      setIsFavorite(!!isFav);
-    } catch (error) {
-      console.error('Failed to load favorite status:', error);
-      Alert.alert(t('favorites.load_failed_title'), t('favorites.load_failed'));
-    }
-  };
-
-  const removeFavorite = async () => {
-    await productCollectionApi.deleteCollection2({
-      xUserId: DEFAULT_USER_ID,
-      productId: productDetails.id,
-    });
-    setIsFavorite(false);
-    Alert.alert(t('common.success'), t('favorites.remove_success'));
-  };
-
-  const addFavorite = async () => {
-    await productCollectionApi.addCollection1({
-      xUserId: DEFAULT_USER_ID,
-      collectionParam: {
-        productId: productDetails.id,
-        productName: productDetails.name,
-        productPic: productDetails.pic,
-      },
-    });
-    setIsFavorite(true);
-    Alert.alert(t('common.success'), t('favorites.add_success'));
-  };
-
-  const handleToggleFavorite = async () => {
-    try {
-      if (isFavorite) {
-        await removeFavorite();
-      } else {
-        await addFavorite();
-      }
-    } catch (error) {
-      Alert.alert(t('common.error'), t('favorites.toggle_failed'));
-    }
-  };
-
-  const handleAddToCart = useCallback(async () => {
-    try {
-      await addItem({
-        productId: productDetails.id,
-        quantity: 1,
-      });
-      Alert.alert(t('common.success'), t('home.product.added_to_cart'));
-    } catch (error) {
-      Alert.alert(t('common.error'), t('home.product.add_to_cart_failed'));
-    }
-  }, [addItem, productDetails, t]);
-
+  const handleAddToCart = useCallback(() => addToCart(productDetails, addItem, t), [addItem, productDetails, t]);
+  const handleServicePress = createServiceHandler(productDetails?.id, t);
   return (
-    <View style={[styles.bottomBar, { backgroundColor: themeColors.background }]}>
-      <View style={styles.bottomLeft}>
-        <TouchableOpacity onPress={() => router.replace('/(tabs)')} style={styles.bottomIconBtn}>
-          <IconSymbol name="house" size={24} color={themeColors.fontColorBase} />
-          <Text style={[styles.bottomIconText, { color: themeColors.fontColorBase }]}>{t('common.tabs.home')}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.replace('/(tabs)/cart')} style={styles.bottomIconBtn}>
-          <IconSymbol name="cart" size={24} color={themeColors.fontColorBase} />
-          <Text style={[styles.bottomIconText, { color: themeColors.fontColorBase }]}>{t('common.tabs.cart')}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomIconBtn} onPress={async () => {
-          try {
-            const res = await fetch(`${API_BASE_URL}/cs/conversation/create`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'X-User-Id': String(DEFAULT_USER_ID) },
-              body: JSON.stringify({ channel: 'PRODUCT', productId: productDetails?.id, orderId: null }),
-            })
-            const json = await res.json()
-            if (json.data?.sessionId) router.push(`/cs/${json.data.sessionId}`)
-          } catch {
-            Alert.alert(t('common.tip'), t('home.product.chat_failed'))
-          }
-        }}>
-          <IconSymbol name="message" size={24} color={themeColors.fontColorBase} />
-          <Text style={[styles.bottomIconText, { color: themeColors.fontColorBase }]}>
-            {t('home.product.service_title')}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomIconBtn} onPress={handleToggleFavorite}>
-          <IconSymbol 
-            name={isFavorite ? 'heart.fill' : 'heart'} 
-            size={24} 
-            color={isFavorite ? themeColors.primary : themeColors.fontColorBase} 
-          />
-          <Text style={[styles.bottomIconText, { color: isFavorite ? themeColors.primary : themeColors.fontColorBase }]}>{t('profile.menu.favorite')}</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.bottomRight}>
-        {flashInfo ? (
-          <TouchableOpacity 
-            style={[styles.actionBtn, styles.flashBuyBtn]}
-            onPress={() => onOpenSKU('buy')}
-          >
-            <Text style={styles.actionBtnFlashPrice}>￥{flashInfo.flashPrice}</Text>
-            <Text style={styles.actionBtnText}>{t('home.product.flash_buy')}</Text>
-          </TouchableOpacity>
-        ) : (
-          <>
-            <TouchableOpacity 
-              style={[styles.actionBtn, styles.cartBtn]}
-              onPress={() => onOpenSKU('cart')}
-            >
-              <Text style={styles.actionBtnText}>{t('home.product.add_to_cart')}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.actionBtn, styles.buyBtn, { backgroundColor: themeColors.primary }]}
-              onPress={() => onOpenSKU('buy')}
-            >
-              <Text style={styles.actionBtnText}>{t('home.product.buy_now')}</Text>
-            </TouchableOpacity>
-          </>
-        )}
-      </View>
-    </View>
+    <ActionButtonsView
+      themeColors={themeColors}
+      t={t}
+      isFavorite={isFavorite}
+      flashInfo={flashInfo}
+      onToggleFavorite={handleToggleFavorite}
+      onServicePress={handleServicePress}
+      onOpenSKU={onOpenSKU}
+    />
   );
 }
 

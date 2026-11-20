@@ -158,20 +158,22 @@ onMounted(async () => {
   }
 })
 
+async function saveRule() {
+  if (isEdit.value) {
+    await ruleStore.updateRule(Number(route.query.id), form)
+    ElMessage.success(t('pokayoke.updateSuccess'))
+    return
+  }
+  await ruleStore.createRule(form)
+  ElMessage.success(t('pokayoke.createSuccess'))
+}
+
 async function handleSubmit() {
   if (!formRef.value) return
-  
   await formRef.value.validate()
-  
   submitting.value = true
   try {
-    if (isEdit.value) {
-      await ruleStore.updateRule(Number(route.query.id), form)
-      ElMessage.success(t('pokayoke.updateSuccess'))
-    } else {
-      await ruleStore.createRule(form)
-      ElMessage.success(t('pokayoke.createSuccess'))
-    }
+    await saveRule()
     router.push('/mes/pokayoke')
   } catch (error) {
     ElMessage.error(t('pokayoke.operationFailed'))

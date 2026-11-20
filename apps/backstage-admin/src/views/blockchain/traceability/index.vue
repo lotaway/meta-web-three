@@ -74,6 +74,15 @@ const traceTypeOptions = [
   { label: 'Sale', value: 'SALE' }
 ]
 
+const toListItem = (item: any) => ({
+  id: item.productId,
+  productId: item.productId,
+  productName: item.productName,
+  batchNumber: item.batchNumber || '',
+  status: item.isActive ? 'PRODUCED' : 'EXPIRED',
+  registeredAt: item.productionDate || new Date().toISOString()
+})
+
 const getList = async () => {
   listLoading.value = true
   try {
@@ -82,14 +91,7 @@ const getList = async () => {
       pageSize: listQuery.value.pageSize,
       status: listQuery.value.status || undefined
     })
-    list.value = (res.data.list || []).map((item: any) => ({
-      id: item.productId,
-      productId: item.productId,
-      productName: item.productName,
-      batchNumber: item.batchNumber || '',
-      status: item.isActive ? 'PRODUCED' : 'EXPIRED',
-      registeredAt: item.productionDate || new Date().toISOString()
-    }))
+    list.value = (res.data.list || []).map(toListItem)
   } catch (error) {
     ElMessage.error('Failed to load products')
   } finally {
@@ -147,6 +149,13 @@ const resetEventForm = () => {
   eventFormData.value = { traceId: 0, eventType: 'PRODUCTION', location: '', description: '', operator: '' }
 }
 
+const buildEventPayload = () => ({
+  eventType: eventFormData.value.eventType,
+  location: eventFormData.value.location,
+  description: eventFormData.value.description,
+  operator: eventFormData.value.operator
+})
+
 const handleAddEvent = async () => {
   if (!eventFormData.value.location || !eventFormData.value.description) {
     ElMessage.warning('Please fill in required fields')
@@ -154,12 +163,7 @@ const handleAddEvent = async () => {
   }
   dialogLoading.value = true
   try {
-    await addTraceEventAPI(eventFormData.value.traceId, {
-      eventType: eventFormData.value.eventType,
-      location: eventFormData.value.location,
-      description: eventFormData.value.description,
-      operator: eventFormData.value.operator
-    })
+    await addTraceEventAPI(eventFormData.value.traceId, buildEventPayload())
     ElMessage.success('Event added successfully')
     eventDialogVisible.value = false
     resetEventForm()

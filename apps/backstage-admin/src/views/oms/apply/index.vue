@@ -103,6 +103,20 @@ const handleViewDetail = (index: number, row: OmsOrderReturnApply) => {
   router.push({ path: '/oms/returnApplyDetail', query: { id: row.id } })
 }
 
+const batchDeleteReturnApply = async () => {
+  await ElMessageBox.confirm(t('dialog.confirmDelete'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    type: 'warning'
+  })
+  await returnApplyDeleteByIdsAPI({ ids: multipleSelection.value.map(item => item.id).join(',') })
+  getList()
+  ElMessage({
+    type: 'success',
+    message: '删除成功!'
+  })
+}
+
 // Batch operations
 const handleBatchOperate = async () => {
   if (!multipleSelection.value || multipleSelection.value.length < 1) {
@@ -114,18 +128,7 @@ const handleBatchOperate = async () => {
     return
   }
   if (operateType.value === 1) {
-    // Batch delete
-    await ElMessageBox.confirm(t('dialog.confirmDelete'), t('dialog.title'), {
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel'),
-      type: 'warning'
-    })
-    await returnApplyDeleteByIdsAPI({ ids: multipleSelection.value.map(item => item.id).join(',') })
-    getList()
-    ElMessage({
-      type: 'success',
-      message: '删除成功!'
-    })
+    await batchDeleteReturnApply()
   }
 }
 

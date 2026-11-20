@@ -126,6 +126,20 @@ const handleSubmitVerification = async (row: MallSupplier) => {
   }
 }
 
+const applyVerifyResult = async (row: MallSupplier, value: string) => {
+  if (!value || (value !== 'approve' && value !== 'reject')) {
+    ElMessage.warning('Please enter "approve" or "reject"')
+    return
+  }
+  await verifyMallSupplierAPI({
+    supplierId: row.id!,
+    approved: value === 'approve',
+    reason: value === 'approve' ? 'Approved by admin' : 'Rejected by admin',
+  })
+  ElMessage.success('Verification completed')
+  getList()
+}
+
 const handleVerify = async (row: MallSupplier) => {
   if (!row.id) return
   try {
@@ -133,22 +147,21 @@ const handleVerify = async (row: MallSupplier) => {
       `Approve or reject ${row.supplierName}? Enter "approve" or "reject"`,
       'Verify Supplier',
       { confirmButtonText: 'Submit', cancelButtonText: 'Cancel', inputPlaceholder: 'approve / reject' }
-    ).then(async ({ value }) => {
-      if (!value || (value !== 'approve' && value !== 'reject')) {
-        ElMessage.warning('Please enter "approve" or "reject"')
-        return
-      }
-      await verifyMallSupplierAPI({
-        supplierId: row.id!,
-        approved: value === 'approve',
-        reason: value === 'approve' ? 'Approved by admin' : 'Rejected by admin',
-      })
-      ElMessage.success('Verification completed')
-      getList()
-    })
+    ).then(async ({ value }) => applyVerifyResult(row, value))
   } catch (error) {
     if (error !== 'cancel') ElMessage.error('Failed to verify supplier')
   }
+}
+
+const applyScoreDelta = async (row: MallSupplier, value: string) => {
+  const delta = parseInt(value, 10)
+  if (isNaN(delta)) {
+    ElMessage.warning('Please enter a valid number')
+    return
+  }
+  await updateMallSupplierScoreAPI(row.id!, delta)
+  ElMessage.success('Score updated')
+  getList()
 }
 
 const handleScore = async (row: MallSupplier) => {
@@ -158,16 +171,7 @@ const handleScore = async (row: MallSupplier) => {
       `Update score for ${row.supplierName} (current: ${row.score || 0})`,
       'Update Score',
       { confirmButtonText: 'Submit', cancelButtonText: 'Cancel', inputPlaceholder: 'Score delta (e.g. 5 or -3)' }
-    ).then(async ({ value }) => {
-      const delta = parseInt(value, 10)
-      if (isNaN(delta)) {
-        ElMessage.warning('Please enter a valid number')
-        return
-      }
-      await updateMallSupplierScoreAPI(row.id!, delta)
-      ElMessage.success('Score updated')
-      getList()
-    })
+    ).then(async ({ value }) => applyScoreDelta(row, value))
   } catch (error) {
     if (error !== 'cancel') ElMessage.error('Failed to update score')
   }

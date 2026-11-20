@@ -314,26 +314,28 @@ const handleExecute = (row: MaintenancePlan) => {
   executeDialogVisible.value = true
 }
 
+const saveMaintenancePlan = async () => {
+  if (form.id) {
+    await updateMaintenancePlanAPI(form.id, form)
+    return t('common.updateSuccess')
+  }
+  await createMaintenancePlanAPI(form as any)
+  return t('common.addSuccess')
+}
+
 const submitForm = async () => {
   if (!formRef.value) return
   await formRef.value.validate(async (valid) => {
-    if (valid) {
-      submitLoading.value = true
-      try {
-        if (form.id) {
-          await updateMaintenancePlanAPI(form.id, form)
-          ElMessage.success(t('common.updateSuccess'))
-        } else {
-          await createMaintenancePlanAPI(form as any)
-          ElMessage.success(t('common.addSuccess'))
-        }
-        dialogVisible.value = false
-        getList()
-      } catch (error) {
-        ElMessage.error(t('common.operationFailed'))
-      } finally {
-        submitLoading.value = false
-      }
+    if (!valid) return
+    submitLoading.value = true
+    try {
+      ElMessage.success(await saveMaintenancePlan())
+      dialogVisible.value = false
+      getList()
+    } catch (error) {
+      ElMessage.error(t('common.operationFailed'))
+    } finally {
+      submitLoading.value = false
     }
   })
 }

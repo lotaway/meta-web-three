@@ -62,6 +62,27 @@ function PasskeyDisabledState({
   )
 }
 
+function PasskeyFlowStep({ step, icon, color, description, titleColor, descriptionColor }: {
+  step: string
+  icon: string
+  color: string
+  description: string
+  titleColor: string
+  descriptionColor: string
+}) {
+  return (
+    <View style={styles.stepRow}>
+      <View style={[styles.stepIcon, { backgroundColor: color }]}>
+        <IconSymbol name={icon as never} size={14} color="#fff" />
+      </View>
+      <View style={styles.stepContent}>
+        <Text style={[styles.stepTitle, { color: titleColor }]}>{step}</Text>
+        <Text style={[styles.stepDesc, { color: descriptionColor }]}>{description}</Text>
+      </View>
+    </View>
+  )
+}
+
 function PasskeyFlowCard({
   cardBackgroundColor,
   titleColor,
@@ -74,18 +95,181 @@ function PasskeyFlowCard({
   return (
     <View style={[styles.infoCard, { backgroundColor: cardBackgroundColor }]}>
       <Text style={[styles.infoTitle, { color: titleColor }]}>流程说明</Text>
-      {PASSKEY_FLOW_STEPS.map(({ step, icon, color, description }) => (
-        <View key={step} style={styles.stepRow}>
-          <View style={[styles.stepIcon, { backgroundColor: color }]}>
-            <IconSymbol name={icon as never} size={14} color="#fff" />
-          </View>
-          <View style={styles.stepContent}>
-            <Text style={[styles.stepTitle, { color: titleColor }]}>{step}</Text>
-            <Text style={[styles.stepDesc, { color: descriptionColor }]}>{description}</Text>
-          </View>
-        </View>
+      {PASSKEY_FLOW_STEPS.map((item) => (
+        <PasskeyFlowStep
+          key={item.step}
+          step={item.step}
+          icon={item.icon}
+          color={item.color}
+          description={item.description}
+          titleColor={titleColor}
+          descriptionColor={descriptionColor}
+        />
       ))}
     </View>
+  )
+}
+
+function PasskeyPageHeader({ titleColor, subtitleColor }: {
+  titleColor: string
+  subtitleColor: string
+}) {
+  return (
+    <View style={styles.pageHeader}>
+      <View style={styles.headerIcon}>
+        <IconSymbol name="lock.shield.fill" size={28} color="#fff" />
+      </View>
+      <View style={styles.headerText}>
+        <Text style={[styles.pageTitle, { color: titleColor }]}>
+          Passkey 无密码认证
+        </Text>
+        <Text style={[styles.pageSubtitle, { color: subtitleColor }]}>
+          基于 WebAuthn 的设备生物识别授权示例
+        </Text>
+      </View>
+    </View>
+  )
+}
+
+function TokenCard({ token }: { token: string }) {
+  return (
+    <View style={styles.tokenCard}>
+      <Text style={styles.tokenLabel}>最近获取的 Token（已截断）</Text>
+      <Text style={styles.tokenValue} numberOfLines={2}>
+        {token.slice(0, 60)}…
+      </Text>
+    </View>
+  )
+}
+
+function FullExampleSection({ colors, lastToken, onLoginSuccess }: {
+  colors: any
+  lastToken: string | null
+  onLoginSuccess: (token: string) => void
+}) {
+  return (
+    <>
+      <Text style={[styles.sectionHeader, { color: colors.fontColorBase }]}>完整示例</Text>
+      <PasskeyAuthDemo
+        userId={DEMO_USER.id}
+        userName={DEMO_USER.nickname}
+        onLoginSuccess={onLoginSuccess}
+      />
+      {lastToken ? <TokenCard token={lastToken} /> : null}
+    </>
+  )
+}
+
+function PaymentAmount({ colors }: { colors: any }) {
+  return (
+    <View style={styles.payInfo}>
+      <Text style={[styles.payTitle, { color: colors.fontColorDark }]}>订单金额</Text>
+      <Text style={styles.payAmount}>¥ 299.00</Text>
+    </View>
+  )
+}
+
+function PaymentAuthActions() {
+  return (
+    <PasskeyAuthBeta
+      label="Face ID 确认支付"
+      onAuthorized={() => {
+        Alert.alert('支付授权通过', '订单已提交')
+      }}
+      onError={(message) => {
+        Alert.alert('授权失败', message)
+      }}
+    />
+  )
+}
+
+function PaymentAuthCard({ colors, cardBackgroundColor }: {
+  colors: any
+  cardBackgroundColor: string
+}) {
+  return (
+    <>
+      <Text style={[styles.sectionHeader, { color: colors.fontColorBase }]}>
+        场景示例：支付前授权
+      </Text>
+      <View style={[styles.payCard, { backgroundColor: cardBackgroundColor }]}>
+        <PaymentAmount colors={colors} />
+        <Text style={[styles.payHint, { color: colors.fontColorLight }]}>
+          请通过生物识别确认支付
+        </Text>
+        <PaymentAuthActions />
+      </View>
+    </>
+  )
+}
+
+type PasskeyEnabledViewProps = {
+  colors: any
+  cardBackgroundColor: string
+  lastToken: string | null
+  onLoginSuccess: (token: string) => void
+}
+
+function PasskeyIntroSections({ colors, cardBackgroundColor }: Pick<PasskeyEnabledViewProps, 'colors' | 'cardBackgroundColor'>) {
+  return (
+    <>
+      <PasskeyPageHeader
+        titleColor={colors.fontColorDark}
+        subtitleColor={colors.fontColorLight}
+      />
+      <PasskeyFlowCard
+        cardBackgroundColor={cardBackgroundColor}
+        titleColor={colors.fontColorDark}
+        descriptionColor={colors.fontColorLight}
+      />
+    </>
+  )
+}
+
+function PasskeyDemoSections({ colors, cardBackgroundColor, lastToken, onLoginSuccess }: Pick<PasskeyEnabledViewProps, 'colors' | 'cardBackgroundColor' | 'lastToken' | 'onLoginSuccess'>) {
+  return (
+    <>
+      <FullExampleSection
+        colors={colors}
+        lastToken={lastToken}
+        onLoginSuccess={onLoginSuccess}
+      />
+      <PaymentAuthCard colors={colors} cardBackgroundColor={cardBackgroundColor} />
+    </>
+  )
+}
+
+function PasskeyDemoEnabledView(props: PasskeyEnabledViewProps) {
+  return (
+    <SafeAreaView style={[styles.safe, { backgroundColor: props.colors.background }]}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <PasskeyIntroSections {...props} />
+        <PasskeyDemoSections {...props} />
+        <View style={styles.bottomSpace} />
+      </ScrollView>
+    </SafeAreaView>
+  )
+}
+
+function createLoginSuccessHandler(setLastToken: (token: string) => void) {
+  return (token: string) => {
+    setLastToken(token)
+    Alert.alert(
+      'Passkey 登录成功',
+      `JWT Token 已获取\n\n${token.slice(0, 40)}…`,
+      [{ text: '好的' }],
+    )
+  }
+}
+
+function PasskeyDisabledView({ colors }: { colors: any }) {
+  return (
+    <PasskeyDisabledState
+      backgroundColor={colors.background}
+      titleColor={colors.fontColorDark}
+      descriptionColor={colors.fontColorLight}
+      iconColor={colors.fontColorDisabled}
+    />
   )
 }
 
@@ -94,89 +278,19 @@ export default function PasskeyDemoScreen() {
   const colors = Colors[colorScheme]
   const [lastToken, setLastToken] = useState<string | null>(null)
   const cardBackgroundColor = colors.background === '#f8f8f8' ? '#fff' : '#1e2030'
+  const handleLoginSuccess = createLoginSuccessHandler(setLastToken)
 
   if (!FEATURE_PASSKEY_ENABLED) {
-    return (
-      <PasskeyDisabledState
-        backgroundColor={colors.background}
-        titleColor={colors.fontColorDark}
-        descriptionColor={colors.fontColorLight}
-        iconColor={colors.fontColorDisabled}
-      />
-    )
+    return <PasskeyDisabledView colors={colors} />
   }
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <View style={styles.pageHeader}>
-          <View style={styles.headerIcon}>
-            <IconSymbol name="lock.shield.fill" size={28} color="#fff" />
-          </View>
-          <View style={styles.headerText}>
-            <Text style={[styles.pageTitle, { color: colors.fontColorDark }]}>
-              Passkey 无密码认证
-            </Text>
-            <Text style={[styles.pageSubtitle, { color: colors.fontColorLight }]}>
-              基于 WebAuthn 的设备生物识别授权示例
-            </Text>
-          </View>
-        </View>
-
-        <PasskeyFlowCard
-          cardBackgroundColor={cardBackgroundColor}
-          titleColor={colors.fontColorDark}
-          descriptionColor={colors.fontColorLight}
-        />
-
-        <Text style={[styles.sectionHeader, { color: colors.fontColorBase }]}>完整示例</Text>
-        <PasskeyAuthDemo
-          userId={DEMO_USER.id}
-          userName={DEMO_USER.nickname}
-          onLoginSuccess={(token) => {
-            setLastToken(token)
-            Alert.alert(
-              'Passkey 登录成功',
-              `JWT Token 已获取\n\n${token.slice(0, 40)}…`,
-              [{ text: '好的' }],
-            )
-          }}
-        />
-
-        {lastToken ? (
-          <View style={styles.tokenCard}>
-            <Text style={styles.tokenLabel}>最近获取的 Token（已截断）</Text>
-            <Text style={styles.tokenValue} numberOfLines={2}>
-              {lastToken.slice(0, 60)}…
-            </Text>
-          </View>
-        ) : null}
-
-        <Text style={[styles.sectionHeader, { color: colors.fontColorBase }]}>
-          场景示例：支付前授权
-        </Text>
-        <View style={[styles.payCard, { backgroundColor: cardBackgroundColor }]}>
-          <View style={styles.payInfo}>
-            <Text style={[styles.payTitle, { color: colors.fontColorDark }]}>订单金额</Text>
-            <Text style={styles.payAmount}>¥ 299.00</Text>
-          </View>
-          <Text style={[styles.payHint, { color: colors.fontColorLight }]}>
-            请通过生物识别确认支付
-          </Text>
-          <PasskeyAuthBeta
-            label="Face ID 确认支付"
-            onAuthorized={() => {
-              Alert.alert('支付授权通过', '订单已提交')
-            }}
-            onError={(message) => {
-              Alert.alert('授权失败', message)
-            }}
-          />
-        </View>
-
-        <View style={styles.bottomSpace} />
-      </ScrollView>
-    </SafeAreaView>
+    <PasskeyDemoEnabledView
+      colors={colors}
+      cardBackgroundColor={cardBackgroundColor}
+      lastToken={lastToken}
+      onLoginSuccess={handleLoginSuccess}
+    />
   )
 }
 

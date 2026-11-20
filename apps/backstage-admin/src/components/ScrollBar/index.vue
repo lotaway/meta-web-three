@@ -13,29 +13,30 @@ const top = ref(0)
 const scrollContainer = ref<HTMLDivElement>()
 const scrollWrapper = ref<HTMLDivElement>()
 
+const scrollUp = (eventDelta: number, containerHeight: number, wrapperHeight: number) => {
+  if (containerHeight - delta >= wrapperHeight) {
+    top.value = 0
+    return
+  }
+  const lowerBoundary = -(wrapperHeight - containerHeight + delta)
+  if (top.value < lowerBoundary) return
+  top.value = Math.max(top.value + eventDelta, containerHeight - wrapperHeight - delta)
+}
+
 // Handle scroll events
 const handleScroll = (e: WheelEvent) => {
   const eventDelta = -e.deltaY * 3
   const $container = scrollContainer.value
   if (!$container) return
-  const $containerHeight = $container.offsetHeight
   const $wrapper = scrollWrapper.value
   if (!$wrapper) return
-  const $wrapperHeight = $wrapper.offsetHeight
-
+  const containerHeight = $container.offsetHeight
+  const wrapperHeight = $wrapper.offsetHeight
   if (eventDelta > 0) {
     top.value = Math.min(0, top.value + eventDelta)
-  } else {
-    if ($containerHeight - delta < $wrapperHeight) {
-      if (top.value < -($wrapperHeight - $containerHeight + delta)) {
-        // No need to reassign when the boundary is already reached
-      } else {
-        top.value = Math.max(top.value + eventDelta, $containerHeight - $wrapperHeight - delta)
-      }
-    } else {
-      top.value = 0
-    }
+    return
   }
+  scrollUp(eventDelta, containerHeight, wrapperHeight)
 }
 </script>
 

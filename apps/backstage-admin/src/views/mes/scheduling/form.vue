@@ -127,23 +127,27 @@ async function loadOrder(id: number) {
   }
 }
 
+function buildSchedulePayload() {
+  return {
+    scheduleNo: form.value.scheduleNo,
+    orderNo: form.value.orderNo,
+    productCode: form.value.productCode,
+    productName: form.value.productName,
+    quantity: form.value.quantity,
+    priority: form.value.priority as any,
+    dueDate: form.value.dueDate || undefined,
+    workshopId: form.value.workshopId,
+    routeCode: form.value.routeCode || undefined,
+  }
+}
+
 async function handleSubmit() {
   const valid = await formRef.value.validate().catch(() => false)
   if (!valid) return
 
   submitting.value = true
   try {
-    await createScheduleOrderAPI({
-      scheduleNo: form.value.scheduleNo,
-      orderNo: form.value.orderNo,
-      productCode: form.value.productCode,
-      productName: form.value.productName,
-      quantity: form.value.quantity,
-      priority: form.value.priority as any,
-      dueDate: form.value.dueDate || undefined,
-      workshopId: form.value.workshopId,
-      routeCode: form.value.routeCode || undefined,
-    })
+    await createScheduleOrderAPI(buildSchedulePayload())
     ElMessage.success(t('mes.scheduling.createSuccess'))
     router.push({ name: 'scheduling' })
   } catch {

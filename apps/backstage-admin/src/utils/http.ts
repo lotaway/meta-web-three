@@ -91,39 +91,48 @@ service.interceptors.request.use(
   e => Promise.reject(e),
 )
 
+function showErrorMessage(message: string): void {
+  ElMessage({
+    message,
+    type: 'error',
+    duration: MESSAGE_DURATION,
+  })
+}
+
+function performRelogin(): void {
+  const userStore = useUserStore()
+  userStore.fedLogout()
+  location.reload()
+}
+
+function confirmRelogin(): void {
+  ElMessageBox.confirm(t('http.logoutMessage'), t('http.logoutTitle'), {
+    confirmButtonText: t('http.reLogin'),
+    cancelButtonText: t('http.stayCurrentPage'),
+    type: 'warning',
+  }).then(performRelogin)
+}
+
+function reportBusinessError(res: CommonResult<unknown>, code: string): void {
+  showErrorMessage(res.message)
+  if (code !== '401') return
+  confirmRelogin()
+}
+
 // Response interceptor
 service.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data as CommonResult<unknown>
     const code = String(res.code)
-    if (code !== '0000') {
-      ElMessage({
-        message: res.message,
-        type: 'error',
-        duration: MESSAGE_DURATION,
-      })
-      if (code === '401') {
-        ElMessageBox.confirm(t('http.logoutMessage'), t('http.logoutTitle'), {
-          confirmButtonText: t('http.reLogin'),
-          cancelButtonText: t('http.stayCurrentPage'),
-          type: 'warning',
-        }).then(() => {
-          const userStore = useUserStore()
-          userStore.fedLogout()
-          location.reload()
-        })
-      }
-      return Promise.reject(new Error(res.message))
+    if (code === '0000') {
+      // Return the full response object, with .data for callers to access the payload
+      return response
     }
-    // Return the full response object, with .data for callers to access the payload
-    return response
+    reportBusinessError(res, code)
+    return Promise.reject(new Error(res.message))
   },
   error => {
-    ElMessage({
-      message: error.message || 'Request failed',
-      type: 'error',
-      duration: MESSAGE_DURATION,
-    })
+    showErrorMessage(error.message || 'Request failed')
     return Promise.reject(error)
   },
 )

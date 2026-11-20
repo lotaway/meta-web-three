@@ -11,6 +11,92 @@ interface CommentPreviewProps {
   colors: any;
 }
 
+async function fetchComments(productId: number, setComments: (comments: any[]) => void, setLoading: (loading: boolean) => void) {
+  try {
+    const response = await commentApi.listCommentsByProduct({ productId });
+    if (response.data && Array.isArray(response.data)) {
+      setComments(response.data.slice(0, 3));
+    }
+  } catch (error) {
+    console.error('Failed to load comments:', error);
+    Alert.alert('Error', 'Failed to load comments.');
+  } finally {
+    setLoading(false);
+  }
+}
+
+function CommentHeader({ countText, themeColors }: { countText: string; themeColors: any }) {
+  return (
+    <View style={styles.commentHeader}>
+      <Text style={[styles.commentTitle, { color: themeColors.fontColorDark }]}>商品评价</Text>
+      <Text style={[styles.commentCount, { color: themeColors.fontColorLight }]}>{countText}</Text>
+    </View>
+  );
+}
+
+function EmptyComments({ themeColors }: { themeColors: any }) {
+  return (
+    <View style={[styles.commentSection, { backgroundColor: '#fff' }]}>
+      <CommentHeader countText="暂无评价" themeColors={themeColors} />
+      <View style={styles.commentEmpty}>
+        <IconSymbol name={'chatbubble' as any} size={40} color={themeColors.fontColorDisabled} />
+        <Text style={[styles.commentEmptyText, { color: themeColors.fontColorDisabled }]}>
+          暂无用户评价
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+function CommentStars({ star, themeColors }: { star: number; themeColors: any }) {
+  return (
+    <View style={styles.commentStars}>
+      {[1, 2, 3, 4, 5].map((starValue) => (
+        <IconSymbol
+          key={starValue}
+          name={starValue <= star ? 'star.fill' : 'star'}
+          size={12}
+          color={starValue <= star ? '#FFD700' : themeColors.fontColorDisabled}
+        />
+      ))}
+    </View>
+  );
+}
+
+function CommentUserRow({ comment, themeColors }: { comment: any; themeColors: any }) {
+  return (
+    <View style={styles.commentUserRow}>
+      <View style={[styles.commentAvatar, { backgroundColor: themeColors.primary }]}>
+        <Text style={styles.commentAvatarText}>
+          {comment.memberNickName ? comment.memberNickName.charAt(0) : 'U'}
+        </Text>
+      </View>
+      <View style={styles.commentUserInfo}>
+        <Text style={[styles.commentUserName, { color: themeColors.fontColorDark }]}>
+          {comment.memberNickName || '匿名用户'}
+        </Text>
+        <CommentStars star={comment.star} themeColors={themeColors} />
+      </View>
+    </View>
+  );
+}
+
+function CommentItem({ comment, themeColors }: { comment: any; themeColors: any }) {
+  return (
+    <View style={styles.commentItem}>
+      <CommentUserRow comment={comment} themeColors={themeColors} />
+      <Text style={[styles.commentContent, { color: themeColors.fontColorDark }]} numberOfLines={2}>
+        {comment.content}
+      </Text>
+      {comment.productAttribute && (
+        <Text style={[styles.commentAttr, { color: themeColors.fontColorLight }]}>
+          {comment.productAttribute}
+        </Text>
+      )}
+    </View>
+  );
+}
+
 export function CommentPreview({ productId, productName, colors }: CommentPreviewProps) {
   const [comments, setComments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,82 +104,17 @@ export function CommentPreview({ productId, productName, colors }: CommentPrevie
   const themeColors = Colors[colorScheme];
 
   useEffect(() => {
-    loadComments();
+    fetchComments(productId, setComments, setLoading);
   }, [productId]);
 
-  const loadComments = async () => {
-    try {
-      const response = await commentApi.listCommentsByProduct({ productId });
-      if (response.data && Array.isArray(response.data)) {
-        setComments(response.data.slice(0, 3));
-      }
-    } catch (error) {
-      console.error('Failed to load comments:', error);
-      Alert.alert('Error', 'Failed to load comments.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (loading) return null;
-  if (comments.length === 0) {
-    return (
-      <View style={[styles.commentSection, { backgroundColor: '#fff' }]}>
-        <View style={styles.commentHeader}>
-          <Text style={[styles.commentTitle, { color: themeColors.fontColorDark }]}>商品评价</Text>
-          <Text style={[styles.commentCount, { color: themeColors.fontColorLight }]}>暂无评价</Text>
-        </View>
-        <View style={styles.commentEmpty}>
-          <IconSymbol name={'chatbubble' as any} size={40} color={themeColors.fontColorDisabled} />
-          <Text style={[styles.commentEmptyText, { color: themeColors.fontColorDisabled }]}>
-            暂无用户评价
-          </Text>
-        </View>
-      </View>
-    );
-  }
+  if (comments.length === 0) return <EmptyComments themeColors={themeColors} />;
 
   return (
     <View style={[styles.commentSection, { backgroundColor: '#fff' }]}>
-      <View style={styles.commentHeader}>
-        <Text style={[styles.commentTitle, { color: themeColors.fontColorDark }]}>商品评价</Text>
-        <Text style={[styles.commentCount, { color: themeColors.fontColorLight }]}>
-          {comments.length} 条评价
-        </Text>
-      </View>
+      <CommentHeader countText={`${comments.length} 条评价`} themeColors={themeColors} />
       {comments.map((comment) => (
-        <View key={comment.id} style={styles.commentItem}>
-          <View style={styles.commentUserRow}>
-            <View style={[styles.commentAvatar, { backgroundColor: themeColors.primary }]}>
-              <Text style={styles.commentAvatarText}>
-                {comment.memberNickName ? comment.memberNickName.charAt(0) : 'U'}
-              </Text>
-            </View>
-            <View style={styles.commentUserInfo}>
-              <Text style={[styles.commentUserName, { color: themeColors.fontColorDark }]}>
-                {comment.memberNickName || '匿名用户'}
-              </Text>
-              <View style={styles.commentStars}>
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <IconSymbol
-                    key={star}
-                    name={star <= comment.star ? 'star.fill' : 'star'}
-                    size={12}
-                    color={star <= comment.star ? '#FFD700' : themeColors.fontColorDisabled}
-                  />
-                ))}
-              </View>
-            </View>
-          </View>
-          <Text style={[styles.commentContent, { color: themeColors.fontColorDark }]} numberOfLines={2}>
-            {comment.content}
-          </Text>
-          {comment.productAttribute && (
-            <Text style={[styles.commentAttr, { color: themeColors.fontColorLight }]}>
-              {comment.productAttribute}
-            </Text>
-          )}
-        </View>
+        <CommentItem key={comment.id} comment={comment} themeColors={themeColors} />
       ))}
     </View>
   );

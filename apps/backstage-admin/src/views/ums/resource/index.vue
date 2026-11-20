@@ -139,24 +139,28 @@ const handleUpdate = (index: number, row: UmsResource) => {
 }
 
 // Handle dialog confirmation
+const confirmResourceSave = () => ElMessageBox.confirm(t('dialog.confirmAction'), t('dialog.title'), {
+  confirmButtonText: t('common.confirm'),
+  cancelButtonText: t('common.cancel'),
+  type: 'warning',
+})
+
+const saveResource = async () => {
+  if (isEdit.value) {
+    await resourceUpdateAPI(resource.value.id!, resource.value)
+    ElMessage.success(t('message.modifySuccess'))
+  } else {
+    await resourceCreateAPI(resource.value)
+    ElMessage.success(t('message.operationSuccess'))
+  }
+  dialogVisible.value = false
+  getList()
+}
+
 const handleDialogConfirm = async () => {
-  await ElMessageBox.confirm(t('dialog.confirmAction'), t('dialog.title'), {
-    confirmButtonText: t('common.confirm'),
-    cancelButtonText: t('common.cancel'),
-    type: 'warning',
-  })
+  await confirmResourceSave()
   try {
-    if (isEdit.value) {
-      await resourceUpdateAPI(resource.value.id!, resource.value)
-      ElMessage.success(t('message.modifySuccess'))
-      dialogVisible.value = false
-      getList()
-    } else {
-      await resourceCreateAPI(resource.value)
-      ElMessage.success(t('message.operationSuccess'))
-      dialogVisible.value = false
-      getList()
-    }
+    await saveResource()
   } catch (error) {
     console.error('Failed to perform operation:', error)
   }

@@ -46,7 +46,7 @@ onMounted(() => {
 })
 
 // Save menu assignment
-const handleSave = async () => {
+const collectMenuIds = () => {
   const checkedNodes = treeRef.value!.getCheckedNodes() as TreeNodeData[]
   const checkedMenuIds = new Set<number>()
   checkedNodes.forEach(item => {
@@ -55,12 +55,17 @@ const handleSave = async () => {
       checkedMenuIds.add(item.parentId)
     }
   })
+  return Array.from(checkedMenuIds).join(',')
+}
+
+const handleSave = async () => {
+  const menuIds = collectMenuIds()
   await ElMessageBox.confirm(t('dialog.confirmAssignMenu'), t('dialog.title'), {
     confirmButtonText: t('common.confirm'),
     cancelButtonText: t('common.cancel'),
     type: 'warning'
   })
-  await roleAllocMenuAPI({ roleId: roleId.value!, menuIds: Array.from(checkedMenuIds).join(',') })
+  await roleAllocMenuAPI({ roleId: roleId.value!, menuIds })
   ElMessage({
     message: '分配成功',
     type: 'success',

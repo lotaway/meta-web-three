@@ -83,10 +83,7 @@ function RecommendationList({ items, colors }: { items: any[]; colors: any }) {
   );
 }
 
-export function RelatedProducts({ productId, userId = 1, scene = 'similar', colors }: RelatedProductsProps) {
-  const { t } = useTranslation();
-  const colorScheme = useColorScheme() ?? 'light';
-  const themeColors = Colors[colorScheme];
+function useRecommendations(userId: number, scene: string) {
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -94,35 +91,48 @@ export function RelatedProducts({ productId, userId = 1, scene = 'similar', colo
     let mounted = true;
     setLoading(true);
     recommendationHooks.getRecommendationsByScene(userId, scene, 10)
-      .then((data) => {
-        if (mounted) setRecommendations((data as any)?.recommendationsByScene ?? []);
-      })
-      .catch(() => {
-        if (mounted) setRecommendations([]);
-      })
-      .finally(() => {
-        if (mounted) setLoading(false);
-      });
+      .then((data) => { if (mounted) setRecommendations((data as any)?.recommendationsByScene ?? []); })
+      .catch(() => { if (mounted) setRecommendations([]); })
+      .finally(() => { if (mounted) setLoading(false); });
     return () => { mounted = false; };
   }, [userId, scene]);
 
-  const renderContent = () => {
-    if (loading) return <LoadingState colors={themeColors} />;
-    if (recommendations.length === 0) return <EmptyState colors={themeColors} />;
-    return <RecommendationList items={recommendations} colors={themeColors} />;
-  };
+  return { recommendations, loading };
+}
+
+function RelatedProductsHeader({ colors, t }: { colors: any; t: (key: string) => string }) {
+  return (
+    <View style={styles.header}>
+      <View style={styles.headerLine} />
+      <Text style={[styles.headerText, { color: colors.fontColorDark }]}>
+        {t('home.product.related.title')}
+      </Text>
+      <View style={styles.headerLine} />
+    </View>
+  );
+}
+
+function RelatedContent({ loading, recommendations, colors }: {
+  loading: boolean;
+  recommendations: any[];
+  colors: any;
+}) {
+  if (loading) return <LoadingState colors={colors} />;
+  if (recommendations.length === 0) return <EmptyState colors={colors} />;
+  return <RecommendationList items={recommendations} colors={colors} />;
+}
+
+export function RelatedProducts({ productId, userId = 1, scene = 'similar', colors }: RelatedProductsProps) {
+  const { t } = useTranslation();
+  const colorScheme = useColorScheme() ?? 'light';
+  const themeColors = Colors[colorScheme];
+  const { recommendations, loading } = useRecommendations(userId, scene);
 
   return (
     <View style={[styles.container, { backgroundColor: '#fff' }]}>
-      <View style={styles.header}>
-        <View style={styles.headerLine} />
-        <Text style={[styles.headerText, { color: themeColors.fontColorDark }]}>
-          {t('home.product.related.title')}
-        </Text>
-        <View style={styles.headerLine} />
-      </View>
+      <RelatedProductsHeader colors={themeColors} t={t} />
       <View style={styles.content}>
-        {renderContent()}
+        <RelatedContent loading={loading} recommendations={recommendations} colors={themeColors} />
       </View>
     </View>
   );

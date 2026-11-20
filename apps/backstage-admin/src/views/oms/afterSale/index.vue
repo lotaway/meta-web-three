@@ -152,19 +152,29 @@ const handleSubmitProcess = async () => {
   }
 }
 
+const getSelectedAfterSaleIds = () => multipleSelection.value.map(item => item.id!).filter(Boolean)
+
+const confirmBatchApprove = () => ElMessageBox.confirm('Approve selected after-sale applications?', 'Confirm', {
+  confirmButtonText: 'Confirm',
+  cancelButtonText: 'Cancel',
+  type: 'warning'
+})
+
+const confirmBatchReject = () => ElMessageBox.prompt('Please enter reject reason:', 'Batch Reject', {
+  confirmButtonText: 'Confirm',
+  cancelButtonText: 'Cancel',
+  inputPattern: /.+/,
+  inputErrorMessage: 'Reason is required'
+})
+
 const handleBatchApprove = async () => {
   if (multipleSelection.value.length === 0) {
     ElMessage.warning('Please select items to approve')
     return
   }
   try {
-    await ElMessageBox.confirm('Approve selected after-sale applications?', 'Confirm', {
-      confirmButtonText: 'Confirm',
-      cancelButtonText: 'Cancel',
-      type: 'warning'
-    })
-    const ids = multipleSelection.value.map(item => item.id!).filter(Boolean)
-    await batchApproveAfterSaleAPI(ids)
+    await confirmBatchApprove()
+    await batchApproveAfterSaleAPI(getSelectedAfterSaleIds())
     ElMessage.success('Batch approved successfully')
     getList()
     getStatistics()
@@ -181,14 +191,8 @@ const handleBatchReject = async () => {
     return
   }
   try {
-    const { value: reason } = await ElMessageBox.prompt('Please enter reject reason:', 'Batch Reject', {
-      confirmButtonText: 'Confirm',
-      cancelButtonText: 'Cancel',
-      inputPattern: /.+/,
-      inputErrorMessage: 'Reason is required'
-    })
-    const ids = multipleSelection.value.map(item => item.id!).filter(Boolean)
-    await batchRejectAfterSaleAPI(ids, reason)
+    const { value: reason } = await confirmBatchReject()
+    await batchRejectAfterSaleAPI(getSelectedAfterSaleIds(), reason)
     ElMessage.success('Batch rejected successfully')
     getList()
     getStatistics()
