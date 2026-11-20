@@ -56,31 +56,23 @@ export function useLazyLoad(threshold: number = 0.5) {
   const loadedRef = useRef(false)
   const callbackRef = useRef<(() => void) | null>(null)
 
+  const createObserver = useCallback((callback: () => void) => {
+    return new IntersectionObserver((entries) => {
+      if (entries.some(entry => entry.isIntersecting) && !loadedRef.current) {
+        loadedRef.current = true
+        callback()
+      }
+    }, { threshold })
+  }, [threshold])
+
   const observe = useCallback((element: any, callback: () => void) => {
     callbackRef.current = callback
+    if (!('IntersectionObserver' in window)) return () => {}
 
-    if ('IntersectionObserver' in window) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting && !loadedRef.current) {
-              loadedRef.current = true
-              callback()
-            }
-          })
-        },
-        { threshold }
-      )
-
-      if (element) {
-        observer.observe(element)
-      }
-
-      return () => observer.disconnect()
-    }
-
-    return () => {}
-  }, [threshold])
+    const observer = createObserver(callback)
+    if (element) observer.observe(element)
+    return () => observer.disconnect()
+  }, [createObserver])
 
   return { observe }
 }

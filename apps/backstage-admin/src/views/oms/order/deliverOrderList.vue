@@ -41,30 +41,30 @@ const cancel = () => {
 }
 
 // Confirm shipment operation
+const buildDeliveryParams = (): OmsOrderDeliveryParam[] =>
+  list.value.map(item => ({
+    orderId: item.id,
+    deliverySn: item.orderSn,
+    deliveryCompany: item.deliveryCompany
+  }))
+
+const confirmDeliver = async () => {
+  await ElMessageBox.confirm(t('dialog.confirmDeliver'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    type: 'warning'
+  })
+  await orderUpdateDeliveryAPI(buildDeliveryParams())
+  router.back()
+  ElMessage({ type: 'success', message: '发货成功!' })
+}
+
 const confirm = async () => {
   try {
-    await ElMessageBox.confirm(t('dialog.confirmDeliver'), t('dialog.title'), {
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel'),
-      type: 'warning'
-    })
-    const deliveryParamList: OmsOrderDeliveryParam[] = list.value.map(item => ({
-      orderId: item.id,
-      deliverySn: item.orderSn,
-      deliveryCompany: item.deliveryCompany
-    }))
-    await orderUpdateDeliveryAPI(deliveryParamList)
-    router.back()
-    ElMessage({
-      type: 'success',
-      message: '发货成功!'
-    })
+    await confirmDeliver()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage({
-        type: 'info',
-        message: '已取消发货'
-      })
+      ElMessage({ type: 'info', message: '已取消发货' })
     }
   }
 }

@@ -218,6 +218,14 @@ const handleDelete = async (row: Notification) => {
   }
 }
 
+const confirmBatchDelete = async (count: number) => {
+  await ElMessageBox.confirm(
+    `Are you sure you want to delete ${count} notifications?`,
+    'Confirm Batch Delete',
+    { confirmButtonText: 'Confirm', cancelButtonText: 'Cancel', type: 'warning' }
+  )
+}
+
 const handleBatchDelete = async () => {
   const selectedRows = notificationList.value.filter((item: Notification) => (item as any).selected)
   if (selectedRows.length === 0) {
@@ -226,17 +234,8 @@ const handleBatchDelete = async () => {
   }
 
   try {
-    await ElMessageBox.confirm(
-      `Are you sure you want to delete ${selectedRows.length} notifications?`,
-      'Confirm Batch Delete',
-      {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
-        type: 'warning'
-      }
-    )
-    const ids = selectedRows.map((item: Notification) => item.id)
-    await batchDeleteNotificationAPI(ids)
+    await confirmBatchDelete(selectedRows.length)
+    await batchDeleteNotificationAPI(selectedRows.map((item: Notification) => item.id))
     ElMessage.success('Notifications deleted successfully')
     getList()
     getStatistics()

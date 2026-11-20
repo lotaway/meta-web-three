@@ -429,6 +429,19 @@ function handleCreate() {
   createDialogVisible.value = true
 }
 
+function buildCreatePayload() {
+  return {
+    traceCode: createForm.value.traceCode,
+    traceType: createForm.value.traceType,
+    productCode: createForm.value.productCode || undefined,
+    productName: createForm.value.productName || undefined,
+    batchNo: createForm.value.batchNo || undefined,
+    sn: createForm.value.sn || undefined,
+    source: createForm.value.source || undefined,
+    workOrderNo: createForm.value.workOrderNo || undefined,
+  }
+}
+
 async function submitCreate() {
   if (!createForm.value.traceCode) {
     ElMessage.warning('Please enter trace code')
@@ -436,17 +449,7 @@ async function submitCreate() {
   }
   createSubmitting.value = true
   try {
-    const data: Record<string, unknown> = {
-      traceCode: createForm.value.traceCode,
-      traceType: createForm.value.traceType,
-      productCode: createForm.value.productCode || undefined,
-      productName: createForm.value.productName || undefined,
-      batchNo: createForm.value.batchNo || undefined,
-      sn: createForm.value.sn || undefined,
-      source: createForm.value.source || undefined,
-      workOrderNo: createForm.value.workOrderNo || undefined,
-    }
-    await createTraceRecordAPI(data as any)
+    await createTraceRecordAPI(buildCreatePayload() as any)
     ElMessage.success(t('mes.traceability.createSuccess'))
     createDialogVisible.value = false
     getList()
