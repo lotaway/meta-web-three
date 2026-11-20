@@ -24,7 +24,7 @@ const getList = async () => {
     list.value = res.data
   } catch (error) {
     listLoading.value = false
-    console.error('获取秒杀时间段列表失败:', error)
+    console.error('Failed to load flash session list:', error)
   }
 }
 

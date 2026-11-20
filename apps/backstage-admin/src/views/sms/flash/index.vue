@@ -33,7 +33,7 @@ const getList = async () => {
     total.value = res.data.total
   } catch (error) {
     listLoading.value = false
-    console.error('获取秒杀活动列表失败:', error)
+    console.error('Failed to load flash sale list:', error)
   }
 }
 
@@ -102,7 +102,7 @@ const handleStatusChange = async (index: number, row: SmsFlashPromotion) => {
     ElMessage.success('修改成功!')
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('更新状态失败:', error)
+      console.error('Failed to update status:', error)
     }
     ElMessage.info('取消修改')
     getList()
@@ -122,7 +122,7 @@ const handleDelete = async (index: number, row: SmsFlashPromotion) => {
     getList()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除活动失败:', error)
+      console.error('Failed to delete activity:', error)
     }
   }
 }
@@ -155,7 +155,7 @@ const handleDialogConfirm = async () => {
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('处理活动失败:', error)
+      console.error('Failed to process activity:', error)
     }
   }
 }

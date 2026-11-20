@@ -32,7 +32,7 @@ const getList = async () => {
     total.value = res.data.total
   } catch (error) {
     listLoading.value = false
-    console.error('获取管理员列表失败:', error)
+    console.error('Failed to load admin list:', error)
   }
 }
 // Get all roles
@@ -41,7 +41,7 @@ const getAllRoleList = async () => {
     const response = await getRoleListAllAPI()
     allRoleList.value = response.data
   } catch (error) {
-    console.error('获取角色列表失败:', error)
+    console.error('Failed to load role list:', error)
   }
 }
 
@@ -77,7 +77,7 @@ const getRoleListByAdmin = async (adminId: number) => {
     allocRoleIds.value = []
     allocRoleList.forEach((item) => allocRoleIds.value.push(item.id!))
   } catch (error) {
-    console.error('获取管理员角色列表失败:', error)
+    console.error('Failed to load admin role list:', error)
   }
 }
 
@@ -128,7 +128,7 @@ const handleStatusChange = async (index: number, row: UmsAdmin) => {
     await adminUpdateStatusByIdAPI(row.id!, { status: row.status })
     ElMessage.success('修改成功!')
   } catch (error) {
-    console.error('更新状态失败:', error)
+    console.error('Failed to update status:', error)
     // If cancelled or failed, refetch the list to restore state
     getList()
   }
@@ -146,7 +146,7 @@ const handleDelete = async (index: number, row: UmsAdmin) => {
     ElMessage.success('删除成功!')
     getList()
   } catch (error) {
-    console.error('删除失败:', error)
+    console.error('Failed to delete:', error)
   }
 }
 
@@ -176,7 +176,7 @@ const handleDialogConfirm = async () => {
     dialogVisible.value = false
     getList()
   } catch (error) {
-    console.error('操作失败:', error)
+    console.error('Failed to perform operation:', error)
   }
 }
 
@@ -192,7 +192,7 @@ const handleAllocDialogConfirm = async () => {
     ElMessage.success('分配成功！')
     allocDialogVisible.value = false
   } catch (error) {
-    console.error('分配角色失败:', error)
+    console.error('Failed to assign roles:', error)
   }
 }
 

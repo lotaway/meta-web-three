@@ -34,7 +34,7 @@ const getList = async () => {
     total.value = res.data.total
   } catch (error) {
     listLoading.value = false
-    console.error('获取品牌列表失败:', error)
+    console.error('Failed to load brand list:', error)
   }
 }
 
@@ -102,7 +102,7 @@ const handleFactoryStatusChange = async (index: number, row: PmsBrand) => {
   } catch (error) {
     // Roll back state if the update fails
     row.factoryStatus = row.factoryStatus === 0 ? 1 : 0
-    console.error('更新厂商状态失败:', error)
+    console.error('Failed to update manufacturer status:', error)
   }
 }
 
@@ -117,7 +117,7 @@ const handleShowStatusChange = async (index: number, row: PmsBrand) => {
   } catch (error) {
     // Roll back state if the update fails
     row.showStatus = row.showStatus === 0 ? 1 : 0
-    console.error('更新显示状态失败:', error)
+    console.error('Failed to update display status:', error)
   }
 }
 
@@ -173,7 +173,7 @@ const handleBatchOperate = async () => {
     getList()
     ElMessage.success('修改成功')
   } catch (error) {
-    console.error('批量操作失败:', error)
+    console.error('Failed to perform batch operation:', error)
   }
 }
 </script>

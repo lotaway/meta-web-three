@@ -31,7 +31,7 @@ const getList = async () => {
     total.value = res.data.total
   } catch (error) {
     listLoading.value = false
-    console.error('获取资源列表失败:', error)
+    console.error('Failed to load resource list:', error)
   }
 }
 
@@ -51,7 +51,7 @@ const getCateList = async () => {
       defaultCategoryId.value = cateList[0]!.id
     }
   } catch (error) {
-    console.error('获取资源分类失败:', error)
+    console.error('Failed to load resource categories:', error)
   }
 }
 
@@ -124,7 +124,7 @@ const handleDelete = async (index: number, row: UmsResource) => {
     ElMessage.success('删除成功!')
     getList()
   } catch (error) {
-    console.error('删除资源失败:', error)
+    console.error('Failed to delete resource:', error)
   }
 }
 
@@ -155,7 +155,7 @@ const handleDialogConfirm = async () => {
       getList()
     }
   } catch (error) {
-    console.error('操作失败:', error)
+    console.error('Failed to perform operation:', error)
   }
 }
 

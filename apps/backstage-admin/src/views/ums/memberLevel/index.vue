@@ -173,7 +173,7 @@ const getList = async () => {
     }
     list.value = data
   } catch (error) {
-    console.error('获取会员等级列表失败:', error)
+    console.error('Failed to load member level list:', error)
   } finally {
     listLoading.value = false
   }
@@ -235,7 +235,7 @@ const handleSubmit = async () => {
     dialogVisible.value = false
     getList()
   } catch (error) {
-    console.error('提交失败:', error)
+    console.error('Failed to submit:', error)
     ElMessage.error('操作失败')
   }
 }
@@ -252,7 +252,7 @@ const handleDelete = (row: UmsMemberLevel) => {
       ElMessage.success('删除成功')
       getList()
     } catch (error) {
-      console.error('删除失败:', error)
+      console.error('Failed to delete:', error)
       ElMessage.error('删除失败')
     }
   })

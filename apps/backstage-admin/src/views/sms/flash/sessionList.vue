@@ -19,7 +19,7 @@ const getList = async () => {
     list.value = res.data
   } catch (error) {
     listLoading.value = false
-    console.error('获取秒杀时间段列表失败:', error)
+    console.error('Failed to load flash session list:', error)
   }
 }
 
@@ -59,7 +59,7 @@ const handleStatusChange = async (index: number, row: SmsFlashPromotionSession) 
     ElMessage.success('修改成功!')
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('更新状态失败:', error)
+      console.error('Failed to update status:', error)
     }
     ElMessage.info('取消修改')
     getList()
@@ -92,7 +92,7 @@ const handleDelete = async (index: number, row: SmsFlashPromotionSession) => {
     getList()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除时间段失败:', error)
+      console.error('Failed to delete time slot:', error)
     }
   }
 }
@@ -118,7 +118,7 @@ const handleDialogConfirm = async () => {
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('处理时间段失败:', error)
+      console.error('Failed to process time slot:', error)
     }
   }
 }

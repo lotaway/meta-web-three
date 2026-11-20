@@ -28,7 +28,7 @@ const getList = async () => {
     total.value = res.data.total
   } catch (error) {
     listLoading.value = false
-    console.error('获取列表失败:', error)
+    console.error('Failed to load list:', error)
   }
 }
 
@@ -88,7 +88,7 @@ const getDialogList = async () => {
     dialogData.value.list = res.data.list
     dialogData.value.total = res.data.total
   } catch (error) {
-    console.error('获取对话框列表失败:', error)
+    console.error('Failed to load dialog list:', error)
   }
 }
 
@@ -226,7 +226,7 @@ const handleSelectDialogConfirm = async () => {
     })
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('确认操作失败:', error)
+      console.error('Failed to confirm operation:', error)
     }
   }
 }
@@ -256,7 +256,7 @@ const handleUpdateSort = async () => {
     })
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('修改排序失败:', error)
+      console.error('Failed to update sort order:', error)
     }
   }
 }
@@ -279,7 +279,7 @@ const updateRecommendStatusStatus = async (ids: number[], status: number) => {
       message: '修改成功!'
     })
   } catch (error) {
-    console.error('修改失败:', error)
+    console.error('Failed to update:', error)
     await getList()
   }
 }
@@ -300,7 +300,7 @@ const deleteBrand = async (ids: number[]) => {
     })
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除操作失败:', error)
+      console.error('Failed to delete operation:', error)
     }
   }
 }

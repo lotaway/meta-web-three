@@ -18,7 +18,7 @@ const getList = async () => {
     list.value = res.data
   } catch (error) {
     listLoading.value = false
-    console.error('获取资源分类列表失败:', error)
+    console.error('Failed to load resource category list:', error)
   }
 }
 
@@ -65,7 +65,7 @@ const handleDelete = async (index: number, row: UmsResourceCategory) => {
     ElMessage.success('删除成功!')
     getList()
   } catch (error) {
-    console.error('删除资源分类失败:', error)
+    console.error('Failed to delete resource category:', error)
   }
 }
 
@@ -83,7 +83,7 @@ const handleDialogConfirm = async () => {
       dialogVisible.value = false
       getList()
     } catch (error) {
-      console.error('更新资源分类失败:', error)
+      console.error('Failed to update resource category:', error)
     }
   } else {
     try {
@@ -92,7 +92,7 @@ const handleDialogConfirm = async () => {
       dialogVisible.value = false
       getList()
     } catch (error) {
-      console.error('创建资源分类失败:', error)
+      console.error('Failed to create resource category:', error)
     }
   }
 

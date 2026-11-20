@@ -49,7 +49,7 @@ const getProductCateList = async () => {
       children: item.children?.map(it => ({ label: it.name, value: it.id! }))
     }))
   } catch (error) {
-    console.error('获取商品分类列表失败:', error)
+    console.error('Failed to load product category list:', error)
   }
 }
 
@@ -110,7 +110,7 @@ const onSubmit = async () => {
         })
         router.back()
       } catch (error) {
-        console.error('更新优惠券失败:', error)
+        console.error('Failed to update coupon:', error)
       }
     } else {
       try {
@@ -123,7 +123,7 @@ const onSubmit = async () => {
         })
         router.back()
       } catch (error) {
-        console.error('创建优惠券失败:', error)
+        console.error('Failed to create coupon:', error)
       }
     }
   } else {
@@ -158,7 +158,7 @@ const searchProductMethod = async (query: string) => {
       }))
     } catch (error) {
       selectProductLoading.value = false
-      console.error('搜索商品失败:', error)
+      console.error('Failed to search products:', error)
     }
   } else {
     selectProductOptions.value = []

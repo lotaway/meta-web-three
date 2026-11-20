@@ -71,7 +71,7 @@ const handleLogin = () => {
         console.log(err)
       }
     } else {
-      console.log('参数验证不合法！')
+      console.log('Invalid parameters!')
     }
   })
 }

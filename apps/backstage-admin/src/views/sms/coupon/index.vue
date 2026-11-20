@@ -34,7 +34,7 @@ const getList = async () => {
     total.value = response.data.total
   } catch (error) {
     listLoading.value = false
-    console.error('获取优惠券列表失败:', error)
+    console.error('Failed to load coupon list:', error)
   }
 }
 
@@ -103,7 +103,7 @@ const handleDelete = async (index: number, row: SmsCoupon) => {
     getList()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除优惠券失败:', error)
+      console.error('Failed to delete coupon:', error)
     }
   }
 }

@@ -308,7 +308,7 @@ const handleCloseOrder = async () => {
     order.value = response.data
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('关闭订单失败:', error)
+      console.error('Failed to close order:', error)
     }
   }
 }
@@ -354,7 +354,7 @@ const handleDeleteOrder = async () => {
     router.back()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除订单失败:', error)
+      console.error('Failed to delete order:', error)
     }
   }
 }

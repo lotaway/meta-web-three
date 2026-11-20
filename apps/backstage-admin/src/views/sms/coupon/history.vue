@@ -32,7 +32,7 @@ const getList = async () => {
     total.value = response.data.total
   } catch (error) {
     listLoading.value = false
-    console.error('获取优惠券历史列表失败:', error)
+    console.error('Failed to load coupon history:', error)
   }
 }
 

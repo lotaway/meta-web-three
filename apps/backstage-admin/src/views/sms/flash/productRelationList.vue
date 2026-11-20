@@ -31,7 +31,7 @@ const getList = async () => {
     total.value = res.data.total
   } catch (error) {
     listLoading.value = false
-    console.error('获取秒杀商品列表失败:', error)
+    console.error('Failed to load flash products:', error)
   }
 }
 
@@ -104,7 +104,7 @@ const handleDelete = async (index: number, row: SmsFlashPromotionProductRelation
     getList()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除秒杀商品失败:', error)
+      console.error('Failed to delete flash product:', error)
     }
   }
 }
@@ -158,7 +158,7 @@ const handleSelectDialogConfirm = async () => {
     ElMessage.success('添加成功!')
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('添加秒杀商品失败:', error)
+      console.error('Failed to add flash product:', error)
     }
   }
 }
@@ -177,7 +177,7 @@ const handleEditDialogConfirm = async () => {
     getList()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('更新秒杀商品失败:', error)
+      console.error('Failed to update flash product:', error)
     }
   }
 }
@@ -189,7 +189,7 @@ const getDialogList = async () => {
     dialogData.value.list = res.data.list
     dialogData.value.total = res.data.total
   } catch (error) {
-    console.error('获取商品列表失败:', error)
+    console.error('Failed to load product list:', error)
   }
 }
 </script>
