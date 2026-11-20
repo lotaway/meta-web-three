@@ -53,7 +53,8 @@
   - 需决策：界定哪些中文字符串属于 i18n 资源（只有这些可以保留），批量改写前须先商定基于路径的分类规则。
   - 关闭条件：按 app 逐个把注释 / 日志 / 错误文案改为英文，把记录后忽略的 catch 改成显式错误状态或重新抛出，拆分超过 20 行的函数，每轮都通过 typecheck 与测试。
   - 2026-11-20 第一批完成（`f7b3b501`）：范围收敛为零 UI 副作用、无需 i18n 决策的两类——① 13 处 `throw new Error/ApiError` 中文文案英文化（checkout / flashAdapter / stores/user / api client）；② 31 处「只 console.error 就返回」的吞异常 catch 补用户可见错误态——backstage-admin `media/index.vue` 3 处用 `ElMessage.error`，client 28 处用 `Alert.alert`（10 个文件补 `Alert` import）。`AuthContext` 的 3 处 throw + 3 处 catch 属独立鉴权任务（见「替换三个鉴权流程」），本批排除。同步更新 client 超时测试断言为英文。验证：backstage-admin `vue-tsc` + vitest 6/38、client `tsc --noEmit` + jest 10/109，全 EXIT 0。
-  - 剩余批次（本任务未关闭）：静态注释中文约 1544 行、硬编码 `ElMessage` / 模板 UI 中文文本（需先定 i18n key 分类规则，见「需决策」行）、超过 20 行的函数拆分。这些需在商定分类口径后逐批推进；纯展示型 UI 文本不应直接英文化，应迁入 i18n 资源。
+  - 2026-11-20 注释英文化完成（`77e84226`、`bb55c757`、`c5ad3931`）：backstage-admin 全 app 中文注释清零——27 个 `.d.ts` 的 562 处 JSDoc、7 个 `.ts` 的 90 处、74 个 `.vue` 的 897 处、行尾 16 处，合计 1565 行，仅改注释文本，零 UI / i18n 资源变更。client 的 `src` 注释本无中文（命中项均为 JSX UI 文案，属需决策范围）。每批后 `vue-tsc` + vitest 6/38 全 EXIT 0。
+  - 剩余批次（本任务未关闭）：硬编码 `ElMessage` / 模板 UI 中文文本（需先定 i18n key 分类规则，见「需决策」行）、超过 20 行的函数拆分。纯展示型 UI 文本不应直接英文化，应迁入 i18n 资源。
 
 - [ ] 补齐两个客户端的响应式与可访问性缺口。
   - 问题：`@media` 只出现在 backstage-admin 的 4 个文件，client 为 0；`aria-*` 命中数 1 / 0；`apps/backstage-admin/src/styles/index.scss:32,37` 用 `outline: none` 移除了焦点轮廓；`apps/client` 没有无障碍属性，也没有 ErrorBoundary，并把方向锁死为竖屏（`app.config.ts:9`、`android/app/src/main/AndroidManifest.xml:19`）。
