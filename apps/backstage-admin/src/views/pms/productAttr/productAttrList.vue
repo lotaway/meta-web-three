@@ -6,25 +6,25 @@ import { getProductAttributeListAPI, productAttributeDeleteByIds } from '@/apis/
 import { Tickets } from '@element-plus/icons-vue'
 import type { PmsProductAttribute } from '@/types/productAttr'
 
-// 获取路由对象
+// Get route object
 const router = useRouter()
 
-// 属性分类ID
+// Attribute category ID
 const cid = Number(router.currentRoute.value.query.cid)
-// 属性类型
+// Attribute type
 const type = Number(router.currentRoute.value.query.type)
-// 列表查询数据
+// List query data
 const listQuery = ref({
   pageNum: 1,
   pageSize: 5,
   type: type
 })
 const list = ref<PmsProductAttribute[]>([])
-// 列表数据
+// List data
 const total = ref(0)
-// 加载状态
+// Loading state
 const listLoading = ref(true)
-// 获取列表数据
+// Get list data
 const getList = async () => {
   listLoading.value = true
   try {
@@ -38,16 +38,16 @@ const getList = async () => {
   }
 }
 
-// 组件挂载后执行
+// Run after component mounts
 onMounted(() => {
   getList()
 })
 
-// 当前批量操作类型
+// Current batch operation type
 const operateType = ref<string>()
-// 批量操作选中条目
+// Batch operation selected items
 const multipleSelection = ref<PmsProductAttribute[]>([])
-// 批量操作类型集合
+// Batch operation type set
 const operates = ref([
   {
     label: "删除",
@@ -55,17 +55,17 @@ const operates = ref([
   }
 ])
 
-// 添加产品属性
+// Add product attribute
 const addProductAttr = () => {
   router.push({ path: '/pms/addProductAttr', query: { cid: router.currentRoute.value.query.cid, type: router.currentRoute.value.query.type } })
 }
 
-// 处理表格选中状态变化
+// Handle table selection state change
 const handleSelectionChange = (val: PmsProductAttribute[]) => {
   multipleSelection.value = val
 }
 
-// 处理批量操作
+// Handle batch operations
 const handleBatchOperate = async () => {
   if (multipleSelection.value.length < 1) {
     ElMessage.warning('请选择一条记录')
@@ -78,25 +78,25 @@ const handleBatchOperate = async () => {
   await handleDeleteProductAttr(multipleSelection.value.map(item => item.id!))
 }
 
-// 处理每页条数变化
+// Handle page size change
 const handleSizeChange = (val: number) => {
   listQuery.value.pageNum = 1
   listQuery.value.pageSize = val
   getList()
 }
 
-// 处理当前页变化
+// Handle current page change
 const handleCurrentChange = (val: number) => {
   listQuery.value.pageNum = val
   getList()
 }
 
-// 处理更新操作
+// Handle update operation
 const handleUpdate = (index: number, row: PmsProductAttribute) => {
   router.push({ path: '/pms/updateProductAttr', query: { id: row.id } })
 }
 
-// 处理删除产品属性
+// Handle delete product attribute
 const handleDeleteProductAttr = async (ids: number[]) => {
   try {
     await ElMessageBox.confirm('是否要删除该属性', '提示', {
@@ -112,12 +112,12 @@ const handleDeleteProductAttr = async (ids: number[]) => {
   }
 }
 
-// 处理删除操作
+// Handle delete operation
 const handleDelete = async (index: number, row: PmsProductAttribute) => {
   await handleDeleteProductAttr([row.id!])
 }
 
-// 属性值的录入方式
+// Attribute value input method
 const inputTypeFilter = (value: number) => {
   if (value === 1) {
     return '从列表中选取'
@@ -126,7 +126,7 @@ const inputTypeFilter = (value: number) => {
   }
 }
 
-// 属性是否可选
+// Whether the attribute is optional
 const selectTypeFilter = (value: number) => {
   if (value === 1) {
     return '单选'

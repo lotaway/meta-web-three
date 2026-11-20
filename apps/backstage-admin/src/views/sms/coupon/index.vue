@@ -8,23 +8,23 @@ import { formatDate } from '@/utils/datetime'
 import type { CouponQueryParam, SmsCoupon } from '@/types/coupon'
 import { couponPlatforms, couponTypes } from '@/utils/constant'
 
-// 获取路由
+// Get route
 const router = useRouter()
 
-// 列表查询参数
+// List query params
 const listQuery = ref<CouponQueryParam>({ pageNum: 1, pageSize: 10 })
-// 类型选项
+// Type options
 const typeOptions = ref(couponTypes)
-// 列表数据
+// List data
 const list = ref<SmsCoupon[]>([])
-// 总数
+// Total
 const total = ref<number>(0)
-// 加载状态
+// Loading state
 const listLoading = ref<boolean>(false)
-// 多选数据
+// Multi-select data
 const multipleSelection = ref<SmsCoupon[]>([])
 
-// 获取列表数据
+// Get list data
 const getList = async () => {
   listLoading.value = true
   try {
@@ -38,56 +38,56 @@ const getList = async () => {
   }
 }
 
-// 组件挂载时获取数据
+// Fetch data on mount
 onMounted(() => {
   getList()
 })
 
-// 重置搜索条件
+// Reset search conditions
 const handleResetSearch = () => {
   listQuery.value = { pageNum: 1, pageSize: 10 }
 }
 
-// 搜索列表
+// Search list
 const handleSearchList = () => {
   listQuery.value.pageNum = 1
   getList()
 }
 
-// 处理多选变化
+// Handle multi-select change
 const handleSelectionChange = (val: SmsCoupon[]) => {
   multipleSelection.value = val
 }
 
-// 处理页面大小变化
+// Handle page size change
 const handleSizeChange = (val: number) => {
   listQuery.value.pageNum = 1
   listQuery.value.pageSize = val
   getList()
 }
 
-// 处理当前页变化
+// Handle current page change
 const handleCurrentChange = (val: number) => {
   listQuery.value.pageNum = val
   getList()
 }
 
-// 添加优惠券
+// Add coupon
 const handleAdd = () => {
   router.push({ path: '/sms/addCoupon' })
 }
 
-// 查看优惠券
+// View coupon
 const handleView = (index: number, row: SmsCoupon) => {
   router.push({ path: '/sms/couponHistory', query: { id: row.id } })
 }
 
-// 更新优惠券
+// Update coupon
 const handleUpdate = (index: number, row: SmsCoupon) => {
   router.push({ path: '/sms/updateCoupon', query: { id: row.id } })
 }
 
-// 删除优惠券
+// Delete coupon
 const handleDelete = async (index: number, row: SmsCoupon) => {
   try {
     await ElMessageBox.confirm('是否进行删除操作?', '提示', {
@@ -108,13 +108,13 @@ const handleDelete = async (index: number, row: SmsCoupon) => {
   }
 }
 
-// 格式化类型
+// Format type
 const formatType = (type: number) => {
   const findItem = typeOptions.value.find(item => item.value === type)
   return findItem?.label
 }
 
-// 格式化使用类型
+// Format usage type
 const formatUseType = (useType: number) => {
   if (useType === 0) {
     return '全场通用'
@@ -125,13 +125,13 @@ const formatUseType = (useType: number) => {
   }
 }
 
-// 格式化平台
+// Format platform
 const formatPlatform = (platform: number) => {
   const findItem = couponPlatforms.find(item => item.value === platform)
   return findItem?.label
 }
 
-// 格式化状态
+// Format status
 const formatStatus = (endTime: string) => {
   const now = new Date().getTime()
   const endDate = new Date(endTime)

@@ -79,7 +79,7 @@
         </el-table-column>
       </el-table>
 
-      <!-- 验证结果 -->
+      <!-- Validation result -->
       <el-alert
         v-if="validationResult !== null"
         :title="validationResult ? t('mes.processRoute.validateSuccess') : t('mes.processRoute.validateFailed')"

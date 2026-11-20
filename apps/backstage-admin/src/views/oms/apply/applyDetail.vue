@@ -8,7 +8,7 @@ import { formatDateTime } from '@/utils/datetime'
 import type { OmsOrderReturnApply, OmsUpdateStatusParam } from '@/types/returnApply'
 import type { OmsCompanyAddress } from '@/types/companyAddress'
 
-// 默认状态修改参数
+// Default status update params
 const defaultUpdateStatusParam = {
   id: 0,
   companyAddressId: 0,
@@ -20,23 +20,23 @@ const defaultUpdateStatusParam = {
   status: 0
 }
 
-// 路由相关
+// Router-related
 const route = useRoute()
 const router = useRouter()
 
-// 当前退货申请ID
+// Current return application ID
 const id = ref()
-// 当前退货申请
+// Current return application
 const orderReturnApply = ref({} as OmsOrderReturnApply)
-// 凭证图片
+// Proof images
 const proofPics = ref<string[]>([])
-// 退货商品列表
+// Returned product list
 const productList = ref()
-// 公司收货地址列表
+// Company receiving addresses
 const companyAddressList = ref<OmsCompanyAddress[]>([])
-// 修改退货申请状态参数
+// Update return application status params
 const updateStatusParam = ref<OmsUpdateStatusParam>(Object.assign({}, defaultUpdateStatusParam))
-// 获取详情
+// Get details
 const getDetail = async () => {
   const res = await getReturnApplyByIdAPI(id.value)
   orderReturnApply.value = res.data
@@ -45,31 +45,31 @@ const getDetail = async () => {
   if (orderReturnApply.value.proofPics) {
     proofPics.value = orderReturnApply.value.proofPics.split(",")
   }
-  // 退货中和完成
+  // Returning and completed
   if (orderReturnApply.value.status === 1 || orderReturnApply.value.status === 2) {
     updateStatusParam.value.returnAmount = orderReturnApply.value.returnAmount
     updateStatusParam.value.companyAddressId = orderReturnApply.value.companyAddressId
   }
 }
-// 获取公司地址列表
+// Get company address list
 const getCompanyAddressList = async () => {
   const res = await getCompanyAddressListAPI()
   companyAddressList.value = res.data
-  // 获取默认收货地址
+  // Get default receiving address
   const defaultAddress = companyAddressList.value.find(item => item.receiveStatus === 1)
   if (defaultAddress) {
     updateStatusParam.value.companyAddressId = defaultAddress.id!
   }
 }
 
-// 组件挂载
+// Component mount
 onMounted(() => {
   id.value = route.query.id
   getDetail()
   getCompanyAddressList()
 })
 
-// 计算属性
+// Computed properties
 const totalAmount = computed(() => {
   if (orderReturnApply.value != null) {
     return orderReturnApply.value.productRealPrice * orderReturnApply.value.productCount
@@ -78,14 +78,14 @@ const totalAmount = computed(() => {
   }
 })
 
-// 当前收货地址
+// Current receiving address
 const currentAddress = computed(() => {
   const idValue = updateStatusParam.value.companyAddressId
   if (!companyAddressList.value) return undefined
   return companyAddressList.value.find(item => item.id === idValue)
 })
 
-// 格式化状态
+// Format status
 const formatStatus = (status: number) => {
   if (status === 0) {
     return "待处理"
@@ -98,7 +98,7 @@ const formatStatus = (status: number) => {
   }
 }
 
-// 格式化地区
+// Format region
 const formatRegion = (address: OmsCompanyAddress | undefined) => {
   if (!address) return ''
   let str = address.province
@@ -109,12 +109,12 @@ const formatRegion = (address: OmsCompanyAddress | undefined) => {
   return str
 }
 
-// 查看订单详情
+// View order details
 const handleViewOrder = () => {
   router.push({ path: '/oms/orderDetail', query: { id: orderReturnApply.value.orderId } })
 }
 
-// 更新状态
+// Update status
 const handleUpdateStatus = async (status: number) => {
   updateStatusParam.value.status = status
   await ElMessageBox.confirm('是否要进行此操作?', '提示', {

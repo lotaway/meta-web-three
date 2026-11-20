@@ -7,18 +7,18 @@ import { getBrandListAPI } from '@/apis/brand'
 import type { HomeBrandQueryParam, SmsHomeBrand } from '@/types/homeBrand'
 import type { PmsBrand } from '@/types/brand'
 
-// 列表查询参数
+// List query params
 const listQuery = ref<HomeBrandQueryParam>({
   pageNum: 1,
   pageSize: 10,
 })
-// 首页品牌列表数据
+// Home brand list data
 const list = ref<SmsHomeBrand[]>([])
-// 总条数
+// Total count
 const total = ref<number>(0)
-// 加载状态
+// Loading state
 const listLoading = ref(false)
-// 获取列表数据
+// Get list data
 const getList = async () => {
   listLoading.value = true
   try {
@@ -32,12 +32,12 @@ const getList = async () => {
   }
 }
 
-// 页面加载完成后获取数据
+// Fetch data after the page loads
 onMounted(() => {
   getList()
 })
 
-// 表格中被选中的行
+// Selected rows in the table
 const multipleSelection = ref<SmsHomeBrand[]>([])
 
 const recommendOptions = ref([
@@ -67,9 +67,9 @@ const operates = ref([
 ])
 const operateType = ref<number>()
 
-// 选择品牌对话框可见性
+// Select-brand dialog visibility
 const selectDialogVisible = ref(false)
-// 选择品牌对话框中的数据
+// Data in the select-brand dialog
 const dialogData = ref({
   list: [] as PmsBrand[],
   total: 0,
@@ -81,7 +81,7 @@ const dialogData = ref({
     pageSize: 5
   }
 })
-// 获取选择品牌对话框列表
+// Get select-brand dialog list
 const getDialogList = async () => {
   try {
     const res = await getBrandListAPI(dialogData.value.listQuery)
@@ -92,12 +92,12 @@ const getDialogList = async () => {
   }
 }
 
-// 设置排序对话框可见性
+// Set sort dialog visibility
 const sortDialogVisible = ref(false)
-// 设置排序对话框中的数据
+// Set data in the sort dialog
 const sortDialogData = ref({ sort: 0, id: 0 })
 
-// 重置搜索
+// Reset search
 const handleResetSearch = () => {
   listQuery.value = {
     pageNum: 1,
@@ -105,41 +105,41 @@ const handleResetSearch = () => {
   }
 }
 
-// 搜索列表
+// Search list
 const handleSearchList = async () => {
   listQuery.value.pageNum = 1
   await getList()
 }
 
-// 处理表格选中变化
+// Handle table selection change
 const handleSelectionChange = (val: SmsHomeBrand[]) => {
   multipleSelection.value = val
 }
 
-// 每页大小变化
+// Page size change
 const handleSizeChange = (val: number) => {
   listQuery.value.pageNum = 1
   listQuery.value.pageSize = val
   getList()
 }
 
-// 当前页变化
+// Current page change
 const handleCurrentChange = (val: number) => {
   listQuery.value.pageNum = val
   getList()
 }
 
-// 处理推荐状态变化
+// Handle recommendation status change
 const handleRecommendStatusStatusChange = async (index: number, row: SmsHomeBrand) => {
   await updateRecommendStatusStatus([row.id!], row.recommendStatus!)
 }
 
-// 处理删除
+// Handle delete
 const handleDelete = async (index: number, row: SmsHomeBrand) => {
   await deleteBrand([row.id!])
 }
 
-// 处理批量操作
+// Handle batch operations
 const handleBatchOperate = async () => {
   if (multipleSelection.value.length < 1) {
     ElMessage.warning({
@@ -150,13 +150,13 @@ const handleBatchOperate = async () => {
   }
   const ids = multipleSelection.value.map(item => item.id!)
   if (operateType.value === 0) {
-    // 设为推荐
+    // Set as recommended
     await updateRecommendStatusStatus(ids, 1)
   } else if (operateType.value === 1) {
-    // 取消推荐
+    // Unset recommendation
     await updateRecommendStatusStatus(ids, 0)
   } else if (operateType.value === 2) {
-    // 删除
+    // Delete
     await deleteBrand(ids)
   } else {
     ElMessage.warning({
@@ -167,37 +167,37 @@ const handleBatchOperate = async () => {
   }
 }
 
-// 处理选择品牌
+// Handle brand selection
 const handleSelectBrand = () => {
   selectDialogVisible.value = true
   dialogData.value.listQuery.keyword = ''
   getDialogList()
 }
 
-// 处理对话框搜索
+// Handle dialog search
 const handleSelectSearch = () => {
   getDialogList()
 }
 
-// 对话框每页大小变化
+// Dialog page size change
 const handleDialogSizeChange = (val: number) => {
   dialogData.value.listQuery.pageNum = 1
   dialogData.value.listQuery.pageSize = val
   getDialogList()
 }
 
-// 对话框当前页变化
+// Dialog current page change
 const handleDialogCurrentChange = (val: number) => {
   dialogData.value.listQuery.pageNum = val
   getDialogList()
 }
 
-// 对话框选中变化
+// Dialog selection change
 const handleDialogSelectionChange = (val: PmsBrand[]) => {
   dialogData.value.multipleSelection = val
 }
 
-// 确认选择对话框
+// Confirm selection dialog
 const handleSelectDialogConfirm = async () => {
   if (dialogData.value.multipleSelection.length < 1) {
     ElMessage.warning({
@@ -231,14 +231,14 @@ const handleSelectDialogConfirm = async () => {
   }
 }
 
-// 编辑排序
+// Edit sort
 const handleEditSort = (index: number, row: SmsHomeBrand) => {
   sortDialogVisible.value = true
   sortDialogData.value.sort = row.sort!
   sortDialogData.value.id = row.id!
 }
 
-// 更新排序
+// Update sort
 const handleUpdateSort = async () => {
   if (!sortDialogData.value.id) return
   try {
@@ -261,7 +261,7 @@ const handleUpdateSort = async () => {
   }
 }
 
-// 更新推荐状态
+// Update recommendation status
 const updateRecommendStatusStatus = async (ids: number[], status: number) => {
   try {
     await ElMessageBox.confirm('是否要修改推荐状态?', '提示', {
@@ -284,7 +284,7 @@ const updateRecommendStatusStatus = async (ids: number[], status: number) => {
   }
 }
 
-// 删除品牌
+// Delete brand
 const deleteBrand = async (ids: number[]) => {
   try {
     await ElMessageBox.confirm('是否要删除该推荐?', '提示', {
@@ -305,7 +305,7 @@ const deleteBrand = async (ids: number[]) => {
   }
 }
 
-// 推荐状态过滤器
+// Recommendation status filter
 const formatRecommendStatus = (status: number) => {
   if (status === 1) {
     return '推荐中'

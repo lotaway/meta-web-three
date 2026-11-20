@@ -38,37 +38,37 @@ export interface SupplierPerformanceDashboard {
   improvementNeededSuppliers: SupplierPerformance[]
 }
 
-// 获取所有绩效评估记录
+// Get all performance evaluation records
 export function getAllSupplierPerformanceAPI() {
   return http<SupplierPerformance[]>({ url: '/api/supplier-performance', method: 'get' })
 }
 
-// 根据供应商ID查询绩效评估记录
+// Query performance evaluation records by supplier ID
 export function getSupplierPerformanceBySupplierIdAPI(supplierId: number) {
   return http<SupplierPerformance[]>({ url: `/api/supplier-performance/supplier/${supplierId}`, method: 'get' })
 }
 
-// 根据ID查询绩效评估记录
+// Query performance evaluation records by ID
 export function getSupplierPerformanceByIdAPI(id: number) {
   return http<SupplierPerformance>({ url: `/api/supplier-performance/${id}`, method: 'get' })
 }
 
-// 根据评估等级查询绩效评估记录
+// Query performance evaluation records by rating level
 export function getSupplierPerformanceByLevelAPI(level: string) {
   return http<SupplierPerformance[]>({ url: `/api/supplier-performance/level/${level}`, method: 'get' })
 }
 
-// 创建或更新绩效评估记录
+// Create or update a performance evaluation record
 export function createOrUpdateSupplierPerformanceAPI(data: SupplierPerformance) {
   return http<SupplierPerformance>({ url: '/api/supplier-performance', method: 'post', data })
 }
 
-// 删除绩效评估记录
+// Delete a performance evaluation record
 export function deleteSupplierPerformanceAPI(id: number) {
   return http<null>({ url: `/api/supplier-performance/${id}`, method: 'delete' })
 }
 
-// 获取绩效评估看板数据
+// Get performance evaluation dashboard data
 export function getSupplierPerformanceDashboardAPI() {
   return http<SupplierPerformanceDashboard>({ url: '/api/supplier-performance/dashboard', method: 'get' })
 }

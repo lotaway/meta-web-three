@@ -7,21 +7,21 @@ import { getResourceListAPI, resourceCreateAPI, resourceUpdateAPI, resourceDelet
 import { resourceCategoryListAllAPI } from '@/apis/resourceCategory'
 import type { ResourceQueryParam, UmsResource } from '@/types/resource'
 
-// 获取路由信息
+// Get route info
 const router = useRouter()
 
-// 列表查询参数
+// List query params
 const listQuery = ref<ResourceQueryParam>({
   pageNum: 1,
   pageSize: 10,
 })
-// 资源列表数据
+// Resource list data
 const list = ref<UmsResource[]>([])
-// 分页总数
+// Pagination total
 const total = ref<number>(0)
-// 加载状态
+// Loading state
 const listLoading = ref(false)
-// 获取列表数据
+// Get list data
 const getList = async () => {
   listLoading.value = true
   try {
@@ -35,11 +35,11 @@ const getList = async () => {
   }
 }
 
-// 分类筛选选项
+// Category filter options
 const categoryOptions = ref<{ label: string; value: number }[]>([])
-// 默认选择分类ID
+// Default selected category ID
 const defaultCategoryId = ref<number>()
-// 获取分类列表
+// Get category list
 const getCateList = async () => {
   try {
     const res = await resourceCategoryListAllAPI()
@@ -55,27 +55,27 @@ const getCateList = async () => {
   }
 }
 
-// 组件挂载时获取数据
+// Fetch data on mount
 onMounted(() => {
   getList()
   getCateList()
 })
 
-// 默认资源对象
+// Default resource object
 const defaultResource: UmsResource = {
   name: '',
   url: '',
   description: '',
   categoryId: 0
 }
-// 当前操作资源
+// Current resource
 const resource = ref(Object.assign({}, defaultResource))
-// 编辑弹框是否可见
+// Whether the edit dialog is visible
 const dialogVisible = ref(false)
-// 是否为编辑状态
+// Whether in edit state
 const isEdit = ref(false)
 
-// 重置搜索条件
+// Reset search conditions
 const handleResetSearch = () => {
   listQuery.value = {
     pageNum: 1,
@@ -83,26 +83,26 @@ const handleResetSearch = () => {
   }
 }
 
-// 搜索列表
+// Search list
 const handleSearchList = () => {
   listQuery.value.pageNum = 1
   getList()
 }
 
-// 每页大小改变
+// Page size change
 const handleSizeChange = (val: number) => {
   listQuery.value.pageNum = 1
   listQuery.value.pageSize = val
   getList()
 }
 
-// 当前页改变
+// Current page change
 const handleCurrentChange = (val: number) => {
   listQuery.value.pageNum = val
   getList()
 }
 
-// 添加资源
+// Add resource
 const handleAdd = () => {
   dialogVisible.value = true
   isEdit.value = false
@@ -112,7 +112,7 @@ const handleAdd = () => {
   }
 }
 
-// 删除资源
+// Delete resource
 const handleDelete = async (index: number, row: UmsResource) => {
   await ElMessageBox.confirm('是否要删除该资源?', '提示', {
     confirmButtonText: '确定',
@@ -128,14 +128,14 @@ const handleDelete = async (index: number, row: UmsResource) => {
   }
 }
 
-// 更新资源
+// Update resource
 const handleUpdate = (index: number, row: UmsResource) => {
   dialogVisible.value = true
   isEdit.value = true
   resource.value = Object.assign({}, row)
 }
 
-// 处理对话框确认
+// Handle dialog confirmation
 const handleDialogConfirm = async () => {
   await ElMessageBox.confirm('是否要确认?', '提示', {
     confirmButtonText: '确定',
@@ -159,12 +159,12 @@ const handleDialogConfirm = async () => {
   }
 }
 
-// 显示资源分类
+// Show resource categories
 const handleShowCategory = () => {
   router.push({ path: '/ums/resourceCategory' })
 }
 
-// 日期格式化过滤器函数
+// Date format filter function
 const formatDateTime = (time: string) => {
   if (!time) {
     return 'N/A'

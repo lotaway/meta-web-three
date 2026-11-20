@@ -187,7 +187,7 @@ onMounted(() => {
     </div>
 
     <el-tabs v-model="activeTab" class="ai-tabs">
-      <!-- ==================== 配置 ==================== -->
+      <!-- ==================== Config ==================== -->
       <el-tab-pane label="Provider 配置" name="config">
         <el-row :gutter="16">
           <el-col :span="10">
@@ -237,7 +237,7 @@ onMounted(() => {
         </el-row>
       </el-tab-pane>
 
-      <!-- ==================== 索引 ==================== -->
+      <!-- ==================== Index ==================== -->
       <el-tab-pane label="向量索引" name="index">
         <el-card shadow="never" class="mb-16">
           <template #header>
@@ -272,7 +272,7 @@ onMounted(() => {
         </el-card>
       </el-tab-pane>
 
-      <!-- ==================== Provider 测试 ==================== -->
+      <!-- ==================== Provider tests ==================== -->
       <el-tab-pane label="Provider 测试" name="provider">
         <el-card shadow="never">
           <template #header>
@@ -300,7 +300,7 @@ onMounted(() => {
         </el-card>
       </el-tab-pane>
 
-      <!-- ==================== 日志 ==================== -->
+      <!-- ==================== Logs ==================== -->
       <el-tab-pane label="搜索日志" name="logs">
         <el-card shadow="never">
           <template #header>

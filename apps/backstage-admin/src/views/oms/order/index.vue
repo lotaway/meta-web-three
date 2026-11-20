@@ -12,24 +12,24 @@ import { useOrderStore } from '@/stores/order'
 
 const { t } = useI18n()
 
-// 获取路由对象
+// Get route object
 const router = useRouter()
 
-// 获取订单存储store
+// Get order store
 const orderStore = useOrderStore()
 
-// 订单列表查询参数
+// Order list query params
 const listQuery = ref<OrderQueryParam>({
   pageNum: 1,
   pageSize: 10
 })
-// 订单列表数据
+// Order list data
 const list = ref<OmsOrder[]>([])
-// 表格数据加载进度条
+// Table data loading progress bar
 const listLoading = ref(true)
-// 分页组件参数
+// Pagination component params
 const total = ref(0)
-// 获取订单列表数据
+// Get order list data
 const getList = async () => {
   listLoading.value = true
   try {
@@ -43,27 +43,27 @@ const getList = async () => {
   }
 }
 
-// 组件挂载后初始化列表信息
+// Initialize list info after mount
 onMounted(() => {
   getList()
 })
 
-// 表格中被选中的行
+// Selected rows in the table
 const multipleSelection = ref<OmsOrder[]>([])
-// 批量操作类型
+// Batch operation type
 const operateType = ref<number>()
 
-// 关闭订单对话框相关数据
+// Close-order dialog data
 const closeOrderData = ref({
   dialogVisible: false,
   content: '',
   orderIds: [] as number[]
 })
 
-// 物流对话框可见性
+// Logistics dialog visibility
 const logisticsDialogVisible = ref(false)
 
-// 订单状态选项
+// Order status options
 const statusOptions = [
   {
     label: t('oms.order.list.statusPendingPay'),
@@ -87,7 +87,7 @@ const statusOptions = [
   }
 ]
 
-// 订单类型选项
+// Order type options
 const orderTypeOptions = [
   {
     label: t('oms.order.list.typeNormal'),
@@ -99,7 +99,7 @@ const orderTypeOptions = [
   }
 ]
 
-// 订单来源选项
+// Order source options
 const sourceTypeOptions = [
   {
     label: t('oms.order.list.sourcePC'),
@@ -111,7 +111,7 @@ const sourceTypeOptions = [
   }
 ]
 
-// 批量操作选项
+// Batch operation options
 const operateOptions = [
   {
     label: t('oms.order.list.batchDeliver'),
@@ -127,7 +127,7 @@ const operateOptions = [
   }
 ]
 
-// 格式化支付方式
+// Format payment method
 const formatPayType = (value: number) => {
   if (value === 1) {
     return t('oms.order.list.payAlipay')
@@ -138,7 +138,7 @@ const formatPayType = (value: number) => {
   }
 }
 
-// 格式化订单来源
+// Format order source
 const formatSourceType = (value: number) => {
   if (value === 1) {
     return t('oms.order.list.sourceAPP')
@@ -147,7 +147,7 @@ const formatSourceType = (value: number) => {
   }
 }
 
-// 格式化订单状态
+// Format order status
 const formatStatus = (value: number) => {
   if (value === 1) {
     return t('oms.order.list.statusPendingDeliver')
@@ -164,51 +164,51 @@ const formatStatus = (value: number) => {
   }
 }
 
-// 处理重置搜索
+// Handle reset search
 const handleResetSearch = () => {
   listQuery.value = { pageNum: 1, pageSize: 10 }
 }
 
-// 处理搜索列表
+// Handle search list
 const handleSearchList = () => {
   listQuery.value.pageNum = 1
   getList()
 }
 
-// 处理表格选中状态变化
+// Handle table selection state change
 const handleSelectionChange = (val: OmsOrder[]) => {
   multipleSelection.value = val
 }
 
-// 处理查看订单
+// Handle view order
 const handleViewOrder = (index: number, row: OmsOrder) => {
   router.push({ path: '/oms/orderDetail', query: { id: row.id } })
 }
 
-// 处理关闭订单
+// Handle close order
 const handleCloseOrder = (index: number, row: OmsOrder) => {
   closeOrderData.value.dialogVisible = true
   closeOrderData.value.orderIds = [row.id!]
 }
 
-// 处理订单发货
+// Handle order shipment
 const handleDeliveryOrder = (index: number, row: OmsOrder) => {
   orderStore.setDeliverOrderList([row])
   router.push({ path: '/oms/deliverOrderList' })
 }
 
-// 处理查看物流
+// Handle view logistics
 const handleViewLogistics = (index: number, row: OmsOrder) => {
   logisticsDialogVisible.value = true
 }
 
-// 处理删除订单
+// Handle delete order
 const handleDeleteOrder = async (index: number, row: OmsOrder) => {
   const ids = [row.id!]
   await deleteOrderFn(ids)
 }
 
-// 处理批量操作
+// Handle batch operations
 const handleBatchOperate = async () => {
   if (!multipleSelection.value || multipleSelection.value.length < 1) {
     ElMessage({
@@ -219,7 +219,7 @@ const handleBatchOperate = async () => {
     return
   }
   if (operateType.value === 1) {
-    // 批量发货
+    // Batch shipment
     const listItems = multipleSelection.value.filter(item => item.status === 1)
     if (!listItems || listItems.length < 1) {
       ElMessage({
@@ -232,32 +232,32 @@ const handleBatchOperate = async () => {
     orderStore.setDeliverOrderList(listItems)
     router.push({ path: '/oms/deliverOrderList' })
   } else if (operateType.value === 2) {
-    // 关闭订单
+    // Close order
     closeOrderData.value.orderIds = multipleSelection.value.filter(item => item.status === 0)
       .map(item => item.id)
     closeOrderData.value.dialogVisible = true
   } else if (operateType.value === 3) {
-    // 删除订单
+    // Delete order
     const ids = multipleSelection.value.filter(item => item.status === 4)
       .map(item => item.id)
     await deleteOrderFn(ids)
   }
 }
 
-// 处理每页条数变化
+// Handle page size change
 const handleSizeChange = (val: number) => {
   listQuery.value.pageNum = 1
   listQuery.value.pageSize = val
   getList()
 }
 
-// 处理当前页变化
+// Handle current page change
 const handleCurrentChange = (val: number) => {
   listQuery.value.pageNum = val
   getList()
 }
 
-// 处理确认关闭订单
+// Handle confirm close order
 const handleCloseOrderConfirm = async () => {
   if (!closeOrderData.value.content) {
     ElMessage({
@@ -279,7 +279,7 @@ const handleCloseOrderConfirm = async () => {
   })
 }
 
-// 删除订单函数
+// Delete order function
 const deleteOrderFn = async (ids: number[]) => {
   await ElMessageBox.confirm(t('oms.order.list.deleteConfirm'), t('common.warning'), {
     confirmButtonText: t('common.confirm'),

@@ -5,11 +5,11 @@ import { Tickets } from '@element-plus/icons-vue'
 import { resourceCategoryListAllAPI, resourceCategoryCreateAPI, resourceCategoryUpdateAPI, resourceCategoryDeleteByIdAPI } from '@/apis/resourceCategory'
 import type { UmsResourceCategory } from '@/types/resource'
 
-// 资源分类列表数据
+// Resource category list data
 const list = ref<UmsResourceCategory[]>([])
-// 加载状态
+// Loading state
 const listLoading = ref(false)
-// 获取列表数据
+// Get list data
 const getList = async () => {
   listLoading.value = true
   try {
@@ -22,38 +22,38 @@ const getList = async () => {
   }
 }
 
-// 组件挂载时获取数据
+// Fetch data on mount
 onMounted(() => {
   getList()
 })
 
-// 默认资源分类对象
+// Default resource category object
 const defaultResourceCategory: UmsResourceCategory = {
   name: '',
   sort: 0
 }
-// 当前操作的资源分类
+// Current resource category
 const resourceCategory = ref(Object.assign({}, defaultResourceCategory))
-// 编辑框是否可见
+// Whether the edit dialog is visible
 const dialogVisible = ref(false)
-// 编辑状态
+// Edit state
 const isEdit = ref(false)
 
-// 添加资源分类
+// Add resource category
 const handleAdd = () => {
   dialogVisible.value = true
   isEdit.value = false
   resourceCategory.value = Object.assign({}, defaultResourceCategory)
 }
 
-// 更新资源分类
+// Update resource category
 const handleUpdate = (index: number, row: UmsResourceCategory) => {
   dialogVisible.value = true
   isEdit.value = true
   resourceCategory.value = Object.assign({}, row)
 }
 
-// 删除资源分类
+// Delete resource category
 const handleDelete = async (index: number, row: UmsResourceCategory) => {
   await ElMessageBox.confirm('是否要删除该分类?', '提示', {
     confirmButtonText: '确定',
@@ -69,7 +69,7 @@ const handleDelete = async (index: number, row: UmsResourceCategory) => {
   }
 }
 
-// 处理对话框确认
+// Handle dialog confirmation
 const handleDialogConfirm = async () => {
   await ElMessageBox.confirm('是否要确认?', '提示', {
     confirmButtonText: '确定',
@@ -98,7 +98,7 @@ const handleDialogConfirm = async () => {
 
 }
 
-// 日期格式化过滤器函数
+// Date format filter function
 const formatDateTime = (time: string) => {
   if (!time) {
     return 'N/A'

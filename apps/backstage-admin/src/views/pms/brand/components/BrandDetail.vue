@@ -6,23 +6,23 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import type { PmsBrand } from '@/types/brand'
 
-// 获取路由对象
+// Get route object
 const route = useRoute()
 const router = useRouter()
 
-// 定义属性
+// Define properties
 const props = defineProps({
-  // 是否为编辑模式
+  // Whether in edit mode
   isEdit: {
     type: Boolean,
     default: false
   }
 })
 
-// 定义品牌id
+// Define brand ID
 const brandId = computed(() => Number(route.query.id))
 
-// 默认品牌，添加时使用
+// Default brand, used when creating
 const defaultBrand: PmsBrand = {
   bigPic: '',
   brandStory: '',
@@ -33,11 +33,11 @@ const defaultBrand: PmsBrand = {
   showStatus: 0,
   sort: 0
 }
-// 定义品牌对象
+// Define brand object
 const brand = ref<PmsBrand>(Object.assign({}, defaultBrand))
-// 品牌表单组件引用
+// Brand form component ref
 const brandFromRef = ref<FormInstance>()
-// 品牌表单校验规则
+// Brand form validation rules
 const rules = reactive<FormRules<typeof brand>>({
   name: [
     { required: true, message: '请输入品牌名称', trigger: 'blur' },
@@ -51,19 +51,19 @@ const rules = reactive<FormRules<typeof brand>>({
   ],
 })
 
-// 组件挂载时加载数据
+// Load data on mount
 onMounted(async () => {
   if (props.isEdit) {
-    // 编辑模式调用接口获取品牌详情
+    // In edit mode, fetch brand details via API
     const res = await getBrandAPI(brandId.value)
     brand.value = res.data
   } else {
-    // 添加模式使用默认品牌
+    // In create mode, use the default brand
     brand.value = Object.assign({}, defaultBrand)
   }
 })
 
-// 处理品牌表单提交
+// Handle brand form submission
 const handleBrandSubmit = () => {
   brandFromRef.value!.validate(async (valid) => {
     if (valid) {
@@ -101,7 +101,7 @@ const handleBrandSubmit = () => {
   })
 }
 
-// 处理品牌表单重置
+// Handle brand form reset
 const handleBrandReset = () => {
   brandFromRef.value!.resetFields()
   brand.value = Object.assign({}, defaultBrand)

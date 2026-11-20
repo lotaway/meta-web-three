@@ -6,21 +6,21 @@ import Sidebar from './components/Sidebar/index.vue'
 import AppMain from './components/AppMain.vue'
 import useResizeHandler from './composables/useResizeHandler'
 
-// 使用 Pinia store
+// Use Pinia store
 const appStore = useAppStore()
 
-// 获取响应式状态
+// Get reactive state
 const sidebar = computed(() => appStore.sidebar)
 const device = computed(() => appStore.device)
 
-// 计算类名
+// Compute class names
 const classObj = computed(() => ({
   hideSidebar: !sidebar.value.opened,
   withoutAnimation: sidebar.value.withoutAnimation,
   mobile: device.value === 'mobile'
 }))
 
-// 使用 resize handler composable
+// Use the resize handler composable
 useResizeHandler()
 </script>
 

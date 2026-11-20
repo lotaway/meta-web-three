@@ -7,7 +7,7 @@ import { USER_PERSIST_KEY, purgePersistedPassword } from '@/utils/user-storage'
 export const useUserStore = defineStore(
   'user',
   () => {
-    // 用户信息
+    // User info
     const userInfo = ref<UserInfo>({
       username: '',
       avatar: '',
@@ -16,7 +16,7 @@ export const useUserStore = defineStore(
       menus: [],
     })
 
-    // 用户登录
+    // User login
     const userLogin = async (loginParam: LoginParam) => {
       const res = await adminLoginAPI(loginParam)
       const tokenStr = res.data.tokenHead + res.data.token
@@ -25,11 +25,11 @@ export const useUserStore = defineStore(
       await getUserInfo()
     }
 
-    // 获取用户信息
+    // Get user info
     const getUserInfo = async () => {
       const res = await getAdminInfoAPI()
       if (res.data.roles && res.data.roles.length > 0) {
-        // 验证返回的roles是否是一个非空数组
+        // Check whether the returned roles is a non-empty array
         userInfo.value.roles = res.data.roles
       } else {
         throw new Error('No role assigned to this user. Please assign a role first.')
@@ -38,14 +38,14 @@ export const useUserStore = defineStore(
       userInfo.value.avatar = res.data.icon
     }
 
-    // 用户登出
+    // User logout
     const userLogout = async () => {
       await adminLogoutAPI()
       userInfo.value.token = ''
       userInfo.value.roles = []
     }
 
-    // 前端登出
+    // Frontend logout
     const fedLogout = () => {
       userInfo.value.token = ''
     }

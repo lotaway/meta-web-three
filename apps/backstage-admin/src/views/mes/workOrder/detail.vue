@@ -64,7 +64,7 @@
           </el-descriptions-item>
         </el-descriptions>
 
-        <!-- 操作按钮 -->
+        <!-- Action buttons -->
         <div class="action-buttons">
           <el-button
             v-if="canRelease"
@@ -124,7 +124,7 @@
           </el-button>
         </div>
 
-        <!-- 子工单列表 -->
+        <!-- Child work order list -->
         <div v-if="childOrders.length > 0" class="child-orders">
           <h3>{{ t('mes.workOrder.childOrders') }}</h3>
           <el-table :data="childOrders" border style="width: 100%">
@@ -143,7 +143,7 @@
       </div>
     </el-card>
 
-    <!-- 拆分对话框 -->
+    <!-- Split dialog -->
     <el-dialog v-model="splitDialogVisible" :title="t('mes.workOrder.split')" width="400px">
       <el-form :model="splitForm" label-width="100px">
         <el-form-item :label="t('mes.workOrder.splitType')">
@@ -163,7 +163,7 @@
       </template>
     </el-dialog>
 
-    <!-- 取消原因对话框 -->
+    <!-- Cancel reason dialog -->
     <el-dialog v-model="cancelDialogVisible" :title="t('mes.workOrder.cancelAction')" width="400px">
       <el-form :model="cancelForm" label-width="100px">
         <el-form-item :label="t('mes.workOrder.cancelReason')">
@@ -209,7 +209,7 @@ const loading = ref(false)
 const workOrder = ref<WorkOrder | null>(null)
 const childOrders = ref<WorkOrder[]>([])
 
-// 对话框
+// Dialog
 const splitDialogVisible = ref(false)
 const splitForm = ref({
   splitType: 'BY_BOM' as SplitType,
@@ -220,7 +220,7 @@ const cancelForm = ref({
   reason: '',
 })
 
-// 操作权限
+// Operation permissions
 const canRelease = computed(() => workOrder.value?.status === 'DRAFT')
 const canStart = computed(() => workOrder.value?.status === 'RELEASED')
 const canPause = computed(() => workOrder.value?.status === 'IN_PROGRESS')
@@ -260,7 +260,7 @@ const loadData = async () => {
     const response = await getWorkOrderByIdAPI(id)
     workOrder.value = response.data || null
 
-    // 加载子工单
+    // Load child work orders
     if (workOrder.value?.id) {
       const childResponse = await getChildWorkOrdersAPI(workOrder.value.id)
       childOrders.value = childResponse.data || []

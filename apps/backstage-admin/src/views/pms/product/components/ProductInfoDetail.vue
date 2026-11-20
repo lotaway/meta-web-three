@@ -6,7 +6,7 @@ import { getBrandListAPI } from '@/apis/brand'
 import type { PmsProductParam } from '@/types/product'
 import type { ElCascaderDataVo, ElSelectDataVo } from '@/types/common'
 
-// 定义属性
+// Define properties
 const props = defineProps({
   isEdit: {
     type: Boolean,
@@ -14,17 +14,17 @@ const props = defineProps({
   }
 })
 
-// 定义事件
+// Define events
 const emit = defineEmits(['next-step'])
 
-// 获取跨层传递的数据
+// Get cross-layer passed data
 const compProductParam = inject('product-key') as Ref<PmsProductParam>
 
-// 级联选择器中当前选中的商品分类，结构为：[父分类ID,分类ID]
+// Currently selected product category in the cascade: [parent ID, category ID]
 const selectProductCateValue = ref<number[]>([])
-// 级联选择器中的商品分类数据
+// Product category data in the cascade selector
 const productCateOptions = ref<ElCascaderDataVo[]>([])
-// 获取商品分类列表数据
+// Get product category list data
 const getProductCateList = async () => {
   const res = await getProductCategoryListWithChildrenAPI()
   const list = res.data
@@ -34,15 +34,15 @@ const getProductCateList = async () => {
     children: item.children?.map(it => ({ label: it.name, value: it.id! }))
   }))
 }
-// 选择器中的品牌数据
+// Brand data in the selector
 const brandOptions = ref<ElSelectDataVo[]>([])
-// 获取品牌列表数据
+// Get brand list data
 const getBrandList = async () => {
   const res = await getBrandListAPI({ pageNum: 1, pageSize: 100 })
   brandOptions.value = res.data.list.map(item => ({ label: item.name, value: item.id! }))
 }
 
-// 初始化数据
+// Initialize data
 onMounted(async () => {
   await getProductCateList()
   await getBrandList()
@@ -51,12 +51,12 @@ onMounted(async () => {
   }
 })
 
-// 编辑状态初始化标记位
+// Edit-mode initialization flag
 const hasEditCreated = ref(false)
 
-// 表单引用
+// Form ref
 const productInfoForm = ref<FormInstance>()
-// 表单验证规则
+// Form validation rules
 const rules = {
   name: [
     { required: true, message: '请输入商品名称', trigger: 'blur' },
@@ -69,7 +69,7 @@ const rules = {
   requiredProp: [{ required: true, message: '该项为必填项', trigger: 'blur' }]
 }
 
-// 监听选择分类变化
+// Watch category selection change
 watch(selectProductCateValue, (newValue) => {
   if (newValue && newValue.length === 2) {
     compProductParam.value.productCategoryId = newValue[1]
@@ -81,7 +81,7 @@ watch(selectProductCateValue, (newValue) => {
 })
 
 
-// 方法定义
+// Method definitions
 const handleEditCreated = () => {
   if (compProductParam.value.productCategoryId) {
     selectProductCateValue.value.push(compProductParam.value.cateParentId!)
@@ -90,7 +90,7 @@ const handleEditCreated = () => {
   hasEditCreated.value = true
 }
 
-// 根据分类ID获取分类名称
+// Get category name by ID
 const getCateNameById = (id: number) => {
   for (const item of productCateOptions.value) {
     const child = item.children?.find(child => child.value === id)
@@ -101,7 +101,7 @@ const getCateNameById = (id: number) => {
   return undefined
 }
 
-// 下一步按钮出来事件
+// Next-step button show event
 const handleNext = async () => {
   if (productInfoForm.value) {
     try {
@@ -119,7 +119,7 @@ const handleNext = async () => {
   }
 }
 
-// 处理品牌变化
+// Handle brand change
 const handleBrandChange = (val: number) => {
   const findBrand = brandOptions.value.find(item => item.value === val)
   compProductParam.value.brandName = findBrand?.label

@@ -3,49 +3,49 @@ import type { RouteRecordExt } from '@/types/router'
 import { computed, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-// 定义组件名称
+// Define component name
 defineOptions({
   name: 'SidebarItem'
 })
 
 const { t } = useI18n()
 
-// 翻译标题函数：如果是翻译key则翻译，否则直接显示
+// Translate title: translate if it is a key, otherwise display as-is
 const translateTitle = (title: string | undefined) => {
   if (!title) return ''
-  // 如果是翻译key格式（包含点号），则翻译
+  // If it is in translation-key format (contains a dot), translate it
   if (title.includes('.') && !title.includes(' ')) {
     return t(title)
   }
   return title
 }
 
-// 安全的路径处理
+// Safe path handling
 const toStr = (v: unknown): string => {
   if (v === null || v === undefined) return ''
   if (typeof v === 'object') return ''
   return String(v)
 }
 
-// 构建路径
+// Build path
 const joinPath = (...parts: unknown[]): string => {
   return parts.map(p => toStr(p)).filter(Boolean).join('/')
 }
 
-// 定义props
+// Define props
 const props = defineProps({
-  // 生成菜单的路由
+  // Generate menu routes
   routes: {
     type: Array as PropType<RouteRecordExt[]>
   },
-  // 控制只有一个子菜单的一级菜单样式
+  // Control the style of top-level menus with a single child
   isNest: {
     type: Boolean,
     default: false
   }
 })
 
-// 预处理路由数据，转换为字符串路径
+// Preprocess route data into string paths
 interface ProcessedRoute {
   path: string
   name: string
@@ -70,23 +70,23 @@ const processedRoutes = computed((): ProcessedRoute[] => {
     .map(process)
 })
 
-// 判断路由下方是否只有一个子路由
+// Check whether a route has only one child route
 const hasOneShowingChildren = (children: ProcessedRoute[]) => {
   const showingChildren = children.filter(item => !item.hidden)
   return showingChildren.length === 1
 }
 
-// 获取过滤后的子路由
+// Get filtered child routes
 const getFilteredChildren = (children: ProcessedRoute[]) => {
   return children.filter(child => !child.hidden)
 }
 
-// 计算菜单 index
+// Compute menu index
 const calcIndex = (item: ProcessedRoute): string => {
   return item.name || item.path
 }
 
-// 计算子路由 index
+// Compute child route index
 const calcChildIndex = (parent: ProcessedRoute, child: ProcessedRoute): string => {
   return joinPath(parent.path, child.path)
 }
@@ -95,7 +95,7 @@ const calcChildIndex = (parent: ProcessedRoute, child: ProcessedRoute): string =
 <template>
   <div class="menu-wrapper">
     <template v-for="item in processedRoutes">
-      <!-- 只有一个子菜单的一级菜单 -->
+      <!-- Top-level menu with a single child -->
       <router-link
         v-if="item.children && hasOneShowingChildren(item.children) && !item.children[0]?.children && !item.alwaysShow"
         :to="calcChildIndex(item, item.children[0]!)" :key="item.children[0]?.name">
@@ -109,18 +109,18 @@ const calcChildIndex = (parent: ProcessedRoute, child: ProcessedRoute): string =
           </template>
         </el-menu-item>
       </router-link>
-      <!-- 有多个子菜单的一级菜单 -->
+      <!-- Top-level menu with multiple children -->
       <el-sub-menu v-else :index="calcIndex(item)" :key="calcIndex(item)">
-        <!-- 一级菜单 -->
+        <!-- Top-level menu -->
         <template #title>
           <svg-icon v-if="item.meta?.icon" :icon-class="item.meta.icon"></svg-icon>
           <span v-if="item.meta?.title">{{ translateTitle(item.meta.title) }}</span>
         </template>
-        <!-- 子菜单 -->
+        <!-- Submenu -->
         <template v-for="child in getFilteredChildren(item.children!)">
           <sidebar-item :is-nest="true" class="nest-menu" v-if="child.children && child.children.length > 0"
             :routes="[child as any]" :key="child.path"></sidebar-item>
-          <!-- 具有外链功能的子菜单 -->
+          <!-- Submenu with external link -->
           <a v-else-if="child.path.startsWith('http')" :href="child.path" target="_blank" :key="child.name || child.path">
             <el-menu-item :index="calcChildIndex(item, child)">
               <svg-icon v-if="child.meta?.icon" :icon-class="child.meta.icon"></svg-icon>
@@ -129,7 +129,7 @@ const calcChildIndex = (parent: ProcessedRoute, child: ProcessedRoute): string =
               </template>
             </el-menu-item>
           </a>
-          <!-- 普通子菜单 -->
+          <!-- Regular submenu -->
           <router-link v-else :to="calcChildIndex(item, child)" :key="'route-' + (child.name || child.path)">
             <el-menu-item :index="calcChildIndex(item, child)">
               <svg-icon v-if="child.meta?.icon" :icon-class="child.meta.icon"></svg-icon>

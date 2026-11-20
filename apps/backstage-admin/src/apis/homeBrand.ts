@@ -9,9 +9,9 @@ export function getHomeBrandListAPI(params: HomeBrandQueryParam) {
   })
 }
 export function homeBrandUpdateRecommendStatusAPI(params: {
-  /** 品牌推荐ID */
+  /** Brand recommendation ID */
   ids: string
-  /** 品牌推荐状态 */
+  /** Brand recommendation status */
   recommendStatus: number
 }) {
   return http({

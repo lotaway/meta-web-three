@@ -6,19 +6,19 @@ import ScrollBar from '@/components/ScrollBar/index.vue'
 import { useAppStore } from '@/stores/app'
 import usePermissionStore from '@/stores/permission'
 
-// 定义组件名称
+// Define component name
 defineOptions({
   name: 'Sidebar'
 })
 
-// 使用 Pinia stores
+// Use Pinia stores
 const appStore = useAppStore()
 const permissionStore = usePermissionStore()
 
 const route = useRoute()
-// 所有路由
+// All routes
 const routes = computed(() => permissionStore.routers)
-// 侧边栏打开状态
+// Sidebar open state
 const isCollapse = computed(() => !appStore.sidebar.opened)
 </script>
 

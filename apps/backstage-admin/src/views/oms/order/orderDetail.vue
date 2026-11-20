@@ -12,53 +12,53 @@ import { pcaTextArr } from 'element-china-area-data'
 
 const { t } = useI18n()
 
-// 获取路由对象
+// Get route object
 const router = useRouter()
 const route = useRoute()
 
-// 订单ID
+// Order ID
 const id = ref<number>()
-// 订单详情数据
+// Order detail data
 const order = ref<OmsOrderDetail>({} as OmsOrderDetail)
 
-// 组件挂载后获取订单详情
+// Get order details after mount
 onMounted(async () => {
   id.value = Number(route.query.id)
   const res = await getOrderDetailByIdAPI(id.value!)
   order.value = res.data
 })
 
-// 修改收货人信息对话框可见性
+// Edit-recipient dialog visibility
 const receiverDialogVisible = ref(false)
-// 收货人信息
+// Recipient information
 const receiverInfo = ref<OmsReceiverInfoParam>({} as OmsReceiverInfoParam)
-// 当前选中的省市区三级联动
+// Currently selected province/city/district cascade
 const selectedRegions = ref<string[]>([])
 
-// 修改费用信息对话框可见性
+// Edit-fee dialog visibility
 const moneyDialogVisible = ref(false)
-// 费用信息
+// Fee information
 const moneyInfo = ref({ orderId: 0, freightAmount: 0, discountAmount: 0, status: 0 })
 
-// 发送站内信对话框可见性
+// Send-internal-message dialog visibility
 const messageDialogVisible = ref(false)
-// 站内信内容
+// Internal message content
 const message = ref({ title: '', content: '' })
 
-// 关闭订单对话框可见性
+// Close-order dialog visibility
 const closeDialogVisible = ref(false)
-// 关闭订单信息
+// Close-order information
 const closeInfo = ref({ note: '', id: 0 })
 
-// 备注订单对话框可见性
+// Order-remark dialog visibility
 const markOrderDialogVisible = ref(false)
-// 备注订单信息
+// Order-remark information
 const markInfo = ref({ id: 0, note: '' })
 
-// 物流对话框可见性
+// Logistics dialog visibility
 const logisticsDialogVisible = ref(false)
 
-// 格式化空值
+// Format empty values
 const formatNull = (value: string | undefined) => {
   if (!value) {
     return t('oms.order.detail.cellNoData')
@@ -67,7 +67,7 @@ const formatNull = (value: string | undefined) => {
   }
 }
 
-// 格式化长文本
+// Format long text
 const formatLongText = (value: string | undefined) => {
   if (!value) {
     return t('oms.order.detail.cellNoData')
@@ -78,7 +78,7 @@ const formatLongText = (value: string | undefined) => {
   }
 }
 
-// 格式化支付方式
+// Format payment method
 const formatPayType = (value: number) => {
   if (value === 1) {
     return t('oms.order.detail.payTypeAlipay')
@@ -89,7 +89,7 @@ const formatPayType = (value: number) => {
   }
 }
 
-// 格式化订单来源
+// Format order source
 const formatSourceType = (value: number) => {
   if (value === 1) {
     return t('oms.order.detail.sourceTypeAPP')
@@ -98,7 +98,7 @@ const formatSourceType = (value: number) => {
   }
 }
 
-// 格式化订单类型
+// Format order type
 const formatOrderType = (value: number) => {
   if (value === 1) {
     return t('oms.order.detail.orderTypeFlash')
@@ -107,7 +107,7 @@ const formatOrderType = (value: number) => {
   }
 }
 
-// 格式化地址
+// Format address
 const formatAddress = (order: OmsOrder) => {
   let str = order.receiverProvince || ''
   if (order.receiverCity != null) {
@@ -118,7 +118,7 @@ const formatAddress = (order: OmsOrder) => {
   return str
 }
 
-// 格式化订单状态
+// Format order status
 const formatStatus = (value: number) => {
   if (value === 1) {
     return t('oms.order.detail.statusPendingDeliver')
@@ -135,7 +135,7 @@ const formatStatus = (value: number) => {
   }
 }
 
-// 格式化支付状态
+// Format payment status
 const formatPayStatus = (value: number) => {
   if (value === 0) {
     return t('oms.order.detail.payStatusUnpaid')
@@ -146,7 +146,7 @@ const formatPayStatus = (value: number) => {
   }
 }
 
-// 格式化发货状态
+// Format shipment status
 const formatDeliverStatus = (value: number) => {
   if (value === 0 || value === 1) {
     return t('oms.order.detail.deliverStatusNotDelivered')
@@ -155,7 +155,7 @@ const formatDeliverStatus = (value: number) => {
   }
 }
 
-// 格式化商品属性
+// Format product attributes
 const formatProductAttr = (value: string) => {
   if (value == null) {
     return ''
@@ -172,31 +172,31 @@ const formatProductAttr = (value: string) => {
   }
 }
 
-// 格式化步骤状态
+// Format step status
 const formatStepStatus = (value: number) => {
   if (value === 1) {
-    //待发货
+    // Pending shipment
     return 2
   } else if (value === 2) {
-    //已发货
+    // Shipped
     return 3
   } else if (value === 3) {
-    //已完成
+    // Completed
     return 4
   } else {
-    //待付款、已关闭、无限订单
+    // Pending payment, closed, invalid orders
     return 1
   }
 }
 
-// 选择地区
+// Select region
 const onSelectRegionChange = () => {
   receiverInfo.value.receiverProvince = selectedRegions.value[0]
   receiverInfo.value.receiverCity = selectedRegions.value[1]
   receiverInfo.value.receiverRegion = selectedRegions.value[2]
 }
 
-// 显示修改收货人信息对话框
+// Show the edit-recipient dialog
 const showUpdateReceiverDialog = () => {
   receiverDialogVisible.value = true
   receiverInfo.value = {
@@ -210,14 +210,14 @@ const showUpdateReceiverDialog = () => {
     receiverRegion: order.value.receiverRegion,
     status: order.value.status
   }
-  // 初始化地址选择器中数据
+  // Initialize data in the address picker
   selectedRegions.value = []
   selectedRegions.value[0] = receiverInfo.value.receiverProvince!
   selectedRegions.value[1] = receiverInfo.value.receiverCity!
   selectedRegions.value[2] = receiverInfo.value.receiverRegion!
 }
 
-// 处理更新收货人信息
+// Handle update recipient information
 const handleUpdateReceiverInfo = async () => {
   await ElMessageBox.confirm(t('oms.order.detail.msgModifyReceiverConfirm'), t('oms.order.detail.confirmTitle'), {
     confirmButtonText: t('common.confirmText'),
@@ -234,7 +234,7 @@ const handleUpdateReceiverInfo = async () => {
   order.value = response.data
 }
 
-// 显示修改费用信息对话框
+// Show the edit-fee dialog
 const showUpdateMoneyDialog = () => {
   moneyDialogVisible.value = true
   moneyInfo.value.orderId = order.value.id
@@ -243,7 +243,7 @@ const showUpdateMoneyDialog = () => {
   moneyInfo.value.status = order.value.status
 }
 
-// 处理更新费用信息
+// Handle update fee information
 const handleUpdateMoneyInfo = async () => {
   await ElMessageBox.confirm(t('oms.order.detail.msgModifyMoneyConfirm'), t('oms.order.detail.confirmTitle'), {
     confirmButtonText: t('common.confirmText'),
@@ -260,14 +260,14 @@ const handleUpdateMoneyInfo = async () => {
   order.value = response.data
 }
 
-// 显示发送站内信对话框
+// Show the internal-message dialog
 const showMessageDialog = () => {
   messageDialogVisible.value = true
   message.value.title = ''
   message.value.content = ''
 }
 
-// 处理发送站内信
+// Handle send internal message
 const handleSendMessage = async () => {
   await ElMessageBox.confirm(t('oms.order.detail.msgSendMessageConfirm'), t('oms.order.detail.confirmTitle'), {
     confirmButtonText: t('common.confirmText'),
@@ -282,14 +282,14 @@ const handleSendMessage = async () => {
   })
 }
 
-// 显示关闭订单对话框
+// Show the close-order dialog
 const showCloseOrderDialog = () => {
   closeDialogVisible.value = true
   closeInfo.value.note = ''
   closeInfo.value.id = id.value!
 }
 
-// 处理关闭订单
+// Handle close order
 const handleCloseOrder = async () => {
   try {
     await ElMessageBox.confirm(t('oms.order.detail.msgCloseOrderConfirm'), t('oms.order.detail.confirmTitle'), {
@@ -313,14 +313,14 @@ const handleCloseOrder = async () => {
   }
 }
 
-// 显示备注订单对话框
+// Show the order-remark dialog
 const showMarkOrderDialog = () => {
   markOrderDialogVisible.value = true
   markInfo.value.id = id.value!
   markInfo.value.note = ''
 }
 
-// 处理备注订单
+// Handle order remark
 const handleMarkOrder = async () => {
   await ElMessageBox.confirm(t('oms.order.detail.msgMarkOrderConfirm'), t('oms.order.detail.confirmTitle'), {
     confirmButtonText: t('common.confirmText'),
@@ -337,7 +337,7 @@ const handleMarkOrder = async () => {
   order.value = response.data
 }
 
-// 处理删除订单
+// Handle delete order
 const handleDeleteOrder = async () => {
   try {
     await ElMessageBox.confirm(t('oms.order.detail.msgDeleteOrderConfirm'), t('oms.order.detail.confirmTitle'), {
@@ -359,7 +359,7 @@ const handleDeleteOrder = async () => {
   }
 }
 
-// 显示物流对话框
+// Show the logistics dialog
 const showLogisticsDialog = () => {
   logisticsDialogVisible.value = true
 }
@@ -406,8 +406,8 @@ const showLogisticsDialog = () => {
           <el-button size="small" @click="showMarkOrderDialog">{{ t('oms.order.detail.btnMarkOrder') }}</el-button>
         </div>
       </div>
-      <!-- 其余模板内容保持不变，由于篇幅限制，这里省略了大部分模板代码 -->
-      <!-- 请参考原始文件补充完整模板内容 -->
+      <!-- The rest of the template is unchanged; most template code is omitted for brevity -->
+      <!-- Refer to the original file for the complete template -->
       <div style="margin-top: 20px">
         <svg-icon icon-class="marker" style="color: #606266"></svg-icon>
         <span class="font-small">基本信息</span>

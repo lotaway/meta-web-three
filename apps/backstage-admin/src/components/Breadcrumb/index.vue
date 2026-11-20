@@ -3,27 +3,27 @@ import { computed, ref, watch } from 'vue'
 import { useRoute, type RouteLocationMatched } from 'vue-router'
 import { ElBreadcrumb, ElBreadcrumbItem } from 'element-plus'
 
-// 定义组件名称
+// Define component name
 defineOptions({
   name: 'Breadcrumb'
 })
 
-// 显式注册Element Plus组件
+// Explicitly register Element Plus components
 defineExpose({
   ElBreadcrumb,
   ElBreadcrumbItem
 })
 
-// 响应式数据
+// Reactive data
 const levelList = ref<RouteLocationMatched[]>([])
 const route = useRoute()
 
-// 计算属性，只返回有标题的面包屑项
+// Computed: only return breadcrumb items that have a title
 const visibleLevelList = computed(() => {
   return levelList.value.filter(item => item.meta?.title)
 })
 
-// 获取面包屑路径
+// Get breadcrumb path
 const getBreadcrumb = () => {
   let matched = route.matched.filter(item => item.name)
   const first = matched[0]
@@ -34,12 +34,12 @@ const getBreadcrumb = () => {
   levelList.value = matched
 }
 
-// 监听路由变化
+// Watch route changes
 watch(route, () => {
   getBreadcrumb()
 }, { immediate: true })
 
-// 初始化
+// Initialize
 getBreadcrumb()
 </script>
 

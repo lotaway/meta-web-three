@@ -460,7 +460,7 @@ export const asyncRouterMap: RouteRecordExt[] = [
       },
     ],
   },
-  // MES 制造执行系统 - 工艺路线模块
+  // MES (Manufacturing Execution System) - process route module
   {
     path: '/mes',
     component: Layout,
@@ -534,7 +534,7 @@ export const asyncRouterMap: RouteRecordExt[] = [
         component: () => import('@/views/mes/pokayoke/detail.vue'),
         meta: { title: 'mes.pokayoke.detail', hidden: true },
       },
-      // 排程管理
+      // Scheduling management
       {
         path: 'scheduling',
         name: 'scheduling',
@@ -553,7 +553,7 @@ export const asyncRouterMap: RouteRecordExt[] = [
         component: () => import('@/views/mes/scheduling/detail.vue'),
         meta: { title: 'mes.scheduling.detail', hidden: true },
       },
-      // 人员工时
+      // Labor hours
       {
         path: 'labor',
         name: 'labor',
@@ -572,14 +572,14 @@ export const asyncRouterMap: RouteRecordExt[] = [
         component: () => import('@/views/mes/labor/detail.vue'),
         meta: { title: 'mes.labor.detail', hidden: true },
       },
-      // 制造追溯
+      // Manufacturing traceability
       {
         path: 'traceability',
         name: 'mesTraceability',
         component: () => import('@/views/mes/traceability/index.vue'),
         meta: { title: 'mes.traceability.title', icon: 'mes-trace' },
       },
-      // SCADA 监控
+      // SCADA monitoring
       {
         path: 'scada',
         name: 'mesScada',
@@ -592,7 +592,7 @@ export const asyncRouterMap: RouteRecordExt[] = [
         component: () => import('@/views/mes/scada/dashboard.vue'),
         meta: { title: 'mes.scada.dashboard', icon: 'monitor' },
       },
-      // 生产任务模块
+      // Production task module
       {
         path: 'production-task',
         name: 'productionTask',
@@ -611,7 +611,7 @@ export const asyncRouterMap: RouteRecordExt[] = [
         component: () => import('@/views/mes/productionTask/detail.vue'),
         meta: { title: 'mes.productionTask.detail', hidden: true },
       },
-      // 工单管理
+      // Work order management
       {
         path: 'workOrder',
         name: 'workOrder',
@@ -630,7 +630,7 @@ export const asyncRouterMap: RouteRecordExt[] = [
         component: () => import('@/views/mes/workOrder/detail.vue'),
         meta: { title: 'mes.workOrder.detail', hidden: true },
       },
-      // QC 质检管理模块
+      // QC (quality control) management module
       {
         path: 'inspectionType',
         name: 'inspectionType',
@@ -685,7 +685,7 @@ export const asyncRouterMap: RouteRecordExt[] = [
         component: () => import('@/views/mes/qc/nonConformance/detail.vue'),
         meta: { title: 'mes.qc.nonConformance.detail', hidden: true },
       },
-      // 流程引擎模块
+      // Process engine module
       {
         path: 'process-template',
         name: 'processTemplate',
@@ -1481,8 +1481,8 @@ export const asyncRouterMap: RouteRecordExt[] = [
   },
 ]
 
-// createWebHistory（History 模式）地址格式（需要服务器配置）：http://domain.com/admin/home
-// createWebHashHistory（Hash 模式）地址格式（会多带一个#号）：http://domain.com/admin/#/home
+// createWebHistory (History mode) URL format (requires server config): http://domain.com/admin/home
+// createWebHashHistory (Hash mode) URL format (adds a #): http://domain.com/admin/#/home
 const router = createRouter({
   history: createWebHashHistory(),
   routes: constantRouterMap,

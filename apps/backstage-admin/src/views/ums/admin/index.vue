@@ -8,21 +8,21 @@ import type { UmsAdmin } from '@/types/admin'
 import type { PageParam } from '@/types/common'
 import type { UmsRole } from '@/types/role'
 
-// 列表查询参数
+// List query params
 const listQuery = ref<PageParam>({
   pageNum: 1,
   pageSize: 10,
   keyword: ''
 })
-// 管理员列表数据
+// Admin list data
 const list = ref<UmsAdmin[]>([])
-// 所有角色列表
+// All role list
 const allRoleList = ref<UmsRole[]>([])
-// 表格加载状态
+// Table loading state
 const listLoading = ref(true)
-// 分页总数
+// Pagination total
 const total = ref(0)
-// 获取管理员列表
+// Get admin list
 const getList = async () => {
   listLoading.value = true
   try {
@@ -35,7 +35,7 @@ const getList = async () => {
     console.error('获取管理员列表失败:', error)
   }
 }
-// 获取所有角色列表
+// Get all roles
 const getAllRoleList = async () => {
   try {
     const response = await getRoleListAllAPI()
@@ -45,31 +45,31 @@ const getAllRoleList = async () => {
   }
 }
 
-// 组件挂载后初始化数据
+// Initialize data after mount
 onMounted(() => {
   getList()
   getAllRoleList()
 })
 
-// 当前操作的管理员
+// Current admin
 const admin = ref<UmsAdmin>({
   username: '',
   password: '',
   status: 1
 })
-// 管理员编辑对话框是否可见
+// Whether the admin edit dialog is visible
 const dialogVisible = ref(false)
-// 是否编辑状态
+// Whether in edit state
 const isEdit = ref(false)
 
-// 分配角色对话框是否可见
+// Whether the assign-role dialog is visible
 const allocDialogVisible = ref(false)
-// 当前正在分配角色的管理员ID
+// Admin ID currently being assigned roles
 const allocAdminId = ref<number>()
-// 当前管理员已分配的角色ID
+// Role IDs already assigned to the current admin
 const allocRoleIds = ref<number[]>([])
 
-// 根据管理员ID获取角色列表
+// Get roles by admin ID
 const getRoleListByAdmin = async (adminId: number) => {
   try {
     const res = await getRoleByAdminIdAPI(adminId)
@@ -81,32 +81,32 @@ const getRoleListByAdmin = async (adminId: number) => {
   }
 }
 
-// 重置搜索条件
+// Reset search conditions
 const handleResetSearch = () => {
   listQuery.value.pageNum = 1
   listQuery.value.keyword = ''
 }
 
-// 处理搜索
+// Handle search
 const handleSearchList = () => {
   listQuery.value.pageNum = 1
   getList()
 }
 
-// 每页大小变化
+// Page size change
 const handleSizeChange = (val: number) => {
   listQuery.value.pageNum = 1
   listQuery.value.pageSize = val
   getList()
 }
 
-// 当前页变化
+// Current page change
 const handleCurrentChange = (val: number) => {
   listQuery.value.pageNum = val
   getList()
 }
 
-// 处理添加管理员
+// Handle add admin
 const handleAdd = () => {
   dialogVisible.value = true
   isEdit.value = false
@@ -117,7 +117,7 @@ const handleAdd = () => {
   }
 }
 
-// 处理状态变化
+// Handle status change
 const handleStatusChange = async (index: number, row: UmsAdmin) => {
   try {
     await ElMessageBox.confirm('是否要修改该状态?', '提示', {
@@ -129,12 +129,12 @@ const handleStatusChange = async (index: number, row: UmsAdmin) => {
     ElMessage.success('修改成功!')
   } catch (error) {
     console.error('更新状态失败:', error)
-    // 如果取消或失败，重新获取列表以恢复状态
+    // If cancelled or failed, refetch the list to restore state
     getList()
   }
 }
 
-// 处理删除
+// Handle delete
 const handleDelete = async (index: number, row: UmsAdmin) => {
   try {
     await ElMessageBox.confirm('是否要删除该用户?', '提示', {
@@ -150,15 +150,15 @@ const handleDelete = async (index: number, row: UmsAdmin) => {
   }
 }
 
-// 处理更新
+// Handle update
 const handleUpdate = (index: number, row: UmsAdmin) => {
   dialogVisible.value = true
   isEdit.value = true
-  // 深拷贝row对象，避免直接修改原始数据
+  // Deep-copy the row object to avoid mutating the original data
   admin.value = Object.assign({}, row)
 }
 
-// 处理对话框确认
+// Handle dialog confirmation
 const handleDialogConfirm = async () => {
   try {
     await ElMessageBox.confirm('是否要确认?', '提示', {
@@ -180,7 +180,7 @@ const handleDialogConfirm = async () => {
   }
 }
 
-// 处理分配角色对话框确认
+// Handle assign-role dialog confirmation
 const handleAllocDialogConfirm = async () => {
   try {
     await ElMessageBox.confirm('是否要确认?', '提示', {
@@ -196,14 +196,14 @@ const handleAllocDialogConfirm = async () => {
   }
 }
 
-// 处理选择角色
+// Handle role selection
 const handleSelectRole = (index: number, row: UmsAdmin) => {
   allocAdminId.value = row.id!
   allocDialogVisible.value = true
   getRoleListByAdmin(allocAdminId.value)
 }
 
-// 日期格式化过滤器函数
+// Date format filter function
 const formatDateTime = (time: string) => {
   if (!time) {
     return 'N/A'

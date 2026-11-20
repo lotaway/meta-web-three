@@ -51,9 +51,9 @@ export function roleListMenuByRoleIdAPI(id: number) {
   })
 }
 export function roleAllocMenuAPI(params: {
-  /** 角色ID */
+  /** Role ID */
   roleId: number
-  /** 菜单ID，多个以逗号分割 */
+  /** Menu IDs, comma-separated */
   menuIds: string
 }) {
   return http({
@@ -69,9 +69,9 @@ export function roleListResourceById(id: number) {
   })
 }
 export function roleAllocResourceAPI(params: {
-  /** 角色ID */
+  /** Role ID */
   roleId: number
-  /** 资源ID，多个以逗号分割 */
+  /** Resource IDs, comma-separated */
   resourceIds: string
 }) {
   return http({

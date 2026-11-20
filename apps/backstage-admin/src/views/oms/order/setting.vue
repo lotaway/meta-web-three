@@ -8,7 +8,7 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
-// 默认订单设置数据
+// Default order settings data
 const defaultOrderSetting = {
   id: 1,
   flashOrderOvertime: 0,
@@ -17,22 +17,22 @@ const defaultOrderSetting = {
   finishOvertime: 0,
   commentOvertime: 0
 }
-// 订单设置数据
+// Order settings data
 const orderSetting = ref<OmsOrderSetting>(Object.assign({}, defaultOrderSetting))
-// 获取详情
+// Get details
 const getDetail = async () => {
   const response = await getOrderSettingByIdAPI(orderSetting.value.id)
   orderSetting.value = response.data
 }
 
-// 组件挂载后获取详情
+// Get details after mount
 onMounted(() => {
   getDetail()
 })
 
-// 订单设置表单引用
+// Order settings form ref
 const orderSettingForm = ref<FormInstance>()
-// 时间验证规则
+// Time validation rules
 const checkTime = (rule: unknown, value: string, callback: (error?: Error) => void) => {
   if (!value) {
     return callback(new Error(t('oms.orderSetting.timeRequired')))
@@ -43,7 +43,7 @@ const checkTime = (rule: unknown, value: string, callback: (error?: Error) => vo
   }
   callback()
 }
-// 表单验证规则
+// Form validation rules
 const rules = ref<FormRules>({
   flashOrderOvertime: { validator: checkTime, trigger: 'blur' },
   normalOrderOvertime: { validator: checkTime, trigger: 'blur' },
@@ -52,7 +52,7 @@ const rules = ref<FormRules>({
   commentOvertime: { validator: checkTime, trigger: 'blur' }
 })
 
-// 确认提交表单
+// Confirm and submit form
 const confirm = async () => {
   if (!orderSettingForm.value) return
   const valid = await orderSettingForm.value.validate()

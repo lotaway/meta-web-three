@@ -9,11 +9,11 @@ import ProductRelationDetail from './ProductRelationDetail.vue'
 import { productCreateAPI, getPruductUpdateInfoAPI, productUpdateByIdAPI } from '@/apis/product'
 import type { PmsProductParam } from '@/types/product'
 
-// 获取路由对象
+// Get route object
 const route = useRoute()
 const router = useRouter()
 
-// 定义属性
+// Define properties
 const props = defineProps({
   isEdit: {
     type: Boolean,
@@ -21,7 +21,7 @@ const props = defineProps({
   }
 })
 
-// 默认商品参数
+// Default product parameters
 const defaultProductParam: PmsProductParam = {
   albumPics: '',
   brandName: '',
@@ -72,16 +72,16 @@ const defaultProductParam: PmsProductParam = {
   verifyStatus: 0,
   weight: 0
 }
-// el-steps的激活状态
+// el-steps active state
 const active = ref(0)
-// 商品信息/促销/属性/关联组件显示状态
+// Display state of info/promo/attributes/relation components
 const showStatus = ref([true, false, false, false])
-// 当前商品参数
+// Current product parameters
 const productParam = ref<PmsProductParam>(Object.assign({}, defaultProductParam))
-// 实现数据跨层传递
+// Implement cross-layer data passing
 provide('product-key', productParam)
 
-// 组件挂载后执行
+// Run after component mounts
 onMounted(async () => {
   if (props.isEdit) {
     const res = await getPruductUpdateInfoAPI(Number(route.query.id))
@@ -89,13 +89,13 @@ onMounted(async () => {
   }
 })
 
-// 隐藏所有商品编辑组件
+// Hide all product edit components
 const hideAll = () => {
-  // 将所有状态设置为false
+  // Set all states to false
   showStatus.value.fill(false)
 }
 
-// 上一步
+// Previous step
 const prevStep = () => {
   if (active.value > 0 && active.value < showStatus.value.length) {
     active.value--
@@ -104,7 +104,7 @@ const prevStep = () => {
   }
 }
 
-// 下一步
+// Next step
 const nextStep = () => {
   if (active.value < showStatus.value.length - 1) {
     active.value++
@@ -113,7 +113,7 @@ const nextStep = () => {
   }
 }
 
-// 结束步骤，提交数据
+// Finish the step and submit data
 const finishCommit = async (isEdit: boolean) => {
   await ElMessageBox.confirm('是否要提交该商品？', '提示', {
     confirmButtonText: '确定',

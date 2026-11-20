@@ -6,11 +6,11 @@ import { getProductAttributeCategoryListAPI } from '@/apis/productAttrCate'
 import { productAttributeCreateAPI, getProductAttributeByIdAPI, productAttributeUpdateAPI } from '@/apis/productAttr'
 import type { PmsProductAttribute, PmsProductAttributeCategory } from '@/types/productAttr'
 
-// 获取路由对象
+// Get route object
 const route = useRoute()
 const router = useRouter()
 
-// 定义属性
+// Define properties
 const props = defineProps({
   isEdit: {
     type: Boolean,
@@ -18,7 +18,7 @@ const props = defineProps({
   }
 })
 
-// 默认商品属性
+// Default product attributes
 const defaultProductAttr: PmsProductAttribute = {
   filterType: 0,
   handAddStatus: 0,
@@ -32,29 +32,29 @@ const defaultProductAttr: PmsProductAttribute = {
   sort: 0,
   type: 0
 }
-// 当前操作的商品属性
+// Current product attribute
 const productAttr = ref(Object.assign({}, defaultProductAttr))
-// 商属性分类列表
+// Product attribute category list
 const productAttrCateList = ref<PmsProductAttributeCategory[]>([])
-// 属性值录入方式格式化
+// Format attribute value input method
 const inputListFormat = computed({
   get() {
-    // 将逗号分隔的字符串转换为换行分隔，用于显示
+    // Convert comma-separated string to newline-separated for display
     return productAttr.value.inputList ? productAttr.value.inputList.replace(/,/g, '\n') : ''
   },
   set(value) {
-    // 将换行分隔的字符串转换为逗号分隔，用于存储
+    // Convert newline-separated string to comma-separated for storage
     productAttr.value.inputList = value ? value.replace(/\n/g, ',') : ''
   }
 })
-// 获取分类列表
+// Get category list
 const getCateList = async () => {
   const listQuery = { pageNum: 1, pageSize: 100 }
   const res = await getProductAttributeCategoryListAPI(listQuery)
   productAttrCateList.value = res.data.list
 }
 
-// 组件挂载时加载数据
+// Load data on mount
 onMounted(async () => {
   if (props.isEdit) {
     const res = await getProductAttributeByIdAPI(Number(route.query.id))
@@ -65,9 +65,9 @@ onMounted(async () => {
   getCateList()
 })
 
-// 商属性表单组件引用
+// Product attribute form component ref
 const productAttrFrom = ref<FormInstance>()
-// 商属性表单校验规则
+// Product attribute form validation rules
 const rules = reactive<FormRules<typeof productAttr>>({
   name: [
     { required: true, message: '请输入属性名称', trigger: 'blur' },
@@ -75,14 +75,14 @@ const rules = reactive<FormRules<typeof productAttr>>({
   ]
 })
 
-// 重置商品属性属性
+// Reset product attributes
 const resetProductAttr = () => {
   productAttr.value = Object.assign({}, defaultProductAttr)
   productAttr.value.productAttributeCategoryId = Number(route.query.cid)
   productAttr.value.type = Number(route.query.type)
 }
 
-// 处理表单提交
+// Handle form submission
 const onSubmit = async () => {
   if (!productAttrFrom.value) return
   const valid = await productAttrFrom.value.validate().catch(() => false)
@@ -106,7 +106,7 @@ const onSubmit = async () => {
   }
 }
 
-// 重置表单
+// Reset form
 const resetForm = () => {
   if (productAttrFrom.value) {
     productAttrFrom.value.resetFields()

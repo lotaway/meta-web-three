@@ -1,15 +1,15 @@
 import SvgIcon from '@/components/SvgIcon/index.vue' // svg组件
 import type { App } from 'vue'
 
-// 导出组件注册函数，在main.js中使用
+// Export the component registration function, used in main.js
 export function setupSvgIcon(app: App) {
   app.component('svg-icon', SvgIcon)
 }
 
-// 用import.meta.glob自动导入所有svg图标
+// Auto-import all SVG icons with import.meta.glob
 const modules = import.meta.glob('./svg/*.svg')
 
-// 加载所有svg模块
+// Load all SVG modules
 Object.keys(modules).forEach(key => {
   const module = modules[key]
   if (module) {

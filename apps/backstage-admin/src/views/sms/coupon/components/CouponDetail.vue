@@ -9,11 +9,11 @@ import type { CouponSelectProductOptionVo, SmsCouponExt } from '@/types/coupon'
 import { couponPlatforms, couponTypes } from '@/utils/constant'
 import type { ElCascaderDataVo } from '@/types/common'
 
-// 获取路由
+// Get route
 const route = useRoute()
 const router = useRouter()
 
-// 定义属性
+// Define properties
 const props = defineProps({
   isEdit: {
     type: Boolean,
@@ -21,7 +21,7 @@ const props = defineProps({
   }
 })
 
-// 默认优惠券，添加时使用
+// Default coupon, used when creating
 const defaultCoupon: SmsCouponExt = {
   type: 0,
   name: '',
@@ -32,13 +32,13 @@ const defaultCoupon: SmsCouponExt = {
   productRelationList: [],
   productCategoryRelationList: []
 }
-// 当前操作的优惠券对象
+// Current coupon object
 const coupon = ref(Object.assign({}, defaultCoupon))
-// 选择使用类型为指定分类时的商品分类信息
+// Product category info when usage type is "specific category"
 const productCateOptions = ref<ElCascaderDataVo[]>([])
-// 优惠券类型为指定分类时所选商品分类ID([父级,子级])
+// Selected category IDs when coupon type is "specific category" ([parent, child])
 const selectProductCate = ref<number[]>([])
-// 获取分类列表
+// Get category list
 const getProductCateList = async () => {
   try {
     const res = await getProductCategoryListWithChildrenAPI()
@@ -53,7 +53,7 @@ const getProductCateList = async () => {
   }
 }
 
-// 初始化数据
+// Initialize data
 onMounted(async () => {
   if (props.isEdit) {
     const response = await getCouponByIdAPI(Number(route.query.id))
@@ -62,17 +62,17 @@ onMounted(async () => {
   await getProductCateList()
 })
 
-// 优惠券类型为指定商品时表格数据加载状态
+// Table loading state when coupon type is "specific product"
 const selectProductLoading = ref(false)
-// 优惠券类型为指定商品时表格中提供的商品列表选项
+// Product options in the table when coupon type is "specific product"
 const selectProductOptions = ref<CouponSelectProductOptionVo[]>([])
-// 优惠券类型为指定商品时当前选中的关联商品ID
+// Currently selected associated product ID when coupon type is "specific product"
 const selectProduct = ref<number>()
 
 
-// 表单引用
+// Form ref
 const couponFrom = ref()
-// 表单验证规则
+// Form validation rules
 const rules = reactive<FormRules>({
   name: [
     { required: true, message: '请输入优惠券名称', trigger: 'blur' },
@@ -89,7 +89,7 @@ const rules = reactive<FormRules>({
   ]
 })
 
-// 提交表单
+// Submit form
 const onSubmit = async () => {
   if (!couponFrom.value) return
   const isValid = await couponFrom.value.validate().catch(() => false)
@@ -135,7 +135,7 @@ const onSubmit = async () => {
   }
 }
 
-// 重置表单
+// Reset form
 const resetForm = () => {
   if (couponFrom.value) {
     couponFrom.value.resetFields()
@@ -143,7 +143,7 @@ const resetForm = () => {
   coupon.value = Object.assign({}, defaultCoupon)
 }
 
-// 搜索商品方法
+// Search products method
 const searchProductMethod = async (query: string) => {
   if (query) {
     selectProductLoading.value = true
@@ -165,7 +165,7 @@ const searchProductMethod = async (query: string) => {
   }
 }
 
-// 添加商品关联
+// Add product association
 const handleAddProductRelation = () => {
   if (!selectProduct.value) {
     ElMessage({
@@ -178,12 +178,12 @@ const handleAddProductRelation = () => {
   selectProduct.value = undefined
 }
 
-// 删除商品关联
+// Delete product association
 const handleDeleteProductRelation = (index: number) => {
   coupon.value.productRelationList!.splice(index, 1)
 }
 
-// 添加商品分类关联
+// Add category association
 const handleAddProductCategoryRelation = () => {
   if (selectProductCate.value.length <= 0) {
     ElMessage({
@@ -196,17 +196,17 @@ const handleAddProductCategoryRelation = () => {
   selectProductCate.value = []
 }
 
-// 删除商品分类关联
+// Delete category association
 const handleDeleteProductCateRelation = (index: number) => {
   coupon.value.productCategoryRelationList!.splice(index, 1)
 }
 
-// 根据ID获取关联商品
+// Get associated product by ID
 const getProductById = (id: number) => {
   return selectProductOptions.value.find(item => item.productId === id)
 }
 
-// 根据IDs获取商品分类
+// Get product categories by IDs
 const getProductCateByIds = (ids: number[]) => {
   const findParentCate = productCateOptions.value.find(item => item.value === ids[0])
   const findCate = findParentCate?.children?.find(item => item.value === ids[1])

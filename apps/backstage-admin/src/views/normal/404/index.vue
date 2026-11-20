@@ -2,15 +2,15 @@
 import { useRouter } from 'vue-router'
 import img_404 from '@/assets/images/gif_404.gif'
 
-// 定义组件名称
+// Define component name
 defineOptions({
   name: 'wrongPage'
 })
 
-// 使用路由
+// Use router
 const router = useRouter()
 
-// 方法定义
+// Method definitions
 const handleGoMain = () => {
   router.push({ path: '/' })
 }

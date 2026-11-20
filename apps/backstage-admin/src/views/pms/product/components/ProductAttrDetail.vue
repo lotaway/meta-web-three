@@ -12,7 +12,7 @@ import type { ProductAttrPicVo, ProductAttrVo, ProductParamVo } from '@/types/pr
 import type { PmsSkuStock } from '@/types/skuStock'
 import Tinymce from '@/components/Tinymce/index.vue'
 
-// 定义属性
+// Define properties
 const props = defineProps({
   isEdit: {
     type: Boolean,
@@ -20,39 +20,39 @@ const props = defineProps({
   }
 })
 
-// 定义事件
+// Define events
 const emit = defineEmits(['prev-step', 'next-step'])
 
-// 获取跨层传递的数据
+// Get cross-layer passed data
 const compProductParam = inject('product-key') as Ref<PmsProductParam>
 
-// 模板引用
+// Template ref
 const productAttrForm = ref<FormInstance>()
 
-// 响应式数据
+// Reactive data
 const state = reactive({
-  // 编辑模式时是否初始化成功
+  // Whether initialization succeeded in edit mode
   hasEditCreated: false,
-  // 商品属性分类下拉选项
+  // Product attribute category dropdown options
   productAttributeCategoryOptions: [] as ElSelectDataVo[],
-  // 选中的商品规格
+  // Selected product specification
   selectProductAttr: [] as ProductAttrVo[],
-  // 选中的商品参数
+  // Selected product parameter
   selectProductParam: [] as ProductParamVo[],
-  // 选中的商品属性图片
+  // Selected product attribute image
   selectProductAttrPics: [] as ProductAttrPicVo[],
-  // 可手动添加的商品属性
+  // Manually addable product attributes
   addProductAttrValue: '',
-  // 商品富文本详情激活类型
+  // Product rich-text detail active tab
   activeHtmlName: 'pc'
 })
 
-// 商品的ID
+// Product ID
 const productId = computed(() => {
   return compProductParam.value.id
 })
 
-// 由于compProductParam数据为异步加载，需要监听其变化来初始化数据
+// compProductParam loads async; watch it to initialize data
 watch(productId, (newVal, oldVal) => {
   if (props.isEdit) {
     handleEditCreated()
@@ -60,7 +60,7 @@ watch(productId, (newVal, oldVal) => {
   console.log("attr", newVal, oldVal)
 })
 
-// 获取商品属性分类
+// Get product attribute categories
 const getProductAttrCateList = async () => {
   const param = { pageNum: 1, pageSize: 100 }
   const res = await fetchProductAttrCateList(param)
@@ -74,7 +74,7 @@ onMounted(async () => {
   await getProductAttrCateList()
 })
 
-// 是否有商品属性图片
+// Whether there are product attribute images
 const hasAttrPic = computed(() => {
   if (state.selectProductAttrPics.length < 1) {
     return false
@@ -83,7 +83,7 @@ const hasAttrPic = computed(() => {
 })
 
 
-// 商品的主图和画册图片
+// Product main image and gallery images
 const selectProductPics = computed({
   get: function () {
     const pics: string[] = []
@@ -118,7 +118,7 @@ const selectProductPics = computed({
 })
 
 
-// 处理编辑模式初始化的数据
+// Handle data initialized in edit mode
 const handleEditCreated = () => {
   if (compProductParam.value.productAttributeCategoryId) {
     handleProductAttrChange(compProductParam.value.productAttributeCategoryId)
@@ -128,9 +128,9 @@ const handleEditCreated = () => {
 
 
 /**
- * 根据商品属性分类ID获取规格和参数
- * @param type 0:规格;1:参数
- * @param cid 商品属性分类ID
+ * Get specifications and parameters by product attribute category ID
+ * @param type 0: specification; 1: parameter
+ * @param cid product attribute category ID
  */
 const getProductAttrList = async (type: number, cid: number) => {
   const param = { pageNum: 1, pageSize: 100, type: type }
@@ -144,10 +144,10 @@ const getProductAttrList = async (type: number, cid: number) => {
       let values: string[] = []
       if (props.isEdit) {
         if (item.handAddStatus === 1) {
-          // 编辑状态下获取手动添加编辑属性
+          // Get manually added attributes in edit mode
           options = getEditAttrOptions(item.id!)
         }
-        // 编辑状态下获取选中属性
+        // Get selected attributes in edit mode
         values = getEditAttrValues(i)
       }
       state.selectProductAttr.push({
@@ -160,7 +160,7 @@ const getProductAttrList = async (type: number, cid: number) => {
       })
     }
     if (props.isEdit) {
-      // 编辑模式下刷新商品属性图片
+      // Refresh product attribute images in edit mode
       refreshProductAttrPics()
     }
   } else {
@@ -169,7 +169,7 @@ const getProductAttrList = async (type: number, cid: number) => {
       const item = list[i]!
       let value = undefined
       if (props.isEdit) {
-        // 编辑模式下获取参数属性
+        // Get parameter attributes in edit mode
         value = getEditParamValue(item.id!)
       }
       state.selectProductParam.push({
@@ -183,13 +183,13 @@ const getProductAttrList = async (type: number, cid: number) => {
   }
 }
 
-// 获取设置的可手动添加属性值
+// Get configured manually addable attribute values
 const getEditAttrOptions = (id: number) => {
   const attrValueList = compProductParam.value.productAttributeValueList
   return attrValueList?.find(item => item.productAttributeId === id)?.value?.split(',')
 }
 
-// 获取选中的规格值
+// Get selected specification values
 const getEditAttrValues = (index: number) => {
   const skuList = compProductParam.value.skuStockList!
   const values = new Set<string>()
@@ -203,7 +203,7 @@ const getEditAttrValues = (index: number) => {
   return Array.from(values)
 }
 
-// 获取属性的值
+// Get attribute values
 const getEditParamValue = (id: number) => {
   return compProductParam.value.productAttributeValueList?.find(item => item.productAttributeId === id)?.value
 }
@@ -262,7 +262,7 @@ const handleRefreshProductSkuList = async () => {
     refreshProductAttrPics()
     refreshProductSkuList()
   } catch {
-    // 用户取消操作
+    // User cancelled the operation
   }
 }
 
@@ -284,7 +284,7 @@ const handleSyncProductSkuPrice = async () => {
       compProductParam.value.skuStockList = compProductParam.value.skuStockList.concat(compProductParam.value.skuStockList, tempSkuList)
     }
   } catch {
-    // 用户取消操作
+    // User cancelled the operation
   }
 }
 
@@ -308,14 +308,14 @@ const handleSyncProductSkuStock = async () => {
       compProductParam.value.skuStockList = compProductParam.value.skuStockList.concat(compProductParam.value.skuStockList, tempSkuList)
     }
   } catch {
-    // 用户取消操作
+    // User cancelled the operation
   }
 }
 
 const refreshProductSkuList = () => {
   compProductParam.value.skuStockList = []
   const skuList = compProductParam.value.skuStockList
-  // 只有一个属性时
+  // When there is only one attribute
   if (state.selectProductAttr.length === 1) {
     const attr = state.selectProductAttr[0]!
     for (let i = 0; i < attr.values!.length; i++) {
@@ -384,7 +384,7 @@ const refreshProductAttrPics = () => {
     for (let i = 0; i < values.length; i++) {
       let pic = undefined
       if (props.isEdit) {
-        // 编辑状态下获取图片
+        // Get images in edit mode
         pic = getProductSkuPic(values[i]!)
       }
       state.selectProductAttrPics.push({ name: values[i], pic: pic })
@@ -392,7 +392,7 @@ const refreshProductAttrPics = () => {
   }
 }
 
-// 获取商品相关属性的图片
+// Get images of product-related attributes
 const getProductSkuPic = (name: string) => {
   return compProductParam.value.skuStockList?.find(item => {
     const spData = JSON.parse(item.spData!)
@@ -400,7 +400,7 @@ const getProductSkuPic = (name: string) => {
   })?.pic
 }
 
-// 合并商品属性
+// Merge product attributes
 const mergeProductAttrValue = () => {
   compProductParam.value.productAttributeValueList = []
   for (let i = 0; i < state.selectProductAttr.length; i++) {
@@ -421,7 +421,7 @@ const mergeProductAttrValue = () => {
   }
 }
 
-// 合并商品属性图片
+// Merge product attribute images
 const mergeProductAttrPics = () => {
   for (let i = 0; i < state.selectProductAttrPics.length; i++) {
     const skuStockList = compProductParam.value.skuStockList!

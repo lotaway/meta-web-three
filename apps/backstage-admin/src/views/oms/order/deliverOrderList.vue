@@ -7,37 +7,37 @@ import { orderUpdateDeliveryAPI } from '@/apis/order'
 import type { OmsOrder, OmsOrderDeliveryParam } from '@/types/order'
 import { useOrderStore } from '@/stores/order'
 
-// 获取路由对象
+// Get route object
 const router = useRouter()
-// 获取 订单store
+// Get order store
 const orderStore = useOrderStore()
 
-// 默认物流公司选项
+// Default shipping company option
 const defaultLogisticsCompanies = ["顺丰快递", "圆通快递", "中通快递", "韵达快递"]
 
-// 发货订单列表数据
+// Shipment order list data
 const list = ref<OmsOrder[]>([])
-// 物流公司选项
+// Shipping company options
 const companyOptions = ref<string[]>(defaultLogisticsCompanies)
 
-// 根据订单对象获取详细地址
+// Get detailed address from the order object
 const fortmatAddress = (order: OmsOrder) => {
   return order.receiverProvince + order.receiverCity + order.receiverRegion + order.receiverDetailAddress
 }
 
-// 组件挂载后初始化数据
+// Initialize data after mount
 onMounted(() => {
   list.value = orderStore.deliverOrderList
-  // 清空store中的数据
+  // Clear data in the store
   orderStore.setDeliverOrderList([])
 })
 
-// 取消操作
+// Cancel operation
 const cancel = () => {
   router.back()
 }
 
-// 确认发货操作
+// Confirm shipment operation
 const confirm = async () => {
   try {
     await ElMessageBox.confirm('是否要进行发货操作?', '提示', {

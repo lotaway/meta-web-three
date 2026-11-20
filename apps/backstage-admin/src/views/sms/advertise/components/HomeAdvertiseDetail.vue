@@ -6,29 +6,29 @@ import SingleUpload from '@/components/Upload/singleUpload.vue'
 import { homeAdvertiseCreateAPI, getHomeAdvertiseByIdAPI, homeAdvertiseUpdateAPI } from '@/apis/homeAdvertise'
 import type { SmsHomeAdvertise } from '@/types/homeAdvertist'
 
-// 获取路由对象
+// Get route object
 const router = useRouter()
 const route = useRoute()
 
-// 定义属性
+// Define properties
 const props = defineProps({
-  // 是否为编辑模式
+  // Whether in edit mode
   isEdit: {
     type: Boolean,
     default: false
   }
 })
 
-// 默认轮播广告，添加时使用
+// Default carousel ad, used when creating
 const defaultHomeAdvertise: SmsHomeAdvertise = {
   name: '',
   type: 1,
   status: 0,
   sort: 0
 }
-// 定义轮播广告对象
+// Define carousel ad object
 const homeAdvertise = ref<SmsHomeAdvertise>(Object.assign({}, defaultHomeAdvertise))
-// 轮播广告位置
+// Carousel ad position
 const typeOptions = ref([
   {
     label: 'PC首页轮播',
@@ -39,9 +39,9 @@ const typeOptions = ref([
     value: 1
   }
 ])
-// 轮播广告表单组件引用
+// Carousel ad form component ref
 const homeAdvertiseFrom = ref<FormInstance>()
-// 轮播广告表单校验规则
+// Carousel ad form validation rules
 const rules = reactive<FormRules<SmsHomeAdvertise>>({
   name: [
     { required: true, message: '请输入广告名称', trigger: 'blur' },
@@ -61,7 +61,7 @@ const rules = reactive<FormRules<SmsHomeAdvertise>>({
   ]
 })
 
-// 页面加载时获取数据
+// Fetch data on page load
 onMounted(async () => {
   if (props.isEdit) {
     const res = await getHomeAdvertiseByIdAPI(Number(route.query.id))
@@ -71,7 +71,7 @@ onMounted(async () => {
   }
 })
 
-// 提交表单
+// Submit form
 const onSubmit = async () => {
   homeAdvertiseFrom.value!.validate(async (valid) => {
     if (valid) {
@@ -109,7 +109,7 @@ const onSubmit = async () => {
   })
 }
 
-// 重置表单
+// Reset form
 const resetForm = () => {
   if (homeAdvertiseFrom.value) {
     homeAdvertiseFrom.value.resetFields()

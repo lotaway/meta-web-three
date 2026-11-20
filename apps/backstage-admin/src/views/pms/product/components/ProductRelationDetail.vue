@@ -6,7 +6,7 @@ import { getSubjectListAllAPI } from '@/apis/subject'
 import { getPrefrenceAreaListAllAPI } from '@/apis/prefrenceArea'
 import type { ElTransferDataVo } from '@/types/common'
 
-// 定义属性
+// Define properties
 const props = defineProps({
   isEdit: {
     type: Boolean,
@@ -14,17 +14,17 @@ const props = defineProps({
   }
 })
 
-// 定义事件
+// Define events
 const emit = defineEmits(['prev-step', 'finish-commit'])
 
-// 获取跨层传递的数据
+// Get cross-layer passed data
 const compProductParam = inject('product-key') as Ref<PmsProductParam>
 
-// 所有专题列表
+// All subject list
 const subjectList = ref<ElTransferDataVo[]>([])
-// 所有优选专区列表
+// All featured zone list
 const prefrenceAreaList = ref<ElTransferDataVo[]>([])
-// 获取专题列表
+// Get subject list
 const getSubjectList = async () => {
   const res = await getSubjectListAllAPI()
   subjectList.value = res.data.map(item => ({
@@ -32,7 +32,7 @@ const getSubjectList = async () => {
     key: item.id
   }))
 }
-// 获取优选区域列表
+// Get featured zone list
 const getPrefrenceAreaList = async () => {
   const res = await getPrefrenceAreaListAllAPI()
   prefrenceAreaList.value = res.data.map(item => ({
@@ -41,13 +41,13 @@ const getPrefrenceAreaList = async () => {
   }))
 }
 
-// 初始化数据
+// Initialize data
 onMounted(() => {
   getSubjectList()
   getPrefrenceAreaList()
 })
 
-// 关联专题
+// Associate subject
 const selectSubject = computed({
   get: function () {
     return compProductParam.value.subjectProductRelationList?.map(item => item.subjectId!)
@@ -60,7 +60,7 @@ const selectSubject = computed({
   }
 })
 
-// 关联优选
+// Associate featured zone
 const selectPrefrenceArea = computed({
   get: function () {
     return compProductParam.value.prefrenceAreaProductRelationList?.map(item => item.prefrenceAreaId!)
@@ -73,17 +73,17 @@ const selectPrefrenceArea = computed({
   }
 })
 
-// 过滤方法
+// Filter methods
 const filterMethod = (query: string, item: TransferDataItem) => {
   return item.label.indexOf(query) > -1
 }
 
-// 上一步处理
+// Handle previous step
 const handlePrev = () => {
   emit('prev-step')
 }
 
-// 完成提交处理
+// Handle complete submission
 const handleFinishCommit = async () => {
   emit('finish-commit', props.isEdit)
 }

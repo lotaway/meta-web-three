@@ -7,20 +7,20 @@ import { formatDateTime } from '@/utils/datetime'
 import type { PageParam } from '@/types/common'
 import type { OmsOrderReturnReason } from '@/types/returnReason'
 
-// 列表查询参数
+// List query params
 const listQuery = ref<PageParam>({
   pageNum: 1,
   pageSize: 10
 })
-// 列表数据
+// List data
 const list = ref<OmsOrderReturnReason[]>([])
-// 列表总条数
+// List total count
 const total = ref(0)
-// 表格中被选中的行
+// Selected rows in the table
 const multipleSelection = ref<OmsOrderReturnReason[]>([])
-// 表格数据加载进度条
+// Table data loading progress bar
 const listLoading = ref(true)
-// 获取列表数据
+// Get list data
 const getList = async () => {
   listLoading.value = true
   const res = await getReturnReasonListAPI(listQuery.value)
@@ -29,27 +29,27 @@ const getList = async () => {
   total.value = res.data.total
 }
 
-// 组件挂载后加载数据
+// Load data after mount
 onMounted(() => {
   getList()
 })
 
-// reason对象默认值
+// Default value of the reason object
 const defaultReturnReason: OmsOrderReturnReason = {
   name: '',
   sort: 0,
   status: 1,
 }
-// 编辑框是否可见
+// Whether the edit dialog is visible
 const dialogVisible = ref(false)
-// 当前操作的reason对象
+// Current reason object
 const returnReason = ref(Object.assign({}, defaultReturnReason))
-// 当前操作的reasonId,为null时表示新增
+// Current reason ID; null means create
 const operateReasonId = ref<number>()
 
-// 批量操作类型
+// Batch operation type
 const operateType = ref()
-// 所有批量操作
+// All batch operations
 const operateOptions = ref([
   {
     label: "删除",
@@ -65,7 +65,7 @@ const handleAdd = () => {
 
 const handleConfirm = async () => {
   if (!operateReasonId.value) {
-    // 添加操作
+    // Add operation
     await returnReasonCreateAPI(returnReason.value)
     dialogVisible.value = false
     operateReasonId.value = undefined
@@ -76,7 +76,7 @@ const handleConfirm = async () => {
     })
     getList()
   } else {
-    // 编辑操作
+    // Edit operation
     await returnReasonUpdateAPI(operateReasonId.value, returnReason.value)
     dialogVisible.value = false
     operateReasonId.value = undefined

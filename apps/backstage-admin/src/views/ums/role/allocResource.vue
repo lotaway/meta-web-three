@@ -7,30 +7,30 @@ import { roleAllocResourceAPI, roleListResourceById } from '@/apis/role'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { UmsResource, UmsResourceCategory } from '@/types/resource'
 
-// 获取路由
+// Get route
 const router = useRouter()
 const route = useRoute()
 
-// 当前操作的角色ID
+// Current role ID
 const roleId = ref<number>()
-// 所有资源列表
+// All resource list
 const allResource = ref<UmsResource[]>([])
-// 所有资源分类列表
+// All resource category list
 const allResourceCate = ref<UmsResourceCategory[]>([])
-// 获取所有资源分类列表
+// Get all resource categories
 const getAllResourceCateList = async () => {
   const res = await resourceCategoryListAllAPI()
   allResourceCate.value = res.data
   allResourceCate.value.forEach(item => item.checked = false)
 }
-// 获取所有资源列表
+// Get all resources
 const getAllResourceList = async () => {
   const res = await fetchAllResourceList()
   allResource.value = res.data
   allResource.value.forEach(item => item.checked = false)
 }
 
-// 根据角色获取已分配资源并设置选中状态
+// Get assigned resources by role and set selection state
 const getResourceByRole = async () => {
   const res = await roleListResourceById(roleId.value!)
   const allocResource = res.data
@@ -42,7 +42,7 @@ const getResourceByRole = async () => {
   })
 }
 
-// 页面挂载时执行
+// Run on page mount
 onMounted(async () => {
   roleId.value = Number(route.query.roleId)
   await getAllResourceCateList()
@@ -50,30 +50,30 @@ onMounted(async () => {
   await getResourceByRole()
 })
 
-// 根据分类ID获取资源
+// Get resources by category ID
 const getResourceByCate = (categoryId: number) => {
   return allResource.value.filter(item => item.categoryId === categoryId)
 }
 
-// 检查资源是否被选中
+// Check whether a resource is selected
 const getResourceChecked = (resourceId: number, allocResource: UmsResource[]) => {
   const index = allocResource.findIndex(item => item.id === resourceId)
   return index > -1
 }
 
-// 检查分类是否半选状态
+// Check whether a category is partially selected
 const isIndeterminate = (categoryId: number) => {
   const cateResources = getResourceByCate(categoryId)
   return !(cateResources.every(item => item.checked === true) || cateResources.every(item => item.checked === false))
 }
 
-// 检查分类是否全选
+// Check whether a category is fully selected
 const isAllChecked = (categoryId: number) => {
   const cateResources = getResourceByCate(categoryId)
   return cateResources.every(item => item.checked === true)
 }
 
-// 保存资源分配
+// Save resource assignment
 const handleSave = async () => {
   await ElMessageBox.confirm('是否分配资源？', '提示', {
     confirmButtonText: '确定',
@@ -97,7 +97,7 @@ const handleSave = async () => {
   router.back()
 }
 
-// 清空选中项
+// Clear selected items
 const handleClear = () => {
   allResourceCate.value.forEach(item => {
     item.checked = false
@@ -107,13 +107,13 @@ const handleClear = () => {
   })
 }
 
-// 处理全选改变事件
+// Handle select-all change event
 const handleCheckAllChange = (cate: UmsResourceCategory) => {
   const cateResources = getResourceByCate(cate.id!)
   cateResources.forEach(item => item.checked = cate.checked)
 }
 
-// 处理单个资源选中事件
+// Handle single resource selection event
 const handleCheckChange = (resource: UmsResource) => {
   allResourceCate.value.forEach(item => {
     if (item.id === resource.categoryId) {

@@ -59,7 +59,7 @@ async function refreshCaptcha() {
     registerForm.captchaToken = res.data.token
     registerForm.captchaAnswer = ''
   } catch (e) {
-    // 拦截器已提示错误
+    // Interceptor already showed the error
     console.error(e)
   }
 }

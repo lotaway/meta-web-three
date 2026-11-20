@@ -6,24 +6,24 @@ import { Tickets } from '@element-plus/icons-vue'
 import { getProductCategoryListAPI, productCategoryDeleteByIdAPI, productCategoryUpdateShowStatusAPI, productCategoryUpdateNavStatusAPI } from '@/apis/productCate'
 import type { PmsProductCategory } from '@/types/productCate'
 
-// 获取路由
+// Get route
 const router = useRouter()
 const route = useRoute()
 
-// 当前列表页父分类ID
+// Current list page parent category ID
 const parentId = ref(0)
-// 列表查询参数
+// List query params
 const listQuery = ref({
   pageNum: 1,
   pageSize: 10
 })
-// 列表数据
+// List data
 const list = ref<PmsProductCategory[]>([])
-// 总条数
+// Total count
 const total = ref(0)
-// 加载状态
+// Loading state
 const listLoading = ref(true)
-// 重置父级ID
+// Reset parent ID
 const resetParentId = () => {
   listQuery.value.pageNum = 1
   if (route.query.parentId != null) {
@@ -32,7 +32,7 @@ const resetParentId = () => {
     parentId.value = 0
   }
 }
-// 获取列表数据
+// Get list data
 const getList = async () => {
   listLoading.value = true
   const res = await getProductCategoryListAPI(parentId.value, listQuery.value)
@@ -41,37 +41,37 @@ const getList = async () => {
   total.value = res.data.total
 }
 
-// 组件挂载后执行
+// Run after component mounts
 onMounted(() => {
   resetParentId()
   getList()
 })
 
-// 监听查询参数变化
+// Watch query param changes
 watch(() => route.query, () => {
   resetParentId()
   getList()
 })
 
-// 添加商品分类
+// Add product category
 const handleAddProductCate = () => {
   router.push('/pms/addProductCate')
 }
 
-// 处理分页大小变化
+// Handle page size change
 const handleSizeChange = (val: number) => {
   listQuery.value.pageNum = 1
   listQuery.value.pageSize = val
   getList()
 }
 
-// 处理当前页变化
+// Handle current page change
 const handleCurrentChange = (val: number) => {
   listQuery.value.pageNum = val
   getList()
 }
 
-// 处理导航状态变化
+// Handle navigation state change
 const handleNavStatusChange = async (index: number, row: PmsProductCategory) => {
   await productCategoryUpdateNavStatusAPI({ ids: [row.id!].join(','), navStatus: row.navStatus })
   ElMessage({
@@ -81,7 +81,7 @@ const handleNavStatusChange = async (index: number, row: PmsProductCategory) => 
   })
 }
 
-// 处理显示状态变化
+// Handle display status change
 const handleShowStatusChange = async (index: number, row: PmsProductCategory) => {
   await productCategoryUpdateShowStatusAPI({ ids: [row.id!].join(','), showStatus: row.navStatus })
   ElMessage({
@@ -91,22 +91,22 @@ const handleShowStatusChange = async (index: number, row: PmsProductCategory) =>
   })
 }
 
-// 查看下级分类
+// View child categories
 const handleShowNextLevel = (index: number, row: PmsProductCategory) => {
   router.push({ path: '/pms/productCate', query: { parentId: row.id } })
 }
 
-// 转移商品
+// Transfer products
 const handleTransferProduct = (index: number, row: PmsProductCategory) => {
   console.log('handleAddProductCate', row)
 }
 
-// 更新分类
+// Update category
 const handleUpdate = (index: number, row: PmsProductCategory) => {
   router.push({ path: '/pms/updateProductCate', query: { id: row.id } })
 }
 
-// 删除分类
+// Delete category
 const handleDelete = async (index: number, row: PmsProductCategory) => {
   await ElMessageBox.confirm('是否要删除该品牌', '提示', {
     confirmButtonText: '确定',
@@ -122,7 +122,7 @@ const handleDelete = async (index: number, row: PmsProductCategory) => {
   getList()
 }
 
-// 分类级别过滤器
+// Category level filter
 const levelFilter = (value: number) => {
   if (value === 0) {
     return '一级'
@@ -131,7 +131,7 @@ const levelFilter = (value: number) => {
   }
 }
 
-// 禁用下级按钮
+// Disable child button
 const disableNextLevel = (value: number) => {
   if (value === 0) {
     return false

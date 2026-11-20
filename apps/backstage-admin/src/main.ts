@@ -12,15 +12,15 @@ import i18n from '@/locales'
 
 const app = createApp(App)
 const pinia = createPinia()
-// pinia启用持久化插件
+// Enable the persistence plugin for pinia
 pinia.use(piniaPluginPersistedstate)
-// 以插件形式注册pinia
+// Register pinia as a plugin
 app.use(pinia)
-// 以插件形式注册vue-router
+// Register vue-router as a plugin
 app.use(router)
 // vue-i18n 11 (Composition API mode) must be installed before mounting:
 // views call useI18n() and templates still use the injected $t helper.
 app.use(i18n)
-// 以插件形式注册SvgIcon组件
+// Register the SvgIcon component as a plugin
 setupSvgIcon(app)
 app.mount('#app')

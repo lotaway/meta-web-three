@@ -6,11 +6,11 @@ import { getFlashSessionListAPI, flashSessionUpdateStatusByIdAPI, flashSessionDe
 import type { SmsFlashPromotionSession } from '@/types/flash'
 import { formatTime } from '@/utils/datetime'
 
-// 秒杀时间段列表数据
+// Flash sale time slot list data
 const list = ref<SmsFlashPromotionSession[]>([])
-// 加载状态
+// Loading state
 const listLoading = ref(false)
-// 获取列表数据
+// Get list data
 const getList = async () => {
   listLoading.value = true
   try {
@@ -23,31 +23,31 @@ const getList = async () => {
   }
 }
 
-// 组件挂载时获取数据
+// Fetch data on mount
 onMounted(() => {
   getList()
 })
 
-// 默认秒杀场次对象
+// Default flash sale session object
 const defaultFlashSession: SmsFlashPromotionSession = {
   name: '',
   status: 0
 }
-// 当前操作的秒杀场次
+// Current flash sale session
 const flashSession = ref(Object.assign({}, defaultFlashSession))
-// 编辑框显示状态
+// Edit dialog display state
 const dialogVisible = ref(false)
-// 是否为编辑模式
+// Whether in edit mode
 const isEdit = ref(false)
 
-// 添加时间段
+// Add time slot
 const handleAdd = () => {
   dialogVisible.value = true
   isEdit.value = false
   flashSession.value = Object.assign({}, defaultFlashSession)
 }
 
-// 状态改变
+// Status change
 const handleStatusChange = async (index: number, row: SmsFlashPromotionSession) => {
   try {
     await ElMessageBox.confirm('是否要修改该状态?', '提示', {
@@ -66,7 +66,7 @@ const handleStatusChange = async (index: number, row: SmsFlashPromotionSession) 
   }
 }
 
-// 更新时间段
+// Update time slot
 const handleUpdate = (index: number, row: SmsFlashPromotionSession) => {
   dialogVisible.value = true
   isEdit.value = true
@@ -79,7 +79,7 @@ const handleUpdate = (index: number, row: SmsFlashPromotionSession) => {
   }
 }
 
-// 删除时间段
+// Delete time slot
 const handleDelete = async (index: number, row: SmsFlashPromotionSession) => {
   try {
     await ElMessageBox.confirm('是否要删除该时间段?', '提示', {
@@ -97,7 +97,7 @@ const handleDelete = async (index: number, row: SmsFlashPromotionSession) => {
   }
 }
 
-// 处理对话框确认
+// Handle dialog confirmation
 const handleDialogConfirm = async () => {
   try {
     await ElMessageBox.confirm('是否要确认?', '提示', {

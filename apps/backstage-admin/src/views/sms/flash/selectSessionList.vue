@@ -6,16 +6,16 @@ import { getFlashSessionSelectListAPI } from '@/apis/flashSession'
 import type { SmsFlashPromotionSession } from '@/types/flash'
 import { formatTime } from '@/utils/datetime'
 
-// 获取路由
+// Get route
 const router = useRouter()
 const route = useRoute()
 
-// 秒杀时间段列表
+// Flash sale time slots
 const list = ref<SmsFlashPromotionSession[]>([])
-// 加载状态
+// Loading state
 const listLoading = ref(false)
 
-// 获取列表数据
+// Get list data
 const getList = async () => {
   listLoading.value = true
   try {
@@ -28,12 +28,12 @@ const getList = async () => {
   }
 }
 
-// 组件挂载时获取数据
+// Fetch data on mount
 onMounted(() => {
   getList()
 })
 
-// 显示关联商品
+// Show associated products
 const handleShowRelation = (index: number, row: SmsFlashPromotionSession) => {
   router.push({
     path: '/sms/flashProductRelation',

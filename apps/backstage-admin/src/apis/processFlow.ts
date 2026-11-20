@@ -51,7 +51,7 @@ export interface ProcessNodeType {
   createdAt?: string
 }
 
-// ========== 流程模板管理 ==========
+// ========== Process template management ==========
 
 export function createProcessTemplateAPI(data: ProcessFlowTemplate) {
   return http<ProcessFlowTemplate>({
@@ -107,7 +107,7 @@ export function archiveProcessTemplateAPI(id: number, userId: number) {
   })
 }
 
-// ========== 流程模板版本管理 ==========
+// ========== Process template version management ==========
 
 export function getTemplateVersionHistoryAPI(templateId: number) {
   return http<ProcessFlowTemplateVersion[]>({
@@ -132,7 +132,7 @@ export function saveTemplateVersionAPI(templateId: number, changeDescription: st
   })
 }
 
-// ========== 节点类型管理 ==========
+// ========== Node type management ==========
 
 export function listNodeTypesAPI(category?: string) {
   return http<ProcessNodeType[]>({
@@ -172,7 +172,7 @@ export function initDefaultNodeTypesAPI() {
   })
 }
 
-// ========== 流程实例管理 ==========
+// ========== Process instance management ==========
 
 export function startProcessInstanceAPI(data: {
   templateId: number

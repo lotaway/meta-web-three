@@ -5,7 +5,7 @@ import type { FormInstance } from 'element-plus'
 import { getMemberLevelListAPI } from '@/apis/memberLevel'
 import type { PmsProductParam } from '@/types/product'
 
-// 定义属性
+// Define properties
 const props = defineProps({
   isEdit: {
     type: Boolean,
@@ -13,10 +13,10 @@ const props = defineProps({
   }
 })
 
-// 定义事件
+// Define events
 const emit = defineEmits(['prev-step', 'next-step'])
 
-// 获取跨层传递的数据
+// Get cross-layer passed data
 const compProductParam = inject('product-key') as Ref<PmsProductParam>
 
 const getMemberLevelList = async () => {
@@ -25,20 +25,20 @@ const getMemberLevelList = async () => {
   compProductParam.value.memberPriceList = memberPriceList
 }
 
-// 组件挂载时调用
+// Called on mount
 onMounted(() => {
   getMemberLevelList()
 })
 
-// 模板引用
+// Template ref
 const productSaleForm = ref<FormInstance>()
 
-// 日期禁用函数
+// Date disable function
 const isDisabledDate = (time: Date) => {
   return time.getTime() < Date.now()
 }
 
-// 被选中的服务保证，多个以逗号分割
+// Selected service guarantees, comma-separated
 const selectServiceList = computed({
   get() {
     if (!compProductParam.value.serviceIds) return []
@@ -60,7 +60,7 @@ const selectServiceList = computed({
   }
 })
 
-// 处理删除阶梯价格操作
+// Handle delete tiered-price operation
 const handleRemoveProductLadder = (index: number) => {
   const productLadderList = compProductParam.value.productLadderList
   if (!productLadderList) return
@@ -76,7 +76,7 @@ const handleRemoveProductLadder = (index: number) => {
   }
 }
 
-// 处理添加阶梯价格操作
+// Handle add tiered-price operation
 const handleAddProductLadder = () => {
   const productLadderList = compProductParam.value.productLadderList
   if (productLadderList && productLadderList.length < 3) {
@@ -93,7 +93,7 @@ const handleAddProductLadder = () => {
   }
 }
 
-// 处理删除满减价格操作
+// Handle delete full-reduction operation
 const handleRemoveFullReduction = (index: number) => {
   const fullReductionList = compProductParam.value.productFullReductionList
   if (!fullReductionList) return
@@ -108,7 +108,7 @@ const handleRemoveFullReduction = (index: number) => {
   }
 }
 
-// 处理添加满减价格操作
+// Handle add full-reduction operation
 const handleAddFullReduction = () => {
   const fullReductionList = compProductParam.value.productFullReductionList
   if (fullReductionList && fullReductionList.length < 3) {
@@ -124,12 +124,12 @@ const handleAddFullReduction = () => {
   }
 }
 
-// 处理上一步
+// Handle previous step
 const handlePrev = () => {
   emit('prev-step')
 }
 
-// 处理下一步
+// Handle next step
 const handleNext = () => {
   emit('next-step')
 }

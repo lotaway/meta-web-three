@@ -6,28 +6,28 @@ import { isvalidUsername } from '@/utils/validate';
 import login_center_bg from '@/assets/images/login_center_bg.png'
 import { type FormInstance, type FormRules } from 'element-plus';
 
-// 使用Vue Router和Pinia
+// Use Vue Router and Pinia
 const router = useRouter()
 const userStore = useUserStore()
 
-// 表单引用
+// Form ref
 const loginFormRef = ref<FormInstance>()
 
-// 登陆表单数据
+// Login form data
 const loginForm = reactive({
   username: '',
   password: '',
 })
 
-// 表单参数校验规则
+// Form parameter validation rules
 const loginRules = reactive<FormRules<typeof loginForm>>({
   username: [{ required: true, trigger: 'blur', validator: validateUsername }],
   password: [{ required: true, trigger: 'blur', validator: validatePass }]
 })
 
-// 登陆按钮进度条
+// Login button loading indicator
 const loading = ref(false)
-// 用户名验证函数
+// Username validation function
 function validateUsername(rule: unknown, value: string, callback: (error?: Error) => void) {
   if (!isvalidUsername(value)) {
     callback(new Error('请输入正确的用户名'))
@@ -36,7 +36,7 @@ function validateUsername(rule: unknown, value: string, callback: (error?: Error
   }
 };
 
-// 密码验证函数
+// Password validation function
 function validatePass(rule: unknown, value: string, callback: (error?: Error) => void) {
   if (value.length < 3) {
     callback(new Error('密码不能小于3位'))
@@ -45,7 +45,7 @@ function validatePass(rule: unknown, value: string, callback: (error?: Error) =>
   }
 };
 
-// 组件挂载完成后调用
+// Called after the component mounts
 onMounted(() => {
   loginForm.username = userStore.userInfo.username
   if (loginForm.username === undefined || loginForm.username == null || loginForm.username === '') {
@@ -53,7 +53,7 @@ onMounted(() => {
   }
 })
 
-// 处理登录按钮事件
+// Handle login button event
 const handleLogin = () => {
   loginFormRef.value!.validate(async (valid) => {
     if (valid) {

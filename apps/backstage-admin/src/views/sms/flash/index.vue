@@ -8,22 +8,22 @@ import { formatDate } from '@/utils/datetime'
 import type { SmsFlashPromotion } from '@/types/flash'
 import type { PageParam } from '@/types/common'
 
-// 获取路由
+// Get route
 const router = useRouter()
 
-// 列表查询参数
+// List query params
 const listQuery = ref<PageParam>({
   pageNum: 1,
   pageSize: 10,
   keyword: ''
 })
-// 列表数据
+// List data
 const list = ref<SmsFlashPromotion[]>([])
-// 总条数
+// Total count
 const total = ref<number>(0)
-// 加载张图
+// Load images
 const listLoading = ref(false)
-// 获取列表数据
+// Get list data
 const getList = async () => {
   listLoading.value = true
   try {
@@ -37,60 +37,60 @@ const getList = async () => {
   }
 }
 
-// 组件挂载时获取数据
+// Fetch data on mount
 onMounted(() => {
   getList()
 })
 
-// 默认秒杀活动对象
+// Default flash sale activity object
 const defaultSmsFlashPromotion: SmsFlashPromotion = {
   title: '',
   status: 0
 }
-// 当前操作的秒杀活动对象
+// Current flash sale activity object
 const flashPromotion = ref(Object.assign({}, defaultSmsFlashPromotion))
-// 编辑框是否可见
+// Whether the edit dialog is visible
 const dialogVisible = ref(false)
-// 是否为编辑状态
+// Whether in edit state
 const isEdit = ref(false)
 
-// 重置搜索条件
+// Reset search conditions
 const handleResetSearch = () => {
   listQuery.value = { pageNum: 0, pageSize: 10 }
 }
 
-// 搜索列表
+// Search list
 const handleSearchList = () => {
   listQuery.value.pageNum = 1
   getList()
 }
 
-// 每页大小改变
+// Page size change
 const handleSizeChange = (val: number) => {
   listQuery.value.pageNum = 1
   listQuery.value.pageSize = val
   getList()
 }
 
-// 当前页改变
+// Current page change
 const handleCurrentChange = (val: number) => {
   listQuery.value.pageNum = val
   getList()
 }
 
-// 添加活动
+// Add activity
 const handleAdd = () => {
   dialogVisible.value = true
   isEdit.value = false
   flashPromotion.value = Object.assign({}, defaultSmsFlashPromotion)
 }
 
-// 显示时间段列表
+// Show time slot list
 const handleShowSessionList = () => {
   router.push({ path: '/sms/flashSession' })
 }
 
-// 状态改变
+// Status change
 const handleStatusChange = async (index: number, row: SmsFlashPromotion) => {
   try {
     await ElMessageBox.confirm('是否要修改该状态?', '提示', {
@@ -109,7 +109,7 @@ const handleStatusChange = async (index: number, row: SmsFlashPromotion) => {
   }
 }
 
-// 删除活动
+// Delete activity
 const handleDelete = async (index: number, row: SmsFlashPromotion) => {
   try {
     await ElMessageBox.confirm('是否要删除该活动?', '提示', {
@@ -127,14 +127,14 @@ const handleDelete = async (index: number, row: SmsFlashPromotion) => {
   }
 }
 
-// 更新活动
+// Update activity
 const handleUpdate = (index: number, row: SmsFlashPromotion) => {
   dialogVisible.value = true
   isEdit.value = true
   flashPromotion.value = Object.assign({}, row)
 }
 
-// 处理对话框确认
+// Handle dialog confirmation
 const handleDialogConfirm = async () => {
   await ElMessageBox.confirm('是否要确认?', '提示', {
     confirmButtonText: '确定',
@@ -160,12 +160,12 @@ const handleDialogConfirm = async () => {
   }
 }
 
-// 选择时间段
+// Select time slot
 const handleSelectSession = (index: number, row: SmsFlashPromotion) => {
   router.push({ path: '/sms/selectSession', query: { flashPromotionId: row.id } })
 }
 
-// 格式化活动状态
+// Format activity status
 const formatActiveStatus = (row: SmsFlashPromotion) => {
   const nowDate = new Date()
   const startDate = new Date(row.startDate!)

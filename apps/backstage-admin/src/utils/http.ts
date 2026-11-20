@@ -91,7 +91,7 @@ service.interceptors.request.use(
   e => Promise.reject(e),
 )
 
-// 响应拦截器
+// Response interceptor
 service.interceptors.response.use(
   (response: AxiosResponse) => {
     const res = response.data as CommonResult<unknown>
@@ -115,7 +115,7 @@ service.interceptors.response.use(
       }
       return Promise.reject(new Error(res.message))
     }
-    // 返回完整响应对象，包含 .data 属性供调用者访问实际数据
+    // Return the full response object, with .data for callers to access the payload
     return response
   },
   error => {
@@ -128,14 +128,14 @@ service.interceptors.response.use(
   },
 )
 
-// http 函数 - 支持泛型
+// http function - supports generics
 // The response interceptor resolves with the full AxiosResponse, so `request`
 // can be typed with CommonResult<T> and no suppression directive is needed.
 function http<T = unknown>(config: AxiosRequestConfig): Promise<CommonResult<T>> {
   return service.request<CommonResult<T>>(config).then(response => response.data)
 }
 
-// 添加便捷方法
+// Add convenience methods
 http.get = <T = unknown>(url: string, config?: AxiosRequestConfig): Promise<CommonResult<T>> => {
   return http<T>({ ...config, method: 'GET', url })
 }

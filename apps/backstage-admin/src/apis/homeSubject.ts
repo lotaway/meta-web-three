@@ -9,9 +9,9 @@ export function getHomeRecommendSubjectListAPI(params: HomeSubjectQueryParam) {
   })
 }
 export function homeRecommendSubjectUpdateRecommendStatusAPI(params: {
-  /** 推荐ID */
+  /** Recommendation ID */
   ids: string
-  /** 推荐状态 */
+  /** Recommendation status */
   recommendStatus: number
 }) {
   return http({

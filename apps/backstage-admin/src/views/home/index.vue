@@ -15,7 +15,7 @@ import {
   TitleComponent
 } from 'echarts/components'
 
-// 通过use()方法按需注入ECharts的模块
+// Inject ECharts modules on demand via use()
 use([
   CanvasRenderer, // 画布渲染器
   LineChart, // 折线图的绘制功能
@@ -25,14 +25,14 @@ use([
   TitleComponent // 显示图表标题
 ])
 
-// 折线图数据类型
+// Line chart data type
 type LineChartDataItem = {
   date: string, // 交易日期
   orderCount: number, // 订单数量
   orderAmount: number // 订单金额
 }
 
-// 默认图表数据
+// Default chart data
 const defaultLineChartData: LineChartDataItem[] = [
   { date: '2026-01-01', orderCount: 10, orderAmount: 1093 },
   { date: '2026-01-02', orderCount: 20, orderAmount: 2230 },
@@ -51,28 +51,28 @@ const defaultLineChartData: LineChartDataItem[] = [
   { date: '2026-01-15', orderCount: 40, orderAmount: 4293 }
 ]
 
-// 默认起始日期
+// Default start date
 const defaultStartDate = new Date(2026, 0, 1)
 
-// 日期选择器日期范围[start,end]
+// Date picker range [start, end]
 const datePickerRange = ref<Date[]>([])
-// 初始化日期选择器数据
+// Initialize date picker data
 const initDatePickerRange = () => {
   const start = defaultStartDate
   const end = new Date(start.getTime() + 1000 * 60 * 60 * 24 * 7)
   datePickerRange.value = [start, end] as Date[]
 }
-// 图表数据
+// Chart data
 const lineChartData = ref<LineChartDataItem[]>([])
-// 图表数据加载状态
+// Chart data loading state
 const loading = ref(false)
-// 获取图表数据
+// Get chart data
 const getLineChartData = () => {
   loading.value = true
   setTimeout(() => {
     const start = datePickerRange.value[0]
     const end = datePickerRange.value[1]
-    // 获取在当前区间范围内的数据
+    // Get data within the current range
     lineChartData.value = defaultLineChartData.filter(item => {
       const currDate = str2Date(item.date)
       return currDate!.getTime() >= start!.getTime() && currDate!.getTime() <= end!.getTime()
@@ -81,13 +81,13 @@ const getLineChartData = () => {
   }, 1000)
 }
 
-// 组件挂载成功初始化数据
+// Initialize data on successful mount
 onMounted(() => {
   initDatePickerRange()
   getLineChartData()
 })
 
-// 日期选择器选项
+// Date picker options
 const shortcuts = [
   {
     text: '最近一周',
@@ -106,18 +106,18 @@ const shortcuts = [
     }
   }
 ]
-// 处理日期范围变化
+// Handle date range change
 const handleDatePickerRangeChange = () => {
   getLineChartData()
 }
 
-// X 轴：日期（2026-01-01 到 2026-01-15）
-// 左 Y 轴：订单数量（0-100）
-// 右 Y 轴：订单金额（0-10000+）
-// 蓝色曲线：订单数量趋势（带填充）
-// 绿色曲线：订单金额趋势（带填充）
-// 鼠标悬停：显示交叉线和详细数据
-// vue-charts中的选项
+// X axis: date (2026-01-01 to 2026-01-15)
+// Left Y axis: order count (0-100)
+// Right Y axis: order amount (0-10000+)
+// Blue curve: order count trend (with fill)
+// Green curve: order amount trend (with fill)
+// Hover: show crosshair and detailed data
+// Options in vue-charts
 const chartOption = computed(() => {
   const dates = lineChartData.value.map(item => item.date)
   const orderCounts = lineChartData.value.map(item => item.orderCount)

@@ -7,15 +7,15 @@ import { getHomeAdvertiseListAPI, homeAdvertiseUpdateStatusAPI, deleteHomeAdvert
 import { formatDateTime } from '@/utils/datetime'
 import type { HomeAdvertiseQueryParam, SmsHomeAdvertise } from '@/types/homeAdvertist'
 
-// 获取路由
+// Get route
 const router = useRouter()
 
-// 列表查询参数
+// List query params
 const listQuery = ref<HomeAdvertiseQueryParam>({
   pageNum: 1,
   pageSize: 10
 })
-// 轮播位置选项
+// Carousel position options
 const typeOptions = ref([
   {
     label: 'PC首页轮播',
@@ -26,13 +26,13 @@ const typeOptions = ref([
     value: 1
   }
 ])
-// 列表数据
+// List data
 const list = ref<SmsHomeAdvertise[]>([])
-// 总条数
+// Total count
 const total = ref(0)
-// 加载状态
+// Loading state
 const listLoading = ref(false)
-// 获取列表数据
+// Get list data
 const getList = async () => {
   listLoading.value = true
   const res = await getHomeAdvertiseListAPI(listQuery.value)
@@ -41,53 +41,53 @@ const getList = async () => {
   total.value = res.data.total
 }
 
-// 组件挂载后执行
+// Run after component mounts
 onMounted(() => {
   getList()
 })
 
-// 选中的条目
+// Selected items
 const multipleSelection = ref<SmsHomeAdvertise[]>([])
-// 批量操作类型
+// Batch operation type
 const operates = ref([
   {
     label: "删除",
     value: 0
   }
 ])
-// 档期批量操作类型
+// Session batch operation type
 const operateType = ref()
 
-// 重置搜索
+// Reset search
 const handleResetSearch = () => {
   listQuery.value = { pageNum: 1, pageSize: 10 }
 }
 
-// 搜索列表
+// Search list
 const handleSearchList = () => {
   listQuery.value.pageNum = 1
   getList()
 }
 
-// 处理表格选择变化
+// Handle table selection change
 const handleSelectionChange = (val: SmsHomeAdvertise[]) => {
   multipleSelection.value = val
 }
 
-// 处理分页大小变化
+// Handle page size change
 const handleSizeChange = (val: number) => {
   listQuery.value.pageNum = 1
   listQuery.value.pageSize = val
   getList()
 }
 
-// 处理当前页变化
+// Handle current page change
 const handleCurrentChange = (val: number) => {
   listQuery.value.pageNum = val
   getList()
 }
 
-// 处理状态更新
+// Handle status update
 const handleUpdateStatus = async (index: number, row: SmsHomeAdvertise) => {
   try {
     await ElMessageBox.confirm('是否要修改上线/下线状态?', '提示', {
@@ -106,7 +106,7 @@ const handleUpdateStatus = async (index: number, row: SmsHomeAdvertise) => {
   }
 }
 
-// 删除广告
+// Delete ad
 const deleteHomeAdvertise = async (ids: number[]) => {
   await ElMessageBox.confirm('是否要删除该广告?', '提示', {
     confirmButtonText: '确定',
@@ -121,12 +121,12 @@ const deleteHomeAdvertise = async (ids: number[]) => {
   })
 }
 
-// 处理删除
+// Handle delete
 const handleDelete = async (index: number, row: SmsHomeAdvertise) => {
   await deleteHomeAdvertise([row.id!])
 }
 
-// 处理批量操作
+// Handle batch operations
 const handleBatchOperate = async () => {
   if (multipleSelection.value.length < 1) {
     ElMessage.warning({
@@ -136,7 +136,7 @@ const handleBatchOperate = async () => {
     return
   }
   if (operateType.value === 0) {
-    //删除
+    // Delete
     await deleteHomeAdvertise(multipleSelection.value.map(item => item.id!))
   } else {
     ElMessage.warning({
@@ -146,17 +146,17 @@ const handleBatchOperate = async () => {
   }
 }
 
-// 处理添加
+// Handle add
 const handleAdd = () => {
   router.push({ path: '/sms/addAdvertise' })
 }
 
-// 处理更新
+// Handle update
 const handleUpdate = (index: number, row: SmsHomeAdvertise) => {
   router.push({ path: '/sms/updateAdvertise', query: { id: row.id } })
 }
 
-// 格式化类型
+// Format type
 const formatType = (type: number) => {
   if (type === 1) {
     return 'APP首页轮播'

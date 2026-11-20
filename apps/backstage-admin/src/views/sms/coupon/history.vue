@@ -7,22 +7,22 @@ import type { CouponHistoryQueryParam, SmsCoupon, SmsCouponHistory } from '@/typ
 import { couponTypes } from '@/utils/constant'
 import { useRoute } from 'vue-router'
 
-// 获取路由
+// Get route
 const route = useRoute()
-// 优惠券详情
+// Coupon details
 const coupon = ref<SmsCoupon>({} as SmsCoupon)
-// 优惠券历史列表查询参数
+// Coupon history list query params
 const listQuery = ref<CouponHistoryQueryParam>({
   pageNum: 1,
   pageSize: 10,
 })
-// 优惠券历史列表数据
+// Coupon history list data
 const list = ref<SmsCouponHistory[]>([])
-// 总记录数
+// Total records
 const total = ref(0)
-// 表格数据加载状态
+// Table data loading state
 const listLoading = ref(false)
-// 获取列表数据
+// Get list data
 const getList = async () => {
   listLoading.value = true
   try {
@@ -36,24 +36,24 @@ const getList = async () => {
   }
 }
 
-// 使用状态选项
+// Usage status options
 const useTypeOptions = ref([
   { label: "未使用", value: 0 },
   { label: "已使用", value: 1 },
   { label: "已过期", value: 2 }
 ])
 
-// 页面加载完成后获取数据
+// Fetch data after the page loads
 onMounted(async () => {
-  // 获取优惠券详情
+  // Get coupon details
   const couponRes = await getCouponByIdAPI(Number(route.query.id))
   coupon.value = couponRes.data
-  // 设置优惠券ID用于查询历史记录
+  // Set coupon ID for history query
   listQuery.value.couponId = Number(route.query.id)
   getList()
 })
 
-// 重置搜索条件
+// Reset search conditions
 const handleResetSearch = () => {
   listQuery.value = {
     pageNum: 1,
@@ -62,32 +62,32 @@ const handleResetSearch = () => {
   }
 }
 
-// 搜索列表
+// Search list
 const handleSearchList = async () => {
   listQuery.value.pageNum = 1
   await getList()
 }
 
-// 每页条数变化
+// Page size change
 const handleSizeChange = (val: number) => {
   listQuery.value.pageNum = 1
   listQuery.value.pageSize = val
   getList()
 }
 
-// 当前页变化
+// Current page change
 const handleCurrentChange = (val: number) => {
   listQuery.value.pageNum = val
   getList()
 }
 
-// 优惠券类型过滤器
+// Coupon type filter
 const formatType = (type: number) => {
   const found = couponTypes.find(option => option.value === type)
   return found ? found.label : ''
 }
 
-// 优惠券使用类型过滤器
+// Coupon usage type filter
 const formatUseType = (useType: number) => {
   if (useType === 0) {
     return '全场通用'
@@ -98,7 +98,7 @@ const formatUseType = (useType: number) => {
   }
 }
 
-// 优惠券过期状态过滤器
+// Coupon expiration status filter
 const formatStatus = (endTime: string | number | Date) => {
   if (!endTime) return ''
   const endTimeDate = new Date(endTime).getTime()
@@ -106,7 +106,7 @@ const formatStatus = (endTime: string | number | Date) => {
   return endTimeDate > now ? '未过期' : '已过期'
 }
 
-// 获取类型过滤器
+// Acquisition type filter
 const formatGetType = (type: number) => {
   if (type === 1) {
     return '主动获取'
@@ -115,7 +115,7 @@ const formatGetType = (type: number) => {
   }
 }
 
-// 优惠券历史使用类型过滤器
+// Coupon history usage type filter
 const formatCouponHistoryUseType = (useType: number) => {
   if (useType === 0) {
     return '未使用'

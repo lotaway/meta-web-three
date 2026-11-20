@@ -7,21 +7,21 @@ import { getProductListAPI } from '@/apis/product'
 import type { FlashProductQueryParam, SmsFlashPromotionProductRelation } from '@/types/flash'
 import type { PmsProduct, ProductQueryParam } from '@/types/product'
 
-// 获取路由
+// Get route
 const route = useRoute()
 
-// 秒杀商品关系列表数据
+// Flash sale product relation list data
 const listQuery = ref<FlashProductQueryParam>({
   pageNum: 1,
   pageSize: 10
 })
-// 秒杀商品列数据
+// Flash sale product list data
 const list = ref<SmsFlashPromotionProductRelation[]>([])
-// 总条数
+// Total count
 const total = ref<number>(0)
-// 加载状态
+// Loading state
 const listLoading = ref(false)
-// 获取列表数据
+// Get list data
 const getList = async () => {
   listLoading.value = true
   try {
@@ -35,19 +35,19 @@ const getList = async () => {
   }
 }
 
-// 组件挂载时获取数据
+// Fetch data on mount
 onMounted(() => {
   listQuery.value.flashPromotionId = Number(route.query.flashPromotionId)
   listQuery.value.flashPromotionSessionId = Number(route.query.flashPromotionSessionId)
   getList()
 })
 
-// 秒杀商品关系编辑框可见性
+// Flash sale product relation edit dialog visibility
 const editDialogVisible = ref(false)
-// 当前操作的秒杀商品关系
+// Current flash sale product relation
 const flashProductRelation = ref<SmsFlashPromotionProductRelation>()
 
-// 对话框数据
+// Dialog data
 const dialogData = ref<{
   list: PmsProduct[]
   total: number
@@ -63,35 +63,35 @@ const dialogData = ref<{
     pageSize: 5
   }
 })
-// 选择商品对话框可见性
+// Select-product dialog visibility
 const selectDialogVisible = ref(false)
 
-// 每页大小改变
+// Page size change
 const handleSizeChange = (val: number) => {
   listQuery.value.pageNum = 1
   listQuery.value.pageSize = val
   getList()
 }
 
-// 当前页改变
+// Current page change
 const handleCurrentChange = (val: number) => {
   listQuery.value.pageNum = val
   getList()
 }
 
-// 选择商品
+// Select product
 const handleSelectProduct = () => {
   selectDialogVisible.value = true
   getDialogList()
 }
 
-// 更新秒杀商品
+// Update flash sale product
 const handleUpdate = (index: number, row: SmsFlashPromotionProductRelation) => {
   editDialogVisible.value = true
   flashProductRelation.value = Object.assign({}, row)
 }
 
-// 删除秒杀商品
+// Delete flash sale product
 const handleDelete = async (index: number, row: SmsFlashPromotionProductRelation) => {
   try {
     await ElMessageBox.confirm('是否要删除该商品?', '提示', {
@@ -109,30 +109,30 @@ const handleDelete = async (index: number, row: SmsFlashPromotionProductRelation
   }
 }
 
-// 选择搜索
+// Selection search
 const handleSelectSearch = () => {
   getDialogList()
 }
 
-// 对话框每页大小改变
+// Dialog page size change
 const handleDialogSizeChange = (val: number) => {
   dialogData.value.listQuery.pageNum = 1
   dialogData.value.listQuery.pageSize = val
   getDialogList()
 }
 
-// 对话框当前页改变
+// Dialog current page change
 const handleDialogCurrentChange = (val: number) => {
   dialogData.value.listQuery.pageNum = val
   getDialogList()
 }
 
-// 对话框选中项改变
+// Dialog selected items change
 const handleDialogSelectionChange = (val: PmsProduct[]) => {
   dialogData.value.multipleSelection = val
 }
 
-// 选择对话框确认
+// Selection dialog confirmation
 const handleSelectDialogConfirm = async () => {
   if (dialogData.value.multipleSelection.length < 1) {
     ElMessage.warning('请选择一条记录')
@@ -163,7 +163,7 @@ const handleSelectDialogConfirm = async () => {
   }
 }
 
-// 编辑对话框确认
+// Edit dialog confirmation
 const handleEditDialogConfirm = async () => {
   try {
     await ElMessageBox.confirm('是否要确认?', '提示', {
@@ -182,7 +182,7 @@ const handleEditDialogConfirm = async () => {
   }
 }
 
-// 获取对话框商品列表数据
+// Get dialog product list data
 const getDialogList = async () => {
   try {
     const res = await getProductListAPI(dialogData.value.listQuery)

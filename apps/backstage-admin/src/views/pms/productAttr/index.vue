@@ -8,21 +8,21 @@ import type { FormInstance } from 'element-plus'
 import type { PageParam } from '@/types/common'
 import type { PmsProductAttributeCategory } from '@/types/productAttr'
 
-// 获取路由对象
+// Get route object
 const router = useRouter()
 
-// 列表查询参数
+// List query params
 const listQuery = ref<PageParam>({
   pageNum: 1,
   pageSize: 10
 })
-// 列表数据
+// List data
 const list = ref<PmsProductAttributeCategory[]>([])
-// 总条数
+// Total count
 const total = ref(0)
-// 加载状态
+// Loading state
 const listLoading = ref(true)
-// 获取列表数据
+// Get list data
 const getList = async () => {
   listLoading.value = true
   try {
@@ -36,48 +36,48 @@ const getList = async () => {
   }
 }
 
-// 组件挂载后执行
+// Run after component mounts
 onMounted(() => {
   getList()
 })
 
-// 当前操作的属性分类
+// Current attribute category
 const productAttrCate = ref<PmsProductAttributeCategory>({
   name: ''
 })
-// 编辑框是否可见
+// Whether the edit dialog is visible
 const dialogVisible = ref(false)
-// 编辑框标题
+// Edit dialog title
 const dialogTitle = ref('')
-// 编辑框中的表单引用
+// Form ref in the edit dialog
 const productAttrCatForm = ref<FormInstance>()
-// 编辑框中的校验规则
+// Validation rules in the edit dialog
 const rules = ref({
   name: [
     { required: true, message: '请输入类型名称', trigger: 'blur' }
   ]
 })
 
-// 添加产品属性分类
+// Add product attribute category
 const addProductAttrCate = () => {
   dialogVisible.value = true
   dialogTitle.value = "添加类型"
 }
 
-// 处理每页条数变化
+// Handle page size change
 const handleSizeChange = (val: number) => {
   listQuery.value.pageNum = 1
   listQuery.value.pageSize = val
   getList()
 }
 
-// 处理当前页变化
+// Handle current page change
 const handleCurrentChange = (val: number) => {
   listQuery.value.pageNum = val
   getList()
 }
 
-// 处理删除操作
+// Handle delete operation
 const handleDelete = async (index: number, row: PmsProductAttributeCategory) => {
   await ElMessageBox.confirm('是否要删除该品牌', '提示', {
     confirmButtonText: '确定',
@@ -89,7 +89,7 @@ const handleDelete = async (index: number, row: PmsProductAttributeCategory) => 
   getList()
 }
 
-// 处理更新操作
+// Handle update operation
 const handleUpdate = (index: number, row: PmsProductAttributeCategory) => {
   dialogVisible.value = true
   dialogTitle.value = "编辑类型"
@@ -97,17 +97,17 @@ const handleUpdate = (index: number, row: PmsProductAttributeCategory) => {
   productAttrCate.value.id = row.id
 }
 
-// 获取属性列表
+// Get attribute list
 const getAttrList = (index: number, row: PmsProductAttributeCategory) => {
   router.push({ path: '/pms/productAttrList', query: { cid: row.id, cname: row.name, type: 0 } })
 }
 
-// 获取参数列表
+// Get parameter list
 const getParamList = (index: number, row: PmsProductAttributeCategory) => {
   router.push({ path: '/pms/productAttrList', query: { cid: row.id, cname: row.name, type: 1 } })
 }
 
-// 确认对话框操作
+// Confirm dialog operation
 const handleConfirm = async () => {
   if (!productAttrCatForm.value) return
   const valid = await productAttrCatForm.value.validate().catch(() => false)
@@ -128,7 +128,7 @@ const handleConfirm = async () => {
   }
 }
 
-// 关闭对话框处理
+// Handle close dialog
 const handleClose = () => {
   dialogVisible.value = false
 }

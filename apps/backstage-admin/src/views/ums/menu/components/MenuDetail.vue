@@ -5,11 +5,11 @@ import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'elem
 import { getMenuListByParentIdAPI, menuCreateAPI, updateMenu, getMenuByIdAPI } from '@/apis/menu.ts'
 import type { UmsMenu } from '@/types/menu'
 
-// 获取路由对象
+// Get route object
 const route = useRoute()
 const router = useRouter()
 
-// 定义属性
+// Define properties
 const props = defineProps({
   isEdit: {
     type: Boolean,
@@ -17,7 +17,7 @@ const props = defineProps({
   }
 })
 
-// 默认菜单对象
+// Default menu object
 const defaultMenu: UmsMenu = {
   title: '',
   parentId: 0,
@@ -27,13 +27,13 @@ const defaultMenu: UmsMenu = {
   sort: 0
 }
 
-// 菜单数据
+// Menu data
 const menu = ref(Object.assign({}, defaultMenu))
-// 选择菜单列表
+// Select menu list
 const selectMenuList = ref<UmsMenu[]>([])
-// 菜单表单组件引用
+// Menu form component ref
 const menuFromRef = ref<FormInstance>()
-// 菜单表单校验规则
+// Menu form validation rules
 const rules = reactive<FormRules>({
   title: [
     { required: true, message: '请输入菜单名称', trigger: 'blur' },
@@ -49,7 +49,7 @@ const rules = reactive<FormRules>({
   ]
 })
 
-// 获取选择菜单列表
+// Get select menu list
 const getSelectMenuList = async () => {
   const res = await getMenuListByParentIdAPI(0, { pageSize: 100, pageNum: 1 })
   selectMenuList.value = res.data.list
@@ -59,7 +59,7 @@ const getSelectMenuList = async () => {
   selectMenuList.value.unshift(noParentMenu)
 }
 
-// 组件挂载时加载数据
+// Load data on mount
 onMounted(async () => {
   if (props.isEdit) {
     const res = await getMenuByIdAPI(Number(route.query.id))
@@ -70,7 +70,7 @@ onMounted(async () => {
   getSelectMenuList()
 })
 
-// 处理菜单表单提交
+// Handle menu form submission
 const onSubmit = () => {
   menuFromRef.value!.validate(async (valid) => {
     if (valid) {
@@ -109,7 +109,7 @@ const onSubmit = () => {
   })
 }
 
-// 处理菜单表单重置
+// Handle menu form reset
 const resetForm = () => {
   menuFromRef.value!.resetFields()
   menu.value = Object.assign({}, defaultMenu)

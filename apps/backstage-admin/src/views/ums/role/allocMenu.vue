@@ -7,27 +7,27 @@ import { roleListMenuByRoleIdAPI, roleAllocMenuAPI } from '@/apis/role' // 修�
 import type { TreeNodeData } from 'element-plus/es/components/tree/src/tree.type'
 import type { UmsMenuNode } from '@/types/menu'
 
-// 获取路由参数
+// Get route params
 const router = useRouter()
 const route = useRoute()
 
-// 当前角色ID
+// Current role ID
 const roleId = ref<number>()
-// 所有菜单树形结构列表
+// All menu tree list
 const menuTreeList = ref<UmsMenuNode[]>([])
-// 创建对树组件的引用
+// Create a ref to the tree component
 const treeRef = ref<InstanceType<typeof ElTree>>()
-// 定义树组件属性
+// Define tree component properties
 const defaultProps = {
   children: 'children',
   label: 'title'
 }
-// 获取菜单树列表
+// Get menu tree list
 const treeList = async () => {
   const res = await getMenuTreeListAPI()
   menuTreeList.value = res.data
 }
-// 获取角色对应的菜单
+// Get menus for a role
 const getRoleMenu = async () => {
   const res = await roleListMenuByRoleIdAPI(roleId.value!)
   const menuList = res.data
@@ -35,14 +35,14 @@ const getRoleMenu = async () => {
   treeRef.value!.setCheckedKeys(checkedMenuIds)
 }
 
-// 页面创建时执行
+// Run on page creation
 onMounted(() => {
   roleId.value = Number(route.query.roleId)
   treeList()
   getRoleMenu()
 })
 
-// 保存菜单分配
+// Save menu assignment
 const handleSave = async () => {
   const checkedNodes = treeRef.value!.getCheckedNodes() as TreeNodeData[]
   const checkedMenuIds = new Set<number>()
@@ -66,7 +66,7 @@ const handleSave = async () => {
   router.back()
 }
 
-// 清空选中项
+// Clear selected items
 const handleClear = () => {
   treeRef.value!.setCheckedKeys([])
 }

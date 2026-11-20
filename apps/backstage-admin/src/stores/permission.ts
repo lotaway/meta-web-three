@@ -39,7 +39,7 @@ function hasPermission(menus: UmsMenu[], route: RouteRecordExt) {
   }
 }
 
-// 根据路由名称获取菜单
+// Get menu by route name
 function getMenu(name: string, menus: UmsMenu[]) {
   return menus.find(menu => name === menu.name) || null
 }
@@ -60,7 +60,7 @@ function filterBlockchainRoutes(routes: RouteRecordExt[]): RouteRecordExt[] {
   })
 }
 
-// 对菜单进行排序
+// Sort menus
 function sortRouters(accessedRouters: RouteRecordExt[]) {
   accessedRouters.forEach(router => {
     if (router.children && router.children.length > 0) {
@@ -70,7 +70,7 @@ function sortRouters(accessedRouters: RouteRecordExt[]) {
   accessedRouters.sort((a, b) => compare(a, b))
 }
 
-// 降序比较函数
+// Descending comparison function
 function compare(a: RouteRecordExt, b: RouteRecordExt) {
   if (a.sort && b.sort) {
     return b.sort - a.sort
@@ -80,18 +80,18 @@ function compare(a: RouteRecordExt, b: RouteRecordExt) {
 }
 
 export const usePermissionStore = defineStore('permission', () => {
-  // 所有路由，静态路由+动态路由
+  // All routes: static + dynamic
   const routers = shallowRef(constantRouterMap)
-  // 有权限访问的动态路由
+  // Dynamic routes accessible with permission
   const addRouters = shallowRef<RouteRecordExt[]>([])
-  // 是否为测试模式（开发阶段启用，返回所有动态路由）
+  // Whether test mode is on (enabled during development, returns all dynamic routes)
   const testMode = true
 
-  // 生成可访问的路由表
+  // Generate the accessible route table
   const generateRoutes = (data: { menus: UmsMenu[]; username: string }) => {
     const { menus, username } = data
     const accessedRouters = asyncRouterMap.filter(v => {
-      // 测试模式下admin帐号直接返回所有菜单
+      // In test mode the admin account returns all menus directly
       if (testMode && username === 'admin') return true
       if (hasPermission(menus, v)) {
         if (v.children && v.children.length > 0) {
@@ -108,11 +108,11 @@ export const usePermissionStore = defineStore('permission', () => {
       }
       return false
     })
-    // 区块链功能开关控制
+    // Blockchain feature toggle
     if (!isBlockchainEnabled) {
       filterBlockchainRoutes(accessedRouters)
     }
-    //对菜单进行排序
+    // Sort menus
     sortRouters(accessedRouters)
     addRouters.value = accessedRouters
     routers.value = constantRouterMap.concat(accessedRouters)
@@ -125,5 +125,5 @@ export const usePermissionStore = defineStore('permission', () => {
   }
 })
 
-// 默认导出保持兼容性
+// Default export for backward compatibility
 export default usePermissionStore

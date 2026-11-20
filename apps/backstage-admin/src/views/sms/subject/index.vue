@@ -9,12 +9,12 @@ import type { HomeSubjectQueryParam, SmsHomeRecommendSubject } from '@/types/hom
 import type { CmsSubject } from '@/types/subject'
 
 
-// 列表查询参数
+// List query params
 const listQuery = ref<HomeSubjectQueryParam>({
   pageNum: 1,
   pageSize: 10
 })
-// 查询推荐状态
+// Query recommendation status
 const recommendOptions = ref([
   {
     label: '未推荐',
@@ -25,13 +25,13 @@ const recommendOptions = ref([
     value: 1
   }
 ])
-// 列表数据
+// List data
 const list = ref<SmsHomeRecommendSubject[]>([])
-// 总条数
+// Total count
 const total = ref(0)
-// 加载状态
+// Loading state
 const listLoading = ref(false)
-// 获取列表数据
+// Get list data
 const getList = async () => {
   listLoading.value = true
   const res = await getHomeRecommendSubjectListAPI(listQuery.value)
@@ -40,14 +40,14 @@ const getList = async () => {
   total.value = res.data.total
 }
 
-// 组件挂载后执行
+// Run after component mounts
 onMounted(() => {
   getList()
 })
 
-// 批量操作选中记录
+// Batch operation selected records
 const multipleSelection = ref<SmsHomeRecommendSubject[]>([])
-// 批量操作
+// Batch operations
 const operates = ref([
   {
     label: "设为推荐",
@@ -62,12 +62,12 @@ const operates = ref([
     value: 2
   }
 ])
-// 当前操作类型
+// Current operation type
 const operateType = ref()
 
-// 选择专题对话框可见性
+// Select-subject dialog visibility
 const selectDialogVisible = ref(false)
-// 选择专题对话框数据
+// Select-subject dialog data
 const dialogData = ref({
   list: [] as CmsSubject[],
   total: 0,
@@ -79,51 +79,51 @@ const dialogData = ref({
   }
 })
 
-// 设置排序对话框可见性
+// Set sort dialog visibility
 const sortDialogVisible = ref(false)
-// 设置排序对话框数据
+// Set sort dialog data
 const sortDialogData = ref({ sort: 0, id: 0 })
 
-// 重置搜索
+// Reset search
 const handleResetSearch = () => {
   listQuery.value = { pageNum: 1, pageSize: 10 }
 }
 
-// 搜索列表
+// Search list
 const handleSearchList = () => {
   listQuery.value.pageNum = 1
   getList()
 }
 
-// 处理表格选择变化
+// Handle table selection change
 const handleSelectionChange = (val: SmsHomeRecommendSubject[]) => {
   multipleSelection.value = val
 }
 
-// 处理分页大小变化
+// Handle page size change
 const handleSizeChange = (val: number) => {
   listQuery.value.pageNum = 1
   listQuery.value.pageSize = val
   getList()
 }
 
-// 处理当前页变化
+// Handle current page change
 const handleCurrentChange = (val: number) => {
   listQuery.value.pageNum = val
   getList()
 }
 
-// 处理推荐状态变化
+// Handle recommendation status change
 const handleRecommendStatusStatusChange = (index: number, row: SmsHomeRecommendSubject) => {
   updateRecommendStatusStatus([row.id!], row.recommendStatus!)
 }
 
-// 处理删除
+// Handle delete
 const handleDelete = async (index: number, row: SmsHomeRecommendSubject) => {
   deleteSubject([row.id!])
 }
 
-// 处理批量操作
+// Handle batch operations
 const handleBatchOperate = async () => {
   if (multipleSelection.value.length < 1) {
     ElMessage.warning({
@@ -134,13 +134,13 @@ const handleBatchOperate = async () => {
   }
   const ids: number[] = multipleSelection.value.map(item => item.id!)
   if (operateType.value === 0) {
-    //设为推荐
+    // Set as recommended
     await updateRecommendStatusStatus(ids, 1)
   } else if (operateType.value === 1) {
-    //取消推荐
+    // Unset recommendation
     await updateRecommendStatusStatus(ids, 0)
   } else if (operateType.value === 2) {
-    //删除
+    // Delete
     await deleteSubject(ids)
   } else {
     ElMessage.warning({
@@ -150,37 +150,37 @@ const handleBatchOperate = async () => {
   }
 }
 
-// 处理选择专题
+// Handle subject selection
 const handleSelectSubject = () => {
   selectDialogVisible.value = true
   dialogData.value.listQuery.keyword = ''
   getDialogList()
 }
 
-// 处理选择搜索
+// Handle selection search
 const handleSelectSearch = () => {
   getDialogList()
 }
 
-// 处理对话框分页大小变化
+// Handle dialog page size change
 const handleDialogSizeChange = (val: number) => {
   dialogData.value.listQuery.pageNum = 1
   dialogData.value.listQuery.pageSize = val
   getDialogList()
 }
 
-// 处理对话框当前页变化
+// Handle dialog current page change
 const handleDialogCurrentChange = (val: number) => {
   dialogData.value.listQuery.pageNum = val
   getDialogList()
 }
 
-// 处理对话框选择变化
+// Handle dialog selection change
 const handleDialogSelectionChange = (val: CmsSubject[]) => {
   dialogData.value.multipleSelection = val
 }
 
-// 处理选择对话框确认
+// Handle selection dialog confirmation
 const handleSelectDialogConfirm = async () => {
   if (dialogData.value.multipleSelection.length < 1) {
     ElMessage.warning({
@@ -208,14 +208,14 @@ const handleSelectDialogConfirm = async () => {
   })
 }
 
-// 处理编辑排序
+// Handle edit sort
 const handleEditSort = (index: number, row: SmsHomeRecommendSubject) => {
   sortDialogVisible.value = true
   sortDialogData.value.sort = row.sort!
   sortDialogData.value.id = row.id!
 }
 
-// 处理更新排序
+// Handle update sort
 const handleUpdateSort = async () => {
   await ElMessageBox.confirm('是否要修改排序?', '提示', {
     confirmButtonText: '确定',
@@ -231,7 +231,7 @@ const handleUpdateSort = async () => {
   })
 }
 
-// 更新推荐状态
+// Update recommendation status
 const updateRecommendStatusStatus = async (ids: number[], status: number) => {
   try {
     await ElMessageBox.confirm('是否要修改推荐状态?', '提示', {
@@ -250,7 +250,7 @@ const updateRecommendStatusStatus = async (ids: number[], status: number) => {
   }
 }
 
-// 删除专题
+// Delete subject
 const deleteSubject = async (ids: number[]) => {
   await ElMessageBox.confirm('是否要删除该推荐?', '提示', {
     confirmButtonText: '确定',
@@ -265,14 +265,14 @@ const deleteSubject = async (ids: number[]) => {
   })
 }
 
-// 获取对话框列表
+// Get dialog list
 const getDialogList = async () => {
   const res = await getSubjectListAPI(dialogData.value.listQuery)
   dialogData.value.list = res.data.list
   dialogData.value.total = res.data.total
 }
 
-// 格式化推荐状态
+// Format recommendation status
 const formatRecommendStatus = (status: number) => {
   if (status === 1) {
     return '推荐中'

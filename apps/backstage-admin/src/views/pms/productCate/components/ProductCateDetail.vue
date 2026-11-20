@@ -9,20 +9,20 @@ import SingleUpload from '@/components/Upload/singleUpload.vue'
 import type { PmsProductCategory } from '@/types/productCate'
 import type { ElCascaderDataVo } from '@/types/common'
 
-// 获取路由对象
+// Get route object
 const router = useRouter()
 const route = useRoute()
 
-// 定义属性
+// Define properties
 const props = defineProps({
-  // 是否为编辑模式
+  // Whether in edit mode
   isEdit: {
     type: Boolean,
     default: false
   }
 })
 
-// 默认商品分类
+// Default product category
 const defaultProductCate: PmsProductCategory = {
   description: '',
   icon: '',
@@ -34,17 +34,17 @@ const defaultProductCate: PmsProductCategory = {
   showStatus: 0,
   sort: 0
 }
-// 定义分类id（编辑使用）
+// Define category ID (used in edit mode)
 const cateId = computed(() => Number(route.query.id))
-// 当前操作的商品分类
+// Current product category
 const productCate = ref<PmsProductCategory>(Object.assign({}, defaultProductCate))
-// 可选上级分类
+// Selectable parent categories
 const selectProductCateList = ref<PmsProductCategory[]>([])
-// 商品属性ID及属性分类ID集合（筛选属性）
+// Set of product attribute IDs and category IDs (filter attributes)
 const filterProductAttrList = ref<{ key: number, value: number[] }[]>([{ key: 0, value: [] }])
-// 筛选属性级联选择器中的数据
+// Data in the filter-attribute cascade selector
 const filterAttrs = ref<ElCascaderDataVo[]>([])
-// 获取可选上级分类列表
+// Get selectable parent category list
 const getSelectProductCateList = async () => {
   const res = await getProductCategoryListAPI(0, { pageSize: 100, pageNum: 1 })
   selectProductCateList.value = res.data.list
@@ -53,7 +53,7 @@ const getSelectProductCateList = async () => {
   noTopProductCate.name = '无上级分类'
   selectProductCateList.value.unshift(noTopProductCate)
 }
-// 获取商品属性分类列表
+// Get product attribute category list
 const getProductAttrCateList = async () => {
   const res = await productAttributeCategoryListWithAttrAPI()
   const list = res.data
@@ -64,7 +64,7 @@ const getProductAttrCateList = async () => {
   }))
 }
 
-// 组件挂载后执行
+// Run after component mounts
 onMounted(async () => {
   if (props.isEdit) {
     const res = await getProductCategoryByIdAPI(cateId.value)
@@ -81,9 +81,9 @@ onMounted(async () => {
   getProductAttrCateList()
 })
 
-// 商品分类表单引用
+// Product category form ref
 const productCateFrom = ref<FormInstance>()
-// 商品分类表单校验规则
+// Product category form validation rules
 const rules = reactive<FormRules<PmsProductCategory>>({
   name: [
     { required: true, message: '请输入分类名称', trigger: 'blur' },
@@ -91,13 +91,13 @@ const rules = reactive<FormRules<PmsProductCategory>>({
   ]
 })
 
-// 获取选中的筛选商品属性ID
+// Get selected filter-attribute IDs
 const getProductAttributeIdList = () => {
   return filterProductAttrList.value.filter(item => item.value && item.value.length === 2)
     .map(item => item.value[1]!)
 }
 
-// 提交表单
+// Submit form
 const onSubmit = async () => {
   if (!productCateFrom.value) return
   const valid = await productCateFrom.value.validate().catch(() => false)
@@ -136,7 +136,7 @@ const onSubmit = async () => {
   }
 }
 
-// 重置表单
+// Reset form
 const resetForm = () => {
   if (productCateFrom.value) {
     productCateFrom.value.resetFields()
@@ -146,7 +146,7 @@ const resetForm = () => {
   }
 }
 
-// 删除筛选属性
+// Delete filter attribute
 const removeFilterAttr = (filterProductAttr: { key: number, value: number[] }) => {
   if (filterProductAttrList.value.length === 1) {
     ElMessage({
@@ -162,7 +162,7 @@ const removeFilterAttr = (filterProductAttr: { key: number, value: number[] }) =
   }
 }
 
-// 添加筛选属性
+// Add filter attribute
 const handleAddFilterAttr = () => {
   if (filterProductAttrList.value.length === 3) {
     ElMessage({
@@ -178,7 +178,7 @@ const handleAddFilterAttr = () => {
   })
 }
 
-// 过滤器
+// Filters
 const filterLabelFilter = (index: number) => {
   if (index === 0) {
     return '筛选属性：'

@@ -1,4 +1,4 @@
-/** 优惠券类型数组 */
+/** Coupon type array */
 export const couponTypes = [
   {
     label: '全场赠券',
@@ -18,7 +18,7 @@ export const couponTypes = [
   },
 ]
 
-/** 优惠券使用平台 */
+/** Coupon usage platform */
 export const couponPlatforms = [
   {
     label: '全平台',

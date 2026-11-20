@@ -56,7 +56,7 @@
       </el-table>
     </el-card>
 
-    <!-- 添加/编辑对话框 -->
+    <!-- Add/edit dialog -->
     <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑会员等级' : '添加会员等级'" width="600px">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
         <el-form-item label="等级名称" prop="name">
@@ -119,7 +119,7 @@ import {
 } from '@/apis/memberLevel'
 import type { UmsMemberLevel } from '@/types/memberLevel'
 
-// 列表查询参数
+// List query params
 const listQuery = ref<{
   name: string
   defaultStatus: number | undefined
@@ -128,16 +128,16 @@ const listQuery = ref<{
   defaultStatus: undefined,
 })
 
-// 列表数据
+// List data
 const list = ref<UmsMemberLevel[]>([])
 const listLoading = ref(false)
 
-// 对话框
+// Dialog
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref<FormInstance>()
 
-// 表单数据
+// Form data
 const form = reactive<UmsMemberLevel>({
   name: '',
   growthPoint: 0,
@@ -153,13 +153,13 @@ const form = reactive<UmsMemberLevel>({
   note: '',
 })
 
-// 表单验证规则
+// Form validation rules
 const rules = {
   name: [{ required: true, message: '请输入等级名称', trigger: 'blur' }],
   growthPoint: [{ required: true, message: '请输入成长值要求', trigger: 'blur' }],
 }
 
-// 获取列表
+// Get list
 const getList = async () => {
   listLoading.value = true
   try {
@@ -167,7 +167,7 @@ const getList = async () => {
       defaultStatus: listQuery.value.defaultStatus,
     })
     let data = res.data || []
-    // 根据名称过滤
+    // Filter by name
     if (listQuery.value.name) {
       data = data.filter((item) => item.name.includes(listQuery.value.name))
     }
@@ -179,12 +179,12 @@ const getList = async () => {
   }
 }
 
-// 搜索
+// Search
 const handleSearch = () => {
   getList()
 }
 
-// 重置
+// Reset
 const handleReset = () => {
   listQuery.value = {
     name: '',
@@ -193,7 +193,7 @@ const handleReset = () => {
   getList()
 }
 
-// 添加
+// Add
 const handleAdd = () => {
   isEdit.value = false
   Object.assign(form, {
@@ -214,14 +214,14 @@ const handleAdd = () => {
   dialogVisible.value = true
 }
 
-// 编辑
+// Edit
 const handleEdit = (row: UmsMemberLevel) => {
   isEdit.value = true
   Object.assign(form, row)
   dialogVisible.value = true
 }
 
-// 提交表单
+// Submit form
 const handleSubmit = async () => {
   await formRef.value?.validate()
   try {
@@ -240,7 +240,7 @@ const handleSubmit = async () => {
   }
 }
 
-// 删除
+// Delete
 const handleDelete = (row: UmsMemberLevel) => {
   ElMessageBox.confirm('确定要删除该会员等级吗?', '提示', {
     confirmButtonText: '确定',

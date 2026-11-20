@@ -1,19 +1,19 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 
-// 定义组件名称
+// Define component name
 defineOptions({
   name: 'ScrollBar'
 })
 
 const delta = 15
 
-// 响应式数据
+// Reactive data
 const top = ref(0)
 const scrollContainer = ref<HTMLDivElement>()
 const scrollWrapper = ref<HTMLDivElement>()
 
-// 处理滚动事件
+// Handle scroll events
 const handleScroll = (e: WheelEvent) => {
   const eventDelta = -e.deltaY * 3
   const $container = scrollContainer.value
@@ -28,7 +28,7 @@ const handleScroll = (e: WheelEvent) => {
   } else {
     if ($containerHeight - delta < $wrapperHeight) {
       if (top.value < -($wrapperHeight - $containerHeight + delta)) {
-        // 当已经到达边界时，无需重新赋值
+        // No need to reassign when the boundary is already reached
       } else {
         top.value = Math.max(top.value + eventDelta, $containerHeight - $wrapperHeight - delta)
       }

@@ -7,24 +7,24 @@ import { Search, Tickets } from '@element-plus/icons-vue'
 import type { PmsBrand } from '@/types/brand'
 import type { PageParam } from '@/types/common'
 
-// 获取路由对象
+// Get route object
 const router = useRouter()
 
-// 品牌列表查询参数
+// Brand list query params
 const listQuery = ref<PageParam>({
   keyword: '',
   pageNum: 1,
   pageSize: 10
 })
-// 品牌列表数据
+// Brand list data
 const list = ref<PmsBrand[]>([])
-// 表格中被选中的行
+// Selected rows in the table
 const multipleSelection = ref<PmsBrand[]>([])
-// 表格数据加载进度条
+// Table data loading progress bar
 const listLoading = ref(true)
-// 分页组件参数
+// Pagination component params
 const total = ref(0)
-// 获取品牌列表数据
+// Get brand list data
 const getList = async () => {
   listLoading.value = true
   try {
@@ -38,28 +38,28 @@ const getList = async () => {
   }
 }
 
-// 组件挂载后初始化列表信息
+// Initialize list info after mount
 onMounted(() => {
   getList()
 })
 
-// 处理品牌搜索
+// Handle brand search
 const handleSearchBrand = () => {
   listQuery.value.pageNum = 1
   getList()
 }
 
-// 处理添加品牌
+// Handle add brand
 const handleAddBrand = () => {
   router.push({ path: '/pms/addBrand' })
 }
 
-// 处理编辑品牌操作
+// Handle edit brand operation
 const handleUpdateBrand = (index: number, row: PmsBrand) => {
   router.push({ path: '/pms/updateBrand', query: { id: row.id } })
 }
 
-// 处理删除品牌操作
+// Handle delete brand operation
 const handleDeleteBrand = async (index: number, row: PmsBrand) => {
   ElMessageBox.confirm('是否要删除该品牌', '提示', {
     confirmButtonText: '确定',
@@ -75,22 +75,22 @@ const handleDeleteBrand = async (index: number, row: PmsBrand) => {
   })
 }
 
-// 处理表格选中状态变化
+// Handle table selection state change
 const handleSelectionChange = (val: PmsBrand[]) => {
   multipleSelection.value = val
 }
 
-// 获取产品列表
+// Get product list
 const getProductList = (index: number, row: PmsBrand) => {
   console.log(index, row)
 }
 
-// 获取产品评论列表
+// Get product review list
 const getProductCommentList = (index: number, row: PmsBrand) => {
   console.log(index, row)
 }
 
-// 处理厂商状态变化
+// Handle manufacturer status change
 const handleFactoryStatusChange = async (index: number, row: PmsBrand) => {
 
   try {
@@ -100,13 +100,13 @@ const handleFactoryStatusChange = async (index: number, row: PmsBrand) => {
     })
     ElMessage.success('修改成功')
   } catch (error) {
-    // 如果更新失败，回滚状态
+    // Roll back state if the update fails
     row.factoryStatus = row.factoryStatus === 0 ? 1 : 0
     console.error('更新厂商状态失败:', error)
   }
 }
 
-// 处理显示状态变化
+// Handle display status change
 const handleShowStatusChange = async (index: number, row: PmsBrand) => {
   try {
     await brandUpdateShowStatusAPI({
@@ -115,26 +115,26 @@ const handleShowStatusChange = async (index: number, row: PmsBrand) => {
     })
     ElMessage.success('修改成功')
   } catch (error) {
-    // 如果更新失败，回滚状态
+    // Roll back state if the update fails
     row.showStatus = row.showStatus === 0 ? 1 : 0
     console.error('更新显示状态失败:', error)
   }
 }
 
-// 处理每页条数变化
+// Handle page size change
 const handleSizeChange = (val: number) => {
   listQuery.value.pageNum = 1
   listQuery.value.pageSize = val
   getList()
 }
 
-// 处理当前页变化
+// Handle current page change
 const handleCurrentChange = (val: number) => {
   listQuery.value.pageNum = val
   getList()
 }
 
-// 批量操作类型
+// Batch operation type
 const operates = ref([
   {
     label: "显示品牌",
@@ -146,10 +146,10 @@ const operates = ref([
   }
 ])
 
-// 底部多选批量操作类型
+// Bottom multi-select batch operation type
 const operateType = ref<string | null>()
 
-// 处理批量操作
+// Handle batch operations
 const handleBatchOperate = async () => {
   if (!multipleSelection.value || multipleSelection.value.length < 1) {
     ElMessage.warning('请选择一条记录')

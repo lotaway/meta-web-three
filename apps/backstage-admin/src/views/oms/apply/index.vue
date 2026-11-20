@@ -7,10 +7,10 @@ import { formatDateTime } from '@/utils/datetime'
 import { getReturnApplyListAPI, returnApplyDeleteByIdsAPI } from '@/apis/returnApply'
 import type { OmsOrderReturnApply, ReturnApplyQueryParam } from '@/types/returnApply'
 
-// 获取路由对象
+// Get route object
 const router = useRouter()
 
-// 默认处理状态
+// Default processing status
 const defaultStatusOptions = [
   {
     label: '待处理',
@@ -30,22 +30,22 @@ const defaultStatusOptions = [
   }
 ]
 
-// 列表查询参数
+// List query params
 const listQuery = ref<ReturnApplyQueryParam>({
   pageNum: 1,
   pageSize: 10
 })
-// 状态选项
+// Status options
 const statusOptions = ref(Object.assign({}, defaultStatusOptions))
-// 列表数据
+// List data
 const list = ref<OmsOrderReturnApply[]>([])
-// 总数
+// Total
 const total = ref(0)
-// 加载状态
+// Loading state
 const listLoading = ref(false)
-// 多选数据
+// Multi-select data
 const multipleSelection = ref<OmsOrderReturnApply[]>([])
-// 获取列表
+// Get list
 const getList = async () => {
   listLoading.value = true
   const res = await getReturnApplyListAPI(listQuery.value)
@@ -54,14 +54,14 @@ const getList = async () => {
   total.value = res.data.total
 }
 
-// 组件挂载后获取列表
+// Get list after mount
 onMounted(() => {
   getList()
 })
 
-// 操作类型
+// Operation type
 const operateType = ref()
-// 操作选项
+// Operation options
 const operateOptions = ref([
   {
     label: "批量删除",
@@ -69,38 +69,38 @@ const operateOptions = ref([
   }
 ])
 
-// 格式化状态
+// Format status
 const formatStatus = (status: number) => {
   return defaultStatusOptions.find(item => item.value === status)?.label
 }
 
-// 格式化退款金额
+// Format refund amount
 const formatReturnAmount = (row: OmsOrderReturnApply) => {
   return row.productRealPrice * row.productCount
 }
 
-// 处理选择变化
+// Handle selection change
 const handleSelectionChange = (val: OmsOrderReturnApply[]) => {
   multipleSelection.value = val
 }
 
-// 重置搜索
+// Reset search
 const handleResetSearch = () => {
   listQuery.value = { pageNum: 1, pageSize: 10 }
 }
 
-// 搜索列表
+// Search list
 const handleSearchList = () => {
   listQuery.value.pageNum = 1
   getList()
 }
 
-// 查看详情
+// View details
 const handleViewDetail = (index: number, row: OmsOrderReturnApply) => {
   router.push({ path: '/oms/returnApplyDetail', query: { id: row.id } })
 }
 
-// 批量操作
+// Batch operations
 const handleBatchOperate = async () => {
   if (!multipleSelection.value || multipleSelection.value.length < 1) {
     ElMessage({
@@ -111,7 +111,7 @@ const handleBatchOperate = async () => {
     return
   }
   if (operateType.value === 1) {
-    // 批量删除
+    // Batch delete
     await ElMessageBox.confirm('是否要进行删除操作?', '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
@@ -126,14 +126,14 @@ const handleBatchOperate = async () => {
   }
 }
 
-// 处理每页大小变化
+// Handle page size change
 const handleSizeChange = (val: number) => {
   listQuery.value.pageNum = 1
   listQuery.value.pageSize = val
   getList()
 }
 
-// 处理当前页变化
+// Handle current page change
 const handleCurrentChange = (val: number) => {
   listQuery.value.pageNum = val
   getList()
