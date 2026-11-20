@@ -71,29 +71,31 @@ const getDashboard = async () => {
   }
 }
 
+const createEmptyPerformanceForm = () => ({
+  supplierId: 0,
+  supplierCode: '',
+  supplierName: '',
+  periodStart: '',
+  periodEnd: '',
+  onTimeDeliveryRate: 0,
+  qualityPassRate: 0,
+  priceCompetitivenessScore: 0,
+  overallScore: 0,
+  assessmentLevel: '',
+  totalOrders: 0,
+  onTimeDeliveryCount: 0,
+  qualifiedCount: 0,
+  totalQualityCheckCount: 0,
+  marketAvgPrice: 0,
+  supplierPrice: 0,
+  remark: '',
+  assessor: '',
+  assessmentDate: ''
+} as SupplierPerformance)
+
 const handleAdd = () => {
   isEdit.value = false
-  formData.value = {
-    supplierId: 0,
-    supplierCode: '',
-    supplierName: '',
-    periodStart: '',
-    periodEnd: '',
-    onTimeDeliveryRate: 0,
-    qualityPassRate: 0,
-    priceCompetitivenessScore: 0,
-    overallScore: 0,
-    assessmentLevel: '',
-    totalOrders: 0,
-    onTimeDeliveryCount: 0,
-    qualifiedCount: 0,
-    totalQualityCheckCount: 0,
-    marketAvgPrice: 0,
-    supplierPrice: 0,
-    remark: '',
-    assessor: '',
-    assessmentDate: ''
-  } as SupplierPerformance
+  formData.value = createEmptyPerformanceForm()
   dialogVisible.value = true
 }
 

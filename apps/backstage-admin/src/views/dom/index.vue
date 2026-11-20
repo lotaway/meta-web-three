@@ -116,22 +116,24 @@ const handleAdd = () => {
   dialogVisible.value = true
 }
 
+const buildDomOrderPayload = () => ({
+  originalOrderNo: formData.value.originalOrderNo,
+  customerId: formData.value.customerId,
+  customerName: formData.value.customerName,
+  region: formData.value.region,
+  sourcingStrategy: formData.value.sourcingStrategy,
+  items: (formData.value.lines ?? []).map((l) => ({
+    skuCode: l.skuCode,
+    skuName: l.skuName,
+    quantity: l.quantity,
+    unitPrice: l.unitPrice ?? 0
+  }))
+})
+
 const handleSubmit = async () => {
   dialogLoading.value = true
   try {
-    await createDomOrderAPI({
-      originalOrderNo: formData.value.originalOrderNo,
-      customerId: formData.value.customerId,
-      customerName: formData.value.customerName,
-      region: formData.value.region,
-      sourcingStrategy: formData.value.sourcingStrategy,
-      items: (formData.value.lines ?? []).map((l) => ({
-        skuCode: l.skuCode,
-        skuName: l.skuName,
-        quantity: l.quantity,
-        unitPrice: l.unitPrice ?? 0
-      }))
-    })
+    await createDomOrderAPI(buildDomOrderPayload())
     ElMessage.success(t('dom.createSuccess'))
     dialogVisible.value = false
     getList()

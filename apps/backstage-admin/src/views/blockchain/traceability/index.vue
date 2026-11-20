@@ -143,6 +143,10 @@ const handleViewTrace = async (row: any) => {
   }
 }
 
+const resetEventForm = () => {
+  eventFormData.value = { traceId: 0, eventType: 'PRODUCTION', location: '', description: '', operator: '' }
+}
+
 const handleAddEvent = async () => {
   if (!eventFormData.value.location || !eventFormData.value.description) {
     ElMessage.warning('Please fill in required fields')
@@ -158,7 +162,7 @@ const handleAddEvent = async () => {
     })
     ElMessage.success('Event added successfully')
     eventDialogVisible.value = false
-    eventFormData.value = { traceId: 0, eventType: 'PRODUCTION', location: '', description: '', operator: '' }
+    resetEventForm()
     if (selectedTrace.value) {
       handleViewTrace({ productId: selectedProduct.value?.productId, id: selectedTrace.value.id })
     }

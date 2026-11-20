@@ -216,6 +216,18 @@ async function loadEquipment() {
   }
 }
 
+function collectLatestMetrics() {
+  const metricsMap = new Map<string, TelemetryMetric>()
+  for (const record of telemetryHistory.value.slice(0, 5)) {
+    if (record.metrics) {
+      for (const m of record.metrics) {
+        metricsMap.set(m.metricCode, m)
+      }
+    }
+  }
+  return Array.from(metricsMap.values())
+}
+
 async function loadTelemetry() {
   if (!selectedEquipment.value) return
   metricsLoading.value = true
@@ -223,15 +235,7 @@ async function loadTelemetry() {
   try {
     const res = await getTelemetryListAPI(selectedEquipment.value, 20)
     telemetryHistory.value = res.data || []
-    const metricsMap = new Map<string, TelemetryMetric>()
-    for (const record of telemetryHistory.value.slice(0, 5)) {
-      if (record.metrics) {
-        for (const m of record.metrics) {
-          metricsMap.set(m.metricCode, m)
-        }
-      }
-    }
-    latestMetrics.value = Array.from(metricsMap.values())
+    latestMetrics.value = collectLatestMetrics()
     latestTelemetry.value = telemetryHistory.value.slice(0, 5)
   } catch {
     ElMessage.error(t('mes.scada.loadFailed'))

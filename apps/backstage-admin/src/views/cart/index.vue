@@ -145,32 +145,28 @@ const handleUpdateQuantity = (row: CartItem, quantity: number) => {
     })
 }
 
+const deleteCartItems = (ids: number[]) => {
+  deleteCartItemsAPI(ids)
+    .then(() => {
+      ElMessage.success('Deleted successfully')
+      handleQuery()
+    })
+    .catch(() => {
+      ElMessage.error('Failed to delete')
+    })
+}
+
 const handleDelete = (row?: CartItem) => {
   const ids = row ? [row.id!] : selectedRows.value.map(r => r.id!).filter(Boolean)
-  
   if (ids.length === 0) {
     ElMessage.warning('Please select items to delete')
     return
   }
-  
-  ElMessageBox.confirm(
-    `Are you sure to delete ${row ? 'this item' : 'selected items'}?`,
-    'Warning',
-    {
-      confirmButtonText: 'Confirm',
-      cancelButtonText: 'Cancel',
-      type: 'warning'
-    }
-  ).then(() => {
-    deleteCartItemsAPI(ids)
-      .then(() => {
-        ElMessage.success('Deleted successfully')
-        handleQuery()
-      })
-      .catch(() => {
-        ElMessage.error('Failed to delete')
-      })
-  }).catch(() => {})
+  ElMessageBox.confirm(`Are you sure to delete ${row ? 'this item' : 'selected items'}?`, 'Warning', {
+    confirmButtonText: 'Confirm',
+    cancelButtonText: 'Cancel',
+    type: 'warning'
+  }).then(() => deleteCartItems(ids)).catch(() => {})
 }
 
 const handleClear = () => {
