@@ -63,6 +63,28 @@ npm run dev
 前端路径前缀与服务的对应关系维护在 `src/utils/http.ts` 的 `SERVICE_PREFIX_MAP`。
 新增接口时必须同步维护该映射，否则请求会因为缺少服务前缀而返回 404。
 
+## API Client
+
+本应用的接口调用使用 `src/apis/` 下按业务模块组织的 **93 个手写模块**，
+它们是所有视图的稳定公共接口，运行时不导入任何生成代码。
+
+`yarn generate:api` 调用共享脚本 `apps/tools/OpenApiToTS.js`，从网关聚合文档
+（`{VITE_BASE_SERVER_URL}/meta/v3/api-docs`）生成 TypeScript 客户端到
+`src/generated/api/`。该目录**有意不被应用消费**——这是一处记录在案的有意偏离：
+手写模块保留了更贴近业务的命名与封装，避免生成器重新运行时改动所有调用方。
+生成结果仅作为 controller 签名与字段的参考。
+
+生成器从 `.env` / `.env.local` 读取 `VITE_BASE_SERVER_URL` 与 `VITE_API_DOC_HOST`
+（变量说明见 `.env.example`），两者缺省时回退到 `http://localhost:10081`。
+`VITE_*` 前缀是 Vite 约定：只有以 `VITE_` 开头的变量才会注入 `import.meta.env`。
+
+新增 / 变更接口时的同步机制：
+
+1. 在对应 `src/apis/*.ts` 模块中手写接口函数，复用 `src/utils/http.ts` 的 `http`。
+2. 若涉及新的网关服务前缀，同步更新 `src/utils/http.ts` 的 `SERVICE_PREFIX_MAP`。
+3. 可选：运行 `yarn generate:api` 对照生成签名确认字段（运行需网关可访问）。
+4. 保持既有函数签名兼容，避免改动调用方视图。
+
 ## 目录结构
 
 ```text

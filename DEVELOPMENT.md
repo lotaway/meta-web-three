@@ -35,27 +35,49 @@ Requirement → TODO.md breakdown
 - For new services, follow the [new service checklist](./server/README.md#添加新服务清单)
 - Ensure the controller is annotated with SpringDoc/Springfox for OpenAPI spec generation
 
-### 3. Generate Frontend API Client
+### 3. Frontend API Client
 
-After backend controllers are deployed, generate TypeScript clients from OpenAPI docs.
+Both apps call backend APIs through the gateway on port `10081` (see
+`scripts/server-services-registry.sh`), using a `/{serviceId}` prefix that the
+gateway's discovery locator routes to the target service. The two apps use
+different env prefixes and different API-client strategies; these are
+intentional and documented below, not inconsistencies to unify.
 
-**Prerequisites:**
-```bash
-npm install -g @openapitools/openapi-generator-cli
-```
+**[backstage-admin](apps/backstage-admin/) — hand-written API modules**
 
-**For [backstage-admin](apps/backstage-admin/) and [customer client](apps/client/):**
-Both use the shared script `apps/tools/OpenApiToTS.js`.
-Configure `.env.development`:
-```bash
-NEXT_PUBLIC_BACK_API_HOST=http://localhost:10081
-NEXT_PUBLIC_BACK_API_DOC_HOST=http://localhost:10081
-```
-Then run in the app directory:
-```bash
-yarn generate:api
-```
-Generated code goes to `src/generated/api/`. See full details in [apps/client/README.md](./apps/client/README.md#generate-api-interfaces).
+- Env prefix is `VITE_*` (Vite only inlines `VITE_*`). Configure `.env` by
+  copying `.env.example`; `src/utils/env.ts` supplies defaults so every
+  variable is optional. The generator reads `VITE_BASE_SERVER_URL` and
+  `VITE_API_DOC_HOST` from `.env` / `.env.local`.
+- The app imports 93 hand-written modules from `src/apis/`, not a generated
+  client. `yarn generate:api` (shared `apps/tools/OpenApiToTS.js`) can emit
+  `src/generated/api/`, but that output is **deliberately not consumed** — the
+  hand-written modules are the stable public interface for all views.
+- Sync rule: generated output is a reference for controller signatures only.
+  When a backend endpoint changes, update the matching `src/apis/*.ts` module
+  and keep `SERVICE_PREFIX_MAP` in `src/utils/http.ts` in sync; generated files
+  are never imported at runtime. See
+  [apps/backstage-admin/README.md](./apps/backstage-admin/README.md).
+
+**[customer client](apps/client/) — generated API client**
+
+- The generator reads `NEXT_PUBLIC_BACK_API_HOST` / `NEXT_PUBLIC_BACK_API_DOC_HOST`
+  from `.env` (then `.env.development` / `.env.local`) and emits both REST and
+  GraphQL clients to `src/generated/api/` (and `src/generated/graphql/`).
+  `NEXT_PUBLIC_*` here is a code-generation / web-build variable only.
+- `src/generated/` is gitignored (React Native cannot commit the generated
+  output here). A fresh checkout must run `yarn generate:api` with a reachable
+  gateway before `tsc` / tests pass — `api/generated.ts` imports from
+  `@/src/generated/api`.
+- At runtime the app reads `EXPO_PUBLIC_BACK_API_HOST` (Metro only inlines
+  `EXPO_PUBLIC_*`); when unset it is derived from the dev-server `hostUri`
+  (Android emulator `10.0.2.2`, iOS simulator `localhost`).
+
+**Prerequisites (generator route):** a running gateway exposing the aggregated
+OpenAPI doc at `{host}/meta/v3/api-docs`, and
+`npm install -g @openapitools/openapi-generator-cli`.
+See [apps/client/README.md](./apps/client/README.md#generate-api-interfaces)
+and [apps/backstage-admin/README.md](./apps/backstage-admin/README.md#api-client) for full details.
 
 > The digital-twin desktop app now lives in its own repository (`lotaway/meta-note`) and is no longer part of this monorepo. Its backend (`server/gateway`, `server/factory-domain/factory-service`) still lives here.
 
