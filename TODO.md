@@ -53,7 +53,7 @@
   - 需决策：界定哪些中文字符串属于 i18n 资源（只有这些可以保留），批量改写前须先商定基于路径的分类规则。
   - 关闭条件：按 app 逐个把注释 / 日志 / 错误文案改为英文，把记录后忽略的 catch 改成显式错误状态或重新抛出，拆分超过 20 行的函数，每轮都通过 typecheck 与测试。
   - 2026-11-20 第一批完成（`f7b3b501`）：范围收敛为零 UI 副作用、无需 i18n 决策的两类——① 13 处 `throw new Error/ApiError` 中文文案英文化（checkout / flashAdapter / stores/user / api client）；② 31 处「只 console.error 就返回」的吞异常 catch 补用户可见错误态——backstage-admin `media/index.vue` 3 处用 `ElMessage.error`，client 28 处用 `Alert.alert`（10 个文件补 `Alert` import）。`AuthContext` 的 3 处 throw + 3 处 catch 属独立鉴权任务（见「替换三个鉴权流程」），本批排除。同步更新 client 超时测试断言为英文。验证：backstage-admin `vue-tsc` + vitest 6/38、client `tsc --noEmit` + jest 10/109，全 EXIT 0。
-  - 2026-11-20 注释英文化完成（`77e84226`、`bb55c757`、`c5ad3931`）：backstage-admin 全 app 中文注释清零——27 个 `.d.ts` 的 562 处 JSDoc、7 个 `.ts` 的 90 处、74 个 `.vue` 的 897 处、行尾 16 处，合计 1565 行，仅改注释文本，零 UI / i18n 资源变更。client 的 `src` 注释本无中文（命中项均为 JSX UI 文案，属需决策范围）。每批后 `vue-tsc` + vitest 6/38 全 EXIT 0。
+  - 2026-11-20 注释英文化完成（`77e84226`、`bb55c757`、`c5ad3931`、`035cc449`）：backstage-admin 全 app 中文注释清零——27 个 `.d.ts` 的 562 处 JSDoc、7 个 `.ts` 的 90 处、74 个 `.vue` 的 897 处、行尾 16 处、样式文件 26 处，合计 1591 行，仅改注释文本，零 UI / i18n 资源变更。client 的 `src` 注释本无中文（命中项均为 JSX UI 文案，属需决策范围）。每批后 `vue-tsc` + vitest 6/38 全 EXIT 0。
   - 剩余批次（本任务未关闭）：硬编码 `ElMessage` / 模板 UI 中文文本（需先定 i18n key 分类规则，见「需决策」行）、超过 20 行的函数拆分。纯展示型 UI 文本不应直接英文化，应迁入 i18n 资源。
 
 - [ ] 补齐两个客户端的响应式与可访问性缺口。
@@ -61,6 +61,7 @@
   - 建议：为两个 app 增加断点与弹性布局，恢复可见焦点态，补充语义标签 / `aria-*` 或 `accessibilityLabel` / `accessibilityRole`，并增加 ErrorBoundary 与加载失败时用户可感知的降级表现（FRONTEND_PRICEPLES 第 7、8 节）。
   - 需决策：提供设计基准 / 断点取值（仓库里没有设计稿）。若没有，默认采用通用断点集，并以可评审的变更提交。
   - 关闭条件：两个 app 都加上断点与弹性布局、恢复可见焦点态、补充语义标签 / `aria-*` / `accessibilityLabel` / `accessibilityRole`、加入带用户可见降级的 ErrorBoundary，并用各 app 的检查验证。
+  - 2026-11-20 部分完成（`035cc449`）：backstage-admin `styles/index.scss` 移除 `div:focus` / `a:focus` 的 `outline: none`，改用 `:focus-visible` 为键盘用户提供可见焦点环（2px `#409eff` + 2px offset），鼠标点击仍无轮廓。`vue-tsc` + vitest 6/38 EXIT 0。断点 / 语义标签 / ErrorBoundary 仍需设计基准决策，未做。
 
 - [x] 让 `apps/backstage-admin` 的 API 客户端与 DEVELOPMENT.md 第 3 节保持一致。
   - 问题：`package.json:18` 定义了 `generate:api`，`tools/generate-api.cjs` 调用共享的 `apps/tools/OpenApiToTS.js`，其默认输出为 `src/generated/api`，但该目录不存在；应用实际调用的是 `src/apis/` 下 93 个手写模块。
