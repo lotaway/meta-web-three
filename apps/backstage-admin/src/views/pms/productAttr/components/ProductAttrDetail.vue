@@ -5,6 +5,9 @@ import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'elem
 import { getProductAttributeCategoryListAPI } from '@/apis/productAttrCate'
 import { productAttributeCreateAPI, getProductAttributeByIdAPI, productAttributeUpdateAPI } from '@/apis/productAttr'
 import type { PmsProductAttribute, PmsProductAttributeCategory } from '@/types/productAttr'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route object
 const route = useRoute()
@@ -87,22 +90,22 @@ const onSubmit = async () => {
   if (!productAttrFrom.value) return
   const valid = await productAttrFrom.value.validate().catch(() => false)
   if (valid) {
-    await ElMessageBox.confirm('是否提交数据', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmSubmit'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     if (props.isEdit) {
       await productAttributeUpdateAPI(Number(route.query.id), productAttr.value)
-      ElMessage.success('修改成功')
+      ElMessage.success(t('message.modifySuccess'))
       router.back()
     } else {
       await productAttributeCreateAPI(productAttr.value)
-      ElMessage.success('提交成功')
+      ElMessage.success(t('message.operationSuccess'))
       resetForm()
     }
   } else {
-    ElMessage.error('验证失败')
+    ElMessage.error(t('productAttr.verifyFailed'))
   }
 }
 

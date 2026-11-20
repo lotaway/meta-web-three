@@ -5,6 +5,9 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Tickets } from '@element-plus/icons-vue'
 import { getProductCategoryListAPI, productCategoryDeleteByIdAPI, productCategoryUpdateShowStatusAPI, productCategoryUpdateNavStatusAPI } from '@/apis/productCate'
 import type { PmsProductCategory } from '@/types/productCate'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route
 const router = useRouter()
@@ -108,9 +111,9 @@ const handleUpdate = (index: number, row: PmsProductCategory) => {
 
 // Delete category
 const handleDelete = async (index: number, row: PmsProductCategory) => {
-  await ElMessageBox.confirm('是否要删除该品牌', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('dialog.confirmDeleteBrand'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning'
   })
   await productCategoryDeleteByIdAPI(row.id!)

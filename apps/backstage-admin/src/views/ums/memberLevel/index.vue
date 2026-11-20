@@ -118,6 +118,9 @@ import {
   deleteMemberLevelAPI,
 } from '@/apis/memberLevel'
 import type { UmsMemberLevel } from '@/types/memberLevel'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // List query params
 const listQuery = ref<{
@@ -227,33 +230,33 @@ const handleSubmit = async () => {
   try {
     if (isEdit.value && form.id) {
       await updateMemberLevelAPI(form.id, form)
-      ElMessage.success('更新成功')
+      ElMessage.success(t('common.updateSuccess'))
     } else {
       await createMemberLevelAPI(form)
-      ElMessage.success('创建成功')
+      ElMessage.success(t('common.createSuccess'))
     }
     dialogVisible.value = false
     getList()
   } catch (error) {
     console.error('Failed to submit:', error)
-    ElMessage.error('操作失败')
+    ElMessage.error(t('message.operationFailed'))
   }
 }
 
 // Delete
 const handleDelete = (row: UmsMemberLevel) => {
-  ElMessageBox.confirm('确定要删除该会员等级吗?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  ElMessageBox.confirm(t('dialog.confirmDeleteMemberLevel'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning',
   }).then(async () => {
     try {
       await deleteMemberLevelAPI(row.id!)
-      ElMessage.success('删除成功')
+      ElMessage.success(t('common.deleteSuccess'))
       getList()
     } catch (error) {
       console.error('Failed to delete:', error)
-      ElMessage.error('删除失败')
+      ElMessage.error(t('common.deleteFailed'))
     }
   })
 }

@@ -11,6 +11,9 @@ import {
   unbindStationAPI,
   type ProductionOrder, type WorkStation, type WorkStationBinding,
 } from '@/apis/production'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const activeTab = ref('orders')
 const loading = ref(false)
@@ -18,7 +21,7 @@ const loading = ref(false)
 // Orders
 const orders = ref<ProductionOrder[]>([])
 const loadOrders = async () => {
-  try { const res = await listOrdersAPI(); orders.value = (res.data as any) || [] } catch (e: any) { console.error('[loadOrders]', e); ElMessage.error('加载失败') }
+  try { const res = await listOrdersAPI(); orders.value = (res.data as any) || [] } catch (e: any) { console.error('[loadOrders]', e); ElMessage.error(t('common.loadFailed')) }
 }
 
 const orderDialog = ref(false)
@@ -51,13 +54,13 @@ const lifecycleAction = async (id: number, action: string, fn: (id: number) => P
     await fn(id)
     ElMessage.success(`${action} successful`)
     loadOrders()
-  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error('操作失败') } }
+  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error(t('message.operationFailed')) } }
 }
 
 // Stations
 const stations = ref<WorkStation[]>([])
 const loadStations = async () => {
-  try { const res = await listStationsAPI(); stations.value = (res.data as any) || [] } catch (e: any) { console.error('[loadStations]', e); ElMessage.error('加载失败') }
+  try { const res = await listStationsAPI(); stations.value = (res.data as any) || [] } catch (e: any) { console.error('[loadStations]', e); ElMessage.error(t('common.loadFailed')) }
 }
 
 const stationDialog = ref(false)
@@ -89,7 +92,7 @@ const selectedStationForBindings = ref('')
 const loadBindings = async (code: string) => {
   selectedStationForBindings.value = code
   if (!code) { bindings.value = []; return }
-  try { const res = await getStationBindingsAPI(code); bindings.value = (res.data as any) || [] } catch (e: any) { console.error('[loadBindings]', e); ElMessage.error('加载失败') }
+  try { const res = await getStationBindingsAPI(code); bindings.value = (res.data as any) || [] } catch (e: any) { console.error('[loadBindings]', e); ElMessage.error(t('common.loadFailed')) }
 }
 
 const bindDialog = ref(false)
@@ -112,7 +115,7 @@ const unbind = async (id: number) => {
     await unbindStationAPI(id)
     ElMessage.success('Unbound')
     loadBindings(selectedStationForBindings.value)
-  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error('操作失败') } }
+  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error(t('message.operationFailed')) } }
 }
 
 const refreshAll = () => { loadOrders(); loadStations() }

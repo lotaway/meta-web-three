@@ -7,6 +7,9 @@ import { getSubjectListAPI } from '@/apis/subject'
 import { formatDateTime } from '@/utils/datetime'
 import type { HomeSubjectQueryParam, SmsHomeRecommendSubject } from '@/types/homeSubject'
 import type { CmsSubject } from '@/types/subject'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 
 // List query params
@@ -189,9 +192,9 @@ const handleSelectDialogConfirm = async () => {
     })
     return
   }
-  await ElMessageBox.confirm('使用要进行添加操作?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('dialog.confirmAdd'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning'
   })
   const selectSubjects = dialogData.value.multipleSelection.map(item => ({
@@ -217,9 +220,9 @@ const handleEditSort = (index: number, row: SmsHomeRecommendSubject) => {
 
 // Handle update sort
 const handleUpdateSort = async () => {
-  await ElMessageBox.confirm('是否要修改排序?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('dialog.confirmChangeSort'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning'
   })
   await homeRecommendSubjectUpdateSortAPI(sortDialogData.value)
@@ -234,9 +237,9 @@ const handleUpdateSort = async () => {
 // Update recommendation status
 const updateRecommendStatusStatus = async (ids: number[], status: number) => {
   try {
-    await ElMessageBox.confirm('是否要修改推荐状态?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmChangeRecommend'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await homeRecommendSubjectUpdateRecommendStatusAPI({ ids: ids.join(','), recommendStatus: status })
@@ -252,9 +255,9 @@ const updateRecommendStatusStatus = async (ids: number[], status: number) => {
 
 // Delete subject
 const deleteSubject = async (ids: number[]) => {
-  await ElMessageBox.confirm('是否要删除该推荐?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('dialog.confirmDeleteRecommend'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning'
   })
   await homeRecommendSubjectDeleteByIdsAPI({ ids: ids.join(',') })

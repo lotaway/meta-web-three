@@ -4,6 +4,9 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { getMenuListByParentIdAPI, menuCreateAPI, updateMenu, getMenuByIdAPI } from '@/apis/menu.ts'
 import type { UmsMenu } from '@/types/menu'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route object
 const route = useRoute()
@@ -74,9 +77,9 @@ onMounted(async () => {
 const onSubmit = () => {
   menuFromRef.value!.validate(async (valid) => {
     if (valid) {
-      await ElMessageBox.confirm('是否提交数据', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      await ElMessageBox.confirm(t('dialog.confirmSubmit'), t('dialog.title'), {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
         type: 'warning'
       })
       if (props.isEdit) {

@@ -7,6 +7,9 @@ import { getCompanyAddressListAPI } from '@/apis/companyAddress'
 import { formatDateTime } from '@/utils/datetime'
 import type { OmsOrderReturnApply, OmsUpdateStatusParam } from '@/types/returnApply'
 import type { OmsCompanyAddress } from '@/types/companyAddress'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Default status update params
 const defaultUpdateStatusParam = {
@@ -117,9 +120,9 @@ const handleViewOrder = () => {
 // Update status
 const handleUpdateStatus = async (status: number) => {
   updateStatusParam.value.status = status
-  await ElMessageBox.confirm('是否要进行此操作?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('dialog.confirmAction'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning'
   })
   await returnApplyUpdateStatusAPI(id.value, updateStatusParam.value)

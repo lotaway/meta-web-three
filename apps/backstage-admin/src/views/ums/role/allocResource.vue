@@ -6,6 +6,9 @@ import { resourceCategoryListAllAPI } from '@/apis/resourceCategory.ts'
 import { roleAllocResourceAPI, roleListResourceById } from '@/apis/role'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { UmsResource, UmsResourceCategory } from '@/types/resource'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route
 const router = useRouter()
@@ -75,9 +78,9 @@ const isAllChecked = (categoryId: number) => {
 
 // Save resource assignment
 const handleSave = async () => {
-  await ElMessageBox.confirm('是否分配资源？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('dialog.confirmAssignResource'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning'
   })
   const checkedResourceIds = new Set<number>()

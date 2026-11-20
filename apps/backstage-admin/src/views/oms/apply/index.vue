@@ -6,6 +6,9 @@ import { Search, Tickets } from '@element-plus/icons-vue'
 import { formatDateTime } from '@/utils/datetime'
 import { getReturnApplyListAPI, returnApplyDeleteByIdsAPI } from '@/apis/returnApply'
 import type { OmsOrderReturnApply, ReturnApplyQueryParam } from '@/types/returnApply'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route object
 const router = useRouter()
@@ -112,9 +115,9 @@ const handleBatchOperate = async () => {
   }
   if (operateType.value === 1) {
     // Batch delete
-    await ElMessageBox.confirm('是否要进行删除操作?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmDelete'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await returnApplyDeleteByIdsAPI({ ids: multipleSelection.value.map(item => item.id).join(',') })

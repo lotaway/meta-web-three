@@ -7,6 +7,9 @@ import { getRoleListAllAPI } from '@/apis/role.ts'
 import type { UmsAdmin } from '@/types/admin'
 import type { PageParam } from '@/types/common'
 import type { UmsRole } from '@/types/role'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // List query params
 const listQuery = ref<PageParam>({
@@ -120,13 +123,13 @@ const handleAdd = () => {
 // Handle status change
 const handleStatusChange = async (index: number, row: UmsAdmin) => {
   try {
-    await ElMessageBox.confirm('是否要修改该状态?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmChangeStatus'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await adminUpdateStatusByIdAPI(row.id!, { status: row.status })
-    ElMessage.success('修改成功!')
+    ElMessage.success(t('message.modifySuccess'))
   } catch (error) {
     console.error('Failed to update status:', error)
     // If cancelled or failed, refetch the list to restore state
@@ -137,13 +140,13 @@ const handleStatusChange = async (index: number, row: UmsAdmin) => {
 // Handle delete
 const handleDelete = async (index: number, row: UmsAdmin) => {
   try {
-    await ElMessageBox.confirm('是否要删除该用户?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmDeleteUser'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await adminDeleteByIdAPI(row.id!)
-    ElMessage.success('删除成功!')
+    ElMessage.success(t('common.deleteSuccess'))
     getList()
   } catch (error) {
     console.error('Failed to delete:', error)
@@ -161,17 +164,17 @@ const handleUpdate = (index: number, row: UmsAdmin) => {
 // Handle dialog confirmation
 const handleDialogConfirm = async () => {
   try {
-    await ElMessageBox.confirm('是否要确认?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmAction'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     if (isEdit.value) {
       await adminUpdateByIdAPI(admin.value.id!, admin.value)
-      ElMessage.success('修改成功！')
+      ElMessage.success(t('message.modifySuccess'))
     } else {
       await adminRegisterAPI(admin.value)
-      ElMessage.success('添加成功！')
+      ElMessage.success(t('message.operationSuccess'))
     }
     dialogVisible.value = false
     getList()
@@ -183,13 +186,13 @@ const handleDialogConfirm = async () => {
 // Handle assign-role dialog confirmation
 const handleAllocDialogConfirm = async () => {
   try {
-    await ElMessageBox.confirm('是否要确认?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmAction'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await adminRoleUpdateAPI({ adminId: allocAdminId.value!, roleIds: allocRoleIds.value.join(',') })
-    ElMessage.success('分配成功！')
+    ElMessage.success(t('ums.assignSuccess'))
     allocDialogVisible.value = false
   } catch (error) {
     console.error('Failed to assign roles:', error)

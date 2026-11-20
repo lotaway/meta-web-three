@@ -5,6 +5,9 @@ import { Tickets } from '@element-plus/icons-vue'
 import { getFlashSessionListAPI, flashSessionUpdateStatusByIdAPI, flashSessionDeleteByIdAPI, flashSessionCreateAPI, flashSessionUpdateByIdAPI } from '@/apis/flashSession'
 import type { SmsFlashPromotionSession } from '@/types/flash'
 import { formatTime } from '@/utils/datetime'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Flash sale time slot list data
 const list = ref<SmsFlashPromotionSession[]>([])
@@ -50,18 +53,18 @@ const handleAdd = () => {
 // Status change
 const handleStatusChange = async (index: number, row: SmsFlashPromotionSession) => {
   try {
-    await ElMessageBox.confirm('是否要修改该状态?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmChangeStatus'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await flashSessionUpdateStatusByIdAPI(row.id!, { status: row.status })
-    ElMessage.success('修改成功!')
+    ElMessage.success(t('message.modifySuccess'))
   } catch (error) {
     if (error !== 'cancel') {
       console.error('Failed to update status:', error)
     }
-    ElMessage.info('取消修改')
+    ElMessage.info(t('message.cancelled'))
     getList()
   }
 }
@@ -82,13 +85,13 @@ const handleUpdate = (index: number, row: SmsFlashPromotionSession) => {
 // Delete time slot
 const handleDelete = async (index: number, row: SmsFlashPromotionSession) => {
   try {
-    await ElMessageBox.confirm('是否要删除该时间段?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmDeleteTimeSlot'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await flashSessionDeleteByIdAPI(row.id!)
-    ElMessage.success('删除成功!')
+    ElMessage.success(t('common.deleteSuccess'))
     getList()
   } catch (error) {
     if (error !== 'cancel') {
@@ -100,19 +103,19 @@ const handleDelete = async (index: number, row: SmsFlashPromotionSession) => {
 // Handle dialog confirmation
 const handleDialogConfirm = async () => {
   try {
-    await ElMessageBox.confirm('是否要确认?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmAction'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     if (isEdit.value) {
       await flashSessionUpdateByIdAPI(flashSession.value.id!, flashSession.value)
-      ElMessage.success('修改成功！')
+      ElMessage.success(t('message.modifySuccess'))
       dialogVisible.value = false
       getList()
     } else {
       await flashSessionCreateAPI(flashSession.value)
-      ElMessage.success('添加成功！')
+      ElMessage.success(t('message.operationSuccess'))
       dialogVisible.value = false
       getList()
     }

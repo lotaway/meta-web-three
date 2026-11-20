@@ -8,6 +8,9 @@ import ProductAttrDetail from './ProductAttrDetail.vue'
 import ProductRelationDetail from './ProductRelationDetail.vue'
 import { productCreateAPI, getPruductUpdateInfoAPI, productUpdateByIdAPI } from '@/apis/product'
 import type { PmsProductParam } from '@/types/product'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route object
 const route = useRoute()
@@ -115,9 +118,9 @@ const nextStep = () => {
 
 // Finish the step and submit data
 const finishCommit = async (isEdit: boolean) => {
-  await ElMessageBox.confirm('是否要提交该商品？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('dialog.confirmSubmitProduct'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning'
   })
   if (isEdit) {

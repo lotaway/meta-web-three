@@ -6,6 +6,9 @@ import { dayjs, ElMessage, ElMessageBox } from 'element-plus'
 import { getResourceListAPI, resourceCreateAPI, resourceUpdateAPI, resourceDeleteByIdAPI } from '@/apis/resource'
 import { resourceCategoryListAllAPI } from '@/apis/resourceCategory'
 import type { ResourceQueryParam, UmsResource } from '@/types/resource'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route info
 const router = useRouter()
@@ -114,14 +117,14 @@ const handleAdd = () => {
 
 // Delete resource
 const handleDelete = async (index: number, row: UmsResource) => {
-  await ElMessageBox.confirm('是否要删除该资源?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('dialog.confirmDeleteResource'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning',
   })
   try {
     await resourceDeleteByIdAPI(row.id!)
-    ElMessage.success('删除成功!')
+    ElMessage.success(t('common.deleteSuccess'))
     getList()
   } catch (error) {
     console.error('Failed to delete resource:', error)
@@ -137,20 +140,20 @@ const handleUpdate = (index: number, row: UmsResource) => {
 
 // Handle dialog confirmation
 const handleDialogConfirm = async () => {
-  await ElMessageBox.confirm('是否要确认?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('dialog.confirmAction'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning',
   })
   try {
     if (isEdit.value) {
       await resourceUpdateAPI(resource.value.id!, resource.value)
-      ElMessage.success('修改成功！')
+      ElMessage.success(t('message.modifySuccess'))
       dialogVisible.value = false
       getList()
     } else {
       await resourceCreateAPI(resource.value)
-      ElMessage.success('添加成功！')
+      ElMessage.success(t('message.operationSuccess'))
       dialogVisible.value = false
       getList()
     }

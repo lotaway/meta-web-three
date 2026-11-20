@@ -6,6 +6,9 @@ import { Search, Tickets } from '@element-plus/icons-vue'
 import { getHomeAdvertiseListAPI, homeAdvertiseUpdateStatusAPI, deleteHomeAdvertiseAPI } from '@/apis/homeAdvertise'
 import { formatDateTime } from '@/utils/datetime'
 import type { HomeAdvertiseQueryParam, SmsHomeAdvertise } from '@/types/homeAdvertist'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route
 const router = useRouter()
@@ -90,9 +93,9 @@ const handleCurrentChange = (val: number) => {
 // Handle status update
 const handleUpdateStatus = async (index: number, row: SmsHomeAdvertise) => {
   try {
-    await ElMessageBox.confirm('是否要修改上线/下线状态?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmChangeOnlineStatus'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await homeAdvertiseUpdateStatusAPI({ id: row.id!, status: row.status! })
@@ -108,9 +111,9 @@ const handleUpdateStatus = async (index: number, row: SmsHomeAdvertise) => {
 
 // Delete ad
 const deleteHomeAdvertise = async (ids: number[]) => {
-  await ElMessageBox.confirm('是否要删除该广告?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('dialog.confirmDeleteAd'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning'
   })
   await deleteHomeAdvertiseAPI({ ids: ids.join(',') })

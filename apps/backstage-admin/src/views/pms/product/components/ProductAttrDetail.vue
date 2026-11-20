@@ -11,6 +11,9 @@ import MultiUpload from '@/components/Upload/multiUpload.vue'
 import type { ProductAttrPicVo, ProductAttrVo, ProductParamVo } from '@/types/productAttr'
 import type { PmsSkuStock } from '@/types/skuStock'
 import Tinymce from '@/components/Tinymce/index.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Define properties
 const props = defineProps({
@@ -254,9 +257,9 @@ const getProductSkuSp = (row: PmsSkuStock, index: number) => {
 
 const handleRefreshProductSkuList = async () => {
   try {
-    await ElMessageBox.confirm('刷新列表将导致sku信息重新生成，是否要刷新', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('product.confirmRefreshSku'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     refreshProductAttrPics()
@@ -268,9 +271,9 @@ const handleRefreshProductSkuList = async () => {
 
 const handleSyncProductSkuPrice = async () => {
   try {
-    await ElMessageBox.confirm('将同步第一个sku的价格到所有sku,是否继续', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('product.confirmSyncPrice'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     if (compProductParam.value.skuStockList && compProductParam.value.skuStockList.length > 0) {
@@ -290,9 +293,9 @@ const handleSyncProductSkuPrice = async () => {
 
 const handleSyncProductSkuStock = async () => {
   try {
-    await ElMessageBox.confirm('将同步第一个sku的库存到所有sku,是否继续', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('product.confirmSyncStock'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     if (compProductParam.value.skuStockList && compProductParam.value.skuStockList.length > 0) {

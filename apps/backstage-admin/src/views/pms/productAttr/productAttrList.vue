@@ -5,6 +5,9 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { getProductAttributeListAPI, productAttributeDeleteByIds } from '@/apis/productAttr'
 import { Tickets } from '@element-plus/icons-vue'
 import type { PmsProductAttribute } from '@/types/productAttr'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route object
 const router = useRouter()
@@ -68,11 +71,11 @@ const handleSelectionChange = (val: PmsProductAttribute[]) => {
 // Handle batch operations
 const handleBatchOperate = async () => {
   if (multipleSelection.value.length < 1) {
-    ElMessage.warning('请选择一条记录')
+    ElMessage.warning(t('message.selectOneRecord'))
     return
   }
   if (operateType.value !== 'deleteProductAttr') {
-    ElMessage.warning('请选择批量操作类型')
+    ElMessage.warning(t('message.selectOperationType'))
     return
   }
   await handleDeleteProductAttr(multipleSelection.value.map(item => item.id!))
@@ -99,13 +102,13 @@ const handleUpdate = (index: number, row: PmsProductAttribute) => {
 // Handle delete product attribute
 const handleDeleteProductAttr = async (ids: number[]) => {
   try {
-    await ElMessageBox.confirm('是否要删除该属性', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmDeleteAttribute'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await productAttributeDeleteByIds({ ids: ids.join(",") })
-    ElMessage.success('删除成功')
+    ElMessage.success(t('common.deleteSuccess'))
     getList()
   } catch (error) {
     console.error(error)

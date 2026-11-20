@@ -5,6 +5,9 @@ import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'elem
 import SingleUpload from '@/components/Upload/singleUpload.vue'
 import { homeAdvertiseCreateAPI, getHomeAdvertiseByIdAPI, homeAdvertiseUpdateAPI } from '@/apis/homeAdvertise'
 import type { SmsHomeAdvertise } from '@/types/homeAdvertist'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route object
 const router = useRouter()
@@ -75,9 +78,9 @@ onMounted(async () => {
 const onSubmit = async () => {
   homeAdvertiseFrom.value!.validate(async (valid) => {
     if (valid) {
-      await ElMessageBox.confirm('是否提交数据', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      await ElMessageBox.confirm(t('dialog.confirmSubmit'), t('dialog.title'), {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
         type: 'warning'
       })
       if (props.isEdit) {

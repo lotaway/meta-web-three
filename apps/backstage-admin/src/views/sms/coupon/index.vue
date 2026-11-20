@@ -7,6 +7,9 @@ import { getCouponListAPI, couponDeleteByIdAPI } from '@/apis/coupon'
 import { formatDate } from '@/utils/datetime'
 import type { CouponQueryParam, SmsCoupon } from '@/types/coupon'
 import { couponPlatforms, couponTypes } from '@/utils/constant'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route
 const router = useRouter()
@@ -90,9 +93,9 @@ const handleUpdate = (index: number, row: SmsCoupon) => {
 // Delete coupon
 const handleDelete = async (index: number, row: SmsCoupon) => {
   try {
-    await ElMessageBox.confirm('是否进行删除操作?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmDelete'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await couponDeleteByIdAPI(row.id!)

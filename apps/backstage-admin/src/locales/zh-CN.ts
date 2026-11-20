@@ -62,6 +62,9 @@ export default {
     confirmBatchOperation: '是否要进行该批量操作?',
     selectOperationType: '请选择操作类型',
     selectOperateProduct: '请选择要操作的商品',
+    cancelled: '已取消操作',
+    enterTypeName: '请先填写类型名称！',
+    selectOneRecord: '请选择一条记录',
   },
   menu: {
     'product-management': '商品管理',
@@ -252,6 +255,9 @@ export default {
       prev: '上一页',
       next: '下一页',
     },
+    confirmRefreshSku: '刷新列表将导致sku信息重新生成，是否要刷新',
+    confirmSyncPrice: '将同步第一个sku的价格到所有sku,是否继续',
+    confirmSyncStock: '将同步第一个sku的库存到所有sku,是否继续',
   },
   dialog: {
     editProductInfo: '编辑货品信息',
@@ -261,6 +267,31 @@ export default {
     salePrice: '销售价格',
     productStock: '商品库存',
     lowStockWarning: '库存预警值',
+    title: '提示',
+    confirmAction: '是否要确认?',
+    confirmSubmit: '是否提交数据',
+    confirmDeleteBrand: '是否要删除该品牌',
+    confirmDeleteAttribute: '是否要删除该属性',
+    confirmAdd: '使用要进行添加操作?',
+    confirmDelete: '是否要进行删除操作?',
+    confirmChangeSort: '是否要修改排序?',
+    confirmChangeRecommend: '是否要修改推荐状态?',
+    confirmDeleteRecommend: '是否要删除该推荐?',
+    confirmChangeStatus: '是否要修改该状态?',
+    confirmChangeOnlineStatus: '是否要修改上线/下线状态?',
+    confirmDeleteAd: '是否要删除该广告?',
+    confirmDeleteActivity: '是否要删除该活动?',
+    confirmDeleteProduct: '是否要删除该商品?',
+    confirmDeleteTimeSlot: '是否要删除该时间段?',
+    confirmDeleteUser: '是否要删除该用户?',
+    confirmDeleteCategory: '是否要删除该分类?',
+    confirmDeleteResource: '是否要删除该资源?',
+    confirmDeleteProject: '确定要删除该项目吗？',
+    confirmDeleteMemberLevel: '确定要删除该会员等级吗?',
+    confirmAssignMenu: '是否分配菜单？',
+    confirmAssignResource: '是否分配资源？',
+    confirmSubmitProduct: '是否要提交该商品？',
+    confirmDeliver: '是否要进行发货操作?',
   },
   // MES 制造执行系统
   mes: {
@@ -1731,6 +1762,7 @@ export default {
     },
   },
   cs: {
+    sessionEnded: '会话已结束',
     agents: {
       title: '客服人员',
       addAgent: '添加客服',
@@ -2526,5 +2558,49 @@ export default {
       amount: '数量',
       txSignature: '交易签名',
     },
+  },
+
+  aiShopping: {
+    loadConfigFailed: '加载配置失败',
+    toggleFailed: '切换失败',
+    enterConfigKey: '请填写配置项 key',
+    configSaved: '配置已保存',
+    configDeleted: '配置已删除',
+    loadIndexStatusFailed: '获取索引状态失败',
+    confirmDeleteConfig: '确定删除配置 {key} ？',
+    indexRebuildStarted: '索引重建任务已启动 ({type})',
+    providerConnected: 'Provider {type} 连接成功',
+    providerConnectFailed: 'Provider {type} 连接失败',
+    enabled: 'AI 辅助购物已启用',
+    disabled: 'AI 辅助购物已关闭'
+  },
+
+  productAttr: {
+    verifyFailed: '验证失败'
+  },
+
+  project: {
+    viewDetail: '查看项目详情: '
+  },
+
+  register: {
+    enterEmail: '请先填写邮箱',
+    codeSent: '验证码已发送，请查收邮箱',
+    submitted: '注册申请已提交，请等待管理员审核'
+  },
+
+  reporting: {
+    exportSuccess: '导出成功',
+    exportFailed: '导出失败',
+    selectReportDate: '请选择报表日期',
+    selectDateRange: '请选择日期区间',
+    queryFailed: '查询失败',
+    balanceSheetFailed: '查询资产负债表失败',
+    profitSheetFailed: '查询利润表失败',
+    trialBalanceFailed: '查询试算平衡表失败'
+  },
+
+  ums: {
+    assignSuccess: '分配成功！'
   },
 }

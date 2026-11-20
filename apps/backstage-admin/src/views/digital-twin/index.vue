@@ -13,6 +13,9 @@ import {
   type DigitalTwinDevice, type StatsSummary,
   type Workshop, type ProductionLine, type Alert, type AlertRule,
 } from '@/apis/digitalTwin'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const activeTab = ref('dashboard')
 const loading = ref(false)
@@ -20,13 +23,13 @@ const loading = ref(false)
 // Dashboard
 const stats = ref<StatsSummary>({ onlineDeviceCount: 0, activeAlertCount: 0, averageEfficiency: 0 })
 const loadStats = async () => {
-  try { const res = await getStatsSummaryAPI(); stats.value = res.data } catch (e: any) { console.error('[loadStats]', e); ElMessage.error('加载失败') }
+  try { const res = await getStatsSummaryAPI(); stats.value = res.data } catch (e: any) { console.error('[loadStats]', e); ElMessage.error(t('common.loadFailed')) }
 }
 
 // Devices
 const devices = ref<DigitalTwinDevice[]>([])
 const loadDevices = async () => {
-  try { const res = await getDevicesAPI(); devices.value = res.data as any || [] } catch (e: any) { console.error('[loadDevices]', e); ElMessage.error('加载失败') }
+  try { const res = await getDevicesAPI(); devices.value = res.data as any || [] } catch (e: any) { console.error('[loadDevices]', e); ElMessage.error(t('common.loadFailed')) }
 }
 const deviceDialog = ref(false)
 const deviceForm = ref({ deviceCode: '', deviceName: '', deviceType: 'CNC', workshopId: '', productionLineId: '' })
@@ -51,7 +54,7 @@ const updateStatus = async (code: string, status: string) => {
 // Workshops
 const workshops = ref<Workshop[]>([])
 const loadWorkshops = async () => {
-  try { const res = await getWorkshopsAPI(); workshops.value = res.data as any || [] } catch (e: any) { console.error('[loadWorkshops]', e); ElMessage.error('加载失败') }
+  try { const res = await getWorkshopsAPI(); workshops.value = res.data as any || [] } catch (e: any) { console.error('[loadWorkshops]', e); ElMessage.error(t('common.loadFailed')) }
 }
 const workshopDialog = ref(false)
 const workshopForm = ref({ workshopCode: '', workshopName: '', description: '' })
@@ -67,7 +70,7 @@ const createWs = async () => {
 // Production Lines
 const lines = ref<ProductionLine[]>([])
 const loadLines = async () => {
-  try { const res = await getProductionLinesAPI(); lines.value = res.data as any || [] } catch (e: any) { console.error('[loadLines]', e); ElMessage.error('加载失败') }
+  try { const res = await getProductionLinesAPI(); lines.value = res.data as any || [] } catch (e: any) { console.error('[loadLines]', e); ElMessage.error(t('common.loadFailed')) }
 }
 const lineDialog = ref(false)
 const lineForm = ref({ lineCode: '', lineName: '', workshopId: '', capacity: 10 })
@@ -83,7 +86,7 @@ const createPl = async () => {
 // Active Alerts
 const alerts = ref<Alert[]>([])
 const loadAlerts = async () => {
-  try { const res = await getActiveAlertsAPI(); alerts.value = res.data as any || [] } catch (e: any) { console.error('[loadAlerts]', e); ElMessage.error('加载失败') }
+  try { const res = await getActiveAlertsAPI(); alerts.value = res.data as any || [] } catch (e: any) { console.error('[loadAlerts]', e); ElMessage.error(t('common.loadFailed')) }
 }
 const alertDialog = ref(false)
 const alertForm = ref({ deviceCode: '', workshopId: '', level: 'WARNING', type: 'PRODUCTION', title: '', description: '' })
@@ -103,7 +106,7 @@ const ackAlert = async (id: number) => {
       ElMessage.success('Alert acknowledged')
       loadAlerts()
     })
-  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error('操作失败') } }
+  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error(t('message.operationFailed')) } }
 }
 const resolveAlert = async (id: number) => {
   try {
@@ -116,13 +119,13 @@ const resolveAlert = async (id: number) => {
         loadAlerts()
       })
     })
-  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error('操作失败') } }
+  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error(t('message.operationFailed')) } }
 }
 
 // Alert Rules
 const rules = ref<AlertRule[]>([])
 const loadRules = async () => {
-  try { const res = await getAlertRulesAPI(); rules.value = res.data || [] } catch (e: any) { console.error('[loadRules]', e); ElMessage.error('加载失败') }
+  try { const res = await getAlertRulesAPI(); rules.value = res.data || [] } catch (e: any) { console.error('[loadRules]', e); ElMessage.error(t('common.loadFailed')) }
 }
 const ruleDialog = ref(false)
 const ruleForm = ref<Record<string, any>>({})
@@ -167,7 +170,7 @@ const removeRule = async (id: number) => {
     await deleteAlertRuleAPI(id)
     ElMessage.success('Rule deleted')
     loadRules()
-  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error('操作失败') } }
+  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error(t('message.operationFailed')) } }
 }
 
 const refreshAll = () => {

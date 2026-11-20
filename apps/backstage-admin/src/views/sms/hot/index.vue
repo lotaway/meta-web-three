@@ -6,6 +6,9 @@ import { getHomeRecommendProductListAPI, homeRecommendProductUpdateRecommendStat
 import { getProductListAPI } from '@/apis/product'
 import type { RecommendProductQueryParam, SmsHomeRecommendProduct } from '@/types/recommendProduct'
 import type { PmsProduct } from '@/types/product'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // List query params
 const listQuery = ref<RecommendProductQueryParam>({
@@ -186,9 +189,9 @@ const handleSelectDialogConfirm = async () => {
     })
     return
   }
-  await ElMessageBox.confirm('使用要进行添加操作?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('dialog.confirmAdd'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning'
   })
   const selectProducts = dialogData.value.multipleSelection.map(item => ({ productId: item.id!, productName: item.name }))
@@ -212,9 +215,9 @@ const handleEditSort = (index: number, row: SmsHomeRecommendProduct) => {
 // Handle update sort
 const handleUpdateSort = async () => {
   try {
-    await ElMessageBox.confirm('是否要修改排序?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmChangeSort'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await homeRecommendProductUpdateSortByIdAPI(sortDialogData.value);
@@ -225,16 +228,16 @@ const handleUpdateSort = async () => {
       message: '修改成功!'
     })
   } catch {
-    ElMessage.info('已取消操作')
+    ElMessage.info(t('message.cancelled'))
   }
 }
 
 // Update recommendation status
 const updateRecommendStatusStatus = async (ids: number[], status: number) => {
   try {
-    await ElMessageBox.confirm('是否要修改推荐状态?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmChangeRecommend'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await homeRecommendProductUpdateRecommendStatusAPI({ ids: ids.join(','), recommendStatus: status })
@@ -251,9 +254,9 @@ const updateRecommendStatusStatus = async (ids: number[], status: number) => {
 // Delete product
 const deleteNewProduct = async (ids: number[]) => {
   try {
-    await ElMessageBox.confirm('是否要删除该推荐?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmDeleteRecommend'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await homeRecommendProductDeleteByIdsAPI({ ids: ids.join(',') });
@@ -263,7 +266,7 @@ const deleteNewProduct = async (ids: number[]) => {
       message: '删除成功!'
     })
   } catch {
-    ElMessage.info('已取消操作')
+    ElMessage.info(t('message.cancelled'))
   }
 }
 

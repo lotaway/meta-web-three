@@ -6,6 +6,9 @@ import { getMenuTreeListAPI } from '@/apis/menu.ts' // Updated path to apis
 import { roleListMenuByRoleIdAPI, roleAllocMenuAPI } from '@/apis/role' // Updated path to apis
 import type { TreeNodeData } from 'element-plus/es/components/tree/src/tree.type'
 import type { UmsMenuNode } from '@/types/menu'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route params
 const router = useRouter()
@@ -52,9 +55,9 @@ const handleSave = async () => {
       checkedMenuIds.add(item.parentId)
     }
   })
-  await ElMessageBox.confirm('是否分配菜单？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('dialog.confirmAssignMenu'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning'
   })
   await roleAllocMenuAPI({ roleId: roleId.value!, menuIds: Array.from(checkedMenuIds).join(',') })

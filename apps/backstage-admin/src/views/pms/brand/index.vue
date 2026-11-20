@@ -6,6 +6,9 @@ import { getBrandListAPI, brandUpdateShowStatusAPI, brandUpdateFactoryStatusAPI,
 import { Search, Tickets } from '@element-plus/icons-vue'
 import type { PmsBrand } from '@/types/brand'
 import type { PageParam } from '@/types/common'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route object
 const router = useRouter()
@@ -61,14 +64,14 @@ const handleUpdateBrand = (index: number, row: PmsBrand) => {
 
 // Handle delete brand operation
 const handleDeleteBrand = async (index: number, row: PmsBrand) => {
-  ElMessageBox.confirm('是否要删除该品牌', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  ElMessageBox.confirm(t('dialog.confirmDeleteBrand'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning',
     callback: async (action: Action) => {
       if (action === 'confirm') {
         await brandDeleteByIdAPI(row.id!)
-        ElMessage.success('删除成功')
+        ElMessage.success(t('common.deleteSuccess'))
         getList()
       }
     },
@@ -98,7 +101,7 @@ const handleFactoryStatusChange = async (index: number, row: PmsBrand) => {
       ids: row.id!.toString(),
       factoryStatus: row.factoryStatus
     })
-    ElMessage.success('修改成功')
+    ElMessage.success(t('message.modifySuccess'))
   } catch (error) {
     // Roll back state if the update fails
     row.factoryStatus = row.factoryStatus === 0 ? 1 : 0
@@ -113,7 +116,7 @@ const handleShowStatusChange = async (index: number, row: PmsBrand) => {
       ids: row.id!.toString(),
       showStatus: row.showStatus
     })
-    ElMessage.success('修改成功')
+    ElMessage.success(t('message.modifySuccess'))
   } catch (error) {
     // Roll back state if the update fails
     row.showStatus = row.showStatus === 0 ? 1 : 0
@@ -152,7 +155,7 @@ const operateType = ref<string | null>()
 // Handle batch operations
 const handleBatchOperate = async () => {
   if (!multipleSelection.value || multipleSelection.value.length < 1) {
-    ElMessage.warning('请选择一条记录')
+    ElMessage.warning(t('message.selectOneRecord'))
     return
   }
   let showStatus = 0
@@ -161,7 +164,7 @@ const handleBatchOperate = async () => {
   } else if (operateType.value === 'hideBrand') {
     showStatus = 0
   } else {
-    ElMessage.warning('请选择批量操作类型')
+    ElMessage.warning(t('message.selectOperationType'))
     return
   }
   const idsArr = multipleSelection.value.map(item => item.id)
@@ -171,7 +174,7 @@ const handleBatchOperate = async () => {
       showStatus: showStatus
     })
     getList()
-    ElMessage.success('修改成功')
+    ElMessage.success(t('message.modifySuccess'))
   } catch (error) {
     console.error('Failed to perform batch operation:', error)
   }

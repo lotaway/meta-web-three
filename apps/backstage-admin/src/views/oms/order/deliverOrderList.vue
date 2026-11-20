@@ -6,6 +6,9 @@ import { Tickets } from '@element-plus/icons-vue'
 import { orderUpdateDeliveryAPI } from '@/apis/order'
 import type { OmsOrder, OmsOrderDeliveryParam } from '@/types/order'
 import { useOrderStore } from '@/stores/order'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route object
 const router = useRouter()
@@ -40,9 +43,9 @@ const cancel = () => {
 // Confirm shipment operation
 const confirm = async () => {
   try {
-    await ElMessageBox.confirm('是否要进行发货操作?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmDeliver'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     const deliveryParamList: OmsOrderDeliveryParam[] = list.value.map(item => ({

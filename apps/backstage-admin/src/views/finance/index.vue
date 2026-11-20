@@ -18,6 +18,9 @@ import {
 import { getCashSummaryAPI, listCashPlansAPI, listBankAccountsAPI, listCashTransfersAPI } from '@/apis/cash'
 import { listBudgetsAPI } from '@/apis/budget'
 import { listAssets } from '@/apis/asset'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const activeTab = ref('dashboard')
 const loading = ref(false)
@@ -36,13 +39,13 @@ const loadDashboard = async () => {
     if (b.status === 'fulfilled') dashData.value.budgets = (b.value.data as any)?.length || 0
     if (a.status === 'fulfilled') dashData.value.accounts = (a.value.data as any)?.length || 0
     if (v.status === 'fulfilled') dashData.value.vouchers = (v.value.data as any)?.length || 0
-  } catch (e: any) { console.error('[loadDashboard]', e); ElMessage.error('加载失败') }
+  } catch (e: any) { console.error('[loadDashboard]', e); ElMessage.error(t('common.loadFailed')) }
 }
 
 // === Subjects ===
 const subjects = ref<AccountSubject[]>([])
 const loadSubjects = async () => {
-  try { const res = await listSubjectsAPI({}); subjects.value = (res.data as any) || [] } catch (e: any) { console.error('[loadSubjects]', e); ElMessage.error('加载失败') }
+  try { const res = await listSubjectsAPI({}); subjects.value = (res.data as any) || [] } catch (e: any) { console.error('[loadSubjects]', e); ElMessage.error(t('common.loadFailed')) }
 }
 const subjectDialog = ref(false)
 const subjectForm = ref({ subjectCode: '', subjectName: '', subjectType: 'ASSET', level: 1, balanceDirection: 'DEBIT' })
@@ -56,7 +59,7 @@ const toggleSubject = async (id: number, enable: boolean) => {
 // === Accounts ===
 const accounts = ref<Account[]>([])
 const loadFinanceAccounts = async () => {
-  try { const res = await listAccountsAPI({}); accounts.value = (res.data as any) || [] } catch (e: any) { console.error('[loadFinanceAccounts]', e); ElMessage.error('加载失败') }
+  try { const res = await listAccountsAPI({}); accounts.value = (res.data as any) || [] } catch (e: any) { console.error('[loadFinanceAccounts]', e); ElMessage.error(t('common.loadFailed')) }
 }
 const accountDialog = ref(false)
 const accountForm = ref({ accountCode: '', accountName: '', accountType: 'CASH', currency: 'CNY', description: '' })
@@ -67,7 +70,7 @@ const createFinanceAccount = async () => {
 // === Vouchers ===
 const vouchers = ref<Voucher[]>([])
 const loadVouchers = async () => {
-  try { const res = await listVouchersAPI({}); vouchers.value = (res.data as any) || [] } catch (e: any) { console.error('[loadVouchers]', e); ElMessage.error('加载失败') }
+  try { const res = await listVouchersAPI({}); vouchers.value = (res.data as any) || [] } catch (e: any) { console.error('[loadVouchers]', e); ElMessage.error(t('common.loadFailed')) }
 }
 const voucherDialog = ref(false)
 const voucherForm = ref({ voucherNo: '', voucherType: 'GENERAL', remark: '' })
@@ -75,7 +78,7 @@ const createVoucher = async () => {
   try { await createVoucherAPI(voucherForm.value); ElMessage.success('Created'); voucherDialog.value = false; loadVouchers() } catch (_) { ElMessage.error('Failed') }
 }
 const approveV = async (id: number) => {
-  try { await ElMessageBox.prompt('Approver name:', 'Approve').then(async ({ value }) => { if (value) { await approveVoucherAPI(id, value); ElMessage.success('Approved'); loadVouchers() } }) } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error('操作失败') } }
+  try { await ElMessageBox.prompt('Approver name:', 'Approve').then(async ({ value }) => { if (value) { await approveVoucherAPI(id, value); ElMessage.success('Approved'); loadVouchers() } }) } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error(t('message.operationFailed')) } }
 }
 const submitV = async (id: number) => {
   try { await submitVoucherAPI(id); ElMessage.success('Submitted'); loadVouchers() } catch (_) { ElMessage.error('Failed') }
@@ -96,7 +99,7 @@ const loadArAp = async () => {
     if (ap.status === 'fulfilled') apRecords.value = (ap.value.data as any) || []
     if (oar.status === 'fulfilled') dashData.value.overdueAr = (oar.value.data as any)?.length || 0
     if (oap.status === 'fulfilled') dashData.value.overdueAp = (oap.value.data as any)?.length || 0
-  } catch (e: any) { console.error('[loadArAp]', e); ElMessage.error('加载失败') }
+  } catch (e: any) { console.error('[loadArAp]', e); ElMessage.error(t('common.loadFailed')) }
 }
 const arDialog = ref(false)
 const arForm = ref({ customerOrSupplierName: '', amount: 0, dueDate: '' })
@@ -123,7 +126,7 @@ const loadCost = async () => {
     if (sc.status === 'fulfilled') standardCosts.value = (sc.value.data as any) || []
     if (ac.status === 'fulfilled') actualCosts.value = (ac.value.data as any) || []
     if (cv.status === 'fulfilled') costVariances.value = (cv.value.data as any) || []
-  } catch (e: any) { console.error('[loadCost]', e); ElMessage.error('加载失败') }
+  } catch (e: any) { console.error('[loadCost]', e); ElMessage.error(t('common.loadFailed')) }
 }
 
 // === Ratios ===
@@ -134,7 +137,7 @@ const loadRatios = async () => {
     const [r, rd] = await Promise.allSettled([listRatiosAPI(), getRatioDashboardAPI()])
     if (r.status === 'fulfilled') ratios.value = (r.value.data as any) || []
     if (rd.status === 'fulfilled') ratioDashboard.value = (rd.value.data as any) || {}
-  } catch (e: any) { console.error('[loadRatios]', e); ElMessage.error('加载失败') }
+  } catch (e: any) { console.error('[loadRatios]', e); ElMessage.error(t('common.loadFailed')) }
 }
 
 const refreshAll = () => {

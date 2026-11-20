@@ -6,6 +6,9 @@ import { getFlashProductRelationListAPI, flashProductRelationCreateAPI, flashPro
 import { getProductListAPI } from '@/apis/product'
 import type { FlashProductQueryParam, SmsFlashPromotionProductRelation } from '@/types/flash'
 import type { PmsProduct, ProductQueryParam } from '@/types/product'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route
 const route = useRoute()
@@ -94,13 +97,13 @@ const handleUpdate = (index: number, row: SmsFlashPromotionProductRelation) => {
 // Delete flash sale product
 const handleDelete = async (index: number, row: SmsFlashPromotionProductRelation) => {
   try {
-    await ElMessageBox.confirm('是否要删除该商品?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmDeleteProduct'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await flashProductRelationDeleteByIdAPI(row.id!)
-    ElMessage.success('删除成功!')
+    ElMessage.success(t('common.deleteSuccess'))
     getList()
   } catch (error) {
     if (error !== 'cancel') {
@@ -135,7 +138,7 @@ const handleDialogSelectionChange = (val: PmsProduct[]) => {
 // Selection dialog confirmation
 const handleSelectDialogConfirm = async () => {
   if (dialogData.value.multipleSelection.length < 1) {
-    ElMessage.warning('请选择一条记录')
+    ElMessage.warning(t('message.selectOneRecord'))
     return
   }
   const selectProducts = dialogData.value.multipleSelection.map(item => {
@@ -146,16 +149,16 @@ const handleSelectDialogConfirm = async () => {
     }
   })
   try {
-    await ElMessageBox.confirm('使用要进行添加操作?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmAdd'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await flashProductRelationCreateAPI(selectProducts)
     selectDialogVisible.value = false
     dialogData.value.multipleSelection = []
     getList()
-    ElMessage.success('添加成功!')
+    ElMessage.success(t('message.operationSuccess'))
   } catch (error) {
     if (error !== 'cancel') {
       console.error('Failed to add flash product:', error)
@@ -166,13 +169,13 @@ const handleSelectDialogConfirm = async () => {
 // Edit dialog confirmation
 const handleEditDialogConfirm = async () => {
   try {
-    await ElMessageBox.confirm('是否要确认?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmAction'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await flashProductRelationUpdateByIdAPI(flashProductRelation.value!.id!, flashProductRelation.value!)
-    ElMessage.success('修改成功！')
+    ElMessage.success(t('message.modifySuccess'))
     editDialogVisible.value = false
     getList()
   } catch (error) {

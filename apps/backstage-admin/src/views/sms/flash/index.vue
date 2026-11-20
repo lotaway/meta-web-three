@@ -7,6 +7,9 @@ import { getFlashListAPI, flashUpdateStatusByIdAPI, flashDeleteByIdAPI, flashCre
 import { formatDate } from '@/utils/datetime'
 import type { SmsFlashPromotion } from '@/types/flash'
 import type { PageParam } from '@/types/common'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route
 const router = useRouter()
@@ -93,18 +96,18 @@ const handleShowSessionList = () => {
 // Status change
 const handleStatusChange = async (index: number, row: SmsFlashPromotion) => {
   try {
-    await ElMessageBox.confirm('是否要修改该状态?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmChangeStatus'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await flashUpdateStatusByIdAPI(row.id!, { status: row.status })
-    ElMessage.success('修改成功!')
+    ElMessage.success(t('message.modifySuccess'))
   } catch (error) {
     if (error !== 'cancel') {
       console.error('Failed to update status:', error)
     }
-    ElMessage.info('取消修改')
+    ElMessage.info(t('message.cancelled'))
     getList()
   }
 }
@@ -112,13 +115,13 @@ const handleStatusChange = async (index: number, row: SmsFlashPromotion) => {
 // Delete activity
 const handleDelete = async (index: number, row: SmsFlashPromotion) => {
   try {
-    await ElMessageBox.confirm('是否要删除该活动?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmDeleteActivity'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await flashDeleteByIdAPI(row.id!)
-    ElMessage.success('删除成功!')
+    ElMessage.success(t('common.deleteSuccess'))
     getList()
   } catch (error) {
     if (error !== 'cancel') {
@@ -136,20 +139,20 @@ const handleUpdate = (index: number, row: SmsFlashPromotion) => {
 
 // Handle dialog confirmation
 const handleDialogConfirm = async () => {
-  await ElMessageBox.confirm('是否要确认?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('dialog.confirmAction'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning'
   })
   try {
     if (isEdit.value) {
       await flashUpdateByIdAPI(flashPromotion.value.id!, flashPromotion.value)
-      ElMessage.success('修改成功！')
+      ElMessage.success(t('message.modifySuccess'))
       dialogVisible.value = false
       getList()
     } else {
       await flashCreateAPI(flashPromotion.value)
-      ElMessage.success('添加成功！')
+      ElMessage.success(t('message.operationSuccess'))
       dialogVisible.value = false
       getList()
     }

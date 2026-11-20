@@ -14,6 +14,9 @@ import {
   type AiSearchLog,
   type AiIndexStatus,
 } from '@/apis/aiShopping'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const activeTab = ref('config')
 const loading = ref(false)
@@ -33,7 +36,7 @@ const loadConfigs = async () => {
     aiEnabled.value = enabledRow ? enabledRow.configValue === 'true' : false
   } catch (e) {
     console.error('[loadConfigs]', e)
-    ElMessage.error('加载配置失败')
+    ElMessage.error(t('aiShopping.loadConfigFailed'))
   }
 }
 
@@ -47,23 +50,23 @@ const toggleAiEnabled = async (value: boolean) => {
         await deleteAiShoppingConfigAPI(row.configKey)
       }
     }
-    ElMessage.success(value ? 'AI 辅助购物已启用' : 'AI 辅助购物已关闭')
+    ElMessage.success(value ? t('aiShopping.enabled') : t('aiShopping.disabled'))
     loadConfigs()
   } catch (e) {
     console.error('[toggleAiEnabled]', e)
     aiEnabled.value = !value
-    ElMessage.error('切换失败')
+    ElMessage.error(t('aiShopping.toggleFailed'))
   }
 }
 
 const saveConfig = async () => {
   if (!configForm.value.configKey.trim()) {
-    ElMessage.warning('请填写配置项 key')
+    ElMessage.warning(t('aiShopping.enterConfigKey'))
     return
   }
   try {
     await saveAiShoppingConfigAPI(configForm.value)
-    ElMessage.success('配置已保存')
+    ElMessage.success(t('aiShopping.configSaved'))
     configForm.value = { configKey: '', configValue: '', description: '' }
     loadConfigs()
   } catch (e) {
@@ -73,9 +76,9 @@ const saveConfig = async () => {
 
 const removeConfig = async (row: AiShoppingConfig) => {
   try {
-    await ElMessageBox.confirm(`确定删除配置 ${row.configKey} ？`, '提示', { type: 'warning' })
+    await ElMessageBox.confirm(t('aiShopping.confirmDeleteConfig', { key: row.configKey }), t('dialog.title'), { type: 'warning' })
     await deleteAiShoppingConfigAPI(row.configKey)
-    ElMessage.success('配置已删除')
+    ElMessage.success(t('aiShopping.configDeleted'))
     loadConfigs()
   } catch (e) {
     if ((e as { message?: string }).message) return
@@ -97,7 +100,7 @@ const loadIndexStatus = async () => {
     indexStatus.value = res.data as AiIndexStatus
   } catch (e) {
     console.error('[loadIndexStatus]', e)
-    ElMessage.error('获取索引状态失败')
+    ElMessage.error(t('aiShopping.loadIndexStatusFailed'))
   }
 }
 
@@ -105,7 +108,7 @@ const rebuildIndex = async (type: string) => {
   indexLoading.value = true
   try {
     const res = await rebuildAiShoppingIndexAPI(type)
-    ElMessage.success(`索引重建任务已启动 (${res.data?.type})`)
+    ElMessage.success(t('aiShopping.indexRebuildStarted', { type: res.data?.type }))
     setTimeout(loadIndexStatus, 3000)
   } catch (e) {
     console.error('[rebuildIndex]', e)
@@ -125,10 +128,10 @@ const testProvider = async (type: string) => {
     const data = res.data
     if (data?.success) {
       providerResults.value[type] = `成功 (${data.responseTimeMs}ms)`
-      ElMessage.success(`Provider ${type} 连接成功`)
+      ElMessage.success(t('aiShopping.providerConnected', { type: type }))
     } else {
       providerResults.value[type] = `失败: ${data?.error || 'unknown'}`
-      ElMessage.error(`Provider ${type} 连接失败`)
+      ElMessage.error(t('aiShopping.providerConnectFailed', { type: type }))
     }
   } catch (e) {
     console.error('[testProvider]', e)

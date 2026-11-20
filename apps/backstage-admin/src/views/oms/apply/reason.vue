@@ -6,6 +6,9 @@ import { getReturnReasonListAPI, returnReasonDeleteByIdsAPI, returnReasonUpdateS
 import { formatDateTime } from '@/utils/datetime'
 import type { PageParam } from '@/types/common'
 import type { OmsOrderReturnReason } from '@/types/returnReason'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // List query params
 const listQuery = ref<PageParam>({
@@ -142,9 +145,9 @@ const handleCurrentChange = (val: number) => {
 }
 
 const deleteReasonMethod = async (ids: number[]) => {
-  await ElMessageBox.confirm('是否要进行该删除操作?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('dialog.confirmDelete'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning'
   })
   await returnReasonDeleteByIdsAPI({ ids: ids.join(',') })

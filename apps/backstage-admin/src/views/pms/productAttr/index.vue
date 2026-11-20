@@ -7,6 +7,9 @@ import { Tickets } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus'
 import type { PageParam } from '@/types/common'
 import type { PmsProductAttributeCategory } from '@/types/productAttr'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route object
 const router = useRouter()
@@ -79,13 +82,13 @@ const handleCurrentChange = (val: number) => {
 
 // Handle delete operation
 const handleDelete = async (index: number, row: PmsProductAttributeCategory) => {
-  await ElMessageBox.confirm('是否要删除该品牌', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('dialog.confirmDeleteBrand'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning'
   })
   await productAttributeCategoryDeleteById(row.id!)
-  ElMessage.success('删除成功')
+  ElMessage.success(t('common.deleteSuccess'))
   getList()
 }
 
@@ -114,16 +117,16 @@ const handleConfirm = async () => {
   if (valid) {
     if (dialogTitle.value === "添加类型") {
       await productAttributeCategoryCreateAPI(productAttrCate.value.name)
-      ElMessage.success('添加成功')
+      ElMessage.success(t('message.operationSuccess'))
       dialogVisible.value = false
     } else {
       await productAttributeCategoryUpdateAPI(productAttrCate.value.id!, productAttrCate.value.name)
-      ElMessage.success('修改成功')
+      ElMessage.success(t('message.modifySuccess'))
       dialogVisible.value = false
     }
     getList()
   } else {
-    ElMessage.error('请先填写类型名称！')
+    ElMessage.error(t('message.enterTypeName'))
     return false
   }
 }

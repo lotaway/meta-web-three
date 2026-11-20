@@ -4,6 +4,9 @@ import { dayjs, ElMessage, ElMessageBox } from 'element-plus'
 import { Tickets } from '@element-plus/icons-vue'
 import { resourceCategoryListAllAPI, resourceCategoryCreateAPI, resourceCategoryUpdateAPI, resourceCategoryDeleteByIdAPI } from '@/apis/resourceCategory'
 import type { UmsResourceCategory } from '@/types/resource'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Resource category list data
 const list = ref<UmsResourceCategory[]>([])
@@ -55,14 +58,14 @@ const handleUpdate = (index: number, row: UmsResourceCategory) => {
 
 // Delete resource category
 const handleDelete = async (index: number, row: UmsResourceCategory) => {
-  await ElMessageBox.confirm('是否要删除该分类?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('dialog.confirmDeleteCategory'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning',
   })
   try {
     await resourceCategoryDeleteByIdAPI(row.id!)
-    ElMessage.success('删除成功!')
+    ElMessage.success(t('common.deleteSuccess'))
     getList()
   } catch (error) {
     console.error('Failed to delete resource category:', error)
@@ -71,15 +74,15 @@ const handleDelete = async (index: number, row: UmsResourceCategory) => {
 
 // Handle dialog confirmation
 const handleDialogConfirm = async () => {
-  await ElMessageBox.confirm('是否要确认?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(t('dialog.confirmAction'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
     type: 'warning',
   })
   if (isEdit.value) {
     try {
       await resourceCategoryUpdateAPI(resourceCategory.value.id!, resourceCategory.value)
-      ElMessage.success('修改成功！')
+      ElMessage.success(t('message.modifySuccess'))
       dialogVisible.value = false
       getList()
     } catch (error) {
@@ -88,7 +91,7 @@ const handleDialogConfirm = async () => {
   } else {
     try {
       await resourceCategoryCreateAPI(resourceCategory.value)
-      ElMessage.success('添加成功！')
+      ElMessage.success(t('message.operationSuccess'))
       dialogVisible.value = false
       getList()
     } catch (error) {

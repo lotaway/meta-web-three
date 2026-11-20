@@ -330,6 +330,9 @@ import {
   type IncomeStatementReport,
   type TrialBalanceReport
 } from '@/apis/reporting'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const activeTab = ref('balance')
 const balanceSubTab = ref('assets')
@@ -366,7 +369,7 @@ const handleTabChange = (tabName: any) => {
 
 const loadBalanceSheet = async () => {
   if (!balanceDate.value) {
-    ElMessage.warning('请选择报表日期')
+    ElMessage.warning(t('reporting.selectReportDate'))
     return
   }
   balanceLoading.value = true
@@ -375,10 +378,10 @@ const loadBalanceSheet = async () => {
     if (res.data.code === 0) {
       balanceSheet.value = res.data.data
     } else {
-      ElMessage.error(res.data.message || '查询失败')
+      ElMessage.error(res.data.message || t('reporting.queryFailed'))
     }
   } catch (error) {
-    ElMessage.error('查询资产负债表失败')
+    ElMessage.error(t('reporting.balanceSheetFailed'))
   } finally {
     balanceLoading.value = false
   }
@@ -386,7 +389,7 @@ const loadBalanceSheet = async () => {
 
 const loadIncomeStatement = async () => {
   if (!incomeStartDate.value || !incomeEndDate.value) {
-    ElMessage.warning('请选择日期区间')
+    ElMessage.warning(t('reporting.selectDateRange'))
     return
   }
   incomeLoading.value = true
@@ -395,10 +398,10 @@ const loadIncomeStatement = async () => {
     if (res.data.code === 0) {
       incomeStatement.value = res.data.data
     } else {
-      ElMessage.error(res.data.message || '查询失败')
+      ElMessage.error(res.data.message || t('reporting.queryFailed'))
     }
   } catch (error) {
-    ElMessage.error('查询利润表失败')
+    ElMessage.error(t('reporting.profitSheetFailed'))
   } finally {
     incomeLoading.value = false
   }
@@ -406,7 +409,7 @@ const loadIncomeStatement = async () => {
 
 const loadTrialBalance = async () => {
   if (!trialDate.value) {
-    ElMessage.warning('请选择报表日期')
+    ElMessage.warning(t('reporting.selectReportDate'))
     return
   }
   trialLoading.value = true
@@ -415,10 +418,10 @@ const loadTrialBalance = async () => {
     if (res.data.code === 0) {
       trialBalance.value = res.data.data
     } else {
-      ElMessage.error(res.data.message || '查询失败')
+      ElMessage.error(res.data.message || t('reporting.queryFailed'))
     }
   } catch (error) {
-    ElMessage.error('查询试算平衡表失败')
+    ElMessage.error(t('reporting.trialBalanceFailed'))
   } finally {
     trialLoading.value = false
   }
@@ -426,7 +429,7 @@ const loadTrialBalance = async () => {
 
 const handleExportBalanceSheet = async () => {
   if (!balanceDate.value) {
-    ElMessage.warning('请选择报表日期')
+    ElMessage.warning(t('reporting.selectReportDate'))
     return
   }
   try {
@@ -438,15 +441,15 @@ const handleExportBalanceSheet = async () => {
     link.download = `资产负债表_${balanceDate.value}.xlsx`
     link.click()
     window.URL.revokeObjectURL(url)
-    ElMessage.success('导出成功')
+    ElMessage.success(t('reporting.exportSuccess'))
   } catch (error) {
-    ElMessage.error('导出失败')
+    ElMessage.error(t('reporting.exportFailed'))
   }
 }
 
 const handleExportIncomeStatement = async () => {
   if (!incomeStartDate.value || !incomeEndDate.value) {
-    ElMessage.warning('请选择日期区间')
+    ElMessage.warning(t('reporting.selectDateRange'))
     return
   }
   try {
@@ -458,15 +461,15 @@ const handleExportIncomeStatement = async () => {
     link.download = `利润表_${incomeStartDate.value}_${incomeEndDate.value}.xlsx`
     link.click()
     window.URL.revokeObjectURL(url)
-    ElMessage.success('导出成功')
+    ElMessage.success(t('reporting.exportSuccess'))
   } catch (error) {
-    ElMessage.error('导出失败')
+    ElMessage.error(t('reporting.exportFailed'))
   }
 }
 
 const handleExportTrialBalance = async () => {
   if (!trialDate.value) {
-    ElMessage.warning('请选择报表日期')
+    ElMessage.warning(t('reporting.selectReportDate'))
     return
   }
   try {
@@ -478,9 +481,9 @@ const handleExportTrialBalance = async () => {
     link.download = `试算平衡表_${trialDate.value}.xlsx`
     link.click()
     window.URL.revokeObjectURL(url)
-    ElMessage.success('导出成功')
+    ElMessage.success(t('reporting.exportSuccess'))
   } catch (error) {
-    ElMessage.error('导出失败')
+    ElMessage.error(t('reporting.exportFailed'))
   }
 }
 </script>

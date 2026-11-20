@@ -46,6 +46,9 @@ import { ref, onMounted } from 'vue'
 import { getQuickReplyListAPI, createQuickReplyAPI, deleteQuickReplyAPI } from '@/apis/cs'
 import type { QuickReply } from '@/apis/cs'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const list = ref<QuickReply[]>([])
 const showDialog = ref(false)
@@ -58,7 +61,7 @@ const load = async () => {
 
 const handleCreate = async () => {
   await createQuickReplyAPI(form.value)
-  ElMessage.success('创建成功')
+  ElMessage.success(t('common.createSuccess'))
   showDialog.value = false
   form.value = { id: null, groupId: null, title: '', content: '', msgType: 'TEXT', sort: 0, createTime: '' }
   load()
@@ -66,7 +69,7 @@ const handleCreate = async () => {
 
 const handleDelete = async (id: number) => {
   await deleteQuickReplyAPI(id)
-  ElMessage.success('已删除')
+  ElMessage.success(t('common.deleteSuccess'))
   load()
 }
 

@@ -6,6 +6,9 @@ import { getHomeBrandListAPI, homeBrandUpdateRecommendStatusAPI, homeBrandDelete
 import { getBrandListAPI } from '@/apis/brand'
 import type { HomeBrandQueryParam, SmsHomeBrand } from '@/types/homeBrand'
 import type { PmsBrand } from '@/types/brand'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // List query params
 const listQuery = ref<HomeBrandQueryParam>({
@@ -207,9 +210,9 @@ const handleSelectDialogConfirm = async () => {
     return
   }
   try {
-    await ElMessageBox.confirm('使用要进行添加操作?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmAdd'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     const homeBrandList: SmsHomeBrand[] = dialogData.value.multipleSelection.map(item => ({
@@ -242,9 +245,9 @@ const handleEditSort = (index: number, row: SmsHomeBrand) => {
 const handleUpdateSort = async () => {
   if (!sortDialogData.value.id) return
   try {
-    await ElMessageBox.confirm('是否要修改排序?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmChangeSort'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await homeBrandUpdateSortAPI(sortDialogData.value)
@@ -264,9 +267,9 @@ const handleUpdateSort = async () => {
 // Update recommendation status
 const updateRecommendStatusStatus = async (ids: number[], status: number) => {
   try {
-    await ElMessageBox.confirm('是否要修改推荐状态?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmChangeRecommend'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await homeBrandUpdateRecommendStatusAPI({
@@ -287,9 +290,9 @@ const updateRecommendStatusStatus = async (ids: number[], status: number) => {
 // Delete brand
 const deleteBrand = async (ids: number[]) => {
   try {
-    await ElMessageBox.confirm('是否要删除该推荐?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmDeleteRecommend'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     await homeBrandDeleteByIdsAPI({ ids: ids.join(',') })

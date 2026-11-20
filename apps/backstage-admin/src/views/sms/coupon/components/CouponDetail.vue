@@ -8,6 +8,9 @@ import { useRoute, useRouter } from 'vue-router'
 import type { CouponSelectProductOptionVo, SmsCouponExt } from '@/types/coupon'
 import { couponPlatforms, couponTypes } from '@/utils/constant'
 import type { ElCascaderDataVo } from '@/types/common'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route
 const route = useRoute()
@@ -94,9 +97,9 @@ const onSubmit = async () => {
   if (!couponFrom.value) return
   const isValid = await couponFrom.value.validate().catch(() => false)
   if (isValid) {
-    await ElMessageBox.confirm('是否提交数据', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmSubmit'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     if (props.isEdit) {

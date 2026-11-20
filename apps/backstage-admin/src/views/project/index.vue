@@ -106,6 +106,9 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import type { FormInstance } from 'element-plus'
 import { getProjectList, createProject, updateProject, deleteProject } from '@/apis/project'
 import type { Project, ProjectCreateCommand, ProjectUpdateCommand } from '@/apis/project'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const loading = ref(false)
 const projectList = ref<Project[]>([])
@@ -232,15 +235,15 @@ const handleEdit = (row: Project) => {
 
 const handleView = (row: Project) => {
   // TODO: Navigate to detail page
-  ElMessage.info('查看项目详情: ' + row.projectName)
+  ElMessage.info(t('project.viewDetail') + row.projectName)
 }
 
 const handleDelete = async (row: Project) => {
   try {
-    await ElMessageBox.confirm('确定要删除该项目吗？', '提示', { type: 'warning' })
+    await ElMessageBox.confirm(t('dialog.confirmDeleteProject'), t('dialog.title'), { type: 'warning' })
     const res = await deleteProject(row.id)
     if (res.data.code === 200) {
-      ElMessage.success('删除成功')
+      ElMessage.success(t('common.deleteSuccess'))
       getList()
     }
   } catch {
@@ -255,14 +258,14 @@ const submitForm = async () => {
     if (isEdit.value) {
       const res = await updateProject(form as ProjectUpdateCommand)
       if (res.data.code === 200) {
-        ElMessage.success('更新成功')
+        ElMessage.success(t('common.updateSuccess'))
         dialogVisible.value = false
         getList()
       }
     } else {
       const res = await createProject(form)
       if (res.data.code === 200) {
-        ElMessage.success('创建成功')
+        ElMessage.success(t('common.createSuccess'))
         dialogVisible.value = false
         getList()
       }

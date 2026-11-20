@@ -98,6 +98,9 @@ import {
 } from '@/apis/cs'
 import type { Conversation, CsMessage, Agent, QuickReply } from '@/apis/cs'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const csStore = useCsStore()
 const agents = ref<Agent[]>([])
@@ -165,7 +168,7 @@ const handleSend = async () => {
 const handleClose = async () => {
   if (!currentSession.value) return
   await closeConversationAPI(currentSession.value.sessionId)
-  ElMessage.success('会话已结束')
+  ElMessage.success(t('cs.sessionEnded'))
   currentSession.value = null
   messages.value = []
   if (agent.value) loadActive(agent.value.id)

@@ -62,6 +62,9 @@ export default {
     confirmBatchOperation: 'Confirm batch operation?',
     selectOperationType: 'Please select operation type',
     selectOperateProduct: 'Please select products to operate',
+    cancelled: 'Operation cancelled',
+    enterTypeName: 'Please enter the type name',
+    selectOneRecord: 'Please select one record',
   },
   menu: {
     'product-management': 'Product Management',
@@ -152,6 +155,9 @@ export default {
       prev: 'Prev',
       next: 'Next',
     },
+    confirmRefreshSku: 'Refreshing will regenerate SKU data. Continue?',
+    confirmSyncPrice: 'Sync the first SKU price to all SKUs?',
+    confirmSyncStock: 'Sync the first SKU stock to all SKUs?',
   },
   resource: {
     'super-admin': 'Super Admin',
@@ -211,6 +217,31 @@ export default {
     salePrice: 'Sale Price',
     productStock: 'Product Stock',
     lowStockWarning: 'Low Stock Warning',
+    title: 'Tip',
+    confirmAction: 'Confirm this action?',
+    confirmSubmit: 'Submit the data?',
+    confirmDeleteBrand: 'Delete this brand?',
+    confirmDeleteAttribute: 'Delete this attribute?',
+    confirmAdd: 'Perform the add operation?',
+    confirmDelete: 'Perform the delete operation?',
+    confirmChangeSort: 'Change the sort order?',
+    confirmChangeRecommend: 'Change the recommendation status?',
+    confirmDeleteRecommend: 'Delete this recommendation?',
+    confirmChangeStatus: 'Change this status?',
+    confirmChangeOnlineStatus: 'Change the online/offline status?',
+    confirmDeleteAd: 'Delete this ad?',
+    confirmDeleteActivity: 'Delete this activity?',
+    confirmDeleteProduct: 'Delete this product?',
+    confirmDeleteTimeSlot: 'Delete this time slot?',
+    confirmDeleteUser: 'Delete this user?',
+    confirmDeleteCategory: 'Delete this category?',
+    confirmDeleteResource: 'Delete this resource?',
+    confirmDeleteProject: 'Delete this project?',
+    confirmDeleteMemberLevel: 'Delete this member level?',
+    confirmAssignMenu: 'Assign menus?',
+    confirmAssignResource: 'Assign resources?',
+    confirmSubmitProduct: 'Submit this product?',
+    confirmDeliver: 'Perform the delivery operation?',
   },
   // MES Manufacturing Execution System
   mes: {
@@ -1655,6 +1686,7 @@ export default {
     },
   },
   cs: {
+    sessionEnded: 'Session ended',
     agents: {
       title: 'Customer Service Agents',
       addAgent: 'Add Agent',
@@ -2450,5 +2482,49 @@ export default {
       amount: 'Amount',
       txSignature: 'Tx Signature',
     },
+  },
+
+  aiShopping: {
+    loadConfigFailed: 'Failed to load configuration',
+    toggleFailed: 'Failed to toggle',
+    enterConfigKey: 'Please enter the config key',
+    configSaved: 'Configuration saved',
+    configDeleted: 'Configuration deleted',
+    loadIndexStatusFailed: 'Failed to load index status',
+    confirmDeleteConfig: 'Delete config {key}?',
+    indexRebuildStarted: 'Index rebuild started ({type})',
+    providerConnected: 'Provider {type} connected',
+    providerConnectFailed: 'Provider {type} connection failed',
+    enabled: 'AI-assisted shopping enabled',
+    disabled: 'AI-assisted shopping disabled'
+  },
+
+  productAttr: {
+    verifyFailed: 'Verification failed'
+  },
+
+  project: {
+    viewDetail: 'View project detail: '
+  },
+
+  register: {
+    enterEmail: 'Please enter your email',
+    codeSent: 'Verification code sent. Please check your email',
+    submitted: 'Registration submitted. Awaiting admin approval'
+  },
+
+  reporting: {
+    exportSuccess: 'Exported successfully',
+    exportFailed: 'Export failed',
+    selectReportDate: 'Please select a report date',
+    selectDateRange: 'Please select a date range',
+    queryFailed: 'Query failed',
+    balanceSheetFailed: 'Failed to query the balance sheet',
+    profitSheetFailed: 'Failed to query the income statement',
+    trialBalanceFailed: 'Failed to query the trial balance'
+  },
+
+  ums: {
+    assignSuccess: 'Assigned successfully'
   },
 }

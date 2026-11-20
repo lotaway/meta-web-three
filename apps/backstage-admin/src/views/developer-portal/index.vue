@@ -16,6 +16,9 @@ import {
   type OAuthApp,
   getCurrentUsageAPI, getDocsOpenAPIAPI, getSDKSamplesAPI,
 } from '@/apis/developer-portal'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const activeTab = ref('developers')
 const loading = ref(false)
@@ -28,7 +31,7 @@ const loadDevelopers = async () => {
     const [p, a] = await Promise.allSettled([listPendingDevelopersAPI(), listApprovedDevelopersAPI()])
     if (p.status === 'fulfilled') pendingDevs.value = (p.value.data as any) || []
     if (a.status === 'fulfilled') approvedDevs.value = (a.value.data as any) || []
-  } catch (e: any) { console.error('[loadDevelopers]', e); ElMessage.error('加载失败') }
+  } catch (e: any) { console.error('[loadDevelopers]', e); ElMessage.error(t('common.loadFailed')) }
 }
 
 const approveDev = async (id: string) => {
@@ -38,7 +41,7 @@ const approveDev = async (id: string) => {
     await approveDeveloperAPI(id, value)
     ElMessage.success('Approved')
     loadDevelopers()
-  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error('操作失败') } }
+  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error(t('message.operationFailed')) } }
 }
 
 const rejectDev = async (id: string) => {
@@ -48,7 +51,7 @@ const rejectDev = async (id: string) => {
     await rejectDeveloperAPI(id, 'admin', value)
     ElMessage.success('Rejected')
     loadDevelopers()
-  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error('操作失败') } }
+  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error(t('message.operationFailed')) } }
 }
 
 const suspendDev = async (id: string) => {
@@ -58,7 +61,7 @@ const suspendDev = async (id: string) => {
     await suspendDeveloperAPI(id, value)
     ElMessage.success('Suspended')
     loadDevelopers()
-  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error('操作失败') } }
+  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error(t('message.operationFailed')) } }
 }
 
 // API Keys
@@ -67,7 +70,7 @@ const apiKeys = ref<ApiKey[]>([])
 const loadApiKeys = async (devId: string) => {
   selectedDevId.value = devId
   if (!devId) { apiKeys.value = []; return }
-  try { const res = await listDeveloperApiKeysAPI(devId); apiKeys.value = (res.data as any) || [] } catch (e: any) { console.error('[loadApiKeys]', e); ElMessage.error('加载失败') }
+  try { const res = await listDeveloperApiKeysAPI(devId); apiKeys.value = (res.data as any) || [] } catch (e: any) { console.error('[loadApiKeys]', e); ElMessage.error(t('common.loadFailed')) }
 }
 
 const keyDialog = ref(false)
@@ -89,7 +92,7 @@ const loadSubscriptions = async () => {
     const [p, a] = await Promise.allSettled([listPendingSubscriptionsAPI(), listActiveSubscriptionsAPI()])
     if (p.status === 'fulfilled') pendingSubs.value = (p.value.data as any) || []
     if (a.status === 'fulfilled') activeSubs.value = (a.value.data as any) || []
-  } catch (e: any) { console.error('[loadSubscriptions]', e); ElMessage.error('加载失败') }
+  } catch (e: any) { console.error('[loadSubscriptions]', e); ElMessage.error(t('common.loadFailed')) }
 }
 
 const approveSub = async (id: string) => {
@@ -99,7 +102,7 @@ const approveSub = async (id: string) => {
     await approveSubscriptionAPI(id, value)
     ElMessage.success('Approved')
     loadSubscriptions()
-  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error('操作失败') } }
+  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error(t('message.operationFailed')) } }
 }
 
 const rejectSub = async (id: string) => {
@@ -109,7 +112,7 @@ const rejectSub = async (id: string) => {
     await rejectSubscriptionAPI(id, 'admin', value)
     ElMessage.success('Rejected')
     loadSubscriptions()
-  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error('操作失败') } }
+  } catch (e: any) { if (e !== 'cancel') { console.error(e); ElMessage.error(t('message.operationFailed')) } }
 }
 
 // OAuth Apps
@@ -118,7 +121,7 @@ const oauthApps = ref<OAuthApp[]>([])
 const loadOAuthApps = async (devId: string) => {
   selectedOAuthDevId.value = devId
   if (!devId) { oauthApps.value = []; return }
-  try { const res = await listDeveloperOAuthAppsAPI(devId); oauthApps.value = (res.data as any) || [] } catch (e: any) { console.error('[loadOAuthApps]', e); ElMessage.error('加载失败') }
+  try { const res = await listDeveloperOAuthAppsAPI(devId); oauthApps.value = (res.data as any) || [] } catch (e: any) { console.error('[loadOAuthApps]', e); ElMessage.error(t('common.loadFailed')) }
 }
 
 const oauthDialog = ref(false)
@@ -138,7 +141,7 @@ const usageDevId = ref('')
 const loadUsage = async (devId: string) => {
   usageDevId.value = devId
   if (!devId) { currentUsage.value = {}; return }
-  try { const res = await getCurrentUsageAPI(devId); currentUsage.value = (res.data as any) || {} } catch (e: any) { console.error('[loadUsage]', e); ElMessage.error('加载失败') }
+  try { const res = await getCurrentUsageAPI(devId); currentUsage.value = (res.data as any) || {} } catch (e: any) { console.error('[loadUsage]', e); ElMessage.error(t('common.loadFailed')) }
 }
 
 // Docs
@@ -149,7 +152,7 @@ const loadDocs = async () => {
     const [d, s] = await Promise.allSettled([getDocsOpenAPIAPI(), getSDKSamplesAPI()])
     if (d.status === 'fulfilled') docsOpenApi.value = (d.value.data as any) || {}
     if (s.status === 'fulfilled') sdkSamples.value = (s.value.data as any) || {}
-  } catch (e: any) { console.error('[loadDocs]', e); ElMessage.error('加载失败') }
+  } catch (e: any) { console.error('[loadDocs]', e); ElMessage.error(t('common.loadFailed')) }
 }
 
 const refreshAll = () => { loadDevelopers(); loadSubscriptions(); loadDocs() }

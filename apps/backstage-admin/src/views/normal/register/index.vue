@@ -4,6 +4,9 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { type FormInstance, type FormRules } from 'element-plus'
 import { generateCaptchaAPI, sendVerificationCodeAPI, registerDeveloperAPI, type CaptchaChallenge } from '@/apis/developer-portal'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const router = useRouter()
 const registerFormRef = ref<FormInstance>()
@@ -66,13 +69,13 @@ async function refreshCaptcha() {
 
 async function sendVerificationCode() {
   if (!registerForm.email) {
-    ElMessage.warning('请先填写邮箱')
+    ElMessage.warning(t('register.enterEmail'))
     return
   }
   sendingCode.value = true
   try {
     await sendVerificationCodeAPI(registerForm.email.trim())
-    ElMessage.success('验证码已发送，请查收邮箱')
+    ElMessage.success(t('register.codeSent'))
     countdown.value = 60
     const timer = window.setInterval(() => {
       countdown.value -= 1
@@ -103,7 +106,7 @@ async function handleRegister() {
         captchaAnswer: registerForm.captchaAnswer.trim().toUpperCase(),
         emailCode: registerForm.emailCode.trim(),
       })
-      ElMessage.success('注册申请已提交，请等待管理员审核')
+      ElMessage.success(t('register.submitted'))
       router.push({ path: '/login' })
     } catch (e) {
       refreshCaptcha()

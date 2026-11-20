@@ -8,6 +8,9 @@ import { getProductAttrInfoByCateIdAPI } from '@/apis/productAttr'
 import SingleUpload from '@/components/Upload/singleUpload.vue'
 import type { PmsProductCategory } from '@/types/productCate'
 import type { ElCascaderDataVo } from '@/types/common'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // Get route object
 const router = useRouter()
@@ -102,9 +105,9 @@ const onSubmit = async () => {
   if (!productCateFrom.value) return
   const valid = await productCateFrom.value.validate().catch(() => false)
   if (valid) {
-    await ElMessageBox.confirm('是否提交数据', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('dialog.confirmSubmit'), t('dialog.title'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
     if (props.isEdit) {
