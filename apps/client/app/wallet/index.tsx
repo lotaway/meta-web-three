@@ -24,128 +24,169 @@ interface WalletData {
   commissionBalance: number;
 }
 
-export default function WalletScreen() {
+const QUICK_ACTIONS = [
+  { label: '积分充值', icon: 'arrow.up.circle.fill', color: '#FF6B35' },
+  { label: '积分提现', icon: 'arrow.down.circle.fill', color: '#4CAF50' },
+  { label: '交易记录', icon: 'clock.arrow.circlepath', color: '#2196F3' },
+];
+
+type AppColors = typeof Colors.light;
+type AppRouter = ReturnType<typeof useRouter>;
+type AuthUserId = ReturnType<typeof useAuth>['userId'];
+type AuthFields = { isAuthenticated: boolean; userId: AuthUserId };
+
+async function fetchWalletData(isAuthenticated: boolean, userId: AuthUserId): Promise<WalletData | null> {
+  if (!isAuthenticated || !userId) return null;
+  const [userRes, commRes] = await Promise.all([
+    userApi.info({ xUserId: userId }),
+    commissionApi.balance({ userId }).catch(() => null),
+  ]);
+  const user = userRes.data as any;
+  return {
+    integration: user?.integration ?? 0,
+    growth: user?.growth ?? 0,
+    commissionBalance: (commRes?.data as any)?.availableBalance ?? 0,
+  };
+}
+
+async function loadWalletDataFlow(isRefresh: boolean, state: WalletState & AuthFields) {
+  if (isRefresh) state.setRefreshing(true);
+  else state.setLoading(true);
+  try {
+    const data = await fetchWalletData(state.isAuthenticated, state.userId);
+    if (data) state.setWalletData(data);
+  } catch (error) {
+    console.error('Failed to load wallet data:', error);
+    Alert.alert('Error', 'Failed to load the wallet data.');
+  } finally {
+    state.setLoading(false);
+    state.setRefreshing(false);
+  }
+}
+
+function useWalletState() {
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [walletData, setWalletData] = useState<WalletData>({ integration: 0, growth: 0, commissionBalance: 0 });
+  return { loading, setLoading, refreshing, setRefreshing, walletData, setWalletData };
+}
+
+type WalletState = ReturnType<typeof useWalletState>;
+
+function useWalletController() {
   const { t } = useTranslation();
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
   const { isAuthenticated, userId } = useAuth();
-
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [walletData, setWalletData] = useState<WalletData>({
-    integration: 0,
-    growth: 0,
-    commissionBalance: 0,
-  });
-
-  const loadWalletData = async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
-    else setLoading(true);
-    try {
-      if (isAuthenticated && userId) {
-        const [userRes, commRes] = await Promise.all([
-          userApi.info({ xUserId: userId }),
-          commissionApi.balance({ userId }).catch(() => null),
-        ]);
-        const user = userRes.data as any;
-        setWalletData({
-          integration: user?.integration ?? 0,
-          growth: user?.growth ?? 0,
-          commissionBalance: (commRes?.data as any)?.availableBalance ?? 0,
-        });
-      }
-    } catch (error) {
-      console.error('Failed to load wallet data:', error);
-      Alert.alert('Error', 'Failed to load the wallet data.')
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
-
+  const state = useWalletState();
+  const loadWalletData = (isRefresh = false) => loadWalletDataFlow(isRefresh, { ...state, isAuthenticated, userId });
   useEffect(() => {
     loadWalletData();
   }, [isAuthenticated, userId]);
+  return { t, router, colors, isAuthenticated, userId, ...state, loadWalletData };
+}
 
-  if (loading) {
-    return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <IconSymbol name="chevron.left" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>我的钱包</Text>
-          <View style={styles.headerRight} />
-        </View>
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={colors.tint} />
-        </View>
-      </SafeAreaView>
-    );
-  }
+interface WalletViewProps extends WalletState {
+  router: AppRouter;
+  colors: AppColors;
+  isAuthenticated: boolean;
+  userId: AuthUserId;
+  loadWalletData: (isRefresh?: boolean) => Promise<void>;
+}
 
+function WalletHeader({ colors, handleBack }: { colors: AppColors; handleBack: () => void }) {
+  return (
+    <View style={[styles.header, { borderBottomColor: colors.border }]}>
+      <TouchableOpacity style={styles.backBtn} onPress={handleBack}>
+        <IconSymbol name="chevron.left" size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>我的钱包</Text>
+      <View style={styles.headerRight} />
+    </View>
+  );
+}
+
+function LoadingView({ colors, handleBack }: { colors: AppColors; handleBack: () => void }) {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <IconSymbol name="chevron.left" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>我的钱包</Text>
-        <View style={styles.headerRight} />
+      <WalletHeader colors={colors} handleBack={handleBack} />
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.tint} />
       </View>
+    </SafeAreaView>
+  );
+}
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={() => loadWalletData(true)} />
-        }
-      >
-        <View style={[styles.balanceCard, { backgroundColor: colors.primary }]}>
-          <Text style={styles.balanceLabel}>可用积分</Text>
-          <Text style={styles.balanceAmount}>{walletData.integration}</Text>
-          <Text style={styles.balanceUnit}>分</Text>
-        </View>
+function BalanceCard({ integration, colors }: { integration: number; colors: AppColors }) {
+  return (
+    <View style={[styles.balanceCard, { backgroundColor: colors.primary }]}>
+      <Text style={styles.balanceLabel}>可用积分</Text>
+      <Text style={styles.balanceAmount}>{integration}</Text>
+      <Text style={styles.balanceUnit}>分</Text>
+    </View>
+  );
+}
 
-        <View style={styles.quickActions}>
-          <TouchableOpacity style={[styles.actionItem, { backgroundColor: colors.card }]}>
-            <IconSymbol name="arrow.up.circle.fill" size={28} color="#FF6B35" />
-            <Text style={[styles.actionText, { color: colors.text }]}>积分充值</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionItem, { backgroundColor: colors.card }]}>
-            <IconSymbol name="arrow.down.circle.fill" size={28} color="#4CAF50" />
-            <Text style={[styles.actionText, { color: colors.text }]}>积分提现</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionItem, { backgroundColor: colors.card }]}>
-            <IconSymbol name="clock.arrow.circlepath" size={28} color="#2196F3" />
-            <Text style={[styles.actionText, { color: colors.text }]}>交易记录</Text>
-          </TouchableOpacity>
-        </View>
+function QuickActionItem({ action, colors }: { action: typeof QUICK_ACTIONS[number]; colors: AppColors }) {
+  return (
+    <TouchableOpacity style={[styles.actionItem, { backgroundColor: colors.card }]}>
+      <IconSymbol name={action.icon as any} size={28} color={action.color} />
+      <Text style={[styles.actionText, { color: colors.text }]}>{action.label}</Text>
+    </TouchableOpacity>
+  );
+}
 
-        <View style={[styles.detailSection, { backgroundColor: colors.card }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>资产明细</Text>
-          <View style={[styles.detailRow, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>积分</Text>
-            <Text style={[styles.detailValue, { color: colors.text }]}>{walletData.integration}</Text>
-          </View>
-          <View style={[styles.detailRow, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>成长值</Text>
-            <Text style={[styles.detailValue, { color: colors.text }]}>{walletData.growth}</Text>
-          </View>
-          {walletData.commissionBalance > 0 && (
-            <View style={[styles.detailRow, { borderBottomColor: colors.border }]}>
-              <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>佣金余额</Text>
-              <Text style={[styles.detailValue, { color: colors.text }]}>
-                ¥{walletData.commissionBalance.toFixed(2)}
-              </Text>
-            </View>
-          )}
-        </View>
+function QuickActions({ colors }: { colors: AppColors }) {
+  return (
+    <View style={styles.quickActions}>
+      {QUICK_ACTIONS.map((action) => <QuickActionItem key={action.label} action={action} colors={colors} />)}
+    </View>
+  );
+}
 
+function DetailRow({ label, value, colors }: { label: string; value: string; colors: AppColors }) {
+  return (
+    <View style={[styles.detailRow, { borderBottomColor: colors.border }]}>
+      <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>{label}</Text>
+      <Text style={[styles.detailValue, { color: colors.text }]}>{value}</Text>
+    </View>
+  );
+}
+
+function AssetDetails({ walletData, colors }: { walletData: WalletData; colors: AppColors }) {
+  return (
+    <View style={[styles.detailSection, { backgroundColor: colors.card }]}>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>资产明细</Text>
+      <DetailRow label="积分" value={String(walletData.integration)} colors={colors} />
+      <DetailRow label="成长值" value={String(walletData.growth)} colors={colors} />
+      {walletData.commissionBalance > 0 && <DetailRow label="佣金余额" value={`¥${walletData.commissionBalance.toFixed(2)}`} colors={colors} />}
+    </View>
+  );
+}
+
+function WalletView(props: WalletViewProps) {
+  const { colors, router, refreshing, walletData, loadWalletData } = props;
+  const handleBack = () => router.back();
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <WalletHeader colors={colors} handleBack={handleBack} />
+      <ScrollView showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => loadWalletData(true)} />}>
+        <BalanceCard integration={walletData.integration} colors={colors} />
+        <QuickActions colors={colors} />
+        <AssetDetails walletData={walletData} colors={colors} />
         <View style={styles.bottomSpacer} />
       </ScrollView>
     </SafeAreaView>
   );
+}
+
+export default function WalletScreen() {
+  const controller = useWalletController();
+  if (controller.loading) {
+    return <LoadingView colors={controller.colors} handleBack={() => controller.router.back()} />;
+  }
+  return <WalletView {...controller} />;
 }
 
 const styles = StyleSheet.create({

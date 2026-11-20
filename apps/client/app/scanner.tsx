@@ -15,148 +15,177 @@ import { useColorScheme } from '@/hooks/useColorScheme'
 import * as ImagePicker from 'expo-image-picker'
 import ScannerModule, { ScannerModuleView } from 'scanner-module'
 
-export default function ScannerScreen() {
-  const colorScheme = useColorScheme() ?? 'light'
-  const colors = Colors[colorScheme]
-  const router = useRouter()
+type AppColors = typeof Colors.light
+type AppRouter = ReturnType<typeof useRouter>
+type SetBoolean = React.Dispatch<React.SetStateAction<boolean>>
+type SetString = React.Dispatch<React.SetStateAction<string>>
+type ScanSuccessHandler = (event: { nativeEvent: { data: string } }) => void
+type ScanErrorHandler = (event: { nativeEvent: { message: string } }) => void
 
+function showScanResult(data: string, router: AppRouter) {
+  const match = data.match(/product\/(\d+)/)
+  if (match) {
+    const productId = match[1]
+    Alert.alert('扫描成功', `找到商品 #${productId}`, [
+      { text: '取消', style: 'cancel' },
+      { text: '查看商品', onPress: () => router.push({ pathname: '/product/[id]', params: { id: productId } }) },
+    ])
+  } else {
+    Alert.alert('扫描结果', data, [{ text: '确定' }])
+  }
+}
+
+async function pickScanImage() {
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: false,
+    quality: 1,
+  })
+  if (!result.canceled && result.assets[0]) {
+    Alert.alert('提示', Platform.OS === 'web' ? 'Web端暂不支持图片识别，请使用摄像头扫描' : '正在识别图片...')
+  }
+}
+
+async function startCameraScan(state: ScannerState) {
+  state.setError('')
+  const hasPermission = await ScannerModule.requestCameraPermissionAsync()
+  if (hasPermission) {
+    state.setScanning(true)
+    state.setLastResult('')
+  } else {
+    Alert.alert('权限不足', '需要相机权限才能使用扫码功能')
+  }
+}
+
+function useScannerState() {
   const [scanning, setScanning] = useState(false)
   const [lastResult, setLastResult] = useState<string>('')
   const [error, setError] = useState<string>('')
+  return { scanning, setScanning, lastResult, setLastResult, error, setError }
+}
 
+type ScannerState = ReturnType<typeof useScannerState>
+
+function useScannerHandlers(router: AppRouter, setScanning: SetBoolean, setLastResult: SetString, setError: SetString) {
   const handleScanResult = useCallback((data: string) => {
     setScanning(false)
     setLastResult(data)
-
-    const productUrlRegex = /product\/(\d+)/
-    const match = data.match(productUrlRegex)
-
-    if (match) {
-      const productId = match[1]
-      Alert.alert('扫描成功', `找到商品 #${productId}`, [
-        { text: '取消', style: 'cancel' },
-        {
-          text: '查看商品',
-          onPress: () => router.push({ pathname: '/product/[id]', params: { id: productId } }),
-        },
-      ])
-    } else {
-      Alert.alert('扫描结果', data, [
-        { text: '确定' },
-      ])
-    }
+    showScanResult(data, router)
   }, [router])
-
   const handleScanSuccess = useCallback((event: { nativeEvent: { data: string } }) => {
     handleScanResult(event.nativeEvent.data)
   }, [handleScanResult])
-
   const handleError = useCallback((event: { nativeEvent: { message: string } }) => {
     setError(event.nativeEvent.message)
     setScanning(false)
     Alert.alert('扫描错误', event.nativeEvent.message)
   }, [])
+  return { handleScanSuccess, handleError }
+}
 
-  const handlePickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: false,
-      quality: 1,
-    })
+function useScannerController() {
+  const colorScheme = useColorScheme() ?? 'light'
+  const colors = Colors[colorScheme]
+  const router = useRouter()
+  const state = useScannerState()
+  const handlers = useScannerHandlers(router, state.setScanning, state.setLastResult, state.setError)
+  return { colors, router, ...state, ...handlers }
+}
 
-    if (!result.canceled && result.assets[0]) {
-      Alert.alert('提示', Platform.OS === 'web' ? 'Web端暂不支持图片识别，请使用摄像头扫描' : '正在识别图片...')
-    }
-  }
+interface ScannerViewProps extends ScannerState {
+  colors: AppColors
+  router: AppRouter
+  handleScanSuccess: ScanSuccessHandler
+  handleError: ScanErrorHandler
+  handlePickImage: () => Promise<void>
+  handleStartScan: () => Promise<void>
+}
 
-  const handleStartScan = async () => {
-    setError('')
-    const hasPermission = await ScannerModule.requestCameraPermissionAsync()
-    if (hasPermission) {
-      setScanning(true)
-      setLastResult('')
-    } else {
-      Alert.alert('权限不足', '需要相机权限才能使用扫码功能')
-    }
-  }
+function ScannerHeader({ colors, handleBack }: { colors: AppColors; handleBack: () => void }) {
+  return (
+    <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+      <TouchableOpacity style={styles.backBtn} onPress={handleBack}>
+        <IconSymbol name="chevron.left" size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>扫码</Text>
+      <View style={styles.headerRight} />
+    </View>
+  )
+}
 
+function ScanFrame() {
+  return (
+    <View style={styles.scanFrame}>
+      <View style={styles.scanCorner} />
+      <View style={[styles.scanCorner, styles.scanCornerTopRight]} />
+      <View style={[styles.scanCorner, styles.scanCornerBottomLeft]} />
+      <View style={[styles.scanCorner, styles.scanCornerBottomRight]} />
+    </View>
+  )
+}
+
+function ScanningView({ scanning, handleScanSuccess, handleError, setScanning }: Pick<ScannerViewProps, 'scanning' | 'handleScanSuccess' | 'handleError' | 'setScanning'>) {
+  return (
+    <View style={styles.scannerContainer}>
+      <ScannerModuleView isScanning={scanning} style={styles.scannerView} onScanSuccess={handleScanSuccess} onError={handleError} />
+      <View style={styles.scanOverlay}>
+        <ScanFrame />
+        <Text style={styles.scanHint}>将二维码/条形码放入框内</Text>
+        <TouchableOpacity style={styles.stopScanBtn} onPress={() => setScanning(false)}>
+          <Text style={styles.stopScanText}>停止扫描</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  )
+}
+
+function LastResultBox({ lastResult, colors }: { lastResult: string; colors: AppColors }) {
+  return (
+    <View style={[styles.resultBox, { backgroundColor: colors.card }]}>
+      <Text style={[styles.resultLabel, { color: colors.fontColorLight }]}>上次扫描结果</Text>
+      <Text style={[styles.resultText, { color: colors.fontColorDark }]} numberOfLines={3}>{lastResult}</Text>
+    </View>
+  );
+}
+
+function IdleView({ colors, lastResult, handleStartScan, handlePickImage }: Pick<ScannerViewProps, 'colors' | 'lastResult' | 'handleStartScan' | 'handlePickImage'>) {
+  return (
+    <View style={styles.idleContainer}>
+      <IconSymbol name="qrcode" size={80} color={colors.primary} />
+      <Text style={[styles.idleTitle, { color: colors.fontColorDark }]}>扫码查找商品</Text>
+      <Text style={[styles.idleDesc, { color: colors.fontColorLight }]}>扫描商品包装上的条形码或二维码</Text>
+      <TouchableOpacity style={[styles.startBtn, { backgroundColor: colors.primary }]} onPress={handleStartScan}>
+        <IconSymbol name="camera.viewfinder" size={20} color="#fff" />
+        <Text style={styles.startBtnText}>开始扫描</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.galleryBtn, { borderColor: colors.border }]} onPress={handlePickImage}>
+        <IconSymbol name="photo" size={16} color={colors.fontColorBase} />
+        <Text style={[styles.galleryBtnText, { color: colors.fontColorBase }]}>从相册选择</Text>
+      </TouchableOpacity>
+      {lastResult ? <LastResultBox lastResult={lastResult} colors={colors} /> : null}
+    </View>
+  )
+}
+
+function ScannerView(props: ScannerViewProps) {
+  const { colors, router, scanning, setScanning, handleScanSuccess, handleError } = props
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <IconSymbol name="chevron.left" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>扫码</Text>
-        <View style={styles.headerRight} />
-      </View>
-
+      <ScannerHeader colors={colors} handleBack={() => router.back()} />
       <View style={styles.content}>
         {scanning ? (
-          <View style={styles.scannerContainer}>
-            <ScannerModuleView
-              isScanning={scanning}
-              style={styles.scannerView}
-              onScanSuccess={handleScanSuccess}
-              onError={handleError}
-            />
-            <View style={styles.scanOverlay}>
-              <View style={styles.scanFrame}>
-                <View style={styles.scanCorner} />
-                <View style={[styles.scanCorner, styles.scanCornerTopRight]} />
-                <View style={[styles.scanCorner, styles.scanCornerBottomLeft]} />
-                <View style={[styles.scanCorner, styles.scanCornerBottomRight]} />
-              </View>
-              <Text style={styles.scanHint}>
-                将二维码/条形码放入框内
-              </Text>
-              <TouchableOpacity
-                style={styles.stopScanBtn}
-                onPress={() => setScanning(false)}
-              >
-                <Text style={styles.stopScanText}>停止扫描</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          <ScanningView scanning={scanning} handleScanSuccess={handleScanSuccess} handleError={handleError} setScanning={setScanning} />
         ) : (
-          <View style={styles.idleContainer}>
-            <IconSymbol name="qrcode" size={80} color={colors.primary} />
-            <Text style={[styles.idleTitle, { color: colors.fontColorDark }]}>
-              扫码查找商品
-            </Text>
-            <Text style={[styles.idleDesc, { color: colors.fontColorLight }]}>
-              扫描商品包装上的条形码或二维码
-            </Text>
-            <TouchableOpacity
-              style={[styles.startBtn, { backgroundColor: colors.primary }]}
-              onPress={handleStartScan}
-            >
-              <IconSymbol name="camera.viewfinder" size={20} color="#fff" />
-              <Text style={styles.startBtnText}>开始扫描</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.galleryBtn, { borderColor: colors.border }]}
-              onPress={handlePickImage}
-            >
-              <IconSymbol name="photo" size={16} color={colors.fontColorBase} />
-              <Text style={[styles.galleryBtnText, { color: colors.fontColorBase }]}>
-                从相册选择
-              </Text>
-            </TouchableOpacity>
-            {lastResult && (
-              <View style={[styles.resultBox, { backgroundColor: colors.card }]}>
-                <Text style={[styles.resultLabel, { color: colors.fontColorLight }]}>
-                  上次扫描结果
-                </Text>
-                <Text style={[styles.resultText, { color: colors.fontColorDark }]} numberOfLines={3}>
-                  {lastResult}
-                </Text>
-              </View>
-            )}
-          </View>
+          <IdleView {...props} />
         )}
       </View>
     </SafeAreaView>
   )
+}
+
+export default function ScannerScreen() {
+  const controller = useScannerController()
+  return <ScannerView {...controller} handlePickImage={pickScanImage} handleStartScan={() => startCameraScan(controller)} />
 }
 
 const styles = StyleSheet.create({

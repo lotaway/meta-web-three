@@ -23,6 +23,57 @@ interface PaymentSectionProps {
   onSelectMethod: (method: PayMethod) => void
 }
 
+function SelectionIcon({
+  isSelected,
+  colors,
+}: {
+  isSelected: boolean
+  colors: typeof Colors.light
+}) {
+  return (
+    <IconSymbol
+      name={isSelected ? 'checkmark.circle.fill' : 'circle'}
+      size={24}
+      color={isSelected ? colors.primary : colors.fontColorDisabled}
+    />
+  )
+}
+
+function MethodLabel({ method, isSelected, colors }: {
+  method: PayMethodOption; isSelected: boolean; colors: typeof Colors.light
+}) {
+  return (
+    <View style={styles.methodLeft}>
+      <IconSymbol
+        name={method.icon as any}
+        size={24}
+        color={isSelected ? colors.primary : colors.fontColorBase}
+      />
+      <Text style={[styles.methodName, { color: colors.fontColorDark }, isSelected && { color: colors.primary }]}>
+        {method.name}
+      </Text>
+    </View>
+  )
+}
+
+function PayMethodItem({ method, selectedMethod, colors, onSelectMethod }: {
+  method: PayMethodOption
+  selectedMethod: PayMethod
+  colors: typeof Colors.light
+  onSelectMethod: (method: PayMethod) => void
+}) {
+  const isSelected = selectedMethod === method.id
+  return (
+    <TouchableOpacity
+      style={[styles.methodItem, isSelected && { borderColor: colors.primary, borderWidth: 2 }]}
+      onPress={() => onSelectMethod(method.id)}
+    >
+      <MethodLabel method={method} isSelected={isSelected} colors={colors} />
+      <SelectionIcon isSelected={isSelected} colors={colors} />
+    </TouchableOpacity>
+  )
+}
+
 export default function PaymentSection({ selectedMethod, colors, onSelectMethod }: PaymentSectionProps) {
   return (
     <View style={[styles.section, { backgroundColor: colors.background }]}>
@@ -30,51 +81,13 @@ export default function PaymentSection({ selectedMethod, colors, onSelectMethod 
         支付方式
       </Text>
       {PAY_METHODS.map((method) => (
-        <TouchableOpacity
+        <PayMethodItem
           key={method.id}
-          style={[
-            styles.methodItem,
-            selectedMethod === method.id && {
-              borderColor: colors.primary,
-              borderWidth: 2,
-            },
-          ]}
-          onPress={() => onSelectMethod(method.id)}
-        >
-          <View style={styles.methodLeft}>
-            <IconSymbol
-              name={method.icon as any}
-              size={24}
-              color={
-                selectedMethod === method.id
-                  ? colors.primary
-                  : colors.fontColorBase
-              }
-            />
-            <Text
-              style={[
-                styles.methodName,
-                { color: colors.fontColorDark },
-                selectedMethod === method.id && { color: colors.primary },
-              ]}
-            >
-              {method.name}
-            </Text>
-          </View>
-          <IconSymbol
-            name={
-              selectedMethod === method.id
-                ? 'checkmark.circle.fill'
-                : 'circle'
-            }
-            size={24}
-            color={
-              selectedMethod === method.id
-                ? colors.primary
-                : colors.fontColorDisabled
-            }
-          />
-        </TouchableOpacity>
+          method={method}
+          selectedMethod={selectedMethod}
+          colors={colors}
+          onSelectMethod={onSelectMethod}
+        />
       ))}
     </View>
   )

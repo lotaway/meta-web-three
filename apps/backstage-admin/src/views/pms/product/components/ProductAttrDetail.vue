@@ -8,7 +8,7 @@ import SingleUpload from '@/components/Upload/singleUpload.vue'
 import type { PmsProductParam } from '@/types/product'
 import type { ElSelectDataVo } from '@/types/common'
 import MultiUpload from '@/components/Upload/multiUpload.vue'
-import type { ProductAttrPicVo, ProductAttrVo, ProductParamVo } from '@/types/productAttr'
+import type { PmsProductAttribute, ProductAttrPicVo, ProductAttrVo, ProductParamVo } from '@/types/productAttr'
 import type { PmsSkuStock } from '@/types/skuStock'
 import Tinymce from '@/components/Tinymce/index.vue'
 import { useI18n } from 'vue-i18n'
@@ -130,6 +130,35 @@ const handleEditCreated = () => {
 }
 
 
+const buildSelectProductAttr = (list: PmsProductAttribute[]): ProductAttrVo[] =>
+  list.map((item, i) => {
+    let options: string[] | undefined = []
+    let values: string[] = []
+    if (props.isEdit) {
+      if (item.handAddStatus === 1) {
+        options = getEditAttrOptions(item.id!)
+      }
+      values = getEditAttrValues(i)
+    }
+    return {
+      id: item.id,
+      name: item.name,
+      handAddStatus: item.handAddStatus,
+      inputList: item.inputList,
+      values,
+      options
+    }
+  })
+
+const buildSelectProductParam = (list: PmsProductAttribute[]): ProductParamVo[] =>
+  list.map(item => ({
+    id: item.id,
+    name: item.name,
+    value: props.isEdit ? getEditParamValue(item.id!) : undefined,
+    inputType: item.inputType,
+    inputList: item.inputList
+  }))
+
 /**
  * Get specifications and parameters by product attribute category ID
  * @param type 0: specification; 1: parameter
@@ -140,49 +169,12 @@ const getProductAttrList = async (type: number, cid: number) => {
   const res = await getProductAttributeListAPI(cid, param)
   const list = res.data.list
   if (type === 0) {
-    state.selectProductAttr = []
-    for (let i = 0; i < list.length; i++) {
-      const item = list[i]!
-      let options: string[] | undefined = []
-      let values: string[] = []
-      if (props.isEdit) {
-        if (item.handAddStatus === 1) {
-          // Get manually added attributes in edit mode
-          options = getEditAttrOptions(item.id!)
-        }
-        // Get selected attributes in edit mode
-        values = getEditAttrValues(i)
-      }
-      state.selectProductAttr.push({
-        id: item.id,
-        name: item.name,
-        handAddStatus: item.handAddStatus,
-        inputList: item.inputList,
-        values: values,
-        options: options
-      })
-    }
+    state.selectProductAttr = buildSelectProductAttr(list)
     if (props.isEdit) {
-      // Refresh product attribute images in edit mode
       refreshProductAttrPics()
     }
   } else {
-    state.selectProductParam = []
-    for (let i = 0; i < list.length; i++) {
-      const item = list[i]!
-      let value = undefined
-      if (props.isEdit) {
-        // Get parameter attributes in edit mode
-        value = getEditParamValue(item.id!)
-      }
-      state.selectProductParam.push({
-        id: item.id,
-        name: item.name,
-        value: value,
-        inputType: item.inputType,
-        inputList: item.inputList
-      })
-    }
+    state.selectProductParam = buildSelectProductParam(list)
   }
 }
 
@@ -220,22 +212,18 @@ const getInputListArr = (inputList: string) => {
   return inputList.split(',')
 }
 
+const showAttrWarning = (message: string) => {
+  ElMessage({ message, type: 'warning', duration: 1000 })
+}
+
 const handleAddProductAttrValue = (idx: number) => {
   const options = state.selectProductAttr[idx]!.options
   if (state.addProductAttrValue == null || state.addProductAttrValue == '') {
-    ElMessage({
-      message: '属性值不能为空',
-      type: 'warning',
-      duration: 1000
-    })
+    showAttrWarning('属性值不能为空')
     return
   }
   if (options!.indexOf(state.addProductAttrValue) !== -1) {
-    ElMessage({
-      message: '属性值不能重复',
-      type: 'warning',
-      duration: 1000
-    })
+    showAttrWarning('属性值不能重复')
     return
   }
   options?.push(state.addProductAttrValue)
@@ -269,6 +257,34 @@ const handleRefreshProductSkuList = async () => {
   }
 }
 
+const syncSkuPrice = () => {
+  const skuStockList = compProductParam.value.skuStockList
+  if (!skuStockList || skuStockList.length === 0) return
+  let tempSkuList: PmsSkuStock[] = []
+  tempSkuList = tempSkuList.concat(tempSkuList, skuStockList)
+  const price = skuStockList[0]!.price
+  for (let i = 0; i < tempSkuList.length; i++) {
+    tempSkuList[i]!.price = price
+  }
+  compProductParam.value.skuStockList = []
+  compProductParam.value.skuStockList = compProductParam.value.skuStockList.concat(compProductParam.value.skuStockList, tempSkuList)
+}
+
+const syncSkuStock = () => {
+  const skuStockList = compProductParam.value.skuStockList
+  if (!skuStockList || skuStockList.length === 0) return
+  let tempSkuList: PmsSkuStock[] = []
+  tempSkuList = tempSkuList.concat(tempSkuList, skuStockList)
+  const stock = skuStockList[0]!.stock
+  const lowStock = skuStockList[0]!.lowStock
+  for (let i = 0; i < tempSkuList.length; i++) {
+    tempSkuList[i]!.stock = stock
+    tempSkuList[i]!.lowStock = lowStock
+  }
+  compProductParam.value.skuStockList = []
+  compProductParam.value.skuStockList = compProductParam.value.skuStockList.concat(compProductParam.value.skuStockList, tempSkuList)
+}
+
 const handleSyncProductSkuPrice = async () => {
   try {
     await ElMessageBox.confirm(t('product.confirmSyncPrice'), t('dialog.title'), {
@@ -276,16 +292,7 @@ const handleSyncProductSkuPrice = async () => {
       cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
-    if (compProductParam.value.skuStockList && compProductParam.value.skuStockList.length > 0) {
-      let tempSkuList: PmsSkuStock[] = []
-      tempSkuList = tempSkuList.concat(tempSkuList, compProductParam.value.skuStockList)
-      const price = compProductParam.value.skuStockList[0]!.price
-      for (let i = 0; i < tempSkuList.length; i++) {
-        tempSkuList[i]!.price = price
-      }
-      compProductParam.value.skuStockList = []
-      compProductParam.value.skuStockList = compProductParam.value.skuStockList.concat(compProductParam.value.skuStockList, tempSkuList)
-    }
+    syncSkuPrice()
   } catch {
     // User cancelled the operation
   }
@@ -298,85 +305,78 @@ const handleSyncProductSkuStock = async () => {
       cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
-    if (compProductParam.value.skuStockList && compProductParam.value.skuStockList.length > 0) {
-      let tempSkuList: PmsSkuStock[] = []
-      tempSkuList = tempSkuList.concat(tempSkuList, compProductParam.value.skuStockList)
-      const stock = compProductParam.value.skuStockList[0]!.stock
-      const lowStock = compProductParam.value.skuStockList[0]!.lowStock
-      for (let i = 0; i < tempSkuList.length; i++) {
-        tempSkuList[i]!.stock = stock
-        tempSkuList[i]!.lowStock = lowStock
-      }
-      compProductParam.value.skuStockList = []
-      compProductParam.value.skuStockList = compProductParam.value.skuStockList.concat(compProductParam.value.skuStockList, tempSkuList)
-    }
+    syncSkuStock()
   } catch {
     // User cancelled the operation
+  }
+}
+
+type SkuSpPair = { key: string; value: string | undefined }
+
+const makeSkuPair = (attr: ProductAttrVo, index: number): SkuSpPair => ({
+  key: attr.name,
+  value: attr.values![index]
+})
+
+const pushSkuCombination = (skuList: PmsSkuStock[], pairs: SkuSpPair[]) => {
+  skuList.push({ spData: JSON.stringify(pairs) })
+}
+
+const fillSkuListForOneAttr = (skuList: PmsSkuStock[], attr0: ProductAttrVo) => {
+  for (let i = 0; i < attr0.values!.length; i++) {
+    pushSkuCombination(skuList, [makeSkuPair(attr0, i)])
+  }
+}
+
+const fillSkuListForTwoAttrs = (skuList: PmsSkuStock[], attr0: ProductAttrVo, attr1: ProductAttrVo) => {
+  for (let i = 0; i < attr0.values!.length; i++) {
+    if (attr1.values!.length === 0) {
+      pushSkuCombination(skuList, [makeSkuPair(attr0, i)])
+      continue
+    }
+    for (let j = 0; j < attr1.values!.length; j++) {
+      pushSkuCombination(skuList, [makeSkuPair(attr0, i), makeSkuPair(attr1, j)])
+    }
+  }
+}
+
+const appendThirdAttrSkus = (skuList: PmsSkuStock[], pairs: SkuSpPair[], attr2: ProductAttrVo) => {
+  if (attr2.values!.length === 0) {
+    pushSkuCombination(skuList, pairs)
+    return
+  }
+  for (let k = 0; k < attr2.values!.length; k++) {
+    pushSkuCombination(skuList, [...pairs, makeSkuPair(attr2, k)])
+  }
+}
+
+const fillSkuListForThreeAttrs = (
+  skuList: PmsSkuStock[],
+  attr0: ProductAttrVo,
+  attr1: ProductAttrVo,
+  attr2: ProductAttrVo
+) => {
+  for (let i = 0; i < attr0.values!.length; i++) {
+    if (attr1.values!.length === 0) {
+      pushSkuCombination(skuList, [makeSkuPair(attr0, i)])
+      continue
+    }
+    for (let j = 0; j < attr1.values!.length; j++) {
+      appendThirdAttrSkus(skuList, [makeSkuPair(attr0, i), makeSkuPair(attr1, j)], attr2)
+    }
   }
 }
 
 const refreshProductSkuList = () => {
   compProductParam.value.skuStockList = []
   const skuList = compProductParam.value.skuStockList
-  // When there is only one attribute
-  if (state.selectProductAttr.length === 1) {
-    const attr = state.selectProductAttr[0]!
-    for (let i = 0; i < attr.values!.length; i++) {
-      skuList.push({
-        spData: JSON.stringify([{ key: attr.name, value: attr.values![i] }])
-      })
-    }
-  } else if (state.selectProductAttr.length === 2) {
-    const attr0 = state.selectProductAttr[0]!
-    const attr1 = state.selectProductAttr[1]!
-    for (let i = 0; i < attr0.values!.length; i++) {
-      if (attr1.values!.length === 0) {
-        skuList.push({
-          spData: JSON.stringify([{ key: attr0.name, value: attr0.values![i] }])
-        })
-        continue
-      }
-      for (let j = 0; j < attr1.values!.length; j++) {
-        const spData = []
-        spData.push({ key: attr0.name, value: attr0.values![i] })
-        spData.push({ key: attr1.name, value: attr1.values![j] })
-        skuList.push({
-          spData: JSON.stringify(spData)
-        })
-      }
-    }
+  const attrs = state.selectProductAttr
+  if (attrs.length === 1) {
+    fillSkuListForOneAttr(skuList, attrs[0]!)
+  } else if (attrs.length === 2) {
+    fillSkuListForTwoAttrs(skuList, attrs[0]!, attrs[1]!)
   } else {
-    const attr0 = state.selectProductAttr[0]!
-    const attr1 = state.selectProductAttr[1]!
-    const attr2 = state.selectProductAttr[2]!
-    for (let i = 0; i < attr0.values!.length; i++) {
-      if (attr1.values!.length === 0) {
-        skuList.push({
-          spData: JSON.stringify([{ key: attr0.name, value: attr0.values![i] }])
-        })
-        continue
-      }
-      for (let j = 0; j < attr1.values!.length; j++) {
-        if (attr2.values!.length === 0) {
-          const spData = []
-          spData.push({ key: attr0.name, value: attr0.values![i] })
-          spData.push({ key: attr1.name, value: attr1.values![j] })
-          skuList.push({
-            spData: JSON.stringify(spData)
-          })
-          continue
-        }
-        for (let k = 0; k < attr2.values!.length; k++) {
-          const spData = []
-          spData.push({ key: attr0.name, value: attr0.values![i] })
-          spData.push({ key: attr1.name, value: attr1.values![j] })
-          spData.push({ key: attr2.name, value: attr2.values![k] })
-          skuList.push({
-            spData: JSON.stringify(spData)
-          })
-        }
-      }
-    }
+    fillSkuListForThreeAttrs(skuList, attrs[0]!, attrs[1]!, attrs[2]!)
   }
 }
 

@@ -28,34 +28,45 @@ interface SummarySectionProps {
   onSubmit: () => void
 }
 
+function OrderTotal({ orderInfo, selectedCoupon, colors }: {
+  orderInfo: OrderInfo; selectedCoupon: AvailableCoupon | null; colors: typeof Colors.light
+}) {
+  return (
+    <View style={styles.footerTotal}>
+      {selectedCoupon && (
+        <Text style={[styles.footerDiscount, { color: colors.fontColorDisabled }]}>¥{orderInfo.amount.toFixed(2)} - ¥{selectedCoupon.amount.toFixed(2)}</Text>
+      )}
+      <Text style={[styles.footerLabel, { color: colors.fontColorDark }]}>
+        实付:
+      </Text>
+      <Text style={[styles.footerAmount, { color: colors.primary }]}>
+        ¥{(orderInfo.amount - (selectedCoupon?.amount ?? 0)).toFixed(2)}
+      </Text>
+    </View>
+  )
+}
+
+function PayButton({ paying, colors, onSubmit }: {
+  paying: boolean; colors: typeof Colors.light; onSubmit: () => void
+}) {
+  return (
+    <TouchableOpacity
+      style={[styles.payButton, { backgroundColor: paying ? colors.fontColorDisabled : colors.primary }]}
+      onPress={onSubmit}
+      disabled={paying}
+    >
+      <Text style={styles.payButtonText}>
+        {paying ? '支付中...' : `立即支付`}
+      </Text>
+    </TouchableOpacity>
+  )
+}
+
 export default function SummarySection({ orderInfo, selectedCoupon, paying, colors, onSubmit }: SummarySectionProps) {
   return (
     <View style={[styles.footer, { backgroundColor: colors.background }]}>
-      <View style={styles.footerTotal}>
-        {selectedCoupon && (
-          <Text style={[styles.footerDiscount, { color: colors.fontColorDisabled }]}>
-            ¥{orderInfo.amount.toFixed(2)} - ¥{selectedCoupon.amount.toFixed(2)}
-          </Text>
-        )}
-        <Text style={[styles.footerLabel, { color: colors.fontColorDark }]}>
-          实付:
-        </Text>
-        <Text style={[styles.footerAmount, { color: colors.primary }]}>
-          ¥{(orderInfo.amount - (selectedCoupon?.amount ?? 0)).toFixed(2)}
-        </Text>
-      </View>
-      <TouchableOpacity
-        style={[
-          styles.payButton,
-          { backgroundColor: paying ? colors.fontColorDisabled : colors.primary },
-        ]}
-        onPress={onSubmit}
-        disabled={paying}
-      >
-        <Text style={styles.payButtonText}>
-          {paying ? '支付中...' : `立即支付`}
-        </Text>
-      </TouchableOpacity>
+      <OrderTotal orderInfo={orderInfo} selectedCoupon={selectedCoupon} colors={colors} />
+      <PayButton paying={paying} colors={colors} onSubmit={onSubmit} />
     </View>
   )
 }

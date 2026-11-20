@@ -20,180 +20,199 @@ import type { ProductDTO } from '@/src/generated/api/models';
 
 const PAGE_SIZE = 10;
 
-export default function BrowseHistoryScreen() {
-  const { t } = useTranslation();
-  const router = useRouter();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+type AppColors = typeof Colors.light;
+type AppRouter = ReturnType<typeof useRouter>;
+type Translate = ReturnType<typeof useTranslation>['t'];
+type SetProducts = React.Dispatch<React.SetStateAction<ProductDTO[]>>;
+type SetBoolean = React.Dispatch<React.SetStateAction<boolean>>;
+type PageRef = React.MutableRefObject<number>;
 
+async function fetchHistoryData(): Promise<ProductDTO[] | null> {
+  try {
+    const response = await readHistoryApi.listHistory1({ xUserId: DEFAULT_USER_ID });
+    return response.data ? response.data as ProductDTO[] : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function updateHistoryState(newItems: ProductDTO[], isRefresh: boolean, state: BrowseHistoryState) {
+  if (isRefresh) state.setProducts(newItems);
+  else state.setProducts(prev => [...prev, ...newItems]);
+  state.setHasMore(newItems.length >= PAGE_SIZE);
+  state.pageNumRef.current += 1;
+}
+
+async function loadHistoryData(isRefresh: boolean, state: BrowseHistoryState) {
+  if (state.loading || state.loadingMore) return;
+  if (!isRefresh && !state.hasMore) return;
+  if (isRefresh) {
+    state.setLoading(true);
+    state.pageNumRef.current = 1;
+  } else {
+    state.setLoadingMore(true);
+  }
+  try {
+    const newItems = await fetchHistoryData();
+    if (newItems) updateHistoryState(newItems, isRefresh, state);
+  } catch (error) {
+    console.error('Load history failed:', error);
+    Alert.alert('Error', 'Failed to load the history.');
+  } finally {
+    state.setLoading(false);
+    state.setLoadingMore(false);
+  }
+}
+
+async function deleteHistoryItem(productId: number, setProducts: SetProducts) {
+  try {
+    await readHistoryApi.deleteCollection2({ xUserId: DEFAULT_USER_ID, productId });
+    setProducts(prev => prev.filter(item => item.id !== productId));
+  } catch (error) {
+    console.error('Delete history failed:', error);
+    Alert.alert('Error', 'Failed to delete the history item.');
+  }
+}
+
+function handleClearHistory() {
+  // TODO: 需要后端 API 支持清除浏览历史
+  console.log('Clear history not implemented');
+  /* try {
+    await readHistoryApi.clearHistory({ xUserId: DEFAULT_USER_ID });
+    setProducts([]);
+  } catch (error) {
+    console.error('Clear history failed:', error);
+    Alert.alert('Error', 'Failed to clear the history.');
+  } */
+}
+
+function useBrowseHistoryState() {
   const [products, setProducts] = useState<ProductDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const pageNumRef = useRef(1);
+  return { products, setProducts, loading, setLoading, loadingMore, setLoadingMore, hasMore, setHasMore, pageNumRef };
+}
 
-  const fetchHistory = async (): Promise<ProductDTO[] | null> => {
-    try {
-      const response = await readHistoryApi.listHistory1({
-        xUserId: DEFAULT_USER_ID,
-      });
-      return response.data ? response.data as ProductDTO[] : null;
-    } catch (error) {
-      return null;
-    }
+type BrowseHistoryState = ReturnType<typeof useBrowseHistoryState>;
+
+function createHistoryActions(state: BrowseHistoryState, router: AppRouter) {
+  return {
+    handleDelete: (productId: number) => deleteHistoryItem(productId, state.setProducts),
+    handleClear: handleClearHistory,
+    handleProductPress: (productId: number) => router.push({ pathname: '/product/[id]', params: { id: productId } }),
+    handleBack: () => router.back(),
   };
+}
 
-  const updateHistoryState = (newItems: ProductDTO[], isRefresh: boolean) => {
-    if (isRefresh) {
-      setProducts(newItems);
-    } else {
-      setProducts(prev => [...prev, ...newItems]);
-    }
-    setHasMore(newItems.length >= PAGE_SIZE);
-    pageNumRef.current += 1;
-  };
+type HistoryActions = ReturnType<typeof createHistoryActions>;
 
+function useBrowseHistoryController() {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const colorScheme = useColorScheme() ?? 'light';
+  const colors = Colors[colorScheme];
+  const state = useBrowseHistoryState();
   const loadHistory = useCallback(async (isRefresh = false) => {
-    if (loading || loadingMore) return;
-    if (!isRefresh && !hasMore) return;
-    
-    if (isRefresh) {
-      setLoading(true);
-      pageNumRef.current = 1;
-    } else {
-      setLoadingMore(true);
-    }
-    
-    try {
-      const newItems = await fetchHistory();
-      if (newItems) updateHistoryState(newItems, isRefresh);
-    } catch (error) {
-      console.error('Load history failed:', error);
-      Alert.alert('Error', 'Failed to load the history.');
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [loading, loadingMore, hasMore]);
-
+    await loadHistoryData(isRefresh, state);
+  }, [state.loading, state.loadingMore, state.hasMore]);
   useFocusEffect(
     useCallback(() => {
       loadHistory(true);
     }, [loadHistory])
   );
+  return { t, router, colors, ...state, loadHistory, ...createHistoryActions(state, router) };
+}
 
-  const handleDelete = async (productId: number) => {
-    try {
-      await readHistoryApi.deleteCollection2({
-        xUserId: DEFAULT_USER_ID,
-        productId,
-      });
-      setProducts(prev => prev.filter(item => item.id !== productId));
-    } catch (error) {
-      console.error('Delete history failed:', error);
-      Alert.alert('Error', 'Failed to delete the history item.');
-    }
-  };
+interface HistoryViewProps extends BrowseHistoryState, HistoryActions {
+  t: Translate;
+  router: AppRouter;
+  colors: AppColors;
+  loadHistory: (isRefresh?: boolean) => Promise<void>;
+}
 
-  const handleClear = async () => {
-    // TODO: 需要后端 API 支持清除浏览历史
-    console.log('Clear history not implemented');
-    /* try {
-      await readHistoryApi.clearHistory({ xUserId: DEFAULT_USER_ID });
-      setProducts([]);
-    } catch (error) {
-      console.error('Clear history failed:', error);
-      Alert.alert('Error', 'Failed to clear the history.');
-    } */
-  };
+function HistoryHeader({ colors, handleBack, handleClear, showClear }: Pick<HistoryViewProps, 'colors' | 'handleBack' | 'handleClear'> & { showClear: boolean }) {
+  return (
+    <View style={[styles.header, { borderBottomColor: colors.border }]}>
+      <TouchableOpacity style={styles.backBtn} onPress={handleBack}>
+        <IconSymbol name="chevron.left" size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>浏览历史</Text>
+      {showClear ? (
+        <TouchableOpacity style={styles.clearBtn} onPress={handleClear}>
+          <Text style={{ color: colors.tint }}>清空</Text>
+        </TouchableOpacity>
+      ) : (
+        <View style={styles.headerRight} />
+      )}
+    </View>
+  );
+}
 
-  const handleProductPress = (productId: number) => {
-    router.push({ pathname: '/product/[id]', params: { id: productId } });
-  };
-
-  const renderProductItem = ({ item }: { item: ProductDTO }) => (
-    <TouchableOpacity
-      style={[styles.productItem, { backgroundColor: colors.card }]}
-      onPress={() => handleProductPress(item.id!)}
-    >
-      <Image
-        source={{ uri: item.imageUrl || 'https://via.placeholder.com/90' }}
-        style={styles.productImage}
-      />
-      <View style={styles.productInfo}>
-        <Text numberOfLines={2} style={[styles.productName, { color: colors.text }]}>
-          {item.name}
-        </Text>
-        <View style={styles.priceRow}>
-          <Text style={[styles.price, { color: colors.tint }]}>¥{item.price}</Text>
-        </View>
+function LoadingView(props: HistoryViewProps) {
+  const { colors } = props;
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <HistoryHeader {...props} showClear={false} />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.tint} />
       </View>
-      <TouchableOpacity
-        style={styles.deleteBtn}
-        onPress={() => handleDelete(item.id!)}
-      >
+    </SafeAreaView>
+  );
+}
+
+function EmptyHistory({ colors }: Pick<HistoryViewProps, 'colors'>) {
+  return (
+    <View style={styles.emptyContainer}>
+      <IconSymbol name="clock" size={60} color={colors.textSecondary} />
+      <Text style={[styles.emptyText, { color: colors.textSecondary }]}>暂无浏览历史</Text>
+    </View>
+  );
+}
+
+function ProductItem({ item, colors, handleProductPress, handleDelete }: Pick<HistoryViewProps, 'colors' | 'handleProductPress' | 'handleDelete'> & { item: ProductDTO }) {
+  return (
+    <TouchableOpacity style={[styles.productItem, { backgroundColor: colors.card }]} onPress={() => handleProductPress(item.id!)}>
+      <Image source={{ uri: item.imageUrl || 'https://via.placeholder.com/90' }} style={styles.productImage} />
+      <View style={styles.productInfo}>
+        <Text numberOfLines={2} style={[styles.productName, { color: colors.text }]}>{item.name}</Text>
+        <View style={styles.priceRow}><Text style={[styles.price, { color: colors.tint }]}>¥{item.price}</Text></View>
+      </View>
+      <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item.id!)}>
         <IconSymbol name="xmark.circle.fill" size={20} color="#FF3B30" />
       </TouchableOpacity>
     </TouchableOpacity>
   );
+}
 
-  if (loading) {
-    return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={[styles.header, { borderBottomColor: colors.border }]}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <IconSymbol name="chevron.left" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>浏览历史</Text>
-          <View style={styles.headerRight} />
-        </View>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.tint} />
-        </View>
-      </SafeAreaView>
-    );
-  }
+function ListFooter({ loadingMore, hasMore, products, colors, t }: Pick<HistoryViewProps, 'loadingMore' | 'hasMore' | 'products' | 'colors' | 't'>) {
+  if (loadingMore) return <View style={styles.footer}><ActivityIndicator size="small" color={colors.tint} /></View>;
+  if (!hasMore && products.length > 0) return <View style={styles.footer}><Text style={{ color: colors.textSecondary }}>{t('common.no_more_data')}</Text></View>;
+  return null;
+}
 
+function HistoryView(props: HistoryViewProps) {
+  const { colors, products, loadHistory } = props;
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <IconSymbol name="chevron.left" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>浏览历史</Text>
-        <TouchableOpacity style={styles.clearBtn} onPress={handleClear}>
-          <Text style={{ color: colors.tint }}>清空</Text>
-        </TouchableOpacity>
-      </View>
-
-      {products.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <IconSymbol name="clock" size={60} color={colors.textSecondary} />
-          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>暂无浏览历史</Text>
-        </View>
-      ) : (
+      <HistoryHeader {...props} showClear />
+      {products.length === 0 ? <EmptyHistory colors={colors} /> : (
         <FlatList
-          data={products}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={renderProductItem}
+          data={products} keyExtractor={(item) => String(item.id)}
+          renderItem={({ item }) => <ProductItem item={item} colors={colors} handleProductPress={props.handleProductPress} handleDelete={props.handleDelete} />}
           contentContainerStyle={styles.listContent}
-          onEndReached={() => loadHistory(false)}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={
-            loadingMore ? (
-              <View style={styles.footer}>
-                <ActivityIndicator size="small" color={colors.tint} />
-              </View>
-            ) : !hasMore && products.length > 0 ? (
-              <View style={styles.footer}>
-                <Text style={{ color: colors.textSecondary }}>{t('common.no_more_data')}</Text>
-              </View>
-            ) : null
-          }
+          onEndReached={() => loadHistory(false)} onEndReachedThreshold={0.5}
+          ListFooterComponent={<ListFooter {...props} />}
         />
       )}
     </SafeAreaView>
   );
+}
+
+export default function BrowseHistoryScreen() {
+  const controller = useBrowseHistoryController();
+  return controller.loading ? <LoadingView {...controller} /> : <HistoryView {...controller} />;
 }
 
 const styles = StyleSheet.create({

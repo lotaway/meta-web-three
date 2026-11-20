@@ -131,13 +131,13 @@ const handleSearchEditSku = async () => {
   editSkuInfo.stockList = response.data
 }
 
+const showOperationMessage = (message: string, type: 'warning' | 'success') => {
+  ElMessage({ message, type, duration: MESSAGE_DURATION_SHORT })
+}
+
 const handleEditSkuConfirm = async () => {
   if (!editSkuInfo.stockList || editSkuInfo.stockList.length <= 0) {
-    ElMessage({
-      message: t('message.noSkuInfo'),
-      type: 'warning',
-      duration: MESSAGE_DURATION_SHORT
-    })
+    showOperationMessage(t('message.noSkuInfo'), 'warning')
     return
   }
   await ElMessageBox.confirm(t('message.confirmModify'), t('common.warning'), {
@@ -146,11 +146,7 @@ const handleEditSkuConfirm = async () => {
     type: 'warning'
   })
   await skuUpdateByPidAPI(editSkuInfo.productId, editSkuInfo.stockList)
-  ElMessage({
-    message: t('message.modifySuccess'),
-    type: 'success',
-    duration: MESSAGE_DURATION_SHORT
-  })
+  showOperationMessage(t('message.modifySuccess'), 'success')
   editSkuInfo.dialogVisible = false
 }
 
@@ -163,21 +159,23 @@ const handleAddProduct = () => {
   router.push({ path: '/pms/addProduct' })
 }
 
+const batchOperationHandlers: Record<string, (ids: number[]) => void> = {
+  [operates.value[0]!.value]: ids => updatePublishStatus(1, ids),
+  [operates.value[1]!.value]: ids => updatePublishStatus(0, ids),
+  [operates.value[2]!.value]: ids => updateRecommendStatus(1, ids),
+  [operates.value[3]!.value]: ids => updateRecommendStatus(0, ids),
+  [operates.value[4]!.value]: ids => updateNewStatus(1, ids),
+  [operates.value[5]!.value]: ids => updateNewStatus(0, ids),
+  [operates.value[6]!.value]: ids => updateDeleteStatus(1, ids)
+}
+
 const handleBatchOperate = async () => {
   if (!operateType.value) {
-    ElMessage({
-      message: t('message.selectOperationType'),
-      type: 'warning',
-      duration: MESSAGE_DURATION_SHORT
-    })
+    showOperationMessage(t('message.selectOperationType'), 'warning')
     return
   }
   if (!multipleSelection.value || multipleSelection.value.length < 1) {
-    ElMessage({
-      message: t('message.selectOperateProduct'),
-      type: 'warning',
-      duration: MESSAGE_DURATION_SHORT
-    })
+    showOperationMessage(t('message.selectOperateProduct'), 'warning')
     return
   }
   await ElMessageBox.confirm(t('message.confirmBatchOperation'), t('common.warning'), {
@@ -186,33 +184,7 @@ const handleBatchOperate = async () => {
     type: 'warning'
   })
   const ids = multipleSelection.value.map(item => item.id!)
-  switch (operateType.value) {
-    case operates.value[0]!.value:
-      updatePublishStatus(1, ids)
-      break
-    case operates.value[1]!.value:
-      updatePublishStatus(0, ids)
-      break
-    case operates.value[2]!.value:
-      updateRecommendStatus(1, ids)
-      break
-    case operates.value[3]!.value:
-      updateRecommendStatus(0, ids)
-      break
-    case operates.value[4]!.value:
-      updateNewStatus(1, ids)
-      break
-    case operates.value[5]!.value:
-      updateNewStatus(0, ids)
-      break
-    case operates.value[6]!.value:
-      updateDeleteStatus(1, ids)
-      break
-    case operates.value[7]!.value:
-      break
-    default:
-      break
-  }
+  batchOperationHandlers[operateType.value]?.(ids)
   getList()
 }
 

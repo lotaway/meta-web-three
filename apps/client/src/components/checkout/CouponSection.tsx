@@ -12,9 +12,11 @@ interface AvailableCoupon {
   useType: number
 }
 
+type CouponColors = typeof Colors.light
+
 interface CouponSectionProps {
   selectedCoupon: AvailableCoupon | null
-  colors: typeof Colors.light
+  colors: CouponColors
   couponModalVisible: boolean
   availableCoupons: AvailableCoupon[]
   loadingCoupons: boolean
@@ -24,109 +26,244 @@ interface CouponSectionProps {
   onCloseModal: () => void
 }
 
-export default function CouponSection({
-  selectedCoupon,
+interface CouponAmountProps {
+  coupon: AvailableCoupon
+  colors: CouponColors
+}
+
+interface CouponDetailsProps {
+  coupon: AvailableCoupon
+  colors: CouponColors
+}
+
+interface CouponBadgeProps {
+  coupon: AvailableCoupon
+  colors: CouponColors
+  onClearCoupon: () => void
+}
+
+interface CouponItemProps extends CouponAmountProps {
+  onSelectCoupon: (coupon: AvailableCoupon) => void
+}
+
+interface CouponModalBodyProps {
+  colors: CouponColors
+  loadingCoupons: boolean
+  availableCoupons: AvailableCoupon[]
+  onSelectCoupon: (coupon: AvailableCoupon) => void
+}
+
+interface CouponSelectorModalProps extends CouponModalBodyProps {
+  couponModalVisible: boolean
+  onCloseModal: () => void
+}
+
+function SelectedCouponBadge({
+  coupon,
+  colors,
+  onClearCoupon,
+}: CouponBadgeProps) {
+  return (
+    <View style={styles.couponSelected}>
+      <Text style={[styles.couponSelectedText, { color: colors.primary }]}>
+        -¥{coupon.amount}
+      </Text>
+      <TouchableOpacity onPress={onClearCoupon} style={styles.clearCouponBtn}>
+        <IconSymbol name="xmark.circle.fill" size={18} color={colors.fontColorDisabled} />
+      </TouchableOpacity>
+    </View>
+  )
+}
+
+function CouponPlaceholder({ colors }: { colors: CouponColors }) {
+  return (
+    <View style={styles.couponPlaceholder}>
+      <Text style={[styles.couponPlaceholderText, { color: colors.fontColorDisabled }]}>
+        选择优惠券
+      </Text>
+      <IconSymbol name="chevron.right" size={16} color={colors.fontColorDisabled} />
+    </View>
+  )
+}
+
+type CouponRowProps = Pick<CouponSectionProps, 'selectedCoupon' | 'colors' | 'onClearCoupon'>
+
+function CouponRowContent({ selectedCoupon, colors, onClearCoupon }: CouponRowProps) {
+  return (
+    <View style={styles.couponRow}>
+      <IconSymbol name="ticket" size={20} color={colors.primary} />
+      <Text style={[styles.sectionTitle, { color: colors.fontColorDark, flex: 1 }]}>
+        优惠券
+      </Text>
+      {selectedCoupon ? (
+        <SelectedCouponBadge
+          coupon={selectedCoupon}
+          colors={colors}
+          onClearCoupon={onClearCoupon}
+        />
+      ) : (
+        <CouponPlaceholder colors={colors} />
+      )}
+    </View>
+  )
+}
+
+function CouponSummaryRow({
+  colors,
+  onOpenCouponSelector,
+  ...rowProps
+}: Pick<CouponSectionProps, 'selectedCoupon' | 'colors' | 'onOpenCouponSelector' | 'onClearCoupon'>) {
+  return (
+    <TouchableOpacity
+      style={[styles.section, { backgroundColor: colors.background }]}
+      onPress={onOpenCouponSelector}
+    >
+      <CouponRowContent {...rowProps} colors={colors} />
+    </TouchableOpacity>
+  )
+}
+
+function CouponAmount({ coupon, colors }: CouponAmountProps) {
+  return (
+    <View style={styles.couponItemLeft}>
+      <Text style={[styles.couponItemAmount, { color: colors.primary }]}>
+        ¥{coupon.amount}
+      </Text>
+      <Text style={[styles.couponItemCondition, { color: colors.fontColorDisabled }]}>
+        满¥{coupon.minPoint}可用
+      </Text>
+    </View>
+  )
+}
+
+function CouponDetails({ coupon, colors }: CouponDetailsProps) {
+  return (
+    <View style={styles.couponItemRight}>
+      <Text style={[styles.couponItemName, { color: colors.fontColorDark }]} numberOfLines={1}>
+        {coupon.name}
+      </Text>
+      <Text style={[styles.couponItemTime, { color: colors.fontColorLight }]}>
+        有效期至 {coupon.endTime}
+      </Text>
+      <Text style={[styles.couponItemUseType, { color: colors.fontColorLight }]}>
+        {coupon.useType === 0 ? '全场通用' : coupon.useType === 1 ? '指定分类可用' : '指定商品可用'}
+      </Text>
+    </View>
+  )
+}
+
+function CouponItem({ coupon, colors, onSelectCoupon }: CouponItemProps) {
+  return (
+    <TouchableOpacity
+      style={[styles.couponItem, { borderColor: colors.border }]}
+      onPress={() => onSelectCoupon(coupon)}
+    >
+      <CouponAmount coupon={coupon} colors={colors} />
+      <View style={[styles.couponItemDivider, { backgroundColor: colors.border }]} />
+      <CouponDetails coupon={coupon} colors={colors} />
+    </TouchableOpacity>
+  )
+}
+
+function CouponLoadingMessage({ colors }: { colors: CouponColors }) {
+  return (
+    <View style={styles.modalLoading}>
+      <Text style={{ color: colors.fontColorBase }}>加载中...</Text>
+    </View>
+  )
+}
+
+function CouponEmptyMessage({ colors }: { colors: CouponColors }) {
+  return (
+    <View style={styles.modalLoading}>
+      <Text style={{ color: colors.fontColorDisabled }}>暂无可用优惠券</Text>
+    </View>
+  )
+}
+
+function CouponModalBody({ colors, loadingCoupons, availableCoupons, onSelectCoupon }: CouponModalBodyProps) {
+  if (loadingCoupons) {
+    return <CouponLoadingMessage colors={colors} />
+  }
+  if (availableCoupons.length === 0) {
+    return <CouponEmptyMessage colors={colors} />
+  }
+  return (
+    <FlatList
+      data={availableCoupons}
+      keyExtractor={(item) => String(item.id)}
+      renderItem={({ item }) => (
+        <CouponItem coupon={item} colors={colors} onSelectCoupon={onSelectCoupon} />
+      )}
+      contentContainerStyle={styles.couponListContent}
+    />
+  )
+}
+
+function CouponModalHeader({
+  colors,
+  onCloseModal,
+}: {
+  colors: CouponColors
+  onCloseModal: () => void
+}) {
+  return (
+    <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+      <Text style={[styles.modalTitle, { color: colors.fontColorDark }]}>
+        选择优惠券
+      </Text>
+      <TouchableOpacity onPress={onCloseModal}>
+        <IconSymbol name="xmark" size={24} color={colors.fontColorBase} />
+      </TouchableOpacity>
+    </View>
+  )
+}
+
+function CouponModalContent({
+  colors,
+  loadingCoupons,
+  availableCoupons,
+  onSelectCoupon,
+  onCloseModal,
+}: Omit<CouponSelectorModalProps, 'couponModalVisible'>) {
+  return (
+    <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
+      <CouponModalHeader colors={colors} onCloseModal={onCloseModal} />
+      <CouponModalBody
+        colors={colors}
+        loadingCoupons={loadingCoupons}
+        availableCoupons={availableCoupons}
+        onSelectCoupon={onSelectCoupon}
+      />
+    </View>
+  )
+}
+
+function CouponSelectorModal({
   colors,
   couponModalVisible,
-  availableCoupons,
-  loadingCoupons,
-  onOpenCouponSelector,
-  onSelectCoupon,
-  onClearCoupon,
   onCloseModal,
-}: CouponSectionProps) {
+  ...contentProps
+}: CouponSelectorModalProps) {
+  return (
+    <Modal
+      visible={couponModalVisible}
+      transparent
+      animationType="slide"
+      onRequestClose={onCloseModal}
+    >
+      <View style={styles.modalOverlay}>
+        <CouponModalContent {...contentProps} colors={colors} onCloseModal={onCloseModal} />
+      </View>
+    </Modal>
+  )
+}
+
+export default function CouponSection(props: CouponSectionProps) {
   return (
     <>
-      <TouchableOpacity
-        style={[styles.section, { backgroundColor: colors.background }]}
-        onPress={onOpenCouponSelector}
-      >
-        <View style={styles.couponRow}>
-          <IconSymbol name="ticket" size={20} color={colors.primary} />
-          <Text style={[styles.sectionTitle, { color: colors.fontColorDark, flex: 1 }]}>
-            优惠券
-          </Text>
-          {selectedCoupon ? (
-            <View style={styles.couponSelected}>
-              <Text style={[styles.couponSelectedText, { color: colors.primary }]}>
-                -¥{selectedCoupon.amount}
-              </Text>
-              <TouchableOpacity onPress={onClearCoupon} style={styles.clearCouponBtn}>
-                <IconSymbol name="xmark.circle.fill" size={18} color={colors.fontColorDisabled} />
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View style={styles.couponPlaceholder}>
-              <Text style={[styles.couponPlaceholderText, { color: colors.fontColorDisabled }]}>
-                选择优惠券
-              </Text>
-              <IconSymbol name="chevron.right" size={16} color={colors.fontColorDisabled} />
-            </View>
-          )}
-        </View>
-      </TouchableOpacity>
-
-      <Modal
-        visible={couponModalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={onCloseModal}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
-            <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-              <Text style={[styles.modalTitle, { color: colors.fontColorDark }]}>
-                选择优惠券
-              </Text>
-              <TouchableOpacity onPress={onCloseModal}>
-                <IconSymbol name="xmark" size={24} color={colors.fontColorBase} />
-              </TouchableOpacity>
-            </View>
-            {loadingCoupons ? (
-              <View style={styles.modalLoading}>
-                <Text style={{ color: colors.fontColorBase }}>加载中...</Text>
-              </View>
-            ) : availableCoupons.length === 0 ? (
-              <View style={styles.modalLoading}>
-                <Text style={{ color: colors.fontColorDisabled }}>暂无可用优惠券</Text>
-              </View>
-            ) : (
-              <FlatList
-                data={availableCoupons}
-                keyExtractor={(item) => String(item.id)}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={[styles.couponItem, { borderColor: colors.border }]}
-                    onPress={() => onSelectCoupon(item)}
-                  >
-                    <View style={styles.couponItemLeft}>
-                      <Text style={[styles.couponItemAmount, { color: colors.primary }]}>
-                        ¥{item.amount}
-                      </Text>
-                      <Text style={[styles.couponItemCondition, { color: colors.fontColorDisabled }]}>
-                        满¥{item.minPoint}可用
-                      </Text>
-                    </View>
-                    <View style={[styles.couponItemDivider, { backgroundColor: colors.border }]} />
-                    <View style={styles.couponItemRight}>
-                      <Text style={[styles.couponItemName, { color: colors.fontColorDark }]} numberOfLines={1}>
-                        {item.name}
-                      </Text>
-                      <Text style={[styles.couponItemTime, { color: colors.fontColorLight }]}>
-                        有效期至 {item.endTime}
-                      </Text>
-                      <Text style={[styles.couponItemUseType, { color: colors.fontColorLight }]}>
-                        {item.useType === 0 ? '全场通用' : item.useType === 1 ? '指定分类可用' : '指定商品可用'}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-                contentContainerStyle={styles.couponListContent}
-              />
-            )}
-          </View>
-        </View>
-      </Modal>
+      <CouponSummaryRow {...props} />
+      <CouponSelectorModal {...props} />
     </>
   )
 }

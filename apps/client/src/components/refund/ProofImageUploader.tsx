@@ -5,10 +5,33 @@ import { Colors } from '@/constants/Colors'
 import { useColorScheme } from '@/hooks/useColorScheme'
 import { IconSymbol } from '@/components/ui/IconSymbol'
 
+type Translate = ReturnType<typeof useTranslation>['t']
+type AppColors = typeof Colors.light
+
 interface ProofImageUploaderProps {
   proofImages: string[]
   onRemoveImage: (index: number) => void
   onPickImage: () => void
+}
+
+function ProofImage({ uri, colors, onRemove }: { uri: string; colors: AppColors; onRemove: () => void }) {
+  return (
+    <View style={styles.proofImageContainer}>
+      <Image source={{ uri }} style={styles.proofImage} />
+      <TouchableOpacity style={styles.removeImageBtn} onPress={onRemove}>
+        <IconSymbol name="xmark.circle.fill" size={24} color="#FF3B30" />
+      </TouchableOpacity>
+    </View>
+  )
+}
+
+function AddProofImageButton({ colors, t, onPress }: { colors: AppColors; t: Translate; onPress: () => void }) {
+  return (
+    <TouchableOpacity style={[styles.addImageBtn, { borderColor: colors.border }]} onPress={onPress}>
+      <IconSymbol name="plus" size={32} color={colors.textSecondary} />
+      <Text style={[styles.addImageText, { color: colors.textSecondary }]}>{t('refund.add_image')}</Text>
+    </TouchableOpacity>
+  )
 }
 
 export function ProofImageUploader({ proofImages, onRemoveImage, onPickImage }: ProofImageUploaderProps) {
@@ -21,22 +44,9 @@ export function ProofImageUploader({ proofImages, onRemoveImage, onPickImage }: 
       <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('refund.proof_title')}</Text>
       <View style={styles.proofGrid}>
         {proofImages.map((uri, index) => (
-          <View key={index} style={styles.proofImageContainer}>
-            <Image source={{ uri }} style={styles.proofImage} />
-            <TouchableOpacity
-              style={styles.removeImageBtn}
-              onPress={() => onRemoveImage(index)}
-            >
-              <IconSymbol name="xmark.circle.fill" size={24} color="#FF3B30" />
-            </TouchableOpacity>
-          </View>
+          <ProofImage key={index} uri={uri} colors={colors} onRemove={() => onRemoveImage(index)} />
         ))}
-        {proofImages.length < 5 && (
-          <TouchableOpacity style={[styles.addImageBtn, { borderColor: colors.border }]} onPress={onPickImage}>
-            <IconSymbol name="plus" size={32} color={colors.textSecondary} />
-            <Text style={[styles.addImageText, { color: colors.textSecondary }]}>{t('refund.add_image')}</Text>
-          </TouchableOpacity>
-        )}
+        {proofImages.length < 5 && <AddProofImageButton colors={colors} t={t} onPress={onPickImage} />}
       </View>
       <Text style={[styles.proofHint, { color: colors.textSecondary }]}>
         {t('refund.proof_hint')}

@@ -22,14 +22,173 @@ import { ProofImageUploader } from '@/components/refund/ProofImageUploader'
 import { RefundHistoryList } from '@/components/refund/RefundHistoryList'
 import { orderApi, API_BASE_URL, DEFAULT_USER_ID } from '@/api/generated'
 
-export default function RefundScreen() {
-  const { t } = useTranslation()
-  const router = useRouter()
-  const colorScheme = useColorScheme() ?? 'light'
-  const colors = Colors[colorScheme]
-  const params = useLocalSearchParams()
-  const orderId = params.id
+type Translate = ReturnType<typeof useTranslation>['t']
+type AppColors = typeof Colors.light
+type AppRouter = ReturnType<typeof useRouter>
+type OrderId = ReturnType<typeof useLocalSearchParams>['id']
+type SetBoolean = React.Dispatch<React.SetStateAction<boolean>>
+type SetProofImages = React.Dispatch<React.SetStateAction<string[]>>
+type SetOrder = React.Dispatch<React.SetStateAction<any>>
+type SetAmount = React.Dispatch<React.SetStateAction<string>>
+type SetHistory = React.Dispatch<React.SetStateAction<any[]>>
 
+function fetchRefundOrder(orderId: OrderId) {
+  return orderApi.detail1({
+    xUserId: DEFAULT_USER_ID,
+    id: Number(orderId),
+  })
+}
+
+async function loadOrderData(orderId: OrderId, setOrder: SetOrder, setRefundAmount: SetAmount, setLoading: SetBoolean, t: Translate): Promise<void> {
+  if (!orderId) return
+  setLoading(true)
+  try {
+    const response = await fetchRefundOrder(orderId)
+    if (response.data) {
+      setOrder(response.data)
+      setRefundAmount(String(response.data.order?.orderAmount || response.data.totalPrice || 0))
+    }
+  } catch (error) {
+    console.error('Failed to load order:', error)
+    Alert.alert('Error', 'Failed to load the order.')
+  } finally {
+    setLoading(false)
+  }
+}
+
+async function loadHistoryData(orderId: OrderId, setRefundHistory: SetHistory): Promise<void> {
+  if (!orderId) return
+  try {
+    const response = await fetch(`${API_BASE_URL}/mall-trade-service/returnApply/order/${orderId}`)
+    const result = await response.json()
+    if (result.data) {
+      setRefundHistory(result.data)
+    }
+  } catch (error) {
+    console.error('Failed to load refund history:', error)
+    Alert.alert('Error', 'Failed to load the refund history.')
+  }
+}
+
+async function requestPhotoPermission(t: Translate): Promise<boolean> {
+  const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
+  if (!permissionResult.granted) {
+    Alert.alert(t('common.error'), '需要相册权限才能选择图片')
+    return false
+  }
+  return true
+}
+
+async function pickProofImage(
+  proofImages: string[],
+  setProofImages: SetProofImages,
+  t: Translate
+): Promise<void> {
+  if (proofImages.length >= 5) {
+    Alert.alert(t('common.error'), '最多只能上传5张图片')
+    return
+  }
+  if (!(await requestPhotoPermission(t))) return
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ['images'],
+    allowsEditing: false,
+    quality: 0.8,
+  })
+  if (!result.canceled && result.assets.length > 0) {
+    setProofImages(prev => [...prev, result.assets[0].uri])
+  }
+}
+
+function getReasonText(reasonId: number | null) {
+  const reasons = ['质量问题', '商品不符', '发货太慢', '七天无理由', '其他']
+  return reasonId != null ? reasons[reasonId] || '其他' : '其他'
+}
+
+function buildRefundPayload(
+  orderId: OrderId,
+  reason: string,
+  refundAmount: string,
+  description: string,
+  proofImages: string[],
+  refundType: number
+) {
+  return {
+    orderId: Number(orderId),
+    reason,
+    returnAmount: parseFloat(refundAmount),
+    description,
+    proofPics: proofImages.join(','),
+    refundType,
+  }
+}
+
+async function callRefundApi(orderId: OrderId, payload: ReturnType<typeof buildRefundPayload>): Promise<any> {
+  const response = await fetch(
+    `${API_BASE_URL}/mall-trade-service/order/${orderId}/refund`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': String(DEFAULT_USER_ID),
+      },
+      body: JSON.stringify(payload),
+    }
+  )
+  return await response.json()
+}
+
+function showSubmitSuccess(router: AppRouter, t: Translate) {
+  Alert.alert(t('common.success'), t('refund.submit_success'), [
+    { text: 'OK', onPress: () => router.back() },
+  ])
+}
+
+interface RefundSubmitContext {
+  t: Translate
+  router: AppRouter
+  orderId: OrderId
+  selectedReason: number | null
+  refundAmount: string
+  description: string
+  proofImages: string[]
+  refundType: number
+  setSubmitting: SetBoolean
+}
+
+function isRefundInputValid(ctx: RefundSubmitContext): boolean {
+  if (!ctx.selectedReason) {
+    Alert.alert(ctx.t('common.error'), ctx.t('refund.reason_required'))
+    return false
+  }
+  if (!ctx.refundAmount || parseFloat(ctx.refundAmount) <= 0) {
+    Alert.alert(ctx.t('common.error'), ctx.t('refund.amount_required'))
+    return false
+  }
+  return true
+}
+
+async function submitRefund(ctx: RefundSubmitContext): Promise<void> {
+  if (!isRefundInputValid(ctx)) return
+  ctx.setSubmitting(true)
+  try {
+    const payload = buildRefundPayload(
+      ctx.orderId,
+      getReasonText(ctx.selectedReason),
+      ctx.refundAmount,
+      ctx.description,
+      ctx.proofImages,
+      ctx.refundType
+    )
+    const result = await callRefundApi(ctx.orderId, payload)
+    if (result.code === 200) return showSubmitSuccess(ctx.router, ctx.t)
+  } catch (error) {
+    Alert.alert(ctx.t('common.error'), ctx.t('refund.submit_failed'))
+  } finally {
+    ctx.setSubmitting(false)
+  }
+}
+
+function useRefundState() {
   const [order, setOrder] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -40,204 +199,206 @@ export default function RefundScreen() {
   const [showHistory, setShowHistory] = useState(false)
   const [refundHistory, setRefundHistory] = useState<any[]>([])
   const [proofImages, setProofImages] = useState<string[]>([])
-
-  useEffect(() => {
-    loadOrder()
-    loadRefundHistory()
-  }, [orderId])
-
-  const loadOrder = async () => {
-    if (!orderId) return
-    setLoading(true)
-    try {
-      const response = await orderApi.detail1({
-        xUserId: DEFAULT_USER_ID,
-        id: Number(orderId),
-      })
-      if (response.data) {
-        setOrder(response.data)
-        setRefundAmount(String(response.data.order?.orderAmount || response.data.totalPrice || 0))
-      }
-    } catch (error) {
-      console.error('Failed to load order:', error)
-      Alert.alert('Error', 'Failed to load the order.')
-    } finally {
-      setLoading(false)
-    }
+  return {
+    order, setOrder, loading, setLoading, submitting, setSubmitting,
+    refundType, setRefundType, refundAmount, setRefundAmount,
+    selectedReason, setSelectedReason, description, setDescription,
+    showHistory, setShowHistory, refundHistory, setRefundHistory,
+    proofImages, setProofImages,
   }
+}
 
-  const loadRefundHistory = async () => {
-    if (!orderId) return
-    try {
-      const response = await fetch(`${API_BASE_URL}/mall-trade-service/returnApply/order/${orderId}`)
-      const result = await response.json()
-      if (result.data) {
-        setRefundHistory(result.data)
-      }
-    } catch (error) {
-      console.error('Failed to load refund history:', error)
-      Alert.alert('Error', 'Failed to load the refund history.')
-    }
+type RefundState = ReturnType<typeof useRefundState>
+
+function buildSubmitContext(t: Translate, router: AppRouter, orderId: OrderId, state: RefundState): RefundSubmitContext {
+  return {
+    t, router, orderId,
+    selectedReason: state.selectedReason, refundAmount: state.refundAmount,
+    description: state.description, proofImages: state.proofImages,
+    refundType: state.refundType, setSubmitting: state.setSubmitting,
   }
+}
 
-  const handlePickImage = async () => {
-    if (proofImages.length >= 5) {
-      Alert.alert(t('common.error'), '最多只能上传5张图片')
-      return
-    }
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
-    if (!permissionResult.granted) {
-      Alert.alert(t('common.error'), '需要相册权限才能选择图片')
-      return
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: false,
-      quality: 0.8,
-    })
-    if (!result.canceled && result.assets.length > 0) {
-      setProofImages(prev => [...prev, result.assets[0].uri])
-    }
+function createRefundActions(t: Translate, router: AppRouter, orderId: OrderId, state: RefundState) {
+  return {
+    onBack: () => router.back(),
+    onOpenHistory: () => state.setShowHistory(true),
+    onCloseHistory: () => state.setShowHistory(false),
+    onSetRefundType: state.setRefundType,
+    onSetReason: state.setSelectedReason,
+    onSetRefundAmount: state.setRefundAmount,
+    onSetDescription: state.setDescription,
+    onPickImage: () => pickProofImage(state.proofImages, state.setProofImages, t),
+    onRemoveImage: (index: number) => state.setProofImages(prev => prev.filter((_, i) => i !== index)),
+    onSubmit: () => submitRefund(buildSubmitContext(t, router, orderId, state)),
   }
+}
 
-  const handleRemoveImage = (index: number) => {
-    setProofImages(prev => prev.filter((_, i) => i !== index))
-  }
+type RefundActions = ReturnType<typeof createRefundActions>
 
-  const handleSubmit = async () => {
-    if (!selectedReason) return Alert.alert(t('common.error'), t('refund.reason_required'))
-    if (!refundAmount || parseFloat(refundAmount) <= 0) return Alert.alert(t('common.error'), t('refund.amount_required'))
-    setSubmitting(true)
-    try {
-      const result = await callRefundApi()
-      if (result.code === 200) return showSuccess()
-    } catch (error) {
-      Alert.alert(t('common.error'), t('refund.submit_failed'))
-    } finally {
-      setSubmitting(false)
-    }
-  }
+function useRefundController() {
+  const { t } = useTranslation()
+  const router = useRouter()
+  const colorScheme = useColorScheme() ?? 'light'
+  const colors = Colors[colorScheme]
+  const params = useLocalSearchParams()
+  const orderId = params.id
+  const state = useRefundState()
+  const loadOrder = () => loadOrderData(orderId, state.setOrder, state.setRefundAmount, state.setLoading, t)
+  const loadRefundHistory = () => loadHistoryData(orderId, state.setRefundHistory)
+  useEffect(() => { loadOrder(); loadRefundHistory() }, [orderId])
+  return { t, colors, ...state, ...createRefundActions(t, router, orderId, state) }
+}
 
-  const callRefundApi = async () => {
-    const response = await fetch(
-      `${API_BASE_URL}/mall-trade-service/order/${orderId}/refund`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-user-id': String(DEFAULT_USER_ID),
-        },
-        body: JSON.stringify({
-          orderId: Number(orderId),
-          reason: getReasonText(selectedReason),
-          returnAmount: parseFloat(refundAmount),
-          description,
-          proofPics: proofImages.join(','),
-          refundType,
-        }),
-      }
-    )
-    return await response.json()
-  }
+interface RefundViewProps {
+  colors: AppColors
+  t: Translate
+  order: any
+  loading: boolean
+  submitting: boolean
+  refundType: number
+  refundAmount: string
+  selectedReason: number | null
+  description: string
+  proofImages: string[]
+  showHistory: boolean
+  refundHistory: any[]
+  onBack: () => void
+  onOpenHistory: () => void
+  onCloseHistory: () => void
+  onSetRefundType: (type: number) => void
+  onSetReason: (reason: number) => void
+  onSetRefundAmount: (value: string) => void
+  onSetDescription: (value: string) => void
+  onPickImage: () => void
+  onRemoveImage: (index: number) => void
+  onSubmit: () => void
+}
 
-  const getReasonText = (reasonId: number | null) => {
-    const reasons = ['质量问题', '商品不符', '发货太慢', '七天无理由', '其他']
-    return reasonId != null ? reasons[reasonId] || '其他' : '其他'
-  }
-
-  const showSuccess = () => {
-    Alert.alert(t('common.success'), t('refund.submit_success'), [
-      { text: 'OK', onPress: () => router.back() },
-    ])
-  }
-
-  if (loading) {
-    return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      </SafeAreaView>
-    )
-  }
-
+function LoadingView({ colors }: { colors: AppColors }) {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <IconSymbol name="chevron.left" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>{t('refund.title')}</Text>
-        <TouchableOpacity style={styles.historyBtn} onPress={() => setShowHistory(true)}>
-          <IconSymbol name="clock.fill" size={20} color={colors.primary} />
-        </TouchableOpacity>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
+    </SafeAreaView>
+  )
+}
 
-      <ScrollView style={styles.content}>
-        <RefundTypeSelector refundType={refundType} setRefundType={setRefundType} />
+function RefundHeader({ colors, t, onBack, onOpenHistory }: Pick<RefundViewProps, 'colors' | 't' | 'onBack' | 'onOpenHistory'>) {
+  return (
+    <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+      <TouchableOpacity style={styles.backBtn} onPress={onBack}>
+        <IconSymbol name="chevron.left" size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>{t('refund.title')}</Text>
+      <TouchableOpacity style={styles.historyBtn} onPress={onOpenHistory}>
+        <IconSymbol name="clock.fill" size={20} color={colors.primary} />
+      </TouchableOpacity>
+    </View>
+  )
+}
 
-        <ReasonSelector selectedReason={selectedReason} setSelectedReason={setSelectedReason} />
+function AmountInputRow({ colors, refundAmount, onSetRefundAmount }: Pick<RefundViewProps, 'colors' | 'refundAmount' | 'onSetRefundAmount'>) {
+  return (
+    <View style={styles.amountRow}>
+      <Text style={[styles.amountSymbol, { color: colors.primary }]}>¥</Text>
+      <TextInput
+        style={[styles.amountInput, { color: colors.primary }]}
+        value={refundAmount}
+        onChangeText={onSetRefundAmount}
+        keyboardType="decimal-pad"
+        placeholder="0.00"
+        placeholderTextColor={colors.textSecondary}
+      />
+    </View>
+  )
+}
 
-        <View style={[styles.section, { backgroundColor: colors.card }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('refund.amount_title')}</Text>
-          <View style={styles.amountRow}>
-            <Text style={[styles.amountSymbol, { color: colors.primary }]}>¥</Text>
-            <TextInput
-              style={[styles.amountInput, { color: colors.primary }]}
-              value={refundAmount}
-              onChangeText={setRefundAmount}
-              keyboardType="decimal-pad"
-              placeholder="0.00"
-              placeholderTextColor={colors.textSecondary}
-            />
-          </View>
-          <Text style={[styles.amountHint, { color: colors.textSecondary }]}>
-            {t('refund.amount_hint')}: ¥{order?.payAmount}
-          </Text>
-        </View>
+function AmountSection({ colors, t, order, refundAmount, onSetRefundAmount }: Pick<RefundViewProps, 'colors' | 't' | 'order' | 'refundAmount' | 'onSetRefundAmount'>) {
+  return (
+    <View style={[styles.section, { backgroundColor: colors.card }]}>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('refund.amount_title')}</Text>
+      <AmountInputRow colors={colors} refundAmount={refundAmount} onSetRefundAmount={onSetRefundAmount} />
+      <Text style={[styles.amountHint, { color: colors.textSecondary }]}>
+        {t('refund.amount_hint')}: ¥{order?.payAmount}
+      </Text>
+    </View>
+  )
+}
 
-        <View style={[styles.section, { backgroundColor: colors.card }]}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('refund.description_title')}</Text>
-          <TextInput
-            style={[styles.textArea, { color: colors.text, borderColor: colors.border }]}
-            value={description}
-            onChangeText={setDescription}
-            placeholder={t('refund.description_placeholder')}
-            placeholderTextColor={colors.textSecondary}
-            multiline
-            numberOfLines={4}
-            textAlignVertical="top"
-          />
-        </View>
+function DescriptionSection({ colors, t, description, onSetDescription }: Pick<RefundViewProps, 'colors' | 't' | 'description' | 'onSetDescription'>) {
+  return (
+    <View style={[styles.section, { backgroundColor: colors.card }]}>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('refund.description_title')}</Text>
+      <TextInput
+        style={[styles.textArea, { color: colors.text, borderColor: colors.border }]}
+        value={description}
+        onChangeText={onSetDescription}
+        placeholder={t('refund.description_placeholder')}
+        placeholderTextColor={colors.textSecondary}
+        multiline
+        numberOfLines={4}
+        textAlignVertical="top"
+      />
+    </View>
+  )
+}
 
-        <ProofImageUploader
-          proofImages={proofImages}
-          onRemoveImage={handleRemoveImage}
-          onPickImage={handlePickImage}
-        />
+function SubmitButton({ colors, t, submitting, onSubmit }: Pick<RefundViewProps, 'colors' | 't' | 'submitting' | 'onSubmit'>) {
+  return (
+    <TouchableOpacity
+      style={[styles.submitBtn, { backgroundColor: colors.primary }]}
+      onPress={onSubmit}
+      disabled={submitting}
+    >
+      {submitting ? (
+        <ActivityIndicator color="#fff" />
+      ) : (
+        <Text style={styles.submitBtnText}>{t('refund.submit')}</Text>
+      )}
+    </TouchableOpacity>
+  )
+}
 
-        <TouchableOpacity
-          style={[styles.submitBtn, { backgroundColor: colors.primary }]}
-          onPress={handleSubmit}
-          disabled={submitting}
-        >
-          {submitting ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.submitBtnText}>{t('refund.submit')}</Text>
-          )}
-        </TouchableOpacity>
+function RefundForm(props: RefundViewProps) {
+  return (
+    <ScrollView style={styles.content}>
+      <RefundTypeSelector refundType={props.refundType} setRefundType={props.onSetRefundType} />
+      <ReasonSelector selectedReason={props.selectedReason} setSelectedReason={props.onSetReason} />
+      <AmountSection {...props} />
+      <DescriptionSection {...props} />
+      <ProofImageUploader
+        proofImages={props.proofImages}
+        onRemoveImage={props.onRemoveImage}
+        onPickImage={props.onPickImage}
+      />
+      <SubmitButton {...props} />
+      <View style={styles.bottomSpacer} />
+    </ScrollView>
+  )
+}
 
-        <View style={styles.bottomSpacer} />
-      </ScrollView>
-
+function RefundView(props: RefundViewProps) {
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: props.colors.background }]}>
+      <RefundHeader {...props} />
+      <RefundForm {...props} />
       <RefundHistoryList
-        visible={showHistory}
-        onClose={() => setShowHistory(false)}
-        refundHistory={refundHistory}
+        visible={props.showHistory}
+        onClose={props.onCloseHistory}
+        refundHistory={props.refundHistory}
       />
     </SafeAreaView>
   )
+}
+
+export default function RefundScreen() {
+  const controller = useRefundController()
+  if (controller.loading) {
+    return <LoadingView colors={controller.colors} />
+  }
+  return <RefundView {...controller} />
 }
 
 const styles = StyleSheet.create({

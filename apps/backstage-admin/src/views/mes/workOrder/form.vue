@@ -168,6 +168,39 @@ const rules = ref<FormRules>({
   ],
 })
 
+const buildUpdateWorkOrderPayload = (): UpdateWorkOrderRequest => ({
+  productCode: form.value.productCode,
+  productName: form.value.productName,
+  quantity: form.value.quantity,
+  workshopId: form.value.workshopId,
+  processRouteId: form.value.processRouteId,
+  priority: form.value.priority as WorkOrderPriority,
+  plannedStartTime: form.value.plannedStartTime,
+  plannedEndTime: form.value.plannedEndTime,
+})
+
+const buildCreateWorkOrderPayload = (): CreateWorkOrderRequest => ({
+  workOrderNo: form.value.workOrderNo,
+  productCode: form.value.productCode,
+  productName: form.value.productName,
+  quantity: form.value.quantity,
+  workshopId: form.value.workshopId,
+  processRouteId: form.value.processRouteId,
+  typeCode: form.value.typeCode as WorkOrderType,
+})
+
+const submitWorkOrder = async () => {
+  if (isEdit.value) {
+    const id = Number(route.query.id)
+    await updateWorkOrderAPI(id, buildUpdateWorkOrderPayload())
+    ElMessage.success(t('mes.workOrder.updateSuccess'))
+  } else {
+    await createWorkOrderAPI(buildCreateWorkOrderPayload())
+    ElMessage.success(t('mes.workOrder.createSuccess'))
+  }
+  router.push({ name: 'workOrder' })
+}
+
 const handleSubmit = async () => {
   if (!formRef.value) return
 
@@ -176,32 +209,7 @@ const handleSubmit = async () => {
 
     isLoading.value = true
     try {
-      if (isEdit.value) {
-        const id = Number(route.query.id)
-        await updateWorkOrderAPI(id, {
-          productCode: form.value.productCode,
-          productName: form.value.productName,
-          quantity: form.value.quantity,
-          workshopId: form.value.workshopId,
-          processRouteId: form.value.processRouteId,
-          priority: form.value.priority as WorkOrderPriority,
-          plannedStartTime: form.value.plannedStartTime,
-          plannedEndTime: form.value.plannedEndTime,
-        })
-        ElMessage.success(t('mes.workOrder.updateSuccess'))
-      } else {
-        await createWorkOrderAPI({
-          workOrderNo: form.value.workOrderNo,
-          productCode: form.value.productCode,
-          productName: form.value.productName,
-          quantity: form.value.quantity,
-          workshopId: form.value.workshopId,
-          processRouteId: form.value.processRouteId,
-          typeCode: form.value.typeCode as WorkOrderType,
-        })
-        ElMessage.success(t('mes.workOrder.createSuccess'))
-      }
-      router.push({ name: 'workOrder' })
+      await submitWorkOrder()
     } catch (error) {
       ElMessage.error(t('mes.workOrder.submitFailed'))
     } finally {
@@ -214,6 +222,21 @@ const handleBack = () => {
   router.push({ name: 'workOrder' })
 }
 
+const fillFormFromWorkOrder = (data: WorkOrder) => {
+  form.value = {
+    workOrderNo: data.workOrderNo || '',
+    productCode: data.productCode || '',
+    productName: data.productName || '',
+    quantity: data.quantity || 1,
+    workshopId: data.workshopId || '',
+    processRouteId: data.processRouteId || '',
+    typeCode: data.typeCode as WorkOrderType | undefined,
+    priority: data.priority as WorkOrderPriority | undefined,
+    plannedStartTime: data.plannedStartTime,
+    plannedEndTime: data.plannedEndTime,
+  }
+}
+
 const loadData = async () => {
   if (!isEdit.value) return
 
@@ -222,19 +245,7 @@ const loadData = async () => {
     const id = Number(route.query.id)
     const response = await getWorkOrderByIdAPI(id)
     if (response.data) {
-      const data = response.data
-      form.value = {
-        workOrderNo: data.workOrderNo || '',
-        productCode: data.productCode || '',
-        productName: data.productName || '',
-        quantity: data.quantity || 1,
-        workshopId: data.workshopId || '',
-        processRouteId: data.processRouteId || '',
-        typeCode: data.typeCode as WorkOrderType | undefined,
-        priority: data.priority as WorkOrderPriority | undefined,
-        plannedStartTime: data.plannedStartTime,
-        plannedEndTime: data.plannedEndTime,
-      }
+      fillFormFromWorkOrder(response.data)
     }
   } catch (error) {
     ElMessage.error(t('mes.workOrder.loadFailed'))

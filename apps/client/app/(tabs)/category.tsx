@@ -13,69 +13,88 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { CategoryContainer } from '@/containers/category/CategoryContainer';
 
+type AppColors = typeof Colors.light;
+
+function navigateToProductList(subCategoryId: number, subCategoryName: string) {
+  router.push({
+    pathname: '/category/[id]',
+    params: { id: subCategoryId, name: subCategoryName },
+  });
+}
+
+function PrimaryCategoryItem({ category, selectedId, colors, onSelect }: {
+  category: any; selectedId: number | null; colors: AppColors; onSelect: (id: number) => void
+}) {
+  const selected = selectedId === category.id;
+  return (
+    <TouchableOpacity
+      key={category.id}
+      style={[styles.fItem, selected && { backgroundColor: colors.background }]}
+      onPress={() => onSelect(category.id)}
+    >
+      {selected && <View style={[styles.activeLine, { backgroundColor: colors.primary }]} />}
+      <Text style={[styles.fItemText, { color: selected ? colors.primary : colors.fontColorBase }]}>
+        {category.name}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+function SecondaryCategoryItem({ subCategory, colors }: { subCategory: any; colors: AppColors }) {
+  return (
+    <TouchableOpacity
+      key={subCategory.id}
+      style={styles.sItem}
+      onPress={() => navigateToProductList(subCategory.id, subCategory.name)}
+    >
+      <Image source={{ uri: subCategory.icon || 'https://via.placeholder.com/70' }} style={styles.sImage} />
+      <Text style={[styles.sItemText, { color: colors.fontColorBase }]}>{subCategory.name}</Text>
+    </TouchableOpacity>
+  );
+}
+
+function PrimaryCategoryList({ primaryCategories, selectedMainCategoryId, colors, onMainCategorySelect }: {
+  primaryCategories: any[]; selectedMainCategoryId: number | null; colors: AppColors; onMainCategorySelect: (id: number) => void
+}) {
+  return (
+    <ScrollView style={styles.leftAside} showsVerticalScrollIndicator={false}>
+      {primaryCategories.map((category) => (
+        <PrimaryCategoryItem key={category.id} category={category} selectedId={selectedMainCategoryId} colors={colors} onSelect={onMainCategorySelect} />
+      ))}
+    </ScrollView>
+  );
+}
+
+function SecondaryCategoryList({ secondaryCategories, colors }: { secondaryCategories: any[]; colors: AppColors }) {
+  return (
+    <ScrollView style={styles.rightAside} showsVerticalScrollIndicator={false}>
+      <View style={styles.sList}>
+        {secondaryCategories.map((subCategory) => (
+          <SecondaryCategoryItem key={subCategory.id} subCategory={subCategory} colors={colors} />
+        ))}
+      </View>
+    </ScrollView>
+  );
+}
+
+function CategoryContent({ data, colors }: { data: any; colors: AppColors }) {
+  const { primaryCategories, secondaryCategories, selectedMainCategoryId, onMainCategorySelect } = data;
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={styles.content}>
+        <PrimaryCategoryList primaryCategories={primaryCategories} selectedMainCategoryId={selectedMainCategoryId} colors={colors} onMainCategorySelect={onMainCategorySelect} />
+        <SecondaryCategoryList secondaryCategories={secondaryCategories} colors={colors} />
+      </View>
+    </SafeAreaView>
+  );
+}
+
 export default function CategoryScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
-
-  const navigateToProductList = (subCategoryId: number, subCategoryName: string) => {
-    router.push({
-      pathname: '/category/[id]',
-      params: { id: subCategoryId, name: subCategoryName },
-    });
-  };
-
   return (
     <CategoryContainer>
-      {({ primaryCategories, secondaryCategories, selectedMainCategoryId, onMainCategorySelect }) => (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-          <View style={styles.content}>
-            <ScrollView style={styles.leftAside} showsVerticalScrollIndicator={false}>
-              {primaryCategories.map((category) => (
-                <TouchableOpacity
-                  key={category.id}
-                  style={[
-                    styles.fItem,
-                    selectedMainCategoryId === category.id && { backgroundColor: colors.background },
-                  ]}
-                  onPress={() => onMainCategorySelect(category.id)}
-                >
-                  {selectedMainCategoryId === category.id && (
-                    <View style={[styles.activeLine, { backgroundColor: colors.primary }]} />
-                  )}
-                  <Text
-                    style={[
-                      styles.fItemText,
-                      { color: selectedMainCategoryId === category.id ? colors.primary : colors.fontColorBase },
-                    ]}
-                  >
-                    {category.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-            <ScrollView style={styles.rightAside} showsVerticalScrollIndicator={false}>
-              <View style={styles.sList}>
-                {secondaryCategories.map((subCategory) => (
-                  <TouchableOpacity
-                    key={subCategory.id}
-                    style={styles.sItem}
-                    onPress={() => navigateToProductList(subCategory.id, subCategory.name)}
-                  >
-                    <Image
-                      source={{ uri: subCategory.icon || 'https://via.placeholder.com/70' }}
-                      style={styles.sImage}
-                    />
-                    <Text style={[styles.sItemText, { color: colors.fontColorBase }]}>
-                      {subCategory.name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </ScrollView>
-          </View>
-        </SafeAreaView>
-      )}
+      {(data) => <CategoryContent data={data} colors={colors} />}
     </CategoryContainer>
   );
 }

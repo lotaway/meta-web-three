@@ -17,151 +17,169 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { useAuth } from '@/contexts/AuthContext';
 
-export default function SettingsScreen() {
+type AppColors = typeof Colors.light;
+type AppRouter = ReturnType<typeof useRouter>;
+type Translate = ReturnType<typeof useTranslation>['t'];
+type I18nInstance = ReturnType<typeof useTranslation>['i18n'];
+type AuthLogout = ReturnType<typeof useAuth>['logout'];
+
+function confirmLogout(logout: AuthLogout, router: AppRouter) {
+  Alert.alert('退出登录', '确定要退出登录吗？', [
+    { text: '取消', style: 'cancel' },
+    { text: '确定', style: 'destructive', onPress: async () => {
+      await logout();
+      router.back();
+    } },
+  ]);
+}
+
+function applyLanguage(language: string, i18n: I18nInstance) {
+  return async () => {
+    await i18n.changeLanguage(language);
+    await AsyncStorage.setItem('user-language', language);
+  };
+}
+
+function changeAppLanguage(i18n: I18nInstance, t: Translate) {
+  Alert.alert(t('settings.language_title'), '', [
+    { text: t('settings.zh'), onPress: applyLanguage('zh', i18n) },
+    { text: t('settings.en'), onPress: applyLanguage('en', i18n) },
+    { text: t('common.cancel'), style: 'cancel' },
+  ]);
+}
+
+function showClearCacheHint() {
+  Alert.alert('提示', '缓存已清除');
+}
+
+function useSettingsController() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
   const { isAuthenticated, logout } = useAuth();
-
   const [pushEnabled, setPushEnabled] = React.useState(true);
-
-  const handleLogout = () => {
-    Alert.alert(
-      '退出登录',
-      '确定要退出登录吗？',
-      [
-        { text: '取消', style: 'cancel' },
-        {
-          text: '确定',
-          style: 'destructive',
-          onPress: async () => {
-            await logout();
-            router.back();
-          },
-        },
-      ],
-    );
+  return {
+    t, i18n, router, colors, isAuthenticated, pushEnabled, setPushEnabled,
+    handleBack: () => router.back(),
+    handleLogout: () => confirmLogout(logout, router),
+    changeLanguage: () => changeAppLanguage(i18n, t),
+    handleClearCache: showClearCacheHint,
   };
+}
 
-  const changeLanguage = () => {
-    Alert.alert(
-      t('settings.language_title'),
-      '',
-      [
-        {
-          text: t('settings.zh'),
-          onPress: async () => {
-            await i18n.changeLanguage('zh');
-            await AsyncStorage.setItem('user-language', 'zh');
-          },
-        },
-        {
-          text: t('settings.en'),
-          onPress: async () => {
-            await i18n.changeLanguage('en');
-            await AsyncStorage.setItem('user-language', 'en');
-          },
-        },
-        { text: t('common.cancel'), style: 'cancel' },
-      ],
-    );
-  };
+type SettingsController = ReturnType<typeof useSettingsController>;
 
-  const handleClearCache = () => {
-    Alert.alert('提示', '缓存已清除');
-  };
+interface SettingsViewProps extends SettingsController {}
 
+function SettingsHeader({ colors, handleBack }: Pick<SettingsViewProps, 'colors' | 'handleBack'>) {
+  return (
+    <View style={[styles.header, { borderBottomColor: colors.border }]}>
+      <TouchableOpacity style={styles.backBtn} onPress={handleBack}>
+        <IconSymbol name="chevron.left" size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>设置</Text>
+      <View style={styles.headerRight} />
+    </View>
+  );
+}
+
+function MenuRow({ icon, color, label, colors, onPress, showBorder, right }: {
+  icon: string; color: string; label: string; colors: AppColors
+  onPress?: () => void; showBorder?: boolean; right?: React.ReactNode
+}) {
+  const style = showBorder ? [styles.menuItem, { borderBottomColor: colors.border }] : styles.menuItem;
+  const content = (
+    <>
+      <IconSymbol name={icon as any} size={22} color={color} />
+      <Text style={[styles.menuText, { color: colors.text }]}>{label}</Text>
+      {right ?? <IconSymbol name="chevron.right" size={16} color={colors.textSecondary} />}
+    </>
+  );
+  return onPress
+    ? <TouchableOpacity style={style} onPress={onPress}>{content}</TouchableOpacity>
+    : <View style={style}>{content}</View>;
+}
+
+function ProfileMenuSection({ colors, router }: Pick<SettingsViewProps, 'colors' | 'router'>) {
+  return (
+    <View style={[styles.section, { backgroundColor: colors.card }]}>
+      <MenuRow icon="person.fill" color="#4a90e2" label="个人资料" colors={colors} showBorder onPress={() => router.push('/userinfo')} />
+      <MenuRow icon="mappin.and.ellipse" color="#5fcda2" label="收货地址" colors={colors} showBorder onPress={() => router.push('/address/list')} />
+      <MenuRow icon="person.badge.shield.checkmark" color="#FF6B35" label="实名认证" colors={colors} />
+    </View>
+  );
+}
+
+function LanguageRight({ i18n, colors }: Pick<SettingsViewProps, 'i18n' | 'colors'>) {
+  return (
+    <View style={styles.menuRight}>
+      <Text style={[styles.menuHint, { color: colors.textSecondary }]}>
+        {i18n.language === 'zh' ? '简体中文' : 'English'}
+      </Text>
+      <IconSymbol name="chevron.right" size={16} color={colors.textSecondary} />
+    </View>
+  );
+}
+
+function AboutRight({ colors }: Pick<SettingsViewProps, 'colors'>) {
+  return (
+    <View style={styles.menuRight}>
+      <Text style={[styles.menuHint, { color: colors.textSecondary }]}>v1.0.0</Text>
+      <IconSymbol name="chevron.right" size={16} color={colors.textSecondary} />
+    </View>
+  );
+}
+
+function PushRow({ colors, pushEnabled, setPushEnabled }: Pick<SettingsViewProps, 'colors' | 'pushEnabled' | 'setPushEnabled'>) {
+  return (
+    <View style={[styles.menuItem, { borderBottomColor: colors.border }]}>
+      <IconSymbol name="bell.fill" size={22} color="#fa436a" />
+      <Text style={[styles.menuText, { color: colors.text }]}>消息推送</Text>
+      <Switch value={pushEnabled} onValueChange={setPushEnabled} trackColor={{ false: '#ddd', true: colors.primary }} thumbColor="#fff" />
+    </View>
+  );
+}
+
+function SystemMenuSection(props: SettingsViewProps) {
+  const { colors, i18n, pushEnabled, setPushEnabled, changeLanguage, handleClearCache } = props;
+  return (
+    <View style={[styles.section, { backgroundColor: colors.card }]}>
+      <PushRow colors={colors} pushEnabled={pushEnabled} setPushEnabled={setPushEnabled} />
+      <MenuRow icon="globe" color="#4a90e2" label="语言设置" colors={colors} showBorder onPress={changeLanguage} right={<LanguageRight i18n={i18n} colors={colors} />} />
+      <MenuRow icon="trash.fill" color="#e07472" label="清除缓存" colors={colors} showBorder onPress={handleClearCache} />
+      <MenuRow icon="info.circle.fill" color="#2196F3" label="关于" colors={colors} right={<AboutRight colors={colors} />} />
+    </View>
+  );
+}
+
+function LogoutButton({ colors, isAuthenticated, handleLogout }: Pick<SettingsViewProps, 'colors' | 'isAuthenticated' | 'handleLogout'>) {
+  if (!isAuthenticated) return null;
+  return (
+    <TouchableOpacity style={[styles.logoutBtn, { backgroundColor: colors.card }]} onPress={handleLogout}>
+      <Text style={styles.logoutText}>退出登录</Text>
+    </TouchableOpacity>
+  );
+}
+
+function SettingsView(props: SettingsViewProps) {
+  const { colors, router, handleBack } = props;
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <IconSymbol name="chevron.left" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>设置</Text>
-        <View style={styles.headerRight} />
-      </View>
-
+      <SettingsHeader colors={colors} handleBack={handleBack} />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={[styles.section, { backgroundColor: colors.card }]}>
-          <TouchableOpacity
-            style={[styles.menuItem, { borderBottomColor: colors.border }]}
-            onPress={() => router.push('/userinfo')}
-          >
-            <IconSymbol name="person.fill" size={22} color="#4a90e2" />
-            <Text style={[styles.menuText, { color: colors.text }]}>个人资料</Text>
-            <IconSymbol name="chevron.right" size={16} color={colors.textSecondary} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.menuItem, { borderBottomColor: colors.border }]}
-            onPress={() => router.push('/address/list')}
-          >
-            <IconSymbol name="mappin.and.ellipse" size={22} color="#5fcda2" />
-            <Text style={[styles.menuText, { color: colors.text }]}>收货地址</Text>
-            <IconSymbol name="chevron.right" size={16} color={colors.textSecondary} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
-            <IconSymbol name="person.badge.shield.checkmark" size={22} color="#FF6B35" />
-            <Text style={[styles.menuText, { color: colors.text }]}>实名认证</Text>
-            <IconSymbol name="chevron.right" size={16} color={colors.textSecondary} />
-          </TouchableOpacity>
-        </View>
-
-        <View style={[styles.section, { backgroundColor: colors.card }]}>
-          <View style={[styles.menuItem, { borderBottomColor: colors.border }]}>
-            <IconSymbol name="bell.fill" size={22} color="#fa436a" />
-            <Text style={[styles.menuText, { color: colors.text }]}>消息推送</Text>
-            <Switch
-              value={pushEnabled}
-              onValueChange={setPushEnabled}
-              trackColor={{ false: '#ddd', true: colors.primary }}
-              thumbColor="#fff"
-            />
-          </View>
-          <TouchableOpacity
-            style={[styles.menuItem, { borderBottomColor: colors.border }]}
-            onPress={changeLanguage}
-          >
-            <IconSymbol name="globe" size={22} color="#4a90e2" />
-            <Text style={[styles.menuText, { color: colors.text }]}>语言设置</Text>
-            <View style={styles.menuRight}>
-              <Text style={[styles.menuHint, { color: colors.textSecondary }]}>
-                {i18n.language === 'zh' ? '简体中文' : 'English'}
-              </Text>
-              <IconSymbol name="chevron.right" size={16} color={colors.textSecondary} />
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.menuItem, { borderBottomColor: colors.border }]}
-            onPress={handleClearCache}
-          >
-            <IconSymbol name="trash.fill" size={22} color="#e07472" />
-            <Text style={[styles.menuText, { color: colors.text }]}>清除缓存</Text>
-            <IconSymbol name="chevron.right" size={16} color={colors.textSecondary} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
-            <IconSymbol name="info.circle.fill" size={22} color="#2196F3" />
-            <Text style={[styles.menuText, { color: colors.text }]}>关于</Text>
-            <View style={styles.menuRight}>
-              <Text style={[styles.menuHint, { color: colors.textSecondary }]}>v1.0.0</Text>
-              <IconSymbol name="chevron.right" size={16} color={colors.textSecondary} />
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        {isAuthenticated && (
-          <TouchableOpacity
-            style={[styles.logoutBtn, { backgroundColor: colors.card }]}
-            onPress={handleLogout}
-          >
-            <Text style={styles.logoutText}>退出登录</Text>
-          </TouchableOpacity>
-        )}
-
+        <ProfileMenuSection colors={colors} router={router} />
+        <SystemMenuSection {...props} />
+        <LogoutButton {...props} />
         <View style={styles.bottomSpacer} />
       </ScrollView>
     </SafeAreaView>
   );
+}
+
+export default function SettingsScreen() {
+  const controller = useSettingsController();
+  return <SettingsView {...controller} />;
 }
 
 const styles = StyleSheet.create({

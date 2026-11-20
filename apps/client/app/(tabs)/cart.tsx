@@ -33,193 +33,176 @@ interface CheckoutItemParam {
   quantity: number;
 }
 
-export default function CartScreen() {
+type CartHook = ReturnType<typeof useCart>;
+type CartItemFromHook = CartHook['items'][number];
+type AppColors = typeof Colors.light;
+type SetChecked = React.Dispatch<React.SetStateAction<Set<number>>>;
+
+function toggleChecked(itemId: number, checkedItems: Set<number>, setCheckedItems: SetChecked) {
+  const next = new Set(checkedItems);
+  if (next.has(itemId)) next.delete(itemId);
+  else next.add(itemId);
+  setCheckedItems(next);
+}
+
+function toggleAllChecked(cartItems: CartItemFromHook[], checkedItems: Set<number>, setCheckedItems: SetChecked) {
+  if (cartItems.length === 0) return;
+  if (checkedItems.size === cartItems.length) {
+    setCheckedItems(new Set());
+  } else {
+    setCheckedItems(new Set(cartItems.map((item) => item.id).filter((id): id is number => id != null)));
+  }
+}
+
+async function removeCartItems(ids: number[], removeItems: CartHook['removeItems']) {
+  try {
+    await removeItems(ids);
+  } catch (e) {
+    Alert.alert('错误', '删除失败');
+  }
+}
+
+async function changeItemQuantity(id: number, delta: number, cartItems: CartItemFromHook[], updateQuantity: CartHook['updateQuantity'], removeItems: CartHook['removeItems']) {
+  const item = cartItems.find((i) => i.id === id);
+  if (!item) return;
+  const newQty = (item.quantity ?? 0) + delta;
+  if (newQty < 1) await removeCartItems([id], removeItems);
+  else await updateQuantity(id, newQty);
+}
+
+function buildShoppingCartItems(cartItems: CartItemFromHook[], checkedItems: Set<number>): ShoppingCartItem[] {
+  return cartItems.map((item) => ({
+    id: item.id ?? 0,
+    productName: item.productName || '商品',
+    productPic: item.productPic || '',
+    price: Number(item.price || 0),
+    quantity: item.quantity ?? 0,
+    checked: item.id != null && checkedItems.has(item.id),
+    spDataStr: item.productAttr || '',
+  }));
+}
+
+function buildSelectedTotal(shoppingCartItems: ShoppingCartItem[]) {
+  return shoppingCartItems
+    .filter((item) => item.checked)
+    .reduce((sum, item) => sum + item.price * item.quantity, 0)
+    .toFixed(2);
+}
+
+function buildSelectedItems(shoppingCartItems: ShoppingCartItem[]): CheckoutItemParam[] {
+  return shoppingCartItems
+    .filter((item) => item.checked)
+    .map((item) => ({
+      id: item.id, productName: item.productName, productPic: item.productPic,
+      price: item.price, quantity: item.quantity,
+    }));
+}
+
+function useCartController() {
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
-  const { items: cartItems, loading, error, fetchCart, removeItems, updateQuantity } = useCart();
-
+  const cart = useCart();
   useEffect(() => {
-    fetchCart();
-  }, [fetchCart]);
-
+    cart.fetchCart();
+  }, [cart.fetchCart]);
   const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
-
-  const toggleItemCheck = (itemId: number) => {
-    const newChecked = new Set(checkedItems);
-    if (newChecked.has(itemId)) {
-      newChecked.delete(itemId);
-    } else {
-      newChecked.add(itemId);
-    }
-    setCheckedItems(newChecked);
-  };
-
-  const toggleAllSelection = () => {
-    if (cartItems.length === 0) return;
-    if (checkedItems.size === cartItems.length) {
-      setCheckedItems(new Set());
-    } else {
-      setCheckedItems(new Set(cartItems.map((item) => item.id).filter((id): id is number => id != null)));
-    }
-  };
-
-  const handleUpdateQuantity = async (id: number, delta: number) => {
-    const item = cartItems.find((i) => i.id === id);
-    if (!item) return;
-    const newQty = (item.quantity ?? 0) + delta;
-    if (newQty < 1) {
-      await handleRemove([id]);
-    } else {
-      await updateQuantity(id, newQty);
-    }
-  };
-
-  const handleRemove = async (ids: number[]) => {
-    try {
-      await removeItems(ids);
-    } catch (e) {
-      Alert.alert('错误', '删除失败');
-    }
-  };
-
-  const shoppingCartItems = useMemo(() => {
-    return cartItems.map((item) => ({
-      id: item.id ?? 0,
-      productName: item.productName || '商品',
-      productPic: item.productPic || '',
-      price: Number(item.price || 0),
-      quantity: item.quantity ?? 0,
-      checked: item.id != null && checkedItems.has(item.id),
-      spDataStr: item.productAttr || '',
-    }));
-  }, [cartItems, checkedItems]);
-
-  const selectedTotalPrice = useMemo(() => {
-    return shoppingCartItems
-      .filter((item) => item.checked)
-      .reduce((sum, item) => sum + item.price * item.quantity, 0)
-      .toFixed(2);
-  }, [shoppingCartItems]);
-
+  const shoppingCartItems = useMemo(() => buildShoppingCartItems(cart.items, checkedItems), [cart.items, checkedItems]);
+  const selectedTotalPrice = useMemo(() => buildSelectedTotal(shoppingCartItems), [shoppingCartItems]);
   const isAllItemSelected = shoppingCartItems.length > 0 && shoppingCartItems.every((item) => item.checked);
-  const selectedItems = useMemo<CheckoutItemParam[]>(
-    () =>
-      shoppingCartItems
-        .filter((item) => item.checked)
-        .map((item) => ({
-          id: item.id,
-          productName: item.productName,
-          productPic: item.productPic,
-          price: item.price,
-          quantity: item.quantity,
-        })),
-    [shoppingCartItems],
-  );
+  const selectedItems = useMemo(() => buildSelectedItems(shoppingCartItems), [shoppingCartItems]);
+  return { colors, ...cart, cartItems: cart.items, checkedItems, setCheckedItems, shoppingCartItems, selectedTotalPrice, isAllItemSelected, selectedItems };
+}
 
-  if (loading && cartItems.length === 0) {
-    return (
-      <View style={[styles.container, styles.empty, { backgroundColor: colors.background }]}>
-        <Text style={[styles.emptyText, { color: colors.fontColorDisabled }]}>加载中...</Text>
-      </View>
-    );
-  }
+type CartController = ReturnType<typeof useCartController>;
 
-  if (shoppingCartItems.length === 0) {
-    return (
-      <View style={[styles.container, styles.empty, { backgroundColor: colors.background }]}>
-        <IconSymbol name="cart.fill" size={100} color={colors.fontColorDisabled} />
-        <Text style={[styles.emptyText, { color: colors.fontColorDisabled }]}>购物车竟然是空的</Text>
-        <TouchableOpacity style={[styles.emptyBtn, { backgroundColor: colors.primary }]}>
-          <Text style={styles.emptyBtnText}>去逛逛</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+function createCartHandlers(controller: CartController) {
+  return {
+    onToggleCheck: (id: number) => toggleChecked(id, controller.checkedItems, controller.setCheckedItems),
+    onToggleAll: () => toggleAllChecked(controller.items, controller.checkedItems, controller.setCheckedItems),
+    onUpdateQuantity: (id: number, delta: number) => changeItemQuantity(id, delta, controller.items, controller.updateQuantity, controller.removeItems),
+    onRemove: (ids: number[]) => removeCartItems(ids, controller.removeItems),
+  };
+}
 
+type CartHandlers = ReturnType<typeof createCartHandlers>;
+
+interface CartViewProps extends CartController, CartHandlers {}
+
+function LoadingView({ colors }: { colors: AppColors }) {
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView style={styles.cartList} showsVerticalScrollIndicator={false}>
-        {shoppingCartItems.map((item) => (
-          <CartItemRow 
-            key={item.id} 
-            item={item} 
-            colors={colors} 
-            onToggleCheck={toggleItemCheck} 
-            onUpdateQuantity={handleUpdateQuantity} 
-            onRemove={handleRemove} 
-          />
-        ))}
-        <View style={styles.footerSpacer} />
-      </ScrollView>
-
-      <CartActionBar 
-        selectedItems={selectedItems}
-        selectedTotal={selectedTotalPrice} 
-        isAllSelected={isAllItemSelected} 
-        colors={colors} 
-        onToggleAll={toggleAllSelection} 
-      />
-    </SafeAreaView>
+    <View style={[styles.container, styles.empty, { backgroundColor: colors.background }]}>
+      <Text style={[styles.emptyText, { color: colors.fontColorDisabled }]}>加载中...</Text>
+    </View>
   );
 }
 
-function CartItemRow({ item, colors, onToggleCheck, onUpdateQuantity, onRemove }: any) {
+function EmptyCartView({ colors }: { colors: AppColors }) {
   return (
-    <View style={styles.cartItem}>
-      <TouchableOpacity onPress={() => onToggleCheck(item.id)} style={styles.checkbox}>
-        <IconSymbol
-          name={item.checked ? 'checkmark.circle.fill' : 'circle'}
-          size={24}
-          color={item.checked ? colors.primary : colors.fontColorDisabled}
-        />
-      </TouchableOpacity>
-      <Image source={{ uri: item.productPic }} style={styles.productImage} />
-      <View style={styles.itemRight}>
-        <Text numberOfLines={1} style={[styles.title, { color: colors.fontColorDark }]}>
-          {item.productName}
-        </Text>
-        <Text style={[styles.attr, { color: colors.fontColorLight }]}>{item.spDataStr}</Text>
-        <View style={styles.priceRow}>
-          <Text style={[styles.price, { color: colors.primary }]}>¥{item.price}</Text>
-          <View style={styles.stepBox}>
-            <TouchableOpacity onPress={() => onUpdateQuantity(item.id, -1)} style={styles.stepBtn}>
-              <Text style={styles.stepText}>-</Text>
-            </TouchableOpacity>
-            <Text style={styles.stepVal}>{item.quantity}</Text>
-            <TouchableOpacity onPress={() => onUpdateQuantity(item.id, 1)} style={styles.stepBtn}>
-              <Text style={styles.stepText}>+</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-      <TouchableOpacity onPress={() => onRemove([item.id])} style={styles.delBtn}>
-        <IconSymbol name="xmark" size={16} color={colors.fontColorLight} />
+    <View style={[styles.container, styles.empty, { backgroundColor: colors.background }]}>
+      <IconSymbol name="cart.fill" size={100} color={colors.fontColorDisabled} />
+      <Text style={[styles.emptyText, { color: colors.fontColorDisabled }]}>购物车竟然是空的</Text>
+      <TouchableOpacity style={[styles.emptyBtn, { backgroundColor: colors.primary }]}>
+        <Text style={styles.emptyBtnText}>去逛逛</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
-function CartActionBar({ selectedItems, selectedTotal, isAllSelected, colors, onToggleAll }: any) {
-  const goToCheckout = () => {
-    if (selectedItems.length === 0) {
-      return;
-    }
-    router.push({
-      pathname: '/checkout' as any,
-      params: {
-        items: JSON.stringify(selectedItems),
-      },
-    });
-  };
+function QuantityStepper({ item, onUpdateQuantity }: { item: ShoppingCartItem; onUpdateQuantity: CartHandlers['onUpdateQuantity'] }) {
+  return (
+    <View style={styles.stepBox}>
+      <TouchableOpacity onPress={() => onUpdateQuantity(item.id, -1)} style={styles.stepBtn}>
+        <Text style={styles.stepText}>-</Text>
+      </TouchableOpacity>
+      <Text style={styles.stepVal}>{item.quantity}</Text>
+      <TouchableOpacity onPress={() => onUpdateQuantity(item.id, 1)} style={styles.stepBtn}>
+        <Text style={styles.stepText}>+</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
 
+function CartItemRow({ item, colors, onToggleCheck, onUpdateQuantity, onRemove }: Pick<CartViewProps, 'colors' | 'onToggleCheck' | 'onUpdateQuantity' | 'onRemove'> & { item: ShoppingCartItem }) {
+  return (
+    <View style={styles.cartItem}>
+      <TouchableOpacity onPress={() => onToggleCheck(item.id)} style={styles.checkbox}>
+        <IconSymbol name={item.checked ? 'checkmark.circle.fill' : 'circle'} size={24} color={item.checked ? colors.primary : colors.fontColorDisabled} />
+      </TouchableOpacity>
+      <Image source={{ uri: item.productPic }} style={styles.productImage} />
+      <View style={styles.itemRight}>
+        <Text numberOfLines={1} style={[styles.title, { color: colors.fontColorDark }]}>{item.productName}</Text>
+        <Text style={[styles.attr, { color: colors.fontColorLight }]}>{item.spDataStr}</Text>
+        <View style={styles.priceRow}>
+          <Text style={[styles.price, { color: colors.primary }]}>¥{item.price}</Text>
+          <QuantityStepper item={item} onUpdateQuantity={onUpdateQuantity} />
+        </View>
+      </View>
+      <TouchableOpacity onPress={() => onRemove([item.id])} style={styles.delBtn}><IconSymbol name="xmark" size={16} color={colors.fontColorLight} /></TouchableOpacity>
+    </View>
+  );
+}
+
+function CartItemList({ shoppingCartItems, colors, onToggleCheck, onUpdateQuantity, onRemove }: Pick<CartViewProps, 'shoppingCartItems' | 'colors' | 'onToggleCheck' | 'onUpdateQuantity' | 'onRemove'>) {
+  return (
+    <ScrollView style={styles.cartList} showsVerticalScrollIndicator={false}>
+      {shoppingCartItems.map((item) => (
+        <CartItemRow key={item.id} item={item} colors={colors} onToggleCheck={onToggleCheck} onUpdateQuantity={onUpdateQuantity} onRemove={onRemove} />
+      ))}
+      <View style={styles.footerSpacer} />
+    </ScrollView>
+  );
+}
+
+function goToCheckout(selectedItems: CheckoutItemParam[]) {
+  if (selectedItems.length === 0) return;
+  router.push({ pathname: '/checkout' as any, params: { items: JSON.stringify(selectedItems) } });
+}
+
+function CartActionBar({ selectedItems, selectedTotal, isAllSelected, colors, onToggleAll }: Pick<CartViewProps, 'selectedItems' | 'colors' | 'onToggleAll'> & { selectedTotal: string; isAllSelected: boolean }) {
   return (
     <View style={styles.actionSection}>
       <TouchableOpacity onPress={onToggleAll} style={styles.allCheck}>
-        <IconSymbol
-          name={isAllSelected ? 'checkmark.circle.fill' : 'circle'}
-          size={24}
-          color={isAllSelected ? colors.primary : colors.fontColorDisabled}
-        />
+        <IconSymbol name={isAllSelected ? 'checkmark.circle.fill' : 'circle'} size={24} color={isAllSelected ? colors.primary : colors.fontColorDisabled} />
         <Text style={[styles.allCheckText, { color: colors.fontColorBase }]}>全选</Text>
       </TouchableOpacity>
       <View style={styles.totalBox}>
@@ -227,14 +210,28 @@ function CartActionBar({ selectedItems, selectedTotal, isAllSelected, colors, on
           合计: <Text style={[styles.totalPrice, { color: colors.primary }]}>¥{selectedTotal}</Text>
         </Text>
       </View>
-      <TouchableOpacity
-        style={[styles.confirmBtn, { backgroundColor: colors.primary }]}
-        onPress={goToCheckout}
-      >
+      <TouchableOpacity style={[styles.confirmBtn, { backgroundColor: colors.primary }]} onPress={() => goToCheckout(selectedItems)}>
         <Text style={styles.confirmBtnText}>结算</Text>
       </TouchableOpacity>
     </View>
   );
+}
+
+function CartView(props: CartViewProps) {
+  const { colors, loading, cartItems, shoppingCartItems, selectedItems, selectedTotalPrice, isAllItemSelected, onToggleAll, onToggleCheck, onUpdateQuantity, onRemove } = props;
+  if (loading && cartItems.length === 0) return <LoadingView colors={colors} />;
+  if (shoppingCartItems.length === 0) return <EmptyCartView colors={colors} />;
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <CartItemList shoppingCartItems={shoppingCartItems} colors={colors} onToggleCheck={onToggleCheck} onUpdateQuantity={onUpdateQuantity} onRemove={onRemove} />
+      <CartActionBar selectedItems={selectedItems} selectedTotal={selectedTotalPrice} isAllSelected={isAllItemSelected} colors={colors} onToggleAll={onToggleAll} />
+    </SafeAreaView>
+  );
+}
+
+export default function CartScreen() {
+  const controller = useCartController();
+  return <CartView {...controller} {...createCartHandlers(controller)} />;
 }
 
 const styles = StyleSheet.create({

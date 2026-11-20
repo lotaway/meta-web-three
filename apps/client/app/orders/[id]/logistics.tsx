@@ -16,6 +16,13 @@ import { useColorScheme } from '@/hooks/useColorScheme'
 import { IconSymbol } from '@/components/ui/IconSymbol'
 import { API_BASE_URL } from '@/api/generated'
 
+type Translate = ReturnType<typeof useTranslation>['t']
+type AppColors = typeof Colors.light
+type AppRouter = ReturnType<typeof useRouter>
+type OrderId = ReturnType<typeof useLocalSearchParams>['id']
+type SetBoolean = React.Dispatch<React.SetStateAction<boolean>>
+type SetTraces = React.Dispatch<React.SetStateAction<any[]>>
+
 interface LogisticsTrace {
   id: number
   time: string
@@ -23,143 +30,207 @@ interface LogisticsTrace {
   status?: number
 }
 
-export default function LogisticsScreen() {
+interface LogisticsInfo {
+  company: string
+  trackingNo: string
+  phone: string
+}
+
+type SetLogisticsInfo = React.Dispatch<React.SetStateAction<LogisticsInfo>>
+
+function mapLogisticsInfo(data: any): LogisticsInfo {
+  return {
+    company: data.company || '',
+    trackingNo: data.trackingNo || '',
+    phone: data.phone || '',
+  }
+}
+
+async function loadLogisticsData(orderId: OrderId, setTraces: SetTraces, setLogisticsInfo: SetLogisticsInfo, setLoading: SetBoolean): Promise<void> {
+  if (!orderId) return
+  setLoading(true)
+  try {
+    const response = await fetch(`${API_BASE_URL}/mall-trade-service/order/${orderId}/logistics`)
+    const result = await response.json()
+    if (result.data) {
+      setLogisticsInfo(mapLogisticsInfo(result.data))
+      setTraces(result.data.traces || [])
+    }
+  } catch (error) {
+    console.error('Failed to load logistics:', error)
+    Alert.alert('Error', 'Failed to load the logistics.')
+  } finally {
+    setLoading(false)
+  }
+}
+
+function useLogisticsState() {
+  const [traces, setTraces] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [logisticsInfo, setLogisticsInfo] = useState<LogisticsInfo>({ company: '', trackingNo: '', phone: '' })
+  return { traces, setTraces, loading, setLoading, logisticsInfo, setLogisticsInfo }
+}
+
+type LogisticsState = ReturnType<typeof useLogisticsState>
+
+function createLogisticsActions(router: AppRouter, state: LogisticsState) {
+  return {
+    onBack: () => router.back(),
+    onCopyTrackingNo: () => console.log('Copy:', state.logisticsInfo.trackingNo),
+    onCallDelivery: () => console.log('Call:', state.logisticsInfo.phone),
+  }
+}
+
+type LogisticsActions = ReturnType<typeof createLogisticsActions>
+
+function useLogisticsController() {
   const { t } = useTranslation()
   const router = useRouter()
   const colorScheme = useColorScheme() ?? 'light'
   const colors = Colors[colorScheme]
   const params = useLocalSearchParams()
   const orderId = params.id
+  const state = useLogisticsState()
+  const loadLogistics = () => loadLogisticsData(orderId, state.setTraces, state.setLogisticsInfo, state.setLoading)
+  useEffect(() => { loadLogistics() }, [orderId])
+  return { t, colors, ...state, ...createLogisticsActions(router, state) }
+}
 
-  const [traces, setTraces] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [logisticsInfo, setLogisticsInfo] = useState({
-    company: '',
-    trackingNo: '',
-    phone: '',
-  })
+interface LogisticsViewProps extends LogisticsActions {
+  colors: AppColors
+  t: Translate
+  traces: any[]
+  loading: boolean
+  logisticsInfo: LogisticsInfo
+}
 
-  useEffect(() => {
-    loadLogistics()
-  }, [orderId])
+function LogisticsHeader({ colors, t, onBack }: Pick<LogisticsViewProps, 'colors' | 't' | 'onBack'>) {
+  return (
+    <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+      <TouchableOpacity style={styles.backBtn} onPress={onBack}>
+        <IconSymbol name="chevron.left" size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>{t('logistics.title')}</Text>
+      <View style={styles.headerRight} />
+    </View>
+  )
+}
 
-  const loadLogistics = async () => {
-    if (!orderId) return
-    setLoading(true)
-    try {
-      const response = await fetch(`${API_BASE_URL}/mall-trade-service/order/${orderId}/logistics`)
-      const result = await response.json()
-      if (result.data) {
-        setLogisticsInfo({
-          company: result.data.company || '',
-          trackingNo: result.data.trackingNo || '',
-          phone: result.data.phone || '',
-        })
-        setTraces(result.data.traces || [])
-      }
-    } catch (error) {
-      console.error('Failed to load logistics:', error)
-      Alert.alert('Error', 'Failed to load the logistics.')
-    } finally {
-      setLoading(false)
-    }
-  }
+interface LogisticsInfoRowProps {
+  icon: 'shippingbox' | 'doc' | 'phone'
+  label: string
+  value: string
+  actionLabel?: string
+  onAction?: () => void
+  colors: AppColors
+}
 
-  const handleCallDelivery = () => {
-    console.log('Call:', logisticsInfo.phone)
-  }
+function LogisticsInfoRow({ icon, label, value, actionLabel, onAction, colors }: LogisticsInfoRowProps) {
+  return (
+    <View style={styles.logisticsRow}>
+      <IconSymbol name={icon} size={20} color={colors.primary} />
+      <Text style={[styles.logisticsLabel, { color: colors.textSecondary }]}>{label}</Text>
+      <Text style={[styles.logisticsValue, { color: colors.text }]}>{value}</Text>
+      {!!actionLabel && (
+        <TouchableOpacity style={styles.copyBtn} onPress={onAction}>
+          <Text style={[styles.copyBtnText, { color: colors.primary }]}>{actionLabel}</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  )
+}
 
-  const handleCopyTrackingNo = () => {
-    console.log('Copy:', logisticsInfo.trackingNo)
-  }
+function LogisticsInfoCard({ colors, t, logisticsInfo, onCopyTrackingNo, onCallDelivery }: LogisticsViewProps) {
+  return (
+    <View style={[styles.logisticsInfo, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
+      <LogisticsInfoRow icon="shippingbox" label={t('logistics.company')} value={logisticsInfo.company} colors={colors} />
+      <LogisticsInfoRow icon="doc" label={t('logistics.tracking_no')} value={logisticsInfo.trackingNo} actionLabel={t('logistics.copy')} onAction={onCopyTrackingNo} colors={colors} />
+      <LogisticsInfoRow icon="phone" label={t('logistics.phone')} value={logisticsInfo.phone} actionLabel={t('logistics.call')} onAction={onCallDelivery} colors={colors} />
+    </View>
+  )
+}
 
-  const renderTraceItem = ({ item, index }: { item: LogisticsTrace; index: number }) => {
-    const isLatest = index === 0
-    return (
-      <View style={styles.traceItem}>
-        <View style={styles.traceTimeline}>
-          <View style={[
-            styles.timelineDot,
-            isLatest ? styles.timelineDotActive : styles.timelineDotNormal,
-            isLatest ? { backgroundColor: colors.primary } : { backgroundColor: colors.textSecondary },
-          ]} />
-          {index < traces.length - 1 && (
-            <View style={[styles.timelineLine, { backgroundColor: colors.border }]} />
-          )}
-        </View>
-        <View style={styles.traceContent}>
-          <Text style={[
-            styles.traceTime,
-            { color: isLatest ? colors.primary : colors.textSecondary },
-          ]}>
-            {item.time}
-          </Text>
-          <Text style={[
-            styles.traceText,
-            { color: isLatest ? colors.text : colors.textSecondary },
-          ]}>
-            {item.content}
-          </Text>
-        </View>
+function LoadingState({ colors }: { colors: AppColors }) {
+  return (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color={colors.primary} />
+    </View>
+  )
+}
+
+function EmptyTraces({ colors, t }: { colors: AppColors; t: Translate }) {
+  return (
+    <View style={styles.emptyContainer}>
+      <IconSymbol name="shippingbox" size={60} color={colors.textSecondary} />
+      <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{t('logistics.no_traces')}</Text>
+    </View>
+  )
+}
+
+function TraceTimeline({ index, total, colors }: { index: number; total: number; colors: AppColors }) {
+  const isLatest = index === 0
+  return (
+    <View style={styles.traceTimeline}>
+      <View style={[
+        styles.timelineDot,
+        isLatest ? styles.timelineDotActive : styles.timelineDotNormal,
+        isLatest ? { backgroundColor: colors.primary } : { backgroundColor: colors.textSecondary },
+      ]} />
+      {index < total - 1 && <View style={[styles.timelineLine, { backgroundColor: colors.border }]} />}
+    </View>
+  )
+}
+
+function TraceItem({ item, index, total, colors }: { item: LogisticsTrace; index: number; total: number; colors: AppColors }) {
+  const isLatest = index === 0
+  return (
+    <View style={styles.traceItem}>
+      <TraceTimeline index={index} total={total} colors={colors} />
+      <View style={styles.traceContent}>
+        <Text style={[styles.traceTime, { color: isLatest ? colors.primary : colors.textSecondary }]}>
+          {item.time}
+        </Text>
+        <Text style={[styles.traceText, { color: isLatest ? colors.text : colors.textSecondary }]}>
+          {item.content}
+        </Text>
       </View>
-    )
-  }
+    </View>
+  )
+}
 
+function TraceList({ traces, colors }: { traces: any[]; colors: AppColors }) {
+  return (
+    <FlatList
+      data={traces}
+      keyExtractor={(item) => String(item.id)}
+      renderItem={({ item, index }) => (
+        <TraceItem item={item} index={index} total={traces.length} colors={colors} />
+      )}
+      contentContainerStyle={styles.tracesContent}
+    />
+  )
+}
+
+function LogisticsView(props: LogisticsViewProps) {
+  const { colors, traces, loading } = props
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <IconSymbol name="chevron.left" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>{t('logistics.title')}</Text>
-        <View style={styles.headerRight} />
-      </View>
-
-      {/* 物流信息 */}
-      <View style={[styles.logisticsInfo, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
-        <View style={styles.logisticsRow}>
-          <IconSymbol name="shippingbox" size={20} color={colors.primary} />
-          <Text style={[styles.logisticsLabel, { color: colors.textSecondary }]}>{t('logistics.company')}</Text>
-          <Text style={[styles.logisticsValue, { color: colors.text }]}>{logisticsInfo.company}</Text>
-        </View>
-        <View style={styles.logisticsRow}>
-          <IconSymbol name="doc" size={20} color={colors.primary} />
-          <Text style={[styles.logisticsLabel, { color: colors.textSecondary }]}>{t('logistics.tracking_no')}</Text>
-          <Text style={[styles.logisticsValue, { color: colors.text }]}>{logisticsInfo.trackingNo}</Text>
-          <TouchableOpacity style={styles.copyBtn} onPress={handleCopyTrackingNo}>
-            <Text style={[styles.copyBtnText, { color: colors.primary }]}>{t('logistics.copy')}</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.logisticsRow}>
-          <IconSymbol name="phone" size={20} color={colors.primary} />
-          <Text style={[styles.logisticsLabel, { color: colors.textSecondary }]}>{t('logistics.phone')}</Text>
-          <Text style={[styles.logisticsValue, { color: colors.text }]}>{logisticsInfo.phone}</Text>
-          <TouchableOpacity style={styles.copyBtn} onPress={handleCallDelivery}>
-            <Text style={[styles.copyBtnText, { color: colors.primary }]}>{t('logistics.call')}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* 物流轨迹 */}
+      <LogisticsHeader {...props} />
+      <LogisticsInfoCard {...props} />
       {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
+        <LoadingState colors={colors} />
       ) : traces.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <IconSymbol name="shippingbox" size={60} color={colors.textSecondary} />
-          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{t('logistics.no_traces')}</Text>
-        </View>
+        <EmptyTraces colors={colors} t={props.t} />
       ) : (
-        <FlatList
-          data={traces}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={renderTraceItem}
-          contentContainerStyle={styles.tracesContent}
-        />
+        <TraceList traces={traces} colors={colors} />
       )}
     </SafeAreaView>
   )
+}
+
+export default function LogisticsScreen() {
+  const controller = useLogisticsController()
+  return <LogisticsView {...controller} />
 }
 
 const styles = StyleSheet.create({

@@ -20,80 +20,133 @@ import { Brand } from '@/src/generated/api/models/Brand';
 
 const PAGE_SIZE = 10;
 
-export default function BrandListScreen() {
-  const { t } = useTranslation();
-  const router = useRouter();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+type AppColors = typeof Colors.light;
+type AppRouter = ReturnType<typeof useRouter>;
+type Translate = ReturnType<typeof useTranslation>['t'];
+type SetBrands = React.Dispatch<React.SetStateAction<Brand[]>>;
+type SetBoolean = React.Dispatch<React.SetStateAction<boolean>>;
+type PageRef = React.MutableRefObject<number>;
 
+async function fetchBrandsData(pageNum: number): Promise<Brand[] | null> {
+  try {
+    const response = await brandApi.recommendList({ pageNum, pageSize: PAGE_SIZE });
+    if (response.data && Array.isArray(response.data)) return response.data as Brand[];
+    return null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function applyBrandsPage(newBrands: Brand[] | null, isRefresh: boolean, state: BrandListState) {
+  if (!newBrands) {
+    state.setHasMore(false);
+    return;
+  }
+  if (isRefresh) state.setBrands(newBrands);
+  else state.setBrands(prev => [...prev, ...newBrands]);
+  state.setHasMore(newBrands.length >= PAGE_SIZE);
+  state.pageNumRef.current += 1;
+}
+
+async function loadBrandsData(isRefresh: boolean, state: BrandListState) {
+  if (state.loading || state.loadingMore) return;
+  if (!isRefresh && !state.hasMore) return;
+  if (isRefresh) {
+    state.setLoading(true);
+    state.pageNumRef.current = 1;
+  } else {
+    state.setLoadingMore(true);
+  }
+  try {
+    const newBrands = await fetchBrandsData(state.pageNumRef.current);
+    applyBrandsPage(newBrands, isRefresh, state);
+  } finally {
+    state.setLoading(false);
+    state.setLoadingMore(false);
+  }
+}
+
+function useBrandListState() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const pageNumRef = useRef(1);
+  return { brands, setBrands, loading, setLoading, loadingMore, setLoadingMore, hasMore, setHasMore, pageNumRef };
+}
 
-  const fetchBrands = async (): Promise<Brand[] | null> => {
-    try {
-      const response = await brandApi.recommendList({
-        pageNum: pageNumRef.current,
-        pageSize: PAGE_SIZE,
-      });
-      if (response.data && Array.isArray(response.data)) {
-        return response.data as Brand[];
-      }
-      return null;
-    } catch (error) {
-      return null;
-    }
+type BrandListState = ReturnType<typeof useBrandListState>;
+
+function createBrandListActions(state: BrandListState, router: AppRouter) {
+  return {
+    handleBrandPress: (id: number) => router.push({ pathname: '/brand/[id]', params: { id } }),
+    handleBack: () => router.back(),
   };
+}
 
+type BrandListActions = ReturnType<typeof createBrandListActions>;
+
+function useBrandListController() {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const colorScheme = useColorScheme() ?? 'light';
+  const colors = Colors[colorScheme];
+  const state = useBrandListState();
   const loadBrands = useCallback(async (isRefresh = false) => {
-    if (loading || loadingMore) return;
-    if (!isRefresh && !hasMore) return;
-
-    if (isRefresh) {
-      setLoading(true);
-      pageNumRef.current = 1;
-    } else {
-      setLoadingMore(true);
-    }
-
-    try {
-      const newBrands = await fetchBrands();
-      if (newBrands) {
-        if (isRefresh) {
-          setBrands(newBrands);
-        } else {
-          setBrands(prev => [...prev, ...newBrands]);
-        }
-        setHasMore(newBrands.length >= PAGE_SIZE);
-        pageNumRef.current += 1;
-      } else {
-        setHasMore(false);
-      }
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [loading, loadingMore, hasMore]);
-
+    await loadBrandsData(isRefresh, state);
+  }, [state.loading, state.loadingMore, state.hasMore]);
   useFocusEffect(
     useCallback(() => {
       loadBrands(true);
     }, [loadBrands])
   );
+  return { t, router, colors, ...state, loadBrands, ...createBrandListActions(state, router) };
+}
 
-  const renderBrandItem = ({ item }: { item: Brand }) => (
-    <TouchableOpacity
-      style={[styles.brandItem, { backgroundColor: colors.card }]}
-      onPress={() => router.push({ pathname: '/brand/[id]', params: { id: item.id! } })}
-      activeOpacity={0.7}
-    >
-      <Image
-        source={{ uri: item.logo || 'https://via.placeholder.com/80' }}
-        style={styles.brandLogo}
-        resizeMode="contain"
-      />
+interface BrandListViewProps extends BrandListState, BrandListActions {
+  t: Translate;
+  router: AppRouter;
+  colors: AppColors;
+  loadBrands: (isRefresh?: boolean) => Promise<void>;
+}
+
+function BrandHeader({ colors, handleBack, withBorder }: Pick<BrandListViewProps, 'colors' | 'handleBack'> & { withBorder?: boolean }) {
+  return (
+    <View style={withBorder ? [styles.header, { borderBottomColor: colors.border }] : styles.header}>
+      <TouchableOpacity style={styles.backBtn} onPress={handleBack}>
+        <IconSymbol name="chevron.left" size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>品牌列表</Text>
+      <View style={styles.headerRight} />
+    </View>
+  );
+}
+
+function LoadingView(props: BrandListViewProps) {
+  const { colors } = props;
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <BrandHeader {...props} />
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.tint} />
+      </View>
+    </SafeAreaView>
+  );
+}
+
+function EmptyBrands({ colors }: { colors: AppColors }) {
+  return (
+    <View style={styles.center}>
+      <IconSymbol name="bag" size={60} color={colors.textSecondary} />
+      <Text style={[styles.emptyText, { color: colors.textSecondary }]}>暂无品牌数据</Text>
+    </View>
+  );
+}
+
+function BrandItemRow({ item, colors, t, handleBrandPress }: Pick<BrandListViewProps, 'colors' | 't' | 'handleBrandPress'> & { item: Brand }) {
+  return (
+    <TouchableOpacity style={[styles.brandItem, { backgroundColor: colors.card }]} onPress={() => handleBrandPress(item.id!)} activeOpacity={0.7}>
+      <Image source={{ uri: item.logo || 'https://via.placeholder.com/80' }} style={styles.brandLogo} resizeMode="contain" />
       <View style={styles.brandInfo}>
         <Text style={[styles.brandName, { color: colors.text }]}>{item.name}</Text>
         <Text style={[styles.productCount, { color: colors.textSecondary }]}>
@@ -103,62 +156,35 @@ export default function BrandListScreen() {
       <IconSymbol name="chevron.right" size={16} color={colors.textSecondary} />
     </TouchableOpacity>
   );
+}
 
-  if (loading) {
-    return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <IconSymbol name="chevron.left" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>品牌列表</Text>
-          <View style={styles.headerRight} />
-        </View>
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={colors.tint} />
-        </View>
-      </SafeAreaView>
-    );
-  }
+function ListFooter({ loadingMore, hasMore, brands, colors, t }: Pick<BrandListViewProps, 'loadingMore' | 'hasMore' | 'brands' | 'colors' | 't'>) {
+  if (loadingMore) return <View style={styles.footer}><ActivityIndicator size="small" color={colors.tint} /></View>;
+  if (!hasMore && brands.length > 0) return <View style={styles.footer}><Text style={{ color: colors.textSecondary }}>{t('common.no_more_data')}</Text></View>;
+  return null;
+}
 
+function BrandListView(props: BrandListViewProps) {
+  const { colors, brands, loadBrands, t, handleBrandPress } = props;
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <IconSymbol name="chevron.left" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>品牌列表</Text>
-        <View style={styles.headerRight} />
-      </View>
-
-      {brands.length === 0 ? (
-        <View style={styles.center}>
-          <IconSymbol name="bag" size={60} color={colors.textSecondary} />
-          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>暂无品牌数据</Text>
-        </View>
-      ) : (
+      <BrandHeader {...props} withBorder />
+      {brands.length === 0 ? <EmptyBrands colors={colors} /> : (
         <FlatList
-          data={brands}
-          keyExtractor={(item) => String(item.id!)}
-          renderItem={renderBrandItem}
+          data={brands} keyExtractor={(item) => String(item.id!)}
+          renderItem={({ item }) => <BrandItemRow item={item} colors={colors} t={t} handleBrandPress={handleBrandPress} />}
           contentContainerStyle={styles.listContent}
-          onEndReached={() => loadBrands(false)}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={
-            loadingMore ? (
-              <View style={styles.footer}>
-                <ActivityIndicator size="small" color={colors.tint} />
-              </View>
-            ) : !hasMore && brands.length > 0 ? (
-              <View style={styles.footer}>
-                <Text style={{ color: colors.textSecondary }}>{t('common.no_more_data')}</Text>
-              </View>
-            ) : null
-          }
+          onEndReached={() => loadBrands(false)} onEndReachedThreshold={0.5}
+          ListFooterComponent={<ListFooter {...props} />}
         />
       )}
     </SafeAreaView>
   );
+}
+
+export default function BrandListScreen() {
+  const controller = useBrandListController();
+  return controller.loading ? <LoadingView {...controller} /> : <BrandListView {...controller} />;
 }
 
 const styles = StyleSheet.create({

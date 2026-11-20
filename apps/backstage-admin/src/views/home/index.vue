@@ -113,6 +113,74 @@ const handleDatePickerRangeChange = () => {
   getLineChartData()
 }
 
+const buildChartBaseOption = () => ({
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'cross'
+    }
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  }
+})
+
+const buildChartXAxis = (dates: string[]) => ({
+  type: 'category',
+  boundaryGap: false,
+  data: dates,
+  axisLabel: {
+    formatter: '{value}',
+    rotate: 0
+  }
+})
+
+const buildChartYAxis = () => [
+  {
+    type: 'value',
+    name: '订单数量',
+    position: 'left',
+    axisLabel: {
+      formatter: '{value}'
+    }
+  },
+  {
+    type: 'value',
+    name: '订单金额',
+    position: 'right',
+    axisLabel: {
+      formatter: '{value}'
+    }
+  }
+]
+
+const buildChartSeries = (orderCounts: number[], orderAmounts: number[]) => [
+  {
+    name: '订单数量',
+    type: 'line',
+    areaStyle: {},
+    data: orderCounts,
+    smooth: true,
+    itemStyle: {
+      color: '#409EFF'
+    }
+  },
+  {
+    name: '订单金额',
+    type: 'line',
+    yAxisIndex: 1,
+    areaStyle: {},
+    data: orderAmounts,
+    smooth: true,
+    itemStyle: {
+      color: '#67C23A'
+    }
+  }
+]
+
 // X axis: date (2026-01-01 to 2026-01-15)
 // Left Y axis: order count (0-100)
 // Right Y axis: order amount (0-10000+)
@@ -125,68 +193,10 @@ const chartOption = computed(() => {
   const orderCounts = lineChartData.value.map(item => item.orderCount)
   const orderAmounts = lineChartData.value.map(item => item.orderAmount)
   return {
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: {
-        type: 'cross'
-      }
-    },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '3%',
-      containLabel: true
-    },
-    xAxis: {
-      type: 'category',
-      boundaryGap: false,
-      data: dates,
-      axisLabel: {
-        formatter: '{value}',
-        rotate: 0
-      }
-    },
-    yAxis: [
-      {
-        type: 'value',
-        name: '订单数量',
-        position: 'left',
-        axisLabel: {
-          formatter: '{value}'
-        }
-      },
-      {
-        type: 'value',
-        name: '订单金额',
-        position: 'right',
-        axisLabel: {
-          formatter: '{value}'
-        }
-      }
-    ],
-    series: [
-      {
-        name: '订单数量',
-        type: 'line',
-        areaStyle: {},
-        data: orderCounts,
-        smooth: true,
-        itemStyle: {
-          color: '#409EFF'
-        }
-      },
-      {
-        name: '订单金额',
-        type: 'line',
-        yAxisIndex: 1,
-        areaStyle: {},
-        data: orderAmounts,
-        smooth: true,
-        itemStyle: {
-          color: '#67C23A'
-        }
-      }
-    ]
+    ...buildChartBaseOption(),
+    xAxis: buildChartXAxis(dates),
+    yAxis: buildChartYAxis(),
+    series: buildChartSeries(orderCounts, orderAmounts)
   }
 })
 </script>

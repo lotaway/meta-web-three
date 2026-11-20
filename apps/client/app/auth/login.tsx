@@ -19,283 +19,480 @@ import { useColorScheme } from '@/hooks/useColorScheme'
 import { useAuth } from '@/contexts/AuthContext'
 import { IconSymbol } from '@/components/ui/IconSymbol'
 
-export default function LoginScreen() {
+type Translate = ReturnType<typeof useTranslation>['t']
+type AppRouter = ReturnType<typeof useRouter>
+type AuthContextValue = ReturnType<typeof useAuth>
+type LoginType = 'phone' | 'password'
+type SetBoolean = React.Dispatch<React.SetStateAction<boolean>>
+type SetCountdown = React.Dispatch<React.SetStateAction<number>>
+
+interface LoginCredentials {
+  loginType: LoginType
+  phone: string
+  verificationCode: string
+  username: string
+  password: string
+}
+
+interface LoginViewProps {
+  t: Translate
+  colors: typeof Colors.light
+  loginType: LoginType
+  setLoginType: React.Dispatch<React.SetStateAction<LoginType>>
+  phone: string
+  setPhone: React.Dispatch<React.SetStateAction<string>>
+  verificationCode: string
+  setVerificationCode: React.Dispatch<React.SetStateAction<string>>
+  username: string
+  setUsername: React.Dispatch<React.SetStateAction<string>>
+  password: string
+  setPassword: React.Dispatch<React.SetStateAction<string>>
+  countdown: number
+  loading: boolean
+  onSendCode: () => void
+  onLogin: () => void
+  onBack: () => void
+  onForgotPassword: () => void
+}
+
+interface LoginState {
+  loginType: LoginType
+  setLoginType: React.Dispatch<React.SetStateAction<LoginType>>
+  phone: string
+  setPhone: React.Dispatch<React.SetStateAction<string>>
+  verificationCode: string
+  setVerificationCode: React.Dispatch<React.SetStateAction<string>>
+  username: string
+  setUsername: React.Dispatch<React.SetStateAction<string>>
+  password: string
+  setPassword: React.Dispatch<React.SetStateAction<string>>
+  loading: boolean
+  setLoading: SetBoolean
+  countdown: number
+  setCountdown: SetCountdown
+}
+
+function isPhoneValid(phone: string): boolean {
+  return !!phone && phone.length >= 11
+}
+
+function startCodeCountdown(setCountdown: SetCountdown) {
+  setCountdown(60)
+  const timer = setInterval(() => {
+    setCountdown(prev => {
+      if (prev <= 1) {
+        clearInterval(timer)
+        return 0
+      }
+      return prev - 1
+    })
+  }, 1000)
+}
+
+function getPhoneLoginError(credentials: LoginCredentials, t: Translate): string | null {
+  if (!isPhoneValid(credentials.phone)) {
+    return t('auth.phone_invalid')
+  }
+  if (!credentials.verificationCode || credentials.verificationCode.length < 4) {
+    return t('auth.code_invalid')
+  }
+  return null
+}
+
+function getPasswordLoginError(credentials: LoginCredentials, t: Translate): string | null {
+  if (!credentials.username) {
+    return t('auth.username_required')
+  }
+  if (!credentials.password || credentials.password.length < 6) {
+    return t('auth.password_invalid')
+  }
+  return null
+}
+
+function getLoginValidationError(credentials: LoginCredentials, t: Translate): string | null {
+  return credentials.loginType === 'phone'
+    ? getPhoneLoginError(credentials, t)
+    : getPasswordLoginError(credentials, t)
+}
+
+function showLoginSuccess(t: Translate, router: AppRouter) {
+  Alert.alert(t('auth.success'), t('auth.login_success'), [
+    { text: 'OK', onPress: () => router.replace('/(tabs)') }
+  ])
+}
+
+async function runLogin(credentials: LoginCredentials, t: Translate, router: AppRouter, auth: AuthContextValue, setLoading: SetBoolean): Promise<void> {
+  setLoading(true)
+  try {
+    if (credentials.loginType === 'phone') {
+      await auth.loginWithPhone(credentials.phone, credentials.verificationCode)
+    } else {
+      await auth.loginWithSso(credentials.username, credentials.password)
+    }
+    showLoginSuccess(t, router)
+  } catch (error: any) {
+    Alert.alert(t('auth.error'), error?.message || t('auth.login_failed'))
+  } finally {
+    setLoading(false)
+  }
+}
+
+async function requestAuthCode(
+  phone: string,
+  t: Translate,
+  auth: AuthContextValue,
+  setCountdown: SetCountdown
+): Promise<void> {
+  await auth.getAuthCode(phone)
+  startCodeCountdown(setCountdown)
+  Alert.alert(t('auth.success'), t('auth.code_sent'))
+}
+
+async function sendLoginCode(
+  phone: string,
+  t: Translate,
+  auth: AuthContextValue,
+  setLoading: SetBoolean,
+  setCountdown: SetCountdown
+): Promise<void> {
+  if (!isPhoneValid(phone)) {
+    Alert.alert(t('auth.error'), t('auth.phone_invalid'))
+    return
+  }
+  setLoading(true)
+  try {
+    await requestAuthCode(phone, t, auth, setCountdown)
+  } catch (error) {
+    Alert.alert(t('auth.error'), t('auth.code_send_failed'))
+  } finally {
+    setLoading(false)
+  }
+}
+
+function useLoginAuth() {
   const { t } = useTranslation()
   const router = useRouter()
-  const colorScheme = useColorScheme() ?? 'light'
-  const colors = Colors[colorScheme]
-  const { loginWithCredentials, loginWithSso, loginWithPhone, getAuthCode } = useAuth()
+  const colors = Colors[useColorScheme() ?? 'light']
+  const auth = useAuth()
+  return { t, router, colors, auth }
+}
 
-  const [loginType, setLoginType] = useState<'phone' | 'password'>('phone')
+function useLoginState(): LoginState {
+  const [loginType, setLoginType] = useState<LoginType>('phone')
   const [phone, setPhone] = useState('')
   const [verificationCode, setVerificationCode] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [countdown, setCountdown] = useState(0)
-
-  const handleSendCode = async () => {
-    if (!phone || phone.length < 11) {
-      Alert.alert(t('auth.error'), t('auth.phone_invalid'))
-      return
-    }
-
-    setLoading(true)
-    try {
-      await getAuthCode(phone)
-      
-      setCountdown(60)
-      const timer = setInterval(() => {
-        setCountdown(prev => {
-          if (prev <= 1) {
-            clearInterval(timer)
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
-      
-      Alert.alert(t('auth.success'), t('auth.code_sent'))
-    } catch (error) {
-      Alert.alert(t('auth.error'), t('auth.code_send_failed'))
-    } finally {
-      setLoading(false)
-    }
+  return {
+    loginType, setLoginType, phone, setPhone, verificationCode, setVerificationCode,
+    username, setUsername, password, setPassword, loading, setLoading, countdown, setCountdown,
   }
+}
 
-  const handleLogin = async () => {
-    if (loginType === 'phone') {
-      if (!phone || phone.length < 11) {
-        Alert.alert(t('auth.error'), t('auth.phone_invalid'))
-        return
-      }
-      if (!verificationCode || verificationCode.length < 4) {
-        Alert.alert(t('auth.error'), t('auth.code_invalid'))
-        return
-      }
-
-      setLoading(true)
-      try {
-        await loginWithPhone(phone, verificationCode)
-        Alert.alert(t('auth.success'), t('auth.login_success'), [
-          { text: 'OK', onPress: () => router.replace('/(tabs)') }
-        ])
-      } catch (error: any) {
-        const message = error?.message || t('auth.login_failed')
-        Alert.alert(t('auth.error'), message)
-      } finally {
-        setLoading(false)
-      }
-    } else {
-      if (!username) {
-        Alert.alert(t('auth.error'), t('auth.username_required'))
-        return
-      }
-      if (!password || password.length < 6) {
-        Alert.alert(t('auth.error'), t('auth.password_invalid'))
-        return
-      }
-
-      setLoading(true)
-      try {
-        await loginWithSso(username, password)
-        Alert.alert(t('auth.success'), t('auth.login_success'), [
-          { text: 'OK', onPress: () => router.replace('/(tabs)') }
-        ])
-      } catch (error: any) {
-        const message = error?.message || t('auth.login_failed')
-        Alert.alert(t('auth.error'), message)
-      } finally {
-        setLoading(false)
-      }
-    }
+function submitLogin(
+  credentials: LoginCredentials,
+  t: Translate,
+  router: AppRouter,
+  auth: AuthContextValue,
+  setLoading: SetBoolean
+) {
+  const error = getLoginValidationError(credentials, t)
+  if (error) {
+    Alert.alert(t('auth.error'), error)
+    return
   }
+  return runLogin(credentials, t, router, auth, setLoading)
+}
 
+function useLoginActions(
+  auth: AuthContextValue,
+  state: LoginState,
+  t: Translate,
+  router: AppRouter
+) {
+  const { phone, verificationCode, username, password, loginType, setLoading, setCountdown } = state
+  const credentials = { loginType, phone, verificationCode, username, password }
+  const onSendCode = () => sendLoginCode(phone, t, auth, setLoading, setCountdown)
+  const onLogin = () => submitLogin(credentials, t, router, auth, setLoading)
+  const onBack = () => router.back()
+  const onForgotPassword = () => router.push('/auth/forgot-password')
+  return { onSendCode, onLogin, onBack, onForgotPassword }
+}
+
+function AuthHeader({ colors, t, onBack }: LoginViewProps) {
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={styles.header}>
+      <TouchableOpacity style={styles.backBtn} onPress={onBack}>
+        <IconSymbol name="chevron.left" size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.title, { color: colors.text }]}>
+        {t('auth.login_title')}
+      </Text>
+    </View>
+  )
+}
+
+function TabButton({ label, isActive, colors, onPress }: {
+  label: string; isActive: boolean; colors: typeof Colors.light; onPress: () => void
+}) {
+  return (
+    <TouchableOpacity
+      style={[styles.tab, isActive && { borderBottomColor: colors.primary }]}
+      onPress={onPress}
+    >
+      <Text style={[styles.tabText, { color: isActive ? colors.primary : colors.textSecondary }]}>
+        {label}
+      </Text>
+    </TouchableOpacity>
+  )
+}
+
+function LoginTabs({ colors, loginType, setLoginType, t }: LoginViewProps) {
+  return (
+    <View style={styles.tabContainer}>
+      <TabButton
+        label={t('auth.login_phone')}
+        isActive={loginType === 'phone'}
+        colors={colors}
+        onPress={() => setLoginType('phone')}
+      />
+      <TabButton
+        label={t('auth.login_password')}
+        isActive={loginType === 'password'}
+        colors={colors}
+        onPress={() => setLoginType('password')}
+      />
+    </View>
+  )
+}
+
+function PhoneNumberField({ colors, phone, setPhone, t }: LoginViewProps) {
+  return (
+    <View style={styles.field}>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>
+        {t('auth.phone_number')}
+      </Text>
+      <TextInput
+        style={[styles.input, { color: colors.text, borderColor: colors.border }]}
+        placeholder={t('auth.phone_placeholder')}
+        placeholderTextColor={colors.textSecondary}
+        value={phone}
+        onChangeText={setPhone}
+        keyboardType="phone-pad"
+        maxLength={11}
+      />
+    </View>
+  )
+}
+
+function CodeSendButton({ colors, countdown, loading, onSendCode, t }: LoginViewProps) {
+  return (
+    <TouchableOpacity
+      style={[styles.codeBtn, { backgroundColor: countdown > 0 ? colors.border : colors.primary }]}
+      onPress={onSendCode}
+      disabled={countdown > 0 || loading}
+    >
+      <Text style={styles.codeBtnText}>
+        {countdown > 0 ? `${countdown}s` : t('auth.code_send')}
+      </Text>
+    </TouchableOpacity>
+  )
+}
+
+function CodeInput({ colors, verificationCode, setVerificationCode, t }: LoginViewProps) {
+  return (
+    <TextInput
+      style={[styles.codeInput, { color: colors.text, borderColor: colors.border }]}
+      placeholder={t('auth.code_placeholder')}
+      placeholderTextColor={colors.textSecondary}
+      value={verificationCode}
+      onChangeText={setVerificationCode}
+      keyboardType="number-pad"
+      maxLength={6}
+    />
+  )
+}
+
+function VerificationCodeField(props: LoginViewProps) {
+  const { colors, t } = props
+  return (
+    <View style={styles.field}>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>
+        {t('auth.verification_code')}
+      </Text>
+      <View style={styles.codeRow}>
+        <CodeInput {...props} />
+        <CodeSendButton {...props} />
+      </View>
+    </View>
+  )
+}
+
+function PhoneLoginFields(props: LoginViewProps) {
+  return (
+    <View style={styles.fields}>
+      <PhoneNumberField {...props} />
+      <VerificationCodeField {...props} />
+    </View>
+  )
+}
+
+function UsernameField({ colors, username, setUsername, t }: LoginViewProps) {
+  return (
+    <View style={styles.field}>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>
+        {t('auth.username')}
+      </Text>
+      <TextInput
+        style={[styles.input, { color: colors.text, borderColor: colors.border }]}
+        placeholder={t('auth.username_placeholder')}
+        placeholderTextColor={colors.textSecondary}
+        value={username}
+        onChangeText={setUsername}
+        autoCapitalize="none"
+      />
+    </View>
+  )
+}
+
+function PasswordField({ colors, password, setPassword, t }: LoginViewProps) {
+  return (
+    <View style={styles.field}>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>
+        {t('auth.password')}
+      </Text>
+      <TextInput
+        style={[styles.input, { color: colors.text, borderColor: colors.border }]}
+        placeholder={t('auth.password_placeholder')}
+        placeholderTextColor={colors.textSecondary}
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        autoCapitalize="none"
+      />
+    </View>
+  )
+}
+
+function ForgotPasswordLink({ colors, onForgotPassword, t }: LoginViewProps) {
+  return (
+    <TouchableOpacity style={styles.forgotLink} onPress={onForgotPassword}>
+      <Text style={[styles.forgotText, { color: colors.primary }]}>
+        {t('auth.forgot_password')}
+      </Text>
+    </TouchableOpacity>
+  )
+}
+
+function PasswordLoginFields(props: LoginViewProps) {
+  return (
+    <View style={styles.fields}>
+      <UsernameField {...props} />
+      <PasswordField {...props} />
+      <ForgotPasswordLink {...props} />
+    </View>
+  )
+}
+
+function LoginSubmitButton({ colors, loading, onLogin, t }: LoginViewProps) {
+  return (
+    <TouchableOpacity
+      style={[styles.loginBtn, { backgroundColor: colors.primary }]}
+      onPress={onLogin}
+      disabled={loading}
+    >
+      {loading ? (
+        <ActivityIndicator color="#fff" />
+      ) : (
+        <Text style={styles.loginBtnText}>{t('auth.login_btn')}</Text>
+      )}
+    </TouchableOpacity>
+  )
+}
+
+function LoginDivider({ colors, t }: LoginViewProps) {
+  return (
+    <View style={styles.divider}>
+      <View style={[styles.line, { backgroundColor: colors.border }]} />
+      <Text style={[styles.dividerText, { color: colors.textSecondary }]}>
+        {t('auth.or_login_with')}
+      </Text>
+      <View style={[styles.line, { backgroundColor: colors.border }]} />
+    </View>
+  )
+}
+
+function SocialLoginButtons({ colors }: LoginViewProps) {
+  return (
+    <View style={styles.socialRow}>
+      <TouchableOpacity style={[styles.socialBtn, { borderColor: colors.border }]}>
+        <IconSymbol name={'logo.wechat' as any} size={24} color="#07C160" />
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.socialBtn, { borderColor: colors.border }]}>
+        <IconSymbol name={'logo.apple' as any} size={24} color="#000" />
+      </TouchableOpacity>
+    </View>
+  )
+}
+
+function LoginFooter({ colors, t }: LoginViewProps) {
+  return (
+    <View style={styles.footer}>
+      <Text style={[styles.footerText, { color: colors.textSecondary }]}>
+        {t('auth.no_account')}
+      </Text>
+      <Link href="/auth/register" asChild>
+        <TouchableOpacity>
+          <Text style={[styles.registerLink, { color: colors.primary }]}>
+            {t('auth.register_now')}
+          </Text>
+        </TouchableOpacity>
+      </Link>
+    </View>
+  )
+}
+
+function LoginForm(props: LoginViewProps) {
+  const { loginType } = props
+  return (
+    <View style={styles.form}>
+      <LoginTabs {...props} />
+      {loginType === 'phone' ? (
+        <PhoneLoginFields {...props} />
+      ) : (
+        <PasswordLoginFields {...props} />
+      )}
+      <LoginSubmitButton {...props} />
+      <LoginDivider {...props} />
+      <SocialLoginButtons {...props} />
+      <LoginFooter {...props} />
+    </View>
+  )
+}
+
+function LoginView(props: LoginViewProps) {
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: props.colors.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <View style={styles.header}>
-            <TouchableOpacity
-              style={styles.backBtn}
-              onPress={() => router.back()}
-            >
-              <IconSymbol name="chevron.left" size={24} color={colors.text} />
-            </TouchableOpacity>
-            <Text style={[styles.title, { color: colors.text }]}>
-              {t('auth.login_title')}
-            </Text>
-          </View>
-
-          <View style={styles.form}>
-            <View style={styles.tabContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.tab,
-                  loginType === 'phone' && { borderBottomColor: colors.primary }
-                ]}
-                onPress={() => setLoginType('phone')}
-              >
-                <Text style={[
-                  styles.tabText,
-                  { color: loginType === 'phone' ? colors.primary : colors.textSecondary }
-                ]}>
-                  {t('auth.login_phone')}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.tab,
-                  loginType === 'password' && { borderBottomColor: colors.primary }
-                ]}
-                onPress={() => setLoginType('password')}
-              >
-                <Text style={[
-                  styles.tabText,
-                  { color: loginType === 'password' ? colors.primary : colors.textSecondary }
-                ]}>
-                  {t('auth.login_password')}
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {loginType === 'phone' ? (
-              <View style={styles.fields}>
-                <View style={styles.field}>
-                  <Text style={[styles.label, { color: colors.textSecondary }]}>
-                    {t('auth.phone_number')}
-                  </Text>
-                  <TextInput
-                    style={[styles.input, { color: colors.text, borderColor: colors.border }]}
-                    placeholder={t('auth.phone_placeholder')}
-                    placeholderTextColor={colors.textSecondary}
-                    value={phone}
-                    onChangeText={setPhone}
-                    keyboardType="phone-pad"
-                    maxLength={11}
-                  />
-                </View>
-
-                <View style={styles.field}>
-                  <Text style={[styles.label, { color: colors.textSecondary }]}>
-                    {t('auth.verification_code')}
-                  </Text>
-                  <View style={styles.codeRow}>
-                    <TextInput
-                      style={[styles.codeInput, { color: colors.text, borderColor: colors.border }]}
-                      placeholder={t('auth.code_placeholder')}
-                      placeholderTextColor={colors.textSecondary}
-                      value={verificationCode}
-                      onChangeText={setVerificationCode}
-                      keyboardType="number-pad"
-                      maxLength={6}
-                    />
-                    <TouchableOpacity
-                      style={[
-                        styles.codeBtn,
-                        { backgroundColor: countdown > 0 ? colors.border : colors.primary }
-                      ]}
-                      onPress={handleSendCode}
-                      disabled={countdown > 0 || loading}
-                    >
-                      <Text style={styles.codeBtnText}>
-                        {countdown > 0 ? `${countdown}s` : t('auth.code_send')}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            ) : (
-              <View style={styles.fields}>
-                <View style={styles.field}>
-                  <Text style={[styles.label, { color: colors.textSecondary }]}>
-                    {t('auth.username')}
-                  </Text>
-                  <TextInput
-                    style={[styles.input, { color: colors.text, borderColor: colors.border }]}
-                    placeholder={t('auth.username_placeholder')}
-                    placeholderTextColor={colors.textSecondary}
-                    value={username}
-                    onChangeText={setUsername}
-                    autoCapitalize="none"
-                  />
-                </View>
-
-                <View style={styles.field}>
-                  <Text style={[styles.label, { color: colors.textSecondary }]}>
-                    {t('auth.password')}
-                  </Text>
-                  <TextInput
-                    style={[styles.input, { color: colors.text, borderColor: colors.border }]}
-                    placeholder={t('auth.password_placeholder')}
-                    placeholderTextColor={colors.textSecondary}
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                    autoCapitalize="none"
-                  />
-                </View>
-
-                <TouchableOpacity 
-                  style={styles.forgotLink}
-                  onPress={() => router.push('/auth/forgot-password')}
-                >
-                  <Text style={[styles.forgotText, { color: colors.primary }]}>
-                    {t('auth.forgot_password')}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
-            <TouchableOpacity
-              style={[styles.loginBtn, { backgroundColor: colors.primary }]}
-              onPress={handleLogin}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.loginBtnText}>{t('auth.login_btn')}</Text>
-              )}
-            </TouchableOpacity>
-
-            <View style={styles.divider}>
-              <View style={[styles.line, { backgroundColor: colors.border }]} />
-              <Text style={[styles.dividerText, { color: colors.textSecondary }]}>
-                {t('auth.or_login_with')}
-              </Text>
-              <View style={[styles.line, { backgroundColor: colors.border }]} />
-            </View>
-
-            <View style={styles.socialRow}>
-              <TouchableOpacity style={[styles.socialBtn, { borderColor: colors.border }]}>
-                <IconSymbol name={'logo.wechat' as any} size={24} color="#07C160" />
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.socialBtn, { borderColor: colors.border }]}>
-                <IconSymbol name={'logo.apple' as any} size={24} color="#000" />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.footer}>
-              <Text style={[styles.footerText, { color: colors.textSecondary }]}>
-                {t('auth.no_account')}
-              </Text>
-              <Link href="/auth/register" asChild>
-                <TouchableOpacity>
-                  <Text style={[styles.registerLink, { color: colors.primary }]}>
-                    {t('auth.register_now')}
-                  </Text>
-                </TouchableOpacity>
-              </Link>
-            </View>
-          </View>
+          <AuthHeader {...props} />
+          <LoginForm {...props} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   )
+}
+
+export default function LoginScreen() {
+  const { t, router, colors, auth } = useLoginAuth()
+  const state = useLoginState()
+  const actions = useLoginActions(auth, state, t, router)
+  return <LoginView t={t} colors={colors} {...state} {...actions} />
 }
 
 const styles = StyleSheet.create({

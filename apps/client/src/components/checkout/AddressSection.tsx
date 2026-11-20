@@ -10,6 +10,46 @@ interface AddressSectionProps {
   onPress: () => void
 }
 
+function AddressTopRow({ address, colors }: {
+  address: MemberAddress; colors: typeof Colors.light
+}) {
+  return (
+    <View style={styles.addressTop}>
+      <Text style={[styles.addressName, { color: colors.fontColorDark }]}>{address.name}</Text>
+      <Text style={[styles.addressPhone, { color: colors.fontColorBase }]}>{address.phoneNumber}</Text>
+    </View>
+  )
+}
+
+function SelectedAddressContent({ address, colors }: {
+  address: MemberAddress; colors: typeof Colors.light
+}) {
+  return (
+    <View style={styles.addressContent}>
+      <IconSymbol name="location.fill" size={24} color={colors.primary} />
+      <View style={styles.addressInfo}>
+        <AddressTopRow address={address} colors={colors} />
+        <Text style={[styles.addressDetail, { color: colors.fontColorLight }]}>
+          {address.province} {address.city} {address.region} {address.detailAddress}
+        </Text>
+      </View>
+      <IconSymbol name="chevron.right" size={20} color={colors.fontColorDisabled} />
+    </View>
+  )
+}
+
+function EmptyAddressContent({ colors }: { colors: typeof Colors.light }) {
+  return (
+    <View style={styles.addressContent}>
+      <IconSymbol name="location" size={24} color={colors.fontColorDisabled} />
+      <Text style={[styles.addressPlaceholder, { color: colors.fontColorDisabled }]}>
+        请选择收货地址
+      </Text>
+      <IconSymbol name="chevron.right" size={20} color={colors.fontColorDisabled} />
+    </View>
+  )
+}
+
 export default function AddressSection({ selectedAddress, colors, onPress }: AddressSectionProps) {
   return (
     <TouchableOpacity
@@ -17,31 +57,9 @@ export default function AddressSection({ selectedAddress, colors, onPress }: Add
       onPress={onPress}
     >
       {selectedAddress ? (
-        <View style={styles.addressContent}>
-          <IconSymbol name="location.fill" size={24} color={colors.primary} />
-          <View style={styles.addressInfo}>
-            <View style={styles.addressTop}>
-              <Text style={[styles.addressName, { color: colors.fontColorDark }]}>
-                {selectedAddress.name}
-              </Text>
-              <Text style={[styles.addressPhone, { color: colors.fontColorBase }]}>
-                {selectedAddress.phoneNumber}
-              </Text>
-            </View>
-            <Text style={[styles.addressDetail, { color: colors.fontColorLight }]}>
-              {selectedAddress.province} {selectedAddress.city} {selectedAddress.region} {selectedAddress.detailAddress}
-            </Text>
-          </View>
-          <IconSymbol name="chevron.right" size={20} color={colors.fontColorDisabled} />
-        </View>
+        <SelectedAddressContent address={selectedAddress} colors={colors} />
       ) : (
-        <View style={styles.addressContent}>
-          <IconSymbol name="location" size={24} color={colors.fontColorDisabled} />
-          <Text style={[styles.addressPlaceholder, { color: colors.fontColorDisabled }]}>
-            请选择收货地址
-          </Text>
-          <IconSymbol name="chevron.right" size={20} color={colors.fontColorDisabled} />
-        </View>
+        <EmptyAddressContent colors={colors} />
       )}
     </TouchableOpacity>
   )

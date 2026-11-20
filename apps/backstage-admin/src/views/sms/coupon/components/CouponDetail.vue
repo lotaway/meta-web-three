@@ -92,50 +92,56 @@ const rules = reactive<FormRules>({
   ]
 })
 
+const showSubmitMessage = (message: string, type: 'success' | 'error') => {
+  ElMessage({ message, type, duration: 1000 })
+}
+
+const finishCouponSubmit = (message: string) => {
+  couponFrom.value.resetFields()
+  showSubmitMessage(message, 'success')
+  router.back()
+}
+
+const updateCoupon = async () => {
+  try {
+    await couponUpdateByIdAPI(Number(route.query.id), coupon.value)
+    finishCouponSubmit('修改成功')
+  } catch (error) {
+    console.error('Failed to update coupon:', error)
+  }
+}
+
+const createCoupon = async () => {
+  try {
+    await couponCreateAPI(coupon.value)
+    finishCouponSubmit('提交成功')
+  } catch (error) {
+    console.error('Failed to create coupon:', error)
+  }
+}
+
+const submitCoupon = async () => {
+  if (props.isEdit) {
+    await updateCoupon()
+  } else {
+    await createCoupon()
+  }
+}
+
 // Submit form
 const onSubmit = async () => {
   if (!couponFrom.value) return
   const isValid = await couponFrom.value.validate().catch(() => false)
-  if (isValid) {
-    await ElMessageBox.confirm(t('dialog.confirmSubmit'), t('dialog.title'), {
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel'),
-      type: 'warning'
-    })
-    if (props.isEdit) {
-      try {
-        await couponUpdateByIdAPI(Number(route.query.id), coupon.value)
-        couponFrom.value.resetFields()
-        ElMessage({
-          message: '修改成功',
-          type: 'success',
-          duration: 1000
-        })
-        router.back()
-      } catch (error) {
-        console.error('Failed to update coupon:', error)
-      }
-    } else {
-      try {
-        await couponCreateAPI(coupon.value)
-        couponFrom.value.resetFields()
-        ElMessage({
-          message: '提交成功',
-          type: 'success',
-          duration: 1000
-        })
-        router.back()
-      } catch (error) {
-        console.error('Failed to create coupon:', error)
-      }
-    }
-  } else {
-    ElMessage({
-      message: '验证失败',
-      type: 'error',
-      duration: 1000
-    })
+  if (!isValid) {
+    showSubmitMessage('验证失败', 'error')
+    return
   }
+  await ElMessageBox.confirm(t('dialog.confirmSubmit'), t('dialog.title'), {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    type: 'warning'
+  })
+  await submitCoupon()
 }
 
 // Reset form

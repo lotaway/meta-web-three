@@ -35,144 +35,165 @@ const USE_STATUS_TABS = [
   { value: 2, label: '已过期' },
 ]
 
-export default function CouponListScreen() {
-  const { t } = useTranslation()
-  const router = useRouter()
-  const colorScheme = useColorScheme() ?? 'light'
-  const colors = Colors[colorScheme]
+const COUPON_STATUS_LABELS: Record<number, string> = {
+  0: '未使用',
+  1: '已使用',
+}
 
+type AppColors = typeof Colors.light
+type AppRouter = ReturnType<typeof useRouter>
+type Translate = ReturnType<typeof useTranslation>['t']
+type SetCoupons = React.Dispatch<React.SetStateAction<CouponItem[]>>
+type SetBoolean = React.Dispatch<React.SetStateAction<boolean>>
+type SetSelectedTab = React.Dispatch<React.SetStateAction<number | null>>
+type SetClaiming = React.Dispatch<React.SetStateAction<string | null>>
+
+function getCouponStatusLabel(useStatus: number) {
+  return COUPON_STATUS_LABELS[useStatus] ?? '已过期'
+}
+
+async function fetchCoupons(selectedTab: number | null): Promise<CouponItem[]> {
+  const response = await couponApi.listCoupons({ useStatus: selectedTab ?? undefined })
+  return (response.data ?? []) as any
+}
+
+async function loadCouponsData(selectedTab: number | null, setLoading: SetBoolean, setCoupons: SetCoupons, t: Translate) {
+  setLoading(true)
+  try {
+    setCoupons(await fetchCoupons(selectedTab))
+  } catch (error) {
+    Alert.alert(t('common.error'), '加载优惠券失败')
+  } finally {
+    setLoading(false)
+  }
+}
+
+async function claimCoupon(couponTypeId: number, t: Translate, reload: () => Promise<void>, state: CouponState) {
+  state.setClaiming(couponTypeId.toString())
+  try {
+    await couponApi.claimCoupon({ couponClaimRequest: { couponTypeId } })
+    Alert.alert(t('common.success'), '领取成功')
+    reload()
+  } catch (error) {
+    Alert.alert(t('common.error'), '领取失败')
+  } finally {
+    state.setClaiming(null)
+  }
+}
+
+function useCouponState() {
   const [coupons, setCoupons] = useState<CouponItem[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedTab, setSelectedTab] = useState<number | null>(null)
   const [claiming, setClaiming] = useState<string | null>(null)
+  return { coupons, setCoupons, loading, setLoading, selectedTab, setSelectedTab, claiming, setClaiming }
+}
 
+type CouponState = ReturnType<typeof useCouponState>
+
+function useCouponController() {
+  const { t } = useTranslation()
+  const router = useRouter()
+  const colorScheme = useColorScheme() ?? 'light'
+  const colors = Colors[colorScheme]
+  const state = useCouponState()
+  const loadCoupons = () => loadCouponsData(state.selectedTab, state.setLoading, state.setCoupons, t)
   useEffect(() => {
     loadCoupons()
-  }, [selectedTab])
-
-  const loadCoupons = async () => {
-    setLoading(true)
-    try {
-      const response = await couponApi.listCoupons({
-        useStatus: selectedTab ?? undefined,
-      })
-      setCoupons((response.data ?? []) as any)
-    } catch (error) {
-      Alert.alert(t('common.error'), '加载优惠券失败')
-    } finally {
-      setLoading(false)
-    }
+  }, [state.selectedTab])
+  return {
+    t, router, colors, ...state, loadCoupons,
+    handleBack: () => router.back(),
+    handleClaimCoupon: (id: number) => claimCoupon(id, t, loadCoupons, state),
   }
+}
 
-  const handleClaimCoupon = async (couponTypeId: number) => {
-    setClaiming(couponTypeId.toString())
-    try {
-      await couponApi.claimCoupon({
-        couponClaimRequest: {
-          couponTypeId,
-        },
-      })
-      Alert.alert(t('common.success'), '领取成功')
-      loadCoupons()
-    } catch (error) {
-      Alert.alert(t('common.error'), '领取失败')
-    } finally {
-      setClaiming(null)
-    }
-  }
+interface CouponViewProps extends ReturnType<typeof useCouponController> {}
 
-  const renderCouponItem = ({ item }: { item: CouponItem }) => (
-    <TouchableOpacity
-      style={[styles.couponItem, { borderColor: colors.border }]}
-      onPress={() => router.push({
-        pathname: '/favorite-detail',
-        params: { id: String(item.couponTypeId) }
-      } as any)}
-    >
+function CouponHeader({ colors, handleBack }: Pick<CouponViewProps, 'colors' | 'handleBack'>) {
+  return (
+    <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+      <TouchableOpacity style={styles.backBtn} onPress={handleBack}>
+        <IconSymbol name="chevron.left" size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>优惠券</Text>
+      <View style={styles.headerRight} />
+    </View>
+  )
+}
+
+function StatusTabs({ selectedTab, setSelectedTab, colors }: Pick<CouponViewProps, 'selectedTab' | 'setSelectedTab' | 'colors'>) {
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabContainer}>
+      {USE_STATUS_TABS.map(tab => (
+        <TouchableOpacity
+          key={String(tab.value)}
+          style={[styles.tab, { borderColor: selectedTab === tab.value ? colors.primary : colors.border }, selectedTab === tab.value && { backgroundColor: colors.primary + '10' }]}
+          onPress={() => setSelectedTab(tab.value)}
+        >
+          <Text style={[styles.tabText, { color: selectedTab === tab.value ? colors.primary : colors.textSecondary }]}>
+            {tab.label}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
+  )
+}
+
+function CouponItemCard({ item, colors, router }: Pick<CouponViewProps, 'colors' | 'router'> & { item: CouponItem }) {
+  return (
+    <TouchableOpacity style={[styles.couponItem, { borderColor: colors.border }]} onPress={() => router.push({ pathname: '/favorite-detail', params: { id: String(item.couponTypeId) } } as any)}>
       <View style={styles.couponLeft}>
-        <Text style={[styles.couponAmount, { color: colors.primary }]}>
-          ¥{item.discountAmount}
-        </Text>
-        <Text style={[styles.couponCondition, { color: colors.textSecondary }]}>
-          满¥{item.minimumOrderAmount}可用
-        </Text>
+        <Text style={[styles.couponAmount, { color: colors.primary }]}>¥{item.discountAmount}</Text>
+        <Text style={[styles.couponCondition, { color: colors.textSecondary }]}>满¥{item.minimumOrderAmount}可用</Text>
       </View>
       <View style={styles.couponDivider} />
       <View style={styles.couponRight}>
-        <Text style={[styles.couponName, { color: colors.text }]} numberOfLines={1}>
-          {item.couponTypeName}
-        </Text>
-        <Text style={[styles.couponTime, { color: colors.textSecondary }]}>
-          有效期至 {new Date(item.endTime).toLocaleDateString()}
-        </Text>
+        <Text style={[styles.couponName, { color: colors.text }]} numberOfLines={1}>{item.couponTypeName}</Text>
+        <Text style={[styles.couponTime, { color: colors.textSecondary }]}>有效期至 {new Date(item.endTime).toLocaleDateString()}</Text>
         <View style={styles.couponFooter}>
-          <Text style={[
-            styles.couponStatus,
-            { color: item.useStatus === 0 ? colors.primary : colors.textSecondary }
-          ]}>
-            {item.useStatus === 0 ? '未使用' : item.useStatus === 1 ? '已使用' : '已过期'}
+          <Text style={[styles.couponStatus, { color: item.useStatus === 0 ? colors.primary : colors.textSecondary }]}>
+            {getCouponStatusLabel(item.useStatus)}
           </Text>
         </View>
       </View>
     </TouchableOpacity>
   )
+}
 
+function LoadingView({ colors }: { colors: AppColors }) {
+  return (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color={colors.primary} />
+    </View>
+  );
+}
+
+function EmptyCoupons({ colors }: { colors: AppColors }) {
+  return (
+    <View style={styles.emptyContainer}>
+      <IconSymbol name="ticket" size={48} color={colors.textSecondary} />
+      <Text style={[styles.emptyText, { color: colors.textSecondary }]}>暂无优惠券</Text>
+    </View>
+  );
+}
+
+function CouponView(props: CouponViewProps) {
+  const { colors, router, loading, coupons, handleBack } = props;
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <IconSymbol name="chevron.left" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>优惠券</Text>
-        <View style={styles.headerRight} />
-      </View>
-
-      {/* Tab 切换 */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabContainer}>
-        {USE_STATUS_TABS.map(tab => (
-          <TouchableOpacity
-            key={String(tab.value)}
-            style={[
-              styles.tab,
-              { borderColor: selectedTab === tab.value ? colors.primary : colors.border },
-              selectedTab === tab.value && { backgroundColor: colors.primary + '10' },
-            ]}
-            onPress={() => setSelectedTab(tab.value)}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                { color: selectedTab === tab.value ? colors.primary : colors.textSecondary },
-              ]}
-            >
-              {tab.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      {/* 优惠券列表 */}
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      ) : coupons.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <IconSymbol name="ticket" size={48} color={colors.textSecondary} />
-          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-            暂无优惠券
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={coupons}
-          keyExtractor={(item) => item.code}
-          renderItem={renderCouponItem}
-          contentContainerStyle={styles.listContent}
-        />
+      <CouponHeader colors={colors} handleBack={handleBack} />
+      <StatusTabs {...props} />
+      {loading ? <LoadingView colors={colors} /> : coupons.length === 0 ? <EmptyCoupons colors={colors} /> : (
+        <FlatList data={coupons} keyExtractor={(item) => item.code} renderItem={({ item }) => <CouponItemCard item={item} colors={colors} router={router} />} contentContainerStyle={styles.listContent} />
       )}
     </SafeAreaView>
-  )
+  );
+}
+
+export default function CouponListScreen() {
+  const controller = useCouponController()
+  return <CouponView {...controller} />
 }
 
 const styles = StyleSheet.create({

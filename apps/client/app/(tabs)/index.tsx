@@ -26,77 +26,21 @@ const CATE_ITEMS = [
   { nameKey: 'home.categories.discount', icon: 'tag.fill' },
 ];
 
-export default function HomeScreen() {
-  const { t } = useTranslation();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+type AppColors = typeof Colors.light;
+type Translate = ReturnType<typeof useTranslation>['t'];
+type ProductPress = (id: number) => void;
 
-  const navigateToProductDetail = (productId: number) => {
-    router.push({ pathname: '/product/[id]', params: { id: productId } });
-  };
-
-  return (
-    <HomeContainer>
-      {({ mallHomeData, isDataLoaded, onRecommendProductPress }) => {
-        if (!isDataLoaded) {
-          return (
-            <View style={[styles.container, styles.center]}>
-              <Text>{t('common.loading')}</Text>
-            </View>
-          );
-        }
-
-        return (
-          <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-            <ScrollView stickyHeaderIndices={[0]} showsVerticalScrollIndicator={false}>
-              <HomeHeader colors={colors} />
-
-              <BannerSection advertiseList={mallHomeData?.advertiseList || []} />
-
-              <CategorySection colors={colors} />
-
-              {mallHomeData?.brandList && (
-                <BrandSection brandList={mallHomeData.brandList} colors={colors} />
-              )}
-
-              {mallHomeData?.homeFlashPromotion && (
-                <FlashSection promotion={mallHomeData.homeFlashPromotion} colors={colors} onProductPress={navigateToProductDetail} />
-              )}
-
-              <ProductGridSection
-                title={t('home.sections.new_products')}
-                subtitle={t('home.sections.new_products_subtitle')}
-                productList={mallHomeData?.newProductList || []}
-                colors={colors}
-                onProductPress={navigateToProductDetail}
-              />
-
-              <ProductGridSection
-                title={t('home.sections.hot_recommend')}
-                subtitle={t('home.sections.hot_recommend_subtitle')}
-                productList={mallHomeData?.recommendedProductList || []}
-                colors={colors}
-                onProductPress={onRecommendProductPress}
-              />
-
-              <View style={styles.footerSpacer} />
-            </ScrollView>
-          </SafeAreaView>
-        );
-      }}
-    </HomeContainer>
-  );
+function navigateToProductDetail(productId: number) {
+  router.push({ pathname: '/product/[id]', params: { id: productId } });
 }
 
-function HomeHeader({ colors }: { colors: typeof Colors.light }) {
+function HomeHeader({ colors }: { colors: AppColors }) {
   const { t } = useTranslation();
   return (
     <View style={[styles.header, { backgroundColor: colors.background }]}>
       <TouchableOpacity style={styles.searchBox} onPress={() => router.push('/search')}>
         <IconSymbol name="magnifyingglass" size={20} color={colors.fontColorLight} />
-        <Text style={[styles.searchText, { color: colors.fontColorLight }]}>
-          {t('common.search_placeholder')}
-        </Text>
+        <Text style={[styles.searchText, { color: colors.fontColorLight }]}>{t('common.search_placeholder')}</Text>
       </TouchableOpacity>
       <View style={styles.headerIcons}>
         <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/scanner')}>
@@ -127,7 +71,7 @@ function BannerSection({ advertiseList }: { advertiseList: AdvertiseItem[] }) {
   );
 }
 
-function CategorySection({ colors }: { colors: typeof Colors.light }) {
+function CategorySection({ colors }: { colors: AppColors }) {
   const { t } = useTranslation();
   return (
     <View style={styles.cateSection}>
@@ -143,7 +87,20 @@ function CategorySection({ colors }: { colors: typeof Colors.light }) {
   );
 }
 
-function BrandSection({ brandList, colors }: { brandList: BrandItem[]; colors: typeof Colors.light }) {
+function BrandItemView({ item, colors }: { item: BrandItem; colors: AppColors }) {
+  const { t } = useTranslation();
+  return (
+    <TouchableOpacity style={styles.brandItem} onPress={() => router.push({ pathname: '/brand/[id]', params: { id: item.id } })}>
+      <Image source={{ uri: item.logo }} style={styles.brandLogo} resizeMode="contain" />
+      <Text style={[styles.brandName, { color: colors.fontColorDark }]}>{item.name}</Text>
+      <Text style={[styles.brandCount, { color: colors.fontColorLight }]}>
+        {t('home.product.item_count', { count: item.productCount })}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+function BrandSection({ brandList, colors }: { brandList: BrandItem[]; colors: AppColors }) {
   const { t } = useTranslation();
   return (
     <>
@@ -154,25 +111,13 @@ function BrandSection({ brandList, colors }: { brandList: BrandItem[]; colors: t
         onMorePress={() => router.push('/brand')}
       />
       <View style={styles.brandGrid}>
-        {brandList.slice(0, 4).map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            style={styles.brandItem}
-            onPress={() => router.push({ pathname: '/brand/[id]', params: { id: item.id } })}
-          >
-            <Image source={{ uri: item.logo }} style={styles.brandLogo} resizeMode="contain" />
-            <Text style={[styles.brandName, { color: colors.fontColorDark }]}>{item.name}</Text>
-            <Text style={[styles.brandCount, { color: colors.fontColorLight }]}>
-              {t('home.product.item_count', { count: item.productCount })}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        {brandList.slice(0, 4).map((item) => <BrandItemView key={item.id} item={item} colors={colors} />)}
       </View>
     </>
   );
 }
 
-function FlashSection({ promotion, colors, onProductPress }: { promotion: FlashPromotion; colors: typeof Colors.light; onProductPress: (id: number) => void }) {
+function FlashSection({ promotion, colors, onProductPress }: { promotion: FlashPromotion; colors: AppColors; onProductPress: ProductPress }) {
   const { t } = useTranslation();
   return (
     <>
@@ -192,31 +137,31 @@ function FlashSection({ promotion, colors, onProductPress }: { promotion: FlashP
   );
 }
 
-function ProductGridSection({ title, subtitle, productList, colors, onProductPress }: { title: string; subtitle: string; productList: ProductItem[]; colors: typeof Colors.light; onProductPress: (id: number) => void }) {
+function ProductGridItem({ item, colors, onProductPress }: { item: ProductItem; colors: AppColors; onProductPress: ProductPress }) {
+  return (
+    <TouchableOpacity style={styles.productItem} onPress={() => onProductPress(item.id)}>
+      <Image source={{ uri: item.pic }} style={styles.productImage} />
+      <View style={styles.productInfo}>
+        <Text numberOfLines={1} style={[styles.productTitle, { color: colors.fontColorDark }]}>{item.name}</Text>
+        <Text numberOfLines={1} style={[styles.productSubtitle, { color: colors.fontColorLight }]}>{item.subTitle}</Text>
+        <Text style={[styles.price, { color: colors.primary }]}>￥{item.price}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+function ProductGridSection({ title, subtitle, productList, colors, onProductPress }: { title: string; subtitle: string; productList: ProductItem[]; colors: AppColors; onProductPress: ProductPress }) {
   return (
     <>
       <SectionHeader title={title} subtitle={subtitle} colors={colors} />
       <View style={styles.productGrid}>
-        {productList.map((item) => (
-          <TouchableOpacity key={item.id} style={styles.productItem} onPress={() => onProductPress(item.id)}>
-            <Image source={{ uri: item.pic }} style={styles.productImage} />
-            <View style={styles.productInfo}>
-              <Text numberOfLines={1} style={[styles.productTitle, { color: colors.fontColorDark }]}>
-                {item.name}
-              </Text>
-              <Text numberOfLines={1} style={[styles.productSubtitle, { color: colors.fontColorLight }]}>
-                {item.subTitle}
-              </Text>
-              <Text style={[styles.price, { color: colors.primary }]}>￥{item.price}</Text>
-            </View>
-          </TouchableOpacity>
-        ))}
+        {productList.map((item) => <ProductGridItem key={item.id} item={item} colors={colors} onProductPress={onProductPress} />)}
       </View>
     </>
   );
 }
 
-function SectionHeader({ title, subtitle, colors, onMorePress }: { title: string; subtitle: string; colors: typeof Colors.light; onMorePress?: () => void }) {
+function SectionHeader({ title, subtitle, colors, onMorePress }: { title: string; subtitle: string; colors: AppColors; onMorePress?: () => void }) {
   return (
     <View style={styles.sectionHeader}>
       <View style={styles.sectionTitleBox}>
@@ -230,6 +175,57 @@ function SectionHeader({ title, subtitle, colors, onMorePress }: { title: string
         </TouchableOpacity>
       )}
     </View>
+  );
+}
+
+function HomeLoadingView({ t }: { t: Translate }) {
+  return (
+    <View style={[styles.container, styles.center]}>
+      <Text>{t('common.loading')}</Text>
+    </View>
+  );
+}
+
+interface HomeContentProps {
+  mallHomeData: any;
+  isDataLoaded: boolean;
+  onRecommendProductPress: ProductPress;
+  colors: AppColors;
+  t: Translate;
+}
+
+function HomeReadyView(props: HomeContentProps) {
+  const { mallHomeData, colors, t, onRecommendProductPress } = props;
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView stickyHeaderIndices={[0]} showsVerticalScrollIndicator={false}>
+        <HomeHeader colors={colors} />
+        <BannerSection advertiseList={mallHomeData?.advertiseList || []} />
+        <CategorySection colors={colors} />
+        {mallHomeData?.brandList && <BrandSection brandList={mallHomeData.brandList} colors={colors} />}
+        {mallHomeData?.homeFlashPromotion && <FlashSection promotion={mallHomeData.homeFlashPromotion} colors={colors} onProductPress={navigateToProductDetail} />}
+        <ProductGridSection title={t('home.sections.new_products')} subtitle={t('home.sections.new_products_subtitle')} productList={mallHomeData?.newProductList || []} colors={colors} onProductPress={navigateToProductDetail} />
+        <ProductGridSection title={t('home.sections.hot_recommend')} subtitle={t('home.sections.hot_recommend_subtitle')} productList={mallHomeData?.recommendedProductList || []} colors={colors} onProductPress={onRecommendProductPress} />
+        <View style={styles.footerSpacer} />
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+function HomeContent(props: HomeContentProps) {
+  const { t, isDataLoaded } = props;
+  if (!isDataLoaded) return <HomeLoadingView t={t} />;
+  return <HomeReadyView {...props} />;
+}
+
+export default function HomeScreen() {
+  const { t } = useTranslation();
+  const colorScheme = useColorScheme() ?? 'light';
+  const colors = Colors[colorScheme];
+  return (
+    <HomeContainer>
+      {(content) => <HomeContent {...content} colors={colors} t={t} />}
+    </HomeContainer>
   );
 }
 

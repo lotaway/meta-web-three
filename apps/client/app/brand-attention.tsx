@@ -27,159 +27,184 @@ interface BrandItem {
 
 const PAGE_SIZE = 10;
 
-export default function BrandAttentionScreen() {
-  const { t } = useTranslation();
-  const router = useRouter();
-  const colorScheme = useColorScheme() ?? 'light';
-  const colors = Colors[colorScheme];
+type AppColors = typeof Colors.light;
+type AppRouter = ReturnType<typeof useRouter>;
+type Translate = ReturnType<typeof useTranslation>['t'];
+type SetBrands = React.Dispatch<React.SetStateAction<BrandItem[]>>;
+type SetBoolean = React.Dispatch<React.SetStateAction<boolean>>;
+type PageRef = React.MutableRefObject<number>;
 
+async function fetchAttentionBrands(): Promise<BrandItem[] | null> {
+  try {
+    const response = await memberAttentionApi.listAttention1({ xUserId: DEFAULT_USER_ID });
+    return response.data ? response.data as BrandItem[] : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function updateBrandsState(newBrands: BrandItem[], isRefresh: boolean, state: AttentionState) {
+  if (isRefresh) state.setBrands(newBrands);
+  else state.setBrands(prev => [...prev, ...newBrands]);
+  state.setHasMore(newBrands.length >= PAGE_SIZE);
+  state.pageNumRef.current += 1;
+}
+
+async function loadBrandsData(isRefresh: boolean, state: AttentionState) {
+  if (state.loading || state.loadingMore) return;
+  if (!isRefresh && !state.hasMore) return;
+  if (isRefresh) {
+    state.setLoading(true);
+    state.pageNumRef.current = 1;
+  } else {
+    state.setLoadingMore(true);
+  }
+  try {
+    const newBrands = await fetchAttentionBrands();
+    if (newBrands) updateBrandsState(newBrands, isRefresh, state);
+  } catch (error) {
+    console.error('Load brands failed:', error);
+    Alert.alert('Error', 'Failed to load brands.');
+  } finally {
+    state.setLoading(false);
+    state.setLoadingMore(false);
+  }
+}
+
+function handleDeleteBrand(brandId: number) {
+  // TODO: 需要后端 API 支持删除品牌关注
+  console.log('Delete brand not implemented, brandId:', brandId);
+  /* try {
+    await memberAttentionApi.deleteCollection({
+      xUserId: DEFAULT_USER_ID,
+      brandId,
+    });
+    setBrands(prev => prev.filter(item => item.id !== brandId));
+  } catch (error) {
+    console.error('Delete brand failed:', error);
+    Alert.alert('Error', 'Failed to delete the brand.');
+  } */
+}
+
+function useAttentionState() {
   const [brands, setBrands] = useState<BrandItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const pageNumRef = useRef(1);
+  return { brands, setBrands, loading, setLoading, loadingMore, setLoadingMore, hasMore, setHasMore, pageNumRef };
+}
 
-  const fetchBrands = async (): Promise<BrandItem[] | null> => {
-    try {
-      const response = await memberAttentionApi.listAttention1({
-        xUserId: DEFAULT_USER_ID,
-      });
-      return response.data ? response.data as BrandItem[] : null;
-    } catch (error) {
-      return null;
-    }
+type AttentionState = ReturnType<typeof useAttentionState>;
+
+function createAttentionActions(state: AttentionState, router: AppRouter) {
+  return {
+    handleDelete: handleDeleteBrand,
+    handleBack: () => router.back(),
   };
+}
 
-  const updateBrandsState = (newBrands: BrandItem[], isRefresh: boolean) => {
-    if (isRefresh) {
-      setBrands(newBrands);
-    } else {
-      setBrands(prev => [...prev, ...newBrands]);
-    }
-    setHasMore(newBrands.length >= PAGE_SIZE);
-    pageNumRef.current += 1;
-  };
+type AttentionActions = ReturnType<typeof createAttentionActions>;
 
+function useBrandAttentionController() {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const colorScheme = useColorScheme() ?? 'light';
+  const colors = Colors[colorScheme];
+  const state = useAttentionState();
   const loadBrands = useCallback(async (isRefresh = false) => {
-    if (loading || loadingMore) return;
-    if (!isRefresh && !hasMore) return;
-    
-    if (isRefresh) {
-      setLoading(true);
-      pageNumRef.current = 1;
-    } else {
-      setLoadingMore(true);
-    }
-    
-    try {
-      const newBrands = await fetchBrands();
-      if (newBrands) updateBrandsState(newBrands, isRefresh);
-    } catch (error) {
-      console.error('Load brands failed:', error);
-      Alert.alert('Error', 'Failed to load brands.');
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [loading, loadingMore, hasMore]);
-
+    await loadBrandsData(isRefresh, state);
+  }, [state.loading, state.loadingMore, state.hasMore]);
   useFocusEffect(
     useCallback(() => {
       loadBrands(true);
     }, [loadBrands])
   );
+  return { t, router, colors, ...state, loadBrands, ...createAttentionActions(state, router) };
+}
 
-  const handleDelete = async (brandId: number) => {
-    // TODO: 需要后端 API 支持删除品牌关注
-    console.log('Delete brand not implemented, brandId:', brandId);
-    /* try {
-      await memberAttentionApi.deleteCollection({
-        xUserId: DEFAULT_USER_ID,
-        brandId,
-      });
-      setBrands(prev => prev.filter(item => item.id !== brandId));
-    } catch (error) {
-      console.error('Delete brand failed:', error);
-      Alert.alert('Error', 'Failed to delete the brand.');
-    } */
-  };
+interface AttentionViewProps extends AttentionState, AttentionActions {
+  t: Translate;
+  router: AppRouter;
+  colors: AppColors;
+  loadBrands: (isRefresh?: boolean) => Promise<void>;
+}
 
-  const renderBrandItem = ({ item }: { item: BrandItem }) => (
+function AttentionHeader({ colors, handleBack, withBorder }: Pick<AttentionViewProps, 'colors' | 'handleBack'> & { withBorder?: boolean }) {
+  return (
+    <View style={withBorder ? [styles.header, { borderBottomColor: colors.border }] : styles.header}>
+      <TouchableOpacity style={styles.backBtn} onPress={handleBack}>
+        <IconSymbol name="chevron.left" size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>品牌关注</Text>
+      <View style={styles.headerRight} />
+    </View>
+  );
+}
+
+function LoadingView(props: AttentionViewProps) {
+  const { colors } = props;
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <AttentionHeader {...props} />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.tint} />
+      </View>
+    </SafeAreaView>
+  );
+}
+
+function EmptyBrands({ colors }: Pick<AttentionViewProps, 'colors'>) {
+  return (
+    <View style={styles.emptyContainer}>
+      <IconSymbol name="star" size={60} color={colors.textSecondary} />
+      <Text style={[styles.emptyText, { color: colors.textSecondary }]}>暂无关注品牌</Text>
+    </View>
+  );
+}
+
+function BrandItemRow({ item, colors, handleDelete }: Pick<AttentionViewProps, 'colors' | 'handleDelete'> & { item: BrandItem }) {
+  return (
     <View style={[styles.brandItem, { backgroundColor: colors.card }]}>
-      <Image
-        source={{ uri: item.logo || 'https://via.placeholder.com/60' }}
-        style={styles.brandLogo}
-      />
+      <Image source={{ uri: item.logo || 'https://via.placeholder.com/60' }} style={styles.brandLogo} />
       <View style={styles.brandInfo}>
         <Text style={[styles.brandName, { color: colors.text }]}>{item.name}</Text>
-        <Text style={[styles.brandLetter, { color: colors.textSecondary }]}>
-          {item.firstLetter}
-        </Text>
+        <Text style={[styles.brandLetter, { color: colors.textSecondary }]}>{item.firstLetter}</Text>
       </View>
-      <TouchableOpacity
-        style={styles.deleteBtn}
-        onPress={() => handleDelete(item.id)}
-      >
+      <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item.id)}>
         <IconSymbol name="heart.fill" size={20} color="#FF3B30" />
       </TouchableOpacity>
     </View>
   );
+}
 
-  if (loading) {
-    return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <IconSymbol name="chevron.left" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>品牌关注</Text>
-          <View style={styles.headerRight} />
-        </View>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.tint} />
-        </View>
-      </SafeAreaView>
-    );
-  }
+function ListFooter({ loadingMore, hasMore, brands, colors, t }: Pick<AttentionViewProps, 'loadingMore' | 'hasMore' | 'brands' | 'colors' | 't'>) {
+  if (loadingMore) return <View style={styles.footer}><ActivityIndicator size="small" color={colors.tint} /></View>;
+  if (!hasMore && brands.length > 0) return <View style={styles.footer}><Text style={{ color: colors.textSecondary }}>{t('common.no_more_data')}</Text></View>;
+  return null;
+}
 
+function AttentionView(props: AttentionViewProps) {
+  const { colors, brands, loadBrands } = props;
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <IconSymbol name="chevron.left" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>品牌关注</Text>
-        <View style={styles.headerRight} />
-      </View>
-
-      {brands.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <IconSymbol name="star" size={60} color={colors.textSecondary} />
-          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>暂无关注品牌</Text>
-        </View>
-      ) : (
+      <AttentionHeader {...props} withBorder />
+      {brands.length === 0 ? <EmptyBrands colors={colors} /> : (
         <FlatList
-          data={brands}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={renderBrandItem}
+          data={brands} keyExtractor={(item) => String(item.id)}
+          renderItem={({ item }) => <BrandItemRow item={item} colors={colors} handleDelete={props.handleDelete} />}
           contentContainerStyle={styles.listContent}
-          onEndReached={() => loadBrands(false)}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={
-            loadingMore ? (
-              <View style={styles.footer}>
-                <ActivityIndicator size="small" color={colors.tint} />
-              </View>
-            ) : !hasMore && brands.length > 0 ? (
-              <View style={styles.footer}>
-                <Text style={{ color: colors.textSecondary }}>{t('common.no_more_data')}</Text>
-              </View>
-            ) : null
-          }
+          onEndReached={() => loadBrands(false)} onEndReachedThreshold={0.5}
+          ListFooterComponent={<ListFooter {...props} />}
         />
       )}
     </SafeAreaView>
   );
+}
+
+export default function BrandAttentionScreen() {
+  const controller = useBrandAttentionController();
+  return controller.loading ? <LoadingView {...controller} /> : <AttentionView {...controller} />;
 }
 
 const styles = StyleSheet.create({

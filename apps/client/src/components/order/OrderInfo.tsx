@@ -4,8 +4,33 @@ import { useTranslation } from 'react-i18next'
 import { Colors } from '@/constants/Colors'
 import { useColorScheme } from '@/hooks/useColorScheme'
 
+type Translate = ReturnType<typeof useTranslation>['t']
+type AppColors = typeof Colors.light
+
 interface OrderInfoProps {
   order: any
+}
+
+function formatOrderDate(date: string) {
+  return date ? new Date(date).toLocaleString() : '-'
+}
+
+function getPayTypeText(payType: number, t: Translate) {
+  const payTypeTexts: Record<number, string> = {
+    0: t('orders.pay_type_wechat'),
+    1: t('orders.pay_type_alipay'),
+    2: t('orders.pay_type_stripe'),
+  }
+  return payTypeTexts[payType] || '-'
+}
+
+function InfoRow({ label, value, colors }: { label: string; value: string; colors: AppColors }) {
+  return (
+    <View style={styles.infoRow}>
+      <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{label}</Text>
+      <Text style={[styles.infoValue, { color: colors.text }]}>{value}</Text>
+    </View>
+  )
 }
 
 export function OrderInfo({ order }: OrderInfoProps) {
@@ -13,42 +38,14 @@ export function OrderInfo({ order }: OrderInfoProps) {
   const colorScheme = useColorScheme() ?? 'light'
   const colors = Colors[colorScheme]
 
-  const formatDate = (date: string) => {
-    return date ? new Date(date).toLocaleString() : '-'
-  }
-
-  const getPayTypeText = (payType: number) => {
-    if (payType === 0) return t('orders.pay_type_wechat')
-    if (payType === 1) return t('orders.pay_type_alipay')
-    if (payType === 2) return t('orders.pay_type_stripe')
-    return '-'
-  }
-
   return (
     <View style={[styles.section, { backgroundColor: colors.card }]}>
       <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('orders.info_title')}</Text>
-      <View style={styles.infoRow}>
-        <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{t('orders.order_no')}</Text>
-        <Text style={[styles.infoValue, { color: colors.text }]}>{order.orderSn || order.id}</Text>
-      </View>
-      <View style={styles.infoRow}>
-        <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{t('orders.create_time')}</Text>
-        <Text style={[styles.infoValue, { color: colors.text }]}>{formatDate(order.createTime)}</Text>
-      </View>
-      <View style={styles.infoRow}>
-        <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{t('orders.pay_time')}</Text>
-        <Text style={[styles.infoValue, { color: colors.text }]}>{formatDate(order.paymentTime)}</Text>
-      </View>
-      <View style={styles.infoRow}>
-        <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{t('orders.pay_type')}</Text>
-        <Text style={[styles.infoValue, { color: colors.text }]}>{getPayTypeText(order.payType)}</Text>
-      </View>
-      {order.note && (
-        <View style={styles.infoRow}>
-          <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{t('orders.note')}</Text>
-          <Text style={[styles.infoValue, { color: colors.text }]}>{order.note}</Text>
-        </View>
-      )}
+      <InfoRow label={t('orders.order_no')} value={order.orderSn || order.id} colors={colors} />
+      <InfoRow label={t('orders.create_time')} value={formatOrderDate(order.createTime)} colors={colors} />
+      <InfoRow label={t('orders.pay_time')} value={formatOrderDate(order.paymentTime)} colors={colors} />
+      <InfoRow label={t('orders.pay_type')} value={getPayTypeText(order.payType, t)} colors={colors} />
+      {!!order.note && <InfoRow label={t('orders.note')} value={order.note} colors={colors} />}
     </View>
   )
 }

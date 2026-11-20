@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { Colors } from '@/constants/Colors'
 import { useColorScheme } from '@/hooks/useColorScheme'
 
+type AppColors = typeof Colors.light
+
 const REFUND_REASONS = [
   { value: 1, label: '不想要了' },
   { value: 2, label: '商品损坏' },
@@ -18,36 +20,31 @@ interface ReasonSelectorProps {
   setSelectedReason: (reason: number) => void
 }
 
+function ReasonButton({ reason, selected, colors, onPress }: { reason: { value: number; label: string }; selected: boolean; colors: AppColors; onPress: () => void }) {
+  return (
+    <TouchableOpacity
+      style={[styles.reasonBtn, {
+        borderColor: selected ? colors.primary : colors.border,
+        backgroundColor: selected ? colors.primary + '10' : 'transparent',
+      }]}
+      onPress={onPress}
+    >
+      <Text style={[styles.reasonBtnText, { color: selected ? colors.primary : colors.text }]}>
+        {reason.label}
+      </Text>
+    </TouchableOpacity>
+  )
+}
+
 export function ReasonSelector({ selectedReason, setSelectedReason }: ReasonSelectorProps) {
   const { t } = useTranslation()
-  const colorScheme = useColorScheme() ?? 'light'
-  const colors = Colors[colorScheme]
-
+  const colors = Colors[useColorScheme() ?? 'light']
   return (
     <View style={[styles.section, { backgroundColor: colors.card }]}>
       <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('refund.reason_title')}</Text>
       <View style={styles.reasonGrid}>
         {REFUND_REASONS.map(reason => (
-          <TouchableOpacity
-            key={reason.value}
-            style={[
-              styles.reasonBtn,
-              {
-                borderColor: selectedReason === reason.value ? colors.primary : colors.border,
-                backgroundColor: selectedReason === reason.value ? colors.primary + '10' : 'transparent',
-              },
-            ]}
-            onPress={() => setSelectedReason(reason.value)}
-          >
-            <Text
-              style={[
-                styles.reasonBtnText,
-                { color: selectedReason === reason.value ? colors.primary : colors.text },
-              ]}
-            >
-              {reason.label}
-            </Text>
-          </TouchableOpacity>
+          <ReasonButton key={reason.value} reason={reason} selected={selectedReason === reason.value} colors={colors} onPress={() => setSelectedReason(reason.value)} />
         ))}
       </View>
     </View>

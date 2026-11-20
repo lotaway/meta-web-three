@@ -30,6 +30,24 @@ const defaultOptions: Required<Omit<ApiClientOptions, 'baseUrl'>> = {
   retryDelay: 1000,
 }
 
+function buildRequestConfig(options: RequestInit): RequestInit {
+  return {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  }
+}
+
+async function readErrorBody(response: Response): Promise<unknown> {
+  try {
+    return await response.json()
+  } catch {
+    return response.text()
+  }
+}
+
 export class ApiClient {
   private options: Required<ApiClientOptions>
   private requestInterceptors: RequestInterceptor[] = []
@@ -66,6 +84,13 @@ export class ApiClient {
     return result
   }
 
+  private throwTimeoutOrOriginal(error: unknown): never {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new ApiError('Request timed out', 'TIMEOUT_ERROR', 408)
+    }
+    throw error
+  }
+
   private async fetchWithTimeout(
     url: string,
     options: RequestInit,
@@ -83,84 +108,84 @@ export class ApiClient {
       return response
     } catch (error) {
       clearTimeout(timeoutId)
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new ApiError('Request timed out', 'TIMEOUT_ERROR', 408)
-      }
+      this.throwTimeoutOrOriginal(error)
+    }
+  }
+
+  private async buildHandledError(
+    response: Response,
+    config: RequestInit
+  ): Promise<ApiError> {
+    const data = await readErrorBody(response)
+    let handledError = ApiError.fromResponse(response, data)
+    for (const interceptor of this.errorInterceptors) {
+      handledError = await interceptor(handledError, config)
+    }
+    return handledError
+  }
+
+  private async parseSuccessBody(response: Response): Promise<unknown> {
+    if (response.status === 204) {
+      return null
+    }
+    return response.json()
+  }
+
+  private async executeRequestAttempt(
+    url: string,
+    config: RequestInit
+  ): Promise<unknown> {
+    let response = await this.fetchWithTimeout(
+      `${this.options.baseUrl}${url}`,
+      config,
+      this.options.timeout
+    )
+    response = (await this.executeInterceptors(
+      this.responseInterceptors as any,
+      response as any
+    )) as Response
+
+    if (!response.ok) {
+      throw await this.buildHandledError(response, config)
+    }
+    return this.parseSuccessBody(response)
+  }
+
+  private delayRetry(attempt: number): Promise<void> {
+    return new Promise((resolve) =>
+      setTimeout(resolve, this.options.retryDelay * attempt)
+    )
+  }
+
+  private async handleRetryError(
+    error: unknown,
+    attempt: number,
+    maxAttempts: number
+  ): Promise<void> {
+    if (attempt >= maxAttempts) {
+      throw isApiError(error) ? error : ApiError.fromError(error)
+    }
+    if (isApiError(error) && error.status >= 400 && error.status < 500) {
       throw error
     }
+    await this.delayRetry(attempt)
   }
 
   private async request<T = unknown>(
     url: string,
     options: RequestInit = {}
   ): Promise<T> {
-    let config = {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-    }
-
+    let config = buildRequestConfig(options)
     config = (await this.executeInterceptors(this.requestInterceptors, config)) as any
 
-    let response: Response
     let attempt = 0
     const maxAttempts = this.options.retryTimes + 1
-
     while (attempt < maxAttempts) {
       try {
-        response = await this.fetchWithTimeout(
-          `${this.options.baseUrl}${url}`,
-          config,
-          this.options.timeout
-        )
-
-        response = (await this.executeInterceptors(
-          this.responseInterceptors as any,
-          response as any
-        )) as Response
-
-        if (!response.ok) {
-          let data: unknown = null
-          try {
-            data = await response.json()
-          } catch {
-            data = await response.text()
-          }
-
-          const apiError = ApiError.fromResponse(response, data)
-          let handledError = apiError
-
-          for (const interceptor of this.errorInterceptors) {
-            handledError = await interceptor(handledError, config)
-          }
-
-          throw handledError
-        }
-
-        if (response.status === 204) {
-          return null as T
-        }
-
-        const data = await response.json()
-        return data as T
+        return (await this.executeRequestAttempt(url, config)) as T
       } catch (error) {
         attempt++
-
-        if (attempt >= maxAttempts) {
-          // Keep the public contract consistent: every failed request rejects
-          // with an ApiError, including transport-level failures.
-          throw isApiError(error) ? error : ApiError.fromError(error)
-        }
-
-        if (isApiError(error) && error.status >= 400 && error.status < 500) {
-          throw error
-        }
-
-        await new Promise((resolve) =>
-          setTimeout(resolve, this.options.retryDelay * attempt)
-        )
+        await this.handleRetryError(error, attempt, maxAttempts)
       }
     }
 

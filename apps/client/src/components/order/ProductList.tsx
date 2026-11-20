@@ -6,48 +6,65 @@ import { useColorScheme } from '@/hooks/useColorScheme'
 import { IconSymbol } from '@/components/ui/IconSymbol'
 import { useRouter } from 'expo-router'
 
+type AppColors = typeof Colors.light
+
 interface ProductListProps {
   orderItems: any[]
   status: number
   onReview: (item: any) => void
 }
 
+function ProductRowContent({ item, colors, onOpen }: { item: any; colors: AppColors; onOpen: () => void }) {
+  return (
+    <TouchableOpacity style={styles.productRowContent} onPress={onOpen}>
+      <Image source={{ uri: item.productPic || '' }} style={styles.productImage} />
+      <View style={styles.productInfo}>
+        <Text numberOfLines={2} style={[styles.productName, { color: colors.text }]}>
+          {item.productName}
+        </Text>
+        <View style={styles.productFooter}>
+          <Text style={[styles.productPrice, { color: colors.primary }]}>¥{item.productPrice}</Text>
+          <Text style={[styles.productQty, { color: colors.textSecondary }]}>x{item.productQuantity}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  )
+}
+
+function ReviewItemButton({ colors, onPress }: { colors: AppColors; onPress: () => void }) {
+  return (
+    <TouchableOpacity style={styles.reviewItemBtn} onPress={onPress}>
+      <IconSymbol name="pencil" size={16} color={colors.primary} />
+      <Text style={[styles.reviewItemText, { color: colors.primary }]}>评价</Text>
+    </TouchableOpacity>
+  )
+}
+
+function ProductRow({ item, status, colors, onReview, onOpen }: {
+  item: any
+  status: number
+  colors: AppColors
+  onReview: (item: any) => void
+  onOpen: () => void
+}) {
+  return (
+    <View style={[styles.productRow, { borderBottomColor: colors.border }]}>
+      <ProductRowContent item={item} colors={colors} onOpen={onOpen} />
+      {status === 3 && <ReviewItemButton colors={colors} onPress={() => onReview(item)} />}
+    </View>
+  )
+}
+
 export function ProductList({ orderItems, status, onReview }: ProductListProps) {
   const { t } = useTranslation()
-  const colorScheme = useColorScheme() ?? 'light'
-  const colors = Colors[colorScheme]
+  const colors = Colors[useColorScheme() ?? 'light']
   const router = useRouter()
-
+  const openProduct = (item: any) => router.push({ pathname: '/product/[id]', params: { id: item.productId } })
   return (
     <View style={[styles.section, { backgroundColor: colors.card }]}>
       <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('orders.products_title')}</Text>
       {orderItems?.map((item: any, index: number) => (
-        <View key={index} style={[styles.productRow, { borderBottomColor: colors.border }]}>
-          <TouchableOpacity
-            style={styles.productRowContent}
-            onPress={() => router.push({ pathname: '/product/[id]', params: { id: item.productId } })}
-          >
-            <Image source={{ uri: item.productPic || '' }} style={styles.productImage} />
-            <View style={styles.productInfo}>
-              <Text numberOfLines={2} style={[styles.productName, { color: colors.text }]}>
-                {item.productName}
-              </Text>
-              <View style={styles.productFooter}>
-                <Text style={[styles.productPrice, { color: colors.primary }]}>¥{item.productPrice}</Text>
-                <Text style={[styles.productQty, { color: colors.textSecondary }]}>x{item.productQuantity}</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-          {status === 3 && (
-            <TouchableOpacity
-              style={styles.reviewItemBtn}
-              onPress={() => onReview(item)}
-            >
-              <IconSymbol name="pencil" size={16} color={colors.primary} />
-              <Text style={[styles.reviewItemText, { color: colors.primary }]}>评价</Text>
-            </TouchableOpacity>
-          )}
-        </View>
+        <ProductRow key={index} item={item} status={status} colors={colors} onReview={onReview} onOpen={() => openProduct(item)} />
       ))}
     </View>
   )

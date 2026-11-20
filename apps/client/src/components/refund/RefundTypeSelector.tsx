@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { Colors } from '@/constants/Colors'
 import { useColorScheme } from '@/hooks/useColorScheme'
 
+type AppColors = typeof Colors.light
+
 const REFUND_TYPES = [
   { value: 1, label: '退款退货' },
   { value: 2, label: '仅退款' },
@@ -14,34 +16,28 @@ interface RefundTypeSelectorProps {
   setRefundType: (type: number) => void
 }
 
+function RefundTypeButton({ type, selected, colors, onPress }: { type: { value: number; label: string }; selected: boolean; colors: AppColors; onPress: () => void }) {
+  return (
+    <TouchableOpacity
+      style={[styles.typeBtn, { borderColor: selected ? colors.primary : colors.border }, selected && { backgroundColor: colors.primary + '10' }]}
+      onPress={onPress}
+    >
+      <Text style={[styles.typeBtnText, { color: selected ? colors.primary : colors.textSecondary }]}>
+        {type.label}
+      </Text>
+    </TouchableOpacity>
+  )
+}
+
 export function RefundTypeSelector({ refundType, setRefundType }: RefundTypeSelectorProps) {
   const { t } = useTranslation()
-  const colorScheme = useColorScheme() ?? 'light'
-  const colors = Colors[colorScheme]
-
+  const colors = Colors[useColorScheme() ?? 'light']
   return (
     <View style={[styles.section, { backgroundColor: colors.card }]}>
       <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('refund.type_title')}</Text>
       <View style={styles.typeRow}>
         {REFUND_TYPES.map(type => (
-          <TouchableOpacity
-            key={type.value}
-            style={[
-              styles.typeBtn,
-              { borderColor: refundType === type.value ? colors.primary : colors.border },
-              refundType === type.value && { backgroundColor: colors.primary + '10' },
-            ]}
-            onPress={() => setRefundType(type.value)}
-          >
-            <Text
-              style={[
-                styles.typeBtnText,
-                { color: refundType === type.value ? colors.primary : colors.textSecondary },
-              ]}
-            >
-              {type.label}
-            </Text>
-          </TouchableOpacity>
+          <RefundTypeButton key={type.value} type={type} selected={refundType === type.value} colors={colors} onPress={() => setRefundType(type.value)} />
         ))}
       </View>
     </View>

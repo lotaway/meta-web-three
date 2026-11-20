@@ -23,159 +23,195 @@ import { ProductDTO } from '@/src/generated/api/models/ProductDTO';
 const { width: WINDOW_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = (WINDOW_WIDTH - 36) / 2;
 
-export default function BrandDetailScreen() {
+type AppColors = typeof Colors.light;
+type AppRouter = ReturnType<typeof useRouter>;
+type Translate = ReturnType<typeof useTranslation>['t'];
+
+async function loadBrandDetailData(brandId: number): Promise<{ brand: Brand | null; products: ProductDTO[] | null }> {
+  const [detailRes, productsRes] = await Promise.all([
+    brandApi.details({ id: brandId }),
+    brandApi.listProducts1({ id: brandId }),
+  ]);
+  return {
+    brand: detailRes.data ? detailRes.data as Brand : null,
+    products: productsRes.data && Array.isArray(productsRes.data) ? productsRes.data as ProductDTO[] : null,
+  };
+}
+
+async function loadBrandDetailFlow(brandId: number, state: BrandDetailState) {
+  state.setLoading(true);
+  try {
+    const data = await loadBrandDetailData(brandId);
+    if (data.brand) state.setBrand(data.brand);
+    if (data.products) state.setProducts(data.products);
+  } catch (error) {
+    console.error('Failed to load brand detail:', error);
+    Alert.alert('Error', 'Failed to load the brand detail.');
+  } finally {
+    state.setLoading(false);
+  }
+}
+
+function useBrandDetailState() {
+  const [brand, setBrand] = useState<Brand | null>(null);
+  const [products, setProducts] = useState<ProductDTO[]>([]);
+  const [loading, setLoading] = useState(true);
+  return { brand, setBrand, products, setProducts, loading, setLoading };
+}
+
+type BrandDetailState = ReturnType<typeof useBrandDetailState>;
+
+function useBrandDetailController() {
   const { t } = useTranslation();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
-
-  const [brand, setBrand] = useState<Brand | null>(null);
-  const [products, setProducts] = useState<ProductDTO[]>([]);
-  const [loading, setLoading] = useState(true);
-
+  const state = useBrandDetailState();
   useEffect(() => {
     if (!id) return;
-    loadBrandDetail(Number(id));
+    loadBrandDetailFlow(Number(id), state);
   }, [id]);
-
-  const loadBrandDetail = async (brandId: number) => {
-    setLoading(true);
-    try {
-      const [detailRes, productsRes] = await Promise.all([
-        brandApi.details({ id: brandId }),
-        brandApi.listProducts1({ id: brandId }),
-      ]);
-      if (detailRes.data) setBrand(detailRes.data as Brand);
-      if (productsRes.data && Array.isArray(productsRes.data)) {
-        setProducts(productsRes.data as ProductDTO[]);
-      }
-    } catch (error) {
-      console.error('Failed to load brand detail:', error);
-      Alert.alert('Error', 'Failed to load the brand detail.')
-    } finally {
-      setLoading(false);
-    }
+  return {
+    t, router, colors, ...state,
+    handleBack: () => router.back(),
+    navigateToProduct: (productId: number) => router.push({ pathname: '/product/[id]', params: { id: productId } }),
   };
+}
 
-  const navigateToProduct = (productId: number) => {
-    router.push({ pathname: '/product/[id]', params: { id: productId } });
-  };
+interface BrandDetailViewProps extends BrandDetailState {
+  t: Translate;
+  colors: AppColors;
+  brand: Brand;
+  handleBack: () => void;
+  navigateToProduct: (productId: number) => void;
+}
 
-  if (loading) {
-    return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <IconSymbol name="chevron.left" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>品牌详情</Text>
-          <View style={styles.headerRight} />
-        </View>
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={colors.tint} />
-        </View>
-      </SafeAreaView>
-    );
-  }
+function DetailHeader({ colors, handleBack, title }: { colors: AppColors; handleBack: () => void; title?: string }) {
+  return (
+    <View style={[styles.header, { borderBottomColor: colors.border }]}>
+      <TouchableOpacity style={styles.backBtn} onPress={handleBack}>
+        <IconSymbol name="chevron.left" size={24} color={colors.text} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: colors.text }]}>{title}</Text>
+      <View style={styles.headerRight} />
+    </View>
+  );
+}
 
-  if (!brand) {
-    return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <IconSymbol name="chevron.left" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>品牌详情</Text>
-          <View style={styles.headerRight} />
-        </View>
-        <View style={styles.center}>
-          <Text style={{ color: colors.textSecondary }}>品牌不存在</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
+function LoadingView({ colors, handleBack }: { colors: AppColors; handleBack: () => void }) {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backBtn} onPress={handleBack}>
           <IconSymbol name="chevron.left" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>{brand.name}</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>品牌详情</Text>
         <View style={styles.headerRight} />
       </View>
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={colors.tint} />
+      </View>
+    </SafeAreaView>
+  );
+}
 
+function BrandNotFound({ colors, handleBack }: { colors: AppColors; handleBack: () => void }) {
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backBtn} onPress={handleBack}>
+          <IconSymbol name="chevron.left" size={24} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>品牌详情</Text>
+        <View style={styles.headerRight} />
+      </View>
+      <View style={styles.center}>
+        <Text style={{ color: colors.textSecondary }}>品牌不存在</Text>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+function BrandBanner({ brand, colors }: { brand: Brand; colors: AppColors }) {
+  if (!brand.areaPicture) return null;
+  return <Image source={{ uri: brand.areaPicture }} style={styles.bannerImage} resizeMode="cover" />;
+}
+
+function BrandInfoCard({ brand, colors, t }: { brand: Brand; colors: AppColors; t: Translate }) {
+  return (
+    <View style={[styles.brandInfo, { backgroundColor: colors.card }]}>
+      <Image source={{ uri: brand.logo || 'https://via.placeholder.com/80' }} style={styles.brandLogo} resizeMode="contain" />
+      <View style={styles.brandMeta}>
+        <Text style={[styles.brandName, { color: colors.text }]}>{brand.name}</Text>
+        {brand.firstLetter && (
+          <Text style={[styles.brandLetter, { color: colors.textSecondary }]}>
+            {t('brand.first_letter', { letter: brand.firstLetter })}
+          </Text>
+        )}
+        <Text style={[styles.productCount, { color: colors.textSecondary }]}>
+          {t('brand.product_count', { count: brand.productCount ?? 0 })}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+function BrandStorySection({ brand, colors }: { brand: Brand; colors: AppColors }) {
+  if (!brand.story) return null;
+  return (
+    <>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>品牌故事</Text>
+      <View style={[styles.storyCard, { backgroundColor: colors.card }]}>
+        <Text style={[styles.storyText, { color: colors.textSecondary }]}>{brand.story}</Text>
+      </View>
+    </>
+  );
+}
+
+function BrandProductCard({ product, colors, navigateToProduct }: { product: ProductDTO; colors: AppColors; navigateToProduct: (id: number) => void }) {
+  return (
+    <TouchableOpacity style={[styles.productCard, { backgroundColor: colors.card }]} onPress={() => navigateToProduct(product.id!)} activeOpacity={0.7}>
+      <Image source={{ uri: product.imageUrl || 'https://via.placeholder.com/200' }} style={styles.productImage} resizeMode="cover" />
+      <Text style={[styles.productName, { color: colors.text }]} numberOfLines={2}>{product.name}</Text>
+      <Text style={styles.productPrice}>¥{product.price}</Text>
+    </TouchableOpacity>
+  );
+}
+
+function RelatedProductsSection({ products, colors, navigateToProduct }: { products: ProductDTO[]; colors: AppColors; navigateToProduct: (id: number) => void }) {
+  if (products.length === 0) return null;
+  return (
+    <>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>相关商品</Text>
+      <View style={styles.productGrid}>
+        {products.map((product) => <BrandProductCard key={product.id} product={product} colors={colors} navigateToProduct={navigateToProduct} />)}
+      </View>
+    </>
+  );
+}
+
+function BrandDetailView(props: BrandDetailViewProps) {
+  const { colors, brand, products, t, handleBack, navigateToProduct } = props;
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <DetailHeader colors={colors} handleBack={handleBack} title={brand.name} />
       <ScrollView showsVerticalScrollIndicator={false}>
-        {brand.areaPicture && (
-          <Image
-            source={{ uri: brand.areaPicture }}
-            style={styles.bannerImage}
-            resizeMode="cover"
-          />
-        )}
-
-        <View style={[styles.brandInfo, { backgroundColor: colors.card }]}>
-          <Image
-            source={{ uri: brand.logo || 'https://via.placeholder.com/80' }}
-            style={styles.brandLogo}
-            resizeMode="contain"
-          />
-          <View style={styles.brandMeta}>
-            <Text style={[styles.brandName, { color: colors.text }]}>{brand.name}</Text>
-            {brand.firstLetter && (
-              <Text style={[styles.brandLetter, { color: colors.textSecondary }]}>
-                {t('brand.first_letter', { letter: brand.firstLetter })}
-              </Text>
-            )}
-            <Text style={[styles.productCount, { color: colors.textSecondary }]}>
-              {t('brand.product_count', { count: brand.productCount ?? 0 })}
-            </Text>
-          </View>
-        </View>
-
-        {brand.story && (
-          <>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>品牌故事</Text>
-            <View style={[styles.storyCard, { backgroundColor: colors.card }]}>
-              <Text style={[styles.storyText, { color: colors.textSecondary }]}>
-                {brand.story}
-              </Text>
-            </View>
-          </>
-        )}
-
-        {products.length > 0 && (
-          <>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>相关商品</Text>
-            <View style={styles.productGrid}>
-              {products.map((product) => (
-                <TouchableOpacity
-                  key={product.id}
-                  style={[styles.productCard, { backgroundColor: colors.card }]}
-                  onPress={() => navigateToProduct(product.id!)}
-                  activeOpacity={0.7}
-                >
-                  <Image
-                    source={{ uri: product.imageUrl || 'https://via.placeholder.com/200' }}
-                    style={styles.productImage}
-                    resizeMode="cover"
-                  />
-                  <Text style={[styles.productName, { color: colors.text }]} numberOfLines={2}>
-                    {product.name}
-                  </Text>
-                  <Text style={styles.productPrice}>
-                    ¥{product.price}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </>
-        )}
+        <BrandBanner brand={brand} colors={colors} />
+        <BrandInfoCard brand={brand} colors={colors} t={t} />
+        <BrandStorySection brand={brand} colors={colors} />
+        <RelatedProductsSection products={products} colors={colors} navigateToProduct={navigateToProduct} />
         <View style={styles.bottomSpacer} />
       </ScrollView>
     </SafeAreaView>
   );
+}
+
+export default function BrandDetailScreen() {
+  const controller = useBrandDetailController();
+  if (controller.loading) return <LoadingView colors={controller.colors} handleBack={controller.handleBack} />;
+  if (!controller.brand) return <BrandNotFound colors={controller.colors} handleBack={controller.handleBack} />;
+  return <BrandDetailView {...controller} brand={controller.brand} />;
 }
 
 const styles = StyleSheet.create({

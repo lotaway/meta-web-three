@@ -4,6 +4,9 @@ import { useTranslation } from 'react-i18next'
 import { Colors } from '@/constants/Colors'
 import { useColorScheme } from '@/hooks/useColorScheme'
 
+type Translate = ReturnType<typeof useTranslation>['t']
+type AppColors = typeof Colors.light
+
 interface ActionButtonsProps {
   status: number
   orderId: number
@@ -16,81 +19,65 @@ interface ActionButtonsProps {
   onContactService?: () => void
 }
 
-export function ActionButtons({
-  status,
-  orderId,
-  onPay,
-  onCancel,
-  onConfirmReceive,
-  onRefund,
-  onContactDelivery,
-  onReview,
-  onContactService,
-}: ActionButtonsProps) {
-  const { t } = useTranslation()
-  const colorScheme = useColorScheme() ?? 'light'
-  const colors = Colors[colorScheme]
+interface StatusButtonsProps {
+  status: number
+  colors: AppColors
+  t: Translate
+  onPay: () => void
+  onCancel: () => void
+  onConfirmReceive: () => void
+  onRefund: () => void
+  onContactDelivery: () => void
+  onReview: () => void
+}
 
-  const renderStatus0 = () => (
-    <>
-      <TouchableOpacity style={[styles.bottomBtn, { borderColor: colors.border }]} onPress={onCancel}>
-        <Text style={[styles.bottomBtnText, { color: colors.text }]}>{t('orders.cancel')}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={[styles.bottomBtn, styles.payBottomBtn, { backgroundColor: colors.primary }]} onPress={onPay}>
-        <Text style={styles.payBottomBtnText}>{t('orders.pay')}</Text>
-      </TouchableOpacity>
-    </>
+function BorderButton({ label, colors, onPress }: { label: string; colors: AppColors; onPress?: () => void }) {
+  return (
+    <TouchableOpacity style={[styles.bottomBtn, { borderColor: colors.border }]} onPress={onPress}>
+      <Text style={[styles.bottomBtnText, { color: colors.text }]}>{label}</Text>
+    </TouchableOpacity>
   )
+}
 
-  const renderStatus1 = () => (
-    <>
-      <TouchableOpacity style={[styles.bottomBtn, { borderColor: colors.border }]} onPress={onRefund}>
-        <Text style={[styles.bottomBtnText, { color: colors.text }]}>{t('orders.refund')}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={[styles.bottomBtn, { borderColor: colors.border }]} onPress={onContactDelivery}>
-        <Text style={[styles.bottomBtnText, { color: colors.text }]}>{t('orders.contact_delivery')}</Text>
-      </TouchableOpacity>
-    </>
+function PayButton({ label, colors, onPress }: { label: string; colors: AppColors; onPress: () => void }) {
+  return (
+    <TouchableOpacity style={[styles.bottomBtn, styles.payBottomBtn, { backgroundColor: colors.primary }]} onPress={onPress}>
+      <Text style={styles.payBottomBtnText}>{label}</Text>
+    </TouchableOpacity>
   )
+}
 
-  const renderStatus2 = () => (
-    <>
-      <TouchableOpacity style={[styles.bottomBtn, { borderColor: colors.border }]} onPress={onRefund}>
-        <Text style={[styles.bottomBtnText, { color: colors.text }]}>{t('orders.refund')}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={[styles.bottomBtn, styles.confirmBottomBtn, { backgroundColor: colors.primary }]} onPress={onConfirmReceive}>
-        <Text style={styles.confirmBottomBtnText}>{t('orders.confirm_receive')}</Text>
-      </TouchableOpacity>
-    </>
+function ConfirmButton({ label, colors, onPress }: { label: string; colors: AppColors; onPress: () => void }) {
+  return (
+    <TouchableOpacity style={[styles.bottomBtn, styles.confirmBottomBtn, { backgroundColor: colors.primary }]} onPress={onPress}>
+      <Text style={styles.confirmBottomBtnText}>{label}</Text>
+    </TouchableOpacity>
   )
+}
 
-  const renderStatus3 = () => (
-    <>
-      <TouchableOpacity style={[styles.bottomBtn, { borderColor: colors.border }]} onPress={onRefund}>
-        <Text style={[styles.bottomBtnText, { color: colors.text }]}>{t('orders.refund')}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={[styles.bottomBtn, styles.confirmBottomBtn, { backgroundColor: colors.primary }]} onPress={onReview}>
-        <Text style={styles.confirmBottomBtnText}>评价商品</Text>
-      </TouchableOpacity>
-    </>
-  )
-
-  const renderButtons = () => {
-    switch (status) {
-      case 0: return renderStatus0()
-      case 1: return renderStatus1()
-      case 2: return renderStatus2()
-      case 3: return renderStatus3()
-      default: return null
-    }
+function StatusButtons({ status, colors, t, onPay, onCancel, onConfirmReceive, onRefund, onContactDelivery, onReview }: StatusButtonsProps) {
+  const refund = <BorderButton label={t('orders.refund')} colors={colors} onPress={onRefund} />
+  switch (status) {
+    case 0:
+      return <><BorderButton label={t('orders.cancel')} colors={colors} onPress={onCancel} /><PayButton label={t('orders.pay')} colors={colors} onPress={onPay} /></>
+    case 1:
+      return <>{refund}<BorderButton label={t('orders.contact_delivery')} colors={colors} onPress={onContactDelivery} /></>
+    case 2:
+      return <>{refund}<ConfirmButton label={t('orders.confirm_receive')} colors={colors} onPress={onConfirmReceive} /></>
+    case 3:
+      return <>{refund}<ConfirmButton label="评价商品" colors={colors} onPress={onReview} /></>
+    default:
+      return null
   }
+}
 
+export function ActionButtons({ status, onPay, onCancel, onConfirmReceive, onRefund, onContactDelivery, onReview, onContactService }: ActionButtonsProps) {
+  const { t } = useTranslation()
+  const colors = Colors[useColorScheme() ?? 'light']
   return (
     <View style={[styles.bottomBar, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
-      <TouchableOpacity style={[styles.bottomBtn, { borderColor: colors.border }]} onPress={onContactService}>
-        <Text style={[styles.bottomBtnText, { color: colors.text }]}>客服</Text>
-      </TouchableOpacity>
-      {renderButtons()}
+      <BorderButton label="客服" colors={colors} onPress={onContactService} />
+      <StatusButtons status={status} colors={colors} t={t} onPay={onPay} onCancel={onCancel} onConfirmReceive={onConfirmReceive} onRefund={onRefund} onContactDelivery={onContactDelivery} onReview={onReview} />
     </View>
   )
 }

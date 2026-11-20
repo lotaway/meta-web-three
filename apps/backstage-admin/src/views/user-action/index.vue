@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, reactive, type Ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Delete, View } from '@element-plus/icons-vue'
 import type { TabPaneName } from 'element-plus'
@@ -87,40 +87,33 @@ const getShowStatusText = (status: number): string => {
   return status === 1 ? 'Visible' : 'Hidden'
 }
 
+const applyListResult = <T>(data: { list?: T[]; total?: number } | undefined, target: Ref<T[]>) => {
+  if (!data) return
+  target.value = data.list || []
+  total.value = data.total || 0
+}
+
+const loadActiveActionList = async () => {
+  switch (activeTab.value) {
+    case 'collection':
+      applyListResult((await getCollectionListAPI(query)).data, collectionList)
+      break
+    case 'history':
+      applyListResult((await getHistoryListAPI(query)).data, historyList)
+      break
+    case 'attention':
+      applyListResult((await getAttentionListAPI(query)).data, attentionList)
+      break
+    case 'comment':
+      applyListResult((await getCommentListAPI(query)).data, commentList)
+      break
+  }
+}
+
 const getList = async () => {
   loading.value = true
   try {
-    let res
-    switch (activeTab.value) {
-      case 'collection':
-        res = await getCollectionListAPI(query)
-        if (res.data) {
-          collectionList.value = res.data.list || []
-          total.value = res.data.total || 0
-        }
-        break
-      case 'history':
-        res = await getHistoryListAPI(query)
-        if (res.data) {
-          historyList.value = res.data.list || []
-          total.value = res.data.total || 0
-        }
-        break
-      case 'attention':
-        res = await getAttentionListAPI(query)
-        if (res.data) {
-          attentionList.value = res.data.list || []
-          total.value = res.data.total || 0
-        }
-        break
-      case 'comment':
-        res = await getCommentListAPI(query)
-        if (res.data) {
-          commentList.value = res.data.list || []
-          total.value = res.data.total || 0
-        }
-        break
-    }
+    await loadActiveActionList()
   } catch (error) {
     console.error('Failed to load list:', error)
   } finally {

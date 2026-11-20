@@ -57,7 +57,7 @@ const empDialogVisible = ref(false)
 const empDialogLoading = ref(false)
 const isEmpEdit = ref(false)
 const selectedDeptId = ref<number | null>(null)
-const empFormData = ref<Employee>({
+const emptyEmployee: Employee = {
   id: undefined,
   employeeNo: '',
   name: '',
@@ -82,7 +82,9 @@ const empFormData = ref<Employee>({
   emergencyPhone: '',
   address: '',
   remark: ''
-})
+}
+const createEmptyEmployeeForm = (departmentId: number): Employee => ({ ...emptyEmployee, departmentId })
+const empFormData = ref<Employee>({ ...emptyEmployee })
 
 // Status options
 const statusOptions = [
@@ -172,44 +174,50 @@ const handleDeleteDepartment = async (row: Department) => {
   }
 }
 
+const buildDepartmentUpdateCommand = (): DepartmentUpdateCommand => ({
+  id: deptFormData.value.id!,
+  departmentName: deptFormData.value.departmentName,
+  parentId: deptFormData.value.parentId,
+  level: deptFormData.value.level,
+  leaderId: deptFormData.value.leaderId,
+  leaderName: deptFormData.value.leaderName,
+  phone: deptFormData.value.phone,
+  email: deptFormData.value.email,
+  status: deptFormData.value.status,
+  sort: deptFormData.value.sort,
+  remark: deptFormData.value.remark
+})
+
+const buildDepartmentCreateCommand = (): DepartmentCreateCommand => ({
+  departmentCode: deptFormData.value.departmentCode,
+  departmentName: deptFormData.value.departmentName,
+  parentId: deptFormData.value.parentId,
+  level: deptFormData.value.level,
+  leaderId: deptFormData.value.leaderId,
+  leaderName: deptFormData.value.leaderName,
+  phone: deptFormData.value.phone,
+  email: deptFormData.value.email,
+  status: deptFormData.value.status,
+  sort: deptFormData.value.sort,
+  remark: deptFormData.value.remark
+})
+
+const submitDepartment = async () => {
+  if (isDeptEdit.value && deptFormData.value.id) {
+    await updateDepartment(buildDepartmentUpdateCommand())
+    ElMessage.success('Department updated')
+  } else {
+    await createDepartment(buildDepartmentCreateCommand())
+    ElMessage.success('Department created')
+  }
+  deptDialogVisible.value = false
+  loadDepartmentTree()
+}
+
 const handleSubmitDepartment = async () => {
   deptDialogLoading.value = true
   try {
-    if (isDeptEdit.value && deptFormData.value.id) {
-      const data: DepartmentUpdateCommand = {
-        id: deptFormData.value.id,
-        departmentName: deptFormData.value.departmentName,
-        parentId: deptFormData.value.parentId,
-        level: deptFormData.value.level,
-        leaderId: deptFormData.value.leaderId,
-        leaderName: deptFormData.value.leaderName,
-        phone: deptFormData.value.phone,
-        email: deptFormData.value.email,
-        status: deptFormData.value.status,
-        sort: deptFormData.value.sort,
-        remark: deptFormData.value.remark
-      }
-      await updateDepartment(data)
-      ElMessage.success('Department updated')
-    } else {
-      const data: DepartmentCreateCommand = {
-        departmentCode: deptFormData.value.departmentCode,
-        departmentName: deptFormData.value.departmentName,
-        parentId: deptFormData.value.parentId,
-        level: deptFormData.value.level,
-        leaderId: deptFormData.value.leaderId,
-        leaderName: deptFormData.value.leaderName,
-        phone: deptFormData.value.phone,
-        email: deptFormData.value.email,
-        status: deptFormData.value.status,
-        sort: deptFormData.value.sort,
-        remark: deptFormData.value.remark
-      }
-      await createDepartment(data)
-      ElMessage.success('Department created')
-    }
-    deptDialogVisible.value = false
-    loadDepartmentTree()
+    await submitDepartment()
   } catch (error) {
     ElMessage.error(isDeptEdit.value ? 'Failed to update department' : 'Failed to create department')
   } finally {
@@ -234,33 +242,6 @@ const loadEmployees = async () => {
     empLoading.value = false
   }
 }
-
-const createEmptyEmployeeForm = (departmentId: number) => ({
-  id: undefined,
-  employeeNo: '',
-  name: '',
-  gender: 1,
-  birthday: '',
-  idCard: '',
-  mobile: '',
-  email: '',
-  departmentId,
-  departmentName: '',
-  positionId: 0,
-  positionName: '',
-  employeeStatus: 1,
-  employeeType: 1,
-  entryDate: '',
-  contractStartDate: '',
-  contractEndDate: '',
-  baseSalary: 0,
-  bankName: '',
-  bankAccount: '',
-  emergencyContact: '',
-  emergencyPhone: '',
-  address: '',
-  remark: ''
-})
 
 const handleAddEmployee = () => {
   isEmpEdit.value = false
@@ -288,68 +269,72 @@ const handleDeleteEmployee = async (row: Employee) => {
   }
 }
 
+const buildEmployeeIdentityFields = () => ({
+  name: empFormData.value.name,
+  gender: empFormData.value.gender,
+  birthday: empFormData.value.birthday,
+  idCard: empFormData.value.idCard
+})
+
+const buildEmployeeContactFields = () => ({
+  mobile: empFormData.value.mobile,
+  email: empFormData.value.email,
+  departmentId: empFormData.value.departmentId,
+  departmentName: empFormData.value.departmentName,
+  positionId: empFormData.value.positionId,
+  positionName: empFormData.value.positionName
+})
+
+const buildEmployeeEmploymentFields = () => ({
+  employeeStatus: empFormData.value.employeeStatus,
+  employeeType: empFormData.value.employeeType,
+  entryDate: empFormData.value.entryDate,
+  contractStartDate: empFormData.value.contractStartDate,
+  contractEndDate: empFormData.value.contractEndDate,
+  baseSalary: empFormData.value.baseSalary,
+  bankName: empFormData.value.bankName,
+  bankAccount: empFormData.value.bankAccount
+})
+
+const buildEmployeeExtraFields = () => ({
+  emergencyContact: empFormData.value.emergencyContact,
+  emergencyPhone: empFormData.value.emergencyPhone,
+  address: empFormData.value.address,
+  remark: empFormData.value.remark
+})
+
+const buildEmployeeUpdateCommand = (): EmployeeUpdateCommand => ({
+  id: empFormData.value.id!,
+  ...buildEmployeeIdentityFields(),
+  ...buildEmployeeContactFields(),
+  ...buildEmployeeEmploymentFields(),
+  ...buildEmployeeExtraFields()
+})
+
+const buildEmployeeCreateCommand = (): EmployeeCreateCommand => ({
+  employeeNo: empFormData.value.employeeNo,
+  ...buildEmployeeIdentityFields(),
+  ...buildEmployeeContactFields(),
+  ...buildEmployeeEmploymentFields(),
+  ...buildEmployeeExtraFields()
+})
+
+const submitEmployee = async () => {
+  if (isEmpEdit.value && empFormData.value.id) {
+    await updateEmployee(buildEmployeeUpdateCommand())
+    ElMessage.success('Employee updated')
+  } else {
+    await createEmployee(buildEmployeeCreateCommand())
+    ElMessage.success('Employee created')
+  }
+  empDialogVisible.value = false
+  loadEmployees()
+}
+
 const handleSubmitEmployee = async () => {
   empDialogLoading.value = true
   try {
-    if (isEmpEdit.value && empFormData.value.id) {
-      const data: EmployeeUpdateCommand = {
-        id: empFormData.value.id,
-        name: empFormData.value.name,
-        gender: empFormData.value.gender,
-        birthday: empFormData.value.birthday,
-        idCard: empFormData.value.idCard,
-        mobile: empFormData.value.mobile,
-        email: empFormData.value.email,
-        departmentId: empFormData.value.departmentId,
-        departmentName: empFormData.value.departmentName,
-        positionId: empFormData.value.positionId,
-        positionName: empFormData.value.positionName,
-        employeeStatus: empFormData.value.employeeStatus,
-        employeeType: empFormData.value.employeeType,
-        entryDate: empFormData.value.entryDate,
-        contractStartDate: empFormData.value.contractStartDate,
-        contractEndDate: empFormData.value.contractEndDate,
-        baseSalary: empFormData.value.baseSalary,
-        bankName: empFormData.value.bankName,
-        bankAccount: empFormData.value.bankAccount,
-        emergencyContact: empFormData.value.emergencyContact,
-        emergencyPhone: empFormData.value.emergencyPhone,
-        address: empFormData.value.address,
-        remark: empFormData.value.remark
-      }
-      await updateEmployee(data)
-      ElMessage.success('Employee updated')
-    } else {
-      const data: EmployeeCreateCommand = {
-        employeeNo: empFormData.value.employeeNo,
-        name: empFormData.value.name,
-        gender: empFormData.value.gender,
-        birthday: empFormData.value.birthday,
-        idCard: empFormData.value.idCard,
-        mobile: empFormData.value.mobile,
-        email: empFormData.value.email,
-        departmentId: empFormData.value.departmentId,
-        departmentName: empFormData.value.departmentName,
-        positionId: empFormData.value.positionId,
-        positionName: empFormData.value.positionName,
-        employeeStatus: empFormData.value.employeeStatus,
-        employeeType: empFormData.value.employeeType,
-        entryDate: empFormData.value.entryDate,
-        contractStartDate: empFormData.value.contractStartDate,
-        contractEndDate: empFormData.value.contractEndDate,
-        baseSalary: empFormData.value.baseSalary,
-        bankName: empFormData.value.bankName,
-        bankAccount: empFormData.value.bankAccount,
-        emergencyContact: empFormData.value.emergencyContact,
-        emergencyPhone: empFormData.value.emergencyPhone,
-        address: empFormData.value.address,
-        remark: empFormData.value.remark
-      }
-      await createEmployee(data)
-      ElMessage.success('Employee created')
-    }
-    empDialogVisible.value = false
-    loadEmployees()
+    await submitEmployee()
   } catch (error) {
     ElMessage.error(isEmpEdit.value ? 'Failed to update employee' : 'Failed to create employee')
   } finally {
