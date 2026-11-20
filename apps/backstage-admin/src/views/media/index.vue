@@ -32,7 +32,6 @@ const loadStatistics = async () => {
     statistics.value = res.data
   } catch (error) {
     console.error('[loadStatistics]', error)
-    ElMessage.error('Failed to load media statistics')
   }
 }
 
@@ -42,7 +41,6 @@ const loadConfig = async () => {
     quotaConfig.value = res.data
   } catch (error) {
     console.error('[loadConfig]', error)
-    ElMessage.error('Failed to load quota config')
   }
 }
 
@@ -54,7 +52,6 @@ const getList = async () => {
     total.value = res.data.total
   } catch (error) {
     console.error('[getList]', error)
-    ElMessage.error('Failed to load storage list')
   } finally {
     loading.value = false
   }
@@ -75,7 +72,7 @@ const handleDelete = async (row: UserStorage) => {
     getList()
     loadStatistics()
   } catch (error) {
-    if (error !== 'cancel') ElMessage.error('Failed to delete')
+    if (error !== 'cancel') console.error('[handleDelete]', error)
   }
 }
 
