@@ -107,9 +107,9 @@ export default defineConfig({
       resolvers: [ElementPlusResolver({ importStyle: 'sass' })],
     }),
     // 覆盖element-plus默认主题色
-    ElementPlus({
-      useSource: true,
-    }),
+    // The style plugin injects raw .scss/.css imports that Vitest's node
+    // environment cannot parse. Tests mock element-plus directly, so skip it.
+    ...(process.env.VITEST ? [] : [ElementPlus({ useSource: true })]),
     // 创建SVG图标创建插件
     createSvgIconsPlugin({
       // 指定存放SVG图标的目录
