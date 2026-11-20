@@ -1,14 +1,14 @@
 @use './variables.scss' as vars;
 
 #app {
-  // 主体区域
+  // Main area
   .main-container {
     min-height: 100%;
     transition: margin-left 0.28s;
     margin-left: 180px;
   }
 
-  // 侧边栏
+  // Sidebar
   .sidebar-container {
     .horizontal-collapse-transition {
       transition:
@@ -56,7 +56,7 @@
     .el-sub-menu {
       & > .el-sub-menu__title {
         padding-left: 10px !important;
-        // 解决div el-sub-menu__title中svg图标不显示
+        // Fix SVG icons not rendering in div.el-sub-menu__title
         display: block;
         & > span {
           height: 0;
@@ -84,7 +84,7 @@
     min-width: 180px !important;
   }
 
-  //适配移动端
+  // Mobile adaptation
   .mobile {
     .main-container {
       margin-left: 0px;
