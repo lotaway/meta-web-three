@@ -74,11 +74,12 @@
   - 关闭条件：更新两个 app 与 `.env.example` 文件，重写 DEVELOPMENT.md 第 3 节，描述各 app 的真实行为。
   - 2026-11-20 完成记录（`2927c8c6`）：不强行统一前缀——按各 app 框架如实描述：backstage-admin 用 `VITE_*`（读 `.env`/`.env.local`，`env.ts` 提供默认值）；client 生成器用 `NEXT_PUBLIC_*`（读 `.env` 等，产出 gitignore 的 `src/generated/`，全新检出须先生成才能过 typecheck），RN 运行时用 `EXPO_PUBLIC_BACK_API_HOST`（Metro 只内联该前缀）。两个 `.env.example` 均补充说明；锚点 / 引用路径已核对存在。
 
-- [ ] 统一本地工厂单档部署的端口、环境变量与 compose 口径。
+- [x] 统一本地工厂单档部署的端口、环境变量与 compose 口径。
   - 问题：`docker-compose.env.yml` 的 kafka 用 `network_mode: host`，而 `docker-compose.digital-twin.yml` 注入 `SPRING_KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}`，容器里解析不到 `kafka:9092`；factory-service 只经 gateway `10081` 暴露（`ports: []`），但唯一的本地工厂端口表还没写进 README。桌面端 `WHISPER_URL` 与内置 `llama-server` 都用 `8080` 的冲突属于独立仓库 `meta-note` 的任务。
   - 建议：为 kafka 的 host 网络模式确定一个容器内可达的地址（或改 compose 网络口径）；把唯一端口表写进 README（gateway `10081`、factory-service `10101` 仅容器内、Whisper、llama-server、`5051` / `5050` / `8000`）。
   - 需决策：定唯一端口分配表与 compose 入口（确认以根 `docker-compose.yml` + `docker-compose.digital-twin.yml` 叠加为准）；env 命名规则需与「让 DEVELOPMENT.md 第 3 节与实际的 env 和生成器契约对齐」一并决定。
   - 关闭条件：只剩一份本地工厂口径，所有 `VITE_*` 在构建期生效且登记在 `.env.example`，容器起来后各页面经 gateway 连到正确地址，kafka 可解析。运行验证须另行获准。
+  - 2026-11-20 完成记录（`ec7881fa`，配置层完成）：确认唯一 compose 入口为根 `docker-compose.yml` + `docker-compose.digital-twin.yml` 叠加，唯一端口表写入 `server/README.md`「本地工厂单档部署（唯一口径）」——gateway `10081` 唯一对外、factory-service `10101` 仅容器内、kafka `9092`/`9094`、zookeeper/redis/postgres 标准端口；澄清 `5051`/`5050`/`8080` 属独立仓库 `meta-note`、`8000` 属可选 graph 栈，不在本仓库叠加内。Kafka 修复：broker 增加 `PLAINTEXT_DOCKER` listener（advertise `host.docker.internal:9094`），factory-service 的 `SPRING_KAFKA_BOOTSTRAP_SERVERS` 默认改为 `host.docker.internal:9094` 并加 `extra_hosts: host.docker.internal:host-gateway`（同 `graph.base.yml` 范式）；新变量 `KAFKA_BOOTSTRAP_SERVERS`/`KAFKA_BRIDGE_PORT` 登记到根 `.env.example`，标准 compose 只留 `${VAR:-默认值}`。注意改 `KAFKA_BRIDGE_PORT` 时须同步改 `KAFKA_BOOTSTRAP_SERVERS`（默认值均含 9094）。YAML 语法与注入值已校验；docker daemon 本次不可用，**运行联调未做、须另行获准**。`VITE_*` 登记由文档契约任务（`2927c8c6`）完成。
 
 ### 2. 需环境 / 权限
 
