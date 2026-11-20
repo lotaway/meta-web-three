@@ -54,7 +54,9 @@
   - 关闭条件：按 app 逐个把注释 / 日志 / 错误文案改为英文，把记录后忽略的 catch 改成显式错误状态或重新抛出，拆分超过 20 行的函数，每轮都通过 typecheck 与测试。
   - 2026-11-20 第一批完成（`f7b3b501`）：范围收敛为零 UI 副作用、无需 i18n 决策的两类——① 13 处 `throw new Error/ApiError` 中文文案英文化（checkout / flashAdapter / stores/user / api client）；② 31 处「只 console.error 就返回」的吞异常 catch 补用户可见错误态——backstage-admin `media/index.vue` 3 处用 `ElMessage.error`，client 28 处用 `Alert.alert`（10 个文件补 `Alert` import）。`AuthContext` 的 3 处 throw + 3 处 catch 属独立鉴权任务（见「替换三个鉴权流程」），本批排除。同步更新 client 超时测试断言为英文。验证：backstage-admin `vue-tsc` + vitest 6/38、client `tsc --noEmit` + jest 10/109，全 EXIT 0。
   - 2026-11-20 注释英文化完成（`77e84226`、`bb55c757`、`c5ad3931`、`035cc449`）：backstage-admin 全 app 中文注释清零——27 个 `.d.ts` 的 562 处 JSDoc、7 个 `.ts` 的 90 处、74 个 `.vue` 的 897 处、行尾 16 处、样式文件 26 处，合计 1591 行，仅改注释文本，零 UI / i18n 资源变更。client 的 `src` 注释本无中文（命中项均为 JSX UI 文案，属需决策范围）。每批后 `vue-tsc` + vitest 6/38 全 EXIT 0。
+  - 2026-11-20 中文日志英文化完成（`dc2c6fc8`）：backstage-admin 15 个 `.vue` 的 52 处 `console.log/error` 中文文案全改英文（47 条唯一项精确映射，dry-run 52 命中/0 遗漏/0 未使用）。只改日志文案、保留原 `console.error` 行为，不涉及用户提示。`vue-tsc` + vitest 7/42 EXIT 0。
   - 剩余批次（本任务未关闭）：硬编码 `ElMessage` / 模板 UI 中文文本（需先定 i18n key 分类规则，见「需决策」行）、超过 20 行的函数拆分。纯展示型 UI 文本不应直接英文化，应迁入 i18n 资源。
+  - 2026-11-20 吞异常口径（需决策，暂不批处理）：精确扫描出 70 处「catch 内仅 console.error + loading 重置、无其它语句」，但**不可机械补 `ElMessage.error`**——全部 93 个 `src/apis/` 模块都走共享 `src/utils/http.ts`，其响应拦截器（`http.ts:99-127`）已对业务错误码与网络错误统一 `ElMessage` 提示，catch 再加会双重提示；`register/index.vue:61` 的注释「Interceptor already showed the error」即为此设计。要清理需先定口径：① 保留拦截器统一提示、catch 仅记日志（当前主流，则这批不算违规）；② 去拦截器提示、各 catch 自行提示（须逐条评估 700+ catch）。第一批 `media/index.vue` 的 4 处 `ElMessage.error` 已按旧口径推送，未回退。
 
 - [ ] 补齐两个客户端的响应式与可访问性缺口。
   - 问题：`@media` 只出现在 backstage-admin 的 4 个文件，client 为 0；`aria-*` 命中数 1 / 0；`apps/backstage-admin/src/styles/index.scss:32,37` 用 `outline: none` 移除了焦点轮廓；`apps/client` 没有无障碍属性，也没有 ErrorBoundary，并把方向锁死为竖屏（`app.config.ts:9`、`android/app/src/main/AndroidManifest.xml:19`）。
