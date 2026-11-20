@@ -17,7 +17,13 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
       - SERVER_PORT=10101
       - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
+      # Kafka runs in host network mode (see docker-compose.env.yml), so it has
+      # no `kafka` DNS name on the bridge network. Reach it through the host
+      # gateway and the dedicated PLAINTEXT_DOCKER listener; the broker
+      # advertises host.docker.internal so clients do not get redirected to
+      # their own localhost. Override KAFKA_BOOTSTRAP_SERVERS in .env for a
+      # remote broker.
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS:-host.docker.internal:9094}
       - SPRING_REDIS_HOST=redis
       - SPRING_REDIS_PORT=6379
       - INTERNAL_TOKEN_ENABLED=true
@@ -34,6 +40,10 @@ services:
       - JAVA_OPTS=-Xms512m -Xmx1024m
     volumes:
       - factory_service_data:/server/factory
+    # Resolve host.docker.internal to the host gateway so the bridge-network
+    # service can reach the host-network Kafka broker's PLAINTEXT_DOCKER port.
+    extra_hosts:
+      - host.docker.internal:host-gateway
     depends_on:
       - kafka
       - redis

@@ -115,6 +115,42 @@ mvn -o -pl <module> -am test   # 单模块测试
 
 K8s 扩展服务：`kubectl apply -f k8s/services/extended-domain-services.yaml`
 
+### 本地工厂单档部署（唯一口径）
+
+本地跑「数字孪生 / 工厂」整栈时，以**根 `docker-compose.yml` 叠加
+`docker-compose.digital-twin.yml`** 为唯一 compose 入口（根文件已 `include`
+`docker-compose.env.yml` / `docker-compose.server.yml` / `docker-compose.ai.yml`）：
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.digital-twin.yml up -d
+```
+
+该叠加把 gateway / mall-user-service / factory-service 切到 `prod` profile，
+并让 factory-service 只经网关对外、自身不发布端口。端口口径（宿主侧访问）：
+
+| 端口 | 服务 | 发布范围 | 说明 |
+|------|------|----------|------|
+| 10081 | gateway | 宿主机 `ports` | **唯一对外 HTTP 入口**；所有前端 / 桌面端经此访问，URL 带 `/{serviceId}` 前缀 |
+| 10101 | factory-service | 仅容器内 `expose` / healthcheck | 不对宿主机发布，经 Zookeeper 服务发现由网关路由；不要把 10101 当本地直连入口 |
+| 9092 | kafka (`PLAINTEXT`) | host 网络监听 | 宿主机本地进程 / 测试用（`localhost:9092`） |
+| 9094 | kafka (`PLAINTEXT_DOCKER`) | host 网络监听 | bridge 网络容器用，经 `host.docker.internal:9094`（可用 `KAFKA_BRIDGE_PORT` 覆盖） |
+| 2181 / 5432 / 6379 | zookeeper / postgres / redis | 见 `docker-compose.env.yml` | 标准中间件端口；本机若有端口偏移写入 `.env`，不改 compose |
+
+**Kafka 容器内解析**：broker 跑在 host 网络、无 `kafka` DNS 名，且用双 listener。
+bridge 网络的服务（如 factory-service）必须通过
+`SPRING_KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:9094` 接入，并在 compose 里配
+`extra_hosts: host.docker.internal:host-gateway`；broker 的 `PLAINTEXT_DOCKER`
+listener 同样 advertise `host.docker.internal:9094`，避免客户端在 bootstrap 后被
+重定向到自身的 `localhost:9092`。改 `KAFKA_BRIDGE_PORT` 时须同步改
+`KAFKA_BOOTSTRAP_SERVERS`（两者默认值均含 9094）。二者的默认值与变量清单见根目录
+`.env.example`；运行联调须另行获准。
+
+**不属于本仓库的端口**（勿在本仓库 compose 中重复定义）：桌面端 Electron 应用已迁至
+独立仓库 `lotaway/meta-note`，其 `5051`（渲染层内部 API，仅 `127.0.0.1`）、
+`5050`、`WHISPER_URL` 与内置 `llama-server` 的 `8080` 由那边自行维护。graph-node
+的 `8000`（`docker-compose.graph.base.yml`）属可选 Graph 栈，不在工厂单档 compose
+叠加内。
+
 ## 微服务功能说明
 
 ### server - 父项目
