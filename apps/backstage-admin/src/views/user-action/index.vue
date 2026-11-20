@@ -178,31 +178,25 @@ const handleTabChange = (name: TabPaneName) => {
   getList()
 }
 
+const deleteByType: Record<string, (id: number) => Promise<unknown>> = {
+  collection: deleteCollectionAPI,
+  history: deleteHistoryAPI,
+  attention: deleteAttentionAPI,
+  comment: deleteCommentAPI,
+}
+
+const confirmDelete = async () => {
+  await ElMessageBox.confirm('Are you sure you want to delete this item?', 'Confirm Delete', {
+    confirmButtonText: 'Confirm',
+    cancelButtonText: 'Cancel',
+    type: 'warning'
+  })
+}
+
 const handleDelete = async (row: any, type: string) => {
   try {
-    await ElMessageBox.confirm(
-      `Are you sure you want to delete this item?`,
-      'Confirm Delete',
-      {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
-        type: 'warning'
-      }
-    )
-    switch (type) {
-      case 'collection':
-        await deleteCollectionAPI(row.id)
-        break
-      case 'history':
-        await deleteHistoryAPI(row.id)
-        break
-      case 'attention':
-        await deleteAttentionAPI(row.id)
-        break
-      case 'comment':
-        await deleteCommentAPI(row.id)
-        break
-    }
+    await confirmDelete()
+    await deleteByType[type]?.(row.id)
     ElMessage.success('Deleted successfully')
     getList()
     getStatistics()

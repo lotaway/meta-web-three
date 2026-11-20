@@ -209,39 +209,39 @@ const handleDeleteOrder = async (index: number, row: OmsOrder) => {
 }
 
 // Handle batch operations
-const handleBatchOperate = async () => {
-  if (!multipleSelection.value || multipleSelection.value.length < 1) {
-    ElMessage({
-      message: t('oms.order.list.selectOrders'),
-      type: 'warning',
-      duration: 1000
-    })
+const batchDeliver = () => {
+  const listItems = multipleSelection.value.filter(item => item.status === 1)
+  if (listItems.length < 1) {
+    ElMessage({ message: t('oms.order.list.noDeliverable'), type: 'warning', duration: 1000 })
     return
   }
-  if (operateType.value === 1) {
-    // Batch shipment
-    const listItems = multipleSelection.value.filter(item => item.status === 1)
-    if (!listItems || listItems.length < 1) {
-      ElMessage({
-        message: t('oms.order.list.noDeliverable'),
-        type: 'warning',
-        duration: 1000
-      })
-      return
-    }
-    orderStore.setDeliverOrderList(listItems)
-    router.push({ path: '/oms/deliverOrderList' })
-  } else if (operateType.value === 2) {
-    // Close order
-    closeOrderData.value.orderIds = multipleSelection.value.filter(item => item.status === 0)
-      .map(item => item.id)
-    closeOrderData.value.dialogVisible = true
-  } else if (operateType.value === 3) {
-    // Delete order
-    const ids = multipleSelection.value.filter(item => item.status === 4)
-      .map(item => item.id)
-    await deleteOrderFn(ids)
+  orderStore.setDeliverOrderList(listItems)
+  router.push({ path: '/oms/deliverOrderList' })
+}
+
+const batchClose = () => {
+  closeOrderData.value.orderIds = multipleSelection.value.filter(item => item.status === 0).map(item => item.id)
+  closeOrderData.value.dialogVisible = true
+}
+
+const batchDelete = async () => {
+  const ids = multipleSelection.value.filter(item => item.status === 4).map(item => item.id)
+  await deleteOrderFn(ids)
+}
+
+const batchHandlers: Record<number, () => void | Promise<void>> = {
+  1: batchDeliver,
+  2: batchClose,
+  3: batchDelete,
+}
+
+const handleBatchOperate = async () => {
+  if (!multipleSelection.value || multipleSelection.value.length < 1) {
+    ElMessage({ message: t('oms.order.list.selectOrders'), type: 'warning', duration: 1000 })
+    return
   }
+  const handler = operateType.value != null ? batchHandlers[operateType.value] : undefined
+  await handler?.()
 }
 
 // Handle page size change

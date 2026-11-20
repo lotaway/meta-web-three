@@ -103,40 +103,41 @@ const loadData = async () => {
   }
 }
 
+const buildUpdateData = (): UpdateEquipmentRequest => ({
+  equipmentName: form.equipmentName,
+  equipmentTypeId: form.equipmentTypeId,
+  equipmentTypeCode: form.equipmentTypeCode,
+  workshopId: form.workshopId,
+  workstationId: form.workstationId,
+  positionX: form.positionX,
+  positionY: form.positionY,
+  positionZ: form.positionZ,
+  ipAddress: form.ipAddress,
+  macAddress: form.macAddress
+})
+
+const submitEquipment = async () => {
+  loading.value = true
+  try {
+    if (isEdit.value) {
+      await updateEquipmentAPI(Number(route.query.id), buildUpdateData())
+      ElMessage.success(t('mes.equipment.form.updateSuccess'))
+    } else {
+      await createEquipmentAPI(form as CreateEquipmentRequest)
+      ElMessage.success(t('mes.equipment.form.createSuccess'))
+    }
+    router.push('/mes/equipment')
+  } catch (error) {
+    ElMessage.error(isEdit.value ? t('mes.equipment.form.updateFailed') : t('mes.equipment.form.createFailed'))
+  } finally {
+    loading.value = false
+  }
+}
+
 const handleSubmit = async () => {
   if (!formRef.value) return
-  
   await formRef.value.validate(async (valid) => {
-    if (valid) {
-      loading.value = true
-      try {
-        if (isEdit.value) {
-          const id = Number(route.query.id)
-          const updateData: UpdateEquipmentRequest = {
-            equipmentName: form.equipmentName,
-            equipmentTypeId: form.equipmentTypeId,
-            equipmentTypeCode: form.equipmentTypeCode,
-            workshopId: form.workshopId,
-            workstationId: form.workstationId,
-            positionX: form.positionX,
-            positionY: form.positionY,
-            positionZ: form.positionZ,
-            ipAddress: form.ipAddress,
-            macAddress: form.macAddress
-          }
-          await updateEquipmentAPI(id, updateData)
-          ElMessage.success(t('mes.equipment.form.updateSuccess'))
-        } else {
-          await createEquipmentAPI(form as CreateEquipmentRequest)
-          ElMessage.success(t('mes.equipment.form.createSuccess'))
-        }
-        router.push('/mes/equipment')
-      } catch (error) {
-        ElMessage.error(isEdit.value ? t('mes.equipment.form.updateFailed') : t('mes.equipment.form.createFailed'))
-      } finally {
-        loading.value = false
-      }
-    }
+    if (valid) await submitEquipment()
   })
 }
 

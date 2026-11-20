@@ -136,25 +136,24 @@ const handleDialogSelectionChange = (val: PmsProduct[]) => {
 }
 
 // Selection dialog confirmation
+const buildSelectProducts = () => dialogData.value.multipleSelection.map(item => ({
+  productId: item.id!,
+  flashPromotionId: listQuery.value.flashPromotionId!,
+  flashPromotionSessionId: listQuery.value.flashPromotionSessionId!
+}))
+
 const handleSelectDialogConfirm = async () => {
   if (dialogData.value.multipleSelection.length < 1) {
     ElMessage.warning(t('message.selectOneRecord'))
     return
   }
-  const selectProducts = dialogData.value.multipleSelection.map(item => {
-    return {
-      productId: item.id!,
-      flashPromotionId: listQuery.value.flashPromotionId!,
-      flashPromotionSessionId: listQuery.value.flashPromotionSessionId!
-    }
-  })
   try {
     await ElMessageBox.confirm(t('dialog.confirmAdd'), t('dialog.title'), {
       confirmButtonText: t('common.confirm'),
       cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
-    await flashProductRelationCreateAPI(selectProducts)
+    await flashProductRelationCreateAPI(buildSelectProducts())
     selectDialogVisible.value = false
     dialogData.value.multipleSelection = []
     getList()

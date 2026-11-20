@@ -201,12 +201,14 @@ const handleDialogSelectionChange = (val: PmsBrand[]) => {
 }
 
 // Confirm selection dialog
+const buildHomeBrandList = (): SmsHomeBrand[] => dialogData.value.multipleSelection.map(item => ({
+  brandId: item.id!,
+  brandName: item.name
+}))
+
 const handleSelectDialogConfirm = async () => {
   if (dialogData.value.multipleSelection.length < 1) {
-    ElMessage.warning({
-      message: '请选择一条记录',
-      duration: 1000
-    })
+    ElMessage.warning({ message: '请选择一条记录', duration: 1000 })
     return
   }
   try {
@@ -215,18 +217,11 @@ const handleSelectDialogConfirm = async () => {
       cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
-    const homeBrandList: SmsHomeBrand[] = dialogData.value.multipleSelection.map(item => ({
-      brandId: item.id!,
-      brandName: item.name
-    }))
-    await homeBrandCreateAPI(homeBrandList)
+    await homeBrandCreateAPI(buildHomeBrandList())
     selectDialogVisible.value = false
     dialogData.value.multipleSelection = []
     await getList()
-    ElMessage.success({
-      type: 'success',
-      message: '添加成功!'
-    })
+    ElMessage.success({ type: 'success', message: '添加成功!' })
   } catch (error) {
     if (error !== 'cancel') {
       console.error('Failed to confirm operation:', error)
