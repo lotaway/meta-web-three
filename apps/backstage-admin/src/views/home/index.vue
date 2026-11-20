@@ -17,19 +17,19 @@ import {
 
 // Inject ECharts modules on demand via use()
 use([
-  CanvasRenderer, // 画布渲染器
-  LineChart, // 折线图的绘制功能
-  GridComponent, // 直角坐标系网格组件
-  TooltipComponent, // 鼠标悬停时显示数据详情
-  LegendComponent,  // 图例组件
-  TitleComponent // 显示图表标题
+  CanvasRenderer, // Canvas renderer
+  LineChart, // Line chart drawing capability
+  GridComponent, // Cartesian grid component
+  TooltipComponent, // Show data details on hover
+  LegendComponent, // Legend component
+  TitleComponent // Show chart title
 ])
 
 // Line chart data type
 type LineChartDataItem = {
-  date: string, // 交易日期
-  orderCount: number, // 订单数量
-  orderAmount: number // 订单金额
+  date: string, // Transaction date
+  orderCount: number, // Order count
+  orderAmount: number // Order amount
 }
 
 // Default chart data

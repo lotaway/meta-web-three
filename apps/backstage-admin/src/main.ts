@@ -2,11 +2,11 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import { createPinia } from 'pinia'
 import router from './router'
-import '@/styles/index.scss' // 引入全局css样式
-import 'normalize.css/normalize.css' // 重置css统一浏览器默认样式
+import '@/styles/index.scss' // Import global CSS styles
+import 'normalize.css/normalize.css' // Reset CSS to normalize browser defaults
 import { setupSvgIcon } from './icons'
-import 'virtual:svg-icons-register' // 引入SVG图标注册器（关键步骤）
-import '@/router/guard' // 引入vue-router的前置和后置守卫函数
+import 'virtual:svg-icons-register' // Import the SVG icon registrar (required step)
+import '@/router/guard' // Import vue-router before/after guards
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import i18n from '@/locales'
 

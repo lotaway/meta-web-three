@@ -1,4 +1,4 @@
-import SvgIcon from '@/components/SvgIcon/index.vue' // svg组件
+import SvgIcon from '@/components/SvgIcon/index.vue' // SVG icon component
 import type { App } from 'vue'
 
 // Export the component registration function, used in main.js

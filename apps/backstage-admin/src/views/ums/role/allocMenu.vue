@@ -2,8 +2,8 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox, ElTree } from 'element-plus'
-import { getMenuTreeListAPI } from '@/apis/menu.ts' // 修改路径为apis
-import { roleListMenuByRoleIdAPI, roleAllocMenuAPI } from '@/apis/role' // 修改路径为apis
+import { getMenuTreeListAPI } from '@/apis/menu.ts' // Updated path to apis
+import { roleListMenuByRoleIdAPI, roleAllocMenuAPI } from '@/apis/role' // Updated path to apis
 import type { TreeNodeData } from 'element-plus/es/components/tree/src/tree.type'
 import type { UmsMenuNode } from '@/types/menu'
 
