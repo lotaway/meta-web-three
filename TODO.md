@@ -59,18 +59,20 @@
   - 需决策：提供设计基准 / 断点取值（仓库里没有设计稿）。若没有，默认采用通用断点集，并以可评审的变更提交。
   - 关闭条件：两个 app 都加上断点与弹性布局、恢复可见焦点态、补充语义标签 / `aria-*` / `accessibilityLabel` / `accessibilityRole`、加入带用户可见降级的 ErrorBoundary，并用各 app 的检查验证。
 
-- [ ] 让 `apps/backstage-admin` 的 API 客户端与 DEVELOPMENT.md 第 3 节保持一致。
+- [x] 让 `apps/backstage-admin` 的 API 客户端与 DEVELOPMENT.md 第 3 节保持一致。
   - 问题：`package.json:18` 定义了 `generate:api`，`tools/generate-api.cjs` 调用共享的 `apps/tools/OpenApiToTS.js`，其默认输出为 `src/generated/api`，但该目录不存在；应用实际调用的是 `src/apis/` 下 93 个手写模块。
   - 建议：要么运行生成器并把调用方迁移到生成的客户端，要么在 DEVELOPMENT.md 与 app README 中记录这一有意偏离（包括为何保留手写模块、以及如何保持同步）。
   - 需决策：在建议的两条路线中二选一：运行生成器并迁移 93 个手写模块，或记录有意偏离。需与下面「对齐 DEVELOPMENT.md 第 3 节」一起决定，否则两处改动会冲突。
   - 环境要求（仅生成器路线）：后端 OpenAPI 文档可访问，且生成器工具链可用。
   - 关闭条件：要么迁移调用方并产出 `src/generated/api/`，要么把偏离说明落到 DEVELOPMENT.md 与 app README，并写明同步机制。
+  - 2026-11-20 完成记录（`2927c8c6`，采用「记录有意偏离」路线）：DEVELOPMENT.md 第 3 节与 backstage-admin README 新增 API Client 章节，写明 93 个手写 `src/apis/` 模块是运行时唯一调用层、`src/generated/api/` 仅作签名参考不消费，并给出「改模块 + 维护 SERVICE_PREFIX_MAP」的同步机制。未迁移 93 模块、未产出生成目录。
 
-- [ ] 让 DEVELOPMENT.md 第 3 节与实际的 env 和生成器契约对齐。
+- [x] 让 DEVELOPMENT.md 第 3 节与实际的 env 和生成器契约对齐。
   - 问题：`DEVELOPMENT.md:49-58` 要求 `.env.development` 定义 `NEXT_PUBLIC_BACK_API_HOST` / `NEXT_PUBLIC_BACK_API_DOC_HOST`，且两个 app 都输出到 `src/generated/api/`。实际上 `backstage-admin/.env.development` 只设置了 `VITE_BLOCKCHAIN_ENABLED=true`，其生成器读取 `.env,.env.local` 中的 `VITE_BASE_SERVER_URL` / `VITE_API_DOC_HOST`；`apps/client` 把 `NEXT_PUBLIC_*` 变量放在 `.env`，`apps/client/.gitignore:154` 忽略 `src/generated` 且 `api/generated.ts` 仍从 `@/src/generated/api` 导入（全新检出需先本地生成才能通过 typecheck）。`DEVELOPMENT.md:60` 只说明桌面端已迁到独立仓库 `lotaway/meta-note`，第 3 节只覆盖本仓库这两个 app。
   - 建议：选定一套 env 文件 / 变量约定，同步更新两个 app 与 `.env.example` 文件，并重写第 3 节描述各 app 的真实行为。
   - 需决策：在 `NEXT_PUBLIC_*` 与 `VITE_*`、`.env.development` 与 `.env` 之间选定唯一约定；需与上面「让 backstage-admin API 客户端与第 3 节一致」一起决定。
   - 关闭条件：更新两个 app 与 `.env.example` 文件，重写 DEVELOPMENT.md 第 3 节，描述各 app 的真实行为。
+  - 2026-11-20 完成记录（`2927c8c6`）：不强行统一前缀——按各 app 框架如实描述：backstage-admin 用 `VITE_*`（读 `.env`/`.env.local`，`env.ts` 提供默认值）；client 生成器用 `NEXT_PUBLIC_*`（读 `.env` 等，产出 gitignore 的 `src/generated/`，全新检出须先生成才能过 typecheck），RN 运行时用 `EXPO_PUBLIC_BACK_API_HOST`（Metro 只内联该前缀）。两个 `.env.example` 均补充说明；锚点 / 引用路径已核对存在。
 
 - [ ] 统一本地工厂单档部署的端口、环境变量与 compose 口径。
   - 问题：`docker-compose.env.yml` 的 kafka 用 `network_mode: host`，而 `docker-compose.digital-twin.yml` 注入 `SPRING_KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}`，容器里解析不到 `kafka:9092`；factory-service 只经 gateway `10081` 暴露（`ports: []`），但唯一的本地工厂端口表还没写进 README。桌面端 `WHISPER_URL` 与内置 `llama-server` 都用 `8080` 的冲突属于独立仓库 `meta-note` 的任务。
