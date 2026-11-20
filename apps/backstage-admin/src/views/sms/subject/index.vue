@@ -184,12 +184,14 @@ const handleDialogSelectionChange = (val: CmsSubject[]) => {
 }
 
 // Handle selection dialog confirmation
+const buildSubjectPayload = () => dialogData.value.multipleSelection.map(item => ({
+  subjectId: item.id!,
+  subjectName: item.title!
+}))
+
 const handleSelectDialogConfirm = async () => {
   if (dialogData.value.multipleSelection.length < 1) {
-    ElMessage.warning({
-      message: '请选择一条记录',
-      duration: 1000
-    })
+    ElMessage.warning({ message: '请选择一条记录', duration: 1000 })
     return
   }
   await ElMessageBox.confirm(t('dialog.confirmAdd'), t('dialog.title'), {
@@ -197,18 +199,11 @@ const handleSelectDialogConfirm = async () => {
     cancelButtonText: t('common.cancel'),
     type: 'warning'
   })
-  const selectSubjects = dialogData.value.multipleSelection.map(item => ({
-    subjectId: item.id!,
-    subjectName: item.title!
-  }))
-  await homeRecommendSubjectCreateAPI(selectSubjects)
+  await homeRecommendSubjectCreateAPI(buildSubjectPayload())
   selectDialogVisible.value = false
   dialogData.value.multipleSelection = []
   getList()
-  ElMessage.success({
-    type: 'success',
-    message: '添加成功!'
-  })
+  ElMessage.success({ type: 'success', message: '添加成功!' })
 }
 
 // Handle edit sort

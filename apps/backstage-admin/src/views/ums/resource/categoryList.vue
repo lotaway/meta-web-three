@@ -73,32 +73,37 @@ const handleDelete = async (index: number, row: UmsResourceCategory) => {
 }
 
 // Handle dialog confirmation
+const saveResourceCategory = async () => {
+  if (isEdit.value) {
+    try {
+      await resourceCategoryUpdateAPI(resourceCategory.value.id!, resourceCategory.value)
+      ElMessage.success(t('message.modifySuccess'))
+    } catch (error) {
+      console.error('Failed to update resource category:', error)
+      return false
+    }
+  } else {
+    try {
+      await resourceCategoryCreateAPI(resourceCategory.value)
+      ElMessage.success(t('message.operationSuccess'))
+    } catch (error) {
+      console.error('Failed to create resource category:', error)
+      return false
+    }
+  }
+  return true
+}
+
 const handleDialogConfirm = async () => {
   await ElMessageBox.confirm(t('dialog.confirmAction'), t('dialog.title'), {
     confirmButtonText: t('common.confirm'),
     cancelButtonText: t('common.cancel'),
     type: 'warning',
   })
-  if (isEdit.value) {
-    try {
-      await resourceCategoryUpdateAPI(resourceCategory.value.id!, resourceCategory.value)
-      ElMessage.success(t('message.modifySuccess'))
-      dialogVisible.value = false
-      getList()
-    } catch (error) {
-      console.error('Failed to update resource category:', error)
-    }
-  } else {
-    try {
-      await resourceCategoryCreateAPI(resourceCategory.value)
-      ElMessage.success(t('message.operationSuccess'))
-      dialogVisible.value = false
-      getList()
-    } catch (error) {
-      console.error('Failed to create resource category:', error)
-    }
+  if (await saveResourceCategory()) {
+    dialogVisible.value = false
+    getList()
   }
-
 }
 
 // Date format filter function

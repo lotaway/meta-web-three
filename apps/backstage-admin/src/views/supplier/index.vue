@@ -108,30 +108,32 @@ const handleReset = () => {
   getList()
 }
 
+const createEmptySupplierForm = () => ({
+  supplierCode: '',
+  supplierName: '',
+  name: '',
+  supplierType: '',
+  province: '',
+  city: '',
+  address: '',
+  contact: '',
+  contactPerson: '',
+  contactPhone: '',
+  phone: '',
+  email: '',
+  status: 'ACTIVE',
+  creditLimit: 0,
+  paymentTerms: '',
+  category: '',
+  score: 0,
+  level: '',
+  assessmentLevel: ''
+})
+
 const handleAdd = () => {
   isEdit.value = false
   viewMode.value = false
-  formData.value = {
-    supplierCode: '',
-    supplierName: '',
-    name: '',
-    supplierType: '',
-    province: '',
-    city: '',
-    address: '',
-    contact: '',
-    contactPerson: '',
-    contactPhone: '',
-    phone: '',
-    email: '',
-    status: 'ACTIVE',
-    creditLimit: 0,
-    paymentTerms: '',
-    category: '',
-    score: 0,
-    level: '',
-    assessmentLevel: ''
-  }
+  formData.value = createEmptySupplierForm()
   dialogVisible.value = true
 }
 

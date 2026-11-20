@@ -153,26 +153,25 @@ const operates = ref([
 const operateType = ref<string | null>()
 
 // Handle batch operations
+const resolveShowStatus = () => {
+  if (operateType.value === 'showBrand') return 1
+  if (operateType.value === 'hideBrand') return 0
+  return null
+}
+
 const handleBatchOperate = async () => {
   if (!multipleSelection.value || multipleSelection.value.length < 1) {
     ElMessage.warning(t('message.selectOneRecord'))
     return
   }
-  let showStatus = 0
-  if (operateType.value === 'showBrand') {
-    showStatus = 1
-  } else if (operateType.value === 'hideBrand') {
-    showStatus = 0
-  } else {
+  const showStatus = resolveShowStatus()
+  if (showStatus === null) {
     ElMessage.warning(t('message.selectOperationType'))
     return
   }
-  const idsArr = multipleSelection.value.map(item => item.id)
+  const ids = multipleSelection.value.map(item => item.id).join(',')
   try {
-    await brandUpdateShowStatusAPI({
-      ids: idsArr.join(','),
-      showStatus: showStatus
-    })
+    await brandUpdateShowStatusAPI({ ids, showStatus })
     getList()
     ElMessage.success(t('message.modifySuccess'))
   } catch (error) {
