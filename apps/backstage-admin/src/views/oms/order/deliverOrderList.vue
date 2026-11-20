@@ -76,11 +76,11 @@ const confirm = async () => {
       <el-icon class="el-icon-middle">
         <Tickets />
       </el-icon>
-      <span>发货列表</span>
+      <span>{{ t('oms.deliveryList') }}</span>
     </el-card>
     <div class="table-container">
       <el-table ref="deliverOrderTable" style="width: 100%;" :data="list" border>
-        <el-table-column label="订单编号" width="180" align="center">
+        <el-table-column :label="t('oms.order.list.orderSn')" width="180" align="center">
           <template #default="scope">{{ scope.row.orderSn }}</template>
         </el-table-column>
         <el-table-column label="收货人" width="150" align="center">
@@ -97,7 +97,7 @@ const confirm = async () => {
         </el-table-column>
         <el-table-column label="配送方式" width="200" align="center">
           <template #default="scope">
-            <el-select placeholder="请选择物流公司" v-model="scope.row.deliveryCompany">
+            <el-select :placeholder="t('oms.selectCarrier')" v-model="scope.row.deliveryCompany">
               <el-option v-for="item in companyOptions" :key="item" :label="item" :value="item">
               </el-option>
             </el-select>

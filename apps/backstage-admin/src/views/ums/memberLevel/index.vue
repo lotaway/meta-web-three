@@ -2,35 +2,35 @@
   <div class="member-level-container">
     <el-card class="filter-card">
       <el-form :inline="true" :model="listQuery">
-        <el-form-item label="等级名称">
-          <el-input v-model="listQuery.name" placeholder="请输入等级名称" clearable @keyup.enter="handleSearch" />
+        <el-form-item :label="t('ums.levelName')">
+          <el-input v-model="listQuery.name" :placeholder="t('ums.enterLevelName')" clearable @keyup.enter="handleSearch" />
         </el-form-item>
-        <el-form-item label="默认等级">
-          <el-select v-model="listQuery.defaultStatus" placeholder="请选择" clearable>
-            <el-option label="是" :value="1" />
-            <el-option label="否" :value="0" />
+        <el-form-item :label="t('ums.defaultLevel')">
+          <el-select v-model="listQuery.defaultStatus" :placeholder="t('common.selectPlaceholder')" clearable>
+            <el-option :label="t('role.page.yes')" :value="1" />
+            <el-option :label="t('role.page.no')" :value="0" />
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">查询</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button type="primary" @click="handleSearch">{{ t('common.query') }}</el-button>
+          <el-button @click="handleReset">{{ t('common.reset') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <el-card class="table-card">
       <div class="toolbar">
-        <el-button type="primary" @click="handleAdd">添加会员等级</el-button>
+        <el-button type="primary" @click="handleAdd">{{ t('ums.addLevel') }}</el-button>
       </div>
 
       <el-table v-loading="listLoading" :data="list" border stripe>
         <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="name" label="等级名称" width="120" />
-        <el-table-column prop="growthPoint" label="成长值要求" width="120" />
-        <el-table-column prop="defaultStatus" label="默认等级" width="100">
+        <el-table-column prop="name" :label="t('ums.levelName')" width="120" />
+        <el-table-column prop="growthPoint" :label="t('ums.growthRequired')" width="120" />
+        <el-table-column prop="defaultStatus" :label="t('ums.defaultLevel')" width="100">
           <template #default="{ row }">
             <el-tag :type="row.defaultStatus === 1 ? 'success' : 'info'">
-              {{ row.defaultStatus === 1 ? '是' : '否' }}
+              {{ row.defaultStatus === 1 ? t('role.page.yes') : t('role.page.no') }}
             </el-tag>
           </template>
         </el-table-column>
@@ -38,19 +38,19 @@
         <el-table-column prop="commentGrowthPoint" label="评价成长值" width="120" />
         <el-table-column label="特权" min-width="200">
           <template #default="{ row }">
-            <el-tag v-if="row.priviledgeFreeFreight" size="small" type="success">免邮</el-tag>
-            <el-tag v-if="row.priviledgeSignIn" size="small" type="success">签到</el-tag>
-            <el-tag v-if="row.priviledgeComment" size="small" type="success">评论</el-tag>
-            <el-tag v-if="row.priviledgePromotion" size="small" type="success">活动</el-tag>
-            <el-tag v-if="row.priviledgeMemberPrice" size="small" type="success">会员价</el-tag>
-            <el-tag v-if="row.priviledgeBirthday" size="small" type="success">生日</el-tag>
+            <el-tag v-if="row.priviledgeFreeFreight" size="small" type="success">{{ t('ums.freeShipping') }}</el-tag>
+            <el-tag v-if="row.priviledgeSignIn" size="small" type="success">{{ t('mes.labor.clockIn') }}</el-tag>
+            <el-tag v-if="row.priviledgeComment" size="small" type="success">{{ t('ums.comment') }}</el-tag>
+            <el-tag v-if="row.priviledgePromotion" size="small" type="success">{{ t('ums.activity') }}</el-tag>
+            <el-tag v-if="row.priviledgeMemberPrice" size="small" type="success">{{ t('ums.memberPrice') }}</el-tag>
+            <el-tag v-if="row.priviledgeBirthday" size="small" type="success">{{ t('ums.birthday') }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="note" label="备注" min-width="150" show-overflow-tooltip />
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link @click="handleEdit(row as UmsMemberLevel)">编辑</el-button>
-            <el-button type="danger" link @click="handleDelete(row as UmsMemberLevel)">删除</el-button>
+            <el-button type="primary" link @click="handleEdit(row as UmsMemberLevel)">{{ t('common.edit') }}</el-button>
+            <el-button type="danger" link @click="handleDelete(row as UmsMemberLevel)">{{ t('common.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -101,8 +101,8 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">确定</el-button>
+        <el-button @click="dialogVisible = false">{{ t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="handleSubmit">{{ t('common.confirm') }}</el-button>
       </template>
     </el-dialog>
   </div>

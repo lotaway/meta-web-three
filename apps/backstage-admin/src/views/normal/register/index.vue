@@ -122,7 +122,7 @@ async function handleRegister() {
   <div>
     <el-card class="register-form-layout">
       <template #header>
-        <div class="register-title">开发者注册</div>
+        <div class="register-title">{{ t('common.devRegister') }}</div>
       </template>
       <el-form :model="registerForm" :rules="registerRules" ref="registerFormRef" label-position="left">
         <el-form-item prop="name">
@@ -145,7 +145,7 @@ async function handleRegister() {
                 class="captcha-image"
                 :src="captcha.image"
                 alt="captcha"
-                title="点击刷新"
+                :title="t('common.clickRefresh')"
                 @click="refreshCaptcha"
               />
             </template>
@@ -155,7 +155,7 @@ async function handleRegister() {
           <el-input name="emailCode" v-model="registerForm.emailCode" placeholder="邮箱验证码" @keyup.enter="handleRegister">
             <template #append>
               <el-button :loading="sendingCode" :disabled="countdown > 0" @click="sendVerificationCode">
-                {{ countdown > 0 ? `${countdown}s` : '获取验证码' }}
+                {{ countdown > 0 ? `${countdown}s` : t('common.getCode') }}
               </el-button>
             </template>
           </el-input>

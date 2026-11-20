@@ -15,7 +15,7 @@
       <template #header><span>{{ t('bi.financialSummary') }}</span></template>
       <el-table :data="summaryRows" stripe empty-text="暂无数据">
         <el-table-column prop="metric" label="指标" width="120" />
-        <el-table-column prop="value" label="数值"><template #default="{ row }">{{ row.value }}</template></el-table-column>
+        <el-table-column prop="value" :label="t('bi.value')"><template #default="{ row }">{{ row.value }}</template></el-table-column>
       </el-table>
     </el-card>
   </div>

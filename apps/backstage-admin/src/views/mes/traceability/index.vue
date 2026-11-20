@@ -8,7 +8,7 @@
             class="filter-item" style="width: 160px" @keyup.enter="handleFilter" />
           <el-input v-model="listQuery.batchNo" :placeholder="t('mes.traceability.batchNoPlaceholder')"
             class="filter-item" style="width: 160px" @keyup.enter="handleFilter" />
-          <el-input v-model="listQuery.productCode" :placeholder="t('mes.traceability.productCodePlaceholder') || '产品编码'"
+          <el-input v-model="listQuery.productCode" :placeholder="t('mes.traceability.productCodePlaceholder') || t('mes.processRoute.productCode')"
             class="filter-item" style="width: 160px" @keyup.enter="handleFilter" />
           <el-input v-model="listQuery.sn" :placeholder="t('mes.traceability.snPlaceholder')"
             class="filter-item" style="width: 160px" @keyup.enter="handleFilter" />

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Tickets } from '@element-plus/icons-vue'
@@ -51,11 +53,11 @@ const handleShowRelation = (index: number, row: SmsFlashPromotionSession) => {
       <el-icon class="el-icon-middle">
         <Tickets />
       </el-icon>
-      <span>数据列表</span>
+      <span>{{ t('role.page.dataList') }}</span>
     </el-card>
     <div class="table-container">
       <el-table ref="selectSessionTable" :data="list" style="width: 100%;" v-loading="listLoading" border>
-        <el-table-column label="编号" width="100" align="center">
+        <el-table-column :label="t('common.id')" width="100" align="center">
           <template #default="scope">{{ scope.row.id }}</template>
         </el-table-column>
         <el-table-column label="秒杀时间段名称" align="center">
@@ -72,7 +74,7 @@ const handleShowRelation = (index: number, row: SmsFlashPromotionSession) => {
         </el-table-column>
         <el-table-column label="操作" align="center">
           <template #default="scope">
-            <el-button size="small" type="primary" link @click="handleShowRelation(scope.$index, scope.row as SmsFlashPromotionSession)">商品列表
+            <el-button size="small" type="primary" link @click="handleShowRelation(scope.$index, scope.row as SmsFlashPromotionSession)">{{ t('product.productList') }}
             </el-button>
           </template>
         </el-table-column>

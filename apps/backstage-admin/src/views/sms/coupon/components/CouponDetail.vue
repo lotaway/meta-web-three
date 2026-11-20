@@ -220,38 +220,38 @@ const getProductCateByIds = (ids: number[]) => {
 <template>
   <el-card class="form-container" shadow="never">
     <el-form :model="coupon" :rules="rules" ref="couponFrom" label-width="150px">
-      <el-form-item label="优惠券类型：">
+      <el-form-item :label="t('promotion.couponType')">
         <el-select v-model="coupon.type">
           <el-option v-for="type in couponTypes" :key="type.value" :label="type.label" :value="type.value">
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="优惠券名称：" prop="name">
+      <el-form-item :label="t('promotion.couponName')" prop="name">
         <el-input v-model="coupon.name" class="input-width"></el-input>
       </el-form-item>
-      <el-form-item label="适用平台：">
+      <el-form-item :label="t('promotion.platform')">
         <el-select v-model="coupon.platform">
           <el-option v-for="item in couponPlatforms" :key="item.value" :label="item.label" :value="item.value">
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="总发行量：" prop="publishCount">
-        <el-input v-model.number="coupon.publishCount" placeholder="只能输入正整数" class="input-width"></el-input>
+      <el-form-item :label="t('promotion.totalIssue')" prop="publishCount">
+        <el-input v-model.number="coupon.publishCount" :placeholder="t('promotion.positiveIntOnly')" class="input-width"></el-input>
       </el-form-item>
-      <el-form-item label="面额：" prop="amount">
-        <el-input v-model.number="coupon.amount" placeholder="面值只能是数值，限2位小数" class="input-width">
-          <template #append>元</template>
+      <el-form-item :label="t('promotion.denomination')" prop="amount">
+        <el-input v-model.number="coupon.amount" :placeholder="t('promotion.valueNumeric')" class="input-width">
+          <template #append>{{ t('promotion.yuan') }}</template>
         </el-input>
       </el-form-item>
       <el-form-item label="每人限领：">
         <el-input v-model="coupon.perLimit" placeholder="只能输入正整数" class="input-width">
-          <template #append>张</template>
+          <template #append>{{ t('promotion.sheet') }}</template>
         </el-input>
       </el-form-item>
       <el-form-item label="使用门槛：" prop="minPoint">
         <el-input v-model.number="coupon.minPoint" placeholder="只能输入正整数" class="input-width">
-          <template #prepend>满</template>
-          <template #append>元可用</template>
+          <template #prepend>{{ t('promotion.spend') }}</template>
+          <template #append>{{ t('promotion.yuanOff') }}</template>
         </el-input>
       </el-form-item>
       <el-form-item label="领取日期：" prop="enableTime">
@@ -280,7 +280,7 @@ const getProductCateByIds = (ids: number[]) => {
           </el-table-column>
           <el-table-column label="操作" align="center" width="100">
             <template #default="scope">
-              <el-button size="small" type="primary" link @click="handleDeleteProductCateRelation(scope.$index)">删除
+              <el-button size="small" type="primary" link @click="handleDeleteProductCateRelation(scope.$index)">{{ t('common.delete') }}
               </el-button>
             </template>
           </el-table-column>
@@ -308,7 +308,7 @@ const getProductCateByIds = (ids: number[]) => {
           </el-table-column>
           <el-table-column label="操作" align="center" width="100">
             <template #default="scope">
-              <el-button size="small" type="primary" link @click="handleDeleteProductRelation(scope.$index)">删除
+              <el-button size="small" type="primary" link @click="handleDeleteProductRelation(scope.$index)">{{ t('common.delete') }}
               </el-button>
             </template>
           </el-table-column>

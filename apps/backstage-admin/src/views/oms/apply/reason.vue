@@ -167,14 +167,14 @@ const deleteReasonMethod = async (ids: number[]) => {
       <el-icon class="el-icon-middle">
         <Tickets />
       </el-icon>
-      <span>数据列表</span>
-      <el-button @click="handleAdd" class="btn-add">添加</el-button>
+      <span>{{ t('role.page.dataList') }}</span>
+      <el-button @click="handleAdd" class="btn-add">{{ t('common.add') }}</el-button>
     </el-card>
     <div class="table-container">
       <el-table ref="returnReasonTable" :data="list" style="width: 100%;" @selection-change="handleSelectionChange"
         v-loading="listLoading" border>
         <el-table-column type="selection" width="60" align="center"></el-table-column>
-        <el-table-column label="编号" width="80" align="center">
+        <el-table-column :label="t('common.id')" width="80" align="center">
           <template v-slot="scope">{{ scope.row.id }}</template>
         </el-table-column>
         <el-table-column label="原因类型" align="center">
@@ -195,8 +195,8 @@ const deleteReasonMethod = async (ids: number[]) => {
         </el-table-column>
         <el-table-column label="操作" width="160" align="center">
           <template v-slot="scope">
-            <el-button size="small" @click="handleUpdate(scope.$index, scope.row as OmsOrderReturnReason)">编辑</el-button>
-            <el-button size="small" @click="handleDelete(scope.$index, scope.row as OmsOrderReturnReason)">删除</el-button>
+            <el-button size="small" @click="handleUpdate(scope.$index, scope.row as OmsOrderReturnReason)">{{ t('common.edit') }}</el-button>
+            <el-button size="small" @click="handleDelete(scope.$index, scope.row as OmsOrderReturnReason)">{{ t('common.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -230,8 +230,8 @@ const deleteReasonMethod = async (ids: number[]) => {
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="handleConfirm">确 定</el-button>
+          <el-button @click="dialogVisible = false">{{ t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="handleConfirm">{{ t('common.confirm') }}</el-button>
         </span>
       </template>
     </el-dialog>

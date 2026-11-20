@@ -194,54 +194,54 @@ const filterLabelFilter = (index: number) => {
 <template>
   <el-card class="form-container" shadow="never">
     <el-form ref="productCateFrom" :model="productCate" :rules="rules" label-width="150px">
-      <el-form-item label="分类名称：" prop="name">
+      <el-form-item :label="t('product.categoryName')" prop="name">
         <el-input v-model="productCate.name"></el-input>
       </el-form-item>
-      <el-form-item label="上级分类：">
-        <el-select v-model="productCate.parentId" placeholder="请选择分类">
+      <el-form-item :label="t('product.parentCategory')">
+        <el-select v-model="productCate.parentId" :placeholder="t('product.selectCategory')">
           <el-option v-for="item in selectProductCateList" :key="item.id" :label="item.name" :value="item.id!">
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="数量单位：">
+      <el-form-item :label="t('product.quantityUnit')">
         <el-input v-model="productCate.productUnit"></el-input>
       </el-form-item>
-      <el-form-item label="排序：">
+      <el-form-item :label="t('product.sort')">
         <el-input v-model="productCate.sort"></el-input>
       </el-form-item>
-      <el-form-item label="是否显示：">
+      <el-form-item :label="t('product.isDisplay')">
         <el-radio-group v-model="productCate.showStatus">
-          <el-radio :label="1">是</el-radio>
-          <el-radio :label="0">否</el-radio>
+          <el-radio :label="1">{{ t('role.page.yes') }}</el-radio>
+          <el-radio :label="0">{{ t('role.page.no') }}</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="是否显示在导航栏：">
+      <el-form-item :label="t('product.showInNav')">
         <el-radio-group v-model="productCate.navStatus">
-          <el-radio :label="1">是</el-radio>
-          <el-radio :label="0">否</el-radio>
+          <el-radio :label="1">{{ t('role.page.yes') }}</el-radio>
+          <el-radio :label="0">{{ t('role.page.no') }}</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="分类图标：">
+      <el-form-item :label="t('product.categoryIcon')">
         <single-upload v-model="productCate.icon"></single-upload>
       </el-form-item>
       <el-form-item v-for="(filterProductAttr, index) in filterProductAttrList" :label="filterLabelFilter(index)"
         :key="filterProductAttr.key">
         <el-cascader clearable v-model="filterProductAttr.value" :options="filterAttrs">
         </el-cascader>
-        <el-button style="margin-left: 20px" @click.prevent="removeFilterAttr(filterProductAttr)">删除</el-button>
+        <el-button style="margin-left: 20px" @click.prevent="removeFilterAttr(filterProductAttr)">{{ t('common.delete') }}</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleAddFilterAttr()">新增</el-button>
+        <el-button type="primary" @click="handleAddFilterAttr()">{{ t('product.create') }}</el-button>
       </el-form-item>
-      <el-form-item label="关键词：">
+      <el-form-item :label="t('product.keyword')">
         <el-input v-model="productCate.keywords"></el-input>
       </el-form-item>
-      <el-form-item label="分类描述：">
+      <el-form-item :label="t('product.categoryDesc')">
         <el-input type="textarea" :autosize="true" v-model="productCate.description"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit()">提交</el-button>
-        <el-button v-if="!props.isEdit" @click="resetForm()">重置</el-button>
+        <el-button type="primary" @click="onSubmit()">{{ t('common.submit') }}</el-button>
+        <el-button v-if="!props.isEdit" @click="resetForm()">{{ t('common.reset') }}</el-button>
       </el-form-item>
     </el-form>
   </el-card>

@@ -176,28 +176,28 @@ const formatType = (type: number) => {
         <el-icon class="el-icon-middle">
           <Search />
         </el-icon>
-        <span>筛选搜索</span>
+        <span>{{ t('role.page.filterSearch') }}</span>
         <el-button style="float:right" type="primary" @click="handleSearchList()">
-          查询搜索
+          {{ t('role.page.querySearch') }}
         </el-button>
         <el-button style="float:right;margin-right: 15px" @click="handleResetSearch()">
-          重置
+          {{ t('common.reset') }}
         </el-button>
       </div>
       <div style="margin-top: 25px">
         <el-form :inline="true" :model="listQuery" label-width="140px">
-          <el-form-item label="广告名称：">
-            <el-input v-model="listQuery.name" class="input-width" placeholder="广告名称"></el-input>
+          <el-form-item :label="t('promotion.adName')">
+            <el-input v-model="listQuery.name" class="input-width" :placeholder="t('promotion.adNamePlain')"></el-input>
           </el-form-item>
-          <el-form-item label="广告位置：">
-            <el-select v-model="listQuery.type" placeholder="全部" clearable class="input-width">
+          <el-form-item :label="t('promotion.adPosition')">
+            <el-select v-model="listQuery.type" :placeholder="t('product.all')" clearable class="input-width">
               <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="到期时间：">
+          <el-form-item :label="t('promotion.expireTime')">
             <el-date-picker class="input-width" v-model="listQuery.endTime" value-format="yyyy-MM-dd" type="date"
-              placeholder="请选择时间">
+              :placeholder="t('oms.order.list.createTimePlaceholder')">
             </el-date-picker>
           </el-form-item>
         </el-form>
@@ -207,14 +207,14 @@ const formatType = (type: number) => {
       <el-icon class="el-icon-middle">
         <Tickets />
       </el-icon>
-      <span>数据列表</span>
-      <el-button class="btn-add" @click="handleAdd()">添加广告</el-button>
+      <span>{{ t('role.page.dataList') }}</span>
+      <el-button class="btn-add" @click="handleAdd()">{{ t('promotion.addAd') }}</el-button>
     </el-card>
     <div class="table-container">
       <el-table ref="homeAdvertiseTable" :data="list" style="width: 100%" @selection-change="handleSelectionChange"
         v-loading="listLoading" border>
         <el-table-column type="selection" width="60" align="center"></el-table-column>
-        <el-table-column label="编号" width="100" align="center">
+        <el-table-column :label="t('common.id')" width="100" align="center">
           <template #default="scope">{{ scope.row.id }}</template>
         </el-table-column>
         <el-table-column label="广告名称" align="center">
@@ -228,8 +228,8 @@ const formatType = (type: number) => {
         </el-table-column>
         <el-table-column label="时间" width="240" align="center">
           <template #default="scope">
-            <p>开始时间：{{ formatDateTime(scope.row.startTime) }}</p>
-            <p>到期时间：{{ formatDateTime(scope.row.endTime) }}</p>
+            <p>{{ t('mes.productionTask.startTime') }}{{ formatDateTime(scope.row.startTime) }}</p>
+            <p>{{ t('promotion.expireTime') }}{{ formatDateTime(scope.row.endTime) }}</p>
           </template>
         </el-table-column>
         <el-table-column label="上线/下线" width="100" align="center">
@@ -247,9 +247,9 @@ const formatType = (type: number) => {
         </el-table-column>
         <el-table-column label="操作" width="120" align="center">
           <template #default="scope">
-            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row)">编辑
+            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row)">{{ t('common.edit') }}
             </el-button>
-            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row)">删除
+            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row)">{{ t('common.delete') }}
             </el-button>
           </template>
         </el-table-column>

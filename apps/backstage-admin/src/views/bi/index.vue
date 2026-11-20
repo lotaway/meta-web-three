@@ -25,7 +25,7 @@
           <template #header><span>{{ t('bi.salesTrend') }}</span></template>
           <el-table :data="salesTrendRows" stripe size="small" empty-text="暂无数据">
             <el-table-column prop="date" label="日期" width="120" />
-            <el-table-column prop="amount" label="销售额" width="150"><template #default="{ row }">{{ formatMoney(row.amount) }}</template></el-table-column>
+            <el-table-column prop="amount" :label="t('bi.salesAmount')" width="150"><template #default="{ row }">{{ formatMoney(row.amount) }}</template></el-table-column>
             <el-table-column prop="orderCount" label="订单数" width="100" />
           </el-table>
         </el-card>
@@ -36,7 +36,7 @@
               <el-table :data="categoryList" stripe size="small" max-height="300" empty-text="暂无数据">
                 <el-table-column prop="categoryName" :label="t('bi.categoryName')" />
                 <el-table-column prop="salesAmount" :label="t('bi.salesAmount')" width="120"><template #default="{ row }">{{ formatMoney(row.salesAmount) }}</template></el-table-column>
-                <el-table-column prop="growthRate" label="增长率" width="80"><template #default="{ row }">{{ (row.growthRate * 100).toFixed(1) }}%</template></el-table-column>
+                <el-table-column prop="growthRate" :label="t('bi.growthRate')" width="80"><template #default="{ row }">{{ (row.growthRate * 100).toFixed(1) }}%</template></el-table-column>
               </el-table>
             </el-card>
           </el-col>

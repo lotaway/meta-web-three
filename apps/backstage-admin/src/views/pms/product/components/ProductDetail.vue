@@ -146,10 +146,10 @@ const finishCommit = async (isEdit: boolean) => {
 <template>
   <el-card class="form-container" shadow="never">
     <el-steps :active="active" finish-status="success" align-center>
-      <el-step title="填写商品信息"></el-step>
-      <el-step title="填写商品促销"></el-step>
-      <el-step title="填写商品属性"></el-step>
-      <el-step title="选择商品关联"></el-step>
+      <el-step :title="t('product.fillInfo')"></el-step>
+      <el-step :title="t('product.fillPromotion')"></el-step>
+      <el-step :title="t('product.fillAttrs')"></el-step>
+      <el-step :title="t('product.selectRelation')"></el-step>
     </el-steps>
     <product-info-detail v-show="showStatus[0]" :is-edit="isEdit" @next-step="nextStep">
     </product-info-detail>

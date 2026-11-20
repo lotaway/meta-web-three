@@ -147,16 +147,16 @@ const selectTypeFilter = (value: number) => {
       <el-icon class="el-icon-middle">
         <Tickets />
       </el-icon>
-      <span>数据列表</span>
+      <span>{{ t('role.page.dataList') }}</span>
       <el-button class="btn-add" @click="addProductAttr()">
-        添加
+        {{ t('common.add') }}
       </el-button>
     </el-card>
     <div class="table-container">
       <el-table ref="productAttrTable" :data="list" style="width: 100%" @selection-change="handleSelectionChange"
         v-loading="listLoading" border>
         <el-table-column type="selection" width="60" align="center"></el-table-column>
-        <el-table-column label="编号" width="100" align="center">
+        <el-table-column :label="t('common.id')" width="100" align="center">
           <template #default="scope">{{ scope.row.id }}</template>
         </el-table-column>
         <el-table-column label="属性名称" width="140" align="center">
@@ -179,9 +179,9 @@ const selectTypeFilter = (value: number) => {
         </el-table-column>
         <el-table-column label="操作" width="200" align="center">
           <template #default="scope">
-            <el-button size="small" @click="handleUpdate(scope.$index, scope.row as PmsProductAttribute)">编辑
+            <el-button size="small" @click="handleUpdate(scope.$index, scope.row as PmsProductAttribute)">{{ t('common.edit') }}
             </el-button>
-            <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row as PmsProductAttribute)">删除
+            <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row as PmsProductAttribute)">{{ t('common.delete') }}
             </el-button>
           </template>
         </el-table-column>

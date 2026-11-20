@@ -201,12 +201,12 @@ const getDialogList = async () => {
   <div class="app-container">
     <el-card class="operate-container" shadow="never">
       <i class="el-icon-tickets"></i>
-      <span>数据列表</span>
-      <el-button class="btn-add" @click="handleSelectProduct()" style="margin-left: 20px">添加</el-button>
+      <span>{{ t('role.page.dataList') }}</span>
+      <el-button class="btn-add" @click="handleSelectProduct()" style="margin-left: 20px">{{ t('common.add') }}</el-button>
     </el-card>
     <div class="table-container">
       <el-table ref="productRelationTable" :data="list" style="width: 100%;" v-loading="listLoading" border>
-        <el-table-column label="编号" width="100" align="center">
+        <el-table-column :label="t('common.id')" width="100" align="center">
           <template #default="scope">{{ scope.row.id }}</template>
         </el-table-column>
         <el-table-column label="商品名称" align="center">
@@ -239,9 +239,9 @@ const getDialogList = async () => {
         </el-table-column>
         <el-table-column label="操作" width="100" align="center">
           <template #default="scope">
-            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row as SmsFlashPromotionProductRelation)">编辑
+            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row as SmsFlashPromotionProductRelation)">{{ t('common.edit') }}
             </el-button>
-            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row as SmsFlashPromotionProductRelation)">删除
+            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row as SmsFlashPromotionProductRelation)">{{ t('common.delete') }}
             </el-button>
           </template>
         </el-table-column>
@@ -281,8 +281,8 @@ const getDialogList = async () => {
       <div style="clear: both;"></div>
       <template #footer>
         <div>
-          <el-button size="small" @click="selectDialogVisible = false">取 消</el-button>
-          <el-button size="small" type="primary" @click="handleSelectDialogConfirm()">确 定</el-button>
+          <el-button size="small" @click="selectDialogVisible = false">{{ t('common.cancel') }}</el-button>
+          <el-button size="small" type="primary" @click="handleSelectDialogConfirm()">{{ t('common.confirm') }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -318,8 +318,8 @@ const getDialogList = async () => {
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="editDialogVisible = false" size="small">取 消</el-button>
-          <el-button type="primary" @click="handleEditDialogConfirm()" size="small">确 定</el-button>
+          <el-button @click="editDialogVisible = false" size="small">{{ t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="handleEditDialogConfirm()" size="small">{{ t('common.confirm') }}</el-button>
         </span>
       </template>
     </el-dialog>

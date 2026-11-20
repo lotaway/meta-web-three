@@ -114,39 +114,39 @@ const handleBrandReset = () => {
 <template>
   <el-card class="form-container" shadow="never">
     <el-form :model="brand" :rules="rules" ref="brandFromRef" label-width="150px">
-      <el-form-item label="品牌名称：" prop="name">
+      <el-form-item :label="t('product.brandName')" prop="name">
         <el-input v-model="brand.name"></el-input>
       </el-form-item>
-      <el-form-item label="品牌首字母：">
+      <el-form-item :label="t('product.brandInitial')">
         <el-input v-model="brand.firstLetter"></el-input>
       </el-form-item>
-      <el-form-item label="品牌LOGO：" prop="logo">
+      <el-form-item :label="t('product.brandLogo')" prop="logo">
         <single-upload v-model="brand.logo"></single-upload>
       </el-form-item>
-      <el-form-item label="品牌专区大图：">
+      <el-form-item :label="t('product.brandBanner')">
         <single-upload v-model="brand.bigPic"></single-upload>
       </el-form-item>
-      <el-form-item label="品牌故事：">
-        <el-input placeholder="请输入内容" type="textarea" v-model="brand.brandStory" :autosize="true"></el-input>
+      <el-form-item :label="t('product.brandStory')">
+        <el-input :placeholder="t('oms.order.list.notePlaceholder')" type="textarea" v-model="brand.brandStory" :autosize="true"></el-input>
       </el-form-item>
-      <el-form-item label="排序：" prop="sort">
+      <el-form-item :label="t('product.sort')" prop="sort">
         <el-input v-model.number="brand.sort"></el-input>
       </el-form-item>
-      <el-form-item label="是否显示：">
+      <el-form-item :label="t('product.isDisplay')">
         <el-radio-group v-model="brand.showStatus">
-          <el-radio :label="1">是</el-radio>
-          <el-radio :label="0">否</el-radio>
+          <el-radio :label="1">{{ t('role.page.yes') }}</el-radio>
+          <el-radio :label="0">{{ t('role.page.no') }}</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="品牌制造商：">
+      <el-form-item :label="t('product.brandManufacturer')">
         <el-radio-group v-model="brand.factoryStatus">
-          <el-radio :label="1">是</el-radio>
-          <el-radio :label="0">否</el-radio>
+          <el-radio :label="1">{{ t('role.page.yes') }}</el-radio>
+          <el-radio :label="0">{{ t('role.page.no') }}</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleBrandSubmit()">提交</el-button>
-        <el-button v-if="!props.isEdit" @click="handleBrandReset()">重置</el-button>
+        <el-button type="primary" @click="handleBrandSubmit()">{{ t('common.submit') }}</el-button>
+        <el-button v-if="!props.isEdit" @click="handleBrandReset()">{{ t('common.reset') }}</el-button>
       </el-form-item>
     </el-form>
   </el-card>

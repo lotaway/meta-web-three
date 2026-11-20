@@ -54,7 +54,7 @@ const handleSwitchLanguage = (lang: LocaleType) => {
     <!-- Language Switcher -->
     <el-dropdown class="language-container" trigger="click" @command="handleSwitchLanguage">
       <div class="language-wrapper">
-        <span class="language-text">{{ currentLang === 'zh-CN' ? '中文' : 'EN' }}</span>
+        <span class="language-text">{{ currentLang === 'zh-CN' ? t('common.chinese') : 'EN' }}</span>
         <el-icon class="el-icon-caret-bottom">
           <arrow-down />
         </el-icon>
@@ -62,7 +62,7 @@ const handleSwitchLanguage = (lang: LocaleType) => {
       <template #dropdown>
         <el-dropdown-menu>
           <el-dropdown-item :command="'zh-CN'" :disabled="currentLang === 'zh-CN'">
-            中文
+            {{ t('common.chinese') }}
           </el-dropdown-item>
           <el-dropdown-item :command="'en-US'" :disabled="currentLang === 'en-US'">
             English

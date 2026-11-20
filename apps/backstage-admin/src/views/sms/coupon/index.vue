@@ -153,21 +153,21 @@ const formatStatus = (endTime: string) => {
         <el-icon class="el-icon-middle">
           <Search />
         </el-icon>
-        <span>筛选搜索</span>
+        <span>{{ t('role.page.filterSearch') }}</span>
         <el-button style="float:right" type="primary" @click="handleSearchList()">
-          查询搜索
+          {{ t('role.page.querySearch') }}
         </el-button>
         <el-button style="float:right;margin-right: 15px" @click="handleResetSearch()">
-          重置
+          {{ t('common.reset') }}
         </el-button>
       </div>
       <div style="margin-top: 15px">
         <el-form :inline="true" :model="listQuery" label-width="140px">
-          <el-form-item label="优惠券名称：">
-            <el-input v-model="listQuery.name" class="input-width" placeholder="优惠券名称"></el-input>
+          <el-form-item :label="t('promotion.couponName')">
+            <el-input v-model="listQuery.name" class="input-width" :placeholder="t('promotion.couponName')"></el-input>
           </el-form-item>
-          <el-form-item label="优惠券类型：">
-            <el-select v-model="listQuery.type" placeholder="全部" clearable class="input-width">
+          <el-form-item :label="t('promotion.couponType')">
+            <el-select v-model="listQuery.type" :placeholder="t('product.all')" clearable class="input-width">
               <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
@@ -179,14 +179,14 @@ const formatStatus = (endTime: string) => {
       <el-icon class="el-icon-middle">
         <Tickets />
       </el-icon>
-      <span>数据列表</span>
-      <el-button class="btn-add" @click="handleAdd()">添加</el-button>
+      <span>{{ t('role.page.dataList') }}</span>
+      <el-button class="btn-add" @click="handleAdd()">{{ t('common.add') }}</el-button>
     </el-card>
     <div class="table-container">
       <el-table ref="couponTable" :data="list" style="width: 100%;" @selection-change="handleSelectionChange"
         v-loading="listLoading" border>
         <el-table-column type="selection" width="60" align="center"></el-table-column>
-        <el-table-column label="编号" width="100" align="center">
+        <el-table-column :label="t('common.id')" width="100" align="center">
           <template #default="scope">{{ scope.row.id }}</template>
         </el-table-column>
         <el-table-column label="优惠劵名称" align="center">
@@ -199,16 +199,16 @@ const formatStatus = (endTime: string) => {
           <template #default="scope">{{ formatUseType(scope.row.useType) }}</template>
         </el-table-column>
         <el-table-column label="使用门槛" width="140" align="center">
-          <template #default="scope">满{{ scope.row.minPoint }}元可用</template>
+          <template #default="scope">{{ t('promotion.spend') }}{{ scope.row.minPoint }}{{ t('promotion.yuanOff') }}</template>
         </el-table-column>
         <el-table-column label="面值" width="100" align="center">
-          <template #default="scope">{{ scope.row.amount }}元</template>
+          <template #default="scope">{{ scope.row.amount }}{{ t('promotion.yuan') }}</template>
         </el-table-column>
         <el-table-column label="适用平台" width="100" align="center">
           <template #default="scope">{{ formatPlatform(scope.row.platform) }}</template>
         </el-table-column>
         <el-table-column label="有效期" width="180" align="center">
-          <template #default="scope">{{ formatDate(scope.row.startTime) }}至{{ formatDate(scope.row.endTime)
+          <template #default="scope">{{ formatDate(scope.row.startTime) }}{{ t('common.to') }}{{ formatDate(scope.row.endTime)
           }}</template>
         </el-table-column>
         <el-table-column label="状态" width="100" align="center">
@@ -216,10 +216,10 @@ const formatStatus = (endTime: string) => {
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
           <template #default="scope">
-            <el-button size="small" type="primary" link @click="handleView(scope.$index, scope.row as SmsCoupon)">查看</el-button>
+            <el-button size="small" type="primary" link @click="handleView(scope.$index, scope.row as SmsCoupon)">{{ t('product.view') }}</el-button>
             <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row as SmsCoupon)">
-              编辑</el-button>
-            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row as SmsCoupon)">删除</el-button>
+              {{ t('common.edit') }}</el-button>
+            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row as SmsCoupon)">{{ t('common.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>

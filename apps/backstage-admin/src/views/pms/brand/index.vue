@@ -188,15 +188,15 @@ const handleBatchOperate = async () => {
         <el-icon class="el-icon-middle">
           <Search />
         </el-icon>
-        <span>筛选搜索</span>
+        <span>{{ t('role.page.filterSearch') }}</span>
         <el-button style="float: right" @click="handleSearchBrand()" type="primary">
-          查询结果
+          {{ t('product.queryResult') }}
         </el-button>
       </div>
       <div style="margin-top: 15px">
         <el-form :inline="true" :model="listQuery" label-width="140px">
-          <el-form-item label="输入搜索：">
-            <el-input style="width: 203px" v-model="listQuery.keyword" placeholder="品牌名称/关键字"></el-input>
+          <el-form-item :label="t('role.page.inputSearch')">
+            <el-input style="width: 203px" v-model="listQuery.keyword" :placeholder="t('product.brandNameKeyword')"></el-input>
           </el-form-item>
         </el-form>
       </div>
@@ -205,16 +205,16 @@ const handleBatchOperate = async () => {
       <el-icon class="el-icon-middle">
         <Tickets />
       </el-icon>
-      <span>数据列表</span>
+      <span>{{ t('role.page.dataList') }}</span>
       <el-button class="btn-add" @click="handleAddBrand()">
-        添加
+        {{ t('common.add') }}
       </el-button>
     </el-card>
     <div class="table-container">
       <el-table ref="brandTable" :data="list" style="width: 100%" @selection-change="handleSelectionChange"
         v-loading="listLoading" border>
         <el-table-column type="selection" width="60" align="center"></el-table-column>
-        <el-table-column label="编号" width="100" align="center">
+        <el-table-column :label="t('common.id')" width="100" align="center">
           <template #default="scope">{{ scope.row.id }}</template>
         </el-table-column>
         <el-table-column label="品牌名称" align="center">
@@ -242,19 +242,19 @@ const handleBatchOperate = async () => {
         </el-table-column>
         <el-table-column label="相关" width="220" align="center">
           <template #default="scope">
-            <span>商品：</span>
+            <span>{{ t('product.product') }}</span>
             <el-button size="small" type="primary" link @click="getProductList(scope.$index, scope.row as PmsBrand)">100
             </el-button>
-            <span>评价：</span>
+            <span>{{ t('product.review') }}</span>
             <el-button size="small" type="primary" link @click="getProductCommentList(scope.$index, scope.row as PmsBrand)">1000
             </el-button>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" align="center">
           <template #default="scope">
-            <el-button size="small" @click="handleUpdateBrand(scope.$index, scope.row as PmsBrand)">编辑
+            <el-button size="small" @click="handleUpdateBrand(scope.$index, scope.row as PmsBrand)">{{ t('common.edit') }}
             </el-button>
-            <el-button size="small" type="danger" @click="handleDeleteBrand(scope.$index, scope.row as PmsBrand)">删除
+            <el-button size="small" type="danger" @click="handleDeleteBrand(scope.$index, scope.row as PmsBrand)">{{ t('common.delete') }}
             </el-button>
           </template>
         </el-table-column>

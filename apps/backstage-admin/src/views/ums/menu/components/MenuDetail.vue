@@ -123,34 +123,34 @@ const resetForm = () => {
 <template>
   <el-card class="form-container" shadow="never">
     <el-form :model="menu" :rules="rules" ref="menuFromRef" label-width="150px">
-      <el-form-item label="菜单名称：" prop="title">
+      <el-form-item :label="t('ums.menuName')" prop="title">
         <el-input v-model="menu.title"></el-input>
       </el-form-item>
-      <el-form-item label="上级菜单：">
-        <el-select v-model="menu.parentId" placeholder="请选择菜单">
+      <el-form-item :label="t('ums.parentMenu')">
+        <el-select v-model="menu.parentId" :placeholder="t('ums.selectMenu')">
           <el-option v-for="item in selectMenuList" :key="item.id" :label="item.title" :value="item.id!">
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="前端名称：" prop="name">
+      <el-form-item :label="t('ums.frontName')" prop="name">
         <el-input v-model="menu.name"></el-input>
       </el-form-item>
-      <el-form-item label="前端图标：" prop="icon">
+      <el-form-item :label="t('ums.frontIcon')" prop="icon">
         <el-input v-model="menu.icon" style="width: 80%"></el-input>
         <svg-icon style="margin-left: 8px" :icon-class="menu.icon"></svg-icon>
       </el-form-item>
-      <el-form-item label="是否显示：">
+      <el-form-item :label="t('product.isDisplay')">
         <el-radio-group v-model="menu.hidden">
-          <el-radio :label="0">是</el-radio>
-          <el-radio :label="1">否</el-radio>
+          <el-radio :label="0">{{ t('role.page.yes') }}</el-radio>
+          <el-radio :label="1">{{ t('role.page.no') }}</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="排序：">
+      <el-form-item :label="t('product.sort')">
         <el-input v-model="menu.sort"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit()">提交</el-button>
-        <el-button v-if="!props.isEdit" @click="resetForm()">重置</el-button>
+        <el-button type="primary" @click="onSubmit()">{{ t('common.submit') }}</el-button>
+        <el-button v-if="!props.isEdit" @click="resetForm()">{{ t('common.reset') }}</el-button>
       </el-form-item>
     </el-form>
   </el-card>

@@ -183,24 +183,24 @@ const formatDateTime = (time: string) => {
         <el-icon class="el-icon-middle">
           <Search />
         </el-icon>
-        <span>筛选搜索</span>
+        <span>{{ t('role.page.filterSearch') }}</span>
         <el-button style="float:right" type="primary" @click="handleSearchList()">
-          查询搜索
+          {{ t('role.page.querySearch') }}
         </el-button>
         <el-button style="float:right;margin-right: 15px" @click="handleResetSearch()">
-          重置
+          {{ t('common.reset') }}
         </el-button>
       </div>
       <div style="margin-top: 15px">
         <el-form :inline="true" :model="listQuery" label-width="140px">
-          <el-form-item label="资源名称：">
-            <el-input v-model="listQuery.nameKeyword" class="input-width" placeholder="资源名称" clearable></el-input>
+          <el-form-item :label="t('mes.scheduling.resourceName')">
+            <el-input v-model="listQuery.nameKeyword" class="input-width" :placeholder="t('mes.scheduling.resourceName')" clearable></el-input>
           </el-form-item>
-          <el-form-item label="资源路径：">
-            <el-input v-model="listQuery.urlKeyword" class="input-width" placeholder="资源路径" clearable></el-input>
+          <el-form-item :label="t('ums.resourcePath')">
+            <el-input v-model="listQuery.urlKeyword" class="input-width" :placeholder="t('ums.resourcePathPlain')" clearable></el-input>
           </el-form-item>
-          <el-form-item label="资源分类：">
-            <el-select v-model="listQuery.categoryId" placeholder="全部" clearable class="input-width"
+          <el-form-item :label="t('ums.resourceCategory')">
+            <el-select v-model="listQuery.categoryId" :placeholder="t('product.all')" clearable class="input-width"
               style="width: 150px;">
               <el-option v-for="item in categoryOptions" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
@@ -214,13 +214,13 @@ const formatDateTime = (time: string) => {
       <el-icon class="el-icon-middle">
         <tickets />
       </el-icon>
-      <span>数据列表</span>
-      <el-button class="btn-add" @click="handleAdd()" style="margin-left: 20px">添加</el-button>
-      <el-button class="btn-add" @click="handleShowCategory()">资源分类</el-button>
+      <span>{{ t('role.page.dataList') }}</span>
+      <el-button class="btn-add" @click="handleAdd()" style="margin-left: 20px">{{ t('common.add') }}</el-button>
+      <el-button class="btn-add" @click="handleShowCategory()">{{ t('ums.resourceCategoryPlain') }}</el-button>
     </el-card>
     <div class="table-container">
       <el-table ref="resourceTable" :data="list" style="width: 100%;" v-loading="listLoading" border>
-        <el-table-column label="编号" width="100" align="center">
+        <el-table-column :label="t('common.id')" width="100" align="center">
           <template #default="scope">{{ scope.row.id }}</template>
         </el-table-column>
         <el-table-column label="资源名称" align="center">
@@ -238,9 +238,9 @@ const formatDateTime = (time: string) => {
         <el-table-column label="操作" width="140" align="center">
           <template #default="scope">
             <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row as UmsResource)">
-              编辑
+              {{ t('common.edit') }}
             </el-button>
-            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row as UmsResource)">删除
+            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row as UmsResource)">{{ t('common.delete') }}
             </el-button>
           </template>
         </el-table-column>
@@ -272,8 +272,8 @@ const formatDateTime = (time: string) => {
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="handleDialogConfirm()">确 定</el-button>
+          <el-button @click="dialogVisible = false">{{ t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="handleDialogConfirm()">{{ t('common.confirm') }}</el-button>
         </span>
       </template>
     </el-dialog>

@@ -1,32 +1,32 @@
 <template>
   <div class="reporting-container">
     <div class="header">
-      <h2>财务报表</h2>
+      <h2>{{ t('reporting.financial') }}</h2>
     </div>
 
     <el-tabs v-model="activeTab" type="border-card" @tab-change="handleTabChange">
-      <el-tab-pane label="资产负债表" name="balance">
+      <el-tab-pane :label="t('reporting.balanceSheet')" name="balance">
         <div class="report-toolbar">
           <el-date-picker
             v-model="balanceDate"
             type="datetime"
-            placeholder="选择报表日期"
+            :placeholder="t('reporting.selectDate')"
             value-format="YYYY-MM-DD HH:mm:ss"
             @change="loadBalanceSheet"
           />
-          <el-button type="primary" @click="loadBalanceSheet">查询</el-button>
-          <el-button @click="handleExportBalanceSheet">导出</el-button>
+          <el-button type="primary" @click="loadBalanceSheet">{{ t('common.query') }}</el-button>
+          <el-button @click="handleExportBalanceSheet">{{ t('bi.export') }}</el-button>
         </div>
         <div v-loading="balanceLoading" class="report-content">
           <div v-if="balanceSheet" class="balance-sheet">
-            <h3>资产负债表</h3>
-            <p class="report-date">报表日期: {{ balanceSheet.asOfDate }}</p>
+            <h3>{{ t('reporting.balanceSheet') }}</h3>
+            <p class="report-date">{{ t('reporting.reportDate') }} {{ balanceSheet.asOfDate }}</p>
             
             <el-row :gutter="20" class="summary-row">
               <el-col :span="8">
                 <el-card>
                   <div class="summary-item">
-                    <span class="label">资产总计</span>
+                    <span class="label">{{ t('reporting.totalAssets') }}</span>
                     <span class="value">{{ formatNumber(balanceSheet.totalAssets) }}</span>
                   </div>
                 </el-card>
@@ -34,7 +34,7 @@
               <el-col :span="8">
                 <el-card>
                   <div class="summary-item">
-                    <span class="label">负债总计</span>
+                    <span class="label">{{ t('reporting.totalLiabilities') }}</span>
                     <span class="value">{{ formatNumber(balanceSheet.totalLiabilities) }}</span>
                   </div>
                 </el-card>
@@ -42,7 +42,7 @@
               <el-col :span="8">
                 <el-card>
                   <div class="summary-item">
-                    <span class="label">权益总计</span>
+                    <span class="label">{{ t('reporting.totalEquity') }}</span>
                     <span class="value">{{ formatNumber(balanceSheet.totalEquity) }}</span>
                   </div>
                 </el-card>
@@ -50,11 +50,11 @@
             </el-row>
 
             <el-tabs v-model="balanceSubTab">
-              <el-tab-pane label="资产" name="assets">
+              <el-tab-pane :label="t('reporting.assets')" name="assets">
                 <el-table :data="balanceSheet.assets" border size="small">
-                  <el-table-column prop="code" label="科目编码" width="120" />
-                  <el-table-column prop="name" label="科目名称" min-width="150" />
-                  <el-table-column prop="currentAmount" label="本期金额" width="150">
+                  <el-table-column prop="code" :label="t('reporting.accountCode')" width="120" />
+                  <el-table-column prop="name" :label="t('reporting.accountName')" min-width="150" />
+                  <el-table-column prop="currentAmount" :label="t('reporting.currentAmount')" width="150">
                     <template #default="{ row }">
                       {{ formatNumber(row.currentAmount) }}
                     </template>
@@ -303,7 +303,7 @@
               <el-table-column prop="debitCredit" label="借贷方向" width="100" align="center">
                 <template #default="{ row }">
                   <el-tag :type="row.debitCredit === 'DEBIT' ? 'warning' : 'success'" size="small">
-                    {{ row.debitCredit === 'DEBIT' ? '借方' : '贷方' }}
+                    {{ row.debitCredit === 'DEBIT' ? t('reporting.debit') : t('reporting.credit') }}
                   </el-tag>
                 </template>
               </el-table-column>

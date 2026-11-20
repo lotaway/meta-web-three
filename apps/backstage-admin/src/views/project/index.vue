@@ -1,37 +1,37 @@
 <template>
   <div class="project-container">
     <div class="header">
-      <h2>项目管理</h2>
-      <el-button type="primary" @click="handleCreate">新建项目</el-button>
+      <h2>{{ t('project.management') }}</h2>
+      <el-button type="primary" @click="handleCreate">{{ t('project.create') }}</el-button>
     </div>
 
     <el-form :inline="true" :model="queryParams" class="search-form">
-      <el-form-item label="关键词">
-        <el-input v-model="queryParams.keyword" placeholder="项目编码/名称" clearable />
+      <el-form-item :label="t('project.keyword')">
+        <el-input v-model="queryParams.keyword" :placeholder="t('project.codeName')" clearable />
       </el-form-item>
-      <el-form-item label="状态">
-        <el-select v-model="queryParams.status" placeholder="请选择" clearable>
-          <el-option label="草稿" value="DRAFT" />
-          <el-option label="进行中" value="ACTIVE" />
-          <el-option label="已暂停" value="SUSPENDED" />
-          <el-option label="已完成" value="COMPLETED" />
-          <el-option label="已取消" value="CANCELLED" />
+      <el-form-item :label="t('mes.processRoute.status')">
+        <el-select v-model="queryParams.status" :placeholder="t('common.selectPlaceholder')" clearable>
+          <el-option :label="t('mes.processRoute.statusDraft')" value="DRAFT" />
+          <el-option :label="t('mes.productionTask.statusIN_PROGRESS')" value="ACTIVE" />
+          <el-option :label="t('mes.workOrder.statusPAUSED')" value="SUSPENDED" />
+          <el-option :label="t('mes.equipment.maintenancePlan.statusCompleted')" value="COMPLETED" />
+          <el-option :label="t('mes.productionTask.statusCANCELLED')" value="CANCELLED" />
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleQuery">查询</el-button>
-        <el-button @click="handleReset">重置</el-button>
+        <el-button type="primary" @click="handleQuery">{{ t('common.query') }}</el-button>
+        <el-button @click="handleReset">{{ t('common.reset') }}</el-button>
       </el-form-item>
     </el-form>
 
     <el-table :data="projectList" border v-loading="loading">
-      <el-table-column prop="projectCode" label="项目编码" width="120" />
-      <el-table-column prop="projectName" label="项目名称" min-width="150" />
-      <el-table-column prop="departmentName" label="所属部门" width="120" />
-      <el-table-column prop="managerName" label="项目经理" width="100" />
-      <el-table-column prop="budgetAmount" label="预算金额" width="120" />
-      <el-table-column prop="usedAmount" label="已用金额" width="120" />
-      <el-table-column prop="progress" label="进度" width="100">
+      <el-table-column prop="projectCode" :label="t('project.code')" width="120" />
+      <el-table-column prop="projectName" :label="t('project.name')" min-width="150" />
+      <el-table-column prop="departmentName" :label="t('project.department')" width="120" />
+      <el-table-column prop="managerName" :label="t('project.manager')" width="100" />
+      <el-table-column prop="budgetAmount" :label="t('project.budget')" width="120" />
+      <el-table-column prop="usedAmount" :label="t('project.used')" width="120" />
+      <el-table-column prop="progress" :label="t('project.progress')" width="100">
         <template #default="{ row }">
           <el-progress :percentage="row.progress" :stroke-width="10" />
         </template>
@@ -45,9 +45,9 @@
       <el-table-column prop="endDate" label="结束日期" width="120" />
       <el-table-column label="操作" width="200" fixed="right">
         <template #default="{ row }">
-          <el-button link type="primary" @click="handleView(row as Project)">查看</el-button>
-          <el-button link type="primary" @click="handleEdit(row as Project)">编辑</el-button>
-          <el-button link type="danger" @click="handleDelete(row as Project)">删除</el-button>
+          <el-button link type="primary" @click="handleView(row as Project)">{{ t('product.view') }}</el-button>
+          <el-button link type="primary" @click="handleEdit(row as Project)">{{ t('common.edit') }}</el-button>
+          <el-button link type="danger" @click="handleDelete(row as Project)">{{ t('common.delete') }}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -93,8 +93,8 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitForm">确定</el-button>
+        <el-button @click="dialogVisible = false">{{ t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="submitForm">{{ t('common.confirm') }}</el-button>
       </template>
     </el-dialog>
   </div>

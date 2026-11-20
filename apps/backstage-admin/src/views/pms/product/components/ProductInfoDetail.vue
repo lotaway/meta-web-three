@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, onMounted, watch, inject, type Ref } from 'vue'
 import { ElMessage, type FormInstance } from 'element-plus'
 import { getProductCategoryListWithChildrenAPI } from '@/apis/productCate'
@@ -130,51 +132,51 @@ const handleBrandChange = (val: number) => {
   <div style="margin-top: 50px">
     <el-form :model="compProductParam" :rules="rules" ref="productInfoForm" label-width="120px"
       class="form-inner-container">
-      <el-form-item label="商品分类：" prop="productCategoryId">
+      <el-form-item :label="t('product.productCategory')" prop="productCategoryId">
         <el-cascader v-model="selectProductCateValue" :options="productCateOptions">
         </el-cascader>
       </el-form-item>
-      <el-form-item label="商品名称：" prop="name">
+      <el-form-item :label="t('product.productName')" prop="name">
         <el-input v-model="compProductParam.name"></el-input>
       </el-form-item>
-      <el-form-item label="副标题：" prop="subTitle">
+      <el-form-item :label="t('product.subtitle')" prop="subTitle">
         <el-input v-model="compProductParam.subTitle"></el-input>
       </el-form-item>
-      <el-form-item label="商品品牌：" prop="brandId">
-        <el-select v-model="compProductParam.brandId" @change="handleBrandChange" placeholder="请选择品牌">
+      <el-form-item :label="t('product.productBrand')" prop="brandId">
+        <el-select v-model="compProductParam.brandId" @change="handleBrandChange" :placeholder="t('product.selectBrand')">
           <el-option v-for="item in brandOptions" :key="item.value" :label="item.label" :value="item.value">
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="商品介绍：">
+      <el-form-item :label="t('product.intro')">
         <el-input :autoSize="true" v-model="compProductParam.description" type="textarea"
-          placeholder="请输入内容"></el-input>
+          :placeholder="t('oms.order.list.notePlaceholder')"></el-input>
       </el-form-item>
-      <el-form-item label="商品货号：">
+      <el-form-item :label="t('product.productSn')">
         <el-input v-model="compProductParam.productSn"></el-input>
       </el-form-item>
-      <el-form-item label="商品售价：">
+      <el-form-item :label="t('product.price')">
         <el-input v-model="compProductParam.price"></el-input>
       </el-form-item>
-      <el-form-item label="市场价：">
+      <el-form-item :label="t('product.marketPrice')">
         <el-input v-model="compProductParam.originalPrice"></el-input>
       </el-form-item>
-      <el-form-item label="商品库存：">
+      <el-form-item :label="t('dialog.productStock')">
         <el-input v-model="compProductParam.stock"></el-input>
       </el-form-item>
-      <el-form-item label="计量单位：">
+      <el-form-item :label="t('product.unit')">
         <el-input v-model="compProductParam.unit"></el-input>
       </el-form-item>
-      <el-form-item label="商品重量：">
+      <el-form-item :label="t('product.weight')">
         <el-input v-model="compProductParam.weight" style="width: 300px"></el-input>
-        <span style="margin-left: 20px">克</span>
+        <span style="margin-left: 20px">{{ t('product.gram') }}</span>
       </el-form-item>
-      <el-form-item label="排序">
+      <el-form-item :label="t('product.sort')">
         <el-input v-model="compProductParam.sort"></el-input>
       </el-form-item>
       <el-form-item>
         <div style="width: 100%;text-align: center;">
-          <el-button type="primary" @click="handleNext()">下一步，填写商品促销</el-button>
+          <el-button type="primary" @click="handleNext()">{{ t('product.nextPromotion') }}</el-button>
         </div>
       </el-form-item>
     </el-form>

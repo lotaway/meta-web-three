@@ -475,15 +475,15 @@ const handleNext = () => {
 <template>
   <div style="margin-top: 50px">
     <el-form :model="compProductParam" ref="productAttrForm" label-width="120px" class="form-inner-container">
-      <el-form-item label="属性类型：">
-        <el-select v-model="compProductParam.productAttributeCategoryId" placeholder="请选择属性类型"
+      <el-form-item :label="t('product.attrType')">
+        <el-select v-model="compProductParam.productAttributeCategoryId" :placeholder="t('product.selectAttrType')"
           @change="handleProductAttrChange">
           <el-option v-for="item in state.productAttributeCategoryOptions" :key="item.value" :label="item.label"
             :value="item.value">
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="商品规格：">
+      <el-form-item :label="t('product.specification')">
         <el-card shadow="never" class="cardBg">
           <div v-for="(productAttr, idx) in state.selectProductAttr" :key="'productAttr' + idx">
             {{ productAttr.name }}：
@@ -497,12 +497,12 @@ const handleNext = () => {
                   class="littleMarginLeft" :key="'optons' + index">
                   <el-checkbox :label="item" :key="item"></el-checkbox>
                   <el-button type="primary" link class="littleMarginLeft"
-                    @click="handleRemoveProductAttrValue(idx, index)">删除
+                    @click="handleRemoveProductAttrValue(idx, index)">{{ t('common.delete') }}
                   </el-button>
                 </div>
               </el-checkbox-group>
               <el-input v-model="state.addProductAttrValue" style="width: 160px;margin-left: 10px" clearable></el-input>
-              <el-button class="littleMarginLeft" @click="handleAddProductAttrValue(idx)">增加</el-button>
+              <el-button class="littleMarginLeft" @click="handleAddProductAttrValue(idx)">{{ t('product.increase') }}</el-button>
             </div>
           </div>
         </el-card>
@@ -540,7 +540,7 @@ const handleNext = () => {
           </el-table-column>
           <el-table-column label="操作" width="80" align="center">
             <template #default="scope">
-              <el-button type="primary" link @click="handleRemoveProductSku(scope.$index)">删除
+              <el-button type="primary" link @click="handleRemoveProductSku(scope.$index)">{{ t('common.delete') }}
               </el-button>
             </template>
           </el-table-column>

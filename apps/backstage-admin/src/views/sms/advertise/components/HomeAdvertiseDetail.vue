@@ -124,43 +124,43 @@ const resetForm = () => {
 <template>
   <el-card class="form-container" shadow="never">
     <el-form ref="homeAdvertiseFrom" :model="homeAdvertise" :rules="rules" label-width="150px">
-      <el-form-item label="广告名称：" prop="name">
+      <el-form-item :label="t('promotion.adName')" prop="name">
         <el-input v-model="homeAdvertise.name" class="input-width"></el-input>
       </el-form-item>
-      <el-form-item label="广告位置：">
+      <el-form-item :label="t('promotion.adPosition')">
         <el-select v-model="homeAdvertise.type">
           <el-option v-for="type in typeOptions" :key="type.value" :label="type.label" :value="type.value">
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="开始时间：" prop="startTime">
-        <el-date-picker type="datetime" placeholder="选择日期" v-model="homeAdvertise.startTime"></el-date-picker>
+      <el-form-item :label="t('mes.productionTask.startTime')" prop="startTime">
+        <el-date-picker type="datetime" :placeholder="t('payment.reconciliation.date.placeholder')" v-model="homeAdvertise.startTime"></el-date-picker>
       </el-form-item>
-      <el-form-item label="到期时间：" prop="endTime">
-        <el-date-picker type="datetime" placeholder="选择日期" v-model="homeAdvertise.endTime"></el-date-picker>
+      <el-form-item :label="t('promotion.expireTime')" prop="endTime">
+        <el-date-picker type="datetime" :placeholder="t('payment.reconciliation.date.placeholder')" v-model="homeAdvertise.endTime"></el-date-picker>
       </el-form-item>
-      <el-form-item label="上线/下线：">
+      <el-form-item :label="t('promotion.onOff')">
         <el-radio-group v-model="homeAdvertise.status">
-          <el-radio :label="0">下线</el-radio>
-          <el-radio :label="1">上线</el-radio>
+          <el-radio :label="0">{{ t('cs.agents.offline') }}</el-radio>
+          <el-radio :label="1">{{ t('cs.agents.online') }}</el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="广告图片：">
+      <el-form-item :label="t('promotion.adImage')">
         <single-upload v-model="homeAdvertise.pic"></single-upload>
       </el-form-item>
-      <el-form-item label="排序：">
+      <el-form-item :label="t('product.sort')">
         <el-input v-model="homeAdvertise.sort" class="input-width"></el-input>
       </el-form-item>
-      <el-form-item label="广告链接：" prop="url">
+      <el-form-item :label="t('promotion.adLink')" prop="url">
         <el-input v-model="homeAdvertise.url" class="input-width"></el-input>
       </el-form-item>
-      <el-form-item label="广告备注：">
-        <el-input class="input-width" type="textarea" :rows="5" placeholder="请输入内容" v-model="homeAdvertise.note">
+      <el-form-item :label="t('promotion.adRemark')">
+        <el-input class="input-width" type="textarea" :rows="5" :placeholder="t('oms.order.list.notePlaceholder')" v-model="homeAdvertise.note">
         </el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit()">提交</el-button>
-        <el-button v-if="!props.isEdit" @click="resetForm()">重置</el-button>
+        <el-button type="primary" @click="onSubmit()">{{ t('common.submit') }}</el-button>
+        <el-button v-if="!props.isEdit" @click="resetForm()">{{ t('common.reset') }}</el-button>
       </el-form-item>
     </el-form>
   </el-card>

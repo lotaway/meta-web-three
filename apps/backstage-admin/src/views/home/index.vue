@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { ref, onMounted, computed } from 'vue'
 import { str2Date } from '@/utils/datetime'
 import img_home_order from '@/assets/images/home_order.png'
@@ -196,21 +198,21 @@ const chartOption = computed(() => {
         <el-col :span="6">
           <div class="total-frame">
             <img :src="img_home_order" class="total-icon">
-            <div class="total-title">今日订单总数</div>
+            <div class="total-title">{{ t('home.todayOrders') }}</div>
             <div class="total-value">200</div>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="total-frame">
             <img :src="img_home_today_amount" class="total-icon">
-            <div class="total-title">今日销售总额</div>
+            <div class="total-title">{{ t('home.todaySales') }}</div>
             <div class="total-value">￥5000.00</div>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="total-frame">
             <img :src="img_home_yesterday_amount" class="total-icon">
-            <div class="total-title">昨日销售总额</div>
+            <div class="total-title">{{ t('home.yesterdaySales') }}</div>
             <div class="total-value">￥5000.00</div>
           </div>
         </el-col>
@@ -218,44 +220,24 @@ const chartOption = computed(() => {
     </div>
 
     <div class="un-handle-layout">
-      <div class="layout-title">待处理事务</div>
+      <div class="layout-title">{{ t('home.pendingTasks') }}</div>
       <div class="un-handle-content">
         <el-row :gutter="20">
           <el-col :span="8">
             <div class="un-handle-item">
-              <span class="font-medium">待付款订单</span>
+              <span class="font-medium">{{ t('home.unpaidOrders') }}</span>
               <span style="float: right" class="color-danger">(10)</span>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="un-handle-item">
-              <span class="font-medium">已完成订单</span>
+              <span class="font-medium">{{ t('home.completedOrders') }}</span>
               <span style="float: right" class="color-danger">(10)</span>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="un-handle-item">
-              <span class="font-medium">待确认收货订单</span>
-              <span style="float: right" class="color-danger">(10)</span>
-            </div>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="8">
-            <div class="un-handle-item">
-              <span class="font-medium">待发货订单</span>
-              <span style="float: right" class="color-danger">(10)</span>
-            </div>
-          </el-col>
-          <el-col :span="8">
-            <div class="un-handle-item">
-              <span class="font-medium">新缺货登记</span>
-              <span style="float: right" class="color-danger">(10)</span>
-            </div>
-          </el-col>
-          <el-col :span="8">
-            <div class="un-handle-item">
-              <span class="font-medium">待处理退款申请</span>
+              <span class="font-medium">{{ t('home.awaitingReceiptOrders') }}</span>
               <span style="float: right" class="color-danger">(10)</span>
             </div>
           </el-col>
@@ -263,19 +245,39 @@ const chartOption = computed(() => {
         <el-row :gutter="20">
           <el-col :span="8">
             <div class="un-handle-item">
-              <span class="font-medium">已发货订单</span>
+              <span class="font-medium">{{ t('home.unshippedOrders') }}</span>
               <span style="float: right" class="color-danger">(10)</span>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="un-handle-item">
-              <span class="font-medium">待处理退货订单</span>
+              <span class="font-medium">{{ t('home.newOutOfStock') }}</span>
               <span style="float: right" class="color-danger">(10)</span>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="un-handle-item">
-              <span class="font-medium">广告位即将到期</span>
+              <span class="font-medium">{{ t('home.pendingRefunds') }}</span>
+              <span style="float: right" class="color-danger">(10)</span>
+            </div>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="8">
+            <div class="un-handle-item">
+              <span class="font-medium">{{ t('home.shippedOrders') }}</span>
+              <span style="float: right" class="color-danger">(10)</span>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="un-handle-item">
+              <span class="font-medium">{{ t('home.pendingReturns') }}</span>
+              <span style="float: right" class="color-danger">(10)</span>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="un-handle-item">
+              <span class="font-medium">{{ t('home.expiringAds') }}</span>
               <span style="float: right" class="color-danger">(10)</span>
             </div>
           </el-col>
@@ -286,7 +288,7 @@ const chartOption = computed(() => {
       <el-row :gutter="20">
         <el-col :span="12">
           <div class="out-border">
-            <div class="layout-title">商品总览</div>
+            <div class="layout-title">{{ t('home.productOverview') }}</div>
             <div style="padding: 40px">
               <el-row>
                 <el-col :span="6" class="color-danger overview-item-value">100</el-col>
@@ -295,17 +297,17 @@ const chartOption = computed(() => {
                 <el-col :span="6" class="color-danger overview-item-value">500</el-col>
               </el-row>
               <el-row class="font-medium">
-                <el-col :span="6" class="overview-item-title">已下架</el-col>
-                <el-col :span="6" class="overview-item-title">已上架</el-col>
-                <el-col :span="6" class="overview-item-title">库存紧张</el-col>
-                <el-col :span="6" class="overview-item-title">全部商品</el-col>
+                <el-col :span="6" class="overview-item-title">{{ t('home.delisted') }}</el-col>
+                <el-col :span="6" class="overview-item-title">{{ t('home.listed') }}</el-col>
+                <el-col :span="6" class="overview-item-title">{{ t('home.lowStock') }}</el-col>
+                <el-col :span="6" class="overview-item-title">{{ t('home.allProducts') }}</el-col>
               </el-row>
             </div>
           </div>
         </el-col>
         <el-col :span="12">
           <div class="out-border">
-            <div class="layout-title">用户总览</div>
+            <div class="layout-title">{{ t('home.userOverview') }}</div>
             <div style="padding: 40px">
               <el-row>
                 <el-col :span="6" class="color-danger overview-item-value">100</el-col>
@@ -314,10 +316,10 @@ const chartOption = computed(() => {
                 <el-col :span="6" class="color-danger overview-item-value">5000</el-col>
               </el-row>
               <el-row class="font-medium">
-                <el-col :span="6" class="overview-item-title">今日新增</el-col>
-                <el-col :span="6" class="overview-item-title">昨日新增</el-col>
-                <el-col :span="6" class="overview-item-title">本月新增</el-col>
-                <el-col :span="6" class="overview-item-title">会员总数</el-col>
+                <el-col :span="6" class="overview-item-title">{{ t('home.todayNew') }}</el-col>
+                <el-col :span="6" class="overview-item-title">{{ t('home.yesterdayNew') }}</el-col>
+                <el-col :span="6" class="overview-item-title">{{ t('home.monthNew') }}</el-col>
+                <el-col :span="6" class="overview-item-title">{{ t('home.totalMembers') }}</el-col>
               </el-row>
             </div>
           </div>
@@ -325,40 +327,40 @@ const chartOption = computed(() => {
       </el-row>
     </div>
     <div class="statistics-layout">
-      <div class="layout-title">订单统计</div>
+      <div class="layout-title">{{ t('home.orderStats') }}</div>
       <el-row>
         <el-col :span="4">
           <div style="padding: 20px">
             <div>
-              <div style="color: #909399;font-size: 14px">本月订单总数</div>
+              <div style="color: #909399;font-size: 14px">{{ t('home.monthOrders') }}</div>
               <div style="color: #606266;font-size: 24px;padding: 10px 0">10000</div>
               <div>
                 <span class="color-success" style="font-size: 14px">+10%</span>
-                <span style="color: #C0C4CC;font-size: 14px">同比上月</span>
+                <span style="color: #C0C4CC;font-size: 14px">{{ t('home.vsLastMonth') }}</span>
               </div>
             </div>
             <div style="margin-top: 20px;">
-              <div style="color: #909399;font-size: 14px">本周订单总数</div>
+              <div style="color: #909399;font-size: 14px">{{ t('home.weekOrders') }}</div>
               <div style="color: #606266;font-size: 24px;padding: 10px 0">1000</div>
               <div>
                 <span class="color-danger" style="font-size: 14px">-10%</span>
-                <span style="color: #C0C4CC;font-size: 14px">同比上周</span>
+                <span style="color: #C0C4CC;font-size: 14px">{{ t('home.vsLastWeek') }}</span>
               </div>
             </div>
             <div style="margin-top: 20px;">
-              <div style="color: #909399;font-size: 14px">本月销售总额</div>
+              <div style="color: #909399;font-size: 14px">{{ t('home.monthSales') }}</div>
               <div style="color: #606266;font-size: 24px;padding: 10px 0">100000</div>
               <div>
                 <span class="color-success" style="font-size: 14px">+10%</span>
-                <span style="color: #C0C4CC;font-size: 14px">同比上月</span>
+                <span style="color: #C0C4CC;font-size: 14px">{{ t('home.vsLastMonth') }}</span>
               </div>
             </div>
             <div style="margin-top: 20px;">
-              <div style="color: #909399;font-size: 14px">本周销售总额</div>
+              <div style="color: #909399;font-size: 14px">{{ t('home.weekSales') }}</div>
               <div style="color: #606266;font-size: 24px;padding: 10px 0">50000</div>
               <div>
                 <span class="color-danger" style="font-size: 14px">-10%</span>
-                <span style="color: #C0C4CC;font-size: 14px">同比上周</span>
+                <span style="color: #C0C4CC;font-size: 14px">{{ t('home.vsLastWeek') }}</span>
               </div>
             </div>
           </div>
@@ -366,7 +368,7 @@ const chartOption = computed(() => {
         <el-col :span="20">
           <div style="padding: 10px;border-left:1px solid #DCDFE6">
             <el-date-picker style="float: right;z-index: 1" size="small" v-model="datePickerRange" type="daterange"
-              align="right" unlink-panels range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"
+              align="right" unlink-panels :range-separator="t('common.to')" :start-placeholder="t('common.startDate')" :end-placeholder="t('common.endDate')"
               :shortcuts="shortcuts" @change="handleDatePickerRangeChange">
             </el-date-picker>
             <div style="height: 400px;">

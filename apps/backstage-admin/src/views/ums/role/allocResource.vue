@@ -144,8 +144,8 @@ const handleCheckChange = (resource: UmsResource) => {
       </el-row>
     </div>
     <div style="margin-top: 20px" align="center">
-      <el-button type="primary" @click="handleSave()">保存</el-button>
-      <el-button @click="handleClear()">清空</el-button>
+      <el-button type="primary" @click="handleSave()">{{ t('common.save') }}</el-button>
+      <el-button @click="handleClear()">{{ t('ums.clear') }}</el-button>
     </div>
   </el-card>
 </template>

@@ -152,36 +152,36 @@ const handleCurrentChange = (val: number) => {
         <el-icon class="el-icon-middle">
           <Search />
         </el-icon>
-        <span>筛选搜索</span>
+        <span>{{ t('role.page.filterSearch') }}</span>
         <el-button style="float:right" type="primary" @click="handleSearchList()">
-          查询搜索
+          {{ t('role.page.querySearch') }}
         </el-button>
         <el-button style="float:right;margin-right: 15px" @click="handleResetSearch()">
-          重置
+          {{ t('common.reset') }}
         </el-button>
       </div>
       <div style="margin-top: 20px">
         <el-form :inline="true" :model="listQuery" label-width="140px">
-          <el-form-item label="输入搜索：">
-            <el-input v-model="listQuery.id" class="input-width" placeholder="服务单号"></el-input>
+          <el-form-item :label="t('role.page.inputSearch')">
+            <el-input v-model="listQuery.id" class="input-width" :placeholder="t('oms.serviceNo')"></el-input>
           </el-form-item>
-          <el-form-item label="处理状态：">
-            <el-select v-model="listQuery.status" placeholder="全部" clearable class="input-width">
+          <el-form-item :label="t('oms.processStatus')">
+            <el-select v-model="listQuery.status" :placeholder="t('product.all')" clearable class="input-width">
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value">
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="申请时间：">
+          <el-form-item :label="t('payment.refund.list.createTime')">
             <el-date-picker class="input-width" v-model="listQuery.createTime" value-format="yyyy-MM-dd" type="date"
-              placeholder="请选择时间">
+              :placeholder="t('oms.order.list.createTimePlaceholder')">
             </el-date-picker>
           </el-form-item>
-          <el-form-item label="操作人员：">
-            <el-input v-model="listQuery.handleMan" class="input-width" placeholder="全部"></el-input>
+          <el-form-item :label="t('oms.operator')">
+            <el-input v-model="listQuery.handleMan" class="input-width" :placeholder="t('product.all')"></el-input>
           </el-form-item>
-          <el-form-item label="处理时间：">
+          <el-form-item :label="t('oms.processTime')">
             <el-date-picker class="input-width" v-model="listQuery.handleTime" value-format="yyyy-MM-dd" type="date"
-              placeholder="请选择时间">
+              :placeholder="t('oms.order.list.createTimePlaceholder')">
             </el-date-picker>
           </el-form-item>
         </el-form>
@@ -191,13 +191,13 @@ const handleCurrentChange = (val: number) => {
       <el-icon class="el-icon-middle">
         <Tickets />
       </el-icon>
-      <span>数据列表</span>
+      <span>{{ t('role.page.dataList') }}</span>
     </el-card>
     <div class="table-container">
       <el-table ref="returnApplyTable" :data="list" style="width: 100%;" @selection-change="handleSelectionChange"
         v-loading="listLoading" border>
         <el-table-column type="selection" width="60" align="center"></el-table-column>
-        <el-table-column label="服务单号" width="180" align="center">
+        <el-table-column :label="t('oms.serviceNo')" width="180" align="center">
           <template #default="scope">{{ scope.row.id }}</template>
         </el-table-column>
         <el-table-column label="申请时间" width="180" align="center">
@@ -217,7 +217,7 @@ const handleCurrentChange = (val: number) => {
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
           <template #default="scope">
-            <el-button size="small" @click="handleViewDetail(scope.$index, scope.row as OmsOrderReturnApply)">查看详情</el-button>
+            <el-button size="small" @click="handleViewDetail(scope.$index, scope.row as OmsOrderReturnApply)">{{ t('oms.viewDetail') }}</el-button>
           </template>
         </el-table-column>
       </el-table>

@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user';
@@ -82,7 +84,7 @@ const handleLogin = () => {
     <el-card class="login-form-layout">
       <el-form autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginFormRef" label-position="left">
         <el-form-item prop="username">
-          <el-input name="username" type="text" v-model="loginForm.username" autoComplete="on" placeholder="请输入用户名">
+          <el-input name="username" type="text" v-model="loginForm.username" autoComplete="on" :placeholder="t('common.enterUsername')">
             <template #prefix>
               <span>
                 <svg-icon icon-class="user" class="color-main"></svg-icon>

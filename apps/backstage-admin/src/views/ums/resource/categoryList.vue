@@ -116,12 +116,12 @@ const formatDateTime = (time: string) => {
       <el-icon class="el-icon-middle">
         <tickets />
       </el-icon>
-      <span>数据列表</span>
-      <el-button class="btn-add" @click="handleAdd()">添加</el-button>
+      <span>{{ t('role.page.dataList') }}</span>
+      <el-button class="btn-add" @click="handleAdd()">{{ t('common.add') }}</el-button>
     </el-card>
     <div class="table-container">
       <el-table ref="resourceCategoryTable" :data="list" style="width: 100%;" v-loading="listLoading" border>
-        <el-table-column label="编号" width="100" align="center">
+        <el-table-column :label="t('common.id')" width="100" align="center">
           <template #default="scope">{{ scope.row.id }}</template>
         </el-table-column>
         <el-table-column label="名称" align="center">
@@ -135,9 +135,9 @@ const formatDateTime = (time: string) => {
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
           <template #default="scope">
-            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row as UmsResourceCategory)">编辑
+            <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row as UmsResourceCategory)">{{ t('common.edit') }}
             </el-button>
-            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row as UmsResourceCategory)">删除
+            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row as UmsResourceCategory)">{{ t('common.delete') }}
             </el-button>
           </template>
         </el-table-column>
@@ -154,8 +154,8 @@ const formatDateTime = (time: string) => {
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="handleDialogConfirm()">确 定</el-button>
+          <el-button @click="dialogVisible = false">{{ t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="handleDialogConfirm()">{{ t('common.confirm') }}</el-button>
         </span>
       </template>
     </el-dialog>

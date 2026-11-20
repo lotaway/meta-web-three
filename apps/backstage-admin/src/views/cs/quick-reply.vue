@@ -3,8 +3,8 @@
     <el-card>
       <template #header>
         <div class="card-header">
-          <span>快捷回复</span>
-          <el-button type="primary" size="small" @click="showDialog = true">添加</el-button>
+          <span>{{ t('cs.dashboard.quickReply') }}</span>
+          <el-button type="primary" size="small" @click="showDialog = true">{{ t('common.add') }}</el-button>
         </div>
       </template>
       <el-table :data="list" border stripe>
@@ -16,7 +16,7 @@
         <el-table-column prop="createTime" label="创建时间" width="170" />
         <el-table-column label="操作" width="100">
           <template #default="{ row }">
-            <el-button size="small" type="danger" @click="handleDelete(row.id)">删除</el-button>
+            <el-button size="small" type="danger" @click="handleDelete(row.id)">{{ t('common.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -34,8 +34,8 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="showDialog = false">取消</el-button>
-        <el-button type="primary" @click="handleCreate">确定</el-button>
+        <el-button @click="showDialog = false">{{ t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="handleCreate">{{ t('common.confirm') }}</el-button>
       </template>
     </el-dialog>
   </div>

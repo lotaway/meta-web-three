@@ -140,9 +140,9 @@ const handleUpdateStatus = async (status: number) => {
 <template>
   <div class="detail-container">
     <el-card shadow="never">
-      <span class="font-title-medium">退货商品</span>
+      <span class="font-title-medium">{{ t('oms.returnProducts') }}</span>
       <el-table border class="standard-margin" ref="productTable" :data="productList">
-        <el-table-column label="商品图片" width="160" align="center">
+        <el-table-column :label="t('product.productImage')" width="160" align="center">
           <template #default="scope">
             <img style="height:80px" :src="scope.row.productPic">
           </template>
@@ -150,13 +150,13 @@ const handleUpdateStatus = async (status: number) => {
         <el-table-column label="商品名称" align="center">
           <template #default="scope">
             <span class="font-small">{{ scope.row.productName }}</span><br>
-            <span class="font-small">品牌：{{ scope.row.productBrand }}</span>
+            <span class="font-small">{{ t('product.brand') }}{{ scope.row.productBrand }}</span>
           </template>
         </el-table-column>
         <el-table-column label="价格/货号" width="180" align="center">
           <template #default="scope">
-            <span class="font-small">价格：￥{{ scope.row.productRealPrice }}</span><br>
-            <span class="font-small">货号：NO.{{ scope.row.productId }}</span>
+            <span class="font-small">{{ t('oms.price') }}{{ scope.row.productRealPrice }}</span><br>
+            <span class="font-small">{{ t('oms.skuNo') }}{{ scope.row.productId }}</span>
           </template>
         </el-table-column>
         <el-table-column label="属性" width="180" align="center">

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 import { onMounted, inject, type Ref, computed, ref } from 'vue'
 import { type TransferDataItem } from 'element-plus'
 import type { PmsProductParam } from '@/types/product'
@@ -92,20 +94,20 @@ const handleFinishCommit = async () => {
 <template>
   <div style="margin-top: 50px">
     <el-form :model="compProductParam" ref="productRelationForm" label-width="120px" class="form-inner-container">
-      <el-form-item label="关联专题：">
-        <el-transfer style="display: inline-block" filterable :filter-method="filterMethod" filter-placeholder="请输入专题名称"
-          v-model="selectSubject" :titles="['待选择', '已选择']" :data="subjectList">
+      <el-form-item :label="t('product.relatedSubject')">
+        <el-transfer style="display: inline-block" filterable :filter-method="filterMethod" :filter-placeholder="t('promotion.enterSubjectName')"
+          v-model="selectSubject" :titles="[t('product.available'), t('product.selected')]" :data="subjectList">
         </el-transfer>
       </el-form-item>
-      <el-form-item label="关联优选：">
-        <el-transfer style="display: inline-block" filterable :filter-method="filterMethod" filter-placeholder="请输入优选名称"
-          v-model="selectPrefrenceArea" :titles="['待选择', '已选择']" :data="prefrenceAreaList">
+      <el-form-item :label="t('product.relatedPreferred')">
+        <el-transfer style="display: inline-block" filterable :filter-method="filterMethod" :filter-placeholder="t('promotion.enterPreferredName')"
+          v-model="selectPrefrenceArea" :titles="[t('product.available'), t('product.selected')]" :data="prefrenceAreaList">
         </el-transfer>
       </el-form-item>
       <el-form-item>
         <div style="width: 100%;text-align: center">
-          <el-button @click="handlePrev">上一步，填写商品属性</el-button>
-          <el-button type="primary" @click="handleFinishCommit">完成，提交商品</el-button>
+          <el-button @click="handlePrev">{{ t('product.prevAttrs') }}</el-button>
+          <el-button type="primary" @click="handleFinishCommit">{{ t('product.finishSubmit') }}</el-button>
         </div>
       </el-form-item>
     </el-form>

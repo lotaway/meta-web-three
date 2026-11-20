@@ -222,18 +222,18 @@ const formatDateTime = (time: string) => {
         <el-icon class="el-icon-middle">
           <Search />
         </el-icon>
-        <span>筛选搜索</span>
+        <span>{{ t('role.page.filterSearch') }}</span>
         <el-button style="float: right" @click="handleSearchList()" type="primary" size="default">
-          查询搜索
+          {{ t('role.page.querySearch') }}
         </el-button>
         <el-button style="float: right; margin-right: 15px" @click="handleResetSearch()" size="default">
-          重置
+          {{ t('common.reset') }}
         </el-button>
       </div>
       <div style="margin-top: 15px">
         <el-form :inline="true" :model="listQuery" size="default" label-width="140px">
-          <el-form-item label="输入搜索：">
-            <el-input v-model="listQuery.keyword" class="input-width" placeholder="帐号/姓名" clearable></el-input>
+          <el-form-item :label="t('role.page.inputSearch')">
+            <el-input v-model="listQuery.keyword" class="input-width" :placeholder="t('ums.accountName')" clearable></el-input>
           </el-form-item>
         </el-form>
       </div>
@@ -242,14 +242,14 @@ const formatDateTime = (time: string) => {
       <el-icon class="el-icon-middle">
         <Tickets />
       </el-icon>
-      <span>数据列表</span>
+      <span>{{ t('role.page.dataList') }}</span>
       <el-button class="btn-add" @click="handleAdd()">
-        添加
+        {{ t('common.add') }}
       </el-button>
     </el-card>
     <div class="table-container">
       <el-table ref="adminTable" :data="list" style="width: 100%;" v-loading="listLoading" border>
-        <el-table-column label="编号" width="100" align="center">
+        <el-table-column :label="t('common.id')" width="100" align="center">
           <template #default="scope">{{ scope.row.id }}</template>
         </el-table-column>
         <el-table-column label="帐号" align="center">
@@ -276,12 +276,12 @@ const formatDateTime = (time: string) => {
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
           <template #default="scope">
-            <el-button size="small" type="primary" link @click="handleSelectRole(scope.$index, scope.row as UmsAdmin)">分配角色
+            <el-button size="small" type="primary" link @click="handleSelectRole(scope.$index, scope.row as UmsAdmin)">{{ t('ums.assignRoles') }}
             </el-button>
             <el-button size="small" type="primary" link @click="handleUpdate(scope.$index, scope.row as UmsAdmin)">
-              编辑
+              {{ t('common.edit') }}
             </el-button>
-            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row as UmsAdmin)">删除
+            <el-button size="small" type="primary" link @click="handleDelete(scope.$index, scope.row as UmsAdmin)">{{ t('common.delete') }}
             </el-button>
           </template>
         </el-table-column>
@@ -319,8 +319,8 @@ const formatDateTime = (time: string) => {
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogVisible = false" size="default">取 消</el-button>
-          <el-button type="primary" @click="handleDialogConfirm()" size="default">确 定</el-button>
+          <el-button @click="dialogVisible = false" size="default">{{ t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="handleDialogConfirm()" size="default">{{ t('common.confirm') }}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -331,8 +331,8 @@ const formatDateTime = (time: string) => {
       </el-select>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="allocDialogVisible = false" size="default">取 消</el-button>
-          <el-button type="primary" @click="handleAllocDialogConfirm()" size="default">确 定</el-button>
+          <el-button @click="allocDialogVisible = false" size="default">{{ t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="handleAllocDialogConfirm()" size="default">{{ t('common.confirm') }}</el-button>
         </span>
       </template>
     </el-dialog>

@@ -410,41 +410,41 @@ const showLogisticsDialog = () => {
       <!-- Refer to the original file for the complete template -->
       <div style="margin-top: 20px">
         <svg-icon icon-class="marker" style="color: #606266"></svg-icon>
-        <span class="font-small">基本信息</span>
+        <span class="font-small">{{ t('oms.detail.basicInfo') }}</span>
       </div>
       <div class="table-layout">
         <el-row>
-          <el-col :span="4" class="table-cell-title">订单编号</el-col>
-          <el-col :span="4" class="table-cell-title">发货单流水号</el-col>
-          <el-col :span="4" class="table-cell-title">用户账号</el-col>
-          <el-col :span="4" class="table-cell-title">支付方式</el-col>
-          <el-col :span="4" class="table-cell-title">订单来源</el-col>
-          <el-col :span="4" class="table-cell-title">订单类型</el-col>
+          <el-col :span="4" class="table-cell-title">{{ t('oms.order.list.orderSn') }}</el-col>
+          <el-col :span="4" class="table-cell-title">{{ t('oms.detail.deliverySn') }}</el-col>
+          <el-col :span="4" class="table-cell-title">{{ t('oms.order.list.userAccount') }}</el-col>
+          <el-col :span="4" class="table-cell-title">{{ t('oms.order.list.payType') }}</el-col>
+          <el-col :span="4" class="table-cell-title">{{ t('oms.order.list.sourceType') }}</el-col>
+          <el-col :span="4" class="table-cell-title">{{ t('oms.detail.orderType') }}</el-col>
         </el-row>
         <el-row>
           <el-col :span="4" class="table-cell">{{ order.orderSn }}</el-col>
-          <el-col :span="4" class="table-cell">暂无</el-col>
+          <el-col :span="4" class="table-cell">{{ t('oms.detail.cellNoData') }}</el-col>
           <el-col :span="4" class="table-cell">{{ order.memberUsername }}</el-col>
           <el-col :span="4" class="table-cell">{{ formatPayType(order.payType) }}</el-col>
           <el-col :span="4" class="table-cell">{{ formatSourceType(order.sourceType) }}</el-col>
           <el-col :span="4" class="table-cell">{{ formatOrderType(order.orderType) }}</el-col>
         </el-row>
         <el-row>
-          <el-col :span="4" class="table-cell-title">配送方式</el-col>
-          <el-col :span="4" class="table-cell-title">物流单号</el-col>
-          <el-col :span="4" class="table-cell-title">自动确认收货时间</el-col>
-          <el-col :span="4" class="table-cell-title">订单可得优币</el-col>
-          <el-col :span="4" class="table-cell-title">订单可得成长值</el-col>
-          <el-col :span="4" class="table-cell-title">活动信息</el-col>
+          <el-col :span="4" class="table-cell-title">{{ t('oms.detail.deliveryMethod') }}</el-col>
+          <el-col :span="4" class="table-cell-title">{{ t('oms.detail.deliverySnTitle') }}</el-col>
+          <el-col :span="4" class="table-cell-title">{{ t('oms.detail.autoConfirmDay') }}</el-col>
+          <el-col :span="4" class="table-cell-title">{{ t('oms.detail.integration') }}</el-col>
+          <el-col :span="4" class="table-cell-title">{{ t('oms.detail.growth') }}</el-col>
+          <el-col :span="4" class="table-cell-title">{{ t('oms.detail.promotionInfo') }}</el-col>
         </el-row>
         <el-row>
           <el-col :span="4" class="table-cell">{{ formatNull(order.deliveryCompany) }}</el-col>
           <el-col :span="4" class="table-cell">{{ formatNull(order.deliverySn) }}</el-col>
-          <el-col :span="4" class="table-cell">{{ order.autoConfirmDay }}天</el-col>
+          <el-col :span="4" class="table-cell">{{ order.autoConfirmDay }}{{ t('oms.orderSetting.days') }}</el-col>
           <el-col :span="4" class="table-cell">{{ order.integration }}</el-col>
           <el-col :span="4" class="table-cell">{{ order.growth }}</el-col>
           <el-col :span="4" class="table-cell">
-            <el-popover placement="top-start" title="活动信息" width="200" trigger="hover" :content="order.promotionInfo">
+            <el-popover placement="top-start" :title="t('oms.detail.promotionInfo')" width="200" trigger="hover" :content="order.promotionInfo">
               <template v-slot:reference>
                 <span>{{ formatLongText(order.promotionInfo) }}</span>
               </template>
@@ -483,13 +483,13 @@ const showLogisticsDialog = () => {
         <el-table-column label="商品名称" align="center">
           <template v-slot="scope">
             <p>{{ scope.row.productName }}</p>
-            <p>品牌：{{ scope.row.productBrand }}</p>
+            <p>{{ t('product.brand') }}{{ scope.row.productBrand }}</p>
           </template>
         </el-table-column>
         <el-table-column label="价格/货号" width="160" align="center">
           <template v-slot="scope">
-            <p>价格：￥{{ scope.row.productPrice }}</p>
-            <p>货号：{{ scope.row.productSn }}</p>
+            <p>{{ t('oms.price') }}{{ scope.row.productPrice }}</p>
+            <p>{{ t('product.sn') }}{{ scope.row.productSn }}</p>
           </template>
         </el-table-column>
         <el-table-column label="属性" width="160" align="center">
@@ -606,8 +606,8 @@ const showLogisticsDialog = () => {
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button @click="receiverDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="handleUpdateReceiverInfo">确 定</el-button>
+          <el-button @click="receiverDialogVisible = false">{{ t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="handleUpdateReceiverInfo">{{ t('common.confirm') }}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -651,8 +651,8 @@ const showLogisticsDialog = () => {
       </div>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button @click="moneyDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="handleUpdateMoneyInfo">确 定</el-button>
+          <el-button @click="moneyDialogVisible = false">{{ t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="handleUpdateMoneyInfo">{{ t('common.confirm') }}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -668,8 +668,8 @@ const showLogisticsDialog = () => {
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button @click="messageDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="handleSendMessage">确 定</el-button>
+          <el-button @click="messageDialogVisible = false">{{ t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="handleSendMessage">{{ t('common.confirm') }}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -682,8 +682,8 @@ const showLogisticsDialog = () => {
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button @click="closeDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="handleCloseOrder">确 定</el-button>
+          <el-button @click="closeDialogVisible = false">{{ t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="handleCloseOrder">{{ t('common.confirm') }}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -696,8 +696,8 @@ const showLogisticsDialog = () => {
       </el-form>
       <template v-slot:footer>
         <span class="dialog-footer">
-          <el-button @click="markOrderDialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="handleMarkOrder">确 定</el-button>
+          <el-button @click="markOrderDialogVisible = false">{{ t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="handleMarkOrder">{{ t('common.confirm') }}</el-button>
         </span>
       </template>
     </el-dialog>

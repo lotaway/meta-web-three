@@ -178,25 +178,25 @@ onMounted(() => {
       <div class="page-header-left">
         <h2 class="page-title">
           <el-icon><MagicStick /></el-icon>
-          AI 辅助购物
+          {{ t('aiShopping.title') }}
         </h2>
-        <span class="page-subtitle">文本纠错 / 智能匹配 / 以图搜图</span>
+        <span class="page-subtitle">{{ t('aiShopping.subtitle') }}</span>
       </div>
       <div class="page-header-right">
-        <span class="mr-8">启用 AI 辅助购物</span>
+        <span class="mr-8">{{ t('aiShopping.enable') }}</span>
         <el-switch v-model="aiEnabled" @change="(val: boolean | string | number) => toggleAiEnabled(!!val)" />
-        <el-button type="primary" :icon="Refresh" :loading="loading" @click="refreshAll">刷新</el-button>
+        <el-button type="primary" :icon="Refresh" :loading="loading" @click="refreshAll">{{ t('common.refresh') }}</el-button>
       </div>
     </div>
 
     <el-tabs v-model="activeTab" class="ai-tabs">
       <!-- ==================== Config ==================== -->
-      <el-tab-pane label="Provider 配置" name="config">
+      <el-tab-pane :label="t('aiShopping.providerConfig')" name="config">
         <el-row :gutter="16">
           <el-col :span="10">
             <el-card shadow="never" class="mb-16">
               <template #header>
-                <span>新增 / 覆盖配置项（DB 覆盖 application.yml，格式 key=value）</span>
+                <span>{{ t('aiShopping.configHint') }}</span>
               </template>
               <el-form label-width="90px">
                 <el-form-item label="Key">
@@ -223,7 +223,7 @@ onMounted(() => {
           <el-col :span="14">
             <el-card shadow="never">
               <template #header>
-                <span>已配置项</span>
+                <span>{{ t('aiShopping.configuredItems') }}</span>
               </template>
               <el-table :data="configs" border size="small">
                 <el-table-column prop="configKey" label="Key" min-width="200" />
@@ -231,7 +231,7 @@ onMounted(() => {
                 <el-table-column prop="description" label="说明" min-width="120" show-overflow-tooltip />
                 <el-table-column label="操作" width="80" align="center">
                   <template #default="{ row }">
-                    <el-button link type="danger" @click="removeConfig(row as AiShoppingConfig)">删除</el-button>
+                    <el-button link type="danger" @click="removeConfig(row as AiShoppingConfig)">{{ t('common.delete') }}</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -244,7 +244,7 @@ onMounted(() => {
       <el-tab-pane label="向量索引" name="index">
         <el-card shadow="never" class="mb-16">
           <template #header>
-            <span>Milvus 向量索引状态</span>
+            <span>{{ t('aiShopping.milvusStatus') }}</span>
           </template>
           <el-descriptions :column="2" border v-if="indexStatus">
             <el-descriptions-item label="向量存储">
@@ -279,7 +279,7 @@ onMounted(() => {
       <el-tab-pane label="Provider 测试" name="provider">
         <el-card shadow="never">
           <template #header>
-            <span>AI Provider 连通性测试</span>
+            <span>{{ t('aiShopping.connectivityTest') }}</span>
           </template>
           <div class="provider-row">
             <el-button
@@ -307,7 +307,7 @@ onMounted(() => {
       <el-tab-pane label="搜索日志" name="logs">
         <el-card shadow="never">
           <template #header>
-            <span>最近 AI 搜索日志（50 条）</span>
+            <span>{{ t('aiShopping.recentLogs') }}</span>
           </template>
           <el-table :data="logs" border size="small">
             <el-table-column prop="id" label="ID" width="70" />
