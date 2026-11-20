@@ -61,7 +61,8 @@
   - 建议：为两个 app 增加断点与弹性布局，恢复可见焦点态，补充语义标签 / `aria-*` 或 `accessibilityLabel` / `accessibilityRole`，并增加 ErrorBoundary 与加载失败时用户可感知的降级表现（FRONTEND_PRICEPLES 第 7、8 节）。
   - 需决策：提供设计基准 / 断点取值（仓库里没有设计稿）。若没有，默认采用通用断点集，并以可评审的变更提交。
   - 关闭条件：两个 app 都加上断点与弹性布局、恢复可见焦点态、补充语义标签 / `aria-*` / `accessibilityLabel` / `accessibilityRole`、加入带用户可见降级的 ErrorBoundary，并用各 app 的检查验证。
-  - 2026-11-20 部分完成（`035cc449`）：backstage-admin `styles/index.scss` 移除 `div:focus` / `a:focus` 的 `outline: none`，改用 `:focus-visible` 为键盘用户提供可见焦点环（2px `#409eff` + 2px offset），鼠标点击仍无轮廓。`vue-tsc` + vitest 6/38 EXIT 0。断点 / 语义标签 / ErrorBoundary 仍需设计基准决策，未做。
+  - 2026-11-20 部分完成（`035cc449`）：backstage-admin `styles/index.scss` 移除 `div:focus` / `a:focus` 的 `outline: none`，改用 `:focus-visible` 为键盘用户提供可见焦点环（2px `#409eff` + 2px offset），鼠标点击仍无轮廓。`vue-tsc` + vitest 6/38 EXIT 0。
+  - 2026-11-20 ErrorBoundary 完成（`a4765dca`）：client 新增 `components/ErrorBoundary.tsx`（`getDerivedStateFromError` + `componentDidCatch`）包在 `app/_layout.tsx` 根布局最外层，英文降级文案 + Try again 重试，降级容器带 `accessibilityRole="alert"`；backstage-admin 新增 `src/components/ErrorBoundary.vue`（`onErrorCaptured` + `role="alert"` + Reload page）包住 `App.vue` 路由出口，错误归一化抽到纯函数 `src/utils/errorBoundary.ts` 以适配 node 测试环境（不引入 `@vue/test-utils`）。文案全英文、不涉及 i18n 资源与设计基准。验证：client `tsc --noEmit` + jest 11/112、admin `vue-tsc` + vitest 7/42，全 EXIT 0。断点 / 语义标签补全仍需设计基准决策，未做。
 
 - [x] 让 `apps/backstage-admin` 的 API 客户端与 DEVELOPMENT.md 第 3 节保持一致。
   - 问题：`package.json:18` 定义了 `generate:api`，`tools/generate-api.cjs` 调用共享的 `apps/tools/OpenApiToTS.js`，其默认输出为 `src/generated/api`，但该目录不存在；应用实际调用的是 `src/apis/` 下 93 个手写模块。
