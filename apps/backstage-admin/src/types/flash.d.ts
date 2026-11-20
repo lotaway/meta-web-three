@@ -1,66 +1,66 @@
 import type { PageParam } from './common'
 import type { PmsProduct } from './product'
 
-/** 秒杀活动信息 */
+/** Flash sale activity info */
 export type SmsFlashPromotion = {
   /** ID */
   id?: number
-  /** 秒杀时间段名称 */
+  /** Flash sale time slot name */
   title: string
-  /** 开始日期 */
+  /** Start date */
   startDate?: string
-  /** 结束日期 */
+  /** End date */
   endDate?: string
-  /** 上下线状态 */
+  /** Online/offline status */
   status: number
-  /** 创建时间 */
+  /** Creation time */
   createTime?: string
 }
 
-/** 秒杀时间段信息 */
+/** Flash sale time slot info */
 export type SmsFlashPromotionSession = {
-  /** 编号 */
+  /** Number */
   id?: number
-  /** 场次名称 */
+  /** Session name */
   name: string
-  /** 每日开始时间 */
+  /** Daily start time */
   startTime?: string
-  /** 每日结束时间 */
+  /** Daily end time */
   endTime?: string
-  /** 启用状态：0->不启用；1->启用 */
+  /** Enabled status: 0 -> disabled; 1 -> enabled */
   status: number
-  /** 创建时间 */
+  /** Creation time */
   createTime?: string
-  /** 商品数量 */
+  /** Product quantity */
   productCount?: number
 }
 
-/** 秒杀活动商品关系信息 */
+/** Flash sale activity-product relation */
 export type SmsFlashPromotionProductRelation = {
-  /** 编号 */
+  /** Number */
   id?: number
-  /** 秒杀活动ID */
+  /** Flash sale activity ID */
   flashPromotionId: number
-  /** 秒杀时间段ID */
+  /** Flash sale time slot ID */
   flashPromotionSessionId: number
-  /** 商品ID */
+  /** Product ID */
   productId: number
-  /** 限时购价格 */
+  /** Flash sale price */
   flashPromotionPrice?: number
-  /** 限时购数量 */
+  /** Flash sale quantity */
   flashPromotionCount?: number
-  /** 每人限购数量 */
+  /** Max quantity per person */
   flashPromotionLimit?: number
-  /** 排序 */
+  /** Sort order */
   sort?: number
-  /** 关联商品 */
+  /** Associated product */
   product?: PmsProduct
 }
 
-/** 秒杀商品列表查询参数 */
+/** Flash sale product list query params */
 export type FlashProductQueryParam = PageParam & {
-  /** 秒杀活动ID */
+  /** Flash sale activity ID */
   flashPromotionId?: number
-  /** 秒杀场次ID */
+  /** Flash sale session ID */
   flashPromotionSessionId?: number
 }

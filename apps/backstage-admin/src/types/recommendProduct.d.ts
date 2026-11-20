@@ -1,7 +1,7 @@
 import type { NewProductQueryParam, SmsHomeNewProduct } from './newProduct'
 
-/** 首页新品推荐实体 */
+/** Home new-product recommendation entity */
 export type SmsHomeRecommendProduct = SmsHomeNewProduct
 
-/** 首页新品推荐列表查询参数 */
+/** Home new-product recommendation list query params */
 export type RecommendProductQueryParam = NewProductQueryParam

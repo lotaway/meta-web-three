@@ -1,13 +1,13 @@
-/** 退货原因 */
+/** Return reason */
 export type OmsOrderReturnReason = {
   /** ID */
   id?: number
-  /** 退货类型 */
+  /** Return type */
   name: string
-  /** 排序 */
+  /** Sort order */
   sort: number
-  /** 状态：0->不启用；1->启用 */
+  /** Status: 0 -> disabled; 1 -> enabled */
   status: number
-  /** 添加时间 */
+  /** Added time */
   createTime?: string
 }

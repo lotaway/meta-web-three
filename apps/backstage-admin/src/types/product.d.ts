@@ -5,188 +5,188 @@ import type { PmsSkuStock } from './skuStock'
 export type PmsProduct = {
   /** ID */
   id?: number
-  /** 品牌ID */
+  /** Brand ID */
   brandId?: number
-  /** 产品分类ID */
+  /** Product category ID */
   productCategoryId?: number
-  /** 运费模板ID */
+  /** Shipping template ID */
   feightTemplateId?: number
-  /** 属性分类ID */
+  /** Attribute category ID */
   productAttributeCategoryId?: number
-  /** 名称 */
+  /** Name */
   name: string
-  /** 图片 */
+  /** Image */
   pic?: string
-  /** 货号 */
+  /** SKU number */
   productSn: string
-  /** 删除状态：0->未删除；1->已删除 */
+  /** Deletion status: 0 -> not deleted; 1 -> deleted */
   deleteStatus?: number
-  /** 上架状态：0->下架；1->上架 */
+  /** Listing status: 0 -> delisted; 1 -> listed */
   publishStatus?: number
-  /** 新品状态:0->不是新品；1->新品 */
+  /** New-product status: 0 -> not new; 1 -> new */
   newStatus?: number
-  /** 推荐状态；0->不推荐；1->推荐 */
+  /** Recommendation status: 0 -> not recommended; 1 -> recommended */
   recommandStatus?: number
-  /** 审核状态：0->未审核；1->审核通过 */
+  /** Review status: 0 -> unreviewed; 1 -> approved */
   verifyStatus?: number
-  /** 排序 */
+  /** Sort order */
   sort?: number
-  /** 销量 */
+  /** Sales volume */
   sale?: number
-  /** 价格 */
+  /** Price */
   price?: number
-  /** 促销价格 */
+  /** Promotion price */
   promotionPrice?: number
-  /** 赠送的成长值 */
+  /** Bonus growth value */
   giftGrowth?: number
-  /** 赠送的积分 */
+  /** Bonus points */
   giftPoint?: number
-  /** 限制使用的积分数 */
+  /** Max usable points */
   usePointLimit?: number
-  /** 副标题 */
+  /** Subtitle */
   subTitle?: string
-  /** 市场价 */
+  /** Market price */
   originalPrice?: number
-  /** 库存 */
+  /** Stock */
   stock?: number
-  /** 库存预警值 */
+  /** Stock warning threshold */
   lowStock?: number
-  /** 单位 */
+  /** Unit */
   unit?: string
-  /** 商品重量，默认为克 */
+  /** Product weight, in grams by default */
   weight?: number
-  /** 是否为预告商品：0->不是；1->是 */
+  /** Whether pre-release product: 0 -> no; 1 -> yes */
   previewStatus?: number
-  /** 以逗号分割的产品服务：1->无忧退货；2->快速退款；3->免费包邮 */
+  /** Comma-separated services: 1 -> worry-free return; 2 -> fast refund; 3 -> free shipping */
   serviceIds?: string
-  /** 关键词 */
+  /** Keyword */
   keywords?: string
-  /** 备注 */
+  /** Remark */
   note?: string
-  /** 画册图片，连产品图片限制为5张，以逗号分割 */
+  /** Gallery images, up to 5 including product images, comma-separated */
   albumPics?: string
-  /** 详情标题 */
+  /** Detail title */
   detailTitle?: string
-  /** 促销开始时间 */
+  /** Promotion start time */
   promotionStartTime?: string
-  /** 促销结束时间 */
+  /** Promotion end time */
   promotionEndTime?: string
-  /** 活动限购数量 */
+  /** Activity purchase limit */
   promotionPerLimit?: number
-  /** 促销类型：0->没有促销使用原价;1->使用促销价；2->使用会员价；3->使用阶梯价格；4->使用满减价格；5->限时购 */
+  /** Promotion type: 0 -> none (original price); 1 -> promo price; 2 -> member price; 3 -> tiered price; 4 -> full-reduction; 5 -> flash sale */
   promotionType?: number
-  /** 品牌名称 */
+  /** Brand name */
   brandName?: string
-  /** 商品分类名称 */
+  /** Product category name */
   productCategoryName?: string
-  /** 商品描述 */
+  /** Product description */
   description?: string
-  /** 详情描述 */
+  /** Detail description */
   detailDesc?: string
-  /** 产品详情网页内容 */
+  /** Product detail page content */
   detailHtml?: string
-  /** 移动端网页详情 */
+  /** Mobile detail page */
   detailMobileHtml?: string
 }
 
-/** 商品列表查询参数 */
+/** Product list query params */
 export type ProductQueryParam = PageParam & {
-  /** 上架状态 */
+  /** Listing status */
   publishStatus?: number
-  /** 审核状态 */
+  /** Review status */
   verifyStatus?: number
-  /** 商品货号 */
+  /** Product SKU number */
   productSn?: string
-  /** 商品分类编号 */
+  /** Product category number */
   productCategoryId?: number
-  /** 商品品牌编号 */
+  /** Product brand number */
   brandId?: number
 }
 
-/** 创建和修改商品的请求参数 */
+/** Product create/update request params */
 export type PmsProductParam = PmsProduct & {
-  /** 商品阶梯价格设置 */
+  /** Product tiered price settings */
   productLadderList?: PmsProductLadder[]
-  /** 商品满减价格设置 */
+  /** Product full-reduction price settings */
   productFullReductionList?: PmsProductFullReduction[]
-  /** 商品会员价格设置 */
+  /** Product member price settings */
   memberPriceList?: PmsMemberPrice[]
-  /** 商品的sku库存信息 */
+  /** Product SKU stock info */
   skuStockList?: PmsSkuStock[]
-  /** 商品参数及自定义规格属性 */
+  /** Product params and custom spec attributes */
   productAttributeValueList?: PmsProductAttributeValue[]
-  /** 专题和商品关系  */
+  /** Subject-product relation  */
   subjectProductRelationList?: CmsSubjectProductRelation[]
-  /** 优选专区和商品的关系  */
+  /** Featured zone-product relation  */
   prefrenceAreaProductRelationList?: CmsPrefrenceAreaProductRelation[]
-  /** 商品所选分类的父id */
+  /** Parent ID of the product category */
   cateParentId?: number
-  /** 秒杀商品数数量 */
+  /** Flash sale product count */
   flashPromotionCount: number
-  /** 秒杀活动ID */
+  /** Flash sale activity ID */
   flashPromotionId: number
-  /** 秒杀商品价格 */
+  /** Flash sale product price */
   flashPromotionPrice: number
-  /** 秒杀排序价格 */
+  /** Flash sale sort price */
   flashPromotionSort: number
 }
 
-/** 商品阶梯价格 */
+/** Product tiered price */
 export type PmsProductLadder = {
   /** ID */
   id?: number
-  /** 商品ID */
+  /** Product ID */
   productId?: number
-  /** 满足的商品数量 */
+  /** Required product quantity */
   count: number
-  /** 折扣 */
+  /** Discount */
   discount?: number
-  /** 折后价格 */
+  /** Discounted price */
   price?: number
 }
 
-/** 商品满减价格设置 */
+/** Product full-reduction price settings */
 export type PmsProductFullReduction = {
   /** ID */
   id?: number
-  /** 商品ID */
+  /** Product ID */
   productId?: number
-  /** 满足金额 */
+  /** Required amount */
   fullPrice?: number
-  /** 减免金额 */
+  /** Reduction amount */
   reducePrice?: number
 }
 
-/** 商品会员价格 */
+/** Product member price */
 export type PmsMemberPrice = {
   /** ID */
   id?: number
-  /** 商品ID */
+  /** Product ID */
   productId?: number
-  /** 会员等级ID */
+  /** Member level ID */
   memberLevelId?: number
-  /** 会员价格 */
+  /** Member price */
   memberPrice?: number
-  /** 会员等级名称 */
+  /** Member level name */
   memberLevelName?: string
 }
 
-/** 专题和商品关系 */
+/** Subject-product relation */
 export type CmsSubjectProductRelation = {
   /** ID */
   id?: number
-  /** 专题ID */
+  /** Subject ID */
   subjectId?: number
-  /** 商品ID */
+  /** Product ID */
   productId?: number
 }
 
-/** 优选专区和商品的关系 */
+/** Featured zone-product relation */
 export type CmsPrefrenceAreaProductRelation = {
   /** ID */
   id?: number
-  /** 优选专区ID */
+  /** Featured zone ID */
   prefrenceAreaId?: number
-  /** 商品ID */
+  /** Product ID */
   productId?: number
 }

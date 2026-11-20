@@ -1,23 +1,23 @@
 import type { PageParam } from './common'
 
-/** 首页新品推荐实体 */
+/** Home new-product recommendation entity */
 export type SmsHomeNewProduct = {
   /** ID */
   id?: number
-  /** 商品ID */
+  /** Product ID */
   productId: number
-  /** 商品名称 */
+  /** Product name */
   productName: string
-  /** 推荐状态：0->未推荐；1->推荐中 */
+  /** Recommendation status: 0 -> not recommended; 1 -> recommending */
   recommendStatus?: number
-  /** 排序 */
+  /** Sort order */
   sort?: number
 }
 
-/** 首页新品推荐列表查询参数 */
+/** Home new-product recommendation list query params */
 export type NewProductQueryParam = PageParam & {
-  /** 商品名称 */
+  /** Product name */
   productName?: string
-  /** 推荐状态：0->未推荐；1->推荐中 */
+  /** Recommendation status: 0 -> not recommended; 1 -> recommending */
   recommendStatus?: number
 }

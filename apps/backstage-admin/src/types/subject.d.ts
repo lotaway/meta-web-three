@@ -1,35 +1,35 @@
-/** 专题实体 */
+/** Subject entity */
 export type CmsSubject = {
   /** ID */
   id?: number
-  /** 分类ID */
+  /** Category ID */
   categoryId?: number
-  /** 标题 */
+  /** Title */
   title?: string
-  /** 专题主图 */
+  /** Subject main image */
   pic?: string
-  /** 关联产品数量 */
+  /** Associated product count */
   productCount?: number
-  /** 推荐状态 */
+  /** Recommendation status */
   recommendStatus?: number
-  /** 创建时间 */
+  /** Creation time */
   createTime?: string
-  /** 收藏数 */
+  /** Favorite count */
   collectCount?: number
-  /** 阅读数 */
+  /** View count */
   readCount?: number
-  /** 评论数 */
+  /** Review count */
   commentCount?: number
-  /** 画册图片用逗号分割 */
+  /** Gallery images, comma-separated */
   albumPics?: string
-  /** 描述 */
+  /** Description */
   description?: string
-  /** 显示状态：0->不显示；1->显示 */
+  /** Display status: 0 -> hidden; 1 -> shown */
   showStatus?: number
-  /** 转发数 */
+  /** Share count */
   forwardCount?: number
-  /** 专题分类名称 */
+  /** Subject category name */
   categoryName?: string
-  /** 内容 */
+  /** Content */
   content?: string
 }

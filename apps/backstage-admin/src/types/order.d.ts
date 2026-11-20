@@ -1,223 +1,223 @@
 import type { PageParam } from './common'
 
-/** 订单信息 */
+/** Order info */
 export type OmsOrder = {
-  /** 订单id */
+  /** Order ID */
   id: number
-  /** 会员id */
+  /** Member ID */
   memberId?: number
-  /** 优惠券id */
+  /** Coupon ID */
   couponId?: number
-  /** 订单编号 */
+  /** Order number */
   orderSn?: string
-  /** 提交时间 */
+  /** Submission time */
   createTime: string
-  /** 用户帐号 */
+  /** User account */
   memberUsername?: string
-  /** 订单总金额 */
+  /** Total order amount */
   totalAmount: number
-  /** 应付金额（实际支付金额） */
+  /** Payable amount (actual paid amount) */
   payAmount: number
-  /** 运费金额 */
+  /** Shipping fee amount */
   freightAmount: number
-  /** 促销优化金额（促销价、满减、阶梯价） */
+  /** Promotion discount amount (promo price, full-reduction, tiered price) */
   promotionAmount?: number
-  /** 积分抵扣金额 */
+  /** Points deduction amount */
   integrationAmount?: number
-  /** 优惠券抵扣金额 */
+  /** Coupon deduction amount */
   couponAmount?: number
-  /** 管理员后台调整订单使用的折扣金额 */
+  /** Discount amount adjusted by admin in backend */
   discountAmount: number
-  /** 支付方式：0->未支付；1->支付宝；2->微信 */
+  /** Payment method: 0 -> unpaid; 1 -> Alipay; 2 -> WeChat */
   payType: number
-  /** 订单来源：0->PC订单；1->app订单 */
+  /** Order source: 0 -> PC order; 1 -> app order */
   sourceType: number
-  /** 订单状态：0->待付款；1->待发货；2->已发货；3->已完成；4->已关闭；5->无效订单 */
+  /** Order status: 0 -> pending payment; 1 -> pending shipment; 2 -> shipped; 3 -> completed; 4 -> closed; 5 -> invalid */
   status: number
-  /** 订单类型：0->正常订单；1->秒杀订单 */
+  /** Order type: 0 -> normal order; 1 -> flash sale order */
   orderType: number
-  /** 物流公司(配送方式) */
+  /** Shipping company (delivery method) */
   deliveryCompany?: string
-  /** 物流单号 */
+  /** Tracking number */
   deliverySn?: string
-  /** 自动确认时间（天） */
+  /** Auto-confirm time (days) */
   autoConfirmDay?: number
-  /** 可以获得的积分 */
+  /** Points earned */
   integration?: number
-  /** 可以活动的成长值 */
+  /** Growth value earned */
   growth?: number
-  /** 活动信息 */
+  /** Activity info */
   promotionInfo: string
-  /** 发票类型：0->不开发票；1->电子发票；2->纸质发票 */
+  /** Invoice type: 0 -> none; 1 -> electronic; 2 -> paper */
   billType?: number
-  /** 发票抬头 */
+  /** Invoice title */
   billHeader?: string
-  /** 发票内容 */
+  /** Invoice content */
   billContent?: string
-  /** 收票人电话 */
+  /** Invoice recipient phone */
   billReceiverPhone?: string
-  /** 收票人邮箱 */
+  /** Invoice recipient email */
   billReceiverEmail?: string
-  /** 收货人姓名 */
+  /** Recipient name */
   receiverName?: string
-  /** 收货人电话 */
+  /** Recipient phone */
   receiverPhone?: string
-  /** 收货人邮编 */
+  /** Recipient postal code */
   receiverPostCode?: string
-  /** 省份/直辖市 */
+  /** Province / municipality */
   receiverProvince: string
-  /** 城市 */
+  /** City */
   receiverCity?: string
-  /** 区 */
+  /** District */
   receiverRegion?: string
-  /** 详细地址 */
+  /** Detailed address */
   receiverDetailAddress?: string
-  /** 订单备注 */
+  /** Order remark */
   note?: string
-  /** 确认收货状态：0->未确认；1->已确认 */
+  /** Receipt confirmation status: 0 -> unconfirmed; 1 -> confirmed */
   confirmStatus?: number
-  /** 删除状态：0->未删除；1->已删除 */
+  /** Deletion status: 0 -> not deleted; 1 -> deleted */
   deleteStatus?: number
-  /** 下单时使用的积分 */
+  /** Points used at order placement */
   useIntegration?: number
-  /** 支付时间 */
+  /** Payment time */
   paymentTime: string
-  /** 发货时间 */
+  /** Shipment time */
   deliveryTime: string
-  /** 确认收货时间 */
+  /** Receipt confirmation time */
   receiveTime: string
-  /** 评价时间 */
+  /** Review time */
   commentTime: string
-  /** 修改时间 */
+  /** Modification time */
   modifyTime?: string
 }
 
-/** 订单商品项 */
+/** Order item */
 export type OmsOrderItem = {
-  /** 商品项id */
+  /** Order item ID */
   id: number
-  /** 订单id */
+  /** Order ID */
   orderId: number
-  /** 订单编号 */
+  /** Order number */
   orderSn: string
-  /** 商品id */
+  /** Product ID */
   productId: number
-  /** 商品图片 */
+  /** Product image */
   productPic: string
-  /** 商品名称 */
+  /** Product name */
   productName: string
-  /** 商品品牌 */
+  /** Product brand */
   productBrand: string
-  /** 商品货号 */
+  /** Product SKU number */
   productSn: string
-  /** 销售价格 */
+  /** Sale price */
   productPrice: number
-  /** 购买数量 */
+  /** Purchase quantity */
   productQuantity: number
-  /** 商品sku编号 */
+  /** Product SKU number */
   productSkuId: number
-  /** 商品sku条码 */
+  /** Product SKU barcode */
   productSkuCode: string
-  /** 商品分类id */
+  /** Product category ID */
   productCategoryId: number
-  /** 商品促销名称 */
+  /** Product promotion name */
   promotionName: string
-  /** 商品促销分解金额 */
+  /** Product promotion breakdown amount */
   promotionAmount: number
-  /** 优惠券优惠分解金额 */
+  /** Coupon discount breakdown amount */
   couponAmount: number
-  /** 积分优惠分解金额 */
+  /** Points discount breakdown amount */
   integrationAmount: number
-  /** 该商品经过优惠后的分解金额 */
+  /** Item amount after discounts */
   realAmount: number
-  /** 赠送积分 */
+  /** Bonus points */
   giftIntegration: number
-  /** 赠送成长值 */
+  /** Bonus growth value */
   giftGrowth: number
-  /** 商品销售属性 */
+  /** Product sales attributes */
   productAttr: string
 }
 
-/** 订单操作历史 */
+/** Order operation history */
 export type OmsOrderOperateHistory = {
-  /** 历史记录id */
+  /** History record ID */
   id: number
-  /** 订单id */
+  /** Order ID */
   orderId: number
-  /** 操作人：用户；系统；后台管理员 */
+  /** Operator: user; system; backend admin */
   operateMan: string
-  /** 操作时间 */
+  /** Operation time */
   createTime: string
-  /** 订单状态：0->待付款；1->待发货；2->已发货；3->已完成；4->已关闭；5->无效订单 */
+  /** Order status: 0 -> pending payment; 1 -> pending shipment; 2 -> shipped; 3 -> completed; 4 -> closed; 5 -> invalid */
   orderStatus: number
-  /** 备注 */
+  /** Remark */
   note: string
 }
 
-/** 订单列表查询参数 */
+/** Order list query params */
 export type OrderQueryParam = PageParam & {
-  /** 订单编号 */
+  /** Order number */
   orderSn?: string
-  /** 收货人姓名/号码 */
+  /** Recipient name / phone */
   receiverKeyword?: string
-  /** 订单状态：0->待付款；1->待发货；2->已发货；3->已完成；4->已关闭；5->无效订单 */
+  /** Order status: 0 -> pending payment; 1 -> pending shipment; 2 -> shipped; 3 -> completed; 4 -> closed; 5 -> invalid */
   status?: number
-  /** 订单类型：0->正常订单；1->秒杀订单 */
+  /** Order type: 0 -> normal order; 1 -> flash sale order */
   orderType?: number
-  /** 订单来源：0->PC订单；1->app订单 */
+  /** Order source: 0 -> PC order; 1 -> app order */
   sourceType?: number
-  /** 订单提交时间 */
+  /** Order submission time */
   createTime?: string
 }
 
-/** 订单发货参数 */
+/** Order shipment params */
 export type OmsOrderDeliveryParam = {
-  /** 订单id */
+  /** Order ID */
   orderId: number
-  /** 物流公司 */
+  /** Shipping company */
   deliveryCompany?: string
-  /** 物流单号 */
+  /** Tracking number */
   deliverySn?: string
 }
 
-/** 订单详情信息 */
+/** Order detail info */
 export type OmsOrderDetail = OmsOrder & {
-  /** 订单商品列表 */
+  /** Order product list */
   orderItemList: OmsOrderItem[]
-  /** 订单操作记录列表 */
+  /** Order operation records */
   historyList: OmsOrderOperateHistory[]
 }
 
-/** 订单收货人信息参数 */
+/** Order recipient info params */
 export type OmsReceiverInfoParam = {
-  /** 订单ID */
+  /** Order ID */
   orderId: number
-  /** 收货人姓名 */
+  /** Recipient name */
   receiverName?: string
-  /** 收货人电话 */
+  /** Recipient phone */
   receiverPhone?: string
-  /** 收货人邮编 */
+  /** Recipient postal code */
   receiverPostCode?: string
-  /** 详细地址 */
+  /** Detailed address */
   receiverDetailAddress?: string
-  /** 省份/直辖市 */
+  /** Province / municipality */
   receiverProvince?: string
-  /** 城市 */
+  /** City */
   receiverCity?: string
-  /** 区 */
+  /** District */
   receiverRegion?: string
-  /** 订单状态：0->待付款；1->待发货；2->已发货；3->已完成；4->已关闭；5->无效订单 */
+  /** Order status: 0 -> pending payment; 1 -> pending shipment; 2 -> shipped; 3 -> completed; 4 -> closed; 5 -> invalid */
   status: number
 }
 
-/** 订单费用信息参数 */
+/** Order fee info params */
 export type OmsMoneyInfoParam = {
-  /** 订单ID */
+  /** Order ID */
   orderId: number
-  /** 运费金额 */
+  /** Shipping fee amount */
   freightAmount: number
-  /** 管理员后台调整订单所使用的折扣金额 */
+  /** Discount amount adjusted by admin in backend */
   discountAmount: number
-  /** 订单状态：0->待付款；1->待发货；2->已发货；3->已完成；4->已关闭；5->无效订单 */
+  /** Order status: 0 -> pending payment; 1 -> pending shipment; 2 -> shipped; 3 -> completed; 4 -> closed; 5 -> invalid */
   status: number
 }

@@ -1,61 +1,61 @@
-/** 通用返回结果封装类 */
+/** Generic response result wrapper */
 export type CommonResult<T> = {
-  /** 状态码（后端为字符串，如 "0000"） */
+  /** Status code (backend uses a string, e.g. "0000") */
   code: number | string
-  /** 提示信息 */
+  /** Message */
   message: string
-  /** 封装数据 */
+  /** Wrapped data */
   data: T
 }
 
-/** 通用分页结果封装类 */
+/** Generic paginated result wrapper */
 export type CommonPage<T> = {
-  /** 当前页码 */
+  /** Current page number */
   pageNum: number
-  /** 每页数量 */
+  /** Page size */
   pageSize: number
-  /** 总页数 */
+  /** Total pages */
   totalPage: number
-  /** 总条数 */
+  /** Total count */
   total: number
-  /** 分页数据 */
+  /** Paginated data */
   list: T[]
 }
 
-/** 通用分页请求参数 */
+/** Generic pagination request params */
 export type PageParam = {
-  /** 当前页码，从1开始 */
+  /** Current page number, starting from 1 */
   pageNum: number
-  /** 每页数量，默认10 */
+  /** Page size, default 10 */
   pageSize: number
-  /** 查询关键字 */
+  /** Search keyword */
   keyword?: string
 }
 
-/** el-cascader级联选择器数据结构 */
+/** el-cascader data structure */
 export type ElCascaderDataVo = {
-  /** 显示标签 */
+  /** Display label */
   label: string
-  /** 对应ID */
+  /** Corresponding ID */
   value: number
-  /** 下级数据 */
+  /** Child data */
   children?: ElCascaderDataVo[]
 }
 
-/** el-select选择器数据结构 */
+/** el-select data structure */
 export type ElSelectDataVo = {
-  /** 显示标签 */
+  /** Display label */
   label: string
-  /** 对应值 */
+  /** Corresponding value */
   value: string | number
 }
 
-/** el-transfer穿梭框数据结构 */
+/** el-transfer data structure */
 export type ElTransferDataVo = {
-  /** 绑定key */
+  /** Binding key */
   key?: number
-  /** 显示标签 */
+  /** Display label */
   label?: string
-  /** 是否可用 */
+  /** Whether available */
   disabled?: boolean
 }

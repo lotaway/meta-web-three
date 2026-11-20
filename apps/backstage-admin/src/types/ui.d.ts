@@ -1,2 +1,2 @@
-/** Element Plus el-tag / el-button 等组件 type 属性的取值 */
+/** Values for the type prop of Element Plus components such as el-tag / el-button */
 export type TagType = 'primary' | 'success' | 'warning' | 'info' | 'danger'

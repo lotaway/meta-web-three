@@ -1,25 +1,25 @@
-/** SKU库存信息 */
+/** SKU stock info */
 export type PmsSkuStock = {
   /** ID */
   id?: number
-  /** 产品ID */
+  /** Product ID */
   productId?: number
-  /** sku编码 */
+  /** SKU code */
   skuCode?: string
-  /** 价格 */
+  /** Price */
   price?: number
-  /** 库存 */
+  /** Stock */
   stock?: number
-  /** 预警库存 */
+  /** Warning stock level */
   lowStock?: number
-  /** 展示图片 */
+  /** Display image */
   pic?: string
-  /** 销量 */
+  /** Sales volume */
   sale?: number
-  /** 单品促销价格 */
+  /** Single-item promotion price */
   promotionPrice?: number
-  /** 锁定库存 */
+  /** Locked stock */
   lockStock?: number
-  /** 商品销售属性，json格式 */
+  /** Product sales attributes, JSON format */
   spData?: string
 }

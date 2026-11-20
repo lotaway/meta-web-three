@@ -1,93 +1,93 @@
-/** 商品分类对应属性信息 */
+/** Product category attribute info */
 export type ProductAttrInfo = {
-  /** 商品属性ID */
+  /** Product attribute ID */
   attributeId: number
-  /** 商品属性分类ID */
+  /** Product attribute category ID */
   attributeCategoryId: number
 }
 
-/** 商品属性实体 */
+/** Product attribute entity */
 export type PmsProductAttribute = {
   /** ID */
   id?: number
-  /** 商品属性分类ID */
+  /** Product attribute category ID */
   productAttributeCategoryId?: number
-  /** 属性名称 */
+  /** Attribute name */
   name: string
-  /** 属性选择类型：0->唯一；1->单选；2->多选 */
+  /** Attribute selection type: 0 -> unique; 1 -> single choice; 2 -> multiple choice */
   selectType?: number
-  /** 属性录入方式：0->手工录入；1->从列表中选取 */
+  /** Attribute input method: 0 -> manual; 1 -> select from list */
   inputType?: number
-  /** 可选值列表，以逗号隔开 */
+  /** Optional values, comma-separated */
   inputList?: string
-  /** 排序字段：最高的可以单独上传图片 */
+  /** Sort field; the highest one can have its own image */
   sort?: number
-  /** 分类筛选样式：0->普通；1->颜色 */
+  /** Category filter style: 0 -> normal; 1 -> color */
   filterType?: number
-  /** 检索类型；0->不需要进行检索；1->关键字检索；2->范围检索 */
+  /** Search type: 0 -> none; 1 -> keyword; 2 -> range */
   searchType?: number
-  /** 相同属性产品是否关联；0->不关联；1->关联 */
+  /** Whether products with the same attribute are related: 0 -> no; 1 -> yes */
   relatedStatus?: number
-  /** 是否支持手动新增；0->不支持；1->支持 */
+  /** Whether manual add is supported: 0 -> no; 1 -> yes */
   handAddStatus?: number
-  /** 属性的类型；0->规格；1->参数 */
+  /** Attribute type: 0 -> specification; 1 -> parameter */
   type?: number
 }
 
-/** 商品属性分类实体 */
+/** Product attribute category entity */
 export type PmsProductAttributeCategory = {
-  /** 属性ID */
+  /** Attribute ID */
   id?: number
-  /** 属性名称 */
+  /** Attribute name */
   name: string
-  /** 属性数量 */
+  /** Attribute count */
   attributeCount?: number
-  /** 参数数量 */
+  /** Parameter count */
   paramCount?: number
 }
 
-/** 商品属性分类实体扩展 */
+/** Product attribute category extension */
 export type PmsProductAttributeCategoryExt = PmsProductAttributeCategory & {
-  /** 商品属性分类列表 */
+  /** Product attribute categories */
   productAttributeList?: PmsProductAttribute[]
 }
 
-/** 商品属性值 */
+/** Product attribute value */
 export type PmsProductAttributeValue = {
   /** ID */
   id?: number
-  /** 商品ID */
+  /** Product ID */
   productId?: number
-  /** 商品属性ID */
+  /** Product attribute ID */
   productAttributeId?: number
-  /** 手动添加规格或参数的值，参数单值，规格有多个时以逗号隔开 */
+  /** Manually added spec/parameter value; single for parameter, comma-separated for multiple specs */
   value?: string
 }
 
-/** 商品规格信息 */
+/** Product specification info */
 export interface ProductAttrVo extends Pick<
   PmsProductAttribute,
   'id' | 'name' | 'handAddStatus' | 'inputList'
 > {
-  /** 选中的值 */
+  /** Selected value */
   values?: string[]
-  /** 可选项 */
+  /** Options */
   options?: string[]
 }
 
-/** 商品参数信息 */
+/** Product parameter info */
 export interface ProductParamVo extends Pick<
   PmsProductAttribute,
   'id' | 'name' | 'inputType' | 'inputList'
 > {
-  /** 参数值 */
+  /** Parameter value */
   value?: string
 }
 
-/** 商品属性图片 */
+/** Product attribute image */
 export type ProductAttrPicVo = {
-  /** 名称 */
+  /** Name */
   name?: string
-  /** 图片地址 */
+  /** Image URL */
   pic?: string
 }

@@ -1,13 +1,13 @@
 import type { RouteRecordRaw } from 'vue-router'
 
-/** vue-router路由扩展 */
+/** vue-router route extension */
 export type RouteRecordExt = RouteRecordRaw & {
-  /** 前端隐藏 */
+  /** Hidden on frontend */
   hidden?: boolean
-  /** 前端排序 */
+  /** Frontend sort order */
   sort?: number
-  /** 下级子路由 */
+  /** Child route */
   children?: RouteRecordExt[]
-  /** 是否永远显示 */
+  /** Whether always shown */
   alwaysShow?: boolean
 }

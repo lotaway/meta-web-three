@@ -1,61 +1,61 @@
 import type { UmsMenu } from './menu'
 
-/** 登录请求参数 */
+/** Login request params */
 export type LoginParam = {
-  /** 用户名 */
+  /** Username */
   username: string
-  /** 密码 */
+  /** Password */
   password: string
 }
 
-/** 登录返回结果 */
+/** Login response result */
 export type LoginResult = {
-  /** token的前缀 */
+  /** Token prefix */
   tokenHead: string
-  /** 登录的token */
+  /** Login token */
   token: string
 }
 
-/** 用户信息结果封装 */
+/** User info result wrapper */
 export type UserInfoResult = {
-  /** 用户名 */
+  /** Username */
   username: string
-  /** 头像 */
+  /** Avatar */
   icon: string
-  /** 菜单 */
+  /** Menu */
   menus: UmsMenu[]
-  /** 角色 */
+  /** Role */
   roles: []
 }
 
-/** 用户信息（store中存储的） */
+/** User info (stored in store) */
 export type UserInfo = Pick<UserInfoResult, 'username' | 'menus' | 'roles'> & {
-  /** 登录token */
+  /** Login token */
   token: string
-  /** 头像 */
+  /** Avatar */
   avatar
 }
 
-/** 管理员信息 */
+/** Admin info */
 export type UmsAdmin = {
   /** ID */
   id?: number
-  /** 用户名 */
+  /** Username */
   username: string
-  /** 密码 */
+  /** Password */
   password: string
-  /** 头像 */
+  /** Avatar */
   icon?: string
-  /** 邮箱 */
+  /** Email */
   email?: string
-  /** 昵称 */
+  /** Nickname */
   nickName?: string
-  /** 备注信息 */
+  /** Remark */
   note?: string
-  /** 创建时间 */
+  /** Creation time */
   createTime?: string
-  /** 最后登录时间 */
+  /** Last login time */
   loginTime?: string
-  /** 帐号启用状态：0->禁用；1->启用 */
+  /** Account status: 0 -> disabled; 1 -> enabled */
   status: number
 }

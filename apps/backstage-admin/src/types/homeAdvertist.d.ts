@@ -1,39 +1,39 @@
 import type { PageParam } from './common'
 
-/** 首页广告实体 */
+/** Home advertisement entity */
 export type SmsHomeAdvertise = {
   /** ID */
   id?: number
-  /** 广告名称 */
+  /** Advertisement name */
   name?: string
-  /** 轮播位置：0->PC首页轮播；1->app首页轮播 */
+  /** Carousel position: 0 -> PC home carousel; 1 -> app home carousel */
   type?: number
-  /** 图片 */
+  /** Image */
   pic?: string
-  /** 开始时间 */
+  /** Start time */
   startTime?: string
-  /** 结束时间 */
+  /** End time */
   endTime?: string
-  /** 上下线状态：0->下线；1->上线 */
+  /** Online status: 0 -> offline; 1 -> online */
   status?: number
-  /** 点击数 */
+  /** Click count */
   clickCount?: number
-  /** 下单数 */
+  /** Order count */
   orderCount?: number
-  /** 链接地址 */
+  /** Link URL */
   url?: string
-  /** 备注 */
+  /** Remark */
   note?: string
-  /** 排序 */
+  /** Sort order */
   sort?: number
 }
 
-/** 首页广告列表查询参数 */
+/** Home advertisement list query params */
 export type HomeAdvertiseQueryParam = PageParam & {
-  /** 广告名称 */
+  /** Advertisement name */
   name?: string
-  /** 轮播位置：0->PC首页轮播；1->app首页轮播 */
+  /** Carousel position: 0 -> PC home carousel; 1 -> app home carousel */
   type?: number
-  /** 结束时间 */
+  /** End time */
   endTime?: string
 }

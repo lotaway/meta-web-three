@@ -1,102 +1,102 @@
 import type { PageParam } from './common'
 import type { OmsCompanyAddress } from './companyAddress'
 
-/** 订单退货申请 */
+/** Order return application */
 export type OmsOrderReturnApply = {
-  /** 主键ID */
+  /** Primary key ID */
   id: number
-  /** 订单id */
+  /** Order ID */
   orderId: number
-  /** 收货地址表id */
+  /** Shipping address ID */
   companyAddressId: number
-  /** 退货商品id */
+  /** Returned product ID */
   productId: number
-  /** 订单编号 */
+  /** Order number */
   orderSn: string
-  /** 申请时间 */
+  /** Application time */
   createTime: string
-  /** 会员用户名 */
+  /** Member username */
   memberUsername: string
-  /** 退款金额 */
+  /** Refund amount */
   returnAmount: number
-  /** 退货人姓名 */
+  /** Return person name */
   returnName: string
-  /** 退货人电话 */
+  /** Return person phone */
   returnPhone: string
-  /** 申请状态：0->待处理；1->退货中；2->已完成；3->已拒绝 */
+  /** Application status: 0 -> pending; 1 -> returning; 2 -> completed; 3 -> rejected */
   status: number
-  /** 处理时间 */
+  /** Processing time */
   handleTime: string
-  /** 商品图片 */
+  /** Product image */
   productPic: string
-  /** 商品名称 */
+  /** Product name */
   productName: string
-  /** 商品品牌 */
+  /** Product brand */
   productBrand: string
-  /** 商品销售属性：颜色：红色；尺码：xl; */
+  /** Product sales attributes: color: red; size: xl; */
   productAttr: string
-  /** 退货数量 */
+  /** Return quantity */
   productCount: number
-  /** 商品单价 */
+  /** Product unit price */
   productPrice: number
-  /** 商品实际支付单价 */
+  /** Product actual paid unit price */
   productRealPrice: number
-  /** 原因 */
+  /** Reason */
   reason: string
-  /** 描述 */
+  /** Description */
   description: string
-  /** 凭证图片，以逗号隔开 */
+  /** Proof images, comma-separated */
   proofPics: string
-  /** 处理备注 */
+  /** Processing remark */
   handleNote: string
-  /** 处理人员 */
+  /** Handler */
   handleMan: string
-  /** 收货人 */
+  /** Recipient */
   receiveMan: string
-  /** 收货时间 */
+  /** Receipt time */
   receiveTime: string
-  /** 收货备注 */
+  /** Receiving remark */
   receiveNote: string
 }
 
-/** 退货申请查询参数 */
+/** Return application query params */
 export type ReturnApplyQueryParam = PageParam & {
-  /** 服务单号 */
+  /** Service order number */
   id?: number
-  /** 收货人姓名/号码 */
+  /** Recipient name / phone */
   receiverKeyword?: string
-  /** 申请状态：0->待处理；1->退货中；2->已完成；3->已拒绝 */
+  /** Application status: 0 -> pending; 1 -> returning; 2 -> completed; 3 -> rejected */
   status?: number
-  /** 申请时间 */
+  /** Application time */
   createTime?: string
-  /** 处理人员 */
+  /** Handler */
   handleMan?: string
-  /** 处理时间 */
+  /** Processing time */
   handleTime?: string
 }
 
-/** 订单退货申请结果封装 */
+/** Order return application result wrapper */
 export type OmsOrderReturnApplyResult = OmsOrderReturnApply & {
-  /** 公司收货地址 */
+  /** Company receiving address */
   companyAddress: OmsCompanyAddress
 }
 
-/** 退货申请状态更新参数 */
+/** Return application status update params */
 export type OmsUpdateStatusParam = {
-  /** 服务单号 */
+  /** Service order number */
   id: number
-  /** 收货地址关联id */
+  /** Associated shipping address ID */
   companyAddressId: number
-  /** 确认退款金额 */
+  /** Confirmed refund amount */
   returnAmount: number
-  /** 处理备注 */
+  /** Processing remark */
   handleNote: string
-  /** 处理人 */
+  /** Handler */
   handleMan: string
-  /** 收货备注 */
+  /** Receiving remark */
   receiveNote: string
-  /** 收货人 */
+  /** Recipient */
   receiveMan: string
-  /** 申请状态：1->退货中；2->已完成；3->已拒绝 */
+  /** Application status: 1 -> returning; 2 -> completed; 3 -> rejected */
   status: number
 }

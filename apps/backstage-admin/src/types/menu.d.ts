@@ -1,27 +1,27 @@
-/** 菜单 */
+/** Menu */
 export type UmsMenu = {
-  /** 唯一ID */
+  /** Unique ID */
   id?: number
-  /** 父级ID */
+  /** Parent ID */
   parentId: number
-  /** 创建时间 */
+  /** Creation time */
   createTime?: string
-  /** 菜单名称 */
+  /** Menu name */
   title: string
-  /** 菜单级数 */
+  /** Menu level */
   level?: number
-  /** 菜单排序 */
+  /** Menu sort order */
   sort: number
-  /** 前端名称 */
+  /** Frontend name */
   name: string
-  /** 前端图标 */
+  /** Frontend icon */
   icon: string
-  /** 前端隐藏 */
+  /** Hidden on frontend */
   hidden: number
 }
 
-/** 后台菜单节点封装 */
+/** Backend menu node wrapper */
 export type UmsMenuNode = UmsMenu & {
-  /** 子级菜单 */
+  /** Child menu */
   children: UmsMenu[]
 }

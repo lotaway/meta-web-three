@@ -1,23 +1,23 @@
-/** 公司收发货地址 */
+/** Company shipping/receiving address */
 export type OmsCompanyAddress = {
   /** ID */
   id?: number
-  /** 地址名称 */
+  /** Address name */
   addressName: string
-  /** 默认发货地址：0->否；1->是 */
+  /** Default shipping address: 0 -> no; 1 -> yes */
   sendStatus: number
-  /** 是否默认收货地址：0->否；1->是 */
+  /** Whether default receiving address: 0 -> no; 1 -> yes */
   receiveStatus: number
-  /** 收发货人姓名 */
+  /** Sender/recipient name */
   name: string
-  /** 收货人电话 */
+  /** Recipient phone */
   phone: string
-  /** 省/直辖市 */
+  /** Province / municipality */
   province: string
-  /** 市 */
+  /** City */
   city: string
-  /** 区 */
+  /** District */
   region: string
-  /** 详细地址 */
+  /** Detailed address */
   detailAddress: string
 }

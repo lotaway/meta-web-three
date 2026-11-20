@@ -1,35 +1,35 @@
-/** 商品分类信息 */
+/** Product category info */
 export type PmsProductCategory = {
   /** ID */
   id?: number
-  /** 上级分类的编号：0表示一级分类 */
+  /** Parent category number: 0 means top-level category */
   parentId: number
-  /** 分类名称 */
+  /** Category name */
   name: string
-  /** 分类级别：0->1级；1->2级 */
+  /** Category level: 0 -> level 1; 1 -> level 2 */
   level?: number
-  /** 商品数量 */
+  /** Product quantity */
   productCount?: number
-  /** 商品单位 */
+  /** Product unit */
   productUnit?: string
-  /** 是否显示在导航栏：0->不显示；1->显示 */
+  /** Whether shown in nav bar: 0 -> hidden; 1 -> shown */
   navStatus: number
-  /** 显示状态：0->不显示；1->显示 */
+  /** Display status: 0 -> hidden; 1 -> shown */
   showStatus: number
-  /** 排序 */
+  /** Sort order */
   sort?: number
-  /** 图标 */
+  /** Icon */
   icon?: string
-  /** 关键字 */
+  /** Keyword */
   keywords?: string
-  /** 描述 */
+  /** Description */
   description?: string
-  /** 筛选属性ID列表，后续添加的 */
+  /** Filter attribute IDs, added later */
   productAttributeIdList?: number[]
 }
 
-/** 商品分类信息扩展 */
+/** Product category extension */
 export type PmsProductCategoryExt = PmsProductCategory & {
-  /** 子级分类 */
+  /** Child category */
   children?: PmsProductCategory[]
 }

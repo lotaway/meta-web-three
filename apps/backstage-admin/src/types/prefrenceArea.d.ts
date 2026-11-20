@@ -1,15 +1,15 @@
-/** 优选区域信息 */
+/** Featured zone info */
 export type CmsPrefrenceArea = {
   /** ID */
   id?: number
-  /** 名称 */
+  /** Name */
   name: string
-  /** 副标题 */
+  /** Subtitle */
   subTitle: string
-  /** 排序 */
+  /** Sort order */
   sort: number
-  /** 显示状态：0->不显示；1->显示 */
+  /** Display status: 0 -> hidden; 1 -> shown */
   showStatus: number
-  /** 展示图片 */
+  /** Display image */
   pic?: string
 }

@@ -1,21 +1,21 @@
-/** 首页品牌 */
+/** Home brand */
 export type SmsHomeBrand = {
   /** ID */
   id?: number
-  /** 品牌ID */
+  /** Brand ID */
   brandId: number
-  /** 品牌名称 */
+  /** Brand name */
   brandName: string
-  /** 推荐状态：0->未推荐；1->推荐中 */
+  /** Recommendation status: 0 -> not recommended; 1 -> recommending */
   recommendStatus?: number
-  /** 排序 */
+  /** Sort order */
   sort?: number
 }
 
-/** 首页品牌列表查询参数 */
+/** Home brand list query params */
 export type HomeBrandQueryParam = PageParam & {
-  /** 品牌名称 */
+  /** Brand name */
   brandName?: string
-  /** 推荐状态：0->未推荐；1->推荐中 */
+  /** Recommendation status: 0 -> not recommended; 1 -> recommending */
   recommendStatus?: number
 }

@@ -1,43 +1,43 @@
 import type { PageParam } from './common'
 
-/** 资源信息 */
+/** Resource info */
 export type UmsResource = {
   /** ID */
   id?: number
-  /** 创建时间 */
+  /** Creation time */
   createTime?: string
-  /** 资源名称 */
+  /** Resource name */
   name: string
-  /** 资源URL */
+  /** Resource URL */
   url: string
-  /** 描述 */
+  /** Description */
   description?: string
-  /** 资源分类ID */
+  /** Resource category ID */
   categoryId: number
-  /** 是否被选中，前端使用 */
+  /** Whether selected, used on frontend */
   checked?: boolean
 }
 
-/** 资源分类信息 */
+/** Resource category info */
 export type UmsResourceCategory = {
   /** ID */
   id?: number
-  /** 创建时间 */
+  /** Creation time */
   createTime?: string
-  /** 分类名称 */
+  /** Category name */
   name: string
-  /** 排序 */
+  /** Sort order */
   sort: number
-  /** 是否被选中，前端使用 */
+  /** Whether selected, used on frontend */
   checked?: boolean
 }
 
-/** 资源列表查询参数 */
+/** Resource list query params */
 export type ResourceQueryParam = PageParam & {
-  /** 资源名称关键字 */
+  /** Resource name keyword */
   nameKeyword?: string
-  /** 资源路径关键字 */
+  /** Resource path keyword */
   urlKeyword?: string
-  /** 资源分类ID */
+  /** Resource category ID */
   categoryId?: number
 }

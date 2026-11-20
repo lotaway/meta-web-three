@@ -1,29 +1,29 @@
-/** 会员等级信息 */
+/** Member level info */
 export type UmsMemberLevel = {
   /** ID */
   id?: number
-  /** 等级名称 */
+  /** Level name */
   name: string
-  /** 成长点数 */
+  /** Growth points */
   growthPoint: number
-  /** 是否为默认等级：0->不是；1->是 */
+  /** Whether default level: 0 -> no; 1 -> yes */
   defaultStatus: number
-  /** 免运费标准 */
+  /** Free shipping threshold */
   freeFreightPoint: number
-  /** 每次评价获取的成长值 */
+  /** Growth value per review */
   commentGrowthPoint: number
-  /** 是否有免邮特权 */
+  /** Whether free-shipping privilege */
   priviledgeFreeFreight: number
-  /** 是否有签到特权 */
+  /** Whether check-in privilege */
   priviledgeSignIn: number
-  /** 是否有评论获奖励特权 */
+  /** Whether review-reward privilege */
   priviledgeComment: number
-  /** 是否有专享活动特权 */
+  /** Whether exclusive-event privilege */
   priviledgePromotion: number
-  /** 是否有会员价格特权 */
+  /** Whether member-price privilege */
   priviledgeMemberPrice: number
-  /** 是否有生日特权 */
+  /** Whether birthday privilege */
   priviledgeBirthday: number
-  /** 备注 */
+  /** Remark */
   note: string
 }

@@ -1,25 +1,25 @@
 import type { PageParam } from './common'
 
 /**
- * 首页专题推荐
+ * Home subject recommendation
  */
 export type SmsHomeRecommendSubject = {
   /** ID */
   id?: number
-  /** 专题ID */
+  /** Subject ID */
   subjectId: number
-  /** 专题名称 */
+  /** Subject name */
   subjectName: string
-  /** 推荐状态：0->未推荐；1->推荐中 */
+  /** Recommendation status: 0 -> not recommended; 1 -> recommending */
   recommendStatus?: number
-  /** 排序 */
+  /** Sort order */
   sort?: number
 }
 
-/** 首页专题列表查询参数 */
+/** Home subject list query params */
 export type HomeSubjectQueryParam = PageParam & {
-  /** 品牌名称 */
+  /** Brand name */
   subjectName?: string
-  /** 推荐状态：0->未推荐；1->推荐中 */
+  /** Recommendation status: 0 -> not recommended; 1 -> recommending */
   recommendStatus?: number
 }

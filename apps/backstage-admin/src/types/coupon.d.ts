@@ -1,113 +1,113 @@
 import type { PageParam } from './common'
 
-/** 优惠券信息 */
+/** Coupon info */
 export type SmsCoupon = {
   /** ID */
   id?: number
-  /** 优惠券类型；0->全场赠券；1->会员赠券；2->购物赠券；3->注册赠券 */
+  /** Coupon type: 0 -> all-users gift; 1 -> member gift; 2 -> purchase gift; 3 -> registration gift */
   type: number
-  /** 优惠券名称 */
+  /** Coupon name */
   name: string
-  /** 使用平台：0->全部；1->移动；2->PC */
+  /** Usage platform: 0 -> all; 1 -> mobile; 2 -> PC */
   platform: number
-  /** 数量 */
+  /** Quantity */
   count?: number
-  /** 金额 */
+  /** Amount */
   amount: number
-  /** 每人限领张数 */
+  /** Max coupons per person */
   perLimit: number
-  /** 使用门槛；0表示无门槛 */
+  /** Usage threshold; 0 means no threshold */
   minPoint?: number
-  /** 开始时间 */
+  /** Start time */
   startTime?: string
-  /** 结束时间 */
+  /** End time */
   endTime?: string
-  /** 使用类型：0->全场通用；1->指定分类；2->指定商品 */
+  /** Usage type: 0 -> all products; 1 -> specific category; 2 -> specific product */
   useType: number
-  /** 备注 */
+  /** Remark */
   note?: string
-  /** 发行数量 */
+  /** Issued quantity */
   publishCount?: number
-  /** 已使用数量 */
+  /** Used quantity */
   useCount?: number
-  /** 领取数量 */
+  /** Claimed quantity */
   receiveCount?: number
-  /** 可以领取的日期 */
+  /** Available claim date */
   enableTime?: string
-  /** 优惠码 */
+  /** Promo code */
   code?: string
-  /** 可领取的会员类型：0->无限时 */
+  /** Eligible member type: 0 -> unlimited */
   memberLevel?: number
 }
 
-/** 优惠券扩展 */
+/** Coupon extension */
 export type SmsCouponExt = SmsCoupon & {
-  /** 优惠券绑定的商品 */
+  /** Coupon-bound product */
   productRelationList?: CouponSelectProductOptionVo[]
-  /** 优惠券绑定的商品分类 */
+  /** Coupon-bound product category */
   productCategoryRelationList?: CouponProductCateRelationVo[]
 }
 
-/** 优惠券和商品分类关系 */
+/** Coupon-product category relation */
 export type CouponProductCateRelationVo = {
-  /** 商品分类ID */
+  /** Product category ID */
   productCategoryId?: number
-  /** 商品分类名称 */
+  /** Product category name */
   productCategoryName?: string
-  /** 父级分类名称 */
+  /** Parent category name */
   parentCategoryName?: string
 }
 
-/** 优惠券指定商品选择对象 */
+/** Coupon designated product selection object */
 export type CouponSelectProductOptionVo = {
-  /** 商品ID */
+  /** Product ID */
   productId?: number
-  /** 商品名称 */
+  /** Product name */
   productName: string
-  /** 商品SN码 */
+  /** Product SN code */
   productSn: string
 }
 
-/** 优惠券列表查询参数 */
+/** Coupon list query params */
 export type CouponQueryParam = PageParam & {
-  /** 查询名称 */
+  /** Query name */
   name?: string
-  /** 优惠券类型 */
+  /** Coupon type */
   type?: number
 }
 
-/** 优惠券历史记录 */
+/** Coupon history record */
 export type SmsCouponHistory = {
   /** ID */
   id?: number
-  /** 优惠券ID */
+  /** Coupon ID */
   couponId?: number
-  /** 会员ID */
+  /** Member ID */
   memberId?: number
-  /** 优惠码 */
+  /** Promo code */
   couponCode?: string
-  /** 领取人昵称 */
+  /** Claimer nickname */
   memberNickname?: string
-  /** 获取类型：0->后台赠送；1->主动获取 */
+  /** Acquisition type: 0 -> admin grant; 1 -> self claim */
   getType?: number
-  /** 创建时间 */
+  /** Creation time */
   createTime?: string
-  /** 使用状态：0->未使用；1->已使用；2->已过期 */
+  /** Usage status: 0 -> unused; 1 -> used; 2 -> expired */
   useStatus?: number
-  /** 使用时间 */
+  /** Usage time */
   useTime?: string
-  /** 订单ID */
+  /** Order ID */
   orderId?: number
-  /** 订单号码 */
+  /** Order number */
   orderSn?: string
 }
 
-/** 优惠券历史列表查询参数 */
+/** Coupon history list query params */
 export type CouponHistoryQueryParam = PageParam & {
-  /** 使用状态：0->未使用；1->已使用；2->已过期 */
+  /** Usage status: 0 -> unused; 1 -> used; 2 -> expired */
   useStatus?: number
-  /** 订单号码 */
+  /** Order number */
   orderSn?: string
-  /** 优惠券ID */
+  /** Coupon ID */
   couponId?: number
 }

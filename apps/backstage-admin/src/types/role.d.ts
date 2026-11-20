@@ -1,17 +1,17 @@
-/** 角色信息 */
+/** Role info */
 export type UmsRole = {
   /** ID */
   id?: number
-  /** 名称 */
+  /** Name */
   name: string
-  /** 描述 */
+  /** Description */
   description?: string
-  /** 后台用户数量 */
+  /** Admin user count */
   adminCount?: number
-  /** 创建时间 */
+  /** Creation time */
   createTime?: string
-  /** 启用状态：0->禁用；1->启用 */
+  /** Enabled status: 0 -> disabled; 1 -> enabled */
   status: number
-  /** 排序 */
+  /** Sort order */
   sort?: number
 }
