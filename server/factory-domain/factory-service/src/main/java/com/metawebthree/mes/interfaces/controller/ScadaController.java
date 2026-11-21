@@ -51,7 +51,7 @@ public class ScadaController {
             @PathVariable String equipmentCode,
             @RequestParam String start,
             @RequestParam String end) {
-        return ResponseEntity.ok(telemetryRecordRepository.findByEquipmentCodeAndTimeRange(
+        return ResponseEntity.ok(scadaDomainService.getTelemetryByRange(
                 equipmentCode, LocalDateTime.parse(start), LocalDateTime.parse(end)));
     }
 

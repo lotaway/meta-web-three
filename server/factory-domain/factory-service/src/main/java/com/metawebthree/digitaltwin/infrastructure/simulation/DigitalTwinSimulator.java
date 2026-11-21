@@ -19,7 +19,7 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-@Profile("dev")
+@Profile("demo")
 public class DigitalTwinSimulator {
 
     private static final Logger log = LoggerFactory.getLogger(DigitalTwinSimulator.class);

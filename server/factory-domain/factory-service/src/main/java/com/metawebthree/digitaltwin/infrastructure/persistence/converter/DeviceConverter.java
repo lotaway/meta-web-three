@@ -24,6 +24,7 @@ public class DeviceConverter {
         d.setMacAddress(entity.getMacAddress());
         d.setMqttTopic(entity.getMqttTopic());
         d.setLastHeartbeat(entity.getLastHeartbeat());
+        d.setSource(entity.getSource() != null ? entity.getSource().name() : Device.DeviceSource.REAL.name());
         if (entity.getCreatedAt() != null) d.setCreatedAt(Timestamp.valueOf(entity.getCreatedAt()));
         if (entity.getUpdatedAt() != null) d.setUpdatedAt(Timestamp.valueOf(entity.getUpdatedAt()));
         return d;
@@ -47,6 +48,7 @@ public class DeviceConverter {
         entity.setMacAddress(d.getMacAddress());
         entity.setMqttTopic(d.getMqttTopic());
         entity.setLastHeartbeat(d.getLastHeartbeat());
+        entity.setSource(d.getSource() != null ? Device.DeviceSource.valueOf(d.getSource()) : Device.DeviceSource.REAL);
         if (d.getCreatedAt() != null) entity.setCreatedAt(d.getCreatedAt().toLocalDateTime());
         if (d.getUpdatedAt() != null) entity.setUpdatedAt(d.getUpdatedAt().toLocalDateTime());
         return entity;

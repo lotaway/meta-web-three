@@ -13,6 +13,7 @@ public interface ScadaDomainService {
     DeviceCommand dispatchCommand(String equipmentCode, DeviceCommand.CommandType commandType, String payload, String createdBy);
     void processCommandResponse(String commandCode, boolean success, String message);
     List<TelemetryRecord> getLatestTelemetry(String equipmentCode, int limit);
+    List<TelemetryRecord> getTelemetryByRange(String equipmentCode, LocalDateTime start, LocalDateTime end);
     TelemetryRecord getLatestTelemetryByMetric(String equipmentCode, String metricCode);
     DashboardMetrics getDashboardMetrics(String workshopId);
     List<EquipmentStatusSummary> getEquipmentStatusSummary(String workshopId);

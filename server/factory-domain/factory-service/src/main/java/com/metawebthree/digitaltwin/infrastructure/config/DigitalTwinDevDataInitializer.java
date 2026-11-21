@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Profile;
 
 @Slf4j
 @Configuration
-@Profile("dev")
+@Profile("demo")
 public class DigitalTwinDevDataInitializer {
 
     @Bean
@@ -101,6 +101,10 @@ public class DigitalTwinDevDataInitializer {
             return;
         }
         commandService.registerDevice(code, name, type, "WS-01", "LINE-01");
+        deviceRepository.findByDeviceCode(code).ifPresent(device -> {
+            device.setSource(Device.DeviceSource.DEMO);
+            deviceRepository.update(device);
+        });
         commandService.updateDevicePosition(code, x, y, z, rotation);
         commandService.updateDeviceStatus(code, status);
     }

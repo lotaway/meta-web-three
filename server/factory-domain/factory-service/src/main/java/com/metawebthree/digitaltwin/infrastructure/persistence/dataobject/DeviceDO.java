@@ -28,4 +28,5 @@ public class DeviceDO extends BaseDO {
     private String macAddress;
     private String mqttTopic;
     private java.time.LocalDateTime lastHeartbeat;
+    private String source;
 }

@@ -18,8 +18,13 @@ public class Device {
     private String macAddress;
     private String mqttTopic;
     private LocalDateTime lastHeartbeat;
+    private DeviceSource source;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    public enum DeviceSource {
+        REAL, DEMO
+    }
 
     public enum DeviceStatus {
         ONLINE, OFFLINE, RUNNING, IDLE, WARNING, ERROR, MAINTENANCE
@@ -33,6 +38,7 @@ public class Device {
         this.workshopId = workshopId;
         this.productionLineId = productionLineId;
         this.status = DeviceStatus.OFFLINE;
+        this.source = DeviceSource.REAL;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
@@ -122,6 +128,8 @@ public class Device {
     public void setMqttTopic(String mqttTopic) { this.mqttTopic = mqttTopic; }
     public LocalDateTime getLastHeartbeat() { return lastHeartbeat; }
     public void setLastHeartbeat(LocalDateTime lastHeartbeat) { this.lastHeartbeat = lastHeartbeat; }
+    public DeviceSource getSource() { return source; }
+    public void setSource(DeviceSource source) { this.source = source; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

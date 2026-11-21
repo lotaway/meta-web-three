@@ -13,7 +13,9 @@ import com.metawebthree.mes.domain.repository.EquipmentRepository;
 import com.metawebthree.mes.domain.repository.WorkOrderRepository;
 import com.metawebthree.mes.domain.repository.scada.DeviceCommandRepository;
 import com.metawebthree.mes.domain.repository.scada.TelemetryRecordRepository;
+import com.metawebthree.mes.infrastructure.influx.InfluxTelemetryStore;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,6 +36,7 @@ public class ScadaDomainServiceImpl implements ScadaDomainService {
     private final AndonEventRepository andonEventRepository;
     private final WorkOrderRepository workOrderRepository;
     private final ObjectMapper objectMapper;
+    private final ObjectProvider<InfluxTelemetryStore> influxStore;
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -42,13 +45,20 @@ public class ScadaDomainServiceImpl implements ScadaDomainService {
                                    EquipmentRepository equipmentRepository,
                                    AndonEventRepository andonEventRepository,
                                    WorkOrderRepository workOrderRepository,
-                                   ObjectMapper objectMapper) {
+                                   ObjectMapper objectMapper,
+                                   ObjectProvider<InfluxTelemetryStore> influxStore) {
         this.telemetryRecordRepository = telemetryRecordRepository;
         this.deviceCommandRepository = deviceCommandRepository;
         this.equipmentRepository = equipmentRepository;
         this.andonEventRepository = andonEventRepository;
         this.workOrderRepository = workOrderRepository;
         this.objectMapper = objectMapper;
+        this.influxStore = influxStore;
+    }
+
+    private void writeToInflux(TelemetryRecord record) {
+        InfluxTelemetryStore store = influxStore.getIfAvailable();
+        if (store != null) store.write(record);
     }
 
     @Override
@@ -70,7 +80,9 @@ public class ScadaDomainServiceImpl implements ScadaDomainService {
         } catch (Exception e) {
             log.warn("Failed to parse telemetry payload for {}: {}", equipmentCode, e);
         }
-        return telemetryRecordRepository.save(record);
+        TelemetryRecord saved = telemetryRecordRepository.save(record);
+        writeToInflux(saved);
+        return saved;
     }
 
     @Override
@@ -79,7 +91,9 @@ public class ScadaDomainServiceImpl implements ScadaDomainService {
         TelemetryRecord record = new TelemetryRecord();
         record.create(equipmentCode, topic, collectTime != null ? collectTime : LocalDateTime.now());
         if (metrics != null) record.setMetrics(metrics);
-        return telemetryRecordRepository.save(record);
+        TelemetryRecord saved = telemetryRecordRepository.save(record);
+        writeToInflux(saved);
+        return saved;
     }
 
     @Override
@@ -108,6 +122,13 @@ public class ScadaDomainServiceImpl implements ScadaDomainService {
         List<TelemetryRecord> all = telemetryRecordRepository.findByEquipmentCode(equipmentCode);
         Collections.reverse(all);
         return all.stream().limit(limit).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TelemetryRecord> getTelemetryByRange(String equipmentCode, LocalDateTime start, LocalDateTime end) {
+        InfluxTelemetryStore store = influxStore.getIfAvailable();
+        if (store != null) return store.queryRange(equipmentCode, start, end);
+        return telemetryRecordRepository.findByEquipmentCodeAndTimeRange(equipmentCode, start, end);
     }
 
     @Override

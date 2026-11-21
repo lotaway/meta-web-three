@@ -8,6 +8,12 @@ meta:
         enabled: true
       kafka:
         enabled: true
+  influx:
+    enabled: ${INFLUX_ENABLED:false}
+    url: ${INFLUX_URL:http://localhost:8086}
+    token: ${INFLUX_TOKEN:}
+    org: ${INFLUX_ORG:meta}
+    bucket: ${INFLUX_BUCKET:telemetry}
 spring:
   application:
     name: factory-service

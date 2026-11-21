@@ -16,7 +16,7 @@
 - - platform-domain/ 平台域
   - platform-service: 平台通用（message、media、commission、cs、data-analysis、tenant、developer-portal 合并）
 - - factory-domain/ 工厂域
-  - factory-service: 制造执行与数字孪生（mes、digital-twin、production 合并）
+  - factory-service: 制造执行与数字影子可视化监控（mes、digital-twin、production 合并）
 - - supply-chain-domain/ 供应链域
   - scm-inventory-service: 库存（inventory、warehouse、supplier、dom、inventory-alert 合并）
   - scm-logistics-service: 物流（logistics、procurement、rma 合并）
@@ -233,7 +233,15 @@ listener 同样 advertise `host.docker.internal:9094`，避免客户端在 boots
 - 项目管理（控制器 base path 为 `/project-service/*`）
 
 ### factory-service - 工厂服务（factory 域）
-**职责**: 制造执行与数字孪生（合并原 mes、digital-twin、production 服务）
+**职责**: 制造执行与数字影子可视化监控（合并原 mes、digital-twin、production 服务）
+
+#### 数字影子边界（单向，不写回）
+本仓库的数字孪生能力定位为**数字影子（digital shadow）/ 可视化监控**：现场数据单向流入展示层，系统不自动向产线写回、不形成闭环控制。
+
+- **数据流**：现场来源（MQTT / 后续 PLC/OPC UA 适配器）→ `TelemetrySource` → `ScadaDomainService` → 关系库 / InfluxDB → WebSocket / REST → 前端展示。方向单一。
+- **命令端点**：`POST /api/mes/scada/commands` 仅做人工触发的指令登记（`DeviceCommand` 持久化），**不接通 MQTT 写回、不控制 PLC**。控制逻辑与安全联锁始终留在 PLC / 现场侧。
+- **演示数据**：仅 `demo` profile 下的一次性初始化，带 `source=DEMO` 标识；prod 不注入演示数据、模拟器也不在 prod 改写运行时状态。前端以标签区分 REAL / DEMO。
+- **命名**：产品与文档统一使用「数字影子 / 可视化监控」；`digital-twin` 仅作为代码包与 compose 文件名保留（兼容性），不代表闭环数字孪生。
 
 ### ai-service - AI 服务（ai 域）
 **职责**: AI 能力服务（合并原 forecasting、route-optimizer 服务）

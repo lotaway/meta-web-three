@@ -49,7 +49,7 @@ public class DigitalTwinEventPublisher {
 
     public void publishDeviceRegistered(String deviceCode) {
         Map<String, Object> event = new HashMap<>();
-        event.put("eventType", "DEVICE_REGISTERED");
+        event.put("eventType", DigitalTwinEventType.DEVICE_REGISTERED.name());
         event.put("deviceCode", deviceCode);
         event.put("timestamp", System.currentTimeMillis());
         logger.info("Publishing DEVICE_REGISTERED: {}", deviceCode);
@@ -58,7 +58,7 @@ public class DigitalTwinEventPublisher {
 
     public void publishDeviceStatusChanged(String deviceCode, String status) {
         Map<String, Object> event = new HashMap<>();
-        event.put("eventType", "DEVICE_STATUS_CHANGED");
+        event.put("eventType", DigitalTwinEventType.DEVICE_STATUS_CHANGED.name());
         event.put("deviceCode", deviceCode);
         event.put("status", status);
         event.put("timestamp", System.currentTimeMillis());
@@ -68,7 +68,7 @@ public class DigitalTwinEventPublisher {
 
     public void publishDevicePositionUpdated(String deviceCode, Double x, Double y, Double z) {
         Map<String, Object> event = new HashMap<>();
-        event.put("eventType", "DEVICE_POSITION_UPDATED");
+        event.put("eventType", DigitalTwinEventType.DEVICE_POSITION_UPDATED.name());
         event.put("deviceCode", deviceCode);
         event.put("position", Map.of("x", x, "y", y, "z", z));
         event.put("timestamp", System.currentTimeMillis());
@@ -78,7 +78,7 @@ public class DigitalTwinEventPublisher {
 
     public void publishWorkshopCreated(String workshopCode) {
         Map<String, Object> event = new HashMap<>();
-        event.put("eventType", "WORKSHOP_CREATED");
+        event.put("eventType", DigitalTwinEventType.WORKSHOP_CREATED.name());
         event.put("workshopCode", workshopCode);
         event.put("timestamp", System.currentTimeMillis());
         logger.info("Publishing WORKSHOP_CREATED: {}", workshopCode);
@@ -87,7 +87,7 @@ public class DigitalTwinEventPublisher {
 
     public void publishProductionLineCreated(String lineCode) {
         Map<String, Object> event = new HashMap<>();
-        event.put("eventType", "PRODUCTION_LINE_CREATED");
+        event.put("eventType", DigitalTwinEventType.PRODUCTION_LINE_CREATED.name());
         event.put("lineCode", lineCode);
         event.put("timestamp", System.currentTimeMillis());
         logger.info("Publishing PRODUCTION_LINE_CREATED: {}", lineCode);
@@ -96,7 +96,7 @@ public class DigitalTwinEventPublisher {
 
     public void publishProductionOutputUpdated(String lineCode, Integer output) {
         Map<String, Object> event = new HashMap<>();
-        event.put("eventType", "PRODUCTION_OUTPUT_UPDATED");
+        event.put("eventType", DigitalTwinEventType.PRODUCTION_OUTPUT_UPDATED.name());
         event.put("lineCode", lineCode);
         event.put("output", output);
         event.put("timestamp", System.currentTimeMillis());
@@ -106,7 +106,7 @@ public class DigitalTwinEventPublisher {
 
     public void publishAlertCreated(String alertCode, String level) {
         Map<String, Object> event = new HashMap<>();
-        event.put("eventType", "ALERT_CREATED");
+        event.put("eventType", DigitalTwinEventType.ALERT_CREATED.name());
         event.put("alertCode", alertCode);
         event.put("level", level);
         event.put("timestamp", System.currentTimeMillis());
@@ -116,7 +116,7 @@ public class DigitalTwinEventPublisher {
 
     public void publishAlertAcknowledged(Long alertId) {
         Map<String, Object> event = new HashMap<>();
-        event.put("eventType", "ALERT_ACKNOWLEDGED");
+        event.put("eventType", DigitalTwinEventType.ALERT_ACKNOWLEDGED.name());
         event.put("alertId", alertId);
         event.put("timestamp", System.currentTimeMillis());
         logger.info("Publishing ALERT_ACKNOWLEDGED: id={}", alertId);
@@ -125,7 +125,7 @@ public class DigitalTwinEventPublisher {
 
     public void publishAlertResolved(Long alertId) {
         Map<String, Object> event = new HashMap<>();
-        event.put("eventType", "ALERT_RESOLVED");
+        event.put("eventType", DigitalTwinEventType.ALERT_RESOLVED.name());
         event.put("alertId", alertId);
         event.put("timestamp", System.currentTimeMillis());
         logger.info("Publishing ALERT_RESOLVED: id={}", alertId);
@@ -134,7 +134,7 @@ public class DigitalTwinEventPublisher {
 
     public void publishWarehouseStatusChanged(String warehouseCode, String status) {
         Map<String, Object> event = new HashMap<>();
-        event.put("eventType", "WAREHOUSE_STATUS_CHANGED");
+        event.put("eventType", DigitalTwinEventType.WAREHOUSE_STATUS_CHANGED.name());
         event.put("warehouseCode", warehouseCode);
         event.put("status", status);
         event.put("timestamp", System.currentTimeMillis());
@@ -144,7 +144,7 @@ public class DigitalTwinEventPublisher {
 
     public void publishInventoryLevelChanged(String warehouseCode, String sku, Integer quantity, String status) {
         Map<String, Object> event = new HashMap<>();
-        event.put("eventType", "INVENTORY_LEVEL_CHANGED");
+        event.put("eventType", DigitalTwinEventType.INVENTORY_LEVEL_CHANGED.name());
         event.put("warehouseCode", warehouseCode);
         event.put("sku", sku);
         event.put("quantity", quantity);
@@ -156,7 +156,7 @@ public class DigitalTwinEventPublisher {
 
     public void publishInventoryAlertCreated(String warehouseCode, String alertCode, String level, String message) {
         Map<String, Object> event = new HashMap<>();
-        event.put("eventType", "INVENTORY_ALERT_CREATED");
+        event.put("eventType", DigitalTwinEventType.INVENTORY_ALERT_CREATED.name());
         event.put("warehouseCode", warehouseCode);
         event.put("alertCode", alertCode);
         event.put("level", level);
@@ -168,7 +168,7 @@ public class DigitalTwinEventPublisher {
 
     public void publishRestockSuggestionCreated(String warehouseCode, String sku, Integer suggestedQty, String reason) {
         Map<String, Object> event = new HashMap<>();
-        event.put("eventType", "RESTOCK_SUGGESTION_CREATED");
+        event.put("eventType", DigitalTwinEventType.RESTOCK_SUGGESTION_CREATED.name());
         event.put("warehouseCode", warehouseCode);
         event.put("sku", sku);
         event.put("suggestedQty", suggestedQty);
@@ -180,7 +180,7 @@ public class DigitalTwinEventPublisher {
 
     public void publishShelfStatusChanged(String warehouseCode, String shelfCode, String status) {
         Map<String, Object> event = new HashMap<>();
-        event.put("eventType", "SHELF_STATUS_CHANGED");
+        event.put("eventType", DigitalTwinEventType.SHELF_STATUS_CHANGED.name());
         event.put("warehouseCode", warehouseCode);
         event.put("shelfCode", shelfCode);
         event.put("status", status);
