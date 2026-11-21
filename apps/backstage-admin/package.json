@@ -14,6 +14,8 @@
     "type-check": "vue-tsc --build",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:visual": "playwright test -c e2e/quality.spec.ts",
+    "test:visual:update": "playwright test -c e2e/quality.spec.ts --update-snapshots",
     "lint": "eslint . --fix --cache",
     "generate:api": "node tools/generate-api.cjs",
     "generate:enum": "node tools/JEnumToTS.js"
@@ -38,6 +40,8 @@
     "vue-router": "^4.6.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.57.0",
     "@tsconfig/node24": "^24.0.3",
     "@types/node": "^24.10.1",
     "@types/nprogress": "^0.2.3",

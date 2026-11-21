@@ -10,7 +10,7 @@ const routes = [
 for (const route of routes) {
   test(`${route.name}: visual baseline and no serious a11y violations`, async ({ page }) => {
     await page.goto(route.path)
-    await expect(page.locator('body')).toBeVisible()
+    await expect(page.locator('button').first()).toBeVisible()
     await expect(page).toHaveScreenshot(route.snapshot, { fullPage: true })
 
     const results = await new AxeBuilder({ page })

@@ -29,6 +29,15 @@ meta:
       ok: GOOD
       bad: BAD
       error: BAD
+    simulated:
+      # Demo/test-only second TelemetrySource; never enabled by default in prod.
+      enabled: ${TELEMETRY_SIMULATED_ENABLED:false}
+      device-code: ${TELEMETRY_SIMULATED_DEVICE:SIM-PLC-001}
+      interval-ms: ${TELEMETRY_SIMULATED_INTERVAL:5000}
+      tags:
+        - temperature
+        - vibration
+        - pressure
 spring:
   application:
     name: factory-service

@@ -21,13 +21,26 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: yarn
-          cache-dependency-path: apps/backstage-admin/yarn.lock
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm install --no-audit --no-fund
+      - name: Install Chrome for visual snapshots
+        uses: browser-actions/setup-chrome@v1
       - name: Structure / a11y budgets + unit tests
-        run: yarn type-check && yarn test
+        run: npm run type-check && npm test
       - name: Build
-        run: yarn build-only
-      # Visual regression + axe a11y scan live in e2e/ and are opt-in until the
-      # Playwright/axe dependencies and baselines are added (see e2e/README.md).
+        run: npm run build-only
+      - name: Start preview server
+        run: npx vite preview --host 127.0.0.1 --port 4173 &
+      - name: Wait for preview
+        run: npx wait-on http://127.0.0.1:4173
+      - name: Visual regression and a11y gate
+        env:
+          QUALITY_BASE_URL: http://127.0.0.1:4173
+          PLAYWRIGHT_CHANNEL: chrome
+        run: npm run test:visual
+      - name: Upload diff artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-diff
+          path: apps/backstage-admin/test-results

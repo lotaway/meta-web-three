@@ -17,27 +17,33 @@ import java.util.List;
 @Service
 public class TelemetrySourceIngestService {
 
-    private final TelemetrySource source;
+    private final List<TelemetrySource> sources;
     private final ScadaDomainService scadaDomainService;
 
-    public TelemetrySourceIngestService(TelemetrySource source, ScadaDomainService scadaDomainService) {
-        this.source = source;
+    public TelemetrySourceIngestService(List<TelemetrySource> sources, ScadaDomainService scadaDomainService) {
+        this.sources = sources;
         this.scadaDomainService = scadaDomainService;
     }
 
     @PostConstruct
     public void start() {
-        source.connect();
-        source.subscribe(this::ingest);
-        log.info("Telemetry source {} started", source.name());
+        for (TelemetrySource source : sources) {
+            try {
+                source.subscribe(point -> ingest(source.name(), point));
+                source.connect();
+                log.info("Telemetry source {} started", source.name());
+            } catch (Exception e) {
+                log.error("Failed to start telemetry source {}: {}", source.name(), e.getMessage());
+            }
+        }
     }
 
     @PreDestroy
     public void stop() {
-        source.close();
+        sources.forEach(TelemetrySource::close);
     }
 
-    void ingest(TelemetryPoint point) {
+    void ingest(String sourceName, TelemetryPoint point) {
         TelemetryMetric metric = new TelemetryMetric();
         metric.setMetricCode(point.pointKey());
         metric.setMetricName(point.pointKey());
@@ -45,6 +51,6 @@ public class TelemetrySourceIngestService {
         metric.setUnit(point.unit());
         metric.setQuality(point.quality());
         LocalDateTime collectTime = LocalDateTime.ofInstant(point.timestamp(), ZoneOffset.UTC);
-        scadaDomainService.ingestMetrics(point.equipmentCode(), source.name(), List.of(metric), collectTime);
+        scadaDomainService.ingestMetrics(point.equipmentCode(), sourceName, List.of(metric), collectTime);
     }
 }

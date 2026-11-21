@@ -10,7 +10,6 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "mes.telemetry")
 public class TelemetryMappingProperties {
 
-    private boolean enabled = false;
     private String sourceName = "FIELD";
     private String timestampField = "timestamp";
     private String qualityField = "quality";
@@ -26,6 +25,7 @@ public class TelemetryMappingProperties {
     private List<String> topicPatterns = new ArrayList<>();
     private Map<String, String> qualityValues = new LinkedHashMap<>();
     private Map<String, String> pointAliases = new LinkedHashMap<>();
+    private Simulated simulated = new Simulated();
 
     public TelemetryMappingProperties() {
         topicPatterns.add("mes/equipment/+/telemetry");
@@ -35,8 +35,6 @@ public class TelemetryMappingProperties {
         qualityValues.put("error", TelemetryPoint.QUALITY_BAD);
     }
 
-    public boolean isEnabled() { return enabled; }
-    public void setEnabled(boolean enabled) { this.enabled = enabled; }
     public String getSourceName() { return sourceName; }
     public void setSourceName(String sourceName) { this.sourceName = sourceName; }
     public String getTimestampField() { return timestampField; }
@@ -67,4 +65,22 @@ public class TelemetryMappingProperties {
     public void setQualityValues(Map<String, String> qualityValues) { this.qualityValues = qualityValues; }
     public Map<String, String> getPointAliases() { return pointAliases; }
     public void setPointAliases(Map<String, String> pointAliases) { this.pointAliases = pointAliases; }
+    public Simulated getSimulated() { return simulated; }
+    public void setSimulated(Simulated simulated) { this.simulated = simulated; }
+
+    public static class Simulated {
+        private boolean enabled = false;
+        private String deviceCode = "SIM-PLC-001";
+        private List<String> tags = new ArrayList<>(List.of("temperature", "vibration", "pressure"));
+        private long intervalMs = 5000;
+
+        public boolean isEnabled() { return enabled; }
+        public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public String getDeviceCode() { return deviceCode; }
+        public void setDeviceCode(String deviceCode) { this.deviceCode = deviceCode; }
+        public List<String> getTags() { return tags; }
+        public void setTags(List<String> tags) { this.tags = tags; }
+        public long getIntervalMs() { return intervalMs; }
+        public void setIntervalMs(long intervalMs) { this.intervalMs = intervalMs; }
+    }
 }

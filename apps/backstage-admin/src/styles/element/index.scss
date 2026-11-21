@@ -2,8 +2,9 @@
 @forward 'element-plus/theme-chalk/src/common/var.scss' with (
   $colors: (
     'primary': (
-      // Primary color
-      'base': #409eff,
+      // Primary color. Darkened from the Element Plus default #409eff to meet
+      // WCAG 2.1 AA (white text contrast >= 4.5:1; #409eff was only 2.78:1).
+      'base': #2d6fcc,
     ),
     'success': (
       // Success color
