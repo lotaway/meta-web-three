@@ -17,7 +17,7 @@ export default function ProfileMenuCell({ icon, title, color, onPress, showBorde
   const colorScheme = useColorScheme() ?? 'light'
   const colors = Colors[colorScheme]
   return (
-    <TouchableOpacity style={[styles.menuCell, showBorder && styles.bottomBorder]} onPress={onPress}>
+    <TouchableOpacity accessibilityRole="button" accessibilityLabel={title} style={[styles.menuCell, showBorder && styles.bottomBorder]} onPress={onPress}>
       <View style={styles.menuLeft}>
         <IconSymbol name={icon as any} size={20} color={color} />
         <Text style={[styles.menuTitle, { color: colors.fontColorDark }]}>{title}</Text>

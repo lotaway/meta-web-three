@@ -27,7 +27,7 @@ export default class ErrorBoundary extends Component<Props, State> {
           <Text style={styles.message}>
             The app hit an unexpected error. Please try again.
           </Text>
-          <Button title="Try again" onPress={this.handleRetry} />
+          <Button title="Try again" accessibilityLabel="Try again" onPress={this.handleRetry} />
         </View>
       );
     }

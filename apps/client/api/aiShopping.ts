@@ -43,15 +43,15 @@ interface ApiEnvelope<T> {
 
 const AI_SHOPPING_BASE = '/mall-catalog-service/api/ai-shopping'
 
-function authHeaders(): Record<string, string> {
-  const token = getToken()
+async function authHeaders(): Promise<Record<string, string>> {
+  const token = await getToken()
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
-function jsonHeaders(): Record<string, string> {
+async function jsonHeaders(): Promise<Record<string, string>> {
   return {
     'Content-Type': 'application/json',
-    ...authHeaders(),
+    ...(await authHeaders()),
   }
 }
 
@@ -77,7 +77,7 @@ export const aiShoppingApi = {
       `${AI_SHOPPING_BASE}/text-correct`,
       {
         method: 'POST',
-        headers: jsonHeaders(),
+        headers: await jsonHeaders(),
         body: JSON.stringify({ text }),
       }
     )
@@ -90,7 +90,7 @@ export const aiShoppingApi = {
       `${AI_SHOPPING_BASE}/smart-match`,
       {
         method: 'POST',
-        headers: jsonHeaders(),
+        headers: await jsonHeaders(),
         body: JSON.stringify({ query, topK }),
       }
     )
@@ -108,7 +108,7 @@ export const aiShoppingApi = {
       `${AI_SHOPPING_BASE}/image-search`,
       {
         method: 'POST',
-        headers: authHeaders(),
+        headers: await authHeaders(),
         body: form,
       }
     )
@@ -125,7 +125,7 @@ export const aiShoppingApi = {
       `${AI_SHOPPING_BASE}/search`,
       {
         method: 'POST',
-        headers: jsonHeaders(),
+        headers: await jsonHeaders(),
         body: JSON.stringify({ query, topK, userId }),
       }
     )

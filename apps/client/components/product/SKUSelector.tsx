@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-  Dimensions,
+  useWindowDimensions,
 } from 'react-native'
 import { useTranslation } from 'react-i18next'
 import { Colors } from '@/constants/Colors'
@@ -49,8 +49,6 @@ interface SKUSelectorProps {
   onConfirm: (selectedSpecs: { [specId: string]: string }, sku: SKUInfo | null, quantity: number) => void
   actionType: 'cart' | 'buy'
 }
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
 type Translate = (key: string) => string
 
@@ -354,8 +352,9 @@ function SpecsAndQuantity({ specs, colors, t, selectedSpecs, quantity, displaySt
   colors: any;
   t: Translate;
 } & Pick<SelectorState, 'selectedSpecs' | 'quantity' | 'displayStock' | 'handleSpecSelect' | 'handleQuantityChange'>) {
+  const { height } = useWindowDimensions();
   return (
-    <ScrollView showsVerticalScrollIndicator={false} style={styles.specsSection}>
+    <ScrollView showsVerticalScrollIndicator={false} style={[styles.specsSection, { maxHeight: height * 0.45 }]}>
       <SpecGroupsList specs={specs} selectedSpecs={selectedSpecs} colors={colors} onSelect={handleSpecSelect} />
       <QuantityControl quantity={quantity} displayStock={displayStock} colors={colors} t={t} onChange={handleQuantityChange} />
     </ScrollView>
@@ -378,8 +377,9 @@ function SKUBottomSheetContent({
   onClose: () => void;
   actionType: 'cart' | 'buy';
 } & SelectorState) {
+  const { height } = useWindowDimensions();
   return (
-    <View style={[styles.bottomSheet, { backgroundColor: colors.background }]}>
+    <View style={[styles.bottomSheet, { maxHeight: height * 0.85, backgroundColor: colors.background }]}>
       <SKUHeader productImage={productImage} colors={colors} t={t} onClose={onClose} {...state} />
       <SpecsAndQuantity specs={specs} colors={colors} t={t} {...state} />
       <ConfirmButton actionType={actionType} colors={colors} t={t} onPress={state.handleConfirm} {...state} />
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
   bottomSheet: {
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    maxHeight: SCREEN_WIDTH * 1.2,
+    maxHeight: 450,
     paddingBottom: 20,
   },
   header: {
@@ -501,7 +501,7 @@ const styles = StyleSheet.create({
   },
   specsSection: {
     paddingHorizontal: 16,
-    maxHeight: SCREEN_WIDTH * 0.8,
+    maxHeight: 300,
   },
   specGroup: {
     marginTop: 16,

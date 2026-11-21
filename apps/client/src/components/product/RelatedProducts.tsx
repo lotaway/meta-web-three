@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, useWindowDimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -7,8 +7,6 @@ import { recommendationHooks } from '@/lib/api/graphql-hooks';
 import type { Query } from '@/src/generated/graphql/types';
 type RecommendationsBySceneQuery = Pick<Query, 'recommendationsByScene'>;
 import { router } from 'expo-router';
-
-const CARD_WIDTH = (Dimensions.get('window').width - 50) / 2;
 
 interface RelatedProductsProps {
   productId: number;
@@ -38,9 +36,11 @@ function EmptyState({ colors }: { colors: any }) {
 
 function CardContent({ item, productIdNum, colors }: { item: any; productIdNum: number; colors: any }) {
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const cardWidth = (width - 50) / 2;
   return (
     <>
-      <View style={[styles.imagePlaceholder, { backgroundColor: colors.primary + '15' }]}>
+      <View style={[styles.imagePlaceholder, { width: cardWidth, height: cardWidth, backgroundColor: colors.primary + '15' }]}>
         <Text style={[styles.imagePlaceholderText, { color: colors.primary }]}>
           #{productIdNum}
         </Text>
@@ -58,6 +58,8 @@ function CardContent({ item, productIdNum, colors }: { item: any; productIdNum: 
 }
 
 function RecommendationCard({ item, colors }: { item: any; colors: any }) {
+  const { width } = useWindowDimensions();
+  const cardWidth = (width - 50) / 2;
   const productIdNum = Number(item?.productId ?? 0);
   const handlePress = () => {
     if (item?.id) recommendationHooks.markClicked(Number(item.id)).catch(() => {});
@@ -65,7 +67,7 @@ function RecommendationCard({ item, colors }: { item: any; colors: any }) {
   };
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: colors.background }]}
+      style={[styles.card, { width: cardWidth, backgroundColor: colors.background }]}
       onPress={handlePress}
     >
       <CardContent item={item} productIdNum={productIdNum} colors={colors} />
@@ -175,7 +177,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   card: {
-    width: CARD_WIDTH,
+    width: 162.5,
     marginRight: 10,
     borderRadius: 8,
     overflow: 'hidden',
@@ -183,8 +185,8 @@ const styles = StyleSheet.create({
     borderColor: '#eee',
   },
   imagePlaceholder: {
-    width: CARD_WIDTH,
-    height: CARD_WIDTH,
+    width: 162.5,
+    height: 162.5,
     justifyContent: 'center',
     alignItems: 'center',
   },

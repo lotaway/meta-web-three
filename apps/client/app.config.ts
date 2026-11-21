@@ -6,7 +6,7 @@ export default {
     "name": "meta-web-three-app",
     "slug": "app",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "app",
     "userInterfaceStyle": "automatic",

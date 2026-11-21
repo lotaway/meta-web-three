@@ -14,7 +14,7 @@ export {
 export {
   getToken,
   setToken,
-  removeToken,
+  clearToken,
   initializeApiInterceptors,
 } from './interceptors'
 export * from './errors'

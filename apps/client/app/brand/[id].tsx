@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
-  Dimensions,
+  useWindowDimensions,
   Alert,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -19,9 +19,6 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { brandApi } from '@/api/generated';
 import { Brand } from '@/src/generated/api/models/Brand';
 import { ProductDTO } from '@/src/generated/api/models/ProductDTO';
-
-const { width: WINDOW_WIDTH } = Dimensions.get('window');
-const CARD_WIDTH = (WINDOW_WIDTH - 36) / 2;
 
 type AppColors = typeof Colors.light;
 type AppRouter = ReturnType<typeof useRouter>;
@@ -134,8 +131,9 @@ function BrandNotFound({ colors, handleBack }: { colors: AppColors; handleBack: 
 }
 
 function BrandBanner({ brand, colors }: { brand: Brand; colors: AppColors }) {
+  const { width } = useWindowDimensions();
   if (!brand.areaPicture) return null;
-  return <Image source={{ uri: brand.areaPicture }} style={styles.bannerImage} resizeMode="cover" />;
+  return <Image source={{ uri: brand.areaPicture }} style={[styles.bannerImage, { width }]} resizeMode="cover" />;
 }
 
 function BrandInfoCard({ brand, colors, t }: { brand: Brand; colors: AppColors; t: Translate }) {
@@ -170,9 +168,11 @@ function BrandStorySection({ brand, colors }: { brand: Brand; colors: AppColors 
 }
 
 function BrandProductCard({ product, colors, navigateToProduct }: { product: ProductDTO; colors: AppColors; navigateToProduct: (id: number) => void }) {
+  const { width } = useWindowDimensions();
+  const cardWidth = (width - 36) / 2;
   return (
-    <TouchableOpacity style={[styles.productCard, { backgroundColor: colors.card }]} onPress={() => navigateToProduct(product.id!)} activeOpacity={0.7}>
-      <Image source={{ uri: product.imageUrl || 'https://via.placeholder.com/200' }} style={styles.productImage} resizeMode="cover" />
+    <TouchableOpacity style={[styles.productCard, { width: cardWidth, backgroundColor: colors.card }]} onPress={() => navigateToProduct(product.id!)} activeOpacity={0.7}>
+      <Image source={{ uri: product.imageUrl || 'https://via.placeholder.com/200' }} style={[styles.productImage, { width: cardWidth, height: cardWidth }]} resizeMode="cover" />
       <Text style={[styles.productName, { color: colors.text }]} numberOfLines={2}>{product.name}</Text>
       <Text style={styles.productPrice}>¥{product.price}</Text>
     </TouchableOpacity>
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   headerRight: { width: 40 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   bannerImage: {
-    width: WINDOW_WIDTH,
+    width: 375,
     height: 200,
   },
   brandInfo: {
@@ -288,15 +288,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   productCard: {
-    width: CARD_WIDTH,
+    width: 169.5,
     marginHorizontal: 6,
     marginBottom: 12,
     borderRadius: 12,
     overflow: 'hidden',
   },
   productImage: {
-    width: CARD_WIDTH,
-    height: CARD_WIDTH,
+    width: 169.5,
+    height: 169.5,
   },
   productName: {
     fontSize: 13,

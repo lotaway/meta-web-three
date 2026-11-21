@@ -2,10 +2,38 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { userApi, ssoApi, DEFAULT_USER_ID } from '@/api/generated';
 import type { UserDTO, LoginResponseDTO } from '@/src/generated/api/models';
+import { getToken, setToken, clearToken } from '@/lib/auth/tokenStorage';
 
-const AUTH_TOKEN_KEY = '@meta_web_three:auth_token';
 const USER_ID_KEY = '@meta_web_three:user_id';
 const USER_DATA_KEY = '@meta_web_three:user_data';
+
+interface PhoneLoginSession {
+  token: string;
+  userId: number;
+  userData: UserDTO;
+}
+
+async function requestPhoneLogin(phone: string, authCode: string): Promise<PhoneLoginSession> {
+  const response = await ssoApi.loginByPhone({ telephone: phone, authCode });
+  const { token, tokenHead } = response.data ?? {};
+  if (!token || !tokenHead) {
+    throw new Error('Invalid phone login response');
+  }
+  const infoResponse = await ssoApi.info1({ xUserId: 0 });
+  const userData = infoResponse.data as UserDTO | undefined;
+  if (!userData) {
+    throw new Error('Unable to load user profile after phone login');
+  }
+  return { token: tokenHead + token, userId: userData.id ?? 0, userData };
+}
+
+async function persistSession(token: string, userId: number, userData: UserDTO): Promise<void> {
+  await Promise.all([
+    setToken(token),
+    AsyncStorage.setItem(USER_ID_KEY, userId.toString()),
+    AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(userData)),
+  ]);
+}
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -41,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function loadAuthState() {
     try {
       const [storedToken, storedUserId, storedUserData] = await Promise.all([
-        AsyncStorage.getItem(AUTH_TOKEN_KEY),
+        getToken(),
         AsyncStorage.getItem(USER_ID_KEY),
         AsyncStorage.getItem(USER_DATA_KEY),
       ]);
@@ -82,7 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function login(newToken: string, newUserId: number, userData?: UserDTO) {
     try {
       await Promise.all([
-        AsyncStorage.setItem(AUTH_TOKEN_KEY, newToken),
+        setToken(newToken),
         AsyncStorage.setItem(USER_ID_KEY, newUserId.toString()),
       ]);
 
@@ -115,7 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const uid = userData.id ?? 0;
         
         await Promise.all([
-          AsyncStorage.setItem(AUTH_TOKEN_KEY, newToken),
+          setToken(newToken),
           AsyncStorage.setItem(USER_ID_KEY, uid.toString()),
           AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(userData)),
         ]);
@@ -153,7 +181,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         uid = userData.id ?? 0;
         
         await Promise.all([
-          AsyncStorage.setItem(AUTH_TOKEN_KEY, fullToken),
+          setToken(fullToken),
           AsyncStorage.setItem(USER_ID_KEY, uid.toString()),
           AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(userData)),
         ]);
@@ -209,7 +237,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function clearAuthState() {
     try {
       await Promise.all([
-        AsyncStorage.removeItem(AUTH_TOKEN_KEY),
+        clearToken(),
         AsyncStorage.removeItem(USER_ID_KEY),
         AsyncStorage.removeItem(USER_DATA_KEY),
       ]);
@@ -233,63 +261,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function loginWithPhone(_phone: string, _authCode: string) {
-    // TODO: 后端 API 暂不支持手机号登录
-    throw new Error('手机号登录暂不支持');
-    /* try {
-      const response = await ssoApi.loginByPhone({ telephone: phone, authCode });
-      const loginData = response.data;
-      if (!loginData?.token || !loginData?.tokenHead) {
-        throw new Error('Invalid phone login response');
-      }
-      const { token: newToken, tokenHead } = loginData;
-      
-      const fullToken = tokenHead + newToken;
-      
-      const infoResponse = await ssoApi.info1({ xUserId: 0 });
-      let uid = 0;
-      
-      if (infoResponse.data) {
-        const userData: UserDTO = infoResponse.data;
-        uid = userData.id ?? 0;
-        
-        await Promise.all([
-          AsyncStorage.setItem(AUTH_TOKEN_KEY, fullToken),
-          AsyncStorage.setItem(USER_ID_KEY, uid.toString()),
-          AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(userData)),
-        ]);
-
-        setToken(fullToken);
-        setUserId(uid);
-        setUser(userData);
-        setIsAuthenticated(true);
-      }
+  async function loginWithPhone(phone: string, authCode: string) {
+    try {
+      const session = await requestPhoneLogin(phone, authCode);
+      await persistSession(session.token, session.userId, session.userData);
+      setToken(session.token);
+      setUserId(session.userId);
+      setUser(session.userData);
+      setIsAuthenticated(true);
     } catch (error) {
       console.error('Failed to login with phone:', error);
       throw error;
-    } */
+    }
   }
 
-  async function getAuthCode(_telephone: string) {
-    // TODO: 后端 API 暂不支持获取验证码
-    throw new Error('获取验证码暂不支持');
-    /* try {
+  async function getAuthCode(telephone: string) {
+    try {
       await ssoApi.getAuthCode({ telephone });
     } catch (error) {
       console.error('Failed to get auth code:', error);
       throw error;
-    } */
+    }
   }
 
-  async function forgotPassword(_telephone: string, _password: string, _authCode: string) {
-    // TODO: 后端 API 暂不支持更新密码
-    throw new Error('忘记密码功能暂不支持');
-    /* try {
+  async function forgotPassword(telephone: string, password: string, authCode: string) {
+    try {
       await ssoApi.updatePassword({ telephone, password, authCode });
     } catch (error) {
       console.error('Failed to update password:', error);
       throw error;
-    } */
+    }
   }
 
   return (

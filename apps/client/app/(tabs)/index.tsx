@@ -7,7 +7,7 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
-  Dimensions,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -16,8 +16,6 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AdvertiseItem, BrandItem, FlashPromotion, ProductItem } from '@/adapters/homeAdapter';
 import { HomeContainer } from '@/containers/home/HomeContainer';
-
-const { width: WINDOW_WIDTH } = Dimensions.get('window');
 
 const CATE_ITEMS = [
   { nameKey: 'home.categories.topic', icon: 'star.fill' },
@@ -55,6 +53,7 @@ function HomeHeader({ colors }: { colors: AppColors }) {
 }
 
 function BannerSection({ advertiseList }: { advertiseList: AdvertiseItem[] }) {
+  const { width } = useWindowDimensions();
   return (
     <ScrollView
       horizontal
@@ -64,7 +63,7 @@ function BannerSection({ advertiseList }: { advertiseList: AdvertiseItem[] }) {
     >
       {advertiseList.map((item) => (
         <TouchableOpacity key={item.id} activeOpacity={0.9}>
-          <Image source={{ uri: item.pic }} style={styles.bannerImage} />
+          <Image source={{ uri: item.pic }} style={[styles.bannerImage, { width: width - 30 }]} />
         </TouchableOpacity>
       ))}
     </ScrollView>
@@ -89,8 +88,9 @@ function CategorySection({ colors }: { colors: AppColors }) {
 
 function BrandItemView({ item, colors }: { item: BrandItem; colors: AppColors }) {
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
   return (
-    <TouchableOpacity style={styles.brandItem} onPress={() => router.push({ pathname: '/brand/[id]', params: { id: item.id } })}>
+    <TouchableOpacity style={[styles.brandItem, { width: (width - 40) / 2 }]} onPress={() => router.push({ pathname: '/brand/[id]', params: { id: item.id } })}>
       <Image source={{ uri: item.logo }} style={styles.brandLogo} resizeMode="contain" />
       <Text style={[styles.brandName, { color: colors.fontColorDark }]}>{item.name}</Text>
       <Text style={[styles.brandCount, { color: colors.fontColorLight }]}>
@@ -138,9 +138,11 @@ function FlashSection({ promotion, colors, onProductPress }: { promotion: FlashP
 }
 
 function ProductGridItem({ item, colors, onProductPress }: { item: ProductItem; colors: AppColors; onProductPress: ProductPress }) {
+  const { width } = useWindowDimensions();
+  const cardSize = (width - 30) / 2;
   return (
-    <TouchableOpacity style={styles.productItem} onPress={() => onProductPress(item.id)}>
-      <Image source={{ uri: item.pic }} style={styles.productImage} />
+    <TouchableOpacity style={[styles.productItem, { width: cardSize }]} onPress={() => onProductPress(item.id)}>
+      <Image source={{ uri: item.pic }} style={[styles.productImage, { width: cardSize, height: cardSize }]} />
       <View style={styles.productInfo}>
         <Text numberOfLines={1} style={[styles.productTitle, { color: colors.fontColorDark }]}>{item.name}</Text>
         <Text numberOfLines={1} style={[styles.productSubtitle, { color: colors.fontColorLight }]}>{item.subTitle}</Text>
@@ -269,7 +271,7 @@ const styles = StyleSheet.create({
     height: 180,
   },
   bannerImage: {
-    width: WINDOW_WIDTH - 30,
+    width: 345,
     height: 160,
     marginHorizontal: 15,
     borderRadius: 8,
@@ -332,7 +334,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   brandItem: {
-    width: (WINDOW_WIDTH - 40) / 2,
+    width: 167.5,
     marginHorizontal: 5,
     padding: 10,
     marginBottom: 10,
@@ -375,13 +377,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   productItem: {
-    width: (WINDOW_WIDTH - 30) / 2,
+    width: 172.5,
     marginHorizontal: 5,
     marginBottom: 20,
   },
   productImage: {
-    width: (WINDOW_WIDTH - 30) / 2,
-    height: (WINDOW_WIDTH - 30) / 2,
+    width: 172.5,
+    height: 172.5,
     borderRadius: 8,
   },
   productInfo: {

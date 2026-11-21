@@ -81,9 +81,35 @@ jest.mock('expo-router', () => ({
   useRootLayout: () => ({ width: 375, height: 812 }),
 }))
 
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
-)
+jest.mock('@react-native-async-storage/async-storage', () => {
+  const memory = new Map()
+  const storage = {
+    getItem: jest.fn((key) => Promise.resolve(memory.has(key) ? memory.get(key) : null)),
+    setItem: jest.fn((key, value) => {
+      memory.set(key, value)
+      return Promise.resolve()
+    }),
+    removeItem: jest.fn((key) => {
+      memory.delete(key)
+      return Promise.resolve()
+    }),
+    clear: jest.fn(() => {
+      memory.clear()
+      return Promise.resolve()
+    }),
+    getAllKeys: jest.fn(() => Promise.resolve([...memory.keys()])),
+    multiGet: jest.fn((keys) => Promise.resolve(keys.map((key) => [key, memory.has(key) ? memory.get(key) : null]))),
+    multiSet: jest.fn((entries) => {
+      entries.forEach(([key, value]) => memory.set(key, value))
+      return Promise.resolve()
+    }),
+    multiRemove: jest.fn((keys) => {
+      keys.forEach((key) => memory.delete(key))
+      return Promise.resolve()
+    }),
+  }
+  return { __esModule: true, default: storage }
+})
 
 jest.mock('@tanstack/react-query', () => {
   const originalModule = jest.requireActual('@tanstack/react-query')

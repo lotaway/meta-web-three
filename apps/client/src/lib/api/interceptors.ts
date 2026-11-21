@@ -1,25 +1,10 @@
 import { apiClient } from './client'
-import { ApiError, getErrorMessage } from './errors'
+import { clearToken, getToken } from '@/lib/auth/tokenStorage'
 
-const TOKEN_KEY = 'auth_token'
+export { getToken, setToken, clearToken } from '@/lib/auth/tokenStorage'
 
-export function getToken(): string | null {
-  if (typeof window === 'undefined') return null
-  return localStorage.getItem(TOKEN_KEY)
-}
-
-export function setToken(token: string): void {
-  if (typeof window === 'undefined') return
-  localStorage.setItem(TOKEN_KEY, token)
-}
-
-export function removeToken(): void {
-  if (typeof window === 'undefined') return
-  localStorage.removeItem(TOKEN_KEY)
-}
-
-apiClient.addRequestInterceptor((config: any) => {
-  const token = getToken()
+apiClient.addRequestInterceptor(async (config: any) => {
+  const token = await getToken()
   if (token) {
     config.headers = {
       ...config.headers,
@@ -50,15 +35,15 @@ const redirectToLogin = () => {
   if (typeof window !== 'undefined') window.location.href = '/login'
 }
 
-const handleTokenExpiration = (error: any) => {
+const handleTokenExpiration = async (error: any) => {
   if (error.code !== '2003' && error.code !== '2004') return
-  removeToken()
+  await clearToken()
   console.warn('Token expired, please login again')
   redirectToLogin()
 }
 
-const handleUnauthorized = () => {
-  removeToken()
+const handleUnauthorized = async () => {
+  await clearToken()
   redirectToLogin()
 }
 
@@ -74,7 +59,7 @@ const handleServerError = () => {
   console.error('Server error, please try again later')
 }
 
-const statusHandlers: Record<string, () => void> = {
+const statusHandlers: Record<string, () => void | Promise<void>> = {
   401: handleUnauthorized,
   403: handleForbidden,
   404: handleNotFound,
@@ -89,8 +74,8 @@ const handleStatus = (error: any) => {
 
 apiClient.addErrorInterceptor(async (error: any, config: any) => {
   console.error(`[API Error] ${error.code}: ${error.message}`)
-  handleTokenExpiration(error)
-  handleStatus(error)
+  await handleTokenExpiration(error)
+  await handleStatus(error)
   return error
 })
 

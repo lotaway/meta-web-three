@@ -151,11 +151,11 @@ function EmptyCartView({ colors }: { colors: AppColors }) {
 function QuantityStepper({ item, onUpdateQuantity }: { item: ShoppingCartItem; onUpdateQuantity: CartHandlers['onUpdateQuantity'] }) {
   return (
     <View style={styles.stepBox}>
-      <TouchableOpacity onPress={() => onUpdateQuantity(item.id, -1)} style={styles.stepBtn}>
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Decrease quantity" onPress={() => onUpdateQuantity(item.id, -1)} style={styles.stepBtn}>
         <Text style={styles.stepText}>-</Text>
       </TouchableOpacity>
       <Text style={styles.stepVal}>{item.quantity}</Text>
-      <TouchableOpacity onPress={() => onUpdateQuantity(item.id, 1)} style={styles.stepBtn}>
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Increase quantity" onPress={() => onUpdateQuantity(item.id, 1)} style={styles.stepBtn}>
         <Text style={styles.stepText}>+</Text>
       </TouchableOpacity>
     </View>
@@ -165,7 +165,7 @@ function QuantityStepper({ item, onUpdateQuantity }: { item: ShoppingCartItem; o
 function CartItemRow({ item, colors, onToggleCheck, onUpdateQuantity, onRemove }: Pick<CartViewProps, 'colors' | 'onToggleCheck' | 'onUpdateQuantity' | 'onRemove'> & { item: ShoppingCartItem }) {
   return (
     <View style={styles.cartItem}>
-      <TouchableOpacity onPress={() => onToggleCheck(item.id)} style={styles.checkbox}>
+      <TouchableOpacity accessibilityRole="checkbox" accessibilityState={{ checked: item.checked }} accessibilityLabel="Select item" onPress={() => onToggleCheck(item.id)} style={styles.checkbox}>
         <IconSymbol name={item.checked ? 'checkmark.circle.fill' : 'circle'} size={24} color={item.checked ? colors.primary : colors.fontColorDisabled} />
       </TouchableOpacity>
       <Image source={{ uri: item.productPic }} style={styles.productImage} />
@@ -177,7 +177,7 @@ function CartItemRow({ item, colors, onToggleCheck, onUpdateQuantity, onRemove }
           <QuantityStepper item={item} onUpdateQuantity={onUpdateQuantity} />
         </View>
       </View>
-      <TouchableOpacity onPress={() => onRemove([item.id])} style={styles.delBtn}><IconSymbol name="xmark" size={16} color={colors.fontColorLight} /></TouchableOpacity>
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Remove item" onPress={() => onRemove([item.id])} style={styles.delBtn}><IconSymbol name="xmark" size={16} color={colors.fontColorLight} /></TouchableOpacity>
     </View>
   );
 }
@@ -201,7 +201,7 @@ function goToCheckout(selectedItems: CheckoutItemParam[]) {
 function CartActionBar({ selectedItems, selectedTotal, isAllSelected, colors, onToggleAll }: Pick<CartViewProps, 'selectedItems' | 'colors' | 'onToggleAll'> & { selectedTotal: string; isAllSelected: boolean }) {
   return (
     <View style={styles.actionSection}>
-      <TouchableOpacity onPress={onToggleAll} style={styles.allCheck}>
+      <TouchableOpacity accessibilityRole="checkbox" accessibilityState={{ checked: isAllSelected }} accessibilityLabel="Select all" onPress={onToggleAll} style={styles.allCheck}>
         <IconSymbol name={isAllSelected ? 'checkmark.circle.fill' : 'circle'} size={24} color={isAllSelected ? colors.primary : colors.fontColorDisabled} />
         <Text style={[styles.allCheckText, { color: colors.fontColorBase }]}>全选</Text>
       </TouchableOpacity>
@@ -210,7 +210,7 @@ function CartActionBar({ selectedItems, selectedTotal, isAllSelected, colors, on
           合计: <Text style={[styles.totalPrice, { color: colors.primary }]}>¥{selectedTotal}</Text>
         </Text>
       </View>
-      <TouchableOpacity style={[styles.confirmBtn, { backgroundColor: colors.primary }]} onPress={() => goToCheckout(selectedItems)}>
+      <TouchableOpacity accessibilityRole="button" style={[styles.confirmBtn, { backgroundColor: colors.primary }]} onPress={() => goToCheckout(selectedItems)}>
         <Text style={styles.confirmBtnText}>结算</Text>
       </TouchableOpacity>
     </View>

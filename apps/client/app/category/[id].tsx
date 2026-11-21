@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
-  Dimensions,
+  useWindowDimensions,
   Alert,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -18,9 +18,6 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { productApi, categoryApi } from '@/api/generated';
 import type { ProductDTO } from '@/src/generated/api/models';
-
-const { width: WINDOW_WIDTH } = Dimensions.get('window');
-const PRODUCT_WIDTH = (WINDOW_WIDTH - 24 - 12) / 2;
 
 type SortType = 'comprehensive' | 'sales' | 'price-asc' | 'price-desc';
 type RouteId = string | string[] | undefined;
@@ -191,12 +188,14 @@ interface CategoryListViewProps extends CategoryState, CategoryActions, Category
 }
 
 function ProductItem({ item, colors, handleProductPress }: Pick<CategoryListViewProps, 'colors' | 'handleProductPress'> & { item: ProductDTO }) {
+  const { width } = useWindowDimensions();
+  const cardWidth = (width - 36) / 2;
   return (
     <TouchableOpacity
-      style={[styles.productItem, { backgroundColor: colors.card }]}
+      style={[styles.productItem, { width: cardWidth, backgroundColor: colors.card }]}
       onPress={() => handleProductPress(item.id!)}
     >
-      <Image source={{ uri: item.imageUrl || 'https://via.placeholder.com/150' }} style={styles.productImage} resizeMode="cover" />
+      <Image source={{ uri: item.imageUrl || 'https://via.placeholder.com/150' }} style={[styles.productImage, { height: cardWidth }]} resizeMode="cover" />
       <View style={styles.productInfo}>
         <Text numberOfLines={2} style={[styles.productName, { color: colors.text }]}>{item.name}</Text>
         <View style={styles.priceRow}>
@@ -363,14 +362,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   productItem: {
-    width: PRODUCT_WIDTH,
+    width: 169.5,
     marginBottom: 12,
     borderRadius: 8,
     overflow: 'hidden',
   },
   productImage: {
     width: '100%',
-    height: PRODUCT_WIDTH,
+    height: 169.5,
   },
   productInfo: {
     padding: 8,

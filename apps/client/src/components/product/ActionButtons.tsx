@@ -118,7 +118,7 @@ function BottomIconButton({ name, label, color, onPress }: {
   onPress: () => void;
 }) {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.bottomIconBtn}>
+    <TouchableOpacity accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={styles.bottomIconBtn}>
       <IconSymbol name={name} size={24} color={color} />
       <Text style={[styles.bottomIconText, { color }]}>{label}</Text>
     </TouchableOpacity>
@@ -147,6 +147,7 @@ function BottomLeftBar({ themeColors, t, isFavorite, onToggleFavorite, onService
 function FlashBuyButton({ flashInfo, t, onPress }: { flashInfo: any; t: Translate; onPress: () => void }) {
   return (
     <TouchableOpacity
+      accessibilityRole="button"
       style={[styles.actionBtn, styles.flashBuyBtn]}
       onPress={onPress}
     >
@@ -164,12 +165,14 @@ function NormalActionButtons({ themeColors, t, onOpenSKU }: {
   return (
     <>
       <TouchableOpacity
+        accessibilityRole="button"
         style={[styles.actionBtn, styles.cartBtn]}
         onPress={() => onOpenSKU('cart')}
       >
         <Text style={styles.actionBtnText}>{t('home.product.add_to_cart')}</Text>
       </TouchableOpacity>
       <TouchableOpacity
+        accessibilityRole="button"
         style={[styles.actionBtn, styles.buyBtn, { backgroundColor: themeColors.primary }]}
         onPress={() => onOpenSKU('buy')}
       >

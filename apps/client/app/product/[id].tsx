@@ -6,7 +6,6 @@ import {
   StyleSheet,
   ScrollView,
   Image,
-  Dimensions,
   useWindowDimensions,
   Alert,
 } from 'react-native';
@@ -25,8 +24,6 @@ import { ProductInfo } from '@/components/product/ProductInfo';
 import { CommentPreview } from '@/components/product/CommentPreview';
 import { RelatedProducts } from '@/components/product/RelatedProducts';
 import { ActionButtons } from '@/components/product/ActionButtons';
-
-const { width: PAGE_WIDTH } = Dimensions.get('window');
 
 type RouteId = string | string[] | undefined;
 type Translate = ReturnType<typeof useTranslation>['t'];
@@ -86,10 +83,11 @@ function confirmSkuSelection(args: SkuConfirmArgs) {
 }
 
 function ProductBanner({ images }: { images: string[] }) {
+  const { width } = useWindowDimensions();
   return (
-    <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={styles.bannerContainer}>
+    <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={[styles.bannerContainer, { height: width }]}>
       {images.map((uri, index) => (
-        <Image key={index} source={{ uri }} style={styles.bannerImage} />
+        <Image key={index} source={{ uri }} style={[styles.bannerImage, { width, height: width }]} />
       ))}
     </ScrollView>
   );
@@ -251,8 +249,8 @@ export default function ProductDetailScreen() {
 const styles = StyleSheet.create({
   container: { flex:1 },
   center: { justifyContent: 'center', alignItems: 'center' },
-  bannerContainer: { height: PAGE_WIDTH },
-  bannerImage: { width: PAGE_WIDTH, height: PAGE_WIDTH, resizeMode: 'cover' },
+  bannerContainer: { height: 375 },
+  bannerImage: { width: 375, height: 375, resizeMode: 'cover' },
   detailDesc: { backgroundColor: '#fff', marginTop: 15, paddingBottom: 20 },
   detailHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 20 },
   headerLine: { width: 50, height: 1, backgroundColor: '#ddd', marginHorizontal: 15 },
