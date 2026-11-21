@@ -36,7 +36,7 @@ function HomeHeader({ colors }: { colors: AppColors }) {
   const { t } = useTranslation();
   return (
     <View style={[styles.header, { backgroundColor: colors.background }]}>
-      <TouchableOpacity style={styles.searchBox} onPress={() => router.push('/search')}>
+      <TouchableOpacity testID="search-input" style={styles.searchBox} onPress={() => router.push('/search')}>
         <IconSymbol name="magnifyingglass" size={20} color={colors.fontColorLight} />
         <Text style={[styles.searchText, { color: colors.fontColorLight }]}>{t('common.search_placeholder')}</Text>
       </TouchableOpacity>
@@ -182,7 +182,7 @@ function SectionHeader({ title, subtitle, colors, onMorePress }: { title: string
 
 function HomeLoadingView({ t }: { t: Translate }) {
   return (
-    <View style={[styles.container, styles.center]}>
+    <View testID="home-page" style={[styles.container, styles.center]}>
       <Text>{t('common.loading')}</Text>
     </View>
   );
@@ -199,7 +199,7 @@ interface HomeContentProps {
 function HomeReadyView(props: HomeContentProps) {
   const { mallHomeData, colors, t, onRecommendProductPress } = props;
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView testID="home-page" style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView stickyHeaderIndices={[0]} showsVerticalScrollIndicator={false}>
         <HomeHeader colors={colors} />
         <BannerSection advertiseList={mallHomeData?.advertiseList || []} />
