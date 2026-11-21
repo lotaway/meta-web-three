@@ -1,0 +1,33 @@
+name: Frontend Quality Gate
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'apps/backstage-admin/**'
+      - '.github/workflows/frontend-quality-gate.yml'
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  backstage-admin-quality:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: apps/backstage-admin
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: yarn
+          cache-dependency-path: apps/backstage-admin/yarn.lock
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Structure / a11y budgets + unit tests
+        run: yarn type-check && yarn test
+      - name: Build
+        run: yarn build-only
+      # Visual regression + axe a11y scan live in e2e/ and are opt-in until the
+      # Playwright/axe dependencies and baselines are added (see e2e/README.md).

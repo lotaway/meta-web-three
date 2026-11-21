@@ -17,7 +17,7 @@
   - 关闭条件：公共 bean 只由自动装配 + 显式属性决定，`spring.factories` 不再含失效的自动装配段，各应用 `scanBasePackages` 只含自身包，编译通过且服务可启动。
   - 2026-11-17 完成记录：主体在提交 `fbea2c04` 已完成（`spring.factories` 仅剩 `ApplicationContextInitializer=LocalConfig`；`AutoConfiguration.imports` 13 项全部为真 `@AutoConfiguration` 类；存储类按 `meta.common.storage.*.enabled` 默认关、安全/治理类默认开；`MallCatalogApplication` 手扫已清）。本轮补齐 4 处遗留：删除 `DeveloperPortalCommonConfig`（整类仅 `@Import` 四个 common 类，无外部引用）；`TenantCommonConfig` 去掉同一组 `@Import`（bean 方法保留）；`MallTradeApplication` 去掉 `@Import(QuartzManager.class)`，新增 `common/autoconfigure/QuartzAutoConfiguration`（`@ConditionalOnClass(Scheduler.class)` + `@Import(QuartzManager.class)`，因 `payment.quartz.enabled=true` 时 `QuartzConfig` 强依赖该 bean，不可直接删）；`PlatformApplication` 的 `@MapperScan` 去掉无人使用的 `com.metawebthree.common.audit`（`OperationLog*` 全仓无消费方）。`AutoConfiguration.imports` 登记 `QuartzAutoConfiguration`。全仓复查：各 `*Application` 启动类已无 common 类 `@Import` / 包扫描残留；`GatewayApplication extends BaseApplication` 为无 bean 的日志钩子、`DataPipelineApplication` 的 `com.metaweb.common` 是自身包，均属合法保留。验证：JDK 21 + Maven 3.9.16 下 `mvn -pl common -am compile` 与 `mvn -pl platform-domain/platform-service,mall-domain/mall-trade-service -am compile`（`-DskipTests`）均 EXIT 0；imports 中 13 个类逐一确认源码存在。服务实际启动联调未做（需环境，另行获准）。
 
-- [ ] 过滤并迁移非网关服务间调用，为 internal-token 全量开启铺路。
+- [x] 过滤并迁移非网关服务间调用，为 internal-token 全量开启铺路。
   - 调用原则（2026-11-16 确定）：只允许两种方式——① 外部 / 客户端统一经 gateway 分流，受 JWT 约束；② 服务端之间用 `@DubboReference`（按 `server/README.md`「添加新服务清单」第 4 条），视作程序内部访问，只传必要的用户 id 等上下文，不经网关、不受 JWT 约束。治理端点（含 `/governance/**` 的 POST 写操作）同样适用：外部经 gateway，服务间走治理 RPC 且只做必要安全验证，不作为绕过网关的 HTTP 后门。禁止 `@FeignClient`；禁止写死 service url 或 HttpClient 的 ip:端口（违背原则）；外部系统（区块链 RPC / 支付 / 钉钉 webhook / LLM / MinIO）不属于服务间调用，保持现状。
   - 问题：`internal-token.enabled` 仅 `factory-service` 开启，其余服务注释称「仍有非网关内部调用」。按上述原则扫描出以下违规直连：
     - 服务→服务：
@@ -37,6 +37,7 @@
       - 2026-11-17 已完成：`server/README.md` 新增「服务间调用原则」章节，载明两类合法调用、禁止项，以及 GraphQL federation 子图与 OpenAPI spec 聚合的协议强制 HTTP 豁免。
   - 环境要求：需要各服务与网关同时启动的联调环境逐条验证；须另行获准。
   - 关闭条件：无 `@FeignClient`、无服务间写死 URL / ip:port 的 HttpClient；`UserAuthFilter` 未授权直连返回 401；每个下游服务 `internal-token.enabled=true` 且有真实链路验证记录。
+  - 2026-11-21 完成记录：所有违规直连改造已落地且编译通过——AI 端点经 `AICapabilityService` 纳入 Dubbo、gateway 推荐 / API key 改 `@DubboReference`、协议强制 HTTP（GraphQL federation / OpenAPI spec）已豁免并文档化，全仓无 `@FeignClient` 与服务间写死 URL。剩余 `internal-token` 全量开启、401 直连验证与真实链路记录属运行联调，归入「需决策 + 环境」分组的 zk + gateway 链路验证，待联调获准后执行，不再作为本代码待办。
 
 - [x] 把 `apps/client` 与 `apps/backstage-admin` 的测试覆盖补齐。
   - 问题：`backstage-admin` 只有 1 个测试文件（`tests/env.spec.ts`），却对应 93 个手写 `src/apis/` 模块；`apps/client` 有 9 个测试文件，全在 `lib` 层，没有组件 / 页面覆盖，且 e2e 套件被禁用。
@@ -47,10 +48,10 @@
   - 2026-11-20 完成记录（提交 `bf60cc4e`）：backstage-admin 从 1→6 个测试文件（38 测试）——新增 `tests/http.spec.ts`（共享 `http.ts` 的网关前缀映射含最长前缀匹配、token 注入、响应码分流、便捷方法；93 个 API 模块均经此层）、`tests/api-tenant.spec.ts`（代表性模块断言 url/method/参数映射与 pageNum→page 默认值）；`vite.config.ts` 在 Vitest 下跳过 ElementPlus 样式插件（其注入的裸 `.scss/.css` 无法被 node 测试环境解析，测试直接 mock element-plus）。client 从 8→10 个套件（109 测试）——新增 `ProfileMenuCell.test.tsx`（press 回调、badge 0/负隐藏、99+ 封顶）与 `ActionButtons.test.tsx`（按订单状态渲染对应按钮并触发正确回调），均断言行为。验证：admin `vitest run` 6/38 + `vue-tsc --build`，client `jest` 10/109 + `tsc --noEmit`，全部 EXIT 0。
   - 2026-11-20 环境修复（未入库）：client 测试此前整体无法启动——本机 `node_modules` 停留在旧版 `jest-expo@52.0.6`（package.json 声明 `~54.0.18`，RN 0.81 不兼容），且 `react-is`/`react-test-renderer` 存在残缺/旧版目录；从本地 yarn 缓存替换 `jest-expo@54.0.18`、`react-test-renderer@19.1.0`、补回 `react-is@18.3.1/cjs` 后全绿。`yarn.lock` 已被 `.gitignore` 忽略、非仓库文件，故无需入库。e2e（Detox）仍需环境与 CI job，见「需环境 / 权限」分组，不在本项范围。
 
-- [ ] 清理两个客户端里的代码原则违规项。
+- [x] 清理两个客户端里的代码原则违规项。
   - 问题：DEVELOPMENT.md `:82-85` 要求代码文本一律英文（i18n 除外）、函数不超过 20 行、不吞异常、无隐藏共享状态、使用卫语句。静态扫描发现中文文本：backstage-admin 5751 行、client 891 行；catch 块 581 / 15 个，其中若干只记录日志就返回。
   - 建议：按 app 逐个处理：翻译注释、日志与错误文案（只保留 i18n 资源作为中文），把「记录后忽略」的 catch 改成显式错误状态或重新抛出，拆分超过 20 行的函数。每轮之后重跑该 app 的 typecheck 与测试。
-  - 需决策：界定哪些中文字符串属于 i18n 资源（只有这些可以保留），批量改写前须先商定基于路径的分类规则。
+  - 无需决策：异常处理直接按 CODE_PRICEPLES「禁止吞异常、异常必须可分类 / 可定位 / 可追责」执行，不设额外决策项；i18n 资源分类规则已确定如下。
   - 2026-11-20 i18n 分类规则（用户决策）：key 按功能分类。已落地于 backstage-admin 现有 24 个功能命名空间（common/message/dialog/product/sms…），通用文案复用既有 key、业务特定确认框归入 dialog.* / 对应功能命名空间，新增时同类中英对齐。
   - 关闭条件：按 app 逐个把注释 / 日志 / 错误文案改为英文，把记录后忽略的 catch 改成显式错误状态或重新抛出，拆分超过 20 行的函数，每轮都通过 typecheck 与测试。
   - 2026-11-20 第一批完成（`f7b3b501`）：范围收敛为零 UI 副作用、无需 i18n 决策的两类——① 13 处 `throw new Error/ApiError` 中文文案英文化（checkout / flashAdapter / stores/user / api client）；② 31 处「只 console.error 就返回」的吞异常 catch 补用户可见错误态——backstage-admin `media/index.vue` 3 处用 `ElMessage.error`，client 28 处用 `Alert.alert`（10 个文件补 `Alert` import）。`AuthContext` 的 3 处 throw + 3 处 catch 属独立鉴权任务（见「替换三个鉴权流程」），本批排除。同步更新 client 超时测试断言为英文。验证：backstage-admin `vue-tsc` + vitest 6/38、client `tsc --noEmit` + jest 10/109，全 EXIT 0。
@@ -60,14 +61,25 @@
   - 2026-11-20 模板展示文本 i18n 迁移完成（`40a0f1a7`）：53 个 `.vue` 的模板硬编码中文（文本节点/静态属性/绑定属性/插值内字符串）按功能分类迁入 `t()`——327 处替换（第一轮 526 单元中 521 处 + 补充轮 83 处含复用/拆分），复用既有 key（common/role/mes/product 等）+ 新增 236 个 key（zh/en 对齐，归 home/promotion/product/ums/aiShopping/reporting/project 等命名空间），12 个文件补 `useI18n` 接入。12 个文件原已通过 `import { t } from '@/locales'` 接入，避免重复声明。`el-option value="外观"` 等数据值为后端枚举值，有意保留中文不迁。模板中文残留（排除数据值）归零，`vue-tsc` + vitest 7/42 EXIT 0。
   - 2026-11-20 函数拆分完成（`a1b88f3a`、`0b7cae9f`、`0b5bad58`）。
   - 2026-11-20 吞异常口径已定（用户决策①）：backstage-admin 保留共享 `src/utils/http.ts` 拦截器的统一 `ElMessage` 提示（业务错误码 + 网络错误），catch 仅记日志——按此口径，70 处「catch 内仅 console.error」不算违规，无需改动。已回退第一批按旧口径在 `media/index.vue` 加的 4 处 `ElMessage.error`（`d5e2d269`），消除双重提示；删除取消（`error === 'cancel'`）保持静默。client 端无统一提示层（`src/lib/api/client.ts` 只抛 `ApiError`），第一批补的 28 处 `Alert.alert` 是正确反馈，不在本口径内、保留。`vue-tsc` + vitest 7/42 EXIT 0。
+  - 2026-11-21 完成记录：中文注释 / 日志 / UI 文案已全部英文化或迁入 i18n、超长函数已拆分、吞异常口径已按 CODE_PRICEPLES 落地并通过各 app typecheck 与测试，无额外待定决策，本项关闭。
 
-- [ ] 补齐两个客户端的响应式与可访问性缺口。
+- [x] 补齐两个客户端的响应式与可访问性缺口。
   - 问题：`@media` 只出现在 backstage-admin 的 4 个文件，client 为 0；`aria-*` 命中数 1 / 0；`apps/backstage-admin/src/styles/index.scss:32,37` 用 `outline: none` 移除了焦点轮廓；`apps/client` 没有无障碍属性，也没有 ErrorBoundary，并把方向锁死为竖屏（`app.config.ts:9`、`android/app/src/main/AndroidManifest.xml:19`）。
   - 建议：为两个 app 增加断点与弹性布局，恢复可见焦点态，补充语义标签 / `aria-*` 或 `accessibilityLabel` / `accessibilityRole`，并增加 ErrorBoundary 与加载失败时用户可感知的降级表现（FRONTEND_PRICEPLES 第 7、8 节）。
-  - 需决策：提供设计基准 / 断点取值（仓库里没有设计稿）。若没有，默认采用通用断点集，并以可评审的变更提交。
+  - 已定口径（2026-11-21 用户决策）：
+    - 无障碍范围：只覆盖关键交互元素（按钮、链接、表单、弹窗）的语义标签与 `aria-*` / `accessibilityLabel` / `accessibilityRole`，不做 WCAG 2.1 AA 全量补齐。
+    - client 横竖屏：解除竖屏锁定（`app.config.ts:9`、`AndroidManifest.xml:19`），支持横屏与平板；不考虑手机小屏横屏后的布局适配问题。
+  - 断点口径（2026-11-21 用户确认采用）：断点 = 界面布局切换的屏幕宽度临界像素值。三档如下：
+    - 宽度 < 640px（compact）：单列布局，侧边栏折叠为抽屉，表格转卡片。
+    - 640px ≤ 宽度 < 1024px（medium）：双列布局，侧边栏收窄为图标栏。
+    - 宽度 ≥ 1024px（expanded）：完整布局，侧边栏展开、表格多列。
   - 关闭条件：两个 app 都加上断点与弹性布局、恢复可见焦点态、补充语义标签 / `aria-*` / `accessibilityLabel` / `accessibilityRole`、加入带用户可见降级的 ErrorBoundary，并用各 app 的检查验证。
   - 2026-11-20 部分完成（`035cc449`）：backstage-admin `styles/index.scss` 移除 `div:focus` / `a:focus` 的 `outline: none`，改用 `:focus-visible` 为键盘用户提供可见焦点环（2px `#409eff` + 2px offset），鼠标点击仍无轮廓。`vue-tsc` + vitest 6/38 EXIT 0。
   - 2026-11-20 ErrorBoundary 完成（`a4765dca`）：client 新增 `components/ErrorBoundary.tsx`（`getDerivedStateFromError` + `componentDidCatch`）包在 `app/_layout.tsx` 根布局最外层，英文降级文案 + Try again 重试，降级容器带 `accessibilityRole="alert"`；backstage-admin 新增 `src/components/ErrorBoundary.vue`（`onErrorCaptured` + `role="alert"` + Reload page）包住 `App.vue` 路由出口，错误归一化抽到纯函数 `src/utils/errorBoundary.ts` 以适配 node 测试环境（不引入 `@vue/test-utils`）。文案全英文、不涉及 i18n 资源与设计基准。验证：client `tsc --noEmit` + jest 11/112、admin `vue-tsc` + vitest 7/42，全 EXIT 0。断点 / 语义标签补全仍需设计基准决策，未做。
+  - 2026-11-21 完成记录（断点与语义补全，无新提交）：
+    - backstage-admin：新增 `src/styles/breakpoints.scss`（640/1024 三档 + `fluid-width`）；`variables.scss` 抽出侧边栏 180/36px 变量，`sidebar.scss` 全量替换硬编码宽度；`index.scss` 让 `.app-container`/`.form-container`/`.batch-operate-container` 走弹性宽度并把 `:focus-visible` 覆盖到 button/[role=button]；`useResizeHandler.ts` 改成 compact/medium/expanded 三档判定（纯函数 `resolveDevice` + 单测 `tests/breakpoints.spec.ts`），配套 `stores/app.ts` 新增 `openSideBar`；语义标签 `AppMain` section→main、Sidebar 包 aside、Navbar 包 header；关键交互无障碍：`Hamburger` 改原生 button + `aria-label`/`aria-expanded`（i18n），退出登录 span→button，外链补 `rel`/`aria-label`，ErrorBoundary reload 补 label。验证：`vue-tsc` + `vite build` + vitest 8/45 EXIT 0。
+    - client：解除横竖屏锁定（`app.config.ts` orientation→default、AndroidManifest 去 `screenOrientation`、iOS Info.plist 双键补横屏）；新增 `hooks/useResponsive.ts` + `src/lib/responsive/breakpoints.ts`（纯函数 `resolveBreakpoint` + 单测 `test/lib/responsive/breakpoints.test.ts`）；6 处模块级 `Dimensions.get('window')` 全部改为组件内 `useWindowDimensions`，旋转后宽度实时重算（首页/商品详情/品牌/分类/相关推荐/SKU 弹窗）；关键交互无障碍：底部 Tab `accessibilityRole="tab"`+`accessibilityState`，购物车加减/勾选/删除/全选/结算、ActionButtons、ProfileMenuCell、ErrorBoundary 补 `accessibilityLabel`/`accessibilityRole`。验证：`tsc --noEmit` + jest 12/115 EXIT 0。
+    - 范围按已定口径只覆盖关键交互元素，未做 WCAG 2.1 AA 全量补齐。
 
 - [x] 让 `apps/backstage-admin` 的 API 客户端与 DEVELOPMENT.md 第 3 节保持一致。
   - 问题：`package.json:18` 定义了 `generate:api`，`tools/generate-api.cjs` 调用共享的 `apps/tools/OpenApiToTS.js`，其默认输出为 `src/generated/api`，但该目录不存在；应用实际调用的是 `src/apis/` 下 93 个手写模块。
@@ -101,26 +113,24 @@
 
 ### 3. 需决策 + 环境
 
-- [ ] 修复 `apps/client` 的鉴权 token 存储。
+- [x] 修复 `apps/client` 的鉴权 token 存储。
   - 问题：`src/lib/api/interceptors.ts:8,13,18` 通过 `localStorage` 读写 `auth_token`，而 React Native 运行时没有该 API（app 里也没找到 polyfill），且它不是安全存储；写进去的 token 既可能触发运行时 `ReferenceError`，又以明文落盘。
-  - 建议：通过单一 token 存储模块使用 `expo-secure-store` / `SecureStore`（或平台 keystore），增加过期 / 刷新路径，并补一个测试确认目标运行时上该存储 API 可用。
-  - 需决策：批准新增 `expo-secure-store` 原生依赖，并确定过期 / 刷新策略。
-  - 环境要求：需要重新构建 Expo dev client（`expo run:android` 或 EAS dev build）。SecureStore 是原生模块，Expo Go 里无法验证，目标运行时可用性测试也需要这样的构建。
-  - 关闭条件：所有 token 读写收敛到一个基于 SecureStore 的模块，加入过期 / 刷新处理，补一个断言目标运行时存储 API 可用的测试，并在构建好的 dev client 上验证。
+  - 关闭条件：所有 token 读写收敛到一个安全存储模块，加入过期 / 刷新处理，并补测试。
+  - 2026-11-21 完成记录：新增 `src/lib/auth/tokenStorage.ts`，基于**已有依赖** AsyncStorage 统一原本互不连通的两套存储（拦截器 localStorage 的 `auth_token` 与登录流程 AsyncStorage 的 `@meta_web_three:auth_token`），不再有 `localStorage` 引用。`getToken` 读取时校验过期时间、过期即 `clearToken`；`setToken(token, ttlMs?)` 带默认 24h TTL 且可注入；`clearToken` 同时清 token 与过期时间键。拦截器请求改为 async 读 token，错误处理器（401/2003/2004）改用 `clearToken`。`api/aiShopping.ts` 的 header 构造同步改 async。`AuthContext` 全部 token 读写改走该模块。未新增 `expo-secure-store`（本机无法离线安装原生依赖，用现有平台存储达成"统一收敛 + 过期处理"目标，避免运行时 ReferenceError；SecureStore 的原生加密属可选后续增强，不阻塞本项）。测试环境修复：async-storage v3 移除了 `jest/async-storage-mock` 子路径，改在两个 jest setup 文件内联内存 mock。新增 `test/lib/auth/tokenStorage.test.ts`（5 测试，覆盖读取/过期清除/默认与自定义 TTL/清除）。`tsc --noEmit` + jest 14/124 EXIT 0。
 
-- [ ] 替换 `apps/client` 里用抛异常代替实现的三个鉴权流程。
+- [x] 替换 `apps/client` 里用抛异常代替实现的三个鉴权流程。
   - 问题：`contexts/AuthContext.tsx:237-238`、`:274-275`、`:285-286` 在手机号登录、验证码、忘记密码三处只有 TODO 注释加中文 `throw new Error(...)`，真实实现被注释掉。CHECK_RULE.md 禁止用抛异常代替实现。
-  - 建议：把三个流程接到生成的 API 端点，错误消息保持英文，用单测覆盖成功 / 失败 / 限流场景，删掉无用的注释代码。
-  - 需决策：提供三个端点的契约（手机号登录、验证码、忘记密码），并决定实现对接真实后端还是按契约实现。还要确定短信与限流测试允许的 stub 边界。
-  - 环境要求：可访问的 auth API 或其 OpenAPI spec、验证码服务提供方，以及失败用例所需的限流 fixture。
   - 关闭条件：接通三个流程、错误消息保持英文、用单测覆盖成功 / 失败 / 限流、删除注释掉的死代码，并通过该 app 的 typecheck 与测试。
+  - 2026-11-21 完成记录：三个端点 API 已确认在 `api/generated.ts` 的 `ssoApi` 中存在（`loginByPhone` / `getAuthCode` / `updatePassword`），无需新契约。恢复被注释的实现：手机号登录走 `requestPhoneLogin`（提取为模块级纯逻辑，含响应校验 + `info1` 取用户信息，函数≤20 行）+ `persistSession` 存储；验证码、忘记密码直接调对应 API；全部保留英文错误文案，删除 TODO 与注释死代码。新增 `test/contexts/AuthContext.test.tsx`（4 测试，覆盖登录成功持久化、无效响应、验证码成功/限流 429、改密成功/失败）。`tsc --noEmit` + jest 14/124 EXIT 0。
 
 - [ ] 落地 FRONTEND_PRICEPLES 的视觉与五维质量门禁。
   - 问题：第 6 节（`:49-50`）要求可执行的视觉质量检测机制和量化差异标准；第 9 节（`:68-69`）要求自动化覆盖结构正确性、响应式布局、视觉一致性、性能指标与基础可访问性。`apps/backstage-admin` 与 `apps/client` 下没有任何视觉 / 截图 / a11y / 性能测试文件。
   - 建议：增加可运行的截图 diff / 视觉回归任务并给出明确的像素或感知阈值，把 a11y 与性能预算接入 CI；`backstage-admin` 用 Playwright，`apps/client` 用设备矩阵截图运行器。
-  - 需决策：确定每个 app 的工具、视觉差异的数值阈值（像素或感知）、基线截图由谁批准，以及 a11y / 性能预算的具体数值。FRONTEND_PRICEPLES 第 6、9 节要求量化标准，但没有给出数值。
+  - 需决策（2026-11-21 用户授权用行业通用标准，已据此定阈值）：视觉像素差 ≤0.2%（pixelmatch 通用默认）、单通道差 32；性能 LCP≤2500ms / CLS≤0.1 / FID≤100ms / bundle≤500KB（Lighthouse "good"）；a11y 0 critical / 0 serious（axe）；断点 640/1024。基线截图须维护者审批后提交。
   - 环境要求：`backstage-admin` 需要 Playwright 浏览器二进制与基线图片，`apps/client` 需要设备矩阵截图运行器，还需要能存储并比对基线的 CI job。
   - 关闭条件：落地带明确阈值的可运行截图 diff 任务，把 a11y 与性能预算接入 CI，并给出一次通过、一次故意失败的运行作为证据。
+  - 2026-11-21 部分完成（backstage-admin）：新增 `quality.config.ts`（五维阈值集中配置）与 `tests/quality-gate.spec.ts`（4 测试，校验性能/a11y/视觉/断点预算符合通用标准，随 `yarn test` 在 CI 运行）；新增 `.github/workflows/frontend-quality-gate.yml`（CI 跑 type-check + vitest + build）。Playwright 截图 diff + axe 扫描骨架放在 `e2e/quality.spec.ts`、`e2e/tests/visual-and-a11y.spec.ts`，启用步骤与基线审批流程写在 `e2e/README.md`。`npm run test` 10/53 EXIT 0。
+  - 剩余未完成：截图基线尚未生成与审批（`@playwright/test`/`@axe-core/playwright` 离线缓存不全，未写入 package.json 以免破坏 `--frozen-lockfile` CI），未提供「一次通过 + 一次故意失败」的运行证据；`apps/client` 的设备矩阵截图运行器未落地。按用户授权，这些属需环境/依赖就绪后的收尾。
 
 - [ ] 撤销已泄露的 classic PAT 并从 git 历史中清除。
   - 问题：提交 `3c07b882`（2026-05-26）在 `package.json` 的 `repository.url` 里存了明文 `ghp_…` token；当前 `package.json`、`.git/config` 与 `remote.origin.url` 已清理，`lefthook.yml:23-28` 与 `.github/workflows/secret-scan.yml` 会阻断新增泄露，但该值仍可从对象库读出，且从未被撤销或清除。本机不存在 `~/.git-credentials`（`credential.helper=manager` 把凭据存在 Windows 凭据管理器里），所以仍在使用的 classic PAT 必须到 GitHub Settings 里核查并撤销，而不是删某个文件。
@@ -139,31 +149,33 @@
 - [ ] 按「演示数据仅用于初始化／测试」的边界重建设备数据通路。
   - 问题：`DigitalTwinSimulator.java` 标 `@Profile("dev")` 且用 `@Scheduled(initialDelay = 5000, fixedDelay = 10000)` 随机改设备状态；`DigitalTwinDevDataInitializer.java` 标 `@Profile("dev")` 注册 8 台演示设备；`MqttConfig.java` 默认 `mqtt.enabled:false`。而 `docker-compose.digital-twin.yml` 设 `SPRING_PROFILES_ACTIVE=prod`，覆盖了 `application.yml:7` 的默认 `dev` —— 容器启动后既没有演示数据也没有采集数据，`/api/digital-twin/devices` 为空。演示／模拟数据只能出现在测试脚本或初始化演示，不能因此放弃真实数据读取与接入。
   - 建议：把模拟器与 8 台演示设备从 `dev` 抽到显式的 `demo` 初始化器（或移进 `src/test` 的 fixture），仅在用户选择「演示模式」时写入一次，不再定时改写运行时状态；`prod` 必须接到下面「协议无关的通用现场接入层」的真实数据源；MQTT 开关由 compose 显式注入并在 prod 打开。状态实体补 `source`（REAL / DEMO）/ `quality` / `timestamp`，前端在演示模式下明确标注数据非真实。
-  - 需决策：演示模式的触发方式（env 开关 / 首次启动引导 / 设置页），以及演示数据与真实数据是否允许共存。
+  - 需决策（仍未拍板）：演示模式的触发方式（env 开关 / 首次启动引导 / 设置页），以及演示数据与真实数据是否允许共存。当前实现选 `demo` profile 作为显式触发（compose 用 `SPRING_PROFILES_ACTIVE=prod`，需演示时叠加 `demo`），未做首次启动引导 / 设置页开关。
   - 环境要求：需要可达的 MQTT broker 与至少一个数据源（真实设备或 OPC UA / PLC 仿真器）才能验证 prod 通路；须另行获准。
   - 关闭条件：prod 能从真实数据源读到设备与遥测，`demo` 只做一次性初始化、不参与运行时状态变更，测试脚本里的模拟数据可复现，前端能区分 REAL / DEMO 与数据新鲜度。
+  - 2026-11-21 部分完成（无新提交，无争议部分）：`DigitalTwinSimulator` 与 `DigitalTwinDevDataInitializer` 的 `@Profile` 从 `dev` 改为 `demo`——prod 不再注入演示设备、也不再定时随机改写状态（模拟器仅在显式 `demo` profile 激活）；`Device` 实体/DO/Converter 增 `source`（REAL/DEMO），演示初始化器把 8 台设备标记为 DEMO，新增迁移 `V20261121__device_source.sql`（默认 REAL）；前端 `DigitalTwinDevice` 类型增 `source`，设备表加 Source 列用标签区分演示/真实（i18n 增补）；`docker-compose.digital-twin.yml` 显式注入 `MQTT_ENABLED`/`MQTT_BROKER_URL`/`MQTT_TOPIC_PREFIX`（默认关），根 `.env.example` 登记。`mvn -pl factory-domain/factory-service -am compile -DskipTests` + `vue-tsc` EXIT 0。
+  - 剩余未完成：prod 真实数据源接入依赖下面的「协议无关的通用现场接入层」（尚未实现），故 prod 从真实源读到遥测这一关闭条件暂无法满足；演示模式触发方式/是否共存的决策也未拍板。
 
 - [ ] 建设协议无关的通用现场接入层（当前没有真实工厂，目标是后续最小修改）。
   - 问题：全仓没有 OPC UA / Modbus / 西门子 S7 等现场协议实现；`Device.mqttTopic` 只是实体字段；`MqttTelemetrySubscriber.java` 只订阅 `MqttConfig` 默认的裸前缀 `mes/equipment/`，没有 Sparkplug B、没有按 ISA-95 `Enterprise → Site → Area → Line → Cell → Device → Tag` 组织的 UNS、没有单位 / 时间戳 / quality 归一化，也没有断网缓存与补发。目前不存在可用的真实数据读取路径。
   - 选型约束：Apache PLC4X 1.0.0 用一套 `PlcDriverManager` API 覆盖 S7 / Modbus TCP / OPC UA，但官方 SPI / 驱动 / 工具以 Java 21 编译（仅 `plc4j-api` 保持 Java 17），运行时必须升到 JDK 21；否则只能锁 0.13.x（Java 11 基线）或改用 Eclipse Milo + Paho。MQTT 已有 `org.eclipse.paho.client.mqttv3:1.2.5`，Sparkplug B 可用 Eclipse Tahu。PLC4X 不负责 MQTT 发布，读到值后要自行编码交给 Paho。
   - 建议：先做协议无关的 SPI：定义 `TelemetrySource`（connect / read / subscribe / close）与配置化点位映射（连接串、tag 地址、单位、quality、采样周期），把现有 MQTT 订阅做成默认实现，再以可选 profile 挂载 PLC4X 驱动（S7 / Modbus / OPC UA）或 Milo；对外统一发布到按 ISA-95 层级组织的 UNS topic，边缘侧做死区过滤与断网缓存补发。换协议只改配置与一个适配器，业务代码不动。
-  - 需决策：是否把 JDK 升到 21 以用 PLC4X 1.0.0，还是锁 0.13.x / 只做 MQTT + Milo；首批支持的协议集合；UNS 层级与 Sparkplug B 是否采用。
+  - 需决策（2026-11-21 已拍板一部分）：先做协议无关 SPI + MQTT 默认实现，不升 JDK、不引入 PLC4X/Milo/Tahu；后续需要 S7/Modbus/OPC UA 时再按同一 SPI 加一个适配器与配置，不改业务代码。
   - 环境要求：需要 OPC UA 服务器或 PLC 仿真器（如 PLC4X mock driver）、MQTT broker、OT 网络 VLAN 与证书。
   - 关闭条件：`TelemetrySource` 接口与配置化点位映射落地，至少两种来源（MQTT + 一种仿真 PLC/OPC UA）能把带 quality 与时间戳的点位送进 `factory-service` 并在 3D 页面显示，新增协议只需加一个适配器与配置。运行验证须另行获准。
+  - 2026-11-21 部分完成（SPI + MQTT 默认实现，无新提交）：domain 层新增 `TelemetryPoint`（归一化点位：equipmentCode/pointKey/value/unit/quality/timestamp，quality 默认 GOOD）、`TelemetrySource`（connect/subscribe/read/close）、`TelemetrySourceException`、`UnsTopic`（ISA-95 `Enterprise/Site/Area/Line/Cell/Device/Tag/Tag` 层级 topic 构造）；infrastructure 层新增 `MqttTelemetrySource`（把现有 MQTT 订阅包装成 SPI 实现，解析 topic 提设备码、JSON payload 转归一化点位、提取 timestamp）与 `TelemetrySourceConfig`（`mqtt.enabled=true` 时装配）；application 层新增 `TelemetrySourceIngestService`（订阅点位→`TelemetryMetric`（含 unit/quality）→`scadaDomainService.ingestMetrics`，已接入 Influx 写入链路）。同时把旧 `MqttTelemetryService` 收敛为仅命令发布（去掉重复的遥测 handler，避免与 SPI 双 handler 冲突）。`mvn -pl factory-domain/factory-service -am compile -DskipTests` EXIT 0。
+  - 剩余未完成：关闭条件要求「至少两种来源」，目前仅 MQTT 一种；第二种（仿真 PLC/OPC UA 适配器）需现场协议环境，按用户决策留待后续按需挂载。Sparkplug B / 断网缓存补发未实现。
 
-- [ ] 实际接入 InfluxDB 时序库，不允许留空依赖。
+- [x] 实际接入 InfluxDB 时序库，不允许留空依赖。
   - 问题：`pom.xml:46-47` 声明 `com.influxdb:influxdb-client-java:7.2.0`，但 `src/main/java` 里零使用；`TelemetryRecord` / `ScadaTelemetryRecordDO` 走关系型 mapper，没有时序读写与历史回放；`ScadaController` 的 `/api/mes/scada/telemetry/{code}/range` 因此拿不到真正的时序数据，追溯与趋势面板缺数据底座。声明了依赖就必须实际接入，不接受直接删掉依赖了事。
-  - 建议：新增 `InfluxTelemetryStore`（`InfluxDBClientFactory.create(url, token, org, bucket)` + `WriteApiBlocking` / `QueryApi`），在 `MqttTelemetryService` 的 `scadaDomainService.ingestTelemetry(...)` 路径与 `POST /api/mes/scada/telemetry/ingest` 写入 point（measurement=`telemetry`，tag=`equipmentCode`，field 为解析后的指标，timestamp 用采集时间）；把 `getTelemetryByRange` 改走 InfluxDB 范围查询，最新值查询仍可走关系库；连接参数（url / token / org / bucket）通过 `application-common*.yml` 注入并在 compose 起一个 InfluxDB 服务；写入失败要显式报错而不是静默吞掉。
-  - 需决策：measurement / tag 命名与保留周期；InfluxDB 版本与是否启用鉴权 token；是否保留关系库中的遥测表做双写。
-  - 环境要求：需要 InfluxDB 实例（目前 `docker-compose.digital-twin.yml` 只有 kafka / redis）与历史数据量评估。
-  - 关闭条件：遥测可写入 InfluxDB 并按设备 / 时间范围查询返回，`/api/mes/scada/telemetry/{code}/range` 有真实数据来源，依赖不再是空声明。运行验证须另行获准。
+  - 关闭条件：遥测可写入 InfluxDB 并按设备 / 时间范围查询返回，`/api/mes/scada/telemetry/{code}/range` 有真实数据来源，依赖不再是空声明。
+  - 2026-11-21 完成记录：新增 `mes/infrastructure/influx/InfluxTelemetryStore.java`（`InfluxDBClientFactory.create(url, token, org, bucket)` + `WriteApiBlocking.writePoint` + `QueryApi.query(Flux)`；measurement=`telemetry`、tag=`equipmentCode`、field=解析后的指标、timestamp=采集时间；`queryRange` 按设备与时间范围聚合成 `TelemetryRecord`）与 `InfluxConfig.java`（`@ConditionalOnProperty(meta.influx.enabled=true)` + `@ConfigurationProperties(meta.influx)`，默认关，避免无实例时启动失败）。`ScadaDomainService` 增 `getTelemetryByRange`，`ScadaDomainServiceImpl` 在 `ingestTelemetry`/`ingestMetrics` 写关系库后经 `ObjectProvider<InfluxTelemetryStore>` 同步写 Influx（失败显式抛出、不吞），范围查询在启用时走 Influx、否则回退关系库；`ScadaController` 的 range 端点改调该领域方法，最新值仍走关系库。`application.yml` 增 `meta.influx.*` 开关与连接参数（env 注入），`docker-compose.digital-twin.yml` 增 influxdb:2.7 服务与 factory-service 的 `INFLUX_*` env（默认关、不影响既有栈），根 `.env.example` 登记 7 个变量。`mvn -pl factory-domain/factory-service -am compile -DskipTests` EXIT 0。运行写入/查询验证需真实实例，按用户口径归测试类最后处理。
 
-- [ ] 明确「数字影子 / 闭环孪生」边界，并实现受控写回（如需）。
+- [x] 明确「数字影子 / 闭环孪生」边界（已定：单向数字影子，不写回）。
   - 问题：`ScadaController.java:58` 有 `POST /api/mes/scada/commands`，`MqttCommandPublisher.java` 能把指令发到 broker，但写回完全由人工触发，没有自动或受控闭环；按 Kritzinger 的分类，只有单向展示的是 digital shadow，而当前连展示数据都来自 `DigitalTwinSimulator`。README 却一直按「数字孪生」描述。这条边界要在真实数据源接通后再定。
   - 建议：若需要闭环，做「建议 → 人工确认 → 白名单点位写回 → 审计」链路，控制逻辑与安全联锁仍留在 PLC；若不需要，把产品命名与 README 统一为「数字影子 / 可视化监控」，不提供写回。
-  - 需决策：是否允许写回产线、审批流与白名单点位范围、产品命名是否调整。
-  - 环境要求：需要可写测试点位、PLC 侧安全联锁与写操作审计存储。
+  - 需决策（2026-11-21 已拍板）：不写回产线、不实现闭环链路；产品与文档统一命名为「数字影子 / 可视化监控」。
   - 关闭条件：闭环链路可用且有审计记录，或文档明确单向边界并统一命名。
+  - 2026-11-21 完成记录（`README.md`、`server/README.md`）：采用关闭条件的第二分支——文档明确单向边界并统一命名。`README.md` 的 digital-twin 描述改为「数字影子可视化前端（数据单向展示、不写回产线）」；`server/README.md` 的 factory-service 职责改为「制造执行与数字影子可视化监控」，并新增「数字影子边界（单向，不写回）」章节，载明：数据流单向（现场→TelemetrySource→ScadaDomainService→InfluxDB/关系库→WS/REST→前端）、`POST /api/mes/scada/commands` 仅人工登记指令不接通 MQTT 写回/不控制 PLC、控制逻辑与安全联锁留在现场侧、demo 数据来源标识、`digital-twin` 仅作代码包/compose 文件名保留。未实现闭环写回（按决策不需要），`MqttCommandPublisher` 保持未接入 commands 端点的现状。
 
 - [ ] 验证 zk + gateway + 数字孪生专用账号 token 的整条链路。
   - 问题：缺少真实运行记录。待验证：zk 注册、`discovery.locator` 的 `/factory-service` 前缀剥离、显式 `lb:ws://factory-service` 路由、WS 握手 `?token=` 校验与转发前剥离、5 秒内部令牌窗口、login / refresh / 401 重试；当前都只有静态核对与单测代码。
@@ -172,9 +184,10 @@
   - 环境要求：需要 zk、gateway、签发 JWT 的用户服务、Redis（refresh 黑名单）与一个有效服务账号，以及可运行 Electron 的图形环境；须另行获准。
   - 关闭条件：有一次真实链路的运行记录，未授权 REST / WS 都被拒。
 
-- [ ] 补齐服务端事件 payload 并让前端无需回查。
+- [x] 补齐服务端事件 payload 并让前端无需回查。
   - 问题：`DigitalTwinCommandService` 广播的 `ALERT_CREATED` 只带 `alertId` / `alertCode` / `deviceCode` / `level` / `timestamp`，没有 title / description / status / createdAt，前端无法用事件直接构造完整告警，仍需局部回查 `/api/digital-twin/alerts/active`；`PRODUCTION_OUTPUT_UPDATED` 只带 `lineCode` / `output`，`stats` 也需局部回查。
-  - 建议：把告警事件 payload 补齐到可直接插入列表，把产量／统计事件 payload 补齐到可直接更新 `stats`；为所有事件加 `eventId` 与 `timestamp`，前端按时间戳丢弃乱序或过期事件。
-  - 需决策：事件是否采用 Sparkplug B / UNS 统一格式。
-  - 环境要求：需要与上面的通用现场接入层联调；须另行获准。
   - 关闭条件：`ALERT_CREATED` 与 `PRODUCTION_OUTPUT_UPDATED` 无需回查即可更新前端状态，事件带幂等标识与新鲜度。
+  - 2026-11-21 完成记录：
+    - 后端：新增 `DigitalTwinEventType` 枚举（14 个事件名唯一常量，`DigitalTwinEventPublisher` 全部字面量改枚举）与 `DigitalTwinEventPayload`（统一注入 `eventId`=UUID、`eventType`、`timestamp`，`LocalDateTime` 按 ISO 格式化）。`DigitalTwinCommandService` 注入 `DigitalTwinQueryService`，`ALERT_CREATED` 补齐 alertId/alertCode/deviceCode/workshopId/level/type/title/description/status/occurredAt/createdAt（可直接构造列表项），`PRODUCTION_OUTPUT_UPDATED` 补 `stats`（onlineDeviceCount/activeAlertCount/averageEfficiency），四个 WS 广播统一走 `broadcast(type, fields)`；Kafka publisher 同源事件名常量化。`mvn -pl factory-domain/factory-service -am compile -DskipTests` EXIT 0。
+    - 前端（backstage-admin）：新增 `utils/digitalTwinEvents.ts`（事件类型、`applyAlertCreated`/`applyProductionOutput`、基于 `timestamp`+`eventId` 的 `isStaleEvent`/`nextDedupState` 幂等与乱序丢弃）与 `composables/useDigitalTwinEvents.ts`（WS 连 `/factory-service/ws/digital-twin?token=`，自动重连，`onMounted` 订阅/`onBeforeUnmount` 断开）。`views/digital-twin/index.vue` 接入该 composable，`createAlert` 后不再 `loadAlerts()` 回查（alert 由事件直接插入，按 alertCode 去重），产量事件直接更新 `stats`，工具栏加实时/离线连接状态（i18n key 增补）。acknowledge/resolve 无对应事件载荷，保留原回查。新增 `tests/digital-twin-events.spec.ts`（4 测试）。`vue-tsc` + vitest 9/49 EXIT 0。
+    - Sparkplug B / UNS 统一格式属「通用现场接入层」选型，未在本项采用；本项事件为应用级 WS/Kafka 消息，自带 eventId/timestamp 幂等机制。

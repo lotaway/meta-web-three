@@ -37,6 +37,19 @@ services:
       # The renderer is a file:// Electron page; the gateway already validates
       # the JWT, so all handshake origins are accepted here.
       - DIGITAL_TWIN_WEBSOCKET_ALLOWED_ORIGINS=*
+      # Time-series telemetry sink (opt-in). The InfluxDB service below is only
+      # needed when INFLUX_ENABLED=true; the relational store stays the source
+      # of truth for the latest value and the fallback for range queries.
+      - INFLUX_ENABLED=${INFLUX_ENABLED:-false}
+      - INFLUX_URL=${INFLUX_URL:-http://influxdb:8086}
+      - INFLUX_TOKEN=${INFLUX_TOKEN:-}
+      - INFLUX_ORG=${INFLUX_ORG:-meta}
+      - INFLUX_BUCKET=${INFLUX_BUCKET:-telemetry}
+      # MQTT ingestion is an explicit opt-in. In prod, point MQTT_BROKER_URL at
+      # the real broker; the demo simulation profile is no longer active in prod.
+      - MQTT_ENABLED=${MQTT_ENABLED:-false}
+      - MQTT_BROKER_URL=${MQTT_BROKER_URL:-tcp://localhost:1883}
+      - MQTT_TOPIC_PREFIX=${MQTT_TOPIC_PREFIX:-mes/equipment/}
       - JAVA_OPTS=-Xms512m -Xmx1024m
     volumes:
       - factory_service_data:/server/factory
@@ -50,6 +63,25 @@ services:
       - zookeeper
     networks:
       - meta-web-three
+
+  # Only used when INFLUX_ENABLED=true. Telemetry is written on ingest and read
+  # back by /api/mes/scada/telemetry/{code}/range; when disabled the service
+  # keeps using the relational store, so this container is never required.
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUX_USERNAME:-admin}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUX_PASSWORD:-123123456}
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUX_ORG:-meta}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUX_BUCKET:-telemetry}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUX_TOKEN:-mwt-influx-token-2024}
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    networks:
+      - meta-web-three
+    restart: unless-stopped
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:10101/actuator/health"]
@@ -84,3 +116,4 @@ networks:
 
 volumes:
   factory_service_data:
+  influxdb_data:

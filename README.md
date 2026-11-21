@@ -18,7 +18,7 @@ meta-web-three/
 ### apps/ 前端应用
 - backstage-admin - 商城管理后台（后台管理系统，Vue 3 + Element Plus）
 - client - 客户端 App（React Native / Expo，面向用户的移动端业务；包含支付、业务页面等）
-- digital-twin - 数字孪生前端（AI 驱动的数字孪生与知识问答桌面端，Electron/React；并配套三维场景与交互）
+- digital-twin - 数字影子可视化前端（AI 驱动的可视化监控与知识问答桌面端，Electron/React；配套三维场景与交互，数据单向展示、不写回产线；本仓库仅保留服务端与 backstage-admin 的数字影子页面，Electron 端在独立仓库）
 
 ### k8s/ 集群部署与新增服务
 
