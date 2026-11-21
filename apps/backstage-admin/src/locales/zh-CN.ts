@@ -45,6 +45,8 @@ export default {
     to: '至',
     startDate: '开始日期',
     endDate: '结束日期',
+    openSidebar: '展开侧边栏',
+    closeSidebar: '收起侧边栏',
   },
   upload: {
     clickToUpload: '点击上传',
@@ -2847,5 +2849,11 @@ export default {
     vsLastWeek: '同比上周',
     monthSales: '本月销售总额',
     weekSales: '本周销售总额',
+  },
+  digitalTwin: {
+    live: '实时',
+    offline: '离线',
+    demo: '演示',
+    real: '真实',
   },
 }

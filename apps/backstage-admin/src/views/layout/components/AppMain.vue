@@ -6,11 +6,11 @@ defineOptions({
 </script>
 
 <template>
-  <section class="app-main">
+  <main class="app-main">
     <router-view v-slot="{ Component }">
       <transition name="fade" mode="out-in">
         <component :is="Component" />
       </transition>
     </router-view>
-  </section>
+  </main>
 </template>

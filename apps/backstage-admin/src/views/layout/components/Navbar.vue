@@ -47,7 +47,8 @@ const handleSwitchLanguage = (lang: LocaleType) => {
 </script>
 
 <template>
-  <el-menu class="navbar" mode="horizontal">
+  <header class="navbar-header">
+    <el-menu class="navbar" mode="horizontal">
     <hamburger class="hamburger-container" :toggle-click="handleToggleSideBar" :is-active="sidebar.opened"></hamburger>
     <breadcrumb></breadcrumb>
     
@@ -86,15 +87,32 @@ const handleSwitchLanguage = (lang: LocaleType) => {
             </el-dropdown-item>
           </router-link>
           <el-dropdown-item divided>
-            <span @click="handleLogout" style="display:block;">{{ logoutText }}</span>
+            <button type="button" class="logout-button" @click="handleLogout">{{ logoutText }}</button>
           </el-dropdown-item>
         </el-dropdown-menu>
       </template>
     </el-dropdown>
-  </el-menu>
+    </el-menu>
+  </header>
 </template>
 
 <style lang="scss" scoped>
+.navbar-header {
+  height: 50px;
+}
+
+.logout-button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
 .navbar {
   height: 50px;
   line-height: 50px;

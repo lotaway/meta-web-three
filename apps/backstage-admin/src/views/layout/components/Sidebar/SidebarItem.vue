@@ -121,7 +121,9 @@ const calcChildIndex = (parent: ProcessedRoute, child: ProcessedRoute): string =
           <sidebar-item :is-nest="true" class="nest-menu" v-if="child.children && child.children.length > 0"
             :routes="[child as any]" :key="child.path"></sidebar-item>
           <!-- Submenu with external link -->
-          <a v-else-if="child.path.startsWith('http')" :href="child.path" target="_blank" :key="child.name || child.path">
+          <a v-else-if="child.path.startsWith('http')" :href="child.path" target="_blank" rel="noopener noreferrer"
+            :aria-label="child.meta?.title ? translateTitle(child.meta.title) : undefined"
+            :key="child.name || child.path">
             <el-menu-item :index="calcChildIndex(item, child)">
               <svg-icon v-if="child.meta?.icon" :icon-class="child.meta.icon"></svg-icon>
               <template #title>

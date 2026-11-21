@@ -1,0 +1,30 @@
+// Single source of truth for responsive breakpoints, shared by styles and components.
+$breakpoint-compact: 640px;
+$breakpoint-expanded: 1024px;
+
+// Compact: single column, sidebar becomes a drawer, tables become cards.
+@mixin compact {
+  @media (max-width: ($breakpoint-compact - 1px)) {
+    @content;
+  }
+}
+
+// Medium: two columns, sidebar collapses to an icon rail.
+@mixin medium {
+  @media (min-width: $breakpoint-compact) and (max-width: ($breakpoint-expanded - 1px)) {
+    @content;
+  }
+}
+
+// Expanded: full layout with the sidebar expanded.
+@mixin expanded {
+  @media (min-width: $breakpoint-expanded) {
+    @content;
+  }
+}
+
+// Fluid width with an upper bound; replaces hard-coded page widths.
+@mixin fluid-width($max) {
+  width: 100%;
+  max-width: $max;
+}

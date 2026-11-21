@@ -45,6 +45,8 @@ export default {
     to: 'to',
     startDate: 'Start date',
     endDate: 'End date',
+    openSidebar: 'Open sidebar',
+    closeSidebar: 'Close sidebar',
   },
   upload: {
     clickToUpload: 'Click to upload',
@@ -2771,5 +2773,11 @@ export default {
     vsLastWeek: 'vs last week',
     monthSales: 'Sales this month',
     weekSales: 'Sales this week',
+  },
+  digitalTwin: {
+    live: 'Live',
+    offline: 'Offline',
+    demo: 'Demo',
+    real: 'Real',
   },
 }

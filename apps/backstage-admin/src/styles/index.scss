@@ -3,6 +3,7 @@
 @use './transition.scss';
 @use './element-ui.scss';
 @use './sidebar.scss';
+@use './breakpoints.scss' as bp;
 
 body {
   -moz-osx-font-smoothing: grayscale;
@@ -30,12 +31,16 @@ html {
 
 // Keep focus visible for keyboard users while avoiding the outline on mouse clicks.
 div:focus,
-a:focus {
+a:focus,
+button:focus,
+[role='button']:focus {
   outline: none;
 }
 
 div:focus-visible,
-a:focus-visible {
+a:focus-visible,
+button:focus-visible,
+[role='button']:focus-visible {
   outline: 2px solid #409eff;
   outline-offset: 2px;
 }
@@ -66,6 +71,10 @@ a:hover {
 
 .app-container {
   padding: 20px;
+
+  @include bp.compact {
+    padding: 12px;
+  }
 }
 
 // Search bar styles
@@ -89,7 +98,7 @@ a:hover {
 // Batch action bar styles
 .batch-operate-container {
   display: inline-flex;
-  width: 250px;
+  max-width: 250px;
   margin-top: 20px;
 }
 
@@ -106,9 +115,13 @@ a:hover {
   position: absolute;
   left: 0;
   right: 0;
-  width: 720px;
+  @include bp.fluid-width(720px);
   padding: 35px 35px 15px 35px;
   margin: 20px auto;
+
+  @include bp.compact {
+    padding: 16px;
+  }
 }
 
 // Main title

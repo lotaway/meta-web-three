@@ -14,6 +14,7 @@ import {
   type Workshop, type ProductionLine, type Alert, type AlertRule,
 } from '@/apis/digitalTwin'
 import { useI18n } from 'vue-i18n'
+import { useDigitalTwinEvents } from '@/composables/useDigitalTwinEvents'
 
 const { t } = useI18n()
 
@@ -88,6 +89,7 @@ const alerts = ref<Alert[]>([])
 const loadAlerts = async () => {
   try { const res = await getActiveAlertsAPI(); alerts.value = res.data as any || [] } catch (e: any) { console.error('[loadAlerts]', e); ElMessage.error(t('common.loadFailed')) }
 }
+const { connected: wsConnected } = useDigitalTwinEvents(alerts, stats)
 const alertDialog = ref(false)
 const alertForm = ref({ deviceCode: '', workshopId: '', level: 'WARNING', type: 'PRODUCTION', title: '', description: '' })
 const createAlert = async () => {
@@ -95,7 +97,7 @@ const createAlert = async () => {
     await createAlertAPI(alertForm.value)
     ElMessage.success('Alert created')
     alertDialog.value = false
-    loadAlerts()
+
   } catch (_) { ElMessage.error('Failed to create alert') }
 }
 const ackAlert = async (id: number) => {
@@ -193,6 +195,9 @@ const levelTag = (l?: string): 'success' | 'warning' | 'danger' | 'info' => {
   <div class="dt-container">
     <div class="toolbar">
       <el-button :icon="Refresh" @click="refreshAll">Refresh</el-button>
+      <span class="ws-status" :class="wsConnected ? 'ws-status--on' : 'ws-status--off'">
+        {{ wsConnected ? t('digitalTwin.live') : t('digitalTwin.offline') }}
+      </span>
     </div>
 
     <!-- Dashboard -->
@@ -217,6 +222,12 @@ const levelTag = (l?: string): 'success' | 'warning' | 'danger' | 'info' => {
           </el-table-column>
           <el-table-column prop="status" label="Status" width="100">
             <template #default="{ row }"><el-tag :type="statusTag(row.status)">{{ row.status }}</el-tag></template>
+          </el-table-column>
+          <el-table-column prop="source" label="Source" width="90">
+            <template #default="{ row }">
+              <el-tag v-if="row.source === 'DEMO'" type="warning" size="small">{{ t('digitalTwin.demo') }}</el-tag>
+              <el-tag v-else type="success" size="small">{{ t('digitalTwin.real') }}</el-tag>
+            </template>
           </el-table-column>
           <el-table-column label="Actions" width="200" fixed="right">
             <template #default="{ row }">
@@ -429,7 +440,10 @@ const levelTag = (l?: string): 'success' | 'warning' | 'danger' | 'info' => {
 
 <style scoped>
 .dt-container { padding: 20px; }
-.toolbar { margin-bottom: 16px; }
+.toolbar { margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+.ws-status { font-size: 13px; }
+.ws-status--on { color: #67c23a; }
+.ws-status--off { color: #909399; }
 .stat-row { margin-bottom: 20px; }
 .stat-value { font-size: 28px; font-weight: bold; color: #303133; text-align: center; }
 .stat-label { font-size: 14px; color: #909399; text-align: center; margin-top: 5px; }

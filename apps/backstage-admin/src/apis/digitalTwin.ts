@@ -14,6 +14,7 @@ export interface DigitalTwinDevice {
   rotation: number
   efficiency: number
   lastHeartbeat: string
+  source: 'REAL' | 'DEMO'
   createdAt: string
   updatedAt: string
 }

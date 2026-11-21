@@ -21,6 +21,12 @@ export const useAppStore = defineStore('app', () => {
     sidebar.withoutAnimation = withoutAnimation
   }
 
+  // Open sidebar when the viewport returns to the expanded breakpoint
+  function openSideBar(withoutAnimation: boolean) {
+    sidebar.opened = true
+    sidebar.withoutAnimation = withoutAnimation
+  }
+
   // Toggle device: desktop or mobile
   function toggleDevice(deviceType: string) {
     device.value = deviceType
@@ -31,6 +37,7 @@ export const useAppStore = defineStore('app', () => {
     device,
     toggleSideBar,
     closeSideBar,
+    openSideBar,
     toggleDevice,
   }
 })

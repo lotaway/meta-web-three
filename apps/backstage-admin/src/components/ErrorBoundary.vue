@@ -22,7 +22,7 @@ function reload(): void {
     <h2>Something went wrong</h2>
     <p>The page hit an unexpected error and could not be displayed.</p>
     <p v-if="detail" class="error-boundary__detail">{{ detail }}</p>
-    <button type="button" class="error-boundary__reload" @click="reload">
+    <button type="button" class="error-boundary__reload" aria-label="Reload page" @click="reload">
       Reload page
     </button>
   </div>

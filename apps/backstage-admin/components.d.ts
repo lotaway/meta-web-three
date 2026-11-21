@@ -66,6 +66,7 @@ declare module 'vue' {
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     ElTransfer: typeof import('element-plus/es')['ElTransfer']
     ElUpload: typeof import('element-plus/es')['ElUpload']
+    ErrorBoundary: typeof import('./src/components/ErrorBoundary.vue')['default']
     Hamburger: typeof import('./src/components/Hamburger/index.vue')['default']
     MultiUpload: typeof import('./src/components/Upload/multiUpload.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

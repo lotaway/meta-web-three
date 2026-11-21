@@ -2,63 +2,62 @@ import { onMounted, onBeforeMount, onBeforeUnmount, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 
-const { body } = document
-const WIDTH = 1024
 const RATIO = 3
+const COMPACT_WIDTH = 640
+const EXPANDED_WIDTH = 1024
 
 type AppStore = ReturnType<typeof useAppStore>
-type MobileDetector = () => boolean
+type Device = 'compact' | 'medium' | 'expanded'
 
-function closeMobileSidebar(appStore: AppStore): void {
-  if (appStore.device !== 'mobile' || !appStore.sidebar.opened) return
-  appStore.closeSideBar(false)
+function measureWidth(): number {
+  return document.body.getBoundingClientRect().width - RATIO
 }
 
-function registerRouteWatch(route: ReturnType<typeof useRoute>, appStore: AppStore): void {
-  // Watch route changes
+export function resolveDevice(width: number): Device {
+  if (width < COMPACT_WIDTH) return 'compact'
+  if (width < EXPANDED_WIDTH) return 'medium'
+  return 'expanded'
+}
+
+function detectDevice(): Device {
+  return resolveDevice(measureWidth())
+}
+
+function applyDevice(device: Device, appStore: AppStore): void {
+  appStore.toggleDevice(device === 'compact' ? 'mobile' : 'desktop')
+  if (device === 'expanded') {
+    appStore.openSideBar(true)
+    return
+  }
+  appStore.closeSideBar(true)
+}
+
+function watchRoute(route: ReturnType<typeof useRoute>, appStore: AppStore): void {
   watch(
     () => route,
-    () => closeMobileSidebar(appStore),
+    () => {
+      if (appStore.device === 'mobile') appStore.closeSideBar(false)
+    },
   )
-}
-
-// Determine whether accessed from a mobile device
-function detectMobile(): boolean {
-  const rect = body.getBoundingClientRect()
-  return rect.width - RATIO < WIDTH
-}
-
-function handleResize(appStore: AppStore, isMobile: MobileDetector): void {
-  if (document.hidden) return
-  const mobile = isMobile()
-  appStore.toggleDevice(mobile ? 'mobile' : 'desktop')
-  if (mobile) appStore.closeSideBar(true)
-}
-
-function registerLifecycleHooks(resizeHandler: () => void, isMobile: MobileDetector, appStore: AppStore): void {
-  // Called before the component mounts
-  onBeforeMount(() => window.addEventListener('resize', resizeHandler))
-  // Called after the component mounts
-  onMounted(() => {
-    if (!isMobile()) return
-    appStore.toggleDevice('mobile')
-    appStore.closeSideBar(true)
-  })
-  // Called before the component unmounts
-  onBeforeUnmount(() => window.removeEventListener('resize', resizeHandler))
 }
 
 export default function useResizeHandler() {
   const route = useRoute()
   const appStore = useAppStore()
-  const isMobile = detectMobile
-  const resizeHandler = () => handleResize(appStore, isMobile)
+  let lastDevice: Device | null = null
 
-  registerRouteWatch(route, appStore)
-  registerLifecycleHooks(resizeHandler, isMobile, appStore)
-
-  return {
-    isMobile,
-    resizeHandler,
+  const resizeHandler = (): void => {
+    if (document.hidden) return
+    const device = detectDevice()
+    if (device === lastDevice) return
+    lastDevice = device
+    applyDevice(device, appStore)
   }
+
+  onBeforeMount(() => window.addEventListener('resize', resizeHandler))
+  onMounted(resizeHandler)
+  onBeforeUnmount(() => window.removeEventListener('resize', resizeHandler))
+  watchRoute(route, appStore)
+
+  return { resizeHandler }
 }
