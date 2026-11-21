@@ -13,6 +13,7 @@ public class MqttTelemetrySubscriber {
     private final String clientId;
     private final String topicPrefix;
     private final boolean enabled;
+    private java.util.List<String> topicFilters;
     private MqttClient client;
     private BiConsumer<String, String> messageHandler;
 
@@ -21,6 +22,11 @@ public class MqttTelemetrySubscriber {
         this.clientId = clientId;
         this.topicPrefix = topicPrefix;
         this.enabled = enabled;
+        this.topicFilters = java.util.List.of(topicPrefix + "+/telemetry");
+    }
+
+    public void setTopicFilters(java.util.List<String> topicFilters) {
+        if (topicFilters != null && !topicFilters.isEmpty()) this.topicFilters = topicFilters;
     }
 
     public void setMessageHandler(BiConsumer<String, String> handler) {
@@ -40,9 +46,10 @@ public class MqttTelemetrySubscriber {
             opts.setConnectionTimeout(30);
             opts.setKeepAliveInterval(60);
             client.connect(opts);
-            String topicFilter = topicPrefix + "+/telemetry";
-            client.subscribe(topicFilter, this::handleMessage);
-            log.info("MQTT subscriber connected to {} subscribed to {}", brokerUrl, topicFilter);
+            for (String topicFilter : topicFilters) {
+                client.subscribe(topicFilter, this::handleMessage);
+            }
+            log.info("MQTT subscriber connected to {} subscribed to {}", brokerUrl, topicFilters);
         } catch (MqttException e) {
             log.error("MQTT subscriber connection failed: {}", e);
         }

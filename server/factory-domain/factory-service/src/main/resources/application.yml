@@ -14,6 +14,21 @@ meta:
     token: ${INFLUX_TOKEN:}
     org: ${INFLUX_ORG:meta}
     bucket: ${INFLUX_BUCKET:telemetry}
+  telemetry:
+    # Protocol-agnostic field telemetry mapping. All values are overridable per
+    # deployment; defaults follow common MQTT payloads and ISA-95 UNS levels.
+    source-name: ${TELEMETRY_SOURCE_NAME:FIELD}
+    timestamp-field: timestamp
+    quality-field: quality
+    unit-field: unit
+    device-code-segment: device
+    topic-patterns:
+      - ${MQTT_TOPIC_PREFIX:mes/equipment/}+/telemetry
+    quality-values:
+      good: GOOD
+      ok: GOOD
+      bad: BAD
+      error: BAD
 spring:
   application:
     name: factory-service

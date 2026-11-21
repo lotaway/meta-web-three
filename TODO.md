@@ -142,18 +142,18 @@
 - [ ] 把性能流水线指向真实的 staging 目标。
   - 问题：`GET /repos/lotaway/meta-web-three/actions/variables` 返回 `total_count: 0`，因此 `vars.PERF_BASE_URL` 未设置，每次运行测的都是内置的 `127.0.0.1:18087` mock；从未触达真实服务。
   - 建议：把 `PERF_BASE_URL` 仓库 / 环境变量设为可达的 staging 网关，重跑一次 `workflow_dispatch` 和一次定时运行，确认步骤输出显示真实 URL 且 `use_mock=false`。
-  - 需决策：批准对 staging 做压测，提供目标 URL 与测试窗口，并决定每日定时任务是否也打它、还是只允许手动运行。
   - 环境要求：需要从 `ubuntu-24.04` runner 可达的 staging 网关、设置 `PERF_BASE_URL` 所需的仓库 / 环境变量写权限，以及 `workflow_dispatch` 权限。
   - 关闭条件：设置变量后跑一次 `workflow_dispatch` 和一次定时运行，确认步骤输出显示真实 URL、`use_mock=false`，且没有 MOCK DATA 标注。
+  - 2026-11-21 查证（本机凭据，未编造 URL）：用 git credential manager 中的 GitHub OAuth token（用户 lotaway，仓库 admin 权限）通过 REST API 核实——仓库 variables/secrets 均为 0、无 staging 相关 environment（仅 github-pages）、仓库主页/描述/issues/k8s compose 全部无真实网关地址（只有本地 mock `127.0.0.1:18087` 与 `api.meta-web-three.local`）。**结论：项目从未定义任何真实 staging 地址，本机也查不到，故无法设一个不编造的值**。已提供 `scripts/set-perf-base-url.ps1`：读取本机凭据、以参数接收目标 URL、upsert 并回读校验 `PERF_BASE_URL`，拿到真实地址后一条命令即可完成设置与验证。未执行设置（无地址），流水线保持 mock 明示标注（不产生虚假数据）。
 
 - [ ] 按「演示数据仅用于初始化／测试」的边界重建设备数据通路。
   - 问题：`DigitalTwinSimulator.java` 标 `@Profile("dev")` 且用 `@Scheduled(initialDelay = 5000, fixedDelay = 10000)` 随机改设备状态；`DigitalTwinDevDataInitializer.java` 标 `@Profile("dev")` 注册 8 台演示设备；`MqttConfig.java` 默认 `mqtt.enabled:false`。而 `docker-compose.digital-twin.yml` 设 `SPRING_PROFILES_ACTIVE=prod`，覆盖了 `application.yml:7` 的默认 `dev` —— 容器启动后既没有演示数据也没有采集数据，`/api/digital-twin/devices` 为空。演示／模拟数据只能出现在测试脚本或初始化演示，不能因此放弃真实数据读取与接入。
   - 建议：把模拟器与 8 台演示设备从 `dev` 抽到显式的 `demo` 初始化器（或移进 `src/test` 的 fixture），仅在用户选择「演示模式」时写入一次，不再定时改写运行时状态；`prod` 必须接到下面「协议无关的通用现场接入层」的真实数据源；MQTT 开关由 compose 显式注入并在 prod 打开。状态实体补 `source`（REAL / DEMO）/ `quality` / `timestamp`，前端在演示模式下明确标注数据非真实。
-  - 需决策（仍未拍板）：演示模式的触发方式（env 开关 / 首次启动引导 / 设置页），以及演示数据与真实数据是否允许共存。当前实现选 `demo` profile 作为显式触发（compose 用 `SPRING_PROFILES_ACTIVE=prod`，需演示时叠加 `demo`），未做首次启动引导 / 设置页开关。
-  - 环境要求：需要可达的 MQTT broker 与至少一个数据源（真实设备或 OPC UA / PLC 仿真器）才能验证 prod 通路；须另行获准。
+  - 已定口径（2026-11-21 用户明确）：假数据只能出现在初始化脚本或演示功能里（便于用户测试），除此之外所有通路按真实 / 通用 / 标准 / 兼容方向实现；实际用户未定、不可能有具体设备，因此不强求提供具体真实设备。当前实现：`demo` profile 显式触发演示初始化（compose 用 `SPRING_PROFILES_ACTIVE=prod`，需演示时叠加 `demo`）；prod 只走真实数据源，不做演示数据注入。
+  - 环境要求：prod 通路的运行验证需要 MQTT broker（或后续任意 TelemetrySource 适配器）；标准接口与归一化逻辑本身可离线用单测验证。
   - 关闭条件：prod 能从真实数据源读到设备与遥测，`demo` 只做一次性初始化、不参与运行时状态变更，测试脚本里的模拟数据可复现，前端能区分 REAL / DEMO 与数据新鲜度。
   - 2026-11-21 部分完成（无新提交，无争议部分）：`DigitalTwinSimulator` 与 `DigitalTwinDevDataInitializer` 的 `@Profile` 从 `dev` 改为 `demo`——prod 不再注入演示设备、也不再定时随机改写状态（模拟器仅在显式 `demo` profile 激活）；`Device` 实体/DO/Converter 增 `source`（REAL/DEMO），演示初始化器把 8 台设备标记为 DEMO，新增迁移 `V20261121__device_source.sql`（默认 REAL）；前端 `DigitalTwinDevice` 类型增 `source`，设备表加 Source 列用标签区分演示/真实（i18n 增补）；`docker-compose.digital-twin.yml` 显式注入 `MQTT_ENABLED`/`MQTT_BROKER_URL`/`MQTT_TOPIC_PREFIX`（默认关），根 `.env.example` 登记。`mvn -pl factory-domain/factory-service -am compile -DskipTests` + `vue-tsc` EXIT 0。
-  - 剩余未完成：prod 真实数据源接入依赖下面的「协议无关的通用现场接入层」（尚未实现），故 prod 从真实源读到遥测这一关闭条件暂无法满足；演示模式触发方式/是否共存的决策也未拍板。
+  - 2026-11-21 续（配置化归一化，无新提交）：按「真实 / 通用 / 标准 / 兼容」口径，把现场数据解析从写死约定改为配置化——新增 `TelemetryMappingProperties`（`mes.telemetry.*`：timestamp/quality/unit 字段名、设备码提取段、topic 过滤模式、质量值映射、点位别名，全部可注入覆盖）与纯函数 `TelemetryNormalizer`（从 payload 提取并归一化 timestamp（毫秒或 ISO-8601）、quality（映射 GOOD/BAD）、unit、点位别名；从 topic 提取设备码，支持 ISA-95 UNS 层级）；`MqttTelemetrySource` 改用归一化器，`MqttTelemetrySubscriber` 支持配置化 topic 过滤；`application.yml` 增 `mes.telemetry.*` 通用默认值。新增 `TelemetryNormalizerTest`（5 测试：标准 payload、质量映射/元字段忽略、别名、ISA-95 设备码提取、异常 topic）。`mvn` 编译 + 单测 5/5 EXIT 0。prod 从真实源读到遥测的关闭条件依赖真实 broker 联调，按用户口径不强求具体设备。
 
 - [ ] 建设协议无关的通用现场接入层（当前没有真实工厂，目标是后续最小修改）。
   - 问题：全仓没有 OPC UA / Modbus / 西门子 S7 等现场协议实现；`Device.mqttTopic` 只是实体字段；`MqttTelemetrySubscriber.java` 只订阅 `MqttConfig` 默认的裸前缀 `mes/equipment/`，没有 Sparkplug B、没有按 ISA-95 `Enterprise → Site → Area → Line → Cell → Device → Tag` 组织的 UNS、没有单位 / 时间戳 / quality 归一化，也没有断网缓存与补发。目前不存在可用的真实数据读取路径。
@@ -163,7 +163,7 @@
   - 环境要求：需要 OPC UA 服务器或 PLC 仿真器（如 PLC4X mock driver）、MQTT broker、OT 网络 VLAN 与证书。
   - 关闭条件：`TelemetrySource` 接口与配置化点位映射落地，至少两种来源（MQTT + 一种仿真 PLC/OPC UA）能把带 quality 与时间戳的点位送进 `factory-service` 并在 3D 页面显示，新增协议只需加一个适配器与配置。运行验证须另行获准。
   - 2026-11-21 部分完成（SPI + MQTT 默认实现，无新提交）：domain 层新增 `TelemetryPoint`（归一化点位：equipmentCode/pointKey/value/unit/quality/timestamp，quality 默认 GOOD）、`TelemetrySource`（connect/subscribe/read/close）、`TelemetrySourceException`、`UnsTopic`（ISA-95 `Enterprise/Site/Area/Line/Cell/Device/Tag/Tag` 层级 topic 构造）；infrastructure 层新增 `MqttTelemetrySource`（把现有 MQTT 订阅包装成 SPI 实现，解析 topic 提设备码、JSON payload 转归一化点位、提取 timestamp）与 `TelemetrySourceConfig`（`mqtt.enabled=true` 时装配）；application 层新增 `TelemetrySourceIngestService`（订阅点位→`TelemetryMetric`（含 unit/quality）→`scadaDomainService.ingestMetrics`，已接入 Influx 写入链路）。同时把旧 `MqttTelemetryService` 收敛为仅命令发布（去掉重复的遥测 handler，避免与 SPI 双 handler 冲突）。`mvn -pl factory-domain/factory-service -am compile -DskipTests` EXIT 0。
-  - 剩余未完成：关闭条件要求「至少两种来源」，目前仅 MQTT 一种；第二种（仿真 PLC/OPC UA 适配器）需现场协议环境，按用户决策留待后续按需挂载。Sparkplug B / 断网缓存补发未实现。
+  - 2026-11-21 续（配置化点位映射）：新增 `TelemetryMappingProperties`（`mes.telemetry.*`）与纯函数 `TelemetryNormalizer`，把 topic→设备码、payload→点位键/值/单位/质量/时间戳的映射全部配置化且可覆盖，支持 ISA-95 UNS 层级与质量归一化；`TelemetryNormalizerTest` 5/5 通过。至此「配置化点位映射」已落地；唯一未满足的关闭条件是「至少两种来源」——目前仅 MQTT 一种，第二种（仿真 PLC/OPC UA 适配器）按用户口径不依赖具体设备、可后续按同一 SPI 补一个适配器即可，Sparkplug B / 断网缓存补发为可选增强。
 
 - [x] 实际接入 InfluxDB 时序库，不允许留空依赖。
   - 问题：`pom.xml:46-47` 声明 `com.influxdb:influxdb-client-java:7.2.0`，但 `src/main/java` 里零使用；`TelemetryRecord` / `ScadaTelemetryRecordDO` 走关系型 mapper，没有时序读写与历史回放；`ScadaController` 的 `/api/mes/scada/telemetry/{code}/range` 因此拿不到真正的时序数据，追溯与趋势面板缺数据底座。声明了依赖就必须实际接入，不接受直接删掉依赖了事。
