@@ -11,6 +11,7 @@
     "e2e": "detox test --config-path e2e/detox.config.js -c android.emu.debug",
     "e2e:build": "detox build --config-path e2e/detox.config.js -c android.emu.debug",
     "e2e:run": "detox test --config-path e2e/detox.config.js -c android.emu.debug",
+    "e2e:mock-gateway": "node e2e/mock-gateway.js",
     "lint": "npx expo lint",
     "build:sw": "cross-env NODE_ENV=production node tools/BuildSW.js",
     "debug:sw": "node tools/BuildSW.js --sourceMap",

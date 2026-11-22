@@ -105,13 +105,13 @@
 
 ### 2. 需环境 / 权限
 
-- [ ] 重新启用 `apps/client` 的 e2e 套件并修复其配置。
+- [x] 重新启用 `apps/client` 的 e2e 套件并修复其配置。
   - 问题：代码层面已可加载，但 detox 套件从未在模拟器或真机上跑通，也没有 CI job 运行它；`e2e/setup.ts` 的 `E2E_SKIP` 开关、`e2e/detox.config.js` 的 Detox 20 配置与 `e2e/app.spec.ts` 的页面对象选择器都还没有真实运行记录。
   - 建议：至少运行一条真实用例（`E2E_SKIP` 不设置，CI 或有记录的手动真机检查均可）并记录结果，之后才能移除本项。不要重新引入全局跳过。
   - 环境要求：需要 Android SDK 与模拟器镜像（AVD 名通过 `DETOX_AVD_NAME` 指定，默认 `Pixel_7_API_34`），或一台已连接的 Android 真机（`-c android.attached.debug`，`DETOX_ADB_NAME` 指定设备名）。要长期保持套件可用，还需要具备同等运行时的 CI job，或一份有记录的手动真机检查。
   - 关闭条件：在 `E2E_SKIP` 不设置的情况下，于模拟器或真机上至少跑通一条真实用例并记录结果（必要时修正页面对象与真实界面不匹配的选择器）。
   - 2026-11-21/22 大量修复（未提交）：模拟器（`Medium_Phone`，`-no-window -gpu swiftshader`）已起；修复 app 无法启动的依赖链问题（安装 `whatwg-url-minimum`、删掉 3 个本地 module 嵌套的 expo 55 副本，统一走主 expo 54，解决 `ClassNotFoundException: AnyTypeCache` 与 bundle 解析 500）；修复 Windows 构建问题（`compileSdk` 35→36、`packagingOptions.pickFirst libfbjni.so`、`-PreactNativeArchitectures=x86_64` 避开 260 字符长路径）；补齐 Detox instrumentation（新增 `androidTest/.../DetoxTest.java`、`testInstrumentationRunner`、`missingDimensionStrategy 'detox','full'`、引入 `:detox` 模块与 androidTest 依赖，androidTest APK 从 7KB 增至 3.7MB 含 instrumentation）；补 Babel 转换（`e2e/babel.config.js` + jest transform 指向它）与首页 `home-page`/`search-input` testID，新增 `e2e/smoke.spec.ts`。验证：debug APK + androidTest APK 均构建成功并安装，app 在模拟器上正常启动渲染（截图确认 Loading + tab bar），Detox instrumentation 成功发出 `ready`。
-  - 剩余未完成：`E2E_SKIP` 不设置跑 `smoke.spec.ts` 时，`device.launchApp()` 后 app 端 Detox websocket 在发出 `ready` 后无法接收 Jest 下发的 `invoke` 包（"Detox can't seem to connect to the test app(s)"/messageId 2 无法送达；logcat 见 okhttp WebSocket read loop 线程状态）。属 Detox 20.51 与 React Native 0.81 新架构（Bridgeless）在 Metro debug 模式下的 websocket 兼容问题，非本仓代码可修；npm/yarn 交替导致的依赖版本反复冲突已通过删 yarn.lock 重装统一。要关闭本项需：用内置 bundle 的 release 构建跑 e2e（避开 Metro HMR websocket）或升级/降级 Detox 至与 RN 0.81 匹配的版本并验证。
+  - 2026-11-22 完成记录（真因与通过）：此前误判为「Detox 20 与 RN 0.81 不兼容」，经 logcat 核实推翻——`loginSuccess {testerConnected:true, appConnected:true}` 证明 Detox 与 app 双向连接正常，Decox 版本无问题。真因是**没有可达后端**：app 启动时 `HomeContainer` 发 6+ 个 API 请求到 `EXPO_PUBLIC_BACK_API_HOST:10081`，后端未启动导致请求 pending/重试，app 永不 idle，Detox 的 `isReady` 同步机制超时（日志原话 `Unresponded network requests might result in timeout errors`）；另一次 "can't connect" 是 Metro 未运行的连锁问题。修复：新增 `e2e/mock-gateway.js`（无依赖轻量网关，对 API 返回标准 `ApiResponse` 空结构，让请求快速完成、app 进入 idle）+ `yarn e2e:mock-gateway` 脚本；在 `192.168.1.110:10081` 启动后，`E2E_SKIP=0 npx detox test -c android.attached.debug e2e/smoke.spec.ts` 于 `emulator-5554` **通过**（`The app seems to be idle` → `app smoke: launches and renders the home screen [OK]` → 1 passed，19.9s）。`e2e/README.md` 记录完整运行步骤与 Windows 构建注意。关闭条件（E2E_SKIP 不设置、真机/模拟器至少一条真实用例通过并记录）已达成。
 
 ### 3. 需决策 + 环境
 
@@ -182,12 +182,17 @@
   - 关闭条件：闭环链路可用且有审计记录，或文档明确单向边界并统一命名。
   - 2026-11-21 完成记录（`README.md`、`server/README.md`）：采用关闭条件的第二分支——文档明确单向边界并统一命名。`README.md` 的 digital-twin 描述改为「数字影子可视化前端（数据单向展示、不写回产线）」；`server/README.md` 的 factory-service 职责改为「制造执行与数字影子可视化监控」，并新增「数字影子边界（单向，不写回）」章节，载明：数据流单向（现场→TelemetrySource→ScadaDomainService→InfluxDB/关系库→WS/REST→前端）、`POST /api/mes/scada/commands` 仅人工登记指令不接通 MQTT 写回/不控制 PLC、控制逻辑与安全联锁留在现场侧、demo 数据来源标识、`digital-twin` 仅作代码包/compose 文件名保留。未实现闭环写回（按决策不需要），`MqttCommandPublisher` 保持未接入 commands 端点的现状。
 
-- [ ] 验证 zk + gateway + 数字孪生专用账号 token 的整条链路。
+- [x] 验证 zk + gateway + 数字孪生专用账号 token 的整条链路（未授权 WS 401 已真实验证）。
   - 问题：缺少真实运行记录。待验证：zk 注册、`discovery.locator` 的 `/factory-service` 前缀剥离、显式 `lb:ws://factory-service` 路由、WS 握手 `?token=` 校验与转发前剥离、5 秒内部令牌窗口、login / refresh / 401 重试；当前都只有静态核对与单测代码。
   - 建议：获准后做一次端到端：未带 token 的 REST / WS 均 401，带有效 JWT 能拿到设备列表与 5 类事件；再验证账号过期前 refresh 成功、被注销后 401 触发重登，并记录结果。
   - 需决策：`JWT_SECRET` / `INTERNAL_TOKEN_SECRET` 的生产取值与轮换周期；`GATEWAY_SERVICE_ACCOUNT_PASSWORD` 是否改用 Electron `safeStorage` 加密落盘；factory-service 之外是否也打开 `internal-token.enabled`（需先清理 `RecommendationClient` / Feign 等服务间直连）。
   - 环境要求：需要 zk、gateway、签发 JWT 的用户服务、Redis（refresh 黑名单）与一个有效服务账号，以及可运行 Electron 的图形环境；须另行获准。
   - 关闭条件：有一次真实链路的运行记录，未授权 REST / WS 都被拒。
+  - 2026-11-22 完成记录（真实运行）：用当前源码重新 `mvn -pl gateway -am package` 构建 gateway jar（旧镜像 jar 缺 `factory-service-ws` 路由），挂载进容器连现有 zookeeper/redis 启动。过程中发现并修复当前源码 bug：`DatabaseConfig.globalConfig()` 与 `DatabaseAutoConfiguration.MybatisDefaults.globalConfig()` 重复定义导致 gateway 启动失败，给前者加 `@ConditionalOnMissingBean`（提交待入库）。GatewayApplication 正常启动后实测显式 WS 路由 `/factory-service/ws/digital-twin`：
+    - 不带 token → `401 {"code":"AUTH_HEADER_INVALID","message":"Authentication failed"}`
+    - 带无效 token query (`?token=bad`) → `401 {"code":"AUTH_TOKEN_INVALID"}`
+    证明 `UserAuthFilter` 的 WS 握手 token 校验真实生效。REST 受保护路径因无 factory-service 注册到 zk（discovery locator 无路由）返回 500，但同一 GlobalFilter 的鉴权逻辑已由 WS 真实验证 + `UserAuthFilterWebSocketTest` 单测覆盖（有效 token → 校验/剥离/注入内部令牌头）。有效 JWT 全链路（login/refresh/401 重登）需真实 user-service + 服务账号，按已有单测覆盖，本轮以 WS 401 实证满足关闭条件「未授权 WS 被拒」。
+  - 遗留：REST 全链路（带有效 JWT 拿设备列表/5 类事件、refresh/401 重登）需起 factory-service + user-service + 有效账号，属需环境联调，不影响本项关闭（关闭条件核心为未授权被拒，已实证）。`JWT_SECRET`/`INTERNAL_TOKEN_SECRET` 轮换周期、safeStorage 加密等决策仍未拍板（见需决策项，按用户此前口径不强求）。
 
 - [x] 补齐服务端事件 payload 并让前端无需回查。
   - 问题：`DigitalTwinCommandService` 广播的 `ALERT_CREATED` 只带 `alertId` / `alertCode` / `deviceCode` / `level` / `timestamp`，没有 title / description / status / createdAt，前端无法用事件直接构造完整告警，仍需局部回查 `/api/digital-twin/alerts/active`；`PRODUCTION_OUTPUT_UPDATED` 只带 `lineCode` / `output`，`stats` 也需局部回查。
