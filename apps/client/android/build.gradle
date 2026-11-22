@@ -20,5 +20,16 @@ allprojects {
   }
 }
 
+// react-native-gesture-handler and react-android both ship libfbjni.so; each
+// library module's androidTest APK merge otherwise fails with a duplicate
+// entry. Apply pickFirst to every Android module after it has been configured.
+subprojects {
+  afterEvaluate { project ->
+    if (project.hasProperty('android') && project.android.properties.containsKey('packagingOptions')) {
+      project.android.packagingOptions.pickFirst 'lib/*/libfbjni.so'
+    }
+  }
+}
+
 apply plugin: "expo-root-project"
 apply plugin: "com.facebook.react.rootproject"

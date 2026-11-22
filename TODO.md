@@ -110,6 +110,8 @@
   - 建议：至少运行一条真实用例（`E2E_SKIP` 不设置，CI 或有记录的手动真机检查均可）并记录结果，之后才能移除本项。不要重新引入全局跳过。
   - 环境要求：需要 Android SDK 与模拟器镜像（AVD 名通过 `DETOX_AVD_NAME` 指定，默认 `Pixel_7_API_34`），或一台已连接的 Android 真机（`-c android.attached.debug`，`DETOX_ADB_NAME` 指定设备名）。要长期保持套件可用，还需要具备同等运行时的 CI job，或一份有记录的手动真机检查。
   - 关闭条件：在 `E2E_SKIP` 不设置的情况下，于模拟器或真机上至少跑通一条真实用例并记录结果（必要时修正页面对象与真实界面不匹配的选择器）。
+  - 2026-11-21/22 大量修复（未提交）：模拟器（`Medium_Phone`，`-no-window -gpu swiftshader`）已起；修复 app 无法启动的依赖链问题（安装 `whatwg-url-minimum`、删掉 3 个本地 module 嵌套的 expo 55 副本，统一走主 expo 54，解决 `ClassNotFoundException: AnyTypeCache` 与 bundle 解析 500）；修复 Windows 构建问题（`compileSdk` 35→36、`packagingOptions.pickFirst libfbjni.so`、`-PreactNativeArchitectures=x86_64` 避开 260 字符长路径）；补齐 Detox instrumentation（新增 `androidTest/.../DetoxTest.java`、`testInstrumentationRunner`、`missingDimensionStrategy 'detox','full'`、引入 `:detox` 模块与 androidTest 依赖，androidTest APK 从 7KB 增至 3.7MB 含 instrumentation）；补 Babel 转换（`e2e/babel.config.js` + jest transform 指向它）与首页 `home-page`/`search-input` testID，新增 `e2e/smoke.spec.ts`。验证：debug APK + androidTest APK 均构建成功并安装，app 在模拟器上正常启动渲染（截图确认 Loading + tab bar），Detox instrumentation 成功发出 `ready`。
+  - 剩余未完成：`E2E_SKIP` 不设置跑 `smoke.spec.ts` 时，`device.launchApp()` 后 app 端 Detox websocket 在发出 `ready` 后无法接收 Jest 下发的 `invoke` 包（"Detox can't seem to connect to the test app(s)"/messageId 2 无法送达；logcat 见 okhttp WebSocket read loop 线程状态）。属 Detox 20.51 与 React Native 0.81 新架构（Bridgeless）在 Metro debug 模式下的 websocket 兼容问题，非本仓代码可修；npm/yarn 交替导致的依赖版本反复冲突已通过删 yarn.lock 重装统一。要关闭本项需：用内置 bundle 的 release 构建跑 e2e（避开 Metro HMR websocket）或升级/降级 Detox 至与 RN 0.81 匹配的版本并验证。
 
 ### 3. 需决策 + 环境
 

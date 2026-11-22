@@ -9,7 +9,7 @@ module.exports = {
   reporters: ['detox/runners/jest/reporter', 'jest-junit'],
   setupFilesAfterEnv: ['<rootDir>/e2e/setup.ts'],
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
+    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { configFile: require('path').join(__dirname, 'babel.config.js') }],
   },
   transformIgnorePatterns: [
     'node_modules/(?!(react-native|@react-native|expo.*|@expo.*|@unimodules|unimodules|react-navigation|@react-navigation.*)/)',

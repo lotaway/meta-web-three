@@ -1,5 +1,5 @@
-import { describe, it, beforeAll, expect } from '@jest/globals'
-import { device, element, by } from 'detox'
+import { describe, it, beforeAll } from '@jest/globals'
+import { device, element, by, expect as detoxExpect } from 'detox'
 
 // Minimal real-device smoke test: proves the Detox harness, the built APK and
 // the app shell all work together. This is the acceptance bar for re-enabling
@@ -10,7 +10,11 @@ describe('app smoke', () => {
   })
 
   it('launches and renders the home screen', async () => {
-    await element(by.id('home-page')).waitForVisible(20000)
-    await expect(element(by.id('home-page'))).toBeVisible()
+    try {
+      await detoxExpect(element(by.id('home-page'))).toBeVisible()
+    } catch (err) {
+      console.error('SMOKE_ASSERT_FAILED', err instanceof Error ? err.message : String(err))
+      throw err
+    }
   })
 })

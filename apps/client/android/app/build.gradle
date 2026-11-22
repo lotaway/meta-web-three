@@ -95,6 +95,11 @@ android {
         versionCode 1
         versionName "1.0.0"
 
+        // Detox drives the app through this instrumentation runner.
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        // Detox library has a `detox` flavor dimension; pick the full variant.
+        missingDimensionStrategy 'detox', 'full'
+
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
     }
     signingConfigs {
@@ -124,6 +129,9 @@ android {
         }
     }
     packagingOptions {
+        // react-native-gesture-handler and react-android both ship libfbjni.so;
+        // pick either copy to avoid duplicate-entry merge failures.
+        pickFirst 'lib/*/libfbjni.so'
         jniLibs {
             def enableLegacyPackaging = findProperty('expo.useLegacyPackaging') ?: 'false'
             useLegacyPackaging enableLegacyPackaging.toBoolean()
@@ -181,4 +189,9 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    // Detox instrumentation (e2e).
+    androidTestImplementation project(':detox')
+    androidTestImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
 }
