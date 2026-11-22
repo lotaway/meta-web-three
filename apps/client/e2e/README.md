@@ -47,7 +47,27 @@ requests complete quickly.
 - On Windows, build with `-PreactNativeArchitectures=x86_64` to avoid CMake's
   260-character path limit on `armeabi-v7a` codegen objects.
 
-## Evidence (2026-11-22)
+## Visual regression (device matrix)
+
+`e2e/visual.spec.ts` captures the home screen via `device.takeScreenshot()` and
+compares it against `e2e/visual-baselines/home.png` using pure `pngjs`
+(`e2e/visual-compare.ts`), with a 0.2% pixel-diff threshold (industry standard,
+top 100px status bar ignored). This is the RN counterpart of the admin
+Playwright visual gate.
+
+```bash
+# Regenerate baseline after an approved UI change:
+yarn e2e:visual:update
+# Compare against baseline:
+yarn e2e:visual
+```
+
+Evidence (2026-11-22, emulator-5554, mock gateway):
+- compare run: `visual diff home: 0.000%` → PASS (1 passed)
+- deliberate failure: 10000 pixels corrupted → `0.403%` → FAIL
+  (`Expected <= 0.002`), baseline restored → PASS again.
+
+## Evidence - smoke (2026-11-22)
 
 `E2E_SKIP=0 npx detox test -c android.attached.debug e2e/smoke.spec.ts` on
 `emulator-5554` with the mock gateway:

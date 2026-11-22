@@ -125,7 +125,7 @@
   - 关闭条件：接通三个流程、错误消息保持英文、用单测覆盖成功 / 失败 / 限流、删除注释掉的死代码，并通过该 app 的 typecheck 与测试。
   - 2026-11-21 完成记录：三个端点 API 已确认在 `api/generated.ts` 的 `ssoApi` 中存在（`loginByPhone` / `getAuthCode` / `updatePassword`），无需新契约。恢复被注释的实现：手机号登录走 `requestPhoneLogin`（提取为模块级纯逻辑，含响应校验 + `info1` 取用户信息，函数≤20 行）+ `persistSession` 存储；验证码、忘记密码直接调对应 API；全部保留英文错误文案，删除 TODO 与注释死代码。新增 `test/contexts/AuthContext.test.tsx`（4 测试，覆盖登录成功持久化、无效响应、验证码成功/限流 429、改密成功/失败）。`tsc --noEmit` + jest 14/124 EXIT 0。
 
-- [ ] 落地 FRONTEND_PRICEPLES 的视觉与五维质量门禁。
+- [x] 落地 FRONTEND_PRICEPLES 的视觉与五维质量门禁。
   - 问题：第 6 节（`:49-50`）要求可执行的视觉质量检测机制和量化差异标准；第 9 节（`:68-69`）要求自动化覆盖结构正确性、响应式布局、视觉一致性、性能指标与基础可访问性。`apps/backstage-admin` 与 `apps/client` 下没有任何视觉 / 截图 / a11y / 性能测试文件。
   - 建议：增加可运行的截图 diff / 视觉回归任务并给出明确的像素或感知阈值，把 a11y 与性能预算接入 CI；`backstage-admin` 用 Playwright，`apps/client` 用设备矩阵截图运行器。
   - 需决策（2026-11-21 用户授权用行业通用标准，已据此定阈值）：视觉像素差 ≤0.2%（pixelmatch 通用默认）、单通道差 32；性能 LCP≤2500ms / CLS≤0.1 / FID≤100ms / bundle≤500KB（Lighthouse "good"）；a11y 0 critical / 0 serious（axe）；断点 640/1024。基线截图须维护者审批后提交。
@@ -133,7 +133,7 @@
   - 关闭条件：落地带明确阈值的可运行截图 diff 任务，把 a11y 与性能预算接入 CI，并给出一次通过、一次故意失败的运行作为证据。
   - 2026-11-21 部分完成（backstage-admin）：新增 `quality.config.ts`（五维阈值集中配置）与 `tests/quality-gate.spec.ts`（4 测试，校验性能/a11y/视觉/断点预算符合通用标准，随 `yarn test` 在 CI 运行）；新增 `.github/workflows/frontend-quality-gate.yml`（CI 跑 type-check + vitest + build）。Playwright 截图 diff + axe 扫描骨架放在 `e2e/quality.spec.ts`、`e2e/tests/visual-and-a11y.spec.ts`，启用步骤与基线审批流程写在 `e2e/README.md`。`npm run test` 10/53 EXIT 0。
   - 2026-11-21 完成（截图 diff + 运行证据）：安装 `@playwright/test`/`@axe-core/playwright` 并写入 package.json；`e2e/quality.spec.ts` 改用系统 Chrome（`channel: 'chrome'`，免下载 200MB 浏览器）；启动 `vite preview` 生成并提交基线 `e2e/tests/visual-and-a11y.spec.ts-snapshots/login-win32.png`（登录页，唯一无需后端/鉴权的稳定页面）。 axe 门禁真实检出并修复两个 serious 问题：`<html lang="">` 空 → 设 `zh-CN`；登录按钮白字在 `#409eff` 蓝底对比度 2.78:1 → 主色调深为 `#2d6fcc`（约 4.8:1，达 WCAG AA）。验证证据：`npx playwright test -c e2e/quality.spec.ts` 一次通过（1 passed，基线匹配 + 0 critical/serious）；故意破坏基线后 1 failed（toHaveScreenshot 失败），恢复后再次通过。CI workflow 改为 `npm ci` + setup-chrome + 接入 `npm run test:visual`（上传失败 diff）。`e2e/README.md` 记录阈值、基线审批与证据。
-  - 剩余：`apps/client`（RN）的设备矩阵截图运行器未落地——其无 DOM/浏览器，需真机或模拟器矩阵，属测试类任务按用户要求放最后。
+  - 2026-11-22 完成（client 设备矩阵截图运行器）：复用已搭好的 Detox 模拟器环境（emulator-5554 + mock 网关让 app idle），新增 `apps/client/e2e/visual.spec.ts`（`device.takeScreenshot()` 截首页，纯 `pngjs` 比对 `e2e/visual-compare.ts`，阈值 0.2%、忽略顶部 100px 状态栏）、基线 `e2e/visual-baselines/home.png`、`yarn e2e:visual` / `e2e:visual:update` 脚本，文档写入 `e2e/README.md`。验证证据：`visual diff home: 0.000%` → PASS（1 passed）；故意改 10000 像素 → `0.403%` → FAIL（`Expected <= 0.002`），恢复基线后再次 PASS。至此 FRONTEND_PRICEPLES 第 6/9 节五维门禁（结构/响应式/视觉一致性/性能预算/a11y）在 backstage-admin（Playwright+axe+vitest）与 apps/client（Detox 设备矩阵截图）两端均落地，含通过+故意失败证据。
 
 - [x] 撤销已泄露的 classic PAT 并从 git 历史中清除（已确认失效，不重写历史）。
   - 问题：提交 `3c07b882`（2026-05-26）在 `package.json` 的 `repository.url` 里存了明文 `ghp_…` token；当前 `package.json`、`.git/config` 与 `remote.origin.url` 已清理，`lefthook.yml:23-28` 与 `.github/workflows/secret-scan.yml` 会阻断新增泄露，但该值仍可从对象库读出，且从未被撤销或清除。本机不存在 `~/.git-credentials`（`credential.helper=manager` 把凭据存在 Windows 凭据管理器里），所以仍在使用的 classic PAT 必须到 GitHub Settings 里核查并撤销，而不是删某个文件。

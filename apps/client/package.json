@@ -12,6 +12,8 @@
     "e2e:build": "detox build --config-path e2e/detox.config.js -c android.emu.debug",
     "e2e:run": "detox test --config-path e2e/detox.config.js -c android.emu.debug",
     "e2e:mock-gateway": "node e2e/mock-gateway.js",
+    "e2e:visual": "detox test --config-path e2e/detox.config.js -c android.attached.debug e2e/visual.spec.ts",
+    "e2e:visual:update": "cross-env UPDATE_VISUAL_BASELINE=1 detox test --config-path e2e/detox.config.js -c android.attached.debug e2e/visual.spec.ts",
     "lint": "npx expo lint",
     "build:sw": "cross-env NODE_ENV=production node tools/BuildSW.js",
     "debug:sw": "node tools/BuildSW.js --sourceMap",
