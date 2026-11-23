@@ -27,7 +27,7 @@ services:
       - SPRING_REDIS_HOST=redis
       - SPRING_REDIS_PORT=6379
       - INTERNAL_TOKEN_ENABLED=true
-      - INTERNAL_TOKEN_SECRET=${INTERNAL_TOKEN_SECRET:-mwt-internal-secret-2024}
+      - INTERNAL_TOKEN_SECRET=${INTERNAL_TOKEN_SECRET:-}
       # prod profile reads its stores from application-common-prod.yml; the
       # account follows the postgres service so the two never drift apart.
       - DATASOURCE_URL=${DATASOURCE_URL:-jdbc:postgresql://postgres:5432/metawebthree}

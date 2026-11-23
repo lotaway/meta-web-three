@@ -100,7 +100,7 @@ jwt:
 internal-token:
   # Shared by the gateway (signer) and every downstream service (validator).
   # Override with INTERNAL_TOKEN_SECRET in real deployments; both sides must match.
-  secret: ${INTERNAL_TOKEN_SECRET:mwt-internal-secret-2024}
+  secret: ${INTERNAL_TOKEN_SECRET:}
   timeout-seconds: ${INTERNAL_TOKEN_TIMEOUT_SECONDS:5}
 dubbo:
   application:

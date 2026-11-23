@@ -73,6 +73,30 @@ class InternalTokenAutoConfigurationTest {
     }
 
     @Test
+    void blankSecretStillCreatesUtilityWithRandomFallback() {
+        new ApplicationContextRunner()
+                .withConfiguration(AutoConfigurations.of(InternalTokenAutoConfiguration.class))
+                .run(context -> {
+                    assertThat(context).hasSingleBean(InternalTokenUtil.class);
+                    // Fail-closed: a random secret is generated, no public default baked in.
+                    assertThat(context.getBean(InternalTokenProperties.class).getSecret()).isNull();
+                });
+    }
+
+    @Test
+    void configuredSecretSignsAndValidates() {
+        new ApplicationContextRunner()
+                .withConfiguration(AutoConfigurations.of(InternalTokenAutoConfiguration.class))
+                .withPropertyValues("internal-token.secret=real-configured-secret")
+                .run(context -> {
+                    InternalTokenUtil util = context.getBean(InternalTokenUtil.class);
+                    String token = util.generate();
+                    assertThat(util.validate(token)).isTrue();
+                    assertThat(util.validate(token + "tampered")).isFalse();
+                });
+    }
+
+    @Test
     void permissionAspectIsCreatedOnlyWhenACheckerExists() {
         new WebApplicationContextRunner()
                 .withConfiguration(AutoConfigurations.of(PermissionAutoConfiguration.class))

@@ -1,5 +1,9 @@
 package com.metawebthree.common.autoconfigure;
 
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -20,9 +24,21 @@ import com.metawebthree.common.utils.InternalTokenUtil;
 @EnableConfigurationProperties(InternalTokenProperties.class)
 public class InternalTokenAutoConfiguration {
 
+    private static final Logger log = LoggerFactory.getLogger(InternalTokenAutoConfiguration.class);
+
     @Bean
     @ConditionalOnMissingBean
     public InternalTokenUtil internalTokenUtil(InternalTokenProperties properties) {
-        return new InternalTokenUtil(properties.getSecret(), properties.getTimeoutSeconds());
+        String secret = properties.getSecret();
+        if (secret == null || secret.isBlank()) {
+            // Fail closed: an unconfigured secret gets a random per-boot value
+            // instead of a public hard-coded default. Misconfigured services
+            // will reject each other's tokens, and the warning makes the cause
+            // obvious. Real deployments must set INTERNAL_TOKEN_SECRET.
+            secret = UUID.randomUUID().toString();
+            log.warn("internal-token.secret is not configured; using a random per-boot value. "
+                + "Set INTERNAL_TOKEN_SECRET on every service (gateway and downstream) for token auth to work.");
+        }
+        return new InternalTokenUtil(secret, properties.getTimeoutSeconds());
     }
 }

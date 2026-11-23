@@ -18,7 +18,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class InternalTokenProperties {
 
     private boolean enabled = false;
-    private String secret = "mwt-internal-secret-2024";
+    private String secret;
     private long timeoutSeconds = 5;
     private List<String> excludedPaths = List.of(
             "/actuator/**", "/health", "/info", "/error",
