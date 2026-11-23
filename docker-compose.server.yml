@@ -28,7 +28,7 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
       - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
       # Must match factory-service; the gateway signs X-Internal-Token.
-      - INTERNAL_TOKEN_SECRET=${INTERNAL_TOKEN_SECRET:-}
+      - INTERNAL_TOKEN_SECRET=${INTERNAL_TOKEN_SECRET:-mwt-internal-secret-2024}
     volumes:
       - gateway_data:/server/gateway
       - ./.aws:/.aws:ro
