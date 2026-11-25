@@ -6,6 +6,7 @@ com.metawebthree.common.autoconfigure.ElasticsearchAutoConfiguration
 com.metawebthree.common.autoconfigure.RocketMQAutoConfiguration
 com.metawebthree.common.autoconfigure.ObjectStorageAutoConfiguration
 com.metawebthree.common.autoconfigure.DomainEventAutoConfiguration
+com.metawebthree.common.autoconfigure.NoOpDomainEventConfiguration
 com.metawebthree.common.autoconfigure.InternalTokenAutoConfiguration
 com.metawebthree.common.autoconfigure.InternalTokenServletFilterAutoConfiguration
 com.metawebthree.common.autoconfigure.PermissionAutoConfiguration

@@ -45,10 +45,12 @@ services:
       - INFLUX_TOKEN=${INFLUX_TOKEN:-}
       - INFLUX_ORG=${INFLUX_ORG:-meta}
       - INFLUX_BUCKET=${INFLUX_BUCKET:-telemetry}
-      # MQTT ingestion is an explicit opt-in. In prod, point MQTT_BROKER_URL at
-      # the real broker; the demo simulation profile is no longer active in prod.
+      # MQTT ingestion is an explicit opt-in (data never flows by default).
+      # Default broker points at the compose service; override via .env to use
+      # a real field broker. Topic prefix is the single source used by both the
+      # subscriber and the telemetry mapping.
       - MQTT_ENABLED=${MQTT_ENABLED:-false}
-      - MQTT_BROKER_URL=${MQTT_BROKER_URL:-tcp://localhost:1883}
+      - MQTT_BROKER_URL=${MQTT_BROKER_URL:-tcp://default-mqtt:1883}
       - MQTT_TOPIC_PREFIX=${MQTT_TOPIC_PREFIX:-mes/equipment/}
       - JAVA_OPTS=-Xms512m -Xmx1024m
     volumes:

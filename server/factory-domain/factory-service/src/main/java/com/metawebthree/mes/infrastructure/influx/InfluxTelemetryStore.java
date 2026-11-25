@@ -9,8 +9,6 @@ import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable;
 import com.metawebthree.mes.domain.entity.scada.TelemetryMetric;
 import com.metawebthree.mes.domain.entity.scada.TelemetryRecord;
-import org.springframework.stereotype.Component;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -18,7 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Component
+// Registered by InfluxConfig only when meta.influx.enabled=true, so a default
+// (Influx-disabled) deployment starts without needing an InfluxDBClient bean.
 public class InfluxTelemetryStore {
 
     private static final String MEASUREMENT = "telemetry";
