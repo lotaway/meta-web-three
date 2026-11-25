@@ -14,14 +14,6 @@ meta:
     token: ${INFLUX_TOKEN:}
     org: ${INFLUX_ORG:meta}
     bucket: ${INFLUX_BUCKET:telemetry}
-  # All MQTT connection settings are env-injected; no hard-coded broker/URL.
-  # Bare-metal default is localhost; compose overrides with the broker service name.
-  mqtt:
-    enabled: ${MQTT_ENABLED:false}
-    broker:
-      url: ${MQTT_BROKER_URL:tcp://localhost:1883}
-    topic:
-      prefix: ${MQTT_TOPIC_PREFIX:mes/equipment/}
   telemetry:
     # Protocol-agnostic field telemetry mapping. All values are overridable per
     # deployment; defaults follow common MQTT payloads and ISA-95 UNS levels.
@@ -47,6 +39,15 @@ meta:
         - temperature
         - vibration
         - pressure
+
+# MQTT connection settings (top-level so MqttConfig and the conditional
+# TelemetrySourceConfig bind the same properties). All values env-injected.
+mqtt:
+  enabled: ${MQTT_ENABLED:false}
+  broker:
+    url: ${MQTT_BROKER_URL:tcp://localhost:1883}
+  topic:
+    prefix: ${MQTT_TOPIC_PREFIX:mes/equipment/}
 spring:
   application:
     name: factory-service

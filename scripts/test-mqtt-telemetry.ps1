@@ -35,7 +35,13 @@ for ($i = 1; $i -le $Count; $i++) {
         unit = @{ temperature = 'C'; vibration = 'mm/s' }
     } | ConvertTo-Json -Compress
 
-    docker exec $BrokerContainer mosquitto_pub -h localhost -t $topic -m $payload
+    # PowerShell strips double quotes when passing a string argument to a native
+    # command, which corrupts JSON. Base64-encode in PowerShell and decode inside
+    # the container to a file, then use mosquitto_pub -f so bytes arrive intact.
+    $tmpFile = "/tmp/mqtt-it-$i.json"
+    $b64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($payload))
+    docker exec $BrokerContainer sh -c "echo $b64 | base64 -d > $tmpFile"
+    docker exec $BrokerContainer mosquitto_pub -h localhost -t $topic -f $tmpFile
     Write-Output "  [$i/$Count] $payload"
     if ($i -lt $Count) { Start-Sleep -Milliseconds $IntervalMs }
 }
