@@ -2,11 +2,13 @@ package com.metawebthree.wallet.infrastructure.solana;
 
 import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
+import org.bouncycastle.math.ec.rfc8032.Ed25519;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -21,19 +23,27 @@ public class SolanaContractClient {
         for (int i = 0; i < ALPHABET.length(); i++) BASE58_DECODE[ALPHABET.charAt(i)] = i;
     }
 
-    private static final String PROGRAM_ID = "EUDxXt8kG9o76MWGwyZCGUL1oPPnoNvmAprdZskjyBTh";
-    private static final byte[] PROGRAM_ID_BYTES = decodeBase58(PROGRAM_ID);
-    private static final byte[] TOKEN_METADATA_PROGRAM_ID_BYTES = decodeBase58("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
-    private static final byte[] SYSTEM_PROGRAM_ID_BYTES = decodeBase58("11111111111111111111111111111111");
-    private static final byte[] TOKEN_PROGRAM_ID_BYTES = decodeBase58("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
-    private static final byte[] ASSOCIATED_TOKEN_PROGRAM_ID_BYTES = decodeBase58("ATokenGPvbdGVxr1b2hvZbsiqW5xr25ix9f2JtAbjv9w");
-    private static final byte[] RENT_SYSVAR_ID_BYTES = decodeBase58("SysvarRent111111111111111111111111111111111");
-    private static final byte[] SYSTEM_SLOT_HASHES_ID_BYTES = new byte[32]; // not used directly
+    // All external program ids come from blockchain.solana.* configuration
+    // (SolanaProperties), never hardcoded here.
+    private final byte[] programId;
+    private final byte[] tokenProgramId;
+    private final byte[] associatedTokenProgramId;
+    private final byte[] tokenMetadataProgramId;
+    private final byte[] systemProgramId;
+    private final byte[] rentSysvarId;
 
     private final SolanaRpcClient rpcClient;
 
-    public SolanaContractClient(SolanaRpcClient rpcClient) {
+    public SolanaContractClient(SolanaRpcClient rpcClient, SolanaProperties properties) {
         this.rpcClient = rpcClient;
+        properties.requireDeployedAddresses();
+        this.programId = decodeBase58(properties.getProgramId());
+        SolanaProperties.Programs programs = properties.getPrograms();
+        this.tokenProgramId = decodeBase58(programs.getToken());
+        this.associatedTokenProgramId = decodeBase58(programs.getAssociatedToken());
+        this.tokenMetadataProgramId = decodeBase58(programs.getMetadata());
+        this.systemProgramId = decodeBase58(programs.getSystem());
+        this.rentSysvarId = decodeBase58(programs.getRent());
     }
 
     // ──────────────────────────────────────────────
@@ -42,16 +52,25 @@ public class SolanaContractClient {
 
     public record Pda(byte[] address, int bump) {}
 
-    public Pda findProgramAddress(List<byte[]> seeds, byte[] programId) {
-        byte[] programIdBytes = programId != null ? programId : PROGRAM_ID_BYTES;
+    public Pda findProgramAddress(List<byte[]> seeds, byte[] programIdOverride) {
+        byte[] programIdBytes = programIdOverride != null ? programIdOverride : this.programId;
         for (int bump = 255; bump >= 0; bump--) {
             try {
                 MessageDigest sha = MessageDigest.getInstance("SHA-256");
                 for (byte[] seed : seeds) sha.update(seed);
+                // Anchor's find_program_address appends the bump byte BEFORE the
+                // program id and the "ProgramDerivedAddress" marker. Omitting the
+                // bump makes every iteration hash identically and yields a wrong PDA.
+                sha.update((byte) bump);
                 sha.update(programIdBytes);
-                sha.update("ProgramDerivedAddress".getBytes());
+                sha.update("ProgramDerivedAddress".getBytes(StandardCharsets.UTF_8));
                 byte[] hash = sha.digest();
-                if ((hash[31] & 0x80) == 0 && hash[31] != 0) {
+                // A valid PDA MUST be off the ed25519 curve. Solana checks this
+                // with CompressedEdwardsY::decompress() (decompressable => on
+                // curve => skip). BC's validatePublicKeyPartial mirrors that
+                // check; validatePublicKeyFull additionally enforces subgroup
+                // order, which Solana's PDA check does NOT do.
+                if (!Ed25519.validatePublicKeyPartial(hash, 0)) {
                     return new Pda(hash, bump);
                 }
             } catch (NoSuchAlgorithmException e) {
@@ -62,7 +81,8 @@ public class SolanaContractClient {
     }
 
     public byte[] deriveMintAddress(String seedPrefix, String name, byte[] authority) {
-        return findProgramAddress(List.of(seedPrefix.getBytes(), name.getBytes(), authority), PROGRAM_ID_BYTES).address();
+        return findProgramAddress(List.of(seedPrefix.getBytes(StandardCharsets.UTF_8),
+            name.getBytes(StandardCharsets.UTF_8), authority), programId).address();
     }
 
     public byte[] deriveTokenMint(String name, byte[] authority) {
@@ -73,32 +93,44 @@ public class SolanaContractClient {
         return deriveMintAddress("sft", name, authority);
     }
 
+    /** NFT mint PDA seeds [b"mint", authority] (CreateTokenAndNFT in lib.rs:108). */
+    public byte[] deriveNftMint(byte[] authority) {
+        return findProgramAddress(List.of("mint".getBytes(StandardCharsets.UTF_8), authority), programId).address();
+    }
+
     public byte[] deriveListingAddress(byte[] seller, byte[] mint) {
-        return findProgramAddress(List.of("listing".getBytes(), seller, mint), PROGRAM_ID_BYTES).address();
+        return findProgramAddress(List.of("listing".getBytes(StandardCharsets.UTF_8), seller, mint), programId).address();
     }
 
     public byte[] deriveListingEscrow(byte[] mint) {
-        return findProgramAddress(List.of("listing_escrow".getBytes(), mint), PROGRAM_ID_BYTES).address();
+        return findProgramAddress(List.of("listing_escrow".getBytes(StandardCharsets.UTF_8), mint), programId).address();
     }
 
     public byte[] deriveActivityAddress(byte[] authority) {
-        return findProgramAddress(List.of("activity".getBytes(), authority), PROGRAM_ID_BYTES).address();
+        return findProgramAddress(List.of("activity".getBytes(StandardCharsets.UTF_8), authority), programId).address();
+    }
+
+    // Mirrors the on-chain PDA seeds [ACTIVITY, authority, b"pool"] used by
+    // participate_activity / claim_reward (lib.rs:452,487). It is NOT an ATA.
+    public byte[] deriveActivityPool(byte[] authority) {
+        return findProgramAddress(
+            List.of("activity".getBytes(StandardCharsets.UTF_8), authority, "pool".getBytes(StandardCharsets.UTF_8)), programId).address();
     }
 
     public byte[] deriveCommissionGraph(byte[] target) {
-        return findProgramAddress(List.of("commission".getBytes(), target), PROGRAM_ID_BYTES).address();
+        return findProgramAddress(List.of("commission".getBytes(StandardCharsets.UTF_8), target), programId).address();
     }
 
     public byte[] deriveCouponAddress(byte[] authority) {
-        return findProgramAddress(List.of("coupon".getBytes(), authority), PROGRAM_ID_BYTES).address();
+        return findProgramAddress(List.of("coupon".getBytes(StandardCharsets.UTF_8), authority), programId).address();
     }
 
     public byte[] deriveCouponPoolAddress(byte[] authority) {
-        return findProgramAddress(List.of("coupon".getBytes(), authority, "pool".getBytes()), PROGRAM_ID_BYTES).address();
+        return findProgramAddress(List.of("coupon".getBytes(StandardCharsets.UTF_8), authority, "pool".getBytes(StandardCharsets.UTF_8)), programId).address();
     }
 
     public byte[] deriveMetadataAddress(byte[] mint) {
-        return findProgramAddress(List.of("metadata".getBytes(), TOKEN_METADATA_PROGRAM_ID_BYTES, mint), TOKEN_METADATA_PROGRAM_ID_BYTES).address();
+        return findProgramAddress(List.of("metadata".getBytes(StandardCharsets.UTF_8), tokenMetadataProgramId, mint), tokenMetadataProgramId).address();
     }
 
     // ──────────────────────────────────────────────
@@ -108,7 +140,7 @@ public class SolanaContractClient {
     private byte[] discriminator(String methodName) {
         try {
             MessageDigest sha = MessageDigest.getInstance("SHA-256");
-            sha.update(("global:" + methodName).getBytes());
+            sha.update(("global:" + methodName).getBytes(StandardCharsets.UTF_8));
             byte[] hash = sha.digest();
             return Arrays.copyOf(hash, 8);
         } catch (NoSuchAlgorithmException e) {
@@ -117,7 +149,7 @@ public class SolanaContractClient {
     }
 
     private byte[] borshString(String s) {
-        byte[] utf8 = s.getBytes();
+        byte[] utf8 = s.getBytes(StandardCharsets.UTF_8);
         ByteBuffer buf = ByteBuffer.allocate(4 + utf8.length).order(ByteOrder.LITTLE_ENDIAN);
         buf.putInt(utf8.length);
         buf.put(utf8);
@@ -330,11 +362,11 @@ public class SolanaContractClient {
             new AccountMeta(mint, false, true),
             new AccountMeta(ata, false, true),
             new AccountMeta(meta, false, true),
-            new AccountMeta(TOKEN_METADATA_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(TOKEN_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(ASSOCIATED_TOKEN_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(SYSTEM_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(RENT_SYSVAR_ID_BYTES, false, false)
+            new AccountMeta(tokenMetadataProgramId, false, false),
+            new AccountMeta(tokenProgramId, false, false),
+            new AccountMeta(associatedTokenProgramId, false, false),
+            new AccountMeta(systemProgramId, false, false),
+            new AccountMeta(rentSysvarId, false, false)
         );
 
         byte[] data = concat(discriminator("create_token"),
@@ -343,7 +375,7 @@ public class SolanaContractClient {
             borshString(ti.uri()),
             borshU64(ti.supply()));
 
-        return buildAndSend(List.of(new SolInstruction(PROGRAM_ID_BYTES, accounts, data)), List.of(privateKey));
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, data)), List.of(privateKey));
     }
 
     public String createSft(String name, String symbol, String uri, long supply, byte[] authority, byte[] privateKey) {
@@ -356,17 +388,45 @@ public class SolanaContractClient {
             new AccountMeta(mint, false, true),
             new AccountMeta(ata, false, true),
             new AccountMeta(meta, false, true),
-            new AccountMeta(TOKEN_METADATA_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(TOKEN_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(ASSOCIATED_TOKEN_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(SYSTEM_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(RENT_SYSVAR_ID_BYTES, false, false)
+            new AccountMeta(tokenMetadataProgramId, false, false),
+            new AccountMeta(tokenProgramId, false, false),
+            new AccountMeta(associatedTokenProgramId, false, false),
+            new AccountMeta(systemProgramId, false, false),
+            new AccountMeta(rentSysvarId, false, false)
         );
 
         byte[] data = concat(discriminator("create_sft"),
             borshString(name), borshString(symbol), borshString(uri), borshU64(supply));
 
-        return buildAndSend(List.of(new SolInstruction(PROGRAM_ID_BYTES, accounts, data)), List.of(privateKey));
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, data)), List.of(privateKey));
+    }
+
+    /**
+     * Dedicated NFT instruction (supply fixed at 1 on-chain). The mint is the
+     * PDA [b"mint", authority] — not the SFT seed. Mirrors CreateTokenAndNFT
+     * accounts (lib.rs:101) and create_token_and_nft args (name, symbol, uri).
+     */
+    public String createTokenAndNft(String name, String symbol, String uri, byte[] authority, byte[] privateKey) {
+        byte[] mint = deriveNftMint(authority);
+        byte[] meta = deriveMetadataAddress(mint);
+        byte[] ata = findAssociatedTokenAddress(mint, authority);
+
+        List<AccountMeta> accounts = List.of(
+            new AccountMeta(authority, true, true),
+            new AccountMeta(mint, false, true),
+            new AccountMeta(ata, false, true),
+            new AccountMeta(meta, false, true),
+            new AccountMeta(tokenMetadataProgramId, false, false),
+            new AccountMeta(tokenProgramId, false, false),
+            new AccountMeta(associatedTokenProgramId, false, false),
+            new AccountMeta(systemProgramId, false, false),
+            new AccountMeta(rentSysvarId, false, false)
+        );
+
+        byte[] data = concat(discriminator("create_token_and_nft"),
+            borshString(name), borshString(symbol), borshString(uri));
+
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, data)), List.of(privateKey));
     }
 
     public String mintTo(byte[] mint, byte[] receiver, long amount, byte[] authority, byte[] privateKey) {
@@ -377,13 +437,13 @@ public class SolanaContractClient {
             new AccountMeta(mint, false, true),
             new AccountMeta(ata, false, true),
             new AccountMeta(receiver, false, false),
-            new AccountMeta(TOKEN_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(ASSOCIATED_TOKEN_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(SYSTEM_PROGRAM_ID_BYTES, false, false)
+            new AccountMeta(tokenProgramId, false, false),
+            new AccountMeta(associatedTokenProgramId, false, false),
+            new AccountMeta(systemProgramId, false, false)
         );
 
         byte[] data = concat(discriminator("mint_to"), borshU64(amount));
-        return buildAndSend(List.of(new SolInstruction(PROGRAM_ID_BYTES, accounts, data)), List.of(privateKey));
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, data)), List.of(privateKey));
     }
 
     public String burnTokens(byte[] mint, byte[] owner, long amount, byte[] privateKey) {
@@ -393,11 +453,11 @@ public class SolanaContractClient {
             new AccountMeta(owner, true, true),
             new AccountMeta(mint, false, true),
             new AccountMeta(ata, false, true),
-            new AccountMeta(TOKEN_PROGRAM_ID_BYTES, false, false)
+            new AccountMeta(tokenProgramId, false, false)
         );
 
         byte[] data = concat(discriminator("burn_tokens"), borshU64(amount));
-        return buildAndSend(List.of(new SolInstruction(PROGRAM_ID_BYTES, accounts, data)), List.of(privateKey));
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, data)), List.of(privateKey));
     }
 
     public String listGood(byte[] seller, byte[] mint, byte[] paymentMint, long price, long listedAmount, byte[] privateKey) {
@@ -412,14 +472,14 @@ public class SolanaContractClient {
             new AccountMeta(paymentMint, false, false),
             new AccountMeta(sellerTokenAccount, false, true),
             new AccountMeta(escrow, false, true),
-            new AccountMeta(TOKEN_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(ASSOCIATED_TOKEN_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(SYSTEM_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(RENT_SYSVAR_ID_BYTES, false, false)
+            new AccountMeta(tokenProgramId, false, false),
+            new AccountMeta(associatedTokenProgramId, false, false),
+            new AccountMeta(systemProgramId, false, false),
+            new AccountMeta(rentSysvarId, false, false)
         );
 
         byte[] data = concat(discriminator("list_good"), borshU64(price), borshU64(listedAmount));
-        return buildAndSend(List.of(new SolInstruction(PROGRAM_ID_BYTES, accounts, data)), List.of(privateKey));
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, data)), List.of(privateKey));
     }
 
     public String buyGood(byte[] buyer, byte[] seller, byte[] mint, byte[] paymentMint, byte[] listing, byte[] privateKey) {
@@ -438,33 +498,37 @@ public class SolanaContractClient {
             new AccountMeta(sellerPaymentAta, false, true),
             new AccountMeta(buyerReceiveAta, false, true),
             new AccountMeta(escrow, false, true),
-            new AccountMeta(TOKEN_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(ASSOCIATED_TOKEN_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(SYSTEM_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(RENT_SYSVAR_ID_BYTES, false, false)
+            new AccountMeta(tokenProgramId, false, false),
+            new AccountMeta(associatedTokenProgramId, false, false),
+            new AccountMeta(systemProgramId, false, false),
+            new AccountMeta(rentSysvarId, false, false)
         );
 
         byte[] data = discriminator("buy_good");
-        return buildAndSend(List.of(new SolInstruction(PROGRAM_ID_BYTES, accounts, data)), List.of(privateKey));
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, data)), List.of(privateKey));
     }
 
-    public String delistGood(byte[] seller, byte[] mint, byte[] privateKey) {
+    public String delistGood(byte[] seller, byte[] mint, byte[] paymentMint, byte[] privateKey) {
         byte[] listing = deriveListingAddress(seller, mint);
         byte[] escrow = deriveListingEscrow(mint);
         byte[] sellerTokenAccount = findAssociatedTokenAddress(mint, seller);
 
+        // Must match DelistGood's 10 accounts exactly (lib.rs:507).
         List<AccountMeta> accounts = List.of(
             new AccountMeta(seller, true, true),
             new AccountMeta(listing, false, true),
             new AccountMeta(mint, false, false),
+            new AccountMeta(paymentMint, false, false),
             new AccountMeta(sellerTokenAccount, false, true),
             new AccountMeta(escrow, false, true),
-            new AccountMeta(TOKEN_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(SYSTEM_PROGRAM_ID_BYTES, false, false)
+            new AccountMeta(tokenProgramId, false, false),
+            new AccountMeta(associatedTokenProgramId, false, false),
+            new AccountMeta(systemProgramId, false, false),
+            new AccountMeta(rentSysvarId, false, false)
         );
 
         byte[] data = discriminator("delist_good");
-        return buildAndSend(List.of(new SolInstruction(PROGRAM_ID_BYTES, accounts, data)), List.of(privateKey));
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, data)), List.of(privateKey));
     }
 
     public String createActivity(byte[] authority, long startTime, long endTime, long entryFee, int[] rewardPcts, byte[] privateKey) {
@@ -473,51 +537,79 @@ public class SolanaContractClient {
         List<AccountMeta> accounts = List.of(
             new AccountMeta(authority, true, true),
             new AccountMeta(activity, false, true),
-            new AccountMeta(SYSTEM_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(RENT_SYSVAR_ID_BYTES, false, false)
+            new AccountMeta(systemProgramId, false, false),
+            new AccountMeta(rentSysvarId, false, false)
         );
 
         byte[] data = concat(discriminator("create_activity"),
             borshI64(startTime), borshI64(endTime), borshU64(entryFee), borshU16Array(rewardPcts));
-        return buildAndSend(List.of(new SolInstruction(PROGRAM_ID_BYTES, accounts, data)), List.of(privateKey));
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, data)), List.of(privateKey));
     }
 
     public String participateActivity(byte[] participant, byte[] authority, byte[] paymentMint, byte[] privateKey) {
         byte[] activity = deriveActivityAddress(authority);
         byte[] participantTokenAccount = findAssociatedTokenAddress(paymentMint, participant);
-        byte[] poolTokenAccount = findAssociatedTokenAddress(paymentMint, activity);
+        byte[] poolTokenAccount = deriveActivityPool(authority);
 
         List<AccountMeta> accounts = List.of(
             new AccountMeta(participant, true, true),
             new AccountMeta(activity, false, true),
-            new AccountMeta(participantTokenAccount, false, true),
+            // Order must match ParticipateActivity: pool before participant ATA.
             new AccountMeta(poolTokenAccount, false, true),
+            new AccountMeta(participantTokenAccount, false, true),
             new AccountMeta(paymentMint, false, false),
-            new AccountMeta(TOKEN_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(ASSOCIATED_TOKEN_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(SYSTEM_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(RENT_SYSVAR_ID_BYTES, false, false)
+            new AccountMeta(tokenProgramId, false, false),
+            new AccountMeta(associatedTokenProgramId, false, false),
+            new AccountMeta(systemProgramId, false, false),
+            new AccountMeta(rentSysvarId, false, false)
         );
 
         byte[] data = discriminator("participate_activity");
-        return buildAndSend(List.of(new SolInstruction(PROGRAM_ID_BYTES, accounts, data)), List.of(privateKey));
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, data)), List.of(privateKey));
+    }
+
+    /** set_merkle_root(rank winner's ClaimReward accounts, root: [u8;32]). */
+    public String setMerkleRoot(byte[] authoritySigner, byte[] paymentMint, byte[] root, byte[] privateKey) {
+        byte[] activity = deriveActivityAddress(authoritySigner);
+        byte[] signerTokenAccount = findAssociatedTokenAddress(paymentMint, authoritySigner);
+        byte[] poolTokenAccount = deriveActivityPool(authoritySigner);
+
+        List<AccountMeta> accounts = List.of(
+            new AccountMeta(authoritySigner, true, true),
+            new AccountMeta(activity, false, true),
+            // ClaimReward account order: pool before winner ATA.
+            new AccountMeta(poolTokenAccount, false, true),
+            new AccountMeta(signerTokenAccount, false, true),
+            new AccountMeta(paymentMint, false, false),
+            new AccountMeta(tokenProgramId, false, false),
+            new AccountMeta(associatedTokenProgramId, false, false)
+        );
+
+        ByteArrayOutputStream dataBuf = new ByteArrayOutputStream();
+        try {
+            dataBuf.write(discriminator("set_merkle_root"));
+            dataBuf.write(root);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, dataBuf.toByteArray())), List.of(privateKey));
     }
 
     public String claimReward(byte[] winner, byte[] authority, byte[] paymentMint, int rank, List<byte[]> proof, byte[] privateKey) {
         byte[] activity = deriveActivityAddress(authority);
         byte[] winnerTokenAccount = findAssociatedTokenAddress(paymentMint, winner);
-        byte[] poolTokenAccount = findAssociatedTokenAddress(paymentMint, activity);
+        byte[] poolTokenAccount = deriveActivityPool(authority);
 
+        // ClaimReward has exactly 7 accounts (no system_program/rent).
+        // The pool PDA comes before the winner ATA, matching lib.rs:474.
         List<AccountMeta> accounts = List.of(
             new AccountMeta(winner, true, true),
             new AccountMeta(activity, false, true),
-            new AccountMeta(winnerTokenAccount, false, true),
             new AccountMeta(poolTokenAccount, false, true),
+            new AccountMeta(winnerTokenAccount, false, true),
             new AccountMeta(paymentMint, false, false),
-            new AccountMeta(TOKEN_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(ASSOCIATED_TOKEN_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(SYSTEM_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(RENT_SYSVAR_ID_BYTES, false, false)
+            new AccountMeta(tokenProgramId, false, false),
+            new AccountMeta(associatedTokenProgramId, false, false)
         );
 
         // claim_reward(rank: u8, proof: Vec<[u8;32]>)
@@ -531,7 +623,7 @@ public class SolanaContractClient {
             throw new RuntimeException(e);
         }
 
-        return buildAndSend(List.of(new SolInstruction(PROGRAM_ID_BYTES, accounts, dataBuf.toByteArray())), List.of(privateKey));
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, dataBuf.toByteArray())), List.of(privateKey));
     }
 
     public String setUpline(byte[] signer, byte[] upline, byte[] target, byte[] privateKey) {
@@ -542,12 +634,12 @@ public class SolanaContractClient {
             new AccountMeta(upline, false, false),
             new AccountMeta(commissionGraph, false, true),
             new AccountMeta(target, false, false),
-            new AccountMeta(SYSTEM_PROGRAM_ID_BYTES, false, false),
-            new AccountMeta(RENT_SYSVAR_ID_BYTES, false, false)
+            new AccountMeta(systemProgramId, false, false),
+            new AccountMeta(rentSysvarId, false, false)
         );
 
         byte[] data = discriminator("set_upline");
-        return buildAndSend(List.of(new SolInstruction(PROGRAM_ID_BYTES, accounts, data)), List.of(privateKey));
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, data)), List.of(privateKey));
     }
 
     public String distributeCommission(byte[] seller, byte[] paymentMint, long saleAmount, byte[] privateKey, byte[] uplineAta) {
@@ -558,9 +650,10 @@ public class SolanaContractClient {
         accounts.add(new AccountMeta(seller, true, true));
         accounts.add(new AccountMeta(commissionGraph, false, true));
         accounts.add(new AccountMeta(sellerAta, false, true));
-        accounts.add(new AccountMeta(paymentMint, false, false));
-        accounts.add(new AccountMeta(TOKEN_PROGRAM_ID_BYTES, false, false));
+        // DistributeCommission order: upline ATA before payment mint / token program.
         accounts.add(new AccountMeta(uplineAta, false, true));
+        accounts.add(new AccountMeta(paymentMint, false, false));
+        accounts.add(new AccountMeta(tokenProgramId, false, false));
 
         ByteArrayOutputStream dataBuf = new ByteArrayOutputStream();
         try {
@@ -570,7 +663,7 @@ public class SolanaContractClient {
             throw new RuntimeException(e);
         }
 
-        return buildAndSend(List.of(new SolInstruction(PROGRAM_ID_BYTES, accounts, dataBuf.toByteArray())), List.of(privateKey));
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, dataBuf.toByteArray())), List.of(privateKey));
     }
 
     public String createCoupon(byte[] authority, byte[] mint, long discountAmount, long maxUses, byte[] merkleRoot, long expiry, byte[] privateKey) {
@@ -582,10 +675,10 @@ public class SolanaContractClient {
         accounts.add(new AccountMeta(coupon, false, true));
         accounts.add(new AccountMeta(pool, false, true));
         accounts.add(new AccountMeta(mint, false, false));
-        accounts.add(new AccountMeta(TOKEN_PROGRAM_ID_BYTES, false, false));
-        accounts.add(new AccountMeta(ASSOCIATED_TOKEN_PROGRAM_ID_BYTES, false, false));
-        accounts.add(new AccountMeta(SYSTEM_PROGRAM_ID_BYTES, false, false));
-        accounts.add(new AccountMeta(RENT_SYSVAR_ID_BYTES, false, false));
+        accounts.add(new AccountMeta(tokenProgramId, false, false));
+        accounts.add(new AccountMeta(associatedTokenProgramId, false, false));
+        accounts.add(new AccountMeta(systemProgramId, false, false));
+        accounts.add(new AccountMeta(rentSysvarId, false, false));
 
         byte[] data;
         try {
@@ -600,7 +693,7 @@ public class SolanaContractClient {
             throw new RuntimeException(e);
         }
 
-        return buildAndSend(List.of(new SolInstruction(PROGRAM_ID_BYTES, accounts, data)), List.of(privateKey));
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, data)), List.of(privateKey));
     }
 
     public String redeemCoupon(byte[] authority, byte[] user, byte[] mint, byte[] privateKey, List<byte[]> proof) {
@@ -615,9 +708,9 @@ public class SolanaContractClient {
         accounts.add(new AccountMeta(pool, false, true));
         accounts.add(new AccountMeta(userAta, false, true));
         accounts.add(new AccountMeta(mint, false, false));
-        accounts.add(new AccountMeta(TOKEN_PROGRAM_ID_BYTES, false, false));
-        accounts.add(new AccountMeta(ASSOCIATED_TOKEN_PROGRAM_ID_BYTES, false, false));
-        accounts.add(new AccountMeta(SYSTEM_PROGRAM_ID_BYTES, false, false));
+        accounts.add(new AccountMeta(tokenProgramId, false, false));
+        accounts.add(new AccountMeta(associatedTokenProgramId, false, false));
+        accounts.add(new AccountMeta(systemProgramId, false, false));
 
         ByteArrayOutputStream dataBuf = new ByteArrayOutputStream();
         try {
@@ -628,33 +721,22 @@ public class SolanaContractClient {
             throw new RuntimeException(e);
         }
 
-        return buildAndSend(List.of(new SolInstruction(PROGRAM_ID_BYTES, accounts, dataBuf.toByteArray())), List.of(privateKey));
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, dataBuf.toByteArray())), List.of(privateKey));
     }
 
     // ──────────────────────────────────────────────
     // Helpers
     // ──────────────────────────────────────────────
 
+    /**
+     * SPL associated token account = PDA of [owner, token_program, mint] under
+     * the Associated Token Program. The old implementation hashed the seeds
+     * without the bump / program id / PDA marker, so it did NOT produce a real ATA.
+     */
     public byte[] findAssociatedTokenAddress(byte[] mint, byte[] owner) {
-        try {
-            MessageDigest sha = MessageDigest.getInstance("SHA-256");
-            sha.update(owner);
-            sha.update(TOKEN_PROGRAM_ID_BYTES);
-            sha.update(mint);
-            byte[] hash = sha.digest();
-
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            bos.write(owner);
-            bos.write(TOKEN_PROGRAM_ID_BYTES);
-            bos.write(mint);
-            bos.write(hash);
-
-            MessageDigest finalSha = MessageDigest.getInstance("SHA-256");
-            byte[] result = finalSha.digest(bos.toByteArray());
-            return result;
-        } catch (NoSuchAlgorithmException | java.io.IOException e) {
-            throw new RuntimeException(e);
-        }
+        return findProgramAddress(
+            List.of(owner, tokenProgramId, mint),
+            associatedTokenProgramId).address();
     }
 
     private static byte[] concat(byte[]... arrays) {

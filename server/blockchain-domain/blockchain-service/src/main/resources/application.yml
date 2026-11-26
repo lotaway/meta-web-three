@@ -21,11 +21,35 @@ spring:
     jdbc:
       initialize-schema: never
 blockchain:
+  # Virtual-asset / crypto features are optional and OFF by default. The normal
+  # fiat mall must work with these endpoints absent. Enable explicitly per deploy.
+  # All addresses below are deployment-specific external values; override via env.
+  solana:
+    enabled: ${BLOCKCHAIN_SOLANA_ENABLED:false}
+    rpc-url: ${SOLANA_RPC_URL:https://api.devnet.solana.com}
+    # Deployed Anchor program id (declare_id! in contracts/solana/lib.rs).
+    program-id: ${SOLANA_PROGRAM_ID:5Dk7wrWReetiNNcFbicN8ZFwXkrQeQu4LoMkhLJimGcP}
+    # Default payment mint for activities / marketplace (wrapped SOL).
+    payment-mint: ${SOLANA_PAYMENT_MINT:So11111111111111111111111111111111111111112}
+    # AES master key (64 hex chars) for managed wallet private keys. Empty = dev-only
+    # ephemeral key; wallets encrypted with a previous random key become unreadable.
+    encryption-key: ${SOLANA_ENCRYPTION_KEY:}
+    # Default activity reward split in basis points [1st, 2nd, 3rd].
+    default-reward-percentages: ${SOLANA_ACTIVITY_DEFAULT_REWARD_PERCENTAGES:5000,3000,2000}
+    programs:
+      # SPL Token program
+      token: ${SOLANA_TOKEN_PROGRAM_ID:TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA}
+      # SPL Associated Token program
+      associated-token: ${SOLANA_ASSOCIATED_TOKEN_PROGRAM_ID:ATokenGPvbdGVxr1b2hvZbsiqW5xr25ix9f2JtAbjv9w}
+      # Metaplex Token Metadata program
+      metadata: ${SOLANA_TOKEN_METADATA_PROGRAM_ID:metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s}
+      # Solana System program
+      system: ${SOLANA_SYSTEM_PROGRAM_ID:11111111111111111111111111111111}
+      # Rent sysvar
+      rent: ${SOLANA_RENT_SYSVAR_ID:SysvarRent111111111111111111111111111111111}
   evm:
     rpc-url: ${EVM_RPC_URL:https://rpc.ankr.com/eth_sepolia}
     chain-id: ${EVM_CHAIN_ID:11155111}
-  solana:
-    rpc-url: ${SOLANA_RPC_URL:https://api.devnet.solana.com}
 ---
 spring:
   config:

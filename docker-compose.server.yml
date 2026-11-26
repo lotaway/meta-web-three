@@ -194,6 +194,23 @@ services:
       target: blockchain-service
     container_name: meta-web-three-blockchain-service
     hostname: blockchain-service
+    # Re-declare the anchor env vars because a child `environment` replaces the
+    # merged one. Blockchain/virtual-asset features stay OFF unless opted in.
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CLOUD_ZOOKEEPER_CONNECT_STRING=zookeeper:2181
+      - BLOCKCHAIN_SOLANA_ENABLED=${BLOCKCHAIN_SOLANA_ENABLED:-false}
+      - SOLANA_RPC_URL=${SOLANA_RPC_URL:-https://api.devnet.solana.com}
+      - SOLANA_ENCRYPTION_KEY=${SOLANA_ENCRYPTION_KEY:-}
+      # External Solana addresses; defaults match contracts/solana + devnet.
+      - SOLANA_PROGRAM_ID=${SOLANA_PROGRAM_ID:-5Dk7wrWReetiNNcFbicN8ZFwXkrQeQu4LoMkhLJimGcP}
+      - SOLANA_PAYMENT_MINT=${SOLANA_PAYMENT_MINT:-So11111111111111111111111111111111111111112}
+      - SOLANA_ACTIVITY_DEFAULT_REWARD_PERCENTAGES=${SOLANA_ACTIVITY_DEFAULT_REWARD_PERCENTAGES:-5000,3000,2000}
+      - SOLANA_TOKEN_PROGRAM_ID=${SOLANA_TOKEN_PROGRAM_ID:-TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA}
+      - SOLANA_ASSOCIATED_TOKEN_PROGRAM_ID=${SOLANA_ASSOCIATED_TOKEN_PROGRAM_ID:-ATokenGPvbdGVxr1b2hvZbsiqW5xr25ix9f2JtAbjv9w}
+      - SOLANA_TOKEN_METADATA_PROGRAM_ID=${SOLANA_TOKEN_METADATA_PROGRAM_ID:-metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s}
+      - SOLANA_SYSTEM_PROGRAM_ID=${SOLANA_SYSTEM_PROGRAM_ID:-11111111111111111111111111111111}
+      - SOLANA_RENT_SYSVAR_ID=${SOLANA_RENT_SYSVAR_ID:-SysvarRent111111111111111111111111111111111}
     expose:
       - "10114"
     volumes:

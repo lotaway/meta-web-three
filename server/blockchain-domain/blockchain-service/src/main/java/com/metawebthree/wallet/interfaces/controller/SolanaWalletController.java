@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SolanaEnabled
 @RestController
 @RequestMapping("/api/v1/solana/wallets")
 public class SolanaWalletController {

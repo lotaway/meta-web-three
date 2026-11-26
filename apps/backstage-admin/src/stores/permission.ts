@@ -92,8 +92,11 @@ export const usePermissionStore = defineStore('permission', () => {
   // Generate the accessible route table
   const generateRoutes = (data: { menus: UmsMenu[]; username: string }) => {
     const { menus, username } = data
-    const accessedRouters = asyncRouterMap.filter(v => filterRouteByMenu(v, menus, username))
-    if (!isBlockchainEnabled) filterBlockchainRoutes(accessedRouters)
+    let accessedRouters = asyncRouterMap.filter(v => filterRouteByMenu(v, menus, username))
+    // filterBlockchainRoutes returns a NEW array (it drops top-level /blockchain
+    // and /solana routes); the old code discarded it, leaving dead menu entries
+    // when the feature is off. Reassign so the sidebar has no crypto entries.
+    if (!isBlockchainEnabled) accessedRouters = filterBlockchainRoutes(accessedRouters)
     sortRouters(accessedRouters)
     addRouters.value = accessedRouters
     routers.value = constantRouterMap.concat(accessedRouters)

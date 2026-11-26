@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+@SolanaEnabled
 @RestController
 @RequestMapping("/api/v1/solana/tokens")
 public class SolanaTokenController {

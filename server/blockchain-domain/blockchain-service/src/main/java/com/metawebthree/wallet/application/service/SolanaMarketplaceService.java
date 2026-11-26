@@ -7,7 +7,10 @@ import com.metawebthree.wallet.application.dto.ListingRequest;
 import com.metawebthree.wallet.domain.entity.SolanaListing;
 import com.metawebthree.wallet.infrastructure.persistence.repository.SolanaListingMapper;
 import com.metawebthree.wallet.infrastructure.solana.SolanaContractClient;
+import com.metawebthree.wallet.infrastructure.solana.SolanaProperties;
 import com.metawebthree.wallet.infrastructure.solana.SolanaWalletManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,14 +20,22 @@ import java.util.stream.Collectors;
 @Service
 public class SolanaMarketplaceService {
 
+    private static final Logger log = LoggerFactory.getLogger(SolanaMarketplaceService.class);
+
     private final SolanaContractClient contractClient;
     private final SolanaListingMapper listingMapper;
     private final SolanaWalletManager walletManager;
+    private final SolanaCommissionService commissionService;
+    private final SolanaProperties solanaProperties;
 
-    public SolanaMarketplaceService(SolanaContractClient contractClient, SolanaListingMapper listingMapper, SolanaWalletManager walletManager) {
+    public SolanaMarketplaceService(SolanaContractClient contractClient, SolanaListingMapper listingMapper,
+                                    SolanaWalletManager walletManager, SolanaCommissionService commissionService,
+                                    SolanaProperties solanaProperties) {
         this.contractClient = contractClient;
         this.listingMapper = listingMapper;
         this.walletManager = walletManager;
+        this.commissionService = commissionService;
+        this.solanaProperties = solanaProperties;
     }
 
     public ListingDTO createListing(ListingRequest request) {
@@ -41,7 +52,7 @@ public class SolanaMarketplaceService {
         byte[] seller = SolanaContractClient.decodeBase58(request.getSellerAddress());
         byte[] mint = SolanaContractClient.decodeBase58(request.getMintAddress());
         byte[] paymentMint = SolanaContractClient.decodeBase58(
-            request.getPaymentMintAddress() != null ? request.getPaymentMintAddress() : "So11111111111111111111111111111111111111112");
+            request.getPaymentMintAddress() != null ? request.getPaymentMintAddress() : solanaProperties.getPaymentMint());
         byte[] privateKey = walletManager.getPrivateKey(request.getSellerAddress());
 
         byte[] listing = contractClient.deriveListingAddress(seller, mint);
@@ -92,7 +103,7 @@ public class SolanaMarketplaceService {
         byte[] buyer = SolanaContractClient.decodeBase58(request.getBuyerAddress());
         byte[] seller = SolanaContractClient.decodeBase58(request.getSellerAddress());
         byte[] mint = SolanaContractClient.decodeBase58(request.getMintAddress());
-        byte[] paymentMint = SolanaContractClient.decodeBase58("So11111111111111111111111111111111111111112");
+        byte[] paymentMint = SolanaContractClient.decodeBase58(solanaProperties.getPaymentMint());
         byte[] listing = SolanaContractClient.decodeBase58(request.getListingAddress());
         byte[] privateKey = walletManager.getPrivateKey(request.getBuyerAddress());
 
@@ -101,6 +112,7 @@ public class SolanaMarketplaceService {
         SolanaListing entity = listingMapper.selectOne(
             new LambdaQueryWrapper<SolanaListing>()
                 .eq(SolanaListing::getListingAddress, request.getListingAddress()));
+        long saleAmount = entity != null && entity.getPrice() != null ? entity.getPrice() : 0L;
         if (entity != null) {
             entity.setStatus(1);
             entity.setTxSignature(txSig);
@@ -108,23 +120,41 @@ public class SolanaMarketplaceService {
             listingMapper.updateById(entity);
         }
 
+        // Optional commission linkage: only when the seller actually has an
+        // upline and the backend custodies the seller wallet. Best-effort — a
+        // commission failure must not turn a completed purchase into a failure.
+        if (saleAmount > 0 && commissionService.getUplineAddress(request.getSellerAddress()) != null) {
+            try {
+                commissionService.distributeCommission(request.getSellerAddress(), solanaProperties.getPaymentMint(), saleAmount);
+            } catch (Exception ex) {
+                log.warn("Auto-commission failed after purchase {} for seller {}: {}",
+                    request.getListingAddress(), request.getSellerAddress(), ex.getMessage());
+            }
+        }
+
         return new ListingDTO(
             request.getListingAddress(), request.getSellerAddress(), request.getMintAddress(),
-            "So11111111111111111111111111111111111111112", 0L, 0L, 1,
+            solanaProperties.getPaymentMint(), 0L, 0L, 1,
             System.currentTimeMillis() / 1000, txSig
         );
     }
 
     public String delistListing(String listingAddress, String sellerAddress, String mintAddress) {
-        byte[] seller = SolanaContractClient.decodeBase58(sellerAddress);
-        byte[] mint = SolanaContractClient.decodeBase58(mintAddress);
-        byte[] privateKey = walletManager.getPrivateKey(sellerAddress);
-
-        String txSig = contractClient.delistGood(seller, mint, privateKey);
-
         SolanaListing entity = listingMapper.selectOne(
             new LambdaQueryWrapper<SolanaListing>()
                 .eq(SolanaListing::getListingAddress, listingAddress));
+        String paymentMintAddress = entity != null && entity.getPaymentMintAddress() != null
+            && !entity.getPaymentMintAddress().isBlank()
+            ? entity.getPaymentMintAddress()
+            : solanaProperties.getPaymentMint();
+
+        byte[] seller = SolanaContractClient.decodeBase58(sellerAddress);
+        byte[] mint = SolanaContractClient.decodeBase58(mintAddress);
+        byte[] paymentMint = SolanaContractClient.decodeBase58(paymentMintAddress);
+        byte[] privateKey = walletManager.getPrivateKey(sellerAddress);
+
+        String txSig = contractClient.delistGood(seller, mint, paymentMint, privateKey);
+
         if (entity != null) {
             entity.setStatus(2);
             entity.setTxSignature(txSig);

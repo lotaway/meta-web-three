@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@SolanaEnabled
 @RestController
 @RequestMapping("/api/v1/solana/activities")
 public class SolanaActivityController {
@@ -52,8 +53,19 @@ public class SolanaActivityController {
             @RequestBody Map<String, Object> request) {
         String winner = (String) request.get("winner");
         Integer rank = request.get("rank") != null ? ((Number) request.get("rank")).intValue() : null;
+        @SuppressWarnings("unchecked")
+        List<String> proof = (List<String>) request.get("proof");
         String result = activityService.claimReward(activityAddress, winner, rank,
-            (String) request.get("authority"));
+            (String) request.get("authority"), proof);
+        return ApiResponse.success(result);
+    }
+
+    @PostMapping("/{activityAddress}/merkle-root")
+    public ApiResponse<String> setMerkleRoot(
+            @PathVariable String activityAddress,
+            @RequestBody Map<String, String> request) {
+        String result = activityService.setMerkleRoot(
+            request.get("authority"), request.get("root"));
         return ApiResponse.success(result);
     }
 }

@@ -29,17 +29,20 @@ public class SolanaWalletManager {
     private final SolanaKeypairMapper keypairMapper;
     private final byte[] masterKey;
 
-    public SolanaWalletManager(SolanaKeypairMapper keypairMapper) {
+    public SolanaWalletManager(SolanaKeypairMapper keypairMapper, SolanaProperties properties) {
         this.keypairMapper = keypairMapper;
-        String envKey = System.getenv("SOLANA_ENCRYPTION_KEY");
-        if (envKey != null && envKey.length() == 64) {
-            this.masterKey = hexToBytes(envKey);
+        // Read through Spring config (application.yml / env override), not
+        // System.getenv, so every deployment channel behaves consistently.
+        String configuredKey = properties.getEncryptionKey();
+        if (configuredKey != null && configuredKey.length() == 64) {
+            this.masterKey = hexToBytes(configuredKey);
         } else {
             byte[] generated = new byte[32];
             new SecureRandom().nextBytes(generated);
             this.masterKey = generated;
-            log.warn("SOLANA_ENCRYPTION_KEY not set or invalid; using randomly generated key. " +
-                "Set a 64-char hex key via env var SOLANA_ENCRYPTION_KEY for production.");
+            log.warn("blockchain.solana.encryption-key is not set or invalid; using a randomly " +
+                "generated key (dev only — previously stored wallets will be unreadable after " +
+                "restart). Set SOLANA_ENCRYPTION_KEY to a 64-char hex key for real deployments.");
         }
     }
 

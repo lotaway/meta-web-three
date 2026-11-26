@@ -1,14 +1,12 @@
 package com.metawebthree.wallet.application.service;
 
 import com.metawebthree.wallet.application.dto.CouponDTO;
+import com.metawebthree.wallet.infrastructure.solana.KeccakMerkle;
 import com.metawebthree.wallet.infrastructure.solana.SolanaContractClient;
 import com.metawebthree.wallet.infrastructure.solana.SolanaWalletManager;
 import org.springframework.stereotype.Service;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -79,12 +77,10 @@ public class SolanaCouponService {
     }
 
     private byte[] computeMerkleRoot(byte[] user) {
-        try {
-            MessageDigest sha = MessageDigest.getInstance("SHA-256");
-            return sha.digest(user);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
+        // On-chain redeem_coupon computes leaf = keccak256(user_pubkey) and walks
+        // the proof with sorted-pair keccak. Use the same Keccak (not SHA-256,
+        // nor Java's SHA3-256 which has different padding).
+        return KeccakMerkle.leaf(user);
     }
 
     private byte[] hexToBytes(String hex) {

@@ -86,6 +86,17 @@ public class SolanaCommissionService {
         return new CommissionDTO(graphAddress, upline, 1, 0);
     }
 
+    /** Returns the configured upline for an account, or null when none is set. */
+    public String getUplineAddress(String account) {
+        SolanaCommissionRelation relation = commissionMapper.selectOne(
+            new LambdaQueryWrapper<SolanaCommissionRelation>()
+                .eq(SolanaCommissionRelation::getAccountAddress, account));
+        return relation != null && relation.getUplineAddress() != null
+            && !relation.getUplineAddress().isBlank()
+            ? relation.getUplineAddress()
+            : null;
+    }
+
     public CommissionDTO getCommissionGraph(String account) {
         SolanaCommissionRelation entity = commissionMapper.selectOne(
             new LambdaQueryWrapper<SolanaCommissionRelation>()

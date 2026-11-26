@@ -46,7 +46,14 @@ public class SolanaTokenService {
         String txSig;
         int decimals;
 
-        if ("SFT".equals(tokenType) || "NFT".equals(tokenType)) {
+        if ("NFT".equals(tokenType)) {
+            // NFTs use the dedicated create_token_and_nft instruction (supply is
+            // fixed at 1 on-chain and the mint is PDA [mint, authority]).
+            txSig = contractClient.createTokenAndNft(request.getName(), request.getSymbol(),
+                request.getUri() != null ? request.getUri() : "", authority, privateKey);
+            mint = contractClient.deriveNftMint(authority);
+            decimals = 0;
+        } else if ("SFT".equals(tokenType)) {
             txSig = contractClient.createSft(request.getName(), request.getSymbol(),
                 request.getUri() != null ? request.getUri() : "", supply, authority, privateKey);
             mint = contractClient.deriveSftMint(request.getName(), authority);
