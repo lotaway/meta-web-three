@@ -136,6 +136,21 @@ class SolanaContractClientTest {
     }
 
     @Test
+    void treasuryPdas_matchSolanaReference() {
+        // initialize / deposit / withdraw use these two PDAs.
+        assertEquals("GKqrXNmyBCZ3EQY9ATvabhzdvQYFPDSkLvf5qeJhEEip",
+            SolanaContractClient.base58Encode(client.deriveTokenManager()));
+
+        byte[] mint = new byte[32];
+        for (int i = 0; i < 32; i++) mint[i] = (byte) (i + 32);
+        assertEquals("6khyrbjZ11WLxmo2V87gQjZy7FwpPV16jw99P7abTrzs",
+            SolanaContractClient.base58Encode(client.deriveProgramTokenAccount(mint)));
+
+        assertFalse(Ed25519.validatePublicKeyPartial(client.deriveTokenManager(), 0));
+        assertFalse(Ed25519.validatePublicKeyPartial(client.deriveProgramTokenAccount(mint), 0));
+    }
+
+    @Test
     void programId_isInjectedAndAffectsPda() {
         SolanaContractClient systemProgramClient =
             new SolanaContractClient(null, properties("11111111111111111111111111111111"));

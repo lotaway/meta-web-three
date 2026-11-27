@@ -5,6 +5,7 @@ import com.metawebthree.wallet.application.service.SolanaCommissionService;
 import com.metawebthree.wallet.application.service.SolanaCouponService;
 import com.metawebthree.wallet.application.service.SolanaMarketplaceService;
 import com.metawebthree.wallet.application.service.SolanaTokenService;
+import com.metawebthree.wallet.application.service.SolanaTreasuryService;
 import com.metawebthree.wallet.infrastructure.solana.SolanaWalletManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
@@ -28,13 +29,15 @@ class SolanaEnabledTest {
                 SolanaMarketplaceController.class,
                 SolanaCouponController.class,
                 SolanaActivityController.class,
-                SolanaCommissionController.class)
+                SolanaCommissionController.class,
+                SolanaTreasuryController.class)
             .withBean(SolanaTokenService.class, () -> mock(SolanaTokenService.class))
             .withBean(SolanaWalletManager.class, () -> mock(SolanaWalletManager.class))
             .withBean(SolanaMarketplaceService.class, () -> mock(SolanaMarketplaceService.class))
             .withBean(SolanaCouponService.class, () -> mock(SolanaCouponService.class))
             .withBean(SolanaActivityService.class, () -> mock(SolanaActivityService.class))
-            .withBean(SolanaCommissionService.class, () -> mock(SolanaCommissionService.class));
+            .withBean(SolanaCommissionService.class, () -> mock(SolanaCommissionService.class))
+            .withBean(SolanaTreasuryService.class, () -> mock(SolanaTreasuryService.class));
     }
 
     @Test
@@ -69,6 +72,7 @@ class SolanaEnabledTest {
                 assertThat(context).doesNotHaveBean(SolanaMarketplaceController.class);
                 assertThat(context).doesNotHaveBean(SolanaCouponController.class);
                 assertThat(context).doesNotHaveBean(SolanaWalletController.class);
+                assertThat(context).doesNotHaveBean(SolanaTreasuryController.class);
             });
     }
 
@@ -83,6 +87,7 @@ class SolanaEnabledTest {
                 assertThat(context).hasSingleBean(SolanaMarketplaceController.class);
                 assertThat(context).hasSingleBean(SolanaCouponController.class);
                 assertThat(context).hasSingleBean(SolanaWalletController.class);
+                assertThat(context).hasSingleBean(SolanaTreasuryController.class);
             });
     }
 }

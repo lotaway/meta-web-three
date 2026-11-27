@@ -129,6 +129,17 @@ public class SolanaContractClient {
         return findProgramAddress(List.of("coupon".getBytes(StandardCharsets.UTF_8), authority, "pool".getBytes(StandardCharsets.UTF_8)), programId).address();
     }
 
+    /** Treasury authority PDA, seeds [TOKEN_MANAGER] (seeds.rs:4). */
+    public byte[] deriveTokenManager() {
+        return findProgramAddress(List.of("token_manager".getBytes(StandardCharsets.UTF_8)), programId).address();
+    }
+
+    /** Treasury token account PDA, seeds [PROGRAM_TOKEN_ACCOUNT, mint] (seeds.rs:2). */
+    public byte[] deriveProgramTokenAccount(byte[] mint) {
+        return findProgramAddress(
+            List.of("program_token_account".getBytes(StandardCharsets.UTF_8), mint), programId).address();
+    }
+
     public byte[] deriveMetadataAddress(byte[] mint) {
         return findProgramAddress(List.of("metadata".getBytes(StandardCharsets.UTF_8), tokenMetadataProgramId, mint), tokenMetadataProgramId).address();
     }
@@ -426,6 +437,74 @@ public class SolanaContractClient {
         byte[] data = concat(discriminator("create_token_and_nft"),
             borshString(name), borshString(symbol), borshString(uri));
 
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, data)), List.of(privateKey));
+    }
+
+    /**
+     * initialize: creates the global token-manager PDA and the per-mint treasury
+     * token account. The mint must already exist (init_if_needed cannot create it
+     * without a mint signer in the account struct).
+     */
+    public String initialize(byte[] signer, byte[] mint, byte[] privateKey) {
+        byte[] tokenManager = deriveTokenManager();
+        byte[] programTokenAccount = deriveProgramTokenAccount(mint);
+
+        // Matches Initialize account order (lib.rs:63).
+        List<AccountMeta> accounts = List.of(
+            new AccountMeta(tokenManager, false, true),
+            new AccountMeta(mint, false, true),
+            new AccountMeta(programTokenAccount, false, true),
+            new AccountMeta(signer, true, true),
+            new AccountMeta(systemProgramId, false, false),
+            new AccountMeta(tokenProgramId, false, false),
+            new AccountMeta(rentSysvarId, false, false)
+        );
+
+        byte[] data = discriminator("initialize");
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, data)), List.of(privateKey));
+    }
+
+    /** deposit(amount): signer's ATA -> program treasury token account. */
+    public String deposit(byte[] signer, byte[] mint, long amount, byte[] privateKey) {
+        byte[] tokenManager = deriveTokenManager();
+        byte[] programTokenAccount = deriveProgramTokenAccount(mint);
+        byte[] senderTokenAccount = findAssociatedTokenAddress(mint, signer);
+
+        // Matches DepositAccounts account order (lib.rs:352).
+        List<AccountMeta> accounts = List.of(
+            new AccountMeta(tokenManager, false, true),
+            new AccountMeta(programTokenAccount, false, true),
+            new AccountMeta(senderTokenAccount, false, true),
+            new AccountMeta(mint, false, false),
+            new AccountMeta(signer, true, true),
+            new AccountMeta(systemProgramId, false, false),
+            new AccountMeta(tokenProgramId, false, false),
+            new AccountMeta(rentSysvarId, false, false)
+        );
+
+        byte[] data = concat(discriminator("deposit"), borshU64(amount));
+        return buildAndSend(List.of(new SolInstruction(programId, accounts, data)), List.of(privateKey));
+    }
+
+    /** withdraw(amount): program treasury token account -> signer's ATA (PDA-signed on-chain). */
+    public String withdraw(byte[] signer, byte[] mint, long amount, byte[] privateKey) {
+        byte[] tokenManager = deriveTokenManager();
+        byte[] programTokenAccount = deriveProgramTokenAccount(mint);
+        byte[] receiverTokenAccount = findAssociatedTokenAddress(mint, signer);
+
+        // Matches WithdrawAccounts account order (lib.rs:386).
+        List<AccountMeta> accounts = List.of(
+            new AccountMeta(tokenManager, false, true),
+            new AccountMeta(programTokenAccount, false, true),
+            new AccountMeta(receiverTokenAccount, false, true),
+            new AccountMeta(mint, false, false),
+            new AccountMeta(signer, true, true),
+            new AccountMeta(systemProgramId, false, false),
+            new AccountMeta(tokenProgramId, false, false),
+            new AccountMeta(rentSysvarId, false, false)
+        );
+
+        byte[] data = concat(discriminator("withdraw"), borshU64(amount));
         return buildAndSend(List.of(new SolInstruction(programId, accounts, data)), List.of(privateKey));
     }
 
