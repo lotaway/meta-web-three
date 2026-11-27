@@ -20,7 +20,7 @@ class SolanaPropertiesTest {
         runner.run(context -> {
             SolanaProperties props = context.getBean(SolanaProperties.class);
             assertThat(props.getProgramId())
-                .isEqualTo("5Dk7wrWReetiNNcFbicN8ZFwXkrQeQu4LoMkhLJimGcP");
+                .isEqualTo("FiSvBZn8sSV3r8xC6PcEC59D8oBeDUj2sdS9Jdppq9oW");
             assertThat(props.getPaymentMint())
                 .isEqualTo("So11111111111111111111111111111111111111112");
             assertThat(props.getPrograms().getToken())

@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SolanaContractClientTest {
 
-    private static final String PROGRAM_ID = "5Dk7wrWReetiNNcFbicN8ZFwXkrQeQu4LoMkhLJimGcP";
+    private static final String PROGRAM_ID = "FiSvBZn8sSV3r8xC6PcEC59D8oBeDUj2sdS9Jdppq9oW";
     private static final byte[] AUTHORITY = bytesZeroTo31();
 
     private SolanaContractClient client;
@@ -47,9 +47,9 @@ class SolanaContractClientTest {
         SolanaContractClient.Pda pda = client.findProgramAddress(
             List.of("activity".getBytes(StandardCharsets.UTF_8), AUTHORITY), null);
 
-        assertEquals("BW66v2JTPZNFBbdFufhaXgeU7i3GYDhwLwWqPKjFnA1W",
+        assertEquals("CmgA2W4PWu93H372KZdQJaDaHHnbn8tjyxK2gYEskAr2",
             SolanaContractClient.base58Encode(pda.address()));
-        assertEquals(255, pda.bump());
+        assertEquals(254, pda.bump());
         assertArrayEquals(pda.address(), client.deriveActivityAddress(AUTHORITY));
     }
 
@@ -59,9 +59,9 @@ class SolanaContractClientTest {
             List.of("activity".getBytes(StandardCharsets.UTF_8), AUTHORITY,
                 "pool".getBytes(StandardCharsets.UTF_8)), null);
 
-        assertEquals("6GDApV6WP1MsFf6hxY3XJ17G1smb4kKGznaVmYS7yPVE",
+        assertEquals("FNWCq1jpzVZEqYnSbHLPqhcKt3cnDXSU3qiZWhF3742B",
             SolanaContractClient.base58Encode(pda.address()));
-        assertEquals(253, pda.bump());
+        assertEquals(255, pda.bump());
         assertArrayEquals(pda.address(), client.deriveActivityPool(AUTHORITY));
 
         // The pool PDA must NOT be the (wrong) ATA-of-activity the old code used.
@@ -74,7 +74,7 @@ class SolanaContractClientTest {
         SolanaContractClient.Pda pda = client.findProgramAddress(
             List.of("listing".getBytes(StandardCharsets.UTF_8), AUTHORITY, AUTHORITY), null);
 
-        assertEquals("GaCksqxdfoaq8GdJHgTW5cQNog6C3eCvBUQ7BrRFSZtf",
+        assertEquals("3SHuEctD5X6qApU2weiQH9aE5XPekqrJ53sdHykDUkbe",
             SolanaContractClient.base58Encode(pda.address()));
         assertEquals(254, pda.bump());
         assertArrayEquals(pda.address(), client.deriveListingAddress(AUTHORITY, AUTHORITY));
@@ -129,7 +129,7 @@ class SolanaContractClientTest {
         // create_token_and_nft uses [b"mint", authority]; SFT uses
         // [b"sft", name, authority]. They must be different addresses.
         byte[] nftMint = client.deriveNftMint(AUTHORITY);
-        assertEquals("4Up7LLxKVMJgE2eyTeoW9pAiSMj2YVjvssfC8eUSw6Ds",
+        assertEquals("7Wb1gGFKvbburjjvQKH9DnuAVwTCGMJMuXVZ3nWCPijy",
             SolanaContractClient.base58Encode(nftMint));
         assertFalse(java.util.Arrays.equals(nftMint, client.deriveSftMint("art", AUTHORITY)));
         assertFalse(Ed25519.validatePublicKeyPartial(nftMint, 0));
@@ -138,12 +138,12 @@ class SolanaContractClientTest {
     @Test
     void treasuryPdas_matchSolanaReference() {
         // initialize / deposit / withdraw use these two PDAs.
-        assertEquals("GKqrXNmyBCZ3EQY9ATvabhzdvQYFPDSkLvf5qeJhEEip",
+        assertEquals("ADqxX3okMerKJyaQLcYL1BHearPkXzobJehcwe9Xcwb6",
             SolanaContractClient.base58Encode(client.deriveTokenManager()));
 
         byte[] mint = new byte[32];
         for (int i = 0; i < 32; i++) mint[i] = (byte) (i + 32);
-        assertEquals("6khyrbjZ11WLxmo2V87gQjZy7FwpPV16jw99P7abTrzs",
+        assertEquals("7FzEhH1T6LVPFSh3f6BFVxxNygxj4iTxu6H4TjcRKPKG",
             SolanaContractClient.base58Encode(client.deriveProgramTokenAccount(mint)));
 
         assertFalse(Ed25519.validatePublicKeyPartial(client.deriveTokenManager(), 0));

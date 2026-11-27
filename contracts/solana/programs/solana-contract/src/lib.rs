@@ -10,7 +10,7 @@ pub mod seeds;
 pub mod context;
 use context::*;
 
-declare_id!("5Dk7wrWReetiNNcFbicN8ZFwXkrQeQu4LoMkhLJimGcP");
+declare_id!("FiSvBZn8sSV3r8xC6PcEC59D8oBeDUj2sdS9Jdppq9oW");
 
 fn keccak_hashv(vals: &[&[u8]]) -> [u8; 32] {
     let mut hasher = Keccak256::new();

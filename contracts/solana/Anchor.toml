@@ -6,15 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-solana_contract = "5Dk7wrWReetiNNcFbicN8ZFwXkrQeQu4LoMkhLJimGcP"
-
-[surfpool]
-startup_wait = 15000
-shutdown_wait = 2000
-rpc_port = 18999
-ws_port = 19000
-block_production_mode = "clock"
-slot_time = 400
+solana_contract = "FiSvBZn8sSV3r8xC6PcEC59D8oBeDUj2sdS9Jdppq9oW"
 
 [provider]
 cluster = "localnet"
@@ -24,3 +16,12 @@ wallet = "~/.config/solana/id.json"
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
 
 [hooks]
+
+[surfpool]
+startup_wait = 15000
+shutdown_wait = 2000
+rpc_port = 18999
+ws_port = 19000
+host = "127.0.0.1"
+slot_time = 400
+block_production_mode = "clock"

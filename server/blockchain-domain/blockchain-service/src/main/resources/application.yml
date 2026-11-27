@@ -28,7 +28,7 @@ blockchain:
     enabled: ${BLOCKCHAIN_SOLANA_ENABLED:false}
     rpc-url: ${SOLANA_RPC_URL:https://api.devnet.solana.com}
     # Deployed Anchor program id (declare_id! in contracts/solana/lib.rs).
-    program-id: ${SOLANA_PROGRAM_ID:5Dk7wrWReetiNNcFbicN8ZFwXkrQeQu4LoMkhLJimGcP}
+    program-id: ${SOLANA_PROGRAM_ID:FiSvBZn8sSV3r8xC6PcEC59D8oBeDUj2sdS9Jdppq9oW}
     # Default payment mint for activities / marketplace (wrapped SOL).
     payment-mint: ${SOLANA_PAYMENT_MINT:So11111111111111111111111111111111111111112}
     # AES master key (64 hex chars) for managed wallet private keys. Empty = dev-only
